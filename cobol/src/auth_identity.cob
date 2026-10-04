@@ -42,9 +42,11 @@
            88  EXIT-DB-ERROR        VALUE 2.
            88  EXIT-INVALID-ACTION  VALUE 3.
            88  EXIT-INVALID-ARG    VALUE 4.
+           88  EXIT-UNAUTHORIZED    VALUE 5.
 
        01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
        01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
+       01  WS-USER-ROLE      PIC X(20) VALUE SPACES.
        
        * ---------------------------------------------------------
        * Hashing & Random Variables
@@ -98,6 +100,17 @@
                PERFORM CONNECT-DATABASE
                IF EXIT-SUCCESS
                    PERFORM PROCESS-VERIFICATION
+               ELSE
+                   PERFORM CAPTURE-SQL-ERROR
+               END-IF
+               STOP RUN WS-EXIT-CODE
+           END-IF.
+
+           * Tugas #8: Implement RBAC (Role Based Access Control)
+           IF CMD-ACTION = "CHECK_ROLE"
+               PERFORM CONNECT-DATABASE
+               IF EXIT-SUCCESS
+                   PERFORM PROCESS-CHECK-ROLE
                ELSE
                    PERFORM CAPTURE-SQL-ERROR
                END-IF
@@ -223,4 +236,28 @@
            ELSE
                MOVE 1 TO WS-EXIT-CODE
                DISPLAY "ERROR|INVALID_CODE|Verification code is incorrect or email not found"
+           END-IF.
+
+       PROCESS-CHECK-ROLE.
+           * Parameter: CMD-PARAM1=email, CMD-PARAM2=required_role
+           IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+               MOVE 4 TO WS-EXIT-CODE
+               DISPLAY "ERROR|MISSING_PARAM|Email and Required Role are required"
+               EXIT PROGRAM.
+
+           EXEC SQL
+               SELECT role FROM users WHERE email = :CMD-PARAM1
+           END-EXEC.
+
+           IF SQLCODE = 0
+               IF WS-USER-ROLE = CMD-PARAM2
+                   MOVE 0 TO WS-EXIT-CODE
+                   DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
+               ELSE
+                   MOVE 5 TO WS-EXIT-CODE
+                   DISPLAY "ERROR|UNAUTHORIZED|User does not have the required role"
+               END-IF
+           ELSE
+               MOVE 1 TO WS-EXIT-CODE
+               DISPLAY "ERROR|USER_NOT_FOUND|User not found"
            END-IF.
