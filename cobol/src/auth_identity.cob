@@ -93,10 +93,19 @@
                STOP RUN WS-EXIT-CODE
            END-IF.
 
+           * Tugas #7: Implement VERIFY_EMAIL
+           IF CMD-ACTION = "VERIFY_EMAIL"
+               PERFORM CONNECT-DATABASE
+               IF EXIT-SUCCESS
+                   PERFORM PROCESS-VERIFICATION
+               ELSE
+                   PERFORM CAPTURE-SQL-ERROR
+               END-IF
+               STOP RUN WS-EXIT-CODE
+           END-IF.
+
            * Routing Logic (To be implemented in subsequent tasks)
            EVALUATE TRUE
-               WHEN CMD-ACTION = "VERIFY_EMAIL"
-                   DISPLAY "SKELETON|VERIFY_NOT_IMPLEMENTED"
                WHEN CMD-ACTION = "AUTH_LOGIN"
                    DISPLAY "SKELETON|LOGIN_NOT_IMPLEMENTED"
                WHEN OTHER
@@ -185,20 +194,33 @@
                MOVE 2 TO WS-EXIT-CODE
                PERFORM CAPTURE-SQL-ERROR.
 
+       PROCESS-VERIFICATION.
+           * Parameter: CMD-PARAM1=email, CMD-PARAM2=code
+           IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+               MOVE 4 TO WS-EXIT-CODE
+               DISPLAY "ERROR|MISSING_PARAM|Email and Code are required"
+               EXIT PROGRAM.
 
-       CONNECT-DATABASE.
+           * 1. Validasi kode verifikasi
            EXEC SQL
-               CONNECT TO :DSN-NAME USER :DB-USER USING :DB-PASS
+               SELECT id FROM users 
+               WHERE email = :CMD-PARAM1 AND verification_code = :CMD-PARAM2
            END-EXEC.
-           IF SQLCODE = 0
-               MOVE 0 TO WS-EXIT-CODE
-           ELSE
-               MOVE 2 TO WS-EXIT-CODE
-               PERFORM CAPTURE-SQL-ERROR.
 
-       CAPTURE-SQL-ERROR.
-           MOVE SQLSTATE TO WS-SQL-STATE.
-           STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
-               " | MSG: " SQLERRMC
-               DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
-           DISPLAY "ERROR|DB_CONNECTION_FAILED|" WS-OUTPUT-MSG.
+           IF SQLCODE = 0
+               * 2. Update status menjadi VERIFIED
+               EXEC SQL
+                   UPDATE users SET status = 'VERIFIED' WHERE email = :CMD-PARAM1
+               END-EXEC.
+               
+               IF SQLCODE = 0
+                   MOVE 0 TO WS-EXIT-CODE
+                   DISPLAY "SUCCESS|EMAIL_VERIFIED|Account is now active"
+               ELSE
+                   MOVE 2 TO WS-EXIT-CODE
+                   PERFORM CAPTURE-SQL-ERROR
+               END-IF
+           ELSE
+               MOVE 1 TO WS-EXIT-CODE
+               DISPLAY "ERROR|INVALID_CODE|Verification code is incorrect or email not found"
+           END-IF.
