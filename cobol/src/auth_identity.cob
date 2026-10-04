@@ -47,10 +47,11 @@
        01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
        
        * ---------------------------------------------------------
-       * Hashing Variables
+       * Hashing & Random Variables
        * ---------------------------------------------------------
        01  WS-RAW-PASSWORD   PIC X(100) VALUE SPACES.
        01  WS-HASHED-PASS    PIC X(100) VALUE SPACES.
+       01  WS-RANDOM-CODE    PIC X(6) VALUE SPACES.
 
        LINKAGE SECTION.
        01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -166,19 +167,20 @@
            CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
                                       BY REFERENCE WS-HASHED-PASS.
 
-           * 3. Generate Kode Verifikasi 6 Angka (Sederhana untuk sekarang)
-           * Dalam implementasi penuh, kita akan menggunakan random generator yang lebih kuat
-           MOVE "123456" TO WS-OUTPUT-MSG. 
+           * 3. Generate Kode Verifikasi 6 Angka menggunakan Library C
+           CALL "generate_random_code" USING BY REFERENCE WS-RANDOM-CODE.
 
            * 4. Insert User ke Database
            EXEC SQL
                INSERT INTO users (email, password_hash, full_name, dob, status, verification_code)
-               VALUES (:CMD-PARAM1, :WS-HASHED-PASS, :CMD-PARAM3, :CMD-PARAM4, 'UNVERIFIED', '123456')
+               VALUES (:CMD-PARAM1, :WS-HASHED-PASS, :CMD-PARAM3, :CMD-PARAM4, 'UNVERIFIED', :WS-RANDOM-CODE)
            END-EXEC.
 
            IF SQLCODE = 0
                MOVE 0 TO WS-EXIT-CODE
-               DISPLAY "SUCCESS|USER_CREATED|Code: 123456"
+               STRING "SUCCESS|USER_CREATED|Code: " WS-RANDOM-CODE
+                   DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+               DISPLAY WS-OUTPUT-MSG
            ELSE
                MOVE 2 TO WS-EXIT-CODE
                PERFORM CAPTURE-SQL-ERROR.
