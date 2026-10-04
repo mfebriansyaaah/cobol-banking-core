@@ -162,10 +162,15 @@
 
        CAPTURE-SQL-ERROR.
            MOVE SQLSTATE TO WS-SQL-STATE.
-           STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
-               " | MSG: " SQLERRMC
-               DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
-           DISPLAY "ERROR|DB_CONNECTION_FAILED|" WS-OUTPUT-MSG.
+           * Menangkap pesan error dari SQLCA jika tersedia
+           IF SQLCODE NOT = 0
+               STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
+                      " | MSG: " SQLERRMC
+                      DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+           ELSE
+               MOVE "No SQL Error detected" TO WS-OUTPUT-MSG.
+           
+           DISPLAY "ERROR|DB_ERROR|" WS-OUTPUT-MSG.
 
        PROCESS-SIGNUP.
            * Parameter: CMD-PARAM1=email, CMD-PARAM2=pass, CMD-PARAM3=name, CMD-PARAM4=dob
