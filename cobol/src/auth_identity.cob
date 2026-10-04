@@ -55,6 +55,17 @@
            PERFORM INITIALIZE-PROGRAM.
            PERFORM PARSE-ARGUMENTS.
            
+           * Tugas #3: Implement Basic DB Connectivity
+           IF CMD-ACTION = "TEST_CONN"
+               PERFORM CONNECT-DATABASE
+               IF EXIT-SUCCESS
+                   DISPLAY "SUCCESS|DB_CONNECTED|Connection established successfully"
+               ELSE
+                   PERFORM CAPTURE-SQL-ERROR
+               END-IF
+               STOP RUN WS-EXIT-CODE
+           END-IF.
+
            * Routing Logic (To be implemented in subsequent tasks)
            EVALUATE TRUE
                WHEN CMD-ACTION = "REQUEST_SIGNUP"
@@ -91,3 +102,20 @@
                MOVE LS-ARG-VALUE(5) TO CMD-PARAM3.
            IF LS-ARG-COUNT >= 6
                MOVE LS-ARG-VALUE(6) TO CMD-PARAM4.
+
+       CONNECT-DATABASE.
+           EXEC SQL
+               CONNECT TO :DSN-NAME USER :DB-USER USING :DB-PASS
+           END-EXEC.
+           IF SQLCODE = 0
+               MOVE 0 TO WS-EXIT-CODE
+           ELSE
+               MOVE 2 TO WS-EXIT-CODE
+               PERFORM CAPTURE-SQL-ERROR.
+
+       CAPTURE-SQL-ERROR.
+           MOVE SQLSTATE TO WS-SQL-STATE.
+           STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
+               " | MSG: " SQLERRMC
+               DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+           DISPLAY "ERROR|DB_CONNECTION_FAILED|" WS-OUTPUT-MSG.
