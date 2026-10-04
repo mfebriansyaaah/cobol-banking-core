@@ -1,4 +1,4 @@
--- E-Wallet Secure Database Schema
+-- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0
 -- Purpose: Ensuring Financial Integrity and Strict Identity
 
@@ -14,13 +14,13 @@ CREATE TABLE IF NOT EXISTS users (
     dob DATE NOT NULL,
     status ENUM('UNVERIFIED', 'VERIFIED') DEFAULT 'UNVERIFIED',
     verification_code VARCHAR(6),
+    role ENUM('USER', 'MANAGER', 'SUPER_ADMIN') DEFAULT 'USER',
     balance DECIMAL(15,2) NOT NULL DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- 2. Tabel Ledger (The Immutable Audit Trail)
--- Setiap perubahan saldo WAJIB ada di sini. 
 CREATE TABLE IF NOT EXISTS ledger (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -43,11 +43,5 @@ CREATE TABLE IF NOT EXISTS verification_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- Indexing untuk performa
 CREATE INDEX idx_user_email ON users(email);
-CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_at);
-
--- User untuk koneksi ODBC
--- CREATE USER IF NOT EXISTS 'cobol_user'@'localhost' IDENTIFIED BY 'cobol_pass';
--- GRANT ALL PRIVILEGES ON cobol_wallet.* TO 'cobol_user'@'localhost';
--- FLUSH PRIVILEGES;
+CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_//_at);
