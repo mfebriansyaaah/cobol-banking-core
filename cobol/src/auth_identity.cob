@@ -45,6 +45,12 @@
 
        01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
        01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
+       
+       * ---------------------------------------------------------
+       * Hashing Variables
+       * ---------------------------------------------------------
+       01  WS-RAW-PASSWORD   PIC X(100) VALUE SPACES.
+       01  WS-HASHED-PASS    PIC X(100) VALUE SPACES.
 
        LINKAGE SECTION.
        01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -63,6 +69,15 @@
                ELSE
                    PERFORM CAPTURE-SQL-ERROR
                END-IF
+               STOP RUN WS-EXIT-CODE
+           END-IF.
+
+           * Tugas #4: Hashing Test (Temporary for verification)
+           IF CMD-ACTION = "TEST_HASH"
+               MOVE CMD-PARAM1 TO WS-RAW-PASSWORD
+               CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
+                                          BY REFERENCE WS-HASHED-PASS
+               DISPLAY "SUCCESS|HASHED|" WS-HASHED-PASS
                STOP RUN WS-EXIT-CODE
            END-IF.
 
