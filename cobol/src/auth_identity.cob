@@ -81,10 +81,19 @@
                STOP RUN WS-EXIT-CODE
            END-IF.
 
+           * Tugas #5: Implement REQUEST_SIGNUP
+           IF CMD-ACTION = "REQUEST_SIGNUP"
+               PERFORM CONNECT-DATABASE
+               IF EXIT-SUCCESS
+                   PERFORM PROCESS-SIGNUP
+               ELSE
+                   PERFORM CAPTURE-SQL-ERROR
+               END-IF
+               STOP RUN WS-EXIT-CODE
+           END-IF.
+
            * Routing Logic (To be implemented in subsequent tasks)
            EVALUATE TRUE
-               WHEN CMD-ACTION = "REQUEST_SIGNUP"
-                   DISPLAY "SKELETON|SIGNUP_NOT_IMPLEMENTED"
                WHEN CMD-ACTION = "VERIFY_EMAIL"
                    DISPLAY "SKELETON|VERIFY_NOT_IMPLEMENTED"
                WHEN CMD-ACTION = "AUTH_LOGIN"
@@ -117,6 +126,63 @@
                MOVE LS-ARG-VALUE(5) TO CMD-PARAM3.
            IF LS-ARG-COUNT >= 6
                MOVE LS-ARG-VALUE(6) TO CMD-PARAM4.
+
+       CONNECT-DATABASE.
+           EXEC SQL
+               CONNECT TO :DSN-NAME USER :DB-USER USING :DB-PASS
+           END-EXEC.
+           IF SQLCODE = 0
+               MOVE 0 TO WS-EXIT-CODE
+           ELSE
+               MOVE 2 TO WS-EXIT-CODE
+               PERFORM CAPTURE-SQL-ERROR.
+
+       CAPTURE-SQL-ERROR.
+           MOVE SQLSTATE TO WS-SQL-STATE.
+           STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
+               " | MSG: " SQLERRMC
+               DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+           DISPLAY "ERROR|DB_CONNECTION_FAILED|" WS-OUTPUT-MSG.
+
+       PROCESS-SIGNUP.
+           * Parameter: CMD-PARAM1=email, CMD-PARAM2=pass, CMD-PARAM3=name, CMD-PARAM4=dob
+           IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+               MOVE 4 TO WS-EXIT-CODE
+               DISPLAY "ERROR|MISSING_PARAM|Email and Password are required"
+               EXIT PROGRAM.
+
+           * 1. Cek apakah email sudah ada
+           EXEC SQL
+               SELECT id FROM users WHERE email = :CMD-PARAM1
+           END-EXEC.
+           
+           IF SQLCODE = 0
+               MOVE 1 TO WS-EXIT-CODE
+               DISPLAY "ERROR|USER_EXISTS|Email already registered"
+               EXIT PROGRAM.
+
+           * 2. Hash Password menggunakan Library C
+           MOVE CMD-PARAM2 TO WS-RAW-PASSWORD
+           CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
+                                      BY REFERENCE WS-HASHED-PASS.
+
+           * 3. Generate Kode Verifikasi 6 Angka (Sederhana untuk sekarang)
+           * Dalam implementasi penuh, kita akan menggunakan random generator yang lebih kuat
+           MOVE "123456" TO WS-OUTPUT-MSG. 
+
+           * 4. Insert User ke Database
+           EXEC SQL
+               INSERT INTO users (email, password_hash, full_name, dob, status, verification_code)
+               VALUES (:CMD-PARAM1, :WS-HASHED-PASS, :CMD-PARAM3, :CMD-PARAM4, 'UNVERIFIED', '123456')
+           END-EXEC.
+
+           IF SQLCODE = 0
+               MOVE 0 TO WS-EXIT-CODE
+               DISPLAY "SUCCESS|USER_CREATED|Code: 123456"
+           ELSE
+               MOVE 2 TO WS-EXIT-CODE
+               PERFORM CAPTURE-SQL-ERROR.
+
 
        CONNECT-DATABASE.
            EXEC SQL
