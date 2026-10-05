@@ -248,7 +248,16 @@
            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                MOVE 4 TO WS-EXIT-CODE
                DISPLAY "ERROR|MISSING_PARAM|Email and Required Role are required"
-               EXIT PROGRAM.
+               EXIT PROGRAM
+           END-IF.
+
+           IF FUNCTION TRIM(CMD-PARAM2) NOT = "USER" AND
+              FUNCTION TRIM(CMD-PARAM2) NOT = "MANAGER" AND
+              FUNCTION TRIM(CMD-PARAM2) NOT = "SUPER_ADMIN"
+               MOVE 4 TO WS-EXIT-CODE
+               DISPLAY "ERROR|INVALID_ROLE|Role must be USER, MANAGER, or SUPER_ADMIN"
+               EXIT PROGRAM
+           END-IF.
 
            EXEC SQL
                SELECT role INTO :WS-USER-ROLE
