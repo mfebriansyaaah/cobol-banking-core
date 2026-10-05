@@ -1,4 +1,4 @@
-       IDENTIFICATION DIVISION.
+﻿       IDENTIFICATION DIVISION.
        PROGRAM-ID. AUTH_IDENTITY.
        AUTHOR. COBOL BACKEND TEAM.
        DATE-WRITTEN. 2026-10-04.
@@ -251,7 +251,8 @@
                EXIT PROGRAM.
 
            EXEC SQL
-               SELECT role FROM users WHERE email = :CMD-PARAM1
+               SELECT role INTO :WS-USER-ROLE
+                FROM users WHERE email = :CMD-PARAM1
            END-EXEC.
 
            IF SQLCODE = 0
