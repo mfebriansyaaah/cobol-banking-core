@@ -46,7 +46,9 @@
 
        01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
        01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
-       01  WS-USER-ROLE      PIC X(20) VALUE SPACES.
+        01  WS-LOGIN-ATTEMPTS  PIC 9(4) VALUE 0.
+        01  WS-LOCK_STATUS       PIC X(10) VALUE "UNLOCKED".
+
        
        * ---------------------------------------------------------
        * Hashing & Random Variables
@@ -127,15 +129,24 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
 
+            IF CMD-ACTION = "AUTH_LOGIN"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-LOGIN
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
 
-           * Routing Logic (To be implemented in subsequent tasks)
-           EVALUATE TRUE
-               WHEN CMD-ACTION = "AUTH_LOGIN"
-                   DISPLAY "SKELETON|LOGIN_NOT_IMPLEMENTED"
-               WHEN OTHER
-                   MOVE 3 TO WS-EXIT-CODE
-                   DISPLAY "ERROR|INVALID_ACTION|" CMD-ACTION
-           END-EVALUATE.
+
+            * Routing Logic (To be implemented in subsequent tasks)
+            EVALUATE TRUE
+                WHEN OTHER
+                    MOVE 3 TO WS-EXIT-CODE
+                    DISPLAY "ERROR|INVALID_ACTION|" CMD-ACTION
+            END-EVALUATE.
+
 
            STOP RUN WS-EXIT-CODE.
 
@@ -218,7 +229,68 @@
                MOVE 2 TO WS-EXIT-CODE
                PERFORM CAPTURE-SQL-ERROR.
 
-       PROCESS-VERIFICATION.
+        PROCESS-LOGIN.
+            * Parameter: CMD-PARAM1=email, CMD-PARAM2=password
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Password are required"
+                EXIT PROGRAM.
+
+            * 1. Cek apakah account sedang dikunci (Account Locking)
+            EXEC SQL
+                SELECT COUNT(*) INTO :WS-LOGIN-ATTEMPTS
+                FROM login_attempts
+                WHERE email = :CMD-PARAM1
+                AND success = FALSE
+                AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)
+            END-EXEC.
+
+            IF WS-LOGIN-ATTEMPTS >= 3
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_LOCKED|Too many failed attempts. Try again in 15 mins"
+                EXIT PROGRAM.
+            END-IF.
+
+            * 2. Validasi Status VERIFIED
+            EXEC SQL
+                SELECT status INTO :WS-LOCK_STATUS
+                FROM users WHERE email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0 OR WS-LOCK_STATUS NOT = 'VERIFIED'
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|UNVERIFIED|Please verify your email first"
+                EXIT PROGRAM.
+            END-IF.
+
+            * 3. Verifikasi Password Hashing
+            MOVE CMD-PARAM2 TO WS-RAW-PASSWORD
+            CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
+                                       BY REFERENCE WS-HASHED-PASS.
+
+            EXEC SQL
+                SELECT id FROM users 
+                WHERE email = :CMD-PARAM1 AND password_hash = :WS-HASHED-PASS
+            END-EXEC.
+
+            IF SQLCODE = 0
+                * Login Sukses: Reset attempts dan log success
+                EXEC SQL
+                    INSERT INTO login_attempts (email, success) VALUES (:CMD-PARAM1, TRUE)
+                END-EXEC.
+                MOVE 0 TO WS-EXIT-CODE
+                DISPLAY "SUCCESS|LOGIN_OK|Welcome back"
+            ELSE
+                * Login Gagal: Log failure
+                EXEC SQL
+                    INSERT INTO login_attempts (email, success) VALUES (:CMD-PARAM1, FALSE)
+                END-EXEC.
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INVALID_CREDENTIALS|Wrong email or password"
+            END-IF.
+
+        PROCESS-VERIFICATION.
+
            * Parameter: CMD-PARAM1=email, CMD-PARAM2=code
            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                MOVE 4 TO WS-EXIT-CODE
