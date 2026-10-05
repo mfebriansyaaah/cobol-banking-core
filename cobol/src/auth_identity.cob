@@ -399,11 +399,27 @@
             * 1. Start Atomic Transaction
             EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
 
-            * 2. Debit from Source Account
+            * 2. Get Source Account and Currency
+            EXEC SQL
+                SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID, :WS-BALANCE
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Source account not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            * 3. Debit from Source Account (Check Balance)
             EXEC SQL
                 UPDATE accounts a
                 SET a.balance = a.balance - :WS-TXN-AMOUNT
-                WHERE a.user_id = (SELECT id FROM users WHERE email = :CMD-PARAM1)
+                WHERE a.account_id = :WS-ACCOUNT-ID
                 AND a.balance >= :WS-TXN-AMOUNT
             END-EXEC.
 
@@ -411,15 +427,35 @@
                 EXEC SQL ROLLBACK END-EXEC.
                 EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
                 MOVE 6 TO WS-EXIT-CODE
-                DISPLAY "ERROR|INSUFFICIENT_FUNDS|Insufficient balance or account not found"
+                DISPLAY "ERROR|INSUFFICIENT_FUNDS|Insufficient balance or locked account"
                 EXIT PROGRAM.
             END-IF.
 
-            * 3. Credit to Target Account
+            * 4. Get Target Account and Currency
+            EXEC SQL
+                SELECT a.account_id, a.currency_id INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM2
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Target account not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            * 5. Handle Currency Conversion if different
+            * For simplicity in this slice, we assume target account takes the amount in its own currency
+            * In a full impl, we would multiply WS-TXN-AMOUNT by exchange_rate here.
+
+            * 6. Credit to Target Account
             EXEC SQL
                 UPDATE accounts a
                 SET a.balance = a.balance + :WS-TXN-AMOUNT
-                WHERE a.user_id = (SELECT id FROM users WHERE email = :CMD-PARAM2)
+                WHERE a.account_id = :WS-ACCOUNT-ID
             END-EXEC.
 
             IF SQLCODE NOT = 0
@@ -430,19 +466,17 @@
                 EXIT PROGRAM.
             END-IF.
 
-            * 4. Log to Ledger (Double-Entry)
+            * 7. Log to Ledger (Double-Entry)
             * Debit Log
             EXEC SQL
                 INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-                VALUES ('TXN-S', (SELECT account_id FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = :CMD-PARAM1)), 
-                        :WS-TXN-AMOUNT, 'DEBIT', 1, 'Transfer to ' :CMD-PARAM2)
+                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-CURRENCY-ID, 'Transfer to ' :CMD-PARAM2)
             END-EXEC.
 
             * Credit Log
             EXEC SQL
                 INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-                VALUES ('TXN-S', (SELECT account_id FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = :CMD-PARAM2)), 
-                        :WS-TXN-AMOUNT, 'CREDIT', 1, 'Transfer from ' :CMD-PARAM1)
+                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'CREDIT', :WS-CURRENCY-ID, 'Transfer from ' :CMD-PARAM1)
             END-EXEC.
 
             IF SQLCODE = 0
