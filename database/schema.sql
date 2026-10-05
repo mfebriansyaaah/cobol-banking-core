@@ -47,3 +47,5 @@ CREATE TABLE IF NOT EXISTS verification_logs (
 CREATE INDEX idx_user_email ON users(email);
 -- Index: Speed up ledger history queries filtered by user and date
 CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_at);
+-- Index: Speed up verification code lookup by email on signup and email-change flows
+CREATE INDEX idx_verification_email ON verification_logs(email);
