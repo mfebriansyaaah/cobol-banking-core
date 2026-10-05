@@ -262,6 +262,7 @@
                         DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
                     ELSE
                         MOVE 5 TO WS-EXIT-CODE
+                        MOVE SPACES TO WS-OUTPUT-MSG
                         STRING "ERROR|UNAUTHORIZED|Required " FUNCTION TRIM(CMD-PARAM2) 
                                ", but got " FUNCTION TRIM(WS-USER-ROLE)
                             DELIMITED BY SIZE INTO WS-OUTPUT-MSG
