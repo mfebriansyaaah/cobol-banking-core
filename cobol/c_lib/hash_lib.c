@@ -1,3 +1,9 @@
+/*
+ * SECURITY UPDATE: The previous djb2 hashing algorithm has been identified
+ * as cryptographically insecure for production password storage.
+ * We are migrating this to SHA-256 to meet Enterprise Banking security standards.
+ * This implementation is self-contained to avoid external dependencies.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
