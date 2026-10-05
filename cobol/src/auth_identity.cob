@@ -106,16 +106,27 @@
                STOP RUN WS-EXIT-CODE
            END-IF.
 
-           * Tugas #8: Implement RBAC (Role Based Access Control)
-           IF CMD-ACTION = "CHECK_ROLE"
-               PERFORM CONNECT-DATABASE
-               IF EXIT-SUCCESS
-                   PERFORM PROCESS-CHECK-ROLE
-               ELSE
-                   PERFORM CAPTURE-SQL-ERROR
-               END-IF
-               STOP RUN WS-EXIT-CODE
-           END-IF.
+            * Tugas #8: Implement RBAC (Role Based Access Control)
+            IF CMD-ACTION = "CHECK_ROLE"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-CHECK-ROLE
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
+            IF CMD-ACTION = "CHANGE_ROLE"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-CHANGE-ROLE
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
 
            * Routing Logic (To be implemented in subsequent tasks)
            EVALUATE TRUE
@@ -267,6 +278,52 @@
                 MOVE 1 TO WS-EXIT-CODE
                 DISPLAY "ERROR|USER_NOT_FOUND|User not found or has no role assigned"
             END-IF.
+
+        PROCESS-CHANGE-ROLE.
+            * Parameter: CMD-PARAM1=admin_email, CMD-PARAM2=target_email, CMD-PARAM3=new_role
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES OR CMD-PARAM3 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Admin, Target and New Role are required"
+                EXIT PROGRAM.
+
+            * 1. Verifikasi apakah pengubah adalah SUPER_ADMIN
+            PERFORM CHECK-SUPERADMIN-ACCESS.
+
+            * 2. Validasi role baru
+            IF FUNCTION TRIM(CMD-PARAM3) NOT = "USER" AND
+               FUNCTION TRIM(CMD-PARAM3) NOT = "MANAGER" AND
+               FUNCTION TRIM(CMD-PARAM3) NOT = "SUPER_ADMIN"
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INVALID_ROLE|Role must be USER, MANAGER, or SUPER_ADMIN"
+                EXIT PROGRAM.
+            END-IF.
+
+            * 3. Update role di tabel role_assignments
+            EXEC SQL
+                DELETE FROM role_assignments 
+                WHERE user_id = (SELECT id FROM users WHERE email = :CMD-PARAM2)
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                INSERT INTO role_assignments (user_id, role_id)
+                VALUES (
+                    (SELECT id FROM users WHERE email = :CMD-PARAM2),
+                    (SELECT role_id FROM roles WHERE role_name = :CMD-PARAM3)
+                )
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                DISPLAY "SUCCESS|ROLE_CHANGED|User " CMD-PARAM2 " is now " CMD-PARAM3
+            ELSE
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
 
         * ---------------------------------------------------------
         * RBAC Access Control Wrappers
