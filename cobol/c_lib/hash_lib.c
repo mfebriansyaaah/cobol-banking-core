@@ -8,6 +8,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdint.h>
+#include <stddef.h>
+
+typedef struct {
+    uint8_t data[64];
+    uint32_t datalen;
+    unsigned long long bitlen;
+    uint32_t state[8];
+} SHA256_CTX;
 
 /**
  * Simple Password Hash Wrapper for COBOL
