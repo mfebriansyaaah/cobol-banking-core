@@ -29,7 +29,7 @@
         01  CMD-INPUT.
             05  CMD-ACTION    PIC X(20) VALUE SPACES.
             05  CMD-PARAM1    PIC X(100) VALUE SPACES.
-            05,  CMD-PARAM2    PIC X(100) VALUE SPACES.
+            05  CMD-PARAM2    PIC X(100) VALUE SPACES.
             05  CMD-PARAM3    PIC X(100) VALUE SPACES.
             05  CMD-PARAM4    PIC X(100) VALUE SPACES.
         
@@ -65,6 +65,10 @@
         01  WS-TXN-AMOUNT     PIC S9(12)V9(4) COMP-3.
         01  WS-TXN-REF        PIC X(50) VALUE SPACES.
         01  WS-TXN-DESC       PIC X(255) VALUE SPACES.
+        01  WS-BASE-CURR-ID    PIC 9(10) COMP-5.
+        01  WS-TARGET-CURR-ID    PIC 9(10) COMP-5.
+        01  WS-EXCHANGE-RATE      PIC S9(12)V9(6) COMP-3.
+        01  WS-CONVERTED-AMOUNT  PIC S9(12)V9(4) COMP-3.
         
         LINKAGE SECTION.
         01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -123,6 +127,16 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
             
+            IF CMD-ACTION = "CHANGE_ROLE"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-CHANGE-ROLE
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
             IF CMD-ACTION = "CHECK_BALANCE"
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
@@ -354,17 +368,7 @@
                 MOVE 2 TO WS-EXIT-CODE
                 PERFORM CAPTURE-SQL-ERROR.
 
-        CHECK-MANAGER-ACCESS.
-            MOVE "MANAGER" TO CMD-PARAM2.
-            PERFORM PROCESS-CHECK-ROLE.
-            IF WS-EXIT-CODE NOT = 0
-                MOVE 5 TO WS-EXIT-CODE
-                DISPLAY "ERROR|UNAUTHORIZED|Manager access required"
-                STOP RUN WS-EXIT-CODE
-            END-IF.
-
         PROCESS-CHECK-BALANCE.
-            * Parameter: CMD-PARAM1=email
             IF CMD-PARAM1 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
                 DISPLAY "ERROR|MISSING_PARAM|Email is required"
@@ -388,7 +392,6 @@
             END-IF.
 
         PROCESS-TRANSFER.
-            * Parameter: CMD-PARAM1=from_email, CMD-PARAM2=to_email, CMD-PARAM3=amount
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES OR CMD-PARAM3 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
                 DISPLAY "ERROR|MISSING_PARAM|From, To, and Amount are required"
@@ -396,10 +399,8 @@
 
             MOVE CMD-PARAM3 TO WS-TXN-AMOUNT.
 
-            * 1. Start Atomic Transaction
             EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
 
-            * 2. Get Source Account and Currency
             EXEC SQL
                 SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID, :WS-BALANCE
                 FROM accounts a
@@ -414,8 +415,9 @@
                 DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Source account not found"
                 EXIT PROGRAM.
             END-IF.
+            
+            MOVE WS-CURRENCY-ID TO WS-BASE-CURR-ID.
 
-            * 3. Debit from Source Account (Check Balance)
             EXEC SQL
                 UPDATE accounts a
                 SET a.balance = a.balance - :WS-TXN-AMOUNT
@@ -431,7 +433,6 @@
                 EXIT PROGRAM.
             END-IF.
 
-            * 4. Get Target Account and Currency
             EXEC SQL
                 SELECT a.account_id, a.currency_id INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID
                 FROM accounts a
@@ -446,15 +447,33 @@
                 DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Target account not found"
                 EXIT PROGRAM.
             END-IF.
+            
+            MOVE WS-CURRENCY-ID TO WS-TARGET-CURR-ID.
 
-            * 5. Handle Currency Conversion if different
-            * For simplicity in this slice, we assume target account takes the amount in its own currency
-            * In a full impl, we would multiply WS-TXN-AMOUNT by exchange_rate here.
+            IF WS-BASE-CURR-ID NOT = WS-TARGET-CURR-ID
+                EXEC SQL
+                    SELECT exchange_rate INTO :WS-EXCHANGE-RATE
+                    FROM exchange_rates
+                    WHERE base_currency_id = :WS-BASE-CURR-ID
+                    AND target_currency_id = :WS-TARGET-CURR-ID
+                END-EXEC.
 
-            * 6. Credit to Target Account
+                IF SQLCODE NOT = 0
+                    EXEC SQL ROLLBACK END-EXEC.
+                    EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                    MOVE 2 TO WS-EXIT-CODE
+                    DISPLAY "ERROR|CONVERSION_FAILED|Exchange rate not found"
+                    EXIT PROGRAM.
+                END-IF.
+                
+                COMPUTE WS-CONVERTED-AMOUNT = WS-TXN-AMOUNT * WS-EXCHANGE-RATE.
+            ELSE
+                MOVE WS-TXN-AMOUNT TO WS-CONVERTED-AMOUNT.
+            END-IF.
+
             EXEC SQL
                 UPDATE accounts a
-                SET a.balance = a.balance + :WS-TXN-AMOUNT
+                SET a.balance = a.balance + :WS-CONVERTED-AMOUNT
                 WHERE a.account_id = :WS-ACCOUNT-ID
             END-EXEC.
 
@@ -466,17 +485,14 @@
                 EXIT PROGRAM.
             END-IF.
 
-            * 7. Log to Ledger (Double-Entry)
-            * Debit Log
             EXEC SQL
                 INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-CURRENCY-ID, 'Transfer to ' :CMD-PARAM2)
+                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-BASE-CURR-ID, 'Transfer to ' :CMD-PARAM2)
             END-EXEC.
 
-            * Credit Log
             EXEC SQL
                 INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'CREDIT', :WS-CURRENCY-ID, 'Transfer from ' :CMD-PARAM1)
+                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'CREDIT', :WS-TARGET-CURR-ID, 'Transfer from ' :CMD-PARAM1)
             END-EXEC.
 
             IF SQLCODE = 0
@@ -490,3 +506,21 @@
             END-IF.
 
             EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+
+        CHECK-MANAGER-ACCESS.
+            MOVE "MANAGER" TO CMD-PARAM2.
+            PERFORM PROCESS-CHECK-ROLE.
+            IF WS-EXIT-CODE NOT = 0
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|UNAUTHORIZED|Manager access required"
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
+        CHECK-SUPERADMIN-ACCESS.
+            MOVE "SUPER_ADMIN" TO CMD-PARAM2.
+            PERFORM PROCESS-CHECK-ROLE.
+            IF WS-EXIT-CODE NOT = 0
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|UNAUTHORIZED|Super Admin access required"
+                STOP RUN WS-EXIT-CODE
+            END-IF.
