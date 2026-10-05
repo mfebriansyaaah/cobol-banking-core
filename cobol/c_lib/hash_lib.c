@@ -55,13 +55,7 @@ static unsigned int get_secure_random_uint32() {
 void generate_random_code(char* output_code) {
     if (output_code == NULL) return;
     
-    // Seed random number generator
-    static int seeded = 0;
-    if (!seeded) {
-        srand(time(NULL));
-        seeded = 1;
-    }
-
-    int code = (rand() % 900000) + 100000; // Generates number between 100000 and 999999
+    unsigned int secure_val = get_secure_random_uint32();
+    int code = (secure_val % 900000) + 100000;
     sprintf(output_code, "%06d", code);
 }
