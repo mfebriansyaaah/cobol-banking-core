@@ -44,4 +44,20 @@ CREATE TABLE IF NOT EXISTS verification_logs (
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_user_email ON users(email);
-CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_//_at);
+-- 4. Tabel Currencies (Multi-currency Support)
+CREATE TABLE IF NOT EXISTS currencies (
+    currency_id INT AUTO_INCREMENT PRIMARY KEY,
+    iso_code CHAR(3) NOT NULL UNIQUE,
+    symbol VARCHAR(5) NOT NULL,
+    precision INT DEFAULT 2,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT IGNORE INTO currencies (iso_code, symbol, precision) VALUES 
+('USD', '$', 2),
+('EUR', '€', 2),
+('IDR', 'Rp', 0),
+('GBP', '£', 2);
+
+CREATE INDEX idx_currency_iso ON currencies(iso_code);
