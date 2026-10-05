@@ -52,7 +52,7 @@
        * Hashing & Random Variables
        * ---------------------------------------------------------
        01  WS-RAW-PASSWORD   PIC X(100) VALUE SPACES.
-       01  WS-HASHED-PASS    PIC X(100) VALUE SPACES.
+       01  WS-HASHED-PASS    PIC X(72) VALUE SPACES.
        01  WS-RANDOM-CODE    PIC X(6) VALUE SPACES.
 
        LINKAGE SECTION.
