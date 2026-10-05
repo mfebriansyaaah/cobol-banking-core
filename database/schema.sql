@@ -69,5 +69,14 @@ INSERT IGNORE INTO roles (role_name, description) VALUES
 ('MANAGER', 'Branch manager with oversight capabilities'),
 ('SUPER_ADMIN', 'System administrator with full access');
 
-CREATE INDEX idx_ra_user ON role_assignments(user_id);
+-- 6. Tabel Login Attempts (Account Locking)
+CREATE TABLE IF NOT EXISTS login_attempts (
+    email VARCHAR(100) NOT NULL,
+    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    success BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (email, attempt_time)
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_login_email_time ON login_attempts(email, attempt_time);
 
