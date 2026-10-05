@@ -43,6 +43,7 @@
             88  EXIT-INVALID-ACTION  VALUE 3.
             88  EXIT-INVALID-ARG    VALUE 4.
             88  EXIT-UNAUTHORIZED    VALUE 5.
+            88  EXIT-INSUFFICIENT_FUNDS VALUE 6.
         
         01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
         01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
@@ -122,10 +123,20 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
             
-            IF CMD-ACTION = "CHANGE_ROLE"
+            IF CMD-ACTION = "CHECK_BALANCE"
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
-                    PERFORM PROCESS-CHANGE-ROLE
+                    PERFORM PROCESS-CHECK-BALANCE
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
+            IF CMD-ACTION = "TRANSFER"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-TRANSFER
                 ELSE
                     PERFORM CAPTURE-SQL-ERROR
                 END-IF
@@ -352,11 +363,96 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
 
-        CHECK-SUPERADMIN-ACCESS.
-            MOVE "SUPER_ADMIN" TO CMD-PARAM2.
-            PERFORM PROCESS-CHECK-ROLE.
-            IF WS-EXIT-CODE NOT = 0
-                MOVE 5 TO WS-EXIT-CODE
-                DISPLAY "ERROR|UNAUTHORIZED|Super Admin access required"
-                STOP RUN WS-EXIT-CODE
+        PROCESS-CHECK-BALANCE.
+            * Parameter: CMD-PARAM1=email
+            IF CMD-PARAM1 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email is required"
+                EXIT PROGRAM.
+
+            EXEC SQL
+                SELECT a.balance, a.currency_id INTO :WS-BALANCE, :WS-CURRENCY-ID
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|BALANCE|" WS-BALANCE "|CURRENCY_ID:" WS-CURRENCY-ID
+                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                DISPLAY WS-OUTPUT-MSG
+            ELSE
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|No account associated with this email"
             END-IF.
+
+        PROCESS-TRANSFER.
+            * Parameter: CMD-PARAM1=from_email, CMD-PARAM2=to_email, CMD-PARAM3=amount
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES OR CMD-PARAM3 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|From, To, and Amount are required"
+                EXIT PROGRAM.
+
+            MOVE CMD-PARAM3 TO WS-TXN-AMOUNT.
+
+            * 1. Start Atomic Transaction
+            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
+
+            * 2. Debit from Source Account
+            EXEC SQL
+                UPDATE accounts a
+                SET a.balance = a.balance - :WS-TXN-AMOUNT
+                WHERE a.user_id = (SELECT id FROM users WHERE email = :CMD-PARAM1)
+                AND a.balance >= :WS-TXN-AMOUNT
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 6 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INSUFFICIENT_FUNDS|Insufficient balance or account not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            * 3. Credit to Target Account
+            EXEC SQL
+                UPDATE accounts a
+                SET a.balance = a.balance + :WS-TXN-AMOUNT
+                WHERE a.user_id = (SELECT id FROM users WHERE email = :CMD-PARAM2)
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            * 4. Log to Ledger (Double-Entry)
+            * Debit Log
+            EXEC SQL
+                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
+                VALUES ('TXN-S', (SELECT account_id FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = :CMD-PARAM1)), 
+                        :WS-TXN-AMOUNT, 'DEBIT', 1, 'Transfer to ' :CMD-PARAM2)
+            END-EXEC.
+
+            * Credit Log
+            EXEC SQL
+                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
+                VALUES ('TXN-S', (SELECT account_id FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = :CMD-PARAM2)), 
+                        :WS-TXN-AMOUNT, 'CREDIT', 1, 'Transfer from ' :CMD-PARAM1)
+            END-EXEC.
+
+            IF SQLCODE = 0
+                EXEC SQL COMMIT END-EXEC.
+                MOVE 0 TO WS-EXIT-CODE
+                DISPLAY "SUCCESS|TRANSFER_OK|Amount transferred successfully"
+            ELSE
+                EXEC SQL ROLLBACK END-EXEC.
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
+            END-IF.
+
+            EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
