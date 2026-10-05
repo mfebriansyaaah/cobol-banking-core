@@ -3,6 +3,14 @@
 #include <stdlib.h>
 #include <time.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <wincrypt.h>
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#endif
+
 /**
  * Simple Password Hash Wrapper for COBOL
  */
