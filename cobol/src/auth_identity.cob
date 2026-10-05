@@ -243,6 +243,10 @@
                DISPLAY "ERROR|INVALID_CODE|Verification code is incorrect or email not found"
            END-IF.
 
+       * =========================================================
+       * ROLE VERIFICATION (RBAC)
+       * Validates if a specific user has the required permission
+       * =========================================================
        PROCESS-CHECK-ROLE.
            * Parameter: CMD-PARAM1=email, CMD-PARAM2=required_role
            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
