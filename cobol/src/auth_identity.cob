@@ -268,3 +268,26 @@
                 DISPLAY "ERROR|USER_NOT_FOUND|User not found or has no role assigned"
             END-IF.
 
+        * ---------------------------------------------------------
+        * RBAC Access Control Wrappers
+        * ---------------------------------------------------------
+        CHECK-MANAGER-ACCESS.
+            * Expects CMD-PARAM1=email to be set
+            MOVE "MANAGER" TO CMD-PARAM2.
+            PERFORM PROCESS-CHECK-ROLE.
+            IF WS-EXIT-CODE NOT = 0
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|UNAUTHORIZED|Manager access required"
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
+        CHECK-SUPERADMIN-ACCESS.
+            * Expects CMD-PARAM1=email to be set
+            MOVE "SUPER_ADMIN" TO CMD-PARAM2.
+            PERFORM PROCESS-CHECK-ROLE.
+            IF WS-EXIT-CODE NOT = 0
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|UNAUTHORIZED|Super Admin access required"
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
