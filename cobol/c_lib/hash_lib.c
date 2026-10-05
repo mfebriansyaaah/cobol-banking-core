@@ -28,6 +28,28 @@ void hash_password(char* password, char* output_hash) {
 }
 
 /**
+ * Fetch a secure random 32-bit integer from the OS
+ */
+static unsigned int get_secure_random_uint32() {
+    unsigned int rand_val = 0;
+#ifdef _WIN32
+    HCRYPTPROV hProvider = 0;
+    if (CryptAcquireContext(&hProvider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
+        CryptGenRandom(hProvider, sizeof(rand_val), (BYTE*)&rand_val);
+        CryptReleaseContext(hProvider, 0);
+    }
+#else
+    int fd = open("/dev/urandom", O_RDONLY);
+    if (fd != -1) {
+        read(fd, &rand_val, sizeof(rand_val));
+        close(fd);
+    }
+#endif
+    if (rand_val == 0) rand_val = 123456; // Fallback
+    return rand_val;
+}
+
+/**
  * Generate a random 6-digit code for verification
  */
 void generate_random_code(char* output_code) {
