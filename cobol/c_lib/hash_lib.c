@@ -10,6 +10,11 @@
 #include <time.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <windows.h>
+#include <wincrypt.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 typedef struct {
     uint8_t data[64];
