@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS verification_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- ============================================================
+-- SECTION 4: Performance Indexes
+-- ============================================================
 -- Index: Speed up login and email lookup queries on users table
 CREATE INDEX idx_user_email ON users(email);
 -- Index: Speed up ledger history queries filtered by user and date
