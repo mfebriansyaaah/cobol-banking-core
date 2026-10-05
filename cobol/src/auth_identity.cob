@@ -259,7 +259,11 @@
                 WHEN 0
                     IF FUNCTION TRIM(WS-USER-ROLE) = FUNCTION TRIM(CMD-PARAM2)
                         MOVE 0 TO WS-EXIT-CODE
-                        DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
+                        MOVE SPACES TO WS-OUTPUT-MSG
+                        STRING "SUCCESS|ROLE_VERIFIED|User has the required role: " 
+                               FUNCTION TRIM(WS-USER-ROLE)
+                            DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                        DISPLAY FUNCTION TRIM(WS-OUTPUT-MSG)
                     ELSE
                         MOVE 5 TO WS-EXIT-CODE
                         MOVE SPACES TO WS-OUTPUT-MSG
