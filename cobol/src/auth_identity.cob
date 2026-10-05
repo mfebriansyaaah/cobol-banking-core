@@ -189,17 +189,25 @@
                DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
            DISPLAY "ERROR|DB_CONNECTION_FAILED|" WS-OUTPUT-MSG.
 
-       PROCESS-SIGNUP.
-           * Parameter: CMD-PARAM1=email, CMD-PARAM2=pass, CMD-PARAM3=name, CMD-PARAM4=dob
-           IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
-               MOVE 4 TO WS-EXIT-CODE
-               DISPLAY "ERROR|MISSING_PARAM|Email and Password are required"
-               EXIT PROGRAM.
+        PROCESS-SIGNUP.
+            * Parameter: CMD-PARAM1=email, CMD-PARAM2=pass, CMD-PARAM3=name, CMD-PARAM4=dob
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Password are required"
+                EXIT PROGRAM.
 
-           * 1. Cek apakah email sudah ada
-           EXEC SQL
-               SELECT id FROM users WHERE email = :CMD-PARAM1
-           END-EXEC.
+            * 1. Validasi Kompleksitas Password (Min 8 chars)
+            IF FUNCTION LENGTH(CMD-PARAM2) < 8
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|WEAK_PASSWORD|Password must be at least 8 characters"
+                EXIT PROGRAM.
+            END-IF.
+
+            * 2. Cek apakah email sudah ada
+            EXEC SQL
+                SELECT id FROM users WHERE email = :CMD-PARAM1
+            END-EXEC.
+
            
            IF SQLCODE = 0
                MOVE 1 TO WS-EXIT-CODE
