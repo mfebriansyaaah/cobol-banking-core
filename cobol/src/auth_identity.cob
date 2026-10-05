@@ -1,4 +1,4 @@
-﻿       IDENTIFICATION DIVISION.
+       IDENTIFICATION DIVISION.
        PROGRAM-ID. AUTH_IDENTITY.
        AUTHOR. COBOL BACKEND TEAM.
        DATE-WRITTEN. 2026-10-04.
@@ -257,7 +257,7 @@
 
             EVALUATE SQLCODE
                 WHEN 0
-                    IF WS-USER-ROLE = CMD-PARAM2
+                    IF FUNCTION TRIM(WS-USER-ROLE) = FUNCTION TRIM(CMD-PARAM2)
                         MOVE 0 TO WS-EXIT-CODE
                         DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
                     ELSE
