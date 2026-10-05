@@ -50,7 +50,9 @@ static unsigned int get_secure_random_uint32() {
 }
 
 /**
- * Generate a random 6-digit code for verification
+ * Generate a cryptographically secure random 6-digit code for verification.
+ * Note: Replaced stdlib rand() with OS-level secure RNG to prevent predictability 
+ * in verification codes (CWE-338).
  */
 void generate_random_code(char* output_code) {
     if (output_code == NULL) return;
