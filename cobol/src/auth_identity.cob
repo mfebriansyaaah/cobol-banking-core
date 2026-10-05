@@ -262,7 +262,10 @@
                         DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
                     ELSE
                         MOVE 5 TO WS-EXIT-CODE
-                        DISPLAY "ERROR|UNAUTHORIZED|User does not have the required role"
+                        STRING "ERROR|UNAUTHORIZED|Required " FUNCTION TRIM(CMD-PARAM2) 
+                               ", but got " FUNCTION TRIM(WS-USER-ROLE)
+                            DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                        DISPLAY FUNCTION TRIM(WS-OUTPUT-MSG)
                     END-IF
                 WHEN 100
                     MOVE 1 TO WS-EXIT-CODE
