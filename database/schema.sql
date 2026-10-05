@@ -44,4 +44,4 @@ CREATE TABLE IF NOT EXISTS verification_logs (
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_user_email ON users(email);
-CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_//_at);
+CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_at);
