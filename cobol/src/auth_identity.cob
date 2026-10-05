@@ -243,26 +243,52 @@
                DISPLAY "ERROR|INVALID_CODE|Verification code is incorrect or email not found"
            END-IF.
 
+       * =========================================================
+       * ROLE VERIFICATION (RBAC)
+       * Validates if a specific user has the required permission
+       * =========================================================
        PROCESS-CHECK-ROLE.
            * Parameter: CMD-PARAM1=email, CMD-PARAM2=required_role
            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                MOVE 4 TO WS-EXIT-CODE
                DISPLAY "ERROR|MISSING_PARAM|Email and Required Role are required"
-               EXIT PROGRAM.
+               EXIT PROGRAM
+           END-IF.
+
+           IF FUNCTION TRIM(CMD-PARAM2) NOT = "USER" AND
+              FUNCTION TRIM(CMD-PARAM2) NOT = "MANAGER" AND
+              FUNCTION TRIM(CMD-PARAM2) NOT = "SUPER_ADMIN"
+               MOVE 4 TO WS-EXIT-CODE
+               DISPLAY "ERROR|INVALID_ROLE|Role must be USER, MANAGER, or SUPER_ADMIN"
+               EXIT PROGRAM
+           END-IF.
 
            EXEC SQL
-               SELECT role FROM users WHERE email = :CMD-PARAM1
+               SELECT role INTO :WS-USER-ROLE
+                FROM users WHERE email = :CMD-PARAM1
            END-EXEC.
 
-           IF SQLCODE = 0
-               IF WS-USER-ROLE = CMD-PARAM2
-                   MOVE 0 TO WS-EXIT-CODE
-                   DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
-               ELSE
-                   MOVE 5 TO WS-EXIT-CODE
-                   DISPLAY "ERROR|UNAUTHORIZED|User does not have the required role"
-               END-IF
-           ELSE
-               MOVE 1 TO WS-EXIT-CODE
-               DISPLAY "ERROR|USER_NOT_FOUND|User not found"
-           END-IF.
+            EVALUATE SQLCODE
+                WHEN 0
+                    IF FUNCTION TRIM(WS-USER-ROLE) = FUNCTION TRIM(CMD-PARAM2)
+                        MOVE 0 TO WS-EXIT-CODE
+                        MOVE SPACES TO WS-OUTPUT-MSG
+                        STRING "SUCCESS|ROLE_VERIFIED|User has the required role: " 
+                               FUNCTION TRIM(WS-USER-ROLE)
+                            DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                        DISPLAY FUNCTION TRIM(WS-OUTPUT-MSG)
+                    ELSE
+                        MOVE 5 TO WS-EXIT-CODE
+                        MOVE SPACES TO WS-OUTPUT-MSG
+                        STRING "ERROR|UNAUTHORIZED|Required " FUNCTION TRIM(CMD-PARAM2) 
+                               ", but got " FUNCTION TRIM(WS-USER-ROLE)
+                            DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                        DISPLAY FUNCTION TRIM(WS-OUTPUT-MSG)
+                    END-IF
+                WHEN 100
+                    MOVE 1 TO WS-EXIT-CODE
+                    DISPLAY "ERROR|USER_NOT_FOUND|Email not registered in the system"
+                WHEN OTHER
+                    MOVE 2 TO WS-EXIT-CODE
+                    PERFORM CAPTURE-SQL-ERROR
+            END-EVALUATE.
