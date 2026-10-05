@@ -38,6 +38,8 @@ Implement a strict identity and authentication system where COBOL handles the bu
 ## Success Criteria
 - [x] `REQUEST_SIGNUP` creates a user with `status = 'UNVERIFIED'`, generates a 6-digit secure code, and records it in `verification_logs` with a 24-hour expiry.
 - [x] `VERIFY_EMAIL` updates status to `VERIFIED` only if the code matches, is not yet used, and has not expired.
+- [x] `CHECK_ROLE` validates user roles using normalized `role_assignments` and `roles` tables.
+- [x] `CHANGE_ROLE` allows `SUPER_ADMIN` to modify user roles with strict validation.
 - [ ] `AUTH_LOGIN` returns a success code only if the user is `VERIFIED` and the password hash matches.
 - [ ] All errors return the correct Exit Code (1 for Not Found, 2 for DB Error, 4 for Invalid Arg).
 
