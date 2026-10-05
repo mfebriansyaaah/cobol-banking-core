@@ -50,12 +50,15 @@
         01  WS-LOCK_STATUS       PIC X(10) VALUE "UNLOCKED".
 
        
-       * ---------------------------------------------------------
-       * Hashing & Random Variables
-       * ---------------------------------------------------------
-       01  WS-RAW-PASSWORD   PIC X(100) VALUE SPACES.
-       01  WS-HASHED-PASS    PIC X(100) VALUE SPACES.
-       01  WS-RANDOM-CODE    PIC X(6) VALUE SPACES.
+        * ---------------------------------------------------------
+        * Hashing, Random & Verification Variables
+        * ---------------------------------------------------------
+        01  WS-RAW-PASSWORD   PIC X(100) VALUE SPACES.
+        01  WS-HASHED-PASS    PIC X(72) VALUE SPACES.
+        01  WS-RANDOM-CODE    PIC X(6) VALUE SPACES.
+        01  WS-VERIF-PURPOSE  PIC X(20) VALUE "SIGNUP".
+        01  WS-EXPIRY-DATE    PIC X(20) VALUE SPACES.
+
 
        LINKAGE SECTION.
        01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -184,10 +187,15 @@
 
        CAPTURE-SQL-ERROR.
            MOVE SQLSTATE TO WS-SQL-STATE.
-           STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
-               " | MSG: " SQLERRMC
-               DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
-           DISPLAY "ERROR|DB_CONNECTION_FAILED|" WS-OUTPUT-MSG.
+           * Menangkap pesan error dari SQLCA jika tersedia
+           IF SQLCODE NOT = 0
+               STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
+                      " | MSG: " SQLERRMC
+                      DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+           ELSE
+               MOVE "No SQL Error detected" TO WS-OUTPUT-MSG.
+           
+           DISPLAY "ERROR|DB_ERROR|" WS-OUTPUT-MSG.
 
         PROCESS-SIGNUP.
             * Parameter: CMD-PARAM1=email, CMD-PARAM2=pass, CMD-PARAM3=name, CMD-PARAM4=dob
@@ -219,10 +227,18 @@
            CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
                                       BY REFERENCE WS-HASHED-PASS.
 
-           * 3. Generate Kode Verifikasi 6 Angka menggunakan Library C
-           CALL "generate_random_code" USING BY REFERENCE WS-RANDOM-CODE.
+            * 3. Generate Kode Verifikasi 6 Angka menggunakan Library C
+            CALL "generate_random_code" USING BY REFERENCE WS-RANDOM-CODE.
+            
+            * 3.1 Simpan ke verification_logs untuk audit dan expiry
+            EXEC SQL
+                INSERT INTO verification_logs (email, code, purpose, expires_at)
+                VALUES (:CMD-PARAM1, :WS-RANDOM-CODE, :WS-VERIF-PURPOSE, 
+                        DATE_ADD(NOW(), INTERVAL 24 HOUR))
+            END-EXEC.
 
-           * 4. Insert User ke Database
+            * 4. Insert User ke Database
+
            EXEC SQL
                INSERT INTO users (email, password_hash, full_name, dob, status, verification_code)
                VALUES (:CMD-PARAM1, :WS-HASHED-PASS, :CMD-PARAM3, :CMD-PARAM4, 'UNVERIFIED', :WS-RANDOM-CODE)
@@ -311,23 +327,6 @@
                WHERE email = :CMD-PARAM1 AND verification_code = :CMD-PARAM2
            END-EXEC.
 
-           IF SQLCODE = 0
-               * 2. Update status menjadi VERIFIED
-               EXEC SQL
-                   UPDATE users SET status = 'VERIFIED' WHERE email = :CMD-PARAM1
-               END-EXEC.
-               
-               IF SQLCODE = 0
-                   MOVE 0 TO WS-EXIT-CODE
-                   DISPLAY "SUCCESS|EMAIL_VERIFIED|Account is now active"
-               ELSE
-                   MOVE 2 TO WS-EXIT-CODE
-                   PERFORM CAPTURE-SQL-ERROR
-               END-IF
-           ELSE
-               MOVE 1 TO WS-EXIT-CODE
-               DISPLAY "ERROR|INVALID_CODE|Verification code is incorrect or email not found"
-           END-IF.
 
         PROCESS-CHECK-ROLE.
             * Parameter: CMD-PARAM1=email, CMD-PARAM2=required_role
