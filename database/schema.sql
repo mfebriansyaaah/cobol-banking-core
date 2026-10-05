@@ -44,4 +44,30 @@ CREATE TABLE IF NOT EXISTS verification_logs (
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_user_email ON users(email);
-CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_//_at);
+-- 4. Tabel Roles (RBAC Definition)
+CREATE TABLE IF NOT EXISTS roles (
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    role_name ENUM('USER', 'MANAGER', 'SUPER_ADMIN') NOT NULL UNIQUE,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 5. Tabel Role Assignments (User to Role Mapping)
+CREATE TABLE IF NOT EXISTS role_assignments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    role_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_ra_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_ra_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_role (user_id, role_id)
+) ENGINE=InnoDB;
+
+-- Insert Default Roles
+INSERT IGNORE INTO roles (role_name, description) VALUES 
+('USER', 'Standard customer account'),
+('MANAGER', 'Branch manager with oversight capabilities'),
+('SUPER_ADMIN', 'System administrator with full access');
+
+CREATE INDEX idx_ra_user ON role_assignments(user_id);
+
