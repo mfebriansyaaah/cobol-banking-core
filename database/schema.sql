@@ -49,3 +49,5 @@ CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_ledger_user_date ON ledger(user_id, created_at);
 -- Index: Speed up verification code lookup by email on signup and email-change flows
 CREATE INDEX idx_verification_email ON verification_logs(email);
+-- Composite Index: Optimize the primary verification lookup query (email + purpose + unused codes)
+CREATE INDEX idx_verification_lookup ON verification_logs(email, purpose, is_used);
