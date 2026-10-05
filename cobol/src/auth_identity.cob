@@ -255,15 +255,19 @@
                 FROM users WHERE email = :CMD-PARAM1
            END-EXEC.
 
-           IF SQLCODE = 0
-               IF WS-USER-ROLE = CMD-PARAM2
-                   MOVE 0 TO WS-EXIT-CODE
-                   DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
-               ELSE
-                   MOVE 5 TO WS-EXIT-CODE
-                   DISPLAY "ERROR|UNAUTHORIZED|User does not have the required role"
-               END-IF
-           ELSE
-               MOVE 1 TO WS-EXIT-CODE
-               DISPLAY "ERROR|USER_NOT_FOUND|User not found"
-           END-IF.
+            EVALUATE SQLCODE
+                WHEN 0
+                    IF WS-USER-ROLE = CMD-PARAM2
+                        MOVE 0 TO WS-EXIT-CODE
+                        DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role"
+                    ELSE
+                        MOVE 5 TO WS-EXIT-CODE
+                        DISPLAY "ERROR|UNAUTHORIZED|User does not have the required role"
+                    END-IF
+                WHEN 100
+                    MOVE 1 TO WS-EXIT-CODE
+                    DISPLAY "ERROR|USER_NOT_FOUND|Email not registered in the system"
+                WHEN OTHER
+                    MOVE 2 TO WS-EXIT-CODE
+                    PERFORM CAPTURE-SQL-ERROR
+            END-EVALUATE.
