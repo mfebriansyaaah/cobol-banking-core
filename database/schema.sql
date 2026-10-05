@@ -78,4 +78,20 @@ INSERT IGNORE INTO exchange_rates (base_currency_id, target_currency_id, exchang
 (1, 3, 15700.00), -- USD to IDR
 (1, 4, 0.79); -- USD to GBP
 
-CREATE INDEX idx_exchange_lookup ON exchange_rates(base_currency_id, target_currency_id);
+-- 6. Tabel Accounts (User Financial Accounts)
+CREATE TABLE IF NOT EXISTS accounts (
+    account_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    currency_id INT NOT NULL,
+    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT') DEFAULT 'SAVINGS',
+    balance DECIMAL(18, 4) NOT NULL DEFAULT 0.0000,
+    status ENUM('ACTIVE', 'FROZEN', 'CLOSED') DEFAULT 'ACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_acc_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id),
+    UNIQUE KEY unique_user_currency (user_id, currency_id)
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_acc_user ON accounts(user_id);
+CREATE INDEX idx_acc_balance ON accounts(balance);
