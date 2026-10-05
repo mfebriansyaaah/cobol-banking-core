@@ -10,7 +10,7 @@ Implement a strict identity and authentication system where COBOL handles the bu
 - **Interface:** Node.js Express (via CLI Call)
 
 ## Commands
-- **Build:** `cobc -x -o cobol/bin/auth_identity.exe cobol/src/auth_identity.cob -lodbc32`
+- **Build:** `cobc -x -O3 -o cobol/bin/auth_identity.exe cobol/src/auth_identity.cob cobol/c_lib/hash_lib.c -lodbc32`
 - **Test:** `cobol/bin/auth_identity.exe REQUEST_SIGNUP "email|pass|name|dob"`
 - **Dev:** `npm run dev` (via middleware)
 
