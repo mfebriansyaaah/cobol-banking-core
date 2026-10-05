@@ -20,17 +20,23 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 2. Tabel Ledger (The Immutable Audit Trail)
+-- 7. Tabel Ledger (Refactored for Multi-Currency & Atomic Txns)
+DROP TABLE IF EXISTS ledger;
 CREATE TABLE IF NOT EXISTS ledger (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    amount DECIMAL(15,2) NOT NULL,
+    ledger_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    txn_ref VARCHAR(50) NOT NULL,
+    account_id INT NOT NULL,
+    amount DECIMAL(18, 4) NOT NULL,
     type ENUM('CREDIT', 'DEBIT') NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    txn_ref VARCHAR(50) UNIQUE,
+    currency_id INT NOT NULL,
+    description VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_ledger_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_ledger_acc FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
+    CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id)
 ) ENGINE=InnoDB;
+
+CREATE INDEX idx_ledger_txn ON ledger(txn_ref);
+CREATE INDEX idx_ledger_acc_date ON ledger(account_id, created_at);
 
 -- 3. Tabel Verification Logs (Anti-Spam & Tracking)
 CREATE TABLE IF NOT EXISTS verification_logs (
