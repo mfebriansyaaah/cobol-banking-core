@@ -1,117 +1,122 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. AUTH_IDENTITY.
-       AUTHOR. COBOL BACKEND TEAM.
-       DATE-WRITTEN. 2026-10-04.
-
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       SOURCE-COMPUTER. X86-64.
-       OBJECT-COMPUTER. X86-64.
-
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
-       * ---------------------------------------------------------
-       * SQLCA - SQL Communication Area (Required for ODBC)
-       * ---------------------------------------------------------
-       EXEC SQL INCLUDE SQLCA END-EXEC.
-
-       * ---------------------------------------------------------
-       * Connection Variables
-       * ---------------------------------------------------------
-       01  DB-CONFIG.
-           05  DSN-NAME      PIC X(30) VALUE "COBOL_MYSQL".
-           05  DB-USER       PIC X(30) VALUE "cobol_user".
-           05  DB-PASS       PIC X(30) VALUE "cobol_pass".
-
-       * ---------------------------------------------------------
-       * Command Line Arguments Parsing
-       * ---------------------------------------------------------
-       01  CMD-INPUT.
-           05  CMD-ACTION    PIC X(20) VALUE SPACES.
-           05  CMD-PARAM1    PIC X(100) VALUE SPACES.
-           05  CMD-PARAM2    PIC X(100) VALUE SPACES.
-           05  CMD-PARAM3    PIC X(100) VALUE SPACES.
-           05  CMD-PARAM4    PIC X(100) VALUE SPACES.
-
-       * ---------------------------------------------------------
-       * General Purpose Variables
-       * ---------------------------------------------------------
-       01  WS-EXIT-CODE      PIC 9(2) VALUE 0.
-           88  EXIT-SUCCESS         VALUE 0.
-           88  EXIT-NOT-FOUND       VALUE 1.
-           88  EXIT-DB-ERROR        VALUE 2.
-           88  EXIT-INVALID-ACTION  VALUE 3.
-           88  EXIT-INVALID-ARG    VALUE 4.
-           88  EXIT-UNAUTHORIZED    VALUE 5.
-
-       01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
-       01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
-        01  WS-LOGIN-ATTEMPTS  PIC 9(4) VALUE 0.
-        01  WS-LOCK_STATUS       PIC X(10) VALUE "UNLOCKED".
-
-       
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. AUTH_IDENTITY.
+        AUTHOR. COBOL BACKEND TEAM.
+        DATE-WRITTEN. 2026-10-04.
+        
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+        SOURCE-COMPUTER. X86-64.
+        OBJECT-COMPUTER. X86-64.
+        
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
         * ---------------------------------------------------------
-        * Hashing, Random & Verification Variables
+        * SQLCA - SQL Communication Area (Required for ODBC)
+        * ---------------------------------------------------------
+        EXEC SQL INCLUDE SQLCA END-EXEC.
+        
+        * ---------------------------------------------------------
+        * Connection Variables
+        * ---------------------------------------------------------
+        01  DB-CONFIG.
+            05  DSN-NAME      PIC X(30) VALUE "COBOL_MYSQL".
+            05  DB-USER       PIC X(30) VALUE "cobol_user".
+            05  DB-PASS       PIC X(30) VALUE "cobol_pass".
+        
+        * ---------------------------------------------------------
+        * Command Line Arguments Parsing
+        * ---------------------------------------------------------
+        01  CMD-INPUT.
+            05  CMD-ACTION    PIC X(20) VALUE SPACES.
+            05  CMD-PARAM1    PIC X(100) VALUE SPACES.
+            05  CMD-PARAM2    PIC X(100) VALUE SPACES.
+            05  CMD-PARAM3    PIC X(100) VALUE SPACES.
+            05  CMD-PARAM4    PIC X(100) VALUE SPACES.
+        
+        * ---------------------------------------------------------
+        * General Purpose Variables
+        * ---------------------------------------------------------
+        01  WS-EXIT-CODE      PIC 9(2) VALUE 0.
+            88  EXIT-SUCCESS         VALUE 0.
+            88  EXIT-NOT-FOUND       VALUE 1.
+            88  EXIT-DB-ERROR        VALUE 2.
+            88  EXIT-INVALID-ACTION  VALUE 3.
+            88  EXIT-INVALID-ARG    VALUE 4.
+            88  EXIT-UNAUTHORIZED    VALUE 5.
+            88  EXIT-INSUFFICIENT_FUNDS VALUE 6.
+        
+        01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
+        01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
+        01  WS-USER-ROLE      PIC X(20) VALUE SPACES.
+        
+        * ---------------------------------------------------------
+        * Hashing & Random Variables
         * ---------------------------------------------------------
         01  WS-RAW-PASSWORD   PIC X(100) VALUE SPACES.
-        01  WS-HASHED-PASS    PIC X(72) VALUE SPACES.
+        01  WS-HASHED-PASS    PIC X(100) VALUE SPACES.
         01  WS-RANDOM-CODE    PIC X(6) VALUE SPACES.
-        01  WS-VERIF-PURPOSE  PIC X(20) VALUE "SIGNUP".
-        01  WS-EXPIRY-DATE    PIC X(20) VALUE SPACES.
-
-
-       LINKAGE SECTION.
-       01  LS-ARG-COUNT      PIC 9(4) COMP-5.
-       01  LS-ARG-VALUE     PIC X(100) OCCURS 10 TIMES.
-
-       PROCEDURE DIVISION USING LS-ARG-COUNT LS-ARG-VALUE.
-       MAIN-LOGIC.
-           PERFORM INITIALIZE-PROGRAM.
-           PERFORM PARSE-ARGUMENTS.
-           
-           * Tugas #3: Implement Basic DB Connectivity
-           IF CMD-ACTION = "TEST_CONN"
-               PERFORM CONNECT-DATABASE
-               IF EXIT-SUCCESS
-                   DISPLAY "SUCCESS|DB_CONNECTED|Connection established successfully"
-               ELSE
-                   PERFORM CAPTURE-SQL-ERROR
-               END-IF
-               STOP RUN WS-EXIT-CODE
-           END-IF.
-
-           * Tugas #4: Hashing Test (Temporary for verification)
-           IF CMD-ACTION = "TEST_HASH"
-               MOVE CMD-PARAM1 TO WS-RAW-PASSWORD
-               CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
-                                          BY REFERENCE WS-HASHED-PASS
-               DISPLAY "SUCCESS|HASHED|" WS-HASHED-PASS
-               STOP RUN WS-EXIT-CODE
-           END-IF.
-
-           * Tugas #5: Implement REQUEST_SIGNUP
-           IF CMD-ACTION = "REQUEST_SIGNUP"
-               PERFORM CONNECT-DATABASE
-               IF EXIT-SUCCESS
-                   PERFORM PROCESS-SIGNUP
-               ELSE
-                   PERFORM CAPTURE-SQL-ERROR
-               END-IF
-               STOP RUN WS-EXIT-CODE
-           END-IF.
-
-           * Tugas #7: Implement VERIFY_EMAIL
-           IF CMD-ACTION = "VERIFY_EMAIL"
-               PERFORM CONNECT-DATABASE
-               IF EXIT-SUCCESS
-                   PERFORM PROCESS-VERIFICATION
-               ELSE
-                   PERFORM CAPTURE-SQL-ERROR
-               END-IF
-               STOP RUN WS-EXIT-CODE
-           END-IF.
-
-            * Tugas #8: Implement RBAC (Role Based Access Control)
+        
+        * ---------------------------------------------------------
+        * Ledger & Transaction Variables
+        * ---------------------------------------------------------
+        01  WS-ACCOUNT-ID      PIC 9(10) COMP-5.
+        01  WS-CURRENCY-ID    PIC 9(10) COMP-5.
+        01  WS-BALANCE        PIC S9(12)V9(4) COMP-3.
+        01  WS-TXN-AMOUNT     PIC S9(12)V9(4) COMP-3.
+        01  WS-TXN-REF        PIC X(50) VALUE SPACES.
+        01  WS-TXN-DESC       PIC X(255) VALUE SPACES.
+        01  WS-BASE-CURR-ID    PIC 9(10) COMP-5.
+        01  WS-TARGET-CURR-ID    PIC 9(10) COMP-5.
+        01  WS-EXCHANGE-RATE      PIC S9(12)V9(6) COMP-3.
+        01  WS-CONVERTED-AMOUNT  PIC S9(12)V9(4) COMP-3.
+        
+        LINKAGE SECTION.
+        01  LS-ARG-COUNT      PIC 9(4) COMP-5.
+        01  LS-ARG-VALUE     PIC X(100) OCCURS 10 TIMES.
+        
+        PROCEDURE DIVISION USING LS-ARG-COUNT LS-ARG-VALUE.
+        MAIN-LOGIC.
+            PERFORM INITIALIZE-PROGRAM.
+            PERFORM PARSE-ARGUMENTS.
+            
+            IF CMD-ACTION = "TEST_CONN"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    DISPLAY "SUCCESS|DB_CONNECTED|Connection established successfully"
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
+            IF CMD-ACTION = "TEST_HASH"
+                MOVE CMD-PARAM1 TO WS-RAW-PASSWORD
+                CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
+                                           BY REFERENCE WS-HASHED-PASS
+                DISPLAY "SUCCESS|HASHED|" WS-HASHED-PASS
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
+            IF CMD-ACTION = "REQUEST_SIGNUP"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-SIGNUP
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
+            IF CMD-ACTION = "VERIFY_EMAIL"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-VERIFICATION
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
             IF CMD-ACTION = "CHECK_ROLE"
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
@@ -121,7 +126,7 @@
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
-
+            
             IF CMD-ACTION = "CHANGE_ROLE"
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
@@ -132,210 +137,173 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
 
-            IF CMD-ACTION = "AUTH_LOGIN"
+            IF CMD-ACTION = "CHECK_BALANCE"
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
-                    PERFORM PROCESS-LOGIN
+                    PERFORM PROCESS-CHECK-BALANCE
                 ELSE
                     PERFORM CAPTURE-SQL-ERROR
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
-
-
-            * Routing Logic (To be implemented in subsequent tasks)
+            
+            IF CMD-ACTION = "TRANSFER"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-TRANSFER
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
             EVALUATE TRUE
+                WHEN CMD-ACTION = "AUTH_LOGIN"
+                    DISPLAY "SKELETON|LOGIN_NOT_IMPLEMENTED"
                 WHEN OTHER
                     MOVE 3 TO WS-EXIT-CODE
                     DISPLAY "ERROR|INVALID_ACTION|" CMD-ACTION
             END-EVALUATE.
-
-
-           STOP RUN WS-EXIT-CODE.
-
-       INITIALIZE-PROGRAM.
-           MOVE 0 TO WS-EXIT-CODE.
-           MOVE SPACES TO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, 
-                          CMD-PARAM3, CMD-PARAM4.
-
-       PARSE-ARGUMENTS.
-           IF LS-ARG-COUNT >= 2
-               MOVE LS-ARG-VALUE(2) TO CMD-ACTION
-           ELSE
-               MOVE 4 TO WS-EXIT-CODE
-               DISPLAY "ERROR|MISSING_ACTION|Action is required"
-               STOP RUN WS-EXIT-CODE.
-
-           IF LS-ARG-COUNT >= 3
-               MOVE LS-ARG-VALUE(3) TO CMD-PARAM1.
-           IF LS-ARG-COUNT >= 4
-               MOVE LS-ARG-VALUE(4) TO CMD-PARAM2.
-           IF LS-ARG-COUNT >= 5
-               MOVE LS-ARG-VALUE(5) TO CMD-PARAM3.
-           IF LS-ARG-COUNT >= 6
-               MOVE LS-ARG-VALUE(6) TO CMD-PARAM4.
-
-       CONNECT-DATABASE.
-           EXEC SQL
-               CONNECT TO :DSN-NAME USER :DB-USER USING :DB-PASS
-           END-EXEC.
-           IF SQLCODE = 0
-               MOVE 0 TO WS-EXIT-CODE
-           ELSE
-               MOVE 2 TO WS-EXIT-CODE
-               PERFORM CAPTURE-SQL-ERROR.
-
-       CAPTURE-SQL-ERROR.
-           MOVE SQLSTATE TO WS-SQL-STATE.
-           * Menangkap pesan error dari SQLCA jika tersedia
-           IF SQLCODE NOT = 0
-               STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
-                      " | MSG: " SQLERRMC
-                      DELIMITED BY SIZE INTO WS-OUTPUT-MSG
-           ELSE
-               MOVE "No SQL Error detected" TO WS-OUTPUT-MSG.
-           
-           DISPLAY "ERROR|DB_ERROR|" WS-OUTPUT-MSG.
-
+            
+            STOP RUN WS-EXIT-CODE.
+            
+        INITIALIZE-PROGRAM.
+            MOVE 0 TO WS-EXIT-CODE.
+            MOVE SPACES TO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, 
+                           CMD-PARAM3, CMD-PARAM4.
+            
+        PARSE-ARGUMENTS.
+            IF LS-ARG-COUNT >= 2
+                MOVE LS-ARG-VALUE(2) TO CMD-ACTION
+            ELSE
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_ACTION|Action is required"
+                STOP RUN WS-EXIT-CODE.
+            
+            IF LS-ARG-COUNT >= 3
+                MOVE LS-ARG-VALUE(3) TO CMD-PARAM1.
+            IF LS-ARG-COUNT >= 4
+                MOVE LS-ARG-VALUE(4) TO CMD-PARAM2.
+            IF LS-ARG-COUNT >= 5
+                MOVE LS-ARG-VALUE(5) TO CMD-PARAM3.
+            IF LS-ARG-COUNT >= 6
+                MOVE LS-ARG-VALUE(6) TO CMD-PARAM4.
+            
+        CONNECT-DATABASE.
+            EXEC SQL
+                CONNECT TO :DSN-NAME USER :DB-USER USING :DB-PASS
+            END-EXEC.
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+            ELSE
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
+            
+        CAPTURE-SQL-ERROR.
+            MOVE SQLSTATE TO WS-SQL-STATE.
+            IF SQLCODE NOT = 0
+                STRING "SQLSTATE: " WS-SQL-STATE " | SQLCODE: " SQLCODE
+                       " | MSG: " SQLERRMC
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+            ELSE
+                MOVE "No SQL Error detected" TO WS-OUTPUT-MSG.
+            
+            DISPLAY "ERROR|DB_ERROR|" WS-OUTPUT-MSG.
+            
         PROCESS-SIGNUP.
-            * Parameter: CMD-PARAM1=email, CMD-PARAM2=pass, CMD-PARAM3=name, CMD-PARAM4=dob
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
                 DISPLAY "ERROR|MISSING_PARAM|Email and Password are required"
                 EXIT PROGRAM.
 
-            * 1. Validasi Kompleksitas Password (Min 8 chars)
             IF FUNCTION LENGTH(CMD-PARAM2) < 8
                 MOVE 4 TO WS-EXIT-CODE
                 DISPLAY "ERROR|WEAK_PASSWORD|Password must be at least 8 characters"
                 EXIT PROGRAM.
             END-IF.
 
-            * 2. Cek apakah email sudah ada
             EXEC SQL
                 SELECT id FROM users WHERE email = :CMD-PARAM1
             END-EXEC.
-
-           
-           IF SQLCODE = 0
-               MOVE 1 TO WS-EXIT-CODE
-               DISPLAY "ERROR|USER_EXISTS|Email already registered"
-               EXIT PROGRAM.
-
-           * 2. Hash Password menggunakan Library C
-           MOVE CMD-PARAM2 TO WS-RAW-PASSWORD
-           CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
-                                      BY REFERENCE WS-HASHED-PASS.
-
-            * 3. Generate Kode Verifikasi 6 Angka menggunakan Library C
-            CALL "generate_random_code" USING BY REFERENCE WS-RANDOM-CODE.
             
-            * 3.1 Simpan ke verification_logs untuk audit dan expiry
-            EXEC SQL
-                INSERT INTO verification_logs (email, code, purpose, expires_at)
-                VALUES (:CMD-PARAM1, :WS-RANDOM-CODE, :WS-VERIF-PURPOSE, 
-                        DATE_ADD(NOW(), INTERVAL 24 HOUR))
-            END-EXEC.
-
-            * 4. Insert User ke Database
-
-           EXEC SQL
-               INSERT INTO users (email, password_hash, full_name, dob, status, verification_code)
-               VALUES (:CMD-PARAM1, :WS-HASHED-PASS, :CMD-PARAM3, :CMD-PARAM4, 'UNVERIFIED', :WS-RANDOM-CODE)
-           END-EXEC.
-
-           IF SQLCODE = 0
-               MOVE 0 TO WS-EXIT-CODE
-               STRING "SUCCESS|USER_CREATED|Code: " WS-RANDOM-CODE
-                   DELIMITED BY SIZE INTO WS-OUTPUT-MSG
-               DISPLAY WS-OUTPUT-MSG
-           ELSE
-               MOVE 2 TO WS-EXIT-CODE
-               PERFORM CAPTURE-SQL-ERROR.
-
-        PROCESS-LOGIN.
-            * Parameter: CMD-PARAM1=email, CMD-PARAM2=password
-            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
-                MOVE 4 TO WS-EXIT-CODE
-                DISPLAY "ERROR|MISSING_PARAM|Email and Password are required"
-                EXIT PROGRAM.
-
-            * 1. Cek apakah account sedang dikunci (Account Locking)
-            EXEC SQL
-                SELECT COUNT(*) INTO :WS-LOGIN-ATTEMPTS
-                FROM login_attempts
-                WHERE email = :CMD-PARAM1
-                AND success = FALSE
-                AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)
-            END-EXEC.
-
-            IF WS-LOGIN-ATTEMPTS >= 3
-                MOVE 5 TO WS-EXIT-CODE
-                DISPLAY "ERROR|ACCOUNT_LOCKED|Too many failed attempts. Try again in 15 mins"
+            IF SQLCODE = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|USER_EXISTS|Email already registered"
                 EXIT PROGRAM.
             END-IF.
 
-            * 2. Validasi Status VERIFIED
-            EXEC SQL
-                SELECT status INTO :WS-LOCK_STATUS
-                FROM users WHERE email = :CMD-PARAM1
-            END-EXEC.
-
-            IF SQLCODE NOT = 0 OR WS-LOCK_STATUS NOT = 'VERIFIED'
-                MOVE 5 TO WS-EXIT-CODE
-                DISPLAY "ERROR|UNVERIFIED|Please verify your email first"
-                EXIT PROGRAM.
-            END-IF.
-
-            * 3. Verifikasi Password Hashing
             MOVE CMD-PARAM2 TO WS-RAW-PASSWORD
             CALL "hash_password" USING BY REFERENCE WS-RAW-PASSWORD 
                                        BY REFERENCE WS-HASHED-PASS.
 
+            CALL "generate_random_code" USING BY REFERENCE WS-RANDOM-CODE.
+
+            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
+
             EXEC SQL
-                SELECT id FROM users 
-                WHERE email = :CMD-PARAM1 AND password_hash = :WS-HASHED-PASS
+                INSERT INTO users (email, password_hash, full_name, dob, status, verification_code)
+                VALUES (:CMD-PARAM1, :WS-HASHED-PASS, :CMD-PARAM3, :CMD-PARAM4, 'UNVERIFIED', :WS-RANDOM-CODE)
             END-EXEC.
 
             IF SQLCODE = 0
-                * Login Sukses: Reset attempts dan log success
                 EXEC SQL
-                    INSERT INTO login_attempts (email, success) VALUES (:CMD-PARAM1, TRUE)
+                    INSERT INTO accounts (user_id, currency_id, balance, account_type)
+                    VALUES ((SELECT id FROM users WHERE email = :CMD-PARAM1), 1, 0.0000, 'SAVINGS')
                 END-EXEC.
-                MOVE 0 TO WS-EXIT-CODE
-                DISPLAY "SUCCESS|LOGIN_OK|Welcome back"
+                
+                IF SQLCODE = 0
+                    EXEC SQL COMMIT END-EXEC.
+                    MOVE 0 TO WS-EXIT-CODE
+                    STRING "SUCCESS|USER_CREATED|Code: " WS-RANDOM-CODE
+                        DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                    DISPLAY WS-OUTPUT-MSG
+                ELSE
+                    EXEC SQL ROLLBACK END-EXEC.
+                    MOVE 2 TO WS-EXIT-CODE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
             ELSE
-                * Login Gagal: Log failure
-                EXEC SQL
-                    INSERT INTO login_attempts (email, success) VALUES (:CMD-PARAM1, FALSE)
-                END-EXEC.
-                MOVE 1 TO WS-EXIT-CODE
-                DISPLAY "ERROR|INVALID_CREDENTIALS|Wrong email or password"
+                EXEC SQL ROLLBACK END-EXEC.
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
             END-IF.
-
+            
+            EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+            
         PROCESS-VERIFICATION.
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Code are required"
+                EXIT PROGRAM.
 
-           * Parameter: CMD-PARAM1=email, CMD-PARAM2=code
-           IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
-               MOVE 4 TO WS-EXIT-CODE
-               DISPLAY "ERROR|MISSING_PARAM|Email and Code are required"
-               EXIT PROGRAM.
-
-           * 1. Validasi kode verifikasi
-           EXEC SQL
-               SELECT id FROM users 
-               WHERE email = :CMD-PARAM1 AND verification_code = :CMD-PARAM2
-           END-EXEC.
-
-
+            EXEC SQL
+                SELECT id FROM users 
+                WHERE email = :CMD-PARAM1 AND verification_code = :CMD-PARAM2
+            END-EXEC.
+            
+            IF SQLCODE = 0
+                EXEC SQL
+                    UPDATE users SET status = 'VERIFIED' WHERE email = :CMD-PARAM1
+                END-EXEC.
+                
+                IF SQLCODE = 0
+                    MOVE 0 TO WS-EXIT-CODE
+                    DISPLAY "SUCCESS|EMAIL_VERIFIED|Account is now active"
+                ELSE
+                    MOVE 2 TO WS-EXIT-CODE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+            ELSE
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INVALID_CODE|Verification code is incorrect or email not found"
+            END-IF.
+            
         PROCESS-CHECK-ROLE.
-            * Parameter: CMD-PARAM1=email, CMD-PARAM2=required_role
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
                 DISPLAY "ERROR|MISSING_PARAM|Email and Required Role are required"
                 EXIT PROGRAM.
             
-            * Validasi Role melalui tabel role_assignments (Normalized RBAC)
             EXEC SQL
                 SELECT r.role_name INTO :WS-USER-ROLE
                 FROM role_assignments ra
@@ -359,16 +327,13 @@
             END-IF.
 
         PROCESS-CHANGE-ROLE.
-            * Parameter: CMD-PARAM1=admin_email, CMD-PARAM2=target_email, CMD-PARAM3=new_role
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES OR CMD-PARAM3 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
                 DISPLAY "ERROR|MISSING_PARAM|Admin, Target and New Role are required"
                 EXIT PROGRAM.
 
-            * 1. Verifikasi apakah pengubah adalah SUPER_ADMIN
             PERFORM CHECK-SUPERADMIN-ACCESS.
 
-            * 2. Validasi role baru
             IF FUNCTION TRIM(CMD-PARAM3) NOT = "USER" AND
                FUNCTION TRIM(CMD-PARAM3) NOT = "MANAGER" AND
                FUNCTION TRIM(CMD-PARAM3) NOT = "SUPER_ADMIN"
@@ -377,7 +342,6 @@
                 EXIT PROGRAM.
             END-IF.
 
-            * 3. Update role di tabel role_assignments
             EXEC SQL
                 DELETE FROM role_assignments 
                 WHERE user_id = (SELECT id FROM users WHERE email = :CMD-PARAM2)
@@ -404,11 +368,146 @@
                 MOVE 2 TO WS-EXIT-CODE
                 PERFORM CAPTURE-SQL-ERROR.
 
-        * ---------------------------------------------------------
-        * RBAC Access Control Wrappers
-        * ---------------------------------------------------------
+        PROCESS-CHECK-BALANCE.
+            IF CMD-PARAM1 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email is required"
+                EXIT PROGRAM.
+
+            EXEC SQL
+                SELECT a.balance, a.currency_id INTO :WS-BALANCE, :WS-CURRENCY-ID
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|BALANCE|" WS-BALANCE "|CURRENCY_ID:" WS-CURRENCY-ID
+                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                DISPLAY WS-OUTPUT-MSG
+            ELSE
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|No account associated with this email"
+            END-IF.
+
+        PROCESS-TRANSFER.
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES OR CMD-PARAM3 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|From, To, and Amount are required"
+                EXIT PROGRAM.
+
+            MOVE CMD-PARAM3 TO WS-TXN-AMOUNT.
+
+            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
+
+            EXEC SQL
+                SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID, :WS-BALANCE
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Source account not found"
+                EXIT PROGRAM.
+            END-IF.
+            
+            MOVE WS-CURRENCY-ID TO WS-BASE-CURR-ID.
+
+            EXEC SQL
+                UPDATE accounts a
+                SET a.balance = a.balance - :WS-TXN-AMOUNT
+                WHERE a.account_id = :WS-ACCOUNT-ID
+                AND a.balance >= :WS-TXN-AMOUNT
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 6 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INSUFFICIENT_FUNDS|Insufficient balance or locked account"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT a.account_id, a.currency_id INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM2
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Target account not found"
+                EXIT PROGRAM.
+            END-IF.
+            
+            MOVE WS-CURRENCY-ID TO WS-TARGET-CURR-ID.
+
+            IF WS-BASE-CURR-ID NOT = WS-TARGET-CURR-ID
+                EXEC SQL
+                    SELECT exchange_rate INTO :WS-EXCHANGE-RATE
+                    FROM exchange_rates
+                    WHERE base_currency_id = :WS-BASE-CURR-ID
+                    AND target_currency_id = :WS-TARGET-CURR-ID
+                END-EXEC.
+
+                IF SQLCODE NOT = 0
+                    EXEC SQL ROLLBACK END-EXEC.
+                    EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                    MOVE 2 TO WS-EXIT-CODE
+                    DISPLAY "ERROR|CONVERSION_FAILED|Exchange rate not found"
+                    EXIT PROGRAM.
+                END-IF.
+                
+                COMPUTE WS-CONVERTED-AMOUNT = WS-TXN-AMOUNT * WS-EXCHANGE-RATE.
+            ELSE
+                MOVE WS-TXN-AMOUNT TO WS-CONVERTED-AMOUNT.
+            END-IF.
+
+            EXEC SQL
+                UPDATE accounts a
+                SET a.balance = a.balance + :WS-CONVERTED-AMOUNT
+                WHERE a.account_id = :WS-ACCOUNT-ID
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
+                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-BASE-CURR-ID, 'Transfer to ' :CMD-PARAM2)
+            END-EXEC.
+
+            EXEC SQL
+                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
+                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'CREDIT', :WS-TARGET-CURR-ID, 'Transfer from ' :CMD-PARAM1)
+            END-EXEC.
+
+            IF SQLCODE = 0
+                EXEC SQL COMMIT END-EXEC.
+                MOVE 0 TO WS-EXIT-CODE
+                DISPLAY "SUCCESS|TRANSFER_OK|Amount transferred successfully"
+            ELSE
+                EXEC SQL ROLLBACK END-EXEC.
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
+            END-IF.
+
+            EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+
         CHECK-MANAGER-ACCESS.
-            * Expects CMD-PARAM1=email to be set
             MOVE "MANAGER" TO CMD-PARAM2.
             PERFORM PROCESS-CHECK-ROLE.
             IF WS-EXIT-CODE NOT = 0
@@ -418,7 +517,6 @@
             END-IF.
 
         CHECK-SUPERADMIN-ACCESS.
-            * Expects CMD-PARAM1=email to be set
             MOVE "SUPER_ADMIN" TO CMD-PARAM2.
             PERFORM PROCESS-CHECK-ROLE.
             IF WS-EXIT-CODE NOT = 0
@@ -426,4 +524,3 @@
                 DISPLAY "ERROR|UNAUTHORIZED|Super Admin access required"
                 STOP RUN WS-EXIT-CODE
             END-IF.
-

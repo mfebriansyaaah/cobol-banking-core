@@ -25,17 +25,23 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 2. Tabel Ledger (The Immutable Audit Trail)
+-- 7. Tabel Ledger (Refactored for Multi-Currency & Atomic Txns)
+DROP TABLE IF EXISTS ledger;
 CREATE TABLE IF NOT EXISTS ledger (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    amount DECIMAL(15,2) NOT NULL,
+    ledger_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    txn_ref VARCHAR(50) NOT NULL,
+    account_id INT NOT NULL,
+    amount DECIMAL(18, 4) NOT NULL,
     type ENUM('CREDIT', 'DEBIT') NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    txn_ref VARCHAR(50) UNIQUE,
+    currency_id INT NOT NULL,
+    description VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_ledger_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_ledger_acc FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
+    CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id)
 ) ENGINE=InnoDB;
+
+CREATE INDEX idx_ledger_txn ON ledger(txn_ref);
+CREATE INDEX idx_ledger_acc_date ON ledger(account_id, created_at);
 
 -- 3. Tabel Verification Logs (Anti-Spam & Tracking)
 CREATE TABLE IF NOT EXISTS verification_logs (
@@ -53,39 +59,54 @@ CREATE TABLE IF NOT EXISTS verification_logs (
 -- ============================================================
 -- Index: Speed up login and email lookup queries on users table
 CREATE INDEX idx_user_email ON users(email);
--- 4. Tabel Roles (RBAC Definition)
-CREATE TABLE IF NOT EXISTS roles (
-    role_id INT AUTO_INCREMENT PRIMARY KEY,
-    role_name ENUM('USER', 'MANAGER', 'SUPER_ADMIN') NOT NULL UNIQUE,
-    description VARCHAR(255),
+-- 4. Tabel Currencies (Multi-currency Support)
+CREATE TABLE IF NOT EXISTS currencies (
+    currency_id INT AUTO_INCREMENT PRIMARY KEY,
+    iso_code CHAR(3) NOT NULL UNIQUE,
+    symbol VARCHAR(5) NOT NULL,
+    precision INT DEFAULT 2,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 5. Tabel Role Assignments (User to Role Mapping)
-CREATE TABLE IF NOT EXISTS role_assignments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+INSERT IGNORE INTO currencies (iso_code, symbol, precision) VALUES 
+('USD', '$', 2),
+('EUR', '€', 2),
+('IDR', 'Rp', 0),
+('GBP', '£', 2);
+
+-- 5. Tabel Exchange Rates (Currency Conversion)
+CREATE TABLE IF NOT EXISTS exchange_rates (
+    rate_id INT AUTO_INCREMENT PRIMARY KEY,
+    base_currency_id INT NOT NULL,
+    target_currency_id INT NOT NULL,
+    exchange_rate DECIMAL(18, 6) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_base_curr FOREIGN KEY (base_currency_id) REFERENCES currencies(currency_id),
+    CONSTRAINT fk_target_curr FOREIGN KEY (target_currency_id) REFERENCES currencies(currency_id),
+    UNIQUE KEY unique_pair (base_currency_id, target_currency_id)
+) ENGINE=InnoDB;
+
+-- Default Rate: USD as Base
+INSERT IGNORE INTO exchange_rates (base_currency_id, target_currency_id, exchange_rate) VALUES 
+(1, 2, 0.92), -- USD to EUR
+(1, 3, 15700.00), -- USD to IDR
+(1, 4, 0.79); -- USD to GBP
+
+-- 6. Tabel Accounts (User Financial Accounts)
+CREATE TABLE IF NOT EXISTS accounts (
+    account_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    role_id INT NOT NULL,
-    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_ra_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_ra_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_role (user_id, role_id)
+    currency_id INT NOT NULL,
+    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT') DEFAULT 'SAVINGS',
+    balance DECIMAL(18, 4) NOT NULL DEFAULT 0.0000,
+    status ENUM('ACTIVE', 'FROZEN', 'CLOSED') DEFAULT 'ACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_acc_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id),
+    UNIQUE KEY unique_user_currency (user_id, currency_id)
 ) ENGINE=InnoDB;
 
--- Insert Default Roles
-INSERT IGNORE INTO roles (role_name, description) VALUES 
-('USER', 'Standard customer account'),
-('MANAGER', 'Branch manager with oversight capabilities'),
-('SUPER_ADMIN', 'System administrator with full access');
-
--- 6. Tabel Login Attempts (Account Locking)
-CREATE TABLE IF NOT EXISTS login_attempts (
-    email VARCHAR(100) NOT NULL,
-    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ip_address VARCHAR(45),
-    success BOOLEAN DEFAULT FALSE,
-    PRIMARY KEY (email, attempt_time)
-) ENGINE=InnoDB;
-
-CREATE INDEX idx_login_email_time ON login_attempts(email, attempt_time);
-
+CREATE INDEX idx_acc_user ON accounts(user_id);
+CREATE INDEX idx_acc_balance ON accounts(balance);
