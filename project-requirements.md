@@ -1,0 +1,7 @@
+- COBOL codebase.
+- At least 50 merged PRs in a verifiable history.
+- 100,000-10 million lines of code.
+- 10 or more contributors.
+- 1,000 or more commits with a verifiable history.
+- Strong test suites and test coverage (>25%).
+- Primarily human-written, ideally developed before widespread AI-assisted coding.

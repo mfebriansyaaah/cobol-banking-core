@@ -10,7 +10,7 @@ Implement a strict identity and authentication system where COBOL handles the bu
 - **Interface:** Node.js Express (via CLI Call)
 
 ## Commands
-- **Build:** `cobc -x -o cobol/bin/auth_identity.exe cobol/src/auth_identity.cob -lodbc32`
+- **Build:** `cobc -x -O3 -o cobol/bin/auth_identity.exe cobol/src/auth_identity.cob cobol/c_lib/hash_lib.c -lodbc32`
 - **Test:** `cobol/bin/auth_identity.exe REQUEST_SIGNUP "email|pass|name|dob"`
 - **Dev:** `npm run dev` (via middleware)
 
@@ -36,9 +36,12 @@ Implement a strict identity and authentication system where COBOL handles the bu
 - **Never:** Store passwords in plain text, allow login for unverified accounts.
 
 ## Success Criteria
-- [ ] `REQUEST_SIGNUP` creates a user with `status = 'UNVERIFIED'` and generates a 6-digit code.
-- [ ] `VERIFY_EMAIL` updates status to `VERIFIED` only if the code matches.
-- [ ] `AUTH_LOGIN` returns a success code only if the user is `VERIFIED` and the password hash matches.
+- [x] `REQUEST_SIGNUP` creates a user with `status = 'UNVERIFIED'`, generates a 6-digit secure code, and records it in `verification_logs` with a 24-hour expiry.
+- [x] `VERIFY_EMAIL` updates status to `VERIFIED` only if the code matches, is not yet used, and has not expired.
+- [x] `CHECK_ROLE` validates user roles using normalized `role_assignments` and `roles` tables.
+- [x] `CHANGE_ROLE` allows `SUPER_ADMIN` to modify user roles with strict validation.
+- [x] `AUTH_LOGIN` returns success only if user is `VERIFIED`, password hash matches, and account is not locked (3+ failures/15m).
+- [x] Password complexity is enforced during signup (min 8 characters).
 - [ ] All errors return the correct Exit Code (1 for Not Found, 2 for DB Error, 4 for Invalid Arg).
 
 ## Open Questions
