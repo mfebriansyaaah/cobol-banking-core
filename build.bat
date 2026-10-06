@@ -34,15 +34,15 @@ echo Using MySQL ODBC at: %MYSQL_ODBC_PATH%
 
 REM Kompilasi
 echo Compiling...
-cobc -x -o cobol\bin\main_logic.exe cobol\src\main_logic.cob ^
+cobc -x -o cobol\bin\auth_identity.exe cobol\src\auth_identity.cob ^
     -I"%MYSQL_ODBC_PATH%\include" ^
     -L"%MYSQL_ODBC_PATH%\lib" ^
     -lodbc32 ^
     -Wall -Wextra -O2
 
-if exist cobol\bin\main_logic.exe (
-    echo SUCCESS: Binary dibuat di cobol\bin\main_logic.exe
-    for %%F in (cobol\bin\main_logic.exe) do echo Size: %%~zF bytes
+if exist cobol\bin\auth_identity.exe (
+    echo SUCCESS: Binary dibuat di cobol\bin\auth_identity.exe
+    for %%F in (cobol\bin\auth_identity.exe) do echo Size: %%~zF bytes
 ) else (
     echo ERROR: Kompilasi gagal
     exit /b 1
@@ -55,7 +55,7 @@ echo.
 echo Next steps:
 echo 1. Setup database: mysql -u root -p ^< database\schema.sql
 echo 2. Konfigurasi ODBC (lihat cobol\config\README.md)
-echo 3. Test COBOL: cobol\bin\main_logic.exe GET_USER 1
+echo 3. Test COBOL: cobol\bin\auth_identity.exe CHECK_BALANCE "sender@test.com"
 echo 4. Jalankan Node.js: cd middleware ^&^& npm install ^&^& npm start
 echo.
 pause
