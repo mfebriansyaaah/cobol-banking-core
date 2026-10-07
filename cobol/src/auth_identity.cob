@@ -44,6 +44,7 @@
             88  EXIT-INVALID-ARG    VALUE 4.
             88  EXIT-UNAUTHORIZED    VALUE 5.
             88  EXIT-INSUFFICIENT_FUNDS VALUE 6.
+            88  EXIT-LIMIT_EXCEEDED    VALUE 7.
         
         01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
         01  WS-SQL-STATE      PIC X(5) VALUE SPACES.
@@ -68,7 +69,10 @@
         01  WS-BASE-CURR-ID    PIC 9(10) COMP-5.
         01  WS-TARGET-CURR-ID    PIC 9(10) COMP-5.
         01  WS-EXCHANGE-RATE      PIC S9(12)V9(6) COMP-3.
-        01  WS-CONVERTED-AMOUNT  PIC S9(12)V9(4) COMP-3.
+        01  WS-LIMIT-DAILY-MAX    PIC S9(12)V9(4) COMP-3.
+        01  WS-LIMIT-SINGLE-MAX    PIC S9(12)V9(4) COMP-3.
+        01  WS-DAILY-VOLUME        PIC S9(12)V9(4) COMP-3.
+        01  WS-USER-ID-INTERNAL    PIC 9(10) COMP-5.
         
         LINKAGE SECTION.
         01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -141,6 +145,16 @@
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
                     PERFORM PROCESS-CHECK-BALANCE
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
+            IF CMD-ACTION = "CHECK_LIMITS"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-CHECK-LIMITS
                 ELSE
                     PERFORM CAPTURE-SQL-ERROR
                 END-IF
@@ -524,3 +538,65 @@
                 DISPLAY "ERROR|UNAUTHORIZED|Super Admin access required"
                 STOP RUN WS-EXIT-CODE
             END-IF.
+
+        PROCESS-CHECK-LIMITS.
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Amount are required"
+                EXIT PROGRAM.
+            END-IF.
+
+            MOVE CMD-PARAM2 TO WS-TXN-AMOUNT.
+
+            EXEC SQL
+                SELECT u.id INTO :WS-USER-ID-INTERNAL
+                FROM users u
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|USER_NOT_FOUND|User not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT cl.daily_max, cl.single_max INTO :WS-LIMIT-DAILY-MAX, :WS-LIMIT-SINGLE-MAX
+                FROM compliance_limits cl
+                JOIN role_assignments ra ON cl.role_id = ra.role_id
+                WHERE ra.user_id = :WS-USER-ID-INTERNAL
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            IF WS-TXN-AMOUNT > WS-LIMIT-SINGLE-MAX
+                MOVE 7 TO WS-EXIT-CODE
+                STRING "ERROR|LIMIT_EXCEEDED|Single txn exceeds max: " WS-LIMIT-SINGLE-MAX
+                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                DISPLAY WS-OUTPUT-MSG
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT SUM(ABS(amount)) INTO :WS-DAILY-VOLUME
+                FROM ledger l
+                JOIN accounts a ON l.account_id = a.account_id
+                WHERE a.user_id = :WS-USER-ID-INTERNAL
+                AND l.created_at >= CURRENT_DATE
+                AND l.type = 'DEBIT'
+            END-EXEC.
+
+            IF WS-DAILY-VOLUME + WS-TXN-AMOUNT > WS-LIMIT-DAILY-MAX
+                MOVE 7 TO WS-EXIT-CODE
+                STRING "ERROR|LIMIT_EXCEEDED|Daily volume exceeds max: " WS-LIMIT-DAILY-MAX
+                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG
+                DISPLAY WS-OUTPUT-MSG
+                EXIT PROGRAM.
+            END-IF.
+
+            MOVE 0 TO WS-EXIT-CODE
+            DISPLAY "SUCCESS|LIMITS_OK|Transaction within limits"
