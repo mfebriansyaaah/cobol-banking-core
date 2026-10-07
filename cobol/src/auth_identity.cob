@@ -629,6 +629,16 @@
                 EXEC SQL COMMIT END-EXEC.
                 MOVE 0 TO WS-EXIT-CODE
                 DISPLAY "SUCCESS|TRANSFER_OK|Amount transferred successfully"
+                
+                * Integration: Automated Engagement Triggers
+                MOVE CMD-PARAM1 TO CMD-PARAM1
+                MOVE "Transfer Successful" TO CMD-PARAM2
+                MOVE "INFO" TO CMD-PARAM3
+                PERFORM PROCESS-SEND-NOTIF
+                
+                MOVE CMD-PARAM1 TO CMD-PARAM1
+                MOVE CMD-PARAM3 TO CMD-PARAM2
+                PERFORM PROCESS-UPDATE-SCORE
             ELSE
                 EXEC SQL ROLLBACK END-EXEC.
                 MOVE 2 TO WS-EXIT-CODE
@@ -964,6 +974,16 @@
                 EXEC SQL COMMIT END-EXEC.
                 MOVE 0 TO WS-EXIT-CODE
                 DISPLAY "SUCCESS|TRANSFER_OK|Amount transferred successfully"
+                
+                * Integration: Automated Engagement Triggers
+                MOVE CMD-PARAM1 TO CMD-PARAM1
+                MOVE "Transfer Successful" TO CMD-PARAM2
+                MOVE "INFO" TO CMD-PARAM3
+                PERFORM PROCESS-SEND-NOTIF
+                
+                MOVE CMD-PARAM1 TO CMD-PARAM1
+                MOVE CMD-PARAM3 TO CMD-PARAM2
+                PERFORM PROCESS-UPDATE-SCORE
             ELSE
                 EXEC SQL ROLLBACK END-EXEC.
                 MOVE 2 TO WS-EXIT-CODE
