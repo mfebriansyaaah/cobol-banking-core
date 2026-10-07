@@ -233,8 +233,19 @@
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
+            
+            IF CMD-ACTION = "CHECK_KYC"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-CHECK-KYC
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
 
             IF CMD-ACTION = "TRANSFER"
+
 
 
 
