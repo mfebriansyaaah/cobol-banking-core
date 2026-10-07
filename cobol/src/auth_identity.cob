@@ -80,6 +80,8 @@
         01  WS-ANNUAL-RATE            PIC S9(3)V9(4) COMP-3.
         01  WS-INTEREST-AMOUNT        PIC S9(12)V9(4) COMP-3.
         01  WS-DAILY-INTEREST         PIC S9(12)V9(6) COMP-3.
+        01  WS-REWARD-POINTS            PIC 9(10) COMP-5.
+        01  WS-POINTS-EARNED            PIC 9(10) COMP-5.
         
         LINKAGE SECTION.
         01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -207,8 +209,19 @@
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
+            
+            IF CMD-ACTION = "ADD_REWARDS"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-ADD-REWARDS
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
 
             IF CMD-ACTION = "TRANSFER"
+
 
 
                 PERFORM CONNECT-DATABASE
@@ -865,6 +878,63 @@
             END-IF.
 
             EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+
+        PROCESS-ADD-REWARDS.
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Transaction Amount are required"
+                EXIT PROGRAM.
+            END-IF.
+
+            MOVE CMD-PARAM2 TO WS-TXN-AMOUNT.
+
+            EXEC SQL
+                SELECT u.id INTO :WS-USER-ID-INTERNAL
+                FROM users u
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|USER_NOT_FOUND|User not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            * Reward Logic: 1 point for every $100 transferred
+            COMPUTE WS-POINTS-EARNED = WS-TXN-AMOUNT / 100.
+
+            IF WS-POINTS-EARNED = 0
+                MOVE 0 TO WS-EXIT-CODE
+                DISPLAY "SUCCESS|NO_REWARDS|Transaction amount too low for rewards"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                INSERT INTO user_rewards (user_id, points_balance)
+                VALUES (:WS-USER-ID-INTERNAL, :WS-POINTS-EARNED)
+                ON DUPLICATE KEY UPDATE points_balance = points_balance + :WS-POINTS-EARNED
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                INSERT INTO reward_history (user_id, points_change, reason)
+                VALUES (:WS-USER-ID-INTERNAL, :WS-POINTS-EARNED, 'Transfer Reward')
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|REWARDS_ADDED|Points earned: " WS-POINTS-EARNED
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+                DISPLAY WS-OUTPUT-MSG.
+            ELSE
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
+            END-IF.
 
 
 
