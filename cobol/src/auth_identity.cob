@@ -706,6 +706,30 @@
                 DISPLAY "ERROR|NO_NOTIFS|No unread notifications found"
             END-IF.
 
+        PROCESS-CHECK-KYC.
+            IF CMD-PARAM1 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email is required"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT p.kyc_level INTO :WS-KYC-LEVEL
+                FROM user_profiles p
+                JOIN users u ON p.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|KYC_LEVEL|" WS-KYC-LEVEL
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+                DISPLAY WS-OUTPUT-MSG.
+            ELSE
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|PROFILE_NOT_FOUND|KYC profile not found for user"
+            END-IF.
+
         PROCESS-CHECK-LIMITS.
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
