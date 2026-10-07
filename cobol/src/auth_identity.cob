@@ -741,6 +741,48 @@
                 DISPLAY "ERROR|PROFILE_NOT_FOUND|KYC profile not found for user"
             END-IF.
 
+        PROCESS-UPGRADE-KYC.
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Target Level are required"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT p.kyc_level INTO :WS-KYC-LEVEL
+                FROM user_profiles p
+                JOIN users u ON p.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|PROFILE_NOT_FOUND|User profile not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            * Validation: Basic -> Silver -> Gold
+            IF WS-KYC-LEVEL = "BASIC" AND CMD-PARAM2 NOT = "SILVER"
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INVALID_UPGRADE|Basic must upgrade to Silver first"
+                EXIT PROGRAM.
+            END-IF.
+
+            IF WS-KYC-LEVEL = "SILVER" AND CMD-PARAM2 NOT = "GOLD"
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INVALID_UPGRADE|Silver must upgrade to Gold"
+                EXIT PROGRAM.
+            END-IF.
+
+            IF WS-KYC-LEVEL = "GOLD"
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MAX_LEVEL|User already at Gold level"
+                EXIT PROGRAM.
+            END-IF.
+
+            MOVE 0 TO WS-EXIT-CODE
+            DISPLAY "SUCCESS|VALIDATION_OK|KYC transition is valid"
+
         PROCESS-CHECK-LIMITS.
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
