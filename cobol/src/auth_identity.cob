@@ -415,8 +415,7 @@
                 END-EXEC.
                 
                 IF SQLCODE = 0
-                    MOVE 0 TO WS-EXIT-CODE
-                    DISPLAY "SUCCESS|EMAIL_VERIFIED|Account is now active"
+                    MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|EMAIL_VERIFIED|Account is now active"
                 ELSE
                     MOVE 2 TO WS-EXIT-CODE
                     PERFORM CAPTURE-SQL-ERROR
@@ -442,8 +441,7 @@
             
             IF SQLCODE = 0
                 IF FUNCTION TRIM(WS-USER-ROLE) = FUNCTION TRIM(CMD-PARAM2)
-                    MOVE 0 TO WS-EXIT-CODE
-                    DISPLAY "SUCCESS|ROLE_VERIFIED|User has the required role: " FUNCTION TRIM(WS-USER-ROLE)
+                    MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|ROLE_VERIFIED|User has the required role: " FUNCTION TRIM(WS-USER-ROLE)
                 ELSE
                     MOVE 5 TO WS-EXIT-CODE
                     DISPLAY "ERROR|UNAUTHORIZED|Required " FUNCTION TRIM(CMD-PARAM2) 
@@ -490,8 +488,7 @@
             END-EXEC.
 
             IF SQLCODE = 0
-                MOVE 0 TO WS-EXIT-CODE
-                DISPLAY "SUCCESS|ROLE_CHANGED|User " CMD-PARAM2 " is now " CMD-PARAM3
+                MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|ROLE_CHANGED|User " CMD-PARAM2 " is now " CMD-PARAM3
             ELSE
                 MOVE 2 TO WS-EXIT-CODE
                 PERFORM CAPTURE-SQL-ERROR.
@@ -697,8 +694,7 @@
             END-EXEC.
 
             IF SQLCODE = 0
-                MOVE 0 TO WS-EXIT-CODE
-                DISPLAY "SUCCESS|NOTIF_SENT|Notification queued for " CMD-PARAM1
+                MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|NOTIF_SENT|Notification queued for " CMD-PARAM1
             ELSE
                 MOVE 2 TO WS-EXIT-CODE
                 PERFORM CAPTURE-SQL-ERROR.
@@ -720,8 +716,7 @@
             END-EXEC.
 
             IF SQLCODE = 0
-                MOVE 0 TO WS-EXIT-CODE
-                DISPLAY "SUCCESS|NOTIFS_FETCHED|Fetching unread notifications..."
+                MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|NOTIFS_FETCHED|Fetching unread notifications..."
                 * Note: In a real CLI implementation, we would loop through the cursor.
                 * For this demo, we confirm that notifications exist.
             ELSE
@@ -880,8 +875,7 @@
                 EXIT PROGRAM.
             END-IF.
 
-            MOVE 0 TO WS-EXIT-CODE
-            DISPLAY "SUCCESS|LIMITS_OK|Transaction within limits"
+            MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|LIMITS_OK|Transaction within limits"
 
         PROCESS-DETECT-FRAUD.
             IF CMD-PARAM1 = SPACES
@@ -927,8 +921,7 @@
                 EXIT PROGRAM.
             END-IF.
 
-            MOVE 0 TO WS-EXIT-CODE
-            DISPLAY "SUCCESS|NO_FRAUD|No suspicious patterns detected"
+            MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|NO_FRAUD|No suspicious patterns detected"
 
         PROCESS-CALCULATE-TIER.
             IF CMD-PARAM1 = SPACES
@@ -1101,8 +1094,7 @@
             COMPUTE WS-POINTS-EARNED = WS-TXN-AMOUNT / 100.
 
             IF WS-POINTS-EARNED = 0
-                MOVE 0 TO WS-EXIT-CODE
-                DISPLAY "SUCCESS|NO_REWARDS|Transaction amount too low for rewards"
+                MOVE 0 TO WS-EXIT-CODE`n`n            EXEC SQL`n                INSERT INTO reward_history (user_id, points_change, reason)`n                VALUES (:WS-USER-ID-INTERNAL, :WS-LOYALTY-S-CHANGE, 'Loyalty Score Update')`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                DISPLAY `"SYSTEM_WARNING|LOYALTY_LOG_FAILED|" SQLCODE`"`n            END-IF.`n`n            DISPLAY "SUCCESS|SCORE_CALCULATED"|NO_REWARDS|Transaction amount too low for rewards"
                 EXIT PROGRAM.
             END-IF.
 
@@ -1132,6 +1124,7 @@
                 MOVE 2 TO WS-EXIT-CODE
                 PERFORM CAPTURE-SQL-ERROR.
             END-IF.
+
 
 
 
