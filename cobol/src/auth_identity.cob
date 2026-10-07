@@ -79,6 +79,8 @@
         01  WS-AUDIT-SEVERITY         PIC X(10) VALUE "INFO".
         01  WS-NOTIF-MESSAGE            PIC X(255) VALUE SPACES.
         01  WS-NOTIF-TYPE               PIC X(10) VALUE "INFO".
+        01  WS-KYC-LEVEL                  PIC X(10) VALUE "BASIC".
+        01  WS-LOYALTY-SCORE               PIC 9(10) COMP-5 VALUE 0.
         01  WS-ANNUAL-RATE            PIC S9(3)V9(4) COMP-3.
         01  WS-INTEREST-AMOUNT        PIC S9(12)V9(4) COMP-3.
         01  WS-DAILY-INTEREST         PIC S9(12)V9(6) COMP-3.
