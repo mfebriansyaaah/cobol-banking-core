@@ -742,6 +742,7 @@
             END-IF.
 
         PROCESS-UPGRADE-KYC.
+            * Logic: Validate and upgrade User KYC Level (Basic -> Silver -> Gold)
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
                 DISPLAY "ERROR|MISSING_PARAM|Email and Target Level are required"
@@ -782,7 +783,7 @@
 
             EXEC SQL
                 UPDATE user_profiles p
-                SET p.kyc_level = :CMD-PARAM2
+                SET p.kyc_//_level = :CMD-PARAM2
                 WHERE p.user_id = (SELECT id FROM users WHERE email = :CMD-PARAM1)
             END-EXEC.
 
