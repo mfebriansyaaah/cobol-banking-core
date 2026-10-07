@@ -79,6 +79,8 @@
         01  WS-AUDIT-SEVERITY         PIC X(10) VALUE "INFO".
         01  WS-NOTIF-MESSAGE            PIC X(255) VALUE SPACES.
         01  WS-NOTIF-TYPE               PIC X(10) VALUE "INFO".
+        01  WS-KYC-LEVEL                  PIC X(10) VALUE "BASIC".
+        01  WS-LOYALTY-SCORE               PIC 9(10) COMP-5 VALUE 0.
         01  WS-ANNUAL-RATE            PIC S9(3)V9(4) COMP-3.
         01  WS-INTEREST-AMOUNT        PIC S9(12)V9(4) COMP-3.
         01  WS-DAILY-INTEREST         PIC S9(12)V9(6) COMP-3.
@@ -231,8 +233,30 @@
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
+            
+            IF CMD-ACTION = "CHECK_KYC"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-CHECK-KYC
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
+            IF CMD-ACTION = "UPGRADE_KYC"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-UPGRADE-KYC
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
 
             IF CMD-ACTION = "TRANSFER"
+
+
 
 
 
@@ -691,6 +715,86 @@
             ELSE
                 MOVE 1 TO WS-EXIT-CODE
                 DISPLAY "ERROR|NO_NOTIFS|No unread notifications found"
+            END-IF.
+
+        PROCESS-CHECK-KYC.
+            IF CMD-PARAM1 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email is required"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT p.kyc_level INTO :WS-KYC-LEVEL
+                FROM user_profiles p
+                JOIN users u ON p.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|KYC_LEVEL|" WS-KYC-LEVEL
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+                DISPLAY WS-OUTPUT-MSG.
+            ELSE
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|PROFILE_NOT_FOUND|KYC profile not found for user"
+            END-IF.
+
+        PROCESS-UPGRADE-KYC.
+            * Logic: Validate and upgrade User KYC Level (Basic -> Silver -> Gold)
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Target Level are required"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT p.kyc_level INTO :WS-KYC-LEVEL
+                FROM user_profiles p
+                JOIN users u ON p.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|PROFILE_NOT_FOUND|User profile not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            * Validation: Basic -> Silver -> Gold
+            IF WS-KYC-LEVEL = "BASIC" AND CMD-PARAM2 NOT = "SILVER"
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INVALID_UPGRADE|Basic must upgrade to Silver first"
+                EXIT PROGRAM.
+            END-IF.
+
+            IF WS-KYC-LEVEL = "SILVER" AND CMD-PARAM2 NOT = "GOLD"
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|INVALID_UPGRADE|Silver must upgrade to Gold"
+                EXIT PROGRAM.
+            END-IF.
+
+            IF WS-KYC-LEVEL = "GOLD"
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MAX_LEVEL|User already at Gold level"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                UPDATE user_profiles p
+                SET p.kyc_//_level = :CMD-PARAM2
+                WHERE p.user_id = (SELECT id FROM users WHERE email = :CMD-PARAM1)
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|KYC_UPGRADED|User upgraded to " CMD-PARAM2
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+                DISPLAY WS-OUTPUT-MSG.
+            ELSE
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
             END-IF.
 
         PROCESS-CHECK-LIMITS.
