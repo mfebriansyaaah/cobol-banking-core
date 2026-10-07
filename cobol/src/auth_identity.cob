@@ -1,4 +1,4 @@
-        IDENTIFICATION DIVISION.
+﻿        IDENTIFICATION DIVISION.
         PROGRAM-ID. AUTH_IDENTITY.
         AUTHOR. COBOL BACKEND TEAM.
         DATE-WRITTEN. 2026-10-04.
@@ -77,6 +77,8 @@
         01  WS-AUDIT-ACTION           PIC X(100) VALUE SPACES.
         01  WS-AUDIT-DETAILS         PIC X(255) VALUE SPACES.
         01  WS-AUDIT-SEVERITY         PIC X(10) VALUE "INFO".
+        01  WS-ANNUAL-RATE            PIC S9(3)V9(4) COMP-3.
+        01  WS-INTEREST-AMOUNT        PIC S9(12)V9(4) COMP-3.
         
         LINKAGE SECTION.
         01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -175,6 +177,16 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
             
+            IF CMD-ACTION = "CALC_INTEREST"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-CALCULATE-TIER
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
             IF CMD-ACTION = "TRANSFER"
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
@@ -271,9 +283,7 @@
 
             CALL "generate_random_code" USING BY REFERENCE WS-RANDOM-CODE.
 
-            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
-
-            EXEC SQL
+            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.`n`n            * --- INTEGRATED SECURITY GUARD ---`n            MOVE CMD-PARAM1 TO CMD-PARAM1.`n            MOVE CMD-PARAM3 TO CMD-PARAM2.`n            PERFORM PROCESS-CHECK-LIMITS.`n            IF WS-EXIT-CODE NOT = 0`n                EXEC SQL ROLLBACK END-EXEC.`n                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.`n                DISPLAY `"ERROR|TRANSFER_BLOCKED|Limit Check Failed`"`n                EXIT PROGRAM.`n            END-IF.`n`n            MOVE CMD-PARAM1 TO CMD-PARAM1.`n            PERFORM PROCESS-DETECT-FRAUD.`n            IF WS-EXIT-CODE NOT = 0`n                EXEC SQL ROLLBACK END-EXEC.`n                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.`n                DISPLAY `"ERROR|TRANSFER_BLOCKED|Fraud Detected`"`n                EXIT PROGRAM.`n            END-IF.`n`n            EXEC SQL
                 INSERT INTO users (email, password_hash, full_name, dob, status, verification_code)
                 VALUES (:CMD-PARAM1, :WS-HASHED-PASS, :CMD-PARAM3, :CMD-PARAM4, 'UNVERIFIED', :WS-RANDOM-CODE)
             END-EXEC.
@@ -432,9 +442,7 @@
 
             MOVE CMD-PARAM3 TO WS-TXN-AMOUNT.
 
-            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
-
-            EXEC SQL
+            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.`n`n            * --- INTEGRATED SECURITY GUARD ---`n            MOVE CMD-PARAM1 TO CMD-PARAM1.`n            MOVE CMD-PARAM3 TO CMD-PARAM2.`n            PERFORM PROCESS-CHECK-LIMITS.`n            IF WS-EXIT-CODE NOT = 0`n                EXEC SQL ROLLBACK END-EXEC.`n                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.`n                DISPLAY `"ERROR|TRANSFER_BLOCKED|Limit Check Failed`"`n                EXIT PROGRAM.`n            END-IF.`n`n            MOVE CMD-PARAM1 TO CMD-PARAM1.`n            PERFORM PROCESS-DETECT-FRAUD.`n            IF WS-EXIT-CODE NOT = 0`n                EXEC SQL ROLLBACK END-EXEC.`n                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.`n                DISPLAY `"ERROR|TRANSFER_BLOCKED|Fraud Detected`"`n                EXIT PROGRAM.`n            END-IF.`n`n            EXEC SQL
                 SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID, :WS-BALANCE
                 FROM accounts a
                 JOIN users u ON a.user_id = u.id
@@ -686,3 +694,50 @@
 
             MOVE 0 TO WS-EXIT-CODE
             DISPLAY "SUCCESS|NO_FRAUD|No suspicious patterns detected"
+
+        PROCESS-CALCULATE-TIER.
+            IF CMD-PARAM1 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email is required"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT a.balance INTO :WS-BALANCE
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|No account found"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT annual_rate INTO :WS-ANNUAL-RATE
+                FROM interest_rates
+                WHERE :WS-BALANCE >= min_balance 
+                AND (:WS-BALANCE <= max_balance OR max_balance IS NULL)
+                AND is_active = TRUE
+                LIMIT 1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            COMPUTE WS-INTEREST-AMOUNT = (WS-BALANCE * WS-ANNUAL-RATE) / 12.
+
+            STRING "SUCCESS|INTEREST_TIER|Balance: " WS-BALANCE 
+                   " | Rate: " WS-ANNUAL-RATE 
+                   " | Monthly: " WS-INTEREST-AMOUNT
+                   DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+            DISPLAY WS-OUTPUT-MSG.
+            MOVE 0 TO WS-EXIT-CODE.
+
+
+
