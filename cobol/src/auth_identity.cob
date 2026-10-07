@@ -74,6 +74,9 @@
         01  WS-DAILY-VOLUME        PIC S9(12)V9(4) COMP-3.
         01  WS-USER-ID-INTERNAL    PIC 9(10) COMP-5.
         01  WS-TXN-COUNT-RECENT    PIC 9(10) COMP-5.
+        01  WS-AUDIT-ACTION           PIC X(100) VALUE SPACES.
+        01  WS-AUDIT-DETAILS         PIC X(255) VALUE SPACES.
+        01  WS-AUDIT-SEVERITY         PIC X(10) VALUE "INFO".
         
         LINKAGE SECTION.
         01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -234,6 +237,11 @@
                 MOVE "No SQL Error detected" TO WS-OUTPUT-MSG.
             
             DISPLAY "ERROR|DB_ERROR|" WS-OUTPUT-MSG.
+
+            MOVE "DB_ERROR" TO WS-AUDIT-ACTION.
+            MOVE WS-OUTPUT-MSG TO WS-AUDIT-DETAILS.
+            MOVE "WARNING" TO WS-AUDIT-SEVERITY.
+            PERFORM LOG-AUDIT-EVENT.
             
         PROCESS-SIGNUP.
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
@@ -550,6 +558,14 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
 
+        LOG-AUDIT-EVENT.
+            EXEC SQL
+                INSERT INTO audit_trail (user_id, action, details, severity)
+                VALUES (:WS-USER-ID-INTERNAL, :WS-AUDIT-ACTION, :WS-AUDIT-DETAILS, :WS-AUDIT-SEVERITY)
+            END-EXEC.
+            IF SQLCODE NOT = 0
+                DISPLAY "SYSTEM_WARNING|AUDIT_LOG_FAILED|" SQLCODE.
+
         PROCESS-CHECK-LIMITS.
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
                 MOVE 4 TO WS-EXIT-CODE
@@ -589,6 +605,12 @@
                 STRING "ERROR|LIMIT_EXCEEDED|Single txn exceeds max: " WS-LIMIT-SINGLE-MAX
                     DELIMITED BY SIZE INTO WS-OUTPUT-MSG
                 DISPLAY WS-OUTPUT-MSG
+                
+                MOVE "LIMIT_EXCEEDED" TO WS-AUDIT-ACTION.
+                MOVE WS-OUTPUT-MSG TO WS-AUDIT-DETAILS.
+                MOVE "WARNING" TO WS-AUDIT-SEVERITY.
+                PERFORM LOG-AUDIT-EVENT.
+                
                 EXIT PROGRAM.
             END-IF.
 
@@ -606,6 +628,12 @@
                 STRING "ERROR|LIMIT_EXCEEDED|Daily volume exceeds max: " WS-LIMIT-DAILY-MAX
                     DELIMITED BY SIZE INTO WS-OUTPUT-MSG
                 DISPLAY WS-OUTPUT-MSG
+                
+                MOVE "LIMIT_EXCEEDED" TO WS-AUDIT-ACTION.
+                MOVE WS-OUTPUT-MSG TO WS-AUDIT-DETAILS.
+                MOVE "WARNING" TO WS-AUDIT-SEVERITY.
+                PERFORM LOG-AUDIT-EVENT.
+                
                 EXIT PROGRAM.
             END-IF.
 
@@ -644,6 +672,12 @@
                     UPDATE accounts SET status = 'FROZEN' 
                     WHERE user_id = :WS-USER-ID-INTERNAL
                 END-EXEC.
+
+                MOVE "ACCOUNT_FROZEN" TO WS-AUDIT-ACTION.
+                STRING "Rapid-fire transfers detected for User ID: " WS-USER-ID-INTERNAL
+                       DELIMITED BY SIZE INTO WS-AUDIT-DETAILS.
+                MOVE "CRITICAL" TO WS-AUDIT-SEVERITY.
+                PERFORM LOG-AUDIT-EVENT.
 
                 MOVE 5 TO WS-EXIT-CODE
                 DISPLAY "ERROR|FRAUD_DETECTED|Rapid-fire transfers detected. Account FROZEN"
