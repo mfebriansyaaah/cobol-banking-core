@@ -971,8 +971,7 @@
                    " | Rate: " WS-ANNUAL-RATE 
                    " | Monthly: " WS-INTEREST-AMOUNT
                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
-            DISPLAY WS-OUTPUT-MSG.
-            MOVE 0 TO WS-EXIT-CODE.
+            DISPLAY WS-OUTPUT-MSG.`n`n            EXEC SQL`n                UPDATE user_profiles`n                SET loyalty_score = loyalty_score + :WS-LOYALTY-S-CHANGE`n                WHERE user_id = :WS-USER-ID-INTERNAL`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                MOVE 2 TO WS-EXIT-CODE`n                PERFORM CAPTURE-SQL-ERROR`n                EXIT PROGRAM.`n            END-IF.`n`n            MOVE 0 TO WS-EXIT-CODE.
 
         PROCESS-ACCRUE-INTEREST.
             IF CMD-PARAM1 = SPACES
@@ -1015,8 +1014,7 @@
             STRING "SUCCESS|INTEREST_ACCRUED|Daily accrual for " CMD-PARAM1 
                    " is: " WS-DAILY-INTEREST
                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
-            DISPLAY WS-OUTPUT-MSG.
-            MOVE 0 TO WS-EXIT-CODE.
+            DISPLAY WS-OUTPUT-MSG.`n`n            EXEC SQL`n                UPDATE user_profiles`n                SET loyalty_score = loyalty_score + :WS-LOYALTY-S-CHANGE`n                WHERE user_id = :WS-USER-ID-INTERNAL`n            END-EXEC.`n`n            IF SQLCODE NOT = 0`n                MOVE 2 TO WS-EXIT-CODE`n                PERFORM CAPTURE-SQL-ERROR`n                EXIT PROGRAM.`n            END-IF.`n`n            MOVE 0 TO WS-EXIT-CODE.
 
         PROCESS-INTEREST-PAYOUT.
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
@@ -1134,6 +1132,7 @@
                 MOVE 2 TO WS-EXIT-CODE
                 PERFORM CAPTURE-SQL-ERROR.
             END-IF.
+
 
 
 
