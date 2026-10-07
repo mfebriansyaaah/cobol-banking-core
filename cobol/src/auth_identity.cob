@@ -73,6 +73,7 @@
         01  WS-LIMIT-SINGLE-MAX    PIC S9(12)V9(4) COMP-3.
         01  WS-DAILY-VOLUME        PIC S9(12)V9(4) COMP-3.
         01  WS-USER-ID-INTERNAL    PIC 9(10) COMP-5.
+        01  WS-TXN-COUNT-RECENT    PIC 9(10) COMP-5.
         
         LINKAGE SECTION.
         01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -145,6 +146,16 @@
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
                     PERFORM PROCESS-CHECK-BALANCE
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+            
+            IF CMD-ACTION = "DETECT_FRAUD"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-DETECT-FRAUD
                 ELSE
                     PERFORM CAPTURE-SQL-ERROR
                 END-IF
@@ -600,3 +611,44 @@
 
             MOVE 0 TO WS-EXIT-CODE
             DISPLAY "SUCCESS|LIMITS_OK|Transaction within limits"
+
+        PROCESS-DETECT-FRAUD.
+            IF CMD-PARAM1 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email is required"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT u.id INTO :WS-USER-ID-INTERNAL
+                FROM users u
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|USER_NOT_FOUND|User not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT COUNT(*) INTO :WS-TXN-COUNT-RECENT
+                FROM ledger l
+                JOIN accounts a ON l.account_id = a.account_id
+                WHERE a.user_id = :WS-USER-ID-INTERNAL
+                AND l.created_at >= (NOW() - INTERVAL 1 MINUTE)
+            END-EXEC.
+
+            IF WS-TXN-COUNT-RECENT > 5
+                EXEC SQL
+                    UPDATE accounts SET status = 'FROZEN' 
+                    WHERE user_id = :WS-USER-ID-INTERNAL
+                END-EXEC.
+
+                MOVE 5 TO WS-EXIT-CODE
+                DISPLAY "ERROR|FRAUD_DETECTED|Rapid-fire transfers detected. Account FROZEN"
+                EXIT PROGRAM.
+            END-IF.
+
+            MOVE 0 TO WS-EXIT-CODE
+            DISPLAY "SUCCESS|NO_FRAUD|No suspicious patterns detected"
