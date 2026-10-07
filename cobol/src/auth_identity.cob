@@ -243,8 +243,19 @@
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
+            
+            IF CMD-ACTION = "UPGRADE_KYC"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-UPGRADE-KYC
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
 
             IF CMD-ACTION = "TRANSFER"
+
 
 
 
