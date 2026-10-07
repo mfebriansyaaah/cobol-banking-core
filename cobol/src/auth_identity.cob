@@ -575,7 +575,14 @@
             IF SQLCODE = 0
                 EXEC SQL COMMIT END-EXEC.
                 MOVE 0 TO WS-EXIT-CODE
-                DISPLAY "SUCCESS|TRANSFER_OK|Amount transferred successfully"
+                STRING "SUCCESS|TRANSFER_OK|Amount transferred successfully"
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+                DISPLAY WS-OUTPUT-MSG.
+
+                * --- INTEGRATED REWARD GRANT ---
+                MOVE CMD-PARAM1 TO CMD-PARAM1.
+                MOVE CMD-PARAM3 TO CMD-PARAM2.
+                PERFORM PROCESS-ADD-REWARDS.
             ELSE
                 EXEC SQL ROLLBACK END-EXEC.
                 MOVE 2 TO WS-EXIT-CODE
