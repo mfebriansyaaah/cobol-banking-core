@@ -255,7 +255,18 @@
                 STOP RUN WS-EXIT-CODE
             END-IF.
 
+            IF CMD-ACTION = "UPDATE_SCORE"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-UPDATE-SCORE
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
+
             IF CMD-ACTION = "TRANSFER"
+
 
 
 
