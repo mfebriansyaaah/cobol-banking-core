@@ -197,8 +197,19 @@
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
+            
+            IF CMD-ACTION = "PAY_INTEREST"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-INTEREST-PAYOUT
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
 
             IF CMD-ACTION = "TRANSFER"
+
 
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
@@ -794,6 +805,66 @@
                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
             DISPLAY WS-OUTPUT-MSG.
             MOVE 0 TO WS-EXIT-CODE.
+
+        PROCESS-INTEREST-PAYOUT.
+            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email and Amount are required"
+                EXIT PROGRAM.
+            END-IF.
+
+            MOVE CMD-PARAM2 TO WS-INTEREST-AMOUNT.
+
+            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
+
+            EXEC SQL
+                SELECT a.account_id INTO :WS-ACCOUNT-ID
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Account not found"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                UPDATE accounts a
+                SET a.balance = a.balance + :WS-INTEREST-AMOUNT
+                WHERE a.account_id = :WS-ACCOUNT-ID
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                EXEC SQL ROLLBACK END-EXEC.
+                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
+                VALUES ('INT-PAY', :WS-ACCOUNT-ID, :WS-INTEREST-AMOUNT, 'CREDIT', 1, 'Monthly Interest Payout')
+            END-EXEC.
+
+            IF SQLCODE = 0
+                EXEC SQL COMMIT END-EXEC.
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|INTEREST_PAID|Amount " WS-INTEREST-AMOUNT 
+                       " credited to " CMD-PARAM1
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+                DISPLAY WS-OUTPUT-MSG.
+            ELSE
+                EXEC SQL ROLLBACK END-EXEC.
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
+            END-IF.
+
+            EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
 
 
 
