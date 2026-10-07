@@ -79,6 +79,7 @@
         01  WS-AUDIT-SEVERITY         PIC X(10) VALUE "INFO".
         01  WS-ANNUAL-RATE            PIC S9(3)V9(4) COMP-3.
         01  WS-INTEREST-AMOUNT        PIC S9(12)V9(4) COMP-3.
+        01  WS-DAILY-INTEREST         PIC S9(12)V9(6) COMP-3.
         
         LINKAGE SECTION.
         01  LS-ARG-COUNT      PIC 9(4) COMP-5.
@@ -186,8 +187,19 @@
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.
+            
+            IF CMD-ACTION = "ACCRUE_INTEREST"
+                PERFORM CONNECT-DATABASE
+                IF EXIT-SUCCESS
+                    PERFORM PROCESS-ACCRUE-INTEREST
+                ELSE
+                    PERFORM CAPTURE-SQL-ERROR
+                END-IF
+                STOP RUN WS-EXIT-CODE
+            END-IF.
 
             IF CMD-ACTION = "TRANSFER"
+
                 PERFORM CONNECT-DATABASE
                 IF EXIT-SUCCESS
                     PERFORM PROCESS-TRANSFER
@@ -735,6 +747,50 @@
             STRING "SUCCESS|INTEREST_TIER|Balance: " WS-BALANCE 
                    " | Rate: " WS-ANNUAL-RATE 
                    " | Monthly: " WS-INTEREST-AMOUNT
+                   DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+            DISPLAY WS-OUTPUT-MSG.
+            MOVE 0 TO WS-EXIT-CODE.
+
+        PROCESS-ACCRUE-INTEREST.
+            IF CMD-PARAM1 = SPACES
+                MOVE 4 TO WS-EXIT-CODE
+                DISPLAY "ERROR|MISSING_PARAM|Email is required"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT a.balance INTO :WS-BALANCE
+                FROM accounts a
+                JOIN users u ON a.user_id = u.id
+                WHERE u.email = :CMD-PARAM1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 1 TO WS-EXIT-CODE
+                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|No account found"
+                EXIT PROGRAM.
+            END-IF.
+
+            EXEC SQL
+                SELECT annual_rate INTO :WS-ANNUAL-RATE
+                FROM interest_rates
+                WHERE :WS-BALANCE >= min_balance 
+                AND (:WS-BALANCE <= max_balance OR max_balance IS NULL)
+                AND is_active = TRUE
+                LIMIT 1
+            END-EXEC.
+
+            IF SQLCODE NOT = 0
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR
+                EXIT PROGRAM.
+            END-IF.
+
+            * Daily Interest = (Balance * Annual Rate) / 365
+            COMPUTE WS-DAILY-INTEREST = (WS-BALANCE * WS-ANNUAL-RATE) / 365.
+
+            STRING "SUCCESS|INTEREST_ACCRUED|Daily accrual for " CMD-PARAM1 
+                   " is: " WS-DAILY-INTEREST
                    DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
             DISPLAY WS-OUTPUT-MSG.
             MOVE 0 TO WS-EXIT-CODE.
