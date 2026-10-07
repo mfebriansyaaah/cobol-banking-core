@@ -780,8 +780,21 @@
                 EXIT PROGRAM.
             END-IF.
 
-            MOVE 0 TO WS-EXIT-CODE
-            DISPLAY "SUCCESS|VALIDATION_OK|KYC transition is valid"
+            EXEC SQL
+                UPDATE user_profiles p
+                SET p.kyc_level = :CMD-PARAM2
+                WHERE p.user_id = (SELECT id FROM users WHERE email = :CMD-PARAM1)
+            END-EXEC.
+
+            IF SQLCODE = 0
+                MOVE 0 TO WS-EXIT-CODE
+                STRING "SUCCESS|KYC_UPGRADED|User upgraded to " CMD-PARAM2
+                       DELIMITED BY SIZE INTO WS-OUTPUT-MSG.
+                DISPLAY WS-OUTPUT-MSG.
+            ELSE
+                MOVE 2 TO WS-EXIT-CODE
+                PERFORM CAPTURE-SQL-ERROR.
+            END-IF.
 
         PROCESS-CHECK-LIMITS.
             IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES
