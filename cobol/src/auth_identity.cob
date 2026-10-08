@@ -272,6 +272,7 @@
                 CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
                                          BY REFERENCE CMD-PARAM1 
                                          BY REFERENCE CMD-PARAM2 
+                                         BY REFERENCE CMD-PARAM3
                                          BY REFERENCE WS-OUTPUT-MSG
                 IF WS-EXIT-CODE NOT = 0
                     DISPLAY WS-OUTPUT-MSG

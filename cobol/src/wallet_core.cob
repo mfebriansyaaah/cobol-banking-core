@@ -60,9 +60,10 @@
        01  LS-CMD-ACTION          PIC X(30).
        01  LS-PARAM1              PIC X(100).
        01  LS-PARAM2              PIC X(100).
+       01  LS-PARAM3              PIC X(100).
        01  LS-OUTPUT-BUFFER      PIC X(500).
 
-       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-OUTPUT-BUFFER.
+       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-OUTPUT-BUFFER.
        
        MAIN-LOGIC.
            DISPLAY "--- WALLET CORE ENGINE STARTING ---".
@@ -101,10 +102,15 @@
        TRANSFER-LOGIC.
            DISPLAY "Executing INTERNAL_TRANSFER...".
            
-           * Param1: From Email, Param2: To Email, Param3: Amount (Handled via Linkage)
-           * Note: In this skeleton, we assume Param2 is the destination and 
-           * we might need a way to pass the amount. For now, we use a fixed amount 
-           * or a modified linkage for the real implementation.
+           * Parse Amount from LS-PARAM3
+           IF LS-PARAM3 = SPACES
+               MOVE 4 TO WS-EXIT-CODE
+               MOVE "ERROR|INVALID_ARG|Amount is required" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+           
+           * Simple conversion from String to Numeric
+           MOVE FUNCTION NUMVAL(LS-PARAM3) TO WS-TXN-AMOUNT.
            
            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
            
