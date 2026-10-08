@@ -100,6 +100,21 @@ CREATE TABLE IF NOT EXISTS verification_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- 7. Tabel Audit Trail (Financial Compliance & Security)
+CREATE TABLE IF NOT EXISTS audit_trail (
+    audit_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    entity_type VARCHAR(50), -- Contoh: 'ACCOUNT', 'LEDGER', 'USER'
+    entity_id VARCHAR(50),   -- ID dari entity yang diubah
+    old_value TEXT,
+    new_value TEXT,
+    ip_address VARCHAR(45),
+    status ENUM('SUCCESS', 'FAILED') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- Indexes
 CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_currency_iso ON currencies(iso_code);
@@ -108,3 +123,5 @@ CREATE INDEX idx_acc_user ON accounts(user_id);
 CREATE INDEX idx_acc_balance ON accounts(balance);
 CREATE INDEX idx_ledger_txn ON ledger(txn_ref);
 CREATE INDEX idx_ledger_acc_date ON ledger(account_id, created_at);
+CREATE INDEX idx_audit_user_date ON audit_trail(user_id, created_at);
+CREATE INDEX idx_audit_entity ON audit_trail(entity_type, entity_id);
