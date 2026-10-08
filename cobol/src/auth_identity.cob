@@ -58,20 +58,20 @@
         01  WS-RANDOM-CODE    PIC X(6) VALUE SPACES.
         
         * ---------------------------------------------------------
-        * Ledger & Transaction Variables
+        * Ledger & Transaction Variables (Legacy - Move to Wallet Core)
         * ---------------------------------------------------------
-        01  WS-ACCOUNT-ID      PIC 9(10) COMP-5.
-        01  WS-CURRENCY-ID    PIC 9(10) COMP-5.
-        01  WS-BALANCE        PIC S9(12)V9(4) COMP-3.
-        01  WS-TXN-AMOUNT     PIC S9(12)V9(4) COMP-3.
-        01  WS-TXN-REF        PIC X(50) VALUE SPACES.
-        01  WS-TXN-DESC       PIC X(255) VALUE SPACES.
-        01  WS-BASE-CURR-ID    PIC 9(10) COMP-5.
-        01  WS-TARGET-CURR-ID    PIC 9(10) COMP-5.
-        01  WS-EXCHANGE-RATE      PIC S9(12)V9(6) COMP-3.
-        01  WS-LIMIT-DAILY-MAX    PIC S9(12)V9(4) COMP-3.
-        01  WS-LIMIT-SINGLE-MAX    PIC S9(12)V9(4) COMP-3.
-        01  WS-DAILY-VOLUME        PIC S9(12)V9(4) COMP-3.
+        * 01  WS-ACCOUNT-ID      PIC 9(10) COMP-5.
+        * 01  WS-CURRENCY-ID    PIC 9(10) COMP-5.
+        * 01  WS-BALANCE        PIC S9(12)V9(4) COMP-3.
+        * 01  WS-TXN-AMOUNT     PIC S9(12)V9(4) COMP-3.
+        * 01  WS-TXN-REF        PIC X(50) VALUE SPACES.
+        * 01  WS-TXN-DESC       PIC X(255) VALUE SPACES.
+        * 01  WS-BASE-CURR-ID    PIC 9(10) COMP-5.
+        * 01  WS-TARGET-CURR-ID    PIC 9(10) COMP-5.
+        * 01  WS-EXCHANGE-RATE      PIC S9(12)V9(6) COMP-3.
+        * 01  WS-LIMIT-DAILY-MAX    PIC S9(12)V9(4) COMP-3.
+        * 01  WS-LIMIT-SINGLE-MAX    PIC S9(12)V9(4) COMP-3.
+        * 01  WS-DAILY-VOLUME        PIC S9(12)V9(4) COMP-3.
         01  WS-USER-ID-INTERNAL    PIC 9(10) COMP-5.
         01  WS-TXN-COUNT-RECENT    PIC 9(10) COMP-5.
         01  WS-AUDIT-ACTION           PIC X(100) VALUE SPACES.
@@ -156,11 +156,14 @@
             END-IF.
             
             IF CMD-ACTION = "CHECK_BALANCE"
-                PERFORM CONNECT-DATABASE
-                IF EXIT-SUCCESS
-                    PERFORM PROCESS-CHECK-BALANCE
+                CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
+                                         BY REFERENCE CMD-PARAM1 
+                                         BY REFERENCE CMD-PARAM2 
+                                         BY REFERENCE WS-OUTPUT-MSG
+                IF WS-EXIT-CODE NOT = 0
+                    DISPLAY WS-OUTPUT-MSG
                 ELSE
-                    PERFORM CAPTURE-SQL-ERROR
+                    DISPLAY WS-OUTPUT-MSG
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.

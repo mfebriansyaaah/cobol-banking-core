@@ -12,10 +12,15 @@
        WORKING-STORAGE SECTION.
        
        * ---------------------------------------------------------
+       * SQLCA - SQL Communication Area (Required for ODBC)
+       * ---------------------------------------------------------
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+
+       * ---------------------------------------------------------
        * Database Connection & Control
        * ---------------------------------------------------------
        01  WS-DB-CONTROL.
-           05  DSN-NAME            PIC X(50) VALUE "mysql_dsn".
+           05  DSN-NAME            PIC X(50) VALUE "COBOL_MYSQL".
            05  DB-USER             PIC X(50) VALUE "root".
            05  DB-PASS             PIC X(50) VALUE "".
            05  WS-SQL-STATE        PIC X(5) VALUE SPACES.
@@ -72,8 +77,22 @@
 
        GET-BALANCE-LOGIC.
            DISPLAY "Executing GET_BALANCE...".
-           MOVE 0 TO WS-EXIT-CODE.
-           MOVE "SUCCESS|BALANCE_OK|Balance fetched" TO LS-OUTPUT-BUFFER.
+           
+           EXEC SQL
+               SELECT a.balance, a.currency_id INTO :WS-ACCOUNT-BALANCE, :WS-ACCOUNT-CURR
+               FROM accounts a
+               JOIN users u ON a.user_id = u.id
+               WHERE u.email = :LS-PARAM1
+           END-EXEC.
+
+           IF SQLCODE = 0
+               MOVE 0 TO WS-EXIT-CODE
+               STRING "SUCCESS|BALANCE|" WS-ACCOUNT-BALANCE "|CURRENCY_ID:" WS-ACCOUNT-CURR
+                   DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+           ELSE
+               MOVE 1 TO WS-EXIT-CODE
+               MOVE "ERROR|ACCOUNT_NOT_FOUND|No account associated with this email" TO LS-OUTPUT-BUFFER
+           END-IF.
 
        TRANSFER-LOGIC.
            DISPLAY "Executing INTERNAL_TRANSFER...".
