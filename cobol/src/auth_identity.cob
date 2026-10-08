@@ -72,8 +72,8 @@
         * 01  WS-LIMIT-DAILY-MAX    PIC S9(12)V9(4) COMP-3.
         * 01  WS-LIMIT-SINGLE-MAX    PIC S9(12)V9(4) COMP-3.
         * 01  WS-DAILY-VOLUME        PIC S9(12)V9(4) COMP-3.
-        01  WS-USER-ID-INTERNAL    PIC 9(10) COMP-5.
-        01  WS-TXN-COUNT-RECENT    PIC 9(10) COMP-5.
+        * 01  WS-USER-ID-INTERNAL    PIC 9(10) COMP-5.
+        * 01  WS-TXN-COUNT-RECENT    PIC 9(10) COMP-5.
         01  WS-AUDIT-ACTION           PIC X(100) VALUE SPACES.
         01  WS-AUDIT-DETAILS         PIC X(255) VALUE SPACES.
         01  WS-AUDIT-SEVERITY         PIC X(10) VALUE "INFO".
@@ -881,132 +881,6 @@
                 PERFORM CAPTURE-SQL-ERROR.
             END-IF.
             
-        PROCESS-TRANSFER.
-            IF CMD-PARAM1 = SPACES OR CMD-PARAM2 = SPACES OR CMD-PARAM3 = SPACES
-                MOVE 4 TO WS-EXIT-CODE
-                DISPLAY "ERROR|MISSING_PARAM|From, To, and Amount are required"
-                EXIT PROGRAM.
-            END-IF.
-            
-            MOVE CMD-PARAM3 TO WS-TXN-AMOUNT.
-            
-            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
-            
-            EXEC SQL
-                SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID, :WS-BALANCE
-                FROM accounts a
-                JOIN users u ON a.user_id = u.id
-                WHERE u.email = :CMD-PARAM1
-            END-EXEC.
-            
-            IF SQLCODE NOT = 0
-                EXEC SQL ROLLBACK END-EXEC.
-                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
-                MOVE 1 TO WS-EXIT-CODE
-                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Source account not found"
-                EXIT PROGRAM.
-            END-IF.
-            
-            MOVE WS-CURRENCY-ID TO WS-BASE-CURR-ID.
-            
-            EXEC SQL
-                UPDATE accounts a
-                SET a.balance = a.balance - :WS-TXN-AMOUNT
-                WHERE a.account_id = :WS-ACCOUNT-ID
-                AND a.balance >= :WS-TXN-AMOUNT
-            END-EXEC.
-            
-            IF SQLCODE NOT = 0
-                EXEC SQL ROLLBACK END-EXEC.
-                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
-                MOVE 6 TO WS-EXIT-CODE
-                DISPLAY "ERROR|INSUFFICIENT_FUNDS|Insufficient balance or locked account"
-                EXIT PROGRAM.
-            END-IF.
-            
-            EXEC SQL
-                SELECT a.account_id, a.currency_id INTO :WS-ACCOUNT-ID, :WS-CURRENCY-ID
-                FROM accounts a
-                JOIN users u ON a.user_id = u.id
-                WHERE u.email = :CMD-PARAM2
-            END-EXEC.
-            
-            IF SQLCODE NOT = 0
-                EXEC SQL ROLLBACK END-EXEC.
-                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
-                MOVE 1 TO WS-EXIT-CODE
-                DISPLAY "ERROR|ACCOUNT_NOT_FOUND|Target account not found"
-                EXIT PROGRAM.
-            END-IF.
-            
-            MOVE WS-CURRENCY-ID TO WS-TARGET-CURR-ID.
-            
-            IF WS-BASE-CURR-ID NOT = WS-TARGET-CURR-ID
-                EXEC SQL
-                    SELECT exchange_rate INTO :WS-EXCHANGE-RATE
-                    FROM exchange_rates
-                    WHERE base_currency_id = :WS-BASE-CURR-ID
-                    AND target_currency_id = :WS-TARGET-CURR-ID
-                END-EXEC.
-                
-                IF SQLCODE NOT = 0
-                    EXEC SQL ROLLBACK END-EXEC.
-                    EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
-                    MOVE 2 TO WS-EXIT-CODE
-                    DISPLAY "ERROR|CONVERSION_FAILED|Exchange rate not found"
-                    EXIT PROGRAM.
-                END-IF.
-                
-                COMPUTE WS-CONVERTED-AMOUNT = WS-TXN-AMOUNT * WS-EXCHANGE-RATE.
-            ELSE
-                MOVE WS-TXN-AMOUNT TO WS-CONVERTED-AMOUNT.
-            END-IF.
-            
-            EXEC SQL
-                UPDATE accounts a
-                SET a.balance = a.balance + :WS-CONVERTED-AMOUNT
-                WHERE a.account_id = :WS-ACCOUNT-ID
-            END-EXEC.
-            
-            IF SQLCODE NOT = 0
-                EXEC SQL ROLLBACK END-EXEC.
-                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
-                MOVE 2 TO WS-EXIT-CODE
-                PERFORM CAPTURE-SQL-ERROR
-                EXIT PROGRAM.
-            END-IF.
-            
-            EXEC SQL
-                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-BASE-CURR-ID, 'Transfer to ' :CMD-PARAM2)
-            END-EXEC.
-            
-            EXEC SQL
-                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-                VALUES ('TXN-S', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'CREDIT', :WS-TARGET-CURR-ID, 'Transfer from ' :CMD-PARAM1)
-            END-EXEC.
-            
-            IF SQLCODE = 0
-                EXEC SQL COMMIT END-EXEC.
-                MOVE 0 TO WS-EXIT-CODE
-                DISPLAY "SUCCESS|TRANSFER_OK|Amount transferred successfully"
-                
-                * Integration: Automated Engagement Triggers
-                MOVE CMD-PARAM1 TO CMD-PARAM1
-                MOVE "Transfer Successful" TO CMD-PARAM2
-                MOVE "INFO" TO CMD-PARAM3
-                PERFORM PROCESS-SEND-NOTIF
-                
-                MOVE CMD-PARAM1 TO CMD-PARAM1
-                MOVE CMD-PARAM3 TO CMD-PARAM2
-                PERFORM PROCESS-UPDATE-SCORE
-            ELSE
-                EXEC SQL ROLLBACK END-EXEC.
-                MOVE 2 TO WS-EXIT-CODE
-                PERFORM CAPTURE-SQL-ERROR.
-            END-IF.
-            
-            EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
             
         CHECK-MANAGER-ACCESS.
             MOVE "MANAGER" TO CMD-PARAM2.
