@@ -269,11 +269,23 @@
             END-IF.
             
             IF CMD-ACTION = "TRANSFER"
-                PERFORM CONNECT-DATABASE
-                IF EXIT-SUCCESS
-                    PERFORM PROCESS-TRANSFER
+                CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
+                                         BY REFERENCE CMD-PARAM1 
+                                         BY REFERENCE CMD-PARAM2 
+                                         BY REFERENCE WS-OUTPUT-MSG
+                IF WS-EXIT-CODE NOT = 0
+                    DISPLAY WS-OUTPUT-MSG
                 ELSE
-                    PERFORM CAPTURE-SQL-ERROR
+                    DISPLAY WS-OUTPUT-MSG
+                    * Integration: Automated Engagement Triggers
+                    MOVE CMD-PARAM1 TO CMD-PARAM1
+                    MOVE "Transfer Successful" TO CMD-PARAM2
+                    MOVE "INFO" TO CMD-PARAM3
+                    PERFORM PROCESS-SEND-NOTIF
+                    
+                    MOVE CMD-PARAM1 TO CMD-PARAM1
+                    MOVE CMD-PARAM3 TO CMD-PARAM2
+                    PERFORM PROCESS-UPDATE-SCORE
                 END-IF
                 STOP RUN WS-EXIT-CODE
             END-IF.

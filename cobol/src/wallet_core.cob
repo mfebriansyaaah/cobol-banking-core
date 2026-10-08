@@ -41,6 +41,10 @@
            05  WS-TXN-AMOUNT       PIC 9(15)V9999 VALUE ZERO.
            05  WS-TXN-TYPE         PIC X(10) VALUE SPACES.
            05  WS-TXN-CURRENCY    PIC 9(10) VALUE ZERO.
+           05  WS-CONVERTED-AMT    PIC 9(15)V9999 VALUE ZERO.
+           05  WS-BASE-CURR-ID    PIC 9(10) VALUE ZERO.
+           05  WS-TARGET-CURR-ID   PIC 9(10) VALUE ZERO.
+           05  WS-EXCHANGE-RATE    PIC 9(12)V9(6) VALUE ZERO.
 
        * ---------------------------------------------------------
        * Exit Codes for Integration
@@ -96,5 +100,123 @@
 
        TRANSFER-LOGIC.
            DISPLAY "Executing INTERNAL_TRANSFER...".
-           MOVE 0 TO WS-EXIT-CODE.
-           MOVE "SUCCESS|TRANSFER_OK|Transfer processed" TO LS-OUTPUT-BUFFER.
+           
+           * Param1: From Email, Param2: To Email, Param3: Amount (Handled via Linkage)
+           * Note: In this skeleton, we assume Param2 is the destination and 
+           * we might need a way to pass the amount. For now, we use a fixed amount 
+           * or a modified linkage for the real implementation.
+           
+           EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
+           
+           * 1. Fetch Source Account
+           EXEC SQL
+               SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-ACCOUNT-CURR, :WS-ACCOUNT-BALANCE
+               FROM accounts a
+               JOIN users u ON a.user_id = u.id
+               WHERE u.email = :LS-PARAM1
+           END-EXEC.
+
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 1 TO WS-EXIT-CODE
+               MOVE "ERROR|ACCOUNT_NOT_FOUND|Source account not found" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+
+           MOVE WS-ACCOUNT-CURR TO WS-BASE-CURR-ID.
+
+           * 2. Deduct Balance (with Check)
+           * Note: WS-TXN-AMOUNT should be passed from caller.
+           EXEC SQL
+               UPDATE accounts a
+               SET a.balance = a.balance - :WS-TXN-AMOUNT
+               WHERE a.account_id = :WS-ACCOUNT-ID
+               AND a.balance >= :WS-TXN-AMOUNT
+           END-EXEC.
+
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 3 TO WS-EXIT-CODE
+               MOVE "ERROR|INSUFFICIENT_FUNDS|Insufficient balance" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+
+           * 3. Fetch Target Account
+           EXEC SQL
+               SELECT a.account_id, a.currency_id INTO :WS-ACCOUNT-ID, :WS-ACCOUNT-CURR
+               FROM accounts a
+               JOIN users u ON a.user_id = u.id
+               WHERE u.email = :LS-PARAM2
+           END-EXEC.
+
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 1 TO WS-EXIT-CODE
+               MOVE "ERROR|ACCOUNT_NOT_FOUND|Target account not found" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+
+           MOVE WS-ACCOUNT-CURR TO WS-TARGET-CURR-ID.
+
+           * 4. Currency Conversion
+           IF WS-BASE-CURR-ID NOT = WS-TARGET-CURR-ID
+               EXEC SQL
+                   SELECT exchange_rate INTO :WS-EXCHANGE-RATE
+                   FROM exchange_rates
+                   WHERE base_currency_id = :WS-BASE-CURR-ID
+                   AND target_currency_id = :WS-TARGET-CURR-ID
+               END-EXEC.
+
+               IF SQLCODE NOT = 0
+                   EXEC SQL ROLLBACK END-EXEC.
+                   EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+                   MOVE 2 TO WS-EXIT-CODE
+                   MOVE "ERROR|CONVERSION_FAILED|Exchange rate not found" TO LS-OUTPUT-BUFFER
+                   GOBACK.
+               END-IF.
+
+               COMPUTE WS-CONVERTED-AMT = WS-TXN-AMOUNT * WS-EXCHANGE-RATE.
+           ELSE
+               MOVE WS-TXN-AMOUNT TO WS-CONVERTED-AMT.
+           END-IF.
+
+           * 5. Credit Target Account
+           EXEC SQL
+               UPDATE accounts a
+               SET a.balance = a.balance + :WS-CONVERTED-AMT
+               WHERE a.account_id = :WS-ACCOUNT-ID
+           END-EXEC.
+
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 2 TO WS-EXIT-CODE
+               MOVE "ERROR|DB_ERROR|Failed to credit target account" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+
+           * 6. Ledger Entries
+           EXEC SQL
+               INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
+               VALUES ('TXN-CORE', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-BASE-CURR-ID, 'Transfer via WalletCore')
+           END-EXEC.
+
+           EXEC SQL
+               INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
+               VALUES ('TXN-CORE', :WS-ACCOUNT-ID, :WS-CONVERTED-AMT, 'CREDIT', :WS-TARGET-CURR-ID, 'Transfer via WalletCore')
+           END-EXEC.
+
+           IF SQLCODE = 0
+               EXEC SQL COMMIT END-EXEC.
+               MOVE 0 TO WS-EXIT-CODE
+               MOVE "SUCCESS|TRANSFER_OK|Amount transferred successfully" TO LS-OUTPUT-BUFFER
+           ELSE
+               EXEC SQL ROLLBACK END-EXEC.
+               MOVE 2 TO WS-EXIT-CODE
+               MOVE "ERROR|LEDGER_FAILED|Failed to write ledger" TO LS-OUTPUT-BUFFER
+           END-IF.
+
+           EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
