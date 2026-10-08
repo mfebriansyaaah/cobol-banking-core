@@ -27,11 +27,12 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB;
 
 -- 2. Tabel Currencies (Multi-currency Support)
+-- Standard: ISO 4217 (e.g., USD, IDR, EUR)
 CREATE TABLE IF NOT EXISTS currencies (
     currency_id INT AUTO_INCREMENT PRIMARY KEY,
-    iso_code CHAR(3) NOT NULL UNIQUE,
-    symbol VARCHAR(5) NOT NULL,
-    prec_val INT DEFAULT 2,
+    iso_code CHAR(3) NOT NULL UNIQUE, -- 3-letter ISO 4217 Currency Code
+    symbol VARCHAR(5) NOT NULL,        -- Currency symbol (e.g., $, Rp)
+    prec_val INT DEFAULT 2,           -- Decimal precision for the currency
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -65,7 +66,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     user_id INT NOT NULL,
     currency_id INT NOT NULL,
     account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT') DEFAULT 'SAVINGS',
-    balance DECIMAL(18, 4) NOT NULL DEFAULT 0.0000,
+    balance DECIMAL(18, 4) NOT NULL DEFAULT 0.0000 CHECK (balance >= 0),
     status ENUM('ACTIVE', 'FROZEN', 'CLOSED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -100,6 +101,21 @@ CREATE TABLE IF NOT EXISTS verification_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- 7. Tabel Audit Trail (Financial Compliance & Security)
+CREATE TABLE IF NOT EXISTS audit_trail (
+    audit_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    entity_type VARCHAR(50), -- Contoh: 'ACCOUNT', 'LEDGER', 'USER'
+    entity_id VARCHAR(50),   -- ID dari entity yang diubah
+    old_value TEXT,
+    new_value TEXT,
+    ip_address VARCHAR(45),
+    status ENUM('SUCCESS', 'FAILED') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- Indexes
 CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_currency_iso ON currencies(iso_code);
@@ -108,3 +124,5 @@ CREATE INDEX idx_acc_user ON accounts(user_id);
 CREATE INDEX idx_acc_balance ON accounts(balance);
 CREATE INDEX idx_ledger_txn ON ledger(txn_ref);
 CREATE INDEX idx_ledger_acc_date ON ledger(account_id, created_at);
+CREATE INDEX idx_audit_user_date ON audit_trail(user_id, created_at);
+CREATE INDEX idx_audit_entity ON audit_trail(entity_type, entity_id);
