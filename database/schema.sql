@@ -27,11 +27,12 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB;
 
 -- 2. Tabel Currencies (Multi-currency Support)
+-- Standard: ISO 4217 (e.g., USD, IDR, EUR)
 CREATE TABLE IF NOT EXISTS currencies (
     currency_id INT AUTO_INCREMENT PRIMARY KEY,
-    iso_code CHAR(3) NOT NULL UNIQUE,
-    symbol VARCHAR(5) NOT NULL,
-    prec_val INT DEFAULT 2,
+    iso_code CHAR(3) NOT NULL UNIQUE, -- 3-letter ISO 4217 Currency Code
+    symbol VARCHAR(5) NOT NULL,        -- Currency symbol (e.g., $, Rp)
+    prec_val INT DEFAULT 2,           -- Decimal precision for the currency
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
