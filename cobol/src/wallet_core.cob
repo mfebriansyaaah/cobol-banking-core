@@ -131,19 +131,21 @@
                GOBACK.
            END-IF.
 
-           * 2. Fetch Source Account
+           * 2. Fetch and Lock Source Account
            EXEC SQL
-               SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-ACCOUNT-CURR, :WS-ACCOUNT-BALANCE
+               SELECT a.account_id, a.currency_id, a.balance 
+               INTO :WS-ACCOUNT-ID, :WS-ACCOUNT-CURR, :WS-ACCOUNT-BALANCE
                FROM accounts a
                JOIN users u ON a.user_id = u.id
                WHERE u.email = :LS-PARAM1
+               FOR UPDATE
            END-EXEC.
 
            IF SQLCODE NOT = 0
                EXEC SQL ROLLBACK END-EXEC.
                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
                MOVE 1 TO WS-EXIT-CODE
-               MOVE "ERROR|ACCOUNT_NOT_FOUND|Source account not found" TO LS-OUTPUT-BUFFER
+               MOVE "ERROR|ACCOUNT_NOT_FOUND|Source account not found or locked" TO LS-OUTPUT-BUFFER
                GOBACK.
            END-IF.
 
