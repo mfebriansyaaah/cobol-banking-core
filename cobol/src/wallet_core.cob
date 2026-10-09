@@ -229,10 +229,40 @@
                VALUES (:WS-TXN-REF, :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-BASE-CURR-ID, 'Transfer via WalletCore')
            END-EXEC.
 
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 2 TO WS-EXIT-CODE
+               MOVE "ERROR|LEDGER_FAILED|Debit entry failed" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+
            EXEC SQL
                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
                VALUES (:WS-TXN-REF, :WS-ACCOUNT-ID, :WS-CONVERTED-AMT, 'CREDIT', :WS-TARGET-CURR-ID, 'Transfer via WalletCore')
            END-EXEC.
+
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 2 TO WS-EXIT-CODE
+               MOVE "ERROR|LEDGER_FAILED|Credit entry failed" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+
+           * 8. Audit Trail (Atomic Requirement)
+           EXEC SQL
+               INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status)
+               VALUES (:WS-ACCOUNT-USER, 'INTERNAL_TRANSFER', 'ACCOUNT', :WS-TXN-REF, 'SUCCESS')
+           END-EXEC.
+
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 2 TO WS-EXIT-CODE
+               MOVE "ERROR|AUDIT_FAILED|Critical audit log failure" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
 
            IF SQLCODE = 0
                EXEC SQL COMMIT END-EXEC.
@@ -241,7 +271,7 @@
            ELSE
                EXEC SQL ROLLBACK END-EXEC.
                MOVE 2 TO WS-EXIT-CODE
-               MOVE "ERROR|LEDGER_FAILED|Failed to write ledger" TO LS-OUTPUT-BUFFER
+               MOVE "ERROR|UNKNOWN_FAILURE|Unexpected error during commit" TO LS-OUTPUT-BUFFER
            END-IF.
 
            EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
