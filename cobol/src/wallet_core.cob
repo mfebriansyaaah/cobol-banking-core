@@ -109,12 +109,29 @@
                GOBACK.
            END-IF.
            
-           * Simple conversion from String to Numeric
            MOVE FUNCTION NUMVAL(LS-PARAM3) TO WS-TXN-AMOUNT.
            
+           * Generate Unique TXN REF
+           MOVE FUNCTION CURRENT_DATE(9) TO WS-TXN-REF.
+           STRING "TXN-" WS-TXN-REF DELIMITED BY SIZE INTO WS-TXN-REF.
+
            EXEC SQL SET AUTOCOMMIT = 0 END-EXEC.
            
-           * 1. Fetch Source Account
+           * 1. Create Intent (Persistence)
+           EXEC SQL
+               INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status)
+               VALUES (:WS-TXN-REF, :LS-PARAM1, :LS-PARAM2, :WS-TXN-AMOUNT, 'PENDING')
+           END-EXEC.
+
+           IF SQLCODE NOT = 0
+               EXEC SQL ROLLBACK END-EXEC.
+               EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
+               MOVE 2 TO WS-EXIT-CODE
+               MOVE "ERROR|INTENT_FAILED|Could not record transaction intent" TO LS-OUTPUT-BUFFER
+               GOBACK.
+           END-IF.
+
+           * 2. Fetch Source Account
            EXEC SQL
                SELECT a.account_id, a.currency_id, a.balance INTO :WS-ACCOUNT-ID, :WS-ACCOUNT-CURR, :WS-ACCOUNT-BALANCE
                FROM accounts a
@@ -132,8 +149,7 @@
 
            MOVE WS-ACCOUNT-CURR TO WS-BASE-CURR-ID.
 
-           * 2. Deduct Balance (with Check)
-           * Note: WS-TXN-AMOUNT should be passed from caller.
+           * 3. Deduct Balance (with Check)
            EXEC SQL
                UPDATE accounts a
                SET a.balance = a.balance - :WS-TXN-AMOUNT
@@ -149,7 +165,7 @@
                GOBACK.
            END-IF.
 
-           * 3. Fetch Target Account
+           * 4. Fetch Target Account
            EXEC SQL
                SELECT a.account_id, a.currency_id INTO :WS-ACCOUNT-ID, :WS-ACCOUNT-CURR
                FROM accounts a
@@ -167,7 +183,7 @@
 
            MOVE WS-ACCOUNT-CURR TO WS-TARGET-CURR-ID.
 
-           * 4. Currency Conversion
+           * 5. Currency Conversion
            IF WS-BASE-CURR-ID NOT = WS-TARGET-CURR-ID
                EXEC SQL
                    SELECT exchange_rate INTO :WS-EXCHANGE-RATE
@@ -189,7 +205,7 @@
                MOVE WS-TXN-AMOUNT TO WS-CONVERTED-AMT.
            END-IF.
 
-           * 5. Credit Target Account
+           * 6. Credit Target Account
            EXEC SQL
                UPDATE accounts a
                SET a.balance = a.balance + :WS-CONVERTED-AMT
@@ -204,15 +220,15 @@
                GOBACK.
            END-IF.
 
-           * 6. Ledger Entries
+           * 7. Ledger Entries
            EXEC SQL
                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-               VALUES ('TXN-CORE', :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-BASE-CURR-ID, 'Transfer via WalletCore')
+               VALUES (:WS-TXN-REF, :WS-ACCOUNT-ID, :WS-TXN-AMOUNT, 'DEBIT', :WS-BASE-CURR-ID, 'Transfer via WalletCore')
            END-EXEC.
 
            EXEC SQL
                INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description)
-               VALUES ('TXN-CORE', :WS-ACCOUNT-ID, :WS-CONVERTED-AMT, 'CREDIT', :WS-TARGET-CURR-ID, 'Transfer via WalletCore')
+               VALUES (:WS-TXN-REF, :WS-ACCOUNT-ID, :WS-CONVERTED-AMT, 'CREDIT', :WS-TARGET-CURR-ID, 'Transfer via WalletCore')
            END-EXEC.
 
            IF SQLCODE = 0
