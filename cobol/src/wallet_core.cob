@@ -265,6 +265,12 @@
            END-IF.
 
            IF SQLCODE = 0
+               * 9. Mark Intent as Committed
+               EXEC SQL
+                   UPDATE pending_transactions SET status = 'COMMITTED'
+                   WHERE txn_ref = :WS-TXN-REF
+               END-EXEC.
+
                EXEC SQL COMMIT END-EXEC.
                MOVE 0 TO WS-EXIT-CODE
                MOVE "SUCCESS|TRANSFER_OK|Amount transferred successfully" TO LS-OUTPUT-BUFFER
