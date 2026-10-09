@@ -116,6 +116,19 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- 8. Tabel Pending Transactions (Intent Persistence for Recovery)
+CREATE TABLE IF NOT EXISTS pending_transactions (
+    txn_ref VARCHAR(50) PRIMARY KEY,
+    from_email VARCHAR(100) NOT NULL,
+    to_email VARCHAR(100) NOT NULL,
+    amount DECIMAL(18,4) NOT NULL,
+    status ENUM('PENDING', 'COMMITTED', 'FAILED') DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email),
+    CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email)
+) ENGINE=InnoDB;
+
 -- Indexes
 CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_currency_iso ON currencies(iso_code);
