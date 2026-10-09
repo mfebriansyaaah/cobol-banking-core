@@ -163,29 +163,30 @@
                EXEC SQL ROLLBACK END-EXEC.
                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
                MOVE 3 TO WS-EXIT-CODE
-               MOVE "ERROR|INSUFFICIENT_FUNDS|Insufficient balance" TO LS-OUTPUT-BUFFER
+               MOVE "ERROR|INSUFFICIENT_FUNDS|Insufficient balance or account locked" TO LS-OUTPUT-BUFFER
                GOBACK.
            END-IF.
 
-           * 4. Fetch Target Account
+           * 4. Fetch and Lock Target Account
            EXEC SQL
                SELECT a.account_id, a.currency_id INTO :WS-ACCOUNT-ID, :WS-ACCOUNT-CURR
                FROM accounts a
                JOIN users u ON a.user_id = u.id
                WHERE u.email = :LS-PARAM2
+               FOR UPDATE
            END-EXEC.
 
            IF SQLCODE NOT = 0
                EXEC SQL ROLLBACK END-EXEC.
                EXEC SQL SET AUTOCOMMIT = 1 END-EXEC.
                MOVE 1 TO WS-EXIT-CODE
-               MOVE "ERROR|ACCOUNT_NOT_FOUND|Target account not found" TO LS-OUTPUT-BUFFER
+               MOVE "ERROR|ACCOUNT_NOT_FOUND|Target account not found or locked" TO LS-OUTPUT-BUFFER
                GOBACK.
            END-IF.
 
            MOVE WS-ACCOUNT-CURR TO WS-TARGET-CURR-ID.
 
-           * 5. Currency Conversion
+           * 5. Currency Conversion Logic
            IF WS-BASE-CURR-ID NOT = WS-TARGET-CURR-ID
                EXEC SQL
                    SELECT exchange_rate INTO :WS-EXCHANGE-RATE
