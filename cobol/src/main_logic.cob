@@ -1,71 +1,77 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. main_logic.
 
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+        SPECIAL-NAMES.
+            DECIMAL-POINT IS COMMA.
 
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
-       01  CMD-ACTION        PIC X(20) VALUE SPACES.
-       01  CMD-PARAM1        PIC X(100) VALUE SPACES.
-       01  CMD-PARAM2        PIC X(100) VALUE SPACES.
-       01  CMD-PARAM3        PIC X(100) VALUE SPACES.
-       01  CMD-PARAM4        PIC X(100) VALUE SPACES.
-       01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
+        INPUT-OUTPUT SECTION.
+        FILE-CONTROL.
+            SELECT INPUT-FILE ASSIGN TO "input.txt"
+                ORGANIZATION IS LINE SEQUENTIAL.
+            SELECT OUTPUT-FILE ASSIGN TO "output.txt"
+                ORGANIZATION IS LINE SEQUENTIAL.
 
-       PROCEDURE DIVISION.
-       
-       MAIN-LOGIC.
-           ACCEPT CMD-ACTION.
-           ACCEPT CMD-PARAM1.
-           ACCEPT CMD-PARAM2.
-           ACCEPT CMD-PARAM3.
-           ACCEPT CMD-PARAM4.
+        DATA DIVISION.
+        FILE SECTION.
+        FD  INPUT-FILE.
+        01  INPUT-RECORD     PIC X(500).
+        FD  OUTPUT-FILE.
+        01  OUTPUT-RECORD     PIC X(500).
 
-           IF CMD-ACTION = SPACES
-               DISPLAY "ERROR|MISSING_ACTION"
-               STOP RUN
-           END-IF.
-
-           EVALUATE TRUE
-               WHEN CMD-ACTION(1:13) = "CHECK_BALANCE"
-                   CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
-                                             BY REFERENCE CMD-PARAM1 
-                                             BY REFERENCE CMD-PARAM2 
-                                             BY REFERENCE CMD-PARAM3
-                                             BY REFERENCE WS-OUTPUT-MSG
-                   DISPLAY WS-OUTPUT-MSG
-               
-               WHEN CMD-ACTION(1:8) = "TRANSFER"
-                   CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
-                                             BY REFERENCE CMD-PARAM1 
-                                             BY REFERENCE CMD-PARAM2 
-                                             BY REFERENCE CMD-PARAM3
-                                             BY REFERENCE WS-OUTPUT-MSG
-                   DISPLAY WS-OUTPUT-MSG
-               
-               WHEN CMD-ACTION(1:8) = "GET_USER"
-                   CALL "USER-CORE" USING BY REFERENCE CMD-ACTION 
-                                           BY REFERENCE CMD-PARAM1 
-                                           BY REFERENCE CMD-PARAM2 
-                                           BY REFERENCE CMD-PARAM3 
-                                           BY REFERENCE CMD-PARAM4
-                                           BY REFERENCE WS-OUTPUT-MSG
-                   DISPLAY WS-OUTPUT-MSG
-               
-               WHEN CMD-ACTION(1:10) = "LIST_USERS"
-                   CALL "USER-CORE" USING BY REFERENCE CMD-ACTION 
-                                           BY REFERENCE CMD-PARAM1 
-                                           BY REFERENCE CMD-PARAM2 
-                                           BY REFERENCE CMD-PARAM3 
-                                           BY REFERENCE CMD-PARAM4
-                                           BY REFERENCE WS-OUTPUT-MSG
-                   DISPLAY WS-OUTPUT-MSG
-               
-               WHEN OTHER
-                   DISPLAY "ERROR|INVALID_ACTION"
-           END-EVALUATE.
-           
-           STOP RUN.
+        WORKING-STORAGE SECTION.
+        01  INPUT-BUFFER       PIC X(500) VALUE SPACES.
+        01  CMD-ACTION        PIC X(20) VALUE SPACES.
+        01  CMD-PARAM1        PIC X(100) VALUE SPACES.
+        01  CMD-PARAM2        PIC X(100) VALUE SPACES.
+        01  CMD-PARAM3        PIC X(100) VALUE SPACES.
+        01  CMD-PARAM4        PIC X(100) VALUE SPACES.
+        01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
+        
+        PROCEDURE DIVISION.
+        
+        MAIN-LOGIC.
+            OPEN INPUT INPUT-FILE.
+            OPEN OUTPUT OUTPUT-FILE.
+            
+            READ INPUT-FILE INTO INPUT-BUFFER
+                AT END 
+                    CLOSE INPUT-FILE
+                    CLOSE OUTPUT-FILE
+                    STOP RUN
+                END-READ.
+            
+            UNSTRING INPUT-BUFFER DELIMITED BY "|" 
+                INTO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, CMD-PARAM3, CMD-PARAM4
+            END-UNSTRING.
+            
+            IF INPUT-BUFFER = SPACES
+                MOVE "ERROR|MISSING_ACTION" TO OUTPUT-RECORD
+                WRITE OUTPUT-RECORD
+                STOP RUN
+            END-IF.
+            
+            IF FUNCTION INSTRING("GET_BALANCE", INPUT-BUFFER) > 0
+                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
+                MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
+                WRITE OUTPUT-RECORD
+            ELSE IF FUNCTION INSTRING("TRANSFER", INPUT-BUFFER) > 0
+                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
+                MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
+                WRITE OUTPUT-RECORD
+            ELSE IF FUNCTION INSTRING("GET_USER", INPUT-BUFFER) > 0
+                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
+                MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
+                WRITE OUTPUT-RECORD
+            ELSE IF FUNCTION INSTRING("LIST_USERS", INPUT-BUFFER) > 0
+                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
+                MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
+                WRITE OUTPUT-RECORD
+            ELSE
+                MOVE "ERROR|INVALID_ACTION" TO OUTPUT-RECORD
+                WRITE OUTPUT-RECORD
+            END-IF.
+            
+            CLOSE OUTPUT-FILE.
+            STOP RUN.
