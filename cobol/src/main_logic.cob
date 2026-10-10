@@ -35,16 +35,18 @@
                                               BY REFERENCE CMD-PARAM1 
                                               BY REFERENCE CMD-PARAM2 
                                               BY REFERENCE CMD-PARAM3
+                                              BY REFERENCE CMD-PARAM4
                                               BY REFERENCE WS-OUTPUT-MSG
                     DISPLAY WS-OUTPUT-MSG
                
-               WHEN CMD-ACTION(1:8) = "TRANSFER"
-                   CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
-                                             BY REFERENCE CMD-PARAM1 
-                                             BY REFERENCE CMD-PARAM2 
-                                             BY REFERENCE CMD-PARAM3
-                                             BY REFERENCE WS-OUTPUT-MSG
-                   DISPLAY WS-OUTPUT-MSG
+                WHEN CMD-ACTION(1:8) = "TRANSFER"
+                    CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
+                                              BY REFERENCE CMD-PARAM1 
+                                              BY REFERENCE CMD-PARAM2 
+                                              BY REFERENCE CMD-PARAM3
+                                              BY REFERENCE CMD-PARAM4
+                                              BY REFERENCE WS-OUTPUT-MSG
+                    DISPLAY WS-OUTPUT-MSG
                
                WHEN CMD-ACTION(1:8) = "GET_USER"
                    CALL "USER-CORE" USING BY REFERENCE CMD-ACTION 
