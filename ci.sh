@@ -1,10 +1,13 @@
 #!/bin/bash
-# One-shot CI: static COBOL checks -> build -> both test suites.
+# One-shot CI: docs integrity -> static COBOL checks -> build -> both test suites.
 # Usage: ./ci.sh
 
 set -e
 
-echo "=== [1/4] Static COBOL checks ==="
+echo "=== [1/5] Docs integrity check ==="
+./tests/docs_check.sh
+
+echo "=== [2/5] Static COBOL checks ==="
 viol=0
 
 # Violation 1: sentence period inside an inline IF/ELSE scope.
@@ -44,17 +47,20 @@ if [ "$viol" = 1 ]; then
 fi
 echo "OK"
 
-echo "=== [2/4] Build ==="
+echo "=== [3/5] Build ==="
 build_log=$(./build.sh 2>&1 || true)
 echo "$build_log" | grep -E "^cobol.*error:" && { echo "BUILD FAILED"; exit 1; }
 echo "$build_log" | grep -q "SUCCESS: Binary created" || { echo "BUILD FAILED"; exit 1; }
 echo "Build OK"
 
-echo "=== [3/4] Functional suite ==="
-suite_tail=$(./tests/test_suite.sh 2>/dev/null | tail -1)
-echo "$suite_tail"
+echo "=== [4/5] Functional suite ==="
+func_out=$(./tests/test_suite.sh 2>/dev/null)
+echo "$func_out" | tail -1
+func_fail=$(echo "$func_out" | grep -oE '[0-9]+ failed' | grep -oE '[0-9]+' | head -1 || echo 0)
+func_fail=${func_fail:-0}
+[ "$func_fail" -eq 0 ] || { echo "FUNCTIONAL SUITE FAILED"; exit 1; }
 
-echo "=== [4/4] Atomic transaction suite ==="
+echo "=== [5/5] Atomic transaction suite ==="
 atomic_out=$(./tests/test_atomic_txn.sh 2>/dev/null)
 atomic_pass=$(echo "$atomic_out" | grep -c '\[0;32mPASS' || true)
 atomic_fail=$(echo "$atomic_out" | grep -c '\[0;31mFAIL' || true)
