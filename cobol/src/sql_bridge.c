@@ -76,6 +76,7 @@ void SQL_EXECUTE() {
     } else {
         row = mysql_fetch_row(res);
         if (row) {
+            printf("[DEBUG_C] Row found: %s\\n", row[0] ? row[0] : "NULL");
             G_RESULT[0] = '\0';
             unsigned int num_fields = mysql_num_fields(res);
             for (unsigned int i = 0; i < num_fields; i++) {
