@@ -12,12 +12,34 @@
 char G_QUERY[1024] = {0};
 char G_RESULT[1024] = {0};
 
+void sanitize_string(char *str) {
+    if (!str) return;
+    int i = 0;
+    while (str[i]) {
+        if (!isprint((unsigned char)str[i]) && str[i] != '\n' && str[i] != '\r' && str[i] != '\t') {
+            str[i] = ' ';
+        }
+        i++;
+    }
+}
+
 void trim_trailing_spaces(char *str) {
     if (!str) return;
     int len = strlen(str);
     while (len > 0 && isspace((unsigned char)str[len - 1])) {
         str[len - 1] = '\0';
         len--;
+    }
+}
+
+void trim_leading_spaces(char *str) {
+    if (!str) return;
+    int start = 0;
+    while (str[start] && isspace((unsigned char)str[start])) {
+        start++;
+    }
+    if (start > 0) {
+        memmove(str, str + start, strlen(str + start) + 1);
     }
 }
 
@@ -30,7 +52,8 @@ void SET_QUERY(char *query) {
 
 void GET_RESULT(char *result) {
     if (!result) return;
-    strncpy(result, G_RESULT, 1023);
+    strncpy(result, G_RESULT, 511);
+    result[511] = '\0';
 }
 
 void SQL_EXECUTE() {
@@ -44,11 +67,13 @@ void SQL_EXECUTE() {
         return;
     }
 
-    if (mysql_real_connect(conn, "localhost", "root", "", "cobol_wallet", 3306, NULL, 0) == NULL) {
+    if (mysql_real_connect(conn, "localhost", "cobol_user", "cobol_pass", "cobol_db", 3306, NULL, 0) == NULL) {
         strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
         mysql_close(conn);
         return;
     }
+
+    fprintf(stderr, "[SQL_BRIDGE] Executing: %s\\n", G_QUERY);
 
     if (mysql_query(conn, G_QUERY)) {
         strncpy(G_RESULT, "ERROR|QUERY_FAILED", 1023);
@@ -63,11 +88,17 @@ void SQL_EXECUTE() {
     } else {
         row = mysql_fetch_row(res);
         if (row) {
+            printf("[DEBUG_C] Row found: %s\\n", row[0] ? row[0] : "NULL");
             G_RESULT[0] = '\0';
             unsigned int num_fields = mysql_num_fields(res);
             for (unsigned int i = 0; i < num_fields; i++) {
                 if (row[i]) {
-                    strncat(G_RESULT, row[i], 1023 - strlen(G_RESULT) - 1);
+                    char temp[256];
+                    strncpy(temp, row[i], 255);
+                    temp[255] = '\0';
+                    sanitize_string(temp);
+                    trim_trailing_spaces(temp);
+                    strncat(G_RESULT, temp, 1023 - strlen(G_RESULT) - 1);
                 } else {
                     strncat(G_RESULT, "NULL", 1023 - strlen(G_RESULT) - 1);
                 }

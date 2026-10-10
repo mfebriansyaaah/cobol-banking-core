@@ -1,15 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 (InnoDB, utf8mb4)
--- Database: cobol_wallet
 -- Purpose: Ensuring Financial Integrity and Strict Identity
 -- Version: 1.2.0
 -- Changelog:
 --   v1.2.0 - Integrated Multi-Currency Accounts and Atomic Ledger
 --   v1.1.0 - Fixed index typo, added performance indexes on verification_logs
 --   v1.0.0 - Initial schema: users, ledger, verification_logs tables
-
-CREATE DATABASE IF NOT EXISTS cobol_//_wallet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE cobol_wallet;
 
 -- 1. Tabel Users (Identity & Profile)
 CREATE TABLE IF NOT EXISTS users (
@@ -50,7 +46,7 @@ CREATE TABLE IF NOT EXISTS exchange_rates (
     target_currency_id INT NOT NULL,
     exchange_rate DECIMAL(18, 6) NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_base_curr FOREIGN KEY (base_//_currency_id) REFERENCES currencies(currency_id),
+    CONSTRAINT fk_base_curr FOREIGN KEY (base_currency_id) REFERENCES currencies(currency_id),
     CONSTRAINT fk_target_curr FOREIGN KEY (target_currency_id) REFERENCES currencies(currency_id),
     UNIQUE KEY unique_pair (base_currency_id, target_currency_id)
 ) ENGINE=InnoDB;
