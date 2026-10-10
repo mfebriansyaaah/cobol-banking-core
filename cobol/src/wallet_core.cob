@@ -73,7 +73,7 @@
 
         GET-BALANCE-LOGIC.
             MOVE SPACES TO WS-QUERY.
-            STRING "SELECT balance FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
+            STRING "SELECT a.balance FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
                    WS-PARAM1-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING.
             
