@@ -12,18 +12,18 @@
         DATA DIVISION.
         FILE SECTION.
         FD  INPUT-FILE.
-        01  INPUT-RECORD       PIC X(500).
+        01  INPUT-RECORD       PIC X(100).
         FD  OUTPUT-FILE.
-        01  OUTPUT-RECORD     PIC X(500).
+        01  OUTPUT-RECORD     PIC X(100).
 
         WORKING-STORAGE SECTION.
-        01  INPUT-BUFFER       PIC X(500) VALUE SPACES.
+        01  INPUT-BUFFER       PIC X(100) VALUE SPACES.
         01  CMD-ACTION        PIC X(20) VALUE SPACES.
         01  CMD-PARAM1        PIC X(100) VALUE SPACES.
         01  CMD-PARAM2        PIC X(100) VALUE SPACES.
         01  CMD-PARAM3        PIC X(100) VALUE SPACES.
         01  CMD-PARAM4        PIC X(100) VALUE SPACES.
-        01  WS-OUTPUT-MSG     PIC X(500) VALUE SPACES.
+        01  WS-OUTPUT-MSG     PIC X(100) VALUE SPACES.
        01  SIM-DB-USERS.
            05  USER-ENTRY OCCURS 100 TIMES.
                10 USER-ID       PIC 9(10).
@@ -52,9 +52,13 @@
             PERFORM INIT-SIM-DB.
             
             READ INPUT-FILE INTO INPUT-BUFFER
-                AT END STOP RUN
-            END-READ.
+                AT END 
+                    CLOSE INPUT-FILE
+                    CLOSE OUTPUT-FILE
+                    STOP RUN
+                END-READ.
             
+            MOVE SPACES TO OUTPUT-RECORD.
             UNSTRING INPUT-BUFFER DELIMITED BY "|" 
                 INTO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, CMD-PARAM3, CMD-PARAM4
             END-UNSTRING.
@@ -102,17 +106,19 @@
 
         GET-BALANCE-LOGIC.
             PERFORM FIND-USER-BY-EMAIL.
+            MOVE SPACES TO OUTPUT-RECORD.
             IF WS-FOUND-IDX = 0
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO OUTPUT-RECORD
             ELSE
                 MOVE ACC-BALANCE-RAW(WS-FOUND-IDX) TO WS-NUM-CONV
-                MOVE WS-NUM-CONV TO OUTPUT-RECORD
+                MOVE FUNCTION TRIM(WS-NUM-CONV) TO OUTPUT-RECORD
             END-IF.
             WRITE OUTPUT-RECORD.
             GOBACK.
 
         TRANSFER-LOGIC.
             PERFORM FIND-USER-BY-EMAIL.
+            MOVE SPACES TO OUTPUT-RECORD.
             IF WS-FOUND-IDX = 0
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO OUTPUT-RECORD
                 WRITE OUTPUT-RECORD
@@ -146,6 +152,7 @@
 
         ACTION-GET-USER.
             MOVE 0 TO WS-FOUND-IDX.
+            MOVE SPACES TO OUTPUT-RECORD.
             PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > USER-COUNT
                 IF USER-EMAIL(WS-IDX) = CMD-PARAM1
                     MOVE WS-IDX TO WS-FOUND-IDX
@@ -155,13 +162,16 @@
             IF WS-FOUND-IDX = 0
                 MOVE "ERROR|NOT_FOUND" TO OUTPUT-RECORD
             ELSE
-                STRING USER-ID(WS-FOUND-IDX) "|" USER-EMAIL(WS-FOUND-IDX) 
+                MOVE WS-NUM-CONV TO SPACES
+                MOVE USER-ID(WS-FOUND-IDX) TO WS-NUM-CONV
+                STRING WS-NUM-CONV "|" USER-EMAIL(WS-FOUND-IDX) 
                        DELIMITED BY SIZE INTO OUTPUT-RECORD END-STRING
             END-IF.
             WRITE OUTPUT-RECORD.
             GOBACK.
 
         ACTION-LIST-USERS.
+            MOVE SPACES TO OUTPUT-RECORD.
             MOVE "SUCCESS|LIST_DONE" TO OUTPUT-RECORD.
             WRITE OUTPUT-RECORD.
             GOBACK.
