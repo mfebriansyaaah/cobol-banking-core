@@ -1,44 +1,46 @@
 # Spec: user-profile
 
-## Objective
-Implement the user profile management system. This module provides a read-only dashboard for users to see their essential account info and a strict, two-step verification process for updating their email address to prevent account hijacking.
+Status: **not started** — no dedicated module exists. A minimal slice is served by `user_core.cob`.
+Last verified against code: 2026-10-10
 
-## Tech Stack
-- **Language:** GnuCOBOL (with `cob-odbc`)
-- **Database:** MySQL 8.0
-- **Interface:** Node.js Express (via CLI Call)
+## Objective (unchanged)
 
-## Commands
-- **Build:** `cobc -x -o cobol/bin/user_profile.exe cobol/src/user_profile.cob -lodbc32`
-- **Test:** `cobol/bin/user_profile.exe GET_DASHBOARD 101`
-- **Dev:** `npm run dev` (via middleware)
+Profile management: a read-only dashboard of essential account info, plus a strict two-step verification flow for changing the registered email.
 
-## Project Structure
-- `cobol/src/user_profile.cob` $\rightarrow$ Profile and email update logic
-- `cobol/bin/user_profile.exe` $\rightarrow$ Compiled binary
-- `database/schema.sql` $\rightarrow$ User table definition
+## As-Built (what exists today)
 
-## Code Style
-- **Consistency:** Strict separation between read-only actions (Dashboard) and write actions (Email Update).
-- **Output:** Pipe-delimited strings (`|`) to `stdout`.
-- **Validation:** All email updates must be preceded by a successful verification code check.
-- **Example Output:** `SUCCESS|DASHBOARD|150000|user@email.com|Budi Santoso`
+- **Source:** `cobol/src/user_core.cob` (program id `user_core`) — the closest thing to this module.
+- **Reachable through:** `main_logic.cob` routes `GET_USER` and `LIST_USERS` here; compiled by `build.sh`; DB via `sql_bridge.c` (libmysqlclient, `cobol_db`).
 
-## Testing Strategy
-- **Unauthorized Access Test:** Attempt to access the dashboard of another user by manipulating `user_id`.
-- **Verification Flow Test:** Ensure email cannot be updated without a valid 6-digit code.
-- **Invalid Code Test:** Verify that incorrect codes return Exit Code 1 (Not Found/Invalid).
+| Action | Params | Behavior today | Outputs |
+|---|---|---|---|
+| `GET_USER` | `p1=email` | `SELECT id, email FROM users WHERE email='…' LIMIT 1` | `1|sender@test.com` · `ERROR|NOT_FOUND` |
+| `LIST_USERS` | — | returns a fixed success string (no real listing yet) | `SUCCESS|LIST_DONE` |
 
-## Boundaries
-- **Always:** Validate the user's current session/ID before allowing any profile change.
-- **Ask first:** Adding more editable fields to the user profile.
-- **Never:** Allow the user to change their `user_id` or `dob` (Date of Birth) once registered.
+- **No** dedicated `user_profile` module source exists. There is no `GET_DASHBOARD`, `REQ_EMAIL_CHANGE`, or `CONFIRM_EMAIL_CHANGE` implementation anywhere in the codebase.
 
-## Success Criteria
-- [ ] `GET_DASHBOARD` returns exactly: `balance`, `email`, and `full_name`.
-- [ ] `REQ_EMAIL_CHANGE` generates a 6-digit code and stores it in the DB for the specific user.
-- [ ] `CONFIRM_EMAIL_CHANGE` only updates the email if the provided code matches the one in the DB.
-- [ ] User cannot change their email to one that is already registered by another user.
+## To add (the whole module is missing)
 
-## Open Questions
-- Should we implement an expiration time for the email change verification code (e.g., valid for only 15 minutes)?
+- [ ] `GET_DASHBOARD` returning exactly `balance`, `email`, `full_name` for the requesting user.
+- [ ] `REQ_EMAIL_CHANGE`: generate a 6-digit code, persist it (`verification_logs` table already exists with `email`, `code`, `purpose ENUM('SIGNUP','EMAIL_CHANGE')`, `expires_at`, `is_used`).
+- [ ] `CONFIRM_EMAIL_CHANGE`: update the email only if the code matches, is unused, and unexpired.
+- [ ] Uniqueness guard: reject changing to an email already registered to another user (`users.email` is `UNIQUE`).
+- [ ] Make `LIST_USERS` actually return the user list (it currently returns a constant).
+- [ ] Tests: unauthorized access, verification-flow, and invalid-code cases (the original spec's testing strategy), added to `tests/`.
+
+## Conventions to conform to (as built)
+
+- Lives in the file-based binary: reads `input.txt` (`ACTION|p1|p2|p3|p4`), writes `output.txt`; connect via `sql_bridge.c` (`SET_QUERY`/`SQL_EXECUTE`/`GET_RESULT`).
+- Action name must be added to the routing contract in **all three** of `main_logic.cob`, `user_core.cob` (or a new `user_profile.cob` registered in `build.sh`), and reviewed together.
+- Substring match by exact length; no `FUNCTION TRIM(...) = "literal"` (`CODING_STANDARDS.md`).
+- Amounts/ids returned as trimmed text; `DECIMAL-POINT IS COMMA` is set in existing modules.
+
+## Code style
+
+- Pipe-delimited single-line output; one result per run.
+- `PERFORM`ed helper paragraphs: no `GOBACK`, end with `EXIT PARAGRAPH.`.
+
+## Open questions
+
+- New `user_profile.cob`, or extend `user_core.cob`? Extending avoids a fourth file in the routing contract.
+- Email-change code expiry window (e.g. 15 minutes) — the original spec left this open.

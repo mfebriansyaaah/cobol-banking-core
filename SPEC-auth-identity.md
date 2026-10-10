@@ -1,48 +1,40 @@
 # Spec: auth-identity
 
-## Objective
-Implement a strict identity and authentication system where COBOL handles the business logic of registration, email verification, and secure login, ensuring no unverified user can access the system.
+Status: **built in source, not wired** — `auth_identity.cob` implements the logic but is not compiled into the running binary and not reachable through `main_logic`.
+Last verified against code: 2026-10-10
 
-## Tech Stack
-- **Language:** GnuCOBOL (with `cob-odbc`)
-- **Database:** MySQL 8.0
-- **Security:** External C-Library for Password Hashing (Bcrypt/Argon2)
-- **Interface:** Node.js Express (via CLI Call)
+## Objective (unchanged)
 
-## Commands
-- **Build:** `cobc -x -O3 -o cobol/bin/auth_identity.exe cobol/src/auth_identity.cob cobol/c_lib/hash_lib.c -lodbc32`
-- **Test:** `cobol/bin/auth_identity.exe REQUEST_SIGNUP "email|pass|name|dob"`
-- **Dev:** `npm run dev` (via middleware)
+Strict identity and authentication: registration, email verification, secure login, so no unverified user can transact.
 
-## Project Structure
-- `cobol/src/auth_identity.cob` $\rightarrow$ Core authentication logic
-- `cobol/bin/auth_identity.exe` $\rightarrow$ Compiled binary
-- `cobol/config/odbc.ini` $\rightarrow$ DSN for MySQL connection
+## As-Built (what exists today)
 
-## Code Style
-- **Naming:** CamelCase for variables, UPPER_SNAKE_CASE for constants/actions.
-- **Output:** Pipe-delimited strings (`|`) to `stdout`.
-- **Status:** Return specific Exit Codes for error handling.
-- **Example Output:** `SUCCESS|USER_CREATED|101` or `ERROR|INVALID_CODE|Code is incorrect`
+- **Source:** `cobol/src/auth_identity.cob` (program id `AUTH_IDENTITY`).
+- **DB access:** embedded SQL (`EXEC SQL INCLUDE SQLCA`, `EXEC SQL … END-EXEC`) targeting DSN `COBOL_MYSQL` — i.e. the **ODBC path**, configured by `cobol/config/odbc.ini`.
+- **Invocation model:** command-line arguments via `LINKAGE` (`LS-ARG-COUNT`, `LS-ARG-VALUE`), exited through `STOP RUN WS-EXIT-CODE` (exit codes: 0 success, 1 not found, 2 DB error, 4 invalid arg).
+- **Hash library:** `cobol/c_lib/hash_lib.c` (SHA-256 + 6-digit RNG) via `CALL "generate_random_code"` / hashing call.
+- **Build status:** **not** in `build.sh`; `build.bat` (Windows) still targets `cobol/bin/auth_identity.exe` with `-lodbc32`, but that is a separate, older build path. `main_logic.cob` never calls `AUTH_IDENTITY`.
 
-## Testing Strategy
-- **Unit Tests:** Manual CLI calls to the binary with various inputs (valid/invalid email, wrong code).
-- **Integration Tests:** Node.js API calls $\rightarrow$ COBOL $\rightarrow$ MySQL.
-- **Security Tests:** Attempting to login with `UNVERIFIED` status.
+### Actions actually implemented
 
-## Boundaries
-- **Always:** Hash passwords before storing, validate email uniqueness, use SQL Transactions.
-- **Ask first:** Changing the hashing algorithm or adding new user fields.
-- **Never:** Store passwords in plain text, allow login for unverified accounts.
+`TEST_CONN`, `TEST_HASH`, `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHECK_ROLE`, `CHANGE_ROLE`, `CHECK_BALANCE`, `DETECT_FRAUD`, `CHECK_LIMITS`, `CALC_INTEREST`, `ACCRUE_INTEREST`, `PAY_INTEREST`, `SEND_NOTIF`, `GET_NOTIFS`, `CHECK_KYC`, `UPGRADE_KYC`, `UPDATE_SCORE`, `TRANSFER`, `AUTH_LOGIN`.
 
-## Success Criteria
-- [x] `REQUEST_SIGNUP` creates a user with `status = 'UNVERIFIED'`, generates a 6-digit secure code, and records it in `verification_logs` with a 24-hour expiry.
-- [x] `VERIFY_EMAIL` updates status to `VERIFIED` only if the code matches, is not yet used, and has not expired.
-- [x] `CHECK_ROLE` validates user roles using normalized `role_assignments` and `roles` tables.
-- [x] `CHANGE_ROLE` allows `SUPER_ADMIN` to modify user roles with strict validation.
-- [x] `AUTH_LOGIN` returns success only if user is `VERIFIED`, password hash matches, and account is not locked (3+ failures/15m).
-- [x] Password complexity is enforced during signup (min 8 characters).
-- [ ] All errors return the correct Exit Code (1 for Not Found, 2 for DB Error, 4 for Invalid Arg).
+Notable: `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHECK_ROLE`, `CHANGE_ROLE`, `AUTH_LOGIN`, and an atomic `TRANSFER` (autocommit off, ledger inserts, commit/rollback) are present here.
 
-## Open Questions
-- Which specific C-library for hashing is available on the target production server?
+## To add / to wire
+
+- [ ] **Wire it in**: decide the integration point. Either register `auth_identity.cob` in `build.sh`, or port its actions onto the current bridge (`sql_bridge.c` + `input.txt`/`output.txt`). Today it is dead code reachable by nobody.
+- [ ] **Unify the DB path**: it uses ODBC while the running binary uses `sql_bridge.c`/libmysqlclient. Two connection stacks, two credential sources (`cobol_user/cobol_pass` here vs. in the bridge).
+- [ ] **Unify the I/O contract**: it takes CLI args and writes to `stdout` + exit codes; the shipped binary reads `input.txt` and writes `output.txt`. Pick one before wiring.
+- [ ] **Complete the exit-code contract** (last unchecked item in the original spec): 1 Not Found, 2 DB Error, 4 Invalid Arg on every path.
+- [ ] `verification_logs` / `audit_trail` usage: tables exist in `database/schema.sql`; confirm the code paths that write them.
+
+## Code style (enforced today)
+
+- Action names must agree across `main_logic.cob`, `user_core.cob`, `wallet_core.cob` (routing contract in `AGENTS.md`); if this module joins the binary, it joins that contract.
+- Output pipe-delimited, one line; no `GOBACK` in `PERFORM`ed paragraphs (see `CODING_STANDARDS.md`).
+
+## Open questions
+
+- Keep ODBC, or fold this module onto the libmysqlclient bridge so the whole binary shares one DB stack?
+- Does the hashing algorithm (`hash_lib.c`) meet the production requirement (bcrypt/Argon2), or is SHA-256 a placeholder?

@@ -1,44 +1,52 @@
 # Spec: wallet-core
 
-## Objective
-Implement the financial core of the e-wallet. This module is responsible for managing user balances and ensuring that every single cent moving in or out of an account is recorded in an immutable ledger. The primary goal is absolute data integrity (Atomic Transactions).
+Status: **partially built** — functional surface exists and passes tests; the atomic/ledger guarantees the original spec demanded do **not** exist yet.
+Last verified against code: 2026-10-10
 
-## Tech Stack
-- **Language:** GnuCOBOL (with `cob-odbc`)
-- **Database:** MySQL 8.0 (utilizing ACID transactions)
-- **Interface:** Node.js Express (via CLI Call)
+## Objective (unchanged)
 
-## Commands
-- **Build:** `cobc -x -o cobol/bin/wallet_core.exe cobol/src/wallet_core.cob -lodbc32`
-- **Test:** `cobol/bin/wallet_core.exe TRANSFER 101 102 "50000"`
-- **Dev:** `npm run dev` (via middleware)
+Manage balances and record every cent moving in or out, with absolute data integrity (atomic transactions).
 
-## Project Structure
-- `cobol/src/wallet_core.cob` $\rightarrow$ Transaction and balance logic
-- `cobol/bin/wallet_core.exe` $\rightarrow$ Compiled binary
-- `database/schema.sql` $\rightarrow$ Ledger and Balance table definitions
+## As-Built (what exists today)
 
-## Code Style
-- **Consistency:** Use `BEGIN TRANSACTION`, `COMMIT`, and `ROLLBACK` explicitly for all fund movements.
-- **Output:** Pipe-delimited strings (`|`) to `stdout`.
-- **Precision:** Use `PIC 9(12)V99` for all financial amounts to avoid floating point errors.
-- **Example Output:** `SUCCESS|TRANSFER_COMPLETE|TXN12345|NEW_BAL:150000`
+- **Source:** `cobol/src/wallet_core.cob` (program id `wallet_core`).
+- **Reachable through:** `cobol/src/main_logic.cob` routes `CHECK_BALANCE` and `TRANSFER` here. Compiled into the single binary by `build.sh`.
+- **DB access:** through the C bridge `cobol/src/sql_bridge.c` (`SET_QUERY` / `SQL_EXECUTE` / `GET_RESULT`) which uses **libmysqlclient**, not ODBC. Database `cobol_db`, credentials from `cobol/src/sql_bridge.c`.
+- **I/O:** reads one pipe-delimited line `ACTION|p1|p2|p3|p4`; result line in `output.txt`.
 
-## Testing Strategy
-- **Concurrency Test:** Simulate two simultaneous transfers from the same account to check for double-spending (Row Locking).
-- **Failure Test:** Force a database crash/disconnect during a transfer to verify that `ROLLBACK` prevents balance loss.
-- **Integration Test:** Node.js $\rightarrow$ Wallet Core $\rightarrow$ MySQL $\rightarrow$ Ledger check.
+### Actions actually implemented
 
-## Boundaries
-- **Always:** Create a ledger entry before updating the balance. Use `FOR UPDATE` in SQL to lock rows during transactions.
-- **Ask first:** Changing the currency precision or adding new transaction types.
-- **Never:** Update the `balance` column without a corresponding `ledger` entry. Never allow a balance to go negative unless explicitly required.
+| Action | Params | Behavior today | Outputs |
+|---|---|---|---|
+| `CHECK_BALANCE` | `p1=email` | `SELECT CONCAT(ROUND(a.balance,2)) FROM accounts a JOIN users u ON a.user_id=u.id WHERE u.email='…'` | `1000.00` · `ERROR|ACCOUNT_NOT_FOUND` |
+| `TRANSFER` | `p1=sender email`, `p2=target email`, `p3=amount` | precheck balance, then `UPDATE accounts SET balance = balance ± amount` on each side | `SUCCESS|TRANSFER_OK` · `ERROR|INSUFFICIENT_FUNDS` · `ERROR|ACCOUNT_NOT_FOUND` · `ERROR|TARGET_NOT_FOUND` |
 
-## Success Criteria
-- [ ] Transfer logic is atomic: Either both accounts are updated and ledger is written, or nothing happens.
-- [ ] Balance in the `users` table always matches the sum of the `ledger` entries for that user.
-- [ ] Double-spending is impossible due to row-level locking.
-- [ ] All financial errors return Exit Code 2 (DB Error) or 4 (Invalid Arg).
+### What is NOT there (the gap vs. the spec)
 
-## Open Questions
-- Should we implement a "Maximum Transfer Limit" per transaction at the COBOL level?
+- [ ] **No atomic transaction**: no `BEGIN`/`COMMIT`/`ROLLBACK`. Each `UPDATE` autocommits; a failure between the two updates leaves half a transfer.
+- [ ] **No ledger entry**: the `ledger` table is never written. `accounts.balance` changes with no immutable trail.
+- [ ] **No row locking**: no `SELECT … FOR UPDATE`; two concurrent transfers can double-spend.
+- [ ] **No balance/ledger reconciliation**; `accounts.balance` is the only source of truth.
+- [ ] Amounts are passed as trimmed text and injected into SQL directly (no server-side bind/prepared statement).
+
+### Where the missing logic already exists (do not duplicate)
+
+`cobol/src/auth_identity.cob` **already contains** an atomic `TRANSFER`: `EXEC SQL SET AUTOCOMMIT = 0`, ledger `INSERT` for both sides, then `COMMIT` / `ROLLBACK` (see `PROCESS-TRANSFER`). It is written for the ODBC path and is **not compiled** by `build.sh` and not routed by `main_logic`. Consolidation means porting that logic into `wallet_core.cob` (via the existing bridge) rather than writing it anew — see "Open questions".
+
+## To add (ordered)
+
+1. Wrap the two `UPDATE`s (and the new ledger inserts) in a real transaction; the bridge currently exposes single statements only, so `sql_bridge.c` needs `BEGIN`/`COMMIT`/`ROLLBACK` support or a multi-statement execute call.
+2. Write `ledger` rows for debit and credit before/with the balance update, matching `database/schema.sql` columns (`txn_ref`, `account_id`, `amount`, `type`, `currency_id`, `description`).
+3. Row-level lock the sender account (`SELECT … FOR UPDATE`) to remove the double-spend window.
+4. `test_atomic_txn.sh` to extend: force a mid-transfer failure and assert no balance change + no ledger rows.
+
+## Code style (enforced today)
+
+- Match by exact-length substring on the action field; never `FUNCTION TRIM(...) = "literal"` (see `CODING_STANDARDS.md`).
+- All JSON-free, pipe-delimited output; one line to `output.txt`.
+- Helper paragraphs `PERFORM`ed must not `GOBACK` and must not fall through (`EXIT PARAGRAPH.`).
+
+## Open questions
+
+- Consolidate into `wallet_core.cob`, or wire `auth_identity.cob` as the ledger module and make `wallet_core` a thin façade? Consolidation must not break the 18 green tests.
+- Bridge design for transactions: expose `BEGIN`/`COMMIT`/`ROLLBACK` verbs, or a single "execute batch" call.
