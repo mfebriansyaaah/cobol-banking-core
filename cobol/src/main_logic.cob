@@ -29,14 +29,14 @@
                STOP RUN
            END-IF.
 
-           EVALUATE TRUE
-               WHEN CMD-ACTION(1:13) = "CHECK_BALANCE"
-                   CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
-                                             BY REFERENCE CMD-PARAM1 
-                                             BY REFERENCE CMD-PARAM2 
-                                             BY REFERENCE CMD-PARAM3
-                                             BY REFERENCE WS-OUTPUT-MSG
-                   DISPLAY WS-OUTPUT-MSG
+            EVALUATE TRUE
+                WHEN CMD-ACTION(1:11) = "GET_BALANCE"
+                    CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
+                                              BY REFERENCE CMD-PARAM1 
+                                              BY REFERENCE CMD-PARAM2 
+                                              BY REFERENCE CMD-PARAM3
+                                              BY REFERENCE WS-OUTPUT-MSG
+                    DISPLAY WS-OUTPUT-MSG
                
                WHEN CMD-ACTION(1:8) = "TRANSFER"
                    CALL "WALLET-CORE" USING BY REFERENCE CMD-ACTION 
