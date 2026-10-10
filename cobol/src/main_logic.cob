@@ -2,16 +2,16 @@
        PROGRAM-ID. main_logic.
 
         ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+        SPECIAL-NAMES.
+            DECIMAL-POINT IS COMMA.
+
         INPUT-OUTPUT SECTION.
         FILE-CONTROL.
             SELECT INPUT-FILE ASSIGN TO "input.txt"
                 ORGANIZATION IS LINE SEQUENTIAL.
             SELECT OUTPUT-FILE ASSIGN TO "output.txt"
                 ORGANIZATION IS LINE SEQUENTIAL.
-
-        CONFIGURATION SECTION.
-        SPECIAL-NAMES.
-            DECIMAL-POINT IS COMMA.
 
         DATA DIVISION.
         FILE SECTION.
