@@ -12,6 +12,19 @@
 char G_QUERY[1024] = {0};
 char G_RESULT[1024] = {0};
 
+/* Persistent connection, held only for the span of an explicit transaction. */
+static MYSQL *G_CONN = NULL;
+
+static MYSQL *bridge_connect(void) {
+    MYSQL *c = mysql_init(NULL);
+    if (c == NULL) return NULL;
+    if (mysql_real_connect(c, "localhost", "cobol_user", "cobol_pass", "cobol_db", 3306, NULL, 0) == NULL) {
+        mysql_close(c);
+        return NULL;
+    }
+    return c;
+}
+
 void sanitize_string(char *str) {
     if (!str) return;
     int i = 0;
@@ -63,24 +76,24 @@ void SQL_EXECUTE() {
     MYSQL *conn;
     MYSQL_RES *res;
     MYSQL_ROW row;
+    int own_conn = 0;
 
-    conn = mysql_init(NULL);
-    if (conn == NULL) {
-        strncpy(G_RESULT, "ERROR|DB_INIT_FAILED", 1023);
-        return;
-    }
-
-    if (mysql_real_connect(conn, "localhost", "cobol_user", "cobol_pass", "cobol_db", 3306, NULL, 0) == NULL) {
-        strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
-        mysql_close(conn);
-        return;
+    if (G_CONN != NULL) {
+        conn = G_CONN;
+    } else {
+        conn = bridge_connect();
+        own_conn = 1;
+        if (conn == NULL) {
+            strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
+            return;
+        }
     }
 
     fprintf(stderr, "[SQL_BRIDGE] Executing: %s\\n", G_QUERY);
 
     if (mysql_query(conn, G_QUERY)) {
         strncpy(G_RESULT, "ERROR|QUERY_FAILED", 1023);
-        mysql_close(conn);
+        if (own_conn) mysql_close(conn);
         return;
     }
 
@@ -114,5 +127,58 @@ void SQL_EXECUTE() {
         mysql_free_result(res);
     }
 
-    mysql_close(conn);
+    if (own_conn) mysql_close(conn);
+}
+
+/* --- Transaction control -------------------------------------------------
+ * The plain SQL_EXECUTE has no transaction because it connects and
+ * disconnects per call. BEGIN opens a persistent connection that the
+ * following SQL_EXECUTE calls share until COMMIT/ROLLBACK closes it.
+ * ------------------------------------------------------------------------ */
+
+void SQL_BEGIN() {
+    if (G_CONN != NULL) {
+        mysql_close(G_CONN);
+        G_CONN = NULL;
+    }
+    G_CONN = bridge_connect();
+    if (G_CONN == NULL) {
+        strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
+        return;
+    }
+    if (mysql_query(G_CONN, "START TRANSACTION")) {
+        strncpy(G_RESULT, "ERROR|BEGIN_FAILED", 1023);
+        mysql_close(G_CONN);
+        G_CONN = NULL;
+        return;
+    }
+    strncpy(G_RESULT, "SUCCESS|BEGIN", 1023);
+}
+
+void SQL_COMMIT() {
+    if (G_CONN == NULL) {
+        strncpy(G_RESULT, "ERROR|NO_TRANSACTION", 1023);
+        return;
+    }
+    if (mysql_query(G_CONN, "COMMIT")) {
+        strncpy(G_RESULT, "ERROR|COMMIT_FAILED", 1023);
+    } else {
+        strncpy(G_RESULT, "SUCCESS|COMMIT", 1023);
+    }
+    mysql_close(G_CONN);
+    G_CONN = NULL;
+}
+
+void SQL_ROLLBACK() {
+    if (G_CONN == NULL) {
+        strncpy(G_RESULT, "ERROR|NO_TRANSACTION", 1023);
+        return;
+    }
+    if (mysql_query(G_CONN, "ROLLBACK")) {
+        strncpy(G_RESULT, "ERROR|ROLLBACK_FAILED", 1023);
+    } else {
+        strncpy(G_RESULT, "SUCCESS|ROLLBACK", 1023);
+    }
+    mysql_close(G_CONN);
+    G_CONN = NULL;
 }

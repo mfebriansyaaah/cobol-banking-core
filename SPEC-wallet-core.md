@@ -1,6 +1,6 @@
 # Spec: wallet-core
 
-Status: **partially built** — functional surface exists and passes tests; the atomic/ledger guarantees the original spec demanded do **not** exist yet.
+Status: **built** — functional surface plus atomic transfer, immutable ledger entries, and sender row-lock. Balance/ledger reconciliation on read is not yet enforced.
 Last verified against code: 2026-10-10
 
 ## Objective (unchanged)
@@ -19,26 +19,19 @@ Manage balances and record every cent moving in or out, with absolute data integ
 | Action | Params | Behavior today | Outputs |
 |---|---|---|---|
 | `CHECK_BALANCE` | `p1=email` | `SELECT CONCAT(ROUND(a.balance,2)) FROM accounts a JOIN users u ON a.user_id=u.id WHERE u.email='…'` | `1000.00` · `ERROR|ACCOUNT_NOT_FOUND` |
-| `TRANSFER` | `p1=sender email`, `p2=target email`, `p3=amount` | precheck balance, then `UPDATE accounts SET balance = balance ± amount` on each side | `SUCCESS|TRANSFER_OK` · `ERROR|INSUFFICIENT_FUNDS` · `ERROR|ACCOUNT_NOT_FOUND` · `ERROR|TARGET_NOT_FOUND` |
+| `TRANSFER` | `p1=sender email`, `p2=target email`, `p3=amount` | inside one transaction: `SELECT … FOR UPDATE` sender, resolve target, sufficiency check, debit + credit, two `ledger` inserts, then commit/rollback | `SUCCESS|TRANSFER_OK` · `ERROR|INSUFFICIENT_FUNDS` · `ERROR|ACCOUNT_NOT_FOUND` · `ERROR|TARGET_NOT_FOUND` |
 
 ### What is NOT there (the gap vs. the spec)
 
-- [ ] **No atomic transaction**: no `BEGIN`/`COMMIT`/`ROLLBACK`. Each `UPDATE` autocommits; a failure between the two updates leaves half a transfer.
-- [ ] **No ledger entry**: the `ledger` table is never written. `accounts.balance` changes with no immutable trail.
-- [ ] **No row locking**: no `SELECT … FOR UPDATE`; two concurrent transfers can double-spend.
-- [ ] **No balance/ledger reconciliation**; `accounts.balance` is the only source of truth.
-- [ ] Amounts are passed as trimmed text and injected into SQL directly (no server-side bind/prepared statement).
+- [x] **Atomic transaction**: `TRANSFER` now runs inside `SQL_BEGIN` … `SQL_COMMIT`, with `SQL_ROLLBACK` on every failure path. The bridge (`cobol/src/sql_bridge.c`) holds a persistent connection for the transaction span; plain `SQL_EXECUTE` still connects per call.
+- [x] **Ledger entry**: two rows (DEBIT sender, CREDIT target, shared `txn_ref`) are inserted within the same transaction.
+- [x] **Row locking**: the sender account is read `SELECT … FOR UPDATE` before the balance check.
+- [ ] **Balance/ledger reconciliation** on read: `CHECK_BALANCE` still reads `accounts.balance`; no active assertion that it equals `SUM(ledger)`.
+- Amounts are passed as trimmed text and injected into SQL directly (no server-side bind/prepared statement).
 
-### Where the missing logic already exists (do not duplicate)
+### Tests
 
-`cobol/src/auth_identity.cob` **already contains** an atomic `TRANSFER`: `EXEC SQL SET AUTOCOMMIT = 0`, ledger `INSERT` for both sides, then `COMMIT` / `ROLLBACK` (see `PROCESS-TRANSFER`). It is written for the ODBC path and is **not compiled** by `build.sh` and not routed by `main_logic`. Consolidation means porting that logic into `wallet_core.cob` (via the existing bridge) rather than writing it anew — see "Open questions".
-
-## To add (ordered)
-
-1. Wrap the two `UPDATE`s (and the new ledger inserts) in a real transaction; the bridge currently exposes single statements only, so `sql_bridge.c` needs `BEGIN`/`COMMIT`/`ROLLBACK` support or a multi-statement execute call.
-2. Write `ledger` rows for debit and credit before/with the balance update, matching `database/schema.sql` columns (`txn_ref`, `account_id`, `amount`, `type`, `currency_id`, `description`).
-3. Row-level lock the sender account (`SELECT … FOR UPDATE`) to remove the double-spend window.
-4. `test_atomic_txn.sh` to extend: force a mid-transfer failure and assert no balance change + no ledger rows.
+`tests/test_ledger_atomic.sh` covers the guarantees: happy path writes exactly two ledger rows with one `txn_ref` and moves money; insufficient funds, unknown target, and unknown sender each roll back with zero ledger rows and untouched balances. Wired into `ci.sh`.
 
 ## Code style (enforced today)
 
@@ -48,5 +41,5 @@ Manage balances and record every cent moving in or out, with absolute data integ
 
 ## Open questions
 
-- Consolidate into `wallet_core.cob`, or wire `auth_identity.cob` as the ledger module and make `wallet_core` a thin façade? Consolidation must not break the 18 green tests.
-- Bridge design for transactions: expose `BEGIN`/`COMMIT`/`ROLLBACK` verbs, or a single "execute batch" call.
+- **Resolved** (ADR-free, chosen in Phase 1): transaction control is exposed as `SQL_BEGIN`/`SQL_COMMIT`/`SQL_ROLLBACK` verbs on the bridge, sharing a persistent connection for the transaction span.
+- Remaining scope: enforce balance/ledger reconciliation on read (`CHECK_BALANCE` could assert `accounts.balance == SUM(ledger)`), and move to server-side parameter binding instead of string interpolation.
