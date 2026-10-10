@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS exchange_rates (
     target_currency_id INT NOT NULL,
     exchange_rate DECIMAL(18, 6) NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_base_curr FOREIGN KEY (base_//_currency_id) REFERENCES currencies(currency_id),
+    CONSTRAINT fk_base_curr FOREIGN KEY (base_currency_id) REFERENCES currencies(currency_id),
     CONSTRAINT fk_target_curr FOREIGN KEY (target_currency_id) REFERENCES currencies(currency_id),
     UNIQUE KEY unique_pair (base_currency_id, target_currency_id)
 ) ENGINE=InnoDB;
