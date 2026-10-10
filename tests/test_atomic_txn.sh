@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # --- Configuration ---
-DB_USER="root"
-DB_NAME="cobol_wallet"
+DB_USER="cobol_user"
+DB_NAME="cobol_db"
 COBOL_BIN="./cobol/bin/main_logic"
 
 # Colors for output
@@ -27,9 +27,10 @@ run_test() {
     echo -e "\nTesting: $name"
     echo "Action: $action | Params: $p1, $p2, $p3, $p4"
     
-    # We use printf to send each argument on a new line for the ACCEPT statements
-    # We add a trailing newline to ensure the last ACCEPT is filled
-    RESULT=$(printf "%s\n%s\n%s\n%s\n%s\n" "$action" "$p1" "$p2" "$p3" "$p4" | $COBOL_BIN)
+    # Main logic reads pipe-delimited input from input.txt and writes output.txt
+    printf "%s|%s|%s|%s|%s\n" "$action" "$p1" "$p2" "$p3" "$p4" > input.txt
+    $COBOL_BIN >/dev/null 2>&1
+    RESULT=$(cat output.txt)
     
     echo "Result: $RESULT"
     
@@ -42,7 +43,7 @@ run_test() {
 
 # --- Test Setup: Fresh Data ---
 echo "Setting up test data..."
-echo "Febri126." | sudo -S mysql -u root -e "USE $DB_NAME; 
+mysql -u $DB_USER -pcobol_pass -e "USE $DB_NAME; 
     DELETE FROM ledger; 
     DELETE FROM audit_trail; 
     DELETE FROM accounts; 
@@ -66,10 +67,10 @@ run_test "Insufficient Funds" "TRANSFER" "sender@test.com" "receiver@test.com" "
 run_test "Account Not Found (Sender)" "TRANSFER" "nonexistent@test.com" "receiver@test.com" "10.00" "" "ERROR|ACCOUNT_NOT_FOUND"
 
 # 4. Target Not Found (Receiver)
-run_test "Target Not Found (Receiver)" "TRANSFER" "sender@test.com" "nonexistent@test.com" "10.00" "" "ERROR|ACCOUNT_NOT_FOUND"
+run_test "Target Not Found (Receiver)" "TRANSFER" "sender@test.com" "nonexistent@test.com" "10.00" "" "ERROR|TARGET_NOT_FOUND"
 
-# 5. Test User Core: Get User
-run_test "User Core: Get User" "GET_USER" "1" "" "" "" "1|sender@test.com"
+# 5. Test User Core: Get User by Email
+run_test "User Core: Get User" "GET_USER" "sender@test.com" "" "" "" "1|sender@test.com"
 
 echo -e "\n======================================================================"
 echo "  TEST SUITE COMPLETED"
