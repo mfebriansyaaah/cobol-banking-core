@@ -18,7 +18,7 @@ cobc -free -x -o "$COBOL_BIN" \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \
     cobol/src/sql_bridge.c \
-    -Wall -Wextra -O2
+    -L/usr/lib/x86_64-linux-gnu -lmysqlclient -Wall -Wextra -O2
 
 if [ -f "$COBOL_BIN" ]; then
     echo "SUCCESS: Binary created at $COBOL_BIN"
