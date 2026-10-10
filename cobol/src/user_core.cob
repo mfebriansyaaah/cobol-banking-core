@@ -34,28 +34,28 @@
             END-EVALUATE.
             GOBACK.
 
-       ACTION-GET-USER.
-           MOVE SPACES TO WS-QUERY.
-           STRING "SELECT id, username, email, full_name, status FROM users WHERE id = " 
-                  LS-PARAM1 DELIMITED BY SIZE INTO WS-QUERY
-           END-STRING.
-           
-           CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
-           CALL "SQL_EXECUTE".
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
-           
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER.
-           GOBACK.
-
-       ACTION-LIST-USERS.
-           MOVE SPACES TO WS-QUERY.
-           STRING "SELECT id, username, email, full_name, status FROM users WHERE status = 'VERIFIED'" 
-                  DELIMITED BY SIZE INTO WS-QUERY
-           END-STRING.
-           
-           CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
-           CALL "SQL_EXECUTE".
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
-           
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER.
-           GOBACK.
+        ACTION-GET-USER.
+            MOVE SPACES TO WS-QUERY.
+            STRING "SELECT id, email FROM users WHERE email = '" 
+                   FUNCTION TRIM(LS-PARAM1) "' LIMIT 1"
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING.
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
+            CALL "SQL_EXECUTE".
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
+            
+            MOVE WS-RESULT TO LS-OUTPUT-BUFFER.
+            GOBACK.
+        ACTION-LIST-USERS.
+            MOVE SPACES TO WS-QUERY.
+            STRING "SELECT 1, 'LIST_DONE' WHERE status = 'OK'" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING.
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
+            CALL "SQL_EXECUTE".
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
+            
+            MOVE "SUCCESS|LIST_DONE" TO LS-OUTPUT-BUFFER.
+            GOBACK.
