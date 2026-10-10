@@ -42,35 +42,33 @@
                     STOP RUN
                 END-READ.
             
-            MOVE INPUT-BUFFER TO CMD-ACTION.
-            MOVE INPUT-BUFFER TO CMD-PARAM1.
-            MOVE INPUT-BUFFER TO CMD-PARAM2.
-            MOVE INPUT-BUFFER TO CMD-PARAM3.
-            MOVE INPUT-BUFFER TO CMD-PARAM4.
+            UNSTRING INPUT-BUFFER DELIMITED BY "|" 
+                INTO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, CMD-PARAM3, CMD-PARAM4
+            END-UNSTRING.
             
-            IF INPUT-BUFFER = SPACES
+            IF FUNCTION TRIM(CMD-ACTION) = SPACES
                 MOVE "ERROR|MISSING_ACTION" TO OUTPUT-RECORD
                 WRITE OUTPUT-RECORD
                 STOP RUN
             END-IF.
             
             EVALUATE TRUE
-                WHEN INPUT-BUFFER(1:11) = "GET_BALANCE"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "GET_BALANCE"
                     CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
                 
-                WHEN INPUT-BUFFER(1:8) = "TRANSFER"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "TRANSFER"
                     CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
                 
-                WHEN INPUT-BUFFER(1:8) = "GET_USER"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "GET_USER"
                     CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
                 
-                WHEN INPUT-BUFFER(1:10) = "LIST_USERS"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "LIST_USERS"
                     CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
