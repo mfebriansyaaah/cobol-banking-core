@@ -1,5 +1,5 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. WALLET-CORE.
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. wallet_core.
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
@@ -72,16 +72,20 @@
             GOBACK.
 
         GET-BALANCE-LOGIC.
+            DISPLAY "DEBUG: Entering GET-BALANCE-LOGIC"
             MOVE SPACES TO WS-QUERY.
             STRING "SELECT CAST(a.balance AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
                    WS-PARAM1-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING.
+            DISPLAY "DEBUG: Query built: " WS-QUERY
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
             CALL "SQL_EXECUTE".
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
+            DISPLAY "DEBUG: SQL Result received: " WS-RESULT
             
             MOVE WS-RESULT TO LS-OUTPUT-BUFFER.
+            DISPLAY "DEBUG: Result moved to LS-OUTPUT-BUFFER"
             GOBACK.
 
         TRANSFER-LOGIC.
