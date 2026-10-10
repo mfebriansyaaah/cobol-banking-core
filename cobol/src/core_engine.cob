@@ -58,6 +58,7 @@
                     STOP RUN
                 END-READ.
             
+            MOVE SPACES TO OUTPUT-RECORD.
             UNSTRING INPUT-BUFFER DELIMITED BY "|" 
                 INTO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, CMD-PARAM3, CMD-PARAM4
             END-UNSTRING.
@@ -105,6 +106,7 @@
 
         GET-BALANCE-LOGIC.
             PERFORM FIND-USER-BY-EMAIL.
+            MOVE SPACES TO OUTPUT-RECORD.
             IF WS-FOUND-IDX = 0
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO OUTPUT-RECORD
             ELSE
@@ -116,6 +118,7 @@
 
         TRANSFER-LOGIC.
             PERFORM FIND-USER-BY-EMAIL.
+            MOVE SPACES TO OUTPUT-RECORD.
             IF WS-FOUND-IDX = 0
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO OUTPUT-RECORD
                 WRITE OUTPUT-RECORD
@@ -149,6 +152,7 @@
 
         ACTION-GET-USER.
             MOVE 0 TO WS-FOUND-IDX.
+            MOVE SPACES TO OUTPUT-RECORD.
             PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > USER-COUNT
                 IF USER-EMAIL(WS-IDX) = CMD-PARAM1
                     MOVE WS-IDX TO WS-FOUND-IDX
@@ -165,6 +169,7 @@
             GOBACK.
 
         ACTION-LIST-USERS.
+            MOVE SPACES TO OUTPUT-RECORD.
             MOVE "SUCCESS|LIST_DONE" TO OUTPUT-RECORD.
             WRITE OUTPUT-RECORD.
             GOBACK.
