@@ -44,7 +44,7 @@ void SQL_EXECUTE() {
         return;
     }
 
-    if (mysql_real_connect(conn, "localhost", "root", "", "cobol_wallet", 3306, NULL, 0) == NULL) {
+    if (mysql_real_connect(conn, "localhost", "cobol_user", "cobol_pass", "cobol_db", 3306, NULL, 0) == NULL) {
         strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
         mysql_close(conn);
         return;
