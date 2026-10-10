@@ -24,3 +24,4 @@ skills-lock.json
 .DS_Store
 Thumbs.db
 sql_debug.log
+tests/.dbenv

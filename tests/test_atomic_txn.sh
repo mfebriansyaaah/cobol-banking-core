@@ -1,8 +1,13 @@
 #!/bin/bash
 
 # --- Configuration ---
-DB_USER="cobol_user"
-DB_NAME="cobol_db"
+# Load DB credentials override (tests/.dbenv is gitignored)
+if [ -f ./tests/.dbenv ]; then
+    . ./tests/.dbenv
+fi
+DB_USER="${DB_USER:-cobol_user}"
+DB_PASS="${DB_PASS:-cobol_pass}"
+DB_NAME="${DB_NAME:-cobol_db}"
 COBOL_BIN="./cobol/bin/main_logic"
 
 # Colors for output
@@ -43,7 +48,7 @@ run_test() {
 
 # --- Test Setup: Fresh Data ---
 echo "Setting up test data..."
-mysql -u $DB_USER -pcobol_pass -e "USE $DB_NAME; 
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "USE $DB_NAME; 
     DELETE FROM ledger; 
     DELETE FROM audit_trail; 
     DELETE FROM accounts; 
