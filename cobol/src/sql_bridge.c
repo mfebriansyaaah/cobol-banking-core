@@ -53,8 +53,10 @@ void SET_QUERY(char *query) {
 
 void GET_RESULT(char *result) {
     if (!result) return;
-    strncpy(result, G_RESULT, 511);
-    result[511] = '\0';
+    size_t len = strlen(G_RESULT);
+    memset(result, ' ', 511);
+    if (len > 511) len = 511;
+    memcpy(result, G_RESULT, len);
 }
 
 void SQL_EXECUTE() {
