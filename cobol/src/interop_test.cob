@@ -1,0 +1,14 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. INTEROP-TEST.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-TEXT      PIC X(20) VALUE "HELLO-WORLD".
+       01  WS-LEN       PIC 9(4) COMP-5 VALUE 20.
+
+       PROCEDURE DIVISION.
+           DISPLAY "COBOL-SIDE: Calling TEST_CALL..."
+           CALL "TEST_CALL" USING BY REFERENCE WS-TEXT 
+                                  BY REFERENCE WS-LEN
+           END-CALL.
+           STOP RUN.
