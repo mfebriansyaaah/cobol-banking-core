@@ -41,7 +41,8 @@ void SET_QUERY(char *query) {
 
 void GET_RESULT(char *result) {
     if (!result) return;
-    strncpy(result, G_RESULT, 1023);
+    strncpy(result, G_RESULT, 511);
+    result[511] = '\0';
 }
 
 void SQL_EXECUTE() {
