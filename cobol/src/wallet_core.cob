@@ -52,6 +52,8 @@
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
                     PERFORM TRANSFER-LOGIC
+                WHEN LS-CMD-ACTION(1:9) = "RECONCILE"
+                    PERFORM RECONCILE-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -96,6 +98,29 @@
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RECONCILE-LOGIC.
+            *> Any account whose stored balance differs from its ledger sum.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT CAST(a.account_id AS CHAR), CONCAT(ROUND(a.balance,2)), CONCAT(ROUND(COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0),2)) " 
+                   "FROM accounts a LEFT JOIN ledger l ON l.account_id = a.account_id " 
+                   "GROUP BY a.account_id, a.balance " 
+                   "HAVING a.balance <> COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0)" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|RECONCILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "ERROR|MISMATCH|" WS-RESULT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
             END-IF.
             EXIT PARAGRAPH.
 
