@@ -3,6 +3,15 @@
 
 BIN="./cobol/bin/main_logic"
 
+# Reset seed data so tests are order-independent
+reset_test_db() {
+    mysql -u cobol_user -pcobol_pass cobol_db -e "
+        UPDATE accounts SET balance=1000.00 WHERE account_id=1;
+        UPDATE accounts SET balance=0.00 WHERE account_id=2;
+        DELETE FROM ledger WHERE txn_ref NOT LIKE 'INIT_%';" >/dev/null 2>&1
+}
+reset_test_db
+
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -18,6 +27,7 @@ assert_output() {
     local p3=$4
     local p4=$5
     local expected=$6
+    reset_test_db
     local test_name=$7
 
     # Run the binary using file-based I/O

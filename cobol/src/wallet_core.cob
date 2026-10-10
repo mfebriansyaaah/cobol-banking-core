@@ -15,6 +15,13 @@
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-I                   PIC 9(3).
+        01  WS-TRANSFER-STATE      PIC X(5) VALUE 'OK  '.
+            88  WS-TRANSFER-OK       VALUE 'OK'.
+            88  WS-TRANSFER-FAIL-SENDER VALUE 'SNDR'.
+            88  WS-TRANSFER-FAIL-TARGET VALUE 'TGRT'.
+            88  WS-TRANSFER-FAIL-INSUF VALUE 'INSUF'.
+        01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
+        01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
 
         LINKAGE SECTION.
        01  LS-CMD-ACTION          PIC X(30).
@@ -28,12 +35,12 @@
         
         MAIN-LOGIC.
             EVALUATE TRUE
-                WHEN LS-CMD-ACTION = "GET_BALANCE"
+                WHEN LS-CMD-ACTION(1:13) = "CHECK_BALANCE"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
                     PERFORM GET-BALANCE-LOGIC
-                WHEN LS-CMD-ACTION = "TRANSFER"
+                WHEN LS-CMD-ACTION(1:8) = "TRANSFER"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
@@ -51,7 +58,6 @@
                     MOVE SPACE TO WS-PARAM1-TRIMMED(WS-I:1)
                 END-IF
             END-PERFORM.
-            GOBACK.
 
         TRIM-PARAM2.
             MOVE LS-PARAM2 TO WS-PARAM2-TRIMMED.
@@ -60,7 +66,6 @@
                     MOVE SPACE TO WS-PARAM2-TRIMMED(WS-I:1)
                 END-IF
             END-PERFORM.
-            GOBACK.
 
         TRIM-PARAM3.
             MOVE LS-PARAM3 TO WS-PARAM3-TRIMMED.
@@ -69,55 +74,89 @@
                     MOVE SPACE TO WS-PARAM3-TRIMMED(WS-I:1)
                 END-IF
             END-PERFORM.
-            GOBACK.
 
         GET-BALANCE-LOGIC.
-            DISPLAY "DEBUG: Entering GET-BALANCE-LOGIC"
             MOVE SPACES TO WS-QUERY.
-            STRING "SELECT CAST(a.balance AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
+            STRING "SELECT CONCAT(ROUND(a.balance, 2)) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
                    WS-PARAM1-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING.
-            DISPLAY "DEBUG: Query built: " WS-QUERY
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
             CALL "SQL_EXECUTE".
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
-            DISPLAY "DEBUG: SQL Result received: " WS-RESULT
             
-            MOVE WS-RESULT TO LS-OUTPUT-BUFFER.
-            DISPLAY "DEBUG: Result moved to LS-OUTPUT-BUFFER"
-            GOBACK.
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
 
         TRANSFER-LOGIC.
+            SET WS-TRANSFER-OK TO TRUE.
             MOVE SPACES TO WS-QUERY.
-            STRING "UPDATE accounts SET balance = balance - " WS-PARAM3-TRIMMED 
-                   " WHERE account_id = (SELECT id FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                   WS-PARAM1-TRIMMED "')" DELIMITED BY SIZE INTO WS-QUERY
+            STRING "SELECT CONCAT(ROUND(a.balance, 2)) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
+                   WS-PARAM1-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING.
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
             CALL "SQL_EXECUTE".
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
             
-            IF WS-RESULT(1:7) NOT = "SUCCESS"
-                MOVE "ERROR|INSUFFICIENT_FUNDS_OR_NOT_FOUND" TO LS-OUTPUT-BUFFER
-                GOBACK
+            IF WS-RESULT = "ERROR|NO_DATA"
+                SET WS-TRANSFER-FAIL-SENDER TO TRUE
             END-IF.
             
-            MOVE SPACES TO WS-QUERY.
-            STRING "UPDATE accounts SET balance = balance + " WS-PARAM3-TRIMMED 
-                   " WHERE account_id = (SELECT id FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                   WS-PARAM2-TRIMMED "')" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING.
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
-            CALL "SQL_EXECUTE".
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
-            
-            IF WS-RESULT(1:7) NOT = "SUCCESS"
-                MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
-                GOBACK
+            IF WS-TRANSFER-OK
+                COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-RESULT)
+                COMPUTE WS-AMOUNT-NUM = FUNCTION NUMVAL(WS-PARAM3-TRIMMED)
+                IF WS-BALANCE-NUM < WS-AMOUNT-NUM
+                    SET WS-TRANSFER-FAIL-INSUF TO TRUE
+                END-IF
             END-IF.
             
-            MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER.
-            GOBACK.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "UPDATE accounts SET balance = balance - " WS-PARAM3-TRIMMED 
+                       " WHERE account_id = (SELECT id FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
+                       WS-PARAM1-TRIMMED "')" DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                END-IF
+            END-IF.
+            
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "UPDATE accounts SET balance = balance + " WS-PARAM3-TRIMMED 
+                       " WHERE account_id = (SELECT id FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
+                       WS-PARAM2-TRIMMED "')" DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                END-IF
+            END-IF.
+            
+            IF WS-TRANSFER-OK
+                MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-TRANSFER-FAIL-SENDER
+                    MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    IF WS-TRANSFER-FAIL-TARGET
+                        MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    ELSE
+                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                    END-IF
+                END-IF
+            END-IF.

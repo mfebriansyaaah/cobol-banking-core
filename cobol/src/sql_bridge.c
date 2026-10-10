@@ -46,14 +46,17 @@ void trim_leading_spaces(char *str) {
 void SET_QUERY(char *query) {
     if (!query) return;
     memset(G_QUERY, 0, sizeof(G_QUERY));
-    strncpy(G_QUERY, query, 1023);
+    strncpy(G_QUERY, query, 511);
+    G_QUERY[511] = '\0';
     trim_trailing_spaces(G_QUERY);
 }
 
 void GET_RESULT(char *result) {
     if (!result) return;
-    strncpy(result, G_RESULT, 511);
-    result[511] = '\0';
+    size_t len = strlen(G_RESULT);
+    memset(result, ' ', 511);
+    if (len > 511) len = 511;
+    memcpy(result, G_RESULT, len);
 }
 
 void SQL_EXECUTE() {
@@ -88,7 +91,6 @@ void SQL_EXECUTE() {
     } else {
         row = mysql_fetch_row(res);
         if (row) {
-            printf("[DEBUG_C] Row found: %s\\n", row[0] ? row[0] : "NULL");
             G_RESULT[0] = '\0';
             unsigned int num_fields = mysql_num_fields(res);
             for (unsigned int i = 0; i < num_fields; i++) {

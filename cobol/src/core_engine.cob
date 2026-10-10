@@ -43,6 +43,7 @@
         01  WS-TEMP-BAL         PIC 9(15)V99.
         01  WS-TEMP-AMT        PIC 9(15)V99.
         01  WS-NUM-CONV         PIC ZZZZZZZZZZZZZZZZZ.99.
+        01  WS-ID-CONV            PIC ZZZZZZZZZZ.
 
         PROCEDURE DIVISION.
         
@@ -159,14 +160,13 @@
                 END-IF
             END-PERFORM.
             
-            IF WS-FOUND-IDX = 0
-                MOVE "ERROR|NOT_FOUND" TO OUTPUT-RECORD
-            ELSE
-                MOVE WS-NUM-CONV TO SPACES
-                MOVE USER-ID(WS-FOUND-IDX) TO WS-NUM-CONV
-                STRING WS-NUM-CONV "|" USER-EMAIL(WS-FOUND-IDX) 
-                       DELIMITED BY SIZE INTO OUTPUT-RECORD END-STRING
-            END-IF.
+                IF WS-FOUND-IDX = 0
+                    MOVE "ERROR|NOT_FOUND" TO OUTPUT-RECORD
+                ELSE
+                    MOVE USER-ID(WS-FOUND-IDX) TO WS-ID-CONV
+                    STRING WS-ID-CONV "|" USER-EMAIL(WS-FOUND-IDX) 
+                           DELIMITED BY SIZE INTO OUTPUT-RECORD END-STRING
+                END-IF.
             WRITE OUTPUT-RECORD.
             GOBACK.
 
