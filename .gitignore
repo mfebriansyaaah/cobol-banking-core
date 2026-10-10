@@ -14,6 +14,9 @@ output.txt
 cobol/config/odbc.ini
 cobol/config/odbcinst.ini
 
+# Agent configurations
+.agents/
+
 # Environment and lock files
 skills-lock.json
 
