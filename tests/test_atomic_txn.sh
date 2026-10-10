@@ -58,7 +58,10 @@ mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "USE $DB_NAME;
     (2, 'receiver@test.com', 'hash', 'Receiver User', '1990-01-01', 'VERIFIED', 'USER');
     INSERT INTO accounts (account_id, user_id, currency_id, balance, account_type) VALUES 
     (1, 1, 1, 1000.00, 'SAVINGS'),
-    (2, 2, 1, 0.00, 'SAVINGS');"
+    (2, 2, 1, 0.00, 'SAVINGS');
+    INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES 
+    ('INIT_001', 1, 1000.00, 'CREDIT', 1, 'Initial Deposit'),
+    ('INIT_002', 2, 0.00, 'CREDIT', 1, 'Initial Deposit');"
 
 # --- Test Cases ---
 
