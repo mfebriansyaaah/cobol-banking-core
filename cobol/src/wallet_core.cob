@@ -22,6 +22,13 @@
             88  WS-TRANSFER-FAIL-INSUF VALUE 'INSUF'.
         01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
+        01  WS-NOW                 PIC X(21) VALUE SPACES.
+        01  WS-TXN-REF             PIC X(17) VALUE SPACES.
+        01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
+        01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
+        01  WS-SENDER-CUR          PIC X(20) VALUE SPACES.
+        01  WS-TARGET-ACC          PIC X(20) VALUE SPACES.
+        01  WS-TARGET-CUR          PIC X(20) VALUE SPACES.
 
         LINKAGE SECTION.
        01  LS-CMD-ACTION          PIC X(30).
@@ -94,32 +101,66 @@
 
         TRANSFER-LOGIC.
             SET WS-TRANSFER-OK TO TRUE.
-            MOVE SPACES TO WS-QUERY.
-            STRING "SELECT CONCAT(ROUND(a.balance, 2)) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                   WS-PARAM1-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING.
+            MOVE FUNCTION CURRENT-DATE TO WS-NOW
+            MOVE SPACES TO WS-TXN-REF
+            STRING "TXN" WS-NOW(1:14) DELIMITED BY SIZE INTO WS-TXN-REF
+            END-STRING
             
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
-            CALL "SQL_EXECUTE".
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
+            *> Lock the sender account row and read its id, balance and currency.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT CAST(a.account_id AS CHAR), CONCAT(ROUND(a.balance,2)), CAST(a.currency_id AS CHAR) " 
+                   "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
+                   WS-PARAM1-TRIMMED "' FOR UPDATE" DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
             
-            IF WS-RESULT = "ERROR|NO_DATA"
+            CALL "SQL_BEGIN"
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-SENDER TO TRUE
-            END-IF.
+            ELSE
+                UNSTRING WS-RESULT DELIMITED BY "|"
+                    INTO WS-SENDER-ACC WS-SENDER-BAL WS-SENDER-CUR
+                END-UNSTRING
+            END-IF
             
+            *> Resolve the target account (no lock needed on the credit side).
             IF WS-TRANSFER-OK
-                COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-RESULT)
+                MOVE SPACES TO WS-QUERY
+                STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR) " 
+                       "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
+                       WS-PARAM2-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                ELSE
+                    UNSTRING WS-RESULT DELIMITED BY "|"
+                        INTO WS-TARGET-ACC WS-TARGET-CUR
+                    END-UNSTRING
+                END-IF
+            END-IF
+            
+            *> Sufficiency check against the locked balance.
+            IF WS-TRANSFER-OK
+                COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-SENDER-BAL)
                 COMPUTE WS-AMOUNT-NUM = FUNCTION NUMVAL(WS-PARAM3-TRIMMED)
                 IF WS-BALANCE-NUM < WS-AMOUNT-NUM
                     SET WS-TRANSFER-FAIL-INSUF TO TRUE
                 END-IF
-            END-IF.
+            END-IF
             
+            *> Debit sender.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-QUERY
                 STRING "UPDATE accounts SET balance = balance - " WS-PARAM3-TRIMMED 
-                       " WHERE account_id = (SELECT id FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                       WS-PARAM1-TRIMMED "')" DELIMITED BY SIZE INTO WS-QUERY
+                       " WHERE account_id = " WS-SENDER-ACC DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 
                 CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -129,13 +170,13 @@
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-SENDER TO TRUE
                 END-IF
-            END-IF.
+            END-IF
             
+            *> Credit target.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-QUERY
                 STRING "UPDATE accounts SET balance = balance + " WS-PARAM3-TRIMMED 
-                       " WHERE account_id = (SELECT id FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                       WS-PARAM2-TRIMMED "')" DELIMITED BY SIZE INTO WS-QUERY
+                       " WHERE account_id = " WS-TARGET-ACC DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 
                 CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -145,11 +186,47 @@
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-TARGET TO TRUE
                 END-IF
-            END-IF.
+            END-IF
+            
+            *> Immutable ledger entries: one DEBIT, one CREDIT, same txn_ref.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES ('" 
+                       WS-TXN-REF "', " WS-SENDER-ACC ", " WS-PARAM3-TRIMMED ", 'DEBIT', " WS-SENDER-CUR ", 'Transfer out')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                END-IF
+            END-IF
             
             IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES ('" 
+                       WS-TXN-REF "', " WS-TARGET-ACC ", " WS-PARAM3-TRIMMED ", 'CREDIT', " WS-TARGET-CUR ", 'Transfer in')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                END-IF
+            END-IF
+            
+            *> Commit or roll back the whole movement.
+            IF WS-TRANSFER-OK
+                CALL "SQL_COMMIT"
                 MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
             ELSE
+                CALL "SQL_ROLLBACK"
                 IF WS-TRANSFER-FAIL-SENDER
                     MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 ELSE
@@ -160,3 +237,4 @@
                     END-IF
                 END-IF
             END-IF.
+            EXIT PARAGRAPH.
