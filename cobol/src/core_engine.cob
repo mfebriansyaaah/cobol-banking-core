@@ -52,8 +52,11 @@
             PERFORM INIT-SIM-DB.
             
             READ INPUT-FILE INTO INPUT-BUFFER
-                AT END STOP RUN
-            END-READ.
+                AT END 
+                    CLOSE INPUT-FILE
+                    CLOSE OUTPUT-FILE
+                    STOP RUN
+                END-READ.
             
             UNSTRING INPUT-BUFFER DELIMITED BY "|" 
                 INTO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, CMD-PARAM3, CMD-PARAM4
