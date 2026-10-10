@@ -10,7 +10,7 @@
 
 ## Routing contract (edit together)
 
-Action names (`CHECK_BALANCE`, `TRANSFER`, `GET_USER`, `LIST_USERS`, `RECONCILE`) are matched in **three files at once**: `cobol/src/main_logic.cob` (routing), `cobol/src/user_core.cob`, `cobol/src/wallet_core.cob`. Adding or renaming an action requires editing all three; review must check all three agree.
+Action names are matched across `cobol/src/main_logic.cob` (routing) and the module that owns them: `CHECK_BALANCE`, `TRANSFER`, `RECONCILE` in `cobol/src/wallet_core.cob`; `GET_USER`, `LIST_USERS` in `cobol/src/user_core.cob`; `AUTH_LOGIN` in `cobol/src/auth_core.cob`. Adding or renaming an action requires editing the router and the owning module together; review must check they agree.
 
 ## I/O architecture
 
