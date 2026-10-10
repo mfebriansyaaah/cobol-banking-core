@@ -14,4 +14,4 @@ Action names (`CHECK_BALANCE`, `TRANSFER`, `GET_USER`, `LIST_USERS`) are matched
 
 ## I/O architecture
 
-The binary reads one pipe-delimited line from `input.txt` and writes exactly one result line to `output.txt`. Args format: `ACTION|param1|param2|param3|param4`.
+The binary reads one pipe-delimited line from `input.txt` and writes exactly one result line to `output.txt`. Args format: `ACTION|param1|param2|param3|param4`. The two files are relative to the process working directory, so concurrent callers must each run the binary in their own directory — see `docs/adr/0001-invocation-model.md`.
