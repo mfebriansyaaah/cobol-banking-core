@@ -1,0 +1,68 @@
+# SPEC: Atomic Transaction Engine (The Zero-Loss Protocol)
+**Status:** Draft for Implementation
+**Version:** 1.0.0
+**Related Modules:** `wallet-core`, `iam-identity`
+
+## 1. Design Philosophy
+The system implements a **"Hard-Stop"** financial integrity model. Any failure at any point in the transaction chain—including infrastructure or audit failures—triggers an immediate and total rollback. No partial state is ever permitted.
+
+## 2. The Transaction Lifecycle (State Machine)
+
+A transaction must transition through these states sequentially:
+
+1. **INTENT**: The system records the transaction intent in `pending_transactions`.
+2. **LOCKING**: The source account is locked exclusively (`SELECT FOR UPDATE`).
+3. **VALIDATION**: Balance and currency rates are verified.
+4. **EXECUTION**: 
+    - Source balance is deducted.
+    - Target balance is credited.
+    - Ledger entries are written.
+5. **AUDIT**: The event is recorded in `audit_trail`.
+6. **FINALIZATION**: The transaction is marked as `COMMITTED` and the lock is released.
+
+**Failure at any step $\rightarrow$ ROLLBACK to state 0 $\rightarrow$ Mark `pending_transactions` as `FAILED`.**
+
+## 3. Technical Sequence (The "Golden Path")
+
+### Step-by-Step Execution in `wallet_core.cob`:
+
+1. **`BEGIN TRANSACTION`** (Set `AUTOCOMMIT = 0`).
+2. **Create Intent**: `INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status='PENDING')`.
+3. **Lock Source**: `SELECT balance FROM accounts WHERE user_id = :u1 FOR UPDATE`.
+4. **Verify Funds**: If `balance < amount` $\rightarrow$ `ROLLBACK` $\rightarrow$ `EXIT_INSUFFICIENT`.
+5. **Lock Target**: `SELECT account_id FROM accounts WHERE user_id = :u2 FOR UPDATE`.
+6. **Fetch Rate**: `SELECT rate FROM exchange_rates WHERE ...`. If not found $\rightarrow$ `ROLLBACK` $\rightarrow$ `EXIT_DB_ERROR`.
+7. **Execute Movements**:
+    - `UPDATE accounts SET balance = balance - :amt WHERE id = :u1`.
+    - `UPDATE accounts SET balance = balance + :converted_amt WHERE id = :u2`.
+8. **Write Ledger**:
+    - `INSERT INTO ledger ... (DEBIT)`.
+    - `INSERT INTO ledger ... (CREDIT)`.
+9. **Write Audit**: `INSERT INTO audit_trail ...`. If fail $\rightarrow$ `ROLLBACK` $\rightarrow$ `EXIT_DB_ERROR`.
+10. **Mark Success**: `UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = :ref`.
+11. **`COMMIT`**.
+
+## 4. Database Schema Updates
+
+### New Table: `pending_transactions`
+| Column | Type | Constraint | Description |
+| :--- | :--- | :--- | :--- |
+| `txn_ref` | VARCHAR(50) | PRIMARY KEY | Unique transaction reference |
+| `from_email` | VARCHAR(100) | NOT NULL | Source user |
+| `to_email` | VARCHAR(100) | NOT NULL | Destination user |
+| `amount` | DECIMAL(18,4) | NOT NULL | Transaction amount |
+| `status` | ENUM | 'PENDING', 'COMMITTED', 'FAILED' | Current state of the intent |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Start time |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Last state change |
+
+## 5. Error Matrix (Exit Codes)
+
+| Error Condition | Exit Code | Response Message |
+| :--- | :---: | :--- |
+| Source account not found | `1` | `ERROR|ACCOUNT_NOT_FOUND|Source account missing` |
+| Target account not found | `1` | `ERROR|ACCOUNT_NOT_FOUND|Target account missing` |
+| Database/SQL failure | `2` | `ERROR|DB_ERROR|Internal database error` |
+| Insufficient funds | `3` | `ERROR|INSUFFICIENT_FUNDS|Balance too low` |
+| Invalid arguments | `4` | `ERROR|INVALID_ARG|Missing or invalid parameters` |
+| Exchange rate missing | `2` | `ERROR|CONVERSION_FAILED|Currency rate not found` |
+| Audit log failure | `2` | `ERROR|AUDIT_FAILED|Critical audit log failure` |

@@ -1,0 +1,25 @@
+# Binary and Object files
+*.o
+*.so
+cobol/bin/
+cobol/bin/*.o
+cobol/bin/main_logic
+cobol/bin/interop_test
+
+# I/O and temporary files
+input.txt
+output.txt
+
+# Configuration and Secrets
+cobol/config/odbc.ini
+cobol/config/odbcinst.ini
+
+# Agent configurations
+.agents/
+
+# Environment and lock files
+skills-lock.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
