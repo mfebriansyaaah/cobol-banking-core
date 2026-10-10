@@ -46,7 +46,8 @@ void trim_leading_spaces(char *str) {
 void SET_QUERY(char *query) {
     if (!query) return;
     memset(G_QUERY, 0, sizeof(G_QUERY));
-    strncpy(G_QUERY, query, 1023);
+    strncpy(G_QUERY, query, 511);
+    G_QUERY[511] = '\0';
     trim_trailing_spaces(G_QUERY);
 }
 
