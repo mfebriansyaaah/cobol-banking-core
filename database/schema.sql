@@ -1,15 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 (InnoDB, utf8mb4)
--- Database: cobol_wallet
 -- Purpose: Ensuring Financial Integrity and Strict Identity
 -- Version: 1.2.0
 -- Changelog:
 --   v1.2.0 - Integrated Multi-Currency Accounts and Atomic Ledger
 --   v1.1.0 - Fixed index typo, added performance indexes on verification_logs
 --   v1.0.0 - Initial schema: users, ledger, verification_logs tables
-
-CREATE DATABASE IF NOT EXISTS cobol_wallet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE cobol_wallet;
 
 -- 1. Tabel Users (Identity & Profile)
 CREATE TABLE IF NOT EXISTS users (
