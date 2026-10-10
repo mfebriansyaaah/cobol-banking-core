@@ -28,7 +28,7 @@
         
         MAIN-LOGIC.
             EVALUATE TRUE
-                WHEN FUNCTION TRIM(LS-CMD-ACTION) = "GET_BALANCE"
+                WHEN FUNCTION TRIM(LS-CMD-ACTION) = "CHECK_BALANCE"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
