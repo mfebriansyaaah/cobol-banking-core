@@ -46,14 +46,11 @@
                 INTO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, CMD-PARAM3, CMD-PARAM4
             END-UNSTRING.
             
-            IF INPUT-BUFFER = SPACES
+            IF CMD-ACTION = SPACES
                 MOVE "ERROR|MISSING_ACTION" TO OUTPUT-RECORD
                 WRITE OUTPUT-RECORD
                 STOP RUN
             END-IF.
-            
-            DISPLAY "DEBUG: INPUT-BUFFER=[" INPUT-BUFFER "]".
-            DISPLAY "DEBUG: CMD-ACTION=[" CMD-ACTION "]".
             
             IF CMD-ACTION(1:13) = "CHECK_BALANCE"
                 CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG

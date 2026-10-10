@@ -41,12 +41,17 @@
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING.
             
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY.
-            CALL "SQL_EXECUTE".
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
-            MOVE WS-RESULT TO LS-OUTPUT-BUFFER.
-            GOBACK.
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
         ACTION-LIST-USERS.
             MOVE SPACES TO WS-QUERY.
             STRING "SELECT 1, 'LIST_DONE' WHERE status = 'OK'" 
