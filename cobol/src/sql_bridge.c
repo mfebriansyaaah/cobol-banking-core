@@ -12,6 +12,17 @@
 char G_QUERY[1024] = {0};
 char G_RESULT[1024] = {0};
 
+void sanitize_string(char *str) {
+    if (!str) return;
+    int i = 0;
+    while (str[i]) {
+        if (!isprint((unsigned char)str[i]) && str[i] != '\n' && str[i] != '\r' && str[i] != '\t') {
+            str[i] = ' ';
+        }
+        i++;
+    }
+}
+
 void trim_trailing_spaces(char *str) {
     if (!str) return;
     int len = strlen(str);
@@ -85,6 +96,7 @@ void SQL_EXECUTE() {
                     char temp[256];
                     strncpy(temp, row[i], 255);
                     temp[255] = '\0';
+                    sanitize_string(temp);
                     trim_trailing_spaces(temp);
                     strncat(G_RESULT, temp, 1023 - strlen(G_RESULT) - 1);
                 } else {
