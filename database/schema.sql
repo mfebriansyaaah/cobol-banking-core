@@ -8,7 +8,7 @@
 --   v1.1.0 - Fixed index typo, added performance indexes on verification_logs
 --   v1.0.0 - Initial schema: users, ledger, verification_logs tables
 
-CREATE DATABASE IF NOT EXISTS cobol_//_wallet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS cobol_wallet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE cobol_wallet;
 
 -- 1. Tabel Users (Identity & Profile)
