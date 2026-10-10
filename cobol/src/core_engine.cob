@@ -111,7 +111,7 @@
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO OUTPUT-RECORD
             ELSE
                 MOVE ACC-BALANCE-RAW(WS-FOUND-IDX) TO WS-NUM-CONV
-                MOVE WS-NUM-CONV TO OUTPUT-RECORD
+                MOVE FUNCTION TRIM(WS-NUM-CONV) TO OUTPUT-RECORD
             END-IF.
             WRITE OUTPUT-RECORD.
             GOBACK.
@@ -162,7 +162,9 @@
             IF WS-FOUND-IDX = 0
                 MOVE "ERROR|NOT_FOUND" TO OUTPUT-RECORD
             ELSE
-                STRING USER-ID(WS-FOUND-IDX) "|" USER-EMAIL(WS-FOUND-IDX) 
+                MOVE WS-NUM-CONV TO SPACES
+                MOVE USER-ID(WS-FOUND-IDX) TO WS-NUM-CONV
+                STRING WS-NUM-CONV "|" USER-EMAIL(WS-FOUND-IDX) 
                        DELIMITED BY SIZE INTO OUTPUT-RECORD END-STRING
             END-IF.
             WRITE OUTPUT-RECORD.
