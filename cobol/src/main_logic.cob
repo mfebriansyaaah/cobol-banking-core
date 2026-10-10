@@ -53,22 +53,22 @@
             END-IF.
             
             EVALUATE TRUE
-                WHEN CMD-ACTION(1:11) = "GET_BALANCE"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "GET_BALANCE"
                     CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
                 
-                WHEN CMD-ACTION(1:8) = "TRANSFER"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "TRANSFER"
                     CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
                 
-                WHEN CMD-ACTION(1:8) = "GET_USER"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "GET_USER"
                     CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
                 
-                WHEN CMD-ACTION(1:10) = "LIST_USERS"
+                WHEN FUNCTION TRIM(CMD-ACTION) = "LIST_USERS"
                     CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
                     MOVE WS-OUTPUT-MSG TO OUTPUT-RECORD
                     WRITE OUTPUT-RECORD
