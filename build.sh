@@ -17,6 +17,7 @@ cobc -free -x -o "$COBOL_BIN" \
     cobol/src/main_logic.cob \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \
+    cobol/src/auth_core.cob \
     cobol/src/sql_bridge.c \
     -L/usr/lib/x86_64-linux-gnu -lmysqlclient -Wall -Wextra -O2
 
