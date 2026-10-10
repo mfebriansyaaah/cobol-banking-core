@@ -22,17 +22,17 @@
 
        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-OUTPUT-BUFFER.
        
-       MAIN-LOGIC.
-           EVALUATE TRUE
-               WHEN LS-CMD-ACTION = "GET_USER"
-                   PERFORM ACTION-GET-USER
-               WHEN LS-CMD-ACTION = "LIST_USERS"
-                   PERFORM ACTION-LIST-USERS
-               WHEN OTHER
-                   MOVE 4 TO WS-EXIT-CODE
-                   MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
-           END-EVALUATE.
-           GOBACK.
+        MAIN-LOGIC.
+            EVALUATE TRUE
+                WHEN FUNCTION TRIM(LS-CMD-ACTION) = "GET_USER"
+                    PERFORM ACTION-GET-USER
+                WHEN FUNCTION TRIM(LS-CMD-ACTION) = "LIST_USERS"
+                    PERFORM ACTION-LIST-USERS
+                WHEN OTHER
+                    MOVE 4 TO WS-EXIT-CODE
+                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+            END-EVALUATE.
+            GOBACK.
 
        ACTION-GET-USER.
            MOVE SPACES TO WS-QUERY.

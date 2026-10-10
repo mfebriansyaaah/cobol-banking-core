@@ -28,12 +28,12 @@
         
         MAIN-LOGIC.
             EVALUATE TRUE
-                WHEN LS-CMD-ACTION = "GET_BALANCE"
+                WHEN FUNCTION TRIM(LS-CMD-ACTION) = "GET_BALANCE"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
                     PERFORM GET-BALANCE-LOGIC
-                WHEN LS-CMD-ACTION = "TRANSFER"
+                WHEN FUNCTION TRIM(LS-CMD-ACTION) = "TRANSFER"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
