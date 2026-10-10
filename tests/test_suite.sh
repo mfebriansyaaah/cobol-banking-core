@@ -3,9 +3,17 @@
 
 BIN="./cobol/bin/main_logic"
 
+# Load DB credentials override (tests/.dbenv is gitignored)
+if [ -f ./tests/.dbenv ]; then
+    . ./tests/.dbenv
+fi
+DB_USER="${DB_USER:-cobol_user}"
+DB_PASS="${DB_PASS:-cobol_pass}"
+DB_NAME="${DB_NAME:-cobol_db}"
+
 # Reset seed data so tests are order-independent
 reset_test_db() {
-    mysql -u cobol_user -pcobol_pass cobol_db -e "
+    mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
         UPDATE accounts SET balance=1000.00 WHERE account_id=1;
         UPDATE accounts SET balance=0.00 WHERE account_id=2;
         DELETE FROM ledger WHERE txn_ref NOT LIKE 'INIT_%';" >/dev/null 2>&1

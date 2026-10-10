@@ -1,1 +1,0 @@
-TRANSFER|unknown@test.com|receiver@test.com|100.00|
