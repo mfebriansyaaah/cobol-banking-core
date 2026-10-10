@@ -23,9 +23,10 @@ Notable: `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHECK_ROLE`, `CHANGE_ROLE`, `AUTH_LO
 
 ## To add / to wire
 
-- [ ] **Wire it in**: decide the integration point. Either register `auth_identity.cob` in `build.sh`, or port its actions onto the current bridge (`sql_bridge.c` + `input.txt`/`output.txt`). Today it is dead code reachable by nobody.
-- [ ] **Unify the DB path**: it uses ODBC while the running binary uses `sql_bridge.c`/libmysqlclient. Two connection stacks, two credential sources (`cobol_user/cobol_pass` here vs. in the bridge).
-- [ ] **Unify the I/O contract**: it takes CLI args and writes to `stdout` + exit codes; the shipped binary reads `input.txt` and writes `output.txt`. Pick one before wiring.
+Direction decided in `docs/adr/0002-auth-db-stack.md`: the ODBC/`EXEC SQL` path is retired; these actions will be reimplemented on the bridge (`sql_bridge.c` + `input.txt`/`output.txt`) and `auth_identity.cob` deleted once migration completes.
+
+- [ ] **Reimplement on the bridge**: `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHECK_ROLE`, `CHANGE_ROLE`, `AUTH_LOGIN`, reusing `cobol/c_lib/hash_lib.c`.
+- [ ] **Retire** `auth_identity.cob` and `build.bat`'s ODBC target once every required action is ported.
 - [ ] **Complete the exit-code contract** (last unchecked item in the original spec): 1 Not Found, 2 DB Error, 4 Invalid Arg on every path.
 - [ ] `verification_logs` / `audit_trail` usage: tables exist in `database/schema.sql`; confirm the code paths that write them.
 
@@ -36,5 +37,5 @@ Notable: `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHECK_ROLE`, `CHANGE_ROLE`, `AUTH_LO
 
 ## Open questions
 
-- Keep ODBC, or fold this module onto the libmysqlclient bridge so the whole binary shares one DB stack?
+- ~~Keep ODBC, or fold onto the bridge?~~ **Resolved** — bridge; see `docs/adr/0002-auth-db-stack.md`.
 - Does the hashing algorithm (`hash_lib.c`) meet the production requirement (bcrypt/Argon2), or is SHA-256 a placeholder?
