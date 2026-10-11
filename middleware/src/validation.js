@@ -8,7 +8,7 @@ const NAME = /^[A-Za-z0-9 .'-]{1,100}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const CODE = /^\d{6}$/;
 const ROLE = /^(USER|MANAGER|SUPER_ADMIN)$/;
-const AMOUNT = /^\d{1,13}(\.\d{1,2})?$/;
+const AMOUNT = /^(?=.*[1-9])\d{1,13}(\.\d{1,2})?$/;
 const INT = /^\d{1,6}$/;
 const KEY = /^[A-Za-z0-9._:-]{1,50}$/;
 
