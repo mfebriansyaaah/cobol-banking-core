@@ -3,8 +3,9 @@
 // inject a shell argument.
 
 const EMAIL = /^[A-Za-z0-9._%+-]{1,100}@[A-Za-z0-9.-]{1,100}$/;
-const PASSWORD = /^[^|\n\r]{1,100}$/;
-const NAME = /^[A-Za-z0-9 .'-]{1,100}$/;
+// No SQL metacharacters: quotes, backtick, semicolon, backslash, or newlines.
+const PASSWORD = /^[^|'"`;\\\n\r]{1,100}$/;
+const NAME = /^[A-Za-z0-9 .-]{1,100}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const CODE = /^\d{6}$/;
 const ROLE = /^(USER|MANAGER|SUPER_ADMIN)$/;

@@ -67,11 +67,12 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_login_lockout.sh` | 7 | 3-fail lockout, audit rows, clearing |
 | `tests/test_idempotent_transfer.sh` | 15 | replay-no-op, distinct keys, failure retry |
 | `tests/test_transfer_validity.sh` | 10 | positive-amount and same-currency rules |
+| `tests/test_injection.sh` | 9 | SQL metacharacters rejected (INVALID_INPUT) |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
 
-Shell suites total **128**; with the gateway suite **16** the full run is
-**144 assertions**, all green as of this snapshot.
+Shell suites total **137**; with the gateway suite **17** the full run is
+**154 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -94,6 +95,6 @@ limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).
 
 - Password KDF is PBKDF2-SHA256 (100k iters); legacy `SHA256_` fallback stays until all accounts rehash.
 - Transfers must be positive and within one currency; cross-currency is rejected (`CURRENCY_MISMATCH`) until an FX path exists.
-- SQL is string interpolation, not prepared statements.
+- SQL is string interpolation; a whitelist (gateway) plus COBOL metacharacter rejection (`INVALID_INPUT`) mitigates injection until prepared statements land.
 - Signup/verify actions are not audited yet; refresh token lacks rotation/denylist.
 - One-line COBOL result bounds large lists; process-per-request limits throughput (revisit ADR-0001 at scale).

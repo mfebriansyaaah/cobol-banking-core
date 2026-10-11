@@ -34,6 +34,13 @@
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
         01  WS-I                    PIC 9(3).
+        01  WS-CHECK                PIC X(100) VALUE SPACES.
+        01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  F-QUOTE                 PIC X VALUE "'".
+        01  F-DQUOTE                PIC X VALUE '"'.
+        01  F-BSLASH                PIC X VALUE "\".
+        01  F-SEMI                  PIC X VALUE ";".
+        01  F-TICK                  PIC X VALUE "`".
 
         LINKAGE SECTION.
         01  LS-CMD-ACTION          PIC X(30).
@@ -46,6 +53,11 @@
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
+            PERFORM VALIDATE-ALL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                GOBACK
+            END-IF
             EVALUATE TRUE
                 WHEN LS-CMD-ACTION(1:10) = "AUTH_LOGIN"
                     PERFORM TRIM-PARAM1
@@ -75,6 +87,27 @@
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
             GOBACK.
+
+        VALIDATE-ALL.
+            *> No SQL metacharacters may reach a query string.
+            MOVE 0 TO WS-BAD
+            MOVE LS-PARAM1 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM2 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM3 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM4 TO WS-CHECK
+            PERFORM VALIDATE-INPUT.
+            EXIT PARAGRAPH.
+
+        VALIDATE-INPUT.
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-QUOTE
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-DQUOTE
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-BSLASH
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-SEMI
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-TICK.
+            EXIT PARAGRAPH.
 
         TRIM-PARAM1.
             MOVE LS-PARAM1 TO WS-PARAM1-TRIMMED
