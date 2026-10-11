@@ -35,9 +35,6 @@
         01  WS-TXN-REF             PIC X(17) VALUE SPACES.
         01  WS-REF                 PIC X(50) VALUE SPACES.
         01  WS-REFLEN              PIC 9(3) VALUE 1.
-        01  WS-LOCK-ACC            PIC X(20) VALUE SPACES.
-        01  WS-SACC-NUM            PIC 9(10) VALUE 0.
-        01  WS-TACC-NUM            PIC 9(10) VALUE 0.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
@@ -157,17 +154,22 @@
             END-IF.
             EXIT PARAGRAPH.
 
-        LOCK-ACCOUNT.
-            *> Lock one account row; WS-LOCK-ACC names it.
+        LOCK-ACCOUNTS.
+            *> Lock both account rows in ascending id order in a single read.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT account_id FROM accounts WHERE account_id = " WS-LOCK-ACC " FOR UPDATE" 
+            STRING "SELECT account_id FROM accounts WHERE account_id IN (" 
+                   WS-SENDER-ACC ", " WS-TARGET-ACC ") ORDER BY account_id FOR UPDATE" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
             CALL "SQL_EXECUTE"
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "ERROR|NO_DATA"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
@@ -265,22 +267,11 @@
                 END-IF
             END-IF
             
-            *> Lock both account rows in a deterministic (ascending id) order so
-            *> two opposing transfers cannot deadlock each other.
+            *> Lock both account rows in one statement, ordered by id, so two
+            *> opposing transfers cannot deadlock (and MariaDB does not hit the
+            *> two-statement ER_CHECKREAD).
             IF WS-TRANSFER-OK
-                COMPUTE WS-SACC-NUM = FUNCTION NUMVAL(WS-SENDER-ACC)
-                COMPUTE WS-TACC-NUM = FUNCTION NUMVAL(WS-TARGET-ACC)
-                IF WS-SACC-NUM <= WS-TACC-NUM
-                    MOVE WS-SENDER-ACC TO WS-LOCK-ACC
-                    PERFORM LOCK-ACCOUNT
-                    MOVE WS-TARGET-ACC TO WS-LOCK-ACC
-                    PERFORM LOCK-ACCOUNT
-                ELSE
-                    MOVE WS-TARGET-ACC TO WS-LOCK-ACC
-                    PERFORM LOCK-ACCOUNT
-                    MOVE WS-SENDER-ACC TO WS-LOCK-ACC
-                    PERFORM LOCK-ACCOUNT
-                END-IF
+                PERFORM LOCK-ACCOUNTS
             END-IF
             
             *> Read the sender balance now that its row is locked.
