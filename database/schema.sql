@@ -121,8 +121,8 @@ CREATE TABLE IF NOT EXISTS pending_transactions (
     status ENUM('PENDING', 'COMMITTED', 'FAILED') DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email),
-    CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email)
+    CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email) ON DELETE CASCADE,
+    CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Indexes
