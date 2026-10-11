@@ -9,27 +9,29 @@ Rules a reviewer enforces on every COBOL/C-bridge diff. Mechanical violations sh
 3. **Match action names by exact-length substring** (`LS-CMD-ACTION(1:8) = "GET_USER"`), never by `FUNCTION TRIM(...) = " literal"` — TRIM does not reliably strip in this GnuCOBOL/linkage setup and padded comparisons fail.
 4. **`PERFORM`ed helper paragraphs must not fall through** into the next paragraph: `PERFORM` executes to the end of the paragraph (i.e., into the *next* paragraph's code). Put `EXIT PARAGRAPH.` at the end of every helper that is not last.
 5. **Password/connection literals belong in config, never in test scripts or source.** Tests read credentials from the local MySQL client config (`~/.my.cnf` or `mysql` defaults), not from hardcoded values.
+6. **Detect an absent parameter from the raw field, not from the trimmed length.** The trim helper sets a minimum length of 1, so an all-spaces parameter looks "present"; test `LS-PARAMn = SPACES` (or a dedicated presence flag) to distinguish absent from present.
 
 ## C bridge (`sql_bridge.c`)
 
-6. **Never null-pad a buffer COBOL will treat as alphanumeric.** `strncpy` fills the remainder with `\0`; `libcob` then refuses the WRITE (`status 71`, invalid data for LINE SEQUENTIAL). Fill the rest of the buffer with spaces before returning (`memset(result, ' ', N)`).
-7. **Copy at most the COBOL field's size** from COBOL-visible buffers. A `PIC X(512)` field must be read with a ≤511-byte copy — reading 1023 bytes walks into adjacent working-storage and corrupts queries/results.
+7. **Never null-pad a buffer COBOL will treat as alphanumeric.** `strncpy` fills the remainder with `\0`; `libcob` then refuses the WRITE (`status 71`, invalid data for LINE SEQUENTIAL). Fill the rest of the buffer with spaces before returning (`memset(result, ' ', N)`).
+8. **Copy at most the COBOL field's size** from COBOL-visible buffers. A `PIC X(512)` field must be read with a ≤511-byte copy — reading 1023 bytes walks into adjacent working-storage and corrupts queries/results.
+9. **Pick the right bridge call for the shape.** `SQL_EXECUTE`/`GET_RESULT` read a single row (`mysql_fetch_row` once) — correct for lookups. For a list, use `SQL_EXECUTE_ROWS`, which returns every row with fields joined by `|` and rows joined by `;`; do not wrap a list in `GROUP_CONCAT` when the row-mode call fits.
+
+## COBOL / SQL boundary
+
+10. **Never embed a padded field in SQL.** A `PIC X(n)` field padded with spaces is fine for `WHERE … =` comparisons (MySQL `PAD SPACE` semantics) but must never be stored or hashed: pass it as a substring with a computed length (`WS-PARAM1-TRIMMED(1:WS-P1-LEN)`), otherwise the row is stored with trailing spaces inside `UNIQUE`/`VARCHAR` columns and hash inputs silently mismatch. A trim that only does `MOVE SPACE TO WS-FIELD(WS-I:1)` when the char is already `SPACE` is a **no-op** — the scan must capture the last non-space index.
 
 ## Tests
 
-8. **Every test resets DB state first** (order-independence). A suite that passes only in a specific sequence is a bug.
-9. **Expected error names are a contract**: `ERROR|MISSING_ACTION`, `ERROR|INVALID_ACTION`, `ERROR|ACCOUNT_NOT_FOUND`, `ERROR|TARGET_NOT_FOUND`, `ERROR|INSUFFICIENT_FUNDS`, `ERROR|NOT_FOUND`, `SUCCESS|TRANSFER_OK`, `SUCCESS|LIST_DONE`. Renaming one requires updating both suites and the module that emits it, in the same PR.
-
-## Language
-
-10. **English only.** Every artifact is written in English: commit messages, PR titles and descriptions, documentation, code identifiers (variables, functions, paragraphs, `PROGRAM-ID`s), and inline comments. A reviewer rejects any non-English identifier, comment, or doc line, and any commit/PR text in another language.
-
-## COBOL / SQL boundary (appended)
-
-11. **Never embed a padded field in SQL.** A `PIC X(n)` field padded with spaces is fine for `WHERE … =` comparisons (MySQL `PAD SPACE` semantics) but must never be stored or hashed: pass it as a substring with a computed length (`WS-PARAM1-TRIMMED(1:WS-P1-LEN)`), otherwise the row is stored with trailing spaces inside `UNIQUE`/`VARCHAR` columns and hash inputs silently mismatch. A trim that only does `MOVE SPACE TO WS-FIELD(WS-I:1)` when the char is already `SPACE` is a **no-op** — the scan must capture the last non-space index.
-12. **Pick the right bridge call for the shape.** `SQL_EXECUTE`/`GET_RESULT` read a single row (`mysql_fetch_row` once) — correct for lookups. For a list, use `SQL_EXECUTE_ROWS`, which returns every row with fields joined by `|` and rows joined by `;`; do not wrap a list in `GROUP_CONCAT` when the row-mode call fits.
+11. **Every test resets DB state first** (order-independence). A suite that passes only in a specific sequence is a bug.
+12. **Expected error names are a contract**: `ERROR|MISSING_ACTION`, `ERROR|INVALID_ACTION`, `ERROR|ACCOUNT_NOT_FOUND`, `ERROR|TARGET_NOT_FOUND`, `ERROR|INSUFFICIENT_FUNDS`, `ERROR|NOT_FOUND`, `SUCCESS|TRANSFER_OK`, `SUCCESS|LIST_DONE`. Renaming one requires updating both suites and the module that emits it, in the same PR.
+13. **Each suite owns isolated fixtures.** Create rows with unique ids/emails that no other suite uses, and clear them by that same unique key before asserting; never reuse a low id that ad-hoc manual runs or other suites may already hold.
 
 ## HTTP gateway
 
-13. **The composed input line must stay under the COBOL record size.** `main_logic` reads `PIC X(500)`; `middleware/src/validation.js` must reject a request whose joined `ACTION|p1|p2|p3|p4` line would exceed that record, before writing `input.txt`.
-14. **Business logic stays in COBOL.** C and JavaScript contribute transport and security only — input-shape validation, invocation, result mapping, hashing/random. A reviewer rejects business rules, balance arithmetic, or transaction-outcome decisions written in C or JavaScript.
+14. **The composed input line must stay under the COBOL record size.** `main_logic` reads `PIC X(500)`; `middleware/src/validation.js` must reject a request whose joined `ACTION|p1|p2|p3|p4` line would exceed that record, before writing `input.txt`.
+15. **Business logic stays in COBOL.** C and JavaScript contribute transport and security only — input-shape validation, invocation, result mapping, hashing/random. A reviewer rejects business rules, balance arithmetic, or transaction-outcome decisions written in C or JavaScript.
+
+## Language
+
+16. **English only.** Every artifact is written in English: commit messages, PR titles and descriptions, documentation, code identifiers (variables, functions, paragraphs, `PROGRAM-ID`s), and inline comments. A reviewer rejects any non-English identifier, comment, or doc line, and any commit/PR text in another language.

@@ -69,6 +69,15 @@ else
     viol=1
 fi
 
+# Violation 4: every action the router dispatches must have a handler in the
+# owning module (router/owner agreement - the routing contract in AGENTS.md).
+for name in $(grep -oE '= "[A-Z_]+"' cobol/src/main_logic.cob | sed 's/= "//; s/"//'); do
+    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob; then
+        echo "router: action '$name' has no handler in any core module"
+        viol=1
+    fi
+done
+
 if [ "$viol" = 1 ]; then
     echo "=== Static checks FAILED ==="
     exit 1

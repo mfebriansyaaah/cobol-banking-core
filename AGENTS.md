@@ -17,7 +17,7 @@ English only for every artifact in this repo: commit messages, PR titles and des
 
 ## Shell safety
 
-When passing Markdown to `gh pr create` / `gh pr edit`, write the body to a file first and use `--body-file`; backticks inside shell double quotes execute as command substitution.
+When passing Markdown to `gh pr create` / `gh pr edit`, write the body to a file first and use `--body-file`; backticks inside shell double quotes execute as command substitution. Create each phase branch with a single explicit name (no `||` fallbacks), so a silent typo cannot create the wrong branch. Before opening a PR, confirm `git status` is clean — every artifact the build needs (including C and Node sources) must be committed, not left in the working tree.
 
 ## Business-logic boundary (mandatory)
 
