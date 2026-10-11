@@ -1,8 +1,10 @@
 # AGENTS.md
 
-## Workflow phases (lean)
+## Workflow phases (medium)
 
-- A **phase is lean**: a small, coherent goal; **only a handful of commits** per phase, each continuing the same thread of work — never a sprawl of micro-fixes.
+- A **phase is medium**: a coherent goal delivered as one PR of **at least five related commits**, each a meaningful step on the same thread. Aim for a healthy daily commit count without sprawl or filler.
+- **Atomic commits, not file-sized commits**: split along real boundaries — a schema/field or helper paragraph, the action logic, the router wiring, the docs/SPEC update, the tests — so each commit stands on its own. Every commit carries a real change; a commit that only renames, re-formats, or whitespaces is not a step and reads as spam. Where practical, keep `ci.sh` green at each commit.
+- Trivial, non-behavioural changes (a one-line doc fix, a typo) are their own small phase and need not reach five commits; the count is a target for feature/behaviour phases, not a quota to pad.
 - **End-of-phase validation (only when the phase warrants it)**: if a phase changes behaviour that can be tested (logic, I/O, DB, output contract), close it with a dedicated micro-task that runs the tests covering what that phase built — add or extend a test when no suite covers it. Open the phase PR only after that task is green, and commit the test work on the phase branch. Documentation-only, formatting, or other non-behavioural phases need no test micro-task; `ci.sh` staying green is enough. When in doubt, ask whether the change could break at runtime — if not, skip the test task.
 - `ci.sh` — the repo's one-shot check command: static COBOL checks, build, both test suites. Run it before committing; it must exit 0 with `ALL GREEN`.
 - `build.sh` — compiles all COBOL modules + `sql_bridge.c` into a single binary (`cobol/bin/main_logic`). Edit this file, never an ad-hoc `cobc` invocation.
