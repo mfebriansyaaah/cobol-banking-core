@@ -8,6 +8,10 @@
 - `build.sh` — compiles all COBOL modules + `sql_bridge.c` into a single binary (`cobol/bin/main_logic`). Edit this file, never an ad-hoc `cobc` invocation.
 - `tests/test_suite.sh`, `tests/test_atomic_txn.sh` — functional and atomic-transaction suites. Both need the MySQL database `cobol_db` seeded via `database/schema.sql` + `database/seed_test_data.sql`; each suite resets DB state itself.
 
+## Language (mandatory)
+
+English only for every artifact in this repo: commit messages, PR titles and descriptions, documentation, and source code (identifiers, program/paragraph/variable names, and inline comments). No other language may appear in these artifacts.
+
 ## Routing contract (edit together)
 
 Action names are matched across `cobol/src/main_logic.cob` (routing) and the module that owns them: `CHECK_BALANCE`, `TRANSFER`, `RECONCILE` in `cobol/src/wallet_core.cob`; `GET_USER`, `LIST_USERS` in `cobol/src/user_core.cob`; `AUTH_LOGIN`, `REQUEST_SIGNUP`, `VERIFY_EMAIL` in `cobol/src/auth_core.cob`. Adding or renaming an action requires editing the router and the owning module together; review must check they agree.

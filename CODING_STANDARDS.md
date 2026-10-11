@@ -19,3 +19,7 @@ Rules a reviewer enforces on every COBOL/C-bridge diff. Mechanical violations sh
 
 8. **Every test resets DB state first** (order-independence). A suite that passes only in a specific sequence is a bug.
 9. **Expected error names are a contract**: `ERROR|MISSING_ACTION`, `ERROR|INVALID_ACTION`, `ERROR|ACCOUNT_NOT_FOUND`, `ERROR|TARGET_NOT_FOUND`, `ERROR|INSUFFICIENT_FUNDS`, `ERROR|NOT_FOUND`, `SUCCESS|TRANSFER_OK`, `SUCCESS|LIST_DONE`. Renaming one requires updating both suites and the module that emits it, in the same PR.
+
+## Language
+
+10. **English only.** Every artifact is written in English: commit messages, PR titles and descriptions, documentation, code identifiers (variables, functions, paragraphs, `PROGRAM-ID`s), and inline comments. A reviewer rejects any non-English identifier, comment, or doc line, and any commit/PR text in another language.
