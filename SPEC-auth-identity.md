@@ -31,9 +31,8 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 
 ## Not yet done
 
-- Legacy `SHA256_…` hashes are still accepted on login (no automatic rehash/migration to PBKDF2 on a successful legacy login).
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
-- `audit_trail` records failed logins (lockout) and `CHANGE_ROLE`; `REQUEST_SIGNUP`/`VERIFY_EMAIL` are not audited yet.
+- `audit_trail` records failed logins (lockout), `CHANGE_ROLE`, `TRANSFER`, and `EMAIL_CHANGE`; `REQUEST_SIGNUP`/`VERIFY_EMAIL` are not audited yet.
 
 ## Done since first cut
 
@@ -46,4 +45,4 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 
 ## Open questions
 
-- Does the hashing algorithm satisfy the production requirement (bcrypt/Argon2), or is SHA-256 a placeholder?
+- Should the legacy `SHA256_…` fallback be retired once every account has been rehashed to PBKDF2?
