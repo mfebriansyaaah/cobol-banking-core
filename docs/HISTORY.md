@@ -755,3 +755,13 @@ _merged 2026-10-12_
 - feat(bridge): include the MySQL error number when a query fails
 - docs: sync HISTORY.md to post-merge state (#75)
 
+## #77 audit-signup-verify
+
+_merged 2026-10-12_
+
+- docs: audit completeness for signup/verify; refresh STATUS suite counts
+- test: assert SIGNUP and VERIFY_EMAIL audit rows
+- feat(auth): audit VERIFY_EMAIL inside the transaction
+- feat(auth): audit REQUEST_SIGNUP (SIGNUP row) inside the transaction
+- docs: sync HISTORY.md to post-merge state (#76)
+
