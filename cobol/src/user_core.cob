@@ -189,7 +189,7 @@
             EXIT PARAGRAPH.
 
         ACTION-LIST-USERS.
-            *> Paged, single-line list via GROUP_CONCAT (bridge returns one row).
+            *> Paged list via the multi-row bridge call (one row per user).
             MOVE "20" TO WS-LIMIT
             MOVE "0" TO WS-OFFSET
             IF LS-PARAM1 NOT = SPACES
@@ -199,19 +199,22 @@
                 MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
             END-IF
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT SUBSTRING(GROUP_CONCAT(CONCAT(id, ':', email) ORDER BY id SEPARATOR ';'), 1, 400) " 
-                   "FROM (SELECT id, email FROM users ORDER BY id LIMIT " WS-LIMIT " OFFSET " WS-OFFSET ") t" 
+            STRING "SELECT CONCAT(id, ':', email) FROM users ORDER BY id LIMIT " WS-LIMIT " OFFSET " WS-OFFSET 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            CALL "SQL_EXECUTE_ROWS"
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
-            PERFORM TRIM-OUTPUT-VALUES
             MOVE SPACES TO LS-OUTPUT-BUFFER
-            STRING "SUCCESS|LIST_DONE|" WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
-            END-STRING.
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|LIST_DONE|" TO LS-OUTPUT-BUFFER
+            ELSE
+                PERFORM TRIM-OUTPUT-VALUES
+                STRING "SUCCESS|LIST_DONE|" WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
             EXIT PARAGRAPH.
 
         ACTION-DASHBOARD.
