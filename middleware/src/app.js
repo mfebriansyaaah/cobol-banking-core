@@ -3,6 +3,7 @@ import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { requireAuth, signToken } from './auth.js';
+import { rateLimiter } from './rateLimit.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT } = PATTERNS;
 
@@ -61,6 +62,7 @@ const ROUTES = [
 
 export function buildRouter() {
   const router = express.Router();
+  const authLimiter = rateLimiter();
 
   router.get('/health', (_req, res) => res.json({ data: ['OK'] }));
 
@@ -80,7 +82,10 @@ export function buildRouter() {
         return next(err);
       }
     };
-    const chain = route.public ? [handler] : [requireAuth, handler];
+    const chain = [];
+    if (route.path.startsWith('/auth')) chain.push(authLimiter);
+    if (!route.public) chain.push(requireAuth);
+    chain.push(handler);
     router[route.method](route.path, ...chain);
   }
 
