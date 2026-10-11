@@ -10,8 +10,10 @@
 #include <time.h>
 #include <stdint.h>
 #include <stddef.h>
+#ifdef _WIN32
 #include <windows.h>
 #include <wincrypt.h>
+#endif
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
