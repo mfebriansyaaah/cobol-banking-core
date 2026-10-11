@@ -130,6 +130,45 @@ void SQL_EXECUTE() {
     if (own_conn) mysql_close(conn);
 }
 
+/* --- Parameter escaping --------------------------------------------------
+ * Escape one COBOL-provided value for safe embedding in a SQL literal.
+ * The input's trailing spaces are trimmed; the result is written to the
+ * caller's buffer and padded with spaces (never NUL) so COBOL stays valid.
+ * ------------------------------------------------------------------------ */
+
+void SQL_ESCAPE(char *in, char *out, int outmax) {
+    if (!out || outmax <= 0) return;
+    memset(out, ' ', (size_t)outmax);
+    if (!in) return;
+
+    char trimmed[1024];
+    strncpy(trimmed, in, 1023);
+    trimmed[1023] = '\0';
+    trim_trailing_spaces(trimmed);
+    size_t len = strlen(trimmed);
+    if (len == 0) return;
+
+    char escaped[2048];
+    MYSQL *conn = G_CONN;
+    int own = 0;
+    if (conn == NULL) {
+        conn = bridge_connect();
+        own = 1;
+    }
+    size_t elen;
+    if (conn != NULL) {
+        elen = mysql_real_escape_string(conn, escaped, trimmed, len);
+        if (own) mysql_close(conn);
+    } else {
+        // No connection available: fall back to a copy (callers still reject
+        // protocol-breaking characters).
+        memcpy(escaped, trimmed, len);
+        elen = len;
+    }
+    if (elen > (size_t)outmax) elen = (size_t)outmax;
+    memcpy(out, escaped, elen);
+}
+
 /* --- Multi-row execute ---------------------------------------------------
  * Like SQL_EXECUTE but concatenates EVERY row: fields joined by '|', rows
  * joined by ';'. Lets a COBOL action read a list without GROUP_CONCAT hacks.
