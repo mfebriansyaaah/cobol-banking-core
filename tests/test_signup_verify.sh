@@ -52,6 +52,7 @@ case "$out" in
     *) check "signup returns code" "SUCCESS|USER_CREATED|<6 digits>" "$out" ;;
 esac
 check "user status UNVERIFIED" "UNVERIFIED" "$(q "SELECT status FROM users WHERE email='$EMAIL';")"
+check "password stored with slow KDF" "PBKDF2\$" "$(q "SELECT LEFT(password_hash,7) FROM users WHERE email='$EMAIL';")"
 check "email stored without padding" "18" "$(q "SELECT CHAR_LENGTH(email) FROM users WHERE email='$EMAIL';")"
 check "verification log written" "1" "$(q "SELECT COUNT(*) FROM verification_logs WHERE email='$EMAIL' AND purpose='SIGNUP' AND is_used=0;")"
 
