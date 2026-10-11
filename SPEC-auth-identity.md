@@ -13,7 +13,7 @@ Strict identity and authentication: registration, email verification, secure log
 
 | Action | Params | Behavior today | Outputs |
 |---|---|---|---|
-| `AUTH_LOGIN` | `p1=email`, `p2=password` | look up status by email; verify password via `password_hash = CONCAT('SHA256_', SHA2(pwd,256))`; require status `VERIFIED` | `SUCCESS\|LOGIN_OK` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_CREDENTIALS` · `ERROR\|UNVERIFIED` |
+| `AUTH_LOGIN` | `p1=email`, `p2=password` | reject if 3 failed attempts in 15 min (`ACCOUNT_LOCKED`, row via `audit_trail`); else verify password + status `VERIFIED`; failed attempts are recorded | `SUCCESS\|LOGIN_OK` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_CREDENTIALS` · `ERROR\|UNVERIFIED` · `ERROR\|ACCOUNT_LOCKED` |
 | `REQUEST_SIGNUP` | `p1=email`, `p2=password`, `p3=full_name`, `p4=dob` | enforce 8-char password + unique email; insert user `UNVERIFIED` + a secure 6-digit code in `verification_logs` (24h expiry) inside one transaction; return the code | `SUCCESS\|USER_CREATED\|<code>` · `ERROR\|WEAK_PASSWORD` · `ERROR\|EMAIL_EXISTS` · `ERROR\|SIGNUP_FAILED` |
 | `VERIFY_EMAIL` | `p1=email`, `p2=code` | match an unused, unexpired `SIGNUP` code and flip the user to `VERIFIED`, all in one transaction | `SUCCESS\|EMAIL_VERIFIED` · `ERROR\|INVALID_CODE` · `ERROR\|VERIFY_FAILED` |
 | `CHECK_ROLE` | `p1=email`, `p2=role` | report whether the user holds the given role | `SUCCESS\|ROLE_OK` · `ERROR\|ROLE_DENIED` · `ERROR\|ACCOUNT_NOT_FOUND` |
@@ -31,10 +31,13 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 
 ## Not yet done
 
-- Account lockout (3+ failures/15m) for `AUTH_LOGIN`.
 - Password hashing is plain SHA-256; a slow KDF (bcrypt/Argon2) is still outstanding for production.
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
-- `audit_trail` writes are not wired (the table exists in `database/schema.sql`).
+- `audit_trail` currently records only failed logins (for lockout); other sensitive actions are not audited yet.
+
+## Done since first cut
+
+- **Account lockout**: `AUTH_LOGIN` counts failed attempts in `audit_trail` and locks after 3 failures within 15 minutes (`ERROR|ACCOUNT_LOCKED`), even for a correct password. Tested by `tests/test_login_lockout.sh`.
 
 ## Code style (enforced today)
 

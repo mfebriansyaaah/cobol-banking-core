@@ -20,6 +20,10 @@
         01  WS-P3-LEN               PIC 9(3) VALUE 1.
         01  WS-P4-LEN               PIC 9(3) VALUE 1.
         01  WS-STATUS               PIC X(20) VALUE SPACES.
+        01  WS-USER-ID              PIC X(20) VALUE SPACES.
+        01  WS-ID-LEN               PIC 9(3) VALUE 1.
+        01  WS-FAILS                PIC X(20) VALUE SPACES.
+        01  WS-FAIL-COUNT           PIC 9(4) VALUE 0.
         01  WS-CODE                 PIC X(7) VALUE SPACES.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
@@ -118,7 +122,7 @@
         LOGIN-LOGIC.
             *> 1) Does the account exist, and what is its status?
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT status FROM users WHERE email = '" 
+            STRING "SELECT CAST(id AS CHAR), status FROM users WHERE email = '" 
                    WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -130,9 +134,38 @@
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            MOVE WS-RESULT TO WS-STATUS
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-USER-ID WS-STATUS
+            END-UNSTRING
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM
+            IF WS-ID-LEN = 0
+                MOVE 1 TO WS-ID-LEN
+            END-IF
             
-            *> 2) Password check. Stored format is 'SHA256_' + sha256 hex
+            *> 2) Lockout: 3 failed attempts within 15 minutes blocks login.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT CAST(COUNT(*) AS CHAR) FROM audit_trail WHERE user_id = " 
+                   WS-USER-ID(1:WS-ID-LEN) " AND action = 'AUTH_LOGIN_FAILED' AND created_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-FAILS
+            COMPUTE WS-FAIL-COUNT = FUNCTION NUMVAL(WS-FAILS)
+            
+            IF WS-FAIL-COUNT >= 3
+                MOVE "ERROR|ACCOUNT_LOCKED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            
+            *> 3) Password check. Stored format is 'SHA256_' + sha256 hex
             *>    (matches hash_password in cobol/c_lib/hash_lib.c); SHA2()
             *>    reproduces it server-side.
             MOVE SPACES TO WS-QUERY
@@ -146,11 +179,20 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT = "ERROR|NO_DATA"
+                *> Record the failed attempt for lockout counting.
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (" 
+                       WS-USER-ID(1:WS-ID-LEN) ", 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             
-            *> 3) Only a VERIFIED account may log in.
+            *> 4) Only a VERIFIED account may log in.
             IF WS-STATUS(1:8) = "VERIFIED"
                 MOVE "SUCCESS|LOGIN_OK" TO LS-OUTPUT-BUFFER
             ELSE
