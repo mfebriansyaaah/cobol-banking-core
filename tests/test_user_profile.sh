@@ -50,21 +50,23 @@ UNEW="prof_new@test.com"
 OTHER="prof_other@test.com"
 
 q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER');
-   DELETE FROM accounts WHERE account_id IN (950,951);
+   DELETE FROM accounts WHERE account_id IN (950,951,952);
    DELETE FROM users WHERE email IN ('$U','$UNEW','$OTHER');
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (950,'$U',CONCAT('SHA256_',SHA2('secret123',256)),'Prof User','1990-01-01','VERIFIED','USER'),
    (951,'$OTHER',CONCAT('SHA256_',SHA2('secret123',256)),'Other User','1990-01-01','VERIFIED','USER');
    INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES
-   (950,950,1,250.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');"
+   (950,950,1,250.00,'SAVINGS'),(952,950,3,0.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');"
 
 # --- GET_DASHBOARD ---
-check "dashboard exact" "SUCCESS|DASHBOARD|250.00|$U|Prof User" "$(run GET_DASHBOARD "$U" "" "")"
+check "dashboard lists all accounts" "SUCCESS|DASHBOARD|$U|Prof User|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "" "")"
 check "dashboard unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_DASHBOARD ghost@test.com "" "")"
 
-# --- LIST_USERS ---
+# --- LIST_USERS + paging ---
 check_contains "list users header" "SUCCESS|LIST_DONE|" "$(run LIST_USERS "" "" "")"
 check_contains "list users includes a known user" "950:$U" "$(run LIST_USERS "" "" "")"
+check "paging limit=1 returns only the first" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "")"
+check_contains "paging offset=1 skips the first" "2:receiver@test.com" "$(run LIST_USERS 1 1 "")"
 
 # --- REQ_EMAIL_CHANGE ---
 check "request unknown current" "ERROR|ACCOUNT_NOT_FOUND" "$(run REQ_EMAIL_CHANGE ghost@test.com "$UNEW" "")"
