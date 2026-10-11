@@ -26,6 +26,8 @@
             88  WS-TRANSFER-FAIL-TARGET VALUE 'TGRT'.
             88  WS-TRANSFER-FAIL-INSUF VALUE 'INSUF'.
             88  WS-TRANSFER-FAIL-IDEMP VALUE 'IDEM'.
+            88  WS-TRANSFER-FAIL-AMOUNT VALUE 'AMNT'.
+            88  WS-TRANSFER-FAIL-CURR VALUE 'CURR'.
         01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
@@ -237,10 +239,23 @@
                 END-IF
             END-IF
             
-            *> Sufficiency check against the locked balance.
+            *> Provider only moves money within one currency (no FX here).
+            IF WS-TRANSFER-OK
+                IF WS-SENDER-CUR NOT = WS-TARGET-CUR
+                    SET WS-TRANSFER-FAIL-CURR TO TRUE
+                END-IF
+            END-IF
+            
+            *> Amount must be positive, and the sender must be able to cover it.
+            IF WS-TRANSFER-OK
+                COMPUTE WS-AMOUNT-NUM = FUNCTION NUMVAL(WS-PARAM3-TRIMMED)
+                IF WS-AMOUNT-NUM <= 0
+                    SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                END-IF
+            END-IF
+            
             IF WS-TRANSFER-OK
                 COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-SENDER-BAL)
-                COMPUTE WS-AMOUNT-NUM = FUNCTION NUMVAL(WS-PARAM3-TRIMMED)
                 IF WS-BALANCE-NUM < WS-AMOUNT-NUM
                     SET WS-TRANSFER-FAIL-INSUF TO TRUE
                 END-IF
@@ -351,13 +366,21 @@
                 IF WS-TRANSFER-FAIL-IDEMP
                     MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
                 ELSE
-                    IF WS-TRANSFER-FAIL-SENDER
-                        MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    IF WS-TRANSFER-FAIL-AMOUNT
+                        MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                     ELSE
-                        IF WS-TRANSFER-FAIL-TARGET
-                            MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                        IF WS-TRANSFER-FAIL-CURR
+                            MOVE "ERROR|CURRENCY_MISMATCH" TO LS-OUTPUT-BUFFER
                         ELSE
-                            MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                            IF WS-TRANSFER-FAIL-SENDER
+                                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                            ELSE
+                                IF WS-TRANSFER-FAIL-TARGET
+                                    MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                ELSE
+                                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                END-IF
+                            END-IF
                         END-IF
                     END-IF
                 END-IF

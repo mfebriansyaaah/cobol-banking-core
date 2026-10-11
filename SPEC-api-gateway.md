@@ -35,7 +35,7 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 ### Result to HTTP mapping
 
 - COBOL `SUCCESS|…` → `200 { "data": [...] }`.
-- COBOL `ERROR|<code>|…` → status by code: `INVALID_CREDENTIALS` 401; `UNVERIFIED`/`FORBIDDEN`/`ROLE_DENIED` 403; `ACCOUNT_NOT_FOUND`/`TARGET_NOT_FOUND`/`NOT_FOUND` 404; `MISSING_ACTION`/`INVALID_ACTION`/`INVALID_CODE`/`WEAK_PASSWORD`/`EMAIL_EXISTS`/`INVALID_ROLE` 400; `INSUFFICIENT_FUNDS`/`TRANSFER_IN_PROGRESS` 409; DB/`*_FAILED` 500. Body `{ "error": code, "detail": [...] }`.
+- COBOL `ERROR|<code>|…` → status by code: `INVALID_CREDENTIALS` 401; `UNVERIFIED`/`FORBIDDEN`/`ROLE_DENIED` 403; `ACCOUNT_NOT_FOUND`/`TARGET_NOT_FOUND`/`NOT_FOUND` 404; `MISSING_ACTION`/`INVALID_ACTION`/`INVALID_CODE`/`WEAK_PASSWORD`/`EMAIL_EXISTS`/`INVALID_ROLE`/`INVALID_AMOUNT`/`CURRENCY_MISMATCH` 400; `INSUFFICIENT_FUNDS`/`TRANSFER_IN_PROGRESS` 409; DB/`*_FAILED` 500. Body `{ "error": code, "detail": [...] }`.
 - `POST /wallet/transfer` forwards an `Idempotency-Key` header as the transfer's idempotency key, so a retried request is not applied twice.
 - Validation failure → `400 { "error": "INVALID_PARAMETER" }`; an input line longer than the COBOL record is rejected before invocation; a hung binary → `504 { "error": "GATEWAY_TIMEOUT" }`; a client over the auth rate limit → `429 { "error": "RATE_LIMITED" }`.
 
