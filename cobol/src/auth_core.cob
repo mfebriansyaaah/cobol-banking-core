@@ -37,6 +37,7 @@
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-P1-ESC               PIC X(256) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(256) VALUE SPACES.
         01  WS-P2-ESC               PIC X(256) VALUE SPACES.
         01  WS-P3-ESC               PIC X(256) VALUE SPACES.
         01  WS-P4-ESC               PIC X(256) VALUE SPACES.
@@ -375,15 +376,18 @@
             
             CALL "SQL_BEGIN"
             
-            MOVE SPACES TO WS-QUERY
-            STRING "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('" 
-                   WS-P1-ESC(1:WS-P1-ELEN) "', '" WS-HASH(1:WS-HLEN) "', '" 
-                   WS-P3-ESC(1:WS-P3-ELEN) "', '" WS-P4-ESC(1:WS-P4-ELEN) "', 'UNVERIFIED', 'USER')" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            *> Prepared insert: values are bound, not concatenated.
+            MOVE "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES (?, ?, ?, ?, 'UNVERIFIED', 'USER')" 
+                 TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING
+                BY REFERENCE WS-PREP-SQL
+                BY VALUE 4
+                BY REFERENCE WS-PARAM1-TRIMMED
+                BY REFERENCE WS-HASH
+                BY REFERENCE WS-PARAM3-TRIMMED
+                BY REFERENCE WS-PARAM4-TRIMMED
+                BY REFERENCE WS-PARAM4-TRIMMED
+                BY REFERENCE WS-PARAM4-TRIMMED
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT(1:5) = "ERROR"
