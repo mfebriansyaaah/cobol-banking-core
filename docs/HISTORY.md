@@ -721,3 +721,14 @@ _merged 2026-10-11_
 
 - docs: add HISTORY.md - every merged phase with its commits and date
 
+## #74 consolidate-phase-history
+
+_merged 2026-10-11_
+
+- docs(history): make the generator deterministic (drop the volatile timestamp)
+- test: include HISTORY.md in the docs integrity scan
+- docs: regenerate HISTORY.md with the new generator
+- docs: point governance references at HISTORY.md (drop CHANGELOG mentions)
+- docs: remove CHANGELOG.md and its generator (superseded by HISTORY.md)
+- docs(history): add a generator that rebuilds HISTORY.md from git merges
+
