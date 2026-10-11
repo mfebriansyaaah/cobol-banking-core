@@ -60,6 +60,7 @@ check "admin changes role" "SUCCESS|ROLE_CHANGED" \
     "$(run CHANGE_ROLE "$USER" MANAGER "$ADMIN")"
 check "role persisted" "MANAGER" "$(q "SELECT role FROM users WHERE email='$USER';")"
 check "role now reported by CHECK_ROLE" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" MANAGER)"
+check "audit change_role row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=921 AND action='CHANGE_ROLE';")"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"

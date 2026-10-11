@@ -25,6 +25,7 @@
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(17) VALUE SPACES.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
+        01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
         01  WS-SENDER-CUR          PIC X(20) VALUE SPACES.
         01  WS-TARGET-ACC          PIC X(20) VALUE SPACES.
@@ -131,9 +132,9 @@
             STRING "TXN" WS-NOW(1:14) DELIMITED BY SIZE INTO WS-TXN-REF
             END-STRING
             
-            *> Lock the sender account row and read its id, balance and currency.
+            *> Lock the sender account row and read its id, user, balance and currency.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(a.account_id AS CHAR), CONCAT(ROUND(a.balance,2)), CAST(a.currency_id AS CHAR) " 
+            STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CONCAT(ROUND(a.balance,2)), CAST(a.currency_id AS CHAR) " 
                    "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
                    WS-PARAM1-TRIMMED "' FOR UPDATE" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
@@ -147,7 +148,7 @@
                 SET WS-TRANSFER-FAIL-SENDER TO TRUE
             ELSE
                 UNSTRING WS-RESULT DELIMITED BY "|"
-                    INTO WS-SENDER-ACC WS-SENDER-BAL WS-SENDER-CUR
+                    INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-BAL WS-SENDER-CUR
                 END-UNSTRING
             END-IF
             
@@ -243,6 +244,23 @@
                 
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                END-IF
+            END-IF
+            
+            *> Audit the movement inside the same transaction.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
+                       WS-SENDER-USER ", 'TRANSFER', 'ACCOUNT', " WS-SENDER-ACC ", 'SUCCESS')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
                 END-IF
             END-IF
             

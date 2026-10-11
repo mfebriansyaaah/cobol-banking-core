@@ -19,6 +19,7 @@ reset() {
     q "UPDATE accounts SET balance=1000.00 WHERE account_id=1;
        UPDATE accounts SET balance=0.00 WHERE account_id=2;
        DELETE FROM ledger;
+       DELETE FROM audit_trail WHERE user_id IN (1,2);
        INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) VALUES
          ('INIT_001',1,1000.00,'CREDIT',1,'Initial Deposit'),
          ('INIT_002',2,0.00,'CREDIT',1,'Initial Deposit');"
@@ -57,6 +58,7 @@ check "ledger credit row" "2|CREDIT|100.0000" "$(q "SELECT CONCAT(account_id,'|'
 check "ledger single txn_ref" "1" "$(q "SELECT COUNT(DISTINCT txn_ref) FROM ledger WHERE txn_ref NOT LIKE 'INIT_%';")"
 check "sender ledger sum equals balance" "900.00" \
     "$(q "SELECT CONCAT(ROUND(SUM(CASE WHEN type='CREDIT' THEN amount ELSE -amount END),2)) FROM ledger WHERE account_id=1;")"
+check "audit transfer row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=1 AND action='TRANSFER';")"
 
 # --- Case B: insufficient funds -> rollback, no ledger, balances untouched ---
 reset

@@ -27,6 +27,8 @@
         01  WS-BLEN                 PIC 9(3) VALUE 1.
         01  WS-RLEN                 PIC 9(3) VALUE 1.
         01  WS-CODE                 PIC X(7) VALUE SPACES.
+        01  WS-USER-ID              PIC X(20) VALUE SPACES.
+        01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
@@ -287,6 +289,31 @@
                 EXIT PARAGRAPH
             END-IF
             
+            *> Current user id, for the audit row.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-RESULT TO WS-USER-ID
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM
+            IF WS-ID-LEN = 0
+                MOVE 1 TO WS-ID-LEN
+            END-IF
+            
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
             
@@ -307,6 +334,22 @@
                 MOVE SPACES TO WS-QUERY
                 STRING "UPDATE verification_logs SET is_used = 1 WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) 
                        "' AND code = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' AND purpose = 'EMAIL_CHANGE'" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            
+            IF STEP-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
+                       WS-USER-ID(1:WS-ID-LEN) ", 'EMAIL_CHANGE', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
                        DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 

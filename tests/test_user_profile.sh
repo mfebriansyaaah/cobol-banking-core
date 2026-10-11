@@ -82,6 +82,7 @@ check "confirm good code" "SUCCESS|EMAIL_CHANGED" "$(run CONFIRM_EMAIL_CHANGE "$
 check "new email persisted" "1" "$(q "SELECT COUNT(*) FROM users WHERE email='$UNEW';")"
 check "old email gone" "0" "$(q "SELECT COUNT(*) FROM users WHERE email='$U';")"
 check "confirm reused code" "ERROR|INVALID_CODE" "$(run CONFIRM_EMAIL_CHANGE "$UNEW" "$UNEW" "$code")"
+check "audit email_change row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=950 AND action='EMAIL_CHANGE';")"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
