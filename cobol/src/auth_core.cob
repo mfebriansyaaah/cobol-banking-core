@@ -25,6 +25,11 @@
         01  WS-FAILS                PIC X(20) VALUE SPACES.
         01  WS-FAIL-COUNT           PIC 9(4) VALUE 0.
         01  WS-CODE                 PIC X(7) VALUE SPACES.
+        01  WS-PLAIN                PIC X(100) VALUE SPACES.
+        01  WS-HASH                 PIC X(256) VALUE SPACES.
+        01  WS-STORED               PIC X(256) VALUE SPACES.
+        01  WS-VERIFY               PIC X(1) VALUE SPACES.
+        01  WS-HLEN                 PIC 9(3) VALUE 1.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
@@ -119,6 +124,18 @@
                 MOVE 1 TO WS-P4-LEN
             END-IF.
 
+        COMPUTE-HASH-LEN.
+            *> Length up to the NUL that the C hash function writes.
+            MOVE 1 TO WS-HLEN
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 256 OR WS-HLEN > 1
+                IF WS-HASH(WS-I:1) = LOW-VALUE
+                    COMPUTE WS-HLEN = WS-I - 1
+                END-IF
+            END-PERFORM
+            IF WS-HLEN < 1
+                MOVE 1 TO WS-HLEN
+            END-IF.
+
         LOGIN-LOGIC.
             *> 1) Does the account exist, and what is its status?
             MOVE SPACES TO WS-QUERY
@@ -165,20 +182,23 @@
                 EXIT PARAGRAPH
             END-IF
             
-            *> 3) Password check. Stored format is 'SHA256_' + sha256 hex
-            *>    (matches hash_password in cobol/c_lib/hash_lib.c); SHA2()
-            *>    reproduces it server-side.
+            *> 3) Password check: fetch the stored hash and verify against it
+            *>    (PBKDF2, with a legacy SHA256 fallback).
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM users WHERE email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' AND password_hash = CONCAT('SHA256_', SHA2('" 
-                   WS-PARAM2-TRIMMED(1:WS-P2-LEN) "', 256))" DELIMITED BY SIZE INTO WS-QUERY
+            STRING "SELECT password_hash FROM users WHERE email = '" 
+                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
             CALL "SQL_EXECUTE"
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-STORED
             
-            IF WS-RESULT = "ERROR|NO_DATA"
+            MOVE SPACES TO WS-PLAIN
+            MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
+            CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
+            
+            IF WS-VERIFY NOT = "1"
                 *> Record the failed attempt for lockout counting.
                 MOVE SPACES TO WS-QUERY
                 STRING "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (" 
@@ -235,11 +255,17 @@
             *> Secure 6-digit verification code.
             CALL "generate_random_code" USING BY REFERENCE WS-CODE
             
+            *> Slow KDF hash (PBKDF2-HMAC-SHA256).
+            MOVE SPACES TO WS-PLAIN
+            MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
+            CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
+            PERFORM COMPUTE-HASH-LEN
+            
             CALL "SQL_BEGIN"
             
             MOVE SPACES TO WS-QUERY
             STRING "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', CONCAT('SHA256_', SHA2('" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "', 256)), '" 
+                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', '" WS-HASH(1:WS-HLEN) "', '" 
                    WS-PARAM3-TRIMMED(1:WS-P3-LEN) "', '" WS-PARAM4-TRIMMED(1:WS-P4-LEN) "', 'UNVERIFIED', 'USER')" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
