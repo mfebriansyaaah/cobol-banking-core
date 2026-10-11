@@ -43,6 +43,8 @@ q "DELETE FROM users WHERE email IN ('login_ok@test.com','login_unverified@test.
 
 check "verified + correct password" "SUCCESS|LOGIN_OK" \
     "$(run AUTH_LOGIN login_ok@test.com secret "")"
+check "legacy hash upgraded to PBKDF2" "PBKDF2\$" \
+    "$(q "SELECT LEFT(password_hash,7) FROM users WHERE email='login_ok@test.com';")"
 check "wrong password" "ERROR|INVALID_CREDENTIALS" \
     "$(run AUTH_LOGIN login_ok@test.com wrong "")"
 check "unverified account" "ERROR|UNVERIFIED" \
