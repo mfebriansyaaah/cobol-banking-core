@@ -67,6 +67,8 @@ check_contains "list users header" "SUCCESS|LIST_DONE|" "$(run LIST_USERS "" "" 
 check_contains "list users includes a known user" "950:$U" "$(run LIST_USERS "" "" "")"
 check "paging limit=1 returns only the first" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "")"
 check_contains "paging offset=1 skips the first" "2:receiver@test.com" "$(run LIST_USERS 1 1 "")"
+check "paging limit=2 returns two rows" "SUCCESS|LIST_DONE|1:sender@test.com;2:receiver@test.com" "$(run LIST_USERS 2 0 "")"
+check "paging past the end is empty" "SUCCESS|LIST_DONE|" "$(run LIST_USERS 5 100000 "")"
 
 # --- REQ_EMAIL_CHANGE ---
 check "request unknown current" "ERROR|ACCOUNT_NOT_FOUND" "$(run REQ_EMAIL_CHANGE ghost@test.com "$UNEW" "")"
