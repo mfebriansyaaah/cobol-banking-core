@@ -82,6 +82,17 @@
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
                     PERFORM CHANGE-ROLE-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "STORE_SESSION"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM STORE-SESSION-LOGIC
+                WHEN LS-CMD-ACTION(1:14) = "REVOKE_SESSION"
+                    PERFORM TRIM-PARAM1
+                    PERFORM REVOKE-SESSION-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "CHECK_SESSION"
+                    PERFORM TRIM-PARAM1
+                    PERFORM CHECK-SESSION-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -579,5 +590,58 @@
             ELSE
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|ROLE_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        STORE-SESSION-LOGIC.
+            *> p1 = jti, p2 = email, p3 = lifetime in days.
+            MOVE SPACES TO WS-QUERY
+            STRING "INSERT INTO refresh_sessions (jti, email, expires_at) VALUES ('" 
+                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "', DATE_ADD(NOW(), INTERVAL " 
+                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY))" DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|SESSION_STORE_FAILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|SESSION_STORED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        REVOKE-SESSION-LOGIC.
+            *> p1 = jti.
+            MOVE SPACES TO WS-QUERY
+            STRING "UPDATE refresh_sessions SET revoked = 1 WHERE jti = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|SESSION_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|SESSION_REVOKED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHECK-SESSION-LOGIC.
+            *> p1 = jti. Valid only if present, unrevoked and unexpired.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT 1 FROM refresh_sessions WHERE jti = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) 
+                   "' AND revoked = 0 AND expires_at > NOW() LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|SESSION_REVOKED" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|SESSION_CHECK_FAILED" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "SUCCESS|SESSION_VALID" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
