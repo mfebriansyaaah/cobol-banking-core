@@ -1,7 +1,7 @@
 import express from 'express';
 import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
-import { buildParams, ValidationError, PATTERNS } from './validation.js';
+import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { requireAuth, signToken } from './auth.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT } = PATTERNS;
@@ -69,6 +69,7 @@ export function buildRouter() {
       try {
         const input = { ...req.params, ...req.query, ...req.body };
         const params = buildParams(route, input);
+        assertLineLength(route.action, params);
         const raw = await invoke(route.action, params);
         const { status, body } = toHttp(raw);
         if (status === 200 && route.onSuccess) {
