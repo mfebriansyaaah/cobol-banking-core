@@ -124,8 +124,28 @@
                 MOVE 1 TO WS-P4-LEN
             END-IF.
 
-        COMPUTE-HASH-LEN.
-            *> Length up to the NUL that the C hash function writes.
+        GET-USER-ID.
+            *> WS-USER-ID / WS-ID-LEN for the user named by param 1's email.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-USER-ID
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM
+            IF WS-ID-LEN = 0
+                MOVE 1 TO WS-ID-LEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        COMPUTE-HASH-LEN.            *> Length up to the NUL that the C hash function writes.
             MOVE 1 TO WS-HLEN
             PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 256 OR WS-HLEN > 1
                 IF WS-HASH(WS-I:1) = LOW-VALUE
@@ -310,6 +330,21 @@
             END-IF
             
             IF STEP-OK
+                PERFORM GET-USER-ID
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
+                       WS-USER-ID(1:WS-ID-LEN) ", 'SIGNUP', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            
+            IF STEP-OK
                 CALL "SQL_COMMIT"
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|USER_CREATED|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
@@ -364,6 +399,21 @@
                 CALL "SQL_EXECUTE"
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            
+            IF STEP-OK
+                PERFORM GET-USER-ID
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
+                       WS-USER-ID(1:WS-ID-LEN) ", 'VERIFY_EMAIL', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
