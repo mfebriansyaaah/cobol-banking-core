@@ -787,3 +787,14 @@ _merged 2026-10-12_
 - feat(schema): add refresh_sessions table and migration 0002 (v1.6.0)
 - docs: sync HISTORY.md to post-merge state (#78)
 
+## #80 parameter-escaping
+
+_merged 2026-10-12_
+
+- docs: STATUS reflects parameter escaping
+- docs: record parameter escaping in the SPECs
+- feat(gateway): allow escaped metacharacters in password/name; keep pipe/newline rejected
+- feat(auth): escape parameter values via SQL_ESCAPE; update injection suite
+- feat(bridge): add SQL_ESCAPE (mysql_real_escape_string wrapper) for COBOL values
+- docs: sync HISTORY.md to post-merge state (#79)
+
