@@ -32,3 +32,4 @@ Rules a reviewer enforces on every COBOL/C-bridge diff. Mechanical violations sh
 ## HTTP gateway
 
 13. **The composed input line must stay under the COBOL record size.** `main_logic` reads `PIC X(500)`; `middleware/src/validation.js` must reject a request whose joined `ACTION|p1|p2|p3|p4` line would exceed that record, before writing `input.txt`.
+14. **Business logic stays in COBOL.** C and JavaScript contribute transport and security only — input-shape validation, invocation, result mapping, hashing/random. A reviewer rejects business rules, balance arithmetic, or transaction-outcome decisions written in C or JavaScript.
