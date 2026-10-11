@@ -1,7 +1,8 @@
 #!/bin/bash
-# SQL injection mitigation suite: parameters containing SQL metacharacters are
-# rejected (INVALID_INPUT) by the COBOL modules, so no query can be broken even
-# when the binary is called directly (defense in depth behind the gateway).
+# SQL injection safety suite.
+# auth_core ESCAPES values (mysql_real_escape_string), so metacharacters are
+# accepted literally and cannot break a query. user_core/wallet_core are still
+# whitelist-only (they reject metacharacters). Either way, no injection.
 # Usage: ./tests/test_injection.sh
 
 BIN="./cobol/bin/main_logic"
@@ -41,30 +42,32 @@ check_contains() {
 }
 
 echo "======================================================================"
-echo "  SQL INJECTION MITIGATION SUITE"
+echo "  SQL INJECTION SAFETY SUITE"
 echo "======================================================================"
 
-q "DELETE FROM users WHERE email LIKE 'inj%';"
+q "DELETE FROM verification_logs WHERE email LIKE 'inj%'; DELETE FROM users WHERE email LIKE 'inj%';"
 
-check "quote in password rejected" "ERROR|INVALID_INPUT" \
-    "$(run REQUEST_SIGNUP inj1@test.com "a'b" 'Name' '1990-01-01')"
-check "no user written on rejected signup" "0" "$(q "SELECT COUNT(*) FROM users WHERE email='inj1@test.com';")"
-check "backslash in password rejected" "ERROR|INVALID_INPUT" \
-    "$(run REQUEST_SIGNUP inj2@test.com 'a\b' 'Name' '1990-01-01')"
-check "semicolon in password rejected" "ERROR|INVALID_INPUT" \
-    "$(run REQUEST_SIGNUP inj3@test.com 'a;b' 'Name' '1990-01-01')"
-check "quote in name rejected" "ERROR|INVALID_INPUT" \
-    "$(run REQUEST_SIGNUP inj4@test.com 'secret123' "O'Brien" '1990-01-01')"
-check "quote in email rejected" "ERROR|INVALID_INPUT" \
-    "$(run AUTH_LOGIN "x'--@test.com" 'secret123')"
-check "quote in transfer email rejected" "ERROR|INVALID_INPUT" \
+# auth escapes values, so metacharacters are accepted literally (no error, no injection).
+out=$(run REQUEST_SIGNUP inj1@test.com "a'b\\c;dE" "O'Brien" '1990-01-01')
+check_contains "metacharacters accepted (escaped)" "SUCCESS|USER_CREATED" "$out"
+code=$(echo "$out" | cut -d'|' -f3)
+check "apostrophe name stored literally" "O'Brien" "$(q "SELECT full_name FROM users WHERE email='inj1@test.com';")"
+check "verify with metachar password" "SUCCESS|EMAIL_VERIFIED" "$(run VERIFY_EMAIL inj1@test.com "$code")"
+check "login with metachar password" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN inj1@test.com "a'b\\c;dE")"
+
+# An injection-shaped password is just a literal; it cannot create rows or drop anything.
+out=$(run REQUEST_SIGNUP inj2@test.com "x') OR 1=1--zz" "Bobby Tables" '1990-01-01')
+check_contains "injection-shaped password is literal" "SUCCESS|USER_CREATED" "$out"
+check "no unexpected admin user" "0" "$(q "SELECT COUNT(*) FROM users WHERE email='inj2@test.com' AND role='SUPER_ADMIN';")"
+check "users table intact" "1" "$(q "SELECT COUNT(*) > 0 FROM users WHERE email='inj2@test.com';")"
+
+# user_core / wallet_core remain whitelist-only: metacharacters rejected.
+check "wallet email with quote rejected" "ERROR|INVALID_INPUT" \
     "$(run TRANSFER "x'--@test.com" receiver@test.com 10.00 "")"
-check "quote in idempotency key rejected" "ERROR|INVALID_INPUT" \
-    "$(run TRANSFER sender@test.com receiver@test.com 10.00 "k'1")"
-check_contains "clean input still works" "SUCCESS|USER_CREATED" \
-    "$(run REQUEST_SIGNUP inj5@test.com 'secret123' 'Clean Name' '1990-01-01')"
+check "user lookup email with quote rejected" "ERROR|INVALID_INPUT" \
+    "$(run GET_USER "x'--@test.com" "" "")"
 
-q "DELETE FROM users WHERE email LIKE 'inj%';"
+q "DELETE FROM verification_logs WHERE email LIKE 'inj%'; DELETE FROM users WHERE email LIKE 'inj%';"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"

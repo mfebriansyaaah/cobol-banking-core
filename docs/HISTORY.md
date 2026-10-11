@@ -776,3 +776,14 @@ _merged 2026-10-12_
 - feat(gateway): reject SQL metacharacters in password and name shapes
 - docs: sync HISTORY.md to post-merge state (#77)
 
+## #79 refresh-revocation
+
+_merged 2026-10-12_
+
+- docs: refresh-token revocation, logout, and session actions
+- test: refresh-session suite + gateway rotation/logout tests; wire ci step 18
+- feat(gateway): jti-based refresh sessions - store on login, rotate on refresh, /auth/logout
+- feat(auth): STORE/REVOKE/CHECK_SESSION actions + router
+- feat(schema): add refresh_sessions table and migration 0002 (v1.6.0)
+- docs: sync HISTORY.md to post-merge state (#78)
+

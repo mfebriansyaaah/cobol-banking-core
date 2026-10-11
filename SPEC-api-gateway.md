@@ -57,4 +57,4 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 ## Not yet done
 
 - Refresh-token rotation/revocation (a refresh token is accepted until it expires; there is no server-side denylist).
-- Parameter binding in COBOL is string interpolation, not prepared statements.
+- Values are escaped (COBOL `SQL_ESCAPE` -> `mysql_real_escape_string`) before being embedded; native prepared statements are still outstanding.
