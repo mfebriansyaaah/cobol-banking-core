@@ -337,7 +337,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -353,7 +353,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
-                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -370,7 +370,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -386,7 +386,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -403,7 +403,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -417,7 +417,7 @@
                 CALL "SQL_EXECUTE"
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
