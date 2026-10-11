@@ -9,8 +9,9 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const CODE = /^\d{6}$/;
 const ROLE = /^(USER|MANAGER|SUPER_ADMIN)$/;
 const AMOUNT = /^\d{1,13}(\.\d{1,2})?$/;
+const INT = /^\d{1,6}$/;
 
-export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT };
+export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT };
 
 export class ValidationError extends Error {
   constructor(field) {
