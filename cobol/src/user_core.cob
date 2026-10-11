@@ -23,6 +23,8 @@
         01  WS-NAME                 PIC X(100) VALUE SPACES.
         01  WS-BAL                  PIC X(30) VALUE SPACES.
         01  WS-ACCOUNTS             PIC X(300) VALUE SPACES.
+        01  WS-LIMIT                PIC X(10) VALUE SPACES.
+        01  WS-OFFSET               PIC X(10) VALUE SPACES.
         01  WS-ELEN                 PIC 9(3) VALUE 1.
         01  WS-NLEN                 PIC 9(3) VALUE 1.
         01  WS-BLEN                 PIC 9(3) VALUE 1.
@@ -52,6 +54,8 @@
                     PERFORM TRIM-PARAM1
                     PERFORM ACTION-GET-USER
                 WHEN LS-CMD-ACTION(1:10) = "LIST_USERS"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
                     PERFORM ACTION-LIST-USERS
                 WHEN LS-CMD-ACTION(1:13) = "GET_DASHBOARD"
                     PERFORM TRIM-PARAM1
@@ -185,9 +189,18 @@
             EXIT PARAGRAPH.
 
         ACTION-LIST-USERS.
-            *> Single-line list via GROUP_CONCAT (bridge returns one row).
+            *> Paged, single-line list via GROUP_CONCAT (bridge returns one row).
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-PARAM1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT SUBSTRING(GROUP_CONCAT(CONCAT(id, ':', email) ORDER BY id SEPARATOR ';'), 1, 400) FROM users" 
+            STRING "SELECT SUBSTRING(GROUP_CONCAT(CONCAT(id, ':', email) ORDER BY id SEPARATOR ';'), 1, 400) " 
+                   "FROM (SELECT id, email FROM users ORDER BY id LIMIT " WS-LIMIT " OFFSET " WS-OFFSET ") t" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
