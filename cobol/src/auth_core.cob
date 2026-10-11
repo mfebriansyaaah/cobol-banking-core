@@ -405,6 +405,21 @@
             END-IF
             
             IF STEP-OK
+                PERFORM GET-USER-ID
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
+                       WS-USER-ID(1:WS-ID-LEN) ", 'VERIFY_EMAIL', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            
+            IF STEP-OK
                 CALL "SQL_COMMIT"
                 MOVE "SUCCESS|EMAIL_VERIFIED" TO LS-OUTPUT-BUFFER
             ELSE
