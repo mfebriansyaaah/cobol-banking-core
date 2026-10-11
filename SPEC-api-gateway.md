@@ -11,7 +11,7 @@ The "Robust Pipe": a Node.js Express middleware that is the only interface betwe
 
 - **Nothing.** There is no `middleware/`, no `package.json`, no `npm` scripts, no Express code, no JWT code. `find` for `package.json` returns nothing.
 - The COBOL side is **not** invoked as a per-request CLI with exit codes. The shipped binary (`cobol/bin/main_logic`) reads one pipe-delimited line from `input.txt` and writes one result line to `output.txt` (a file contract, not stdout + exit codes).
-- `build.bat` still mentions a future `middleware/` (`npm install && npm start`) and an `auth_identity.exe`, but neither the middleware nor that binary target exists in the tree today.
+- There is no Windows build script and no separate per-module executable; a single binary is produced by `build.sh`.
 
 ## To add (the entire module is missing)
 

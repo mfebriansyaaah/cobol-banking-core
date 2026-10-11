@@ -41,5 +41,5 @@ So the repo carries two DB stacks and two I/O contracts, only one of which is li
 - New auth actions must join the routing contract in `AGENTS.md` and be tested like the
   wallet actions.
 - `cobol/src/precompile_sql.sh` (the sed-based `EXEC SQL` → `CALL "SQL_EXECUTE"` shim)
-  becomes redundant with this decision; remove it when `auth_identity.cob` is deleted.
+  became redundant with this decision and was removed along with the legacy program.
 - One DB credential source (`sql_bridge.c`) and one I/O contract remain.
