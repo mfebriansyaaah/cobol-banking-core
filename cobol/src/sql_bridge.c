@@ -142,8 +142,8 @@ void SQL_ESCAPE(char *in, char *out, int outmax) {
     if (!in) return;
 
     char trimmed[1024];
-    strncpy(trimmed, in, 1023);
-    trimmed[1023] = '\0';
+    strncpy(trimmed, in, 100);
+    trimmed[100] = '\0';
     trim_trailing_spaces(trimmed);
     size_t len = strlen(trimmed);
     if (len == 0) return;
@@ -302,8 +302,8 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     if (!sql) return;
 
     char query[1024];
-    strncpy(query, sql, 1023);
-    query[1023] = '\0';
+    strncpy(query, sql, 255);
+    query[255] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
 
