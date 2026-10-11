@@ -4,10 +4,10 @@
 
 set -e
 
-echo "=== [1/12] Docs integrity check ==="
+echo "=== [1/13] Docs integrity check ==="
 ./tests/docs_check.sh
 
-echo "=== [2/12] Static COBOL checks ==="
+echo "=== [2/13] Static COBOL checks ==="
 viol=0
 
 # Violation 1: sentence period inside an inline IF/ELSE scope.
@@ -75,69 +75,69 @@ if [ "$viol" = 1 ]; then
 fi
 echo "OK"
 
-echo "=== [3/12] Build ==="
+echo "=== [3/13] Build ==="
 build_log=$(./build.sh 2>&1 || true)
 echo "$build_log" | grep -E "^cobol.*error:" && { echo "BUILD FAILED"; exit 1; }
 echo "$build_log" | grep -q "SUCCESS: Binary created" || { echo "BUILD FAILED"; exit 1; }
 echo "Build OK"
 
-echo "=== [4/12] Functional suite ==="
+echo "=== [4/13] Functional suite ==="
 func_out=$(./tests/test_suite.sh 2>/dev/null)
 echo "$func_out" | tail -1
 func_fail=$(echo "$func_out" | grep -oE '[0-9]+ failed' | grep -oE '[0-9]+' | head -1 || echo 0)
 func_fail=${func_fail:-0}
 [ "$func_fail" -eq 0 ] || { echo "FUNCTIONAL SUITE FAILED"; exit 1; }
 
-echo "=== [5/12] Atomic transaction suite ==="
+echo "=== [5/13] Atomic transaction suite ==="
 atomic_out=$(./tests/test_atomic_txn.sh 2>/dev/null)
 atomic_pass=$(echo "$atomic_out" | grep -c '\[0;32mPASS' || true)
 atomic_fail=$(echo "$atomic_out" | grep -c '\[0;31mFAIL' || true)
 echo "atomic: $atomic_pass passed, $atomic_fail failed"
 [ "$atomic_fail" -eq 0 ] || { echo "ATOMIC SUITE FAILED"; exit 1; }
 
-echo "=== [6/12] Ledger atomic suite ==="
+echo "=== [6/13] Ledger atomic suite ==="
 ledger_out=$(./tests/test_ledger_atomic.sh 2>/dev/null)
 ledger_pass=$(echo "$ledger_out" | grep -c '\[0;32mPASS' || true)
 ledger_fail=$(echo "$ledger_out" | grep -c '\[0;31mFAIL' || true)
 echo "ledger: $ledger_pass passed, $ledger_fail failed"
 [ "$ledger_fail" -eq 0 ] || { echo "LEDGER SUITE FAILED"; exit 1; }
 
-echo "=== [7/12] Reconciliation suite ==="
+echo "=== [7/13] Reconciliation suite ==="
 recon_out=$(./tests/test_reconciliation.sh 2>/dev/null)
 recon_pass=$(echo "$recon_out" | grep -c '\[0;32mPASS' || true)
 recon_fail=$(echo "$recon_out" | grep -c '\[0;31mFAIL' || true)
 echo "reconciliation: $recon_pass passed, $recon_fail failed"
 [ "$recon_fail" -eq 0 ] || { echo "RECONCILIATION SUITE FAILED"; exit 1; }
 
-echo "=== [8/12] Auth login suite ==="
+echo "=== [8/13] Auth login suite ==="
 auth_out=$(./tests/test_auth_login.sh 2>/dev/null)
 auth_pass=$(echo "$auth_out" | grep -c '\[0;32mPASS' || true)
 auth_fail=$(echo "$auth_out" | grep -c '\[0;31mFAIL' || true)
 echo "auth: $auth_pass passed, $auth_fail failed"
 [ "$auth_fail" -eq 0 ] || { echo "AUTH SUITE FAILED"; exit 1; }
 
-echo "=== [9/12] Signup + verify suite ==="
+echo "=== [9/13] Signup + verify suite ==="
 signup_out=$(./tests/test_signup_verify.sh 2>/dev/null)
 signup_pass=$(echo "$signup_out" | grep -c '\[0;32mPASS' || true)
 signup_fail=$(echo "$signup_out" | grep -c '\[0;31mFAIL' || true)
 echo "signup/verify: $signup_pass passed, $signup_fail failed"
 [ "$signup_fail" -eq 0 ] || { echo "SIGNUP SUITE FAILED"; exit 1; }
 
-echo "=== [10/12] Role suite ==="
+echo "=== [10/13] Role suite ==="
 role_out=$(./tests/test_roles.sh 2>/dev/null)
 role_pass=$(echo "$role_out" | grep -c '\[0;32mPASS' || true)
 role_fail=$(echo "$role_out" | grep -c '\[0;31mFAIL' || true)
 echo "roles: $role_pass passed, $role_fail failed"
 [ "$role_fail" -eq 0 ] || { echo "ROLE SUITE FAILED"; exit 1; }
 
-echo "=== [11/12] User profile suite ==="
+echo "=== [11/13] User profile suite ==="
 profile_out=$(./tests/test_user_profile.sh 2>/dev/null)
 profile_pass=$(echo "$profile_out" | grep -c '\[0;32mPASS' || true)
 profile_fail=$(echo "$profile_out" | grep -c '\[0;31mFAIL' || true)
 echo "profile: $profile_pass passed, $profile_fail failed"
 [ "$profile_fail" -eq 0 ] || { echo "PROFILE SUITE FAILED"; exit 1; }
 
-echo "=== [12/12] API gateway suite ==="
+echo "=== [12/13] API gateway suite ==="
 if [ -d middleware ]; then
     npm --prefix middleware ci --silent >/dev/null 2>&1 || npm --prefix middleware install --silent >/dev/null 2>&1
     if npm --prefix middleware test --silent >/tmp/opencode/gateway.out 2>&1; then
@@ -152,5 +152,12 @@ if [ -d middleware ]; then
 else
     echo "middleware/ absent; skipping"
 fi
+
+echo "=== [13/13] Login lockout suite ==="
+lockout_out=$(./tests/test_login_lockout.sh 2>/dev/null)
+lockout_pass=$(echo "$lockout_out" | grep -c '\[0;32mPASS' || true)
+lockout_fail=$(echo "$lockout_out" | grep -c '\[0;31mFAIL' || true)
+echo "lockout: $lockout_pass passed, $lockout_fail failed"
+[ "$lockout_fail" -eq 0 ] || { echo "LOCKOUT SUITE FAILED"; exit 1; }
 
 echo "=== ALL GREEN ==="
