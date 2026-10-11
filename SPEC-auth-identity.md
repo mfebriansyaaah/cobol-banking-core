@@ -29,6 +29,10 @@ Password hashing uses a **slow KDF**: PBKDF2-HMAC-SHA256 (100,000 iterations, 16
 
 The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build script, and the sed-based `EXEC SQL` shim — has been removed (ADR-0002). There is now a single DB stack (`sql_bridge.c`, libmysqlclient) and a single I/O contract (`input.txt` / `output.txt`).
 
+## Session support (refresh tokens)
+
+`auth_core` also owns the refresh-token session store used by the gateway: `STORE_SESSION` (jti, email, days), `REVOKE_SESSION` (jti), `CHECK_SESSION` (jti -> valid/revoked), backed by the `refresh_sessions` table. This lets the gateway rotate refresh tokens and revoke them on logout.
+
 ## Not yet done
 
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
