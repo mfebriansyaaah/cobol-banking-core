@@ -23,3 +23,12 @@ Rules a reviewer enforces on every COBOL/C-bridge diff. Mechanical violations sh
 ## Language
 
 10. **English only.** Every artifact is written in English: commit messages, PR titles and descriptions, documentation, code identifiers (variables, functions, paragraphs, `PROGRAM-ID`s), and inline comments. A reviewer rejects any non-English identifier, comment, or doc line, and any commit/PR text in another language.
+
+## COBOL / SQL boundary (appended)
+
+11. **Never embed a padded field in SQL.** A `PIC X(n)` field padded with spaces is fine for `WHERE … =` comparisons (MySQL `PAD SPACE` semantics) but must never be stored or hashed: pass it as a substring with a computed length (`WS-PARAM1-TRIMMED(1:WS-P1-LEN)`), otherwise the row is stored with trailing spaces inside `UNIQUE`/`VARCHAR` columns and hash inputs silently mismatch. A trim that only does `MOVE SPACE TO WS-FIELD(WS-I:1)` when the char is already `SPACE` is a **no-op** — the scan must capture the last non-space index.
+12. **The bridge returns exactly one row.** `SQL_EXECUTE`/`GET_RESULT` read a single `mysql_fetch_row`; any "list" must be aggregated into one value in SQL (`GROUP_CONCAT`) until a multi-row call exists on the bridge.
+
+## HTTP gateway
+
+13. **The composed input line must stay under the COBOL record size.** `main_logic` reads `PIC X(500)`; `middleware/src/validation.js` must reject a request whose joined `ACTION|p1|p2|p3|p4` line would exceed that record, before writing `input.txt`.

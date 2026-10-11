@@ -13,6 +13,10 @@
 
 English only for every artifact in this repo: commit messages, PR titles and descriptions, documentation, and source code (identifiers, program/paragraph/variable names, and inline comments). No other language may appear in these artifacts.
 
+## Shell safety
+
+When passing Markdown to `gh pr create` / `gh pr edit`, write the body to a file first and use `--body-file`; backticks inside shell double quotes execute as command substitution.
+
 ## Routing contract (edit together)
 
 Action names are matched across `cobol/src/main_logic.cob` (routing) and the module that owns them: `CHECK_BALANCE`, `TRANSFER`, `RECONCILE` in `cobol/src/wallet_core.cob`; `GET_USER`, `LIST_USERS`, `GET_DASHBOARD`, `REQ_EMAIL_CHANGE`, `CONFIRM_EMAIL_CHANGE` in `cobol/src/user_core.cob`; `AUTH_LOGIN`, `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHECK_ROLE`, `CHANGE_ROLE` in `cobol/src/auth_core.cob`. Adding or renaming an action requires editing the router and the owning module together; review must check they agree.

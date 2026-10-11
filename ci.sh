@@ -12,8 +12,8 @@ viol=0
 
 # Violation 1: sentence period inside an inline IF/ELSE scope.
 # Paragraph headers (line that is nothing but an identifier ending in '.')
-# reset the IF depth. Only checks files that are actually compiled by build.sh.
-BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob"
+# reset the IF depth. Covers every module actually compiled by build.sh.
+BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob cobol/src/auth_core.cob"
 for f in $BUILT_COB; do
     awk '
         /^[[:space:]]*[A-Z0-9][A-Z0-9-]*\.[[:space:]]*$/ {ifdepth=0; next}
@@ -28,15 +28,42 @@ for f in $BUILT_COB; do
     END {exit found ? 1 : 0}' "$f" || viol=1
 done
 
-# Violation 2: GOBACK inside performed helper paragraphs of wallet_core
-# (GOBACK there kills the whole program silently at runtime).
+# Violation 2: GOBACK outside the entry paragraph of any built module
+# (GOBACK inside a performed paragraph kills the whole program silently).
+for f in $BUILT_COB; do
+    if awk '
+        /^[[:space:]]*[A-Z0-9][A-Z0-9-]*\.[[:space:]]*$/ {gsub(/[[:space:].]/,""); para=$0; next}
+        /GOBACK/ && para != "MAIN-LOGIC" {
+            print FILENAME ":" NR ": GOBACK inside paragraph " para
+            found=1
+        }
+        END {exit found ? 1 : 0}' "$f"; then
+        :
+    else
+        viol=1
+    fi
+done
+
+# Violation 3: one routing literal is a prefix of another. Prefix matching makes
+# that a silent mis-route (the CHECK_BALANCE vs GET_BALANCE class of bug).
 if awk '
-    /^[[:space:]]*[A-Z0-9][A-Z0-9-]*\.[[:space:]]*$/ {gsub(/[[:space:].]/,""); para=$0; next}
-    para ~ /^(TRIM-PARAM1|TRIM-PARAM2|TRIM-PARAM3|GET-BALANCE-LOGIC|TRANSFER-LOGIC)$/ && /GOBACK/ {
-        print FILENAME ":" NR ": GOBACK inside performed paragraph " para
-        found=1
+    /IF CMD-ACTION\(1:[0-9]+\) = "-?[A-Z_]+"|ELSE IF CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"/ {
+        line=$0
+        while (match(line, /= "[A-Z_]+"/)) {
+            lit=substr(line, RSTART+3, RLENGTH-4)
+            names[++n]=lit
+            line=substr(line, RSTART+RLENGTH)
+        }
     }
-    END {exit found ? 1 : 0}' cobol/src/wallet_core.cob; then
+    END {
+        for (i=1; i<=n; i++)
+            for (j=1; j<=n; j++)
+                if (i != j && index(names[j], names[i]) == 1) {
+                    print "router: `" names[i] "` is a prefix of `" names[j] "`"
+                    found=1
+                }
+        exit found ? 1 : 0
+    }' cobol/src/main_logic.cob; then
     :
 else
     viol=1

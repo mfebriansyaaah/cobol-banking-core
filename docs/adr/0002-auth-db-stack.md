@@ -6,10 +6,10 @@ Phase: 3 (decision) — unblocks reimplementing the auth-identity actions; see A
 
 ## Context
 
-`cobol/src/auth_identity.cob` implements registration, verification, roles and login
-using **embedded SQL** (`EXEC SQL … END-EXEC`) against DSN `COBOL_MYSQL`, and expects an
-ODBC build (`cobc … -lodbc32`, per `build.bat`). In this environment that path cannot
-run:
+The legacy auth program (embedded-SQL, ODBC) implemented registration, verification,
+roles and login using `EXEC SQL … END-EXEC` statements against DSN `COBOL_MYSQL`, and
+expected an ODBC build (`cobc … -lodbc32`, per the old Windows build script). In this
+environment that path cannot run:
 
 - **GnuCOBOL 3.2.0 has no bundled `EXEC SQL` preprocessor**, so plain `cobc` cannot
   compile the embedded-SQL source.
@@ -23,11 +23,11 @@ So the repo carries two DB stacks and two I/O contracts, only one of which is li
 ## Decision
 
 1. The **bridge stack is the single integration path**: COBOL actions talk to MySQL via
-   `sql_bridge.c` and are invoked through the file contract (`input.txt` / `output.txt`).
-2. The **ODBC / `EXEC SQL` path is retired.** `cobol/src/auth_identity.cob` is dead code
-   (uncompilable here, unreachable from `main_logic`) and will be **deleted once its
-   relevant actions are reimplemented on the bridge** — not before, so nothing is lost
-   mid-migration.
+   `cobol/src/sql_bridge.c` and are invoked through the file contract (`input.txt` / `output.txt`).
+2. The **ODBC / `EXEC SQL` path is retired.** That source (embedded-SQL auth program)
+   was dead code (uncompilable here, unreachable from `main_logic`) and has since been
+   **deleted** together with the Windows ODBC build script and the `EXEC SQL` shim,
+   after every required action was reimplemented on the bridge.
 3. Reusable, dependency-free logic is kept: `cobol/c_lib/hash_lib.c` (`hash_password`,
    `generate_random_code`) moves over as-is.
 4. Relevant auth actions to port onto the bridge: `REQUEST_SIGNUP`, `VERIFY_EMAIL`,
@@ -35,11 +35,11 @@ So the repo carries two DB stacks and two I/O contracts, only one of which is li
 
 ## Consequences
 
-- Migration is incremental per action; `auth_identity.cob` stays in the tree (marked dead)
-  until the last required action is ported, then is removed together with the `build.bat`
-  ODBC target.
+- Migration was incremental per action; the legacy program stayed in the tree (marked
+  dead) until the last required action was ported, then was removed together with the
+  old Windows ODBC build target.
 - New auth actions must join the routing contract in `AGENTS.md` and be tested like the
   wallet actions.
-- `cobol/src/precompile_sql.sh` (the sed-based `EXEC SQL` → `CALL "SQL_EXECUTE"` shim)
-  became redundant with this decision and was removed along with the legacy program.
+- The sed-based `EXEC SQL` → `CALL "SQL_EXECUTE"` shim became redundant with this
+  decision and was removed along with the legacy program.
 - One DB credential source (`sql_bridge.c`) and one I/O contract remain.
