@@ -84,10 +84,8 @@ limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).
 
 ## 6. Governance documents
 
-- `CHANGELOG.md` - generated from merge history (`docs/gen_changelog.sh`).
-- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md` -
-  decisions; idempotency in `docs/adr/0003-idempotent-transfers.md`.
-- `docs/gen_changelog.sh` - the generator (run it to refresh `CHANGELOG.md`).
+- `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
+- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md` - decisions.
 - `CODING_STANDARDS.md` - review rules; `AGENTS.md` - steering rules.
 
 ## 7. Known gaps (deliberate, by scale)
