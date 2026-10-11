@@ -19,7 +19,7 @@ Manage balances and record every cent moving in or out, with absolute data integ
 | Action | Params | Behavior today | Outputs |
 |---|---|---|---|
 | `CHECK_BALANCE` | `p1=email` | `SELECT CONCAT(ROUND(a.balance,2)) FROM accounts a JOIN users u ON a.user_id=u.id WHERE u.email='…'` | `1000.00` · `ERROR|ACCOUNT_NOT_FOUND` |
-| `TRANSFER` | `p1=sender email`, `p2=target email`, `p3=amount` | inside one transaction: `SELECT … FOR UPDATE` sender, resolve target, sufficiency check, debit + credit, two `ledger` inserts, then commit/rollback | `SUCCESS|TRANSFER_OK` · `ERROR|INSUFFICIENT_FUNDS` · `ERROR|ACCOUNT_NOT_FOUND` · `ERROR|TARGET_NOT_FOUND` |
+| `TRANSFER` | `p1=sender email`, `p2=target email`, `p3=amount`, `p4=idempotency key` (optional) | inside one transaction: replay if the key already committed (`pending_transactions`), else `SELECT … FOR UPDATE` sender, resolve target, sufficiency check, debit + credit, two `ledger` inserts, an audit row, and the intent marked `COMMITTED`, then commit/rollback | `SUCCESS|TRANSFER_OK` · `ERROR|INSUFFICIENT_FUNDS` · `ERROR|ACCOUNT_NOT_FOUND` · `ERROR|TARGET_NOT_FOUND` · `ERROR|TRANSFER_IN_PROGRESS` |
 | `RECONCILE` | — | lists accounts where `accounts.balance <> SUM(ledger)` (CREDIT − DEBIT) | `SUCCESS|RECONCILED` · `ERROR|MISMATCH\|acct\|balance\|ledger` |
 
 ### What is NOT there (the gap vs. the spec)
@@ -28,6 +28,7 @@ Manage balances and record every cent moving in or out, with absolute data integ
 - [x] **Ledger entry**: two rows (DEBIT sender, CREDIT target, shared `txn_ref`) inserted within the same transaction.
 - [x] **Row locking**: the sender account is read `SELECT … FOR UPDATE` before the balance check.
 - [x] **Balance/ledger reconciliation**: `RECONCILE` reports any account whose stored balance differs from its ledger sum.
+- [x] **Idempotency**: an optional key (`p4`) makes `TRANSFER` replay-safe — a repeated key returns the prior success without moving money again; the intent is recorded in `pending_transactions` (`PENDING`→`COMMITTED`, rolled back on failure).
 - [ ] Amounts are passed as trimmed text and injected into SQL directly (no server-side bind/prepared statement).
 
 ### Tests
