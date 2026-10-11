@@ -1,46 +1,41 @@
 # Spec: user-profile
 
-Status: **not started** — no dedicated module exists. A minimal slice is served by `user_core.cob`.
+Status: **built** — dashboard, real user listing, and the two-step email change are implemented on the bridge.
 Last verified against code: 2026-10-10
 
 ## Objective (unchanged)
 
 Profile management: a read-only dashboard of essential account info, plus a strict two-step verification flow for changing the registered email.
 
-## As-Built (what exists today)
+## As-Built (live, routed by `main_logic`)
 
-- **Source:** `cobol/src/user_core.cob` (program id `user_core`) — the closest thing to this module.
-- **Reachable through:** `main_logic.cob` routes `GET_USER` and `LIST_USERS` here; compiled by `build.sh`; DB via `sql_bridge.c` (libmysqlclient, `cobol_db`).
+- **Source:** `cobol/src/user_core.cob` (program id `user_core`), compiled by `build.sh`, DB via `cobol/src/sql_bridge.c`.
 
 | Action | Params | Behavior today | Outputs |
 |---|---|---|---|
-| `GET_USER` | `p1=email` | `SELECT id, email FROM users WHERE email='…' LIMIT 1` | `1|sender@test.com` · `ERROR|NOT_FOUND` |
-| `LIST_USERS` | — | returns a fixed success string (no real listing yet) | `SUCCESS|LIST_DONE` |
+| `GET_USER` | `p1=email` | `SELECT id, email FROM users WHERE email='…' LIMIT 1` | `1\|sender@test.com` · `ERROR\|NOT_FOUND` |
+| `LIST_USERS` | — | single-line list via `GROUP_CONCAT(id:email)` (the bridge returns one row) | `SUCCESS\|LIST_DONE\|<id:email;…>` |
+| `GET_DASHBOARD` | `p1=email` | `balance`, `email`, `full_name` for the user's account | `SUCCESS\|DASHBOARD\|<balance>\|<email>\|<full_name>` · `ERROR\|ACCOUNT_NOT_FOUND` |
+| `REQ_EMAIL_CHANGE` | `p1=current email`, `p2=new email` | current must exist, new must not be taken; generate a 6-digit code stored against the new email in `verification_logs` (`purpose=EMAIL_CHANGE`, 24h expiry) | `SUCCESS\|CODE_SENT\|<code>` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|EMAIL_EXISTS` · `ERROR\|EMAIL_CHANGE_FAILED` |
+| `CONFIRM_EMAIL_CHANGE` | `p1=current email`, `p2=new email`, `p3=code` | match an unused, unexpired `EMAIL_CHANGE` code; move the email and consume the code inside one transaction | `SUCCESS\|EMAIL_CHANGED` · `ERROR\|INVALID_CODE` · `ERROR\|EMAIL_CHANGE_FAILED` |
 
-- **No** dedicated `user_profile` module source exists. There is no `GET_DASHBOARD`, `REQ_EMAIL_CHANGE`, or `CONFIRM_EMAIL_CHANGE` implementation anywhere in the codebase.
+### Tests
 
-## To add (the whole module is missing)
+`tests/test_user_profile.sh` (12 assertions). Wired into `ci.sh`.
 
-- [ ] `GET_DASHBOARD` returning exactly `balance`, `email`, `full_name` for the requesting user.
-- [ ] `REQ_EMAIL_CHANGE`: generate a 6-digit code, persist it (`verification_logs` table already exists with `email`, `code`, `purpose ENUM('SIGNUP','EMAIL_CHANGE')`, `expires_at`, `is_used`).
-- [ ] `CONFIRM_EMAIL_CHANGE`: update the email only if the code matches, is unused, and unexpired.
-- [ ] Uniqueness guard: reject changing to an email already registered to another user (`users.email` is `UNIQUE`).
-- [ ] Make `LIST_USERS` actually return the user list (it currently returns a constant).
-- [ ] Tests: unauthorized access, verification-flow, and invalid-code cases (the original spec's testing strategy), added to `tests/`.
+## Notes / not yet done
 
-## Conventions to conform to (as built)
+- Multi-account users: `GET_DASHBOARD` takes a single (`LIMIT 1`) account; per-currency dashboards are not implemented.
+- `LIST_USERS` returns at most the first 400 characters of the concatenated list (single-line contract).
+- Email-change code expiry is 24h to match signup; a shorter window (the original open question suggested 15 min) is not implemented.
+- `audit_trail` writes are not wired (the table exists in `database/schema.sql`).
 
-- Lives in the file-based binary: reads `input.txt` (`ACTION|p1|p2|p3|p4`), writes `output.txt`; connect via `sql_bridge.c` (`SET_QUERY`/`SQL_EXECUTE`/`GET_RESULT`).
-- Action name must be added to the routing contract in **all three** of `main_logic.cob`, `user_core.cob` (or a new `user_profile.cob` registered in `build.sh`), and reviewed together.
-- Substring match by exact length; no `FUNCTION TRIM(...) = "literal"` (`CODING_STANDARDS.md`).
-- Amounts/ids returned as trimmed text; `DECIMAL-POINT IS COMMA` is set in existing modules.
+## Code style (enforced today)
 
-## Code style
-
-- Pipe-delimited single-line output; one result per run.
-- `PERFORM`ed helper paragraphs: no `GOBACK`, end with `EXIT PARAGRAPH.`.
+- Action names must agree between `cobol/src/main_logic.cob` and the owning module (routing contract in `AGENTS.md`).
+- Output pipe-delimited, one line; no `GOBACK` in `PERFORM`ed paragraphs (see `CODING_STANDARDS.md`).
 
 ## Open questions
 
-- New `user_profile.cob`, or extend `user_core.cob`? Extending avoids a fourth file in the routing contract.
-- Email-change code expiry window (e.g. 15 minutes) — the original spec left this open.
+- Should email-change codes expire sooner than signup codes?
+- Should `LIST_USERS` page instead of concatenating into one line?
