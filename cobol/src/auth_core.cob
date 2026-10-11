@@ -52,6 +52,15 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM VERIFY-LOGIC
+                WHEN LS-CMD-ACTION(1:10) = "CHECK_ROLE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM CHECK-ROLE-LOGIC
+                WHEN LS-CMD-ACTION(1:11) = "CHANGE_ROLE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM CHANGE-ROLE-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -283,5 +292,100 @@
             ELSE
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|VERIFY_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHECK-ROLE-LOGIC.
+            *> Does this user hold the given role?
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT role FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-RESULT TO WS-STATUS
+            
+            IF WS-STATUS(1:WS-P2-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE "SUCCESS|ROLE_OK" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "ERROR|ROLE_DENIED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHANGE-ROLE-LOGIC.
+            *> Only a SUPER_ADMIN (the actor, p3) may change roles.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT role FROM users WHERE email = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' LIMIT 1" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            
+            *> The new role must be one of the known roles.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT 1 WHERE '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' IN ('USER','MANAGER','SUPER_ADMIN')" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|INVALID_ROLE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            
+            *> The target user must exist.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT 1 FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            
+            MOVE SPACES TO WS-QUERY
+            STRING "UPDATE users SET role = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' WHERE email = '" 
+                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|ROLE_CHANGED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|ROLE_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.

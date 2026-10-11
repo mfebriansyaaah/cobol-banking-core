@@ -18,12 +18,14 @@ Strict identity and authentication: registration, email verification, secure log
 | `AUTH_LOGIN` | `p1=email`, `p2=password` | look up status by email; verify password via `password_hash = CONCAT('SHA256_', SHA2(pwd,256))`; require status `VERIFIED` | `SUCCESS\|LOGIN_OK` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_CREDENTIALS` · `ERROR\|UNVERIFIED` |
 | `REQUEST_SIGNUP` | `p1=email`, `p2=password`, `p3=full_name`, `p4=dob` | enforce 8-char password + unique email; insert user `UNVERIFIED` + a secure 6-digit code in `verification_logs` (24h expiry) inside one transaction; return the code | `SUCCESS\|USER_CREATED\|<code>` · `ERROR\|WEAK_PASSWORD` · `ERROR\|EMAIL_EXISTS` · `ERROR\|SIGNUP_FAILED` |
 | `VERIFY_EMAIL` | `p1=email`, `p2=code` | match an unused, unexpired `SIGNUP` code and flip the user to `VERIFIED`, all in one transaction | `SUCCESS\|EMAIL_VERIFIED` · `ERROR\|INVALID_CODE` · `ERROR\|VERIFY_FAILED` |
+| `CHECK_ROLE` | `p1=email`, `p2=role` | report whether the user holds the given role | `SUCCESS\|ROLE_OK` · `ERROR\|ROLE_DENIED` · `ERROR\|ACCOUNT_NOT_FOUND` |
+| `CHANGE_ROLE` | `p1=target email`, `p2=new role`, `p3=actor email` | only a `SUPER_ADMIN` actor may change a role; validates role name and target existence; update inside one transaction | `SUCCESS\|ROLE_CHANGED` · `ERROR\|FORBIDDEN` · `ERROR\|INVALID_ROLE` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|ROLE_CHANGE_FAILED` |
 
 Password hashing matches `hash_password` in `cobol/c_lib/hash_lib.c` (`"SHA256_"` + sha256 hex). `hash_lib.c` is **now Linux-portable** (Windows headers guarded) and linked by `build.sh` for `generate_random_code`; password hashing is done server-side via MySQL `SHA2()`.
 
 ### Tests
 
-`tests/test_auth_login.sh`, `tests/test_signup_verify.sh`. Wired into `ci.sh`.
+`tests/test_auth_login.sh`, `tests/test_signup_verify.sh`, `tests/test_roles.sh`. Wired into `ci.sh`.
 
 ### Legacy (dead code, to be retired)
 
@@ -36,7 +38,7 @@ Direction decided in `docs/adr/0002-auth-db-stack.md`: the ODBC/`EXEC SQL` path 
 - [x] `AUTH_LOGIN` on the bridge (`cobol/src/auth_core.cob`), tested by `tests/test_auth_login.sh`.
 - [x] `REQUEST_SIGNUP` on the bridge (Linux-portable `hash_lib.c`, secure 6-digit code), tested by `tests/test_signup_verify.sh`.
 - [x] `VERIFY_EMAIL` on the bridge, tested by `tests/test_signup_verify.sh`.
-- [ ] `CHECK_ROLE`, `CHANGE_ROLE` on the bridge.
+- [x] `CHECK_ROLE`, `CHANGE_ROLE` on the bridge, tested by `tests/test_roles.sh`.
 - [ ] **Retire** `auth_identity.cob` and `build.bat`'s ODBC target once every required action is ported; remove `cobol/src/precompile_sql.sh`.
 - [ ] Account lockout (3+ failures/15m) for `AUTH_LOGIN`.
 - [ ] Password hashing uses plain SHA-256 server-side; a slow KDF (bcrypt/Argon2) is still outstanding for production.
