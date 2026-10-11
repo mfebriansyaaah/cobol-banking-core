@@ -798,3 +798,15 @@ _merged 2026-10-12_
 - feat(bridge): add SQL_ESCAPE (mysql_real_escape_string wrapper) for COBOL values
 - docs: sync HISTORY.md to post-merge state (#79)
 
+## #81 prepared-statements
+
+_merged 2026-10-12_
+
+- docs: prepared statements (signup/login) + escaping for the rest
+- test: prepared-statement suite; wire ci step 19
+- feat(auth): prepared login lookup; bind params via fixed 256-byte fields
+- feat(auth): prepared INSERT for REQUEST_SIGNUP
+- fix(bridge): bound prepared/escape copies to the COBOL field size
+- feat(bridge): SQL_PREPARE_EXEC - prepared template with up to six string params
+- docs: sync HISTORY.md to post-merge state (#80)
+
