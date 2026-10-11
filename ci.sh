@@ -4,10 +4,10 @@
 
 set -e
 
-echo "=== [1/10] Docs integrity check ==="
+echo "=== [1/11] Docs integrity check ==="
 ./tests/docs_check.sh
 
-echo "=== [2/10] Static COBOL checks ==="
+echo "=== [2/11] Static COBOL checks ==="
 viol=0
 
 # Violation 1: sentence period inside an inline IF/ELSE scope.
@@ -48,59 +48,66 @@ if [ "$viol" = 1 ]; then
 fi
 echo "OK"
 
-echo "=== [3/10] Build ==="
+echo "=== [3/11] Build ==="
 build_log=$(./build.sh 2>&1 || true)
 echo "$build_log" | grep -E "^cobol.*error:" && { echo "BUILD FAILED"; exit 1; }
 echo "$build_log" | grep -q "SUCCESS: Binary created" || { echo "BUILD FAILED"; exit 1; }
 echo "Build OK"
 
-echo "=== [4/10] Functional suite ==="
+echo "=== [4/11] Functional suite ==="
 func_out=$(./tests/test_suite.sh 2>/dev/null)
 echo "$func_out" | tail -1
 func_fail=$(echo "$func_out" | grep -oE '[0-9]+ failed' | grep -oE '[0-9]+' | head -1 || echo 0)
 func_fail=${func_fail:-0}
 [ "$func_fail" -eq 0 ] || { echo "FUNCTIONAL SUITE FAILED"; exit 1; }
 
-echo "=== [5/10] Atomic transaction suite ==="
+echo "=== [5/11] Atomic transaction suite ==="
 atomic_out=$(./tests/test_atomic_txn.sh 2>/dev/null)
 atomic_pass=$(echo "$atomic_out" | grep -c '\[0;32mPASS' || true)
 atomic_fail=$(echo "$atomic_out" | grep -c '\[0;31mFAIL' || true)
 echo "atomic: $atomic_pass passed, $atomic_fail failed"
 [ "$atomic_fail" -eq 0 ] || { echo "ATOMIC SUITE FAILED"; exit 1; }
 
-echo "=== [6/10] Ledger atomic suite ==="
+echo "=== [6/11] Ledger atomic suite ==="
 ledger_out=$(./tests/test_ledger_atomic.sh 2>/dev/null)
 ledger_pass=$(echo "$ledger_out" | grep -c '\[0;32mPASS' || true)
 ledger_fail=$(echo "$ledger_out" | grep -c '\[0;31mFAIL' || true)
 echo "ledger: $ledger_pass passed, $ledger_fail failed"
 [ "$ledger_fail" -eq 0 ] || { echo "LEDGER SUITE FAILED"; exit 1; }
 
-echo "=== [7/10] Reconciliation suite ==="
+echo "=== [7/11] Reconciliation suite ==="
 recon_out=$(./tests/test_reconciliation.sh 2>/dev/null)
 recon_pass=$(echo "$recon_out" | grep -c '\[0;32mPASS' || true)
 recon_fail=$(echo "$recon_out" | grep -c '\[0;31mFAIL' || true)
 echo "reconciliation: $recon_pass passed, $recon_fail failed"
 [ "$recon_fail" -eq 0 ] || { echo "RECONCILIATION SUITE FAILED"; exit 1; }
 
-echo "=== [8/10] Auth login suite ==="
+echo "=== [8/11] Auth login suite ==="
 auth_out=$(./tests/test_auth_login.sh 2>/dev/null)
 auth_pass=$(echo "$auth_out" | grep -c '\[0;32mPASS' || true)
 auth_fail=$(echo "$auth_out" | grep -c '\[0;31mFAIL' || true)
 echo "auth: $auth_pass passed, $auth_fail failed"
 [ "$auth_fail" -eq 0 ] || { echo "AUTH SUITE FAILED"; exit 1; }
 
-echo "=== [9/10] Signup + verify suite ==="
+echo "=== [9/11] Signup + verify suite ==="
 signup_out=$(./tests/test_signup_verify.sh 2>/dev/null)
 signup_pass=$(echo "$signup_out" | grep -c '\[0;32mPASS' || true)
 signup_fail=$(echo "$signup_out" | grep -c '\[0;31mFAIL' || true)
 echo "signup/verify: $signup_pass passed, $signup_fail failed"
 [ "$signup_fail" -eq 0 ] || { echo "SIGNUP SUITE FAILED"; exit 1; }
 
-echo "=== [10/10] Role suite ==="
+echo "=== [10/11] Role suite ==="
 role_out=$(./tests/test_roles.sh 2>/dev/null)
 role_pass=$(echo "$role_out" | grep -c '\[0;32mPASS' || true)
 role_fail=$(echo "$role_out" | grep -c '\[0;31mFAIL' || true)
 echo "roles: $role_pass passed, $role_fail failed"
 [ "$role_fail" -eq 0 ] || { echo "ROLE SUITE FAILED"; exit 1; }
+
+echo "=== [11/11] User profile suite ==="
+profile_out=$(./tests/test_user_profile.sh 2>/dev/null)
+profile_pass=$(echo "$profile_out" | grep -c '\[0;32mPASS' || true)
+profile_fail=$(echo "$profile_out" | grep -c '\[0;31mFAIL' || true)
+echo "profile: $profile_pass passed, $profile_fail failed"
+[ "$profile_fail" -eq 0 ] || { echo "PROFILE SUITE FAILED"; exit 1; }
 
 echo "=== ALL GREEN ==="
