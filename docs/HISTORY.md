@@ -1,0 +1,706 @@
+# HISTORY.md - merged phases, their commits, and when
+
+Generated from git merge history on 2026-10-11T12:13:50Z.
+Each phase is a merged pull request; the commits listed are that PR's own
+commits. Verify with `git log --merges` and `git log <merge>^1..<merge>`.
+
+## #1 iam-db-schema
+
+_merged 2026-10-04_
+
+- feat(iam): implement enterprise database schema for e-wallet
+
+## #2 iam-basic-structure
+
+_merged 2026-10-04_
+
+- feat(iam): initialize basic structure of auth_identity.cob
+
+## #3 iam-db-connectivity
+
+_merged 2026-10-05_
+
+- feat(iam): implement basic database connectivity logic
+
+## #4 iam-hashing-integration
+
+_merged 2026-10-05_
+
+- feat(iam): integrate C-library hashing wrapper
+
+## #5 iam-request-signup
+
+_merged 2026-10-05_
+
+- feat(iam): implement REQUEST_SIGNUP logic with password hashing
+
+## #6 iam-random-code
+
+_merged 2026-10-05_
+
+- feat(iam): implement secure 6-digit random code generator
+
+## #7 iam-verify-email
+
+_merged 2026-10-05_
+
+- feat(iam): implement VERIFY_EMAIL logic
+
+## #8 iam-rbac
+
+_merged 2026-10-05_
+
+- feat(iam): implement RBAC role verification logic
+
+## #9 iam-error-handling
+
+_merged 2026-10-05_
+
+- feat(iam): implement comprehensive error handling and exit codes
+
+## #10 db-schema-index-typo
+
+_merged 2026-10-05_
+
+- style(db): add section separator comments to improve schema file readability
+- docs(db): add schema version header with changelog and database metadata
+- perf(db): add composite index on verification_logs(email, purpose, is_used) for query optimization
+- fix(db): add missing index on verification_logs(email) for signup flow performance
+- docs(db): add descriptive inline comments to each CREATE INDEX statement
+- fix(db): correct typo in ledger index column name (created_//_at)
+
+## #11 iam-check-role-query
+
+_merged 2026-10-05_
+
+- docs(iam): add descriptive documentation headers to PROCESS-CHECK-ROLE routine
+- feat(iam): add early validation for valid role inputs in CHECK_ROLE
+- feat(iam): include verified role in CHECK_ROLE success output message
+- fix(iam): clear WS-OUTPUT-MSG before STRING to prevent trailing garbage characters
+- feat(iam): improve unauthorized error message to include actual vs required role
+- fix(iam): trim whitespace from role variables before comparison to prevent false negatives
+- fix(iam): handle SQLCODE=100 (NOT FOUND) separately from DB errors in CHECK_ROLE
+- fix(iam): add missing INTO clause in CHECK_ROLE to populate WS-USER-ROLE from database
+
+## #12 security-secure-random
+
+_merged 2026-10-05_
+
+- build(c-lib): remove unused stdlib.h dependency after removing rand() calls
+- build(c-lib): remove unused time.h dependency after RNG upgrade
+- docs(c-lib): add CWE-338 security context for random number generator upgrade
+- fix(c-lib): replace insecure rand() and time-based srand() with secure OS RNG
+- feat(c-lib): implement cross-platform get_secure_random_uint32 wrapper
+- build(c-lib): add platform-specific headers for secure random number generation
+
+## ? Merge branch main into refactor/security-sha256-hashing
+
+_merged 2026-10-05_
+
+- build(c-lib): remove unused stdlib.h dependency after removing rand() calls
+- build(c-lib): remove unused time.h dependency after RNG upgrade
+- docs(c-lib): add CWE-338 security context for random number generator upgrade
+- fix(c-lib): replace insecure rand() and time-based srand() with secure OS RNG
+- feat(c-lib): implement cross-platform get_secure_random_uint32 wrapper
+- build(c-lib): add platform-specific headers for secure random number generation
+- docs(iam): add descriptive documentation headers to PROCESS-CHECK-ROLE routine
+- feat(iam): add early validation for valid role inputs in CHECK_ROLE
+- feat(iam): include verified role in CHECK_ROLE success output message
+- fix(iam): clear WS-OUTPUT-MSG before STRING to prevent trailing garbage characters
+- feat(iam): improve unauthorized error message to include actual vs required role
+- fix(iam): trim whitespace from role variables before comparison to prevent false negatives
+- fix(iam): handle SQLCODE=100 (NOT FOUND) separately from DB errors in CHECK_ROLE
+- fix(iam): add missing INTO clause in CHECK_ROLE to populate WS-USER-ROLE from database
+- style(db): add section separator comments to improve schema file readability
+- docs(db): add schema version header with changelog and database metadata
+- perf(db): add composite index on verification_logs(email, purpose, is_used) for query optimization
+- fix(db): add missing index on verification_logs(email) for signup flow performance
+- docs(db): add descriptive inline comments to each CREATE INDEX statement
+- fix(db): correct typo in ledger index column name (created_//_at)
+
+## #13 security-sha256-hashing
+
+_merged 2026-10-05_
+
+- docs(iam): update build instructions to compile hash_lib.c alongside auth_identity.cob with -O3
+- fix(iam): optimize WS-HASHED-PASS variable size for SHA-256 length (72 bytes)
+- refactor(c-lib): replace djb2 logic with SHA-256 in hash_password wrapper
+- feat(c-lib): implement core SHA-256 algorithm logic (transform, update, final)
+- feat(c-lib): implement sha256_init function and cryptographic macros
+- feat(c-lib): define SHA-256 constants array (k) for message schedule
+- feat(c-lib): add SHA-256 context structure definition
+- docs(c-lib): add security rationale comment for replacing djb2 with SHA-256
+
+## #14 iam-email-verification
+
+_merged 2026-10-05_
+
+- chore: clean up remnants and align schema for email verification
+
+## ? Merge branch main into feature/iam-rbac
+
+_merged 2026-10-05_
+
+- chore: clean up remnants and align schema for email verification
+- build(c-lib): remove unused stdlib.h dependency after removing rand() calls
+- build(c-lib): remove unused time.h dependency after RNG upgrade
+- docs(c-lib): add CWE-338 security context for random number generator upgrade
+- fix(c-lib): replace insecure rand() and time-based srand() with secure OS RNG
+- feat(c-lib): implement cross-platform get_secure_random_uint32 wrapper
+- build(c-lib): add platform-specific headers for secure random number generation
+- docs(iam): update build instructions to compile hash_lib.c alongside auth_identity.cob with -O3
+- fix(iam): optimize WS-HASHED-PASS variable size for SHA-256 length (72 bytes)
+- refactor(c-lib): replace djb2 logic with SHA-256 in hash_password wrapper
+- feat(c-lib): implement core SHA-256 algorithm logic (transform, update, final)
+- feat(c-lib): implement sha256_init function and cryptographic macros
+- feat(c-lib): define SHA-256 constants array (k) for message schedule
+- feat(c-lib): add SHA-256 context structure definition
+- docs(c-lib): add security rationale comment for replacing djb2 with SHA-256
+- docs(iam): add descriptive documentation headers to PROCESS-CHECK-ROLE routine
+- feat(iam): add early validation for valid role inputs in CHECK_ROLE
+- feat(iam): include verified role in CHECK_ROLE success output message
+- fix(iam): clear WS-OUTPUT-MSG before STRING to prevent trailing garbage characters
+- feat(iam): improve unauthorized error message to include actual vs required role
+- fix(iam): trim whitespace from role variables before comparison to prevent false negatives
+- fix(iam): handle SQLCODE=100 (NOT FOUND) separately from DB errors in CHECK_ROLE
+- fix(iam): add missing INTO clause in CHECK_ROLE to populate WS-USER-ROLE from database
+- style(db): add section separator comments to improve schema file readability
+- docs(db): add schema version header with changelog and database metadata
+- perf(db): add composite index on verification_logs(email, purpose, is_used) for query optimization
+- fix(db): add missing index on verification_logs(email) for signup flow performance
+- docs(db): add descriptive inline comments to each CREATE INDEX statement
+- fix(db): correct typo in ledger index column name (created_//_at)
+- feat(iam): implement comprehensive error handling and exit codes
+
+## #15 iam-rbac
+
+_merged 2026-10-05_
+
+- docs(iam): update success criteria for normalized RBAC and role management
+- feat(iam): implement PROCESS-CHANGE-ROLE with SUPER_ADMIN protection
+- feat(iam): implement RBAC access control wrappers for Manager and SuperAdmin
+- feat(iam): implement normalized RBAC check using role_assignments table
+- docs(db): implement normalized RBAC tables (roles and role_assignments)
+
+## ? Merge branch main into feature/iam-security-hardening
+
+_merged 2026-10-05_
+
+- chore: clean up remnants and align schema for email verification
+- build(c-lib): remove unused stdlib.h dependency after removing rand() calls
+- build(c-lib): remove unused time.h dependency after RNG upgrade
+- docs(c-lib): add CWE-338 security context for random number generator upgrade
+- fix(c-lib): replace insecure rand() and time-based srand() with secure OS RNG
+- feat(c-lib): implement cross-platform get_secure_random_uint32 wrapper
+- build(c-lib): add platform-specific headers for secure random number generation
+- docs(iam): update build instructions to compile hash_lib.c alongside auth_identity.cob with -O3
+- fix(iam): optimize WS-HASHED-PASS variable size for SHA-256 length (72 bytes)
+- refactor(c-lib): replace djb2 logic with SHA-256 in hash_password wrapper
+- feat(c-lib): implement core SHA-256 algorithm logic (transform, update, final)
+- feat(c-lib): implement sha256_init function and cryptographic macros
+- feat(c-lib): define SHA-256 constants array (k) for message schedule
+- feat(c-lib): add SHA-256 context structure definition
+- docs(c-lib): add security rationale comment for replacing djb2 with SHA-256
+- docs(iam): add descriptive documentation headers to PROCESS-CHECK-ROLE routine
+- feat(iam): add early validation for valid role inputs in CHECK_ROLE
+- feat(iam): include verified role in CHECK_ROLE success output message
+- fix(iam): clear WS-OUTPUT-MSG before STRING to prevent trailing garbage characters
+- feat(iam): improve unauthorized error message to include actual vs required role
+- fix(iam): trim whitespace from role variables before comparison to prevent false negatives
+- fix(iam): handle SQLCODE=100 (NOT FOUND) separately from DB errors in CHECK_ROLE
+- fix(iam): add missing INTO clause in CHECK_ROLE to populate WS-USER-ROLE from database
+- style(db): add section separator comments to improve schema file readability
+- docs(db): add schema version header with changelog and database metadata
+- perf(db): add composite index on verification_logs(email, purpose, is_used) for query optimization
+- fix(db): add missing index on verification_logs(email) for signup flow performance
+- docs(db): add descriptive inline comments to each CREATE INDEX statement
+- fix(db): correct typo in ledger index column name (created_//_at)
+- feat(iam): implement comprehensive error handling and exit codes
+
+## #16 iam-security-hardening
+
+_merged 2026-10-05_
+
+- docs(iam): update success criteria for security hardening
+- feat(iam): add password complexity validation for signup
+- feat(iam): implement AUTH_LOGIN with account locking and verification check
+- docs(db): add login_attempts table for account locking mechanism
+
+## ? Merge branch main into feature/core-ledger-foundation
+
+_merged 2026-10-06_
+
+- docs(iam): update success criteria for security hardening
+- feat(iam): add password complexity validation for signup
+- feat(iam): implement AUTH_LOGIN with account locking and verification check
+- docs(db): add login_attempts table for account locking mechanism
+- docs(iam): update success criteria for normalized RBAC and role management
+- feat(iam): implement PROCESS-CHANGE-ROLE with SUPER_ADMIN protection
+- feat(iam): implement RBAC access control wrappers for Manager and SuperAdmin
+- feat(iam): implement normalized RBAC check using role_assignments table
+- docs(db): implement normalized RBAC tables (roles and role_assignments)
+- chore: clean up remnants and align schema for email verification
+- build(c-lib): remove unused stdlib.h dependency after removing rand() calls
+- build(c-lib): remove unused time.h dependency after RNG upgrade
+- docs(c-lib): add CWE-338 security context for random number generator upgrade
+- fix(c-lib): replace insecure rand() and time-based srand() with secure OS RNG
+- feat(c-lib): implement cross-platform get_secure_random_uint32 wrapper
+- build(c-lib): add platform-specific headers for secure random number generation
+- docs(iam): update build instructions to compile hash_lib.c alongside auth_identity.cob with -O3
+- fix(iam): optimize WS-HASHED-PASS variable size for SHA-256 length (72 bytes)
+- refactor(c-lib): replace djb2 logic with SHA-256 in hash_password wrapper
+- feat(c-lib): implement core SHA-256 algorithm logic (transform, update, final)
+- feat(c-lib): implement sha256_init function and cryptographic macros
+- feat(c-lib): define SHA-256 constants array (k) for message schedule
+- feat(c-lib): add SHA-256 context structure definition
+- docs(c-lib): add security rationale comment for replacing djb2 with SHA-256
+- docs(iam): add descriptive documentation headers to PROCESS-CHECK-ROLE routine
+- feat(iam): add early validation for valid role inputs in CHECK_ROLE
+- feat(iam): include verified role in CHECK_ROLE success output message
+- fix(iam): clear WS-OUTPUT-MSG before STRING to prevent trailing garbage characters
+- feat(iam): improve unauthorized error message to include actual vs required role
+- fix(iam): trim whitespace from role variables before comparison to prevent false negatives
+- fix(iam): handle SQLCODE=100 (NOT FOUND) separately from DB errors in CHECK_ROLE
+- fix(iam): add missing INTO clause in CHECK_ROLE to populate WS-USER-ROLE from database
+- style(db): add section separator comments to improve schema file readability
+- docs(db): add schema version header with changelog and database metadata
+- perf(db): add composite index on verification_logs(email, purpose, is_used) for query optimization
+- fix(db): add missing index on verification_logs(email) for signup flow performance
+- docs(db): add descriptive inline comments to each CREATE INDEX statement
+- fix(db): correct typo in ledger index column name (created_//_at)
+
+## #17 core-ledger-foundation
+
+_merged 2026-10-06_
+
+- feat(ledger): implement multi-currency transfer and atomic balance management
+- feat(ledger): refine transfer logic with explicit account and currency retrieval
+- feat(ledger): implement balance check and atomic transfer with double-entry logging
+- feat(ledger): implement atomic transaction for user and account creation
+- docs(db): refactor ledger table for multi-currency and BIGINT IDs
+- docs(db): implement accounts table for user balance management
+- docs(db): implement exchange_rates table for currency conversion
+- docs(db): implement currencies table for multi-currency support
+
+## #18 fraud-limit-engine
+
+_merged 2026-10-07_
+
+- feat: implement single and daily transaction limit checks in COBOL
+- fix: resolve merge conflict in schema.sql and finalize ledger structure
+
+## #19 fraud-pattern-detection
+
+_merged 2026-10-07_
+
+- feat: implement rapid-fire transfer detection and auto-freeze account
+
+## #20 compliance-audit-trail
+
+_merged 2026-10-07_
+
+- feat: implement immutable audit trail for security and compliance events
+
+## #21 fraud-integration
+
+_merged 2026-10-07_
+
+- feat: implement fraud_wrapper as a security gateway for integrated transfer validation
+
+## #22 interest-tier-logic
+
+_merged 2026-10-07_
+
+- feat: implement tiered interest rate calculation based on account balance
+
+## #23 interest-accrual
+
+_merged 2026-10-07_
+
+- feat: implement daily interest accrual calculation logic
+
+## #24 interest-payout
+
+_merged 2026-10-07_
+
+- feat: implement atomic interest payout with ledger integration
+
+## #25 reward-points
+
+_merged 2026-10-07_
+
+- feat: implement reward points calculation and loyalty logging
+
+## #26 reward-integration
+
+_merged 2026-10-07_
+
+- feat: integrate reward point granting into successful transfer flow
+
+## #27 notification-engine
+
+_merged 2026-10-07_
+
+- feat: implement notification engine for user alerts and unread messages
+
+## #28 kyc-management
+
+_merged 2026-10-07_
+
+- docs: add internal documentation for KYC upgrade flow
+- feat: implement database update for KYC level upgrade
+- feat: implement KYC level transition validation logic
+- feat: add UPGRADE_KYC action to main dispatcher
+- feat: implement PROCESS-CHECK-KYC to retrieve user kyc level
+- feat: add CHECK_KYC action to main dispatcher
+- chore: define KYC level and loyalty score variables in working-storage
+
+## #29 loyalty-scoring
+
+_merged 2026-10-07_
+
+- docs: add internal documentation for loyalty score logic
+- feat: implement reward history logging for loyalty score changes
+- feat: implement database update for loyalty score
+- refactor: implement loyalty bonus for high-value transactions
+- feat: add UPDATE_SCORE action to main dispatcher
+- chore: add loyalty score change variable to working-storage
+
+## #30 reward-integration-v2
+
+_merged 2026-10-07_
+
+- feat(engagement): integrate automatic notifications and loyalty scoring into transfer flow
+- feat(engagement): restore auth_identity.cob and implement loyalty scoring bonus
+
+## #31 ledger-db-hardening
+
+_merged 2026-10-08_
+
+- docs(ledger): document ISO 4217 standard for currencies table
+- feat(ledger): add check constraint to prevent negative balance in accounts
+- feat(ledger): add audit_trail table for financial compliance
+
+## #32 ledger-db-hardening
+
+_merged 2026-10-08_
+
+- docs(ledger): document ISO 4217 standard for currencies table
+- feat(ledger): add check constraint to prevent negative balance in accounts
+- feat(ledger): add audit_trail table for financial compliance
+
+## #33 ledger-modularization
+
+_merged 2026-10-08_
+
+- refactor(ledger): remove redundant transfer logic from auth_identity
+- feat(ledger): implement atomic transfer logic in wallet_core and update caller linkage
+- feat(ledger): move transfer logic from auth_identity to wallet_core
+- feat(ledger): move balance inquiry logic from auth_identity to wallet_core
+- feat(ledger): create skeleton for wallet_core.cob with basic data structure
+
+## #34 atomic-txn-foundation
+
+_merged 2026-10-09_
+
+- feat(ledger): implement transaction finalization and intent status update
+- feat(ledger): implement atomic ledger and audit trail writes
+- feat(ledger): implement secure balance movement and currency conversion
+- feat(ledger): implement pessimistic locking for source account
+- feat(ledger): implement transaction intent recording in wallet_core
+- feat(ledger): add pending_transactions table for intent persistence
+
+## #36 atomic-txn-foundation
+
+_merged 2026-10-10_
+
+- chore: ignore .agents folder
+- security: protect odbc config and add example files
+- fix: total debug of banking core, fix hardcoded indices, and add full test suite
+
+## #37 phase-1-io-integrity
+
+_merged 2026-10-10_
+
+- fix: use FUNCTION TRIM for numeric conversion to avoid I/O status 71
+- fix: reduce record size to PIC X(100) to resolve status 71
+- fix: clear output record with spaces before WRITE to avoid status 71
+- fix: add explicit file closure on READ AT END to prevent I/O status 71
+
+## #38 phase-2-sql-bridge-validation
+
+_merged 2026-10-10_
+
+- fix: sanitize all DB output to ensure ASCII compatibility with COBOL
+- fix: prevent buffer overflow in GET_RESULT by limiting copy to 511 chars
+- debug: add stdout printf to verify mysql row fetch
+- fix: cast balance to CHAR in query to ensure string return
+- fix: resolve ambiguous column balance in wallet_core query
+- fix: trim parameters in wallet_core to prevent SQL query mismatch
+- fix: remove hardcoded database creation and USE statement from schema.sql
+- fix: remove typo in foreign key base_currency_id
+- fix: correct typo in database name within schema.sql
+- feat: add seed_test_data.sql for functional testing
+- fix: trim result fields and add SQL logging to resolve data mismatch
+- fix: align sql_bridge credentials with odbc.ini
+
+## #39 phase-3-wallet-logic-deep-dive
+
+_merged 2026-10-10_
+
+- fix: use FUNCTION INSTRING for robust action routing
+- fix: use direct buffer reference for action routing to bypass UNSTRING/TRIM issues
+- fix: restore UNSTRING and use FUNCTION TRIM for action routing
+- fix: bypass UNSTRING and use direct reference modification for action routing
+- fix: use FUNCTION TRIM on CMD-ACTION to handle hidden characters
+- fix: align PROGRAM-ID and CALL targets to lowercase for Linux consistency
+- fix: correct order of sections in ENVIRONMENT DIVISION
+- fix: change ACCEPT to READ for input handling in main_logic
+- fix: correct order of sections in ENVIRONMENT DIVISION
+- fix: use OUTPUT-FILE instead of DISPLAY to satisfy test suite requirements
+- fix: use UNSTRING for input handling to resolve ERROR|MISSING_ACTION
+- fix: add -lmysqlclient linker flag to resolve undefined mysql references
+- fix: simplify CALL syntax and fix indentation to resolve variable definition error
+- fix: update build.sh to include all core modules and sql_bridge in the binary
+- fix: change CALL target to lowercase 'wallet_core' for Linux case-sensitivity
+- fix: correct parameter count in WALLET-CORE calls to prevent stack corruption
+- fix: align action name CHECK_BALANCE to GET_BALANCE to match wallet_core
+
+## #40 phase-3b-action-routing
+
+_merged 2026-10-10_
+
+- chore: ignore sql_debug.log
+- fix: complete wallet/user routing, null-byte bridge output, transfer prechecks, and DB reset per test
+- fix: pad GET_RESULT output with spaces instead of null bytes to fix status 71
+- fix: limit SET_QUERY copy to 512-byte COBOL buffer and add wallet entry debug
+- fix: user_core GET_USER query by email and LIST_USERS fixed response
+- fix: use exact-length substring matching for action names in core modules
+- fix: align action name CHECK_BALANCE across modules and add user_core debug logging
+- fix: use FUNCTION TRIM on LS-CMD-ACTION in core modules for action matching
+- debug: add DISPLAY logging for input buffer and cmd action parsing
+
+## #41 phase-4-atomic-txn
+
+_merged 2026-10-10_
+
+- fix: align atomic txn suite with file-based I/O, cobol_db, and shared action semantics
+
+## #42 retro-hardening
+
+_merged 2026-10-10_
+
+- chore: retro hardening - ci.sh one-shot checks, artifact untracking, AGENTS.md routing pointer, CODING_STANDARDS.md, DB creds overridable
+
+## #43 lean-phase-workflow
+
+_merged 2026-10-10_
+
+- docs: codify lean-phase workflow with end-of-phase testing micro-task
+
+## #44 docs-cleanup
+
+_merged 2026-10-10_
+
+- docs: remove stale progress snapshot, external rubric, and duplicated capability map
+
+## #45 spec-sync
+
+_merged 2026-10-10_
+
+- test: add docs integrity check (referenced paths must exist)
+- docs: sync SPEC files to as-built state with explicit gaps
+
+## #46 conditional-testing-rule
+
+_merged 2026-10-10_
+
+- docs: make end-of-phase test micro-task conditional on the phase changing testable behaviour
+
+## #47 ci-wire-docs-check
+
+_merged 2026-10-10_
+
+- ci: wire docs integrity check as step 1 and assert functional suite has zero failures
+
+## #48 adr-invocation-model
+
+_merged 2026-10-10_
+
+- docs: ADR-0001 invocation model (per-request working directory), validated empirically
+
+## #49 wallet-atomic-ledger
+
+_merged 2026-10-11_
+
+- test: add ledger-atomic suite and wire it into ci.sh
+- feat: atomic transfer with ledger entries and sender row-lock in wallet_core
+
+## #50 ledger-reconciliation
+
+_merged 2026-10-11_
+
+- test: add reconciliation suite, make resets ledger-consistent, wire into ci.sh
+- feat: RECONCILE action verifies balance equals ledger sum; ledger-backed seed resets
+
+## #51 adr-auth-stack
+
+_merged 2026-10-11_
+
+- docs: ADR-0002 - bridge replaces ODBC auth stack; retire auth_identity.cob after migration
+
+## #52 auth-login-bridge
+
+_merged 2026-10-11_
+
+- test: add AUTH_LOGIN suite and wire into ci.sh
+- feat: AUTH_LOGIN on the bridge (auth_core module), routed via main_logic
+
+## #53 signup-verify-bridge
+
+_merged 2026-10-11_
+
+- test: add signup/verify suite and wire into ci.sh
+- feat: REQUEST_SIGNUP and VERIFY_EMAIL on the bridge; port hash_lib.c to Linux
+
+## #54 english-only-rule
+
+_merged 2026-10-11_
+
+- docs: make English mandatory for commits, PRs, docs, and code
+
+## #55 roles-bridge
+
+_merged 2026-10-11_
+
+- test: add role suite and wire into ci.sh
+- feat: CHECK_ROLE and CHANGE_ROLE on the bridge
+
+## #56 retire-odbc-stack
+
+_merged 2026-10-11_
+
+- chore: retire the legacy ODBC auth stack (remove auth_identity.cob, build.bat, precompile_sql.sh)
+
+## #57 remove-dead-sources
+
+_merged 2026-10-11_
+
+- chore: remove dead source files and retired ODBC configuration
+
+## #58 user-profile
+
+_merged 2026-10-11_
+
+- test: add user profile suite and wire into ci.sh
+- feat: GET_DASHBOARD, real LIST_USERS, and two-step email change in user_core
+
+## #59 api-gateway
+
+_merged 2026-10-11_
+
+- test: add api-gateway suite (contract, injection, auth, timeout)
+- feat: Node.js/Express api-gateway exposing the COBOL core over HTTP
+
+## #60 retro2-hardening
+
+_merged 2026-10-11_
+
+- chore: retro hardening round 2 - cover new modules in static checks, router prefix check, scan ADRs in docs check, codify padded-SQL and one-row bridge rules
+
+## #61 login-lockout
+
+_merged 2026-10-11_
+
+- test: cover result-line to HTTP status mapping (incl. locked 423)
+- test: add login lockout suite and wire into ci.sh
+- feat: account lockout after 3 failed logins in 15 minutes (audit_trail-backed)
+
+## #62 audit-trail
+
+_merged 2026-10-11_
+
+- test: assert audit_trail rows for transfer, role change, and email change
+- feat: write audit_trail rows for transfer, role change, and email change
+
+## #63 medium-phase-workflow
+
+_merged 2026-10-11_
+
+- docs: switch phase workflow from lean to medium (at least five related commits per PR)
+
+## #64 cobol-logic-boundary
+
+_merged 2026-10-11_
+
+- docs: make the business-logic boundary explicit (COBOL owns logic; C/JS are support only)
+
+## #65 gateway-hardening
+
+_merged 2026-10-11_
+
+- docs: record gateway hardening (refresh tokens, rate limiting, input cap) in SPEC
+- test(gateway): cover the refresh-token flow
+- chore(gateway): document refresh, token-expiry, and rate-limit environment variables
+- feat(gateway): issue refresh tokens and add POST /auth/refresh
+- feat(gateway): rate-limit auth endpoints (fixed window per client)
+- feat(gateway): reject input lines longer than the COBOL record (500 bytes)
+
+## #66 user-profile-multiaccount
+
+_merged 2026-10-11_
+
+- docs: record multi-account dashboard and LIST_USERS paging
+- test: cover multi-account dashboard, paging, and paged /users
+- feat(gateway): expose limit/offset paging on GET /users
+- feat(user-profile): paginate LIST_USERS with limit/offset (defaults 20/0)
+- feat(user-profile): dashboard returns all of a user's accounts (iso:balance)
+
+## #67 slow-kdf
+
+_merged 2026-10-11_
+
+- test: assert a legacy SHA256 hash is upgraded to PBKDF2 on login
+- docs: record PBKDF2 slow-KDF hashing and legacy fallback in SPEC-auth-identity
+- test: assert signup stores a PBKDF2 hash
+- feat(auth): rehash a legacy SHA256 password to PBKDF2 on successful login
+- feat(auth): signup hashes with PBKDF2 and login verifies via the KDF
+- feat(hash): add PBKDF2-HMAC-SHA256 slow KDF and verify_password (legacy SHA256 supported)
+
+## #68 bridge-multi-row
+
+_merged 2026-10-11_
+
+- docs: update bridge-rows rule in CODING_STANDARDS
+- docs: LIST_USERS now uses the multi-row bridge call
+- test: cover page size and empty page for LIST_USERS
+- feat(user-profile): LIST_USERS reads the page via the multi-row bridge call
+- feat(bridge): add SQL_EXECUTE_ROWS to return all rows in one result line
+
+## #69 retro3-hardening
+
+_merged 2026-10-11_
+
+- docs: extend shell-safety guidance (explicit branch name, clean tree before PR)
+- docs(standards): add isolated-fixtures and absent-param rules; renumber rules
+- ci: check every routed action has a handler in its core module
+
+## #70 spec-stale-fix
+
+_merged 2026-10-11_
+
+- docs(wallet): clarify reconciliation is done; only prepared binding remains
+- docs(profile): refresh open question (LIST_USERS is paged now)
+- docs(gateway): drop stale LIST_USERS note (now uses the multi-row bridge call)
+- docs(auth): drop stale hashing notes (PBKDF2 + auto-rehash are live)
+
+## #71 idempotent-transfer
+
+_merged 2026-10-11_
+
+- docs: record idempotent transfer and Idempotency-Key in the SPECs
+- fix(schema): cascade pending_transactions when a user is deleted
+- test: idempotent transfer suite; wire ci.sh step 14
+- feat(gateway): accept Idempotency-Key for transfers; map TRANSFER_IN_PROGRESS to 409
+- feat(wallet): make TRANSFER idempotent via an idempotency key and pending_transactions
+
