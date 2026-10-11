@@ -340,7 +340,7 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
 
     for (int i = 0; i < n; i++) {
         memset(bufs[i], 0, sizeof(bufs[i]));
-        if (src[i]) { strncpy(bufs[i], src[i], 511); }
+        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
         trim_trailing_spaces(bufs[i]);
         lens[i] = (unsigned long)strlen(bufs[i]);
         bind[i].buffer_type = MYSQL_TYPE_STRING;

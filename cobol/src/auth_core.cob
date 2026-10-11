@@ -38,6 +38,10 @@
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-P1-ESC               PIC X(256) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(256) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
         01  WS-P2-ESC               PIC X(256) VALUE SPACES.
         01  WS-P3-ESC               PIC X(256) VALUE SPACES.
         01  WS-P4-ESC               PIC X(256) VALUE SPACES.
@@ -235,14 +239,18 @@
             END-IF.
 
         LOGIN-LOGIC.
-            *> 1) Does the account exist, and what is its status?
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(id AS CHAR), status FROM users WHERE email = '" 
-                   WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            *> 1) Does the account exist, and what is its status? (prepared)
+            MOVE "SELECT CAST(id AS CHAR), status FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING
+                BY REFERENCE WS-PREP-SQL
+                BY VALUE 1
+                BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT = "ERROR|NO_DATA"
@@ -379,15 +387,19 @@
             *> Prepared insert: values are bound, not concatenated.
             MOVE "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES (?, ?, ?, ?, 'UNVERIFIED', 'USER')" 
                  TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-HASH TO WS-BIND-2
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-4
             CALL "SQL_PREPARE_EXEC" USING
                 BY REFERENCE WS-PREP-SQL
                 BY VALUE 4
-                BY REFERENCE WS-PARAM1-TRIMMED
-                BY REFERENCE WS-HASH
-                BY REFERENCE WS-PARAM3-TRIMMED
-                BY REFERENCE WS-PARAM4-TRIMMED
-                BY REFERENCE WS-PARAM4-TRIMMED
-                BY REFERENCE WS-PARAM4-TRIMMED
+                BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-4
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT(1:5) = "ERROR"
