@@ -1,8 +1,13 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: 1.2.0
+-- Version: 1.5.0
+-- Note: versioned changes live in database/migrations/NNN_*.sql; scripts the
+--       bot may not have, see CHANGELOG.md and docs/STATUS.md.
 -- Changelog:
+--   v1.5.0 - pending_transactions FKs ON DELETE CASCADE (idempotent transfers)
+--   v1.4.0 - pending_transactions table for transfer intents
+--   v1.3.0 - audit_trail + verification_logs used by the running core
 --   v1.2.0 - Integrated Multi-Currency Accounts and Atomic Ledger
 --   v1.1.0 - Fixed index typo, added performance indexes on verification_logs
 --   v1.0.0 - Initial schema: users, ledger, verification_logs tables
