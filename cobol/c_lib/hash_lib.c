@@ -147,10 +147,180 @@ void hash_password(char* password, char* output_hash) {
     }
 }
 
+/* ------------------------------------------------------------------ *
+ * Slow KDF: PBKDF2-HMAC-SHA256 (self-contained, reuses sha256 above). *
+ * ------------------------------------------------------------------ */
+
+#define PBKDF2_ITERATIONS 100000
+#define PBKDF2_SALT_BYTES 16
+
+static void bytes_to_hex(const uint8_t *in, size_t n, char *out) {
+    static const char *hx = "0123456789abcdef";
+    for (size_t i = 0; i < n; i++) {
+        out[i * 2] = hx[(in[i] >> 4) & 0xf];
+        out[i * 2 + 1] = hx[in[i] & 0xf];
+    }
+    out[n * 2] = '\0';
+}
+
+static int hex_nibble(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+static int hex_to_bytes(const char *hex, uint8_t *out, size_t max) {
+    size_t n = 0;
+    while (hex[0] && hex[1]) {
+        int hi = hex_nibble(hex[0]);
+        int lo = hex_nibble(hex[1]);
+        if (hi < 0 || lo < 0 || n >= max) return -1;
+        out[n++] = (uint8_t)((hi << 4) | lo);
+        hex += 2;
+    }
+    return (int)n;
+}
+
+static void hmac_sha256(const uint8_t *key, size_t keylen,
+                        const uint8_t *msg, size_t msglen, uint8_t out[32]) {
+    uint8_t k[64];
+    memset(k, 0, sizeof(k));
+    if (keylen > 64) {
+        SHA256_CTX kc;
+        sha256_init(&kc);
+        sha256_update(&kc, key, keylen);
+        sha256_final(&kc, k);
+    } else {
+        memcpy(k, key, keylen);
+    }
+
+    uint8_t ipad[64], opad[64];
+    for (int i = 0; i < 64; i++) {
+        ipad[i] = k[i] ^ 0x36;
+        opad[i] = k[i] ^ 0x5c;
+    }
+
+    uint8_t inner[32];
+    SHA256_CTX c;
+    sha256_init(&c);
+    sha256_update(&c, ipad, 64);
+    sha256_update(&c, msg, msglen);
+    sha256_final(&c, inner);
+
+    sha256_init(&c);
+    sha256_update(&c, opad, 64);
+    sha256_update(&c, inner, 32);
+    sha256_final(&c, out);
+}
+
+/* Single-block PBKDF2 (dkLen == 32 == hash size). */
+static void pbkdf2_sha256(const uint8_t *pass, size_t passlen,
+                          const uint8_t *salt, size_t saltlen,
+                          uint32_t iters, uint8_t out[32]) {
+    uint8_t msg[PBKDF2_SALT_BYTES + 4];
+    memcpy(msg, salt, saltlen);
+    msg[saltlen + 0] = 0;
+    msg[saltlen + 1] = 0;
+    msg[saltlen + 2] = 0;
+    msg[saltlen + 3] = 1;
+
+    uint8_t u[32], t[32];
+    hmac_sha256(pass, passlen, msg, saltlen + 4, u);
+    memcpy(t, u, 32);
+    for (uint32_t i = 1; i < iters; i++) {
+        hmac_sha256(pass, passlen, u, 32, u);
+        for (int j = 0; j < 32; j++) t[j] ^= u[j];
+    }
+    memcpy(out, t, 32);
+}
+
+static void random_salt(uint8_t *buf, size_t n) {
+    int fd = open("/dev/urandom", O_RDONLY);
+    if (fd != -1) {
+        ssize_t got = read(fd, buf, n);
+        close(fd);
+        if (got == (ssize_t)n) return;
+    }
+    for (size_t i = 0; i < n; i++) buf[i] = (uint8_t)(rand() & 0xff);
+}
+
+static size_t rtrim_len(const char *s, size_t max) {
+    size_t n = 0;
+    while (n < max && s[n] != '\0') n++;
+    while (n > 0 && (s[n - 1] == ' ' || s[n - 1] == '\0')) n--;
+    return n;
+}
+
+/**
+ * Password hash with a slow KDF. Format: PBKDF2$<iters>$<salt hex>$<key hex>.
+ */
+void hash_password_v2(char *password, char *output_hash) {
+    if (password == NULL || output_hash == NULL) return;
+    size_t plen = rtrim_len(password, 100);
+    uint8_t salt[PBKDF2_SALT_BYTES];
+    random_salt(salt, sizeof(salt));
+    uint8_t key[32];
+    pbkdf2_sha256((const uint8_t *)password, plen, salt, sizeof(salt), PBKDF2_ITERATIONS, key);
+
+    char salt_hex[PBKDF2_SALT_BYTES * 2 + 1];
+    char key_hex[65];
+    bytes_to_hex(salt, sizeof(salt), salt_hex);
+    bytes_to_hex(key, sizeof(key), key_hex);
+    sprintf(output_hash, "PBKDF2$%d$%s$%s", PBKDF2_ITERATIONS, salt_hex, key_hex);
+}
+
+/**
+ * Verify a password against a stored hash (PBKDF2 or legacy SHA256).
+ * Writes "1" to result on a match, "0" otherwise.
+ */
+void verify_password(char *password, char *stored_hash, char *result) {
+    if (password == NULL || stored_hash == NULL || result == NULL) return;
+    result[0] = '0';
+    result[1] = '\0';
+
+    size_t plen = rtrim_len(password, 100);
+    char stored[256];
+    size_t slen = rtrim_len(stored_hash, 255);
+    memcpy(stored, stored_hash, slen);
+    stored[slen] = '\0';
+
+    if (strncmp(stored, "PBKDF2$", 7) == 0) {
+        char *save = stored;
+        char *iter_s = strtok(save + 7, "$");
+        char *salt_s = strtok(NULL, "$");
+        char *key_s = strtok(NULL, "$");
+        if (!iter_s || !salt_s || !key_s) return;
+
+        int iters = atoi(iter_s);
+        uint8_t salt[PBKDF2_SALT_BYTES];
+        int saltlen = hex_to_bytes(salt_s, salt, sizeof(salt));
+        if (saltlen <= 0 || iters <= 0) return;
+
+        uint8_t key[32];
+        pbkdf2_sha256((const uint8_t *)password, plen, salt, (size_t)saltlen, (uint32_t)iters, key);
+        char key_hex[65];
+        bytes_to_hex(key, sizeof(key), key_hex);
+        if (strcmp(key_hex, key_s) == 0) {
+            result[0] = '1';
+        }
+    } else if (strncmp(stored, "SHA256_", 7) == 0) {
+        uint8_t hash[32];
+        SHA256_CTX c;
+        sha256_init(&c);
+        sha256_update(&c, (uint8_t *)password, plen);
+        sha256_final(&c, hash);
+        char hash_hex[65];
+        bytes_to_hex(hash, sizeof(hash), hash_hex);
+        if (strcmp(hash_hex, stored + 7) == 0) {
+            result[0] = '1';
+        }
+    }
+}
+
 /**
  * Fetch a secure random 32-bit integer from the OS
- */
-static unsigned int get_secure_random_uint32() {
+ */static unsigned int get_secure_random_uint32() {
     unsigned int rand_val = 0;
 #ifdef _WIN32
     HCRYPTPROV hProvider = 0;

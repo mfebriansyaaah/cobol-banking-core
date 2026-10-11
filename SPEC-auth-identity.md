@@ -19,7 +19,7 @@ Strict identity and authentication: registration, email verification, secure log
 | `CHECK_ROLE` | `p1=email`, `p2=role` | report whether the user holds the given role | `SUCCESS\|ROLE_OK` · `ERROR\|ROLE_DENIED` · `ERROR\|ACCOUNT_NOT_FOUND` |
 | `CHANGE_ROLE` | `p1=target email`, `p2=new role`, `p3=actor email` | only a `SUPER_ADMIN` actor may change a role; validates role name and target existence; update inside one transaction | `SUCCESS\|ROLE_CHANGED` · `ERROR\|FORBIDDEN` · `ERROR\|INVALID_ROLE` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|ROLE_CHANGE_FAILED` |
 
-Password hashing matches `hash_password` in `cobol/c_lib/hash_lib.c` (`"SHA256_"` + sha256 hex). That library is Linux-portable (Windows headers guarded) and linked by `build.sh` for `generate_random_code`; password hashing is done server-side via MySQL `SHA2()`.
+Password hashing uses a **slow KDF**: PBKDF2-HMAC-SHA256 (100,000 iterations, 16-byte random salt) in `cobol/c_lib/hash_lib.c`, stored as `PBKDF2$<iters>$<salt>$<key>`. Login verifies in C (`verify_password`) and still accepts a legacy `SHA256_…` hash for accounts created before the switch. `hash_lib.c` is Linux-portable and linked by `build.sh` (also provides `generate_random_code`).
 
 ### Tests
 
@@ -31,7 +31,7 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 
 ## Not yet done
 
-- Password hashing is plain SHA-256; a slow KDF (bcrypt/Argon2) is still outstanding for production.
+- Legacy `SHA256_…` hashes are still accepted on login (no automatic rehash/migration to PBKDF2 on a successful legacy login).
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
 - `audit_trail` records failed logins (lockout) and `CHANGE_ROLE`; `REQUEST_SIGNUP`/`VERIFY_EMAIL` are not audited yet.
 
