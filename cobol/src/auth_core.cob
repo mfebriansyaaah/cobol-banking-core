@@ -392,9 +392,9 @@
                 EXIT PARAGRAPH
             END-IF
             
-            *> The target user must exist.
+            *> The target user must exist; capture its id for the audit row.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -405,6 +405,16 @@
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
+            END-IF
+            MOVE WS-RESULT TO WS-USER-ID
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM
+            IF WS-ID-LEN = 0
+                MOVE 1 TO WS-ID-LEN
             END-IF
             
             SET STEP-OK TO TRUE
@@ -421,6 +431,22 @@
             
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
+            END-IF
+            
+            IF STEP-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
+                       WS-USER-ID(1:WS-ID-LEN) ", 'CHANGE_ROLE', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF
             
             IF STEP-OK

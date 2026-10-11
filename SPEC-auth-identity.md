@@ -33,7 +33,7 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 
 - Password hashing is plain SHA-256; a slow KDF (bcrypt/Argon2) is still outstanding for production.
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
-- `audit_trail` currently records only failed logins (for lockout); other sensitive actions are not audited yet.
+- `audit_trail` records failed logins (lockout) and `CHANGE_ROLE`; `REQUEST_SIGNUP`/`VERIFY_EMAIL` are not audited yet.
 
 ## Done since first cut
 

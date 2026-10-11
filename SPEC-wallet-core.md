@@ -32,7 +32,7 @@ Manage balances and record every cent moving in or out, with absolute data integ
 
 ### Tests
 
-- `tests/test_ledger_atomic.sh` — happy path writes exactly two ledger rows with one `txn_ref` and moves money; insufficient funds, unknown target, and unknown sender each roll back with zero ledger rows and untouched balances.
+- `tests/test_ledger_atomic.sh` — happy path writes exactly two ledger rows with one `txn_ref` and moves money, and records a `TRANSFER` row in `audit_trail` inside the same transaction; insufficient funds, unknown target, and unknown sender each roll back with zero ledger rows and untouched balances.
 - `tests/test_reconciliation.sh` — `RECONCILE` is green on a fresh ledger-consistent state and after a real transfer; it flags a drifted balance and a mismatched ledger sum; a rolled-back transfer leaves no drift.
 - Both wired into `ci.sh`.
 

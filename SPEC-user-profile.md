@@ -28,7 +28,7 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 - Multi-account users: `GET_DASHBOARD` takes a single (`LIMIT 1`) account; per-currency dashboards are not implemented.
 - `LIST_USERS` returns at most the first 400 characters of the concatenated list (single-line contract).
 - Email-change code expiry is 24h to match signup; a shorter window (the original open question suggested 15 min) is not implemented.
-- `audit_trail` writes are not wired (the table exists in `database/schema.sql`).
+- `audit_trail` records a `EMAIL_CHANGE` row on a successful confirm; other profile reads are not audited (and need not be).
 
 ## Code style (enforced today)
 
