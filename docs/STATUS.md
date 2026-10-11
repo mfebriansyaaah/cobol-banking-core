@@ -61,7 +61,7 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_ledger_atomic.sh` | 17 | atomicity: ledger rows, rollback on every failure path, audit row |
 | `tests/test_reconciliation.sh` | 7 | `RECONCILE` on healthy/drifted states |
 | `tests/test_auth_login.sh` | 6 | login, legacy rehash on login |
-| `tests/test_signup_verify.sh` | 14 | signup + verify flow, PBKDF2 hash, uniqueness |
+| `tests/test_signup_verify.sh` | 16 | signup + verify flow, PBKDF2 hash, uniqueness, audit |
 | `tests/test_roles.sh` | 11 | `CHECK_ROLE`/`CHANGE_ROLE` incl. SUPER_ADMIN gate |
 | `tests/test_user_profile.sh` | 17 | dashboard multi-account, paging, email-change |
 | `tests/test_login_lockout.sh` | 7 | 3-fail lockout, audit rows, clearing |
@@ -70,8 +70,8 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
 
-Shell suites total **126**; with the gateway suite **16** the full run is
-**142 assertions**, all green as of this snapshot.
+Shell suites total **128**; with the gateway suite **16** the full run is
+**144 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 

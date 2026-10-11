@@ -32,7 +32,7 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 ## Not yet done
 
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
-- `audit_trail` records failed logins (lockout), `CHANGE_ROLE`, `TRANSFER`, and `EMAIL_CHANGE`; `REQUEST_SIGNUP`/`VERIFY_EMAIL` are not audited yet.
+- `audit_trail` records failed logins (lockout), `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHANGE_ROLE`, `TRANSFER`, and `EMAIL_CHANGE`.
 
 ## Done since first cut
 
