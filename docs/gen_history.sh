@@ -1,0 +1,25 @@
+#!/bin/bash
+# Generate docs/HISTORY.md from git merge history: one section per merged pull
+# request, with its commits and date. Git is the source of truth, so the output
+# is verifiable (`git log --merges`, `git log <merge>^1..<merge>`).
+# Usage: docs/gen_history.sh > docs/HISTORY.md
+
+cd "$(git rev-parse --show-toplevel)"
+
+echo "# HISTORY.md - merged phases, their commits, and when"
+echo
+echo "Generated from git merge history on $(date -u +%Y-%m-%dT%H:%M:%SZ)."
+echo "Each phase is a merged pull request; the commits listed are that PR's own"
+echo "commits. Verify with \`git log --merges\` and \`git log <merge>^1..<merge>\`."
+echo
+
+git log --merges --reverse --format='%H|%ad|%s' --date=short origin/main | while IFS='|' read -r h date subject; do
+    pr=$(echo "$subject" | grep -oE '#[0-9]+' | head -1)
+    slug=$(echo "$subject" | sed -E 's/^Merge pull request #[0-9]+ from [^:]*[\/:]//' | xargs)
+    echo "## ${pr:-?} ${slug}"
+    echo
+    echo "_merged ${date}_"
+    echo
+    git log --no-merges --format='- %s' "$h^1..$h" 2>/dev/null
+    echo
+done
