@@ -1,39 +1,53 @@
 # Spec: api-gateway
 
-Status: **not started** — no Node.js/Express code exists anywhere in the repo.
+Status: **built** — a Node.js/Express middleware exposes the COBOL core over HTTP.
 Last verified against code: 2026-10-10
 
 ## Objective (unchanged)
 
-The "Robust Pipe": a Node.js Express middleware that is the only interface between the public internet and the COBOL business logic. It secures, transports, and translates — it implements no business rules.
+The "Robust Pipe": the only interface between the public internet and COBOL. It secures, transports, and translates — it implements no business rules.
 
 ## As-Built (what exists today)
 
-- **Nothing.** There is no `middleware/`, no `package.json`, no `npm` scripts, no Express code, no JWT code. `find` for `package.json` returns nothing.
-- The COBOL side is **not** invoked as a per-request CLI with exit codes. The shipped binary (`cobol/bin/main_logic`) reads one pipe-delimited line from `input.txt` and writes one result line to `output.txt` (a file contract, not stdout + exit codes).
-- There is no Windows build script and no separate per-module executable; a single binary is produced by `build.sh`.
+- **Source:** `middleware/` (Node.js + Express). Transport in `middleware/src/invoker.js`, result/HTTP mapping in `middleware/src/result.js`, whitelist validation in `middleware/src/validation.js`, JWT in `middleware/src/auth.js`, routes in `middleware/src/app.js`, entry point `middleware/src/server.js`.
+- **Invocation model:** each request runs the binary as its own process in a unique temp working directory containing that request's `input.txt`; the result is read from `output.txt` and the directory removed (ADR-0001). Binary path from `COBOL_BIN`, defaulting to `../../cobol/bin/main_logic`.
+- **No business logic in JS**: the gateway only validates, invokes, and maps the COBOL result line.
 
-## To add (the entire module is missing)
+### Endpoints
 
-- [ ] Initialize the Node.js project (`middleware/`), Express server, `.env` for binary path / JWT secret / port.
-- [ ] A transport adapter that satisfies the **actual** COBOL contract: write `ACTION|p1|p2|p3|p4` to `input.txt`, run the binary, read `output.txt`. (The original spec assumed stdout + exit codes — reconcile this.)
-- [ ] JWT middleware; only `/auth/signup` and `/auth/login` public.
-- [ ] Whitelist regex validation of every parameter before it reaches COBOL (command/file-injection guard).
-- [ ] Map COBOL results to HTTP: parse the `ERROR|…` / `SUCCESS|…` lines into `{ "error": … }` / `{ "data": … }`.
-- [ ] Timeout handling so a hung COBOL process becomes a 504, not a hung server.
-- [ ] Tests: injection, missing/expired token, timeout, and result→HTTP contract (the original spec's testing strategy).
+| Method | Path | COBOL action | Auth |
+|---|---|---|---|
+| GET | `/health` | — | public |
+| POST | `/auth/signup` | `REQUEST_SIGNUP` | public |
+| POST | `/auth/verify` | `VERIFY_EMAIL` | public |
+| POST | `/auth/login` | `AUTH_LOGIN` (issues a JWT) | public |
+| GET | `/users` | `LIST_USERS` | bearer |
+| GET | `/users/:email` | `GET_USER` | bearer |
+| GET | `/wallet/balance` | `CHECK_BALANCE` | bearer |
+| POST | `/wallet/transfer` | `TRANSFER` | bearer |
+| GET | `/profile` | `GET_DASHBOARD` | bearer |
+| POST | `/profile/email/request` | `REQ_EMAIL_CHANGE` | bearer |
+| POST | `/profile/email/confirm` | `CONFIRM_EMAIL_CHANGE` | bearer |
+| GET | `/admin/role` | `CHECK_ROLE` | bearer |
+| POST | `/admin/role` | `CHANGE_ROLE` | bearer |
 
-## Depends on (blockers)
+### Result to HTTP mapping
 
-- The action names and output lines it must translate are those in `SPEC-wallet-core.md`, `SPEC-auth-identity.md`, `SPEC-user-profile.md`. Until `auth-identity`/`user-profile` are actually wired into the binary, the gateway can only front `CHECK_BALANCE`, `TRANSFER`, `GET_USER`, `LIST_USERS`.
-- A stable per-request invocation model: today the binary uses `input.txt`/`output.txt` fixed files, which is **not concurrency-safe**. A pipe/server mode (or per-request temp files) is a prerequisite for a real gateway.
+- COBOL `SUCCESS|…` → `200 { "data": [...] }`.
+- COBOL `ERROR|<code>|…` → status by code: `INVALID_CREDENTIALS` 401; `UNVERIFIED`/`FORBIDDEN`/`ROLE_DENIED` 403; `ACCOUNT_NOT_FOUND`/`TARGET_NOT_FOUND`/`NOT_FOUND` 404; `MISSING_ACTION`/`INVALID_ACTION`/`INVALID_CODE`/`WEAK_PASSWORD`/`EMAIL_EXISTS`/`INVALID_ROLE` 400; `INSUFFICIENT_FUNDS` 409; DB/`*_FAILED` 500. Body `{ "error": code, "detail": [...] }`.
+- Validation failure → `400 { "error": "INVALID_PARAMETER" }`; hung binary → `504 { "error": "GATEWAY_TIMEOUT" }`.
 
-## Conventions to conform to (as built)
+### Tests
 
-- No business logic in JS — pass-through only (unchanged intent).
-- Pipe-delimited COBOL output → JSON at the boundary.
+`middleware/test/gateway.test.js` (health, injection rejection, missing token, end-to-end signup→verify→login→authorized call, wrong-password 401) and `middleware/test/invoker.timeout.test.js` (hung process → timeout). Run by `ci.sh` step 12 via `npm --prefix middleware test`.
 
-## Open questions
+## Configuration
 
-- Fixed `input.txt`/`output.txt` cannot serve concurrent requests. Which model: per-request temp files, a long-running COBOL server, or a queue?
-- JWT expiry policy (24h vs 30d) — left open in the original spec.
+`middleware/.env` (see `middleware/.env.example`): `PORT`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `COBOL_BIN`.
+
+## Not yet done
+
+- JWT expiry/rotation policy and refresh tokens.
+- Rate limiting.
+- `LIST_USERS` returns the single-line `GROUP_CONCAT` form; larger datasets would need a row-returning bridge call (see `SPEC-wallet-core.md` note).
+- Parameter binding in COBOL is string interpolation, not prepared statements.

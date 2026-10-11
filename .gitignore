@@ -25,3 +25,6 @@ skills-lock.json
 Thumbs.db
 sql_debug.log
 tests/.dbenv
+
+# Node
+middleware/node_modules/
