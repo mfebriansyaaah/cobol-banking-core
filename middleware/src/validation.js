@@ -19,6 +19,20 @@ export class ValidationError extends Error {
   }
 }
 
+// The COBOL entry reads a single PIC X(500) line. Reject any request whose
+// composed `ACTION|p1|p2|p3|p4` line would exceed that record (CODING_STANDARDS 13).
+export const MAX_INPUT_LINE = 500;
+
+export function assertLineLength(action, params, max = MAX_INPUT_LINE) {
+  const line = [action, ...params].join('|');
+  if (line.length > max) {
+    const err = new ValidationError('input-line');
+    err.reason = 'TOO_LONG';
+    throw err;
+  }
+  return line;
+}
+
 /** Validate a value against a named pattern; throw ValidationError on failure. */
 export function check(value, pattern, field) {
   const v = value ?? '';

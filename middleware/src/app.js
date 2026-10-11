@@ -1,8 +1,9 @@
 import express from 'express';
 import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
-import { buildParams, ValidationError, PATTERNS } from './validation.js';
-import { requireAuth, signToken } from './auth.js';
+import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
+import { requireAuth, signToken, signRefresh, verifyRefresh } from './auth.js';
+import { rateLimiter } from './rateLimit.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT } = PATTERNS;
 
@@ -22,7 +23,7 @@ const ROUTES = [
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
-  ], onSuccess: (body, input) => ({ ...body, token: signToken({ email: input.email }) }) },
+  ], onSuccess: (body, input) => ({ ...body, token: signToken({ email: input.email }), refreshToken: signRefresh({ email: input.email }) }) },
 
   { method: 'get', path: '/users', action: 'LIST_USERS', fields: [] },
   { method: 'get', path: '/users/:email', action: 'GET_USER', fields: [
@@ -61,14 +62,26 @@ const ROUTES = [
 
 export function buildRouter() {
   const router = express.Router();
+  const authLimiter = rateLimiter();
 
   router.get('/health', (_req, res) => res.json({ data: ['OK'] }));
+
+  // Pure transport: exchange a refresh token for a new access token. No COBOL call.
+  router.post('/auth/refresh', authLimiter, (req, res) => {
+    try {
+      const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
+      return res.json({ data: ['REFRESHED'], token: signToken({ email: payload.email }) });
+    } catch {
+      return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+    }
+  });
 
   for (const route of ROUTES) {
     const handler = async (req, res, next) => {
       try {
         const input = { ...req.params, ...req.query, ...req.body };
         const params = buildParams(route, input);
+        assertLineLength(route.action, params);
         const raw = await invoke(route.action, params);
         const { status, body } = toHttp(raw);
         if (status === 200 && route.onSuccess) {
@@ -79,7 +92,10 @@ export function buildRouter() {
         return next(err);
       }
     };
-    const chain = route.public ? [handler] : [requireAuth, handler];
+    const chain = [];
+    if (route.path.startsWith('/auth')) chain.push(authLimiter);
+    if (!route.public) chain.push(requireAuth);
+    chain.push(handler);
     router[route.method](route.path, ...chain);
   }
 

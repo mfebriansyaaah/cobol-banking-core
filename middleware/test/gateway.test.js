@@ -57,3 +57,26 @@ test('wrong password maps to 401', async () => {
   assert.equal(res.status, 401);
   assert.equal(res.body.error, 'INVALID_CREDENTIALS');
 });
+
+test('refresh token yields a new access token', async () => {
+  const em = `gw_refresh_${Date.now()}@test.com`;
+  const signup = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Refresh User', dob: '1990-01-01' });
+  const [, code] = signup.body.data;
+  await request(app).post('/auth/verify').send({ email: em, code });
+
+  const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+  assert.ok(login.body.refreshToken);
+
+  const refresh = await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken });
+  assert.equal(refresh.status, 200);
+  assert.ok(refresh.body.token);
+
+  const users = await request(app).get('/users').set('Authorization', `Bearer ${refresh.body.token}`);
+  assert.equal(users.status, 200);
+
+  const bad = await request(app).post('/auth/refresh').send({ refreshToken: 'not-a-token' });
+  assert.equal(bad.status, 401);
+  assert.equal(bad.body.error, 'INVALID_REFRESH_TOKEN');
+});
