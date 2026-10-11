@@ -45,4 +45,5 @@ Manage balances and record every cent moving in or out, with absolute data integ
 ## Open questions
 
 - **Resolved** (ADR-free, chosen in Phase 1): transaction control is exposed as `SQL_BEGIN`/`SQL_COMMIT`/`SQL_ROLLBACK` verbs on the bridge, sharing a persistent connection for the transaction span.
-- Remaining scope: enforce balance/ledger reconciliation on read (`CHECK_BALANCE` could assert `accounts.balance == SUM(ledger)`), and move to server-side parameter binding instead of string interpolation.
+- Reconciliation is covered by the dedicated `RECONCILE` action (not by `CHECK_BALANCE`, which still reads `accounts.balance` directly).
+- Remaining scope: move to server-side parameter binding (prepared statements) instead of string interpolation.
