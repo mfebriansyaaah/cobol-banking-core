@@ -18,6 +18,7 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 | Method | Path | COBOL action | Auth |
 |---|---|---|---|
 | GET | `/health` | — | public |
+| POST | `/auth/refresh` | — (transport only) | public |
 | POST | `/auth/signup` | `REQUEST_SIGNUP` | public |
 | POST | `/auth/verify` | `VERIFY_EMAIL` | public |
 | POST | `/auth/login` | `AUTH_LOGIN` (issues a JWT) | public |
@@ -35,7 +36,13 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 
 - COBOL `SUCCESS|…` → `200 { "data": [...] }`.
 - COBOL `ERROR|<code>|…` → status by code: `INVALID_CREDENTIALS` 401; `UNVERIFIED`/`FORBIDDEN`/`ROLE_DENIED` 403; `ACCOUNT_NOT_FOUND`/`TARGET_NOT_FOUND`/`NOT_FOUND` 404; `MISSING_ACTION`/`INVALID_ACTION`/`INVALID_CODE`/`WEAK_PASSWORD`/`EMAIL_EXISTS`/`INVALID_ROLE` 400; `INSUFFICIENT_FUNDS` 409; DB/`*_FAILED` 500. Body `{ "error": code, "detail": [...] }`.
-- Validation failure → `400 { "error": "INVALID_PARAMETER" }`; hung binary → `504 { "error": "GATEWAY_TIMEOUT" }`.
+- Validation failure → `400 { "error": "INVALID_PARAMETER" }`; an input line longer than the COBOL record is rejected before invocation; a hung binary → `504 { "error": "GATEWAY_TIMEOUT" }`; a client over the auth rate limit → `429 { "error": "RATE_LIMITED" }`.
+
+### Auth and limits
+
+- Login returns a short-lived **access token** (`JWT_SECRET`/`JWT_EXPIRES_IN`, default 15m) and a **refresh token** (`REFRESH_SECRET`/`REFRESH_EXPIRES_IN`, default 7d); `POST /auth/refresh` exchanges a refresh token for a new access token.
+- `/auth/*` endpoints are rate limited (fixed window per client: `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX`).
+- The composed input line is capped at the COBOL record size (see `CODING_STANDARDS.md` rule 13).
 
 ### Tests
 
@@ -47,7 +54,6 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 
 ## Not yet done
 
-- JWT expiry/rotation policy and refresh tokens.
-- Rate limiting.
+- Refresh-token rotation/revocation (a refresh token is accepted until it expires; there is no server-side denylist).
 - `LIST_USERS` returns the single-line `GROUP_CONCAT` form; larger datasets would need a row-returning bridge call (see `SPEC-wallet-core.md` note).
 - Parameter binding in COBOL is string interpolation, not prepared statements.
