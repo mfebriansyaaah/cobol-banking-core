@@ -1,6 +1,6 @@
 # HISTORY.md - merged phases, their commits, and when
 
-Generated from git merge history on 2026-10-11T12:13:50Z.
+Generated from git merge history on 2026-10-11T14:11:15Z.
 Each phase is a merged pull request; the commits listed are that PR's own
 commits. Verify with `git log --merges` and `git log <merge>^1..<merge>`.
 
@@ -703,4 +703,21 @@ _merged 2026-10-11_
 - test: idempotent transfer suite; wire ci.sh step 14
 - feat(gateway): accept Idempotency-Key for transfers; map TRANSFER_IN_PROGRESS to 409
 - feat(wallet): make TRANSFER idempotent via an idempotency key and pending_transactions
+
+## #72 verifiable-documentation
+
+_merged 2026-10-11_
+
+- docs: record the idempotency decision (ADR-0003) and wire docs pointers
+- ci: verify the STATUS.md snapshot claims (status_check wired into ci.sh)
+- docs: add STATUS.md - detailed, verifiable snapshot of the current state
+- docs(schema): version the schema (v1.5.0) and record the cascade migration
+- docs: generate CHANGELOG (one row per merged PR, from git history)
+- docs(changelog): add a merge-history generator for CHANGELOG.md
+
+## #73 phase-history
+
+_merged 2026-10-11_
+
+- docs: add HISTORY.md - every merged phase with its commits and date
 
