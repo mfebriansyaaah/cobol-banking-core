@@ -18,7 +18,8 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 | Method | Path | COBOL action | Auth |
 |---|---|---|---|
 | GET | `/health` | — | public |
-| POST | `/auth/refresh` | — (transport only) | public |
+| POST | `/auth/refresh` | — (transport only; rotates the refresh token) | public |
+| POST | `/auth/logout` | — (transport only; revokes the refresh token) | public |
 | POST | `/auth/signup` | `REQUEST_SIGNUP` | public |
 | POST | `/auth/verify` | `VERIFY_EMAIL` | public |
 | POST | `/auth/login` | `AUTH_LOGIN` (issues a JWT) | public |
@@ -41,7 +42,7 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 
 ### Auth and limits
 
-- Login returns a short-lived **access token** (`JWT_SECRET`/`JWT_EXPIRES_IN`, default 15m) and a **refresh token** (`REFRESH_SECRET`/`REFRESH_EXPIRES_IN`, default 7d); `POST /auth/refresh` exchanges a refresh token for a new access token.
+- Login returns a short-lived **access token** (`JWT_SECRET`/`JWT_EXPIRES_IN`, default 15m) and a **refresh token** (`REFRESH_SECRET`/`REFRESH_EXPIRES_IN`, default 7d) carrying a `jti`. The `jti` is stored via the COBOL `STORE_SESSION` action; `POST /auth/refresh` checks it (`CHECK_SESSION`), **rotates** it (`REVOKE_SESSION` + new jti), and `POST /auth/logout` revokes it.
 - `/auth/*` endpoints are rate limited (fixed window per client: `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX`).
 - The composed input line is capped at the COBOL record size (see `CODING_STANDARDS.md` rule 13).
 

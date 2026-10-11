@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: 1.5.0
+-- Version: 1.6.0
 -- Note: versioned changes live in database/migrations/NNN_*.sql; scripts the
 --       bot may not have, see CHANGELOG.md and docs/STATUS.md.
 -- Changelog:
+--   v1.6.0 - refresh_sessions table (refresh-token revocation by jti)
 --   v1.5.0 - pending_transactions FKs ON DELETE CASCADE (idempotent transfers)
 --   v1.4.0 - pending_transactions table for transfer intents
 --   v1.3.0 - audit_trail + verification_logs used by the running core
@@ -128,6 +129,16 @@ CREATE TABLE IF NOT EXISTS pending_transactions (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email) ON DELETE CASCADE,
     CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 9. Tabel Refresh Sessions (JWT refresh-token revocation by jti)
+CREATE TABLE IF NOT EXISTS refresh_sessions (
+    jti VARCHAR(50) PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    revoked BOOLEAN NOT NULL DEFAULT FALSE,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Indexes

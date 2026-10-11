@@ -765,3 +765,14 @@ _merged 2026-10-12_
 - feat(auth): audit REQUEST_SIGNUP (SIGNUP row) inside the transaction
 - docs: sync HISTORY.md to post-merge state (#76)
 
+## #78 injection-mitigation
+
+_merged 2026-10-12_
+
+- docs: record injection mitigation and refresh STATUS counts
+- test: SQL injection mitigation suite; wire ci step 17
+- feat: reject SQL metacharacters in user_core and wallet_core; map INVALID_INPUT to 400
+- feat(auth): reject SQL metacharacters in parameters (INVALID_INPUT)
+- feat(gateway): reject SQL metacharacters in password and name shapes
+- docs: sync HISTORY.md to post-merge state (#77)
+

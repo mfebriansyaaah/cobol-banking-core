@@ -38,6 +38,9 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `AUTH_LOGIN` | email, password | 3-fail/15-min lockout; PBKDF2 verify w/ legacy SHA256 fallback + rehash; must be `VERIFIED` | `SUCCESS\|LOGIN_OK` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|UNVERIFIED` * `ERROR\|ACCOUNT_LOCKED` |
 | `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update + audit | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
+| `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
+| `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
+| `cobol/src/auth_core.cob` | `CHECK_SESSION` | jti | is the refresh token still valid | `SUCCESS\|SESSION_VALID` * `ERROR\|SESSION_REVOKED` |
 
 The routing contract lives in `AGENTS.md`; `ci.sh` verifies every routed
 action has a handler in its owning module.
@@ -46,7 +49,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (v1.5.0):
 `users` * `currencies` * `exchange_rates` * `accounts` * `ledger` *
-`verification_logs` * `audit_trail` * `pending_transactions`
+`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -68,11 +71,12 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_idempotent_transfer.sh` | 15 | replay-no-op, distinct keys, failure retry |
 | `tests/test_transfer_validity.sh` | 10 | positive-amount and same-currency rules |
 | `tests/test_injection.sh` | 9 | SQL metacharacters rejected (INVALID_INPUT) |
+| `tests/test_session.sh` | 5 | STORE/CHECK/REVOKE_SESSION lifecycle |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
 
-Shell suites total **137**; with the gateway suite **17** the full run is
-**154 assertions**, all green as of this snapshot.
+Shell suites total **142**; with the gateway suite **19** the full run is
+**161 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -80,7 +84,7 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/auth/login`, `/auth/refresh):
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile`, `/profile/email/request`,
-`/profile/email/confirm`, `/admin/role` (GET/POST).
+`/profile/email/confirm`, `/admin/role` (GET/POST), `/auth/logout` (revokes a refresh token).
 Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
 code (see `middleware/src/result.js`). Input-line cap 500 bytes; auth rate
 limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).

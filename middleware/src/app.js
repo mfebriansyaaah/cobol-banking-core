@@ -2,7 +2,7 @@ import express from 'express';
 import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
-import { requireAuth, signToken, signRefresh, verifyRefresh } from './auth.js';
+import { requireAuth, signToken, signRefresh, verifyRefresh, REFRESH_TTL_DAYS } from './auth.js';
 import { rateLimiter } from './rateLimit.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
@@ -23,7 +23,11 @@ const ROUTES = [
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
-  ], onSuccess: (body, input) => ({ ...body, token: signToken({ email: input.email }), refreshToken: signRefresh({ email: input.email }) }) },
+  ], onSuccess: async (body, input) => {
+    const issued = signRefresh({ email: input.email });
+    await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS)]);
+    return { ...body, token: signToken({ email: input.email }), refreshToken: issued.token };
+  } },
 
   { method: 'get', path: '/users', action: 'LIST_USERS', fields: [
     { name: 'limit', pattern: INT, required: false },
@@ -70,11 +74,34 @@ export function buildRouter() {
 
   router.get('/health', (_req, res) => res.json({ data: ['OK'] }));
 
-  // Pure transport: exchange a refresh token for a new access token. No COBOL call.
-  router.post('/auth/refresh', authLimiter, (req, res) => {
+  // Pure transport: exchange a refresh token for a new access token. The old
+  // refresh token is checked against the session store and rotated (revoked).
+  router.post('/auth/refresh', authLimiter, async (req, res) => {
     try {
       const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
-      return res.json({ data: ['REFRESHED'], token: signToken({ email: payload.email }) });
+      const check = await invoke('CHECK_SESSION', [payload.jti || '']);
+      if (check !== 'SUCCESS|SESSION_VALID') {
+        return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+      }
+      await invoke('REVOKE_SESSION', [payload.jti || '']);
+      const issued = signRefresh({ email: payload.email });
+      await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS)]);
+      return res.json({
+        data: ['REFRESHED'],
+        token: signToken({ email: payload.email }),
+        refreshToken: issued.token,
+      });
+    } catch {
+      return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+    }
+  });
+
+  // Revoke the presented refresh token (logout).
+  router.post('/auth/logout', authLimiter, async (req, res) => {
+    try {
+      const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
+      await invoke('REVOKE_SESSION', [payload.jti || '']);
+      return res.json({ data: ['LOGGED_OUT'] });
     } catch {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
     }
@@ -92,7 +119,7 @@ export function buildRouter() {
         const raw = await invoke(route.action, params);
         const { status, body } = toHttp(raw);
         if (status === 200 && route.onSuccess) {
-          return res.status(status).json(route.onSuccess(body, input));
+          return res.status(status).json(await route.onSuccess(body, input));
         }
         return res.status(status).json(body);
       } catch (err) {
