@@ -26,7 +26,7 @@ A banking core where **all business logic lives in COBOL**:
 | Module | Action | Params | Behavior | Outputs |
 |---|---|---|---|---|
 | `cobol/src/wallet_core.cob` | `CHECK_BALANCE` | email | ledger-backed? no: `accounts.balance` (`CONCAT(ROUND(...,2))`) | `<amount>` * `ERROR\|ACCOUNT_NOT_FOUND` |
-| `cobol/src/wallet_core.cob` | `TRANSFER` | sender, target, amount, **idempotency key** (opt) | one transaction: replay if key committed; `FOR UPDATE` lock; debit/credit; 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|INVALID_AMOUNT` * `ERROR\|CURRENCY_MISMATCH` |
+| `cobol/src/wallet_core.cob` | `TRANSFER` | sender, target, amount, **idempotency key** (opt) | one transaction: replay if key committed; `FOR UPDATE` lock; debit/credit; 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|INVALID_AMOUNT` * `ERROR\|CURRENCY_MISMATCH` * `ERROR\|DB_ERROR` |
 | `cobol/src/wallet_core.cob` | `RECONCILE` | - | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` |
 | `cobol/src/user_core.cob` | `GET_USER` | email | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` |
 | `cobol/src/user_core.cob` | `LIST_USERS` | limit(20), offset(0) | paged, rows via `SQL_EXECUTE_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` |
@@ -67,10 +67,11 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_login_lockout.sh` | 7 | 3-fail lockout, audit rows, clearing |
 | `tests/test_idempotent_transfer.sh` | 15 | replay-no-op, distinct keys, failure retry |
 | `tests/test_transfer_validity.sh` | 10 | positive-amount and same-currency rules |
+| `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
 
-Shell suites total **122**; with the gateway suite **16** the full run is
-**138 assertions**, all green as of this snapshot.
+Shell suites total **126**; with the gateway suite **16** the full run is
+**142 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
