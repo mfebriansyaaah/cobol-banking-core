@@ -14,16 +14,24 @@
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
+        01  WS-PARAM4-TRIMMED       PIC X(100) VALUE SPACES.
+        01  WS-P1-LEN               PIC 9(3) VALUE 1.
+        01  WS-P2-LEN               PIC 9(3) VALUE 1.
+        01  WS-P3-LEN               PIC 9(3) VALUE 1.
+        01  WS-P4-LEN               PIC 9(3) VALUE 1.
         01  WS-I                   PIC 9(3).
         01  WS-TRANSFER-STATE      PIC X(5) VALUE 'OK  '.
             88  WS-TRANSFER-OK       VALUE 'OK'.
             88  WS-TRANSFER-FAIL-SENDER VALUE 'SNDR'.
             88  WS-TRANSFER-FAIL-TARGET VALUE 'TGRT'.
             88  WS-TRANSFER-FAIL-INSUF VALUE 'INSUF'.
+            88  WS-TRANSFER-FAIL-IDEMP VALUE 'IDEM'.
         01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(17) VALUE SPACES.
+        01  WS-REF                 PIC X(50) VALUE SPACES.
+        01  WS-REFLEN              PIC 9(3) VALUE 1.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
@@ -52,6 +60,7 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
                     PERFORM TRANSFER-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "RECONCILE"
                     PERFORM RECONCILE-LOGIC
@@ -63,25 +72,42 @@
 
         TRIM-PARAM1.
             MOVE LS-PARAM1 TO WS-PARAM1-TRIMMED.
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1
-                IF WS-PARAM1-TRIMMED(WS-I:1) = SPACE
-                    MOVE SPACE TO WS-PARAM1-TRIMMED(WS-I:1)
+            MOVE 0 TO WS-P1-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P1-LEN > 0
+                IF WS-PARAM1-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P1-LEN
                 END-IF
             END-PERFORM.
 
         TRIM-PARAM2.
             MOVE LS-PARAM2 TO WS-PARAM2-TRIMMED.
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1
-                IF WS-PARAM2-TRIMMED(WS-I:1) = SPACE
-                    MOVE SPACE TO WS-PARAM2-TRIMMED(WS-I:1)
+            MOVE 0 TO WS-P2-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P2-LEN > 0
+                IF WS-PARAM2-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P2-LEN
                 END-IF
             END-PERFORM.
 
         TRIM-PARAM3.
             MOVE LS-PARAM3 TO WS-PARAM3-TRIMMED.
+            MOVE 0 TO WS-P3-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P3-LEN > 0
+                IF WS-PARAM3-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P3-LEN
+                END-IF
+            END-PERFORM.
+
+        TRIM-PARAM4.
+            MOVE LS-PARAM4 TO WS-PARAM4-TRIMMED.
             PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1
-                IF WS-PARAM3-TRIMMED(WS-I:1) = SPACE
-                    MOVE SPACE TO WS-PARAM3-TRIMMED(WS-I:1)
+                IF WS-PARAM4-TRIMMED(WS-I:1) = SPACE
+                    MOVE SPACE TO WS-PARAM4-TRIMMED(WS-I:1)
+                END-IF
+            END-PERFORM.
+            MOVE 0 TO WS-P4-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
+                IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P4-LEN
                 END-IF
             END-PERFORM.
 
@@ -126,20 +152,58 @@
             EXIT PARAGRAPH.
 
         TRANSFER-LOGIC.
-            SET WS-TRANSFER-OK TO TRUE.
-            MOVE FUNCTION CURRENT-DATE TO WS-NOW
-            MOVE SPACES TO WS-TXN-REF
-            STRING "TXN" WS-NOW(1:14) DELIMITED BY SIZE INTO WS-TXN-REF
-            END-STRING
+            SET WS-TRANSFER-OK TO TRUE
+            *> The idempotency key (param 4) doubles as the transaction reference.
+            IF LS-PARAM4 NOT = SPACES
+                MOVE WS-PARAM4-TRIMMED(1:WS-P4-LEN) TO WS-REF
+                MOVE WS-P4-LEN TO WS-REFLEN
+            ELSE
+                MOVE FUNCTION CURRENT-DATE TO WS-NOW
+                MOVE SPACES TO WS-TXN-REF
+                STRING "TXN" WS-NOW(1:14) DELIMITED BY SIZE INTO WS-TXN-REF
+                END-STRING
+                MOVE WS-TXN-REF TO WS-REF
+                MOVE 17 TO WS-REFLEN
+            END-IF
+            
+            CALL "SQL_BEGIN"
+            
+            *> Replay: a persisted reference means the transfer already committed.
+            IF LS-PARAM4 NOT = SPACES
+                MOVE SPACES TO WS-QUERY
+                STRING "SELECT 1 FROM pending_transactions WHERE txn_ref = '" WS-REF(1:WS-REFLEN) "' LIMIT 1" 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT NOT = "ERROR|NO_DATA"
+                    CALL "SQL_COMMIT"
+                    MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                
+                *> Record the intent; a duplicate key means another attempt is running.
+                MOVE SPACES TO WS-QUERY
+                STRING "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('" 
+                       WS-REF(1:WS-REFLEN) "', '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "', " 
+                       WS-PARAM3-TRIMMED(1:WS-P3-LEN) ", 'PENDING')" DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-IDEMP TO TRUE
+                END-IF
+            END-IF
             
             *> Lock the sender account row and read its id, user, balance and currency.
             MOVE SPACES TO WS-QUERY
             STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CONCAT(ROUND(a.balance,2)), CAST(a.currency_id AS CHAR) " 
                    "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                   WS-PARAM1-TRIMMED "' FOR UPDATE" DELIMITED BY SIZE INTO WS-QUERY
+                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' FOR UPDATE" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
-            CALL "SQL_BEGIN"
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
             CALL "SQL_EXECUTE"
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
@@ -157,7 +221,7 @@
                 MOVE SPACES TO WS-QUERY
                 STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR) " 
                        "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                       WS-PARAM2-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY
+                       WS-PARAM2-TRIMMED(1:WS-P2-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 
                 CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -218,7 +282,7 @@
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-QUERY
                 STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES ('" 
-                       WS-TXN-REF "', " WS-SENDER-ACC ", " WS-PARAM3-TRIMMED ", 'DEBIT', " WS-SENDER-CUR ", 'Transfer out')" 
+                       WS-REF(1:WS-REFLEN) "', " WS-SENDER-ACC ", " WS-PARAM3-TRIMMED ", 'DEBIT', " WS-SENDER-CUR ", 'Transfer out')" 
                        DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 
@@ -234,7 +298,7 @@
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-QUERY
                 STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES ('" 
-                       WS-TXN-REF "', " WS-TARGET-ACC ", " WS-PARAM3-TRIMMED ", 'CREDIT', " WS-TARGET-CUR ", 'Transfer in')" 
+                       WS-REF(1:WS-REFLEN) "', " WS-TARGET-ACC ", " WS-PARAM3-TRIMMED ", 'CREDIT', " WS-TARGET-CUR ", 'Transfer in')" 
                        DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 
@@ -264,19 +328,37 @@
                 END-IF
             END-IF
             
+            *> Mark the intent committed (the reference only persists on success).
+            IF WS-TRANSFER-OK AND LS-PARAM4 NOT = SPACES
+                MOVE SPACES TO WS-QUERY
+                STRING "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = '" 
+                       WS-REF(1:WS-REFLEN) "'" DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                END-IF
+            END-IF
+            
             *> Commit or roll back the whole movement.
             IF WS-TRANSFER-OK
                 CALL "SQL_COMMIT"
                 MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK"
-                IF WS-TRANSFER-FAIL-SENDER
-                    MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                IF WS-TRANSFER-FAIL-IDEMP
+                    MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
                 ELSE
-                    IF WS-TRANSFER-FAIL-TARGET
-                        MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    IF WS-TRANSFER-FAIL-SENDER
+                        MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                     ELSE
-                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                        IF WS-TRANSFER-FAIL-TARGET
+                            MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                        ELSE
+                            MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                        END-IF
                     END-IF
                 END-IF
             END-IF.

@@ -5,7 +5,7 @@ import { buildParams, ValidationError, PATTERNS, assertLineLength } from './vali
 import { requireAuth, signToken, signRefresh, verifyRefresh } from './auth.js';
 import { rateLimiter } from './rateLimit.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them.
@@ -39,6 +39,7 @@ const ROUTES = [
     { name: 'from', pattern: EMAIL, required: true },
     { name: 'to', pattern: EMAIL, required: true },
     { name: 'amount', pattern: AMOUNT, required: true },
+    { name: 'idempotencyKey', pattern: KEY, required: false },
   ] },
   { method: 'get', path: '/profile', action: 'GET_DASHBOARD', fields: [
     { name: 'email', pattern: EMAIL, required: true },
@@ -83,6 +84,9 @@ export function buildRouter() {
     const handler = async (req, res, next) => {
       try {
         const input = { ...req.params, ...req.query, ...req.body };
+        if (req.headers['idempotency-key']) {
+          input.idempotencyKey = req.headers['idempotency-key'];
+        }
         const params = buildParams(route, input);
         assertLineLength(route.action, params);
         const raw = await invoke(route.action, params);
