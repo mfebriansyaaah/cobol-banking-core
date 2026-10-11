@@ -36,11 +36,16 @@
         01  WS-I                    PIC 9(3).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
-        01  F-QUOTE                 PIC X VALUE "'".
-        01  F-DQUOTE                PIC X VALUE '"'.
-        01  F-BSLASH                PIC X VALUE "\".
-        01  F-SEMI                  PIC X VALUE ";".
-        01  F-TICK                  PIC X VALUE "`".
+        01  WS-P1-ESC               PIC X(256) VALUE SPACES.
+        01  WS-P2-ESC               PIC X(256) VALUE SPACES.
+        01  WS-P3-ESC               PIC X(256) VALUE SPACES.
+        01  WS-P4-ESC               PIC X(256) VALUE SPACES.
+        01  WS-P1-ELEN              PIC 9(3) VALUE 1.
+        01  WS-P2-ELEN              PIC 9(3) VALUE 1.
+        01  WS-P3-ELEN              PIC 9(3) VALUE 1.
+        01  WS-P4-ELEN              PIC 9(3) VALUE 1.
+        01  F-NL                    PIC X VALUE X"0A".
+        01  F-CR                    PIC X VALUE X"0D".
 
         LINKAGE SECTION.
         01  LS-CMD-ACTION          PIC X(30).
@@ -53,6 +58,11 @@
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
+            PERFORM TRIM-PARAM1
+            PERFORM TRIM-PARAM2
+            PERFORM TRIM-PARAM3
+            PERFORM TRIM-PARAM4
+            PERFORM ESCAPE-PARAMS
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -60,38 +70,20 @@
             END-IF
             EVALUATE TRUE
                 WHEN LS-CMD-ACTION(1:10) = "AUTH_LOGIN"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
                     PERFORM LOGIN-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "REQUEST_SIGNUP"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
                     PERFORM SIGNUP-LOGIC
                 WHEN LS-CMD-ACTION(1:12) = "VERIFY_EMAIL"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
                     PERFORM VERIFY-LOGIC
                 WHEN LS-CMD-ACTION(1:10) = "CHECK_ROLE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
                     PERFORM CHECK-ROLE-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "CHANGE_ROLE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM CHANGE-ROLE-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "STORE_SESSION"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM STORE-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "REVOKE_SESSION"
-                    PERFORM TRIM-PARAM1
                     PERFORM REVOKE-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "CHECK_SESSION"
-                    PERFORM TRIM-PARAM1
                     PERFORM CHECK-SESSION-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
@@ -100,7 +92,8 @@
             GOBACK.
 
         VALIDATE-ALL.
-            *> No SQL metacharacters may reach a query string.
+            *> Only protocol-breaking characters are rejected here; SQL values
+            *> are escaped via ESCAPE-PARAMS.
             MOVE 0 TO WS-BAD
             MOVE LS-PARAM1 TO WS-CHECK
             PERFORM VALIDATE-INPUT
@@ -113,11 +106,51 @@
             EXIT PARAGRAPH.
 
         VALIDATE-INPUT.
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-QUOTE
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-DQUOTE
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-BSLASH
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-SEMI
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-TICK.
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-NL
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-CR.
+            EXIT PARAGRAPH.
+
+        ESCAPE-PARAMS.
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM1-TRIMMED BY REFERENCE WS-P1-ESC BY VALUE 256
+            MOVE 0 TO WS-P1-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P1-ELEN > 0
+                IF WS-P1-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P1-ELEN
+                END-IF
+            END-PERFORM
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM2-TRIMMED BY REFERENCE WS-P2-ESC BY VALUE 256
+            MOVE 0 TO WS-P2-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P2-ELEN > 0
+                IF WS-P2-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P2-ELEN
+                END-IF
+            END-PERFORM
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-P3-ESC BY VALUE 256
+            MOVE 0 TO WS-P3-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P3-ELEN > 0
+                IF WS-P3-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P3-ELEN
+                END-IF
+            END-PERFORM
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM4-TRIMMED BY REFERENCE WS-P4-ESC BY VALUE 256
+            MOVE 0 TO WS-P4-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P4-ELEN > 0
+                IF WS-P4-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P4-ELEN
+                END-IF
+            END-PERFORM
+            IF WS-P1-ELEN = 0
+                MOVE 1 TO WS-P1-ELEN
+            END-IF
+            IF WS-P2-ELEN = 0
+                MOVE 1 TO WS-P2-ELEN
+            END-IF
+            IF WS-P3-ELEN = 0
+                MOVE 1 TO WS-P3-ELEN
+            END-IF
+            IF WS-P4-ELEN = 0
+                MOVE 1 TO WS-P4-ELEN
+            END-IF.
             EXIT PARAGRAPH.
 
         TRIM-PARAM1.
@@ -171,7 +204,7 @@
         GET-USER-ID.
             *> WS-USER-ID / WS-ID-LEN for the user named by param 1's email.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -204,7 +237,7 @@
             *> 1) Does the account exist, and what is its status?
             MOVE SPACES TO WS-QUERY
             STRING "SELECT CAST(id AS CHAR), status FROM users WHERE email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
+                   WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -250,7 +283,7 @@
             *>    (PBKDF2, with a legacy SHA256 fallback).
             MOVE SPACES TO WS-QUERY
             STRING "SELECT password_hash FROM users WHERE email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
+                   WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -284,7 +317,7 @@
                 PERFORM COMPUTE-HASH-LEN
                 MOVE SPACES TO WS-QUERY
                 STRING "UPDATE users SET password_hash = '" WS-HASH(1:WS-HLEN) "' WHERE email = '" 
-                       WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
+                       WS-P1-ESC(1:WS-P1-ELEN) "'" DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
                 CALL "SQL_EXECUTE"
@@ -303,7 +336,7 @@
             SET STEP-OK TO TRUE
             *> Password complexity: at least 8 characters.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 WHERE CHAR_LENGTH('" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "') >= 8" 
+            STRING "SELECT 1 WHERE CHAR_LENGTH('" WS-P2-ESC(1:WS-P2-ELEN) "') >= 8" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -318,7 +351,7 @@
             
             *> Email must be unique.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+            STRING "SELECT 1 FROM users WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -344,8 +377,8 @@
             
             MOVE SPACES TO WS-QUERY
             STRING "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', '" WS-HASH(1:WS-HLEN) "', '" 
-                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) "', '" WS-PARAM4-TRIMMED(1:WS-P4-LEN) "', 'UNVERIFIED', 'USER')" 
+                   WS-P1-ESC(1:WS-P1-ELEN) "', '" WS-HASH(1:WS-HLEN) "', '" 
+                   WS-P3-ESC(1:WS-P3-ELEN) "', '" WS-P4-ESC(1:WS-P4-ELEN) "', 'UNVERIFIED', 'USER')" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -360,7 +393,7 @@
             IF STEP-OK
                 MOVE SPACES TO WS-QUERY
                 STRING "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES ('" 
-                       WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', '" WS-CODE(1:6) "', 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" 
+                       WS-P1-ESC(1:WS-P1-ELEN) "', '" WS-CODE(1:6) "', 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" 
                        DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 
@@ -402,8 +435,8 @@
         VERIFY-LOGIC.
             *> Code must match, be unused, unexpired, for a SIGNUP.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM verification_logs WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) 
-                   "' AND code = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' AND purpose = 'SIGNUP' AND is_used = 0 AND expires_at > NOW() LIMIT 1" 
+            STRING "SELECT 1 FROM verification_logs WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) 
+                   "' AND code = '" WS-P2-ESC(1:WS-P2-ELEN) "' AND purpose = 'SIGNUP' AND is_used = 0 AND expires_at > NOW() LIMIT 1" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -420,7 +453,7 @@
             CALL "SQL_BEGIN"
             
             MOVE SPACES TO WS-QUERY
-            STRING "UPDATE users SET status = 'VERIFIED' WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" 
+            STRING "UPDATE users SET status = 'VERIFIED' WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "'" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -434,8 +467,8 @@
             
             IF STEP-OK
                 MOVE SPACES TO WS-QUERY
-                STRING "UPDATE verification_logs SET is_used = 1 WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) 
-                       "' AND code = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' AND purpose = 'SIGNUP'" 
+                STRING "UPDATE verification_logs SET is_used = 1 WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) 
+                       "' AND code = '" WS-P2-ESC(1:WS-P2-ELEN) "' AND purpose = 'SIGNUP'" 
                        DELIMITED BY SIZE INTO WS-QUERY
                 END-STRING
                 
@@ -475,7 +508,7 @@
         CHECK-ROLE-LOGIC.
             *> Does this user hold the given role?
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT role FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+            STRING "SELECT role FROM users WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -489,7 +522,7 @@
             END-IF
             MOVE WS-RESULT TO WS-STATUS
             
-            IF WS-STATUS(1:WS-P2-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+            IF WS-STATUS(1:WS-P2-LEN) = WS-P2-ESC(1:WS-P2-ELEN)
                 MOVE "SUCCESS|ROLE_OK" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "ERROR|ROLE_DENIED" TO LS-OUTPUT-BUFFER
@@ -499,7 +532,7 @@
         CHANGE-ROLE-LOGIC.
             *> Only a SUPER_ADMIN (the actor, p3) may change roles.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT role FROM users WHERE email = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' LIMIT 1" 
+            STRING "SELECT role FROM users WHERE email = '" WS-P3-ESC(1:WS-P3-ELEN) "' LIMIT 1" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -514,7 +547,7 @@
             
             *> The new role must be one of the known roles.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 WHERE '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' IN ('USER','MANAGER','SUPER_ADMIN')" 
+            STRING "SELECT 1 WHERE '" WS-P2-ESC(1:WS-P2-ELEN) "' IN ('USER','MANAGER','SUPER_ADMIN')" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -529,7 +562,7 @@
             
             *> The target user must exist; capture its id for the audit row.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
+            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -556,8 +589,8 @@
             CALL "SQL_BEGIN"
             
             MOVE SPACES TO WS-QUERY
-            STRING "UPDATE users SET role = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' WHERE email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
+            STRING "UPDATE users SET role = '" WS-P2-ESC(1:WS-P2-ELEN) "' WHERE email = '" 
+                   WS-P1-ESC(1:WS-P1-ELEN) "'" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -597,8 +630,8 @@
             *> p1 = jti, p2 = email, p3 = lifetime in days.
             MOVE SPACES TO WS-QUERY
             STRING "INSERT INTO refresh_sessions (jti, email, expires_at) VALUES ('" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "', DATE_ADD(NOW(), INTERVAL " 
-                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY))" DELIMITED BY SIZE INTO WS-QUERY
+                   WS-P1-ESC(1:WS-P1-ELEN) "', '" WS-P2-ESC(1:WS-P2-ELEN) "', DATE_ADD(NOW(), INTERVAL " 
+                   WS-P3-ESC(1:WS-P3-ELEN) " DAY))" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
             CALL "SQL_EXECUTE"
@@ -613,7 +646,7 @@
         REVOKE-SESSION-LOGIC.
             *> p1 = jti.
             MOVE SPACES TO WS-QUERY
-            STRING "UPDATE refresh_sessions SET revoked = 1 WHERE jti = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" 
+            STRING "UPDATE refresh_sessions SET revoked = 1 WHERE jti = '" WS-P1-ESC(1:WS-P1-ELEN) "'" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -629,7 +662,7 @@
         CHECK-SESSION-LOGIC.
             *> p1 = jti. Valid only if present, unrevoked and unexpired.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM refresh_sessions WHERE jti = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) 
+            STRING "SELECT 1 FROM refresh_sessions WHERE jti = '" WS-P1-ESC(1:WS-P1-ELEN) 
                    "' AND revoked = 0 AND expires_at > NOW() LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
