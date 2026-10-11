@@ -55,5 +55,4 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 ## Not yet done
 
 - Refresh-token rotation/revocation (a refresh token is accepted until it expires; there is no server-side denylist).
-- `LIST_USERS` returns the single-line `GROUP_CONCAT` form; larger datasets would need a row-returning bridge call (see `SPEC-wallet-core.md` note).
 - Parameter binding in COBOL is string interpolation, not prepared statements.

@@ -38,4 +38,4 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 ## Open questions
 
 - Should email-change codes expire sooner than signup codes?
-- Should `LIST_USERS` page instead of concatenating into one line?
+- Now that `LIST_USERS` is paged via the multi-row bridge call, should a future version return a structured page (total count plus items) instead of one delimited line?
