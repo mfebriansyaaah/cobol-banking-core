@@ -732,3 +732,14 @@ _merged 2026-10-11_
 - docs: remove CHANGELOG.md and its generator (superseded by HISTORY.md)
 - docs(history): add a generator that rebuilds HISTORY.md from git merges
 
+## #75 transfer-validity
+
+_merged 2026-10-11_
+
+- docs: record transfer validity rules (positive amount, same currency) in SPEC and STATUS
+- test: transfer validity suite (positive amount, same currency); wire ci.sh step 15
+- feat(gateway): map INVALID_AMOUNT/CURRENCY_MISMATCH to 400 and require a positive amount
+- feat(wallet): reject cross-currency transfers (CURRENCY_MISMATCH)
+- feat(wallet): reject non-positive transfer amounts (INVALID_AMOUNT)
+- docs: sync HISTORY.md to post-merge state (#74)
+
