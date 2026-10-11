@@ -57,4 +57,4 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 ## Not yet done
 
 - Refresh-token rotation/revocation (a refresh token is accepted until it expires; there is no server-side denylist).
-- Values are escaped (COBOL `SQL_ESCAPE` -> `mysql_real_escape_string`) before being embedded; native prepared statements are still outstanding.
+- The bridge supports prepared statements (`SQL_PREPARE_EXEC`, string parameters) and value escaping (`SQL_ESCAPE`); the migration of every query to prepared statements is incremental.

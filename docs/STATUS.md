@@ -72,11 +72,12 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_transfer_validity.sh` | 10 | positive-amount and same-currency rules |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 5 | STORE/CHECK/REVOKE_SESSION lifecycle |
+| `tests/test_prepared.sh` | 6 | signup/login through prepared statements |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
 
-Shell suites total **142**; with the gateway suite **19** the full run is
-**161 assertions**, all green as of this snapshot.
+Shell suites total **148**; with the gateway suite **19** the full run is
+**167 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -99,6 +100,6 @@ limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).
 
 - Password KDF is PBKDF2-SHA256 (100k iters); legacy `SHA256_` fallback stays until all accounts rehash.
 - Transfers must be positive and within one currency; cross-currency is rejected (`CURRENCY_MISMATCH`) until an FX path exists.
-- SQL values are escaped via the bridge (`SQL_ESCAPE` -> `mysql_real_escape_string`) in `auth_core`; `user_core`/`wallet_core` remain whitelist-only. Native prepared statements are still outstanding.
+- `REQUEST_SIGNUP`/`AUTH_LOGIN` use prepared statements (bridge `SQL_PREPARE_EXEC`); other queries escape values (`SQL_ESCAPE`). Migration of all queries to prepared statements is incremental.
 - Signup/verify actions are not audited yet; refresh token lacks rotation/denylist.
 - One-line COBOL result bounds large lists; process-per-request limits throughput (revisit ADR-0001 at scale).
