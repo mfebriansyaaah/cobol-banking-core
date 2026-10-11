@@ -48,6 +48,11 @@ test('signup -> verify -> login -> authorized call', async () => {
     .set('Authorization', `Bearer ${login.body.token}`);
   assert.equal(users.status, 200);
   assert.ok(JSON.stringify(users.body.data).includes('LIST_DONE'));
+
+  const paged = await request(app)
+    .get('/users?limit=1&offset=0')
+    .set('Authorization', `Bearer ${login.body.token}`);
+  assert.equal(paged.status, 200);
 });
 
 test('wrong password maps to 401', async () => {

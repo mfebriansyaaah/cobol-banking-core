@@ -22,9 +22,13 @@
         01  WS-EMAIL                PIC X(100) VALUE SPACES.
         01  WS-NAME                 PIC X(100) VALUE SPACES.
         01  WS-BAL                  PIC X(30) VALUE SPACES.
+        01  WS-ACCOUNTS             PIC X(300) VALUE SPACES.
+        01  WS-LIMIT                PIC X(10) VALUE SPACES.
+        01  WS-OFFSET               PIC X(10) VALUE SPACES.
         01  WS-ELEN                 PIC 9(3) VALUE 1.
         01  WS-NLEN                 PIC 9(3) VALUE 1.
         01  WS-BLEN                 PIC 9(3) VALUE 1.
+        01  WS-ALEN                 PIC 9(3) VALUE 1.
         01  WS-RLEN                 PIC 9(3) VALUE 1.
         01  WS-CODE                 PIC X(7) VALUE SPACES.
         01  WS-USER-ID              PIC X(20) VALUE SPACES.
@@ -50,6 +54,8 @@
                     PERFORM TRIM-PARAM1
                     PERFORM ACTION-GET-USER
                 WHEN LS-CMD-ACTION(1:10) = "LIST_USERS"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
                     PERFORM ACTION-LIST-USERS
                 WHEN LS-CMD-ACTION(1:13) = "GET_DASHBOARD"
                     PERFORM TRIM-PARAM1
@@ -136,6 +142,12 @@
                     MOVE WS-I TO WS-BLEN
                 END-IF
             END-PERFORM
+            MOVE 0 TO WS-ALEN
+            PERFORM VARYING WS-I FROM 300 BY -1 UNTIL WS-I < 1 OR WS-ALEN > 0
+                IF WS-ACCOUNTS(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ALEN
+                END-IF
+            END-PERFORM
             MOVE 0 TO WS-RLEN
             PERFORM VARYING WS-I FROM 512 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
                 IF WS-RESULT(WS-I:1) NOT = SPACE
@@ -150,6 +162,9 @@
             END-IF
             IF WS-BLEN = 0
                 MOVE 1 TO WS-BLEN
+            END-IF
+            IF WS-ALEN = 0
+                MOVE 1 TO WS-ALEN
             END-IF
             IF WS-RLEN = 0
                 MOVE 1 TO WS-RLEN
@@ -174,9 +189,18 @@
             EXIT PARAGRAPH.
 
         ACTION-LIST-USERS.
-            *> Single-line list via GROUP_CONCAT (bridge returns one row).
+            *> Paged, single-line list via GROUP_CONCAT (bridge returns one row).
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-PARAM1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT SUBSTRING(GROUP_CONCAT(CONCAT(id, ':', email) ORDER BY id SEPARATOR ';'), 1, 400) FROM users" 
+            STRING "SELECT SUBSTRING(GROUP_CONCAT(CONCAT(id, ':', email) ORDER BY id SEPARATOR ';'), 1, 400) " 
+                   "FROM (SELECT id, email FROM users ORDER BY id LIMIT " WS-LIMIT " OFFSET " WS-OFFSET ") t" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -191,10 +215,12 @@
             EXIT PARAGRAPH.
 
         ACTION-DASHBOARD.
+            *> All of the user's accounts, as iso:balance pairs.
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT u.email, u.full_name, CONCAT(ROUND(a.balance,2)) " 
-                   "FROM users u JOIN accounts a ON a.user_id = u.id WHERE u.email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1"
+            STRING "SELECT u.email, u.full_name, " 
+                   "GROUP_CONCAT(CONCAT(c.iso_code, ':', ROUND(a.balance,2)) ORDER BY a.account_id SEPARATOR ';') " 
+                   "FROM users u JOIN accounts a ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id " 
+                   "WHERE u.email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' GROUP BY u.id" 
                    DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
@@ -208,12 +234,12 @@
             END-IF
             
             UNSTRING WS-RESULT DELIMITED BY "|"
-                INTO WS-EMAIL WS-NAME WS-BAL
+                INTO WS-EMAIL WS-NAME WS-ACCOUNTS
             END-UNSTRING
             
             PERFORM TRIM-OUTPUT-VALUES
             MOVE SPACES TO LS-OUTPUT-BUFFER
-            STRING "SUCCESS|DASHBOARD|" WS-BAL(1:WS-BLEN) "|" WS-EMAIL(1:WS-ELEN) "|" WS-NAME(1:WS-NLEN) 
+            STRING "SUCCESS|DASHBOARD|" WS-EMAIL(1:WS-ELEN) "|" WS-NAME(1:WS-NLEN) "|" WS-ACCOUNTS(1:WS-ALEN) 
                    DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
             END-STRING.
             EXIT PARAGRAPH.

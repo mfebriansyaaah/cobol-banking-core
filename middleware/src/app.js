@@ -5,7 +5,7 @@ import { buildParams, ValidationError, PATTERNS, assertLineLength } from './vali
 import { requireAuth, signToken, signRefresh, verifyRefresh } from './auth.js';
 import { rateLimiter } from './rateLimit.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them.
@@ -25,7 +25,10 @@ const ROUTES = [
     { name: 'password', pattern: PASSWORD, required: true },
   ], onSuccess: (body, input) => ({ ...body, token: signToken({ email: input.email }), refreshToken: signRefresh({ email: input.email }) }) },
 
-  { method: 'get', path: '/users', action: 'LIST_USERS', fields: [] },
+  { method: 'get', path: '/users', action: 'LIST_USERS', fields: [
+    { name: 'limit', pattern: INT, required: false },
+    { name: 'offset', pattern: INT, required: false },
+  ] },
   { method: 'get', path: '/users/:email', action: 'GET_USER', fields: [
     { name: 'email', pattern: EMAIL, required: true },
   ] },
