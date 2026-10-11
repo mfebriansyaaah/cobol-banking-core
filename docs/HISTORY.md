@@ -743,3 +743,15 @@ _merged 2026-10-11_
 - feat(wallet): reject non-positive transfer amounts (INVALID_AMOUNT)
 - docs: sync HISTORY.md to post-merge state (#74)
 
+## #76 deterministic-lock-order
+
+_merged 2026-10-12_
+
+- docs: record deterministic lock order, DB_ERROR, and the concurrency suite
+- test: concurrent opposing transfers suite; map DB_ERROR to 500; wire ci step 16
+- feat(wallet): lock both accounts with one ordered statement (avoids two-lock ER_CHECKREAD)
+- feat(wallet): report DB failures as DB_ERROR instead of ACCOUNT_NOT_FOUND
+- feat(wallet): lock both accounts in ascending id order (deadlock-free)
+- feat(bridge): include the MySQL error number when a query fails
+- docs: sync HISTORY.md to post-merge state (#75)
+
