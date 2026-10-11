@@ -18,14 +18,14 @@ test('a line over the COBOL record is rejected', () => {
   );
 });
 
-test('SQL metacharacters are rejected in passwords and names', async () => {
+test('COBOL-escaped fields accept metacharacters but not the pipe/newline', async () => {
   const { check, PATTERNS } = await import('../src/validation.js');
-  for (const bad of ["o'brien", 'a\\b', 'x"; DROP', 'tick`']) {
-    assert.throws(() => check(bad, PATTERNS.PASSWORD, 'password'), ValidationError);
+  // password/name are escaped by COBOL, so metacharacters are allowed...
+  for (const ok of ["o'brien", 'a\\b', 'x; y']) {
+    assert.doesNotThrow(() => check(ok, PATTERNS.PASSWORD, 'password'));
   }
-  for (const bad of ["O'Brien", 'a;b']) {
-    assert.throws(() => check(bad, PATTERNS.NAME, 'name'), ValidationError);
-  }
-  assert.doesNotThrow(() => check('S3cret-pass_OK', PATTERNS.PASSWORD, 'password'));
-  assert.doesNotThrow(() => check('Budi Santoso', PATTERNS.NAME, 'name'));
+  assert.doesNotThrow(() => check("O'Brien", PATTERNS.NAME, 'name'));
+  // ...but the input-line format characters are always rejected.
+  assert.throws(() => check('a|b', PATTERNS.PASSWORD, 'password'), ValidationError);
+  assert.throws(() => check('a\nb', PATTERNS.PASSWORD, 'password'), ValidationError);
 });
