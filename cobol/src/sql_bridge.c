@@ -142,8 +142,8 @@ void SQL_ESCAPE(char *in, char *out, int outmax) {
     if (!in) return;
 
     char trimmed[1024];
-    strncpy(trimmed, in, 1023);
-    trimmed[1023] = '\0';
+    strncpy(trimmed, in, 100);
+    trimmed[100] = '\0';
     trim_trailing_spaces(trimmed);
     size_t len = strlen(trimmed);
     if (len == 0) return;
@@ -289,4 +289,125 @@ void SQL_ROLLBACK() {
     }
     mysql_close(G_CONN);
     G_CONN = NULL;
+}
+
+/* --- Prepared statement execution ---------------------------------------
+ * Prepare a template with '?' placeholders and bind up to six string
+ * parameters (values are sent to the server, never concatenated). Single-row
+ * results are concatenated like SQL_EXECUTE.
+ * ------------------------------------------------------------------------ */
+
+void SQL_PREPARE_EXEC(char *sql, int nparams,
+                      char *p1, char *p2, char *p3, char *p4, char *p5, char *p6) {
+    if (!sql) return;
+
+    char query[1024];
+    strncpy(query, sql, 255);
+    query[255] = '\0';
+    trim_trailing_spaces(query);
+    if (query[0] == '\0') return;
+
+    MYSQL *conn = G_CONN;
+    int own_conn = 0;
+    if (conn == NULL) {
+        conn = bridge_connect();
+        own_conn = 1;
+        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023); return; }
+    }
+
+    MYSQL_STMT *st = mysql_stmt_init(conn);
+    if (st == NULL) {
+        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 1023);
+        if (own_conn) mysql_close(conn);
+        return;
+    }
+    if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
+        snprintf(G_RESULT, 1023, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
+        mysql_stmt_close(st);
+        if (own_conn) mysql_close(conn);
+        return;
+    }
+
+    char *src[6] = { p1, p2, p3, p4, p5, p6 };
+    static char bufs[6][512];
+    static unsigned long lens[6];
+    MYSQL_BIND bind[6];
+    memset(bind, 0, sizeof(bind));
+
+    int n = nparams;
+    if (n < 0) n = 0;
+    if (n > 6) n = 6;
+
+    for (int i = 0; i < n; i++) {
+        memset(bufs[i], 0, sizeof(bufs[i]));
+        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
+        trim_trailing_spaces(bufs[i]);
+        lens[i] = (unsigned long)strlen(bufs[i]);
+        bind[i].buffer_type = MYSQL_TYPE_STRING;
+        bind[i].buffer = bufs[i];
+        bind[i].buffer_length = 511;
+        bind[i].length = &lens[i];
+    }
+    if (n > 0 && mysql_stmt_bind_param(st, bind)) {
+        strncpy(G_RESULT, "ERROR|BIND_FAILED", 1023);
+        mysql_stmt_close(st);
+        if (own_conn) mysql_close(conn);
+        return;
+    }
+
+    if (mysql_stmt_execute(st)) {
+        snprintf(G_RESULT, 1023, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
+        mysql_stmt_close(st);
+        if (own_conn) mysql_close(conn);
+        return;
+    }
+
+    MYSQL_RES *meta = mysql_stmt_result_metadata(st);
+    if (meta == NULL) {
+        long affected = (long)mysql_stmt_affected_rows(st);
+        snprintf(G_RESULT, 1023, "SUCCESS|AFFECTED_%ld", affected);
+    } else {
+        unsigned int nf = mysql_num_fields(meta);
+        MYSQL_FIELD *fields = mysql_fetch_fields(meta);
+        static char rbuf[32][512];
+        static unsigned long rlen[32];
+        MYSQL_BIND rb[32];
+        memset(rb, 0, sizeof(rb));
+        unsigned int cols = nf < 32 ? nf : 32;
+        for (unsigned int i = 0; i < cols; i++) {
+            memset(rbuf[i], 0, sizeof(rbuf[i]));
+            rlen[i] = 0;
+            rb[i].buffer_type = MYSQL_TYPE_STRING;
+            rb[i].buffer = rbuf[i];
+            rb[i].buffer_length = 511;
+            rb[i].length = &rlen[i];
+        }
+        if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
+            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 1023);
+            mysql_free_result(meta);
+            mysql_stmt_close(st);
+            if (own_conn) mysql_close(conn);
+            return;
+        }
+        int rc = mysql_stmt_fetch(st);
+        if (rc == 0 || rc == MYSQL_DATA_TRUNCATED) {
+            G_RESULT[0] = '\0';
+            for (unsigned int i = 0; i < cols; i++) {
+                char temp[512];
+                unsigned long l = rlen[i] < 511 ? rlen[i] : 511;
+                memcpy(temp, rbuf[i], l);
+                temp[l] = '\0';
+                sanitize_string(temp);
+                trim_trailing_spaces(temp);
+                strncat(G_RESULT, temp, 1023 - strlen(G_RESULT) - 1);
+                if (i < cols - 1) strncat(G_RESULT, "|", 1023 - strlen(G_RESULT) - 1);
+            }
+        } else {
+            strncpy(G_RESULT, "ERROR|NO_DATA", 1023);
+        }
+        mysql_free_result(meta);
+    }
+
+    mysql_stmt_close(st);
+    if (own_conn) mysql_close(conn);
 }
