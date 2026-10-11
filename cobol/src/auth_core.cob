@@ -212,6 +212,21 @@
                 EXIT PARAGRAPH
             END-IF
             
+            *> 3b) Transparently upgrade a legacy SHA256 hash to PBKDF2.
+            IF WS-STORED(1:7) = "SHA256_"
+                MOVE SPACES TO WS-PLAIN
+                MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
+                CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
+                PERFORM COMPUTE-HASH-LEN
+                MOVE SPACES TO WS-QUERY
+                STRING "UPDATE users SET password_hash = '" WS-HASH(1:WS-HLEN) "' WHERE email = '" 
+                       WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF
+            
             *> 4) Only a VERIFIED account may log in.
             IF WS-STATUS(1:8) = "VERIFIED"
                 MOVE "SUCCESS|LOGIN_OK" TO LS-OUTPUT-BUFFER
