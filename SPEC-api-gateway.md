@@ -22,7 +22,7 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 | POST | `/auth/signup` | `REQUEST_SIGNUP` | public |
 | POST | `/auth/verify` | `VERIFY_EMAIL` | public |
 | POST | `/auth/login` | `AUTH_LOGIN` (issues a JWT) | public |
-| GET | `/users` | `LIST_USERS` | bearer |
+| GET | `/users` | `LIST_USERS` (optional `limit`/`offset` query) | bearer |
 | GET | `/users/:email` | `GET_USER` | bearer |
 | GET | `/wallet/balance` | `CHECK_BALANCE` | bearer |
 | POST | `/wallet/transfer` | `TRANSFER` | bearer |
