@@ -28,6 +28,7 @@
             88  WS-TRANSFER-FAIL-IDEMP VALUE 'IDEM'.
             88  WS-TRANSFER-FAIL-AMOUNT VALUE 'AMNT'.
             88  WS-TRANSFER-FAIL-CURR VALUE 'CURR'.
+            88  WS-TRANSFER-FAIL-DB VALUE 'DBER'.
         01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
@@ -153,6 +154,25 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        LOCK-ACCOUNTS.
+            *> Lock both account rows in ascending id order in a single read.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT account_id FROM accounts WHERE account_id IN (" 
+                   WS-SENDER-ACC ", " WS-TARGET-ACC ") ORDER BY account_id FOR UPDATE" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
         TRANSFER-LOGIC.
             SET WS-TRANSFER-OK TO TRUE
             *> The idempotency key (param 4) doubles as the transaction reference.
@@ -199,26 +219,30 @@
                 END-IF
             END-IF
             
-            *> Lock the sender account row and read its id, user, balance and currency.
+            *> Resolve the sender account (no lock yet).
             MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CONCAT(ROUND(a.balance,2)), CAST(a.currency_id AS CHAR) " 
+            STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR) " 
                    "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' FOR UPDATE" DELIMITED BY SIZE INTO WS-QUERY
+                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
             CALL "SQL_EXECUTE"
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "ERROR|NO_DATA"
                 SET WS-TRANSFER-FAIL-SENDER TO TRUE
             ELSE
-                UNSTRING WS-RESULT DELIMITED BY "|"
-                    INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-BAL WS-SENDER-CUR
-                END-UNSTRING
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                ELSE
+                    UNSTRING WS-RESULT DELIMITED BY "|"
+                        INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-CUR
+                    END-UNSTRING
+                END-IF
             END-IF
             
-            *> Resolve the target account (no lock needed on the credit side).
+            *> Resolve the target account (no lock yet).
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-QUERY
                 STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR) " 
@@ -230,12 +254,43 @@
                 CALL "SQL_EXECUTE"
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
-                IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "ERROR|NO_DATA"
                     SET WS-TRANSFER-FAIL-TARGET TO TRUE
                 ELSE
-                    UNSTRING WS-RESULT DELIMITED BY "|"
-                        INTO WS-TARGET-ACC WS-TARGET-CUR
-                    END-UNSTRING
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET WS-TRANSFER-FAIL-DB TO TRUE
+                    ELSE
+                        UNSTRING WS-RESULT DELIMITED BY "|"
+                            INTO WS-TARGET-ACC WS-TARGET-CUR
+                        END-UNSTRING
+                    END-IF
+                END-IF
+            END-IF
+            
+            *> Lock both account rows in one statement, ordered by id, so two
+            *> opposing transfers cannot deadlock (and MariaDB does not hit the
+            *> two-statement ER_CHECKREAD).
+            IF WS-TRANSFER-OK
+                PERFORM LOCK-ACCOUNTS
+            END-IF
+            
+            *> Read the sender balance now that its row is locked.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-QUERY
+                STRING "SELECT CONCAT(ROUND(balance,2)) FROM accounts WHERE account_id = " WS-SENDER-ACC 
+                       DELIMITED BY SIZE INTO WS-QUERY
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                ELSE
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET WS-TRANSFER-FAIL-DB TO TRUE
+                    ELSE
+                        MOVE WS-RESULT TO WS-SENDER-BAL
+                    END-IF
                 END-IF
             END-IF
             
@@ -273,7 +328,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -289,7 +344,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
-                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -306,7 +361,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -322,7 +377,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -339,7 +394,7 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -353,7 +408,7 @@
                 CALL "SQL_EXECUTE"
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
             
@@ -363,22 +418,26 @@
                 MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK"
-                IF WS-TRANSFER-FAIL-IDEMP
-                    MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
+                IF WS-TRANSFER-FAIL-DB
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 ELSE
-                    IF WS-TRANSFER-FAIL-AMOUNT
-                        MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                    IF WS-TRANSFER-FAIL-IDEMP
+                        MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
                     ELSE
-                        IF WS-TRANSFER-FAIL-CURR
-                            MOVE "ERROR|CURRENCY_MISMATCH" TO LS-OUTPUT-BUFFER
+                        IF WS-TRANSFER-FAIL-AMOUNT
+                            MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                         ELSE
-                            IF WS-TRANSFER-FAIL-SENDER
-                                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                            IF WS-TRANSFER-FAIL-CURR
+                                MOVE "ERROR|CURRENCY_MISMATCH" TO LS-OUTPUT-BUFFER
                             ELSE
-                                IF WS-TRANSFER-FAIL-TARGET
-                                    MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                IF WS-TRANSFER-FAIL-SENDER
+                                    MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                                 ELSE
-                                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                    IF WS-TRANSFER-FAIL-TARGET
+                                        MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                    ELSE
+                                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                    END-IF
                                 END-IF
                             END-IF
                         END-IF

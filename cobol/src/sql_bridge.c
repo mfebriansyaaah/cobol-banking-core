@@ -92,7 +92,7 @@ void SQL_EXECUTE() {
     fprintf(stderr, "[SQL_BRIDGE] Executing: %s\\n", G_QUERY);
 
     if (mysql_query(conn, G_QUERY)) {
-        strncpy(G_RESULT, "ERROR|QUERY_FAILED", 1023);
+        snprintf(G_RESULT, 1023, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
         if (own_conn) mysql_close(conn);
         return;
     }
@@ -155,7 +155,7 @@ void SQL_EXECUTE_ROWS() {
     fprintf(stderr, "[SQL_BRIDGE] Executing rows: %s\\n", G_QUERY);
 
     if (mysql_query(conn, G_QUERY)) {
-        strncpy(G_RESULT, "ERROR|QUERY_FAILED", 1023);
+        snprintf(G_RESULT, 1023, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
         if (own_conn) mysql_close(conn);
         return;
     }
