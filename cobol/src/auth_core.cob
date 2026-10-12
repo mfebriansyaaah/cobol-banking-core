@@ -90,6 +90,8 @@
                     PERFORM REVOKE-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "CHECK_SESSION"
                     PERFORM CHECK-SESSION-LOGIC
+                WHEN LS-CMD-ACTION(1:4) = "PING"
+                    PERFORM PING-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -692,5 +694,19 @@
                 ELSE
                     MOVE "SUCCESS|SESSION_VALID" TO LS-OUTPUT-BUFFER
                 END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        PING-LOGIC.
+            *> Deep health: confirm the database answers a trivial query.
+            MOVE SPACES TO WS-QUERY
+            MOVE "SELECT 1" TO WS-QUERY
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_DOWN" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|PONG" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
