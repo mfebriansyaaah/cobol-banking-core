@@ -72,7 +72,22 @@ export function buildRouter() {
   const router = express.Router();
   const authLimiter = rateLimiter();
 
-  router.get('/health', (_req, res) => res.json({ data: ['OK'] }));
+  // Deep health: confirm the COBOL core can reach the database.
+  router.get('/health', async (_req, res) => {
+    const t0 = Date.now();
+    try {
+      const raw = await invoke('PING', []);
+      const ms = Date.now() - t0;
+      res.set('X-Cobol-Ms', String(ms));
+      if (raw === 'SUCCESS|PONG') {
+        return res.json({ status: 'ok', db: 'up', data: ['PONG'] });
+      }
+      return res.status(503).json({ status: 'degraded', db: 'down' });
+    } catch {
+      res.set('X-Cobol-Ms', String(Date.now() - t0));
+      return res.status(503).json({ status: 'degraded', db: 'down' });
+    }
+  });
 
   // Pure transport: exchange a refresh token for a new access token. The old
   // refresh token is checked against the session store and rotated (revoked).

@@ -6,10 +6,12 @@ import { buildApp } from '../src/app.js';
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
 
-test('health is public and reports OK', async () => {
+test('health is public and reports deep status', async () => {
   const res = await request(app).get('/health');
   assert.equal(res.status, 200);
-  assert.deepEqual(res.body.data, ['OK']);
+  assert.equal(res.body.status, 'ok');
+  assert.equal(res.body.db, 'up');
+  assert.ok(res.headers['x-cobol-ms'] !== undefined);
 });
 
 test('injection characters are rejected before COBOL runs', async () => {
