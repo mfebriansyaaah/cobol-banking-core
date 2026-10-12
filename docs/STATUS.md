@@ -41,6 +41,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_SESSION` | jti | is the refresh token still valid | `SUCCESS\|SESSION_VALID` * `ERROR\|SESSION_REVOKED` |
+| `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` |
 
 The routing contract lives in `AGENTS.md`; `ci.sh` verifies every routed
 action has a handler in its owning module.
@@ -73,11 +74,12 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 5 | STORE/CHECK/REVOKE_SESSION lifecycle |
 | `tests/test_prepared.sh` | 6 | signup/login through prepared statements |
+| `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
 
-Shell suites total **148**; with the gateway suite **19** the full run is
-**167 assertions**, all green as of this snapshot.
+Shell suites total **150**; with the gateway suite **19** the full run is
+**169 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
