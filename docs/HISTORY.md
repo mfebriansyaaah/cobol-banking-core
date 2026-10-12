@@ -810,3 +810,14 @@ _merged 2026-10-12_
 - feat(bridge): SQL_PREPARE_EXEC - prepared template with up to six string params
 - docs: sync HISTORY.md to post-merge state (#80)
 
+## #82 observability
+
+_merged 2026-10-12_
+
+- docs: deep health and latency observability
+- test: PING/deep-health suite; wire ci step 20
+- feat(gateway): report COBOL call latency via X-Cobol-Ms header
+- feat(gateway): deep /health via PING; update health test
+- feat(auth): PING action for deep health (DB reachability)
+- docs: sync HISTORY.md to post-merge state (#81)
+
