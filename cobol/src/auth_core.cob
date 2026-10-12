@@ -635,12 +635,11 @@
 
         REVOKE-SESSION-LOGIC.
             *> p1 = jti.
-            MOVE SPACES TO WS-QUERY
-            STRING "UPDATE refresh_sessions SET revoked = 1 WHERE jti = '" WS-P1-ESC(1:WS-P1-ELEN) "'" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE jti = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|SESSION_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
@@ -651,12 +650,11 @@
 
         CHECK-SESSION-LOGIC.
             *> p1 = jti. Valid only if present, unrevoked and unexpired.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM refresh_sessions WHERE jti = '" WS-P1-ESC(1:WS-P1-ELEN) 
-                   "' AND revoked = 0 AND expires_at > NOW() LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT 1 FROM refresh_sessions WHERE jti = ? AND revoked = 0 AND expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|SESSION_REVOKED" TO LS-OUTPUT-BUFFER
