@@ -35,7 +35,7 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 
 ## Injection safety
 
-`REQUEST_SIGNUP` and `AUTH_LOGIN` use **prepared statements** (bridge `SQL_PREPARE_EXEC`, bound parameters). Other auth queries escape values via `SQL_ESCAPE` (`mysql_real_escape_string`). Quotes/backslash/semicolon are accepted as literals; only the input-line format characters are refused. `user_core`/`wallet_core` remain whitelist-only (prepared migration pending).
+Most auth queries use **prepared statements** (bridge `SQL_PREPARE_EXEC`, bound parameters): signup insert, login status + failed-login audit, `GET-USER-ID`, `VERIFY_EMAIL` (log check, updates, audit), `CHECK_ROLE`/`CHANGE_ROLE`, and session `REVOKE`/`CHECK`. Remaining queries (password_hash lookup, weak-password check, email-exists, verification_logs insert, lockout count, `STORE_SESSION`) escape values via `SQL_ESCAPE`; both are safe. Quotes/backslash/semicolon are accepted as literals; only the input-line format characters are refused. `user_core`/`wallet_core` remain whitelist-only (prepared migration pending).
 
 ## Session support (refresh tokens)
 

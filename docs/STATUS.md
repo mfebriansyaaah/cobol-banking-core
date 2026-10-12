@@ -102,6 +102,6 @@ limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).
 
 - Password KDF is PBKDF2-SHA256 (100k iters); legacy `SHA256_` fallback stays until all accounts rehash.
 - Transfers must be positive and within one currency; cross-currency is rejected (`CURRENCY_MISMATCH`) until an FX path exists.
-- `REQUEST_SIGNUP`/`AUTH_LOGIN` use prepared statements (bridge `SQL_PREPARE_EXEC`); other queries escape values (`SQL_ESCAPE`). Migration of all queries to prepared statements is incremental.
+- Most `auth_core` queries use prepared statements (bridge `SQL_PREPARE_EXEC`); a few auth queries and all `user_core`/`wallet_core` queries escape values (`SQL_ESCAPE`). Migration to prepared statements is incremental and both paths are safe.
 - Signup/verify actions are not audited yet; refresh token lacks rotation/denylist.
 - One-line COBOL result bounds large lists; process-per-request limits throughput (revisit ADR-0001 at scale).
