@@ -843,3 +843,15 @@ _merged 2026-10-12_
 - feat(db): add schema_migrations tracking table
 - docs: sync HISTORY.md to post-merge state (#83)
 
+## #85 readme
+
+_merged 2026-10-12_
+
+- docs: reword the schema header note (no stale references)
+- chore: untrack AGENTS.md and ignore it; drop it from docs_check
+- chore: untrack .agents/ skills directory and ignore it
+- test: verify README references in docs_check
+- chore: ignore local .agent/ state; drop the misleading .agents/ ignore
+- docs: add a top-level README (overview, quick start, docs index)
+- docs: sync HISTORY.md to post-merge state (#84)
+
