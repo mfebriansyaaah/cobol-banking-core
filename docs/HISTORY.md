@@ -862,3 +862,14 @@ _merged 2026-10-12_
 - docs: configure agent skills (issue tracker, triage labels, domain docs)
 - docs: sync HISTORY.md to post-merge state (#85)
 
+## #87 endpoint-debug-bugs
+
+_merged 2026-10-12_
+
+- docs: note confirm-email-change cascade in SPEC
+- docs: note email-change cascade in STATUS
+- test(gateway): cover bare-value endpoints and email change after login
+- fix(db): email FKs ON UPDATE CASCADE; migration 0003 (email change with sessions)
+- fix(gateway): treat bare COBOL output (GET_USER/CHECK_BALANCE) as success
+- docs: sync HISTORY.md to post-merge state (#86)
+
