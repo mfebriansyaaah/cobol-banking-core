@@ -50,11 +50,11 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (v1.5.0):
 `users` * `currencies` * `exchange_rates` * `accounts` * `ledger` *
-`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions`
+`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
-Seed data: `database/seed_test_data.sql`.
+Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; `database/migrate.sh --check` verifies none are pending. Seed data: `database/seed_test_data.sql`.
 
 ## 4. Test suites (all green under `./ci.sh`)
 
@@ -75,11 +75,12 @@ Seed data: `database/seed_test_data.sql`.
 | `tests/test_session.sh` | 5 | STORE/CHECK/REVOKE_SESSION lifecycle |
 | `tests/test_prepared.sh` | 6 | signup/login through prepared statements |
 | `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
+| `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
 
-Shell suites total **150**; with the gateway suite **19** the full run is
-**169 assertions**, all green as of this snapshot.
+Shell suites total **156**; with the gateway suite **19** the full run is
+**175 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 

@@ -821,3 +821,14 @@ _merged 2026-10-12_
 - feat(auth): PING action for deep health (DB reachability)
 - docs: sync HISTORY.md to post-merge state (#81)
 
+## #83 prepared-auth-rest
+
+_merged 2026-10-12_
+
+- docs: prepared-statement coverage and remaining escaped queries
+- feat(auth): prepared GET-USER-ID and failed-login audit insert
+- feat(auth): prepared statements for REVOKE_SESSION and CHECK_SESSION
+- feat(auth): prepared statements for CHECK_ROLE and CHANGE_ROLE
+- feat(auth): prepared statements for VERIFY_EMAIL and GET-USER-ID
+- docs: sync HISTORY.md to post-merge state (#82)
+
