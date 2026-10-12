@@ -14,8 +14,8 @@ output.txt
 cobol/config/odbc.ini
 cobol/config/odbcinst.ini
 
-# Local agent state (the tracked .agents/ skills directory is deliberately NOT ignored)
-.agent/
+# Agent tooling/skills directory (kept out of the repository)
+.agents/
 
 # Environment and lock files
 skills-lock.json
