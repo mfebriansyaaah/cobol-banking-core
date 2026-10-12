@@ -40,7 +40,8 @@ export function parse(raw) {
   if (kind === 'ERROR') {
     return { ok: false, code: parts[1] ?? '', fields: parts.slice(2) };
   }
-  return { ok: false, code: 'MALFORMED', fields: parts };
+  // Some actions return a bare value (e.g. GET_USER "1|email", CHECK_BALANCE "1000.00").
+  return { ok: true, code: 'OK', fields: parts };
 }
 
 export function toHttp(raw) {
