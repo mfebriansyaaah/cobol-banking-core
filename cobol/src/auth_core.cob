@@ -470,13 +470,11 @@
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
             
-            MOVE SPACES TO WS-QUERY
-            STRING "UPDATE users SET status = 'VERIFIED' WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "'" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "UPDATE users SET status = 'VERIFIED' WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT(1:5) = "ERROR"
@@ -484,14 +482,12 @@
             END-IF
             
             IF STEP-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "UPDATE verification_logs SET is_used = 1 WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) 
-                       "' AND code = '" WS-P2-ESC(1:WS-P2-ELEN) "' AND purpose = 'SIGNUP'" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "UPDATE verification_logs SET is_used = 1 WHERE email = ? AND code = ? AND purpose = 'SIGNUP'" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -501,13 +497,12 @@
             
             IF STEP-OK
                 PERFORM GET-USER-ID
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
-                       WS-USER-ID(1:WS-ID-LEN) ", 'VERIFY_EMAIL', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'VERIFY_EMAIL', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                MOVE WS-USER-ID TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
