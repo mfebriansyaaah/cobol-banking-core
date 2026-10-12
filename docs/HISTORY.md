@@ -873,3 +873,14 @@ _merged 2026-10-12_
 - fix(gateway): treat bare COBOL output (GET_USER/CHECK_BALANCE) as success
 - docs: sync HISTORY.md to post-merge state (#86)
 
+## #88 retro4-hardening
+
+_merged 2026-10-12_
+
+- docs: record retro guardrails (endpoint smoke, FK check, main-commit hook)
+- docs(standards): action output contract rule (prefixed or documented bare value)
+- chore: pre-commit hook blocks commits on main; installer + README notes
+- ci: require ON UPDATE CASCADE on FKs to users(email)
+- test(gateway): smoke-test every endpoint (result/HTTP contract guard)
+- docs: sync HISTORY.md to post-merge state (#87)
+

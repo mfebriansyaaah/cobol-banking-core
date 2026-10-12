@@ -1,0 +1,16 @@
+#!/bin/bash
+# Protect the integration branches: no direct commits on main/master, except the
+# deliberate post-merge documentation sync (message starts with "docs: sync").
+# args: $1 = path to the commit message file.
+branch="$(git symbolic-ref --short HEAD 2>/dev/null)"
+case "$branch" in
+  main|master)
+    msg="$(head -1 "$1" 2>/dev/null)"
+    case "$msg" in
+      "docs: sync"*) exit 0 ;;
+    esac
+    echo "commit-msg: refusing to commit on '$branch' (only 'docs: sync ...' is allowed). Create a branch: git checkout -b <name>"
+    exit 1
+    ;;
+esac
+exit 0

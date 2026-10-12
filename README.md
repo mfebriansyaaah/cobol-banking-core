@@ -70,7 +70,8 @@ request runs the binary in its own working directory (see
 ## Development notes
 
 - Install the tracked git hooks once per clone: `scripts/install-hooks.sh`. The
-  `pre-commit` hook refuses commits directly on `main`/`master`.
+  `commit-msg` hook refuses commits directly on `main`/`master`, except the
+  deliberate `docs: sync ...` post-merge documentation commit.
 - Gateway smoke test: `npm --prefix middleware test` includes `endpoints.test.js`,
   which exercises every route.
 - Shell safety: to stop stray servers, match with a bracket pattern
