@@ -1,0 +1,10 @@
+#!/bin/bash
+# Refuse committing directly on the integration branches; work on a branch.
+branch="$(git symbolic-ref --short HEAD 2>/dev/null)"
+case "$branch" in
+  main|master)
+    echo "pre-commit: refusing to commit on '$branch'. Create a branch first: git checkout -b <name>"
+    exit 1
+    ;;
+esac
+exit 0

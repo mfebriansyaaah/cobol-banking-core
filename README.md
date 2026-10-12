@@ -59,7 +59,6 @@ request runs the binary in its own working directory (see
 `docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms`.
 
 ## Where things are documented
-
 - `AGENTS.md` — workflow, language, business-logic boundary, routing contract, I/O.
 - `CODING_STANDARDS.md` — rules a reviewer enforces.
 - `SPEC-wallet-core.md`, `SPEC-auth-identity.md`, `SPEC-user-profile.md`,
@@ -67,3 +66,12 @@ request runs the binary in its own working directory (see
 - `docs/STATUS.md` — current-state snapshot; `docs/HISTORY.md` — merged phases.
 - `docs/adr/` — architecture decisions.
 - `database/migrate.sh` — versioned schema migrations.
+
+## Development notes
+
+- Install the tracked git hooks once per clone: `scripts/install-hooks.sh`. The
+  `pre-commit` hook refuses commits directly on `main`/`master`.
+- Gateway smoke test: `npm --prefix middleware test` includes `endpoints.test.js`,
+  which exercises every route.
+- Shell safety: to stop stray servers, match with a bracket pattern
+  (`pkill -f "[s]erver.js"`) so the pattern does not match the command itself.
