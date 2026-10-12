@@ -9,6 +9,7 @@
 - `ci.sh` — the repo's one-shot check command: static COBOL checks, build, both test suites. Run it before committing; it must exit 0 with `ALL GREEN`.
 - `docs/HISTORY.md` — every merged phase, its commits, and date; regenerate with `docs/gen_history.sh` (never by hand).
 - `docs/STATUS.md` — the detailed current-state snapshot; keep it in sync with the code (`tests/status_check.sh` verifies its claims).
+- `database/migrate.sh` — apply pending migrations (`database/migrations/NNN_*.sql`), recorded in `schema_migrations`; `database/migrate.sh --check` fails if any file is unapplied (wired into `ci.sh`).
 - `build.sh` — compiles all COBOL modules + `sql_bridge.c` into a single binary (`cobol/bin/main_logic`). Edit this file, never an ad-hoc `cobc` invocation.
 - `tests/test_suite.sh`, `tests/test_atomic_txn.sh` — functional and atomic-transaction suites. Both need the MySQL database `cobol_db` seeded via `database/schema.sql` + `database/seed_test_data.sql`; each suite resets DB state itself.
 - `middleware/` — the Node.js/Express API gateway (the only HTTP interface). Transport invokes the binary per request in a unique working directory (see `docs/adr/0001-invocation-model.md`); `npm --prefix middleware test` runs its suite. `ci.sh` runs it too.
