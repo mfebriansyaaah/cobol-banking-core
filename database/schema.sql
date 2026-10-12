@@ -2,8 +2,8 @@
 -- Target: MySQL 8.0 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
 -- Version: 1.6.0
--- Note: versioned changes live in database/migrations/NNN_*.sql; scripts the
---       bot may not have, see CHANGELOG.md and docs/STATUS.md.
+-- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
+--       with database/migrate.sh. See docs/STATUS.md for schema details.
 -- Changelog:
 --   v1.6.0 - refresh_sessions table (refresh-token revocation by jti)
 --   v1.5.0 - pending_transactions FKs ON DELETE CASCADE (idempotent transfers)
