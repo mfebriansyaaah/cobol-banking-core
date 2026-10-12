@@ -14,8 +14,9 @@ output.txt
 cobol/config/odbc.ini
 cobol/config/odbcinst.ini
 
-# Agent tooling/skills directory (kept out of the repository)
+# Agent tooling/skills directory and steering file (kept out of the repository)
 .agents/
+AGENTS.md
 
 # Environment and lock files
 skills-lock.json

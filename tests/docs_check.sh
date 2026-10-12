@@ -5,7 +5,7 @@
 # Paths described as future/missing must be written WITHOUT backticks.
 # Usage: ./tests/docs_check.sh
 
-DOCS="README.md AGENTS.md CODING_STANDARDS.md SPEC-auth-identity.md SPEC-user-profile.md SPEC-wallet-core.md SPEC-api-gateway.md docs/adr/0001-invocation-model.md docs/adr/0002-auth-db-stack.md docs/adr/0003-idempotent-transfers.md docs/adr/0004-schema-migrations.md docs/STATUS.md docs/HISTORY.md"
+DOCS="README.md CODING_STANDARDS.md SPEC-auth-identity.md SPEC-user-profile.md SPEC-wallet-core.md SPEC-api-gateway.md docs/adr/0001-invocation-model.md docs/adr/0002-auth-db-stack.md docs/adr/0003-idempotent-transfers.md docs/adr/0004-schema-migrations.md docs/STATUS.md docs/HISTORY.md"
 
 fail=0
 for doc in $DOCS; do
