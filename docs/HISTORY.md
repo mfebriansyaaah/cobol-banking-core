@@ -855,3 +855,10 @@ _merged 2026-10-12_
 - docs: add a top-level README (overview, quick start, docs index)
 - docs: sync HISTORY.md to post-merge state (#84)
 
+## #86 agents-setup
+
+_merged 2026-10-12_
+
+- docs: configure agent skills (issue tracker, triage labels, domain docs)
+- docs: sync HISTORY.md to post-merge state (#85)
+
