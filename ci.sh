@@ -78,6 +78,14 @@ for name in $(grep -oE '= "[A-Z_]+"' cobol/src/main_logic.cob | sed 's/= "//; s/
     fi
 done
 
+# Violation 5: any FK to the mutable users(email) must cascade on UPDATE,
+# otherwise changing a user's email fails with errno 1451 (migration 0003).
+if grep -n "REFERENCES users(email)" database/schema.sql | grep -v "ON UPDATE CASCADE" | grep -q .; then
+    echo "schema: FK to users(email) missing ON UPDATE CASCADE:"
+    grep -n "REFERENCES users(email)" database/schema.sql | grep -v "ON UPDATE CASCADE"
+    viol=1
+fi
+
 if [ "$viol" = 1 ]; then
     echo "=== Static checks FAILED ==="
     exit 1
