@@ -141,6 +141,12 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
     CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- 10. Tabel Schema Migrations (applied-migration tracking)
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    version VARCHAR(64) PRIMARY KEY,
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 -- Indexes
 CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_currency_iso ON currencies(iso_code);
