@@ -210,13 +210,11 @@
 
         GET-USER-ID.
             *> WS-USER-ID / WS-ID-LEN for the user named by param 1's email.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+
             MOVE WS-RESULT TO WS-USER-ID
             MOVE 0 TO WS-ID-LEN
             PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
@@ -308,14 +306,11 @@
             
             IF WS-VERIFY NOT = "1"
                 *> Record the failed attempt for lockout counting.
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (" 
-                       WS-USER-ID(1:WS-ID-LEN) ", 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (?, 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
