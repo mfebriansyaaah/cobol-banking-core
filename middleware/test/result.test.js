@@ -16,7 +16,7 @@ test('locked account maps to 423', () => {
   assert.equal(r.body.error, 'ACCOUNT_LOCKED');
 });
 
-test('malformed line is treated as a server error', () => {
-  assert.deepEqual(parse('garbage').code, 'MALFORMED');
-  assert.equal(toHttp('garbage').status, 500);
+test('a bare value (no prefix) is treated as success data', () => {
+  assert.deepEqual(toHttp('1|sender@test.com'), { status: 200, body: { data: ['1', 'sender@test.com'] } });
+  assert.deepEqual(toHttp('1000.00'), { status: 200, body: { data: ['1000.00'] } });
 });

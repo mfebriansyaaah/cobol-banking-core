@@ -1,9 +1,10 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: 1.6.0
+-- Version: 1.7.0
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   v1.7.0 - email FKs ON UPDATE CASCADE (email change with sessions/pending)
 -- Changelog:
 --   v1.6.0 - refresh_sessions table (refresh-token revocation by jti)
 --   v1.5.0 - pending_transactions FKs ON DELETE CASCADE (idempotent transfers)
@@ -127,8 +128,8 @@ CREATE TABLE IF NOT EXISTS pending_transactions (
     status ENUM('PENDING', 'COMMITTED', 'FAILED') DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email) ON DELETE CASCADE,
-    CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE
+    CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- 9. Tabel Refresh Sessions (JWT refresh-token revocation by jti)
@@ -138,7 +139,7 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE
+    CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- 10. Tabel Schema Migrations (applied-migration tracking)

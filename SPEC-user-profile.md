@@ -21,6 +21,8 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 
 ### Tests
 
+`CONFIRM_EMAIL_CHANGE` works for a logged-in user: `users.email` changes propagate through the `refresh_sessions`/`pending_transactions` FKs (`ON UPDATE CASCADE`, migration 0003).
+
 `tests/test_user_profile.sh` (12 assertions). Wired into `ci.sh`.
 
 ## Notes / not yet done

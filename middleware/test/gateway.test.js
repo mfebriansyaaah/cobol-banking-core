@@ -65,6 +65,35 @@ test('wrong password maps to 401', async () => {
   assert.equal(res.body.error, 'INVALID_CREDENTIALS');
 });
 
+test('bare-value endpoints return 200 with data', async () => {
+  const em = `gw_bare_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+
+  const user = await request(app).get('/users/sender@test.com').set('Authorization', `Bearer ${token}`);
+  assert.equal(user.status, 200);
+  assert.equal(user.body.data[0], '1');
+
+  const bal = await request(app).get('/wallet/balance?email=sender@test.com').set('Authorization', `Bearer ${token}`);
+  assert.equal(bal.status, 200);
+  assert.match(bal.body.data[0], /^\d+\.\d{2}$/);
+});
+
+test('email change works for a logged-in user (related rows exist)', async () => {
+  const em = `gw_conf_${Date.now()}@test.com`;
+  const ne = `gw_confn_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Conf User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+
+  const reqc = await request(app).post('/profile/email/request').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne });
+  assert.equal(reqc.status, 200);
+  const confirm = await request(app).post('/profile/email/confirm').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, code: reqc.body.data[1] });
+  assert.equal(confirm.status, 200);
+  assert.deepEqual(confirm.body.data, ['EMAIL_CHANGED']);
+});
+
 test('refresh token yields a new access token', async () => {
   const em = `gw_refresh_${Date.now()}@test.com`;
   const signup = await request(app)
