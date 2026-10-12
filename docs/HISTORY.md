@@ -832,3 +832,14 @@ _merged 2026-10-12_
 - feat(auth): prepared statements for VERIFY_EMAIL and GET-USER-ID
 - docs: sync HISTORY.md to post-merge state (#82)
 
+## #84 migrations-tooling
+
+_merged 2026-10-12_
+
+- docs: ADR-0004 schema migration policy; scan it in docs_check
+- docs: migration tooling workflow and tracking table
+- test: migration tooling suite; wire ci step 22
+- feat(db): migrate.sh --check and a migration check step in ci.sh
+- feat(db): add schema_migrations tracking table
+- docs: sync HISTORY.md to post-merge state (#83)
+
