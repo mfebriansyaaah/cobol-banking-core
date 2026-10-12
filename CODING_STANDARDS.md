@@ -35,3 +35,4 @@ Rules a reviewer enforces on every COBOL/C-bridge diff. Mechanical violations sh
 ## Language
 
 16. **English only.** Every artifact is written in English: commit messages, PR titles and descriptions, documentation, code identifiers (variables, functions, paragraphs, `PROGRAM-ID`s), and inline comments. A reviewer rejects any non-English identifier, comment, or doc line, and any commit/PR text in another language.
+17. **Action output contract.** Every COBOL action returns either `SUCCESS|...` or `ERROR|<code>|...`, or a *documented bare value* (currently only `GET_USER` -> `id|email` and `CHECK_BALANCE` -> amount). The gateway treats any non-`ERROR` line as success, so a new bare-value action must be added to the endpoint smoke test (`middleware/test/endpoints.test.js`) and noted here.
