@@ -29,6 +29,10 @@ Password hashing uses a **slow KDF**: PBKDF2-HMAC-SHA256 (100,000 iterations, 16
 
 The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build script, and the sed-based `EXEC SQL` shim — has been removed (ADR-0002). There is now a single DB stack (`sql_bridge.c`, libmysqlclient) and a single I/O contract (`input.txt` / `output.txt`).
 
+## Deep health
+
+`PING` runs a trivial query and reports `SUCCESS|PONG` / `ERROR|DB_DOWN`, used by the gateway `/health`.
+
 ## Injection safety
 
 `REQUEST_SIGNUP` and `AUTH_LOGIN` use **prepared statements** (bridge `SQL_PREPARE_EXEC`, bound parameters). Other auth queries escape values via `SQL_ESCAPE` (`mysql_real_escape_string`). Quotes/backslash/semicolon are accepted as literals; only the input-line format characters are refused. `user_core`/`wallet_core` remain whitelist-only (prepared migration pending).
