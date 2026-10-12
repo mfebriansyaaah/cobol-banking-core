@@ -97,7 +97,8 @@ limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).
 
 - `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
 - `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md` - decisions.
-- `CODING_STANDARDS.md` - review rules; `AGENTS.md` - steering rules.
+- `CODING_STANDARDS.md` - review rules.
+- `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 
 ## 7. Known gaps (deliberate, by scale)
 
