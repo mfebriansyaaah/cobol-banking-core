@@ -53,8 +53,8 @@ action has a handler in its owning module.
 
 ## 3. Database (`cobol_db`)
 
-Tables in `database/schema.sql` (v1.5.0):
-`users` (with `token_version`) * `currencies` * `exchange_rates` * `accounts` * `ledger` *
+Tables in `database/schema.sql` (evolves via `database/migrations/`):
+`users` (with `token_version`) * `currencies` * `accounts` * `ledger` *
 `verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
@@ -85,13 +85,13 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_session.sh` | 14 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version revocation |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
-| `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
+| `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
 | `middleware/` (node --test) | 42 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer |
 
-Shell suites total **221**; with the gateway suite **42** the full run is
-**263 assertions**, all green as of this snapshot.
+Shell suites total **223**; with the gateway suite **42** the full run is
+**265 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
