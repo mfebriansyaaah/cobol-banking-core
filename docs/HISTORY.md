@@ -950,3 +950,13 @@ _merged 2026-10-13_
 - feat(user_core): email change requires the owner as actor (p3/p4); else FORBIDDEN
 - docs: sync HISTORY.md to post-merge state (#93)
 
+## #95 api-rate-limit
+
+_merged 2026-10-13_
+
+- docs: document the non-auth api rate limit and refreshed counts
+- test(gateway): cover the api limiter; health stays exempt
+- feat(gateway): apply the api limiter to non-auth routes
+- feat(rateLimit): add an env-configured api limiter for non-auth routes
+- docs: sync HISTORY.md to post-merge state (#94)
+
