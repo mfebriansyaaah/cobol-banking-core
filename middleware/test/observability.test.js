@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { resetMetrics, recordRequest, metricsText } from '../src/observability.js';
+import { resetMetrics, recordRequest, metricsText, pushMetrics, startMetricsExporter } from '../src/observability.js';
 import { getVerificationCode } from './support.js';
 
 test('metricsText renders recorded counters', () => {
@@ -50,4 +51,41 @@ test('/metrics serves counters to an authenticated caller', async () => {
   assert.equal(m.status, 200);
   assert.match(m.text, /gateway_requests_total/);
   assert.match(m.text, /route="\/health"/);
+});
+
+test('pushMetrics posts the counters to a collector', async () => {
+  const received = [];
+  const server = http.createServer((req, res) => {
+    let body = '';
+    req.on('data', (chunk) => { body += chunk; });
+    req.on('end', () => { received.push(body); res.statusCode = 202; res.end(); });
+  });
+  await new Promise((resolve) => server.listen(0, resolve));
+  const { port } = server.address();
+
+  resetMetrics();
+  recordRequest({ method: 'GET', route: '/health', status: 200 });
+  const status = await pushMetrics(`http://127.0.0.1:${port}/metrics`);
+  assert.equal(status, 202);
+  assert.match(received[0], /gateway_requests_total\{method="GET",route="\/health",status="200"\} 1/);
+
+  await new Promise((resolve) => server.close(resolve));
+});
+
+test('the exporter pushes on an interval and survives a failing collector', async () => {
+  const hits = [];
+  const server = http.createServer((_req, res) => { hits.push(1); res.statusCode = 200; res.end(); });
+  await new Promise((resolve) => server.listen(0, resolve));
+  const { port } = server.address();
+
+  const stop = startMetricsExporter({ url: `http://127.0.0.1:${port}/sink`, intervalMs: 20 });
+  await new Promise((resolve) => setTimeout(resolve, 80));
+  stop();
+  await new Promise((resolve) => server.close(resolve));
+  assert.ok(hits.length >= 2, `expected repeated pushes, got ${hits.length}`);
+
+  // A failing collector must not throw out of the exporter.
+  const stopBad = startMetricsExporter({ url: 'http://127.0.0.1:1/nope', intervalMs: 10 });
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  stopBad();
 });
