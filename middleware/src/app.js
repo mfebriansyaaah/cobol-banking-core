@@ -66,7 +66,7 @@ const ROUTES = [
   { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', actorFromToken: true, fields: [
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', fields: [
+  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', actorFromToken: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
