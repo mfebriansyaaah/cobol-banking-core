@@ -3,7 +3,7 @@ import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { requireAuth, signToken, signRefresh, verifyRefresh, REFRESH_TTL_DAYS } from './auth.js';
-import { rateLimiter } from './rateLimit.js';
+import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
 
@@ -83,6 +83,7 @@ export const ROUTES = [
 export function buildRouter() {
   const router = express.Router();
   const authLimiter = rateLimiter();
+  const apiLimiter = apiRateLimiter();
 
   // Deep health: confirm the COBOL core can reach the database.
   router.get('/health', async (_req, res) => {
@@ -161,6 +162,7 @@ export function buildRouter() {
     };
     const chain = [];
     if (route.path.startsWith('/auth')) chain.push(authLimiter);
+    else chain.push(apiLimiter);
     if (!route.public) chain.push(requireAuth);
     chain.push(handler);
     router[route.method](route.path, ...chain);
