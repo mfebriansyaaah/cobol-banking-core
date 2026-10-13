@@ -245,6 +245,11 @@
             EXIT PARAGRAPH.
 
         TRANSFER-LOGIC.
+            *> A transfer to the same account is meaningless.
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE "ERROR|SELF_TRANSFER" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             SET WS-TRANSFER-OK TO TRUE
             *> The idempotency key (param 4) doubles as the transaction reference.
             IF LS-PARAM4 NOT = SPACES

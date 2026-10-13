@@ -240,4 +240,13 @@ test('transfer amount is decided by COBOL, not the gateway shape', async (t) => 
     .send({ to: 'receiver@test.com', amount: 'abc' });
   assert.equal(bad.status, 400);
   assert.equal(bad.body.error, 'INVALID_PARAMETER');
+
+  // Transferring to oneself is refused by COBOL.
+  const self = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', `self-${Date.now()}`)
+    .send({ to: em, amount: '1.00' });
+  assert.equal(self.status, 400);
+  assert.equal(self.body.error, 'SELF_TRANSFER');
 });
