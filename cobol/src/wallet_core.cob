@@ -39,6 +39,7 @@
             88  WS-TRANSFER-FAIL-TARGET VALUE 'TGRT'.
             88  WS-TRANSFER-FAIL-INSUF VALUE 'INSUF'.
             88  WS-TRANSFER-FAIL-IDEMP VALUE 'IDEM'.
+            88  WS-TRANSFER-FAIL-CONFLICT VALUE 'CNFL'.
             88  WS-TRANSFER-FAIL-AMOUNT VALUE 'AMNT'.
             88  WS-TRANSFER-FAIL-CURR VALUE 'CURR'.
             88  WS-TRANSFER-FAIL-DB VALUE 'DBER'.
@@ -48,6 +49,11 @@
         01  WS-TXN-REF             PIC X(17) VALUE SPACES.
         01  WS-REF                 PIC X(50) VALUE SPACES.
         01  WS-REFLEN              PIC 9(3) VALUE 1.
+        01  WS-INTENT-FROM         PIC X(100) VALUE SPACES.
+        01  WS-INTENT-TO           PIC X(100) VALUE SPACES.
+        01  WS-INTENT-AMT          PIC X(30) VALUE SPACES.
+        01  WS-INTENT-STATUS       PIC X(10) VALUE SPACES.
+        01  WS-INTENT-AMOUNT-NUM   PIC S9(13)V99 COMP-3.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
@@ -255,32 +261,56 @@
             
             CALL "SQL_BEGIN"
             
-            *> Replay: a persisted reference means the transfer already committed.
+            *> Replay: a persisted reference for THIS sender, recipient and
+            *> amount means the transfer already committed. A reference that
+            *> exists with different details (or belongs to someone else) is a
+            *> conflict, not a silent success.
             IF LS-PARAM4 NOT = SPACES
-                MOVE "SELECT 1 FROM pending_transactions WHERE txn_ref = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT NOT = "ERROR|NO_DATA"
-                    CALL "SQL_COMMIT"
-                    MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
-                    EXIT PARAGRAPH
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET WS-TRANSFER-FAIL-DB TO TRUE
+                    ELSE
+                        UNSTRING WS-RESULT DELIMITED BY "|"
+                            INTO WS-INTENT-FROM WS-INTENT-TO WS-INTENT-AMT WS-INTENT-STATUS
+                        END-UNSTRING
+                        COMPUTE WS-INTENT-AMOUNT-NUM = FUNCTION NUMVAL(WS-INTENT-AMT)
+                        COMPUTE WS-AMOUNT-NUM = FUNCTION NUMVAL(WS-PARAM3-TRIMMED)
+                        IF WS-INTENT-FROM(1:WS-P1-LEN) = WS-PARAM1-TRIMMED(1:WS-P1-LEN)
+                           AND WS-INTENT-TO(1:WS-P2-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                           AND WS-INTENT-AMOUNT-NUM = WS-AMOUNT-NUM
+                            IF WS-INTENT-STATUS(1:9) = "COMMITTED"
+                                CALL "SQL_COMMIT"
+                                MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+                                EXIT PARAGRAPH
+                            ELSE
+                                SET WS-TRANSFER-FAIL-IDEMP TO TRUE
+                            END-IF
+                        ELSE
+                            SET WS-TRANSFER-FAIL-CONFLICT TO TRUE
+                        END-IF
+                    END-IF
                 END-IF
 
                 *> Record the intent; a duplicate key means another attempt is running.
-                MOVE "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES (?, ?, ?, ?, 'PENDING')" TO WS-PREP-SQL
-                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
-                MOVE WS-PARAM3-TRIMMED TO WS-BIND-4
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-IDEMP TO TRUE
+                IF WS-TRANSFER-OK
+                    MOVE "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES (?, ?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+                    MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                    MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+                    MOVE WS-PARAM3-TRIMMED TO WS-BIND-4
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET WS-TRANSFER-FAIL-IDEMP TO TRUE
+                    END-IF
                 END-IF
             END-IF
 
@@ -474,22 +504,26 @@
                 IF WS-TRANSFER-FAIL-DB
                     MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 ELSE
-                    IF WS-TRANSFER-FAIL-IDEMP
-                        MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
+                    IF WS-TRANSFER-FAIL-CONFLICT
+                        MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO LS-OUTPUT-BUFFER
                     ELSE
-                        IF WS-TRANSFER-FAIL-AMOUNT
-                            MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                        IF WS-TRANSFER-FAIL-IDEMP
+                            MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
                         ELSE
-                            IF WS-TRANSFER-FAIL-CURR
-                                MOVE "ERROR|CURRENCY_MISMATCH" TO LS-OUTPUT-BUFFER
+                            IF WS-TRANSFER-FAIL-AMOUNT
+                                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                             ELSE
-                                IF WS-TRANSFER-FAIL-SENDER
-                                    MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                IF WS-TRANSFER-FAIL-CURR
+                                    MOVE "ERROR|CURRENCY_MISMATCH" TO LS-OUTPUT-BUFFER
                                 ELSE
-                                    IF WS-TRANSFER-FAIL-TARGET
-                                        MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                    IF WS-TRANSFER-FAIL-SENDER
+                                        MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                                     ELSE
-                                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                        IF WS-TRANSFER-FAIL-TARGET
+                                            MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                        ELSE
+                                            MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                        END-IF
                                     END-IF
                                 END-IF
                             END-IF

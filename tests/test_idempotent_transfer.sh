@@ -52,6 +52,13 @@ check "still moved once (2)" "900.0000" "$(q "SELECT balance FROM accounts WHERE
 check "ledger has one movement" "2" "$(q "SELECT COUNT(*) FROM ledger;")"
 check "committed intent recorded" "COMMITTED" "$(q "SELECT status FROM pending_transactions WHERE txn_ref='k-1';")"
 
+# Reusing a committed key with different details is a conflict, not a success.
+check "different amount is a conflict" "ERROR|IDEMPOTENCY_CONFLICT" "$(run TRANSFER sender@test.com receiver@test.com 5.00 k-1)"
+check "different recipient is a conflict" "ERROR|IDEMPOTENCY_CONFLICT" "$(run TRANSFER sender@test.com sender@test.com 100.00 k-1)"
+check "different sender is a conflict" "ERROR|IDEMPOTENCY_CONFLICT" "$(run TRANSFER receiver@test.com sender@test.com 100.00 k-1)"
+check "conflict did not move money" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "conflict added no ledger row" "2" "$(q "SELECT COUNT(*) FROM ledger;")"
+
 check "distinct key moves again" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 50.00 k-2)"
 check "two movements total" "850.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 check "two committed intents" "2" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE status='COMMITTED';")"
