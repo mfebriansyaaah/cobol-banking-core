@@ -15,10 +15,23 @@ char G_RESULT[1024] = {0};
 /* Persistent connection, held only for the span of an explicit transaction. */
 static MYSQL *G_CONN = NULL;
 
+/* Read a connection setting from the environment, falling back to the
+ * development default. Keeps credentials out of the source and lets each
+ * deployment (and the gateway that spawns the binary) configure them. */
+static const char *env_or(const char *name, const char *fallback) {
+    const char *v = getenv(name);
+    return (v && v[0] != '\0') ? v : fallback;
+}
+
 static MYSQL *bridge_connect(void) {
     MYSQL *c = mysql_init(NULL);
     if (c == NULL) return NULL;
-    if (mysql_real_connect(c, "localhost", "cobol_user", "cobol_pass", "cobol_db", 3306, NULL, 0) == NULL) {
+    const char *host = env_or("DB_HOST", "localhost");
+    const char *user = env_or("DB_USER", "cobol_user");
+    const char *pass = env_or("DB_PASS", "cobol_pass");
+    const char *dbname = env_or("DB_NAME", "cobol_db");
+    unsigned int port = (unsigned int)atoi(env_or("DB_PORT", "3306"));
+    if (mysql_real_connect(c, host, user, pass, dbname, port, NULL, 0) == NULL) {
         mysql_close(c);
         return NULL;
     }
