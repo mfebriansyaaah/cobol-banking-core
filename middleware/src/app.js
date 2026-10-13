@@ -27,7 +27,7 @@ export const ROUTES = [
     { name: 'password', pattern: PASSWORD, required: true },
   ], onSuccess: async (body, input) => {
     const issued = signRefresh({ email: input.email });
-    await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS)]);
+    await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti]);
     return { ...body, token: signToken({ email: input.email }), refreshToken: issued.token };
   } },
 
@@ -119,8 +119,9 @@ export function buildRouter() {
         return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
       }
       await invoke('REVOKE_SESSION', [payload.jti || '']);
-      const issued = signRefresh({ email: payload.email });
-      await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS)]);
+      const family = payload.family || payload.jti;
+      const issued = signRefresh({ email: payload.email, family });
+      await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family]);
       return res.json({
         data: ['REFRESHED'],
         token: signToken({ email: payload.email }),
