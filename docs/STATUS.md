@@ -88,10 +88,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 46 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, paging cap, uniform envelope, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
+| `middleware/` (node --test) | 47 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
 
-Shell suites total **227**; with the gateway suite **46** the full run is
-**273 assertions**, all green as of this snapshot.
+Shell suites total **227**; with the gateway suite **47** the full run is
+**274 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -143,4 +143,4 @@ failure `{ error, detail? }` - and the list page size is capped at 100
 - Prepared statements are used for the parameterized queries in `user_core`, `wallet_core` and most of `auth_core`; the remaining `auth_core` statements (login/lockout, signup/verify, audit) embed `mysql_real_escape_string`-escaped values, which the whitelist validator plus escaping keep safe. The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
 - `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are single-use and rotate within a `family`; presenting an already-revoked token is treated as reuse and revokes the whole family (all sessions for that login), so a stolen token cannot be replayed.
 - Expired `refresh_sessions` and `verification_logs` are pruned opportunistically (on session store and on signup); `audit_trail` is append-only and retained.
-- One-line COBOL result bounds large lists; process-per-request limits throughput (revisit ADR-0001 at scale).
+- Results are written as 500-char records and reassembled by the gateway; the buffers are 16 KB, so extremely large lists still have an upper bound. Process-per-request limits throughput (revisit ADR-0001 at scale).
