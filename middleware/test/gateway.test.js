@@ -278,3 +278,22 @@ test('a large list is not truncated at 500 bytes', async (t) => {
   // The 25th bulk user sits well past 500 bytes; it survives the multi-record output.
   assert.ok(JSON.stringify(res.body.data).includes('gw_bulk_25@test.com'));
 });
+
+test('one access token can be revoked without affecting another session', async () => {
+  const em = `gw_deny_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Deny User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+
+  const first = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const second = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+
+  const revoked = await request(app).post('/auth/revoke').set('Authorization', `Bearer ${first}`);
+  assert.equal(revoked.status, 200);
+
+  const gone = await request(app).get(`/users/${em}`).set('Authorization', `Bearer ${first}`);
+  assert.equal(gone.status, 401);
+  assert.equal(gone.body.error, 'TOKEN_REVOKED');
+
+  // The other session is untouched (this is per-token, not per-user).
+  assert.equal((await request(app).get(`/users/${em}`).set('Authorization', `Bearer ${second}`)).status, 200);
+});
