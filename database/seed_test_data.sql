@@ -10,6 +10,12 @@ INSERT INTO users (id, email, password_hash, full_name, dob, status, role) VALUE
 INSERT IGNORE INTO currencies (currency_id, iso_code, symbol, prec_val) VALUES 
 (1, 'USD', '$', 2);
 
+-- Seed Exchange Rates (base -> target), for cross-currency transfers
+INSERT IGNORE INTO exchange_rates (base_currency_id, target_currency_id, exchange_rate) VALUES
+(1, 2, 0.92),     -- USD -> EUR
+(1, 3, 15700.00), -- USD -> IDR
+(1, 4, 0.79);     -- USD -> GBP
+
 -- Seed Accounts
 INSERT INTO accounts (account_id, user_id, currency_id, account_type, balance, status) VALUES 
 (1, 1, 1, 'SAVINGS', 1000.00, 'ACTIVE'),
