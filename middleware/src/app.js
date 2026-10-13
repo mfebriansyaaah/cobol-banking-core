@@ -62,7 +62,10 @@ const ROUTES = [
     { name: 'role', pattern: ROLE, required: true },
   ] },
   // Read-only consistency check: every account balance against its ledger sum.
-  { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', fields: [] },
+  // Requires a SUPER_ADMIN actor, taken from the verified token (not the body).
+  { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', actorFromToken: true, fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
   { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
@@ -130,6 +133,10 @@ export function buildRouter() {
         const input = { ...req.params, ...req.query, ...req.body };
         if (req.headers['idempotency-key']) {
           input.idempotencyKey = req.headers['idempotency-key'];
+        }
+        // Admin actions trust the verified token for the actor, never the body.
+        if (route.actorFromToken) {
+          input.actor = (req.user && req.user.email) || '';
         }
         const params = buildParams(route, input);
         assertLineLength(route.action, params);
