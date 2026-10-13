@@ -27,7 +27,7 @@ A banking core where **all business logic lives in COBOL**:
 |---|---|---|---|---|
 | `cobol/src/wallet_core.cob` | `CHECK_BALANCE` | email | ledger-backed? no: `accounts.balance` (`CONCAT(ROUND(...,2))`) | `<amount>` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/wallet_core.cob` | `TRANSFER` | sender, target, amount, **idempotency key** (opt) | one transaction: replay if key committed; `FOR UPDATE` lock; debit/credit; 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|INVALID_AMOUNT` * `ERROR\|CURRENCY_MISMATCH` * `ERROR\|DB_ERROR` |
-| `cobol/src/wallet_core.cob` | `RECONCILE` | - | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` |
+| `cobol/src/wallet_core.cob` | `RECONCILE` | actor (SUPER_ADMIN) | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `GET_USER` | email | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` |
 | `cobol/src/user_core.cob` | `LIST_USERS` | limit(20), offset(0) | paged, rows via `SQL_EXECUTE_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` |
 | `cobol/src/user_core.cob` | `GET_DASHBOARD` | email | email, full name, **all** accounts as `iso:balance;...` | `SUCCESS\|DASHBOARD\|...` * `ERROR\|ACCOUNT_NOT_FOUND` |
@@ -63,7 +63,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_suite.sh` | 13 | functional surface (actions, defaults, idempotent replay error mapping) |
 | `tests/test_atomic_txn.sh` | 5 | atomic transfer contract (file-based I/O) |
 | `tests/test_ledger_atomic.sh` | 17 | atomicity: ledger rows, rollback on every failure path, audit row |
-| `tests/test_reconciliation.sh` | 7 | `RECONCILE` on healthy/drifted states |
+| `tests/test_reconciliation.sh` | 10 | `RECONCILE` on healthy/drifted states; SUPER_ADMIN actor gate |
 | `tests/test_auth_login.sh` | 6 | login, legacy rehash on login |
 | `tests/test_signup_verify.sh` | 16 | signup + verify flow, PBKDF2 hash, uniqueness, audit |
 | `tests/test_roles.sh` | 11 | `CHECK_ROLE`/`CHANGE_ROLE` incl. SUPER_ADMIN gate |
@@ -79,8 +79,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 25 | gateway: contract, injection, rate limit, refresh, timeout, line cap, every-endpoint smoke |
 
-Shell suites total **156**; with the gateway suite **25** the full run is
-**181 assertions**, all green as of this snapshot.
+Shell suites total **159**; with the gateway suite **25** the full run is
+**184 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -89,7 +89,8 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile`, `/profile/email/request`,
 `/profile/email/confirm`, `/admin/role` (GET/POST), `/admin/reconcile`
-(read-only balance/ledger check), `/auth/logout` (revokes a refresh token).
+(read-only balance/ledger check; requires a SUPER_ADMIN actor, supplied from the
+token rather than the body), `/auth/logout` (revokes a refresh token).
 Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
 code (see `middleware/src/result.js`). Input-line cap 500 bytes; auth rate
 limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).
