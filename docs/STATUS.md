@@ -77,10 +77,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
-| `middleware/` (node --test) | 28 | gateway: contract, injection, rate limit, refresh, timeout, line cap, every-endpoint smoke, actor-token guard |
+| `middleware/` (node --test) | 29 | gateway: contract, injection, rate limit (auth + api), refresh, timeout, line cap, every-endpoint smoke, actor-token guard |
 
-Shell suites total **167**; with the gateway suite **28** the full run is
-**195 assertions**, all green as of this snapshot.
+Shell suites total **167**; with the gateway suite **29** the full run is
+**196 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -97,8 +97,10 @@ admin-only. Writes are owner-scoped too: a transfer is always sent from the
 token's account, and the email-change flow only acts on the token's own email.
 Actor/sender identity always comes from the token.
 Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
-code (see `middleware/src/result.js`). Input-line cap 500 bytes; auth rate
-limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).
+code (see `middleware/src/result.js`). Input-line cap 500 bytes; fixed-window
+rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
+`API_RATE_LIMIT_*` on the rest; `/health` exempt); access token 15m + refresh 7d
+(`middleware/.env.example`).
 
 ## 6. Governance documents
 
