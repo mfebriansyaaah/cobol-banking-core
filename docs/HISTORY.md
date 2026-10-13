@@ -923,3 +923,16 @@ _merged 2026-10-13_
 - feat(gateway): role change takes the actor from the token, not the body
 - docs: sync HISTORY.md to post-merge state (#91)
 
+## #93 read-auth-self-or-admin
+
+_merged 2026-10-13_
+
+- docs: document self-or-admin read authorization and refreshed counts
+- test(gateway): guard that actor-authorized routes read the actor from the token
+- test(gateway): cover self-or-admin reads via a seeded admin helper
+- test: seed a read admin and assert self-or-admin read access in the shell suites
+- feat(gateway): pass the token actor to the read routes (self-or-admin)
+- feat(wallet): CHECK_BALANCE requires self-or-admin actor
+- feat(user_core): GET_USER/GET_DASHBOARD self-or-admin; LIST_USERS admin-only
+- docs: sync HISTORY.md to post-merge state (#92)
+
