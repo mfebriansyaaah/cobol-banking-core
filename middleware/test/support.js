@@ -19,6 +19,21 @@ export function seedUser(email, role = 'USER') {
   }
 }
 
+// Read the latest unused verification code for an email from the database.
+// Tests use this because the gateway no longer returns the code in the response.
+export function getVerificationCode(email, purpose = 'SIGNUP') {
+  const u = process.env.DB_USER ?? 'cobol_user';
+  const p = process.env.DB_PASS ?? 'cobol_pass';
+  const n = process.env.DB_NAME ?? 'cobol_db';
+  try {
+    return execFileSync('mysql', ['-u', u, `-p${p}`, n, '-N', '-B', '-e',
+      `SELECT code FROM verification_logs WHERE email='${email}' AND purpose='${purpose}' AND is_used=0 ORDER BY id DESC LIMIT 1;`],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return '';
+  }
+}
+
 // Ensure the user has one USD savings account (used by transfer tests, whose
 // sender is the authenticated token identity). Returns false when mysql is absent.
 export function seedAccount(email, balance = '1000.00') {

@@ -1080,3 +1080,16 @@ _merged 2026-10-13_
 - chore(deps): add helmet for HTTP security headers
 - docs: sync HISTORY.md to post-merge state (#106)
 
+## #108 housekeeping
+
+_merged 2026-10-13_
+
+- docs: housekeeping (PII redaction, self-transfer, pruning) and corrected counts
+- test: use a distinct recipient for the idempotency conflict case
+- test: expired sessions and verification logs are pruned
+- feat(auth): prune expired sessions and verification logs on store/signup
+- fix(wallet): reject self-transfer; map SELF_TRANSFER/DB_DOWN
+- refactor(gateway): let COBOL own the positive-amount rule
+- fix(observability): stop logging the raw request path (PII)
+- docs: sync HISTORY.md to post-merge state (#107)
+

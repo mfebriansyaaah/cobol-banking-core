@@ -69,8 +69,9 @@ check "health is up" "200" "$CODE"
 
 http POST /auth/signup "" "{\"email\":\"$EMAIL\",\"password\":\"secret123\",\"name\":\"E2E User\",\"dob\":\"1990-01-01\"}"
 check "signup" "200" "$CODE"
-CODEV=$(jget "['data'][1]")
-case "$CODEV" in [0-9][0-9][0-9][0-9][0-9][0-9]) check "signup returns a 6-digit code" "ok" "ok" ;; *) check "signup returns a 6-digit code" "6 digits" "$CODEV" ;; esac
+check "signup response omits the code" "USER_CREATED" "$(jget "['data'][0]")"
+CODEV=$(q "SELECT code FROM verification_logs WHERE email='$EMAIL' AND purpose='SIGNUP' AND is_used=0 ORDER BY id DESC LIMIT 1;")
+case "$CODEV" in [0-9][0-9][0-9][0-9][0-9][0-9]) check "verification code delivered (in DB)" "ok" "ok" ;; *) check "verification code delivered (in DB)" "6 digits" "$CODEV" ;; esac
 
 http POST /auth/verify "" "{\"email\":\"$EMAIL\",\"code\":\"$CODEV\"}"
 check "verify" "200" "$CODE"

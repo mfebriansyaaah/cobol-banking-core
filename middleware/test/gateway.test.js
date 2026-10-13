@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount } from './support.js';
+import { seedUser, seedAccount, getVerificationCode } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -34,7 +34,9 @@ test('signup -> verify -> login -> authorized call', async (t) => {
     .post('/auth/signup')
     .send({ email: unique, password: 'secret123', name: 'Gateway User', dob: '1990-01-01' });
   assert.equal(signup.status, 200);
-  const [, code] = signup.body.data;
+  // The code is delivered out of band, not returned.
+  assert.deepEqual(signup.body.data, ['USER_CREATED']);
+  const code = getVerificationCode(unique);
   assert.match(code, /^\d{6}$/);
 
   const verify = await request(app).post('/auth/verify').send({ email: unique, code });
@@ -77,7 +79,7 @@ test('wrong password maps to 401', async () => {
 test('bare-value endpoints return 200 with data', async (t) => {
   const em = `gw_bare_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body;
   const auth = { Authorization: `Bearer ${login.token}` };
 
@@ -102,12 +104,12 @@ test('email change works for a logged-in user (related rows exist)', async () =>
   const em = `gw_conf_${Date.now()}@test.com`;
   const ne = `gw_confn_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Conf User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
 
   const reqc = await request(app).post('/profile/email/request').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne });
   assert.equal(reqc.status, 200);
-  const confirm = await request(app).post('/profile/email/confirm').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, code: reqc.body.data[1] });
+  const confirm = await request(app).post('/profile/email/confirm').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') });
   assert.equal(confirm.status, 200);
   assert.deepEqual(confirm.body.data, ['EMAIL_CHANGED']);
 });
@@ -117,8 +119,7 @@ test('refresh token yields a new access token', async () => {
   const signup = await request(app)
     .post('/auth/signup')
     .send({ email: em, password: 'secret123', name: 'Refresh User', dob: '1990-01-01' });
-  const [, code] = signup.body.data;
-  await request(app).post('/auth/verify').send({ email: em, code });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
 
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   assert.ok(login.body.refreshToken);
@@ -138,7 +139,7 @@ test('refresh token yields a new access token', async () => {
 test('replaying a rotated refresh token revokes the whole family', async () => {
   const em = `gw_reuse_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Reuse User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const r1 = login.body.refreshToken;
 
@@ -189,7 +190,7 @@ test('role change authorizes by the token actor, ignoring the body', async (t) =
 test('reusing an idempotency key with different details is a conflict', async (t) => {
   const em = `gw_idem_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   if (!seedAccount(em, '500.00')) return t.skip('mysql unavailable to seed an account');
 
@@ -220,7 +221,7 @@ test('reusing an idempotency key with different details is a conflict', async (t
 test('transfer amount is decided by COBOL, not the gateway shape', async (t) => {
   const em = `gw_amt_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   if (!seedAccount(em, '100.00')) return t.skip('mysql unavailable to seed an account');
 
