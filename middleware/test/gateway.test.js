@@ -251,3 +251,19 @@ test('transfer amount is decided by COBOL, not the gateway shape', async (t) => 
   assert.equal(self.status, 400);
   assert.equal(self.body.error, 'SELF_TRANSFER');
 });
+
+test('the list page size is bounded', async (t) => {
+  if (!seedUser('gw_admin_limit@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed an admin');
+  const token = (await request(app).post('/auth/login').send({ email: 'gw_admin_limit@test.com', password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+
+  assert.equal((await request(app).get('/users?limit=100').set(auth)).status, 200);
+  assert.equal((await request(app).get('/users?limit=1&offset=0').set(auth)).status, 200);
+
+  const tooBig = await request(app).get('/users?limit=101').set(auth);
+  assert.equal(tooBig.status, 400);
+  assert.equal(tooBig.body.error, 'INVALID_PARAMETER');
+
+  assert.equal((await request(app).get('/users?limit=0').set(auth)).status, 400);
+  assert.equal((await request(app).get('/users?limit=abc').set(auth)).status, 400);
+});
