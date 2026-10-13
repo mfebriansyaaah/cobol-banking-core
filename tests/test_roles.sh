@@ -64,6 +64,16 @@ check "role persisted" "MANAGER" "$(q "SELECT role FROM users WHERE email='$USER
 check "role now reported by CHECK_ROLE" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" MANAGER "$USER")"
 check "audit change_role row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=921 AND action='CHANGE_ROLE';")"
 
+# --- ARCHIVE_AUDIT (admin maintenance; moves rows past the retention window) ---
+q "DELETE FROM audit_trail_archive WHERE entity_id='arch-test'; DELETE FROM audit_trail WHERE entity_id='arch-test';
+   INSERT INTO audit_trail (user_id,action,entity_type,entity_id,status,created_at) VALUES
+   (920,'TEST','USER','arch-test','SUCCESS', DATE_SUB(NOW(), INTERVAL 10 DAY));"
+check "archive requires admin" "ERROR|FORBIDDEN" "$(run ARCHIVE_AUDIT 1 "$USER")"
+check "archive runs" "SUCCESS|ARCHIVED" "$(run ARCHIVE_AUDIT 1 "$ADMIN")"
+check "old row archived" "1" "$(q "SELECT COUNT(*) FROM audit_trail_archive WHERE entity_id='arch-test';")"
+check "old row removed from live table" "0" "$(q "SELECT COUNT(*) FROM audit_trail WHERE entity_id='arch-test';")"
+q "DELETE FROM audit_trail_archive WHERE entity_id='arch-test';"
+
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"
