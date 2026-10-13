@@ -61,6 +61,9 @@ Security headers are set with `helmet`. In production (`NODE_ENV=production`)
 the server refuses to start while `JWT_SECRET`/`REFRESH_SECRET` are unset or
 still the development defaults.
 
+Verification codes are delivered out of band (`SMTP_*`, or a development stub
+that logs the event without the code) and are never returned in HTTP responses.
+
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a

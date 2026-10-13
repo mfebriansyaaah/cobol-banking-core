@@ -85,10 +85,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 39 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config |
+| `middleware/` (node --test) | 41 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer |
 
-Shell suites total **215**; with the gateway suite **39** the full run is
-**254 assertions**, all green as of this snapshot.
+Shell suites total **216**; with the gateway suite **41** the full run is
+**257 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -115,7 +115,9 @@ server logs one JSON line per request (`event: http_request` with method, route,
 status, `durationMs`, `cobolMs`); counters are served at `/metrics`.
 `helmet` sets standard security headers, and in production the server refuses to
 start while JWT_SECRET/REFRESH_SECRET are unset or still the development
-defaults.
+defaults. Verification codes (`/auth/signup`, `/profile/email/request`) are
+delivered out of band (SMTP when configured, otherwise logged without the code
+in development) and are never returned in the HTTP response.
 
 ## 6. Governance documents
 
