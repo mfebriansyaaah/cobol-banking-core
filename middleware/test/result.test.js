@@ -20,3 +20,10 @@ test('a bare value (no prefix) is treated as success data', () => {
   assert.deepEqual(toHttp('1|sender@test.com'), { status: 200, body: { data: ['1', 'sender@test.com'] } });
   assert.deepEqual(toHttp('1000.00'), { status: 200, body: { data: ['1000.00'] } });
 });
+
+test('reconcile mismatch maps to 409 with the offending account(s)', () => {
+  const r = toHttp('ERROR|MISMATCH|2|5.00|0.00');
+  assert.equal(r.status, 409);
+  assert.equal(r.body.error, 'MISMATCH');
+  assert.deepEqual(r.body.detail, ['2', '5.00', '0.00']);
+});
