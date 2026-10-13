@@ -61,6 +61,9 @@ test('every bearer endpoint responds', async (t) => {
 
   // admin checks before the email changes
   assert.equal((await request(app).get(`/admin/role?email=${admin}&role=SUPER_ADMIN`).set(adminAuth)).status, 200);
+  // a user may check their own role, but not another's
+  assert.equal((await request(app).get(`/admin/role?email=${email}&role=USER`).set(auth)).status, 200);
+  assert.equal((await request(app).get('/admin/role?email=sender@test.com&role=USER').set(auth)).status, 403);
   // non-admin actor is refused by the route (business rule), not a 404; a
   // spoofed body `actor` is ignored because the actor comes from the token
   assert.equal((await request(app).post('/admin/role').set(auth).send({ email: 'receiver@test.com', role: 'MANAGER', actor: admin })).status, 403);

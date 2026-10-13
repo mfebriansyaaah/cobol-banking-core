@@ -43,9 +43,11 @@ q "DELETE FROM users WHERE email IN ('$ADMIN','$USER');
    (921,'$USER',CONCAT('SHA256_',SHA2('secret123',256)),'User','1990-01-01','VERIFIED','USER');"
 
 # --- CHECK_ROLE ---
-check "check matching role" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" USER)"
-check "check non-matching role" "ERROR|ROLE_DENIED" "$(run CHECK_ROLE "$USER" SUPER_ADMIN)"
-check "check unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run CHECK_ROLE ghost@test.com USER)"
+check "check matching role" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" USER "$USER")"
+check "check non-matching role" "ERROR|ROLE_DENIED" "$(run CHECK_ROLE "$USER" SUPER_ADMIN "$USER")"
+check "check unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run CHECK_ROLE ghost@test.com USER ghost@test.com)"
+check "check another user by admin" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" USER "$ADMIN")"
+check "check another user by non-admin forbidden" "ERROR|FORBIDDEN" "$(run CHECK_ROLE "$ADMIN" USER "$USER")"
 
 # --- CHANGE_ROLE ---
 check "non-admin actor forbidden" "ERROR|FORBIDDEN" \
@@ -59,7 +61,7 @@ check "unknown target rejected" "ERROR|ACCOUNT_NOT_FOUND" \
 check "admin changes role" "SUCCESS|ROLE_CHANGED" \
     "$(run CHANGE_ROLE "$USER" MANAGER "$ADMIN")"
 check "role persisted" "MANAGER" "$(q "SELECT role FROM users WHERE email='$USER';")"
-check "role now reported by CHECK_ROLE" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" MANAGER)"
+check "role now reported by CHECK_ROLE" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" MANAGER "$USER")"
 check "audit change_role row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=921 AND action='CHANGE_ROLE';")"
 
 echo "======================================================================"
