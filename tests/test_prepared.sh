@@ -64,6 +64,16 @@ check "prepared list first page" "SUCCESS|LIST_DONE|1:sender@test.com;2:receiver
 check "prepared list paging" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "$ADMIN")"
 check "prepared list forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS '' '' prep_ok@test.com)"
 
+# TRANSFER runs through prepared statements end to end (lock, debit/credit,
+# ledger, intent, audit).
+q "UPDATE accounts SET balance=1000.00 WHERE account_id=1;
+   UPDATE accounts SET balance=0.00 WHERE account_id=2;
+   DELETE FROM ledger WHERE txn_ref NOT LIKE 'INIT_%'; DELETE FROM pending_transactions;"
+check "prepared transfer" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 10.00 preptx-1)"
+check "prepared transfer replay is idempotent" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 10.00 preptx-1)"
+check "prepared transfer ledger rows" "2" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='preptx-1';")"
+check "prepared transfer intent committed" "COMMITTED" "$(q "SELECT status FROM pending_transactions WHERE txn_ref='preptx-1';")"
+
 q "DELETE FROM verification_logs WHERE email='prep_ok@test.com'; DELETE FROM users WHERE email IN ('prep_ok@test.com','$ADMIN');"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
