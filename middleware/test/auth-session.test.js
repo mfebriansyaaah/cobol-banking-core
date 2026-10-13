@@ -2,16 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
+import { getVerificationCode } from './support.js';
 
 const app = buildApp();
 
 async function loginNewUser() {
   const email = `gw_sess_${Date.now()}_${Math.floor(Math.random() * 1e6)}@test.com`;
-  const signup = await request(app)
+  await request(app)
     .post('/auth/signup')
     .send({ email, password: 'secret123', name: 'Session User', dob: '1990-01-01' });
-  const [, code] = signup.body.data;
-  await request(app).post('/auth/verify').send({ email, code });
+  await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   assert.equal(login.status, 200);
   return login.body.refreshToken;

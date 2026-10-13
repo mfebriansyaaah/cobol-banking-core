@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { resetMetrics, recordRequest, metricsText } from '../src/observability.js';
+import { getVerificationCode } from './support.js';
 
 test('metricsText renders recorded counters', () => {
   resetMetrics();
@@ -41,7 +42,7 @@ test('/metrics serves counters to an authenticated caller', async () => {
   const app = buildApp();
   const em = `obs_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Obs User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
 
   await request(app).get('/health');

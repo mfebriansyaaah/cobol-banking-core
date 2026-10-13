@@ -4,14 +4,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount } from './support.js';
+import { seedUser, seedAccount, getVerificationCode } from './support.js';
 
 const app = buildApp();
 
 async function freshUser() {
   const email = `ep_${Date.now()}_${Math.floor(Math.random() * 1e6)}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'EP User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email, code: s.body.data[1] });
+  await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   return { email, token: login.body.token, refreshToken: login.body.refreshToken };
 }
@@ -21,7 +21,9 @@ test('every public endpoint responds', async () => {
   const email = `ep_pub_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Pub User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  assert.equal((await request(app).post('/auth/verify').send({ email, code: s.body.data[1] })).status, 200);
+  // The verification code is not returned; it is delivered out of band.
+  assert.deepEqual(s.body.data, ['USER_CREATED']);
+  assert.equal((await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) })).status, 200);
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   assert.equal(login.status, 200);
   assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken })).status, 200);
@@ -78,7 +80,7 @@ test('every bearer endpoint responds', async (t) => {
   const ne = `ep_new_${Date.now()}@test.com`;
   const reqc = await request(app).post('/profile/email/request').set(auth).send({ email, newEmail: ne });
   assert.equal(reqc.status, 200);
-  assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: reqc.body.data[1] })).status, 200);
+  assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') })).status, 200);
 
   // Changing another user's email is refused: the actor comes from the token.
   const spoof = await request(app)
