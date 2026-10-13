@@ -61,6 +61,8 @@ const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
   ] },
+  // Read-only consistency check: every account balance against its ledger sum.
+  { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', fields: [] },
   { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
