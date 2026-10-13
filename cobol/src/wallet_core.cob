@@ -26,6 +26,8 @@
         01  WS-PREP-SQL             PIC X(256) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -228,20 +230,17 @@
 
         LOCK-ACCOUNTS.
             *> Lock both account rows in ascending id order in a single read.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT account_id FROM accounts WHERE account_id IN (" 
-                   WS-SENDER-ACC ", " WS-TARGET-ACC ") ORDER BY account_id FOR UPDATE" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            *> Uses the no-fetch prepared variant: the rows are not read (which
+            *> would raise MariaDB ER_CHECKREAD under contention).
+            MOVE "SELECT account_id FROM accounts WHERE account_id IN (?, ?) ORDER BY account_id FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-SENDER-ACC TO WS-BIND-1
+            MOVE WS-TARGET-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT = "ERROR|NO_DATA"
+            IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
-            ELSE
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
@@ -264,42 +263,39 @@
             
             *> Replay: a persisted reference means the transfer already committed.
             IF LS-PARAM4 NOT = SPACES
-                MOVE SPACES TO WS-QUERY
-                STRING "SELECT 1 FROM pending_transactions WHERE txn_ref = '" WS-REF(1:WS-REFLEN) "' LIMIT 1" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "SELECT 1 FROM pending_transactions WHERE txn_ref = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT NOT = "ERROR|NO_DATA"
                     CALL "SQL_COMMIT"
                     MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
                 END-IF
-                
+
                 *> Record the intent; a duplicate key means another attempt is running.
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('" 
-                       WS-REF(1:WS-REFLEN) "', '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "', '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "', " 
-                       WS-PARAM3-TRIMMED(1:WS-P3-LEN) ", 'PENDING')" DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES (?, ?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-IDEMP TO TRUE
                 END-IF
             END-IF
-            
+
             *> Resolve the sender account (no lock yet).
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR) " 
-                   "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT = "ERROR|NO_DATA"
@@ -316,14 +312,11 @@
             
             *> Resolve the target account (no lock yet).
             IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR) " 
-                       "FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
-                       WS-PARAM2-TRIMMED(1:WS-P2-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT = "ERROR|NO_DATA"
@@ -348,12 +341,11 @@
             
             *> Read the sender balance now that its row is locked.
             IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "SELECT CONCAT(ROUND(balance,2)) FROM accounts WHERE account_id = " WS-SENDER-ACC 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "SELECT CONCAT(ROUND(balance,2)) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-SENDER-ACC TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT = "ERROR|NO_DATA"
                     SET WS-TRANSFER-FAIL-SENDER TO TRUE
@@ -390,13 +382,12 @@
             
             *> Debit sender.
             IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "UPDATE accounts SET balance = balance - " WS-PARAM3-TRIMMED 
-                       " WHERE account_id = " WS-SENDER-ACC DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
@@ -406,13 +397,12 @@
             
             *> Credit target.
             IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "UPDATE accounts SET balance = balance + " WS-PARAM3-TRIMMED 
-                       " WHERE account_id = " WS-TARGET-ACC DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+                MOVE WS-TARGET-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
@@ -422,14 +412,14 @@
             
             *> Immutable ledger entries: one DEBIT, one CREDIT, same txn_ref.
             IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES ('" 
-                       WS-REF(1:WS-REFLEN) "', " WS-SENDER-ACC ", " WS-PARAM3-TRIMMED ", 'DEBIT', " WS-SENDER-CUR ", 'Transfer out')" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'DEBIT', ?, 'Transfer out')" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+                MOVE WS-SENDER-CUR TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -438,14 +428,14 @@
             END-IF
             
             IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES ('" 
-                       WS-REF(1:WS-REFLEN) "', " WS-TARGET-ACC ", " WS-PARAM3-TRIMMED ", 'CREDIT', " WS-TARGET-CUR ", 'Transfer in')" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'CREDIT', ?, 'Transfer in')" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-TARGET-ACC TO WS-BIND-2
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+                MOVE WS-TARGET-CUR TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -455,14 +445,12 @@
             
             *> Audit the movement inside the same transaction.
             IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
-                       WS-SENDER-USER ", 'TRANSFER', 'ACCOUNT', " WS-SENDER-ACC ", 'SUCCESS')" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE WS-SENDER-USER TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -472,12 +460,11 @@
             
             *> Mark the intent committed (the reference only persists on success).
             IF WS-TRANSFER-OK AND LS-PARAM4 NOT = SPACES
-                MOVE SPACES TO WS-QUERY
-                STRING "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = '" 
-                       WS-REF(1:WS-REFLEN) "'" DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = ?" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
