@@ -56,6 +56,11 @@ Tables in `database/schema.sql` (v1.5.0):
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
+The bridge reads its connection from the environment
+(`DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASS`/`DB_NAME`, with development
+defaults); no credentials are compiled into the source. The gateway passes its
+own environment (see `middleware/.env.example`) to the binary it spawns.
+
 Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; `database/migrate.sh --check` verifies none are pending. Seed data: `database/seed_test_data.sql`.
 
 ## 4. Test suites (all green under `./ci.sh`)
@@ -76,14 +81,14 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 8 | STORE/CHECK/REVOKE_SESSION lifecycle + reuse detection (family revocation) |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
-| `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
+| `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
 | `middleware/` (node --test) | 35 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict |
 
-Shell suites total **207**; with the gateway suite **35** the full run is
-**242 assertions**, all green as of this snapshot.
+Shell suites total **208**; with the gateway suite **35** the full run is
+**243 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
