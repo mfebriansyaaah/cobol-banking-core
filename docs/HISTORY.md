@@ -1175,3 +1175,13 @@ _merged 2026-10-13_
 - feat(db): migration 0009 adds a per-token access-token denylist
 - docs: sync HISTORY.md to post-merge state (#115)
 
+## #117 distributed-rate-limit
+
+_merged 2026-10-13_
+
+- docs: distributed rate limiting (store seam, REDIS_URL) and ADR-0007
+- test(ratelimit): a shared store enforces the limit across instances
+- feat(ratelimit): pluggable counter store (memory/Redis) and trust proxy
+- chore(deps): add redis for a distributed rate-limit store
+- docs: sync HISTORY.md to post-merge state (#116)
+
