@@ -92,6 +92,10 @@ export const ROUTES = [
     { name: 'role', pattern: ROLE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
+  { method: 'post', path: '/admin/audit/archive', action: 'ARCHIVE_AUDIT', tokenIdentity: 'actor', fields: [
+    { name: 'days', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
 ];
 
 async function tokenVersion(email) {
