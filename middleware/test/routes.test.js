@@ -1,20 +1,28 @@
-// Guard: unknown or missing actor identity must be enforced in COBOL for both
-// admin actions and per-user reads, and a route must never take the actor from
-// the request body. Routes whose COBOL action authorizes by actor must set
-// actorFromToken.
+// Guard: routes whose COBOL action authorizes by identity must fill that field
+// from the verified token, never the request body. Covers admin actions,
+// self-or-admin reads, the email-change flow, and the transfer sender.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ROUTES } from '../src/app.js';
 
-// Admin-only actions plus per-user reads that are self-or-admin.
-const ACTOR_ACTIONS = ['CHANGE_ROLE', 'RECONCILE', 'GET_USER', 'CHECK_BALANCE', 'GET_DASHBOARD', 'LIST_USERS'];
+const TOKEN_IDENTITY = {
+  CHANGE_ROLE: 'actor',
+  RECONCILE: 'actor',
+  GET_USER: 'actor',
+  CHECK_BALANCE: 'actor',
+  GET_DASHBOARD: 'actor',
+  LIST_USERS: 'actor',
+  REQ_EMAIL_CHANGE: 'actor',
+  CONFIRM_EMAIL_CHANGE: 'actor',
+  TRANSFER: 'from',
+};
 
-test('every actor-authorized action takes its actor from the token', () => {
-  for (const action of ACTOR_ACTIONS) {
+test('every identity-authorized action takes its identity from the token', () => {
+  for (const [action, field] of Object.entries(TOKEN_IDENTITY)) {
     const routes = ROUTES.filter((r) => r.action === action);
     assert.ok(routes.length > 0, `${action} is exposed by a route`);
     for (const route of routes) {
-      assert.equal(route.actorFromToken, true, `${route.method} ${route.path} (${action}) must set actorFromToken`);
+      assert.equal(route.tokenIdentity, field, `${route.method} ${route.path} (${action}) must set tokenIdentity '${field}'`);
     }
   }
 });
