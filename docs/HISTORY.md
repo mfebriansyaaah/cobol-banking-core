@@ -979,3 +979,13 @@ _merged 2026-10-13_
 - refactor(user_core): prepared statements for read authorization and GET_USER
 - docs: sync HISTORY.md to post-merge state (#96)
 
+## #98 prepared-rows
+
+_merged 2026-10-13_
+
+- docs: record the prepared multi-row list and refreshed counts
+- test: exercise LIST_USERS through the prepared multi-row bridge call
+- refactor(user_core): LIST_USERS uses the prepared multi-row bridge call
+- feat(bridge): add SQL_PREPARE_EXEC_ROWS (bound params, multi-row result)
+- docs: sync HISTORY.md to post-merge state (#97)
+
