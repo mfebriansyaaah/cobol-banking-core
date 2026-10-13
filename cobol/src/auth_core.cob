@@ -92,6 +92,12 @@
                     PERFORM REVOKE-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "CHECK_SESSION"
                     PERFORM CHECK-SESSION-LOGIC
+                WHEN LS-CMD-ACTION(1:11) = "CHECK_TOKEN"
+                    PERFORM CHECK-TOKEN-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "REVOKE_TOKENS"
+                    PERFORM REVOKE-TOKENS-LOGIC
+                WHEN LS-CMD-ACTION(1:17) = "GET_TOKEN_VERSION"
+                    PERFORM GET-TOKEN-VERSION-LOGIC
                 WHEN LS-CMD-ACTION(1:4) = "PING"
                     PERFORM PING-LOGIC
                 WHEN OTHER
@@ -747,6 +753,65 @@
                 ELSE
                     MOVE "SUCCESS|SESSION_VALID" TO LS-OUTPUT-BUFFER
                 END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        GET-TOKEN-VERSION-LOGIC.
+            *> p1 = email. Returns the current access-token version.
+            MOVE "SELECT CAST(token_version AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|TOKEN_CHECK_FAILED" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE SPACES TO LS-OUTPUT-BUFFER
+                    STRING "SUCCESS|" WS-RESULT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                    END-STRING
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHECK-TOKEN-LOGIC.
+            *> p1 = email, p2 = version presented by the token.
+            MOVE "SELECT CAST(token_version AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|TOKEN_CHECK_FAILED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:WS-P2-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE "SUCCESS|TOKEN_VALID" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "ERROR|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        REVOKE-TOKENS-LOGIC.
+            *> p1 = email. Bump the version so every issued access token dies.
+            MOVE "UPDATE users SET token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|TOKEN_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|TOKENS_REVOKED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
