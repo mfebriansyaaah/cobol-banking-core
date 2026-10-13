@@ -1154,3 +1154,13 @@ _merged 2026-10-13_
 - feat(db): migration 0008 adds exchange_rates for cross-currency transfers
 - docs: sync HISTORY.md to post-merge state (#113)
 
+## #115 multiline-output
+
+_merged 2026-10-13_
+
+- docs: multi-record output (16 KB buffers, gateway reassembly)
+- test(gateway): a large list is not truncated
+- feat(gateway): join multi-line COBOL output instead of reading only the first line
+- feat(core): multi-record output; raise result buffers to 16 KB
+- docs: sync HISTORY.md to post-merge state (#114)
+

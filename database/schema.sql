@@ -140,7 +140,17 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
     CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 10. Tabel Schema Migrations (applied-migration tracking)
+-- 10. Access-token denylist (per-token revocation; complements users.token_version)
+CREATE TABLE IF NOT EXISTS revoked_access_tokens (
+    jti VARCHAR(50) PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    revoked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_revoked_expires (expires_at),
+    CONSTRAINT fk_revoked_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- 11. Tabel Schema Migrations (applied-migration tracking)
 CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(64) PRIMARY KEY,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

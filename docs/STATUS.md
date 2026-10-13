@@ -44,8 +44,9 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_SESSION` | jti | is the refresh token still valid, reused, expired or unknown | `SUCCESS\|SESSION_VALID` * `ERROR\|SESSION_REUSED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|SESSION_EXPIRED` |
 | `cobol/src/auth_core.cob` | `GET_TOKEN_VERSION` | email | current access-token version for a user | `SUCCESS\|<ver>` * `ERROR\|ACCOUNT_NOT_FOUND` |
-| `cobol/src/auth_core.cob` | `CHECK_TOKEN` | email, version | is the presented access-token version current | `SUCCESS\|TOKEN_VALID` * `ERROR\|TOKEN_REVOKED` * `ERROR\|ACCOUNT_NOT_FOUND` |
+| `cobol/src/auth_core.cob` | `CHECK_TOKEN` | email, version, jti | access token is current and not denylisted | `SUCCESS\|TOKEN_VALID` * `ERROR\|TOKEN_REVOKED` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `REVOKE_TOKENS` | email | bump the version, invalidating issued access tokens | `SUCCESS\|TOKENS_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
+| `cobol/src/auth_core.cob` | `REVOKE_ACCESS_TOKEN` | jti, email, ttl seconds | deny one access token until it would expire | `SUCCESS\|TOKEN_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` |
 
 The routing contract lives in `AGENTS.md`; `ci.sh` verifies every routed
@@ -55,7 +56,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
 `users` (with `token_version`) * `currencies` * `accounts` * `ledger` *
-`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `exchange_rates` * `schema_migrations`
+`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -82,16 +83,16 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_idempotent_transfer.sh` | 20 | replay-no-op, key reuse conflict, distinct keys, failure retry |
 | `tests/test_transfer_validity.sh` | 17 | positive-amount, self-transfer, and cross-currency (FX + missing rate) |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
-| `tests/test_session.sh` | 14 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version revocation |
+| `tests/test_session.sh` | 18 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version + per-token revocation |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 47 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
+| `middleware/` (node --test) | 48 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
 
-Shell suites total **227**; with the gateway suite **47** the full run is
-**274 assertions**, all green as of this snapshot.
+Shell suites total **231**; with the gateway suite **48** the full run is
+**279 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -101,7 +102,8 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 (`Idempotency-Key`), `/profile`, `/profile/email/request`,
 `/profile/email/confirm`, `/admin/role` (GET/POST), `/admin/reconcile`
 (read-only balance/ledger check), `/metrics` (Prometheus counters, bearer),
-`/auth/logout` (revokes a refresh token).
+`/auth/logout` (revokes a refresh token), `/auth/revoke` (revokes the presented
+access token).
 Both admin routes (`/admin/role` POST, `/admin/reconcile`) take the actor from
 the verified token, never the request body. The per-user reads (`/users/:email`,
 `/wallet/balance`, `/profile`) and the role check `GET /admin/role` allow the
@@ -124,14 +126,16 @@ delivered out of band (SMTP when configured, otherwise logged without the code
 in development) and are never returned in the HTTP response. Access tokens carry
 the user's token version, checked on every protected request (`CHECK_TOKEN`);
 logout bumps it (`REVOKE_TOKENS`), so an issued access token can be revoked
-before it expires. Responses share one envelope - success `{ data: [...] }`,
-failure `{ error, detail? }` - and the list page size is capped at 100
-(`limit` 1..100).
+before it expires. A single token can be revoked per `jti` (`POST /auth/revoke`
+-> `REVOKE_ACCESS_TOKEN`), and the denylist lives in the shared database behind
+a `tokenStore` seam (a distributed store can replace it). Responses share one
+envelope - success `{ data: [...] }`, failure `{ error, detail? }` - and the
+list page size is capped at 100 (`limit` 1..100).
 
 ## 6. Governance documents
 
 - `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
-- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md` - decisions.
+- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 

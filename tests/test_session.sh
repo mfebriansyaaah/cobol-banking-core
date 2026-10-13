@@ -64,6 +64,13 @@ check "unknown user token check" "ERROR|ACCOUNT_NOT_FOUND" "$(run CHECK_TOKEN gh
 check "revoke tokens" "SUCCESS|TOKENS_REVOKED" "$(run REVOKE_TOKENS sess@test.com)"
 check "previous version now revoked" "ERROR|TOKEN_REVOKED" "$(run CHECK_TOKEN sess@test.com "$TV")"
 
+# Per-token denylist: one jti can be revoked without bumping the version.
+TJ=$(run GET_TOKEN_VERSION sess@test.com); TJ=${TJ##*|}
+check "jti valid before revoke" "SUCCESS|TOKEN_VALID" "$(run CHECK_TOKEN sess@test.com "$TJ" jti-den-1)"
+check "revoke access token" "SUCCESS|TOKEN_REVOKED" "$(run REVOKE_ACCESS_TOKEN jti-den-1 sess@test.com 900)"
+check "jti revoked after" "ERROR|TOKEN_REVOKED" "$(run CHECK_TOKEN sess@test.com "$TJ" jti-den-1)"
+check "other jti still valid" "SUCCESS|TOKEN_VALID" "$(run CHECK_TOKEN sess@test.com "$TJ" jti-den-2)"
+
 q "DELETE FROM refresh_sessions WHERE jti LIKE 'jti-sh%'; DELETE FROM users WHERE id=970;"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"

@@ -27,6 +27,15 @@ export function signToken(payload) {
   return jwt.sign(payload, SECRET, { expiresIn: EXPIRES_IN });
 }
 
+// Access-token lifetime in seconds (for the per-token denylist expiry).
+function parseSeconds(spec, fallback) {
+  const m = /^(\d+)\s*([smhd])?$/.exec(String(spec || '').trim());
+  if (!m) return fallback;
+  const mult = { s: 1, m: 60, h: 3600, d: 86400 }[m[2] || 's'];
+  return Number(m[1]) * mult;
+}
+export const ACCESS_TTL_SECONDS = parseSeconds(EXPIRES_IN, 900);
+
 /** Issue a refresh token carrying a jti (server-side revocable id). */
 export function signRefresh(payload, jti = randomUUID()) {
   const token = jwt.sign({ ...payload, jti }, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES_IN });
