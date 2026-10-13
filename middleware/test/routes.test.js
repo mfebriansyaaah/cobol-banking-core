@@ -8,6 +8,7 @@ import { ROUTES } from '../src/app.js';
 const TOKEN_IDENTITY = {
   CHANGE_ROLE: 'actor',
   RECONCILE: 'actor',
+  CHECK_ROLE: 'actor',
   GET_USER: 'actor',
   CHECK_BALANCE: 'actor',
   GET_DASHBOARD: 'actor',
