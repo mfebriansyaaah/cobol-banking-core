@@ -40,6 +40,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `AUTH_LOGIN` | email, password | 3-fail/15-min lockout; PBKDF2 verify w/ legacy SHA256 fallback + rehash; must be `VERIFIED` | `SUCCESS\|LOGIN_OK` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|UNVERIFIED` * `ERROR\|ACCOUNT_LOCKED` |
 | `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role, actor (self-or-admin) | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update + audit | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
+| `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive` | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_SESSION` | jti | is the refresh token still valid, reused, expired or unknown | `SUCCESS\|SESSION_VALID` * `ERROR\|SESSION_REUSED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|SESSION_EXPIRED` |
@@ -56,7 +57,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
 `users` (with `token_version`) * `currencies` * `accounts` * `ledger` *
-`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
+`verification_logs` * `audit_trail` * `audit_trail_archive` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -77,7 +78,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_reconciliation.sh` | 10 | `RECONCILE` on healthy/drifted states; SUPER_ADMIN actor gate |
 | `tests/test_auth_login.sh` | 6 | login, legacy rehash on login |
 | `tests/test_signup_verify.sh` | 21 | signup + verify flow, PBKDF2 hash, uniqueness, audit, expired-log pruning |
-| `tests/test_roles.sh` | 13 | `CHECK_ROLE` self-or-admin + `CHANGE_ROLE` SUPER_ADMIN gate |
+| `tests/test_roles.sh` | 17 | `CHECK_ROLE` self-or-admin, `CHANGE_ROLE` SUPER_ADMIN gate, `ARCHIVE_AUDIT` |
 | `tests/test_user_profile.sh` | 17 | dashboard multi-account, paging, email-change |
 | `tests/test_login_lockout.sh` | 7 | 3-fail lockout, audit rows, clearing |
 | `tests/test_idempotent_transfer.sh` | 20 | replay-no-op, key reuse conflict, distinct keys, failure retry |
@@ -89,10 +90,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 51 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push), idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
+| `middleware/` (node --test) | 52 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push), idempotency conflict, self-transfer, audit archive, security headers/config, mailer, error mapping |
 
-Shell suites total **231**; with the gateway suite **51** the full run is
-**282 assertions**, all green as of this snapshot.
+Shell suites total **235**; with the gateway suite **52** the full run is
+**287 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -103,7 +104,7 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/profile/email/confirm`, `/admin/role` (GET/POST), `/admin/reconcile`
 (read-only balance/ledger check), `/metrics` (Prometheus counters, bearer),
 `/auth/logout` (revokes a refresh token), `/auth/revoke` (revokes the presented
-access token).
+access token), `/admin/audit/archive` (moves old audit rows to the archive).
 Both admin routes (`/admin/role` POST, `/admin/reconcile`) take the actor from
 the verified token, never the request body. The per-user reads (`/users/:email`,
 `/wallet/balance`, `/profile`) and the role check `GET /admin/role` allow the
@@ -138,7 +139,7 @@ list page size is capped at 100 (`limit` 1..100).
 ## 6. Governance documents
 
 - `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
-- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md`, `docs/adr/0008-metrics-export.md` - decisions.
+- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md`, `docs/adr/0008-metrics-export.md`, `docs/adr/0009-audit-retention.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 
@@ -149,5 +150,5 @@ list page size is capped at 100 (`limit` 1..100).
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Prepared statements are used for the parameterized queries in `user_core`, `wallet_core` and most of `auth_core`; the remaining `auth_core` statements (login/lockout, signup/verify, audit) embed `mysql_real_escape_string`-escaped values, which the whitelist validator plus escaping keep safe. The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
 - `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are single-use and rotate within a `family`; presenting an already-revoked token is treated as reuse and revokes the whole family (all sessions for that login), so a stolen token cannot be replayed.
-- Expired `refresh_sessions` and `verification_logs` are pruned opportunistically (on session store and on signup); `audit_trail` is append-only and retained.
+- Expired `refresh_sessions` and `verification_logs` are pruned opportunistically (on session store and on signup). `audit_trail` is append-only but bounded: `ARCHIVE_AUDIT` moves rows past a retention window into the immutable `audit_trail_archive`.
 - Results are written as 500-char records and reassembled by the gateway; the buffers are 16 KB, so extremely large lists still have an upper bound. Process-per-request limits throughput (revisit ADR-0001 at scale).
