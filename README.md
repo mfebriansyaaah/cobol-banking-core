@@ -65,7 +65,8 @@ Verification codes are delivered out of band (`SMTP_*`, or a development stub
 that logs the event without the code) and are never returned in HTTP responses.
 Access tokens carry a per-user version that is checked on every request and is
 bumped on logout (`REVOKE_TOKENS`), so an access token can be revoked before it
-expires.
+expires. A single token can also be denied by `jti` via `POST /auth/revoke`; the
+denylist is shared (DB) behind a `tokenStore` seam.
 
 Responses use one envelope - success `{ data: [...] }`, failure
 `{ error, detail? }`. `/users` is paged (`limit` 1..100, `offset`).
