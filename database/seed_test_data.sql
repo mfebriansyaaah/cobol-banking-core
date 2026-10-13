@@ -3,7 +3,8 @@ USE cobol_db;
 -- Seed Users
 INSERT INTO users (id, email, password_hash, full_name, dob, status, role) VALUES 
 (1, 'sender@test.com', 'hash1', 'Sender User', '1990-01-01', 'VERIFIED', 'USER'),
-(2, 'receiver@test.com', 'hash2', 'Receiver User', '1990-01-02', 'VERIFIED', 'USER');
+(2, 'receiver@test.com', 'hash2', 'Receiver User', '1990-01-02', 'VERIFIED', 'USER'),
+(3, 'admin@test.com', 'hash3', 'Admin User', '1990-01-03', 'VERIFIED', 'SUPER_ADMIN');
 
 -- Seed Currencies (Ensure USD exists as ID 1)
 INSERT IGNORE INTO currencies (currency_id, iso_code, symbol, prec_val) VALUES 

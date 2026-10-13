@@ -16,8 +16,12 @@ reset_test_db() {
     mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "
         UPDATE accounts SET balance=1000.00 WHERE account_id=1;
         UPDATE accounts SET balance=0.00 WHERE account_id=2;
-        DELETE FROM ledger WHERE txn_ref NOT LIKE 'INIT_%';" >/dev/null 2>&1
+        DELETE FROM ledger WHERE txn_ref NOT LIKE 'INIT_%';
+        INSERT INTO users (id,email,password_hash,full_name,dob,status,role)
+        VALUES (3,'admin@test.com','hash3','Admin User','1990-01-03','VERIFIED','SUPER_ADMIN')
+        ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';" >/dev/null 2>&1
 }
+ADMIN="admin@test.com"
 reset_test_db
 
 # Colors for output
@@ -62,17 +66,20 @@ assert_output "" "" "" "" "" "ERROR|MISSING_ACTION" "Missing action should error
 assert_output "INVALID_OP" "" "" "" "" "ERROR|INVALID_ACTION" "Invalid action should error"
 
 # --- Feature Tests: GET_USER ---
-assert_output "GET_USER" "sender@test.com" "" "" "" "1|sender@test.com" "Get existing user (sender)"
-assert_output "GET_USER" "receiver@test.com" "" "" "" "2|receiver@test.com" "Get existing user (receiver)"
-assert_output "GET_USER" "unknown@test.com" "" "" "" "ERROR|NOT_FOUND" "Get non-existent user"
+assert_output "GET_USER" "sender@test.com" "$ADMIN" "" "" "1|sender@test.com" "Get existing user (sender)"
+assert_output "GET_USER" "receiver@test.com" "$ADMIN" "" "" "2|receiver@test.com" "Get existing user (receiver)"
+assert_output "GET_USER" "unknown@test.com" "$ADMIN" "" "" "ERROR|NOT_FOUND" "Get non-existent user"
+assert_output "GET_USER" "sender@test.com" "receiver@test.com" "" "" "ERROR|FORBIDDEN" "Get another user's record is forbidden"
 
 # --- Feature Tests: LIST_USERS ---
-assert_output "LIST_USERS" "" "" "" "" "SUCCESS|LIST_DONE" "List users success"
+assert_output "LIST_USERS" "" "" "$ADMIN" "" "SUCCESS|LIST_DONE" "List users success (admin)"
+assert_output "LIST_USERS" "" "" "sender@test.com" "" "ERROR|FORBIDDEN" "List users forbidden for non-admin"
 
 # --- Feature Tests: CHECK_BALANCE ---
-assert_output "CHECK_BALANCE" "sender@test.com" "" "" "" "1000.00" "Check balance for sender"
-assert_output "CHECK_BALANCE" "receiver@test.com" "" "" "" "0.00" "Check balance for receiver"
-assert_output "CHECK_BALANCE" "unknown@test.com" "" "" "" "ERROR|ACCOUNT_NOT_FOUND" "Check balance for unknown user"
+assert_output "CHECK_BALANCE" "sender@test.com" "$ADMIN" "" "" "1000.00" "Check balance for sender"
+assert_output "CHECK_BALANCE" "receiver@test.com" "$ADMIN" "" "" "0.00" "Check balance for receiver"
+assert_output "CHECK_BALANCE" "unknown@test.com" "$ADMIN" "" "" "ERROR|ACCOUNT_NOT_FOUND" "Check balance for unknown user"
+assert_output "CHECK_BALANCE" "sender@test.com" "receiver@test.com" "" "" "ERROR|FORBIDDEN" "Check another user's balance is forbidden"
 
 # --- Feature Tests: TRANSFER ---
 # Test 1: Valid Transfer

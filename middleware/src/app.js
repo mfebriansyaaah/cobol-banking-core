@@ -9,7 +9,7 @@ const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `actorFromToken`
-// marks admin actions whose actor is the verified token identity, never the body.
+// marks routes whose actor is the verified token identity, never the body.
 export const ROUTES = [
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
@@ -30,15 +30,18 @@ export const ROUTES = [
     return { ...body, token: signToken({ email: input.email }), refreshToken: issued.token };
   } },
 
-  { method: 'get', path: '/users', action: 'LIST_USERS', fields: [
+  { method: 'get', path: '/users', action: 'LIST_USERS', actorFromToken: true, fields: [
     { name: 'limit', pattern: INT, required: false },
     { name: 'offset', pattern: INT, required: false },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'get', path: '/users/:email', action: 'GET_USER', fields: [
+  { method: 'get', path: '/users/:email', action: 'GET_USER', actorFromToken: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', fields: [
+  { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', actorFromToken: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
   { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', fields: [
     { name: 'from', pattern: EMAIL, required: true },
@@ -46,8 +49,9 @@ export const ROUTES = [
     { name: 'amount', pattern: AMOUNT, required: true },
     { name: 'idempotencyKey', pattern: KEY, required: false },
   ] },
-  { method: 'get', path: '/profile', action: 'GET_DASHBOARD', fields: [
+  { method: 'get', path: '/profile', action: 'GET_DASHBOARD', actorFromToken: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
   { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', fields: [
     { name: 'email', pattern: EMAIL, required: true },

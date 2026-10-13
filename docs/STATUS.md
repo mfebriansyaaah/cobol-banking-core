@@ -25,12 +25,12 @@ A banking core where **all business logic lives in COBOL**:
 
 | Module | Action | Params | Behavior | Outputs |
 |---|---|---|---|---|
-| `cobol/src/wallet_core.cob` | `CHECK_BALANCE` | email | ledger-backed? no: `accounts.balance` (`CONCAT(ROUND(...,2))`) | `<amount>` * `ERROR\|ACCOUNT_NOT_FOUND` |
+| `cobol/src/wallet_core.cob` | `CHECK_BALANCE` | email, actor (self-or-admin) | ledger-backed? no: `accounts.balance` (`CONCAT(ROUND(...,2))`) | `<amount>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/wallet_core.cob` | `TRANSFER` | sender, target, amount, **idempotency key** (opt) | one transaction: replay if key committed; `FOR UPDATE` lock; debit/credit; 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|INVALID_AMOUNT` * `ERROR\|CURRENCY_MISMATCH` * `ERROR\|DB_ERROR` |
 | `cobol/src/wallet_core.cob` | `RECONCILE` | actor (SUPER_ADMIN) | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` * `ERROR\|FORBIDDEN` |
-| `cobol/src/user_core.cob` | `GET_USER` | email | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` |
-| `cobol/src/user_core.cob` | `LIST_USERS` | limit(20), offset(0) | paged, rows via `SQL_EXECUTE_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` |
-| `cobol/src/user_core.cob` | `GET_DASHBOARD` | email | email, full name, **all** accounts as `iso:balance;...` | `SUCCESS\|DASHBOARD\|...` * `ERROR\|ACCOUNT_NOT_FOUND` |
+| `cobol/src/user_core.cob` | `GET_USER` | email, actor (self-or-admin) | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` * `ERROR\|FORBIDDEN` |
+| `cobol/src/user_core.cob` | `LIST_USERS` | limit(20), offset(0), actor (admin) | paged, rows via `SQL_EXECUTE_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` * `ERROR\|FORBIDDEN` |
+| `cobol/src/user_core.cob` | `GET_DASHBOARD` | email, actor (self-or-admin) | email, full name, **all** accounts as `iso:balance;...` | `SUCCESS\|DASHBOARD\|...` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `REQ_EMAIL_CHANGE` | current, new | 6-digit code stored against the new email | `SUCCESS\|CODE_SENT\|<code>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|EMAIL_EXISTS` * `ERROR\|EMAIL_CHANGE_FAILED` |
 | `cobol/src/user_core.cob` | `CONFIRM_EMAIL_CHANGE` | current, new, code | consume code, move email, audit | `SUCCESS\|EMAIL_CHANGED` * `ERROR\|INVALID_CODE` * `ERROR\|EMAIL_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `REQUEST_SIGNUP` | email, password, name, dob | 8-char min password, unique email, PBKDF2 hash, 6-digit code in `verification_logs` | `SUCCESS\|USER_CREATED\|<code>` * `ERROR\|WEAK_PASSWORD` * `ERROR\|EMAIL_EXISTS` * `ERROR\|SIGNUP_FAILED` |
@@ -77,10 +77,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
-| `middleware/` (node --test) | 27 | gateway: contract, injection, rate limit, refresh, timeout, line cap, every-endpoint smoke, admin actor guard |
+| `middleware/` (node --test) | 28 | gateway: contract, injection, rate limit, refresh, timeout, line cap, every-endpoint smoke, actor-token guard |
 
-Shell suites total **159**; with the gateway suite **27** the full run is
-**186 assertions**, all green as of this snapshot.
+Shell suites total **165**; with the gateway suite **28** the full run is
+**193 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -91,7 +91,9 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/profile/email/confirm`, `/admin/role` (GET/POST), `/admin/reconcile`
 (read-only balance/ledger check), `/auth/logout` (revokes a refresh token).
 Both admin routes (`/admin/role` POST, `/admin/reconcile`) take the actor from
-the verified token, never the request body.
+the verified token, never the request body. The per-user reads (`/users/:email`,
+`/wallet/balance`, `/profile`) allow the owner or an admin; `/users` (list) is
+admin-only. Actor identity always comes from the token.
 Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
 code (see `middleware/src/result.js`). Input-line cap 500 bytes; auth rate
 limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).

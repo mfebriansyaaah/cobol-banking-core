@@ -913,3 +913,13 @@ _merged 2026-10-13_
 - feat(wallet): RECONCILE requires a SUPER_ADMIN actor (p1); else FORBIDDEN
 - docs: sync HISTORY.md to post-merge state (#90)
 
+## #92 role-actor-from-token
+
+_merged 2026-10-13_
+
+- docs: both admin routes source the actor from the token
+- docs(standards): admin actions take the actor from the token, not the body
+- test(gateway): cover role-change token actor and guard admin routes stay token-sourced
+- feat(gateway): role change takes the actor from the token, not the body
+- docs: sync HISTORY.md to post-merge state (#91)
+

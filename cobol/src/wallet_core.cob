@@ -22,6 +22,7 @@
         01  WS-I                   PIC 9(3).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -148,7 +149,31 @@
                 END-IF
             END-PERFORM.
 
+        ALLOW-READ.
+            *> Sets WS-ALLOWED when the actor (p2) owns the target (p1) or is an admin.
+            MOVE 0 TO WS-ALLOWED
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE 1 TO WS-ALLOWED
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT role FROM users WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' LIMIT 1"
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
         GET-BALANCE-LOGIC.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             MOVE SPACES TO WS-QUERY.
             STRING "SELECT CONCAT(ROUND(a.balance, 2)) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = '" 
                    WS-PARAM1-TRIMMED "'" DELIMITED BY SIZE INTO WS-QUERY

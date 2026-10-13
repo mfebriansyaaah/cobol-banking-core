@@ -39,6 +39,7 @@
         01  WS-I                    PIC 9(3).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -64,13 +65,16 @@
             EVALUATE TRUE
                 WHEN LS-CMD-ACTION(1:8) = "GET_USER"
                     PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
                     PERFORM ACTION-GET-USER
                 WHEN LS-CMD-ACTION(1:10) = "LIST_USERS"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
                     PERFORM ACTION-LIST-USERS
                 WHEN LS-CMD-ACTION(1:13) = "GET_DASHBOARD"
                     PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
                     PERFORM ACTION-DASHBOARD
                 WHEN LS-CMD-ACTION(1:16) = "REQ_EMAIL_CHANGE"
                     PERFORM TRIM-PARAM1
@@ -203,7 +207,46 @@
                 MOVE 1 TO WS-RLEN
             END-IF.
 
+        ALLOW-READ.
+            *> Sets WS-ALLOWED when the actor (p2) owns the target (p1) or is an admin.
+            MOVE 0 TO WS-ALLOWED
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE 1 TO WS-ALLOWED
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT role FROM users WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' LIMIT 1"
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-ADMIN.
+            *> Sets WS-ALLOWED when the actor (p3) is a SUPER_ADMIN or MANAGER.
+            MOVE 0 TO WS-ALLOWED
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT role FROM users WHERE email = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' LIMIT 1"
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
         ACTION-GET-USER.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             MOVE SPACES TO WS-QUERY
             STRING "SELECT id, email FROM users WHERE email = '" 
                    WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1"
@@ -222,6 +265,11 @@
             EXIT PARAGRAPH.
 
         ACTION-LIST-USERS.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> Paged list via the multi-row bridge call (one row per user).
             MOVE "20" TO WS-LIMIT
             MOVE "0" TO WS-OFFSET
@@ -251,6 +299,11 @@
             EXIT PARAGRAPH.
 
         ACTION-DASHBOARD.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> All of the user's accounts, as iso:balance pairs.
             MOVE SPACES TO WS-QUERY
             STRING "SELECT u.email, u.full_name, " 

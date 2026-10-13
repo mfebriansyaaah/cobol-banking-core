@@ -55,10 +55,10 @@ npm --prefix middleware start     # reads middleware/.env (see middleware/.env.e
 
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
-admin routes (`POST /admin/role`, `GET /admin/reconcile`) take the acting
-identity from the token, never the request body. Each request runs the binary in
-its own working directory (see `docs/adr/0001-invocation-model.md`); responses
-carry `X-Cobol-Ms`.
+acting identity always comes from the token, never the request body. Reads of a
+user's record/balance/profile allow the owner or an admin, and listing users is
+admin-only. Each request runs the binary in its own working directory (see
+`docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms`.
 
 ## Where things are documented
 - `AGENTS.md` — workflow, language, business-logic boundary, routing contract, I/O.

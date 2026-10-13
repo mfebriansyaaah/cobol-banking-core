@@ -48,27 +48,35 @@ echo "======================================================================"
 U="prof@test.com"
 UNEW="prof_new@test.com"
 OTHER="prof_other@test.com"
+ADMIN="prof_admin@test.com"
 
 q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER');
    DELETE FROM accounts WHERE account_id IN (950,951,952);
    DELETE FROM users WHERE email IN ('$U','$UNEW','$OTHER');
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (950,'$U',CONCAT('SHA256_',SHA2('secret123',256)),'Prof User','1990-01-01','VERIFIED','USER'),
-   (951,'$OTHER',CONCAT('SHA256_',SHA2('secret123',256)),'Other User','1990-01-01','VERIFIED','USER');
+   (951,'$OTHER',CONCAT('SHA256_',SHA2('secret123',256)),'Other User','1990-01-01','VERIFIED','USER')
+   ON DUPLICATE KEY UPDATE role='USER', status='VERIFIED';
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
+   (953,'$ADMIN',CONCAT('SHA256_',SHA2('secret123',256)),'Prof Admin','1990-01-03','VERIFIED','SUPER_ADMIN')
+   ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';
    INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES
    (950,950,1,250.00,'SAVINGS'),(952,950,3,0.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');"
 
 # --- GET_DASHBOARD ---
-check "dashboard lists all accounts" "SUCCESS|DASHBOARD|$U|Prof User|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "" "")"
-check "dashboard unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_DASHBOARD ghost@test.com "" "")"
+check "dashboard self" "SUCCESS|DASHBOARD|$U|Prof User|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "$U" "")"
+check "dashboard by admin" "SUCCESS|DASHBOARD|$U|Prof User|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "$ADMIN" "")"
+check "dashboard other forbidden for non-admin" "ERROR|FORBIDDEN" "$(run GET_DASHBOARD "$U" "$OTHER" "")"
+check "dashboard unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_DASHBOARD ghost@test.com "$ADMIN" "")"
 
 # --- LIST_USERS + paging ---
-check_contains "list users header" "SUCCESS|LIST_DONE|" "$(run LIST_USERS "" "" "")"
-check_contains "list users includes a known user" "950:$U" "$(run LIST_USERS "" "" "")"
-check "paging limit=1 returns only the first" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "")"
-check_contains "paging offset=1 skips the first" "2:receiver@test.com" "$(run LIST_USERS 1 1 "")"
-check "paging limit=2 returns two rows" "SUCCESS|LIST_DONE|1:sender@test.com;2:receiver@test.com" "$(run LIST_USERS 2 0 "")"
-check "paging past the end is empty" "SUCCESS|LIST_DONE|" "$(run LIST_USERS 5 100000 "")"
+check_contains "list users header" "SUCCESS|LIST_DONE|" "$(run LIST_USERS "" "" "$ADMIN")"
+check_contains "list users includes a known user" "950:$U" "$(run LIST_USERS "" "" "$ADMIN")"
+check "paging limit=1 returns only the first" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "$ADMIN")"
+check_contains "paging offset=1 skips the first" "2:receiver@test.com" "$(run LIST_USERS 1 1 "$ADMIN")"
+check "paging limit=2 returns two rows" "SUCCESS|LIST_DONE|1:sender@test.com;2:receiver@test.com" "$(run LIST_USERS 2 0 "$ADMIN")"
+check "paging past the end is empty" "SUCCESS|LIST_DONE|" "$(run LIST_USERS 5 100000 "$ADMIN")"
+check "list users forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS "" "" "$OTHER")"
 
 # --- REQ_EMAIL_CHANGE ---
 check "request unknown current" "ERROR|ACCOUNT_NOT_FOUND" "$(run REQ_EMAIL_CHANGE ghost@test.com "$UNEW" "")"
