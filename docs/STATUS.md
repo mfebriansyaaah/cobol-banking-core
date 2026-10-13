@@ -87,11 +87,11 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
-| `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 42 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer |
+| `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
+| `middleware/` (node --test) | 44 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
 
-Shell suites total **223**; with the gateway suite **42** the full run is
-**265 assertions**, all green as of this snapshot.
+Shell suites total **223**; with the gateway suite **44** the full run is
+**267 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -110,7 +110,8 @@ admin-only. Writes are owner-scoped too: a transfer is always sent from the
 token's account, and the email-change flow only acts on the token's own email.
 Actor/sender identity always comes from the token.
 Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
-code (see `middleware/src/result.js`). Input-line cap 500 bytes; fixed-window
+code (see `middleware/src/result.js`; session/token failures map to 401 and
+internal/bridge failures to 500). Input-line cap 500 bytes; fixed-window
 rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
 `API_RATE_LIMIT_*` on the rest; `/health` exempt); access token 15m + refresh 7d
 (`middleware/.env.example`). Every response carries `X-Request-Id`, and the
