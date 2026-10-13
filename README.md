@@ -67,6 +67,9 @@ Access tokens carry a per-user version that is checked on every request and is
 bumped on logout (`REVOKE_TOKENS`), so an access token can be revoked before it
 expires.
 
+Responses use one envelope - success `{ data: [...] }`, failure
+`{ error, detail? }`. `/users` is paged (`limit` 1..100, `offset`).
+
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a

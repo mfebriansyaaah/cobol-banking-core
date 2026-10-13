@@ -99,3 +99,13 @@ test('auth and routing errors', async () => {
   assert.equal((await request(app).get('/users')).status, 401);
   assert.equal((await request(app).get('/nope')).status, 404);
 });
+
+test('responses use a uniform envelope', async () => {
+  const ok = await request(app).get('/health');
+  assert.ok(Array.isArray(ok.body.data), 'success carries a data array');
+  assert.equal(ok.body.error, undefined);
+
+  const bad = await request(app).post('/auth/login').send({ email: 'a|b', password: 'x' });
+  assert.equal(typeof bad.body.error, 'string');
+  assert.equal(bad.body.data, undefined);
+});

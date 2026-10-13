@@ -1124,3 +1124,12 @@ _merged 2026-10-13_
 - chore(db): migration 0007 drops unused columns/table (users.balance, verification_code, exchange_rates, audit extras)
 - docs: sync HISTORY.md to post-merge state (#110)
 
+## #112 error-map-defense
+
+_merged 2026-10-13_
+
+- docs: note defensive error mapping and fix E2E count
+- test(result): cover session/token and internal-failure mappings
+- feat(gateway): defensively map session/token and bridge errors to 401/500
+- docs: sync HISTORY.md to post-merge state (#111)
+
