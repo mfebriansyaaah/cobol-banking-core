@@ -1093,3 +1093,25 @@ _merged 2026-10-13_
 - fix(observability): stop logging the raw request path (PII)
 - docs: sync HISTORY.md to post-merge state (#107)
 
+## #109 email-code-delivery
+
+_merged 2026-10-13_
+
+- docs: verification codes are delivered out of band, not returned
+- test(mailer): stub logs events without the code; MAIL_DEBUG opt-in
+- test(e2e): fetch the signup code from the DB, not the response
+- test: read verification codes from the DB; assert responses omit them
+- feat(gateway): deliver verification codes out of band; omit from responses
+- feat(mailer): out-of-band verification delivery (SMTP or dev stub)
+- docs: sync HISTORY.md to post-merge state (#108)
+
+## #110 access-token-revocation
+
+_merged 2026-10-13_
+
+- docs: revocable access tokens (token version) and refreshed counts
+- test: access-token revocation (binary + HTTP)
+- feat(gateway): access tokens carry a version; check per request; revoke on logout
+- feat(auth): token-version actions (GET_TOKEN_VERSION/CHECK_TOKEN/REVOKE_TOKENS)
+- feat(db): migration 0006 adds users.token_version for revocable access tokens
+

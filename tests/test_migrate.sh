@@ -19,6 +19,8 @@ check "check fails when pending" "1" "$(./database/migrate.sh --check >/dev/null
 ./database/migrate.sh >/dev/null 2>&1
 check "reapplied after pending" "1" "$(q "SELECT COUNT(*) FROM schema_migrations WHERE version='0001_pending_transactions_cascade';")"
 check "check green after apply" "0" "$(./database/migrate.sh --check >/dev/null 2>&1; echo $?)"
+check "users.balance/verification_code dropped" "0" "$(q "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='$DB_NAME' AND table_name='users' AND column_name IN ('balance','verification_code');")"
+check "exchange_rates table dropped" "0" "$(q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_name='exchange_rates';")"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"
