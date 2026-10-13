@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser } from './support.js';
+import { seedUser, seedAccount } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -184,4 +184,35 @@ test('role change authorizes by the token actor, ignoring the body', async (t) =
     .send({ email: target, role: 'USER', actor: admin });
   assert.equal(spoof.status, 403);
   assert.equal(spoof.body.error, 'FORBIDDEN');
+});
+
+test('reusing an idempotency key with different details is a conflict', async (t) => {
+  const em = `gw_idem_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  if (!seedAccount(em, '500.00')) return t.skip('mysql unavailable to seed an account');
+
+  const key = `gw-${Date.now()}`;
+  const first = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', key)
+    .send({ to: 'receiver@test.com', amount: '1.00' });
+  assert.equal(first.status, 200);
+
+  const replay = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', key)
+    .send({ to: 'receiver@test.com', amount: '1.00' });
+  assert.equal(replay.status, 200);
+
+  const conflict = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', key)
+    .send({ to: 'receiver@test.com', amount: '2.00' });
+  assert.equal(conflict.status, 409);
+  assert.equal(conflict.body.error, 'IDEMPOTENCY_CONFLICT');
 });
