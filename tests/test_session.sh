@@ -51,6 +51,11 @@ check "reuse detected on family" "ERROR|SESSION_REUSED" "$(run CHECK_SESSION jti
 check "family fully revoked" "2" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE family='fam2' AND revoked=1;")"
 check "sibling is now reused/revoked" "ERROR|SESSION_REUSED" "$(run CHECK_SESSION jti-sh-b)"
 
+# Expired sessions are pruned when a new session is stored.
+q "INSERT INTO refresh_sessions (jti,family,email,expires_at) VALUES ('jti-sh-exp','jti-sh-exp','sess@test.com', DATE_SUB(NOW(), INTERVAL 1 DAY));"
+run STORE_SESSION jti-sh-new sess@test.com 7 jti-sh-new >/dev/null
+check "expired session pruned" "0" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE jti='jti-sh-exp';")"
+
 q "DELETE FROM refresh_sessions WHERE jti LIKE 'jti-sh%'; DELETE FROM users WHERE id=970;"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
