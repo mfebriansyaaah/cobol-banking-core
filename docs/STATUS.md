@@ -77,10 +77,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
-| `middleware/` (node --test) | 16 | gateway: contract, injection, rate limit, refresh, timeout, line cap |
+| `middleware/` (node --test) | 25 | gateway: contract, injection, rate limit, refresh, timeout, line cap, every-endpoint smoke |
 
-Shell suites total **156**; with the gateway suite **19** the full run is
-**175 assertions**, all green as of this snapshot.
+Shell suites total **156**; with the gateway suite **25** the full run is
+**181 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -88,7 +88,8 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/auth/login`, `/auth/refresh):
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile`, `/profile/email/request`,
-`/profile/email/confirm`, `/admin/role` (GET/POST), `/auth/logout` (revokes a refresh token).
+`/profile/email/confirm`, `/admin/role` (GET/POST), `/admin/reconcile`
+(read-only balance/ledger check), `/auth/logout` (revokes a refresh token).
 Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
 code (see `middleware/src/result.js`). Input-line cap 500 bytes; auth rate
 limit fixed-window; access token 15m + refresh 7d (`middleware/.env.example`).

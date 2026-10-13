@@ -54,7 +54,8 @@ npm --prefix middleware start     # reads middleware/.env (see middleware/.env.e
 ```
 
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
-`/auth/refresh`, `/auth/logout`. Everything else needs a bearer token. Each
+`/auth/refresh`, `/auth/logout`. Everything else needs a bearer token, including
+the read-only balance/ledger diagnostic `GET /admin/reconcile`. Each
 request runs the binary in its own working directory (see
 `docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms`.
 
