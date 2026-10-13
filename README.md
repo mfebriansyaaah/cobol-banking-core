@@ -82,6 +82,9 @@ Rate-limit counters are per process by default; set `REDIS_URL` to share them
 across gateway instances, and `TRUST_PROXY` when behind a proxy so the client
 IP is read from the forwarded headers.
 
+Metrics are exposed at `GET /metrics`; set `METRICS_PUSH_URL` to also push them
+periodically to a collector (Pushgateway/OTLP-HTTP).
+
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a

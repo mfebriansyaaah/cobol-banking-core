@@ -89,10 +89,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 49 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
+| `middleware/` (node --test) | 51 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push), idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
 
-Shell suites total **231**; with the gateway suite **49** the full run is
-**280 assertions**, all green as of this snapshot.
+Shell suites total **231**; with the gateway suite **51** the full run is
+**282 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -120,7 +120,8 @@ when REDIS_URL is set, and the client IP follows TRUST_PROXY); access token
 15m + refresh 7d
 (`middleware/.env.example`). Every response carries `X-Request-Id`, and the
 server logs one JSON line per request (`event: http_request` with method, route,
-status, `durationMs`, `cobolMs`); counters are served at `/metrics`.
+status, `durationMs`, `cobolMs`); counters are served at `/metrics` and, when
+METRICS_PUSH_URL is set, pushed periodically to a collector.
 `helmet` sets standard security headers, and in production the server refuses to
 start while JWT_SECRET/REFRESH_SECRET are unset or still the development
 defaults. Verification codes (`/auth/signup`, `/profile/email/request`) are
@@ -137,7 +138,7 @@ list page size is capped at 100 (`limit` 1..100).
 ## 6. Governance documents
 
 - `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
-- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md` - decisions.
+- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md`, `docs/adr/0008-metrics-export.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 
