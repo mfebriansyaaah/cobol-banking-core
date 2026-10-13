@@ -1115,3 +1115,12 @@ _merged 2026-10-13_
 - feat(auth): token-version actions (GET_TOKEN_VERSION/CHECK_TOKEN/REVOKE_TOKENS)
 - feat(db): migration 0006 adds users.token_version for revocable access tokens
 
+## #111 schema-cleanup
+
+_merged 2026-10-13_
+
+- docs: schema cleanup (dead columns/table) and refreshed counts
+- test(migrate): assert dead columns/table are gone
+- chore(db): migration 0007 drops unused columns/table (users.balance, verification_code, exchange_rates, audit extras)
+- docs: sync HISTORY.md to post-merge state (#110)
+
