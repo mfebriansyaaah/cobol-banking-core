@@ -40,7 +40,7 @@
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
-        01  WS-PREP-SQL             PIC X(256) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
