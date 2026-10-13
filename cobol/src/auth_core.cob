@@ -10,7 +10,7 @@
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
         01  WS-QUERY                PIC X(512) VALUE SPACES.
-        01  WS-RESULT               PIC X(512) VALUE SPACES.
+        01  WS-RESULT               PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
@@ -60,7 +60,7 @@
         01  LS-PARAM2              PIC X(100).
         01  LS-PARAM3              PIC X(100).
         01  LS-PARAM4              PIC X(100).
-        01  LS-OUTPUT-BUFFER      PIC X(500).
+        01  LS-OUTPUT-BUFFER      PIC X(16384).
 
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-OUTPUT-BUFFER.
 

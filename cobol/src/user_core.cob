@@ -10,7 +10,7 @@
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
         01  WS-QUERY                PIC X(512) VALUE SPACES.
-        01  WS-RESULT               PIC X(512) VALUE SPACES.
+        01  WS-RESULT               PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
@@ -29,14 +29,14 @@
         01  WS-NLEN                 PIC 9(3) VALUE 1.
         01  WS-BLEN                 PIC 9(3) VALUE 1.
         01  WS-ALEN                 PIC 9(3) VALUE 1.
-        01  WS-RLEN                 PIC 9(3) VALUE 1.
+        01  WS-RLEN                 PIC 9(5) VALUE 1.
         01  WS-CODE                 PIC X(7) VALUE SPACES.
         01  WS-USER-ID              PIC X(20) VALUE SPACES.
         01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
-        01  WS-I                    PIC 9(3).
+        01  WS-I                    PIC 9(5).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
@@ -56,7 +56,7 @@
         01  LS-PARAM2              PIC X(100).
         01  LS-PARAM3              PIC X(100).
         01  LS-PARAM4              PIC X(100).
-        01  LS-OUTPUT-BUFFER      PIC X(500).
+        01  LS-OUTPUT-BUFFER      PIC X(16384).
 
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-OUTPUT-BUFFER.
 
@@ -192,7 +192,7 @@
                 END-IF
             END-PERFORM
             MOVE 0 TO WS-RLEN
-            PERFORM VARYING WS-I FROM 512 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
+            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
                 IF WS-RESULT(WS-I:1) NOT = SPACE
                     MOVE WS-I TO WS-RLEN
                 END-IF

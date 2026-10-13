@@ -10,7 +10,7 @@
  */
 
 char G_QUERY[1024] = {0};
-char G_RESULT[1024] = {0};
+char G_RESULT[16384] = {0};
 
 /* Persistent connection, held only for the span of an explicit transaction. */
 static MYSQL *G_CONN = NULL;
@@ -80,8 +80,8 @@ void SET_QUERY(char *query) {
 void GET_RESULT(char *result) {
     if (!result) return;
     size_t len = strlen(G_RESULT);
-    memset(result, ' ', 511);
-    if (len > 511) len = 511;
+    if (len > 16383) len = 16383;
+    memset(result, ' ', 16383);
     memcpy(result, G_RESULT, len);
 }
 
@@ -97,7 +97,7 @@ void SQL_EXECUTE() {
         conn = bridge_connect();
         own_conn = 1;
         if (conn == NULL) {
-            strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
+            strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383);
             return;
         }
     }
@@ -105,7 +105,7 @@ void SQL_EXECUTE() {
     fprintf(stderr, "[SQL_BRIDGE] Executing: %s\\n", G_QUERY);
 
     if (mysql_query(conn, G_QUERY)) {
-        snprintf(G_RESULT, 1023, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
         if (own_conn) mysql_close(conn);
         return;
     }
@@ -113,7 +113,7 @@ void SQL_EXECUTE() {
     res = mysql_store_result(conn);
     if (res == NULL) {
         long affected = mysql_affected_rows(conn);
-        snprintf(G_RESULT, 1023, "SUCCESS|AFFECTED_%ld", affected);
+        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
     } else {
         row = mysql_fetch_row(res);
         if (row) {
@@ -126,16 +126,16 @@ void SQL_EXECUTE() {
                     temp[255] = '\0';
                     sanitize_string(temp);
                     trim_trailing_spaces(temp);
-                    strncat(G_RESULT, temp, 1023 - strlen(G_RESULT) - 1);
+                    strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
                 } else {
-                    strncat(G_RESULT, "NULL", 1023 - strlen(G_RESULT) - 1);
+                    strncat(G_RESULT, "NULL", 16383 - strlen(G_RESULT) - 1);
                 }
                 if (i < num_fields - 1) {
-                    strncat(G_RESULT, "|", 1023 - strlen(G_RESULT) - 1);
+                    strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
                 }
             }
         } else {
-            strncpy(G_RESULT, "ERROR|NO_DATA", 1023);
+            strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
         }
         mysql_free_result(res);
     }
@@ -199,7 +199,7 @@ void SQL_EXECUTE_ROWS() {
         conn = bridge_connect();
         own_conn = 1;
         if (conn == NULL) {
-            strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
+            strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383);
             return;
         }
     }
@@ -207,7 +207,7 @@ void SQL_EXECUTE_ROWS() {
     fprintf(stderr, "[SQL_BRIDGE] Executing rows: %s\\n", G_QUERY);
 
     if (mysql_query(conn, G_QUERY)) {
-        snprintf(G_RESULT, 1023, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
         if (own_conn) mysql_close(conn);
         return;
     }
@@ -215,7 +215,7 @@ void SQL_EXECUTE_ROWS() {
     res = mysql_store_result(conn);
     if (res == NULL) {
         long affected = mysql_affected_rows(conn);
-        snprintf(G_RESULT, 1023, "SUCCESS|AFFECTED_%ld", affected);
+        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
         if (own_conn) mysql_close(conn);
         return;
     }
@@ -225,7 +225,7 @@ void SQL_EXECUTE_ROWS() {
     int first_row = 1;
     while ((row = mysql_fetch_row(res)) != NULL) {
         if (!first_row) {
-            strncat(G_RESULT, ";", 1023 - strlen(G_RESULT) - 1);
+            strncat(G_RESULT, ";", 16383 - strlen(G_RESULT) - 1);
         }
         first_row = 0;
         for (unsigned int i = 0; i < num_fields; i++) {
@@ -235,17 +235,17 @@ void SQL_EXECUTE_ROWS() {
                 temp[255] = '\0';
                 sanitize_string(temp);
                 trim_trailing_spaces(temp);
-                strncat(G_RESULT, temp, 1023 - strlen(G_RESULT) - 1);
+                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
             } else {
-                strncat(G_RESULT, "NULL", 1023 - strlen(G_RESULT) - 1);
+                strncat(G_RESULT, "NULL", 16383 - strlen(G_RESULT) - 1);
             }
             if (i < num_fields - 1) {
-                strncat(G_RESULT, "|", 1023 - strlen(G_RESULT) - 1);
+                strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
             }
         }
     }
     if (first_row) {
-        strncpy(G_RESULT, "ERROR|NO_DATA", 1023);
+        strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
     }
     mysql_free_result(res);
     if (own_conn) mysql_close(conn);
@@ -264,27 +264,27 @@ void SQL_BEGIN() {
     }
     G_CONN = bridge_connect();
     if (G_CONN == NULL) {
-        strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383);
         return;
     }
     if (mysql_query(G_CONN, "START TRANSACTION")) {
-        strncpy(G_RESULT, "ERROR|BEGIN_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|BEGIN_FAILED", 16383);
         mysql_close(G_CONN);
         G_CONN = NULL;
         return;
     }
-    strncpy(G_RESULT, "SUCCESS|BEGIN", 1023);
+    strncpy(G_RESULT, "SUCCESS|BEGIN", 16383);
 }
 
 void SQL_COMMIT() {
     if (G_CONN == NULL) {
-        strncpy(G_RESULT, "ERROR|NO_TRANSACTION", 1023);
+        strncpy(G_RESULT, "ERROR|NO_TRANSACTION", 16383);
         return;
     }
     if (mysql_query(G_CONN, "COMMIT")) {
-        strncpy(G_RESULT, "ERROR|COMMIT_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|COMMIT_FAILED", 16383);
     } else {
-        strncpy(G_RESULT, "SUCCESS|COMMIT", 1023);
+        strncpy(G_RESULT, "SUCCESS|COMMIT", 16383);
     }
     mysql_close(G_CONN);
     G_CONN = NULL;
@@ -292,13 +292,13 @@ void SQL_COMMIT() {
 
 void SQL_ROLLBACK() {
     if (G_CONN == NULL) {
-        strncpy(G_RESULT, "ERROR|NO_TRANSACTION", 1023);
+        strncpy(G_RESULT, "ERROR|NO_TRANSACTION", 16383);
         return;
     }
     if (mysql_query(G_CONN, "ROLLBACK")) {
-        strncpy(G_RESULT, "ERROR|ROLLBACK_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|ROLLBACK_FAILED", 16383);
     } else {
-        strncpy(G_RESULT, "SUCCESS|ROLLBACK", 1023);
+        strncpy(G_RESULT, "SUCCESS|ROLLBACK", 16383);
     }
     mysql_close(G_CONN);
     G_CONN = NULL;
@@ -325,17 +325,17 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     if (conn == NULL) {
         conn = bridge_connect();
         own_conn = 1;
-        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023); return; }
+        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
     }
 
     MYSQL_STMT *st = mysql_stmt_init(conn);
     if (st == NULL) {
-        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
         if (own_conn) mysql_close(conn);
         return;
     }
     if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
-        snprintf(G_RESULT, 1023, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
@@ -362,14 +362,14 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
         bind[i].length = &lens[i];
     }
     if (n > 0 && mysql_stmt_bind_param(st, bind)) {
-        strncpy(G_RESULT, "ERROR|BIND_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
     }
 
     if (mysql_stmt_execute(st)) {
-        snprintf(G_RESULT, 1023, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
@@ -378,7 +378,7 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     MYSQL_RES *meta = mysql_stmt_result_metadata(st);
     if (meta == NULL) {
         long affected = (long)mysql_stmt_affected_rows(st);
-        snprintf(G_RESULT, 1023, "SUCCESS|AFFECTED_%ld", affected);
+        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
     } else {
         unsigned int nf = mysql_num_fields(meta);
         MYSQL_FIELD *fields = mysql_fetch_fields(meta);
@@ -396,7 +396,7 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
             rb[i].length = &rlen[i];
         }
         if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
-            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 1023);
+            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
             mysql_free_result(meta);
             mysql_stmt_close(st);
             if (own_conn) mysql_close(conn);
@@ -412,11 +412,11 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
                 temp[l] = '\0';
                 sanitize_string(temp);
                 trim_trailing_spaces(temp);
-                strncat(G_RESULT, temp, 1023 - strlen(G_RESULT) - 1);
-                if (i < cols - 1) strncat(G_RESULT, "|", 1023 - strlen(G_RESULT) - 1);
+                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
+                if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
             }
         } else {
-            strncpy(G_RESULT, "ERROR|NO_DATA", 1023);
+            strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
         }
         mysql_free_result(meta);
     }
@@ -447,17 +447,17 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     if (conn == NULL) {
         conn = bridge_connect();
         own_conn = 1;
-        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023); return; }
+        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
     }
 
     MYSQL_STMT *st = mysql_stmt_init(conn);
     if (st == NULL) {
-        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
         if (own_conn) mysql_close(conn);
         return;
     }
     if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
-        snprintf(G_RESULT, 1023, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
@@ -484,16 +484,16 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
         bind[i].length = &lens[i];
     }
     if (n > 0 && mysql_stmt_bind_param(st, bind)) {
-        strncpy(G_RESULT, "ERROR|BIND_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
     }
 
     if (mysql_stmt_execute(st)) {
-        snprintf(G_RESULT, 1023, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
     } else {
-        strncpy(G_RESULT, "SUCCESS|LOCKED", 1023);
+        strncpy(G_RESULT, "SUCCESS|LOCKED", 16383);
     }
 
     mysql_stmt_close(st);
@@ -521,17 +521,17 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     if (conn == NULL) {
         conn = bridge_connect();
         own_conn = 1;
-        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023); return; }
+        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
     }
 
     MYSQL_STMT *st = mysql_stmt_init(conn);
     if (st == NULL) {
-        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
         if (own_conn) mysql_close(conn);
         return;
     }
     if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
-        snprintf(G_RESULT, 1023, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
@@ -558,14 +558,14 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
         bind[i].length = &lens[i];
     }
     if (n > 0 && mysql_stmt_bind_param(st, bind)) {
-        strncpy(G_RESULT, "ERROR|BIND_FAILED", 1023);
+        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
     }
 
     if (mysql_stmt_execute(st)) {
-        snprintf(G_RESULT, 1023, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
         if (own_conn) mysql_close(conn);
         return;
@@ -574,7 +574,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     MYSQL_RES *meta = mysql_stmt_result_metadata(st);
     if (meta == NULL) {
         long affected = (long)mysql_stmt_affected_rows(st);
-        snprintf(G_RESULT, 1023, "SUCCESS|AFFECTED_%ld", affected);
+        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
     } else {
         unsigned int nf = mysql_num_fields(meta);
         static char rbuf[32][512];
@@ -591,7 +591,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
             rb[i].length = &rlen[i];
         }
         if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
-            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 1023);
+            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
             mysql_free_result(meta);
             mysql_stmt_close(st);
             if (own_conn) mysql_close(conn);
@@ -601,7 +601,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
         int first_row = 1;
         int rc;
         while ((rc = mysql_stmt_fetch(st)) == 0 || rc == MYSQL_DATA_TRUNCATED) {
-            if (!first_row) strncat(G_RESULT, ";", 1023 - strlen(G_RESULT) - 1);
+            if (!first_row) strncat(G_RESULT, ";", 16383 - strlen(G_RESULT) - 1);
             first_row = 0;
             for (unsigned int i = 0; i < cols; i++) {
                 char temp[512];
@@ -610,12 +610,12 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
                 temp[l] = '\0';
                 sanitize_string(temp);
                 trim_trailing_spaces(temp);
-                strncat(G_RESULT, temp, 1023 - strlen(G_RESULT) - 1);
-                if (i < cols - 1) strncat(G_RESULT, "|", 1023 - strlen(G_RESULT) - 1);
+                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
+                if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
             }
         }
         if (first_row) {
-            strncpy(G_RESULT, "ERROR|NO_DATA", 1023);
+            strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
         }
         mysql_free_result(meta);
     }
