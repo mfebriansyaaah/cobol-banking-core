@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
+import { seedUser } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -29,7 +29,7 @@ test('protected route requires a token', async () => {
   assert.equal(res.body.error, 'MISSING_TOKEN');
 });
 
-test('signup -> verify -> login -> authorized call', async () => {
+test('signup -> verify -> login -> authorized call', async (t) => {
   const signup = await request(app)
     .post('/auth/signup')
     .send({ email: unique, password: 'secret123', name: 'Gateway User', dob: '1990-01-01' });
@@ -46,15 +46,23 @@ test('signup -> verify -> login -> authorized call', async () => {
   assert.equal(login.status, 200);
   assert.ok(login.body.token);
 
+  // Listing users is admin-only: a plain user is refused.
+  const denied = await request(app).get('/users').set('Authorization', `Bearer ${login.body.token}`);
+  assert.equal(denied.status, 403);
+  assert.equal(denied.body.error, 'FORBIDDEN');
+
+  if (!seedUser('gw_admin_list@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed an admin');
+  const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_list@test.com', password: 'secret123' })).body.token;
+
   const users = await request(app)
     .get('/users')
-    .set('Authorization', `Bearer ${login.body.token}`);
+    .set('Authorization', `Bearer ${adminToken}`);
   assert.equal(users.status, 200);
   assert.ok(JSON.stringify(users.body.data).includes('LIST_DONE'));
 
   const paged = await request(app)
     .get('/users?limit=1&offset=0')
-    .set('Authorization', `Bearer ${login.body.token}`);
+    .set('Authorization', `Bearer ${adminToken}`);
   assert.equal(paged.status, 200);
 });
 
@@ -66,17 +74,26 @@ test('wrong password maps to 401', async () => {
   assert.equal(res.body.error, 'INVALID_CREDENTIALS');
 });
 
-test('bare-value endpoints return 200 with data', async () => {
+test('bare-value endpoints return 200 with data', async (t) => {
   const em = `gw_bare_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
-  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const login = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body;
+  const auth = { Authorization: `Bearer ${login.token}` };
 
-  const user = await request(app).get('/users/sender@test.com').set('Authorization', `Bearer ${token}`);
+  // Reading another user's record/balance is forbidden for a plain user.
+  assert.equal((await request(app).get('/users/sender@test.com').set(auth)).status, 403);
+  assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(auth)).status, 403);
+
+  if (!seedUser('gw_admin_bare@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed an admin');
+  const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_bare@test.com', password: 'secret123' })).body.token;
+  const adminAuth = { Authorization: `Bearer ${adminToken}` };
+
+  const user = await request(app).get('/users/sender@test.com').set(adminAuth);
   assert.equal(user.status, 200);
   assert.equal(user.body.data[0], '1');
 
-  const bal = await request(app).get('/wallet/balance?email=sender@test.com').set('Authorization', `Bearer ${token}`);
+  const bal = await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth);
   assert.equal(bal.status, 200);
   assert.match(bal.body.data[0], /^\d+\.\d{2}$/);
 });
@@ -110,7 +127,7 @@ test('refresh token yields a new access token', async () => {
   assert.equal(refresh.status, 200);
   assert.ok(refresh.body.token);
 
-  const users = await request(app).get('/users').set('Authorization', `Bearer ${refresh.body.token}`);
+  const users = await request(app).get(`/users/${em}`).set('Authorization', `Bearer ${refresh.body.token}`);
   assert.equal(users.status, 200);
 
   const bad = await request(app).post('/auth/refresh').send({ refreshToken: 'not-a-token' });
@@ -121,16 +138,7 @@ test('refresh token yields a new access token', async () => {
 test('role change authorizes by the token actor, ignoring the body', async (t) => {
   const admin = `gw_admin_${Date.now()}@test.com`;
   const target = `gw_target_${Date.now()}@test.com`;
-  try {
-    const u = process.env.DB_USER ?? 'cobol_user';
-    const p = process.env.DB_PASS ?? 'cobol_pass';
-    const n = process.env.DB_NAME ?? 'cobol_db';
-    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e',
-      `INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ` +
-      `('${admin}',CONCAT('SHA256_',SHA2('secret123',256)),'GW Admin','1990-01-01','VERIFIED','SUPER_ADMIN'),` +
-      `('${target}',CONCAT('SHA256_',SHA2('secret123',256)),'GW Target','1990-01-01','VERIFIED','USER');`],
-      { stdio: 'ignore' });
-  } catch {
+  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
     return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
   }
 
