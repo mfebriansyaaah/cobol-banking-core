@@ -33,8 +33,8 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/user_core.cob` | `GET_DASHBOARD` | email, actor (self-or-admin) | email, full name, **all** accounts as `iso:balance;...` | `SUCCESS\|DASHBOARD\|...` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `REQ_EMAIL_CHANGE` | current, new, actor (owner) | 6-digit code stored against the new email | `SUCCESS\|CODE_SENT\|<code>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|EMAIL_EXISTS` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `CONFIRM_EMAIL_CHANGE` | current, new, code, actor (owner) | consume code, move email, audit | `SUCCESS\|EMAIL_CHANGED` * `ERROR\|INVALID_CODE` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
-| `cobol/src/auth_core.cob` | `REQUEST_SIGNUP` | email, password, name, dob | 8-char min password, unique email, PBKDF2 hash, 6-digit code in `verification_logs` | `SUCCESS\|USER_CREATED\|<code>` * `ERROR\|WEAK_PASSWORD` * `ERROR\|EMAIL_EXISTS` * `ERROR\|SIGNUP_FAILED` |
-| `cobol/src/auth_core.cob` | `VERIFY_EMAIL` | email, code | consume code, set `VERIFIED`, transactional | `SUCCESS\|EMAIL_VERIFIED` * `ERROR\|INVALID_CODE` * `ERROR\|VERIFY_FAILED` |
+| `cobol/src/auth_core.cob` | `REQUEST_SIGNUP` | email, password, name, dob | 8-char min password, unique email, PBKDF2 hash, 6-digit code in `verification_logs`; audit row | `SUCCESS\|USER_CREATED\|<code>` * `ERROR\|WEAK_PASSWORD` * `ERROR\|EMAIL_EXISTS` * `ERROR\|SIGNUP_FAILED` |
+| `cobol/src/auth_core.cob` | `VERIFY_EMAIL` | email, code | consume code, set `VERIFIED`, transactional; audit success or (attributable) failure | `SUCCESS\|EMAIL_VERIFIED` * `ERROR\|INVALID_CODE` * `ERROR\|VERIFY_FAILED` |
 | `cobol/src/auth_core.cob` | `AUTH_LOGIN` | email, password | 3-fail/15-min lockout; PBKDF2 verify w/ legacy SHA256 fallback + rehash; must be `VERIFIED` | `SUCCESS\|LOGIN_OK` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|UNVERIFIED` * `ERROR\|ACCOUNT_LOCKED` |
 | `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update + audit | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
@@ -65,7 +65,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_ledger_atomic.sh` | 17 | atomicity: ledger rows, rollback on every failure path, audit row |
 | `tests/test_reconciliation.sh` | 10 | `RECONCILE` on healthy/drifted states; SUPER_ADMIN actor gate |
 | `tests/test_auth_login.sh` | 6 | login, legacy rehash on login |
-| `tests/test_signup_verify.sh` | 16 | signup + verify flow, PBKDF2 hash, uniqueness, audit |
+| `tests/test_signup_verify.sh` | 20 | signup + verify flow, PBKDF2 hash, uniqueness, success + failed-verify audit |
 | `tests/test_roles.sh` | 11 | `CHECK_ROLE`/`CHANGE_ROLE` incl. SUPER_ADMIN gate |
 | `tests/test_user_profile.sh` | 17 | dashboard multi-account, paging, email-change |
 | `tests/test_login_lockout.sh` | 7 | 3-fail lockout, audit rows, clearing |
@@ -79,8 +79,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 29 | gateway: contract, injection, rate limit (auth + api), refresh, timeout, line cap, every-endpoint smoke, actor-token guard |
 
-Shell suites total **167**; with the gateway suite **29** the full run is
-**196 assertions**, all green as of this snapshot.
+Shell suites total **171**; with the gateway suite **29** the full run is
+**200 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -115,5 +115,5 @@ rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
 - Transfers must be positive and within one currency; cross-currency is rejected (`CURRENCY_MISMATCH`) until an FX path exists.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Most `auth_core` queries use prepared statements (bridge `SQL_PREPARE_EXEC`); a few auth queries and all `user_core`/`wallet_core` queries escape values (`SQL_ESCAPE`). Migration to prepared statements is incremental and both paths are safe.
-- Signup/verify actions are not audited yet; refresh token lacks rotation/denylist.
+- `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are rotated single-use and revocable via the session store.
 - One-line COBOL result bounds large lists; process-per-request limits throughput (revisit ADR-0001 at scale).

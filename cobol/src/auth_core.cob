@@ -445,6 +445,22 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        AUDIT-FAILED-VERIFY.
+            *> Best-effort: record a failed attempt when the email belongs to a user.
+            PERFORM GET-USER-ID
+            IF WS-RESULT(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-QUERY
+            STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
+                   WS-USER-ID(1:WS-ID-LEN) ", 'VERIFY_EMAIL', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'FAILED')" 
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
+            EXIT PARAGRAPH.
+
         VERIFY-LOGIC.
             *> Code must match, be unused, unexpired, for a SIGNUP.
             MOVE SPACES TO WS-QUERY
@@ -458,6 +474,7 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT = "ERROR|NO_DATA"
+                PERFORM AUDIT-FAILED-VERIFY
                 MOVE "ERROR|INVALID_CODE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
