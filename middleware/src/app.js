@@ -8,8 +8,9 @@ import { rateLimiter } from './rateLimit.js';
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
-// parameters in the exact order the COBOL module expects them.
-const ROUTES = [
+// parameters in the exact order the COBOL module expects them. `actorFromToken`
+// marks admin actions whose actor is the verified token identity, never the body.
+export const ROUTES = [
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
@@ -66,7 +67,7 @@ const ROUTES = [
   { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', actorFromToken: true, fields: [
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', fields: [
+  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', actorFromToken: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },

@@ -902,3 +902,14 @@ _merged 2026-10-13_
 - feat(gateway): expose RECONCILE via GET /admin/reconcile; map MISMATCH to 409
 - docs: sync HISTORY.md to post-merge state (#89)
 
+## #91 reconcile-admin-gate
+
+_merged 2026-10-13_
+
+- docs: RECONCILE requires a SUPER_ADMIN actor taken from the token
+- test(gateway): reconcile refuses a plain user and ignores a spoofed body actor
+- feat(gateway): take the reconcile actor from the verified token
+- test(reconcile): cover the SUPER_ADMIN actor gate; make the suite order-independent
+- feat(wallet): RECONCILE requires a SUPER_ADMIN actor (p1); else FORBIDDEN
+- docs: sync HISTORY.md to post-merge state (#90)
+
