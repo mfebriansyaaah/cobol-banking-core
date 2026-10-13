@@ -969,3 +969,13 @@ _merged 2026-10-13_
 - feat(auth): audit failed VERIFY_EMAIL attempts when the user exists
 - docs: sync HISTORY.md to post-merge state (#95)
 
+## #97 prepared-statements
+
+_merged 2026-10-13_
+
+- docs: record prepared-statement coverage and the remaining concat paths
+- refactor(wallet): prepared statements for balance read, authorization and reconcile actor
+- refactor(user_core): prepared statements for GET_DASHBOARD and email change
+- refactor(user_core): prepared statements for read authorization and GET_USER
+- docs: sync HISTORY.md to post-merge state (#96)
+
