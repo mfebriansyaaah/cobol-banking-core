@@ -1059,3 +1059,13 @@ _merged 2026-10-13_
 - fix(bridge): read DB connection settings from the environment (dev defaults)
 - docs: sync HISTORY.md to post-merge state (#104)
 
+## #106 check-role-gate
+
+_merged 2026-10-13_
+
+- docs: record the CHECK_ROLE self-or-admin gate
+- test: CHECK_ROLE self-or-admin at binary and HTTP level
+- feat(gateway): pass the token actor to CHECK_ROLE; guard the route
+- feat(auth): CHECK_ROLE requires a self-or-admin actor (p3)
+- docs: sync HISTORY.md to post-merge state (#105)
+

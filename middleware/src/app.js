@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
@@ -182,6 +183,7 @@ export function buildRouter() {
 
 export function buildApp({ logger = null } = {}) {
   const app = express();
+  app.use(helmet());
   app.use(createRequestObserver({ logger }));
   app.use(express.json());
   app.use(buildRouter());

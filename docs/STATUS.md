@@ -85,10 +85,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 35 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict |
+| `middleware/` (node --test) | 38 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, security headers/config |
 
-Shell suites total **210**; with the gateway suite **35** the full run is
-**245 assertions**, all green as of this snapshot.
+Shell suites total **210**; with the gateway suite **38** the full run is
+**248 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -113,6 +113,9 @@ rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
 (`middleware/.env.example`). Every response carries `X-Request-Id`, and the
 server logs one JSON line per request (`event: http_request` with method, route,
 status, `durationMs`, `cobolMs`); counters are served at `/metrics`.
+`helmet` sets standard security headers, and in production the server refuses to
+start while JWT_SECRET/REFRESH_SECRET are unset or still the development
+defaults.
 
 ## 6. Governance documents
 
