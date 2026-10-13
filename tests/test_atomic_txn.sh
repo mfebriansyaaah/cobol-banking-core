@@ -55,7 +55,8 @@ mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "USE $DB_NAME;
     DELETE FROM users; 
     INSERT INTO users (id, email, password_hash, full_name, dob, status, role) VALUES 
     (1, 'sender@test.com', 'hash', 'Sender User', '1990-01-01', 'VERIFIED', 'USER'),
-    (2, 'receiver@test.com', 'hash', 'Receiver User', '1990-01-01', 'VERIFIED', 'USER');
+    (2, 'receiver@test.com', 'hash', 'Receiver User', '1990-01-01', 'VERIFIED', 'USER'),
+    (3, 'admin@test.com', 'hash3', 'Admin User', '1990-01-03', 'VERIFIED', 'SUPER_ADMIN');
     INSERT INTO accounts (account_id, user_id, currency_id, balance, account_type) VALUES 
     (1, 1, 1, 1000.00, 'SAVINGS'),
     (2, 2, 1, 0.00, 'SAVINGS');
@@ -78,7 +79,7 @@ run_test "Account Not Found (Sender)" "TRANSFER" "nonexistent@test.com" "receive
 run_test "Target Not Found (Receiver)" "TRANSFER" "sender@test.com" "nonexistent@test.com" "10.00" "" "ERROR|TARGET_NOT_FOUND"
 
 # 5. Test User Core: Get User by Email
-run_test "User Core: Get User" "GET_USER" "sender@test.com" "" "" "" "1|sender@test.com"
+run_test "User Core: Get User" "GET_USER" "sender@test.com" "admin@test.com" "" "" "1|sender@test.com"
 
 echo -e "\n======================================================================"
 echo "  TEST SUITE COMPLETED"
