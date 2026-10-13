@@ -891,3 +891,14 @@ _merged 2026-10-12_
 - fix(hooks): use commit-msg (pre-commit cannot read the new message); allow docs: sync
 - docs: sync HISTORY.md to post-merge state (#88)
 
+## #90 reconcile-endpoint
+
+_merged 2026-10-13_
+
+- docs: list /admin/reconcile endpoint and refresh suite counts
+- ci: require every routed action to have a gateway route or internal invoke
+- test(result): reconcile MISMATCH error maps to HTTP 409
+- test(gateway): exercise /admin/reconcile in the endpoint smoke suite
+- feat(gateway): expose RECONCILE via GET /admin/reconcile; map MISMATCH to 409
+- docs: sync HISTORY.md to post-merge state (#89)
+
