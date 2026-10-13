@@ -78,6 +78,7 @@
                     PERFORM TRIM-PARAM4
                     PERFORM TRANSFER-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "RECONCILE"
+                    PERFORM TRIM-PARAM1
                     PERFORM RECONCILE-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
@@ -165,6 +166,22 @@
             EXIT PARAGRAPH.
 
         RECONCILE-LOGIC.
+            *> Only a SUPER_ADMIN (the actor, p1) may run the diagnostic.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT role FROM users WHERE email = '"
+                   WS-PARAM1-TRIMMED "' LIMIT 1"
+                   DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+
             *> Any account whose stored balance differs from its ledger sum.
             MOVE SPACES TO WS-QUERY
             STRING "SELECT CAST(a.account_id AS CHAR), CONCAT(ROUND(a.balance,2)), CONCAT(ROUND(COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0),2)) " 
