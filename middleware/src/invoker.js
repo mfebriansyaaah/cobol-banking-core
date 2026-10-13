@@ -45,7 +45,12 @@ export async function invoke(action, params = [], opts = {}) {
     });
 
     const out = await readFile(path.join(dir, 'output.txt'), 'utf8');
-    return out.split('\n')[0].trim();
+    // COBOL writes the result in 500-char records; join them back into one line
+    // (each record is space-padded, so trailing spaces per line are stripped).
+    return out
+      .split('\n')
+      .map((line) => line.replace(/\s+$/, ''))
+      .join('');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
