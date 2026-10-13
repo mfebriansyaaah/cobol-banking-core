@@ -53,6 +53,10 @@ npm --prefix middleware install
 npm --prefix middleware start     # reads middleware/.env (see middleware/.env.example)
 ```
 
+The COBOL binary reads its database connection from the environment
+(`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`; development defaults);
+the gateway passes its environment through to the binary it spawns.
+
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a
