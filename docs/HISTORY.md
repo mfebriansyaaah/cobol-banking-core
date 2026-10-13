@@ -989,3 +989,13 @@ _merged 2026-10-13_
 - feat(bridge): add SQL_PREPARE_EXEC_ROWS (bound params, multi-row result)
 - docs: sync HISTORY.md to post-merge state (#97)
 
+## #99 prepared-transfer
+
+_merged 2026-10-13_
+
+- docs: record prepared TRANSFER coverage and the LOCK variant rationale
+- test: exercise TRANSFER end to end through prepared statements
+- refactor(wallet): prepared statements for TRANSFER internals
+- feat(bridge): add SQL_PREPARE_EXEC_LOCK (prepared locking read without fetch)
+- docs: sync HISTORY.md to post-merge state (#98)
+
