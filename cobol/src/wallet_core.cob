@@ -28,6 +28,7 @@
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
         01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -60,6 +61,7 @@
         01  WS-SENDER-CUR          PIC X(20) VALUE SPACES.
         01  WS-TARGET-ACC          PIC X(20) VALUE SPACES.
         01  WS-TARGET-CUR          PIC X(20) VALUE SPACES.
+        01  WS-RATE-STR            PIC X(40) VALUE SPACES.
 
         LINKAGE SECTION.
        01  LS-CMD-ACTION          PIC X(30).
@@ -387,10 +389,27 @@
                 END-IF
             END-IF
             
-            *> Provider only moves money within one currency (no FX here).
+            *> Cross-currency: look up the rate (base = sender, target = target).
+            *> Same currency uses a rate of 1.
             IF WS-TRANSFER-OK
+                MOVE "1" TO WS-RATE-STR
                 IF WS-SENDER-CUR NOT = WS-TARGET-CUR
-                    SET WS-TRANSFER-FAIL-CURR TO TRUE
+                    MOVE "SELECT CAST(exchange_rate AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
+                    MOVE WS-SENDER-CUR TO WS-BIND-1
+                    MOVE WS-TARGET-CUR TO WS-BIND-2
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                        BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    IF WS-RESULT = "ERROR|NO_DATA"
+                        SET WS-TRANSFER-FAIL-CURR TO TRUE
+                    ELSE
+                        IF WS-RESULT(1:5) = "ERROR"
+                            SET WS-TRANSFER-FAIL-DB TO TRUE
+                        ELSE
+                            MOVE WS-RESULT TO WS-RATE-STR
+                        END-IF
+                    END-IF
                 END-IF
             END-IF
             
@@ -424,14 +443,15 @@
                 END-IF
             END-IF
             
-            *> Credit target.
+            *> Credit target (converted to its currency when it differs).
             IF WS-TRANSFER-OK
-                MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE "UPDATE accounts SET balance = balance + ROUND(? * ?, 2) WHERE account_id = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
-                MOVE WS-TARGET-ACC TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
-                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                MOVE WS-RATE-STR TO WS-BIND-2
+                MOVE WS-TARGET-ACC TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
@@ -457,14 +477,15 @@
             END-IF
             
             IF WS-TRANSFER-OK
-                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'CREDIT', ?, 'Transfer in')" TO WS-PREP-SQL
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ROUND(? * ?, 2), 'CREDIT', ?, 'Transfer in')" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-TARGET-ACC TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
-                MOVE WS-TARGET-CUR TO WS-BIND-4
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                MOVE WS-RATE-STR TO WS-BIND-4
+                MOVE WS-TARGET-CUR TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -519,7 +540,7 @@
                                 MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                             ELSE
                                 IF WS-TRANSFER-FAIL-CURR
-                                    MOVE "ERROR|CURRENCY_MISMATCH" TO LS-OUTPUT-BUFFER
+                                    MOVE "ERROR|RATE_NOT_FOUND" TO LS-OUTPUT-BUFFER
                                 ELSE
                                     IF WS-TRANSFER-FAIL-SENDER
                                         MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
