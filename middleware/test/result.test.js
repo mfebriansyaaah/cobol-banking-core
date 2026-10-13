@@ -27,3 +27,15 @@ test('reconcile mismatch maps to 409 with the offending account(s)', () => {
   assert.equal(r.body.error, 'MISMATCH');
   assert.deepEqual(r.body.detail, ['2', '5.00', '0.00']);
 });
+
+test('session and token errors map to 401', () => {
+  for (const code of ['SESSION_NOT_FOUND', 'SESSION_EXPIRED', 'SESSION_REUSED', 'TOKEN_REVOKED']) {
+    assert.equal(toHttp(`ERROR|${code}`).status, 401, code);
+  }
+});
+
+test('internal failures map to 500', () => {
+  for (const code of ['SESSION_CHECK_FAILED', 'SESSION_REVOKE_FAILED', 'TOKEN_REVOKE_FAILED', 'DB_CONN_FAILED', 'PREPARE_FAILED', 'EXEC_FAILED', 'NO_TRANSACTION']) {
+    assert.equal(toHttp(`ERROR|${code}`).status, 500, code);
+  }
+});
