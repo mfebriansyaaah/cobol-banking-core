@@ -1142,3 +1142,15 @@ _merged 2026-10-13_
 - feat(gateway): cap the list page size at 100
 - docs: sync HISTORY.md to post-merge state (#112)
 
+## #114 fx-transfer
+
+_merged 2026-10-13_
+
+- docs: cross-currency transfers (ADR-0005) and refreshed counts
+- test(migrate): exchange_rates is present again for FX
+- test: cross-currency transfer converts; missing rate rejected
+- feat(gateway): map RATE_NOT_FOUND to HTTP 400
+- feat(wallet): cross-currency TRANSFER via exchange_rates (convert target credit)
+- feat(db): migration 0008 adds exchange_rates for cross-currency transfers
+- docs: sync HISTORY.md to post-merge state (#113)
+

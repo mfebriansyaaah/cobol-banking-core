@@ -74,6 +74,9 @@ Transfers convert the target credit using `exchange_rates` (base -> target) when
 the accounts use different currencies; a missing pair fails with
 `RATE_NOT_FOUND`.
 
+The binary writes its result in 500-char records; the gateway reassembles them,
+so large list responses are not cut at 500 bytes.
+
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a

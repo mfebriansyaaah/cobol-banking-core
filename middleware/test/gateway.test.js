@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, getVerificationCode } from './support.js';
+import { seedUser, seedAccount, seedManyUsers, getVerificationCode } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -266,4 +266,15 @@ test('the list page size is bounded', async (t) => {
 
   assert.equal((await request(app).get('/users?limit=0').set(auth)).status, 400);
   assert.equal((await request(app).get('/users?limit=abc').set(auth)).status, 400);
+});
+
+test('a large list is not truncated at 500 bytes', async (t) => {
+  if (!seedUser('gw_admin_bulk@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable');
+  if (!seedManyUsers('gw_bulk_', 25)) return t.skip('mysql unavailable');
+  const token = (await request(app).post('/auth/login').send({ email: 'gw_admin_bulk@test.com', password: 'secret123' })).body.token;
+
+  const res = await request(app).get('/users?limit=100').set('Authorization', `Bearer ${token}`);
+  assert.equal(res.status, 200);
+  // The 25th bulk user sits well past 500 bytes; it survives the multi-record output.
+  assert.ok(JSON.stringify(res.body.data).includes('gw_bulk_25@test.com'));
 });
