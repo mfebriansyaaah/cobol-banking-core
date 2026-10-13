@@ -77,3 +77,32 @@ export function createRequestObserver({ logger = null } = {}) {
 }
 
 export { jsonLogger };
+
+// --- Push export ---------------------------------------------------------
+// In-memory counters are exported (Prometheus text) to a remote collector
+// (e.g. a Pushgateway or an OTLP-HTTP bridge) so they persist beyond the
+// process and survive restarts on the collecting side.
+
+export async function pushMetrics(url, logger = null) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'text/plain; version=0.0.4' },
+    body: metricsText(),
+  });
+  if (!res.ok && logger) {
+    logger({ ts: new Date().toISOString(), level: 'warn', event: 'metrics_push_failed', status: res.status });
+  }
+  return res.status;
+}
+
+export function startMetricsExporter({ url, intervalMs = 15000, logger = null } = {}) {
+  if (!url) return () => {};
+  const timer = setInterval(() => {
+    pushMetrics(url, logger).catch(() => {
+      if (logger) logger({ ts: new Date().toISOString(), level: 'warn', event: 'metrics_push_error' });
+    });
+  }, intervalMs);
+  if (timer.unref) timer.unref();
+  return () => clearInterval(timer);
+}
+
