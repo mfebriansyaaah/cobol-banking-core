@@ -26,6 +26,8 @@ test('a request is logged with an id, route and latency', async () => {
   assert.equal(line.route, '/health');
   assert.equal(line.status, 200);
   assert.equal(typeof line.durationMs, 'number');
+  // The raw path (which may contain an email) is not logged.
+  assert.equal(line.path, undefined);
 });
 
 test('/metrics requires a token', async () => {
