@@ -42,7 +42,10 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update + audit | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
-| `cobol/src/auth_core.cob` | `CHECK_SESSION` | jti | is the refresh token still valid | `SUCCESS\|SESSION_VALID` * `ERROR\|SESSION_REVOKED` |
+| `cobol/src/auth_core.cob` | `CHECK_SESSION` | jti | is the refresh token still valid, reused, expired or unknown | `SUCCESS\|SESSION_VALID` * `ERROR\|SESSION_REUSED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|SESSION_EXPIRED` |
+| `cobol/src/auth_core.cob` | `GET_TOKEN_VERSION` | email | current access-token version for a user | `SUCCESS\|<ver>` * `ERROR\|ACCOUNT_NOT_FOUND` |
+| `cobol/src/auth_core.cob` | `CHECK_TOKEN` | email, version | is the presented access-token version current | `SUCCESS\|TOKEN_VALID` * `ERROR\|TOKEN_REVOKED` * `ERROR\|ACCOUNT_NOT_FOUND` |
+| `cobol/src/auth_core.cob` | `REVOKE_TOKENS` | email | bump the version, invalidating issued access tokens | `SUCCESS\|TOKENS_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` |
 
 The routing contract lives in `AGENTS.md`; `ci.sh` verifies every routed
@@ -51,7 +54,7 @@ action has a handler in its owning module.
 ## 3. Database (`cobol_db`)
 
 Tables in `database/schema.sql` (v1.5.0):
-`users` * `currencies` * `exchange_rates` * `accounts` * `ledger` *
+`users` (with `token_version`) * `currencies` * `exchange_rates` * `accounts` * `ledger` *
 `verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
@@ -79,16 +82,16 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_idempotent_transfer.sh` | 20 | replay-no-op, key reuse conflict, distinct keys, failure retry |
 | `tests/test_transfer_validity.sh` | 13 | positive-amount, same-currency and self-transfer rules |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
-| `tests/test_session.sh` | 9 | STORE/CHECK/REVOKE_SESSION lifecycle + reuse detection + expired pruning |
+| `tests/test_session.sh` | 14 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version revocation |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 41 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer |
+| `middleware/` (node --test) | 42 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer |
 
-Shell suites total **216**; with the gateway suite **41** the full run is
-**257 assertions**, all green as of this snapshot.
+Shell suites total **221**; with the gateway suite **42** the full run is
+**263 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -117,7 +120,10 @@ status, `durationMs`, `cobolMs`); counters are served at `/metrics`.
 start while JWT_SECRET/REFRESH_SECRET are unset or still the development
 defaults. Verification codes (`/auth/signup`, `/profile/email/request`) are
 delivered out of band (SMTP when configured, otherwise logged without the code
-in development) and are never returned in the HTTP response.
+in development) and are never returned in the HTTP response. Access tokens carry
+the user's token version, checked on every protected request (`CHECK_TOKEN`);
+logout bumps it (`REVOKE_TOKENS`), so an issued access token can be revoked
+before it expires.
 
 ## 6. Governance documents
 
