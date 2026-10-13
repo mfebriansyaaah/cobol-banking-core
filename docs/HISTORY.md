@@ -1050,3 +1050,12 @@ _merged 2026-10-13_
 - feat(gateway): map IDEMPOTENCY_CONFLICT to HTTP 409
 - fix(wallet): scope idempotent replay to sender/recipient/amount; conflict otherwise
 
+## #105 db-env-config
+
+_merged 2026-10-13_
+
+- docs: document env-based DB connection for the COBOL binary
+- test(ping): assert DB connection settings come from the environment
+- fix(bridge): read DB connection settings from the environment (dev defaults)
+- docs: sync HISTORY.md to post-merge state (#104)
+
