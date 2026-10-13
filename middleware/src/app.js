@@ -8,8 +8,8 @@ import { rateLimiter } from './rateLimit.js';
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
-// parameters in the exact order the COBOL module expects them. `actorFromToken`
-// marks routes whose actor is the verified token identity, never the body.
+// parameters in the exact order the COBOL module expects them. `tokenIdentity`
+// names the field filled from the verified token, never from the request body.
 export const ROUTES = [
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
@@ -30,37 +30,39 @@ export const ROUTES = [
     return { ...body, token: signToken({ email: input.email }), refreshToken: issued.token };
   } },
 
-  { method: 'get', path: '/users', action: 'LIST_USERS', actorFromToken: true, fields: [
+  { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
     { name: 'limit', pattern: INT, required: false },
     { name: 'offset', pattern: INT, required: false },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'get', path: '/users/:email', action: 'GET_USER', actorFromToken: true, fields: [
+  { method: 'get', path: '/users/:email', action: 'GET_USER', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', actorFromToken: true, fields: [
+  { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', fields: [
+  { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', fields: [
     { name: 'from', pattern: EMAIL, required: true },
     { name: 'to', pattern: EMAIL, required: true },
     { name: 'amount', pattern: AMOUNT, required: true },
     { name: 'idempotencyKey', pattern: KEY, required: false },
   ] },
-  { method: 'get', path: '/profile', action: 'GET_DASHBOARD', actorFromToken: true, fields: [
+  { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', fields: [
+  { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/profile/email/confirm', action: 'CONFIRM_EMAIL_CHANGE', fields: [
+  { method: 'post', path: '/profile/email/confirm', action: 'CONFIRM_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
   { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', fields: [
     { name: 'email', pattern: EMAIL, required: true },
@@ -68,10 +70,10 @@ export const ROUTES = [
   ] },
   // Read-only consistency check: every account balance against its ledger sum.
   // Requires a SUPER_ADMIN actor, taken from the verified token (not the body).
-  { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', actorFromToken: true, fields: [
+  { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', actorFromToken: true, fields: [
+  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
@@ -139,9 +141,9 @@ export function buildRouter() {
         if (req.headers['idempotency-key']) {
           input.idempotencyKey = req.headers['idempotency-key'];
         }
-        // Admin actions trust the verified token for the actor, never the body.
-        if (route.actorFromToken) {
-          input.actor = (req.user && req.user.email) || '';
+        // Identity fields (actor, or the transfer sender) trust the token only.
+        if (route.tokenIdentity) {
+          input[route.tokenIdentity] = (req.user && req.user.email) || '';
         }
         const params = buildParams(route, input);
         assertLineLength(route.action, params);

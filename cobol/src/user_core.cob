@@ -79,11 +79,13 @@
                 WHEN LS-CMD-ACTION(1:16) = "REQ_EMAIL_CHANGE"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
                     PERFORM ACTION-REQ-EMAIL-CHANGE
                 WHEN LS-CMD-ACTION(1:20) = "CONFIRM_EMAIL_CHANGE"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
                     PERFORM ACTION-CONFIRM-EMAIL-CHANGE
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
@@ -334,6 +336,11 @@
             EXIT PARAGRAPH.
 
         ACTION-REQ-EMAIL-CHANGE.
+            *> Only the owner may change their own email (actor p3 = current p1).
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM3-TRIMMED(1:WS-P3-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> The current user must exist.
             MOVE SPACES TO WS-QUERY
             STRING "SELECT 1 FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
@@ -388,6 +395,11 @@
             EXIT PARAGRAPH.
 
         ACTION-CONFIRM-EMAIL-CHANGE.
+            *> Only the owner may confirm their own email change (actor p4 = current p1).
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM4-TRIMMED(1:WS-P4-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> p1 = current email, p2 = new email, p3 = code.
             MOVE SPACES TO WS-QUERY
             STRING "SELECT 1 FROM verification_logs WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) 

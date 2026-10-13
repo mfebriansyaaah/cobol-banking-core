@@ -18,3 +18,21 @@ export function seedUser(email, role = 'USER') {
     return false;
   }
 }
+
+// Ensure the user has one USD savings account (used by transfer tests, whose
+// sender is the authenticated token identity). Returns false when mysql is absent.
+export function seedAccount(email, balance = '1000.00') {
+  const u = process.env.DB_USER ?? 'cobol_user';
+  const p = process.env.DB_PASS ?? 'cobol_pass';
+  const n = process.env.DB_NAME ?? 'cobol_db';
+  const sql =
+    'INSERT INTO accounts (user_id, currency_id, account_type, balance, status) ' +
+    `SELECT u.id, 1, 'SAVINGS', ${balance}, 'ACTIVE' FROM users u ` +
+    `WHERE u.email='${email}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=u.id);`;
+  try {
+    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
