@@ -216,3 +216,37 @@ test('reusing an idempotency key with different details is a conflict', async (t
   assert.equal(conflict.status, 409);
   assert.equal(conflict.body.error, 'IDEMPOTENCY_CONFLICT');
 });
+
+test('transfer amount is decided by COBOL, not the gateway shape', async (t) => {
+  const em = `gw_amt_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  if (!seedAccount(em, '100.00')) return t.skip('mysql unavailable to seed an account');
+
+  // A numeric zero passes shape validation and is refused by COBOL.
+  const zero = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', `zero-${Date.now()}`)
+    .send({ to: 'receiver@test.com', amount: '0.00' });
+  assert.equal(zero.status, 400);
+  assert.equal(zero.body.error, 'INVALID_AMOUNT');
+
+  // A non-numeric amount is a shape error, rejected before COBOL runs.
+  const bad = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ to: 'receiver@test.com', amount: 'abc' });
+  assert.equal(bad.status, 400);
+  assert.equal(bad.body.error, 'INVALID_PARAMETER');
+
+  // Transferring to oneself is refused by COBOL.
+  const self = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', `self-${Date.now()}`)
+    .send({ to: em, amount: '1.00' });
+  assert.equal(self.status, 400);
+  assert.equal(self.body.error, 'SELF_TRANSFER');
+});

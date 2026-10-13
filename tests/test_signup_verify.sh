@@ -79,6 +79,12 @@ check "unattributable verify not audited" "$before_failed" "$(q "SELECT COUNT(*)
 # After verification, login works.
 check "login after verify" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN "$EMAIL" secret123)"
 
+# Expired verification logs are pruned when a new signup happens.
+q "INSERT INTO verification_logs (email,code,purpose,expires_at) VALUES ('prune_expired@test.com','000000','SIGNUP', DATE_SUB(NOW(), INTERVAL 1 DAY));"
+run REQUEST_SIGNUP prune_another@test.com secret123 'Prune Another' '1990-01-01' >/dev/null
+check "expired verification logs pruned" "0" "$(q "SELECT COUNT(*) FROM verification_logs WHERE email='prune_expired@test.com';")"
+q "DELETE FROM verification_logs WHERE email IN ('prune_expired@test.com','prune_another@test.com'); DELETE FROM users WHERE email IN ('prune_expired@test.com','prune_another@test.com');"
+
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"

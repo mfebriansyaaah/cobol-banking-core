@@ -64,7 +64,6 @@ export function createRequestObserver({ logger = null } = {}) {
           event: 'http_request',
           id,
           method: req.method,
-          path: req.originalUrl,
           route,
           status: res.statusCode,
           durationMs,

@@ -65,6 +65,11 @@ check "cross-currency: sender untouched" "1000.0000" "$(q "SELECT balance FROM a
 check "cross-currency: target untouched" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
 check "cross-currency: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
 
+setup
+check "self-transfer rejected" "ERROR|SELF_TRANSFER" "$(run TRANSFER sender@test.com sender@test.com 100.00 "")"
+check "self-transfer: no movement" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "self-transfer: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
+
 teardown
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
