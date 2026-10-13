@@ -10,6 +10,11 @@ echo "  PING / DEEP HEALTH SUITE"
 echo "======================================================================"
 check "ping reaches DB" "SUCCESS|PONG" "$(run PING "" "" "")"
 check "unknown action still invalid" "ERROR|INVALID_ACTION" "$(run ZZZ "" "" "")"
+
+# Connection settings come from the environment, not the source.
+printf 'PING\n' > input.txt
+out=$(DB_NAME=nonexistent_$$ "$BIN" >/dev/null 2>&1; cat output.txt)
+check "DB settings read from the environment" "ERROR|DB_DOWN" "$out"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"
