@@ -135,10 +135,12 @@ CREATE TABLE IF NOT EXISTS pending_transactions (
 -- 9. Tabel Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
+    family VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_refresh_family (family),
     CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
