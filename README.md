@@ -70,6 +70,10 @@ expires.
 Responses use one envelope - success `{ data: [...] }`, failure
 `{ error, detail? }`. `/users` is paged (`limit` 1..100, `offset`).
 
+Transfers convert the target credit using `exchange_rates` (base -> target) when
+the accounts use different currencies; a missing pair fails with
+`RATE_NOT_FOUND`.
+
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a

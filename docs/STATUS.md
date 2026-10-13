@@ -28,7 +28,7 @@ A banking core where **all business logic lives in COBOL**:
 | Module | Action | Params | Behavior | Outputs |
 |---|---|---|---|---|
 | `cobol/src/wallet_core.cob` | `CHECK_BALANCE` | email, actor (self-or-admin) | ledger-backed? no: `accounts.balance` (`CONCAT(ROUND(...,2))`) | `<amount>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
-| `cobol/src/wallet_core.cob` | `TRANSFER` | from (token identity), target, amount, **idempotency key** (opt) | one transaction: replay only when sender/target/amount match the committed key; `FOR UPDATE` lock; debit/credit; 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|IDEMPOTENCY_CONFLICT` * `ERROR\|INVALID_AMOUNT` * `ERROR\|CURRENCY_MISMATCH` * `ERROR\|DB_ERROR` |
+| `cobol/src/wallet_core.cob` | `TRANSFER` | from (token identity), target, amount, **idempotency key** (opt) | one transaction: replay only when sender/target/amount match the committed key; `FOR UPDATE` lock; debit sender, credit target (`amount * rate` when currencies differ); 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|IDEMPOTENCY_CONFLICT` * `ERROR\|INVALID_AMOUNT` * `ERROR\|RATE_NOT_FOUND` * `ERROR\|DB_ERROR` |
 | `cobol/src/wallet_core.cob` | `RECONCILE` | actor (SUPER_ADMIN) | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `GET_USER` | email, actor (self-or-admin) | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `LIST_USERS` | limit(20, gateway caps 1..100), offset(0), actor (admin) | paged, rows via `SQL_PREPARE_EXEC_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` * `ERROR\|FORBIDDEN` |
@@ -55,7 +55,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
 `users` (with `token_version`) * `currencies` * `accounts` * `ledger` *
-`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `schema_migrations`
+`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `exchange_rates` * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -80,7 +80,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_user_profile.sh` | 17 | dashboard multi-account, paging, email-change |
 | `tests/test_login_lockout.sh` | 7 | 3-fail lockout, audit rows, clearing |
 | `tests/test_idempotent_transfer.sh` | 20 | replay-no-op, key reuse conflict, distinct keys, failure retry |
-| `tests/test_transfer_validity.sh` | 13 | positive-amount, same-currency and self-transfer rules |
+| `tests/test_transfer_validity.sh` | 17 | positive-amount, self-transfer, and cross-currency (FX + missing rate) |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 14 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version revocation |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
@@ -90,8 +90,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
 | `middleware/` (node --test) | 46 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation, timeout, line cap, paging cap, uniform envelope, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
 
-Shell suites total **223**; with the gateway suite **46** the full run is
-**269 assertions**, all green as of this snapshot.
+Shell suites total **227**; with the gateway suite **46** the full run is
+**273 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -131,14 +131,14 @@ failure `{ error, detail? }` - and the list page size is capped at 100
 ## 6. Governance documents
 
 - `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
-- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md` - decisions.
+- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 
 ## 7. Known gaps (deliberate, by scale)
 
 - Password KDF is PBKDF2-SHA256 (100k iters); legacy `SHA256_` fallback stays until all accounts rehash.
-- Transfers must be positive and within one currency; cross-currency is rejected (`CURRENCY_MISMATCH`) until an FX path exists.
+- Transfers must be positive; cross-currency credits at the stored `exchange_rates` base->target rate (a missing pair is `RATE_NOT_FOUND`). The rate is not stored on the transaction beyond the resulting credited amount.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Prepared statements are used for the parameterized queries in `user_core`, `wallet_core` and most of `auth_core`; the remaining `auth_core` statements (login/lockout, signup/verify, audit) embed `mysql_real_escape_string`-escaped values, which the whitelist validator plus escaping keep safe. The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
 - `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are single-use and rotate within a `family`; presenting an already-revoked token is treated as reuse and revokes the whole family (all sessions for that login), so a stolen token cannot be replayed.

@@ -1,6 +1,7 @@
 #!/bin/bash
-# Transfer validity suite: amount must be positive and both sides must share a
-# currency. Failing these must leave balances and ledger untouched.
+# Transfer validity suite: amount must be positive; same-currency moves one
+# amount, cross-currency converts the target credit via exchange_rates (and is
+# rejected when no rate exists). Failing these must leave balances/ledger intact.
 # Usage: ./tests/test_transfer_validity.sh
 
 BIN="./cobol/bin/main_logic"
@@ -60,10 +61,17 @@ check "zero-amount: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
 check "decimal zero rejected" "ERROR|INVALID_AMOUNT" "$(run TRANSFER sender@test.com receiver@test.com 0.00 "")"
 
 setup
-check "cross-currency rejected" "ERROR|CURRENCY_MISMATCH" "$(run TRANSFER sender@test.com idr_validity@test.com 100.00 "")"
-check "cross-currency: sender untouched" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
-check "cross-currency: target untouched" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
-check "cross-currency: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
+check "fx converts to the target currency" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com idr_validity@test.com 100.00 "")"
+check "fx sender debited in its currency" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "fx target credited at the rate" "1570000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
+check "fx debit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=1 AND type='DEBIT' AND amount=100.00;")"
+check "fx credit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=961 AND type='CREDIT' AND amount=1570000.00;")"
+
+setup
+q "UPDATE accounts SET balance=100.00 WHERE account_id=961;"
+check "fx without a rate is rejected" "ERROR|RATE_NOT_FOUND" "$(run TRANSFER idr_validity@test.com sender@test.com 1000 "")"
+check "fx no-rate: target untouched" "100.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
+check "fx no-rate: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
 
 setup
 check "self-transfer rejected" "ERROR|SELF_TRANSFER" "$(run TRANSFER sender@test.com sender@test.com 100.00 "")"

@@ -1133,3 +1133,12 @@ _merged 2026-10-13_
 - feat(gateway): defensively map session/token and bridge errors to 401/500
 - docs: sync HISTORY.md to post-merge state (#111)
 
+## #113 paging-envelope
+
+_merged 2026-10-13_
+
+- docs: list page-size cap and uniform response envelope
+- test: list page-size bound and uniform response envelope
+- feat(gateway): cap the list page size at 100
+- docs: sync HISTORY.md to post-merge state (#112)
+
