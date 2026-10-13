@@ -74,6 +74,14 @@ check "prepared transfer replay is idempotent" "SUCCESS|TRANSFER_OK" "$(run TRAN
 check "prepared transfer ledger rows" "2" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='preptx-1';")"
 check "prepared transfer intent committed" "COMMITTED" "$(q "SELECT status FROM pending_transactions WHERE txn_ref='preptx-1';")"
 
+# RECONCILE runs its scan through a prepared statement (no parameters).
+check "prepared reconcile requires admin" "ERROR|FORBIDDEN" "$(run RECONCILE prep_ok@test.com '' '' '')"
+rec_out=$(run RECONCILE "$ADMIN" '' '' '')
+case "$rec_out" in
+    SUCCESS\|RECONCILED|ERROR\|MISMATCH*) check "prepared reconcile scan" "ok" "ok" ;;
+    *) check "prepared reconcile scan" "SUCCESS|RECONCILED or ERROR|MISMATCH" "$rec_out" ;;
+esac
+
 q "DELETE FROM verification_logs WHERE email='prep_ok@test.com'; DELETE FROM users WHERE email IN ('prep_ok@test.com','$ADMIN');"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
