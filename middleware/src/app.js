@@ -6,6 +6,7 @@ import { buildParams, ValidationError, PATTERNS, assertLineLength } from './vali
 import { requireAuth, signToken, signRefresh, verifyRefresh, REFRESH_TTL_DAYS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText } from './observability.js';
+import { createMailer } from './mailer.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
 
@@ -18,7 +19,11 @@ export const ROUTES = [
     { name: 'password', pattern: PASSWORD, required: true },
     { name: 'name', pattern: NAME, required: true },
     { name: 'dob', pattern: DATE, required: true },
-  ] },
+  ], onSuccess: async (body, input, { mailer }) => {
+    // The code is delivered out of band; it is never returned to the client.
+    await mailer.sendVerification({ to: input.email, purpose: 'SIGNUP', code: body.data[1] });
+    return { data: ['USER_CREATED'] };
+  } },
   { method: 'post', path: '/auth/verify', action: 'VERIFY_EMAIL', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
@@ -59,7 +64,10 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  ], onSuccess: async (body, input, { mailer }) => {
+    await mailer.sendVerification({ to: input.newEmail, purpose: 'EMAIL_CHANGE', code: body.data[1] });
+    return { data: ['CODE_SENT'] };
+  } },
   { method: 'post', path: '/profile/email/confirm', action: 'CONFIRM_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
@@ -83,7 +91,7 @@ export const ROUTES = [
   ] },
 ];
 
-export function buildRouter() {
+export function buildRouter({ mailer } = {}) {
   const router = express.Router();
   const authLimiter = rateLimiter();
   const apiLimiter = apiRateLimiter();
@@ -163,7 +171,7 @@ export function buildRouter() {
         res.set('X-Cobol-Ms', String(Date.now() - t0));
         const { status, body } = toHttp(raw);
         if (status === 200 && route.onSuccess) {
-          return res.status(status).json(await route.onSuccess(body, input));
+          return res.status(status).json(await route.onSuccess(body, input, { mailer }));
         }
         return res.status(status).json(body);
       } catch (err) {
@@ -181,12 +189,12 @@ export function buildRouter() {
   return router;
 }
 
-export function buildApp({ logger = null } = {}) {
+export function buildApp({ logger = null, mailer = null } = {}) {
   const app = express();
   app.use(helmet());
   app.use(createRequestObserver({ logger }));
   app.use(express.json());
-  app.use(buildRouter());
+  app.use(buildRouter({ mailer: mailer || createMailer({ logger }) }));
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
     if (err instanceof ValidationError) {
