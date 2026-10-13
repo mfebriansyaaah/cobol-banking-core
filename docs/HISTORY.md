@@ -1185,3 +1185,12 @@ _merged 2026-10-13_
 - chore(deps): add redis for a distributed rate-limit store
 - docs: sync HISTORY.md to post-merge state (#116)
 
+## #118 metrics-export
+
+_merged 2026-10-13_
+
+- docs: metrics push export (METRICS_PUSH_URL) and ADR-0008
+- test(observability): exporter posts on an interval and tolerates failures
+- feat(observability): push counters to a remote collector (METRICS_PUSH_URL)
+- docs: sync HISTORY.md to post-merge state (#117)
+

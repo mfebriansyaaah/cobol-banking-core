@@ -85,6 +85,9 @@ IP is read from the forwarded headers.
 Metrics are exposed at `GET /metrics`; set `METRICS_PUSH_URL` to also push them
 periodically to a collector (Pushgateway/OTLP-HTTP).
 
+Audit retention: `POST /admin/audit/archive` (SUPER_ADMIN) moves `audit_trail`
+rows older than a retention window into the immutable `audit_trail_archive`.
+
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a

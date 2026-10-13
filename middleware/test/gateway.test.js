@@ -297,3 +297,21 @@ test('one access token can be revoked without affecting another session', async 
   // The other session is untouched (this is per-token, not per-user).
   assert.equal((await request(app).get(`/users/${em}`).set('Authorization', `Bearer ${second}`)).status, 200);
 });
+
+test('audit archiving is admin-only', async (t) => {
+  if (!seedUser('gw_admin_archive@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable');
+  const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_archive@test.com', password: 'secret123' })).body.token;
+
+  const em = `gw_arch_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Arch User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const userToken = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+
+  const denied = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${userToken}`).send({ days: 3650 });
+  assert.equal(denied.status, 403);
+  assert.equal(denied.body.error, 'FORBIDDEN');
+
+  const ok = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${adminToken}`).send({ days: 3650 });
+  assert.equal(ok.status, 200);
+  assert.deepEqual(ok.body.data, ['ARCHIVED']);
+});
