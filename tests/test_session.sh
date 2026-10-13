@@ -37,11 +37,19 @@ echo "======================================================================"
 q "DELETE FROM refresh_sessions WHERE jti LIKE 'jti-sh%';"
 q "INSERT IGNORE INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (970,'sess@test.com','x','Sess','1990-01-01','VERIFIED','USER');"
 
-check "store session" "SUCCESS|SESSION_STORED" "$(run STORE_SESSION jti-sh-1 sess@test.com 7)"
+check "store session" "SUCCESS|SESSION_STORED" "$(run STORE_SESSION jti-sh-1 sess@test.com 7 jti-sh-fam)"
 check "check valid" "SUCCESS|SESSION_VALID" "$(run CHECK_SESSION jti-sh-1)"
 check "revoke session" "SUCCESS|SESSION_REVOKED" "$(run REVOKE_SESSION jti-sh-1)"
-check "check revoked" "ERROR|SESSION_REVOKED" "$(run CHECK_SESSION jti-sh-1)"
-check "check unknown" "ERROR|SESSION_REVOKED" "$(run CHECK_SESSION jti-sh-nope)"
+check "check revoked" "ERROR|SESSION_REUSED" "$(run CHECK_SESSION jti-sh-1)"
+check "check unknown" "ERROR|SESSION_NOT_FOUND" "$(run CHECK_SESSION jti-sh-nope)"
+
+# Presenting an already-revoked token is reuse: the whole family is revoked.
+run STORE_SESSION jti-sh-a sess@test.com 7 fam2 >/dev/null
+run STORE_SESSION jti-sh-b sess@test.com 7 fam2 >/dev/null
+run REVOKE_SESSION jti-sh-a >/dev/null
+check "reuse detected on family" "ERROR|SESSION_REUSED" "$(run CHECK_SESSION jti-sh-a)"
+check "family fully revoked" "2" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE family='fam2' AND revoked=1;")"
+check "sibling is now reused/revoked" "ERROR|SESSION_REUSED" "$(run CHECK_SESSION jti-sh-b)"
 
 q "DELETE FROM refresh_sessions WHERE jti LIKE 'jti-sh%'; DELETE FROM users WHERE id=970;"
 echo "======================================================================"

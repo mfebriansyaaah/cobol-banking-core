@@ -135,6 +135,28 @@ test('refresh token yields a new access token', async () => {
   assert.equal(bad.body.error, 'INVALID_REFRESH_TOKEN');
 });
 
+test('replaying a rotated refresh token revokes the whole family', async () => {
+  const em = `gw_reuse_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Reuse User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: s.body.data[1] });
+  const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+  const r1 = login.body.refreshToken;
+
+  const rotated = await request(app).post('/auth/refresh').send({ refreshToken: r1 });
+  assert.equal(rotated.status, 200);
+  const r2 = rotated.body.refreshToken;
+  assert.ok(r2);
+
+  // Replaying the old token is reuse -> 401, and the family is revoked.
+  const replay = await request(app).post('/auth/refresh').send({ refreshToken: r1 });
+  assert.equal(replay.status, 401);
+
+  // The legitimate successor is now dead too; the user must log in again.
+  const after = await request(app).post('/auth/refresh').send({ refreshToken: r2 });
+  assert.equal(after.status, 401);
+  assert.equal(after.body.error, 'INVALID_REFRESH_TOKEN');
+});
+
 test('role change authorizes by the token actor, ignoring the body', async (t) => {
   const admin = `gw_admin_${Date.now()}@test.com`;
   const target = `gw_target_${Date.now()}@test.com`;
