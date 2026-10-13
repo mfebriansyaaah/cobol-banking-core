@@ -936,3 +936,17 @@ _merged 2026-10-13_
 - feat(user_core): GET_USER/GET_DASHBOARD self-or-admin; LIST_USERS admin-only
 - docs: sync HISTORY.md to post-merge state (#92)
 
+## #94 write-ownership
+
+_merged 2026-10-13_
+
+- fix(db): migration 0001 also cascades on UPDATE so a re-apply cannot regress
+- docs: owner-scoped writes (transfer from token, owner-only email change)
+- test(gateway): guard tokenIdentity for writes and reads (including transfer from)
+- test(gateway): transfer sends from the token; email-change spoof refused
+- fix(db): migration 0004 restores ON UPDATE CASCADE on pending_transactions
+- test: email-change owner gate in the profile suite
+- feat(gateway): identity fields from the token; email change and transfer take the actor/from
+- feat(user_core): email change requires the owner as actor (p3/p4); else FORBIDDEN
+- docs: sync HISTORY.md to post-merge state (#93)
+
