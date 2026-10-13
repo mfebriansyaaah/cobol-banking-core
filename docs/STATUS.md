@@ -52,7 +52,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (v1.5.0):
 `users` * `currencies` * `exchange_rates` * `accounts` * `ledger` *
-`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` * `schema_migrations`
+`verification_logs` * `audit_trail` * `pending_transactions` * `refresh_sessions` (jti + `family`) * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -74,16 +74,16 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_idempotent_transfer.sh` | 15 | replay-no-op, distinct keys, failure retry |
 | `tests/test_transfer_validity.sh` | 10 | positive-amount and same-currency rules |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
-| `tests/test_session.sh` | 5 | STORE/CHECK/REVOKE_SESSION lifecycle |
+| `tests/test_session.sh` | 8 | STORE/CHECK/REVOKE_SESSION lifecycle + reuse detection (family revocation) |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 33 | gateway: contract, injection, rate limit (auth + api), refresh, timeout, line cap, every-endpoint smoke, actor-token guard, observability |
+| `middleware/` (node --test) | 34 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability |
 
-Shell suites total **199**; with the gateway suite **33** the full run is
-**232 assertions**, all green as of this snapshot.
+Shell suites total **202**; with the gateway suite **34** the full run is
+**236 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -121,5 +121,5 @@ status, `durationMs`, `cobolMs`); counters are served at `/metrics`.
 - Transfers must be positive and within one currency; cross-currency is rejected (`CURRENCY_MISMATCH`) until an FX path exists.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Prepared statements now cover every query in `auth_core`, `user_core` and `wallet_core` (including the parameterless `RECONCILE` scan). The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
-- `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are rotated single-use and revocable via the session store.
+- `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are single-use and rotate within a `family`; presenting an already-revoked token is treated as reuse and revokes the whole family (all sessions for that login), so a stolen token cannot be replayed.
 - One-line COBOL result bounds large lists; process-per-request limits throughput (revisit ADR-0001 at scale).
