@@ -65,9 +65,10 @@ export const ROUTES = [
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', fields: [
+  { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
   // Read-only consistency check: every account balance against its ledger sum.
   // Requires a SUPER_ADMIN actor, taken from the verified token (not the body).

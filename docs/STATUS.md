@@ -38,7 +38,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `REQUEST_SIGNUP` | email, password, name, dob | 8-char min password, unique email, PBKDF2 hash, 6-digit code in `verification_logs`; audit row | `SUCCESS\|USER_CREATED\|<code>` * `ERROR\|WEAK_PASSWORD` * `ERROR\|EMAIL_EXISTS` * `ERROR\|SIGNUP_FAILED` |
 | `cobol/src/auth_core.cob` | `VERIFY_EMAIL` | email, code | consume code, set `VERIFIED`, transactional; audit success or (attributable) failure | `SUCCESS\|EMAIL_VERIFIED` * `ERROR\|INVALID_CODE` * `ERROR\|VERIFY_FAILED` |
 | `cobol/src/auth_core.cob` | `AUTH_LOGIN` | email, password | 3-fail/15-min lockout; PBKDF2 verify w/ legacy SHA256 fallback + rehash; must be `VERIFIED` | `SUCCESS\|LOGIN_OK` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|UNVERIFIED` * `ERROR\|ACCOUNT_LOCKED` |
-| `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` |
+| `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role, actor (self-or-admin) | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update + audit | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
@@ -73,7 +73,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_reconciliation.sh` | 10 | `RECONCILE` on healthy/drifted states; SUPER_ADMIN actor gate |
 | `tests/test_auth_login.sh` | 6 | login, legacy rehash on login |
 | `tests/test_signup_verify.sh` | 20 | signup + verify flow, PBKDF2 hash, uniqueness, success + failed-verify audit |
-| `tests/test_roles.sh` | 11 | `CHECK_ROLE`/`CHANGE_ROLE` incl. SUPER_ADMIN gate |
+| `tests/test_roles.sh` | 13 | `CHECK_ROLE` self-or-admin + `CHANGE_ROLE` SUPER_ADMIN gate |
 | `tests/test_user_profile.sh` | 17 | dashboard multi-account, paging, email-change |
 | `tests/test_login_lockout.sh` | 7 | 3-fail lockout, audit rows, clearing |
 | `tests/test_idempotent_transfer.sh` | 20 | replay-no-op, key reuse conflict, distinct keys, failure retry |
@@ -87,8 +87,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
 | `middleware/` (node --test) | 35 | gateway: contract, injection, rate limit (auth + api), refresh reuse, timeout, line cap, every-endpoint smoke, actor-token guard, observability, idempotency conflict |
 
-Shell suites total **208**; with the gateway suite **35** the full run is
-**243 assertions**, all green as of this snapshot.
+Shell suites total **210**; with the gateway suite **35** the full run is
+**245 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -101,7 +101,8 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/auth/logout` (revokes a refresh token).
 Both admin routes (`/admin/role` POST, `/admin/reconcile`) take the actor from
 the verified token, never the request body. The per-user reads (`/users/:email`,
-`/wallet/balance`, `/profile`) allow the owner or an admin; `/users` (list) is
+`/wallet/balance`, `/profile`) and the role check `GET /admin/role` allow the
+owner or an admin; `/users` (list) is
 admin-only. Writes are owner-scoped too: a transfer is always sent from the
 token's account, and the email-change flow only acts on the token's own email.
 Actor/sender identity always comes from the token.

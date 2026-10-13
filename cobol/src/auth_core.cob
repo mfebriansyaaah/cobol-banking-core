@@ -37,6 +37,7 @@
         01  WS-I                    PIC 9(3).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
         01  WS-P1-ESC               PIC X(256) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
@@ -532,6 +533,23 @@
             EXIT PARAGRAPH.
 
         CHECK-ROLE-LOGIC.
+            *> p1 = target email, p2 = role, p3 = actor. Self or admin only.
+            MOVE 0 TO WS-ALLOWED
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM3-TRIMMED(1:WS-P3-LEN)
+                MOVE 1 TO WS-ALLOWED
+            ELSE
+                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                    MOVE 1 TO WS-ALLOWED
+                END-IF
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> Does this user hold the given role?
             MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
