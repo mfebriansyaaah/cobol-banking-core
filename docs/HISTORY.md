@@ -1020,3 +1020,12 @@ _merged 2026-10-13_
 - feat(observability): per-request structured logging and in-process metrics
 - docs: sync HISTORY.md to post-merge state (#100)
 
+## #102 e2e-gateway-smoke
+
+_merged 2026-10-13_
+
+- docs: describe the end-to-end HTTP smoke and refreshed counts
+- ci: add step 24 - end-to-end HTTP smoke against a live gateway
+- test(e2e): HTTP smoke that drives the live gateway through a full flow
+- docs: sync HISTORY.md to post-merge state (#101)
+
