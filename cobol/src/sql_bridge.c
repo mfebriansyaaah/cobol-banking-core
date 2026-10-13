@@ -412,6 +412,81 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     if (own_conn) mysql_close(conn);
 }
 
+/* --- Prepared execute without reading rows ------------------------------
+ * Binds parameters and runs the statement, but does not fetch/bind a result
+ * set. Used for a locking `SELECT ... FOR UPDATE` whose rows are not needed;
+ * reading them via mysql_stmt_store_result makes MariaDB raise ER_CHECKREAD
+ * (1020) under contention, even though the lock itself succeeded.
+ * ------------------------------------------------------------------------ */
+
+void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
+                           char *p1, char *p2, char *p3, char *p4, char *p5, char *p6) {
+    if (!sql) return;
+
+    char query[1024];
+    strncpy(query, sql, 255);
+    query[255] = '\0';
+    trim_trailing_spaces(query);
+    if (query[0] == '\0') return;
+
+    MYSQL *conn = G_CONN;
+    int own_conn = 0;
+    if (conn == NULL) {
+        conn = bridge_connect();
+        own_conn = 1;
+        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 1023); return; }
+    }
+
+    MYSQL_STMT *st = mysql_stmt_init(conn);
+    if (st == NULL) {
+        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 1023);
+        if (own_conn) mysql_close(conn);
+        return;
+    }
+    if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
+        snprintf(G_RESULT, 1023, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
+        mysql_stmt_close(st);
+        if (own_conn) mysql_close(conn);
+        return;
+    }
+
+    char *src[6] = { p1, p2, p3, p4, p5, p6 };
+    static char bufs[6][512];
+    static unsigned long lens[6];
+    MYSQL_BIND bind[6];
+    memset(bind, 0, sizeof(bind));
+
+    int n = nparams;
+    if (n < 0) n = 0;
+    if (n > 6) n = 6;
+
+    for (int i = 0; i < n; i++) {
+        memset(bufs[i], 0, sizeof(bufs[i]));
+        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
+        trim_trailing_spaces(bufs[i]);
+        lens[i] = (unsigned long)strlen(bufs[i]);
+        bind[i].buffer_type = MYSQL_TYPE_STRING;
+        bind[i].buffer = bufs[i];
+        bind[i].buffer_length = 511;
+        bind[i].length = &lens[i];
+    }
+    if (n > 0 && mysql_stmt_bind_param(st, bind)) {
+        strncpy(G_RESULT, "ERROR|BIND_FAILED", 1023);
+        mysql_stmt_close(st);
+        if (own_conn) mysql_close(conn);
+        return;
+    }
+
+    if (mysql_stmt_execute(st)) {
+        snprintf(G_RESULT, 1023, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
+    } else {
+        strncpy(G_RESULT, "SUCCESS|LOCKED", 1023);
+    }
+
+    mysql_stmt_close(st);
+    if (own_conn) mysql_close(conn);
+}
+
 /* --- Prepared multi-row execute -----------------------------------------
  * Like SQL_PREPARE_EXEC (bound parameters) but concatenates EVERY row:
  * fields joined by '|', rows joined by ';'. Used for paged lists whose
