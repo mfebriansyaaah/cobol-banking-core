@@ -207,16 +207,10 @@
             END-IF
 
             *> Any account whose stored balance differs from its ledger sum.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(a.account_id AS CHAR), CONCAT(ROUND(a.balance,2)), CONCAT(ROUND(COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0),2)) " 
-                   "FROM accounts a LEFT JOIN ledger l ON l.account_id = a.account_id " 
-                   "GROUP BY a.account_id, a.balance " 
-                   "HAVING a.balance <> COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0)" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT CAST(a.account_id AS CHAR), CONCAT(ROUND(a.balance,2)), CONCAT(ROUND(COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0),2)) FROM accounts a LEFT JOIN ledger l ON l.account_id = a.account_id GROUP BY a.account_id, a.balance HAVING a.balance <> COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT = "ERROR|NO_DATA"
