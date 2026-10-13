@@ -86,6 +86,16 @@ if grep -n "REFERENCES users(email)" database/schema.sql | grep -v "ON UPDATE CA
     viol=1
 fi
 
+# Violation 6: every action the router can dispatch must be reachable through the
+# gateway, either as a route (action: 'X') or via an internal invoke('X')
+# (PING, session store). Otherwise the feature is unreachable over HTTP.
+for name in $(grep -oE '= "[A-Z_]+"' cobol/src/main_logic.cob | sed 's/= "//; s/"//'); do
+    if ! grep -qE "(action: '$name'|invoke\('$name')" middleware/src/app.js; then
+        echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
+        viol=1
+    fi
+done
+
 if [ "$viol" = 1 ]; then
     echo "=== Static checks FAILED ==="
     exit 1

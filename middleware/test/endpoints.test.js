@@ -42,6 +42,16 @@ test('every bearer endpoint responds', async () => {
   // non-admin actor is refused by the route (business rule), not a 404
   assert.equal((await request(app).post('/admin/role').set(auth).send({ email: 'receiver@test.com', role: 'USER', actor: email })).status, 403);
 
+  // Reconcile is a read-only diagnostic: either everything matches, or the
+  // response names the mismatching account(s).
+  const rec = await request(app).get('/admin/reconcile').set(auth);
+  assert.ok([200, 409].includes(rec.status), `unexpected reconcile status ${rec.status}`);
+  if (rec.status === 200) {
+    assert.deepEqual(rec.body.data, ['RECONCILED']);
+  } else {
+    assert.equal(rec.body.error, 'MISMATCH');
+  }
+
   const ne = `ep_new_${Date.now()}@test.com`;
   const reqc = await request(app).post('/profile/email/request').set(auth).send({ email, newEmail: ne });
   assert.equal(reqc.status, 200);

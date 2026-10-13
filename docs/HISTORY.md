@@ -884,3 +884,10 @@ _merged 2026-10-12_
 - test(gateway): smoke-test every endpoint (result/HTTP contract guard)
 - docs: sync HISTORY.md to post-merge state (#87)
 
+## #89 hook-sync-exception
+
+_merged 2026-10-12_
+
+- fix(hooks): use commit-msg (pre-commit cannot read the new message); allow docs: sync
+- docs: sync HISTORY.md to post-merge state (#88)
+
