@@ -406,6 +406,12 @@
             END-IF
             
             IF STEP-OK
+                *> Housekeeping: drop expired verification logs.
+                MOVE "DELETE FROM verification_logs WHERE expires_at < NOW()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE SPACES TO WS-QUERY
                 STRING "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES ('" 
                        WS-P1-ESC(1:WS-P1-ELEN) "', '" WS-CODE(1:6) "', 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" 
@@ -649,6 +655,12 @@
 
         STORE-SESSION-LOGIC.
             *> p1 = jti, p2 = email, p3 = lifetime in days, p4 = family (defaults to jti).
+            *> Housekeeping: drop expired sessions so the table does not grow forever.
+            MOVE "DELETE FROM refresh_sessions WHERE expires_at < NOW()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             MOVE SPACES TO WS-PREP-SQL
             STRING "INSERT INTO refresh_sessions (jti, family, email, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL "
                    WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY))" DELIMITED BY SIZE INTO WS-PREP-SQL
