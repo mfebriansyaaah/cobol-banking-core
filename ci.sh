@@ -90,7 +90,7 @@ fi
 # gateway, either as a route (action: 'X') or via an internal invoke('X')
 # (PING, session store). Otherwise the feature is unreachable over HTTP.
 for name in $(grep -oE '= "[A-Z_]+"' cobol/src/main_logic.cob | sed 's/= "//; s/"//'); do
-    if ! grep -qE "(action: '$name'|invoke\('$name')" middleware/src/app.js; then
+    if ! grep -rqE "(action: '$name'|invoke\('$name')" middleware/src; then
         echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
         viol=1
     fi

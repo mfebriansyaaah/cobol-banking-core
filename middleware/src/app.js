@@ -1,12 +1,14 @@
 import express from 'express';
 import helmet from 'helmet';
+import { randomUUID } from 'node:crypto';
 import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
-import { requireAuth, signToken, signRefresh, verifyRefresh, REFRESH_TTL_DAYS } from './auth.js';
+import { requireAuth, signToken, signRefresh, verifyRefresh, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText } from './observability.js';
 import { createMailer } from './mailer.js';
+import { createTokenStore } from './tokenStore.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY } = PATTERNS;
 
@@ -35,7 +37,7 @@ export const ROUTES = [
     const ver = await tokenVersion(input.email);
     const issued = signRefresh({ email: input.email });
     await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti]);
-    return { ...body, token: signToken({ email: input.email, ver }), refreshToken: issued.token };
+    return { ...body, token: signToken({ email: input.email, ver, jti: randomUUID() }), refreshToken: issued.token };
   } },
 
   { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
@@ -102,24 +104,23 @@ async function tokenVersion(email) {
   }
 }
 
-// The access token carries the user's token version; a mismatch means the token
-// (or all tokens) was revoked since it was issued.
-async function requireActiveToken(req, res, next) {
-  try {
-    const email = (req.user && req.user.email) || '';
-    const ver = String((req.user && req.user.ver) ?? '');
-    const raw = await invoke('CHECK_TOKEN', [email, ver]);
-    if (raw === 'SUCCESS|TOKEN_VALID') return next();
-    return res.status(401).json({ error: 'TOKEN_REVOKED' });
-  } catch (err) {
-    return next(err);
-  }
-}
-
-export function buildRouter({ mailer } = {}) {
+// The access token carries the user's token version and its own jti; a mismatch
+// (or a denylisted jti) means it was revoked since it was issued.
+export function buildRouter({ mailer, tokenStore } = {}) {
   const router = express.Router();
   const authLimiter = rateLimiter();
   const apiLimiter = apiRateLimiter();
+
+  const requireActiveToken = async (req, res, next) => {
+    try {
+      const u = req.user || {};
+      const ok = await tokenStore.isActive({ email: u.email || '', ver: u.ver, jti: u.jti });
+      if (ok) return next();
+      return res.status(401).json({ error: 'TOKEN_REVOKED' });
+    } catch (err) {
+      return next(err);
+    }
+  };
 
   // Deep health: confirm the COBOL core can reach the database.
   router.get('/health', async (_req, res) => {
@@ -160,7 +161,7 @@ export function buildRouter({ mailer } = {}) {
       await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family]);
       return res.json({
         data: ['REFRESHED'],
-        token: signToken({ email: payload.email, ver }),
+        token: signToken({ email: payload.email, ver, jti: randomUUID() }),
         refreshToken: issued.token,
       });
     } catch {
@@ -178,6 +179,17 @@ export function buildRouter({ mailer } = {}) {
       return res.json({ data: ['LOGGED_OUT'] });
     } catch {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+    }
+  });
+
+  // Revoke just the presented access token (per-token denylist), leaving other
+  // sessions of the same user valid.
+  router.post('/auth/revoke', apiLimiter, requireAuth, requireActiveToken, async (req, res, next) => {
+    try {
+      await tokenStore.revoke({ jti: req.user.jti, email: req.user.email, ttlSeconds: ACCESS_TTL_SECONDS });
+      return res.json({ data: ['TOKEN_REVOKED'] });
+    } catch (err) {
+      return next(err);
     }
   });
 
@@ -218,12 +230,12 @@ export function buildRouter({ mailer } = {}) {
   return router;
 }
 
-export function buildApp({ logger = null, mailer = null } = {}) {
+export function buildApp({ logger = null, mailer = null, tokenStore = null } = {}) {
   const app = express();
   app.use(helmet());
   app.use(createRequestObserver({ logger }));
   app.use(express.json());
-  app.use(buildRouter({ mailer: mailer || createMailer({ logger }) }));
+  app.use(buildRouter({ mailer: mailer || createMailer({ logger }), tokenStore: tokenStore || createTokenStore() }));
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
     if (err instanceof ValidationError) {
