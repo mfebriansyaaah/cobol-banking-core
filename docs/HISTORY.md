@@ -1040,3 +1040,13 @@ _merged 2026-10-13_
 - feat(db): migration 0005 adds refresh-session family for reuse detection
 - docs: sync HISTORY.md to post-merge state (#102)
 
+## #104 idempotency-scope
+
+_merged 2026-10-13_
+
+- docs: record scoped idempotent replay and IDEMPOTENCY_CONFLICT
+- test(gateway): idempotency-key reuse conflict returns 409
+- test: idempotency-key reuse with different details is a conflict
+- feat(gateway): map IDEMPOTENCY_CONFLICT to HTTP 409
+- fix(wallet): scope idempotent replay to sender/recipient/amount; conflict otherwise
+
