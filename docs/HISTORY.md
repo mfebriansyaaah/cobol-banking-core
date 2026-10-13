@@ -960,3 +960,12 @@ _merged 2026-10-13_
 - feat(rateLimit): add an env-configured api limiter for non-auth routes
 - docs: sync HISTORY.md to post-merge state (#94)
 
+## #96 audit-verify-failures
+
+_merged 2026-10-13_
+
+- docs: record signup/verify audit (incl. failed verify) and refreshed counts
+- test: cover failed-verify audit rows and unattributable attempts
+- feat(auth): audit failed VERIFY_EMAIL attempts when the user exists
+- docs: sync HISTORY.md to post-merge state (#95)
+

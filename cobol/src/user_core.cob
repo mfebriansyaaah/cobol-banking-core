@@ -40,6 +40,10 @@
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-PREP-SQL             PIC X(256) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -216,12 +220,11 @@
                 MOVE 1 TO WS-ALLOWED
                 EXIT PARAGRAPH
             END-IF
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT role FROM users WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' LIMIT 1"
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
@@ -231,12 +234,11 @@
         ALLOW-ADMIN.
             *> Sets WS-ALLOWED when the actor (p3) is a SUPER_ADMIN or MANAGER.
             MOVE 0 TO WS-ALLOWED
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT role FROM users WHERE email = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' LIMIT 1"
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
@@ -249,16 +251,13 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT id, email FROM users WHERE email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1"
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT id, email FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
             ELSE
@@ -307,18 +306,13 @@
                 EXIT PARAGRAPH
             END-IF
             *> All of the user's accounts, as iso:balance pairs.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT u.email, u.full_name, " 
-                   "GROUP_CONCAT(CONCAT(c.iso_code, ':', ROUND(a.balance,2)) ORDER BY a.account_id SEPARATOR ';') " 
-                   "FROM users u JOIN accounts a ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id " 
-                   "WHERE u.email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' GROUP BY u.id" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT u.email, u.full_name, GROUP_CONCAT(CONCAT(c.iso_code, ':', ROUND(a.balance,2)) ORDER BY a.account_id SEPARATOR ';') FROM users u JOIN accounts a ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? GROUP BY u.id" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -342,48 +336,42 @@
                 EXIT PARAGRAPH
             END-IF
             *> The current user must exist.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            
+
             *> The new email must not already belong to someone.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM users WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' LIMIT 1" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT NOT = "ERROR|NO_DATA"
                 MOVE "ERROR|EMAIL_EXISTS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            
+
             CALL "generate_random_code" USING BY REFERENCE WS-CODE
-            
+
             *> Store the code against the target email.
-            MOVE SPACES TO WS-QUERY
-            STRING "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES ('" 
-                   WS-PARAM2-TRIMMED(1:WS-P2-LEN) "', '" WS-CODE(1:6) "', 'EMAIL_CHANGE', DATE_ADD(NOW(), INTERVAL 24 HOUR))" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'EMAIL_CHANGE', DATE_ADD(NOW(), INTERVAL 24 HOUR))" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-CODE TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|EMAIL_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -401,31 +389,27 @@
                 EXIT PARAGRAPH
             END-IF
             *> p1 = current email, p2 = new email, p3 = code.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM verification_logs WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) 
-                   "' AND code = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' AND purpose = 'EMAIL_CHANGE' AND is_used = 0 AND expires_at > NOW() LIMIT 1" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT 1 FROM verification_logs WHERE email = ? AND code = ? AND purpose = 'EMAIL_CHANGE' AND is_used = 0 AND expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|INVALID_CODE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            
+
             *> Current user id, for the audit row.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(id AS CHAR) FROM users WHERE email = '" WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -444,46 +428,40 @@
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
             
-            MOVE SPACES TO WS-QUERY
-            STRING "UPDATE users SET email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' WHERE email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "'" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "UPDATE users SET email = ? WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                 SET STEP-FAIL TO TRUE
             END-IF
-            
+
             IF STEP-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "UPDATE verification_logs SET is_used = 1 WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) 
-                       "' AND code = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' AND purpose = 'EMAIL_CHANGE'" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "UPDATE verification_logs SET is_used = 1 WHERE email = ? AND code = ? AND purpose = 'EMAIL_CHANGE'" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                
+
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF
-            
+
             IF STEP-OK
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
-                       WS-USER-ID(1:WS-ID-LEN) ", 'EMAIL_CHANGE', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-                CALL "SQL_EXECUTE"
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'EMAIL_CHANGE', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                
+
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
