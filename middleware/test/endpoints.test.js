@@ -77,11 +77,6 @@ test('every bearer endpoint responds', async (t) => {
   assert.equal((await request(app).get('/admin/reconcile').set(auth)).status, 403);
   assert.equal((await request(app).get('/admin/reconcile').query({ actor: admin }).set(auth)).status, 403);
 
-  const ne = `ep_new_${Date.now()}@test.com`;
-  const reqc = await request(app).post('/profile/email/request').set(auth).send({ email, newEmail: ne });
-  assert.equal(reqc.status, 200);
-  assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') })).status, 200);
-
   // Changing another user's email is refused: the actor comes from the token.
   const spoof = await request(app)
     .post('/profile/email/request')
@@ -89,6 +84,15 @@ test('every bearer endpoint responds', async (t) => {
     .send({ email: 'sender@test.com', newEmail: `ep_spoof_${Date.now()}@test.com`, actor: 'sender@test.com' });
   assert.equal(spoof.status, 403);
   assert.equal(spoof.body.error, 'FORBIDDEN');
+
+  const ne = `ep_new_${Date.now()}@test.com`;
+  const reqc = await request(app).post('/profile/email/request').set(auth).send({ email, newEmail: ne });
+  assert.equal(reqc.status, 200);
+  assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') })).status, 200);
+
+  // The access token carries the old email, so it is no longer active after the
+  // change; the user must log in (or refresh) again.
+  assert.equal((await request(app).get('/users').set(auth)).status, 401);
 });
 
 test('auth and routing errors', async () => {

@@ -32,9 +32,10 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
   ], onSuccess: async (body, input) => {
+    const ver = await tokenVersion(input.email);
     const issued = signRefresh({ email: input.email });
     await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti]);
-    return { ...body, token: signToken({ email: input.email }), refreshToken: issued.token };
+    return { ...body, token: signToken({ email: input.email, ver }), refreshToken: issued.token };
   } },
 
   { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
@@ -91,6 +92,30 @@ export const ROUTES = [
   ] },
 ];
 
+async function tokenVersion(email) {
+  try {
+    const raw = await invoke('GET_TOKEN_VERSION', [email]);
+    const v = Number(String(raw).split('|')[1]);
+    return Number.isFinite(v) ? v : 1;
+  } catch {
+    return 1;
+  }
+}
+
+// The access token carries the user's token version; a mismatch means the token
+// (or all tokens) was revoked since it was issued.
+async function requireActiveToken(req, res, next) {
+  try {
+    const email = (req.user && req.user.email) || '';
+    const ver = String((req.user && req.user.ver) ?? '');
+    const raw = await invoke('CHECK_TOKEN', [email, ver]);
+    if (raw === 'SUCCESS|TOKEN_VALID') return next();
+    return res.status(401).json({ error: 'TOKEN_REVOKED' });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 export function buildRouter({ mailer } = {}) {
   const router = express.Router();
   const authLimiter = rateLimiter();
@@ -115,7 +140,7 @@ export function buildRouter({ mailer } = {}) {
 
   // Prometheus-style counters (support only). Authenticated to keep the
   // surface closed; scrapers send a bearer token.
-  router.get('/metrics', apiLimiter, requireAuth, (_req, res) => {
+  router.get('/metrics', apiLimiter, requireAuth, requireActiveToken, (_req, res) => {
     res.type('text/plain').send(metricsText());
   });
 
@@ -130,11 +155,12 @@ export function buildRouter({ mailer } = {}) {
       }
       await invoke('REVOKE_SESSION', [payload.jti || '']);
       const family = payload.family || payload.jti;
+      const ver = await tokenVersion(payload.email);
       const issued = signRefresh({ email: payload.email, family });
       await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family]);
       return res.json({
         data: ['REFRESHED'],
-        token: signToken({ email: payload.email }),
+        token: signToken({ email: payload.email, ver }),
         refreshToken: issued.token,
       });
     } catch {
@@ -147,6 +173,8 @@ export function buildRouter({ mailer } = {}) {
     try {
       const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
       await invoke('REVOKE_SESSION', [payload.jti || '']);
+      // Revoke the access tokens too, not just this refresh token.
+      await invoke('REVOKE_TOKENS', [payload.email || '']);
       return res.json({ data: ['LOGGED_OUT'] });
     } catch {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
@@ -182,6 +210,7 @@ export function buildRouter({ mailer } = {}) {
     if (route.path.startsWith('/auth')) chain.push(authLimiter);
     else chain.push(apiLimiter);
     if (!route.public) chain.push(requireAuth);
+    if (!route.public) chain.push(requireActiveToken);
     chain.push(handler);
     router[route.method](route.path, ...chain);
   }

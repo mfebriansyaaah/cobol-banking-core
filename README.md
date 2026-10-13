@@ -63,6 +63,9 @@ still the development defaults.
 
 Verification codes are delivered out of band (`SMTP_*`, or a development stub
 that logs the event without the code) and are never returned in HTTP responses.
+Access tokens carry a per-user version that is checked on every request and is
+bumped on logout (`REVOKE_TOKENS`), so an access token can be revoked before it
+expires.
 
 Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
