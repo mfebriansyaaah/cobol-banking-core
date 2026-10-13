@@ -1029,3 +1029,14 @@ _merged 2026-10-13_
 - test(e2e): HTTP smoke that drives the live gateway through a full flow
 - docs: sync HISTORY.md to post-merge state (#101)
 
+## #103 refresh-reuse-detection
+
+_merged 2026-10-13_
+
+- docs: document refresh-token reuse detection and refreshed counts
+- test: refresh reuse detection (family revocation) at binary and HTTP level
+- feat(gateway): rotate refresh tokens within a family; surface reuse as 401
+- feat(auth): refresh families with reuse detection (revoke family on replay)
+- feat(db): migration 0005 adds refresh-session family for reuse detection
+- docs: sync HISTORY.md to post-merge state (#102)
+
