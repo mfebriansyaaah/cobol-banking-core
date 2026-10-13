@@ -62,12 +62,19 @@ check "duplicate email rejected" "ERROR|EMAIL_EXISTS" \
 
 # Wrong code rejected; correct code verifies; reuse rejected.
 check "wrong code rejected" "ERROR|INVALID_CODE" "$(run VERIFY_EMAIL "$EMAIL" 000000)"
+check "failed verify audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE u.email='$EMAIL' AND a.action='VERIFY_EMAIL' AND a.status='FAILED';")"
 check "correct code verifies" "SUCCESS|EMAIL_VERIFIED" "$(run VERIFY_EMAIL "$EMAIL" "$code")"
 check "user status VERIFIED" "VERIFIED" "$(q "SELECT status FROM users WHERE email='$EMAIL';")"
 check "code marked used" "1" "$(q "SELECT is_used FROM verification_logs WHERE email='$EMAIL' AND code='$code';")"
 check "reused code rejected" "ERROR|INVALID_CODE" "$(run VERIFY_EMAIL "$EMAIL" "$code")"
+check "second failed verify audited" "2" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE u.email='$EMAIL' AND a.action='VERIFY_EMAIL' AND a.status='FAILED';")"
 check "signup audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE u.email='$EMAIL' AND a.action='SIGNUP';")"
-check "verify audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE u.email='$EMAIL' AND a.action='VERIFY_EMAIL';")"
+check "verify audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE u.email='$EMAIL' AND a.action='VERIFY_EMAIL' AND a.status='SUCCESS';")"
+
+# A failed attempt for an unknown email cannot be attributed, so it is not audited.
+before_failed=$(q "SELECT COUNT(*) FROM audit_trail WHERE action='VERIFY_EMAIL' AND status='FAILED';")
+check "unknown email rejected" "ERROR|INVALID_CODE" "$(run VERIFY_EMAIL unknown_audit@test.com 000000)"
+check "unattributable verify not audited" "$before_failed" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='VERIFY_EMAIL' AND status='FAILED';")"
 
 # After verification, login works.
 check "login after verify" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN "$EMAIL" secret123)"
