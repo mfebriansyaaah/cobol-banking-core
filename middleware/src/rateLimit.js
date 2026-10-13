@@ -22,3 +22,13 @@ export function rateLimiter(opts = {}) {
     return next();
   };
 }
+
+// General API limiter for non-auth routes. It is deliberately more generous
+// than the auth limiter (which guards credential guessing); admin and read
+// endpoints still get a per-client ceiling.
+export function apiRateLimiter() {
+  return rateLimiter({
+    windowMs: Number(process.env.API_RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000),
+    max: Number(process.env.API_RATE_LIMIT_MAX ?? 600),
+  });
+}
