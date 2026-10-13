@@ -1069,3 +1069,14 @@ _merged 2026-10-13_
 - feat(auth): CHECK_ROLE requires a self-or-admin actor (p3)
 - docs: sync HISTORY.md to post-merge state (#105)
 
+## #107 security-config
+
+_merged 2026-10-13_
+
+- docs: document helmet headers and production secret fail-fast
+- test: security headers and production secret fail-fast
+- feat(auth): refuse to start in production with default secrets
+- feat(gateway): set HTTP security headers with helmet
+- chore(deps): add helmet for HTTP security headers
+- docs: sync HISTORY.md to post-merge state (#106)
+
