@@ -1,6 +1,7 @@
 #!/bin/bash
-# Prepared-statement suite: REQUEST_SIGNUP and AUTH_LOGIN run through
-# SQL_PREPARE_EXEC (bound parameters). Values are literals, not concatenated.
+# Prepared-statement suite: REQUEST_SIGNUP/AUTH_LOGIN run through
+# SQL_PREPARE_EXEC and LIST_USERS through SQL_PREPARE_EXEC_ROWS (bound
+# parameters). Values are literals, not concatenated.
 # Usage: ./tests/test_prepared.sh
 
 BIN="./cobol/bin/main_logic"
@@ -54,7 +55,16 @@ check "prepared login ok" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN prep_ok@test.com 
 check "prepared login wrong password" "ERROR|INVALID_CREDENTIALS" "$(run AUTH_LOGIN prep_ok@test.com 'nope')"
 check "prepared login unknown" "ERROR|ACCOUNT_NOT_FOUND" "$(run AUTH_LOGIN nobody@test.com 'secret123')"
 
-q "DELETE FROM verification_logs WHERE email='prep_ok@test.com'; DELETE FROM users WHERE email='prep_ok@test.com';"
+# LIST_USERS goes through SQL_PREPARE_EXEC_ROWS (bound LIMIT/OFFSET, many rows).
+ADMIN="prep_admin@test.com"
+q "DELETE FROM users WHERE email='$ADMIN';
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
+   (995,'$ADMIN',CONCAT('SHA256_',SHA2('secret123',256)),'Prep Admin','1990-01-01','VERIFIED','SUPER_ADMIN');"
+check "prepared list first page" "SUCCESS|LIST_DONE|1:sender@test.com;2:receiver@test.com" "$(run LIST_USERS 2 0 "$ADMIN")"
+check "prepared list paging" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "$ADMIN")"
+check "prepared list forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS '' '' prep_ok@test.com)"
+
+q "DELETE FROM verification_logs WHERE email='prep_ok@test.com'; DELETE FROM users WHERE email IN ('prep_ok@test.com','$ADMIN');"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"

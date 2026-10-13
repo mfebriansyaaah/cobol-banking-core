@@ -29,7 +29,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/wallet_core.cob` | `TRANSFER` | from (token identity), target, amount, **idempotency key** (opt) | one transaction: replay if key committed; `FOR UPDATE` lock; debit/credit; 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|INVALID_AMOUNT` * `ERROR\|CURRENCY_MISMATCH` * `ERROR\|DB_ERROR` |
 | `cobol/src/wallet_core.cob` | `RECONCILE` | actor (SUPER_ADMIN) | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `GET_USER` | email, actor (self-or-admin) | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` * `ERROR\|FORBIDDEN` |
-| `cobol/src/user_core.cob` | `LIST_USERS` | limit(20), offset(0), actor (admin) | paged, rows via `SQL_EXECUTE_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` * `ERROR\|FORBIDDEN` |
+| `cobol/src/user_core.cob` | `LIST_USERS` | limit(20), offset(0), actor (admin) | paged, rows via `SQL_PREPARE_EXEC_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `GET_DASHBOARD` | email, actor (self-or-admin) | email, full name, **all** accounts as `iso:balance;...` | `SUCCESS\|DASHBOARD\|...` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `REQ_EMAIL_CHANGE` | current, new, actor (owner) | 6-digit code stored against the new email | `SUCCESS\|CODE_SENT\|<code>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|EMAIL_EXISTS` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `CONFIRM_EMAIL_CHANGE` | current, new, code, actor (owner) | consume code, move email, audit | `SUCCESS\|EMAIL_CHANGED` * `ERROR\|INVALID_CODE` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
@@ -73,14 +73,14 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_transfer_validity.sh` | 10 | positive-amount and same-currency rules |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 5 | STORE/CHECK/REVOKE_SESSION lifecycle |
-| `tests/test_prepared.sh` | 6 | signup/login through prepared statements |
+| `tests/test_prepared.sh` | 9 | signup/login (`SQL_PREPARE_EXEC`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `middleware/` (node --test) | 29 | gateway: contract, injection, rate limit (auth + api), refresh, timeout, line cap, every-endpoint smoke, actor-token guard |
 
-Shell suites total **171**; with the gateway suite **29** the full run is
-**200 assertions**, all green as of this snapshot.
+Shell suites total **174**; with the gateway suite **29** the full run is
+**203 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -114,6 +114,6 @@ rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
 - Password KDF is PBKDF2-SHA256 (100k iters); legacy `SHA256_` fallback stays until all accounts rehash.
 - Transfers must be positive and within one currency; cross-currency is rejected (`CURRENCY_MISMATCH`) until an FX path exists.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
-- Prepared statements (bridge `SQL_PREPARE_EXEC`) cover `auth_core` and now the `user_core` reads/writes and the `wallet_core` balance read, authorization and reconcile-actor queries. The remaining concatenated paths (`wallet_core` `TRANSFER` internals, the parameterless `RECONCILE` scan, and the multi-row `LIST_USERS`) carry only internally validated values (emails pass the whitelist validator, limit/offset are digits) and are the next incremental step.
+- Prepared statements cover `auth_core`, the `user_core` reads/writes and `LIST_USERS` (via `SQL_PREPARE_EXEC_ROWS`), and the `wallet_core` balance read, authorization and reconcile-actor queries. The remaining concatenated paths (`wallet_core` `TRANSFER` internals and the parameterless `RECONCILE` scan) carry only internally validated values and are the next incremental step.
 - `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are rotated single-use and revocable via the session store.
 - One-line COBOL result bounds large lists; process-per-request limits throughput (revisit ADR-0001 at scale).
