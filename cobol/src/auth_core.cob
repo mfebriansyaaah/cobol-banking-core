@@ -96,6 +96,8 @@
                     PERFORM CHECK-TOKEN-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "REVOKE_TOKENS"
                     PERFORM REVOKE-TOKENS-LOGIC
+                WHEN LS-CMD-ACTION(1:19) = "REVOKE_ACCESS_TOKEN"
+                    PERFORM REVOKE-ACCESS-TOKEN-LOGIC
                 WHEN LS-CMD-ACTION(1:17) = "GET_TOKEN_VERSION"
                     PERFORM GET-TOKEN-VERSION-LOGIC
                 WHEN LS-CMD-ACTION(1:4) = "PING"
@@ -778,7 +780,7 @@
             EXIT PARAGRAPH.
 
         CHECK-TOKEN-LOGIC.
-            *> p1 = email, p2 = version presented by the token.
+            *> p1 = email, p2 = version, p3 = jti (optional per-token denylist).
             MOVE "SELECT CAST(token_version AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
@@ -788,12 +790,28 @@
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|TOKEN_CHECK_FAILED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
-            IF WS-RESULT(1:WS-P2-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+            END-IF.
+            IF WS-RESULT(1:WS-P2-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE "ERROR|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE 1 TO WS-ALLOWED
+            IF LS-PARAM3 NOT = SPACES
+                MOVE "SELECT 1 FROM revoked_access_tokens WHERE jti = ? AND expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT NOT = "ERROR|NO_DATA"
+                    MOVE 0 TO WS-ALLOWED
+                END-IF
+            END-IF.
+            IF WS-ALLOWED = 1
                 MOVE "SUCCESS|TOKEN_VALID" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "ERROR|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
@@ -812,6 +830,30 @@
                 MOVE "ERROR|TOKEN_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "SUCCESS|TOKENS_REVOKED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        REVOKE-ACCESS-TOKEN-LOGIC.
+            *> p1 = jti, p2 = email, p3 = ttl seconds. Deny a single access token.
+            MOVE "DELETE FROM revoked_access_tokens WHERE expires_at < NOW()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "INSERT IGNORE INTO revoked_access_tokens (jti, email, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL " 
+                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " SECOND))" DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|TOKEN_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
