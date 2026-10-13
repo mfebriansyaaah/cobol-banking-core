@@ -79,9 +79,10 @@ check "paging past the end is empty" "SUCCESS|LIST_DONE|" "$(run LIST_USERS 5 10
 check "list users forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS "" "" "$OTHER")"
 
 # --- REQ_EMAIL_CHANGE ---
-check "request unknown current" "ERROR|ACCOUNT_NOT_FOUND" "$(run REQ_EMAIL_CHANGE ghost@test.com "$UNEW" "")"
-check "request taken new email" "ERROR|EMAIL_EXISTS" "$(run REQ_EMAIL_CHANGE "$U" "$OTHER" "")"
-out=$(run REQ_EMAIL_CHANGE "$U" "$UNEW" "")
+check "request unknown current" "ERROR|ACCOUNT_NOT_FOUND" "$(run REQ_EMAIL_CHANGE ghost@test.com "$UNEW" ghost@test.com)"
+check "request taken new email" "ERROR|EMAIL_EXISTS" "$(run REQ_EMAIL_CHANGE "$U" "$OTHER" "$U")"
+check "request another user's email forbidden" "ERROR|FORBIDDEN" "$(run REQ_EMAIL_CHANGE "$U" "prof_take@test.com" "$OTHER")"
+out=$(run REQ_EMAIL_CHANGE "$U" "$UNEW" "$U")
 code=$(echo "$out" | cut -d'|' -f3)
 case "$out" in
     SUCCESS\|CODE_SENT\|[0-9][0-9][0-9][0-9][0-9][0-9]) check "request returns code" "ok" "ok" ;;
@@ -89,11 +90,12 @@ case "$out" in
 esac
 
 # --- CONFIRM_EMAIL_CHANGE ---
-check "confirm wrong code" "ERROR|INVALID_CODE" "$(run CONFIRM_EMAIL_CHANGE "$U" "$UNEW" 000000)"
-check "confirm good code" "SUCCESS|EMAIL_CHANGED" "$(run CONFIRM_EMAIL_CHANGE "$U" "$UNEW" "$code")"
+check "confirm wrong code" "ERROR|INVALID_CODE" "$(run CONFIRM_EMAIL_CHANGE "$U" "$UNEW" 000000 "$U")"
+check "confirm another user's email forbidden" "ERROR|FORBIDDEN" "$(run CONFIRM_EMAIL_CHANGE "$U" "$UNEW" "$code" "$OTHER")"
+check "confirm good code" "SUCCESS|EMAIL_CHANGED" "$(run CONFIRM_EMAIL_CHANGE "$U" "$UNEW" "$code" "$U")"
 check "new email persisted" "1" "$(q "SELECT COUNT(*) FROM users WHERE email='$UNEW';")"
 check "old email gone" "0" "$(q "SELECT COUNT(*) FROM users WHERE email='$U';")"
-check "confirm reused code" "ERROR|INVALID_CODE" "$(run CONFIRM_EMAIL_CHANGE "$UNEW" "$UNEW" "$code")"
+check "confirm reused code" "ERROR|INVALID_CODE" "$(run CONFIRM_EMAIL_CHANGE "$UNEW" "$UNEW" "$code" "$UNEW")"
 check "audit email_change row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=950 AND action='EMAIL_CHANGE';")"
 
 echo "======================================================================"
