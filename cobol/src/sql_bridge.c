@@ -302,8 +302,8 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     if (!sql) return;
 
     char query[1024];
-    strncpy(query, sql, 255);
-    query[255] = '\0';
+    strncpy(query, sql, 1023);
+    query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
 
@@ -424,8 +424,8 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     if (!sql) return;
 
     char query[1024];
-    strncpy(query, sql, 255);
-    query[255] = '\0';
+    strncpy(query, sql, 1023);
+    query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
 
@@ -498,8 +498,8 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     if (!sql) return;
 
     char query[1024];
-    strncpy(query, sql, 255);
-    query[255] = '\0';
+    strncpy(query, sql, 1023);
+    query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
 
