@@ -78,7 +78,8 @@ Prometheus-style counters at `GET /metrics` (bearer).
 - Install the tracked git hooks once per clone: `scripts/install-hooks.sh`. The
   `commit-msg` hook refuses commits directly on `main`/`master`, except the
   deliberate `docs: sync ...` post-merge documentation commit.
-- Gateway smoke test: `npm --prefix middleware test` includes `endpoints.test.js`,
-  which exercises every route.
+- Gateway smoke tests: `npm --prefix middleware test` includes
+  `endpoints.test.js`, which exercises every route; `./tests/test_e2e_gateway.sh`
+  drives a full flow over real HTTP against a live server (run by `ci.sh`).
 - Shell safety: to stop stray servers, match with a bracket pattern
   (`pkill -f "[s]erver.js"`) so the pattern does not match the command itself.

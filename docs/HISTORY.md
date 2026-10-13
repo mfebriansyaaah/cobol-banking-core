@@ -1009,3 +1009,14 @@ _merged 2026-10-13_
 - refactor(bridge): raise prepared-SQL cap to 1023 and enlarge WS-PREP-SQL
 - docs: sync HISTORY.md to post-merge state (#99)
 
+## #101 observability-metrics
+
+_merged 2026-10-13_
+
+- docs: document request logging, X-Request-Id and /metrics
+- test(observability): cover structured logging, request id and /metrics
+- feat(server): emit request logs as JSON lines
+- feat(gateway): install the request observer and expose GET /metrics
+- feat(observability): per-request structured logging and in-process metrics
+- docs: sync HISTORY.md to post-merge state (#100)
+

@@ -18,8 +18,10 @@ A banking core where **all business logic lives in COBOL**:
   `cobol/src/sql_bridge.c` (libmysqlclient - the ODBC stack was retired, ADR-0002).
 - `./ci.sh` - one-shot verification: docs integrity, static COBOL checks
   (period-in-IF, GOBACK placement, router prefix collisions, router/owner
-  agreement), build, 10 test suites, and the API-gateway suite. Must exit 0
-  with `ALL GREEN`.
+  agreement, `users(email)` FK cascade, gateway action coverage), build, the
+  shell suites (functional, transactional, security, prepared-statement,
+  migration), the API-gateway node suite, and an end-to-end HTTP smoke against a
+  live gateway. Must exit 0 with `ALL GREEN`.
 
 ## 2. Modules and actions (current behavior)
 
@@ -77,10 +79,11 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_ping.sh` | 2 | deep-health PING reaches the DB |
 | `tests/test_migrate.sh` | 6 | migration runner idempotent; --check detects pending |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
+| `tests/test_e2e_gateway.sh` | 19 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
 | `middleware/` (node --test) | 33 | gateway: contract, injection, rate limit (auth + api), refresh, timeout, line cap, every-endpoint smoke, actor-token guard, observability |
 
-Shell suites total **180**; with the gateway suite **33** the full run is
-**213 assertions**, all green as of this snapshot.
+Shell suites total **199**; with the gateway suite **33** the full run is
+**232 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 

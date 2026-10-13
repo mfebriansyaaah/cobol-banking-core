@@ -4,10 +4,10 @@
 
 set -e
 
-echo "=== [1/23] Docs integrity check ==="
+echo "=== [1/24] Docs integrity check ==="
 ./tests/docs_check.sh
 
-echo "=== [2/23] Static COBOL checks ==="
+echo "=== [2/24] Static COBOL checks ==="
 viol=0
 
 # Violation 1: sentence period inside an inline IF/ELSE scope.
@@ -102,69 +102,69 @@ if [ "$viol" = 1 ]; then
 fi
 echo "OK"
 
-echo "=== [3/23] Build ==="
+echo "=== [3/24] Build ==="
 build_log=$(./build.sh 2>&1 || true)
 echo "$build_log" | grep -E "^cobol.*error:" && { echo "BUILD FAILED"; exit 1; }
 echo "$build_log" | grep -q "SUCCESS: Binary created" || { echo "BUILD FAILED"; exit 1; }
 echo "Build OK"
 
-echo "=== [4/23] Functional suite ==="
+echo "=== [4/24] Functional suite ==="
 func_out=$(./tests/test_suite.sh 2>/dev/null)
 echo "$func_out" | tail -1
 func_fail=$(echo "$func_out" | grep -oE '[0-9]+ failed' | grep -oE '[0-9]+' | head -1 || echo 0)
 func_fail=${func_fail:-0}
 [ "$func_fail" -eq 0 ] || { echo "FUNCTIONAL SUITE FAILED"; exit 1; }
 
-echo "=== [5/23] Atomic transaction suite ==="
+echo "=== [5/24] Atomic transaction suite ==="
 atomic_out=$(./tests/test_atomic_txn.sh 2>/dev/null)
 atomic_pass=$(echo "$atomic_out" | grep -c '\[0;32mPASS' || true)
 atomic_fail=$(echo "$atomic_out" | grep -c '\[0;31mFAIL' || true)
 echo "atomic: $atomic_pass passed, $atomic_fail failed"
 [ "$atomic_fail" -eq 0 ] || { echo "ATOMIC SUITE FAILED"; exit 1; }
 
-echo "=== [6/23] Ledger atomic suite ==="
+echo "=== [6/24] Ledger atomic suite ==="
 ledger_out=$(./tests/test_ledger_atomic.sh 2>/dev/null)
 ledger_pass=$(echo "$ledger_out" | grep -c '\[0;32mPASS' || true)
 ledger_fail=$(echo "$ledger_out" | grep -c '\[0;31mFAIL' || true)
 echo "ledger: $ledger_pass passed, $ledger_fail failed"
 [ "$ledger_fail" -eq 0 ] || { echo "LEDGER SUITE FAILED"; exit 1; }
 
-echo "=== [7/23] Reconciliation suite ==="
+echo "=== [7/24] Reconciliation suite ==="
 recon_out=$(./tests/test_reconciliation.sh 2>/dev/null)
 recon_pass=$(echo "$recon_out" | grep -c '\[0;32mPASS' || true)
 recon_fail=$(echo "$recon_out" | grep -c '\[0;31mFAIL' || true)
 echo "reconciliation: $recon_pass passed, $recon_fail failed"
 [ "$recon_fail" -eq 0 ] || { echo "RECONCILIATION SUITE FAILED"; exit 1; }
 
-echo "=== [8/23] Auth login suite ==="
+echo "=== [8/24] Auth login suite ==="
 auth_out=$(./tests/test_auth_login.sh 2>/dev/null)
 auth_pass=$(echo "$auth_out" | grep -c '\[0;32mPASS' || true)
 auth_fail=$(echo "$auth_out" | grep -c '\[0;31mFAIL' || true)
 echo "auth: $auth_pass passed, $auth_fail failed"
 [ "$auth_fail" -eq 0 ] || { echo "AUTH SUITE FAILED"; exit 1; }
 
-echo "=== [9/23] Signup + verify suite ==="
+echo "=== [9/24] Signup + verify suite ==="
 signup_out=$(./tests/test_signup_verify.sh 2>/dev/null)
 signup_pass=$(echo "$signup_out" | grep -c '\[0;32mPASS' || true)
 signup_fail=$(echo "$signup_out" | grep -c '\[0;31mFAIL' || true)
 echo "signup/verify: $signup_pass passed, $signup_fail failed"
 [ "$signup_fail" -eq 0 ] || { echo "SIGNUP SUITE FAILED"; exit 1; }
 
-echo "=== [10/23] Role suite ==="
+echo "=== [10/24] Role suite ==="
 role_out=$(./tests/test_roles.sh 2>/dev/null)
 role_pass=$(echo "$role_out" | grep -c '\[0;32mPASS' || true)
 role_fail=$(echo "$role_out" | grep -c '\[0;31mFAIL' || true)
 echo "roles: $role_pass passed, $role_fail failed"
 [ "$role_fail" -eq 0 ] || { echo "ROLE SUITE FAILED"; exit 1; }
 
-echo "=== [11/23] User profile suite ==="
+echo "=== [11/24] User profile suite ==="
 profile_out=$(./tests/test_user_profile.sh 2>/dev/null)
 profile_pass=$(echo "$profile_out" | grep -c '\[0;32mPASS' || true)
 profile_fail=$(echo "$profile_out" | grep -c '\[0;31mFAIL' || true)
 echo "profile: $profile_pass passed, $profile_fail failed"
 [ "$profile_fail" -eq 0 ] || { echo "PROFILE SUITE FAILED"; exit 1; }
 
-echo "=== [12/23] API gateway suite ==="
+echo "=== [12/24] API gateway suite ==="
 if [ -d middleware ]; then
     npm --prefix middleware ci --silent >/dev/null 2>&1 || npm --prefix middleware install --silent >/dev/null 2>&1
     if npm --prefix middleware test --silent >/tmp/opencode/gateway.out 2>&1; then
@@ -180,73 +180,80 @@ else
     echo "middleware/ absent; skipping"
 fi
 
-echo "=== [13/23] Login lockout suite ==="
+echo "=== [13/24] Login lockout suite ==="
 lockout_out=$(./tests/test_login_lockout.sh 2>/dev/null)
 lockout_pass=$(echo "$lockout_out" | grep -c '\[0;32mPASS' || true)
 lockout_fail=$(echo "$lockout_out" | grep -c '\[0;31mFAIL' || true)
 echo "lockout: $lockout_pass passed, $lockout_fail failed"
 [ "$lockout_fail" -eq 0 ] || { echo "LOCKOUT SUITE FAILED"; exit 1; }
 
-echo "=== [14/23] Idempotent transfer suite ==="
+echo "=== [14/24] Idempotent transfer suite ==="
 idem_out=$(./tests/test_idempotent_transfer.sh 2>/dev/null)
 idem_pass=$(echo "$idem_out" | grep -c '\[0;32mPASS' || true)
 idem_fail=$(echo "$idem_out" | grep -c '\[0;31mFAIL' || true)
 echo "idempotent transfer: $idem_pass passed, $idem_fail failed"
 [ "$idem_fail" -eq 0 ] || { echo "IDEMPOTENT SUITE FAILED"; exit 1; }
 
-echo "=== [15/23] Transfer validity suite ==="
+echo "=== [15/24] Transfer validity suite ==="
 validity_out=$(./tests/test_transfer_validity.sh 2>/dev/null)
 validity_pass=$(echo "$validity_out" | grep -c '\[0;32mPASS' || true)
 validity_fail=$(echo "$validity_out" | grep -c '\[0;31mFAIL' || true)
 echo "transfer validity: $validity_pass passed, $validity_fail failed"
 [ "$validity_fail" -eq 0 ] || { echo "TRANSFER VALIDITY SUITE FAILED"; exit 1; }
 
-echo "=== [16/23] Concurrent opposing transfers ==="
+echo "=== [16/24] Concurrent opposing transfers ==="
 conc_out=$(./tests/test_concurrent_transfer.sh 2>/dev/null)
 conc_pass=$(echo "$conc_out" | grep -c '\[0;32mPASS' || true)
 conc_fail=$(echo "$conc_out" | grep -c '\[0;31mFAIL' || true)
 echo "concurrent transfer: $conc_pass passed, $conc_fail failed"
 [ "$conc_fail" -eq 0 ] || { echo "CONCURRENT SUITE FAILED"; exit 1; }
 
-echo "=== [17/23] SQL injection mitigation suite ==="
+echo "=== [17/24] SQL injection mitigation suite ==="
 inj_out=$(./tests/test_injection.sh 2>/dev/null)
 inj_pass=$(echo "$inj_out" | grep -c '\[0;32mPASS' || true)
 inj_fail=$(echo "$inj_out" | grep -c '\[0;31mFAIL' || true)
 echo "injection: $inj_pass passed, $inj_fail failed"
 [ "$inj_fail" -eq 0 ] || { echo "INJECTION SUITE FAILED"; exit 1; }
 
-echo "=== [18/23] Refresh session suite ==="
+echo "=== [18/24] Refresh session suite ==="
 sess_out=$(./tests/test_session.sh 2>/dev/null)
 sess_pass=$(echo "$sess_out" | grep -c '\[0;32mPASS' || true)
 sess_fail=$(echo "$sess_out" | grep -c '\[0;31mFAIL' || true)
 echo "session: $sess_pass passed, $sess_fail failed"
 [ "$sess_fail" -eq 0 ] || { echo "SESSION SUITE FAILED"; exit 1; }
 
-echo "=== [19/23] Prepared statement suite ==="
+echo "=== [19/24] Prepared statement suite ==="
 prep_out=$(./tests/test_prepared.sh 2>/dev/null)
 prep_pass=$(echo "$prep_out" | grep -c '\[0;32mPASS' || true)
 prep_fail=$(echo "$prep_out" | grep -c '\[0;31mFAIL' || true)
 echo "prepared: $prep_pass passed, $prep_fail failed"
 [ "$prep_fail" -eq 0 ] || { echo "PREPARED SUITE FAILED"; exit 1; }
 
-echo "=== [20/23] Deep health (PING) suite ==="
+echo "=== [20/24] Deep health (PING) suite ==="
 ping_out=$(./tests/test_ping.sh 2>/dev/null)
 ping_pass=$(echo "$ping_out" | grep -c '\[0;32mPASS' || true)
 ping_fail=$(echo "$ping_out" | grep -c '\[0;31mFAIL' || true)
 echo "ping: $ping_pass passed, $ping_fail failed"
 [ "$ping_fail" -eq 0 ] || { echo "PING SUITE FAILED"; exit 1; }
 
-echo "=== [21/23] Migration check ==="
+echo "=== [21/24] Migration check ==="
 ./database/migrate.sh --check
 
-echo "=== [22/23] Migration tooling suite ==="
+echo "=== [22/24] Migration tooling suite ==="
 mig_out=$(./tests/test_migrate.sh 2>/dev/null)
 mig_pass=$(echo "$mig_out" | grep -c '\[0;32mPASS' || true)
 mig_fail=$(echo "$mig_out" | grep -c '\[0;31mFAIL' || true)
 echo "migrations: $mig_pass passed, $mig_fail failed"
 [ "$mig_fail" -eq 0 ] || { echo "MIGRATION SUITE FAILED"; exit 1; }
 
-echo "=== [23/23] Status/docs integrity ==="
+echo "=== [23/24] Status/docs integrity ==="
 ./tests/status_check.sh
+
+echo "=== [24/24] End-to-end HTTP smoke ==="
+e2e_out=$(./tests/test_e2e_gateway.sh 2>/dev/null)
+e2e_pass=$(echo "$e2e_out" | grep -c '\[0;32mPASS' || true)
+e2e_fail=$(echo "$e2e_out" | grep -c '\[0;31mFAIL' || true)
+echo "e2e: $e2e_pass passed, $e2e_fail failed"
+[ "$e2e_fail" -eq 0 ] || { echo "E2E SUITE FAILED"; exit 1; }
 
 echo "=== ALL GREEN ==="
