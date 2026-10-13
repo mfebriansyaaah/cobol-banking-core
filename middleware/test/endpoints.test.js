@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser } from './support.js';
+import { seedUser, seedAccount } from './support.js';
 
 const app = buildApp();
 
@@ -48,7 +48,16 @@ test('every bearer endpoint responds', async (t) => {
   assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth)).status, 200);
   assert.equal((await request(app).get('/profile?email=sender@test.com').set(adminAuth)).status, 200);
 
-  assert.equal((await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `ep-${Date.now()}`).send({ from: 'sender@test.com', to: 'receiver@test.com', amount: '1.00' })).status, 200);
+  // Transfers are always sent from the authenticated account: the body `from`
+  // is ignored. Seed an account for this user and prove another's is untouched.
+  if (!seedAccount(email, '500.00')) return t.skip('mysql unavailable to seed an account');
+  const xfer = await request(app)
+    .post('/wallet/transfer')
+    .set(auth)
+    .set('Idempotency-Key', `ep-${Date.now()}`)
+    .send({ from: 'sender@test.com', to: 'receiver@test.com', amount: '1.00' });
+  assert.equal(xfer.status, 200);
+  assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth)).body.data[0], '1000.00');
 
   // admin checks before the email changes
   assert.equal((await request(app).get(`/admin/role?email=${admin}&role=SUPER_ADMIN`).set(adminAuth)).status, 200);
@@ -67,6 +76,14 @@ test('every bearer endpoint responds', async (t) => {
   const reqc = await request(app).post('/profile/email/request').set(auth).send({ email, newEmail: ne });
   assert.equal(reqc.status, 200);
   assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: reqc.body.data[1] })).status, 200);
+
+  // Changing another user's email is refused: the actor comes from the token.
+  const spoof = await request(app)
+    .post('/profile/email/request')
+    .set(auth)
+    .send({ email: 'sender@test.com', newEmail: `ep_spoof_${Date.now()}@test.com`, actor: 'sender@test.com' });
+  assert.equal(spoof.status, 403);
+  assert.equal(spoof.body.error, 'FORBIDDEN');
 });
 
 test('auth and routing errors', async () => {
