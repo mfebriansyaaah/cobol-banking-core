@@ -40,6 +40,10 @@
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-PREP-SQL             PIC X(256) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -216,12 +220,11 @@
                 MOVE 1 TO WS-ALLOWED
                 EXIT PARAGRAPH
             END-IF
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT role FROM users WHERE email = '" WS-PARAM2-TRIMMED(1:WS-P2-LEN) "' LIMIT 1"
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
@@ -231,12 +234,11 @@
         ALLOW-ADMIN.
             *> Sets WS-ALLOWED when the actor (p3) is a SUPER_ADMIN or MANAGER.
             MOVE 0 TO WS-ALLOWED
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT role FROM users WHERE email = '" WS-PARAM3-TRIMMED(1:WS-P3-LEN) "' LIMIT 1"
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
@@ -249,16 +251,13 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT id, email FROM users WHERE email = '" 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) "' LIMIT 1"
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
+            MOVE "SELECT id, email FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            
+
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
             ELSE
