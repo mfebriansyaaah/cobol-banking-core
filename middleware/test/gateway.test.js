@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 
@@ -115,4 +116,42 @@ test('refresh token yields a new access token', async () => {
   const bad = await request(app).post('/auth/refresh').send({ refreshToken: 'not-a-token' });
   assert.equal(bad.status, 401);
   assert.equal(bad.body.error, 'INVALID_REFRESH_TOKEN');
+});
+
+test('role change authorizes by the token actor, ignoring the body', async (t) => {
+  const admin = `gw_admin_${Date.now()}@test.com`;
+  const target = `gw_target_${Date.now()}@test.com`;
+  try {
+    const u = process.env.DB_USER ?? 'cobol_user';
+    const p = process.env.DB_PASS ?? 'cobol_pass';
+    const n = process.env.DB_NAME ?? 'cobol_db';
+    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e',
+      `INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ` +
+      `('${admin}',CONCAT('SHA256_',SHA2('secret123',256)),'GW Admin','1990-01-01','VERIFIED','SUPER_ADMIN'),` +
+      `('${target}',CONCAT('SHA256_',SHA2('secret123',256)),'GW Target','1990-01-01','VERIFIED','USER');`],
+      { stdio: 'ignore' });
+  } catch {
+    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
+  }
+
+  const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123' });
+  assert.equal(adminLogin.status, 200);
+  const adminToken = adminLogin.body.token;
+
+  // The actor comes from the token: no `actor` in the body.
+  const ok = await request(app)
+    .post('/admin/role')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ email: target, role: 'MANAGER' });
+  assert.equal(ok.status, 200);
+  assert.deepEqual(ok.body.data, ['ROLE_CHANGED']);
+
+  // A non-admin spoofing the admin in the body is still refused.
+  const plainToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+  const spoof = await request(app)
+    .post('/admin/role')
+    .set('Authorization', `Bearer ${plainToken}`)
+    .send({ email: target, role: 'USER', actor: admin });
+  assert.equal(spoof.status, 403);
+  assert.equal(spoof.body.error, 'FORBIDDEN');
 });

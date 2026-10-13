@@ -39,8 +39,9 @@ test('every bearer endpoint responds', async () => {
 
   // admin checks before the email changes
   assert.equal((await request(app).get(`/admin/role?email=${email}&role=USER`).set(auth)).status, 200);
-  // non-admin actor is refused by the route (business rule), not a 404
-  assert.equal((await request(app).post('/admin/role').set(auth).send({ email: 'receiver@test.com', role: 'USER', actor: email })).status, 403);
+  // non-admin actor is refused by the route (business rule), not a 404; a
+  // spoofed body `actor` is ignored because the actor comes from the token
+  assert.equal((await request(app).post('/admin/role').set(auth).send({ email: 'receiver@test.com', role: 'MANAGER', actor: 'recon_admin@test.com' })).status, 403);
 
   // Reconcile needs a SUPER_ADMIN actor, taken from the token: a plain user is
   // refused, and a body `actor` cannot impersonate one.
