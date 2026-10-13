@@ -56,6 +56,14 @@ q "INSERT INTO refresh_sessions (jti,family,email,expires_at) VALUES ('jti-sh-ex
 run STORE_SESSION jti-sh-new sess@test.com 7 jti-sh-new >/dev/null
 check "expired session pruned" "0" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE jti='jti-sh-exp';")"
 
+# Access-token version: revoking bumps it so already-issued tokens stop working.
+TV=$(run GET_TOKEN_VERSION sess@test.com); TV=${TV##*|}
+check "token valid at current version" "SUCCESS|TOKEN_VALID" "$(run CHECK_TOKEN sess@test.com "$TV")"
+check "wrong version is revoked" "ERROR|TOKEN_REVOKED" "$(run CHECK_TOKEN sess@test.com 99999)"
+check "unknown user token check" "ERROR|ACCOUNT_NOT_FOUND" "$(run CHECK_TOKEN ghost_tok@test.com 1)"
+check "revoke tokens" "SUCCESS|TOKENS_REVOKED" "$(run REVOKE_TOKENS sess@test.com)"
+check "previous version now revoked" "ERROR|TOKEN_REVOKED" "$(run CHECK_TOKEN sess@test.com "$TV")"
+
 q "DELETE FROM refresh_sessions WHERE jti LIKE 'jti-sh%'; DELETE FROM users WHERE id=970;"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
