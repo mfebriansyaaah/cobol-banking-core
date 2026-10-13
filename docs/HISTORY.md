@@ -1194,3 +1194,14 @@ _merged 2026-10-13_
 - feat(observability): push counters to a remote collector (METRICS_PUSH_URL)
 - docs: sync HISTORY.md to post-merge state (#117)
 
+## #119 audit-archive
+
+_merged 2026-10-13_
+
+- docs: audit retention/archive (ARCHIVE_AUDIT) and ADR-0009
+- test: audit archive is admin-only and moves old rows
+- feat(gateway): POST /admin/audit/archive (token actor) and map failures
+- feat(auth): ARCHIVE_AUDIT moves old audit rows to the archive (admin)
+- feat(db): migration 0010 adds the audit-trail archive table
+- docs: sync HISTORY.md to post-merge state (#118)
+
