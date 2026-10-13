@@ -8,7 +8,7 @@ import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText } from './observability.js';
 import { createMailer } from './mailer.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -39,7 +39,7 @@ export const ROUTES = [
   } },
 
   { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
-    { name: 'limit', pattern: INT, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
     { name: 'offset', pattern: INT, required: false },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
