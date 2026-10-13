@@ -999,3 +999,13 @@ _merged 2026-10-13_
 - feat(bridge): add SQL_PREPARE_EXEC_LOCK (prepared locking read without fetch)
 - docs: sync HISTORY.md to post-merge state (#98)
 
+## #100 prepared-reconcile
+
+_merged 2026-10-13_
+
+- docs: record full prepared coverage (incl. RECONCILE scan and 1023 cap)
+- test: cover the prepared RECONCILE scan
+- refactor(wallet): RECONCILE scan uses a prepared statement (no params)
+- refactor(bridge): raise prepared-SQL cap to 1023 and enlarge WS-PREP-SQL
+- docs: sync HISTORY.md to post-merge state (#99)
+

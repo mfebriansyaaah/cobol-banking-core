@@ -60,7 +60,9 @@ user's record/balance/profile allow the owner or an admin, listing users is
 admin-only, a transfer is always sent from the token's account, and the
 email-change flow only acts on the token's own email. Each request runs the
 binary in its own working directory (see
-`docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms`.
+`docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms` and
+`X-Request-Id`. The server logs one JSON line per request and serves
+Prometheus-style counters at `GET /metrics` (bearer).
 
 ## Where things are documented
 - `AGENTS.md` — workflow, language, business-logic boundary, routing contract, I/O.

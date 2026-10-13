@@ -4,6 +4,7 @@ import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { requireAuth, signToken, signRefresh, verifyRefresh, REFRESH_TTL_DAYS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
+import { createRequestObserver, metricsText } from './observability.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, KEY } = PATTERNS;
 
@@ -102,6 +103,12 @@ export function buildRouter() {
     }
   });
 
+  // Prometheus-style counters (support only). Authenticated to keep the
+  // surface closed; scrapers send a bearer token.
+  router.get('/metrics', apiLimiter, requireAuth, (_req, res) => {
+    res.type('text/plain').send(metricsText());
+  });
+
   // Pure transport: exchange a refresh token for a new access token. The old
   // refresh token is checked against the session store and rotated (revoked).
   router.post('/auth/refresh', authLimiter, async (req, res) => {
@@ -171,8 +178,9 @@ export function buildRouter() {
   return router;
 }
 
-export function buildApp() {
+export function buildApp({ logger = null } = {}) {
   const app = express();
+  app.use(createRequestObserver({ logger }));
   app.use(express.json());
   app.use(buildRouter());
   // eslint-disable-next-line no-unused-vars
