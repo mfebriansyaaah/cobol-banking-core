@@ -232,6 +232,9 @@ export function buildRouter({ mailer, tokenStore } = {}) {
 
 export function buildApp({ logger = null, mailer = null, tokenStore = null } = {}) {
   const app = express();
+  // Behind a proxy the client IP (and so the rate-limit key) must come from the
+  // forwarded headers. Off unless configured.
+  app.set('trust proxy', process.env.TRUST_PROXY || false);
   app.use(helmet());
   app.use(createRequestObserver({ logger }));
   app.use(express.json());

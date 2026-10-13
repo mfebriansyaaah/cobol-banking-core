@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
+import { createRateLimiter, memoryStore } from '../src/rateLimit.js';
 
 // Configure a tiny window before importing the app.
 process.env.RATE_LIMIT_MAX = '2';
@@ -35,4 +36,27 @@ test('non-auth endpoints are rate limited past the configured max', async () => 
 test('health is not rate limited', async () => {
   const res = await request(app).get('/health');
   assert.equal(res.status, 200);
+});
+
+test('a shared store enforces one limit across instances', async () => {
+  const store = memoryStore();
+  const instanceA = createRateLimiter({ store, windowMs: 60000, max: 2 });
+  const instanceB = createRateLimiter({ store, windowMs: 60000, max: 2 });
+  const makeRes = () => {
+    const r = { headers: {} };
+    r.set = (k, v) => { r.headers[k] = v; };
+    r.status = (c) => { r.code = c; return r; };
+    r.json = (b) => { r.body = b; return r; };
+    return r;
+  };
+  const req = { ip: '1.2.3.4' };
+  const noop = () => {};
+
+  await instanceA(req, makeRes(), noop); // 1
+  await instanceB(req, makeRes(), noop); // 2 (other instance, same store)
+  const third = makeRes();
+  await instanceA(req, third, noop); // 3 -> limited
+  assert.equal(third.code, 429);
+  assert.equal(third.body.error, 'RATE_LIMITED');
+  assert.ok(third.headers['Retry-After']);
 });

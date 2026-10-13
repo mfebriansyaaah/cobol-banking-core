@@ -89,10 +89,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
-| `middleware/` (node --test) | 48 | gateway: contract, injection, rate limit (auth + api), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
+| `middleware/` (node --test) | 49 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability, idempotency conflict, self-transfer, security headers/config, mailer, error mapping |
 
-Shell suites total **231**; with the gateway suite **48** the full run is
-**279 assertions**, all green as of this snapshot.
+Shell suites total **231**; with the gateway suite **49** the full run is
+**280 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 
@@ -115,7 +115,9 @@ Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
 code (see `middleware/src/result.js`; session/token failures map to 401 and
 internal/bridge failures to 500). Input-line cap 500 bytes; fixed-window
 rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
-`API_RATE_LIMIT_*` on the rest; `/health` exempt); access token 15m + refresh 7d
+`API_RATE_LIMIT_*` on the rest; `/health` exempt; counters are shared via Redis
+when REDIS_URL is set, and the client IP follows TRUST_PROXY); access token
+15m + refresh 7d
 (`middleware/.env.example`). Every response carries `X-Request-Id`, and the
 server logs one JSON line per request (`event: http_request` with method, route,
 status, `durationMs`, `cobolMs`); counters are served at `/metrics`.
@@ -135,7 +137,7 @@ list page size is capped at 100 (`limit` 1..100).
 ## 6. Governance documents
 
 - `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
-- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md` - decisions.
+- `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 

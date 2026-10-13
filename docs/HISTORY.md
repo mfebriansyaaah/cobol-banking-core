@@ -1164,3 +1164,14 @@ _merged 2026-10-13_
 - feat(core): multi-record output; raise result buffers to 16 KB
 - docs: sync HISTORY.md to post-merge state (#114)
 
+## #116 token-denylist
+
+_merged 2026-10-13_
+
+- docs: per-token denylist, tokenStore seam and ADR-0006
+- test: per-token denylist (binary + HTTP)
+- feat(gateway): per-token denylist via a tokenStore seam and POST /auth/revoke
+- feat(auth): per-token denylist (CHECK_TOKEN jti + REVOKE_ACCESS_TOKEN)
+- feat(db): migration 0009 adds a per-token access-token denylist
+- docs: sync HISTORY.md to post-merge state (#115)
+
