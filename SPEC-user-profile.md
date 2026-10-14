@@ -19,12 +19,14 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 | `REQ_EMAIL_CHANGE` | `p1=current email`, `p2=new email`, `p3=actor`, `p4=password` | the actor must own the current email and the **current password** must match; **neutral** about whether the new address is taken — if free, a 6-digit code is stored against it (`purpose=EMAIL_CHANGE`, 24h); if taken, returns the same success with no code | `SUCCESS\|CODE_SENT\|<code>` (free) · `SUCCESS\|CODE_SENT` (taken) · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_CREDENTIALS` · `ERROR\|EMAIL_CHANGE_FAILED` · `ERROR\|FORBIDDEN` |
 | `CONFIRM_EMAIL_CHANGE` | `p1=current email`, `p2=new email`, `p3=code` | match an unused, unexpired `EMAIL_CHANGE` code; move the email, **bump `token_version`**, and **revoke every refresh session** in one transaction (clean re-login) | `SUCCESS\|EMAIL_CHANGED` · `ERROR\|INVALID_CODE` · `ERROR\|EMAIL_CHANGE_FAILED` |
 | `UPDATE_PROFILE` | `p1=email`, `p2=full name`, `p3=actor` (owner), `p4=dob` (optional) | owner-only self-service; update `full_name` (and `dob` when given) with an audit row in one transaction; a blank name is refused | `SUCCESS\|PROFILE_UPDATED` · `ERROR\|FORBIDDEN` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_INPUT` · `ERROR\|PROFILE_UPDATE_FAILED` |
+| `DEACTIVATE_ACCOUNT` | `p1=email`, `p2=actor` (owner) | owner-only soft-close: set `status='CLOSED'`, bump `token_version`, revoke refresh sessions, audit | `SUCCESS\|ACCOUNT_DEACTIVATED` · `ERROR\|FORBIDDEN` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|DEACTIVATE_FAILED` |
+| `SET_USER_STATUS` | `p1=email`, `p2=status`, `p3=actor` (admin) | admin sets `UNVERIFIED`/`VERIFIED`/`SUSPENDED`/`CLOSED`, bump `token_version`, revoke refresh sessions, audit | `SUCCESS\|STATUS_CHANGED` · `ERROR\|FORBIDDEN` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_STATUS` · `ERROR\|STATUS_CHANGE_FAILED` |
 
 ### Tests
 
 `CONFIRM_EMAIL_CHANGE` works for a logged-in user: `users.email` changes propagate through the `refresh_sessions`/`pending_transactions` FKs (`ON UPDATE CASCADE`, migration 0003).
 
-`tests/test_user_profile.sh` (35 assertions). Wired into `ci.sh`.
+`tests/test_user_profile.sh` (35 assertions) and `tests/test_account_lifecycle.sh` (15 assertions). Wired into `ci.sh`.
 
 ## Notes / not yet done
 
