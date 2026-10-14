@@ -59,7 +59,7 @@ test('every bearer endpoint responds', async (t) => {
     .set('Idempotency-Key', `ep-${Date.now()}`)
     .send({ from: 'sender@test.com', to: 'receiver@test.com', amount: '1.00' });
   assert.equal(xfer.status, 200);
-  assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth)).body.data[0], '1000.00');
+  assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth)).body.balances[0].balance, '1000.00');
 
   // admin checks before the email changes
   assert.equal((await request(app).get(`/admin/role?email=${admin}&role=SUPER_ADMIN`).set(adminAuth)).status, 200);

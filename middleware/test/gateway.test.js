@@ -125,7 +125,8 @@ test('bare-value endpoints return 200 with data', async (t) => {
 
   const bal = await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth);
   assert.equal(bal.status, 200);
-  assert.match(bal.body.data[0], /^\d+\.\d{2}$/);
+  assert.equal(bal.body.data[0], 'BALANCES');
+  assert.match(bal.body.balances[0].balance, /^\d+\.\d{2}$/);
 });
 
 test('email change works for a logged-in user (related rows exist)', async () => {
