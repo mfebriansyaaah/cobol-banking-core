@@ -542,3 +542,29 @@ test('transfer over the per-transaction limit is rejected', async () => {
     else process.env.TRANSFER_MAX_PER_TXN = prev;
   }
 });
+
+test('transfer status and reversal over HTTP', async () => {
+  const em = `gw_rev_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Rev', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+  seedAccount(em, '1000.00');
+
+  const key = `rev-${Date.now()}`;
+  assert.equal((await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', key).send({ to: 'receiver@test.com', amount: '10.00' })).status, 200);
+
+  const status = await request(app).get(`/transactions/${key}`).set(auth);
+  assert.equal(status.status, 200);
+  assert.equal(status.body.data[0], 'TRANSFER');
+  assert.equal(status.body.data[1], 'COMMITTED');
+
+  const admin = `gw_revadm_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN')) return;
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  const rev = await request(app).post(`/transactions/${key}/reverse`).set('Authorization', `Bearer ${adminToken}`).send({});
+  assert.equal(rev.status, 200);
+  assert.deepEqual(rev.body.data, ['TRANSFER_REVERSED']);
+
+  assert.equal((await request(app).get(`/transactions/${key}`).set(auth)).body.data[1], 'REVERSED');
+});
