@@ -37,7 +37,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/wallet_core.cob` | `TX_STATUS` | ref, actor (owner or admin), sender (optional, admin) | reports a transfer's status (`COMMITTED`/`PENDING`/`REVERSED`) and parties; an admin may target a sender and the unfiltered result is the newest by id | `SUCCESS\|TRANSFER\|<status>\|<from>\|<to>\|<amount>` * `ERROR\|UNKNOWN_TRANSACTION` |
 | `cobol/src/user_core.cob` | `GET_USER` | email, actor (self-or-admin) | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `LIST_USERS` | limit(20, gateway caps 1..100), offset(0), actor (admin) | paged, rows via `SQL_PREPARE_EXEC_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` * `ERROR\|FORBIDDEN` |
-| `cobol/src/user_core.cob` | `GET_DASHBOARD` | email, actor (self-or-admin) | email, full name, **all** accounts as `iso:balance;...` | `SUCCESS\|DASHBOARD\|...` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
+| `cobol/src/user_core.cob` | `GET_DASHBOARD` | email, actor (self-or-admin) | full profile (email, name, status, role, dob, created) + **all** accounts as `iso:balance;...`; `LEFT JOIN` so users without accounts still get a profile | `SUCCESS\|DASHBOARD\|<email>\|<name>\|<status>\|<role>\|<dob>\|<created>\|<accounts>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `REQ_EMAIL_CHANGE` | current, new, actor (owner) | 6-digit code stored against the new email | `SUCCESS\|CODE_SENT\|<code>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|EMAIL_EXISTS` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `CONFIRM_EMAIL_CHANGE` | current, new, code, actor (owner) | consume code, move email, audit; **attempt-capped** (burned after 5 wrong guesses) | `SUCCESS\|EMAIL_CHANGED` * `ERROR\|INVALID_CODE` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `REQUEST_SIGNUP` | email, password, name, dob | 8-char min password, PBKDF2 hash, 6-digit code in `verification_logs`; audit row; **neutral** when the email is already registered (no `EMAIL_EXISTS` leak) | `SUCCESS\|USER_CREATED\|<code>` (or `SUCCESS\|USER_CREATED` if already registered) * `ERROR\|WEAK_PASSWORD` * `ERROR\|SIGNUP_FAILED` |
@@ -94,7 +94,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_auth_login.sh` | 6 | login, legacy rehash on login |
 | `tests/test_signup_verify.sh` | 27 | signup + verify flow, PBKDF2 hash, neutral duplicate email, audit, expired-log pruning, resend verification |
 | `tests/test_roles.sh` | 17 | `CHECK_ROLE` self-or-admin, `CHANGE_ROLE` SUPER_ADMIN gate, `ARCHIVE_AUDIT` |
-| `tests/test_user_profile.sh` | 17 | dashboard multi-account, paging, email-change |
+| `tests/test_user_profile.sh` | 24 | full profile (incl. account-less), paging, email-change |
 | `tests/test_login_lockout.sh` | 14 | 3-fail/15-min lockout on the user row, masked probe (wrong stays uniform, owner told), reset/good-login unlock |
 | `tests/test_idempotent_transfer.sh` | 27 | replay-no-op, key reuse conflict, per-sender scoping, unique auto refs, failure retry, archived key runs fresh |
 | `tests/test_transfer_validity.sh` | 34 | positive-amount, malformed-amount rejection (core-level), self-transfer, cross-currency (direct + inverse rate + missing rate), target precision, rate snapshot, multi-account sender selection by currency |
@@ -115,10 +115,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 70 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 71 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **401**; with the gateway suite **70** the full run is
-**471 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **408**; with the gateway suite **71** the full run is
+**479 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
