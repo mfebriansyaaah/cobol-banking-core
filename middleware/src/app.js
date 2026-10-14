@@ -30,6 +30,19 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
   ] },
+  { method: 'post', path: '/auth/forgot', action: 'FORGOT_PASSWORD', public: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+  ], onSuccess: async (body, input, { mailer }) => {
+    // Neutral: a code is delivered only when the account exists.
+    const code = body.data[1];
+    if (code) await mailer.sendVerification({ to: input.email, purpose: 'PASSWORD_RESET', code });
+    return { data: ['CODE_SENT'] };
+  } },
+  { method: 'post', path: '/auth/reset-password', action: 'RESET_PASSWORD', public: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'code', pattern: CODE, required: true },
+    { name: 'password', pattern: PASSWORD, required: true },
+  ] },
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
@@ -75,6 +88,12 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/profile/password', action: 'CHANGE_PASSWORD', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'currentPassword', pattern: PASSWORD, required: true },
+    { name: 'newPassword', pattern: PASSWORD, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
   { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', tokenIdentity: 'actor', fields: [

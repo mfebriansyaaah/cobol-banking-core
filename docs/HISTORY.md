@@ -1205,3 +1205,60 @@ _merged 2026-10-13_
 - feat(db): migration 0010 adds the audit-trail archive table
 - docs: sync HISTORY.md to post-merge state (#118)
 
+## #120 adr-worker-pool
+
+_merged 2026-10-14_
+
+- docs: list ADR-0010 and note the worker-pool direction
+- chore(ci): validate ADR-0005..0010 paths in docs_check
+- docs(adr): note ADR-0001 is superseded for throughput by ADR-0010
+- docs(adr): add ADR-0010 worker-pool invocation (revisits ADR-0001)
+- docs: sync HISTORY.md to post-merge state (#119)
+
+## #121 adr-0010-lifecycle
+
+_merged 2026-10-14_
+
+- docs(adr): add connection-lifecycle evidence to ADR-0010
+
+## #122 serve-mode-clean
+
+_merged 2026-10-14_
+
+- docs: serve mode (--serve) and refreshed counts
+- test: serve-mode suite wired into ci (step 25/25)
+- feat(core): serve mode over stdin/stdout with shared dispatch (--serve)
+
+## #123 bridge-lifecycle
+
+_merged 2026-10-14_
+
+- docs: bridge connection lifecycle (ADR-0010 phase 2) and counts
+- test: serve-mode connection lifecycle (kill recovery + transaction)
+- feat(bridge): keep-alive connection with ping/reconnect; transactions keep it
+
+## #124 gateway-pool
+
+_merged 2026-10-14_
+
+- docs: gateway worker pool (ADR-0010 phase 3), env and counts
+- test(gateway): worker pool end-to-end (reuses workers)
+- feat(gateway): worker pool over serve mode; invoker uses it when COBOL_POOL_SIZE is set
+
+## #125 pool-hardening
+
+_merged 2026-10-14_
+
+- docs: pool hardening (gauges, graceful shutdown, pool-mode E2E)
+- test(ci): gauge coverage and end-to-end smoke in pool mode (step 26/26)
+- feat(server): graceful shutdown drains the pool and metrics exporter
+- feat(observability): gauges; expose worker-pool size/busy/queued
+
+## #126 pool-pipelining
+
+_merged 2026-10-14_
+
+- docs: pool pipelining (ADR-0010 phase 5), env and counts
+- test(pool): concurrent requests served with pipelining
+- feat(pool): pipeline up to N in-flight per worker (batched writes)
+
