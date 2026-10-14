@@ -123,6 +123,19 @@ check "confirm reused code" "ERROR|INVALID_CODE" "$(run CONFIRM_EMAIL_CHANGE "$U
 check "token version bumped on email change" "2" "$(q "SELECT token_version FROM users WHERE email='$UNEW';")"
 check "audit email_change row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=950 AND action='EMAIL_CHANGE';")"
 
+# --- validation & confirm race ---
+RU="prof_race@test.com"; RN="prof_race_new@test.com"
+q "DELETE FROM verification_logs WHERE email IN ('$RU','$RN'); DELETE FROM users WHERE email IN ('$RU','$RN');
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
+   (955,'$RU',CONCAT('SHA256_',SHA2('secret123',256)),'Race User','1990-01-01','VERIFIED','USER');"
+check "malformed email rejected" "ERROR|INVALID_INPUT" "$(run REQ_EMAIL_CHANGE notanemail "$RN" notanemail secret123)"
+check "malformed new email rejected" "ERROR|INVALID_INPUT" "$(run REQ_EMAIL_CHANGE "$RU" notanemail "$RU" secret123)"
+check "bad date of birth rejected" "ERROR|INVALID_INPUT" "$(run UPDATE_PROFILE "$RU" 'Race User' "$RU" 1990-13-01)"
+rc=$(run REQ_EMAIL_CHANGE "$RU" "$RN" "$RU" secret123 | cut -d'|' -f3)
+q "INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (956,'$RN','x','Taken','1990-01-01','VERIFIED','USER');"
+check "confirm race reports EMAIL_EXISTS" "ERROR|EMAIL_EXISTS" "$(run CONFIRM_EMAIL_CHANGE "$RU" "$RN" "$rc" "$RU")"
+q "DELETE FROM verification_logs WHERE email IN ('$RU','$RN'); DELETE FROM users WHERE email IN ('$RU','$RN');"
+
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"

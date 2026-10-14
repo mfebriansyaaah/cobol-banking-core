@@ -692,3 +692,21 @@ test('user listing and record are structured', async () => {
   assert.equal(rec.body.data[0], 'USER');
   assert.equal(rec.body.user.email, 'sender@test.com');
 });
+
+test('email-change confirm reports a taken address (race)', async () => {
+  const em = `gw_race_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Race', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+  const ne = `gw_racenew_${Date.now()}@test.com`;
+
+  assert.equal((await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: ne, password: 'secret123' })).status, 200);
+  const code = getVerificationCode(ne, 'EMAIL_CHANGE');
+  // Someone else takes the address between the request and the confirm.
+  runSql(`INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ('${ne}','x','Taken','1990-01-01','VERIFIED','USER')`);
+
+  const conf = await request(app).post('/profile/email/confirm').set(auth).send({ email: em, newEmail: ne, code });
+  assert.equal(conf.status, 400);
+  assert.equal(conf.body.error, 'EMAIL_EXISTS');
+});
