@@ -128,6 +128,19 @@ export const ROUTES = [
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
+  { method: 'get', path: '/sessions', action: 'LIST_SESSIONS', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/sessions/revoke', action: 'REVOKE_USER_SESSION', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'sessionId', pattern: KEY, required: true },
+  ] },
+  { method: 'post', path: '/sessions/revoke-all', action: 'REVOKE_ALL_SESSIONS', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
   { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
