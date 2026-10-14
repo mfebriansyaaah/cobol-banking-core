@@ -315,3 +315,35 @@ test('audit archiving is admin-only', async (t) => {
   assert.equal(ok.status, 200);
   assert.deepEqual(ok.body.data, ['ARCHIVED']);
 });
+
+test('password reset and change over HTTP', async () => {
+  const em = `gw_pw_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'PW User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const first = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+  const oldToken = first.body.token;
+
+  const forgot = await request(app).post('/auth/forgot').send({ email: em });
+  assert.equal(forgot.status, 200);
+  assert.deepEqual(forgot.body.data, ['CODE_SENT']);
+  const code = getVerificationCode(em, 'PASSWORD_RESET');
+  assert.match(code, /^\d{6}$/);
+
+  const reset = await request(app).post('/auth/reset-password').send({ email: em, code, password: 'reset1234' });
+  assert.equal(reset.status, 200);
+  assert.deepEqual(reset.body.data, ['PASSWORD_RESET']);
+
+  // Reset revoked the sessions: the old access token no longer works.
+  assert.equal((await request(app).get(`/users/${em}`).set('Authorization', `Bearer ${oldToken}`)).status, 401);
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 401);
+
+  const second = await request(app).post('/auth/login').send({ email: em, password: 'reset1234' });
+  assert.equal(second.status, 200);
+  const changed = await request(app)
+    .post('/profile/password')
+    .set('Authorization', `Bearer ${second.body.token}`)
+    .send({ email: em, currentPassword: 'reset1234', newPassword: 'final1234' });
+  assert.equal(changed.status, 200);
+  assert.deepEqual(changed.body.data, ['PASSWORD_CHANGED']);
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'final1234' })).status, 200);
+});
