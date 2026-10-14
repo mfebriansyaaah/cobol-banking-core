@@ -21,6 +21,10 @@
         01  WS-P4-LEN               PIC 9(3) VALUE 1.
         01  WS-I                   PIC 9(3).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
+        01  WS-AMT-DOTS            PIC 9(2) VALUE 0.
+        01  WS-AMT-DIGITS          PIC 9(2) VALUE 0.
+        01  WS-AMT-FRAC            PIC 9(2) VALUE 0.
+        01  WS-AMT-SEEN-DOT        PIC X(1) VALUE "0".
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
         01  WS-STEP                 PIC X VALUE 'Y'.
@@ -474,6 +478,38 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        VALIDATE-AMOUNT.
+            *> Defense-in-depth: the core also checks the amount is a plain
+            *> positive decimal with at most two fractional digits.
+            MOVE 0 TO WS-AMT-DOTS
+            MOVE 0 TO WS-AMT-DIGITS
+            MOVE 0 TO WS-AMT-FRAC
+            MOVE "0" TO WS-AMT-SEEN-DOT
+            IF WS-P3-LEN < 1
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-P3-LEN
+                IF WS-PARAM3-TRIMMED(WS-I:1) = "."
+                    ADD 1 TO WS-AMT-DOTS
+                    MOVE "1" TO WS-AMT-SEEN-DOT
+                ELSE
+                    IF WS-PARAM3-TRIMMED(WS-I:1) >= "0"
+                       AND WS-PARAM3-TRIMMED(WS-I:1) <= "9"
+                        ADD 1 TO WS-AMT-DIGITS
+                        IF WS-AMT-SEEN-DOT = "1"
+                            ADD 1 TO WS-AMT-FRAC
+                        END-IF
+                    ELSE
+                        SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                    END-IF
+                END-IF
+            END-PERFORM
+            IF WS-AMT-DOTS > 1 OR WS-AMT-FRAC > 2 OR WS-AMT-DIGITS < 1
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
         CHECK-TRANSIENT.
             *> WS-RESULT holds "ERROR|<kind>|<errno>" from the bridge. Flag a
             *> retriable condition (lock wait, deadlock, lost connection).
@@ -554,6 +590,11 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             END-IF
             SET WS-TRANSFER-OK TO TRUE
+            PERFORM VALIDATE-AMOUNT
+            IF WS-TRANSFER-FAIL-AMOUNT
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> The idempotency key (param 4) doubles as the transaction
             *> reference. Without one, mint a collision-resistant reference
             *> (date+time to hundredths, plus a secure random suffix).
