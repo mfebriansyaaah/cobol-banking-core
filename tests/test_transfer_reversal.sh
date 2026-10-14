@@ -84,6 +84,15 @@ check "reversal needs the target to hold funds" "ERROR|INSUFFICIENT_FUNDS" "$(ru
 check "failed reversal left the sender" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 check "failed reversal wrote no marker" "0" "$(q "SELECT COUNT(*) FROM transfer_reversals WHERE orig_ref='rev-2';")"
 
+# Admin status is deterministic across senders and can target one.
+setup
+q "UPDATE accounts SET balance=1000.00 WHERE account_id=2;"
+run TRANSFER sender@test.com receiver@test.com 10.00 dup-k >/dev/null
+run TRANSFER receiver@test.com sender@test.com 20.00 dup-k >/dev/null
+check "admin sees the newest for an ambiguous ref" "20.00" "$(run TX_STATUS dup-k "$ADM" | cut -d'|' -f6)"
+check "admin filters by sender" "10.00" "$(run TX_STATUS dup-k "$ADM" sender@test.com | cut -d'|' -f6)"
+check "owner still sees their own with the shared ref" "10.00" "$(run TX_STATUS dup-k sender@test.com | cut -d'|' -f6)"
+
 teardown
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1; UPDATE accounts SET balance=0.00 WHERE account_id=2;
    DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM transfer_reversals;"
