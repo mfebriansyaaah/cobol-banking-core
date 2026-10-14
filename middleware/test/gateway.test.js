@@ -710,3 +710,19 @@ test('email-change confirm reports a taken address (race)', async () => {
   assert.equal(conf.status, 400);
   assert.equal(conf.body.error, 'EMAIL_EXISTS');
 });
+
+test('refresh rotates and a replay is rejected', async () => {
+  const em = `gw_rot_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Rot', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+
+  const first = await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken });
+  assert.equal(first.status, 200);
+  const rotated = first.body.refreshToken;
+  assert.ok(rotated && rotated !== login.body.refreshToken);
+
+  // Replaying the consumed token is reuse: rejected, and the whole family dies.
+  assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken })).status, 401);
+  assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: rotated })).status, 401);
+});
