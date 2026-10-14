@@ -81,12 +81,12 @@ test('every bearer endpoint responds', async (t) => {
   const spoof = await request(app)
     .post('/profile/email/request')
     .set(auth)
-    .send({ email: 'sender@test.com', newEmail: `ep_spoof_${Date.now()}@test.com`, actor: 'sender@test.com' });
+    .send({ email: 'sender@test.com', newEmail: `ep_spoof_${Date.now()}@test.com`, actor: 'sender@test.com', password: 'secret123' });
   assert.equal(spoof.status, 403);
   assert.equal(spoof.body.error, 'FORBIDDEN');
 
   const ne = `ep_new_${Date.now()}@test.com`;
-  const reqc = await request(app).post('/profile/email/request').set(auth).send({ email, newEmail: ne });
+  const reqc = await request(app).post('/profile/email/request').set(auth).send({ email, newEmail: ne, password: 'secret123' });
   assert.equal(reqc.status, 200);
   assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') })).status, 200);
 
