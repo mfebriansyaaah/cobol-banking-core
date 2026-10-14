@@ -30,6 +30,7 @@
         01  WS-HASH                 PIC X(256) VALUE SPACES.
         01  WS-STORED               PIC X(256) VALUE SPACES.
         01  WS-VERIFY               PIC X(1) VALUE SPACES.
+        01  WS-NEEDS-REHASH         PIC X(1) VALUE "0".
         01  WS-HLEN                 PIC 9(3) VALUE 1.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
@@ -341,8 +342,11 @@
                 EXIT PARAGRAPH
             END-IF
             
-            *> 3b) Transparently upgrade a legacy SHA256 hash to PBKDF2.
-            IF WS-STORED(1:7) = "SHA256_"
+            *> 3b) Transparently upgrade a legacy SHA256 hash, or a PBKDF2 hash
+            *>     below the current cost target, to the current scheme.
+            MOVE "0" TO WS-NEEDS-REHASH
+            CALL "password_needs_rehash" USING BY REFERENCE WS-STORED BY REFERENCE WS-NEEDS-REHASH
+            IF WS-NEEDS-REHASH = "1"
                 MOVE SPACES TO WS-PLAIN
                 MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
                 CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH

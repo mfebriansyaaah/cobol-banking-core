@@ -10,7 +10,7 @@ C and JavaScript as support only.
   request to stdout.
 - `cobol/src/sql_bridge.c` — C bridge to MySQL (`libmysqlclient`): prepared
   statements, escaping, and transactions. `cobol/c_lib/hash_lib.c` — PBKDF2 hashing
-  and secure code generation.
+  (600000 iterations by default, rehashed on login when below target) and secure code generation.
 - `middleware/` — Node.js/Express API gateway, the only HTTP interface; it
   validates input shapes, invokes the binary per request (own working directory),
   and maps the result line to HTTP.
