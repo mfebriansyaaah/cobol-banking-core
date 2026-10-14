@@ -65,7 +65,8 @@ warm worker pool over the binary's `--serve` mode instead (ADR-0010);
 
 Security headers are set with `helmet`. In production (`NODE_ENV=production`)
 the server refuses to start while `JWT_SECRET`/`REFRESH_SECRET` are unset or
-still the development defaults.
+still the development defaults. Tokens carry an issuer and audience
+(`JWT_ISSUER`/`JWT_AUDIENCE`) that verification enforces.
 
 Verification codes are delivered out of band (`SMTP_*`, or a development stub
 that logs the event without the code) and are never returned in HTTP responses.
