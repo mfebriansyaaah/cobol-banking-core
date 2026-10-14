@@ -360,6 +360,15 @@
                 EXIT PARAGRAPH
             END-IF
 
+            *> Drop any earlier unused code so only one is active at a time
+            *> (a fresh request invalidates the previous code).
+            MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'EMAIL_CHANGE' AND is_used = 0" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+
             CALL "generate_random_code" USING BY REFERENCE WS-CODE
 
             *> Store the code against the target email.
@@ -397,6 +406,19 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
 
             IF WS-RESULT = "ERROR|NO_DATA"
+                *> Cap email-change-code guessing: burn the code after 5 failures.
+                MOVE "UPDATE verification_logs SET attempts = attempts + 1 WHERE email = ? AND purpose = 'EMAIL_CHANGE' AND is_used = 0 ORDER BY id DESC LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE "UPDATE verification_logs SET is_used = 1 WHERE email = ? AND purpose = 'EMAIL_CHANGE' AND is_used = 0 AND attempts >= 5" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE "ERROR|INVALID_CODE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
