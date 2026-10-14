@@ -37,7 +37,7 @@ echo "======================================================================"
 
 q "UPDATE accounts SET balance=1000.00,status='ACTIVE' WHERE account_id=1;
    UPDATE accounts SET balance=0.00,status='ACTIVE' WHERE account_id=2;
-   DELETE FROM ledger; DELETE FROM pending_transactions;"
+   DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM pending_transactions_archive;"
 
 # --- audit context -------------------------------------------------------
 check "transfer" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 12.34 obs-1)"
@@ -52,10 +52,11 @@ q "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, stat
 check "stale intent present before" "1" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-old';")"
 run TRANSFER sender@test.com receiver@test.com 1.00 obs-2 >/dev/null
 check "stale intent pruned on the next transfer" "0" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-old';")"
+check "stale intent archived (not lost)" "1" "$(q "SELECT COUNT(*) FROM pending_transactions_archive WHERE txn_ref='obs-old';")"
 check "fresh intent kept" "1" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-2';")"
 
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1; UPDATE accounts SET balance=0.00 WHERE account_id=2;
-   DELETE FROM ledger; DELETE FROM pending_transactions;"
+   DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM pending_transactions_archive;"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
