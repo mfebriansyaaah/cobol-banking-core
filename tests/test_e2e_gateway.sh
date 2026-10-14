@@ -88,7 +88,9 @@ q "INSERT INTO accounts (user_id, currency_id, account_type, balance, status) VA
 
 http GET "/wallet/balance?email=$EMAIL" "$TOKEN"
 check "balance (owner)" "200" "$CODE"
-check "balance is numeric" "500.00" "$(jget "['data'][0]")"
+check "balance envelope" "BALANCES" "$(jget "['data'][0]")"
+check "balance is numeric" "500.00" "$(jget "['balances'][0]['balance']")"
+check "balance carries currency" "USD" "$(jget "['balances'][0]['currency']")"
 
 CODE=$(curl -s -o "$BODY" -w '%{http_code}' -X POST "http://127.0.0.1:$PORT/wallet/transfer" \
     -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -H 'Idempotency-Key: e2e-1' \
