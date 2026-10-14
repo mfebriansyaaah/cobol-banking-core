@@ -193,9 +193,10 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE "SELECT CONCAT(ROUND(a.balance, 2)) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+            *> Every account the user holds, as iso:balance:status rows.
+            MOVE "SELECT CONCAT(c.iso_code, ':', ROUND(a.balance,2), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
@@ -203,7 +204,11 @@
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
             ELSE
-                MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|BALANCES|" DELIMITED BY SIZE
+                       WS-RESULT DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
             END-IF.
             EXIT PARAGRAPH.
 
