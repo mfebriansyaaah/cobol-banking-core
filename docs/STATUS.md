@@ -53,6 +53,9 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive` | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
+| `cobol/src/auth_core.cob` | `LIST_SESSIONS` | email, actor (self-or-admin) | active (unrevoked, unexpired) refresh sessions as `jti:created:expires;...` | `SUCCESS\|SESSIONS\|...` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_LIST_FAILED` |
+| `cobol/src/auth_core.cob` | `REVOKE_USER_SESSION` | email, actor, session id | revoke one session that belongs to the account (self-or-admin) | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_REVOKE_FAILED` |
+| `cobol/src/auth_core.cob` | `REVOKE_ALL_SESSIONS` | email, actor (self-or-admin) | bump `token_version` **and** revoke every refresh session (logout everywhere), audited | `SUCCESS\|SESSIONS_REVOKED` * `ERROR\|FORBIDDEN` * `ERROR\|SESSIONS_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_SESSION` | jti | is the refresh token still valid, reused, expired or unknown | `SUCCESS\|SESSION_VALID` * `ERROR\|SESSION_REUSED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|SESSION_EXPIRED` |
 | `cobol/src/auth_core.cob` | `GET_TOKEN_VERSION` | email | current access-token version for a user | `SUCCESS\|<ver>` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `CHECK_TOKEN` | email, version, jti | access token is current and not denylisted | `SUCCESS\|TOKEN_VALID` * `ERROR\|TOKEN_REVOKED` * `ERROR\|ACCOUNT_NOT_FOUND` |
@@ -95,6 +98,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_transfer_validity.sh` | 17 | positive-amount, self-transfer, and cross-currency (FX + missing rate) |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 18 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version + per-token revocation |
+| `tests/test_sessions_manage.sh` | 15 | list active sessions, revoke one (owner/admin, own only), revoke-all (version bump + all refresh revoked, audited) |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
@@ -105,10 +109,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 62 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 63 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **309**; with the gateway suite **62** the full run is
-**371 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **324**; with the gateway suite **63** the full run is
+**387 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -117,7 +121,9 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/auth/login`, `/auth/forgot`, `/auth/reset-password`, `/auth/resend`, `/auth/refresh):
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile`, `/profile/email/request`,
-`/profile/email/confirm`, `/profile/password`, `/admin/role` (GET/POST),
+`/profile/email/confirm`, `/profile/password`, `/mfa/enroll`, `/mfa/confirm`,
+`/mfa/disable`, `/sessions` (GET), `/sessions/revoke`, `/sessions/revoke-all`,
+`/admin/role` (GET/POST),
 `/admin/reconcile`
 (read-only balance/ledger check), `/metrics` (Prometheus counters, bearer),
 `/auth/logout` (revokes a refresh token), `/auth/revoke` (revokes the presented
@@ -149,7 +155,10 @@ the user's token version, checked on every protected request (`CHECK_TOKEN`);
 logout bumps it (`REVOKE_TOKENS`), so an issued access token can be revoked
 before it expires. A single token can be revoked per `jti` (`POST /auth/revoke`
 -> `REVOKE_ACCESS_TOKEN`), and the denylist lives in the shared database behind
-a `tokenStore` seam (a distributed store can replace it). Responses share one
+a `tokenStore` seam (a distributed store can replace it). A user (or an admin)
+can list their active refresh sessions (`GET /sessions`), revoke one, or revoke
+them all (`POST /sessions/revoke-all` -> `REVOKE_ALL_SESSIONS`, which bumps the
+version *and* revokes every refresh session). Responses share one
 envelope - success `{ data: [...] }`, failure `{ error, detail? }` - and the
 list page size is capped at 100 (`limit` 1..100).
 

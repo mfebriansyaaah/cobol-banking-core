@@ -42,6 +42,7 @@
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-RLEN                 PIC 9(5) VALUE 0.
         01  WS-P1-ESC               PIC X(256) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
@@ -116,6 +117,12 @@
                     PERFORM REVOKE-TOKENS-LOGIC
                 WHEN LS-CMD-ACTION(1:19) = "REVOKE_ACCESS_TOKEN"
                     PERFORM REVOKE-ACCESS-TOKEN-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "LIST_SESSIONS"
+                    PERFORM LIST-SESSIONS-LOGIC
+                WHEN LS-CMD-ACTION(1:19) = "REVOKE_USER_SESSION"
+                    PERFORM REVOKE-USER-SESSION-LOGIC
+                WHEN LS-CMD-ACTION(1:20) = "REVOKE_ALL_SESSIONS"
+                    PERFORM REVOKE-ALL-SESSIONS-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "ARCHIVE_AUDIT"
                     PERFORM ARCHIVE-AUDIT-LOGIC
                 WHEN LS-CMD-ACTION(1:17) = "GET_TOKEN_VERSION"
@@ -1226,6 +1233,125 @@
                 MOVE "ERROR|TOKEN_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "SUCCESS|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        TRIM-RESULT-LEN.
+            *> Compute WS-RLEN = length of WS-RESULT without trailing spaces.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-READ.
+            *> Sets WS-ALLOWED when the actor (p2) owns the target (p1) or is admin.
+            MOVE 0 TO WS-ALLOWED
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE 1 TO WS-ALLOWED
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LIST-SESSIONS-LOGIC.
+            *> p1 = email, p2 = actor. Self or admin. Active sessions only.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT CONCAT(jti, ':', DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s'), ':', DATE_FORMAT(expires_at, '%Y-%m-%dT%H:%i:%s')) FROM refresh_sessions WHERE email = ? AND revoked = 0 AND expires_at > NOW() ORDER BY created_at DESC" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|SESSIONS|" TO LS-OUTPUT-BUFFER
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|SESSIONS|" WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        REVOKE-USER-SESSION-LOGIC.
+            *> p1 = email, p2 = actor, p3 = session id (jti). Self or admin.
+            *> Only a session that belongs to the target account is revoked.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE jti = ? AND email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:18) = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|SESSION_NOT_FOUND" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|SESSION_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "SUCCESS|SESSION_REVOKED" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        REVOKE-ALL-SESSIONS-LOGIC.
+            *> p1 = email, p2 = actor. Self or admin. Kills every session: bump
+            *> the access-token version and revoke all refresh sessions.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            MOVE "UPDATE users SET token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                PERFORM GET-USER-ID
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'SESSIONS_REVOKED', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|SESSIONS_REVOKED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|SESSIONS_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
