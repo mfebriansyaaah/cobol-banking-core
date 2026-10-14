@@ -102,7 +102,7 @@ class Pool {
   }
 
   invoke(action, params = [], opts = {}) {
-    const line = [action, ...params].slice(0, 5).join('|');
+    const line = [action, ...params].slice(0, 7).join('|');
     return new Promise((resolve, reject) => {
       this.queue.push({ line, resolve, reject, timeoutMs: opts.timeoutMs });
       this._dispatch();
