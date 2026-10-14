@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { resetMetrics, recordRequest, metricsText, pushMetrics, startMetricsExporter } from '../src/observability.js';
+import { resetMetrics, recordRequest, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
 import { getVerificationCode } from './support.js';
 
 test('metricsText renders recorded counters', () => {
@@ -12,6 +12,14 @@ test('metricsText renders recorded counters', () => {
   recordRequest({ method: 'GET', route: '/health', status: 200 });
   const text = metricsText();
   assert.match(text, /gateway_requests_total\{method="GET",route="\/health",status="200"\} 2/);
+});
+
+test('metricsText renders gauges', () => {
+  resetMetrics();
+  setGauge('gateway_cobol_pool_workers', 3);
+  const text = metricsText();
+  assert.match(text, /# TYPE gateway_cobol_pool_workers gauge/);
+  assert.match(text, /gateway_cobol_pool_workers 3/);
 });
 
 test('a request is logged with an id, route and latency', async () => {

@@ -40,4 +40,7 @@ test('workers are reused across requests', async () => {
   }
   assert.equal(pool.stats().size, size, 'no extra workers spawned');
   assert.equal(pool.stats().queued, 0, 'queue drained');
+
+  const { metricsText } = await import('../src/observability.js');
+  assert.match(metricsText(), /gateway_cobol_pool_workers \d+/);
 });
