@@ -381,3 +381,18 @@ test('login and signup do not enumerate accounts', async () => {
   assert.equal(wrong.status, 401);
   assert.deepEqual(unknown.body, wrong.body);
 });
+
+test('verification code guessing is capped', async () => {
+  const em = `gw_cap_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Cap', dob: '1990-01-01' });
+  const code = getVerificationCode(em, 'SIGNUP');
+  for (let i = 0; i < 5; i++) {
+    assert.equal((await request(app).post('/auth/verify').send({ email: em, code: '000000' })).status, 400);
+  }
+  // The code is burned: even the right one is rejected now.
+  assert.equal((await request(app).post('/auth/verify').send({ email: em, code })).status, 400);
+  // A resend issues a working code.
+  await request(app).post('/auth/resend').send({ email: em });
+  const fresh = getVerificationCode(em, 'SIGNUP');
+  assert.equal((await request(app).post('/auth/verify').send({ email: em, code: fresh })).status, 200);
+});
