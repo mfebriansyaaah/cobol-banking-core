@@ -76,6 +76,23 @@ before_failed=$(q "SELECT COUNT(*) FROM audit_trail WHERE action='VERIFY_EMAIL' 
 check "unknown email rejected" "ERROR|INVALID_CODE" "$(run VERIFY_EMAIL unknown_audit@test.com 000000)"
 check "unattributable verify not audited" "$before_failed" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='VERIFY_EMAIL' AND status='FAILED';")"
 
+# --- RESEND VERIFICATION ---
+RE="resend_ok@test.com"
+q "DELETE FROM verification_logs WHERE email='$RE'; DELETE FROM users WHERE email='$RE';"
+rout=$(run REQUEST_SIGNUP "$RE" secret123 'Resend Ok' '1990-01-01')
+rcode1=$(echo "$rout" | cut -d'|' -f3)
+rout2=$(run RESEND_VERIFICATION "$RE" '' '' '')
+rcode2=$(echo "$rout2" | cut -d'|' -f3)
+case "$rout2" in
+    SUCCESS\|CODE_SENT\|[0-9][0-9][0-9][0-9][0-9][0-9]) check "resend returns a new code" "ok" "ok" ;;
+    *) check "resend returns a new code" "SUCCESS|CODE_SENT|<6 digits>" "$rout2" ;;
+esac
+check "old code invalid after resend" "ERROR|INVALID_CODE" "$(run VERIFY_EMAIL "$RE" "$rcode1")"
+check "new code verifies" "SUCCESS|EMAIL_VERIFIED" "$(run VERIFY_EMAIL "$RE" "$rcode2")"
+check "resend for verified is neutral" "SUCCESS|CODE_SENT" "$(run RESEND_VERIFICATION "$RE" '' '' '')"
+check "resend unknown is neutral" "SUCCESS|CODE_SENT" "$(run RESEND_VERIFICATION ghost_resend@test.com '' '' '')"
+q "DELETE FROM verification_logs WHERE email='$RE'; DELETE FROM users WHERE email='$RE';"
+
 # After verification, login works.
 check "login after verify" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN "$EMAIL" secret123)"
 
