@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(50), -- Contoh: 'ACCOUNT', 'LEDGER', 'USER'
     entity_id VARCHAR(50),   -- ID dari entity yang diubah
+    detail VARCHAR(255),     -- free-form context (e.g. transfer "to:amount:currency")
     status ENUM('SUCCESS', 'FAILED') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -128,6 +129,7 @@ CREATE TABLE IF NOT EXISTS audit_trail_archive (
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(50),
     entity_id VARCHAR(50),
+    detail VARCHAR(255),
     status ENUM('SUCCESS', 'FAILED') NOT NULL,
     created_at TIMESTAMP,
     archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

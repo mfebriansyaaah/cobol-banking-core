@@ -1378,7 +1378,7 @@
             END-IF.
             CALL "SQL_BEGIN"
             MOVE SPACES TO WS-QUERY
-            STRING "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, action, entity_type, entity_id, status, created_at) SELECT audit_id, user_id, action, entity_type, entity_id, status, created_at FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL " 
+            STRING "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, action, entity_type, entity_id, detail, status, created_at) SELECT audit_id, user_id, action, entity_type, entity_id, detail, status, created_at FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL " 
                    WS-PARAM1-TRIMMED(1:WS-P1-LEN) " DAY)" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY

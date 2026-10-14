@@ -71,6 +71,9 @@
         01  WS-TX-TO               PIC X(100) VALUE SPACES.
         01  WS-TX-AMT              PIC X(30) VALUE SPACES.
         01  WS-TX-STATUS           PIC X(10) VALUE SPACES.
+        01  WS-BUSY                PIC X(1) VALUE "0".
+        01  WS-RET-STR             PIC X(20) VALUE SPACES.
+        01  WS-DETAIL              PIC X(255) VALUE SPACES.
         01  WS-REVERSED            PIC X(1) VALUE "0".
         01  WS-REF                 PIC X(50) VALUE SPACES.
         01  WS-REFLEN              PIC 9(3) VALUE 1.
@@ -90,6 +93,7 @@
         01  WS-TARGET-STATUS       PIC X(10) VALUE SPACES.
         01  WS-TARGET-CURACTIVE    PIC X(1)  VALUE SPACES.
         01  WS-SENDER-PREC         PIC X(2)  VALUE SPACES.
+        01  WS-SENDER-ISO          PIC X(3)  VALUE SPACES.
         01  WS-TARGET-PREC         PIC X(2)  VALUE SPACES.
         01  WS-RATE-STR            PIC X(40) VALUE SPACES.
 
@@ -474,6 +478,20 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        CHECK-TRANSIENT.
+            *> WS-RESULT holds "ERROR|<kind>|<errno>" from the bridge. Flag a
+            *> retriable condition (lock wait, deadlock, lost connection).
+            MOVE "0" TO WS-BUSY
+            MOVE 0 TO WS-BAD
+            INSPECT WS-RESULT TALLYING WS-BAD FOR ALL "1205"
+            INSPECT WS-RESULT TALLYING WS-BAD FOR ALL "1213"
+            INSPECT WS-RESULT TALLYING WS-BAD FOR ALL "2006"
+            INSPECT WS-RESULT TALLYING WS-BAD FOR ALL "2013"
+            IF WS-BAD > 0
+                MOVE "1" TO WS-BUSY
+            END-IF.
+            EXIT PARAGRAPH.
+
         RECONCILE-LOGIC.
             *> Only a SUPER_ADMIN (the actor, p1) may run the diagnostic.
             MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
@@ -525,6 +543,19 @@
             IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
                 MOVE "ERROR|SELF_TRANSFER" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
+            END-IF
+            *> Housekeeping: bound the idempotency table. Intents older than the
+            *> retention window (default 30 days, 0 disables) are dropped, so the
+            *> replay guarantee is a bounded window.
+            MOVE SPACES TO WS-RET-STR
+            CALL "env_or" USING BY REFERENCE "PENDING_RETENTION_DAYS" BY REFERENCE "30" BY REFERENCE WS-RET-STR
+            IF WS-RET-STR(1:1) >= "1" AND WS-RET-STR(1:1) <= "9"
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "DELETE FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL " WS-RET-STR " DAY)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-PREP-SQL
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             END-IF
             SET WS-TRANSFER-OK TO TRUE
             *> The idempotency key (param 4) doubles as the transaction
@@ -600,7 +631,7 @@
             END-IF
 
             *> Resolve the sender account (no lock yet).
-            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -616,6 +647,7 @@
                     UNSTRING WS-RESULT DELIMITED BY "|"
                         INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-CUR
                              WS-SENDER-STATUS WS-SENDER-CURACTIVE WS-SENDER-PREC
+                             WS-SENDER-ISO
                     END-UNSTRING
                 END-IF
             END-IF
@@ -639,7 +671,7 @@
             
             *> Resolve the target account (no lock yet).
             IF WS-TRANSFER-OK
-                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -868,14 +900,21 @@
                 END-IF
             END-IF
             
-            *> Audit the movement inside the same transaction.
+            *> Audit the movement inside the same transaction, with context.
             IF WS-TRANSFER-OK
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE SPACES TO WS-DETAIL
+                STRING WS-PARAM2-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE
+                       WS-PARAM3-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE
+                       WS-SENDER-ISO DELIMITED BY SPACE
+                       INTO WS-DETAIL
+                END-STRING
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS', ?)" TO WS-PREP-SQL
                 MOVE WS-SENDER-USER TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
-                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                MOVE WS-DETAIL TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -903,7 +942,12 @@
             ELSE
                 CALL "SQL_ROLLBACK"
                 IF WS-TRANSFER-FAIL-DB
-                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    PERFORM CHECK-TRANSIENT
+                    IF WS-BUSY = "1"
+                        MOVE "ERROR|DB_BUSY" TO LS-OUTPUT-BUFFER
+                    ELSE
+                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    END-IF
                 ELSE
                     IF WS-TRANSFER-FAIL-CONFLICT
                         MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO LS-OUTPUT-BUFFER
