@@ -41,6 +41,9 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `REQUEST_SIGNUP` | email, password, name, dob | 8-char min password, unique email, PBKDF2 hash, 6-digit code in `verification_logs`; audit row | `SUCCESS\|USER_CREATED\|<code>` * `ERROR\|WEAK_PASSWORD` * `ERROR\|EMAIL_EXISTS` * `ERROR\|SIGNUP_FAILED` |
 | `cobol/src/auth_core.cob` | `VERIFY_EMAIL` | email, code | consume code, set `VERIFIED`, transactional; audit success or (attributable) failure | `SUCCESS\|EMAIL_VERIFIED` * `ERROR\|INVALID_CODE` * `ERROR\|VERIFY_FAILED` |
 | `cobol/src/auth_core.cob` | `AUTH_LOGIN` | email, password | 3-fail/15-min lockout; PBKDF2 verify w/ legacy SHA256 fallback + rehash; must be `VERIFIED` | `SUCCESS\|LOGIN_OK` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|UNVERIFIED` * `ERROR\|ACCOUNT_LOCKED` |
+| `cobol/src/auth_core.cob` | `FORGOT_PASSWORD` | email | issues a `PASSWORD_RESET` code only when the account exists (neutral otherwise) | `SUCCESS\|CODE_SENT\|<code>` (or `SUCCESS\|CODE_SENT` unknown) * `ERROR\|RESET_FAILED` |
+| `cobol/src/auth_core.cob` | `RESET_PASSWORD` | email, code, new password | consume code, set PBKDF2 hash, bump `token_version` (revoke sessions), audit | `SUCCESS\|PASSWORD_RESET` * `ERROR\|INVALID_CODE` * `ERROR\|WEAK_PASSWORD` * `ERROR\|RESET_FAILED` |
+| `cobol/src/auth_core.cob` | `CHANGE_PASSWORD` | email, current, new, actor (self) | verify current password, set new hash, bump `token_version`, audit | `SUCCESS\|PASSWORD_CHANGED` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|WEAK_PASSWORD` * `ERROR\|FORBIDDEN` * `ERROR\|PASSWORD_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role, actor (self-or-admin) | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update + audit | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive` | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
@@ -94,19 +97,21 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
 | `tests/test_serve_mode.sh` | 12 | long-running `--serve`, file mode unchanged, connection lifecycle (reconnect + transaction) |
-| `middleware/` (node --test) | 56 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `tests/test_password.sh` | 14 | forgot/reset/change password (code single-use, sessions revoked, owner-only) |
+| `middleware/` (node --test) | 57 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **247**; with the gateway suite **56** the full run is
-**303 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **261**; with the gateway suite **57** the full run is
+**318 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
 
 Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
-`/auth/login`, `/auth/refresh):
+`/auth/login`, `/auth/forgot`, `/auth/reset-password`, `/auth/refresh):
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile`, `/profile/email/request`,
-`/profile/email/confirm`, `/admin/role` (GET/POST), `/admin/reconcile`
+`/profile/email/confirm`, `/profile/password`, `/admin/role` (GET/POST),
+`/admin/reconcile`
 (read-only balance/ledger check), `/metrics` (Prometheus counters, bearer),
 `/auth/logout` (revokes a refresh token), `/auth/revoke` (revokes the presented
 access token), `/admin/audit/archive` (moves old audit rows to the archive).
