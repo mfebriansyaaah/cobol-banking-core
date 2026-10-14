@@ -23,6 +23,9 @@
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-STEP                 PIC X VALUE 'Y'.
+            88  STEP-OK             VALUE 'Y'.
+            88  STEP-FAIL           VALUE 'N'.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
@@ -48,8 +51,7 @@
             88  WS-TRANSFER-FAIL-CLOSED VALUE 'CLSD'.
             88  WS-TRANSFER-FAIL-CURINACT VALUE 'CINA'.
             88  WS-TRANSFER-FAIL-LIMIT VALUE 'LIMT'.
-            88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.
-        01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
+            88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.        01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(50) VALUE SPACES.
@@ -60,6 +62,15 @@
         01  WS-MAX-TXN-NUM         PIC S9(13)V99 COMP-3.
         01  WS-DAILY-LIMIT-NUM     PIC S9(13)V99 COMP-3.
         01  WS-PRIOR-TOTAL-NUM     PIC S9(15)V99 COMP-3.
+        01  WS-REV-AMT             PIC X(30) VALUE SPACES.
+        01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
+        01  WS-REV-AMT-NUM         PIC S9(13)V99 COMP-3.
+        01  WS-REV-CAMT-NUM        PIC S9(13)V99 COMP-3.
+        01  WS-TX-FROM             PIC X(100) VALUE SPACES.
+        01  WS-TX-TO               PIC X(100) VALUE SPACES.
+        01  WS-TX-AMT              PIC X(30) VALUE SPACES.
+        01  WS-TX-STATUS           PIC X(10) VALUE SPACES.
+        01  WS-REVERSED            PIC X(1) VALUE "0".
         01  WS-REF                 PIC X(50) VALUE SPACES.
         01  WS-REFLEN              PIC 9(3) VALUE 1.
         01  WS-INTENT-FROM         PIC X(100) VALUE SPACES.
@@ -101,6 +112,14 @@
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
                     PERFORM GET-BALANCE-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "REVERSE_TRANSFER"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM REVERSE-TRANSFER-LOGIC
+                WHEN LS-CMD-ACTION(1:9) = "TX_STATUS"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRANSFER-STATUS-LOGIC
                 WHEN LS-CMD-ACTION(1:8) = "TRANSFER"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
@@ -216,6 +235,237 @@
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|BALANCES|" DELIMITED BY SIZE
                        WS-RESULT DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        REVERSE-TRANSFER-LOGIC.
+            *> p1 = original txn_ref, p2 = actor (SUPER_ADMIN). Compensating,
+            *> one-time reversal: credit the original sender, debit the target.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> Already reversed?
+            MOVE "SELECT 1 FROM transfer_reversals WHERE orig_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "ERROR|NO_DATA"
+                MOVE "ERROR|ALREADY_REVERSED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> The original debit (sender side) and credit (target side).
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-SENDER-ACC WS-REV-AMT WS-SENDER-CUR
+            END-UNSTRING
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'CREDIT' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-TARGET-ACC WS-REV-CAMT WS-TARGET-CUR
+            END-UNSTRING
+            SET WS-TRANSFER-OK TO TRUE
+            CALL "SQL_BEGIN"
+            *> Lock both original accounts (ordered) before touching balances.
+            PERFORM LOCK-ACCOUNTS
+            IF WS-TRANSFER-FAIL-DB
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> The target must still hold the credited amount to claw it back.
+            MOVE "SELECT CONCAT(ROUND(balance,2)) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-TARGET-ACC TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-SENDER-BAL
+            COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-SENDER-BAL)
+            COMPUTE WS-REV-CAMT-NUM = FUNCTION NUMVAL(WS-REV-CAMT)
+            IF WS-BALANCE-NUM < WS-REV-CAMT-NUM
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            SET STEP-OK TO TRUE
+            *> One-time marker (PK on orig_ref): a duplicate means already reversed.
+            MOVE "INSERT INTO transfer_reversals (orig_ref, actor_id) SELECT ?, id FROM users WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-REV-AMT TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-REV-CAMT TO WS-BIND-1
+                MOVE WS-TARGET-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'CREDIT', ?, 'Reversal in')" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                MOVE WS-REV-AMT TO WS-BIND-3
+                MOVE WS-SENDER-CUR TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'DEBIT', ?, 'Reversal out')" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-TARGET-ACC TO WS-BIND-2
+                MOVE WS-REV-CAMT TO WS-BIND-3
+                MOVE WS-TARGET-CUR TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE WS-RESULT TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'REVERSE_TRANSFER', 'LEDGER', ?, 'SUCCESS')" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|TRANSFER_REVERSED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|REVERSAL_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        TRANSFER-STATUS-LOGIC.
+            *> p1 = ref, p2 = actor. Owner or admin only.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-TX-FROM WS-TX-TO WS-TX-AMT WS-TX-STATUS
+            END-UNSTRING
+            *> Only the sender (owner) or an admin may see it.
+            IF WS-ALLOWED = 0
+                IF WS-TX-FROM(1:WS-P2-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                    MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF
+            MOVE "0" TO WS-REVERSED
+            MOVE "SELECT 1 FROM transfer_reversals WHERE orig_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "ERROR|NO_DATA"
+                MOVE "1" TO WS-REVERSED
+            END-IF
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-REVERSED = "1"
+                STRING "SUCCESS|TRANSFER|REVERSED|" DELIMITED BY SIZE
+                       WS-TX-FROM DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-TX-TO DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-TX-AMT DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                STRING "SUCCESS|TRANSFER|" DELIMITED BY SIZE
+                       WS-TX-STATUS DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-TX-FROM DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-TX-TO DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-TX-AMT DELIMITED BY SPACE
                        INTO LS-OUTPUT-BUFFER
                 END-STRING
             END-IF.

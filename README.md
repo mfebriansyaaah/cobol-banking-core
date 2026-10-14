@@ -94,7 +94,9 @@ and both currencies are enabled (otherwise `ACCOUNT_FROZEN` / `ACCOUNT_CLOSED` /
 header; retrying with the same key replays instead of moving money twice (keys
 are scoped per sender). Optional caps `TRANSFER_MAX_PER_TXN` (one debit) and
 `TRANSFER_DAILY_LIMIT` (rolling 24h per account) are off unless set in the
-environment.
+environment. A SUPER_ADMIN can reverse a transfer once
+(`POST /transactions/:ref/reverse`), and its status is readable at
+`GET /transactions/:ref`.
 
 The binary writes its result in 500-char records; the gateway reassembles them,
 so large list responses are not cut at 500 bytes.
