@@ -1473,3 +1473,76 @@ _merged 2026-10-14_
 - feat(wallet): archive pruned idempotency intents instead of dropping them
 - feat(db): migration 0020 archives pruned transfer intents
 
+## #147 profile-dashboard
+
+_merged 2026-10-14_
+
+- docs: full profile from GET_DASHBOARD, counts
+- test(gateway): structured profile without accounts
+- test: enriched dashboard and account-less profile
+- feat(gateway): structure /profile (profile + accounts)
+- feat(profile): full profile from GET_DASHBOARD, even without accounts
+- docs: sync HISTORY.md to post-merge state (#146)
+
+## #148 profile-email-enum
+
+_merged 2026-10-14_
+
+- docs: neutral email-change request, counts
+- test(gateway): neutral email-change request over HTTP
+- test: email-change request is neutral for a taken address
+- feat(gateway): deliver the email-change code only when issued
+- feat(profile): neutral email-change request for a taken address
+
+## #149 profile-email-hardening
+
+_merged 2026-10-14_
+
+- docs: email-change re-auth, session revocation, counts
+- test: verify-cap email-change request carries the password
+- test(gateway): email-change request carries the password
+- test: email-change re-auth and token-version bump
+- feat(gateway): password on email-change request; notice to the old address
+- feat(profile): email change requires the password and revokes sessions
+
+## #150 profile-update
+
+_merged 2026-10-14_
+
+- docs: UPDATE_PROFILE / PATCH /profile, counts
+- test(gateway): PATCH /profile updates the name
+- test: UPDATE_PROFILE (owner-only, name/dob, audited)
+- feat(gateway): PATCH /profile + PROFILE_UPDATE_FAILED
+- feat(profile): self-service UPDATE_PROFILE (name/dob)
+
+## #151 profile-lifecycle
+
+_merged 2026-10-14_
+
+- docs: account lifecycle actions, routes and counts
+- test: account lifecycle suite + ci step 36/36; HTTP flow
+- feat(gateway): deactivate + admin user-status routes and mappings
+- feat(profile): DEACTIVATE_ACCOUNT and admin SET_USER_STATUS
+- feat(auth): login honours SUSPENDED/CLOSED accounts
+- feat(db): migration 0021 adds SUSPENDED/CLOSED user statuses
+
+## #152 profile-listing
+
+_merged 2026-10-14_
+
+- docs: enriched user record and listing, counts
+- test(gateway): structured user listing and record
+- test: update shell consumers for the enriched listing
+- feat(gateway): structure /users and /users/:email (total, role filter)
+- feat(profile): richer GET_USER and paged LIST_USERS (total, rows, role filter)
+
+## #153 profile-validation
+
+_merged 2026-10-14_
+
+- docs: spec profile validation/race
+- docs: profile validation and email-change race, counts
+- test(gateway): email-change confirm race
+- test: core validation and email-change race
+- feat(profile): core email/dob validation, email-change race, SET_USER_STATUS fix
+
