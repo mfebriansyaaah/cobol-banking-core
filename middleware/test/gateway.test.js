@@ -519,3 +519,26 @@ test('transfer without an idempotency key is rejected', async () => {
   assert.equal(res.status, 400);
   assert.equal(res.body.error, 'INVALID_PARAMETER');
 });
+
+test('transfer over the per-transaction limit is rejected', async () => {
+  const em = `gw_limit_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Limit', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  seedAccount(em, '1000.00');
+
+  const prev = process.env.TRANSFER_MAX_PER_TXN;
+  process.env.TRANSFER_MAX_PER_TXN = '1';
+  try {
+    const res = await request(app)
+      .post('/wallet/transfer')
+      .set('Authorization', `Bearer ${token}`)
+      .set('Idempotency-Key', `lim-${Date.now()}`)
+      .send({ to: 'receiver@test.com', amount: '2.00' });
+    assert.equal(res.status, 400);
+    assert.equal(res.body.error, 'LIMIT_EXCEEDED');
+  } finally {
+    if (prev === undefined) delete process.env.TRANSFER_MAX_PER_TXN;
+    else process.env.TRANSFER_MAX_PER_TXN = prev;
+  }
+});
