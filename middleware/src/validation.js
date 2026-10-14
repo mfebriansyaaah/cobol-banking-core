@@ -16,8 +16,9 @@ const INT = /^\d{1,6}$/;
 // defaults to 20 when limit is omitted.
 const LIMIT = /^(100|[1-9]\d?)$/;
 const KEY = /^[A-Za-z0-9._:-]{1,50}$/;
+const CURRENCY = /^[A-Z]{3}$/;
 
-export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY };
+export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY };
 
 export class ValidationError extends Error {
   constructor(field) {
