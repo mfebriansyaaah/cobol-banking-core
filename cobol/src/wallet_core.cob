@@ -15,10 +15,14 @@
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM4-TRIMMED       PIC X(100) VALUE SPACES.
+        01  WS-PARAM5-TRIMMED       PIC X(100) VALUE SPACES.
+        01  WS-PARAM6-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-P1-LEN               PIC 9(3) VALUE 1.
         01  WS-P2-LEN               PIC 9(3) VALUE 1.
         01  WS-P3-LEN               PIC 9(3) VALUE 1.
         01  WS-P4-LEN               PIC 9(3) VALUE 1.
+        01  WS-P5-LEN               PIC 9(3) VALUE 1.
+        01  WS-P6-LEN               PIC 9(3) VALUE 1.
         01  WS-I                   PIC 9(3).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-AMT-DOTS            PIC 9(2) VALUE 0.
@@ -108,9 +112,11 @@
        01  LS-PARAM2              PIC X(100).
        01  LS-PARAM3              PIC X(100).
        01  LS-PARAM4              PIC X(100).
+       01  LS-PARAM5              PIC X(100).
+       01  LS-PARAM6              PIC X(100).
        01  LS-OUTPUT-BUFFER      PIC X(16384).
 
-        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-OUTPUT-BUFFER.
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
         
         MAIN-LOGIC.
             PERFORM VALIDATE-ALL
@@ -138,6 +144,8 @@
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
                     PERFORM TRIM-PARAM4
+                    PERFORM TRIM-PARAM5
+                    PERFORM TRIM-PARAM6
                     PERFORM TRANSFER-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "RECONCILE"
                     PERFORM TRIM-PARAM1
@@ -202,6 +210,24 @@
             PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
                 IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
                     MOVE WS-I TO WS-P4-LEN
+                END-IF
+            END-PERFORM.
+
+        TRIM-PARAM5.
+            MOVE LS-PARAM5 TO WS-PARAM5-TRIMMED.
+            MOVE 0 TO WS-P5-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P5-LEN > 0
+                IF WS-PARAM5-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P5-LEN
+                END-IF
+            END-PERFORM.
+
+        TRIM-PARAM6.
+            MOVE LS-PARAM6 TO WS-PARAM6-TRIMMED.
+            MOVE 0 TO WS-P6-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P6-LEN > 0
+                IF WS-PARAM6-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P6-LEN
                 END-IF
             END-PERFORM.
 
@@ -688,12 +714,22 @@
                 END-IF
             END-IF
 
-            *> Resolve the sender account (no lock yet).
-            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            *> Resolve the sender account (no lock yet). p5 optionally pins the
+            *> sender's currency when the user holds several accounts.
+            IF WS-P5-LEN > 0
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM5-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            ELSE
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            END-IF
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT = "ERROR|NO_DATA"
@@ -727,13 +763,23 @@
                 END-IF
             END-IF
             
-            *> Resolve the target account (no lock yet).
+            *> Resolve the target account (no lock yet). p6 optionally pins the
+            *> target's currency when the recipient holds several accounts.
             IF WS-TRANSFER-OK
-                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
-                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                IF WS-P6-LEN > 0
+                    MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
+                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                    MOVE WS-PARAM6-TRIMMED TO WS-BIND-2
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                        BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                ELSE
+                    MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                END-IF
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT = "ERROR|NO_DATA"
