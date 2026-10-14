@@ -72,9 +72,9 @@ D="cap_d@test.com"; DN="cap_d_new@test.com"
 q "DELETE FROM verification_logs WHERE email IN ('$D','$DN'); DELETE FROM users WHERE email IN ('$D','$DN');"
 dcs=$(run REQUEST_SIGNUP "$D" secret123 'Cap D' '1990-01-01'); dc=$(echo "$dcs" | cut -d'|' -f3)
 run VERIFY_EMAIL "$D" "$dc" >/dev/null
-ef=$(run REQ_EMAIL_CHANGE "$D" "$DN" "$D"); ec=$(echo "$ef" | cut -d'|' -f3)
+ef=$(run REQ_EMAIL_CHANGE "$D" "$DN" "$D" secret123); ec=$(echo "$ef" | cut -d'|' -f3)
 # A second request must invalidate the first code (single active code).
-run REQ_EMAIL_CHANGE "$D" "$DN" "$D" >/dev/null
+run REQ_EMAIL_CHANGE "$D" "$DN" "$D" secret123 >/dev/null
 check "email change: previous code invalidated" "ERROR|INVALID_CODE" "$(run CONFIRM_EMAIL_CHANGE "$D" "$DN" "$ec" "$D")"
 ec2=$(q "SELECT code FROM verification_logs WHERE email='$DN' AND purpose='EMAIL_CHANGE' AND is_used=0 ORDER BY id DESC LIMIT 1;")
 for i in 1 2 3 4 5; do run CONFIRM_EMAIL_CHANGE "$D" "$DN" 000000 "$D" >/dev/null; done

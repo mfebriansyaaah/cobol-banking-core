@@ -136,7 +136,7 @@ test('email change works for a logged-in user (related rows exist)', async () =>
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
 
-  const reqc = await request(app).post('/profile/email/request').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne });
+  const reqc = await request(app).post('/profile/email/request').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, password: 'secret123' });
   assert.equal(reqc.status, 200);
   const confirm = await request(app).post('/profile/email/confirm').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') });
   assert.equal(confirm.status, 200);
@@ -631,8 +631,8 @@ test('email-change request is neutral for a taken address', async () => {
   await request(app).post('/auth/signup').send({ email: taken, password: 'secret123', name: 'Taken', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: taken, code: getVerificationCode(taken) });
 
-  const a = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: taken });
-  const b = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: `gw_free_${Date.now()}@test.com` });
+  const a = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: taken, password: 'secret123' });
+  const b = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: `gw_free_${Date.now()}@test.com`, password: 'secret123' });
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
   assert.deepEqual(a.body, b.body); // identical neutral response

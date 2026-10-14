@@ -39,5 +39,21 @@ export function createMailer({ logger = null } = {}) {
         logger(line);
       }
     },
+
+    async sendNotice({ to, subject, text }) {
+      const t = await getTransport();
+      if (t) {
+        await t.sendMail({
+          from: process.env.MAIL_FROM || 'no-reply@cobol-banking.local',
+          to,
+          subject,
+          text,
+        });
+        return;
+      }
+      if (logger) {
+        logger({ ts: new Date().toISOString(), level: 'info', event: 'notice', to, subject });
+      }
+    },
   };
 }
