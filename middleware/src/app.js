@@ -43,6 +43,14 @@ export const ROUTES = [
     { name: 'code', pattern: CODE, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
   ] },
+  { method: 'post', path: '/auth/resend', action: 'RESEND_VERIFICATION', public: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+  ], onSuccess: async (body, input, { mailer }) => {
+    // Neutral: a new code is delivered only when an UNVERIFIED account exists.
+    const code = body.data[1];
+    if (code) await mailer.sendVerification({ to: input.email, purpose: 'SIGNUP', code });
+    return { data: ['CODE_SENT'] };
+  } },
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
