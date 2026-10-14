@@ -87,14 +87,16 @@ Responses use one envelope - success `{ data: [...] }`, failure
 `{ error, detail? }`. `/users` is paged (`limit` 1..100, `offset`).
 
 Transfers convert the target credit using `exchange_rates` (base -> target) when
-the accounts use different currencies; a missing pair fails with
-`RATE_NOT_FOUND`. A transfer only goes through when both accounts are `ACTIVE`
-and both currencies are enabled (otherwise `ACCOUNT_FROZEN` / `ACCOUNT_CLOSED` /
-`CURRENCY_INACTIVE`). `POST /wallet/transfer` requires an `Idempotency-Key`
-header; retrying with the same key replays instead of moving money twice (keys
-are scoped per sender). Optional caps `TRANSFER_MAX_PER_TXN` (one debit) and
-`TRANSFER_DAILY_LIMIT` (rolling 24h per account) are off unless set in the
-environment. A SUPER_ADMIN can reverse a transfer once
+the accounts use different currencies; if only the inverse pair exists its
+reciprocal is used, and a pair with neither direction fails with `RATE_NOT_FOUND`.
+Debit/credit are rounded to each currency's precision and the applied rate is
+recorded on the `ledger` CREDIT row. A transfer only goes through when both
+accounts are `ACTIVE` and both currencies are enabled (otherwise `ACCOUNT_FROZEN`
+/ `ACCOUNT_CLOSED` / `CURRENCY_INACTIVE`). `POST /wallet/transfer` requires an
+`Idempotency-Key` header; retrying with the same key replays instead of moving
+money twice (keys are scoped per sender). Optional caps `TRANSFER_MAX_PER_TXN`
+(one debit) and `TRANSFER_DAILY_LIMIT` (rolling 24h per account) are off unless
+set in the environment. A SUPER_ADMIN can reverse a transfer once
 (`POST /transactions/:ref/reverse`), and its status is readable at
 `GET /transactions/:ref`.
 

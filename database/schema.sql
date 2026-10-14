@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS ledger (
     type ENUM('CREDIT', 'DEBIT') NOT NULL,
     currency_id INT NOT NULL,
     description VARCHAR(255),
+    exchange_rate DECIMAL(18, 6) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_ledger_acc FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
     CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id)

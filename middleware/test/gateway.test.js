@@ -568,3 +568,20 @@ test('transfer status and reversal over HTTP', async () => {
 
   assert.equal((await request(app).get(`/transactions/${key}`).set(auth)).body.data[1], 'REVERSED');
 });
+
+test('cross-currency transfer falls back to the inverse rate', async () => {
+  const em = `gw_fx_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Fx', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+  // Only an IDR account: the IDR->USD pair does not exist directly, so the
+  // gateway/core must use the reciprocal of USD->IDR.
+  runSql(`INSERT INTO accounts (user_id, currency_id, balance, status) SELECT id, 3, 100000.00, 'ACTIVE' FROM users WHERE email='${em}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=users.id)`);
+
+  const key = `fx-${Date.now()}`;
+  const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', key).send({ to: 'receiver@test.com', amount: '15700' });
+  assert.equal(res.status, 200);
+  const status = await request(app).get(`/transactions/${key}`).set(auth);
+  assert.equal(status.body.data[1], 'COMMITTED');
+});
