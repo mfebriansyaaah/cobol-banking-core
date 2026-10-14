@@ -364,3 +364,20 @@ test('resend verification issues a fresh code', async () => {
   assert.equal((await request(app).post('/auth/verify').send({ email: em, code })).status, 200);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 200);
 });
+
+test('login and signup do not enumerate accounts', async () => {
+  const em = `gw_enum_${Date.now()}@test.com`;
+  // Signing up twice yields the same neutral response.
+  const a = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
+  const b = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
+  assert.equal(a.status, 200);
+  assert.equal(b.status, 200);
+  assert.deepEqual(a.body, b.body);
+
+  // An unknown account and a wrong password are indistinguishable.
+  const unknown = await request(app).post('/auth/login').send({ email: `ghost_${Date.now()}@test.com`, password: 'secret123' });
+  const wrong = await request(app).post('/auth/login').send({ email: em, password: 'wrongpass1' });
+  assert.equal(unknown.status, 401);
+  assert.equal(wrong.status, 401);
+  assert.deepEqual(unknown.body, wrong.body);
+});

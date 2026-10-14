@@ -49,7 +49,7 @@ check "wrong password" "ERROR|INVALID_CREDENTIALS" \
     "$(run AUTH_LOGIN login_ok@test.com wrong "")"
 check "unverified account" "ERROR|UNVERIFIED" \
     "$(run AUTH_LOGIN login_unverified@test.com secret "")"
-check "unknown account" "ERROR|ACCOUNT_NOT_FOUND" \
+check "unknown account" "ERROR|INVALID_CREDENTIALS" \
     "$(run AUTH_LOGIN ghost@test.com secret "")"
 check "unknown action routes to invalid" "ERROR|INVALID_ACTION" \
     "$(run NOPE login_ok@test.com secret "")"
