@@ -2,6 +2,7 @@
 // app, and confirm the same workers are reused (file mode is the default; this
 // file opts in via COBOL_POOL_SIZE before the first invoke).
 process.env.COBOL_POOL_SIZE = '2';
+process.env.COBOL_POOL_PIPELINE = '4';
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -43,4 +44,13 @@ test('workers are reused across requests', async () => {
 
   const { metricsText } = await import('../src/observability.js');
   assert.match(metricsText(), /gateway_cobol_pool_workers \d+/);
+});
+
+test('pipelining serves concurrent requests', async () => {
+  const pool = getPool();
+  assert.equal(pool.stats().pipeline, 4);
+  const results = await Promise.all(Array.from({ length: 20 }, () => request(app).get('/health')));
+  assert.equal(results.length, 20);
+  for (const r of results) assert.equal(r.status, 200);
+  assert.equal(pool.stats().queued, 0, 'queue drained');
 });
