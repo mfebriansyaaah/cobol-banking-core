@@ -270,6 +270,18 @@ static size_t rtrim_len(const char *s, size_t max) {
     return n;
 }
 
+/* Constant-time string equality (content is secret; lengths are public). */
+static int ct_equal(const char *a, const char *b) {
+    size_t la = strlen(a);
+    size_t lb = strlen(b);
+    if (la != lb) return 0;
+    unsigned char diff = 0;
+    for (size_t i = 0; i < la; i++) {
+        diff |= (unsigned char)(a[i] ^ b[i]);
+    }
+    return diff == 0;
+}
+
 /**
  * Password hash with a slow KDF. Format: PBKDF2$<iters>$<salt hex>$<key hex>.
  */
@@ -320,7 +332,7 @@ void verify_password(char *password, char *stored_hash, char *result) {
         pbkdf2_sha256((const uint8_t *)password, plen, salt, (size_t)saltlen, (uint32_t)iters, key);
         char key_hex[65];
         bytes_to_hex(key, sizeof(key), key_hex);
-        if (strcmp(key_hex, key_s) == 0) {
+        if (ct_equal(key_hex, key_s)) {
             result[0] = '1';
         }
     } else if (strncmp(stored, "SHA256_", 7) == 0) {
@@ -331,7 +343,7 @@ void verify_password(char *password, char *stored_hash, char *result) {
         sha256_final(&c, hash);
         char hash_hex[65];
         bytes_to_hex(hash, sizeof(hash), hash_hex);
-        if (strcmp(hash_hex, stored + 7) == 0) {
+        if (ct_equal(hash_hex, stored + 7)) {
             result[0] = '1';
         }
     }

@@ -49,7 +49,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `RESET_PASSWORD` | email, code, new password | consume code, set PBKDF2 hash, bump `token_version` (revoke sessions), audit; **attempt-capped** (burned after 5 wrong guesses) | `SUCCESS\|PASSWORD_RESET` * `ERROR\|INVALID_CODE` * `ERROR\|WEAK_PASSWORD` * `ERROR\|RESET_FAILED` |
 | `cobol/src/auth_core.cob` | `CHANGE_PASSWORD` | email, current, new, actor (self) | verify current password, set new hash, bump `token_version`, audit | `SUCCESS\|PASSWORD_CHANGED` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|WEAK_PASSWORD` * `ERROR\|FORBIDDEN` * `ERROR\|PASSWORD_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role, actor (self-or-admin) | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
-| `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update + audit | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
+| `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update; audit row **attributed to the actor** (entity_id = target) | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive` | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
@@ -109,10 +109,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 63 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 64 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **324**; with the gateway suite **63** the full run is
-**387 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **324**; with the gateway suite **64** the full run is
+**388 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -148,7 +148,9 @@ status, `durationMs`, `cobolMs`); counters are served at `/metrics` and, when
 METRICS_PUSH_URL is set, pushed periodically to a collector.
 `helmet` sets standard security headers, and in production the server refuses to
 start while JWT_SECRET/REFRESH_SECRET are unset or still the development
-defaults. Verification codes (`/auth/signup`, `/profile/email/request`) are
+defaults. Access and refresh tokens are bound to an issuer and audience
+(JWT_ISSUER / JWT_AUDIENCE, defaulting to `cobol-banking-core` /
+`cobol-banking-api`) and verification rejects tokens that do not match them. Verification codes (`/auth/signup`, `/profile/email/request`) are
 delivered out of band (SMTP when configured, otherwise logged without the code
 in development) and are never returned in the HTTP response. Access tokens carry
 the user's token version, checked on every protected request (`CHECK_TOKEN`);
@@ -171,7 +173,7 @@ list page size is capped at 100 (`limit` 1..100).
 
 ## 7. Known gaps (deliberate, by scale)
 
-- Password KDF is PBKDF2-SHA256 at 600000 iterations (modern guidance), overridable with the PBKDF2_ITERATIONS env var (the test suite runs at 100000). Login rehashes any legacy `SHA256_` hash or PBKDF2 hash below the current cost on a successful password check.
+- Password KDF is PBKDF2-SHA256 at 600000 iterations (modern guidance), overridable with the PBKDF2_ITERATIONS env var (the test suite runs at 100000). Login rehashes any legacy `SHA256_` hash or PBKDF2 hash below the current cost on a successful password check, and the derived-key comparison is constant-time.
 - Login lockout lives on the user row (`failed_logins` / `locked_until`; 3 failures sets a 15-minute block) and is **masked**: a wrong password returns the same `INVALID_CREDENTIALS` whether the account is unknown, unlocked, or locked, so it cannot enumerate or probe lock state; only a correct password reveals `ACCOUNT_LOCKED`. A good login or a password reset clears the counter. A determined attacker can still keep a *known* account locked (the block is time-based); recovery is the emailed password reset.
 - MFA is TOTP (RFC 6238, SHA-1 / 6 digits / 30s) against a base32 secret on the user row, enforced at login; the autoprovisioning URI uses the issuer from the MFA_ISSUER env var (default `CobolBank`). There are no backup/recovery codes yet, and TOTP verification allows +/- one 30s step of clock drift.
 - Transfers must be positive; cross-currency credits at the stored `exchange_rates` base->target rate (a missing pair is `RATE_NOT_FOUND`). The rate is not stored on the transaction beyond the resulting credited amount.
