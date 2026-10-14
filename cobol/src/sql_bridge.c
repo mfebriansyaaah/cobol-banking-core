@@ -14,6 +14,8 @@ char G_RESULT[16384] = {0};
 
 /* Persistent connection, held only for the span of an explicit transaction. */
 static MYSQL *G_CONN = NULL;
+/* Keep-alive connection reused across calls (pinged, reconnected if stale). */
+static MYSQL *G_POOL = NULL;
 
 /* Read a connection setting from the environment, falling back to the
  * development default. Keeps credentials out of the source and lets each
@@ -24,6 +26,13 @@ static const char *env_or(const char *name, const char *fallback) {
 }
 
 static MYSQL *bridge_connect(void) {
+    /* Reuse the keep-alive connection when it is still alive; if the server
+     * dropped it (idle timeout, restart, kill), reconnect once. */
+    if (G_POOL != NULL) {
+        if (mysql_ping(G_POOL) == 0) return G_POOL;
+        mysql_close(G_POOL);
+        G_POOL = NULL;
+    }
     MYSQL *c = mysql_init(NULL);
     if (c == NULL) return NULL;
     const char *host = env_or("DB_HOST", "localhost");
@@ -35,6 +44,7 @@ static MYSQL *bridge_connect(void) {
         mysql_close(c);
         return NULL;
     }
+    G_POOL = c;
     return c;
 }
 
@@ -106,7 +116,7 @@ void SQL_EXECUTE() {
 
     if (mysql_query(conn, G_QUERY)) {
         snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -140,7 +150,7 @@ void SQL_EXECUTE() {
         mysql_free_result(res);
     }
 
-    if (own_conn) mysql_close(conn);
+    /* pooled: connection kept for reuse */
 }
 
 /* --- Parameter escaping --------------------------------------------------
@@ -171,7 +181,7 @@ void SQL_ESCAPE(char *in, char *out, int outmax) {
     size_t elen;
     if (conn != NULL) {
         elen = mysql_real_escape_string(conn, escaped, trimmed, len);
-        if (own) mysql_close(conn);
+        /* pooled: connection kept for reuse */
     } else {
         // No connection available: fall back to a copy (callers still reject
         // protocol-breaking characters).
@@ -208,7 +218,7 @@ void SQL_EXECUTE_ROWS() {
 
     if (mysql_query(conn, G_QUERY)) {
         snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -216,7 +226,7 @@ void SQL_EXECUTE_ROWS() {
     if (res == NULL) {
         long affected = mysql_affected_rows(conn);
         snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -248,7 +258,7 @@ void SQL_EXECUTE_ROWS() {
         strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
     }
     mysql_free_result(res);
-    if (own_conn) mysql_close(conn);
+    /* pooled: connection kept for reuse */
 }
 
 /* --- Transaction control -------------------------------------------------
@@ -259,8 +269,7 @@ void SQL_EXECUTE_ROWS() {
 
 void SQL_BEGIN() {
     if (G_CONN != NULL) {
-        mysql_close(G_CONN);
-        G_CONN = NULL;
+        G_CONN = NULL;   /* keep the pooled connection */
     }
     G_CONN = bridge_connect();
     if (G_CONN == NULL) {
@@ -269,7 +278,6 @@ void SQL_BEGIN() {
     }
     if (mysql_query(G_CONN, "START TRANSACTION")) {
         strncpy(G_RESULT, "ERROR|BEGIN_FAILED", 16383);
-        mysql_close(G_CONN);
         G_CONN = NULL;
         return;
     }
@@ -286,8 +294,7 @@ void SQL_COMMIT() {
     } else {
         strncpy(G_RESULT, "SUCCESS|COMMIT", 16383);
     }
-    mysql_close(G_CONN);
-    G_CONN = NULL;
+    G_CONN = NULL;   /* pooled connection is kept for reuse */
 }
 
 void SQL_ROLLBACK() {
@@ -300,8 +307,7 @@ void SQL_ROLLBACK() {
     } else {
         strncpy(G_RESULT, "SUCCESS|ROLLBACK", 16383);
     }
-    mysql_close(G_CONN);
-    G_CONN = NULL;
+    G_CONN = NULL;   /* pooled connection is kept for reuse */
 }
 
 /* --- Prepared statement execution ---------------------------------------
@@ -331,13 +337,13 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     MYSQL_STMT *st = mysql_stmt_init(conn);
     if (st == NULL) {
         strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
     if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
         snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -364,14 +370,14 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     if (n > 0 && mysql_stmt_bind_param(st, bind)) {
         strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
     if (mysql_stmt_execute(st)) {
         snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -399,7 +405,7 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
             strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
             mysql_free_result(meta);
             mysql_stmt_close(st);
-            if (own_conn) mysql_close(conn);
+            /* pooled: connection kept for reuse */
             return;
         }
         int rc = mysql_stmt_fetch(st);
@@ -422,7 +428,7 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     }
 
     mysql_stmt_close(st);
-    if (own_conn) mysql_close(conn);
+    /* pooled: connection kept for reuse */
 }
 
 /* --- Prepared execute without reading rows ------------------------------
@@ -453,13 +459,13 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     MYSQL_STMT *st = mysql_stmt_init(conn);
     if (st == NULL) {
         strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
     if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
         snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -486,7 +492,7 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     if (n > 0 && mysql_stmt_bind_param(st, bind)) {
         strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -497,7 +503,7 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     }
 
     mysql_stmt_close(st);
-    if (own_conn) mysql_close(conn);
+    /* pooled: connection kept for reuse */
 }
 
 /* --- Prepared multi-row execute -----------------------------------------
@@ -527,13 +533,13 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     MYSQL_STMT *st = mysql_stmt_init(conn);
     if (st == NULL) {
         strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
     if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
         snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -560,14 +566,14 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     if (n > 0 && mysql_stmt_bind_param(st, bind)) {
         strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
     if (mysql_stmt_execute(st)) {
         snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
-        if (own_conn) mysql_close(conn);
+        /* pooled: connection kept for reuse */
         return;
     }
 
@@ -594,7 +600,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
             strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
             mysql_free_result(meta);
             mysql_stmt_close(st);
-            if (own_conn) mysql_close(conn);
+            /* pooled: connection kept for reuse */
             return;
         }
         G_RESULT[0] = '\0';
@@ -621,5 +627,5 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     }
 
     mysql_stmt_close(st);
-    if (own_conn) mysql_close(conn);
+    /* pooled: connection kept for reuse */
 }
