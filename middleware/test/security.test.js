@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
+import jwt from 'jsonwebtoken';
 import { buildApp } from '../src/app.js';
 import { assertSecureConfig } from '../src/auth.js';
 
@@ -49,5 +50,18 @@ test('assertSecureConfig is permissive outside production', () => {
     assert.doesNotThrow(() => assertSecureConfig());
   } finally {
     restore();
+  }
+});
+
+test('tokens must carry the expected issuer and audience', async () => {
+  const app = buildApp();
+  const secret = process.env.JWT_SECRET || 'dev-secret-change-me';
+  const payload = { email: 'iss@test.com', ver: 1, jti: 'j' };
+  const noScope = jwt.sign(payload, secret, { expiresIn: '5m' });
+  const wrongScope = jwt.sign(payload, secret, { expiresIn: '5m', issuer: 'cobol-banking-core', audience: 'someone-else' });
+  for (const token of [noScope, wrongScope]) {
+    const res = await request(app).get('/users').set('Authorization', `Bearer ${token}`);
+    assert.equal(res.status, 401);
+    assert.equal(res.body.error, 'INVALID_TOKEN');
   }
 });

@@ -62,7 +62,7 @@ check "admin changes role" "SUCCESS|ROLE_CHANGED" \
     "$(run CHANGE_ROLE "$USER" MANAGER "$ADMIN")"
 check "role persisted" "MANAGER" "$(q "SELECT role FROM users WHERE email='$USER';")"
 check "role now reported by CHECK_ROLE" "SUCCESS|ROLE_OK" "$(run CHECK_ROLE "$USER" MANAGER "$USER")"
-check "audit change_role row" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=921 AND action='CHANGE_ROLE';")"
+check "audit change_role row is attributed to the actor" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=920 AND action='CHANGE_ROLE' AND entity_id='921';")"
 
 # --- ARCHIVE_AUDIT (admin maintenance; moves rows past the retention window) ---
 q "DELETE FROM audit_trail_archive WHERE entity_id='arch-test'; DELETE FROM audit_trail WHERE entity_id='arch-test';
