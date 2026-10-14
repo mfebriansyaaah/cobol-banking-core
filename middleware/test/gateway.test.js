@@ -396,3 +396,16 @@ test('verification code guessing is capped', async () => {
   const fresh = getVerificationCode(em, 'SIGNUP');
   assert.equal((await request(app).post('/auth/verify').send({ email: em, code: fresh })).status, 200);
 });
+
+test('locked account does not leak through wrong guesses', async () => {
+  const em = `gw_lock_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Lock', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  for (let i = 0; i < 3; i++) {
+    await request(app).post('/auth/login').send({ email: em, password: 'wrongpass1' });
+  }
+  // Locked: a wrong password stays indistinguishable (401); the owner who
+  // knows the password is told (423).
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'wrongpass1' })).status, 401);
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 423);
+});
