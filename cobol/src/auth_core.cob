@@ -116,8 +116,6 @@
                     PERFORM CONSUME-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "CHECK_TOKEN"
                     PERFORM CHECK-TOKEN-LOGIC
-                WHEN LS-CMD-ACTION(1:13) = "REVOKE_TOKENS"
-                    PERFORM REVOKE-TOKENS-LOGIC
                 WHEN LS-CMD-ACTION(1:19) = "REVOKE_ACCESS_TOKEN"
                     PERFORM REVOKE-ACCESS-TOKEN-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "LIST_SESSIONS"
@@ -1089,8 +1087,10 @@
             EXIT PARAGRAPH.
 
         REVOKE-SESSION-LOGIC.
-            *> p1 = jti.
-            MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE jti = ?" TO WS-PREP-SQL
+            *> p1 = jti. Logout removes the session outright, so replaying a
+            *> logged-out token is a plain not-found rather than "reuse" (which
+            *> would revoke the family and kill every device).
+            MOVE "DELETE FROM refresh_sessions WHERE jti = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
@@ -1207,21 +1207,6 @@
                 MOVE "SUCCESS|TOKEN_VALID" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "ERROR|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
-            END-IF.
-            EXIT PARAGRAPH.
-
-        REVOKE-TOKENS-LOGIC.
-            *> p1 = email. Bump the version so every issued access token dies.
-            MOVE "UPDATE users SET token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT(1:5) = "ERROR"
-                MOVE "ERROR|TOKEN_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
-            ELSE
-                MOVE "SUCCESS|TOKENS_REVOKED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
