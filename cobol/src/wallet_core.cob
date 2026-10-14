@@ -44,6 +44,9 @@
             88  WS-TRANSFER-FAIL-AMOUNT VALUE 'AMNT'.
             88  WS-TRANSFER-FAIL-CURR VALUE 'CURR'.
             88  WS-TRANSFER-FAIL-DB VALUE 'DBER'.
+            88  WS-TRANSFER-FAIL-FROZEN VALUE 'FRZN'.
+            88  WS-TRANSFER-FAIL-CLOSED VALUE 'CLSD'.
+            88  WS-TRANSFER-FAIL-CURINACT VALUE 'CINA'.
         01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
@@ -61,6 +64,10 @@
         01  WS-SENDER-CUR          PIC X(20) VALUE SPACES.
         01  WS-TARGET-ACC          PIC X(20) VALUE SPACES.
         01  WS-TARGET-CUR          PIC X(20) VALUE SPACES.
+        01  WS-SENDER-STATUS       PIC X(10) VALUE SPACES.
+        01  WS-SENDER-CURACTIVE    PIC X(1)  VALUE SPACES.
+        01  WS-TARGET-STATUS       PIC X(10) VALUE SPACES.
+        01  WS-TARGET-CURACTIVE    PIC X(1)  VALUE SPACES.
         01  WS-RATE-STR            PIC X(40) VALUE SPACES.
 
         LINKAGE SECTION.
@@ -322,7 +329,7 @@
             END-IF
 
             *> Resolve the sender account (no lock yet).
-            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -337,13 +344,31 @@
                 ELSE
                     UNSTRING WS-RESULT DELIMITED BY "|"
                         INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-CUR
+                             WS-SENDER-STATUS WS-SENDER-CURACTIVE
                     END-UNSTRING
+                END-IF
+            END-IF
+            
+            *> The sender's account must be ACTIVE and its currency enabled.
+            IF WS-TRANSFER-OK
+                IF WS-SENDER-STATUS NOT = "ACTIVE"
+                    IF WS-SENDER-STATUS(1:6) = "FROZEN"
+                        SET WS-TRANSFER-FAIL-FROZEN TO TRUE
+                    ELSE
+                        SET WS-TRANSFER-FAIL-CLOSED TO TRUE
+                    END-IF
+                END-IF
+            END-IF
+            
+            IF WS-TRANSFER-OK
+                IF WS-SENDER-CURACTIVE NOT = "1"
+                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
                 END-IF
             END-IF
             
             *> Resolve the target account (no lock yet).
             IF WS-TRANSFER-OK
-                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -358,8 +383,26 @@
                     ELSE
                         UNSTRING WS-RESULT DELIMITED BY "|"
                             INTO WS-TARGET-ACC WS-TARGET-CUR
+                                 WS-TARGET-STATUS WS-TARGET-CURACTIVE
                         END-UNSTRING
                     END-IF
+                END-IF
+            END-IF
+            
+            *> The target's account must be ACTIVE and its currency enabled.
+            IF WS-TRANSFER-OK
+                IF WS-TARGET-STATUS NOT = "ACTIVE"
+                    IF WS-TARGET-STATUS(1:6) = "FROZEN"
+                        SET WS-TRANSFER-FAIL-FROZEN TO TRUE
+                    ELSE
+                        SET WS-TRANSFER-FAIL-CLOSED TO TRUE
+                    END-IF
+                END-IF
+            END-IF
+            
+            IF WS-TRANSFER-OK
+                IF WS-TARGET-CURACTIVE NOT = "1"
+                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
                 END-IF
             END-IF
             
@@ -548,7 +591,19 @@
                                         IF WS-TRANSFER-FAIL-TARGET
                                             MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
                                         ELSE
-                                            MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                            IF WS-TRANSFER-FAIL-FROZEN
+                                                MOVE "ERROR|ACCOUNT_FROZEN" TO LS-OUTPUT-BUFFER
+                                            ELSE
+                                                IF WS-TRANSFER-FAIL-CLOSED
+                                                    MOVE "ERROR|ACCOUNT_CLOSED" TO LS-OUTPUT-BUFFER
+                                                ELSE
+                                                    IF WS-TRANSFER-FAIL-CURINACT
+                                                        MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
+                                                    ELSE
+                                                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                                    END-IF
+                                                END-IF
+                                            END-IF
                                         END-IF
                                     END-IF
                                 END-IF
