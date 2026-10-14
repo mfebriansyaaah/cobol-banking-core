@@ -18,16 +18,17 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 | `GET_DASHBOARD` | `p1=email` | `email`, `full_name`, `status`, `role`, `dob`, `created_at`, and **all** the user's accounts as `iso:balance` pairs; `LEFT JOIN accounts` so a user without accounts still has a profile | `SUCCESS\|DASHBOARD\|<email>\|<name>\|<status>\|<role>\|<dob>\|<created>\|<iso:balance;…>` · `ERROR\|ACCOUNT_NOT_FOUND` |
 | `REQ_EMAIL_CHANGE` | `p1=current email`, `p2=new email`, `p3=actor`, `p4=password` | the actor must own the current email and the **current password** must match; **neutral** about whether the new address is taken — if free, a 6-digit code is stored against it (`purpose=EMAIL_CHANGE`, 24h); if taken, returns the same success with no code | `SUCCESS\|CODE_SENT\|<code>` (free) · `SUCCESS\|CODE_SENT` (taken) · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_CREDENTIALS` · `ERROR\|EMAIL_CHANGE_FAILED` · `ERROR\|FORBIDDEN` |
 | `CONFIRM_EMAIL_CHANGE` | `p1=current email`, `p2=new email`, `p3=code` | match an unused, unexpired `EMAIL_CHANGE` code; move the email, **bump `token_version`**, and **revoke every refresh session** in one transaction (clean re-login) | `SUCCESS\|EMAIL_CHANGED` · `ERROR\|INVALID_CODE` · `ERROR\|EMAIL_CHANGE_FAILED` |
+| `UPDATE_PROFILE` | `p1=email`, `p2=full name`, `p3=actor` (owner), `p4=dob` (optional) | owner-only self-service; update `full_name` (and `dob` when given) with an audit row in one transaction; a blank name is refused | `SUCCESS\|PROFILE_UPDATED` · `ERROR\|FORBIDDEN` · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_INPUT` · `ERROR\|PROFILE_UPDATE_FAILED` |
 
 ### Tests
 
 `CONFIRM_EMAIL_CHANGE` works for a logged-in user: `users.email` changes propagate through the `refresh_sessions`/`pending_transactions` FKs (`ON UPDATE CASCADE`, migration 0003).
 
-`tests/test_user_profile.sh` (27 assertions). Wired into `ci.sh`.
+`tests/test_user_profile.sh` (35 assertions). Wired into `ci.sh`.
 
 ## Notes / not yet done
 
-- `GET_DASHBOARD` now returns the full profile (email, name, status, role, dob, created) and covers every account the user holds (multi-currency), and works for users with no accounts; a per-account drill-down is not implemented.
+- A profile may be updated in place: `UPDATE_PROFILE` sets `full_name` (and `dob` when supplied) for the owner only, with an audit row. `GET_DASHBOARD` now returns the full profile (email, name, status, role, dob, created) and covers every account the user holds (multi-currency), and works for users with no accounts; a per-account drill-down is not implemented.
 - `LIST_USERS` is paged (`limit`/`offset`) using the multi-row bridge call (`SQL_EXECUTE_ROWS`); the response is one pipe-delimited line, so the result is still bounded by the COBOL output buffer size.
 - Email-change code expiry is 24h to match signup; a shorter window (the original open question suggested 15 min) is not implemented.
 - `audit_trail` records a `EMAIL_CHANGE` row on a successful confirm; the old address is notified out of band and the change forces a clean re-login (token-version bump + refresh-session revocation). Other profile reads are not audited (and need not be).

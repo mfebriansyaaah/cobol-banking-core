@@ -83,6 +83,16 @@ check "paging limit=2 returns two rows" "SUCCESS|LIST_DONE|1:sender@test.com;2:r
 check "paging past the end is empty" "SUCCESS|LIST_DONE|" "$(run LIST_USERS 5 100000 "$ADMIN")"
 check "list users forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS "" "" "$OTHER")"
 
+# --- UPDATE_PROFILE ---
+check "update name" "SUCCESS|PROFILE_UPDATED" "$(run UPDATE_PROFILE "$U" 'New Prof Name' "$U" "")"
+check "name persisted" "New Prof Name" "$(q "SELECT full_name FROM users WHERE email='$U';")"
+check "update name and dob" "SUCCESS|PROFILE_UPDATED" "$(run UPDATE_PROFILE "$U" 'Jane Doe' "$U" 1995-05-05)"
+check "dob persisted" "1995-05-05" "$(q "SELECT dob FROM users WHERE email='$U';")"
+check "update another user forbidden" "ERROR|FORBIDDEN" "$(run UPDATE_PROFILE "$U" 'X' "$OTHER" "")"
+check "blank name rejected" "ERROR|INVALID_INPUT" "$(run UPDATE_PROFILE "$U" ' ' "$U" "")"
+check "update unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run UPDATE_PROFILE ghost@test.com 'X' ghost@test.com "")"
+check "update audited" "2" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=950 AND action='UPDATE_PROFILE' AND entity_id='950';")"
+
 # --- REQ_EMAIL_CHANGE ---
 check "request unknown current" "ERROR|ACCOUNT_NOT_FOUND" "$(run REQ_EMAIL_CHANGE ghost@test.com "$UNEW" ghost@test.com secret123)"
 check "request taken new email is neutral" "SUCCESS|CODE_SENT" "$(run REQ_EMAIL_CHANGE "$U" "$OTHER" "$U" secret123)"

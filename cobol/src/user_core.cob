@@ -99,6 +99,12 @@
                     PERFORM TRIM-PARAM3
                     PERFORM TRIM-PARAM4
                     PERFORM ACTION-CONFIRM-EMAIL-CHANGE
+                WHEN LS-CMD-ACTION(1:14) = "UPDATE_PROFILE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
+                    PERFORM ACTION-UPDATE-PROFILE
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -545,5 +551,85 @@
             ELSE
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|EMAIL_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-UPDATE-PROFILE.
+            *> p1 = email, p2 = full name, p3 = actor (owner), p4 = dob (opt).
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM3-TRIMMED(1:WS-P3-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-PARAM2-TRIMMED(1:1) = SPACE
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> The user must exist.
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            IF WS-PARAM4-TRIMMED(1:1) NOT = SPACE
+                MOVE "UPDATE users SET full_name = ?, dob = ? WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM4-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            ELSE
+                MOVE "UPDATE users SET full_name = ? WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE WS-RESULT TO WS-USER-ID
+                MOVE 0 TO WS-ID-LEN
+                PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                    IF WS-USER-ID(WS-I:1) NOT = SPACE
+                        MOVE WS-I TO WS-ID-LEN
+                    END-IF
+                END-PERFORM
+                IF WS-ID-LEN = 0
+                    MOVE 1 TO WS-ID-LEN
+                END-IF
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'UPDATE_PROFILE', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|PROFILE_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|PROFILE_UPDATE_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.

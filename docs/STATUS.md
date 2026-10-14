@@ -40,6 +40,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/user_core.cob` | `GET_DASHBOARD` | email, actor (self-or-admin) | full profile (email, name, status, role, dob, created) + **all** accounts as `iso:balance;...`; `LEFT JOIN` so users without accounts still get a profile | `SUCCESS\|DASHBOARD\|<email>\|<name>\|<status>\|<role>\|<dob>\|<created>\|<accounts>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `REQ_EMAIL_CHANGE` | current, new, actor (owner), password | **re-auth** (password) then **neutral** about the new address: a 6-digit code is stored only when it is free; a taken address returns the same success with no code | `SUCCESS\|CODE_SENT\|<code>` (free) * `SUCCESS\|CODE_SENT` (taken) * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `CONFIRM_EMAIL_CHANGE` | current, new, code, actor (owner) | consume code, move email, **bump `token_version` + revoke all refresh sessions** (clean re-login), audit; **attempt-capped** (burned after 5 wrong guesses) | `SUCCESS\|EMAIL_CHANGED` * `ERROR\|INVALID_CODE` * `ERROR\|EMAIL_CHANGE_FAILED` * `ERROR\|FORBIDDEN` |
+| `cobol/src/user_core.cob` | `UPDATE_PROFILE` | email, name, actor (owner), dob (opt) | owner-only self-service; updates `full_name` (and `dob` when given) in a transaction with an audit row; blank name is `INVALID_INPUT` | `SUCCESS\|PROFILE_UPDATED` * `ERROR\|FORBIDDEN` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_INPUT` * `ERROR\|PROFILE_UPDATE_FAILED` |
 | `cobol/src/auth_core.cob` | `REQUEST_SIGNUP` | email, password, name, dob | 8-char min password, PBKDF2 hash, 6-digit code in `verification_logs`; audit row; **neutral** when the email is already registered (no account-existence leak) | `SUCCESS\|USER_CREATED\|<code>` (or `SUCCESS\|USER_CREATED` if already registered) * `ERROR\|WEAK_PASSWORD` * `ERROR\|SIGNUP_FAILED` |
 | `cobol/src/auth_core.cob` | `VERIFY_EMAIL` | email, code | consume code, set `VERIFIED`, transactional; **attempt-capped** (code burned after 5 wrong guesses); audit success or (attributable) failure | `SUCCESS\|EMAIL_VERIFIED` * `ERROR\|INVALID_CODE` * `ERROR\|VERIFY_FAILED` |
 | `cobol/src/auth_core.cob` | `RESEND_VERIFICATION` | email | reissues a fresh `SIGNUP` code only for an existing `UNVERIFIED` account (neutral otherwise) | `SUCCESS\|CODE_SENT\|<code>` (or `SUCCESS\|CODE_SENT` unknown/verified) * `ERROR\|RESEND_FAILED` |
@@ -94,7 +95,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_auth_login.sh` | 6 | login, legacy rehash on login |
 | `tests/test_signup_verify.sh` | 27 | signup + verify flow, PBKDF2 hash, neutral duplicate email, audit, expired-log pruning, resend verification |
 | `tests/test_roles.sh` | 17 | `CHECK_ROLE` self-or-admin, `CHANGE_ROLE` SUPER_ADMIN gate, `ARCHIVE_AUDIT` |
-| `tests/test_user_profile.sh` | 27 | full profile (incl. account-less), paging, email-change (re-auth, neutral, session revocation) |
+| `tests/test_user_profile.sh` | 35 | full profile (incl. account-less), paging, update profile, email-change (re-auth, neutral, session revocation) |
 | `tests/test_login_lockout.sh` | 14 | 3-fail/15-min lockout on the user row, masked probe (wrong stays uniform, owner told), reset/good-login unlock |
 | `tests/test_idempotent_transfer.sh` | 27 | replay-no-op, key reuse conflict, per-sender scoping, unique auto refs, failure retry, archived key runs fresh |
 | `tests/test_transfer_validity.sh` | 34 | positive-amount, malformed-amount rejection (core-level), self-transfer, cross-currency (direct + inverse rate + missing rate), target precision, rate snapshot, multi-account sender selection by currency |
@@ -115,10 +116,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 72 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, neutral email change, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 73 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, neutral email change, profile update, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **411**; with the gateway suite **72** the full run is
-**483 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **419**; with the gateway suite **73** the full run is
+**492 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -126,7 +127,7 @@ smoke run in pool mode).
 Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/auth/login`, `/auth/forgot`, `/auth/reset-password`, `/auth/resend`, `/auth/refresh):
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
-(`Idempotency-Key`), `/profile`, `/profile/email/request`,
+(`Idempotency-Key`), `/profile` (GET/PATCH), `/profile/email/request`,
 `/profile/email/confirm`, `/profile/password`, `/mfa/enroll`, `/mfa/confirm`,
 `/mfa/disable`, `/sessions` (GET), `/sessions/revoke`, `/sessions/revoke-all`,
 `/admin/role` (GET/POST),
