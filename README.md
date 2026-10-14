@@ -11,6 +11,7 @@ C and JavaScript as support only.
 - `cobol/src/sql_bridge.c` — C bridge to MySQL (`libmysqlclient`): prepared
   statements, escaping, and transactions. `cobol/c_lib/hash_lib.c` — PBKDF2 hashing
   (600000 iterations by default, rehashed on login when below target) and secure code generation.
+  `cobol/c_lib/totp_lib.c` — TOTP for MFA. `cobol/c_lib/settings_lib.c` — read optional limits from the environment.
 - `middleware/` — Node.js/Express API gateway, the only HTTP interface; it
   validates input shapes, invokes the binary per request (own working directory),
   and maps the result line to HTTP.
@@ -91,7 +92,9 @@ the accounts use different currencies; a missing pair fails with
 and both currencies are enabled (otherwise `ACCOUNT_FROZEN` / `ACCOUNT_CLOSED` /
 `CURRENCY_INACTIVE`). `POST /wallet/transfer` requires an `Idempotency-Key`
 header; retrying with the same key replays instead of moving money twice (keys
-are scoped per sender).
+are scoped per sender). Optional caps `TRANSFER_MAX_PER_TXN` (one debit) and
+`TRANSFER_DAILY_LIMIT` (rolling 24h per account) are off unless set in the
+environment.
 
 The binary writes its result in 500-char records; the gateway reassembles them,
 so large list responses are not cut at 500 bytes.
