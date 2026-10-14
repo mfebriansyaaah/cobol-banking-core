@@ -359,7 +359,9 @@
                 EXIT PARAGRAPH
             END-IF
 
-            *> The new email must not already belong to someone.
+            *> Neutral: never reveal whether the new address is already
+            *> registered. If it is taken, report the same success with no code
+            *> (nothing is delivered), so the action cannot enumerate emails.
             MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
@@ -368,7 +370,7 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
 
             IF WS-RESULT NOT = "ERROR|NO_DATA"
-                MOVE "ERROR|EMAIL_EXISTS" TO LS-OUTPUT-BUFFER
+                MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
 
