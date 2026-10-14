@@ -50,7 +50,8 @@
         01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
-        01  WS-TXN-REF             PIC X(17) VALUE SPACES.
+        01  WS-TXN-REF             PIC X(50) VALUE SPACES.
+        01  WS-RAND                PIC X(6)  VALUE SPACES.
         01  WS-REF                 PIC X(50) VALUE SPACES.
         01  WS-REFLEN              PIC 9(3) VALUE 1.
         01  WS-INTENT-FROM         PIC X(100) VALUE SPACES.
@@ -265,17 +266,20 @@
                 EXIT PARAGRAPH
             END-IF
             SET WS-TRANSFER-OK TO TRUE
-            *> The idempotency key (param 4) doubles as the transaction reference.
+            *> The idempotency key (param 4) doubles as the transaction
+            *> reference. Without one, mint a collision-resistant reference
+            *> (date+time to hundredths, plus a secure random suffix).
             IF LS-PARAM4 NOT = SPACES
                 MOVE WS-PARAM4-TRIMMED(1:WS-P4-LEN) TO WS-REF
                 MOVE WS-P4-LEN TO WS-REFLEN
             ELSE
                 MOVE FUNCTION CURRENT-DATE TO WS-NOW
                 MOVE SPACES TO WS-TXN-REF
-                STRING "TXN" WS-NOW(1:14) DELIMITED BY SIZE INTO WS-TXN-REF
+                CALL "generate_random_code" USING BY REFERENCE WS-RAND
+                STRING "TXN" WS-NOW(1:16) WS-RAND(1:6) DELIMITED BY SIZE INTO WS-TXN-REF
                 END-STRING
                 MOVE WS-TXN-REF TO WS-REF
-                MOVE 17 TO WS-REFLEN
+                MOVE 25 TO WS-REFLEN
             END-IF
             
             CALL "SQL_BEGIN"
@@ -285,11 +289,12 @@
             *> exists with different details (or belongs to someone else) is a
             *> conflict, not a silent success.
             IF LS-PARAM4 NOT = SPACES
-                MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT NOT = "ERROR|NO_DATA"
                     IF WS-RESULT(1:5) = "ERROR"
