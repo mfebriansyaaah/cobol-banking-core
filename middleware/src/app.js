@@ -68,11 +68,27 @@ export const ROUTES = [
     { name: 'limit', pattern: LIMIT, required: false },
     { name: 'offset', pattern: INT, required: false },
     { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+    { name: 'role', pattern: ROLE, required: false },
+  ], onSuccess: async (body) => {
+    // data: ['LIST_DONE', total, 'id:email:name:role:status;...']
+    const total = Number(body.data[1]);
+    const users = String(body.data[2] || '')
+      .split(';')
+      .filter(Boolean)
+      .map((row) => {
+        const [id, email, name, role, status] = row.split(':');
+        return { id, email, name, role, status };
+      });
+    return { data: ['USERS'], total, users };
+  } },
   { method: 'get', path: '/users/:email', action: 'GET_USER', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  ], onSuccess: async (body) => {
+    // data: ['USER', id, email, name, status, role, createdAt]
+    const [id, email, name, status, role, createdAt] = body.data.slice(1);
+    return { data: ['USER'], user: { id, email, name, status, role, createdAt } };
+  } },
   { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
