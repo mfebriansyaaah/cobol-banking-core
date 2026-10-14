@@ -151,8 +151,26 @@ void hash_password(char* password, char* output_hash) {
  * Slow KDF: PBKDF2-HMAC-SHA256 (self-contained, reuses sha256 above). *
  * ------------------------------------------------------------------ */
 
-#define PBKDF2_ITERATIONS 100000
+#define PBKDF2_DEFAULT_ITERATIONS 600000
+#define PBKDF2_MIN_ITERATIONS 1000
+#define PBKDF2_MAX_ITERATIONS 50000000L
 #define PBKDF2_SALT_BYTES 16
+
+/*
+ * Current KDF cost. Follows modern guidance by default and is tunable at
+ * runtime through per-process environment configuration so the test suite can
+ * run cheap without weakening production hashes.
+ */
+static uint32_t pbkdf2_target_iterations(void) {
+    const char *env = getenv("PBKDF2_ITERATIONS");
+    if (env != NULL && env[0] != '\0') {
+        long v = strtol(env, NULL, 10);
+        if (v >= PBKDF2_MIN_ITERATIONS && v <= PBKDF2_MAX_ITERATIONS) {
+            return (uint32_t)v;
+        }
+    }
+    return PBKDF2_DEFAULT_ITERATIONS;
+}
 
 static void bytes_to_hex(const uint8_t *in, size_t n, char *out) {
     static const char *hx = "0123456789abcdef";
@@ -261,13 +279,14 @@ void hash_password_v2(char *password, char *output_hash) {
     uint8_t salt[PBKDF2_SALT_BYTES];
     random_salt(salt, sizeof(salt));
     uint8_t key[32];
-    pbkdf2_sha256((const uint8_t *)password, plen, salt, sizeof(salt), PBKDF2_ITERATIONS, key);
+    uint32_t iters = pbkdf2_target_iterations();
+    pbkdf2_sha256((const uint8_t *)password, plen, salt, sizeof(salt), iters, key);
 
     char salt_hex[PBKDF2_SALT_BYTES * 2 + 1];
     char key_hex[65];
     bytes_to_hex(salt, sizeof(salt), salt_hex);
     bytes_to_hex(key, sizeof(key), key_hex);
-    sprintf(output_hash, "PBKDF2$%d$%s$%s", PBKDF2_ITERATIONS, salt_hex, key_hex);
+    sprintf(output_hash, "PBKDF2$%u$%s$%s", (unsigned)iters, salt_hex, key_hex);
 }
 
 /**
@@ -315,6 +334,38 @@ void verify_password(char *password, char *stored_hash, char *result) {
         if (strcmp(hash_hex, stored + 7) == 0) {
             result[0] = '1';
         }
+    }
+}
+
+/**
+ * Report whether a stored hash should be upgraded to the current scheme.
+ * Writes "1" when it is a legacy SHA256 hash, or a PBKDF2 hash below the
+ * current target cost, and "0" otherwise.
+ */
+void password_needs_rehash(char *stored_hash, char *result) {
+    if (stored_hash == NULL || result == NULL) return;
+    result[0] = '0';
+    result[1] = '\0';
+
+    char stored[256];
+    size_t slen = rtrim_len(stored_hash, 255);
+    memcpy(stored, stored_hash, slen);
+    stored[slen] = '\0';
+
+    if (strncmp(stored, "PBKDF2$", 7) != 0) {
+        result[0] = '1'; /* legacy or unknown scheme */
+        return;
+    }
+
+    char *save = stored;
+    char *iter_s = strtok(save + 7, "$");
+    if (iter_s == NULL) {
+        result[0] = '1';
+        return;
+    }
+    long iters = strtol(iter_s, NULL, 10);
+    if (iters < (long)pbkdf2_target_iterations()) {
+        result[0] = '1';
     }
 }
 
