@@ -114,8 +114,6 @@
                     PERFORM REVOKE-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:15) = "CONSUME_SESSION"
                     PERFORM CONSUME-SESSION-LOGIC
-                WHEN LS-CMD-ACTION(1:13) = "CHECK_SESSION"
-                    PERFORM CHECK-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "CHECK_TOKEN"
                     PERFORM CHECK-TOKEN-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "REVOKE_TOKENS"
@@ -1149,58 +1147,6 @@
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE "ERROR|SESSION_REUSED" TO LS-OUTPUT-BUFFER
-            END-IF.
-            EXIT PARAGRAPH.
-
-        CHECK-SESSION-LOGIC.
-            *> p1 = jti. VALID only if present, unrevoked and unexpired.
-            *> A present-but-revoked token means reuse (likely theft): revoke
-            *> every session in its family and report SESSION_REUSED.
-            MOVE "SELECT revoked FROM refresh_sessions WHERE jti = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT = "ERROR|NO_DATA"
-                MOVE "ERROR|SESSION_NOT_FOUND" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF
-            IF WS-RESULT(1:5) = "ERROR"
-                MOVE "ERROR|SESSION_CHECK_FAILED" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF
-            IF WS-RESULT(1:1) = "1"
-                MOVE "SELECT family FROM refresh_sessions WHERE jti = ? LIMIT 1" TO WS-PREP-SQL
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                MOVE WS-RESULT TO WS-FAMILY
-                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE family = ?" TO WS-PREP-SQL
-                MOVE WS-FAMILY TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                MOVE "ERROR|SESSION_REUSED" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF
-            MOVE "SELECT 1 FROM refresh_sessions WHERE jti = ? AND revoked = 0 AND expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT = "ERROR|NO_DATA"
-                MOVE "ERROR|SESSION_EXPIRED" TO LS-OUTPUT-BUFFER
-            ELSE
-                IF WS-RESULT(1:5) = "ERROR"
-                    MOVE "ERROR|SESSION_CHECK_FAILED" TO LS-OUTPUT-BUFFER
-                ELSE
-                    MOVE "SUCCESS|SESSION_VALID" TO LS-OUTPUT-BUFFER
-                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
