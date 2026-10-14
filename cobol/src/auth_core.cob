@@ -274,7 +274,13 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT = "ERROR|NO_DATA"
-                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                *> Uniform failure: do not reveal whether the account exists,
+                *> and spend the same KDF work so the timing matches a real
+                *> password check.
+                MOVE SPACES TO WS-PLAIN
+                MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
+                CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
+                MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             UNSTRING WS-RESULT DELIMITED BY "|"
@@ -386,7 +392,13 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             IF WS-RESULT NOT = "ERROR|NO_DATA"
-                MOVE "ERROR|EMAIL_EXISTS" TO LS-OUTPUT-BUFFER
+                *> Neutral: never reveal whether the email is already
+                *> registered. Spend the same KDF work as a real signup so
+                *> the timing does not leak it either.
+                MOVE SPACES TO WS-PLAIN
+                MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
+                CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
+                MOVE "SUCCESS|USER_CREATED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             
