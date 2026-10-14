@@ -2,26 +2,15 @@ import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { BINARY } from './binary.js';
+import { InvocationTimeout, InvocationError } from './errors.js';
+import { getPool } from './pool.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export { BINARY, InvocationTimeout, InvocationError };
 
-// The binary reads input.txt and writes output.txt relative to its working
-// directory. Each call therefore runs in its own temp directory (ADR-0001).
-export const BINARY =
-  process.env.COBOL_BIN ||
-  path.resolve(__dirname, '../../cobol/bin/main_logic');
-
-export class InvocationTimeout extends Error {}
-export class InvocationError extends Error {}
-
-/**
- * Run one COBOL action and return its raw result line.
- * @param {string} action
- * @param {string[]} params up to four pipe-safe parameter values
- * @param {{timeoutMs?: number}} [opts]
- */
-export async function invoke(action, params = [], opts = {}) {
+// File mode (ADR-0001): the binary reads input.txt / writes output.txt in its
+// own working directory. Used by default, and by all shell suites.
+async function fileInvoke(action, params = [], opts = {}) {
   const timeoutMs = opts.timeoutMs ?? 5000;
   const dir = await mkdtemp(path.join(tmpdir(), 'cobol-gw-'));
   try {
@@ -54,4 +43,17 @@ export async function invoke(action, params = [], opts = {}) {
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+}
+
+/**
+ * Run one COBOL action and return its raw result line.
+ * Uses the worker pool when COBOL_POOL_SIZE is set, else file mode (ADR-0001).
+ * @param {string} action
+ * @param {string[]} params up to four pipe-safe parameter values
+ * @param {{timeoutMs?: number}} [opts]
+ */
+export async function invoke(action, params = [], opts = {}) {
+  const pool = getPool();
+  if (pool) return pool.invoke(action, params, opts);
+  return fileInvoke(action, params, opts);
 }

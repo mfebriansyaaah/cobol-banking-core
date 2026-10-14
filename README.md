@@ -59,6 +59,9 @@ The COBOL binary reads its database connection from the environment
 (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`; development defaults);
 the gateway passes its environment through to the binary it spawns.
 
+Invocation is one process per request by default. Set `COBOL_POOL_SIZE` to run a
+warm worker pool over the binary's `--serve` mode instead (ADR-0010).
+
 Security headers are set with `helmet`. In production (`NODE_ENV=production`)
 the server refuses to start while `JWT_SECRET`/`REFRESH_SECRET` are unset or
 still the development defaults.

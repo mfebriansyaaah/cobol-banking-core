@@ -1,6 +1,6 @@
 # Worker-pool invocation (revisiting per-request processes)
 
-Status: proposed (Phases 1-2 - serve mode, connection lifecycle - implemented; gateway pool pending)
+Status: implemented (Phases 1-3: serve mode, connection lifecycle, gateway worker pool)
 Date: 2026-10-14
 Phase: roadmap item - throughput/scalability.
 Relates to: ADR-0001 (per-request working directory).
@@ -38,10 +38,11 @@ Adopt a **worker-pool** model as the scale path, keeping process isolation:
 - The binary gains a **stdin/stdout line protocol** mode: read
   `ACTION|p1|p2|p3|p4` lines, write one result line per request, reuse the same
   modules; a warm pool of N worker processes serves requests (no spawn, no temp
-  files per request). **Phases 1-2 are implemented** - serve mode
-  (`main_logic --serve`) and the bridge connection lifecycle (one keep-alive
+  files per request). **Phases 1-3 are implemented** - serve mode
+  (`main_logic --serve`), the bridge connection lifecycle (one keep-alive
   connection per process, `mysql_ping` + reconnect, transactions keep the
-  connection). The gateway pool and pipelining follow.
+  connection), and the **gateway worker pool** (`COBOL_POOL_SIZE`; file mode
+  remains the default). Pipelining (phase 5) is optional and not yet built.
 - The bridge gains **connection pooling** (per worker process) instead of
   connecting per statement.
 - The gateway runs the pool and dispatches requests; pipelining is optional.
