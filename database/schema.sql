@@ -147,7 +147,15 @@ CREATE TABLE IF NOT EXISTS pending_transactions (
     CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 9. Tabel Refresh Sessions (JWT refresh-token revocation by jti)
+-- 9. Tabel Transfer Reversals (one-time compensating reversal of a transfer)
+CREATE TABLE IF NOT EXISTS transfer_reversals (
+    orig_ref VARCHAR(50) PRIMARY KEY,
+    actor_id INT NOT NULL,
+    reversed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_reversal_actor FOREIGN KEY (actor_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+-- 10. Tabel Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
     family VARCHAR(50) NOT NULL,
@@ -159,7 +167,7 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
     CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 10. Access-token denylist (per-token revocation; complements users.token_version)
+-- 11. Access-token denylist (per-token revocation; complements users.token_version)
 CREATE TABLE IF NOT EXISTS revoked_access_tokens (
     jti VARCHAR(50) PRIMARY KEY,
     email VARCHAR(100) NOT NULL,
@@ -169,7 +177,7 @@ CREATE TABLE IF NOT EXISTS revoked_access_tokens (
     CONSTRAINT fk_revoked_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 11. Tabel Schema Migrations (applied-migration tracking)
+-- 12. Tabel Schema Migrations (applied-migration tracking)
 CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(64) PRIMARY KEY,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
