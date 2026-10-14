@@ -131,6 +131,7 @@
                 WHEN LS-CMD-ACTION(1:9) = "TX_STATUS"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
                     PERFORM TRANSFER-STATUS-LOGIC
                 WHEN LS-CMD-ACTION(1:8) = "TRANSFER"
                     PERFORM TRIM-PARAM1
@@ -425,11 +426,31 @@
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
             END-IF
-            MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            *> Optional sender filter (p3) lets an admin target one sender; a
+            *> non-admin's query is always pinned to their own email.
+            IF WS-P3-LEN > 0
+                MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            ELSE
+                IF WS-ALLOWED = 1
+                    MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? ORDER BY id DESC LIMIT 1" TO WS-PREP-SQL
+                    MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                ELSE
+                    MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+                    MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                        BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                END-IF
+            END-IF
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
@@ -442,7 +463,7 @@
             UNSTRING WS-RESULT DELIMITED BY "|"
                 INTO WS-TX-FROM WS-TX-TO WS-TX-AMT WS-TX-STATUS
             END-UNSTRING
-            *> Only the sender (owner) or an admin may see it.
+            *> A non-admin may only see their own.
             IF WS-ALLOWED = 0
                 IF WS-TX-FROM(1:WS-P2-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
                     MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
