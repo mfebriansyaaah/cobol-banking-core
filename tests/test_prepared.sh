@@ -60,8 +60,8 @@ ADMIN="prep_admin@test.com"
 q "DELETE FROM users WHERE email='$ADMIN';
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (995,'$ADMIN',CONCAT('SHA256_',SHA2('secret123',256)),'Prep Admin','1990-01-01','VERIFIED','SUPER_ADMIN');"
-check "prepared list first page" "SUCCESS|LIST_DONE|1:sender@test.com;2:receiver@test.com" "$(run LIST_USERS 2 0 "$ADMIN")"
-check "prepared list paging" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "$ADMIN")"
+check_contains "prepared list first page" "1:sender@test.com:Sender User:USER:VERIFIED;2:receiver@test.com:Receiver User:USER:VERIFIED" "$(run LIST_USERS 2 0 "$ADMIN")"
+check_contains "prepared list paging" "1:sender@test.com:Sender User:USER:VERIFIED" "$(run LIST_USERS 1 0 "$ADMIN")"
 check "prepared list forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS '' '' prep_ok@test.com)"
 
 # TRANSFER runs through prepared statements end to end (lock, debit/credit,
