@@ -1,11 +1,39 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { seedUser, seedAccount, seedManyUsers, getVerificationCode } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
+
+// RFC 6238 TOTP (SHA-1 / 6 digits / 30s) for the MFA test below.
+function fromBase32(s) {
+  const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = 0, value = 0;
+  const out = [];
+  for (const ch of s) {
+    const idx = alpha.indexOf(ch);
+    if (idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      out.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(out);
+}
+
+function totp(secret) {
+  const buf = Buffer.alloc(8);
+  buf.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
+  const h = createHmac('sha1', fromBase32(secret)).update(buf).digest();
+  const o = h[h.length - 1] & 0xf;
+  const bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];
+  return String(bin % 1000000).padStart(6, '0');
+}
 
 test('health is public and reports deep status', async () => {
   const res = await request(app).get('/health');
@@ -408,4 +436,26 @@ test('locked account does not leak through wrong guesses', async () => {
   // knows the password is told (423).
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'wrongpass1' })).status, 401);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 423);
+});
+
+test('MFA enrol, enforce at login, disable over HTTP', async () => {
+  const em = `gw_mfa_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Mfa', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+  const auth = { Authorization: `Bearer ${login.body.token}` };
+
+  const enroll = await request(app).post('/mfa/enroll').set(auth).send({ email: em });
+  assert.equal(enroll.status, 200);
+  assert.match(enroll.body.secret, /^[A-Z2-7]{32}$/);
+  assert.ok(enroll.body.otpauth.startsWith('otpauth://totp/'));
+
+  assert.equal((await request(app).post('/mfa/confirm').set(auth).send({ email: em, code: '000000' })).status, 401);
+  assert.deepEqual((await request(app).post('/mfa/confirm').set(auth).send({ email: em, code: totp(enroll.body.secret) })).body.data, ['MFA_ENABLED']);
+
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 401);
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123', mfaCode: totp(enroll.body.secret) })).status, 200);
+
+  assert.deepEqual((await request(app).post('/mfa/disable').set(auth).send({ email: em, code: totp(enroll.body.secret) })).body.data, ['MFA_DISABLED']);
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 200);
 });

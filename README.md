@@ -74,6 +74,11 @@ bumped on logout (`REVOKE_TOKENS`), so an access token can be revoked before it
 expires. A single token can also be denied by `jti` via `POST /auth/revoke`; the
 denylist is shared (DB) behind a `tokenStore` seam.
 
+Accounts can add a TOTP second factor: `POST /mfa/enroll` returns the secret and
+an `otpauth://` URI, `POST /mfa/confirm` turns it on, and once enabled
+`POST /auth/login` also needs the current `mfaCode`. Passwords use PBKDF2-SHA256
+(600000 iterations, rehashed on login when below target).
+
 Responses use one envelope - success `{ data: [...] }`, failure
 `{ error, detail? }`. `/users` is paged (`limit` 1..100, `offset`).
 
