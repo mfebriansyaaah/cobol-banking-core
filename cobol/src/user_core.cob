@@ -35,6 +35,9 @@
         01  WS-ALEN                 PIC 9(3) VALUE 1.
         01  WS-RLEN                 PIC 9(5) VALUE 1.
         01  WS-CODE                 PIC X(7) VALUE SPACES.
+        01  WS-PLAIN                PIC X(100) VALUE SPACES.
+        01  WS-STORED               PIC X(256) VALUE SPACES.
+        01  WS-VERIFY               PIC X(1) VALUE SPACES.
         01  WS-USER-ID              PIC X(20) VALUE SPACES.
         01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-STEP                 PIC X VALUE 'Y'.
@@ -88,6 +91,7 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
                     PERFORM ACTION-REQ-EMAIL-CHANGE
                 WHEN LS-CMD-ACTION(1:20) = "CONFIRM_EMAIL_CHANGE"
                     PERFORM TRIM-PARAM1
@@ -359,6 +363,23 @@
                 EXIT PARAGRAPH
             END-IF
 
+            *> Re-authenticate: the current password (p4) must match before
+            *> a change is requested. An email change is a high-risk action.
+            MOVE "SELECT password_hash FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-STORED
+            MOVE SPACES TO WS-PLAIN
+            MOVE WS-PARAM4-TRIMMED(1:WS-P4-LEN) TO WS-PLAIN
+            CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
+            IF WS-VERIFY NOT = "1"
+                MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+
             *> Neutral: never reveal whether the new address is already
             *> registered. If it is taken, report the same success with no code
             *> (nothing is delivered), so the action cannot enumerate emails.
@@ -463,7 +484,7 @@
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
             
-            MOVE "UPDATE users SET email = ? WHERE email = ?" TO WS-PREP-SQL
+            MOVE "UPDATE users SET email = ?, token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -473,6 +494,22 @@
 
             IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                 SET STEP-FAIL TO TRUE
+            END-IF
+
+            IF STEP-OK
+                *> Force a clean re-login: bumping the version kills every old
+                *> access token, and all refresh sessions are revoked (their
+                *> email cascaded to the new one with the users update).
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF
 
             IF STEP-OK
