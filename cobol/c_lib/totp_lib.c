@@ -208,8 +208,20 @@ void totp_verify(char *secret_b32, char *code, char *result) {
     digits[n] = '\0';
     if (n != 6) return;
 
+    /* COBOL fields are space padded and not NUL terminated: copy the secret
+     * up to the first space/NUL so the decode stays in bounds. */
+    char secret[64];
+    size_t slen = 0;
+    while (slen < sizeof(secret) - 1) {
+        char c = secret_b32[slen];
+        if (c == '\0' || c == ' ') break;
+        secret[slen] = c;
+        slen++;
+    }
+    secret[slen] = '\0';
+
     uint8_t key[64];
-    int kl = base32_decode(secret_b32, key, sizeof(key));
+    int kl = base32_decode(secret, key, sizeof(key));
     if (kl <= 0) return;
 
     uint32_t want = (uint32_t)atoi(digits);
