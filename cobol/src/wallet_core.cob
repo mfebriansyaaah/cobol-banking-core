@@ -624,11 +624,18 @@
                 EXIT PARAGRAPH
             END-IF
             *> Housekeeping: bound the idempotency table. Intents older than the
-            *> retention window (default 30 days, 0 disables) are dropped, so the
-            *> replay guarantee is a bounded window.
+            *> retention window (default 30 days, 0 disables) are moved to the
+            *> archive, so the replay guarantee is a bounded window but history
+            *> is preserved.
             MOVE SPACES TO WS-RET-STR
             CALL "env_or" USING BY REFERENCE "PENDING_RETENTION_DAYS" BY REFERENCE "30" BY REFERENCE WS-RET-STR
             IF WS-RET-STR(1:1) >= "1" AND WS-RET-STR(1:1) <= "9"
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "INSERT IGNORE INTO pending_transactions_archive (id, txn_ref, from_email, to_email, amount, status, created_at, updated_at) SELECT id, txn_ref, from_email, to_email, amount, status, created_at, updated_at FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL " WS-RET-STR " DAY)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                CALL "SET_QUERY" USING BY REFERENCE WS-PREP-SQL
+                CALL "SQL_EXECUTE"
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "DELETE FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL " WS-RET-STR " DAY)" DELIMITED BY SIZE INTO WS-PREP-SQL
                 END-STRING

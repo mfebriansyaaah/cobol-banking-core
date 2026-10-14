@@ -84,10 +84,18 @@ run TRANSFER sender@test.com receiver@test.com 1.00 "" >/dev/null
 run TRANSFER sender@test.com receiver@test.com 1.00 "" >/dev/null
 check "auto-generated refs are unique" "2" "$(q "SELECT COUNT(DISTINCT txn_ref) FROM ledger;")"
 
+# A pruned intent is archived; reusing its key then runs as a fresh transfer.
+q "DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM pending_transactions_archive;"
+q "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status, created_at) VALUES
+   ('arch-k','sender@test.com','receiver@test.com', 5.00, 'COMMITTED', DATE_SUB(NOW(), INTERVAL 40 DAY));"
+check "reusing an archived key runs fresh" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 7.00 arch-k)"
+check "the old intent is archived" "1" "$(q "SELECT COUNT(*) FROM pending_transactions_archive WHERE txn_ref='arch-k' AND amount=5.00;")"
+check "a fresh live row exists for the key" "1" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='arch-k' AND amount=7.00;")"
+
 # Leave the shared seed accounts as other suites expect them.
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1;
    UPDATE accounts SET balance=0.00 WHERE account_id=2;
-   DELETE FROM ledger; DELETE FROM pending_transactions;"
+   DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM pending_transactions_archive;"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"

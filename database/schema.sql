@@ -151,6 +151,21 @@ CREATE TABLE IF NOT EXISTS pending_transactions (
     CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+-- 8b. Archive of pruned transfer intents (kept for traceability; no FKs so it
+-- survives the users rows it references).
+CREATE TABLE IF NOT EXISTS pending_transactions_archive (
+    id BIGINT PRIMARY KEY,
+    txn_ref VARCHAR(50) NOT NULL,
+    from_email VARCHAR(100) NOT NULL,
+    to_email VARCHAR(100) NOT NULL,
+    amount DECIMAL(18,4) NOT NULL,
+    status ENUM('PENDING', 'COMMITTED', 'FAILED'),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_pending_archive_created (created_at)
+) ENGINE=InnoDB;
+
 -- 9. Tabel Transfer Reversals (one-time compensating reversal of a transfer)
 CREATE TABLE IF NOT EXISTS transfer_reversals (
     orig_ref VARCHAR(50) PRIMARY KEY,
