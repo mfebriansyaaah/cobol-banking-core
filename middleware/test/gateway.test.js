@@ -347,3 +347,20 @@ test('password reset and change over HTTP', async () => {
   assert.deepEqual(changed.body.data, ['PASSWORD_CHANGED']);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'final1234' })).status, 200);
 });
+
+test('resend verification issues a fresh code', async () => {
+  const em = `gw_resend_${Date.now()}@test.com`;
+  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Resend', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
+  // Login before verification is rejected.
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 403);
+
+  const resend = await request(app).post('/auth/resend').send({ email: em });
+  assert.equal(resend.status, 200);
+  assert.deepEqual(resend.body.data, ['CODE_SENT']);
+
+  const code = getVerificationCode(em, 'SIGNUP');
+  assert.match(code, /^\d{6}$/);
+  assert.equal((await request(app).post('/auth/verify').send({ email: em, code })).status, 200);
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 200);
+});
