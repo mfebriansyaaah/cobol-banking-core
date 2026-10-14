@@ -118,6 +118,12 @@ export const ROUTES = [
       : [];
     return { data: ['PROFILE'], profile: { email, name, status, role, dob, createdAt }, accounts: balances };
   } },
+  { method: 'patch', path: '/profile', action: 'UPDATE_PROFILE', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'name', pattern: NAME, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'dob', pattern: DATE, required: false },
+  ] },
   { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },

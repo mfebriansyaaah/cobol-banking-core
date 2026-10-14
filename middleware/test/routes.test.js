@@ -17,6 +17,7 @@ const TOKEN_IDENTITY = {
   LIST_USERS: 'actor',
   REQ_EMAIL_CHANGE: 'actor',
   CONFIRM_EMAIL_CHANGE: 'actor',
+  UPDATE_PROFILE: 'actor',
   REVERSE_TRANSFER: 'actor',
   TX_STATUS: 'actor',
   MFA_ENROLL_BEGIN: 'actor',
