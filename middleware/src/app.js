@@ -22,8 +22,10 @@ export const ROUTES = [
     { name: 'name', pattern: NAME, required: true },
     { name: 'dob', pattern: DATE, required: true },
   ], onSuccess: async (body, input, { mailer }) => {
-    // The code is delivered out of band; it is never returned to the client.
-    await mailer.sendVerification({ to: input.email, purpose: 'SIGNUP', code: body.data[1] });
+    // Out of band delivery; never returned to the client. A neutral response
+    // (no code) is sent when the email is already registered.
+    const code = body.data[1];
+    if (code) await mailer.sendVerification({ to: input.email, purpose: 'SIGNUP', code });
     return { data: ['USER_CREATED'] };
   } },
   { method: 'post', path: '/auth/verify', action: 'VERIFY_EMAIL', public: true, fields: [
