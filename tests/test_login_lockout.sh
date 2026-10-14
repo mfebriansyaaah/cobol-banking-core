@@ -1,7 +1,10 @@
 #!/bin/bash
-# Login lockout suite (optional item 1).
-# Three failed AUTH_LOGIN attempts within the window lock the account; a locked
-# account rejects even the correct password; failed attempts are recorded.
+# Login lockout suite.
+# Three failed AUTH_LOGIN attempts lock the account for 15 minutes. A locked
+# account keeps returning the uniform INVALID_CREDENTIALS for wrong passwords
+# (so lockout cannot be probed or used to enumerate accounts) and only tells a
+# caller who supplies the correct password. A password reset or a good login
+# clears the counter.
 # Usage: ./tests/test_login_lockout.sh
 
 BIN="./cobol/bin/main_logic"
@@ -43,15 +46,31 @@ q "DELETE FROM users WHERE email='$U' OR id=931;
 check "attempt 1 fails" "ERROR|INVALID_CREDENTIALS" "$(run AUTH_LOGIN "$U" wrong)"
 check "attempt 2 fails" "ERROR|INVALID_CREDENTIALS" "$(run AUTH_LOGIN "$U" wrong)"
 check "attempt 3 fails" "ERROR|INVALID_CREDENTIALS" "$(run AUTH_LOGIN "$U" wrong)"
-check "attempt 4 locked" "ERROR|ACCOUNT_LOCKED" "$(run AUTH_LOGIN "$U" wrong)"
-check "correct password still locked" "ERROR|ACCOUNT_LOCKED" "$(run AUTH_LOGIN "$U" secret123)"
+check "failed_logins reached 3" "3" "$(q "SELECT failed_logins FROM users WHERE id=931;")"
+check "locked_until is set" "1" "$(q "SELECT locked_until IS NOT NULL FROM users WHERE id=931;")"
 
-# Failed attempts are recorded for lockout counting.
+# A locked account does not reveal itself to a wrong-password guesser.
+check "locked + wrong password stays uniform" "ERROR|INVALID_CREDENTIALS" "$(run AUTH_LOGIN "$U" wrong)"
+# The owner who knows the password is told.
+check "locked + correct password is told" "ERROR|ACCOUNT_LOCKED" "$(run AUTH_LOGIN "$U" secret123)"
+
+# Failed attempts are recorded; being locked does not add more rows.
 check "audit rows written" "3" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=931 AND action='AUTH_LOGIN_FAILED';")"
 
-# Clearing the attempts unlocks the account.
-q "DELETE FROM audit_trail WHERE user_id=931 AND action='AUTH_LOGIN_FAILED';"
-check "unlocked after clearing" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN "$U" secret123)"
+# A password reset clears the lockout (self-service recovery).
+code=$(run FORGOT_PASSWORD "$U" '' '' '' | cut -d'|' -f3)
+check "reset succeeds" "SUCCESS|PASSWORD_RESET" "$(run RESET_PASSWORD "$U" "$code" newsecret1)"
+check "failed_logins cleared by reset" "0" "$(q "SELECT failed_logins FROM users WHERE id=931;")"
+check "login after reset works" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN "$U" newsecret1)"
+
+# A good login below the threshold clears the counter too.
+run AUTH_LOGIN "$U" wrong >/dev/null
+run AUTH_LOGIN "$U" wrong >/dev/null
+check "two failures counted" "2" "$(q "SELECT failed_logins FROM users WHERE id=931;")"
+check "good login succeeds" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN "$U" newsecret1)"
+check "good login clears the counter" "0" "$(q "SELECT failed_logins FROM users WHERE id=931;")"
+
+q "DELETE FROM users WHERE id=931; DELETE FROM verification_logs WHERE email='$U';"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
