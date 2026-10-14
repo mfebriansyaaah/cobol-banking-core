@@ -32,6 +32,7 @@
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
         01  WS-BIND-4               PIC X(256) VALUE SPACES.
         01  WS-BIND-5               PIC X(256) VALUE SPACES.
+        01  WS-BIND-6               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -88,6 +89,8 @@
         01  WS-SENDER-CURACTIVE    PIC X(1)  VALUE SPACES.
         01  WS-TARGET-STATUS       PIC X(10) VALUE SPACES.
         01  WS-TARGET-CURACTIVE    PIC X(1)  VALUE SPACES.
+        01  WS-SENDER-PREC         PIC X(2)  VALUE SPACES.
+        01  WS-TARGET-PREC         PIC X(2)  VALUE SPACES.
         01  WS-RATE-STR            PIC X(40) VALUE SPACES.
 
         LINKAGE SECTION.
@@ -597,7 +600,7 @@
             END-IF
 
             *> Resolve the sender account (no lock yet).
-            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -612,7 +615,7 @@
                 ELSE
                     UNSTRING WS-RESULT DELIMITED BY "|"
                         INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-CUR
-                             WS-SENDER-STATUS WS-SENDER-CURACTIVE
+                             WS-SENDER-STATUS WS-SENDER-CURACTIVE WS-SENDER-PREC
                     END-UNSTRING
                 END-IF
             END-IF
@@ -636,7 +639,7 @@
             
             *> Resolve the target account (no lock yet).
             IF WS-TRANSFER-OK
-                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -651,7 +654,7 @@
                     ELSE
                         UNSTRING WS-RESULT DELIMITED BY "|"
                             INTO WS-TARGET-ACC WS-TARGET-CUR
-                                 WS-TARGET-STATUS WS-TARGET-CURACTIVE
+                                 WS-TARGET-STATUS WS-TARGET-CURACTIVE WS-TARGET-PREC
                         END-UNSTRING
                     END-IF
                 END-IF
@@ -701,7 +704,8 @@
             END-IF
             
             *> Cross-currency: look up the rate (base = sender, target = target).
-            *> Same currency uses a rate of 1.
+            *> Same currency uses a rate of 1. If only the inverse pair exists,
+            *> use its reciprocal.
             IF WS-TRANSFER-OK
                 MOVE "1" TO WS-RATE-STR
                 IF WS-SENDER-CUR NOT = WS-TARGET-CUR
@@ -713,7 +717,23 @@
                         BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                     CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                     IF WS-RESULT = "ERROR|NO_DATA"
-                        SET WS-TRANSFER-FAIL-CURR TO TRUE
+                        *> Fall back to the inverse pair, if any.
+                        MOVE "SELECT CAST(ROUND(1 / exchange_rate, 6) AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
+                        MOVE WS-TARGET-CUR TO WS-BIND-1
+                        MOVE WS-SENDER-CUR TO WS-BIND-2
+                        CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                            BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                            BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                        CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                        IF WS-RESULT = "ERROR|NO_DATA"
+                            SET WS-TRANSFER-FAIL-CURR TO TRUE
+                        ELSE
+                            IF WS-RESULT(1:5) = "ERROR"
+                                SET WS-TRANSFER-FAIL-DB TO TRUE
+                            ELSE
+                                MOVE WS-RESULT TO WS-RATE-STR
+                            END-IF
+                        END-IF
                     ELSE
                         IF WS-RESULT(1:5) = "ERROR"
                             SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -773,9 +793,11 @@
                 END-IF
             END-IF
             
-            *> Debit sender.
+            *> Debit sender, rounded to its currency precision.
             IF WS-TRANSFER-OK
-                MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "UPDATE accounts SET balance = balance - ROUND(?, " WS-SENDER-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -788,9 +810,11 @@
                 END-IF
             END-IF
             
-            *> Credit target (converted to its currency when it differs).
+            *> Credit target (converted to its currency, at its precision).
             IF WS-TRANSFER-OK
-                MOVE "UPDATE accounts SET balance = balance + ROUND(? * ?, 2) WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "UPDATE accounts SET balance = balance + ROUND(? * ?, " WS-TARGET-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-RATE-STR TO WS-BIND-2
                 MOVE WS-TARGET-ACC TO WS-BIND-3
@@ -805,8 +829,11 @@
             END-IF
             
             *> Immutable ledger entries: one DEBIT, one CREDIT, same txn_ref.
+            *> The CREDIT row snapshots the applied rate.
             IF WS-TRANSFER-OK
-                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'DEBIT', ?, 'Transfer out')" TO WS-PREP-SQL
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
@@ -822,15 +849,18 @@
             END-IF
             
             IF WS-TRANSFER-OK
-                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ROUND(? * ?, 2), 'CREDIT', ?, 'Transfer in')" TO WS-PREP-SQL
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-TARGET-ACC TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
                 MOVE WS-RATE-STR TO WS-BIND-4
                 MOVE WS-TARGET-CUR TO WS-BIND-5
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                MOVE WS-RATE-STR TO WS-BIND-6
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
                 IF WS-RESULT(1:5) = "ERROR"
