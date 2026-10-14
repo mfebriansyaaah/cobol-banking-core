@@ -56,6 +56,7 @@ export const ROUTES = [
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
+    { name: 'mfaCode', pattern: CODE, required: false },
   ], onSuccess: async (body, input) => {
     const ver = await tokenVersion(input.email);
     const issued = signRefresh({ email: input.email });
@@ -104,6 +105,27 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'currentPassword', pattern: PASSWORD, required: true },
     { name: 'newPassword', pattern: PASSWORD, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/mfa/enroll', action: 'MFA_ENROLL_BEGIN', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ], onSuccess: async (body, input) => {
+    // The secret is shown once so the user can add it to their authenticator.
+    const secret = body.data[1];
+    const issuer = process.env.MFA_ISSUER || 'CobolBank';
+    const label = encodeURIComponent(`${issuer}:${input.email}`);
+    const otpauth = `otpauth://totp/${label}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
+    return { data: ['MFA_SECRET'], secret, otpauth };
+  } },
+  { method: 'post', path: '/mfa/confirm', action: 'MFA_ENROLL_CONFIRM', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'code', pattern: CODE, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/mfa/disable', action: 'MFA_DISABLE', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
   { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', tokenIdentity: 'actor', fields: [
