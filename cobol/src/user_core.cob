@@ -47,6 +47,7 @@
         01  WS-I                    PIC 9(5).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-AT-COUNT             PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
@@ -191,6 +192,33 @@
             IF WS-P4-LEN = 0
                 MOVE 1 TO WS-P4-LEN
             END-IF.
+
+        VALIDATE-EMAIL.
+            *> WS-CHECK holds a candidate email; sets WS-BAD when malformed.
+            MOVE 0 TO WS-AT-COUNT
+            INSPECT WS-CHECK TALLYING WS-AT-COUNT FOR ALL "@"
+            IF WS-AT-COUNT NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF
+            IF WS-CHECK(1:1) = SPACE
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-DOB.
+            *> WS-CHECK holds a candidate YYYY-MM-DD; sets WS-BAD when malformed.
+            IF WS-CHECK(5:1) NOT = "-" OR WS-CHECK(8:1) NOT = "-"
+                MOVE 1 TO WS-BAD
+            ELSE
+                IF WS-CHECK(1:4) IS NOT NUMERIC
+                   OR WS-CHECK(6:2) IS NOT NUMERIC
+                   OR WS-CHECK(9:2) IS NOT NUMERIC
+                   OR WS-CHECK(6:2) < "01" OR WS-CHECK(6:2) > "12"
+                   OR WS-CHECK(9:2) < "01" OR WS-CHECK(9:2) > "31"
+                    MOVE 1 TO WS-BAD
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
 
         TRIM-OUTPUT-VALUES.
             MOVE 0 TO WS-ELEN
@@ -395,6 +423,15 @@
             EXIT PARAGRAPH.
 
         ACTION-REQ-EMAIL-CHANGE.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            MOVE WS-PARAM2-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> Only the owner may change their own email (actor p3 = current p1).
             IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM3-TRIMMED(1:WS-P3-LEN)
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -476,6 +513,15 @@
             EXIT PARAGRAPH.
 
         ACTION-CONFIRM-EMAIL-CHANGE.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            MOVE WS-PARAM2-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> Only the owner may confirm their own email change (actor p4 = current p1).
             IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM4-TRIMMED(1:WS-P4-LEN)
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -505,6 +551,19 @@
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE "ERROR|INVALID_CODE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+
+            *> The new address must still be free — a race (someone took it after
+            *> the request) is reported, not surfaced as an opaque failure.
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "ERROR|NO_DATA"
+                MOVE "ERROR|EMAIL_EXISTS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
 
@@ -599,6 +658,17 @@
             EXIT PARAGRAPH.
 
         ACTION-UPDATE-PROFILE.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-PARAM4-TRIMMED(1:1) NOT = SPACE
+                MOVE WS-PARAM4-TRIMMED TO WS-CHECK
+                PERFORM VALIDATE-DOB
+            END-IF
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> p1 = email, p2 = full name, p3 = actor (owner), p4 = dob (opt).
             IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM3-TRIMMED(1:WS-P3-LEN)
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -679,6 +749,13 @@
             EXIT PARAGRAPH.
 
         ACTION-DEACTIVATE-ACCOUNT.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> p1 = email, p2 = actor (owner). Soft-close the account.
             IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -737,6 +814,13 @@
             EXIT PARAGRAPH.
 
         ACTION-SET-USER-STATUS.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> p1 = target email, p2 = new status, p3 = actor (admin).
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
