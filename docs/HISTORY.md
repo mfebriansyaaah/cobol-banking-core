@@ -1356,3 +1356,120 @@ _merged 2026-10-14_
 - feat(auth): attribute the CHANGE_ROLE audit row to the actor
 - feat(crypto): constant-time comparison for password hash verification
 
+## #136 wallet-account-status
+
+_merged 2026-10-14_
+
+- docs: wallet account lifecycle (status/currency), suite and counts
+- test(gateway): frozen account transfer rejected over HTTP
+- test: account lifecycle suite + ci step 32/32
+- feat(gateway): map ACCOUNT_FROZEN/ACCOUNT_CLOSED/CURRENCY_INACTIVE to 409
+- feat(wallet): enforce ACTIVE account status and enabled currency on transfer
+- docs: sync HISTORY.md to post-merge state (#135)
+
+## #137 wallet-balance-api
+
+_merged 2026-10-14_
+
+- docs: multi-account balance shape, counts
+- test(gateway): assert the structured balance envelope
+- test: shell expectations for the multi-account balance shape
+- feat(gateway): parse /wallet/balance into structured balances
+- feat(wallet): return every account with currency and status from CHECK_BALANCE
+
+## #138 wallet-idempotency
+
+_merged 2026-10-14_
+
+- docs: required per-sender idempotency, counts
+- test: per-sender idempotency, unique auto refs, required key
+- feat(gateway): require the Idempotency-Key on /wallet/transfer
+- feat(wallet): scope replay by sender and mint unique auto references
+- feat(db): scope transfer idempotency per sender (migration 0015)
+
+## #139 wallet-transfer-limits
+
+_merged 2026-10-14_
+
+- docs: transfer limits (env caps), counts
+- test(gateway): per-transaction limit rejected over HTTP
+- test: transfer limits suite + ci step 33/33
+- feat(gateway): map LIMIT_EXCEEDED/DAILY_LIMIT_EXCEEDED to 400
+- feat(wallet): optional per-transaction and daily debit limits on TRANSFER
+- feat(settings): env_or helper to read limits from the environment
+
+## #140 wallet-reversal
+
+_merged 2026-10-14_
+
+- test: scope reversal audit check to the specific reference
+- fix(db): cascade reversal markers when a user is deleted
+- docs: reversal/status actions, routes and counts
+- refactor: rename TRANSFER_STATUS action to TX_STATUS (avoid router prefix clash)
+- test(gateway): transaction status + reversal over HTTP
+- test: transfer reversal + status suite + ci step 34/34
+- feat(gateway): /transactions/:ref (status) and /transactions/:ref/reverse
+- feat(wallet): REVERSE_TRANSFER compensating reversal + TRANSFER_STATUS
+- feat(db): migration 0016 adds transfer_reversals
+
+## #141 wallet-fx
+
+_merged 2026-10-14_
+
+- docs: inverse FX, currency precision, rate snapshot
+- test(gateway): cross-currency transfer via the inverse rate
+- test: FX inverse rate, precision and rate-snapshot checks
+- feat(wallet): inverse FX rate fallback, currency precision, and rate snapshot
+- feat(db): migration 0017 snapshots the applied FX rate on the ledger
+
+## #142 wallet-observability
+
+_merged 2026-10-14_
+
+- docs: audit detail, DB_BUSY, intent retention, counts
+- test: wallet observability suite + ci step 35/35
+- feat(gateway): map DB_BUSY to 503
+- feat(auth): archive carries the audit detail column
+- feat(wallet): audit detail, transient DB_BUSY classification, intent pruning
+- feat(db): migration 0018 adds audit detail context
+
+## #143 wallet-hardening
+
+_merged 2026-10-14_
+
+- docs: core amount validation, widened numeric fields, counts
+- test: core rejects malformed amounts
+- feat(wallet): validate the amount format in the core
+- chore(wallet): drop the redundant TRIM-PARAM4 loop
+- refactor(wallet): widen numeric working fields to S9(16)V99 and repair a merged declaration
+
+## #144 wallet-status-admin
+
+_merged 2026-10-14_
+
+- docs: admin sender-scoped status, counts
+- test: admin sender-scoped transaction status
+- feat(gateway): sender param on /transactions/:ref
+- feat(wallet): TX_STATUS optional sender filter and deterministic newest
+- feat(db): monotonic id on pending_transactions (migration 0019)
+
+## #145 wallet-account-picker
+
+_merged 2026-10-14_
+
+- docs: account selection by currency, counts
+- test: account picker (shell + HTTP); lift test rate limits
+- feat(gateway): fromCurrency/toCurrency on transfer (CURRENCY pattern)
+- fix(gateway): forward all parameters to the COBOL binary
+- feat(wallet): six-parameter routing and currency-scoped account selection
+
+## #146 wallet-intent-archive
+
+_merged 2026-10-14_
+
+- docs: archived idempotency intents, counts
+- test: reusing an archived key runs as a fresh transfer
+- test: pruned intent is archived
+- feat(wallet): archive pruned idempotency intents instead of dropping them
+- feat(db): migration 0020 archives pruned transfer intents
+

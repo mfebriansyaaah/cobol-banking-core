@@ -23,6 +23,10 @@
         01  WS-NAME                 PIC X(100) VALUE SPACES.
         01  WS-BAL                  PIC X(30) VALUE SPACES.
         01  WS-ACCOUNTS             PIC X(300) VALUE SPACES.
+        01  WS-STATUS               PIC X(10) VALUE SPACES.
+        01  WS-ROLE                 PIC X(12) VALUE SPACES.
+        01  WS-DOB                  PIC X(10) VALUE SPACES.
+        01  WS-CREATED              PIC X(19) VALUE SPACES.
         01  WS-LIMIT                PIC X(10) VALUE SPACES.
         01  WS-OFFSET               PIC X(10) VALUE SPACES.
         01  WS-ELEN                 PIC 9(3) VALUE 1.
@@ -304,8 +308,9 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            *> All of the user's accounts, as iso:balance pairs.
-            MOVE "SELECT u.email, u.full_name, GROUP_CONCAT(CONCAT(c.iso_code, ':', ROUND(a.balance,2)) ORDER BY a.account_id SEPARATOR ';') FROM users u JOIN accounts a ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? GROUP BY u.id" TO WS-PREP-SQL
+            *> The user's profile plus all their accounts, as iso:balance pairs.
+            *> LEFT JOIN so a user with no accounts still has a profile row.
+            MOVE "SELECT u.email, u.full_name, u.status, u.role, u.dob, DATE_FORMAT(u.created_at, '%Y-%m-%dT%H:%i:%s'), COALESCE(GROUP_CONCAT(CONCAT(c.iso_code, ':', ROUND(a.balance,2)) ORDER BY a.account_id SEPARATOR ';'), '') FROM users u LEFT JOIN accounts a ON a.user_id = u.id LEFT JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? GROUP BY u.id" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -318,13 +323,20 @@
             END-IF
             
             UNSTRING WS-RESULT DELIMITED BY "|"
-                INTO WS-EMAIL WS-NAME WS-ACCOUNTS
+                INTO WS-EMAIL WS-NAME WS-STATUS WS-ROLE WS-DOB WS-CREATED WS-ACCOUNTS
             END-UNSTRING
             
             PERFORM TRIM-OUTPUT-VALUES
             MOVE SPACES TO LS-OUTPUT-BUFFER
-            STRING "SUCCESS|DASHBOARD|" WS-EMAIL(1:WS-ELEN) "|" WS-NAME(1:WS-NLEN) "|" WS-ACCOUNTS(1:WS-ALEN) 
-                   DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|DASHBOARD|" DELIMITED BY SIZE
+                   WS-EMAIL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-NAME(1:WS-NLEN) DELIMITED BY SIZE "|" DELIMITED BY SIZE
+                   WS-STATUS DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-ROLE DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-DOB DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-CREATED DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-ACCOUNTS DELIMITED BY SPACE
+                   INTO LS-OUTPUT-BUFFER
             END-STRING.
             EXIT PARAGRAPH.
 

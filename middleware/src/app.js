@@ -107,7 +107,17 @@ export const ROUTES = [
   { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  ], onSuccess: async (body) => {
+    // data: ['DASHBOARD', email, name, status, role, dob, createdAt, accounts]
+    const [email, name, status, role, dob, createdAt, accounts = ''] = body.data.slice(1);
+    const balances = accounts
+      ? accounts.split(';').map((row) => {
+          const [currency, balance] = row.split(':');
+          return { currency, balance };
+        })
+      : [];
+    return { data: ['PROFILE'], profile: { email, name, status, role, dob, createdAt }, accounts: balances };
+  } },
   { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },

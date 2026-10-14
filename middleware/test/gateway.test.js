@@ -605,3 +605,17 @@ test('transfer selects the sender account by currency', async () => {
   const bad = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mcbad-${Date.now()}`).send({ to: 'receiver@test.com', amount: '1.00', fromCurrency: 'JPY' });
   assert.equal(bad.status, 404);
 });
+
+test('profile is structured and works without accounts', async () => {
+  const em = `gw_prof_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Prof', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+
+  const res = await request(app).get('/profile').query({ email: em }).set('Authorization', `Bearer ${token}`);
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.data, ['PROFILE']);
+  assert.equal(res.body.profile.email, em);
+  assert.equal(res.body.profile.status, 'VERIFIED');
+  assert.deepEqual(res.body.accounts, []);
+});
