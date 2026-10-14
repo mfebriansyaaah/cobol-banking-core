@@ -487,12 +487,35 @@ test('transfers from a frozen account are rejected (409)', async () => {
   seedAccount(em, '1000.00');
   runSql(`UPDATE accounts a JOIN users u ON a.user_id=u.id SET a.status='FROZEN' WHERE u.email='${em}'`);
 
-  const res = await request(app).post('/wallet/transfer').set(auth).send({ to: 'receiver@test.com', amount: '10.00' });
+  const res = await request(app)
+    .post('/wallet/transfer')
+    .set(auth)
+    .set('Idempotency-Key', `frozen-${Date.now()}`)
+    .send({ to: 'receiver@test.com', amount: '10.00' });
   assert.equal(res.status, 409);
   assert.equal(res.body.error, 'ACCOUNT_FROZEN');
 
   // Unfreezing lets it through again.
   runSql(`UPDATE accounts a JOIN users u ON a.user_id=u.id SET a.status='ACTIVE' WHERE u.email='${em}'`);
-  const ok = await request(app).post('/wallet/transfer').set(auth).send({ to: 'receiver@test.com', amount: '10.00' });
+  const ok = await request(app)
+    .post('/wallet/transfer')
+    .set(auth)
+    .set('Idempotency-Key', `active-${Date.now()}`)
+    .send({ to: 'receiver@test.com', amount: '10.00' });
   assert.equal(ok.status, 200);
+});
+
+test('transfer without an idempotency key is rejected', async () => {
+  const em = `gw_nokey_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'NoKey', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  seedAccount(em, '100.00');
+
+  const res = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ to: 'receiver@test.com', amount: '1.00' });
+  assert.equal(res.status, 400);
+  assert.equal(res.body.error, 'INVALID_PARAMETER');
 });
