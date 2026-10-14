@@ -47,11 +47,19 @@
             88  WS-TRANSFER-FAIL-FROZEN VALUE 'FRZN'.
             88  WS-TRANSFER-FAIL-CLOSED VALUE 'CLSD'.
             88  WS-TRANSFER-FAIL-CURINACT VALUE 'CINA'.
+            88  WS-TRANSFER-FAIL-LIMIT VALUE 'LIMT'.
+            88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.
         01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(50) VALUE SPACES.
         01  WS-RAND                PIC X(6)  VALUE SPACES.
+        01  WS-MAX-TXN-STR         PIC X(20) VALUE SPACES.
+        01  WS-DAILY-LIMIT-STR     PIC X(20) VALUE SPACES.
+        01  WS-PRIOR-TOTAL-STR     PIC X(30) VALUE SPACES.
+        01  WS-MAX-TXN-NUM         PIC S9(13)V99 COMP-3.
+        01  WS-DAILY-LIMIT-NUM     PIC S9(13)V99 COMP-3.
+        01  WS-PRIOR-TOTAL-NUM     PIC S9(15)V99 COMP-3.
         01  WS-REF                 PIC X(50) VALUE SPACES.
         01  WS-REFLEN              PIC 9(3) VALUE 1.
         01  WS-INTENT-FROM         PIC X(100) VALUE SPACES.
@@ -474,6 +482,40 @@
                 END-IF
             END-IF
             
+            *> Optional per-transaction limit (sender currency); 0 disables it.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-MAX-TXN-STR
+                CALL "env_or" USING BY REFERENCE "TRANSFER_MAX_PER_TXN" BY REFERENCE "0" BY REFERENCE WS-MAX-TXN-STR
+                COMPUTE WS-MAX-TXN-NUM = FUNCTION NUMVAL(WS-MAX-TXN-STR) * 100
+                IF WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
+                    SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+                END-IF
+            END-IF
+            
+            *> Optional rolling 24h debit limit per account; 0 disables it.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-DAILY-LIMIT-STR
+                CALL "env_or" USING BY REFERENCE "TRANSFER_DAILY_LIMIT" BY REFERENCE "0" BY REFERENCE WS-DAILY-LIMIT-STR
+                COMPUTE WS-DAILY-LIMIT-NUM = FUNCTION NUMVAL(WS-DAILY-LIMIT-STR) * 100
+                IF WS-DAILY-LIMIT-NUM > 0
+                    MOVE "SELECT CAST(ROUND(COALESCE(SUM(l.amount),0) * 100, 0) AS CHAR) FROM ledger l WHERE l.account_id = ? AND l.type = 'DEBIT' AND l.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)" TO WS-PREP-SQL
+                    MOVE WS-SENDER-ACC TO WS-BIND-1
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET WS-TRANSFER-FAIL-DB TO TRUE
+                    ELSE
+                        MOVE WS-RESULT TO WS-PRIOR-TOTAL-STR
+                        COMPUTE WS-PRIOR-TOTAL-NUM = FUNCTION NUMVAL(WS-PRIOR-TOTAL-STR)
+                        IF WS-PRIOR-TOTAL-NUM + WS-AMOUNT-NUM > WS-DAILY-LIMIT-NUM
+                            SET WS-TRANSFER-FAIL-DAILY TO TRUE
+                        END-IF
+                    END-IF
+                END-IF
+            END-IF
+            
             IF WS-TRANSFER-OK
                 COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-SENDER-BAL)
                 IF WS-BALANCE-NUM < WS-AMOUNT-NUM
@@ -610,7 +652,15 @@
                                                     IF WS-TRANSFER-FAIL-CURINACT
                                                         MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
                                                     ELSE
-                                                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                                        IF WS-TRANSFER-FAIL-LIMIT
+                                                            MOVE "ERROR|LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+                                                        ELSE
+                                                            IF WS-TRANSFER-FAIL-DAILY
+                                                                MOVE "ERROR|DAILY_LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+                                                            ELSE
+                                                                MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                                            END-IF
+                                                        END-IF
                                                     END-IF
                                                 END-IF
                                             END-IF
