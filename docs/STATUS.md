@@ -57,14 +57,13 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update; audit row **attributed to the actor** (entity_id = target) | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|ROLE_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive` | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
-| `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | revoke a refresh token | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
+| `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | remove one refresh session (per-device logout) | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `LIST_SESSIONS` | email, actor (self-or-admin) | active (unrevoked, unexpired) refresh sessions as `jti:created:expires;...` | `SUCCESS\|SESSIONS\|...` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_LIST_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_USER_SESSION` | email, actor, session id | revoke one session that belongs to the account (self-or-admin) | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_ALL_SESSIONS` | email, actor (self-or-admin) | bump `token_version` **and** revoke every refresh session (logout everywhere), audited | `SUCCESS\|SESSIONS_REVOKED` * `ERROR\|FORBIDDEN` * `ERROR\|SESSIONS_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `CONSUME_SESSION` | jti | **atomic** rotate: consume (revoke) the session in one conditional update; a replay is reuse — kills the family, bumps `token_version` and audits | `SUCCESS\|SESSION_CONSUMED` * `ERROR\|SESSION_REUSED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|SESSION_EXPIRED` |
 | `cobol/src/auth_core.cob` | `GET_TOKEN_VERSION` | email | current access-token version for a user | `SUCCESS\|<ver>` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `CHECK_TOKEN` | email, version, jti | access token is current and not denylisted | `SUCCESS\|TOKEN_VALID` * `ERROR\|TOKEN_REVOKED` * `ERROR\|ACCOUNT_NOT_FOUND` |
-| `cobol/src/auth_core.cob` | `REVOKE_TOKENS` | email | bump the version, invalidating issued access tokens | `SUCCESS\|TOKENS_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_ACCESS_TOKEN` | jti, email, ttl seconds | deny one access token until it would expire | `SUCCESS\|TOKEN_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` |
 
@@ -120,10 +119,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 77 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 78 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **449**; with the gateway suite **77** the full run is
-**526 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **449**; with the gateway suite **78** the full run is
+**527 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -138,7 +137,8 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 `/admin/role` (GET/POST),
 `/admin/reconcile`
 (read-only balance/ledger check), `/metrics` (Prometheus counters, bearer),
-`/auth/logout` (revokes a refresh token), `/auth/revoke` (revokes the presented
+`/auth/logout` (per-device: removes the presented refresh session and denies the
+bearer if sent), `/auth/revoke` (revokes the presented
 access token), `/admin/audit/archive` (moves old audit rows to the archive).
 Both admin routes (`/admin/role` POST, `/admin/reconcile`) take the actor from
 the verified token, never the request body. The per-user reads (`/users/:email`,
@@ -166,9 +166,12 @@ defaults. Access and refresh tokens are bound to an issuer and audience
 delivered out of band (SMTP when configured, otherwise logged without the code
 in development) and are never returned in the HTTP response. Access tokens carry
 the user's token version, checked on every protected request (`CHECK_TOKEN`);
-logout bumps it (`REVOKE_TOKENS`), so an issued access token can be revoked
-before it expires. A single token can be revoked per `jti` (`POST /auth/revoke`
--> `REVOKE_ACCESS_TOKEN`), and the denylist lives in the shared database behind
+an admin/status change or a password/email change bumps it, so already-issued
+access tokens can be revoked before they expire. A single token can be revoked
+per `jti` (`POST /auth/revoke` -> `REVOKE_ACCESS_TOKEN`), and `POST /auth/logout`
+is per-device: it removes the presented refresh session and, when the bearer is
+also sent, denies that access token — other devices keep working. The denylist
+lives in the shared database behind
 a `tokenStore` seam (a distributed store can replace it). A user (or an admin)
 can list their active refresh sessions (`GET /sessions`), revoke one, or revoke
 them all (`POST /sessions/revoke-all` -> `REVOKE_ALL_SESSIONS`, which bumps the
@@ -193,6 +196,7 @@ list page size is capped at 100 (`limit` 1..100).
 - Account lifecycle: `users.status` is `UNVERIFIED`/`VERIFIED`/`SUSPENDED`/`CLOSED`. The owner can soft-close their account (`DEACTIVATE_ACCOUNT` -> `CLOSED`) and an admin can set any status (`SET_USER_STATUS`). Login refuses `SUSPENDED`/`CLOSED` with `USER_SUSPENDED`/`USER_CLOSED`; deactivation and every status change bump `token_version` and revoke refresh sessions, so existing tokens die immediately.
 - Profile actions validate their own inputs in COBOL (email shape, date-of-birth format/ranges) as defence-in-depth alongside the gateway patterns; an email-change whose new address is taken between request and confirm is reported as `EMAIL_EXISTS` rather than an opaque failure.
 - Refresh **rotation is atomic** (`CONSUME_SESSION`: a single conditional revoke; concurrent callers cannot both win). A replay of a consumed token is reuse — the gateway's `/auth/refresh` rejects it, the whole family is revoked, the user's `token_version` is bumped (so previously issued access tokens die immediately) and a `SESSION_REUSED` audit row is written.
+- **Logout is per-device**: `/auth/logout` removes only the presented refresh session (so replaying a logged-out token is a plain `SESSION_NOT_FOUND`, not a reuse that would nuke every device) and, when the bearer is also presented, adds that access token's `jti` to the denylist. Other devices are unaffected; `POST /sessions/revoke-all` remains the logout-everywhere path.
 - Optional transfer caps are read from the environment and **off by default** (0): TRANSFER_MAX_PER_TXN caps one debit, TRANSFER_DAILY_LIMIT caps the rolling 24h debit total per account (from the `ledger`); the values are whole units of the sender's currency.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Prepared statements are used for the parameterized queries in `user_core`, `wallet_core` and most of `auth_core`; the remaining `auth_core` statements (login/lockout, signup/verify, audit) embed `mysql_real_escape_string`-escaped values, which the whitelist validator plus escaping keep safe. The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
