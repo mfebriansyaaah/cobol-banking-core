@@ -122,6 +122,7 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'password', pattern: PASSWORD, required: true },
   ], onSuccess: async (body, input, { mailer }) => {
     // Neutral: a code is delivered only when the new address is free.
     const code = body.data[1];
@@ -133,7 +134,15 @@ export const ROUTES = [
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  ], onSuccess: async (body, input, { mailer }) => {
+    // Notify the address being abandoned.
+    await mailer.sendNotice({
+      to: input.email,
+      subject: 'Your account email was changed',
+      text: `Your account email was changed to ${input.newEmail}. If this was not you, contact support.`,
+    });
+    return { data: ['EMAIL_CHANGED'] };
+  } },
   { method: 'post', path: '/profile/password', action: 'CHANGE_PASSWORD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'currentPassword', pattern: PASSWORD, required: true },
