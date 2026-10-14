@@ -6,6 +6,12 @@ const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'dev-refresh-secret-change-me';
 const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN || '7d';
 
+// Tokens are bound to an issuer and audience so a token minted for one
+// deployment cannot be replayed against another.
+const ISSUER = process.env.JWT_ISSUER || 'cobol-banking-core';
+const AUDIENCE = process.env.JWT_AUDIENCE || 'cobol-banking-api';
+const JWT_CLAIMS = { issuer: ISSUER, audience: AUDIENCE };
+
 // Refresh-token lifetime in whole days (mirrors REFRESH_EXPIRES_IN for storage).
 export const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TTL_DAYS || 7);
 
@@ -24,7 +30,7 @@ export function assertSecureConfig() {
 }
 
 export function signToken(payload) {
-  return jwt.sign(payload, SECRET, { expiresIn: EXPIRES_IN });
+  return jwt.sign(payload, SECRET, { expiresIn: EXPIRES_IN, ...JWT_CLAIMS });
 }
 
 // Access-token lifetime in seconds (for the per-token denylist expiry).
@@ -38,12 +44,12 @@ export const ACCESS_TTL_SECONDS = parseSeconds(EXPIRES_IN, 900);
 
 /** Issue a refresh token carrying a jti (server-side revocable id). */
 export function signRefresh(payload, jti = randomUUID()) {
-  const token = jwt.sign({ ...payload, jti }, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES_IN });
+  const token = jwt.sign({ ...payload, jti }, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES_IN, ...JWT_CLAIMS });
   return { token, jti };
 }
 
 export function verifyRefresh(token) {
-  return jwt.verify(token, REFRESH_SECRET);
+  return jwt.verify(token, REFRESH_SECRET, JWT_CLAIMS);
 }
 
 /** Express middleware: require a valid bearer token. */
@@ -54,7 +60,7 @@ export function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'MISSING_TOKEN' });
   }
   try {
-    req.user = jwt.verify(token, SECRET);
+    req.user = jwt.verify(token, SECRET, JWT_CLAIMS);
     return next();
   } catch {
     return res.status(401).json({ error: 'INVALID_TOKEN' });
