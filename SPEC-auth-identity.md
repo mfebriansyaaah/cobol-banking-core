@@ -35,11 +35,13 @@ The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build 
 
 ## Injection safety
 
-Most auth queries use **prepared statements** (bridge `SQL_PREPARE_EXEC`, bound parameters): signup insert, login status + failed-login audit, `GET-USER-ID`, `VERIFY_EMAIL` (log check, updates, audit), `CHECK_ROLE`/`CHANGE_ROLE`, and session `REVOKE`/`CHECK`. Remaining queries (password_hash lookup, weak-password check, email-exists, verification_logs insert, lockout count, `STORE_SESSION`) escape values via `SQL_ESCAPE`; both are safe. Quotes/backslash/semicolon are accepted as literals; only the input-line format characters are refused. `user_core`/`wallet_core` remain whitelist-only (prepared migration pending).
+Most auth queries use **prepared statements** (bridge `SQL_PREPARE_EXEC`, bound parameters): signup insert, login status + failed-login audit, `GET-USER-ID`, `VERIFY_EMAIL` (log check, updates, audit), `CHECK_ROLE`/`CHANGE_ROLE`, and session `REVOKE`/`CONSUME`. Remaining queries (password_hash lookup, weak-password check, email-exists, verification_logs insert, lockout count, `STORE_SESSION`) escape values via `SQL_ESCAPE`; both are safe. Quotes/backslash/semicolon are accepted as literals; only the input-line format characters are refused. `user_core`/`wallet_core` remain whitelist-only (prepared migration pending).
 
 ## Session support (refresh tokens)
 
-`auth_core` also owns the refresh-token session store used by the gateway: `STORE_SESSION` (jti, email, days), `REVOKE_SESSION` (jti), `CHECK_SESSION` (jti -> valid/revoked), backed by the `refresh_sessions` table. This lets the gateway rotate refresh tokens and revoke them on logout.
+`auth_core` also owns the refresh-token session store used by the gateway: `STORE_SESSION` (jti, email, days), `REVOKE_SESSION` (jti), and `CONSUME_SESSION` (jti -> atomically consume for rotation), backed by the `refresh_sessions` table.
+
+The gateway's `/auth/refresh` uses **`CONSUME_SESSION`**: a single conditional `UPDATE ... WHERE jti = ? AND revoked = 0 AND expires_at > NOW()`, so only one concurrent caller can win the rotation. A replay of a consumed token is **reuse**: the whole `family` is revoked, the user's `token_version` is bumped (killing every previously issued access token), and a `SESSION_REUSED` audit row is written. `REVOKE_SESSION` still backs logout.
 
 ## Not yet done
 
