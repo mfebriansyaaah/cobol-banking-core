@@ -34,7 +34,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/wallet_core.cob` | `TRANSFER` | from (token identity), target, amount, **idempotency key** (required by the gateway; scoped per sender) | one transaction: sender **and** target accounts must be `ACTIVE` and both currencies enabled, else rejected; optional per-transaction and rolling 24h debit caps (env); replay only when sender/target/amount match the committed key (unique per sender); `FOR UPDATE` lock; debit sender, credit target (`amount * rate` when currencies differ); 2 `ledger` rows; `audit_trail` (row records `to:amount:currency` in `detail`); intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|ACCOUNT_FROZEN` * `ERROR\|ACCOUNT_CLOSED` * `ERROR\|CURRENCY_INACTIVE` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|LIMIT_EXCEEDED` * `ERROR\|DAILY_LIMIT_EXCEEDED` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|IDEMPOTENCY_CONFLICT` * `ERROR\|INVALID_AMOUNT` * `ERROR\|RATE_NOT_FOUND` * `ERROR\|SELF_TRANSFER` * `ERROR\|DB_ERROR` * `ERROR\|DB_BUSY` |
 | `cobol/src/wallet_core.cob` | `RECONCILE` | actor (SUPER_ADMIN) | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` * `ERROR\|FORBIDDEN` |
 | `cobol/src/wallet_core.cob` | `REVERSE_TRANSFER` | ref, actor (SUPER_ADMIN) | one-time compensating reversal: credit the original sender, debit the target (must still hold the credited funds); writes 2 opposite `ledger` rows, a `transfer_reversals` marker and an audit row | `SUCCESS\|TRANSFER_REVERSED` * `ERROR\|FORBIDDEN` * `ERROR\|UNKNOWN_TRANSACTION` * `ERROR\|ALREADY_REVERSED` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|REVERSAL_FAILED` |
-| `cobol/src/wallet_core.cob` | `TX_STATUS` | ref, actor (owner or admin) | reports a transfer's status (`COMMITTED`/`PENDING`/`REVERSED`) and parties | `SUCCESS\|TRANSFER\|<status>\|<from>\|<to>\|<amount>` * `ERROR\|UNKNOWN_TRANSACTION` |
+| `cobol/src/wallet_core.cob` | `TX_STATUS` | ref, actor (owner or admin), sender (optional, admin) | reports a transfer's status (`COMMITTED`/`PENDING`/`REVERSED`) and parties; an admin may target a sender and the unfiltered result is the newest by id | `SUCCESS\|TRANSFER\|<status>\|<from>\|<to>\|<amount>` * `ERROR\|UNKNOWN_TRANSACTION` |
 | `cobol/src/user_core.cob` | `GET_USER` | email, actor (self-or-admin) | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `LIST_USERS` | limit(20, gateway caps 1..100), offset(0), actor (admin) | paged, rows via `SQL_PREPARE_EXEC_ROWS` | `SUCCESS\|LIST_DONE\|<id:email;...>` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `GET_DASHBOARD` | email, actor (self-or-admin) | email, full name, **all** accounts as `iso:balance;...` | `SUCCESS\|DASHBOARD\|...` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
@@ -100,7 +100,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_transfer_validity.sh` | 28 | positive-amount, malformed-amount rejection (core-level), self-transfer, cross-currency (direct + inverse rate + missing rate), target precision, rate snapshot |
 | `tests/test_wallet_observability.sh` | 6 | TRANSFER audit context (target:amount:currency, actor), idempotency-intent retention (stale pruned, fresh kept) |
 | `tests/test_transfer_limits.sh` | 10 | per-transaction cap (boundary + over) and rolling 24h cap, rejected transfers move nothing |
-| `tests/test_transfer_reversal.sh` | 18 | admin-only one-time reversal (compensating entries, balances restored), status owner/admin-only, ALREADY_REVERSED, insufficient claw-back |
+| `tests/test_transfer_reversal.sh` | 21 | admin-only one-time reversal (compensating entries, balances restored), status owner/admin-only, admin sender filter/determinism, ALREADY_REVERSED, insufficient claw-back |
 | `tests/test_account_status.sh` | 13 | transfer needs ACTIVE sender/target and enabled currencies; failures move nothing; frozen balance still readable |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 18 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version + per-token revocation |
@@ -117,8 +117,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
 | `middleware/` (node --test) | 69 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **388**; with the gateway suite **69** the full run is
-**457 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **391**; with the gateway suite **69** the full run is
+**460 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)

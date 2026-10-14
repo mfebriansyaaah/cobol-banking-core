@@ -99,7 +99,8 @@ same key replays instead of moving money twice (keys are scoped per sender).
 Optional caps `TRANSFER_MAX_PER_TXN` (one debit) and `TRANSFER_DAILY_LIMIT`
 (rolling 24h per account) are off unless set in the environment. A SUPER_ADMIN
 can reverse a transfer once (`POST /transactions/:ref/reverse`), and its status
-is readable at `GET /transactions/:ref`. Each transfer records
+is readable at `GET /transactions/:ref` (admins may add `?sender=<email>` to
+pick a sender when a reference is shared). Each transfer records
 `to:amount:currency` on the audit row; transient DB failures (lock wait /
 deadlock / lost connection) surface as `DB_BUSY` (503), and idempotency intents
 older than `PENDING_RETENTION_DAYS` (default 30) are pruned.
