@@ -77,7 +77,9 @@ denylist is shared (DB) behind a `tokenStore` seam.
 Accounts can add a TOTP second factor: `POST /mfa/enroll` returns the secret and
 an `otpauth://` URI, `POST /mfa/confirm` turns it on, and once enabled
 `POST /auth/login` also needs the current `mfaCode`. Passwords use PBKDF2-SHA256
-(600000 iterations, rehashed on login when below target).
+(600000 iterations, rehashed on login when below target). Users can see their
+active sessions (`GET /sessions`), revoke one (`POST /sessions/revoke`), or log
+out everywhere (`POST /sessions/revoke-all`).
 
 Responses use one envelope - success `{ data: [...] }`, failure
 `{ error, detail? }`. `/users` is paged (`limit` 1..100, `offset`).
