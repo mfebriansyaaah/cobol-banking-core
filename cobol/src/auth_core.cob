@@ -23,6 +23,8 @@
         01  WS-USER-ID              PIC X(20) VALUE SPACES.
         01  WS-ACTOR-ID             PIC X(20) VALUE SPACES.
         01  WS-FAMILY               PIC X(50) VALUE SPACES.
+        01  WS-REVOKED-FLAG         PIC X(1) VALUE "0".
+        01  WS-SESSION-EMAIL        PIC X(100) VALUE SPACES.
         01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-FAILS                PIC X(20) VALUE SPACES.
         01  WS-FAIL-COUNT           PIC 9(4) VALUE 0.
@@ -110,6 +112,8 @@
                     PERFORM STORE-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "REVOKE_SESSION"
                     PERFORM REVOKE-SESSION-LOGIC
+                WHEN LS-CMD-ACTION(1:15) = "CONSUME_SESSION"
+                    PERFORM CONSUME-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "CHECK_SESSION"
                     PERFORM CHECK-SESSION-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "CHECK_TOKEN"
@@ -1098,6 +1102,53 @@
                 MOVE "ERROR|SESSION_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "SUCCESS|SESSION_REVOKED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CONSUME-SESSION-LOGIC.
+            *> p1 = jti. Atomically consume the refresh session: only the first
+            *> caller wins. A later call on an already-revoked jti is reuse and
+            *> kills the whole family plus every access token.
+            MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE jti = ? AND revoked = 0 AND expires_at > NOW()" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:18) = "SUCCESS|AFFECTED_1"
+                MOVE "SUCCESS|SESSION_CONSUMED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> Not consumed: unknown, expired, or already revoked (reuse).
+            MOVE "SELECT CAST(revoked AS CHAR), family, email FROM refresh_sessions WHERE jti = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|SESSION_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-REVOKED-FLAG WS-FAMILY WS-SESSION-EMAIL
+            END-UNSTRING
+            IF WS-REVOKED-FLAG(1:1) NOT = "1"
+                *> Still unrevoked but outside its expiry window.
+                MOVE "ERROR|SESSION_EXPIRED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-REVOKED-FLAG(1:1) = "1"
+                *> Reuse: revoke the family, kill every access token, audit.
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE family = ?" TO WS-PREP-SQL
+                MOVE WS-FAMILY TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE "UPDATE users SET token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-SESSION-EMAIL TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) SELECT id, 'SESSION_REUSED', 'USER', id, 'FAILED' FROM users WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-SESSION-EMAIL TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE "ERROR|SESSION_REUSED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
