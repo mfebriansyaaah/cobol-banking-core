@@ -91,7 +91,7 @@ export const ROUTES = [
     { name: 'from', pattern: EMAIL, required: true },
     { name: 'to', pattern: EMAIL, required: true },
     { name: 'amount', pattern: AMOUNT, required: true },
-    { name: 'idempotencyKey', pattern: KEY, required: false },
+    { name: 'idempotencyKey', pattern: KEY, required: true },
   ] },
   { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },

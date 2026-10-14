@@ -55,7 +55,7 @@ check "committed intent recorded" "COMMITTED" "$(q "SELECT status FROM pending_t
 # Reusing a committed key with different details is a conflict, not a success.
 check "different amount is a conflict" "ERROR|IDEMPOTENCY_CONFLICT" "$(run TRANSFER sender@test.com receiver@test.com 5.00 k-1)"
 check "different recipient is a conflict" "ERROR|IDEMPOTENCY_CONFLICT" "$(run TRANSFER sender@test.com other@test.com 100.00 k-1)"
-check "different sender is a conflict" "ERROR|IDEMPOTENCY_CONFLICT" "$(run TRANSFER receiver@test.com sender@test.com 100.00 k-1)"
+check "different sender is independent (not a conflict)" "ERROR|INSUFFICIENT_FUNDS" "$(run TRANSFER receiver@test.com sender@test.com 5000.00 k-1)"
 check "conflict did not move money" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 check "conflict added no ledger row" "2" "$(q "SELECT COUNT(*) FROM ledger;")"
 
@@ -69,6 +69,25 @@ check "insufficient fails" "ERROR|INSUFFICIENT_FUNDS" "$(run TRANSFER sender@tes
 check "no pending residue" "0" "$(q "SELECT COUNT(*) FROM pending_transactions;")"
 check "balances untouched" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 check "retry same key succeeds" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 100.00 k-3)"
+
+# Idempotency keys are scoped per sender: two senders may reuse the same key.
+q "UPDATE accounts SET balance=1000.00 WHERE account_id=1;
+   UPDATE accounts SET balance=100.00 WHERE account_id=2;
+   DELETE FROM ledger; DELETE FROM pending_transactions;"
+check "sender A uses key shared-k" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 10.00 shared-k)"
+check "sender B reuses the same key" "SUCCESS|TRANSFER_OK" "$(run TRANSFER receiver@test.com sender@test.com 10.00 shared-k)"
+check "both senders' rows share the key" "2" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='shared-k';")"
+
+# A transfer with no key still gets a unique reference.
+q "DELETE FROM ledger; DELETE FROM pending_transactions;"
+run TRANSFER sender@test.com receiver@test.com 1.00 "" >/dev/null
+run TRANSFER sender@test.com receiver@test.com 1.00 "" >/dev/null
+check "auto-generated refs are unique" "2" "$(q "SELECT COUNT(DISTINCT txn_ref) FROM ledger;")"
+
+# Leave the shared seed accounts as other suites expect them.
+q "UPDATE accounts SET balance=1000.00 WHERE account_id=1;
+   UPDATE accounts SET balance=0.00 WHERE account_id=2;
+   DELETE FROM ledger; DELETE FROM pending_transactions;"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
