@@ -126,7 +126,8 @@ acting identity always comes from the token, never the request body. Reads of a
 user's record/balance/profile allow the owner or an admin, listing users is
 admin-only, a transfer is always sent from the token's account, and the
 email-change flow only acts on the token's own email and requires the current
-password; confirming it revokes the sessions (clean re-login). Each request runs
+password; confirming it revokes the sessions (clean re-login). The owner can
+update their name (and date of birth) via `PATCH /profile`. Each request runs
 the
 binary in its own working directory (see
 `docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms` and
