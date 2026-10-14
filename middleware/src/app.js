@@ -96,6 +96,7 @@ export const ROUTES = [
   { method: 'get', path: '/transactions/:ref', action: 'TX_STATUS', tokenIdentity: 'actor', fields: [
     { name: 'ref', pattern: KEY, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'sender', pattern: EMAIL, required: false },
   ] },
   { method: 'post', path: '/transactions/:ref/reverse', action: 'REVERSE_TRANSFER', tokenIdentity: 'actor', fields: [
     { name: 'ref', pattern: KEY, required: true },
