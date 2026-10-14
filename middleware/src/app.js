@@ -287,15 +287,14 @@ export function buildRouter({ mailer, tokenStore } = {}) {
   });
 
   // Pure transport: exchange a refresh token for a new access token. The old
-  // refresh token is checked against the session store and rotated (revoked).
+  // refresh token is consumed atomically; a replay is detected as reuse.
   router.post('/auth/refresh', authLimiter, async (req, res) => {
     try {
       const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
-      const check = await invoke('CHECK_SESSION', [payload.jti || '']);
-      if (check !== 'SUCCESS|SESSION_VALID') {
+      const consume = await invoke('CONSUME_SESSION', [payload.jti || '']);
+      if (consume !== 'SUCCESS|SESSION_CONSUMED') {
         return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
       }
-      await invoke('REVOKE_SESSION', [payload.jti || '']);
       const family = payload.family || payload.jti;
       const ver = await tokenVersion(payload.email);
       const issued = signRefresh({ email: payload.email, family });
