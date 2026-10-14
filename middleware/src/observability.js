@@ -3,15 +3,22 @@
 import { randomUUID } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 
-// --- Metrics registry (process-wide counters) ----------------------------
+// --- Metrics registry (process-wide counters and gauges) ------------------
 const metrics = {
   total: 0,
   byRoute: new Map(), // key: `${method}|${route}|${status}` -> count
+  gauges: new Map(), // name -> value
 };
 
 export function resetMetrics() {
   metrics.total = 0;
   metrics.byRoute.clear();
+  metrics.gauges.clear();
+}
+
+/** Set a gauge (e.g. worker-pool size). Rendered by metricsText. */
+export function setGauge(name, value) {
+  metrics.gauges.set(name, Number(value) || 0);
 }
 
 function escapeLabel(value) {
@@ -39,6 +46,10 @@ export function metricsText() {
         `gateway_requests_total{method="${escapeLabel(method)}",route="${escapeLabel(route)}",status="${escapeLabel(status)}"} ${count}`,
       );
     }
+  }
+  for (const [name, value] of metrics.gauges) {
+    lines.push(`# TYPE ${name} gauge`);
+    lines.push(`${name} ${value}`);
   }
   return `${lines.join('\n')}\n`;
 }

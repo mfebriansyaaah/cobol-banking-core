@@ -5,6 +5,7 @@
 import { spawn } from 'node:child_process';
 import { BINARY } from './binary.js';
 import { InvocationTimeout, InvocationError } from './errors.js';
+import { setGauge } from './observability.js';
 
 class Pool {
   constructor({ size, timeoutMs, binary }) {
@@ -15,6 +16,13 @@ class Pool {
     this.queue = [];
     this.closed = false;
     for (let i = 0; i < size; i += 1) this._addWorker();
+    this._publish();
+  }
+
+  _publish() {
+    setGauge('gateway_cobol_pool_workers', this.workers.length);
+    setGauge('gateway_cobol_pool_busy', this.workers.filter((w) => w.current).length);
+    setGauge('gateway_cobol_pool_queued', this.queue.length);
   }
 
   _addWorker() {
@@ -56,6 +64,7 @@ class Pool {
     this.workers = this.workers.filter((x) => x !== w);
     if (!this.closed) this._addWorker();
     this._dispatch();
+    this._publish();
   }
 
   _idleWorker() {
@@ -69,6 +78,7 @@ class Pool {
       this._send(w, this.queue.shift());
       w = this._idleWorker();
     }
+    this._publish();
   }
 
   _send(w, job) {
