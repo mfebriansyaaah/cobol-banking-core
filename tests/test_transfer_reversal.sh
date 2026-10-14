@@ -1,7 +1,7 @@
 #!/bin/bash
 # Transfer reversal + status suite: a SUPER_ADMIN can reverse a transfer once
 # (compensating ledger entries, balances restored), reversing again is refused,
-# and TRANSFER_STATUS reports COMMITTED/REVERSED to the sender or an admin only.
+# and TX_STATUS reports COMMITTED/REVERSED to the sender or an admin only.
 # Usage: ./tests/test_transfer_reversal.sh
 
 BIN="./cobol/bin/main_logic"
@@ -60,10 +60,10 @@ check "transfer" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@
 check "moved once" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 
 # --- status --------------------------------------------------------------
-check_contains "status for the owner" "COMMITTED" "$(run TRANSFER_STATUS rev-1 sender@test.com)"
-check_contains "status shows parties" "receiver@test.com" "$(run TRANSFER_STATUS rev-1 sender@test.com)"
-check "status hidden from a stranger" "ERROR|UNKNOWN_TRANSACTION" "$(run TRANSFER_STATUS rev-1 ghost@test.com)"
-check "status unknown ref" "ERROR|UNKNOWN_TRANSACTION" "$(run TRANSFER_STATUS nope sender@test.com)"
+check_contains "status for the owner" "COMMITTED" "$(run TX_STATUS rev-1 sender@test.com)"
+check_contains "status shows parties" "receiver@test.com" "$(run TX_STATUS rev-1 sender@test.com)"
+check "status hidden from a stranger" "ERROR|UNKNOWN_TRANSACTION" "$(run TX_STATUS rev-1 ghost@test.com)"
+check "status unknown ref" "ERROR|UNKNOWN_TRANSACTION" "$(run TX_STATUS nope sender@test.com)"
 
 # --- reversal ------------------------------------------------------------
 check "reversal is admin-only" "ERROR|FORBIDDEN" "$(run REVERSE_TRANSFER rev-1 sender@test.com)"
@@ -73,7 +73,7 @@ check "sender restored" "1000.0000" "$(q "SELECT balance FROM accounts WHERE acc
 check "target clawed back" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
 check "compensating ledger rows" "4" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='rev-1';")"
 check "reversal audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='REVERSE_TRANSFER';")"
-check_contains "status is now REVERSED" "REVERSED" "$(run TRANSFER_STATUS rev-1 sender@test.com)"
+check_contains "status is now REVERSED" "REVERSED" "$(run TX_STATUS rev-1 sender@test.com)"
 check "second reversal refused" "ERROR|ALREADY_REVERSED" "$(run REVERSE_TRANSFER rev-1 "$ADM")"
 
 # --- cannot reverse when the target spent the money ----------------------

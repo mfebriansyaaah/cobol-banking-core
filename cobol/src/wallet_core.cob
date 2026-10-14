@@ -116,7 +116,7 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM REVERSE-TRANSFER-LOGIC
-                WHEN LS-CMD-ACTION(1:15) = "TRANSFER_STATUS"
+                WHEN LS-CMD-ACTION(1:9) = "TX_STATUS"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRANSFER-STATUS-LOGIC
