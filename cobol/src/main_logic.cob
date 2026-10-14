@@ -31,103 +31,120 @@
         01  WS-OUT-LEN        PIC 9(5) VALUE 0.
         01  WS-OUT-POS        PIC 9(5) VALUE 1.
         01  WS-OUT-I          PIC 9(5) VALUE 0.
+        01  WS-ARGS           PIC X(200) VALUE SPACES.
+        01  WS-SERVE-DONE     PIC X VALUE 'N'.
+        01  WS-EOF            PIC X VALUE 'N'.
         
         PROCEDURE DIVISION.
         
         MAIN-LOGIC.
-            OPEN INPUT INPUT-FILE.
-            OPEN OUTPUT OUTPUT-FILE.
-            
+            ACCEPT WS-ARGS FROM COMMAND-LINE
+            IF WS-ARGS(1:7) = "--serve"
+                PERFORM SERVE-MODE
+            ELSE
+                PERFORM FILE-MODE
+            END-IF.
+            MOVE 0 TO RETURN-CODE.
+            STOP RUN.
+
+        FILE-MODE.
+            *> Default: read one request line from input.txt, write output.txt.
+            OPEN INPUT INPUT-FILE
+            OPEN OUTPUT OUTPUT-FILE
+            MOVE 'N' TO WS-EOF
+            MOVE SPACES TO INPUT-BUFFER
             READ INPUT-FILE INTO INPUT-BUFFER
-                AT END 
-                    CLOSE INPUT-FILE
-                    CLOSE OUTPUT-FILE
-                    STOP RUN
-                END-READ.
-            
+                AT END MOVE 'Y' TO WS-EOF
+            END-READ
+            IF WS-EOF NOT = 'Y'
+                PERFORM PARSE-INPUT
+                PERFORM DISPATCH-ACTION
+                PERFORM WRITE-OUTPUT
+            END-IF.
+            CLOSE INPUT-FILE
+            CLOSE OUTPUT-FILE.
+            EXIT PARAGRAPH.
+
+        SERVE-MODE.
+            *> Long-running mode: one request line per stdin, one result line
+            *> per stdout, until QUIT or EOF (used by the worker pool).
+            PERFORM UNTIL WS-SERVE-DONE = 'Y'
+                MOVE SPACES TO INPUT-BUFFER
+                ACCEPT INPUT-BUFFER
+                IF INPUT-BUFFER = SPACES
+                    MOVE 'Y' TO WS-SERVE-DONE
+                ELSE IF INPUT-BUFFER(1:4) = "QUIT"
+                    MOVE 'Y' TO WS-SERVE-DONE
+                ELSE
+                    PERFORM PARSE-INPUT
+                    PERFORM DISPATCH-ACTION
+                    DISPLAY FUNCTION TRIM(WS-OUTPUT-MSG)
+                END-IF
+            END-PERFORM.
+            EXIT PARAGRAPH.
+
+        PARSE-INPUT.
+            MOVE SPACES TO CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4
             UNSTRING INPUT-BUFFER DELIMITED BY "|" 
                 INTO CMD-ACTION, CMD-PARAM1, CMD-PARAM2, CMD-PARAM3, CMD-PARAM4
             END-UNSTRING.
-            
+            EXIT PARAGRAPH.
+
+        DISPATCH-ACTION.
+            *> Routing shared by both modes: set WS-OUTPUT-MSG for the action.
+            MOVE SPACES TO WS-OUTPUT-MSG
             IF CMD-ACTION = SPACES
                 MOVE "ERROR|MISSING_ACTION" TO WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
-                STOP RUN
+                EXIT PARAGRAPH
             END-IF.
-            
             IF CMD-ACTION(1:13) = "CHECK_BALANCE"
                 CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:8) = "TRANSFER"
                 CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:8) = "GET_USER"
                 CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:10) = "LIST_USERS"
                 CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:13) = "GET_DASHBOARD"
                 CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:16) = "REQ_EMAIL_CHANGE"
                 CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:20) = "CONFIRM_EMAIL_CHANGE"
                 CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:9) = "RECONCILE"
                 CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:10) = "AUTH_LOGIN"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:14) = "REQUEST_SIGNUP"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:12) = "VERIFY_EMAIL"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:10) = "CHECK_ROLE"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:11) = "CHANGE_ROLE"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:13) = "STORE_SESSION"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:14) = "REVOKE_SESSION"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:13) = "CHECK_SESSION"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:11) = "CHECK_TOKEN"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:13) = "REVOKE_TOKENS"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:17) = "GET_TOKEN_VERSION"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:19) = "REVOKE_ACCESS_TOKEN"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:13) = "ARCHIVE_AUDIT"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE IF CMD-ACTION(1:4) = "PING"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             ELSE
                 MOVE "ERROR|INVALID_ACTION" TO WS-OUTPUT-MSG
-                PERFORM WRITE-OUTPUT
             END-IF.
-            
-            CLOSE OUTPUT-FILE.
-            STOP RUN.
+            EXIT PARAGRAPH.
 
         WRITE-OUTPUT.
             *> Emit WS-OUTPUT-MSG as one or more 500-char records. The gateway
