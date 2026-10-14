@@ -651,3 +651,23 @@ test('PATCH /profile updates the name', async () => {
   assert.deepEqual(res.body.data, ['PROFILE_UPDATED']);
   assert.equal((await request(app).get('/profile').query({ email: em }).set(auth)).body.profile.name, 'Updated Name');
 });
+
+test('account lifecycle over HTTP', async () => {
+  const em = `gw_lc_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Life', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+
+  assert.deepEqual((await request(app).post('/profile/deactivate').set(auth).send({ email: em })).body.data, ['ACCOUNT_DEACTIVATED']);
+  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.error, 'USER_CLOSED');
+
+  const admin = `gw_lca_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN')) return;
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  const adm = { Authorization: `Bearer ${adminToken}` };
+  assert.deepEqual((await request(app).post('/admin/user-status').set(adm).send({ email: em, status: 'SUSPENDED' })).body.data, ['STATUS_CHANGED']);
+  const blocked = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+  assert.equal(blocked.status, 403);
+  assert.equal(blocked.body.error, 'USER_SUSPENDED');
+});
