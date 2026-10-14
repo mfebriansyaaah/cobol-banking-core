@@ -95,7 +95,9 @@ positive decimal with at most two fractional digits). A transfer only goes
 through when both accounts are `ACTIVE` and both currencies are enabled
 (otherwise `ACCOUNT_FROZEN` / `ACCOUNT_CLOSED` / `CURRENCY_INACTIVE`).
 `POST /wallet/transfer` requires an `Idempotency-Key` header; retrying with the
-same key replays instead of moving money twice (keys are scoped per sender).
+same key replays instead of moving money twice (keys are scoped per sender);
+`fromCurrency`/`toCurrency` optionally pin which account is used when a user
+holds several.
 Optional caps `TRANSFER_MAX_PER_TXN` (one debit) and `TRANSFER_DAILY_LIMIT`
 (rolling 24h per account) are off unless set in the environment. A SUPER_ADMIN
 can reverse a transfer once (`POST /transactions/:ref/reverse`), and its status

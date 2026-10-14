@@ -10,7 +10,7 @@ import { createRequestObserver, metricsText } from './observability.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -92,6 +92,8 @@ export const ROUTES = [
     { name: 'to', pattern: EMAIL, required: true },
     { name: 'amount', pattern: AMOUNT, required: true },
     { name: 'idempotencyKey', pattern: KEY, required: true },
+    { name: 'fromCurrency', pattern: CURRENCY, required: false },
+    { name: 'toCurrency', pattern: CURRENCY, required: false },
   ] },
   { method: 'get', path: '/transactions/:ref', action: 'TX_STATUS', tokenIdentity: 'actor', fields: [
     { name: 'ref', pattern: KEY, required: true },

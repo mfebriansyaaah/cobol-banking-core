@@ -14,7 +14,7 @@ async function fileInvoke(action, params = [], opts = {}) {
   const timeoutMs = opts.timeoutMs ?? 5000;
   const dir = await mkdtemp(path.join(tmpdir(), 'cobol-gw-'));
   try {
-    const line = [action, ...params].slice(0, 5).join('|') + '\n';
+    const line = [action, ...params].slice(0, 7).join('|') + '\n';
     await writeFile(path.join(dir, 'input.txt'), line);
 
     await new Promise((resolve, reject) => {
