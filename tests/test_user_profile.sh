@@ -85,7 +85,8 @@ check "list users forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS "
 
 # --- REQ_EMAIL_CHANGE ---
 check "request unknown current" "ERROR|ACCOUNT_NOT_FOUND" "$(run REQ_EMAIL_CHANGE ghost@test.com "$UNEW" ghost@test.com)"
-check "request taken new email" "ERROR|EMAIL_EXISTS" "$(run REQ_EMAIL_CHANGE "$U" "$OTHER" "$U")"
+check "request taken new email is neutral" "SUCCESS|CODE_SENT" "$(run REQ_EMAIL_CHANGE "$U" "$OTHER" "$U")"
+check "taken email stores no code" "0" "$(q "SELECT COUNT(*) FROM verification_logs WHERE email='$OTHER' AND purpose='EMAIL_CHANGE' AND is_used=0;")"
 check "request another user's email forbidden" "ERROR|FORBIDDEN" "$(run REQ_EMAIL_CHANGE "$U" "prof_take@test.com" "$OTHER")"
 out=$(run REQ_EMAIL_CHANGE "$U" "$UNEW" "$U")
 code=$(echo "$out" | cut -d'|' -f3)
