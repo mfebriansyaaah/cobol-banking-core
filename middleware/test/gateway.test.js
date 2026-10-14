@@ -619,3 +619,22 @@ test('profile is structured and works without accounts', async () => {
   assert.equal(res.body.profile.status, 'VERIFIED');
   assert.deepEqual(res.body.accounts, []);
 });
+
+test('email-change request is neutral for a taken address', async () => {
+  const em = `gw_enum_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+
+  const taken = `gw_taken_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: taken, password: 'secret123', name: 'Taken', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: taken, code: getVerificationCode(taken) });
+
+  const a = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: taken });
+  const b = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: `gw_free_${Date.now()}@test.com` });
+  assert.equal(a.status, 200);
+  assert.equal(b.status, 200);
+  assert.deepEqual(a.body, b.body); // identical neutral response
+  assert.equal(getVerificationCode(taken, 'EMAIL_CHANGE'), ''); // no code minted for the taken address
+});
