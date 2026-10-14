@@ -93,6 +93,14 @@ export const ROUTES = [
     { name: 'amount', pattern: AMOUNT, required: true },
     { name: 'idempotencyKey', pattern: KEY, required: true },
   ] },
+  { method: 'get', path: '/transactions/:ref', action: 'TRANSFER_STATUS', tokenIdentity: 'actor', fields: [
+    { name: 'ref', pattern: KEY, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/transactions/:ref/reverse', action: 'REVERSE_TRANSFER', tokenIdentity: 'actor', fields: [
+    { name: 'ref', pattern: KEY, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
   { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
