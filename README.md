@@ -90,18 +90,19 @@ Transfers convert the target credit using `exchange_rates` (base -> target) when
 the accounts use different currencies; if only the inverse pair exists its
 reciprocal is used, and a pair with neither direction fails with `RATE_NOT_FOUND`.
 Debit/credit are rounded to each currency's precision and the applied rate is
-recorded on the `ledger` CREDIT row. A transfer only goes through when both
-accounts are `ACTIVE` and both currencies are enabled (otherwise `ACCOUNT_FROZEN`
-/ `ACCOUNT_CLOSED` / `CURRENCY_INACTIVE`). `POST /wallet/transfer` requires an
-`Idempotency-Key` header; retrying with the same key replays instead of moving
-money twice (keys are scoped per sender). Optional caps `TRANSFER_MAX_PER_TXN`
-(one debit) and `TRANSFER_DAILY_LIMIT` (rolling 24h per account) are off unless
-set in the environment. A SUPER_ADMIN can reverse a transfer once
-(`POST /transactions/:ref/reverse`), and its status is readable at
-`GET /transactions/:ref`. Each transfer records `to:amount:currency` on the audit
-row; transient DB failures (lock wait / deadlock / lost connection) surface as
-`DB_BUSY` (503), and idempotency intents older than `PENDING_RETENTION_DAYS`
-(default 30) are pruned.
+recorded on the `ledger` CREDIT row. The core validates the amount itself (a
+positive decimal with at most two fractional digits). A transfer only goes
+through when both accounts are `ACTIVE` and both currencies are enabled
+(otherwise `ACCOUNT_FROZEN` / `ACCOUNT_CLOSED` / `CURRENCY_INACTIVE`).
+`POST /wallet/transfer` requires an `Idempotency-Key` header; retrying with the
+same key replays instead of moving money twice (keys are scoped per sender).
+Optional caps `TRANSFER_MAX_PER_TXN` (one debit) and `TRANSFER_DAILY_LIMIT`
+(rolling 24h per account) are off unless set in the environment. A SUPER_ADMIN
+can reverse a transfer once (`POST /transactions/:ref/reverse`), and its status
+is readable at `GET /transactions/:ref`. Each transfer records
+`to:amount:currency` on the audit row; transient DB failures (lock wait /
+deadlock / lost connection) surface as `DB_BUSY` (503), and idempotency intents
+older than `PENDING_RETENTION_DAYS` (default 30) are pruned.
 
 The binary writes its result in 500-char records; the gateway reassembles them,
 so large list responses are not cut at 500 bytes.
