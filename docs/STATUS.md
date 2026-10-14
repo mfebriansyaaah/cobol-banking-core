@@ -13,7 +13,9 @@ A banking core where **all business logic lives in COBOL**:
   (`ACTION|param1|param2|param3|param4`), relative to its working directory.
 - `middleware/` - a Node.js/Express **API gateway** that is the only HTTP
   interface; it validates input shapes, invokes the binary per request in a
-  unique working directory, and maps the result line to HTTP (ADR-0001).
+  unique working directory, and maps the result line to HTTP (ADR-0001). The
+  binary also has a long-running `--serve` mode (stdin/stdout protocol) that a
+  worker pool can use (ADR-0010, phase 1); file mode stays the default.
 - MySQL database `cobol_db`; the binary talks to it through the C bridge
   `cobol/src/sql_bridge.c` (libmysqlclient - the ODBC stack was retired, ADR-0002).
 - `./ci.sh` - one-shot verification: docs integrity, static COBOL checks
@@ -90,10 +92,11 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
+| `tests/test_serve_mode.sh` | 6 | long-running `--serve` stdin/stdout protocol; file mode unchanged |
 | `middleware/` (node --test) | 52 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push), idempotency conflict, self-transfer, audit archive, security headers/config, mailer, error mapping |
 
-Shell suites total **235**; with the gateway suite **52** the full run is
-**287 assertions**, all green as of this snapshot.
+Shell suites total **241**; with the gateway suite **52** the full run is
+**293 assertions**, all green as of this snapshot.
 
 ## 5. Gateway surface (`middleware/`)
 

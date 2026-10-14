@@ -3,9 +3,11 @@
 An enterprise-style banking core where **all business logic lives in COBOL**, with
 C and JavaScript as support only.
 
-- `cobol/bin/main_logic` — one COBOL binary. It reads one pipe-delimited request
-  line from `input.txt` and writes one result line to `output.txt`
-  (`ACTION|param1|param2|param3|param4`).
+- `cobol/bin/main_logic` — one COBOL binary. By default it reads one
+  pipe-delimited request line from `input.txt` and writes one result line to
+  `output.txt` (`ACTION|param1|param2|param3|param4`); with `--serve` it runs
+  long-lived, reading request lines from stdin and writing one result line per
+  request to stdout.
 - `cobol/src/sql_bridge.c` — C bridge to MySQL (`libmysqlclient`): prepared
   statements, escaping, and transactions. `cobol/c_lib/hash_lib.c` — PBKDF2 hashing
   and secure code generation.
