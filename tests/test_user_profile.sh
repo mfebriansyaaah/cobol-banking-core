@@ -49,10 +49,11 @@ U="prof@test.com"
 UNEW="prof_new@test.com"
 OTHER="prof_other@test.com"
 ADMIN="prof_admin@test.com"
+NOACCT="prof_noacct@test.com"
 
-q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER');
+q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER','$NOACCT');
    DELETE FROM accounts WHERE account_id IN (950,951,952);
-   DELETE FROM users WHERE email IN ('$U','$UNEW','$OTHER');
+   DELETE FROM users WHERE email IN ('$U','$UNEW','$OTHER','$NOACCT');
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (950,'$U',CONCAT('SHA256_',SHA2('secret123',256)),'Prof User','1990-01-01','VERIFIED','USER'),
    (951,'$OTHER',CONCAT('SHA256_',SHA2('secret123',256)),'Other User','1990-01-01','VERIFIED','USER')
@@ -60,12 +61,16 @@ q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER');
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (953,'$ADMIN',CONCAT('SHA256_',SHA2('secret123',256)),'Prof Admin','1990-01-03','VERIFIED','SUPER_ADMIN')
    ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
+   (954,'$NOACCT','x','No Acct','1991-01-01','VERIFIED','USER');
    INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES
    (950,950,1,250.00,'SAVINGS'),(952,950,3,0.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');"
 
 # --- GET_DASHBOARD ---
-check "dashboard self" "SUCCESS|DASHBOARD|$U|Prof User|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "$U" "")"
-check "dashboard by admin" "SUCCESS|DASHBOARD|$U|Prof User|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "$ADMIN" "")"
+check_contains "dashboard self profile" "SUCCESS|DASHBOARD|$U|Prof User|VERIFIED|USER|1990-01-01|" "$(run GET_DASHBOARD "$U" "$U" "")"
+check_contains "dashboard self accounts" "|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "$U" "")"
+check_contains "dashboard by admin" "SUCCESS|DASHBOARD|$U|Prof User|VERIFIED|USER|1990-01-01|" "$(run GET_DASHBOARD "$U" "$ADMIN" "")"
+check_contains "dashboard without accounts still works" "SUCCESS|DASHBOARD|$NOACCT|No Acct|VERIFIED|USER|1991-01-01|" "$(run GET_DASHBOARD "$NOACCT" "$NOACCT" "")"
 check "dashboard other forbidden for non-admin" "ERROR|FORBIDDEN" "$(run GET_DASHBOARD "$U" "$OTHER" "")"
 check "dashboard unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_DASHBOARD ghost@test.com "$ADMIN" "")"
 
