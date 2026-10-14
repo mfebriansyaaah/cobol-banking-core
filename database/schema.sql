@@ -135,13 +135,14 @@ CREATE TABLE IF NOT EXISTS audit_trail_archive (
 
 -- 8. Tabel Pending Transactions (Intent Persistence for Recovery)
 CREATE TABLE IF NOT EXISTS pending_transactions (
-    txn_ref VARCHAR(50) PRIMARY KEY,
+    txn_ref VARCHAR(50) NOT NULL,
     from_email VARCHAR(100) NOT NULL,
     to_email VARCHAR(100) NOT NULL,
     amount DECIMAL(18,4) NOT NULL,
     status ENUM('PENDING', 'COMMITTED', 'FAILED') DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (from_email, txn_ref),
     CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
