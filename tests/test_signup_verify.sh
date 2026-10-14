@@ -56,9 +56,11 @@ check "password stored with slow KDF" "PBKDF2\$" "$(q "SELECT LEFT(password_hash
 check "email stored without padding" "18" "$(q "SELECT CHAR_LENGTH(email) FROM users WHERE email='$EMAIL';")"
 check "verification log written" "1" "$(q "SELECT COUNT(*) FROM verification_logs WHERE email='$EMAIL' AND purpose='SIGNUP' AND is_used=0;")"
 
-# Duplicate email is rejected.
-check "duplicate email rejected" "ERROR|EMAIL_EXISTS" \
+# Duplicate email is neutral (anti-enumeration) and writes nothing new.
+check "duplicate email is neutral" "SUCCESS|USER_CREATED" \
     "$(run REQUEST_SIGNUP "$EMAIL" secret123 'Sign Up' '1990-01-01')"
+check "duplicate wrote no second user" "1" \
+    "$(q "SELECT COUNT(*) FROM users WHERE email='$EMAIL';")"
 
 # Wrong code rejected; correct code verifies; reuse rejected.
 check "wrong code rejected" "ERROR|INVALID_CODE" "$(run VERIFY_EMAIL "$EMAIL" 000000)"

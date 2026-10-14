@@ -53,7 +53,7 @@ code=$(echo "$out" | cut -d'|' -f3)
 check "prepared verify" "SUCCESS|EMAIL_VERIFIED" "$(run VERIFY_EMAIL prep_ok@test.com "$code")"
 check "prepared login ok" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN prep_ok@test.com 'secret123')"
 check "prepared login wrong password" "ERROR|INVALID_CREDENTIALS" "$(run AUTH_LOGIN prep_ok@test.com 'nope')"
-check "prepared login unknown" "ERROR|ACCOUNT_NOT_FOUND" "$(run AUTH_LOGIN nobody@test.com 'secret123')"
+check "prepared login unknown" "ERROR|INVALID_CREDENTIALS" "$(run AUTH_LOGIN nobody@test.com 'secret123')"
 
 # LIST_USERS goes through SQL_PREPARE_EXEC_ROWS (bound LIMIT/OFFSET, many rows).
 ADMIN="prep_admin@test.com"
