@@ -18,6 +18,8 @@ const TOKEN_IDENTITY = {
   REQ_EMAIL_CHANGE: 'actor',
   CONFIRM_EMAIL_CHANGE: 'actor',
   UPDATE_PROFILE: 'actor',
+  DEACTIVATE_ACCOUNT: 'actor',
+  SET_USER_STATUS: 'actor',
   REVERSE_TRANSFER: 'actor',
   TX_STATUS: 'actor',
   MFA_ENROLL_BEGIN: 'actor',
