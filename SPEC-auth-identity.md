@@ -41,7 +41,7 @@ Most auth queries use **prepared statements** (bridge `SQL_PREPARE_EXEC`, bound 
 
 `auth_core` also owns the refresh-token session store used by the gateway: `STORE_SESSION` (jti, email, days), `REVOKE_SESSION` (jti), and `CONSUME_SESSION` (jti -> atomically consume for rotation), backed by the `refresh_sessions` table.
 
-The gateway's `/auth/refresh` uses **`CONSUME_SESSION`**: a single conditional `UPDATE ... WHERE jti = ? AND revoked = 0 AND expires_at > NOW()`, so only one concurrent caller can win the rotation. A replay of a consumed token is **reuse**: the whole `family` is revoked, the user's `token_version` is bumped (killing every previously issued access token), and a `SESSION_REUSED` audit row is written. `REVOKE_SESSION` still backs logout.
+The gateway's `/auth/refresh` uses **`CONSUME_SESSION`**: a single conditional `UPDATE ... WHERE jti = ? AND revoked = 0 AND expires_at > NOW()`, so only one concurrent caller can win the rotation. A replay of a consumed token is **reuse**: the whole `family` is revoked, the user's `token_version` is bumped (killing every previously issued access token), and a `SESSION_REUSED` audit row is written. `REVOKE_SESSION` backs per-device logout: it **deletes** the session row, so replaying a logged-out token is a plain `SESSION_NOT_FOUND` rather than a reuse that would revoke the family and every device.
 
 ## Not yet done
 

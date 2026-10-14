@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
-import { requireAuth, signToken, signRefresh, verifyRefresh, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
+import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText } from './observability.js';
 import { createMailer } from './mailer.js';
@@ -309,13 +309,21 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     }
   });
 
-  // Revoke the presented refresh token (logout).
+  // Per-device logout: revoke the presented refresh session and, when the
+  // bearer is also presented, deny that access token. Other devices are
+  // unaffected — use POST /sessions/revoke-all to log out everywhere.
   router.post('/auth/logout', authLimiter, async (req, res) => {
     try {
       const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
       await invoke('REVOKE_SESSION', [payload.jti || '']);
-      // Revoke the access tokens too, not just this refresh token.
-      await invoke('REVOKE_TOKENS', [payload.email || '']);
+      const header = req.headers.authorization || '';
+      const [scheme, token] = header.split(' ');
+      if (scheme === 'Bearer' && token) {
+        const u = verifyAccess(token);
+        if (u && u.jti) {
+          await tokenStore.revoke({ jti: u.jti, email: u.email, ttlSeconds: ACCESS_TTL_SECONDS });
+        }
+      }
       return res.json({ data: ['LOGGED_OUT'] });
     } catch {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });

@@ -52,6 +52,15 @@ export function verifyRefresh(token) {
   return jwt.verify(token, REFRESH_SECRET, JWT_CLAIMS);
 }
 
+/** Verify an access token, returning its payload or null (never throws). */
+export function verifyAccess(token) {
+  try {
+    return jwt.verify(token, SECRET, JWT_CLAIMS);
+  } catch {
+    return null;
+  }
+}
+
 /** Express middleware: require a valid bearer token. */
 export function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';

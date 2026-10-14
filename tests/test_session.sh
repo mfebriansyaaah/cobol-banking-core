@@ -39,14 +39,14 @@ q "INSERT IGNORE INTO users (id,email,password_hash,full_name,dob,status,role) V
 
 check "store session" "SUCCESS|SESSION_STORED" "$(run STORE_SESSION jti-sh-1 sess@test.com 7 jti-sh-fam)"
 check "consume session" "SUCCESS|SESSION_CONSUMED" "$(run CONSUME_SESSION jti-sh-1)"
-check "revoke session" "SUCCESS|SESSION_REVOKED" "$(run REVOKE_SESSION jti-sh-1)"
-check "replay of consumed" "ERROR|SESSION_REUSED" "$(run CONSUME_SESSION jti-sh-1)"
+check "revoke session (logout)" "SUCCESS|SESSION_REVOKED" "$(run REVOKE_SESSION jti-sh-1)"
+check "logged-out token is gone" "ERROR|SESSION_NOT_FOUND" "$(run CONSUME_SESSION jti-sh-1)"
 check "unknown session" "ERROR|SESSION_NOT_FOUND" "$(run CONSUME_SESSION jti-sh-nope)"
 
-# Presenting an already-revoked token is reuse: the whole family is revoked.
+# Replaying a token revoked by rotation is reuse: the whole family is revoked.
 run STORE_SESSION jti-sh-a sess@test.com 7 fam2 >/dev/null
 run STORE_SESSION jti-sh-b sess@test.com 7 fam2 >/dev/null
-run REVOKE_SESSION jti-sh-a >/dev/null
+run CONSUME_SESSION jti-sh-a >/dev/null
 check "reuse detected on family" "ERROR|SESSION_REUSED" "$(run CONSUME_SESSION jti-sh-a)"
 check "family fully revoked" "2" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE family='fam2' AND revoked=1;")"
 check "sibling is now reused/revoked" "ERROR|SESSION_REUSED" "$(run CONSUME_SESSION jti-sh-b)"
@@ -61,7 +61,7 @@ TV=$(run GET_TOKEN_VERSION sess@test.com); TV=${TV##*|}
 check "token valid at current version" "SUCCESS|TOKEN_VALID" "$(run CHECK_TOKEN sess@test.com "$TV")"
 check "wrong version is revoked" "ERROR|TOKEN_REVOKED" "$(run CHECK_TOKEN sess@test.com 99999)"
 check "unknown user token check" "ERROR|ACCOUNT_NOT_FOUND" "$(run CHECK_TOKEN ghost_tok@test.com 1)"
-check "revoke tokens" "SUCCESS|TOKENS_REVOKED" "$(run REVOKE_TOKENS sess@test.com)"
+check "revoke all sessions" "SUCCESS|SESSIONS_REVOKED" "$(run REVOKE_ALL_SESSIONS sess@test.com sess@test.com)"
 check "previous version now revoked" "ERROR|TOKEN_REVOKED" "$(run CHECK_TOKEN sess@test.com "$TV")"
 
 # Per-token denylist: one jti can be revoked without bumping the version.

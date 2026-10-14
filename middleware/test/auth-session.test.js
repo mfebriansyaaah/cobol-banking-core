@@ -47,11 +47,32 @@ test('logout revokes the access token too', async () => {
 
   assert.equal((await request(app).get(`/users/${email}`).set(auth)).status, 200);
 
-  const out = await request(app).post('/auth/logout').send({ refreshToken: login.body.refreshToken });
+  const out = await request(app).post('/auth/logout').set(auth).send({ refreshToken: login.body.refreshToken });
   assert.equal(out.status, 200);
 
   // The same access token is now rejected before it would have expired.
   const after = await request(app).get(`/users/${email}`).set(auth);
   assert.equal(after.status, 401);
   assert.equal(after.body.error, 'TOKEN_REVOKED');
+});
+
+test('logout is per-device and leaves other sessions alone', async () => {
+  const email = `gw_dev_${Date.now()}_${Math.floor(Math.random() * 1e6)}@test.com`;
+  await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Device User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
+  const a = await request(app).post('/auth/login').send({ email, password: 'secret123' });
+  const b = await request(app).post('/auth/login').send({ email, password: 'secret123' });
+  const authA = { Authorization: `Bearer ${a.body.token}` };
+  const authB = { Authorization: `Bearer ${b.body.token}` };
+
+  const out = await request(app).post('/auth/logout').set(authA).send({ refreshToken: a.body.refreshToken });
+  assert.equal(out.status, 200);
+
+  // Device A is fully logged out (access token denied, refresh revoked).
+  assert.equal((await request(app).get(`/users/${email}`).set(authA)).status, 401);
+  assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: a.body.refreshToken })).status, 401);
+
+  // Device B is untouched.
+  assert.equal((await request(app).get(`/users/${email}`).set(authB)).status, 200);
+  assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: b.body.refreshToken })).status, 200);
 });
