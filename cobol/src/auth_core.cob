@@ -396,7 +396,15 @@
             IF WS-STATUS(1:8) = "VERIFIED"
                 MOVE "SUCCESS|LOGIN_OK" TO LS-OUTPUT-BUFFER
             ELSE
-                MOVE "ERROR|UNVERIFIED" TO LS-OUTPUT-BUFFER
+                IF WS-STATUS(1:9) = "SUSPENDED"
+                    MOVE "ERROR|USER_SUSPENDED" TO LS-OUTPUT-BUFFER
+                ELSE
+                    IF WS-STATUS(1:6) = "CLOSED"
+                        MOVE "ERROR|USER_CLOSED" TO LS-OUTPUT-BUFFER
+                    ELSE
+                        MOVE "ERROR|UNVERIFIED" TO LS-OUTPUT-BUFFER
+                    END-IF
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
