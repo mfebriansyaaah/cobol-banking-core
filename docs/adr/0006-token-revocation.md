@@ -15,7 +15,9 @@ The source of truth must be shared by every gateway instance.
 ## Decision
 
 - **All tokens**: `users.token_version` is embedded in the access token and
-  checked on every protected request (`CHECK_TOKEN`). `REVOKE_TOKENS` bumps it.
+  checked on every protected request (`CHECK_TOKEN`). A password/email change,
+  an account-status change, or `REVOKE_ALL_SESSIONS` (`/sessions/revoke-all`)
+  bumps it.
 - **One token**: the access token carries a `jti`; `CHECK_TOKEN` also rejects a
   `jti` present in `revoked_access_tokens` (until it would have expired).
   `REVOKE_ACCESS_TOKEN` inserts the `jti`; `/auth/revoke` does this for the
@@ -29,8 +31,11 @@ The source of truth must be shared by every gateway instance.
 
 ## Consequences
 
-- Logout revokes the refresh token and bumps the version (all access tokens
-  die); `/auth/revoke` denies just one access token.
+- **Per-device logout** revokes the refresh session (deletes the row) and, when
+  the bearer is presented, denies that access token; other devices are
+  unaffected. Logging out everywhere is `REVOKE_ALL_SESSIONS`
+  (`/sessions/revoke-all`), which bumps the version *and* revokes refresh
+  sessions.
 - Revocation is checked per request (one COBOL call), so it cannot go stale;
   the trade-off is an extra invocation per protected request.
 - Multi-region (independent databases) still needs replication or a Redis-backed
