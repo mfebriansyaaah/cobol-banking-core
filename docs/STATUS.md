@@ -30,7 +30,7 @@ A banking core where **all business logic lives in COBOL**:
 
 | Module | Action | Params | Behavior | Outputs |
 |---|---|---|---|---|
-| `cobol/src/wallet_core.cob` | `CHECK_BALANCE` | email, actor (self-or-admin) | ledger-backed? no: `accounts.balance` (`CONCAT(ROUND(...,2))`) | `<amount>` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
+| `cobol/src/wallet_core.cob` | `CHECK_BALANCE` | email, actor (self-or-admin) | every account as `iso:balance:status` rows (multi-account; `accounts.balance`) | `SUCCESS\|BALANCES\|<iso>:<balance>:<status>[;...]` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/wallet_core.cob` | `TRANSFER` | from (token identity), target, amount, **idempotency key** (opt) | one transaction: sender **and** target accounts must be `ACTIVE` and both currencies enabled, else rejected; replay only when sender/target/amount match the committed key; `FOR UPDATE` lock; debit sender, credit target (`amount * rate` when currencies differ); 2 `ledger` rows; `audit_trail`; intent `COMMITTED` | `SUCCESS\|TRANSFER_OK` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|TARGET_NOT_FOUND` * `ERROR\|ACCOUNT_FROZEN` * `ERROR\|ACCOUNT_CLOSED` * `ERROR\|CURRENCY_INACTIVE` * `ERROR\|INSUFFICIENT_FUNDS` * `ERROR\|TRANSFER_IN_PROGRESS` * `ERROR\|IDEMPOTENCY_CONFLICT` * `ERROR\|INVALID_AMOUNT` * `ERROR\|RATE_NOT_FOUND` * `ERROR\|SELF_TRANSFER` * `ERROR\|DB_ERROR` |
 | `cobol/src/wallet_core.cob` | `RECONCILE` | actor (SUPER_ADMIN) | lists accounts where `accounts.balance <> SUM(ledger)` | `SUCCESS\|RECONCILED` * `ERROR\|MISMATCH\|...` * `ERROR\|FORBIDDEN` |
 | `cobol/src/user_core.cob` | `GET_USER` | email, actor (self-or-admin) | `SELECT id, email WHERE email` | `<id>\|<email>` * `ERROR\|NOT_FOUND` * `ERROR\|FORBIDDEN` |
@@ -104,7 +104,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
-| `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
+| `tests/test_e2e_gateway.sh` | 22 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout; `/wallet/balance` envelope + currency |
 | `tests/test_serve_mode.sh` | 12 | long-running `--serve`, file mode unchanged, connection lifecycle (reconnect + transaction) |
 | `tests/test_password.sh` | 14 | forgot/reset/change password (code single-use, sessions revoked, owner-only) |
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
@@ -112,8 +112,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
 | `middleware/` (node --test) | 65 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **337**; with the gateway suite **65** the full run is
-**402 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **339**; with the gateway suite **65** the full run is
+**404 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -177,7 +177,7 @@ list page size is capped at 100 (`limit` 1..100).
 - Password KDF is PBKDF2-SHA256 at 600000 iterations (modern guidance), overridable with the PBKDF2_ITERATIONS env var (the test suite runs at 100000). Login rehashes any legacy `SHA256_` hash or PBKDF2 hash below the current cost on a successful password check, and the derived-key comparison is constant-time.
 - Login lockout lives on the user row (`failed_logins` / `locked_until`; 3 failures sets a 15-minute block) and is **masked**: a wrong password returns the same `INVALID_CREDENTIALS` whether the account is unknown, unlocked, or locked, so it cannot enumerate or probe lock state; only a correct password reveals `ACCOUNT_LOCKED`. A good login or a password reset clears the counter. A determined attacker can still keep a *known* account locked (the block is time-based); recovery is the emailed password reset.
 - MFA is TOTP (RFC 6238, SHA-1 / 6 digits / 30s) against a base32 secret on the user row, enforced at login; the autoprovisioning URI uses the issuer from the MFA_ISSUER env var (default `CobolBank`). There are no backup/recovery codes yet, and TOTP verification allows +/- one 30s step of clock drift.
-- Transfers require both accounts to be `ACTIVE` and both currencies enabled (`ACCOUNT_FROZEN`/`ACCOUNT_CLOSED`/`CURRENCY_INACTIVE` otherwise); the amount must be positive; cross-currency credits at the stored `exchange_rates` base->target rate (a missing pair is `RATE_NOT_FOUND`). The rate is not stored on the transaction beyond the resulting credited amount. `/wallet/balance` still returns a single account and no currency code (corrected in a later phase).
+- Transfers require both accounts to be `ACTIVE` and both currencies enabled (`ACCOUNT_FROZEN`/`ACCOUNT_CLOSED`/`CURRENCY_INACTIVE` otherwise); the amount must be positive; cross-currency credits at the stored `exchange_rates` base->target rate (a missing pair is `RATE_NOT_FOUND`). The rate is not stored on the transaction beyond the resulting credited amount. `/wallet/balance` returns every account as `iso:balance:status`.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Prepared statements are used for the parameterized queries in `user_core`, `wallet_core` and most of `auth_core`; the remaining `auth_core` statements (login/lockout, signup/verify, audit) embed `mysql_real_escape_string`-escaped values, which the whitelist validator plus escaping keep safe. The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
 - `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, and `CHANGE_ROLE`. Refresh tokens are single-use and rotate within a `family`; presenting an already-revoked token is treated as reuse and revokes the whole family (all sessions for that login), so a stolen token cannot be replayed.

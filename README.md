@@ -38,7 +38,7 @@ database/migrate.sh            # records/applies database/migrations/NNN_*.sql
 # 3. Run one action
 printf 'CHECK_BALANCE|sender@test.com|||\n' > input.txt
 ./cobol/bin/main_logic
-cat output.txt                 # -> 1000.00
+cat output.txt                 # -> SUCCESS|BALANCES|USD:1000.00:ACTIVE
 
 # 4. Run everything (static checks, build, all suites)
 ./ci.sh                        # must end with "ALL GREEN"

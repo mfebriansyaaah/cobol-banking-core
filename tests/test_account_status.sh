@@ -89,7 +89,7 @@ q "UPDATE currencies SET is_active=1;"
 # --- reads are unaffected ------------------------------------------------
 setup
 q "UPDATE accounts SET status='FROZEN' WHERE account_id=1;"
-check "frozen account balance still readable" "1000.00" "$(run CHECK_BALANCE sender@test.com sender@test.com)"
+check "frozen account balance still readable" "SUCCESS|BALANCES|USD:1000.00:FROZEN" "$(run CHECK_BALANCE sender@test.com sender@test.com)"
 
 q "UPDATE accounts SET status='ACTIVE' WHERE account_id IN (1,2);"
 q "DELETE FROM accounts WHERE user_id=962; DELETE FROM users WHERE id=962;"
