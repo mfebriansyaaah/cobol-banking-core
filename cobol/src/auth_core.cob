@@ -21,6 +21,7 @@
         01  WS-P4-LEN               PIC 9(3) VALUE 1.
         01  WS-STATUS               PIC X(20) VALUE SPACES.
         01  WS-USER-ID              PIC X(20) VALUE SPACES.
+        01  WS-ACTOR-ID             PIC X(20) VALUE SPACES.
         01  WS-FAMILY               PIC X(50) VALUE SPACES.
         01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-FAILS                PIC X(20) VALUE SPACES.
@@ -1006,6 +1007,13 @@
                 MOVE 1 TO WS-ID-LEN
             END-IF
             
+            *> Capture the actor's id so the audit row names who changed the role.
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-ACTOR-ID
+            
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
             
@@ -1021,7 +1029,7 @@
             
             IF STEP-OK
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'CHANGE_ROLE', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
-                MOVE WS-USER-ID TO WS-BIND-1
+                MOVE WS-ACTOR-ID TO WS-BIND-1
                 MOVE WS-USER-ID TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
