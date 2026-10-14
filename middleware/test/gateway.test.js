@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, seedManyUsers, getVerificationCode } from './support.js';
+import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -475,4 +475,23 @@ test('session listing and revoke-all over HTTP', async () => {
   assert.deepEqual((await request(app).post('/sessions/revoke-all').set(auth).send({ email: em })).body.data, ['SESSIONS_REVOKED']);
   // The version bump kills the access token we were using.
   assert.equal((await request(app).get('/profile').query({ email: em }).set(auth)).status, 401);
+});
+
+test('transfers from a frozen account are rejected (409)', async () => {
+  const em = `gw_frozen_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Frozen', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+  const auth = { Authorization: `Bearer ${login.body.token}` };
+  seedAccount(em, '1000.00');
+  runSql(`UPDATE accounts a JOIN users u ON a.user_id=u.id SET a.status='FROZEN' WHERE u.email='${em}'`);
+
+  const res = await request(app).post('/wallet/transfer').set(auth).send({ to: 'receiver@test.com', amount: '10.00' });
+  assert.equal(res.status, 409);
+  assert.equal(res.body.error, 'ACCOUNT_FROZEN');
+
+  // Unfreezing lets it through again.
+  runSql(`UPDATE accounts a JOIN users u ON a.user_id=u.id SET a.status='ACTIVE' WHERE u.email='${em}'`);
+  const ok = await request(app).post('/wallet/transfer').set(auth).send({ to: 'receiver@test.com', amount: '10.00' });
+  assert.equal(ok.status, 200);
 });
