@@ -105,7 +105,7 @@ is readable at `GET /transactions/:ref` (admins may add `?sender=<email>` to
 pick a sender when a reference is shared). Each transfer records
 `to:amount:currency` on the audit row; transient DB failures (lock wait /
 deadlock / lost connection) surface as `DB_BUSY` (503), and idempotency intents
-older than `PENDING_RETENTION_DAYS` (default 30) are pruned.
+older than `PENDING_RETENTION_DAYS` (default 30) are archived.
 
 The binary writes its result in 500-char records; the gateway reassembles them,
 so large list responses are not cut at 500 bytes.
