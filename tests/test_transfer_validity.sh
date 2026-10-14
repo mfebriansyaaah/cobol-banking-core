@@ -62,6 +62,15 @@ check "zero-amount: no movement" "1000.0000" "$(q "SELECT balance FROM accounts 
 check "zero-amount: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
 check "decimal zero rejected" "ERROR|INVALID_AMOUNT" "$(run TRANSFER sender@test.com receiver@test.com 0.00 "")"
 
+# The core validates the amount format itself (defense in depth).
+setup
+check "core rejects a non-numeric amount" "ERROR|INVALID_AMOUNT" "$(run TRANSFER sender@test.com receiver@test.com abc "")"
+check "core rejects more than two decimals" "ERROR|INVALID_AMOUNT" "$(run TRANSFER sender@test.com receiver@test.com 1.234 "")"
+check "core rejects multiple decimal points" "ERROR|INVALID_AMOUNT" "$(run TRANSFER sender@test.com receiver@test.com 1.2.3 "")"
+check "core rejects a negative amount" "ERROR|INVALID_AMOUNT" "$(run TRANSFER sender@test.com receiver@test.com -5 "")"
+check "malformed amount moved nothing" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "malformed amount wrote no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
+
 setup
 check "fx converts to the target currency" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com idr_validity@test.com 100.00 "")"
 check "fx sender debited in its currency" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"

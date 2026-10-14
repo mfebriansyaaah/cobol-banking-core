@@ -21,6 +21,10 @@
         01  WS-P4-LEN               PIC 9(3) VALUE 1.
         01  WS-I                   PIC 9(3).
         01  WS-CHECK                PIC X(100) VALUE SPACES.
+        01  WS-AMT-DOTS            PIC 9(2) VALUE 0.
+        01  WS-AMT-DIGITS          PIC 9(2) VALUE 0.
+        01  WS-AMT-FRAC            PIC 9(2) VALUE 0.
+        01  WS-AMT-SEEN-DOT        PIC X(1) VALUE "0".
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
         01  WS-STEP                 PIC X VALUE 'Y'.
@@ -52,21 +56,22 @@
             88  WS-TRANSFER-FAIL-CLOSED VALUE 'CLSD'.
             88  WS-TRANSFER-FAIL-CURINACT VALUE 'CINA'.
             88  WS-TRANSFER-FAIL-LIMIT VALUE 'LIMT'.
-            88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.        01  WS-BALANCE-NUM         PIC S9(13)V99 COMP-3.
-        01  WS-AMOUNT-NUM          PIC S9(13)V99 COMP-3.
+            88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.
+        01  WS-BALANCE-NUM         PIC S9(16)V99 COMP-3.
+        01  WS-AMOUNT-NUM          PIC S9(16)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(50) VALUE SPACES.
         01  WS-RAND                PIC X(6)  VALUE SPACES.
         01  WS-MAX-TXN-STR         PIC X(20) VALUE SPACES.
         01  WS-DAILY-LIMIT-STR     PIC X(20) VALUE SPACES.
         01  WS-PRIOR-TOTAL-STR     PIC X(30) VALUE SPACES.
-        01  WS-MAX-TXN-NUM         PIC S9(13)V99 COMP-3.
-        01  WS-DAILY-LIMIT-NUM     PIC S9(13)V99 COMP-3.
-        01  WS-PRIOR-TOTAL-NUM     PIC S9(15)V99 COMP-3.
+        01  WS-MAX-TXN-NUM         PIC S9(16)V99 COMP-3.
+        01  WS-DAILY-LIMIT-NUM     PIC S9(16)V99 COMP-3.
+        01  WS-PRIOR-TOTAL-NUM     PIC S9(16)V99 COMP-3.
         01  WS-REV-AMT             PIC X(30) VALUE SPACES.
         01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
-        01  WS-REV-AMT-NUM         PIC S9(13)V99 COMP-3.
-        01  WS-REV-CAMT-NUM        PIC S9(13)V99 COMP-3.
+        01  WS-REV-AMT-NUM         PIC S9(16)V99 COMP-3.
+        01  WS-REV-CAMT-NUM        PIC S9(16)V99 COMP-3.
         01  WS-TX-FROM             PIC X(100) VALUE SPACES.
         01  WS-TX-TO               PIC X(100) VALUE SPACES.
         01  WS-TX-AMT              PIC X(30) VALUE SPACES.
@@ -81,7 +86,7 @@
         01  WS-INTENT-TO           PIC X(100) VALUE SPACES.
         01  WS-INTENT-AMT          PIC X(30) VALUE SPACES.
         01  WS-INTENT-STATUS       PIC X(10) VALUE SPACES.
-        01  WS-INTENT-AMOUNT-NUM   PIC S9(13)V99 COMP-3.
+        01  WS-INTENT-AMOUNT-NUM   PIC S9(16)V99 COMP-3.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
@@ -192,11 +197,6 @@
 
         TRIM-PARAM4.
             MOVE LS-PARAM4 TO WS-PARAM4-TRIMMED.
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1
-                IF WS-PARAM4-TRIMMED(WS-I:1) = SPACE
-                    MOVE SPACE TO WS-PARAM4-TRIMMED(WS-I:1)
-                END-IF
-            END-PERFORM.
             MOVE 0 TO WS-P4-LEN
             PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
                 IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
@@ -478,6 +478,38 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        VALIDATE-AMOUNT.
+            *> Defense-in-depth: the core also checks the amount is a plain
+            *> positive decimal with at most two fractional digits.
+            MOVE 0 TO WS-AMT-DOTS
+            MOVE 0 TO WS-AMT-DIGITS
+            MOVE 0 TO WS-AMT-FRAC
+            MOVE "0" TO WS-AMT-SEEN-DOT
+            IF WS-P3-LEN < 1
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-P3-LEN
+                IF WS-PARAM3-TRIMMED(WS-I:1) = "."
+                    ADD 1 TO WS-AMT-DOTS
+                    MOVE "1" TO WS-AMT-SEEN-DOT
+                ELSE
+                    IF WS-PARAM3-TRIMMED(WS-I:1) >= "0"
+                       AND WS-PARAM3-TRIMMED(WS-I:1) <= "9"
+                        ADD 1 TO WS-AMT-DIGITS
+                        IF WS-AMT-SEEN-DOT = "1"
+                            ADD 1 TO WS-AMT-FRAC
+                        END-IF
+                    ELSE
+                        SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                    END-IF
+                END-IF
+            END-PERFORM
+            IF WS-AMT-DOTS > 1 OR WS-AMT-FRAC > 2 OR WS-AMT-DIGITS < 1
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
         CHECK-TRANSIENT.
             *> WS-RESULT holds "ERROR|<kind>|<errno>" from the bridge. Flag a
             *> retriable condition (lock wait, deadlock, lost connection).
@@ -558,6 +590,11 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             END-IF
             SET WS-TRANSFER-OK TO TRUE
+            PERFORM VALIDATE-AMOUNT
+            IF WS-TRANSFER-FAIL-AMOUNT
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> The idempotency key (param 4) doubles as the transaction
             *> reference. Without one, mint a collision-resistant reference
             *> (date+time to hundredths, plus a secure random suffix).
