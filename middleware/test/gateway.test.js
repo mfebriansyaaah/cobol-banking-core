@@ -88,7 +88,8 @@ test('signup -> verify -> login -> authorized call', async (t) => {
     .get('/users')
     .set('Authorization', `Bearer ${adminToken}`);
   assert.equal(users.status, 200);
-  assert.ok(JSON.stringify(users.body.data).includes('LIST_DONE'));
+  assert.equal(users.body.data[0], 'USERS');
+  assert.ok(Array.isArray(users.body.users));
 
   const paged = await request(app)
     .get('/users?limit=1&offset=0')
@@ -121,7 +122,8 @@ test('bare-value endpoints return 200 with data', async (t) => {
 
   const user = await request(app).get('/users/sender@test.com').set(adminAuth);
   assert.equal(user.status, 200);
-  assert.equal(user.body.data[0], '1');
+  assert.equal(user.body.data[0], 'USER');
+  assert.equal(user.body.user.id, '1');
 
   const bal = await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth);
   assert.equal(bal.status, 200);
@@ -305,7 +307,7 @@ test('a large list is not truncated at 500 bytes', async (t) => {
   const res = await request(app).get('/users?limit=100').set('Authorization', `Bearer ${token}`);
   assert.equal(res.status, 200);
   // The 25th bulk user sits well past 500 bytes; it survives the multi-record output.
-  assert.ok(JSON.stringify(res.body.data).includes('gw_bulk_25@test.com'));
+  assert.ok(JSON.stringify(res.body.users).includes('gw_bulk_25@test.com'));
 });
 
 test('one access token can be revoked without affecting another session', async () => {
@@ -670,4 +672,23 @@ test('account lifecycle over HTTP', async () => {
   const blocked = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   assert.equal(blocked.status, 403);
   assert.equal(blocked.body.error, 'USER_SUSPENDED');
+});
+
+test('user listing and record are structured', async () => {
+  const admin = `gw_listadm_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN')) return;
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  const adm = { Authorization: `Bearer ${adminToken}` };
+
+  const list = await request(app).get('/users').query({ limit: 5, role: 'SUPER_ADMIN' }).set(adm);
+  assert.equal(list.status, 200);
+  assert.equal(list.body.data[0], 'USERS');
+  assert.equal(typeof list.body.total, 'number');
+  assert.ok(Array.isArray(list.body.users));
+  assert.ok(list.body.users.every((u) => u.role === 'SUPER_ADMIN'));
+
+  const rec = await request(app).get('/users/sender@test.com').set(adm);
+  assert.equal(rec.status, 200);
+  assert.equal(rec.body.data[0], 'USER');
+  assert.equal(rec.body.user.email, 'sender@test.com');
 });

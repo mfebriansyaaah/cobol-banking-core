@@ -77,10 +77,17 @@ check "dashboard unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_DASHBOARD gh
 # --- LIST_USERS + paging ---
 check_contains "list users header" "SUCCESS|LIST_DONE|" "$(run LIST_USERS "" "" "$ADMIN")"
 check_contains "list users includes a known user" "950:$U" "$(run LIST_USERS "" "" "$ADMIN")"
-check "paging limit=1 returns only the first" "SUCCESS|LIST_DONE|1:sender@test.com" "$(run LIST_USERS 1 0 "$ADMIN")"
+check_contains "get_user is enriched" "SUCCESS|USER|950|$U|Prof User|VERIFIED|USER|" "$(run GET_USER "$U" "$U" "")"
+check_contains "list users role filter" "950:$U:Prof User:USER:VERIFIED" "$(run LIST_USERS 5 0 "$ADMIN" USER)"
+check_contains "paging limit=1 returns the first" "|1:sender@test.com:Sender User:USER:VERIFIED" "$(run LIST_USERS 1 0 "$ADMIN")"
 check_contains "paging offset=1 skips the first" "2:receiver@test.com" "$(run LIST_USERS 1 1 "$ADMIN")"
-check "paging limit=2 returns two rows" "SUCCESS|LIST_DONE|1:sender@test.com;2:receiver@test.com" "$(run LIST_USERS 2 0 "$ADMIN")"
-check "paging past the end is empty" "SUCCESS|LIST_DONE|" "$(run LIST_USERS 5 100000 "$ADMIN")"
+check_contains "paging limit=2 returns two rows" "1:sender@test.com:Sender User:USER:VERIFIED;2:receiver@test.com:Receiver User:USER:VERIFIED" "$(run LIST_USERS 2 0 "$ADMIN")"
+page=$(run LIST_USERS 5 100000 "$ADMIN")
+if [[ "$page" == "SUCCESS|LIST_DONE|"*"|" && "$page" != *"sender@test.com"* ]]; then
+    check "paging past the end is empty" "ok" "ok"
+else
+    check "paging past the end is empty" "empty page" "$page"
+fi
 check "list users forbidden for non-admin" "ERROR|FORBIDDEN" "$(run LIST_USERS "" "" "$OTHER")"
 
 # --- UPDATE_PROFILE ---

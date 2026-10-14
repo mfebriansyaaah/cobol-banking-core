@@ -13,8 +13,8 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 
 | Action | Params | Behavior today | Outputs |
 |---|---|---|---|
-| `GET_USER` | `p1=email` | `SELECT id, email FROM users WHERE email='…' LIMIT 1` | `1\|sender@test.com` · `ERROR\|NOT_FOUND` |
-| `LIST_USERS` | `p1=limit` (default 20), `p2=offset` (default 0) | paged, one row per user via the multi-row bridge call (`SQL_EXECUTE_ROWS`), each row `id:email`, rows joined by `;` | `SUCCESS\|LIST_DONE\|<id:email;…>` |
+| `GET_USER` | `p1=email` | `SELECT id, email, full_name, status, role, created_at FROM users WHERE email='…'` | `SUCCESS\|USER\|<id>\|<email>\|<name>\|<status>\|<role>\|<created>` · `ERROR\|NOT_FOUND` |
+| `LIST_USERS` | `p1=limit` (default 20), `p2=offset` (default 0), `p4=role` (optional) | paged with a total; one row per user `id:email:name:role:status`, rows joined by `;`; optional role filter | `SUCCESS\|LIST_DONE\|<total>\|<id:email:name:role:status;…>` |
 | `GET_DASHBOARD` | `p1=email` | `email`, `full_name`, `status`, `role`, `dob`, `created_at`, and **all** the user's accounts as `iso:balance` pairs; `LEFT JOIN accounts` so a user without accounts still has a profile | `SUCCESS\|DASHBOARD\|<email>\|<name>\|<status>\|<role>\|<dob>\|<created>\|<iso:balance;…>` · `ERROR\|ACCOUNT_NOT_FOUND` |
 | `REQ_EMAIL_CHANGE` | `p1=current email`, `p2=new email`, `p3=actor`, `p4=password` | the actor must own the current email and the **current password** must match; **neutral** about whether the new address is taken — if free, a 6-digit code is stored against it (`purpose=EMAIL_CHANGE`, 24h); if taken, returns the same success with no code | `SUCCESS\|CODE_SENT\|<code>` (free) · `SUCCESS\|CODE_SENT` (taken) · `ERROR\|ACCOUNT_NOT_FOUND` · `ERROR\|INVALID_CREDENTIALS` · `ERROR\|EMAIL_CHANGE_FAILED` · `ERROR\|FORBIDDEN` |
 | `CONFIRM_EMAIL_CHANGE` | `p1=current email`, `p2=new email`, `p3=code` | match an unused, unexpired `EMAIL_CHANGE` code; move the email, **bump `token_version`**, and **revoke every refresh session** in one transaction (clean re-login) | `SUCCESS\|EMAIL_CHANGED` · `ERROR\|INVALID_CODE` · `ERROR\|EMAIL_CHANGE_FAILED` |
@@ -26,7 +26,7 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 
 `CONFIRM_EMAIL_CHANGE` works for a logged-in user: `users.email` changes propagate through the `refresh_sessions`/`pending_transactions` FKs (`ON UPDATE CASCADE`, migration 0003).
 
-`tests/test_user_profile.sh` (35 assertions) and `tests/test_account_lifecycle.sh` (15 assertions). Wired into `ci.sh`.
+`tests/test_user_profile.sh` (37 assertions) and `tests/test_account_lifecycle.sh` (15 assertions). Wired into `ci.sh`.
 
 ## Notes / not yet done
 

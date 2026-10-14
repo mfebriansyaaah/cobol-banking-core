@@ -27,6 +27,7 @@
         01  WS-ROLE                 PIC X(12) VALUE SPACES.
         01  WS-DOB                  PIC X(10) VALUE SPACES.
         01  WS-CREATED              PIC X(19) VALUE SPACES.
+        01  WS-TOTAL                PIC X(20) VALUE SPACES.
         01  WS-LIMIT                PIC X(10) VALUE SPACES.
         01  WS-OFFSET               PIC X(10) VALUE SPACES.
         01  WS-ELEN                 PIC 9(3) VALUE 1.
@@ -51,6 +52,7 @@
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -82,6 +84,7 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
                     PERFORM ACTION-LIST-USERS
                 WHEN LS-CMD-ACTION(1:13) = "GET_DASHBOARD"
                     PERFORM TRIM-PARAM1
@@ -274,7 +277,8 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            MOVE "SELECT id, email FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            *> The user's public record: id, email, name, status, role, created.
+            MOVE "SELECT CAST(id AS CHAR), email, full_name, status, role, DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s') FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -283,9 +287,26 @@
 
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-            ELSE
-                MOVE WS-RESULT TO LS-OUTPUT-BUFFER
-            END-IF.
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-USER-ID WS-EMAIL WS-NAME WS-STATUS WS-ROLE WS-CREATED
+            END-UNSTRING
+            PERFORM TRIM-OUTPUT-VALUES
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|USER|" DELIMITED BY SIZE
+                   WS-USER-ID DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-EMAIL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-NAME(1:WS-NLEN) DELIMITED BY SIZE "|" DELIMITED BY SIZE
+                   WS-STATUS DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-ROLE DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                   WS-CREATED DELIMITED BY SPACE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
             EXIT PARAGRAPH.
 
         ACTION-LIST-USERS.
@@ -294,7 +315,8 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            *> Paged list via the multi-row bridge call (one row per user).
+            *> Paged list via the multi-row bridge call (one row per user),
+            *> with a total and an optional role filter (p4).
             MOVE "20" TO WS-LIMIT
             MOVE "0" TO WS-OFFSET
             IF LS-PARAM1 NOT = SPACES
@@ -303,20 +325,33 @@
             IF LS-PARAM2 NOT = SPACES
                 MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
             END-IF
-            MOVE "SELECT CONCAT(id, ':', email) FROM users ORDER BY id LIMIT ? OFFSET ?" TO WS-PREP-SQL
-            MOVE WS-LIMIT TO WS-BIND-1
-            MOVE WS-OFFSET TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+            *> Total matching rows (role filter bound twice: empty disables it).
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM users WHERE (? = '' OR role = ?)" TO WS-PREP-SQL
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-TOTAL
+            *> The page itself.
+            MOVE "SELECT CONCAT(id, ':', email, ':', full_name, ':', role, ':', status) FROM users WHERE (? = '' OR role = ?) ORDER BY id LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             
             MOVE SPACES TO LS-OUTPUT-BUFFER
             IF WS-RESULT = "ERROR|NO_DATA"
-                MOVE "SUCCESS|LIST_DONE|" TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|LIST_DONE|" WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
             ELSE
                 PERFORM TRIM-OUTPUT-VALUES
-                STRING "SUCCESS|LIST_DONE|" WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|LIST_DONE|" WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 END-STRING
             END-IF.
             EXIT PARAGRAPH.
