@@ -1,0 +1,65 @@
+#!/bin/bash
+# Token rotation suite: refresh sessions are consumed atomically; a replay of a
+# consumed token is detected as reuse, which kills the whole family AND every
+# access token (bumps the user's token_version), and is audited.
+# Usage: ./tests/test_token_rotation.sh
+
+BIN="./cobol/bin/main_logic"
+
+if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
+DB_USER="${DB_USER:-cobol_user}"
+DB_PASS="${DB_PASS:-cobol_pass}"
+DB_NAME="${DB_NAME:-cobol_db}"
+
+GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
+passed=0; failed=0
+
+q() { mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "$1" 2>/dev/null; }
+
+run() {
+    printf "%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" > input.txt
+    "$BIN" >/dev/null 2>&1
+    cat output.txt
+}
+
+check() {
+    local name="$1" expected="$2" actual="$3"
+    if [ "$actual" = "$expected" ]; then
+        echo -e "${GREEN}PASS${NC} $name"; passed=$((passed+1))
+    else
+        echo -e "${RED}FAIL${NC} $name (expected [$expected] got [$actual])"; failed=$((failed+1))
+    fi
+}
+
+echo "======================================================================"
+echo "  TOKEN ROTATION SUITE"
+echo "======================================================================"
+
+U="rot_me@test.com"
+q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM users WHERE email='$U';
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
+   (983,'$U','x','Rot','1990-01-01','VERIFIED','USER');"
+
+run STORE_SESSION jr1 "$U" 7 famR >/dev/null
+V0=$(q "SELECT token_version FROM users WHERE email='$U';")
+
+check "first consume wins" "SUCCESS|SESSION_CONSUMED" "$(run CONSUME_SESSION jr1)"
+check "consumed token is revoked" "1" "$(q "SELECT revoked FROM refresh_sessions WHERE jti='jr1';")"
+check "replay is reuse" "ERROR|SESSION_REUSED" "$(run CONSUME_SESSION jr1)"
+check "reuse killed the family" "0" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE family='famR' AND revoked=0;")"
+check "reuse bumped the token version" "1" "$(q "SELECT 1 WHERE (SELECT token_version FROM users WHERE email='$U') > $V0;")"
+check "reuse is audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=983 AND action='SESSION_REUSED' AND status='FAILED';")"
+
+check "unknown token" "ERROR|SESSION_NOT_FOUND" "$(run CONSUME_SESSION no_such_jti)"
+
+# An unrevoked but expired session is reported as expired, not consumed.
+q "INSERT INTO refresh_sessions (jti,family,email,revoked,expires_at) VALUES ('jr2','famR2','$U',0, DATE_SUB(NOW(), INTERVAL 1 DAY));"
+check "expired token" "ERROR|SESSION_EXPIRED" "$(run CONSUME_SESSION jr2)"
+check "expired token not consumed" "0" "$(q "SELECT revoked FROM refresh_sessions WHERE jti='jr2';")"
+
+q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM users WHERE email='$U';"
+
+echo "======================================================================"
+echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
+echo "======================================================================"
+[ "$failed" -eq 0 ]
