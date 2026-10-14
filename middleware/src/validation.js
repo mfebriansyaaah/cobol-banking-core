@@ -17,8 +17,9 @@ const INT = /^\d{1,6}$/;
 const LIMIT = /^(100|[1-9]\d?)$/;
 const KEY = /^[A-Za-z0-9._:-]{1,50}$/;
 const CURRENCY = /^[A-Z]{3}$/;
+const USER_STATUS = /^(UNVERIFIED|VERIFIED|SUSPENDED|CLOSED)$/;
 
-export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY };
+export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, USER_STATUS };
 
 export class ValidationError extends Error {
   constructor(field) {

@@ -10,7 +10,7 @@ import { createRequestObserver, metricsText } from './observability.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, USER_STATUS } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -123,6 +123,15 @@ export const ROUTES = [
     { name: 'name', pattern: NAME, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'dob', pattern: DATE, required: false },
+  ] },
+  { method: 'post', path: '/profile/deactivate', action: 'DEACTIVATE_ACCOUNT', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/user-status', action: 'SET_USER_STATUS', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'status', pattern: USER_STATUS, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
   ] },
   { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },

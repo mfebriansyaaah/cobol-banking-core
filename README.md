@@ -127,8 +127,10 @@ user's record/balance/profile allow the owner or an admin, listing users is
 admin-only, a transfer is always sent from the token's account, and the
 email-change flow only acts on the token's own email and requires the current
 password; confirming it revokes the sessions (clean re-login). The owner can
-update their name (and date of birth) via `PATCH /profile`. Each request runs
-the
+update their name (and date of birth) via `PATCH /profile`, and soft-close the
+account via `POST /profile/deactivate` (admins set any status via
+`POST /admin/user-status`; login refuses suspended/closed accounts). Each request
+runs the
 binary in its own working directory (see
 `docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms` and
 `X-Request-Id`. The server logs one JSON line per request and serves
