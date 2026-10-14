@@ -193,11 +193,6 @@
 
         TRIM-PARAM4.
             MOVE LS-PARAM4 TO WS-PARAM4-TRIMMED.
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1
-                IF WS-PARAM4-TRIMMED(WS-I:1) = SPACE
-                    MOVE SPACE TO WS-PARAM4-TRIMMED(WS-I:1)
-                END-IF
-            END-PERFORM.
             MOVE 0 TO WS-P4-LEN
             PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
                 IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
