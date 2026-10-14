@@ -17,19 +17,21 @@ passed=0; failed=0
 q() { mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "$1" 2>/dev/null; }
 
 setup() {
-    q "DELETE FROM accounts WHERE account_id=961;
-       DELETE FROM users WHERE id=961;
+    q "DELETE FROM accounts WHERE account_id IN (961,963);
+       DELETE FROM users WHERE id IN (961,963);
        INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
-       (961,'idr_validity@test.com','x','IDR User','1990-01-01','VERIFIED','USER');
+       (961,'idr_validity@test.com','x','IDR User','1990-01-01','VERIFIED','USER'),
+       (963,'eur_validity@test.com','x','EUR User','1990-01-01','VERIFIED','USER');
        INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES
-       (961,961,3,0.00,'SAVINGS');
+       (961,961,3,0.00,'SAVINGS'),
+       (963,963,2,0.00,'SAVINGS');
        UPDATE accounts SET balance=1000.00 WHERE account_id=1;
        UPDATE accounts SET balance=0.00 WHERE account_id=2;
        DELETE FROM ledger;
        DELETE FROM pending_transactions;"
 }
 
-teardown() { q "DELETE FROM accounts WHERE account_id=961; DELETE FROM users WHERE id=961;"; }
+teardown() { q "DELETE FROM accounts WHERE account_id IN (961,963); DELETE FROM users WHERE id IN (961,963);"; }
 
 run() {
     printf "%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" > input.txt
@@ -66,11 +68,23 @@ check "fx sender debited in its currency" "900.0000" "$(q "SELECT balance FROM a
 check "fx target credited at the rate" "1570000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
 check "fx debit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=1 AND type='DEBIT' AND amount=100.00;")"
 check "fx credit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=961 AND type='CREDIT' AND amount=1570000.00;")"
+check "fx rate is snapshotted on the ledger" "15700.000000" "$(q "SELECT exchange_rate FROM ledger WHERE account_id=961 AND type='CREDIT';")"
 
+# IDR has zero minor units, so the converted credit is a whole number.
 setup
-q "UPDATE accounts SET balance=100.00 WHERE account_id=961;"
-check "fx without a rate is rejected" "ERROR|RATE_NOT_FOUND" "$(run TRANSFER idr_validity@test.com sender@test.com 1000 "")"
-check "fx no-rate: target untouched" "100.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
+check "fx respects target precision (IDR = 0)" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com idr_validity@test.com 1.23 "")"
+check "fx IDR credit is whole" "19311.0000" "$(q "SELECT CAST(balance AS CHAR) FROM accounts WHERE account_id=961;")"
+
+# Only the inverse pair exists (USD->IDR): fall back to its reciprocal.
+setup
+q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
+check "fx uses the inverse rate" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 15700 "")"
+check "fx inverse credit rounded to USD" "1.0000" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
+
+# Neither direction exists for this pair.
+setup
+check "fx with no rate either way is rejected" "ERROR|RATE_NOT_FOUND" "$(run TRANSFER idr_validity@test.com eur_validity@test.com 1000 "")"
+check "fx no-rate: target untouched" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=963;")"
 check "fx no-rate: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
 
 setup
