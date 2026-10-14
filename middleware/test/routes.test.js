@@ -8,6 +8,7 @@ import { ROUTES } from '../src/app.js';
 const TOKEN_IDENTITY = {
   CHANGE_ROLE: 'actor',
   ARCHIVE_AUDIT: 'actor',
+  CHANGE_PASSWORD: 'actor',
   RECONCILE: 'actor',
   CHECK_ROLE: 'actor',
   GET_USER: 'actor',
