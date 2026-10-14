@@ -589,3 +589,19 @@ test('cross-currency transfer falls back to the inverse rate', async () => {
   const status = await request(app).get(`/transactions/${key}`).set(auth);
   assert.equal(status.body.data[1], 'COMMITTED');
 });
+
+test('transfer selects the sender account by currency', async () => {
+  const em = `gw_mc_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Mc', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+  runSql(`INSERT INTO accounts (user_id,currency_id,balance,status) SELECT id,1,1000.00,'ACTIVE' FROM users WHERE email='${em}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=users.id)`);
+  runSql(`INSERT INTO accounts (user_id,currency_id,balance,status) SELECT id,2,1000.00,'ACTIVE' FROM users WHERE email='${em}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=users.id AND a.currency_id=2)`);
+
+  const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mc-${Date.now()}`).send({ to: 'receiver@test.com', amount: '100.00', fromCurrency: 'EUR' });
+  assert.equal(res.status, 200);
+
+  const bad = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mcbad-${Date.now()}`).send({ to: 'receiver@test.com', amount: '1.00', fromCurrency: 'JPY' });
+  assert.equal(bad.status, 404);
+});
