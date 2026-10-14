@@ -25,6 +25,7 @@
         01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-FAILS                PIC X(20) VALUE SPACES.
         01  WS-FAIL-COUNT           PIC 9(4) VALUE 0.
+        01  WS-LOCKED               PIC X(1) VALUE "0".
         01  WS-CODE                 PIC X(7) VALUE SPACES.
         01  WS-PLAIN                PIC X(100) VALUE SPACES.
         01  WS-HASH                 PIC X(256) VALUE SPACES.
@@ -261,7 +262,7 @@
 
         LOGIN-LOGIC.
             *> 1) Does the account exist, and what is its status? (prepared)
-            MOVE "SELECT CAST(id AS CHAR), status FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CAST(id AS CHAR), status, CAST(failed_logins AS CHAR), CASE WHEN locked_until IS NOT NULL AND locked_until > NOW() THEN '1' ELSE '0' END FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING
                 BY REFERENCE WS-PREP-SQL
@@ -285,7 +286,7 @@
                 EXIT PARAGRAPH
             END-IF
             UNSTRING WS-RESULT DELIMITED BY "|"
-                INTO WS-USER-ID WS-STATUS
+                INTO WS-USER-ID WS-STATUS WS-FAILS WS-LOCKED
             END-UNSTRING
             MOVE 0 TO WS-ID-LEN
             PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
@@ -297,23 +298,8 @@
                 MOVE 1 TO WS-ID-LEN
             END-IF
             
-            *> 2) Lockout: 3 failed attempts within 15 minutes blocks login.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT CAST(COUNT(*) AS CHAR) FROM audit_trail WHERE user_id = " 
-                   WS-USER-ID(1:WS-ID-LEN) " AND action = 'AUTH_LOGIN_FAILED' AND created_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            MOVE WS-RESULT TO WS-FAILS
-            COMPUTE WS-FAIL-COUNT = FUNCTION NUMVAL(WS-FAILS)
-            
-            IF WS-FAIL-COUNT >= 3
-                MOVE "ERROR|ACCOUNT_LOCKED" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF
+            *> 2) Lockout state came with the row: WS-LOCKED is "1" while the
+            *>    account is blocked (failed_logins / locked_until on the user).
             
             *> 3) Password check: fetch the stored hash and verify against it
             *>    (PBKDF2, with a legacy SHA256 fallback).
@@ -332,17 +318,37 @@
             CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
             
             IF WS-VERIFY NOT = "1"
-                *> Record the failed attempt for lockout counting.
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (?, 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" TO WS-PREP-SQL
-                MOVE WS-USER-ID TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-
+                *> Arm the lockout only when not already locked; a locked
+                *> account keeps returning the uniform error so the response
+                *> does not reveal that the account exists.
+                IF WS-LOCKED = "0"
+                    MOVE "UPDATE users SET locked_until = CASE WHEN failed_logins + 1 >= 3 THEN DATE_ADD(NOW(), INTERVAL 15 MINUTE) ELSE locked_until END, failed_logins = failed_logins + 1 WHERE email = ?" TO WS-PREP-SQL
+                    MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    MOVE "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (?, 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" TO WS-PREP-SQL
+                    MOVE WS-USER-ID TO WS-BIND-1
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                END-IF
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             
-            *> 3b) Transparently upgrade a legacy SHA256 hash, or a PBKDF2 hash
+            *> 3a) A correct password on a locked account is told so; a wrong
+            *>     password (above) is not, so lockout cannot be probed.
+            IF WS-LOCKED = "1"
+                MOVE "ERROR|ACCOUNT_LOCKED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            
+            *> 3b) A valid password clears the failure counter.
+            MOVE "UPDATE users SET failed_logins = 0, locked_until = NULL WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            
+            *> 3c) Transparently upgrade a legacy SHA256 hash, or a PBKDF2 hash
             *>     below the current cost target, to the current scheme.
             MOVE "0" TO WS-NEEDS-REHASH
             CALL "password_needs_rehash" USING BY REFERENCE WS-STORED BY REFERENCE WS-NEEDS-REHASH
@@ -645,7 +651,7 @@
             PERFORM GET-USER-ID
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
-            MOVE "UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
+            MOVE "UPDATE users SET password_hash = ?, token_version = token_version + 1, failed_logins = 0, locked_until = NULL WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-HASH TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
