@@ -123,7 +123,9 @@ export const ROUTES = [
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ], onSuccess: async (body, input, { mailer }) => {
-    await mailer.sendVerification({ to: input.newEmail, purpose: 'EMAIL_CHANGE', code: body.data[1] });
+    // Neutral: a code is delivered only when the new address is free.
+    const code = body.data[1];
+    if (code) await mailer.sendVerification({ to: input.newEmail, purpose: 'EMAIL_CHANGE', code });
     return { data: ['CODE_SENT'] };
   } },
   { method: 'post', path: '/profile/email/confirm', action: 'CONFIRM_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
