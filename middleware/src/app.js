@@ -76,7 +76,17 @@ export const ROUTES = [
   { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  ], onSuccess: async (body) => {
+    // Every account, parsed from "iso:balance:status" rows.
+    const balances = String(body.data[1] || '')
+      .split(';')
+      .filter(Boolean)
+      .map((row) => {
+        const [currency, balance, status] = row.split(':');
+        return { currency, balance, status };
+      });
+    return { data: ['BALANCES'], balances };
+  } },
   { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', fields: [
     { name: 'from', pattern: EMAIL, required: true },
     { name: 'to', pattern: EMAIL, required: true },
