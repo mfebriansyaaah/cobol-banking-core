@@ -1,6 +1,6 @@
 # Per-request working directory for COBOL invocation
 
-Status: accepted
+Status: accepted (superseded for throughput by ADR-0010; still the reference until the worker pool is implemented)
 Date: 2026-10-10
 Phase: 0 (decision) — pre-requisite for the api-gateway and for any HTTP transport.
 
