@@ -638,3 +638,16 @@ test('email-change request is neutral for a taken address', async () => {
   assert.deepEqual(a.body, b.body); // identical neutral response
   assert.equal(getVerificationCode(taken, 'EMAIL_CHANGE'), ''); // no code minted for the taken address
 });
+
+test('PATCH /profile updates the name', async () => {
+  const em = `gw_up_${Date.now()}@test.com`;
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Before', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+
+  const res = await request(app).patch('/profile').set(auth).send({ email: em, name: 'Updated Name' });
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.data, ['PROFILE_UPDATED']);
+  assert.equal((await request(app).get('/profile').query({ email: em }).set(auth)).body.profile.name, 'Updated Name');
+});
