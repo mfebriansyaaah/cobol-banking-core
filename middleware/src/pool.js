@@ -1,16 +1,18 @@
-// Worker pool over the COBOL binary's serve mode (ADR-0010 phase 3). Spawns a
-// few long-running `main_logic --serve` processes and dispatches requests over
-// stdin/stdout, one in-flight per worker. A crashed (or timed-out) worker is
-// rejected and replaced. Support only - it carries no business logic.
+// Worker pool over the COBOL binary's serve mode (ADR-0010 phases 3/5). Spawns
+// a few long-running `main_logic --serve` processes and dispatches requests over
+// stdin/stdout, up to `pipeline` in-flight per worker (batched writes reduce IPC
+// round-trips). A crashed (or timed-out) worker is rejected and replaced.
+// Support only - it carries no business logic.
 import { spawn } from 'node:child_process';
 import { BINARY } from './binary.js';
 import { InvocationTimeout, InvocationError } from './errors.js';
 import { setGauge } from './observability.js';
 
 class Pool {
-  constructor({ size, timeoutMs, binary }) {
+  constructor({ size, timeoutMs, pipeline = 1, binary }) {
     this.size = size;
     this.timeoutMs = timeoutMs;
+    this.pipeline = Math.max(1, pipeline);
     this.binary = binary;
     this.workers = [];
     this.queue = [];
@@ -20,13 +22,14 @@ class Pool {
   }
 
   _publish() {
+    const busy = this.workers.reduce((n, w) => n + w.pending.length, 0);
     setGauge('gateway_cobol_pool_workers', this.workers.length);
-    setGauge('gateway_cobol_pool_busy', this.workers.filter((w) => w.current).length);
+    setGauge('gateway_cobol_pool_busy', busy);
     setGauge('gateway_cobol_pool_queued', this.queue.length);
   }
 
   _addWorker() {
-    const w = { child: null, buf: '', current: null, timer: null, alive: true };
+    const w = { child: null, buf: '', pending: [], alive: true };
     w.child = spawn(this.binary, ['--serve'], { stdio: ['pipe', 'pipe', 'ignore'] });
     w.child.stdout.setEncoding('utf8');
     w.child.stdout.on('data', (d) => this._onData(w, d));
@@ -42,55 +45,60 @@ class Pool {
     while ((i = w.buf.indexOf('\n')) >= 0) {
       const line = w.buf.slice(0, i).replace(/\s+$/, '');
       w.buf = w.buf.slice(i + 1);
-      const cur = w.current;
-      if (cur) {
-        clearTimeout(w.timer);
-        w.current = null;
-        cur.resolve(line);
-        this._dispatch();
+      const job = w.pending.shift();
+      if (job) {
+        clearTimeout(job.timer);
+        job.resolve(line);
       }
     }
+    this._dispatch();
   }
 
   _onGone(w, err) {
     if (!w.alive) return;
     w.alive = false;
-    if (w.current) {
-      clearTimeout(w.timer);
-      const cur = w.current;
-      w.current = null;
-      cur.reject(err);
+    for (const job of w.pending) {
+      clearTimeout(job.timer);
+      job.reject(err);
     }
+    w.pending = [];
     this.workers = this.workers.filter((x) => x !== w);
     if (!this.closed) this._addWorker();
     this._dispatch();
     this._publish();
   }
 
-  _idleWorker() {
-    return this.workers.find((w) => w.alive && !w.current);
+  _workerWithCapacity() {
+    return this.workers.find((w) => w.alive && w.pending.length < this.pipeline);
   }
 
   _dispatch() {
     if (this.closed) return;
-    let w = this._idleWorker();
+    let w = this._workerWithCapacity();
     while (this.queue.length && w) {
-      this._send(w, this.queue.shift());
-      w = this._idleWorker();
+      const room = this.pipeline - w.pending.length;
+      const batch = this.queue.splice(0, room);
+      this._sendBatch(w, batch);
+      w = this._workerWithCapacity();
     }
     this._publish();
   }
 
-  _send(w, job) {
-    const timeoutMs = job.timeoutMs ?? this.timeoutMs;
-    w.current = job;
-    w.timer = setTimeout(() => {
-      if (w.current !== job) return;
-      w.current = null;
-      try { w.child.kill('SIGKILL'); } catch { /* ignore */ }
-      job.reject(new InvocationTimeout(`COBOL call exceeded ${timeoutMs}ms`));
-    }, timeoutMs);
-    w.child.stdin.write(`${job.line}\n`);
+  _sendBatch(w, jobs) {
+    const payload = `${jobs.map((j) => j.line).join('\n')}\n`;
+    for (const job of jobs) {
+      const timeoutMs = job.timeoutMs ?? this.timeoutMs;
+      job.timer = setTimeout(() => {
+        const idx = w.pending.indexOf(job);
+        if (idx === -1) return;
+        w.pending.splice(idx, 1);
+        job.reject(new InvocationTimeout(`COBOL call exceeded ${timeoutMs}ms`));
+        // The worker is likely stuck: drop it so the rest fail cleanly.
+        try { w.child.kill('SIGKILL'); } catch { /* ignore */ }
+      }, timeoutMs);
+      w.pending.push(job);
+    }
+    w.child.stdin.write(payload);
   }
 
   invoke(action, params = [], opts = {}) {
@@ -104,7 +112,8 @@ class Pool {
   stats() {
     return {
       size: this.workers.length,
-      busy: this.workers.filter((w) => w.current).length,
+      pipeline: this.pipeline,
+      busy: this.workers.reduce((n, w) => n + w.pending.length, 0),
       queued: this.queue.length,
     };
   }
@@ -128,6 +137,7 @@ export function getPool() {
   POOL = new Pool({
     size,
     timeoutMs: Number(process.env.COBOL_POOL_TIMEOUT_MS || 5000),
+    pipeline: Number(process.env.COBOL_POOL_PIPELINE || 1),
     binary: BINARY,
   });
   return POOL;

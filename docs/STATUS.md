@@ -94,10 +94,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 20 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout |
 | `tests/test_serve_mode.sh` | 12 | long-running `--serve`, file mode unchanged, connection lifecycle (reconnect + transaction) |
-| `middleware/` (node --test) | 55 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, security headers/config, mailer, worker pool, error mapping |
+| `middleware/` (node --test) | 56 | gateway: contract, injection, rate limit (auth + api, shared store), refresh reuse, access-token revocation (version + per-token), timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **247**; with the gateway suite **55** the full run is
-**302 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **247**; with the gateway suite **56** the full run is
+**303 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
