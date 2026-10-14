@@ -19,6 +19,21 @@ export function seedUser(email, role = 'USER') {
   }
 }
 
+// Run an arbitrary SQL statement against the test database (used to put
+// resources into states the API cannot, e.g. freeze an account). Returns false
+// when the mysql client is unavailable.
+export function runSql(sql) {
+  const u = process.env.DB_USER ?? 'cobol_user';
+  const p = process.env.DB_PASS ?? 'cobol_pass';
+  const n = process.env.DB_NAME ?? 'cobol_db';
+  try {
+    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // Read the latest unused verification code for an email from the database.
 // Tests use this because the gateway no longer returns the code in the response.
 export function getVerificationCode(email, purpose = 'SIGNUP') {

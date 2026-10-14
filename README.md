@@ -87,7 +87,9 @@ Responses use one envelope - success `{ data: [...] }`, failure
 
 Transfers convert the target credit using `exchange_rates` (base -> target) when
 the accounts use different currencies; a missing pair fails with
-`RATE_NOT_FOUND`.
+`RATE_NOT_FOUND`. A transfer only goes through when both accounts are `ACTIVE`
+and both currencies are enabled (otherwise `ACCOUNT_FROZEN` / `ACCOUNT_CLOSED` /
+`CURRENCY_INACTIVE`).
 
 The binary writes its result in 500-char records; the gateway reassembles them,
 so large list responses are not cut at 500 bytes.

@@ -1262,3 +1262,97 @@ _merged 2026-10-14_
 - test(pool): concurrent requests served with pipelining
 - feat(pool): pipeline up to N in-flight per worker (batched writes)
 
+## #127 password-reset
+
+_merged 2026-10-14_
+
+- docs: password reset/change actions, routes and counts
+- test: password reset/change suite + ci step 27/27; HTTP flow test
+- feat(gateway): /auth/forgot, /auth/reset-password, /profile/password
+- feat(core): route FORGOT_PASSWORD/RESET_PASSWORD/CHANGE_PASSWORD
+- feat(auth): FORGOT/RESET/CHANGE password (code out-of-band, revoke sessions)
+- feat(db): migration 0011 adds PASSWORD_RESET code purpose
+- docs: sync HISTORY.md to post-merge state (#126)
+
+## #128 resend-verification
+
+_merged 2026-10-14_
+
+- docs: RESEND_VERIFICATION action, /auth/resend route and counts
+- test: resend-verification coverage (binary + HTTP)
+- feat(gateway): POST /auth/resend (neutral) + RESEND_FAILED mapping
+- feat(core): route RESEND_VERIFICATION
+- feat(auth): RESEND_VERIFICATION reissues a signup code (neutral)
+
+## #129 anti-enumeration
+
+_merged 2026-10-14_
+
+- docs: anti-enumeration login/signup, counts
+- test(gateway): unknown account and wrong password are indistinguishable
+- test: login/signup anti-enumeration expectations
+- feat(gateway): signup sends a code only when one is issued
+- feat(auth): anti-enumeration - uniform login error, neutral duplicate signup (dummy KDF on miss)
+
+## #130 verify-attempt-cap
+
+_merged 2026-10-14_
+
+- docs: verification attempt cap, suite and counts
+- test: verification attempt cap suite + ci step 28/28; HTTP cap test
+- feat(profile): cap EMAIL_CHANGE attempts; one active code per request
+- feat(auth): cap SIGNUP and PASSWORD_RESET code attempts (burn after 5)
+- feat(db): migration 0012 adds attempts to verification_logs
+
+## #131 pbkdf2-rehash
+
+_merged 2026-10-14_
+
+- docs: PBKDF2 cost/rehash, KDF suite and counts
+- test(gateway): preload keeps the KDF cheap for node tests
+- test: password KDF suite + ci step 29/29; cheap KDF for the run
+- feat(auth): rehash under-cost PBKDF2 hashes on login
+- feat(crypto): configurable PBKDF2 cost (default 600000) + password_needs_rehash
+
+## #132 lockout-hardening
+
+_merged 2026-10-14_
+
+- docs: column-based masked lockout, suite counts
+- test(gateway): locked account masking over HTTP
+- test: rewrite lockout suite (columns, masked probe, reset/good-login unlock)
+- feat(auth): lockout from user columns; mask it unless the password is correct; reset/success unlock
+- feat(db): migration 0013 adds failed_logins/locked_until to users
+
+## #133 mfa-totp
+
+_merged 2026-10-14_
+
+- docs: TOTP MFA actions/routes, counts
+- test: MFA suite + ci step 30/30; HTTP enrol/confirm/login/disable
+- feat(gateway): /mfa/enroll, /mfa/confirm, /mfa/disable + login mfaCode
+- feat(auth): TOTP MFA - enroll/confirm/disable + second factor at login
+- feat(crypto): TOTP/HMAC-SHA1/base32 library for MFA
+- feat(db): migration 0014 adds mfa_secret/mfa_enabled to users
+
+## #134 session-management
+
+_merged 2026-10-14_
+
+- docs: session listing/revoke actions, routes and counts
+- test(gateway): session listing and revoke-all over HTTP
+- test: session management suite + ci step 31/31
+- feat(gateway): /sessions, /sessions/revoke, /sessions/revoke-all
+- feat(core): route session list/revoke actions
+- feat(auth): LIST_SESSIONS, REVOKE_USER_SESSION, REVOKE_ALL_SESSIONS
+
+## #135 auth-hardening
+
+_merged 2026-10-14_
+
+- docs: constant-time compare, CHANGE_ROLE actor audit, JWT iss/aud
+- test: role-audit actor + JWT issuer/audience rejection
+- feat(gateway): bind JWTs to an issuer and audience
+- feat(auth): attribute the CHANGE_ROLE audit row to the actor
+- feat(crypto): constant-time comparison for password hash verification
+
