@@ -57,11 +57,13 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
     { name: 'mfaCode', pattern: CODE, required: false },
-  ], onSuccess: async (body, input) => {
+  ], onSuccess: async (body, input, { req }) => {
     const ver = await tokenVersion(input.email);
     const issued = signRefresh({ email: input.email });
-    await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti]);
-    return { ...body, token: signToken({ email: input.email, ver, jti: randomUUID() }), refreshToken: issued.token };
+    const ua = sanitizeMeta(req && req.headers && req.headers['user-agent'], 120);
+    const ip = sanitizeMeta(req && req.ip, 45);
+    await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti, ua, ip]);
+    return { ...body, token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }), refreshToken: issued.token };
   } },
 
   { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
@@ -201,9 +203,10 @@ export const ROUTES = [
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'get', path: '/sessions', action: 'LIST_SESSIONS', tokenIdentity: 'actor', fields: [
+  { method: 'get', path: '/sessions', action: 'LIST_SESSIONS', tokenIdentity: 'actor', tokenSid: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'sid', pattern: KEY, required: false },
   ] },
   { method: 'post', path: '/sessions/revoke', action: 'REVOKE_USER_SESSION', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
@@ -234,6 +237,16 @@ export const ROUTES = [
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
 ];
+
+// Keep client-supplied session metadata to safe, bounded text: strip control
+// characters and the input-line/column separators (| and ;) so a user-agent
+// cannot corrupt the session-list row format, and cap the length.
+function sanitizeMeta(value, max) {
+  return String(value || '')
+    .replace(/[^\x20-\x7E]/g, '')
+    .replace(/[|;]/g, '_')
+    .slice(0, max);
+}
 
 async function tokenVersion(email) {
   try {
@@ -298,10 +311,12 @@ export function buildRouter({ mailer, tokenStore } = {}) {
       const family = payload.family || payload.jti;
       const ver = await tokenVersion(payload.email);
       const issued = signRefresh({ email: payload.email, family });
-      await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family]);
+      const ua = sanitizeMeta(req.headers && req.headers['user-agent'], 120);
+      const ip = sanitizeMeta(req.ip, 45);
+      await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family, ua, ip]);
       return res.json({
         data: ['REFRESHED'],
-        token: signToken({ email: payload.email, ver, jti: randomUUID() }),
+        token: signToken({ email: payload.email, ver, jti: randomUUID(), sid: family }),
         refreshToken: issued.token,
       });
     } catch {
@@ -352,6 +367,11 @@ export function buildRouter({ mailer, tokenStore } = {}) {
         if (route.tokenIdentity) {
           input[route.tokenIdentity] = (req.user && req.user.email) || '';
         }
+        // Session ids ("sid") are the token's refresh-session family; used to
+        // mark the caller's own session in the list.
+        if (route.tokenSid) {
+          input.sid = (req.user && req.user.sid) || '';
+        }
         const params = buildParams(route, input);
         assertLineLength(route.action, params);
         const t0 = Date.now();
@@ -359,7 +379,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
         res.set('X-Cobol-Ms', String(Date.now() - t0));
         const { status, body } = toHttp(raw);
         if (status === 200 && route.onSuccess) {
-          return res.status(status).json(await route.onSuccess(body, input, { mailer }));
+          return res.status(status).json(await route.onSuccess(body, input, { mailer, req }));
         }
         return res.status(status).json(body);
       } catch (err) {

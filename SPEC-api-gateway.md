@@ -44,7 +44,7 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 
 ### Auth and limits
 
-- Login returns a short-lived **access token** (`JWT_SECRET`/`JWT_EXPIRES_IN`, default 15m) and a **refresh token** (`REFRESH_SECRET`/`REFRESH_EXPIRES_IN`, default 7d) carrying a `jti`. The `jti` is stored via the COBOL `STORE_SESSION` action; `POST /auth/refresh` atomically consumes it (`CONSUME_SESSION`, which reports reuse), **rotates** it (new jti in the same family), and `POST /auth/logout` removes it per-device (`REVOKE_SESSION`) and denies the presented access token; `POST /sessions/revoke-all` logs out everywhere.
+- Login returns a short-lived **access token** (`JWT_SECRET`/`JWT_EXPIRES_IN`, default 15m) and a **refresh token** (`REFRESH_SECRET`/`REFRESH_EXPIRES_IN`, default 7d) carrying a `jti`. The `jti` is stored via the COBOL `STORE_SESSION` action along with the client **user-agent and IP**; `POST /auth/refresh` atomically consumes it (`CONSUME_SESSION`, which reports reuse), **rotates** it (new jti in the same family), and `POST /auth/logout` removes it per-device (`REVOKE_SESSION`) and denies the presented access token; `POST /sessions/revoke-all` logs out everywhere. The access token carries a `sid` (its refresh-session family), and `GET /sessions` marks the caller's own session (`current`) alongside each session's user-agent and IP.
 - `/auth/*` endpoints are rate limited (fixed window per client: `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX`).
 - The composed input line is capped at the COBOL record size (see `CODING_STANDARDS.md` rule 13).
 

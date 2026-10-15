@@ -182,6 +182,8 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_agent VARCHAR(255) NULL,
+    ip VARCHAR(45) NULL,
     KEY idx_refresh_family (family),
     CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;

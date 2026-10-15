@@ -1588,3 +1588,14 @@ _merged 2026-10-15_
 - feat(auth): enforce refresh-family absolute lifetime and rotation cap (SESSION_FAMILY_EXPIRED)
 - feat(db): refresh_families table (migration 0022) for absolute lifetime + rotation cap
 
+## #158 session-denylist-pruning
+
+_merged 2026-10-15_
+
+- docs: note denylist pruning + SESSION_FAMILY_EXPIRED audit in auth spec
+- docs: denylist pruning + security-event audit in STATUS + counts
+- test: denylist pruning + family-expiry security-event audit
+- feat(auth): audit SESSION_FAMILY_EXPIRED as a security event
+- feat(auth): prune expired access-token denylist rows when storing a session
+- docs: sync HISTORY.md to post-merge state (#157)
+
