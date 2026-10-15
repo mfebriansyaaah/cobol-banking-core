@@ -39,5 +39,5 @@ The read path added in ADR 0016 also had no index on `action`/`actor_id`.
   (`AUTHZ_DENIED`).
 - The trigger runs per deleted user row; bulk `DELETE FROM users` archives every
   affected user's rows. Covered by `tests/test_audit_integrity.sh`.
-- Wallet-side SUPER_ADMIN-only denials are not yet attributed (a follow-up);
+- Wallet-side SUPER_ADMIN-only denials (`RECONCILE`, `REVERSE_TRANSFER`) and the wallet self-or-admin reads (`CHECK_BALANCE`) are now also attributed as `AUTHZ_DENIED`;
   this phase covers the auth and user-administration guards.
