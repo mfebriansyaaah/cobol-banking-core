@@ -1,6 +1,7 @@
 #!/bin/bash
 # Step-up (re-authentication) suite: VERIFY_REAUTH re-checks the caller's own
 # password (and TOTP when MFA is on) without issuing tokens or touching lockout.
+# Admin accounts (SUPER_ADMIN/MANAGER) must have MFA enabled to step up.
 # Usage: ./tests/test_stepup.sh
 
 BIN="./cobol/bin/main_logic"
@@ -46,23 +47,32 @@ echo "======================================================================"
 echo "  STEP-UP (RE-AUTHENTICATION) SUITE"
 echo "======================================================================"
 
-P="su_pw@test.com"; M="su_mfa@test.com"; S="su_susp@test.com"
-q "DELETE FROM users WHERE email IN ('$P','$M','$S');
+U="su_user@test.com"; A="su_admin@test.com"; G="su_mgr@test.com"; M="su_mfa@test.com"; S="su_susp@test.com"
+q "DELETE FROM users WHERE email IN ('$U','$A','$G','$M','$S');
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role,mfa_enabled,mfa_secret) VALUES
-   (870,'$P',CONCAT('SHA256_',SHA2('secret123',256)),'P','1990-01-01','VERIFIED','SUPER_ADMIN',FALSE,NULL),
-   (871,'$M',CONCAT('SHA256_',SHA2('secret123',256)),'M','1990-01-01','VERIFIED','SUPER_ADMIN',TRUE,'JBSWY3DPEHPK3PXP'),
-   (872,'$S',CONCAT('SHA256_',SHA2('secret123',256)),'S','1990-01-01','SUSPENDED','USER',FALSE,NULL);"
+   (870,'$U',CONCAT('SHA256_',SHA2('secret123',256)),'U','1990-01-01','VERIFIED','USER',FALSE,NULL),
+   (871,'$A',CONCAT('SHA256_',SHA2('secret123',256)),'A','1990-01-01','VERIFIED','SUPER_ADMIN',FALSE,NULL),
+   (872,'$G',CONCAT('SHA256_',SHA2('secret123',256)),'G','1990-01-01','VERIFIED','MANAGER',FALSE,NULL),
+   (873,'$M',CONCAT('SHA256_',SHA2('secret123',256)),'M','1990-01-01','VERIFIED','SUPER_ADMIN',TRUE,'JBSWY3DPEHPK3PXP'),
+   (874,'$S',CONCAT('SHA256_',SHA2('secret123',256)),'S','1990-01-01','SUSPENDED','USER',FALSE,NULL);"
 
-check "correct password re-authenticates" "SUCCESS|REAUTH_OK" "$(run VERIFY_REAUTH "$P" secret123)"
-check "wrong password rejected" "ERROR|INVALID_CREDENTIALS" "$(run VERIFY_REAUTH "$P" nope)"
+# Non-admin: password only.
+check "user password re-authenticates" "SUCCESS|REAUTH_OK" "$(run VERIFY_REAUTH "$U" secret123)"
+check "wrong password rejected" "ERROR|INVALID_CREDENTIALS" "$(run VERIFY_REAUTH "$U" nope)"
 check "unknown account rejected" "ERROR|INVALID_CREDENTIALS" "$(run VERIFY_REAUTH ghost_su@test.com secret123)"
 check "suspended account rejected" "ERROR|INVALID_CREDENTIALS" "$(run VERIFY_REAUTH "$S" secret123)"
-check "MFA on: code required" "ERROR|MFA_REQUIRED" "$(run VERIFY_REAUTH "$M" secret123)"
-check "MFA on: bad code rejected" "ERROR|INVALID_MFA" "$(run VERIFY_REAUTH "$M" secret123 000000)"
-check "MFA on: good code re-authenticates" "SUCCESS|REAUTH_OK" "$(run VERIFY_REAUTH "$M" secret123 "$(totp JBSWY3DPEHPK3PXP)")"
-check "MFA on: wrong password still rejected" "ERROR|INVALID_CREDENTIALS" "$(run VERIFY_REAUTH "$M" nope "$(totp JBSWY3DPEHPK3PXP)")"
 
-q "DELETE FROM users WHERE email IN ('$P','$M','$S');"
+# Admin mandate: MFA must be enabled to step up.
+check "admin without MFA cannot step up" "ERROR|MFA_SETUP_REQUIRED" "$(run VERIFY_REAUTH "$A" secret123)"
+check "manager without MFA cannot step up" "ERROR|MFA_SETUP_REQUIRED" "$(run VERIFY_REAUTH "$G" secret123)"
+
+# Admin with MFA: password + TOTP.
+check "MFA admin: code required" "ERROR|MFA_REQUIRED" "$(run VERIFY_REAUTH "$M" secret123)"
+check "MFA admin: bad code rejected" "ERROR|INVALID_MFA" "$(run VERIFY_REAUTH "$M" secret123 000000)"
+check "MFA admin: good code re-authenticates" "SUCCESS|REAUTH_OK" "$(run VERIFY_REAUTH "$M" secret123 "$(totp JBSWY3DPEHPK3PXP)")"
+check "MFA admin: wrong password still rejected" "ERROR|INVALID_CREDENTIALS" "$(run VERIFY_REAUTH "$M" nope "$(totp JBSWY3DPEHPK3PXP)")"
+
+q "DELETE FROM users WHERE email IN ('$U','$A','$G','$M','$S');"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
