@@ -487,10 +487,11 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE WS-RESULT TO WS-BIND-1
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'REVERSE_TRANSFER', 'LEDGER', ?, 'SUCCESS')" TO WS-PREP-SQL
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
-                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                MOVE WS-REV-FROM TO WS-BIND-3
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, detail, status) VALUES (?, 'REVERSE_TRANSFER', 'LEDGER', ?, ?, 'SUCCESS')" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
