@@ -73,6 +73,7 @@ check "sender restored" "1000.0000" "$(q "SELECT balance FROM accounts WHERE acc
 check "target clawed back" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
 check "compensating ledger rows" "4" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='rev-1';")"
 check "reversal audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='REVERSE_TRANSFER' AND entity_id='rev-1';")"
+check "reversal audit names the sender" "sender@test.com" "$(q "SELECT detail FROM audit_trail WHERE action='REVERSE_TRANSFER' AND entity_id='rev-1' ORDER BY audit_id DESC LIMIT 1")"
 check_contains "status is now REVERSED" "REVERSED" "$(run TX_STATUS rev-1 sender@test.com)"
 check "second reversal refused" "ERROR|ALREADY_REVERSED" "$(run REVERSE_TRANSFER rev-1 "$ADM")"
 
