@@ -120,6 +120,8 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     detail VARCHAR(255),     -- free-form context (e.g. transfer "to:amount:currency")
     status ENUM('SUCCESS', 'FAILED') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_audit_action (action),
+    KEY idx_audit_actor (actor_id),
     CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -225,3 +227,15 @@ CREATE INDEX idx_ledger_txn ON ledger(txn_ref);
 CREATE INDEX idx_ledger_acc_date ON ledger(account_id, created_at);
 CREATE INDEX idx_audit_user_date ON audit_trail(user_id, created_at);
 CREATE INDEX idx_audit_entity ON audit_trail(entity_type, entity_id);
+
+-- Preserve live audit rows in the immutable archive before a user delete
+-- cascades them away, so deleting a user cannot destroy audit evidence.
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS trg_audit_snapshot_user_delete BEFORE DELETE ON users
+FOR EACH ROW
+BEGIN
+    INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at)
+    SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at
+    FROM audit_trail WHERE user_id = OLD.id;
+END//
+DELIMITER ;
