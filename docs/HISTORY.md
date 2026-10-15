@@ -1708,3 +1708,14 @@ _merged 2026-10-15_
 - feat(core): require MFA for admin step-up (MFA_SETUP_REQUIRED)
 - docs: sync HISTORY.md to post-merge state (#167)
 
+## #169 admin-mfa-enroll-prompt
+
+_merged 2026-10-15_
+
+- docs(adr): 0021 prompt admins to enrol MFA at login
+- docs: login MFA-enrolment prompt in STATUS and specs + counts
+- test: MFA-state suite + gateway enrolment-prompt test + ci step 45/45
+- feat(gateway): flag mfaEnrollmentRequired on login and refresh
+- feat(core): GET_MFA_STATE (role + MFA flag) for the login enrolment prompt
+- docs: sync HISTORY.md to post-merge state (#168)
+
