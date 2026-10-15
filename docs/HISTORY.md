@@ -1685,3 +1685,15 @@ _merged 2026-10-15_
 - feat(core): admin recovery actions UNLOCK_USER and ADMIN_RESET_MFA
 - feat(gateway): SUPER_ADMIN-only metrics, recovery routes, unmatched route label
 
+## #167 admin-stepup
+
+_merged 2026-10-15_
+
+- docs(adr): 0019 admin step-up re-authentication
+- docs: step-up/re-auth in STATUS, specs and .env.example + counts
+- test: step-up suite + gateway/endpoints/routes updates + ci step 44/44
+- feat(gateway): POST /auth/step-up and requireStepUp on privileged admin writes
+- feat(core): VERIFY_REAUTH re-authentication action (password + MFA, no tokens/lockout)
+- feat(auth): short-lived step-up tokens; reject purpose-tagged tokens as access tokens
+- docs: sync HISTORY.md to post-merge state (#166)
+
