@@ -31,6 +31,8 @@
         01  WS-AMT-SEEN-DOT        PIC X(1) VALUE "0".
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
@@ -246,7 +248,25 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
             END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-DENIED.
+            *> Records a refused authorization attempt for WS-DENIED-ACTOR;
+            *> unknown actors produce no row. Best-effort.
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT a.id, a.id, 'AUTHZ_DENIED', 'USER', ?, ?, 'FAILED' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
+            MOVE LS-CMD-ACTION TO WS-BIND-1
+            MOVE WS-DENIED-TARGET TO WS-BIND-2
+            MOVE WS-DENIED-ACTOR TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
             EXIT PARAGRAPH.
 
         GET-BALANCE-LOGIC.
@@ -284,6 +304,9 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -581,6 +604,9 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
 
             IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
+                MOVE SPACES TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
