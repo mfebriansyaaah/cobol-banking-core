@@ -54,9 +54,8 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 
 ## Configuration
 
-`middleware/.env` (see `middleware/.env.example`): `PORT`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `COBOL_BIN`.
+`middleware/.env` (see `middleware/.env.example`): `PORT`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `COBOL_BIN`. In production the server refuses to start unless `JWT_SECRET` and `REFRESH_SECRET` are at least 32 characters and differ from each other and from the development defaults (see ADR 0011). Tokens are signed and verified with HMAC-SHA256 only.
 
 ## Not yet done
 
-- Refresh-token rotation/revocation (a refresh token is accepted until it expires; there is no server-side denylist).
 - The bridge supports prepared statements (`SQL_PREPARE_EXEC`, string parameters) and value escaping (`SQL_ESCAPE`); the migration of every query to prepared statements is incremental.
