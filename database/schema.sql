@@ -186,6 +186,15 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
     CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+-- 10b. Refresh-token families (absolute lifetime + rotation cap)
+CREATE TABLE IF NOT EXISTS refresh_families (
+    family VARCHAR(50) PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    rotations INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_refresh_family_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
 -- 11. Access-token denylist (per-token revocation; complements users.token_version)
 CREATE TABLE IF NOT EXISTS revoked_access_tokens (
     jti VARCHAR(50) PRIMARY KEY,
