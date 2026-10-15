@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
-import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
+import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, signStepUp, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText } from './observability.js';
 import { createMailer } from './mailer.js';
@@ -66,6 +66,17 @@ export const ROUTES = [
     return { ...body, token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }), refreshToken: issued.token };
   } },
 
+  // Step-up: re-verify the caller's own credentials and mint a short-lived
+  // proof required by privileged admin actions. Bearer-authenticated.
+  { method: 'post', path: '/auth/step-up', action: 'VERIFY_REAUTH', tokenIdentity: 'email', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'password', pattern: PASSWORD, required: true },
+    { name: 'mfaCode', pattern: CODE, required: false },
+  ], onSuccess: async (body, input) => {
+    const ver = await tokenVersion(input.email);
+    return { data: ['STEP_UP_OK'], stepUpToken: signStepUp({ email: input.email, ver }) };
+  } },
+
   { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
     { name: 'limit', pattern: LIMIT, required: false },
     { name: 'offset', pattern: INT, required: false },
@@ -118,7 +129,7 @@ export const ROUTES = [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'sender', pattern: EMAIL, required: false },
   ] },
-  { method: 'post', path: '/transactions/:ref/reverse', action: 'REVERSE_TRANSFER', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/transactions/:ref/reverse', action: 'REVERSE_TRANSFER', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'ref', pattern: KEY, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
@@ -146,16 +157,16 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/user-status', action: 'SET_USER_STATUS', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/admin/user-status', action: 'SET_USER_STATUS', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'status', pattern: USER_STATUS, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/unlock', action: 'UNLOCK_USER', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/admin/unlock', action: 'UNLOCK_USER', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/mfa-reset', action: 'ADMIN_RESET_MFA', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/admin/mfa-reset', action: 'ADMIN_RESET_MFA', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
@@ -235,12 +246,12 @@ export const ROUTES = [
   { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/admin/audit/archive', action: 'ARCHIVE_AUDIT', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/admin/audit/archive', action: 'ARCHIVE_AUDIT', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'days', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
@@ -303,6 +314,24 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     } catch (err) {
       return next(err);
     }
+  };
+
+  // Step-up gate for privileged admin writes: require a fresh, short-lived
+  // proof (from POST /auth/step-up) bound to this caller and its token version.
+  const requireStepUp = (req, res, next) => {
+    const token = req.get('x-step-up') || (req.body && req.body.stepUpToken) || '';
+    if (!token) return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+    let payload;
+    try {
+      payload = verifyStepUp(token);
+    } catch {
+      return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+    }
+    const u = req.user || {};
+    if (payload.email !== u.email || String(payload.ver) !== String(u.ver)) {
+      return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+    }
+    return next();
   };
 
   // Deep health: confirm the COBOL core can reach the database.
@@ -420,6 +449,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     else chain.push(apiLimiter);
     if (!route.public) chain.push(requireAuth);
     if (!route.public) chain.push(requireActiveToken);
+    if (route.stepUp) chain.push(requireStepUp);
     chain.push(handler);
     router[route.method](route.path, ...chain);
   }
