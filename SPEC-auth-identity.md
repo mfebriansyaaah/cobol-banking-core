@@ -50,7 +50,7 @@ Managing **another** account's sessions (`REVOKE_USER_SESSION`, `REVOKE_ALL_SESS
 ## Not yet done
 
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
-- `audit_trail` records failed logins (lockout), `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHANGE_ROLE`, `TRANSFER`, and `EMAIL_CHANGE`.
+- `audit_trail` records failed logins (lockout), `REQUEST_SIGNUP`, `VERIFY_EMAIL`, `CHANGE_ROLE`, `TRANSFER`, `EMAIL_CHANGE`, `SET_USER_STATUS`, `SESSIONS_REVOKED`, `REVOKE_USER_SESSION` and `ARCHIVE_AUDIT`. Rows carry a subject `user_id` and an `actor_id` naming who performed the action (NULL when the subject acted on themselves), so an administrator's actions on another account are attributable.
 
 ## Done since first cut
 
