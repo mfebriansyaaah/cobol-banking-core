@@ -93,6 +93,13 @@ check "admin sees the newest for an ambiguous ref" "20.00" "$(run TX_STATUS dup-
 check "admin filters by sender" "10.00" "$(run TX_STATUS dup-k "$ADM" sender@test.com | cut -d'|' -f6)"
 check "owner still sees their own with the shared ref" "10.00" "$(run TX_STATUS dup-k sender@test.com | cut -d'|' -f6)"
 
+# Reversal of a shared ref needs the sender, and reverses only that transfer.
+check "reversal of a shared ref is ambiguous" "ERROR|AMBIGUOUS_TRANSACTION" "$(run REVERSE_TRANSFER dup-k "$ADM")"
+check "reversal with the sender succeeds" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" receiver@test.com)"
+check "the same reversal is refused" "ERROR|ALREADY_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" receiver@test.com)"
+check "the other sender's transfer is untouched" "COMMITTED" "$(run TX_STATUS dup-k "$ADM" sender@test.com | cut -d'|' -f3)"
+check "the other sender can still be reversed" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" sender@test.com)"
+
 teardown
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1; UPDATE accounts SET balance=0.00 WHERE account_id=2;
    DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM transfer_reversals;"
