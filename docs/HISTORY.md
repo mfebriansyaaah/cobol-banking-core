@@ -1599,3 +1599,15 @@ _merged 2026-10-15_
 - feat(auth): prune expired access-token denylist rows when storing a session
 - docs: sync HISTORY.md to post-merge state (#157)
 
+## #159 session-metadata
+
+_merged 2026-10-15_
+
+- docs: session metadata + sid in specs
+- docs: session metadata + sid in STATUS + counts
+- test: session metadata + current-session marker
+- feat(gateway): record session user-agent/ip and add a sid claim for the current session
+- feat(cobol): auth_core takes 6 params; store/list session user-agent + ip + current marker
+- feat(db): refresh_sessions user-agent + ip columns (migration 0023)
+- docs: sync HISTORY.md to post-merge state (#158)
+
