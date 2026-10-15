@@ -311,6 +311,27 @@ test('privileged admin writes require a fresh step-up', async (t) => {
   );
 });
 
+test('an admin without MFA is prompted to enrol at login', async (t) => {
+  const admin = `gw_enr_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed a SUPER_ADMIN');
+
+  const login = await request(app).post('/auth/login').send({ email: admin, password: 'secret123' });
+  assert.equal(login.status, 200);
+  assert.equal(login.body.mfaEnrollmentRequired, true, 'login flags that MFA enrolment is required');
+  const token = login.body.token;
+
+  // Until enrolled, a step-up (needed for privileged writes) is refused.
+  assert.equal((await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password: 'secret123' })).status, 401);
+
+  // Enrol, then refresh: the prompt clears.
+  const enroll = await request(app).post('/mfa/enroll').set('Authorization', `Bearer ${token}`).send({ email: admin });
+  assert.equal(enroll.status, 200);
+  assert.equal((await request(app).post('/mfa/confirm').set('Authorization', `Bearer ${token}`).send({ email: admin, code: totp(enroll.body.secret) })).status, 200);
+  const refreshed = await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken });
+  assert.equal(refreshed.status, 200);
+  assert.notEqual(refreshed.body.mfaEnrollmentRequired, true, 'prompt clears once MFA is enabled');
+});
+
 test('reusing an idempotency key with different details is a conflict', async (t) => {
   const em = `gw_idem_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
