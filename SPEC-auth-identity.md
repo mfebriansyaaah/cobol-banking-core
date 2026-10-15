@@ -43,6 +43,8 @@ Most auth queries use **prepared statements** (bridge `SQL_PREPARE_EXEC`, bound 
 
 The gateway's `/auth/refresh` uses **`CONSUME_SESSION`**: a single conditional `UPDATE ... WHERE jti = ? AND revoked = 0 AND expires_at > NOW()`, so only one concurrent caller can win the rotation. A replay of a consumed token is **reuse**: the whole `family` is revoked, the user's `token_version` is bumped (killing every previously issued access token), and a `SESSION_REUSED` audit row is written. `REVOKE_SESSION` backs per-device logout: it **deletes** the session row, so replaying a logged-out token is a plain `SESSION_NOT_FOUND` rather than a reuse that would revoke the family and every device.
 
+Rotation is also bounded per family. `refresh_families` tracks each family's `created_at` and `rotations`; after a successful consume `CONSUME_SESSION` refuses — and revokes the family with `SESSION_FAMILY_EXPIRED` — once the family is older than `REFRESH_ABSOLUTE_TTL_DAYS` (default 30) or has rotated more than `REFRESH_MAX_ROTATIONS` times (default 100), forcing a fresh login. Either limit set to 0 disables it; the check fails closed if the family state cannot be read.
+
 ## Not yet done
 
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.
