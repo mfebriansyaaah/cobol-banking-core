@@ -25,6 +25,15 @@
         01  WS-FAMILY               PIC X(50) VALUE SPACES.
         01  WS-REVOKED-FLAG         PIC X(1) VALUE "0".
         01  WS-SESSION-EMAIL        PIC X(100) VALUE SPACES.
+        01  WS-FAMILY-OVER-LIMIT    PIC 9 VALUE 0.
+        01  WS-ABS-TTL-STR          PIC X(20) VALUE SPACES.
+        01  WS-MAX-ROT-STR          PIC X(20) VALUE SPACES.
+        01  WS-AGE-STR              PIC X(20) VALUE SPACES.
+        01  WS-ROT-STR              PIC X(20) VALUE SPACES.
+        01  WS-ABS-SECS             PIC 9(14) VALUE 0.
+        01  WS-MAX-ROT              PIC 9(9) VALUE 0.
+        01  WS-AGE-SECS             PIC 9(14) VALUE 0.
+        01  WS-ROT-COUNT            PIC 9(9) VALUE 0.
         01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-FAILS                PIC X(20) VALUE SPACES.
         01  WS-FAIL-COUNT           PIC 9(4) VALUE 0.
@@ -1064,10 +1073,6 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            MOVE SPACES TO WS-PREP-SQL
-            STRING "INSERT INTO refresh_sessions (jti, family, email, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL "
-                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY))" DELIMITED BY SIZE INTO WS-PREP-SQL
-            END-STRING
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             IF LS-PARAM4 NOT = SPACES
                 MOVE WS-PARAM4-TRIMMED TO WS-BIND-2
@@ -1075,6 +1080,16 @@
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
             END-IF
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+            *> Register the family for absolute-lifetime / rotation-cap tracking.
+            MOVE "INSERT IGNORE INTO refresh_families (family, email) VALUES (?, ?)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "INSERT INTO refresh_sessions (jti, family, email, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL "
+                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY))" DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
@@ -1112,7 +1127,12 @@
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:18) = "SUCCESS|AFFECTED_1"
-                MOVE "SUCCESS|SESSION_CONSUMED" TO LS-OUTPUT-BUFFER
+                PERFORM ENFORCE-FAMILY-LIMITS
+                IF WS-FAMILY-OVER-LIMIT = 1
+                    MOVE "ERROR|SESSION_FAMILY_EXPIRED" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "SUCCESS|SESSION_CONSUMED" TO LS-OUTPUT-BUFFER
+                END-IF
                 EXIT PARAGRAPH
             END-IF
             *> Not consumed: unknown, expired, or already revoked (reuse).
@@ -1147,6 +1167,77 @@
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE "ERROR|SESSION_REUSED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ENFORCE-FAMILY-LIMITS.
+            *> p1 = jti. Runs after a successful consume. Ensure the family row
+            *> exists, then refuse (and revoke the family) when it is older than
+            *> REFRESH_ABSOLUTE_TTL_DAYS or has rotated more than
+            *> REFRESH_MAX_ROTATIONS times; otherwise count this rotation.
+            MOVE 0 TO WS-FAMILY-OVER-LIMIT
+            MOVE "SELECT family, email FROM refresh_sessions WHERE jti = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE 1 TO WS-FAMILY-OVER-LIMIT
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-FAMILY WS-SESSION-EMAIL
+            END-UNSTRING
+            MOVE "INSERT IGNORE INTO refresh_families (family, email) VALUES (?, ?)" TO WS-PREP-SQL
+            MOVE WS-FAMILY TO WS-BIND-1
+            MOVE WS-SESSION-EMAIL TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE "SELECT CAST(TIMESTAMPDIFF(SECOND, created_at, NOW()) AS CHAR), CAST(rotations AS CHAR) FROM refresh_families WHERE family = ?" TO WS-PREP-SQL
+            MOVE WS-FAMILY TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                *> Fail closed: without family state we cannot allow the rotation.
+                MOVE 1 TO WS-FAMILY-OVER-LIMIT
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-AGE-STR WS-ROT-STR
+            END-UNSTRING
+            COMPUTE WS-AGE-SECS = FUNCTION NUMVAL(WS-AGE-STR)
+            COMPUTE WS-ROT-COUNT = FUNCTION NUMVAL(WS-ROT-STR)
+            MOVE SPACES TO WS-ABS-TTL-STR
+            CALL "env_or" USING BY REFERENCE "REFRESH_ABSOLUTE_TTL_DAYS" BY REFERENCE "30" BY REFERENCE WS-ABS-TTL-STR
+            MOVE SPACES TO WS-MAX-ROT-STR
+            CALL "env_or" USING BY REFERENCE "REFRESH_MAX_ROTATIONS" BY REFERENCE "100" BY REFERENCE WS-MAX-ROT-STR
+            COMPUTE WS-ABS-SECS = FUNCTION NUMVAL(WS-ABS-TTL-STR) * 86400
+            COMPUTE WS-MAX-ROT = FUNCTION NUMVAL(WS-MAX-ROT-STR)
+            IF WS-ABS-SECS > 0 AND WS-AGE-SECS > WS-ABS-SECS
+                MOVE 1 TO WS-FAMILY-OVER-LIMIT
+            END-IF
+            IF WS-MAX-ROT > 0 AND WS-ROT-COUNT >= WS-MAX-ROT
+                MOVE 1 TO WS-FAMILY-OVER-LIMIT
+            END-IF
+            IF WS-FAMILY-OVER-LIMIT = 1
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE family = ?" TO WS-PREP-SQL
+                MOVE WS-FAMILY TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            ELSE
+                MOVE "UPDATE refresh_families SET rotations = rotations + 1 WHERE family = ?" TO WS-PREP-SQL
+                MOVE WS-FAMILY TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             END-IF.
             EXIT PARAGRAPH.
 
