@@ -1729,3 +1729,34 @@ _merged 2026-10-15_
 - feat(core): attribute wallet denials (RECONCILE/REVERSE/balance read) as AUTHZ_DENIED
 - docs: sync HISTORY.md to post-merge state (#169)
 
+## #171 ledger-reversal-sender
+
+_merged 2026-10-15_
+
+- docs: unambiguous reversal in STATUS, wallet spec and ADR 0022
+- test: shared-reference reversal checks
+- feat(gateway): reversal sender param + AMBIGUOUS_TRANSACTION (409)
+- feat(core): tag ledger rows with the sender; scope reversal and status by sender
+- feat(db): ledger.from_email + per-sender transfer_reversals (migration 0026)
+- docs: sync HISTORY.md to post-merge state (#170)
+
+## #172 ledger-integrity
+
+_merged 2026-10-15_
+
+- docs(adr): 0023 ledger durability and immutability
+- docs: ledger integrity in STATUS + counts
+- test: ledger integrity suite + ci step 46/46
+- feat(db): ledger append-only + preserve-on-delete archive (migration 0027)
+- refactor(ledger): set from_email at insert (no UPDATE); add SQL_PREPARE_EXEC7
+
+## #173 ambiguous-account
+
+_merged 2026-10-15_
+
+- docs(adr): 0024 ambiguous account selection
+- docs: ambiguous account in STATUS and wallet spec + counts
+- test: multi-account ambiguity checks
+- feat(gateway): map AMBIGUOUS_ACCOUNT to 409
+- feat(core): refuse ambiguous account selection on an unpinned multi-account transfer
+
