@@ -1019,6 +1019,32 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        GUARD-LAST-ADMIN-ROLE.
+            *> p1 = target email, p2 = new role. Sets WS-ALLOWED = 1 when the
+            *> change still leaves an active (VERIFIED) SUPER_ADMIN, so the last
+            *> administrator can never be demoted away.
+            MOVE 0 TO WS-ALLOWED
+            IF WS-PARAM2-TRIMMED(1:WS-P2-LEN) = "SUPER_ADMIN"
+                MOVE 1 TO WS-ALLOWED
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE 1 TO WS-ALLOWED
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM users WHERE role = 'SUPER_ADMIN' AND status = 'VERIFIED' AND email <> ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "0" AND WS-RESULT(1:5) NOT = "ERROR"
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
         CHANGE-ROLE-LOGIC.
             *> Only a SUPER_ADMIN (the actor, p3) may change roles.
             MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
@@ -1063,6 +1089,12 @@
                 MOVE 1 TO WS-ID-LEN
             END-IF
             
+            *> Never demote the last active SUPER_ADMIN (would lock everyone out).
+            PERFORM GUARD-LAST-ADMIN-ROLE
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|LAST_ADMIN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             *> Capture the actor's id so the audit row names who changed the role.
             MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-1

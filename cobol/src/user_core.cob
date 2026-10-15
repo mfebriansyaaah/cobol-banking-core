@@ -54,6 +54,7 @@
         01  WS-RANK                 PIC 9 VALUE 0.
         01  WS-ACTOR-ROLE           PIC X(12) VALUE SPACES.
         01  WS-TARGET-ROLE          PIC X(12) VALUE SPACES.
+        01  WS-LAST-ADMIN           PIC 9 VALUE 0.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
@@ -345,6 +346,31 @@
                 IF WS-ROLE = "MANAGER"
                     MOVE 2 TO WS-RANK
                 END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LAST-ACTIVE-SUPER.
+            *> p1 = email. Sets WS-LAST-ADMIN = 1 when the account is a
+            *> SUPER_ADMIN and no other active (VERIFIED) SUPER_ADMIN exists,
+            *> so it must not be closed or deactivated.
+            MOVE 0 TO WS-LAST-ADMIN
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM users WHERE role = 'SUPER_ADMIN' AND status = 'VERIFIED' AND email <> ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "0"
+                MOVE 1 TO WS-LAST-ADMIN
             END-IF.
             EXIT PARAGRAPH.
 
@@ -820,6 +846,12 @@
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            *> An owner may not close the account of the last active SUPER_ADMIN.
+            PERFORM LAST-ACTIVE-SUPER
+            IF WS-LAST-ADMIN = 1
+                MOVE "ERROR|LAST_ADMIN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
             MOVE "UPDATE users SET status = 'CLOSED', token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
@@ -896,12 +928,20 @@
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            *> Role hierarchy: the actor must outrank the target account.
+            *> Role hierarchy: the actor must not be lower-ranked than the target.
             PERFORM ALLOW-RANK-ABOVE
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            *> Never deactivate the last active SUPER_ADMIN.
+            IF WS-PARAM2-TRIMMED(1:WS-P2-LEN) NOT = "VERIFIED"
+                PERFORM LAST-ACTIVE-SUPER
+                IF WS-LAST-ADMIN = 1
+                    MOVE "ERROR|LAST_ADMIN" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
             MOVE "UPDATE users SET status = ?, token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
