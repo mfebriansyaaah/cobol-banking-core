@@ -19,6 +19,7 @@ The "Robust Pipe": the only interface between the public internet and COBOL. It 
 |---|---|---|---|
 | GET | `/health` | `PING` (deep: DB reachability) | public |
 | POST | `/auth/refresh` | — (transport only; rotates the refresh token) | public |
+| POST | `/auth/step-up` | `VERIFY_REAUTH` (re-authenticate; mints a short-lived step-up proof) | bearer |
 | POST | `/auth/logout` | — (transport only; per-device: removes the refresh session and, when the bearer is sent, denies that access token) | public |
 
 Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
