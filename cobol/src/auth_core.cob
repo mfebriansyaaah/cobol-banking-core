@@ -58,6 +58,12 @@
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-ACTOR-RANK           PIC 9 VALUE 0.
+        01  WS-TARGET-RANK          PIC 9 VALUE 0.
+        01  WS-RANK                 PIC 9 VALUE 0.
+        01  WS-ACTOR-ROLE           PIC X(12) VALUE SPACES.
+        01  WS-TARGET-ROLE          PIC X(12) VALUE SPACES.
+        01  WS-RANK-ROLE            PIC X(12) VALUE SPACES.
         01  WS-RLEN                 PIC 9(5) VALUE 0.
         01  WS-P1-ESC               PIC X(256) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
@@ -1400,6 +1406,62 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        ALLOW-MANAGE-SESSION.
+            *> p1 = target email, p2 = actor. Self-service is always allowed;
+            *> managing another account's sessions additionally requires the
+            *> actor not to be lower-ranked (a MANAGER can never force-logout a
+            *> SUPER_ADMIN). Reads (LIST_SESSIONS) keep the plain ALLOW-READ.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                EXIT PARAGRAPH
+            ELSE
+                PERFORM ALLOW-RANK-ABOVE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-RANK-ABOVE.
+            *> p1 = target email, p2 = actor email. Allowed when the actor's role
+            *> is not lower than the target's (USER < MANAGER < SUPER_ADMIN).
+            MOVE 0 TO WS-ALLOWED
+            MOVE 0 TO WS-ACTOR-RANK
+            MOVE 0 TO WS-TARGET-RANK
+            MOVE "SELECT CONCAT(a.role, '|', t.role) FROM users a JOIN users t ON a.email = ? AND t.email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-ACTOR-ROLE WS-TARGET-ROLE
+            END-UNSTRING
+            MOVE WS-ACTOR-ROLE TO WS-RANK-ROLE
+            PERFORM RANK-OF-ROLE
+            MOVE WS-RANK TO WS-ACTOR-RANK
+            MOVE WS-TARGET-ROLE TO WS-RANK-ROLE
+            PERFORM RANK-OF-ROLE
+            MOVE WS-RANK TO WS-TARGET-RANK
+            IF WS-ACTOR-RANK >= WS-TARGET-RANK
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RANK-OF-ROLE.
+            *> Map WS-RANK-ROLE to WS-RANK: USER=1, MANAGER=2, SUPER_ADMIN=3.
+            MOVE 1 TO WS-RANK
+            IF WS-RANK-ROLE = "SUPER_ADMIN"
+                MOVE 3 TO WS-RANK
+            ELSE
+                IF WS-RANK-ROLE = "MANAGER"
+                    MOVE 2 TO WS-RANK
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
         LIST-SESSIONS-LOGIC.
             *> p1 = email, p2 = actor. Self or admin. Active sessions only.
             PERFORM ALLOW-READ
@@ -1423,9 +1485,9 @@
             EXIT PARAGRAPH.
 
         REVOKE-USER-SESSION-LOGIC.
-            *> p1 = email, p2 = actor, p3 = session id (jti). Self or admin.
-            *> Only a session that belongs to the target account is revoked.
-            PERFORM ALLOW-READ
+            *> p1 = email, p2 = actor, p3 = session id (jti). Self, or an admin
+            *> who is not lower-ranked. Only a session of the target is revoked.
+            PERFORM ALLOW-MANAGE-SESSION
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -1447,9 +1509,9 @@
             EXIT PARAGRAPH.
 
         REVOKE-ALL-SESSIONS-LOGIC.
-            *> p1 = email, p2 = actor. Self or admin. Kills every session: bump
-            *> the access-token version and revoke all refresh sessions.
-            PERFORM ALLOW-READ
+            *> p1 = email, p2 = actor. Self, or an admin who is not lower-ranked.
+            *> Kills every session: bump the access-token version and revoke all.
+            PERFORM ALLOW-MANAGE-SESSION
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH

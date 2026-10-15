@@ -45,6 +45,8 @@ The gateway's `/auth/refresh` uses **`CONSUME_SESSION`**: a single conditional `
 
 Rotation is also bounded per family. `refresh_families` tracks each family's `created_at` and `rotations`; after a successful consume `CONSUME_SESSION` refuses — and revokes the family with `SESSION_FAMILY_EXPIRED` — once the family is older than `REFRESH_ABSOLUTE_TTL_DAYS` (default 30) or has rotated more than `REFRESH_MAX_ROTATIONS` times (default 100), forcing a fresh login. Either limit set to 0 disables it; the check fails closed if the family state cannot be read. Both `SESSION_REUSED` and `SESSION_FAMILY_EXPIRED` are recorded in `audit_trail` as security events. Storing a session also prunes expired rows from the access-token denylist (`revoked_access_tokens`) so it stays bounded.
 
+Managing **another** account's sessions (`REVOKE_USER_SESSION`, `REVOKE_ALL_SESSIONS`) follows the admin role hierarchy: the actor may not be lower-ranked than the target (`USER < MANAGER < SUPER_ADMIN`), so a MANAGER can never force-logout a SUPER_ADMIN. Self-service is always allowed; `LIST_SESSIONS` (a read) keeps the plain self-or-admin rule.
+
 ## Not yet done
 
 - Exit-code contract from the original spec (1 Not Found, 2 DB Error, 4 Invalid Arg) is not implemented; actions signal through the `ERROR|…` output line instead.

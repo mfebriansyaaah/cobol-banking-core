@@ -49,6 +49,11 @@
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-AT-COUNT             PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-ACTOR-RANK           PIC 9 VALUE 0.
+        01  WS-TARGET-RANK          PIC 9 VALUE 0.
+        01  WS-RANK                 PIC 9 VALUE 0.
+        01  WS-ACTOR-ROLE           PIC X(12) VALUE SPACES.
+        01  WS-TARGET-ROLE          PIC X(12) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
@@ -296,6 +301,50 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-RANK-ABOVE.
+            *> p1 = target email, p3 = actor email. Allowed when the actor's role
+            *> is not lower than the target's (USER < MANAGER < SUPER_ADMIN), so a
+            *> lower-ranked admin (e.g. MANAGER) can never suspend/close/verify a
+            *> higher-ranked account (e.g. SUPER_ADMIN). Equal ranks are allowed.
+            MOVE 0 TO WS-ALLOWED
+            MOVE 0 TO WS-ACTOR-RANK
+            MOVE 0 TO WS-TARGET-RANK
+            MOVE "SELECT CONCAT(a.role, '|', t.role) FROM users a JOIN users t ON a.email = ? AND t.email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-ACTOR-ROLE WS-TARGET-ROLE
+            END-UNSTRING
+            MOVE WS-ACTOR-ROLE TO WS-ROLE
+            PERFORM RANK-OF-ROLE
+            MOVE WS-RANK TO WS-ACTOR-RANK
+            MOVE WS-TARGET-ROLE TO WS-ROLE
+            PERFORM RANK-OF-ROLE
+            MOVE WS-RANK TO WS-TARGET-RANK
+            IF WS-ACTOR-RANK >= WS-TARGET-RANK
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RANK-OF-ROLE.
+            *> Map WS-ROLE to WS-RANK: USER=1, MANAGER=2, SUPER_ADMIN=3.
+            MOVE 1 TO WS-RANK
+            IF WS-ROLE = "SUPER_ADMIN"
+                MOVE 3 TO WS-RANK
+            ELSE
+                IF WS-ROLE = "MANAGER"
+                    MOVE 2 TO WS-RANK
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
@@ -845,6 +894,12 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> Role hierarchy: the actor must outrank the target account.
+            PERFORM ALLOW-RANK-ABOVE
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
