@@ -137,7 +137,6 @@ binary in its own working directory (see
 Prometheus-style counters at `GET /metrics` (bearer).
 
 ## Where things are documented
-- `AGENTS.md` — workflow, language, business-logic boundary, routing contract, I/O.
 - `CODING_STANDARDS.md` — rules a reviewer enforces.
 - `SPEC-wallet-core.md`, `SPEC-auth-identity.md`, `SPEC-user-profile.md`,
   `SPEC-api-gateway.md` — per-module as-built behaviour and gaps.
