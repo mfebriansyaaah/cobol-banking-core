@@ -139,7 +139,9 @@ export const ROUTES = [
   { method: 'post', path: '/transactions/:ref/reverse', action: 'REVERSE_TRANSFER', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'ref', pattern: KEY, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'sender', pattern: EMAIL, required: false },
   ] },
+
   { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
