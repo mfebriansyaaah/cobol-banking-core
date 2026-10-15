@@ -15,10 +15,14 @@
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM4-TRIMMED       PIC X(100) VALUE SPACES.
+        01  WS-PARAM5-TRIMMED       PIC X(100) VALUE SPACES.
+        01  WS-PARAM6-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-P1-LEN               PIC 9(3) VALUE 1.
         01  WS-P2-LEN               PIC 9(3) VALUE 1.
         01  WS-P3-LEN               PIC 9(3) VALUE 1.
         01  WS-P4-LEN               PIC 9(3) VALUE 1.
+        01  WS-P5-LEN               PIC 9(3) VALUE 1.
+        01  WS-P6-LEN               PIC 9(3) VALUE 1.
         01  WS-STATUS               PIC X(20) VALUE SPACES.
         01  WS-USER-ID              PIC X(20) VALUE SPACES.
         01  WS-ACTOR-ID             PIC X(20) VALUE SPACES.
@@ -61,6 +65,7 @@
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
         01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
         01  WS-P2-ESC               PIC X(256) VALUE SPACES.
         01  WS-P3-ESC               PIC X(256) VALUE SPACES.
         01  WS-P4-ESC               PIC X(256) VALUE SPACES.
@@ -77,15 +82,19 @@
         01  LS-PARAM2              PIC X(100).
         01  LS-PARAM3              PIC X(100).
         01  LS-PARAM4              PIC X(100).
+        01  LS-PARAM5              PIC X(100).
+        01  LS-PARAM6              PIC X(100).
         01  LS-OUTPUT-BUFFER      PIC X(16384).
 
-        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-OUTPUT-BUFFER.
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
             PERFORM TRIM-PARAM1
             PERFORM TRIM-PARAM2
             PERFORM TRIM-PARAM3
             PERFORM TRIM-PARAM4
+            PERFORM TRIM-PARAM5
+            PERFORM TRIM-PARAM6
             PERFORM ESCAPE-PARAMS
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
@@ -253,6 +262,30 @@
             END-PERFORM
             IF WS-P4-LEN = 0
                 MOVE 1 TO WS-P4-LEN
+            END-IF.
+
+        TRIM-PARAM5.
+            MOVE LS-PARAM5 TO WS-PARAM5-TRIMMED
+            MOVE 0 TO WS-P5-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P5-LEN > 0
+                IF WS-PARAM5-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P5-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P5-LEN = 0
+                MOVE 1 TO WS-P5-LEN
+            END-IF.
+
+        TRIM-PARAM6.
+            MOVE LS-PARAM6 TO WS-PARAM6-TRIMMED
+            MOVE 0 TO WS-P6-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P6-LEN > 0
+                IF WS-PARAM6-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P6-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P6-LEN = 0
+                MOVE 1 TO WS-P6-LEN
             END-IF.
 
         GET-USER-ID.
@@ -1092,12 +1125,14 @@
                 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             MOVE SPACES TO WS-PREP-SQL
-            STRING "INSERT INTO refresh_sessions (jti, family, email, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL "
-                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY))" DELIMITED BY SIZE INTO WS-PREP-SQL
+            STRING "INSERT INTO refresh_sessions (jti, family, email, expires_at, user_agent, ip) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL "
+                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY), ?, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
             END-STRING
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+            MOVE WS-PARAM5-TRIMMED TO WS-BIND-4
+            MOVE WS-PARAM6-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|SESSION_STORE_FAILED" TO LS-OUTPUT-BUFFER
@@ -1372,9 +1407,10 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            MOVE "SELECT CONCAT(jti, ':', DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s'), ':', DATE_FORMAT(expires_at, '%Y-%m-%dT%H:%i:%s')) FROM refresh_sessions WHERE email = ? AND revoked = 0 AND expires_at > NOW() ORDER BY created_at DESC" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            MOVE "SELECT CONCAT(jti, ':', DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s'), ':', DATE_FORMAT(expires_at, '%Y-%m-%dT%H:%i:%s'), ':', COALESCE(user_agent, '-'), ':', COALESCE(ip, '-'), ':', CASE WHEN family = ? THEN 'current' ELSE '' END) FROM refresh_sessions WHERE email = ? AND revoked = 0 AND expires_at > NOW() ORDER BY created_at DESC" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             MOVE SPACES TO LS-OUTPUT-BUFFER
             IF WS-RESULT = "ERROR|NO_DATA"
