@@ -122,6 +122,8 @@
                     PERFORM VERIFY-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "VERIFY_REAUTH"
                     PERFORM VERIFY-REAUTH-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "GET_MFA_STATE"
+                    PERFORM GET-MFA-STATE-LOGIC
                 WHEN LS-CMD-ACTION(1:15) = "FORGOT_PASSWORD"
                     PERFORM FORGOT-PASSWORD-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "RESET_PASSWORD"
@@ -989,6 +991,22 @@
                 MOVE "ERROR|MFA_DISABLE_FAILED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "SUCCESS|MFA_DISABLED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        GET-MFA-STATE-LOGIC.
+            *> p1 = email. Returns the role and MFA flag so the gateway can decide
+            *> whether an admin still needs to enrol MFA (limited "enroll" token).
+            MOVE "SELECT CONCAT(role, '|', CAST(mfa_enabled AS CHAR)) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|" WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
             END-IF.
             EXIT PARAGRAPH.
 

@@ -63,7 +63,14 @@ export const ROUTES = [
     const ua = sanitizeMeta(req && req.headers && req.headers['user-agent'], 120);
     const ip = sanitizeMeta(req && req.ip, 45);
     await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti, ua, ip]);
-    return { ...body, token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }), refreshToken: issued.token };
+    // An admin without MFA logs in but may only enrol MFA until it is enabled.
+    const enroll = needsEnroll(await invoke('GET_MFA_STATE', [input.email]));
+    return {
+      ...body,
+      token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }),
+      refreshToken: issued.token,
+      mfaEnrollmentRequired: enroll,
+    };
   } },
 
   // Step-up: re-verify the caller's own credentials and mint a short-lived
@@ -275,6 +282,13 @@ function sanitizeMeta(value, max) {
     .slice(0, max);
 }
 
+// Whether a freshly authenticated account is an admin that still lacks MFA and
+// therefore gets a limited "enroll" access token (ADR 0020 follow-up).
+function needsEnroll(mfaState) {
+  const [, role, mfa] = String(mfaState).split('|');
+  return (role === 'SUPER_ADMIN' || role === 'MANAGER') && mfa !== '1';
+}
+
 async function tokenVersion(email) {
   try {
     const raw = await invoke('GET_TOKEN_VERSION', [email]);
@@ -372,10 +386,12 @@ export function buildRouter({ mailer, tokenStore } = {}) {
       const ua = sanitizeMeta(req.headers && req.headers['user-agent'], 120);
       const ip = sanitizeMeta(req.ip, 45);
       await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family, ua, ip]);
+      const enroll = needsEnroll(await invoke('GET_MFA_STATE', [payload.email]));
       return res.json({
         data: ['REFRESHED'],
         token: signToken({ email: payload.email, ver, jti: randomUUID(), sid: family }),
         refreshToken: issued.token,
+        mfaEnrollmentRequired: enroll,
       });
     } catch {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
