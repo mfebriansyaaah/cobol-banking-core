@@ -55,6 +55,8 @@
         01  WS-ACTOR-ROLE           PIC X(12) VALUE SPACES.
         01  WS-TARGET-ROLE          PIC X(12) VALUE SPACES.
         01  WS-LAST-ADMIN           PIC 9 VALUE 0.
+        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
@@ -288,7 +290,25 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
             END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-DENIED.
+            *> Records a refused authorization attempt for the actor named by
+            *> WS-DENIED-ACTOR; unknown actors produce no row. Best-effort.
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT a.id, a.id, 'AUTHZ_DENIED', 'USER', ?, ?, 'FAILED' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
+            MOVE LS-CMD-ACTION TO WS-BIND-1
+            MOVE WS-DENIED-TARGET TO WS-BIND-2
+            MOVE WS-DENIED-ACTOR TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
             EXIT PARAGRAPH.
 
         ALLOW-ADMIN.
@@ -302,6 +322,11 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
                 MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-PARAM3-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
             END-IF.
             EXIT PARAGRAPH.
 
@@ -334,6 +359,11 @@
             MOVE WS-RANK TO WS-TARGET-RANK
             IF WS-ACTOR-RANK >= WS-TARGET-RANK
                 MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-PARAM3-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
             END-IF.
             EXIT PARAGRAPH.
 
