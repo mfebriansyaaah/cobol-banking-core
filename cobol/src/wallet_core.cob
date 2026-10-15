@@ -692,6 +692,36 @@
                 MOVE "ERROR|SELF_TRANSFER" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            *> A user with several accounts (one per currency) must pin the
+            *> currency; without a pin the account choice is ambiguous.
+            IF WS-P5-LEN = 0
+                MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) NOT = "ERROR"
+                    IF WS-RESULT NOT = "0" AND WS-RESULT NOT = "1"
+                        MOVE "ERROR|AMBIGUOUS_ACCOUNT" TO LS-OUTPUT-BUFFER
+                        EXIT PARAGRAPH
+                    END-IF
+                END-IF
+            END-IF
+            IF WS-P6-LEN = 0
+                MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) NOT = "ERROR"
+                    IF WS-RESULT NOT = "0" AND WS-RESULT NOT = "1"
+                        MOVE "ERROR|AMBIGUOUS_ACCOUNT" TO LS-OUTPUT-BUFFER
+                        EXIT PARAGRAPH
+                    END-IF
+                END-IF
+            END-IF
             *> Housekeeping: bound the idempotency table. Intents older than the
             *> retention window (default 30 days, 0 disables) are moved to the
             *> archive, so the replay guarantee is a bounded window but history
