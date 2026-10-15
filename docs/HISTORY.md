@@ -1622,3 +1622,24 @@ _merged 2026-10-15_
 - feat(core): enforce role hierarchy on SET_USER_STATUS (lower rank cannot administer higher)
 - docs: sync HISTORY.md to post-merge state (#159)
 
+## #160 no-ai-attribution
+
+_merged 2026-10-15_
+
+- chore(hooks): reject AI-attribution trailers in commit-msg
+- docs: drop dangling AGENTS.md references from specs, ADR and comments
+- docs: drop dangling AGENTS.md references from README and STATUS
+- chore(repo): clean agent references from .gitignore
+- chore(repo): remove agent-tooling docs (docs/agents)
+
+## #162 admin-last-admin
+
+_merged 2026-10-15_
+
+- docs: last-admin protection (STATUS, specs, ADR 0014) + counts
+- test: last-admin protection suite + ci step 39/39
+- feat(gateway): map LAST_ADMIN to HTTP 409
+- feat(core): refuse to disable or self-deactivate the last active SUPER_ADMIN
+- feat(core): refuse to demote the last active SUPER_ADMIN (CHANGE_ROLE)
+- docs: sync HISTORY.md to post-merge state (#161)
+
