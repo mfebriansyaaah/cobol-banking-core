@@ -28,9 +28,17 @@ test('assertSecureConfig refuses production with default secrets', () => {
     delete process.env.REFRESH_SECRET;
     assert.throws(() => assertSecureConfig(), /refusing to start/);
 
-    process.env.JWT_SECRET = 'a-strong-production-secret';
-    process.env.REFRESH_SECRET = 'another-strong-production-secret';
+    process.env.JWT_SECRET = 'a-strong-production-secret-value-0001';
+    process.env.REFRESH_SECRET = 'another-strong-production-secret-0002';
     assert.doesNotThrow(() => assertSecureConfig());
+
+    // Identical secrets are refused (access and refresh must not share a key).
+    process.env.REFRESH_SECRET = process.env.JWT_SECRET;
+    assert.throws(() => assertSecureConfig(), /must differ/);
+
+    // Too-short secrets are refused.
+    process.env.REFRESH_SECRET = 'short';
+    assert.throws(() => assertSecureConfig(), /min 32 chars/);
   } finally {
     restore();
   }
@@ -64,4 +72,15 @@ test('tokens must carry the expected issuer and audience', async () => {
     assert.equal(res.status, 401);
     assert.equal(res.body.error, 'INVALID_TOKEN');
   }
+});
+
+test('access tokens are pinned to HS256', async () => {
+  const app = buildApp();
+  const secret = process.env.JWT_SECRET || 'dev-secret-change-me';
+  const payload = { email: 'alg@test.com', ver: 1, jti: 'j' };
+  const claims = { issuer: 'cobol-banking-core', audience: 'cobol-banking-api' };
+  const hs384 = jwt.sign(payload, secret, { expiresIn: '5m', algorithm: 'HS384', ...claims });
+  const res = await request(app).get('/users').set('Authorization', `Bearer ${hs384}`);
+  assert.equal(res.status, 401);
+  assert.equal(res.body.error, 'INVALID_TOKEN');
 });

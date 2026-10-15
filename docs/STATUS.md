@@ -119,10 +119,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 78 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 79 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **449**; with the gateway suite **78** the full run is
-**527 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **449**; with the gateway suite **79** the full run is
+**528 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -159,10 +159,14 @@ server logs one JSON line per request (`event: http_request` with method, route,
 status, `durationMs`, `cobolMs`); counters are served at `/metrics` and, when
 METRICS_PUSH_URL is set, pushed periodically to a collector.
 `helmet` sets standard security headers, and in production the server refuses to
-start while JWT_SECRET/REFRESH_SECRET are unset or still the development
-defaults. Access and refresh tokens are bound to an issuer and audience
+start while JWT_SECRET/REFRESH_SECRET are unset, still the development
+defaults, shorter than 32 characters, or **identical to each other**. Access and
+refresh tokens are bound to an issuer and audience
 (JWT_ISSUER / JWT_AUDIENCE, defaulting to `cobol-banking-core` /
-`cobol-banking-api`) and verification rejects tokens that do not match them. Verification codes (`/auth/signup`, `/profile/email/request`) are
+`cobol-banking-api`) and verification rejects tokens that do not match them.
+Tokens are signed and verified with **HMAC-SHA256 only** (`algorithms: ['HS256']`
+on verify), so a token claiming `alg: none` or another algorithm family is
+rejected. Verification codes (`/auth/signup`, `/profile/email/request`) are
 delivered out of band (SMTP when configured, otherwise logged without the code
 in development) and are never returned in the HTTP response. Access tokens carry
 the user's token version, checked on every protected request (`CHECK_TOKEN`);
@@ -197,6 +201,7 @@ list page size is capped at 100 (`limit` 1..100).
 - Profile actions validate their own inputs in COBOL (email shape, date-of-birth format/ranges) as defence-in-depth alongside the gateway patterns; an email-change whose new address is taken between request and confirm is reported as `EMAIL_EXISTS` rather than an opaque failure.
 - Refresh **rotation is atomic** (`CONSUME_SESSION`: a single conditional revoke; concurrent callers cannot both win). A replay of a consumed token is reuse — the gateway's `/auth/refresh` rejects it, the whole family is revoked, the user's `token_version` is bumped (so previously issued access tokens die immediately) and a `SESSION_REUSED` audit row is written.
 - **Logout is per-device**: `/auth/logout` removes only the presented refresh session (so replaying a logged-out token is a plain `SESSION_NOT_FOUND`, not a reuse that would nuke every device) and, when the bearer is also presented, adds that access token's `jti` to the denylist. Other devices are unaffected; `POST /sessions/revoke-all` remains the logout-everywhere path.
+- **JWT is algorithm-pinned**: every `jwt.verify` passes `algorithms: ['HS256']` and every `jwt.sign` sets `algorithm: 'HS256'`, so algorithm-confusion tokens (`alg: none`, HS384, ...) are rejected. In production `assertSecureConfig` additionally refuses secrets that are missing, the development defaults, shorter than 32 characters, or identical between access and refresh.
 - Optional transfer caps are read from the environment and **off by default** (0): TRANSFER_MAX_PER_TXN caps one debit, TRANSFER_DAILY_LIMIT caps the rolling 24h debit total per account (from the `ledger`); the values are whole units of the sender's currency.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Prepared statements are used for the parameterized queries in `user_core`, `wallet_core` and most of `auth_core`; the remaining `auth_core` statements (login/lockout, signup/verify, audit) embed `mysql_real_escape_string`-escaped values, which the whitelist validator plus escaping keep safe. The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
