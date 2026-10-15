@@ -121,6 +121,8 @@ check "EUR account untouched" "1000.0000" "$(q "SELECT balance FROM accounts WHE
 check "pick the EUR account" "SUCCESS|TRANSFER_OK" "$(run6 TRANSFER mc_validity@test.com receiver@test.com 100.00 pk2 EUR)"
 check "EUR account debited" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=971;")"
 check "an unknown currency is rejected" "ERROR|ACCOUNT_NOT_FOUND" "$(run6 TRANSFER mc_validity@test.com receiver@test.com 100.00 pk3 JPY)"
+check "multi-account sender needs a currency pin" "ERROR|AMBIGUOUS_ACCOUNT" "$(run TRANSFER mc_validity@test.com receiver@test.com 100.00 pk4)"
+check "multi-account target needs a currency pin" "ERROR|AMBIGUOUS_ACCOUNT" "$(run TRANSFER sender@test.com mc_validity@test.com 100.00 pk5)"
 q "DELETE FROM accounts WHERE user_id=985; DELETE FROM users WHERE id=985;"
 
 teardown
