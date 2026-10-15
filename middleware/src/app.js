@@ -10,7 +10,7 @@ import { createRequestObserver, metricsText } from './observability.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, USER_STATUS } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -235,6 +235,14 @@ export const ROUTES = [
   { method: 'post', path: '/admin/audit/archive', action: 'ARCHIVE_AUDIT', tokenIdentity: 'actor', fields: [
     { name: 'days', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  // Read-only audit trail (SUPER_ADMIN): optional action/email filters + paging.
+  { method: 'get', path: '/admin/audit', action: 'LIST_AUDIT', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'action', pattern: AUDIT_ACTION, required: false },
+    { name: 'email', pattern: EMAIL, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ] },
 ];
 
