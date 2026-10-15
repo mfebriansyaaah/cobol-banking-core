@@ -94,9 +94,26 @@ CREATE TABLE IF NOT EXISTS ledger (
     description VARCHAR(255),
     exchange_rate DECIMAL(18, 6) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_ledger_amount CHECK (amount >= 0),
     KEY idx_ledger_ref_sender (txn_ref, from_email),
     CONSTRAINT fk_ledger_acc FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
     CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id)
+) ENGINE=InnoDB;
+
+-- 6b. Immutable ledger archive (rows move here before an account is deleted)
+CREATE TABLE IF NOT EXISTS ledger_archive (
+    ledger_id BIGINT PRIMARY KEY,
+    txn_ref VARCHAR(50) NOT NULL,
+    account_id INT NOT NULL,
+    amount DECIMAL(18, 4) NOT NULL,
+    type ENUM('CREDIT', 'DEBIT') NOT NULL,
+    currency_id INT NOT NULL,
+    from_email VARCHAR(100) NULL,
+    description VARCHAR(255),
+    exchange_rate DECIMAL(18, 6) NULL,
+    created_at TIMESTAMP NULL,
+    archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_ledger_archive_account (account_id)
 ) ENGINE=InnoDB;
 
 -- 6. Tabel Verification Logs (Anti-Spam & Tracking)
@@ -241,5 +258,23 @@ BEGIN
     INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at)
     SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at
     FROM audit_trail WHERE user_id = OLD.id;
+END//
+DELIMITER ;
+
+-- Ledger durability + immutability: append-only (no UPDATE), and preserve rows
+-- in the immutable archive before an account delete cascades them away.
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS trg_ledger_no_update BEFORE UPDATE ON ledger
+FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ledger is append-only (no UPDATE)';
+END//
+
+CREATE TRIGGER IF NOT EXISTS trg_ledger_archive_account BEFORE DELETE ON accounts
+FOR EACH ROW
+BEGIN
+    INSERT IGNORE INTO ledger_archive (ledger_id, txn_ref, account_id, amount, type, currency_id, from_email, description, exchange_rate, created_at)
+    SELECT ledger_id, txn_ref, account_id, amount, type, currency_id, from_email, description, exchange_rate, created_at
+    FROM ledger WHERE account_id = OLD.account_id;
 END//
 DELIMITER ;

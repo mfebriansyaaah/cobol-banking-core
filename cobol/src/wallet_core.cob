@@ -43,6 +43,7 @@
         01  WS-BIND-4               PIC X(256) VALUE SPACES.
         01  WS-BIND-5               PIC X(256) VALUE SPACES.
         01  WS-BIND-6               PIC X(256) VALUE SPACES.
+        01  WS-BIND-7               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -1043,33 +1044,18 @@
             *> The CREDIT row snapshots the applied rate.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, from_email) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
                 END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
                 MOVE WS-SENDER-CUR TO WS-BIND-4
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
-            
-            *> Tag the DEBIT row with the transfer's sender so a shared txn_ref
-            *> cannot make a reversal pick the wrong transfer.
-            IF WS-TRANSFER-OK
-                MOVE "UPDATE ledger SET from_email = ? WHERE txn_ref = ? AND account_id = ? AND type = 'DEBIT' AND from_email IS NULL ORDER BY ledger_id DESC LIMIT 1" TO WS-PREP-SQL
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-2
-                MOVE WS-SENDER-ACC TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
@@ -1077,7 +1063,7 @@
             
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, from_email) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
                 END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-TARGET-ACC TO WS-BIND-2
@@ -1085,26 +1071,13 @@
                 MOVE WS-RATE-STR TO WS-BIND-4
                 MOVE WS-TARGET-CUR TO WS-BIND-5
                 MOVE WS-RATE-STR TO WS-BIND-6
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-7
+                CALL "SQL_PREPARE_EXEC7" USING BY REFERENCE WS-PREP-SQL BY VALUE 7
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                     BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                    BY REFERENCE WS-BIND-7
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
-            
-            *> Tag the CREDIT row with the transfer's sender too (same reason).
-            IF WS-TRANSFER-OK
-                MOVE "UPDATE ledger SET from_email = ? WHERE txn_ref = ? AND account_id = ? AND type = 'CREDIT' AND from_email IS NULL ORDER BY ledger_id DESC LIMIT 1" TO WS-PREP-SQL
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-2
-                MOVE WS-TARGET-ACC TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
