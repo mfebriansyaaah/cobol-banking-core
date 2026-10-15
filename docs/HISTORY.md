@@ -1674,3 +1674,14 @@ _merged 2026-10-15_
 - feat(core): record refused authorization attempts as AUTHZ_DENIED
 - feat(db): audit read indexes + preserve-evidence trigger on user delete (migration 0025)
 
+## #166 admin-hardening
+
+_merged 2026-10-15_
+
+- docs: sync HISTORY.md to post-merge state (#165)
+- docs(adr): 0018 privileged-account hardening and admin recovery
+- docs: admin recovery, admin-only metrics, MANAGER capabilities + counts
+- test: admin recovery suite + metrics/e2e updates + ci step 43/43 and label fix
+- feat(core): admin recovery actions UNLOCK_USER and ADMIN_RESET_MFA
+- feat(gateway): SUPER_ADMIN-only metrics, recovery routes, unmatched route label
+
