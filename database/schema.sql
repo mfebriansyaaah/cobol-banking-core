@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS verification_logs (
 CREATE TABLE IF NOT EXISTS audit_trail (
     audit_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
+    actor_id INT NULL, -- who performed it; NULL = the subject performed it
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(50), -- Contoh: 'ACCOUNT', 'LEDGER', 'USER'
     entity_id VARCHAR(50),   -- ID dari entity yang diubah
@@ -126,6 +127,7 @@ CREATE TABLE IF NOT EXISTS audit_trail (
 CREATE TABLE IF NOT EXISTS audit_trail_archive (
     audit_id BIGINT PRIMARY KEY,
     user_id INT NOT NULL,
+    actor_id INT NULL,
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(50),
     entity_id VARCHAR(50),

@@ -1535,9 +1535,21 @@
                 IF WS-RESULT(1:5) = "ERROR"
                     MOVE "ERROR|SESSION_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
                 ELSE
+                    PERFORM AUDIT-SESSION-REVOKED
                     MOVE "SUCCESS|SESSION_REVOKED" TO LS-OUTPUT-BUFFER
                 END-IF
             END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-SESSION-REVOKED.
+            *> p1 = target email, p2 = actor, p3 = jti. Records who revoked a
+            *> session and on whose account. Best-effort (errors are ignored).
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'REVOKE_USER_SESSION', 'SESSION', ?, 'SUCCESS' FROM users t JOIN users a ON a.email = ? AND t.email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
             EXIT PARAGRAPH.
 
         REVOKE-ALL-SESSIONS-LOGIC.
@@ -1567,10 +1579,10 @@
                 END-IF
             END-IF
             IF STEP-OK
-                PERFORM GET-USER-ID
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'SESSIONS_REVOKED', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
-                MOVE WS-USER-ID TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'SESSIONS_REVOKED', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
@@ -1600,7 +1612,7 @@
             END-IF.
             CALL "SQL_BEGIN"
             MOVE SPACES TO WS-QUERY
-            STRING "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, action, entity_type, entity_id, detail, status, created_at) SELECT audit_id, user_id, action, entity_type, entity_id, detail, status, created_at FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL " 
+            STRING "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at) SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL " 
                    WS-PARAM1-TRIMMED(1:WS-P1-LEN) " DAY)" DELIMITED BY SIZE INTO WS-QUERY
             END-STRING
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
@@ -1622,6 +1634,11 @@
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|AUDIT_ARCHIVE_FAILED" TO LS-OUTPUT-BUFFER
             ELSE
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT a.id, a.id, 'ARCHIVE_AUDIT', 'AUDIT', ?, 'SUCCESS' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 CALL "SQL_COMMIT"
                 MOVE "SUCCESS|ARCHIVED" TO LS-OUTPUT-BUFFER
             END-IF.
