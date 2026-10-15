@@ -1760,3 +1760,12 @@ _merged 2026-10-15_
 - feat(gateway): map AMBIGUOUS_ACCOUNT to 409
 - feat(core): refuse ambiguous account selection on an unpinned multi-account transfer
 
+## #174 ledger-hygiene
+
+_merged 2026-10-15_
+
+- docs: sync HISTORY.md to post-merge state (#173)
+- docs: ledger hygiene + known gaps (limit scaling, housekeeping) + counts
+- test: reversal audit names the sender
+- feat(core): reversal audit row records the sender in detail
+

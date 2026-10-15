@@ -6,7 +6,7 @@ import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, signStepUp, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
-import { createRequestObserver, metricsText } from './observability.js';
+import { createRequestObserver, metricsText, recordError } from './observability.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
@@ -454,6 +454,10 @@ export function buildRouter({ mailer, tokenStore } = {}) {
         const raw = await invoke(route.action, params);
         res.set('X-Cobol-Ms', String(Date.now() - t0));
         const { status, body } = toHttp(raw);
+        if (status !== 200 && body && body.error) {
+          res.locals.errorCode = body.error;
+          recordError(body.error);
+        }
         if (status === 200 && route.onSuccess) {
           return res.status(status).json(await route.onSuccess(body, input, { mailer, req }));
         }
@@ -486,16 +490,35 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
   app.use(buildRouter({ mailer: mailer || createMailer({ logger }), tokenStore: tokenStore || createTokenStore() }));
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
+    let status = 500;
+    let code = 'INTERNAL';
     if (err instanceof ValidationError) {
-      return res.status(400).json({ error: 'INVALID_PARAMETER', field: err.field });
+      status = 400;
+      code = 'INVALID_PARAMETER';
+    } else if (err instanceof InvocationTimeout) {
+      status = 504;
+      code = 'GATEWAY_TIMEOUT';
+    } else if (err instanceof InvocationError) {
+      status = 502;
+      code = 'COBOL_UNAVAILABLE';
     }
-    if (err instanceof InvocationTimeout) {
-      return res.status(504).json({ error: 'GATEWAY_TIMEOUT' });
+    res.locals.errorCode = code;
+    recordError(code);
+    if (logger) {
+      logger({
+        ts: new Date().toISOString(),
+        level: 'error',
+        event: 'gateway_error',
+        code,
+        status,
+        message: err && err.message,
+        stack: err && err.stack,
+      });
     }
-    if (err instanceof InvocationError) {
-      return res.status(502).json({ error: 'COBOL_UNAVAILABLE' });
+    if (err instanceof ValidationError) {
+      return res.status(status).json({ error: code, field: err.field });
     }
-    return res.status(500).json({ error: 'INTERNAL' });
+    return res.status(status).json({ error: code });
   });
   return app;
 }

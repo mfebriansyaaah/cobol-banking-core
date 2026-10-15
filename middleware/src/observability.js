@@ -7,12 +7,14 @@ import { performance } from 'node:perf_hooks';
 const metrics = {
   total: 0,
   byRoute: new Map(), // key: `${method}|${route}|${status}` -> count
+  byError: new Map(), // key: error code -> count
   gauges: new Map(), // name -> value
 };
 
 export function resetMetrics() {
   metrics.total = 0;
   metrics.byRoute.clear();
+  metrics.byError.clear();
   metrics.gauges.clear();
 }
 
@@ -29,6 +31,12 @@ export function recordRequest({ method, route, status }) {
   metrics.total += 1;
   const key = `${method}|${route || 'unknown'}|${status}`;
   metrics.byRoute.set(key, (metrics.byRoute.get(key) || 0) + 1);
+}
+
+/** Count a failed request by its error code (business or transport). */
+export function recordError(code) {
+  if (!code) return;
+  metrics.byError.set(code, (metrics.byError.get(code) || 0) + 1);
 }
 
 /** Prometheus text exposition of the counters. */
@@ -50,6 +58,13 @@ export function metricsText() {
   for (const [name, value] of metrics.gauges) {
     lines.push(`# TYPE ${name} gauge`);
     lines.push(`${name} ${value}`);
+  }
+  if (metrics.byError.size > 0) {
+    lines.push('# HELP gateway_errors_total Failed requests by error code.');
+    lines.push('# TYPE gateway_errors_total counter');
+    for (const [code, count] of metrics.byError) {
+      lines.push(`gateway_errors_total{code="${escapeLabel(code)}"} ${count}`);
+    }
   }
   return `${lines.join('\n')}\n`;
 }
@@ -74,12 +89,13 @@ export function createRequestObserver({ logger = null } = {}) {
         const cobolHeader = res.getHeader('X-Cobol-Ms');
         logger({
           ts: new Date().toISOString(),
-          level: 'info',
+          level: res.statusCode >= 500 ? 'error' : 'info',
           event: 'http_request',
           id,
           method: req.method,
           route,
           status: res.statusCode,
+          error: res.locals && res.locals.errorCode ? res.locals.errorCode : null,
           durationMs,
           cobolMs: cobolHeader === undefined ? null : Number(cobolHeader),
         });

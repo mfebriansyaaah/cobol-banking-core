@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { resetMetrics, recordRequest, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
+import { resetMetrics, recordRequest, recordError, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
 import { getVerificationCode, seedUser } from './support.js';
 
 test('metricsText renders recorded counters', () => {
@@ -14,8 +14,7 @@ test('metricsText renders recorded counters', () => {
   assert.match(text, /gateway_requests_total\{method="GET",route="\/health",status="200"\} 2/);
 });
 
-test('metricsText renders gauges', () => {
-  resetMetrics();
+test('metricsText renders gauges', () => {  resetMetrics();
   setGauge('gateway_cobol_pool_workers', 3);
   const text = metricsText();
   assert.match(text, /# TYPE gateway_cobol_pool_workers gauge/);
@@ -103,4 +102,19 @@ test('the exporter pushes on an interval and survives a failing collector', asyn
   const stopBad = startMetricsExporter({ url: 'http://127.0.0.1:1/nope', intervalMs: 10 });
   await new Promise((resolve) => setTimeout(resolve, 30));
   stopBad();
+});
+
+test('failed requests are counted by error code', async () => {
+  const app = buildApp();
+  resetMetrics();
+  // A public route with a bad parameter -> ValidationError -> INVALID_PARAMETER.
+  const bad = await request(app)
+    .post('/auth/signup')
+    .send({ email: 'not-an-email', password: 'secret123', name: 'N', dob: '2000-01-01' });
+  assert.equal(bad.status, 400);
+  assert.equal(bad.body.error, 'INVALID_PARAMETER');
+  assert.match(metricsText(), /gateway_errors_total\{code="INVALID_PARAMETER"\} 1/);
+
+  // recordError is a no-op for an empty code.
+  assert.doesNotThrow(() => recordError(''));
 });
