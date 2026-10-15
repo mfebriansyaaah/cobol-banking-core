@@ -24,6 +24,7 @@
         01  WS-P5-LEN               PIC 9(3) VALUE 1.
         01  WS-P6-LEN               PIC 9(3) VALUE 1.
         01  WS-STATUS               PIC X(20) VALUE SPACES.
+        01  WS-ROLE                 PIC X(12) VALUE SPACES.
         01  WS-USER-ID              PIC X(20) VALUE SPACES.
         01  WS-ACTOR-ID             PIC X(20) VALUE SPACES.
         01  WS-FAMILY               PIC X(50) VALUE SPACES.
@@ -994,7 +995,7 @@
         VERIFY-REAUTH-LOGIC.
             *> p1 = email, p2 = password, p3 = mfaCode (opt). Re-authenticates the
             *> bearer's own account for a step-up (no tokens, no lockout change).
-            MOVE "SELECT status, CAST(mfa_enabled AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT status, CAST(mfa_enabled AS CHAR), role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
@@ -1003,7 +1004,7 @@
                 EXIT PARAGRAPH
             END-IF
             UNSTRING WS-RESULT DELIMITED BY "|"
-                INTO WS-STATUS WS-MFA-ON
+                INTO WS-STATUS WS-MFA-ON WS-ROLE
             END-UNSTRING
             IF WS-STATUS(1:8) NOT = "VERIFIED"
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
@@ -1023,6 +1024,12 @@
             CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
             IF WS-VERIFY NOT = "1"
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> Admin accounts must have MFA enabled to step up: a SUPER_ADMIN or
+            *> MANAGER without MFA cannot perform a privileged action.
+            IF (WS-ROLE = "SUPER_ADMIN" OR WS-ROLE = "MANAGER") AND WS-MFA-ON NOT = "1"
+                MOVE "ERROR|MFA_SETUP_REQUIRED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             *> Second factor when MFA is on.
