@@ -35,6 +35,13 @@ function totp(secret) {
   return String(bin % 1000000).padStart(6, '0');
 }
 
+// Obtain a step-up proof (header value) for a bearer token; required by the
+// privileged admin writes.
+async function stepUpFor(token, password = 'secret123') {
+  const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password });
+  return r.body.stepUpToken;
+}
+
 test('health is public and reports deep status', async () => {
   const res = await request(app).get('/health');
   assert.equal(res.status, 200);
@@ -199,20 +206,24 @@ test('role change authorizes by the token actor, ignoring the body', async (t) =
   const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123' });
   assert.equal(adminLogin.status, 200);
   const adminToken = adminLogin.body.token;
+  const adminStep = await stepUpFor(adminToken);
 
   // The actor comes from the token: no `actor` in the body.
   const ok = await request(app)
     .post('/admin/role')
     .set('Authorization', `Bearer ${adminToken}`)
+    .set('X-Step-Up', adminStep)
     .send({ email: target, role: 'MANAGER' });
   assert.equal(ok.status, 200);
   assert.deepEqual(ok.body.data, ['ROLE_CHANGED']);
 
   // A non-admin spoofing the admin in the body is still refused.
   const plainToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+  const plainStep = await stepUpFor(plainToken);
   const spoof = await request(app)
     .post('/admin/role')
     .set('Authorization', `Bearer ${plainToken}`)
+    .set('X-Step-Up', plainStep)
     .send({ email: target, role: 'USER', actor: admin });
   assert.equal(spoof.status, 403);
   assert.equal(spoof.body.error, 'FORBIDDEN');
@@ -232,8 +243,9 @@ test('admin audit trail is readable by a SUPER_ADMIN only', async (t) => {
 
   // Produce an attributable admin event (this suspends the target, so do it
   // after the plain-user check above).
+  const adminStep = await stepUpFor(adminToken);
   assert.equal(
-    (await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).send({ email: target, status: 'SUSPENDED' })).status,
+    (await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target, status: 'SUSPENDED' })).status,
     200,
   );
 
@@ -253,10 +265,39 @@ test('admin recovery endpoints are admin-only', async (t) => {
   }
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
   const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+  const adminStep = await stepUpFor(adminToken);
+  const userStep = await stepUpFor(userToken);
 
-  assert.equal((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${userToken}`).send({ email: target })).status, 403);
-  assert.deepEqual((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${adminToken}`).send({ email: target })).body.data, ['ACCOUNT_UNLOCKED']);
-  assert.deepEqual((await request(app).post('/admin/mfa-reset').set('Authorization', `Bearer ${adminToken}`).send({ email: target })).body.data, ['MFA_RESET']);
+  assert.equal((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ email: target })).status, 403);
+  assert.deepEqual((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target })).body.data, ['ACCOUNT_UNLOCKED']);
+  assert.deepEqual((await request(app).post('/admin/mfa-reset').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target })).body.data, ['MFA_RESET']);
+});
+
+test('privileged admin writes require a fresh step-up', async (t) => {
+  const admin = `gw_su_${Date.now()}@test.com`;
+  const target = `gw_su_t_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
+    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
+  }
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+
+  // No step-up proof -> refused before the business action runs.
+  assert.equal((await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).send({ email: target, status: 'SUSPENDED' })).status, 401);
+
+  // A wrong password cannot mint a proof.
+  assert.equal((await request(app).post('/auth/step-up').set('Authorization', `Bearer ${adminToken}`).send({ password: 'nope' })).status, 401);
+
+  const step = await stepUpFor(adminToken);
+  assert.ok(step);
+
+  // A step-up proof is not an access token.
+  assert.equal((await request(app).get(`/users/${target}`).set('Authorization', `Bearer ${step}`)).status, 401);
+
+  // With the proof the privileged write succeeds.
+  assert.deepEqual(
+    (await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', step).send({ email: target, status: 'SUSPENDED' })).body.data,
+    ['STATUS_CHANGED'],
+  );
 });
 
 test('reusing an idempotency key with different details is a conflict', async (t) => {
@@ -378,12 +419,14 @@ test('audit archiving is admin-only', async (t) => {
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Arch User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const userToken = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  const adminStep = await stepUpFor(adminToken);
+  const userStep = await stepUpFor(userToken);
 
-  const denied = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${userToken}`).send({ days: 3650 });
+  const denied = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ days: 3650 });
   assert.equal(denied.status, 403);
   assert.equal(denied.body.error, 'FORBIDDEN');
 
-  const ok = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${adminToken}`).send({ days: 3650 });
+  const ok = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ days: 3650 });
   assert.equal(ok.status, 200);
   assert.deepEqual(ok.body.data, ['ARCHIVED']);
 });
@@ -607,11 +650,12 @@ test('transfer status and reversal over HTTP', async () => {
   const admin = `gw_revadm_${Date.now()}@test.com`;
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  const adminStep = await stepUpFor(adminToken);
   // An admin can target a specific sender.
   const scoped = await request(app).get(`/transactions/${key}`).query({ sender: em }).set('Authorization', `Bearer ${adminToken}`);
   assert.equal(scoped.status, 200);
   assert.equal(scoped.body.data[2], em);
-  const rev = await request(app).post(`/transactions/${key}/reverse`).set('Authorization', `Bearer ${adminToken}`).send({});
+  const rev = await request(app).post(`/transactions/${key}/reverse`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({});
   assert.equal(rev.status, 200);
   assert.deepEqual(rev.body.data, ['TRANSFER_REVERSED']);
 
@@ -710,7 +754,7 @@ test('account lifecycle over HTTP', async () => {
   const admin = `gw_lca_${Date.now()}@test.com`;
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
-  const adm = { Authorization: `Bearer ${adminToken}` };
+  const adm = { Authorization: `Bearer ${adminToken}`, 'X-Step-Up': await stepUpFor(adminToken) };
   assert.deepEqual((await request(app).post('/admin/user-status').set(adm).send({ email: em, status: 'SUSPENDED' })).body.data, ['STATUS_CHANGED']);
   const blocked = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   assert.equal(blocked.status, 403);
