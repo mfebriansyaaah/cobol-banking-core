@@ -34,6 +34,9 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 | POST | `/profile/email/confirm` | `CONFIRM_EMAIL_CHANGE` | bearer |
 | GET | `/admin/role` | `CHECK_ROLE` | bearer |
 | POST | `/admin/role` | `CHANGE_ROLE` | bearer |
+| POST | `/admin/user-status` | `SET_USER_STATUS` | bearer |
+| GET | `/admin/audit` | `LIST_AUDIT` (optional `action`/`email`/`limit`/`offset`) | bearer (SUPER_ADMIN) |
+| POST | `/admin/audit/archive` | `ARCHIVE_AUDIT` (`days` ≥ 1) | bearer (SUPER_ADMIN) |
 
 ### Result to HTTP mapping
 

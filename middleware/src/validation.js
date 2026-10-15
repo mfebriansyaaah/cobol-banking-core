@@ -18,8 +18,10 @@ const LIMIT = /^(100|[1-9]\d?)$/;
 const KEY = /^[A-Za-z0-9._:-]{1,50}$/;
 const CURRENCY = /^[A-Z]{3}$/;
 const USER_STATUS = /^(UNVERIFIED|VERIFIED|SUSPENDED|CLOSED)$/;
+// Audit action filter: an upper-case action token (e.g. SET_USER_STATUS).
+const AUDIT_ACTION = /^[A-Z][A-Z_]{0,59}$/;
 
-export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, USER_STATUS };
+export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, USER_STATUS, AUDIT_ACTION };
 
 export class ValidationError extends Error {
   constructor(field) {

@@ -218,6 +218,33 @@ test('role change authorizes by the token actor, ignoring the body', async (t) =
   assert.equal(spoof.body.error, 'FORBIDDEN');
 });
 
+test('admin audit trail is readable by a SUPER_ADMIN only', async (t) => {
+  const admin = `gw_audit_${Date.now()}@test.com`;
+  const target = `gw_audit_t_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
+    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
+  }
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+
+  const forbidden = await request(app).get('/admin/audit').query({ email: target }).set('Authorization', `Bearer ${userToken}`);
+  assert.equal(forbidden.status, 403);
+
+  // Produce an attributable admin event (this suspends the target, so do it
+  // after the plain-user check above).
+  assert.equal(
+    (await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).send({ email: target, status: 'SUSPENDED' })).status,
+    200,
+  );
+
+  const ok = await request(app).get('/admin/audit').query({ action: 'SET_USER_STATUS' }).set('Authorization', `Bearer ${adminToken}`);
+  assert.equal(ok.status, 200);
+  assert.equal(ok.body.data[0], 'AUDIT');
+  assert.ok(Number(ok.body.data[1]) >= 1, 'reports a total');
+  assert.match(ok.body.data[2], /SET_USER_STATUS/);
+  assert.ok(ok.body.data[2].includes(admin), 'records the acting admin');
+});
+
 test('reusing an idempotency key with different details is a conflict', async (t) => {
   const em = `gw_idem_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });

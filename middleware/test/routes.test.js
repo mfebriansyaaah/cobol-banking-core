@@ -26,6 +26,7 @@ const TOKEN_IDENTITY = {
   MFA_ENROLL_CONFIRM: 'actor',
   MFA_DISABLE: 'actor',
   LIST_SESSIONS: 'actor',
+  LIST_AUDIT: 'actor',
   REVOKE_USER_SESSION: 'actor',
   REVOKE_ALL_SESSIONS: 'actor',
   TRANSFER: 'from',
