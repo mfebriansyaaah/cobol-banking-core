@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql } from './support.js';
+import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql, enableMfa, TEST_MFA_SECRET } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -38,8 +38,14 @@ function totp(secret) {
 // Obtain a step-up proof (header value) for a bearer token; required by the
 // privileged admin writes.
 async function stepUpFor(token, password = 'secret123') {
-  const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password });
+  const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password, mfaCode: totp(TEST_MFA_SECRET) });
   return r.body.stepUpToken;
+}
+
+// Log in an MFA-enabled admin (seeded via enableMfa) and return the access token.
+async function adminLoginFor(email, password = 'secret123') {
+  const r = await request(app).post('/auth/login').send({ email, password, mfaCode: totp(TEST_MFA_SECRET) });
+  return r.body.token;
 }
 
 test('health is public and reports deep status', async () => {
@@ -199,11 +205,13 @@ test('replaying a rotated refresh token revokes the whole family', async () => {
 test('role change authorizes by the token actor, ignoring the body', async (t) => {
   const admin = `gw_admin_${Date.now()}@test.com`;
   const target = `gw_target_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
+  const plainUser = `gw_plain_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER') || !seedUser(plainUser, 'USER')) {
     return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
   }
+  enableMfa(admin);
 
-  const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123' });
+  const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) });
   assert.equal(adminLogin.status, 200);
   const adminToken = adminLogin.body.token;
   const adminStep = await stepUpFor(adminToken);
@@ -218,7 +226,7 @@ test('role change authorizes by the token actor, ignoring the body', async (t) =
   assert.deepEqual(ok.body.data, ['ROLE_CHANGED']);
 
   // A non-admin spoofing the admin in the body is still refused.
-  const plainToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+  const plainToken = (await request(app).post('/auth/login').send({ email: plainUser, password: 'secret123' })).body.token;
   const plainStep = await stepUpFor(plainToken);
   const spoof = await request(app)
     .post('/admin/role')
@@ -235,7 +243,8 @@ test('admin audit trail is readable by a SUPER_ADMIN only', async (t) => {
   if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
     return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
   }
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
   const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
 
   const forbidden = await request(app).get('/admin/audit').query({ email: target }).set('Authorization', `Bearer ${userToken}`);
@@ -263,7 +272,8 @@ test('admin recovery endpoints are admin-only', async (t) => {
   if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
     return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
   }
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
   const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
   const adminStep = await stepUpFor(adminToken);
   const userStep = await stepUpFor(userToken);
@@ -279,7 +289,8 @@ test('privileged admin writes require a fresh step-up', async (t) => {
   if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
     return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
   }
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
 
   // No step-up proof -> refused before the business action runs.
   assert.equal((await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).send({ email: target, status: 'SUSPENDED' })).status, 401);
@@ -413,7 +424,8 @@ test('one access token can be revoked without affecting another session', async 
 
 test('audit archiving is admin-only', async (t) => {
   if (!seedUser('gw_admin_archive@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable');
-  const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_archive@test.com', password: 'secret123' })).body.token;
+  enableMfa('gw_admin_archive@test.com');
+  const adminToken = await adminLoginFor('gw_admin_archive@test.com');
 
   const em = `gw_arch_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Arch User', dob: '1990-01-01' });
@@ -649,7 +661,8 @@ test('transfer status and reversal over HTTP', async () => {
 
   const admin = `gw_revadm_${Date.now()}@test.com`;
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
   const adminStep = await stepUpFor(adminToken);
   // An admin can target a specific sender.
   const scoped = await request(app).get(`/transactions/${key}`).query({ sender: em }).set('Authorization', `Bearer ${adminToken}`);
@@ -753,7 +766,8 @@ test('account lifecycle over HTTP', async () => {
 
   const admin = `gw_lca_${Date.now()}@test.com`;
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
   const adm = { Authorization: `Bearer ${adminToken}`, 'X-Step-Up': await stepUpFor(adminToken) };
   assert.deepEqual((await request(app).post('/admin/user-status').set(adm).send({ email: em, status: 'SUSPENDED' })).body.data, ['STATUS_CHANGED']);
   const blocked = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -764,7 +778,8 @@ test('account lifecycle over HTTP', async () => {
 test('user listing and record are structured', async () => {
   const admin = `gw_listadm_${Date.now()}@test.com`;
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
   const adm = { Authorization: `Bearer ${adminToken}` };
 
   const list = await request(app).get('/users').query({ limit: 5, role: 'SUPER_ADMIN' }).set(adm);
