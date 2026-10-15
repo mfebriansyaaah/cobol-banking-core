@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { resetMetrics, recordRequest, recordError, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
+import { resetMetrics, recordRequest, recordError, incCounter, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
 import { getVerificationCode, seedUser } from './support.js';
 
 test('metricsText renders recorded counters', () => {
@@ -117,4 +117,18 @@ test('failed requests are counted by error code', async () => {
 
   // recordError is a no-op for an empty code.
   assert.doesNotThrow(() => recordError(''));
+});
+
+test('recordRequest observes latency histograms and counters', () => {
+  resetMetrics();
+  recordRequest({ method: 'GET', route: '/x', status: 200, durationMs: 42, cobolMs: 7 });
+  incCounter('demo_events_total', 3);
+  const text = metricsText();
+  assert.match(text, /# TYPE gateway_request_duration_ms histogram/);
+  assert.match(text, /gateway_request_duration_ms_bucket\{le="100"\} 1/);
+  assert.match(text, /gateway_request_duration_ms_sum 42/);
+  assert.match(text, /gateway_request_duration_ms_count 1/);
+  assert.match(text, /gateway_cobol_duration_ms_count 1/);
+  assert.match(text, /# TYPE demo_events_total counter/);
+  assert.match(text, /demo_events_total 3/);
 });

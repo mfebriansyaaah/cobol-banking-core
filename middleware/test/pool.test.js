@@ -54,3 +54,13 @@ test('pipelining serves concurrent requests', async () => {
   for (const r of results) assert.equal(r.status, 200);
   assert.equal(pool.stats().queued, 0, 'queue drained');
 });
+
+test('a crashed worker is replaced and the restart is counted', async () => {
+  const pool = getPool();
+  const before = pool.stats().size;
+  pool.workers[0].child.kill('SIGKILL');
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  assert.equal(pool.stats().size, before, 'a replacement worker is running');
+  const { metricsText } = await import('../src/observability.js');
+  assert.match(metricsText(), /gateway_cobol_pool_restarts_total \d+/);
+});
