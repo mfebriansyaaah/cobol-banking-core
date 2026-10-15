@@ -4,7 +4,7 @@ import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { resetMetrics, recordRequest, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
-import { getVerificationCode } from './support.js';
+import { getVerificationCode, seedUser } from './support.js';
 
 test('metricsText renders recorded counters', () => {
   resetMetrics();
@@ -46,16 +46,23 @@ test('/metrics requires a token', async () => {
   assert.equal(denied.status, 401);
 });
 
-test('/metrics serves counters to an authenticated caller', async () => {
+test('/metrics is admin-only', async (t) => {
   resetMetrics();
   const app = buildApp();
   const em = `obs_${Date.now()}@test.com`;
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Obs User', dob: '1990-01-01' });
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Obs User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
 
   await request(app).get('/health');
-  const m = await request(app).get('/metrics').set('Authorization', `Bearer ${login.body.token}`);
+  // A plain user is refused.
+  assert.equal((await request(app).get('/metrics').set('Authorization', `Bearer ${login.body.token}`)).status, 403);
+
+  // A SUPER_ADMIN sees the counters.
+  const admin = `obs_admin_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN')) return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  const m = await request(app).get('/metrics').set('Authorization', `Bearer ${adminToken}`);
   assert.equal(m.status, 200);
   assert.match(m.text, /gateway_requests_total/);
   assert.match(m.text, /route="\/health"/);
