@@ -1546,3 +1546,45 @@ _merged 2026-10-14_
 - test: core validation and email-change race
 - feat(profile): core email/dob validation, email-change race, SET_USER_STATUS fix
 
+## #154 session-rotation
+
+_merged 2026-10-14_
+
+- docs: atomic session rotation, retire CHECK_SESSION, counts
+- refactor(auth): retire CHECK_SESSION (superseded by CONSUME_SESSION); migrate session suite
+- test(gateway): refresh replay is rejected
+- test: token rotation suite + ci step 37/37
+- feat(gateway): /auth/refresh consumes the session atomically
+- feat(auth): atomic CONSUME_SESSION; reuse kills the family and access tokens
+- docs: sync HISTORY.md to post-merge state (#153)
+
+## #155 session-logout
+
+_merged 2026-10-14_
+
+- docs: per-device logout in specs + ADR 0006
+- docs: per-device logout in STATUS + counts
+- test: per-device logout + migrate session suite off REVOKE_TOKENS
+- refactor(auth): logout deletes the session; retire REVOKE_TOKENS (global bump unused)
+- feat(gateway): per-device logout (remove refresh session, deny presented access token)
+
+## #156 jwt-hardening
+
+_merged 2026-10-15_
+
+- docs(adr): 0011 JWT algorithm pinning and secret policy
+- docs: document JWT/secret requirements in gateway spec + .env.example
+- docs: JWT algorithm pinning + secret policy in STATUS + counts
+- test: reject non-HS256 tokens and weak/identical secrets
+- feat(auth): pin HS256 on sign/verify; require distinct 32+ char secrets in production
+
+## #157 session-family-limits
+
+_merged 2026-10-15_
+
+- docs: refresh family limits (STATUS, SPEC, .env.example, ADR 0012)
+- test: family absolute-lifetime and rotation-cap checks
+- feat(gateway): map SESSION_FAMILY_EXPIRED to 401
+- feat(auth): enforce refresh-family absolute lifetime and rotation cap (SESSION_FAMILY_EXPIRED)
+- feat(db): refresh_families table (migration 0022) for absolute lifetime + rotation cap
+

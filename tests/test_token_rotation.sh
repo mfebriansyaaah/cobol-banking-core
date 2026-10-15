@@ -36,7 +36,7 @@ echo "  TOKEN ROTATION SUITE"
 echo "======================================================================"
 
 U="rot_me@test.com"
-q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM users WHERE email='$U';
+q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM refresh_families WHERE email='$U'; DELETE FROM revoked_access_tokens WHERE email='$U'; DELETE FROM audit_trail WHERE user_id=983; DELETE FROM users WHERE email='$U';
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (983,'$U','x','Rot','1990-01-01','VERIFIED','USER');"
 
@@ -68,14 +68,23 @@ run STORE_SESSION jr4 "$U" 7 famR4 >/dev/null
 q "UPDATE refresh_families SET created_at = DATE_SUB(NOW(), INTERVAL 40 DAY) WHERE family='famR4';"
 check "absolute lifetime exceeded" "ERROR|SESSION_FAMILY_EXPIRED" "$(export REFRESH_ABSOLUTE_TTL_DAYS=30; run CONSUME_SESSION jr4)"
 check "over-age family revoked" "1" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE family='famR4' AND revoked=1;")"
+check "family expiry is a security event" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=983 AND action='SESSION_FAMILY_EXPIRED' AND status='FAILED';")"
 
 # Reaching the rotation cap refuses the next rotation.
 run STORE_SESSION jr5 "$U" 7 famR5 >/dev/null
 check "rotation within the cap" "SUCCESS|SESSION_CONSUMED" "$(export REFRESH_MAX_ROTATIONS=1; run CONSUME_SESSION jr5)"
 run STORE_SESSION jr6 "$U" 7 famR5 >/dev/null
 check "rotation cap reached" "ERROR|SESSION_FAMILY_EXPIRED" "$(export REFRESH_MAX_ROTATIONS=1; run CONSUME_SESSION jr6)"
+check "cap expiry also audited" "2" "$(q "SELECT COUNT(*) FROM audit_trail WHERE user_id=983 AND action='SESSION_FAMILY_EXPIRED';")"
 
-q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM refresh_families WHERE email='$U'; DELETE FROM users WHERE email='$U';"
+# Housekeeping: storing a session prunes expired denylist rows, keeps live ones.
+q "INSERT INTO revoked_access_tokens (jti,email,expires_at) VALUES ('jr-old','$U', DATE_SUB(NOW(), INTERVAL 1 HOUR));"
+q "INSERT INTO revoked_access_tokens (jti,email,expires_at) VALUES ('jr-live','$U', DATE_ADD(NOW(), INTERVAL 1 HOUR));"
+run STORE_SESSION jr7 "$U" 7 famR7 >/dev/null
+check "expired denylist row pruned" "0" "$(q "SELECT COUNT(*) FROM revoked_access_tokens WHERE jti='jr-old';")"
+check "live denylist row kept" "1" "$(q "SELECT COUNT(*) FROM revoked_access_tokens WHERE jti='jr-live';")"
+
+q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM refresh_families WHERE email='$U'; DELETE FROM revoked_access_tokens WHERE email='$U'; DELETE FROM audit_trail WHERE user_id=983; DELETE FROM users WHERE email='$U';"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
