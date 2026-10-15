@@ -69,10 +69,31 @@ export function verifyRefresh(token) {
 /** Verify an access token, returning its payload or null (never throws). */
 export function verifyAccess(token) {
   try {
-    return jwt.verify(token, SECRET, VERIFY_OPTS);
+    const p = jwt.verify(token, SECRET, VERIFY_OPTS);
+    return p.purpose ? null : p;
   } catch {
     return null;
   }
+}
+
+// Step-up (re-authentication) tokens: short-lived proofs that the caller just
+// re-verified their password (and MFA where enabled). Required for privileged
+// admin actions. A distinct `purpose` claim stops one being used as an access
+// token, and vice versa.
+export const STEP_UP_TTL_SECONDS = parseSeconds(process.env.STEP_UP_TTL_SECONDS || '300', 300);
+
+export function signStepUp(payload) {
+  return jwt.sign({ ...payload, purpose: 'step-up' }, SECRET, {
+    expiresIn: STEP_UP_TTL_SECONDS,
+    algorithm: ALGORITHM,
+    ...JWT_CLAIMS,
+  });
+}
+
+export function verifyStepUp(token) {
+  const p = jwt.verify(token, SECRET, VERIFY_OPTS);
+  if (p.purpose !== 'step-up') throw new Error('not a step-up token');
+  return p;
 }
 
 /** Express middleware: require a valid bearer token. */
@@ -84,6 +105,10 @@ export function requireAuth(req, res, next) {
   }
   try {
     req.user = jwt.verify(token, SECRET, VERIFY_OPTS);
+    // A step-up (or any other purpose-tagged) token is not an access token.
+    if (req.user.purpose) {
+      return res.status(401).json({ error: 'INVALID_TOKEN' });
+    }
     return next();
   } catch {
     return res.status(401).json({ error: 'INVALID_TOKEN' });

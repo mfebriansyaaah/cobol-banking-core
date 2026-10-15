@@ -119,6 +119,8 @@
                     PERFORM SIGNUP-LOGIC
                 WHEN LS-CMD-ACTION(1:12) = "VERIFY_EMAIL"
                     PERFORM VERIFY-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "VERIFY_REAUTH"
+                    PERFORM VERIFY-REAUTH-LOGIC
                 WHEN LS-CMD-ACTION(1:15) = "FORGOT_PASSWORD"
                     PERFORM FORGOT-PASSWORD-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "RESET_PASSWORD"
@@ -987,6 +989,60 @@
             ELSE
                 MOVE "SUCCESS|MFA_DISABLED" TO LS-OUTPUT-BUFFER
             END-IF.
+            EXIT PARAGRAPH.
+
+        VERIFY-REAUTH-LOGIC.
+            *> p1 = email, p2 = password, p3 = mfaCode (opt). Re-authenticates the
+            *> bearer's own account for a step-up (no tokens, no lockout change).
+            MOVE "SELECT status, CAST(mfa_enabled AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-STATUS WS-MFA-ON
+            END-UNSTRING
+            IF WS-STATUS(1:8) NOT = "VERIFIED"
+                MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> Password check (PBKDF2, legacy SHA256 fallback).
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT password_hash FROM users WHERE email = '"
+                   WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
+            CALL "SQL_EXECUTE"
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-STORED
+            MOVE SPACES TO WS-PLAIN
+            MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
+            CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
+            IF WS-VERIFY NOT = "1"
+                MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> Second factor when MFA is on.
+            IF WS-MFA-ON = "1"
+                IF WS-PARAM3-TRIMMED(1:1) = SPACE
+                    MOVE "ERROR|MFA_REQUIRED" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                MOVE "SELECT mfa_secret FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE WS-RESULT TO WS-MFA-SECRET
+                CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-VERIFY
+                IF WS-VERIFY NOT = "1"
+                    MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            MOVE "SUCCESS|REAUTH_OK" TO LS-OUTPUT-BUFFER.
             EXIT PARAGRAPH.
 
         CHECK-ROLE-LOGIC.

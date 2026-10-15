@@ -16,6 +16,11 @@ async function freshUser() {
   return { email, token: login.body.token, refreshToken: login.body.refreshToken };
 }
 
+async function stepUpFor(token, password = 'secret123') {
+  const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password });
+  return r.body.stepUpToken;
+}
+
 test('every public endpoint responds', async () => {
   assert.equal((await request(app).get('/health')).status, 200);
   const email = `ep_pub_${Date.now()}@test.com`;
@@ -68,7 +73,8 @@ test('every bearer endpoint responds', async (t) => {
   assert.equal((await request(app).get('/admin/role?email=sender@test.com&role=USER').set(auth)).status, 403);
   // non-admin actor is refused by the route (business rule), not a 404; a
   // spoofed body `actor` is ignored because the actor comes from the token
-  assert.equal((await request(app).post('/admin/role').set(auth).send({ email: 'receiver@test.com', role: 'MANAGER', actor: admin })).status, 403);
+  const userStep = await stepUpFor(token);
+  assert.equal((await request(app).post('/admin/role').set(auth).set('X-Step-Up', userStep).send({ email: 'receiver@test.com', role: 'MANAGER', actor: admin })).status, 403);
 
   // Reconcile: an admin is allowed (200 reconciled / 409 mismatch); a plain
   // user is refused and a body `actor` cannot impersonate an admin.

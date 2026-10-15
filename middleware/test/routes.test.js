@@ -43,3 +43,14 @@ test('every identity-authorized action takes its identity from the token', () =>
     }
   }
 });
+
+test('privileged admin writes require a step-up proof', () => {
+  const guarded = ['CHANGE_ROLE', 'SET_USER_STATUS', 'UNLOCK_USER', 'ADMIN_RESET_MFA', 'ARCHIVE_AUDIT', 'REVERSE_TRANSFER'];
+  for (const action of guarded) {
+    const routes = ROUTES.filter((r) => r.action === action);
+    assert.ok(routes.length > 0, `${action} is exposed by a route`);
+    for (const route of routes) {
+      assert.equal(route.stepUp, true, `${route.method} ${route.path} (${action}) must require step-up`);
+    }
+  }
+});
