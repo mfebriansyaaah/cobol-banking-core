@@ -126,6 +126,14 @@
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
                     PERFORM ACTION-SET-USER-STATUS
+                WHEN LS-CMD-ACTION(1:11) = "UNLOCK_USER"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM ACTION-UNLOCK-USER
+                WHEN LS-CMD-ACTION(1:15) = "ADMIN_RESET_MFA"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM ACTION-ADMIN-RESET-MFA
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -274,6 +282,133 @@
             IF WS-RLEN = 0
                 MOVE 1 TO WS-RLEN
             END-IF.
+
+        ACTION-UNLOCK-USER.
+            *> p1 = target email, p2 = actor (an admin not lower-ranked).
+            *> Clears a lockout so a locked user can log in again.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            *> The admin/rank guards read the actor from p3; move it there.
+            MOVE WS-PARAM2-TRIMMED TO WS-PARAM3-TRIMMED
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM ALLOW-RANK-ABOVE
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            MOVE "UPDATE users SET failed_logins = 0, locked_until = NULL WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'UNLOCK_USER', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|ACCOUNT_UNLOCKED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|UNLOCK_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ADMIN-RESET-MFA.
+            *> p1 = target email, p2 = actor (an admin not lower-ranked).
+            *> Clears a user's MFA so they can re-enroll after losing a device.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-PARAM2-TRIMMED TO WS-PARAM3-TRIMMED
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM ALLOW-RANK-ABOVE
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            MOVE "UPDATE users SET mfa_enabled = FALSE, mfa_secret = NULL WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'ADMIN_RESET_MFA', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|MFA_RESET" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|MFA_RESET_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
 
         ALLOW-READ.
             *> Sets WS-ALLOWED when the actor (p2) owns the target (p1) or is an admin.
