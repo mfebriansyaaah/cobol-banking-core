@@ -76,6 +76,9 @@
         01  WS-PRIOR-TOTAL-NUM     PIC S9(16)V99 COMP-3.
         01  WS-REV-AMT             PIC X(30) VALUE SPACES.
         01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
+        01  WS-REV-FROM            PIC X(100) VALUE SPACES.
+        01  WS-REV-CNT             PIC X(10) VALUE SPACES.
+        01  WS-REV-MINFROM         PIC X(100) VALUE SPACES.
         01  WS-REV-AMT-NUM         PIC S9(16)V99 COMP-3.
         01  WS-REV-CAMT-NUM        PIC S9(16)V99 COMP-3.
         01  WS-TX-FROM             PIC X(100) VALUE SPACES.
@@ -135,6 +138,7 @@
                 WHEN LS-CMD-ACTION(1:16) = "REVERSE_TRANSFER"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
                     PERFORM REVERSE-TRANSFER-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "TX_STATUS"
                     PERFORM TRIM-PARAM1
@@ -310,23 +314,56 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            *> Already reversed?
-            MOVE "SELECT 1 FROM transfer_reversals WHERE orig_ref = ? LIMIT 1" TO WS-PREP-SQL
+            *> Resolve the transfer's sender. txn_ref is unique per sender, so a
+            *> shared reference is refused unless the sender is given (p3).
+            MOVE SPACES TO WS-REV-FROM
+            IF WS-P3-LEN > 0
+                MOVE WS-PARAM3-TRIMMED(1:WS-P3-LEN) TO WS-REV-FROM
+            END-IF
+            IF WS-REV-FROM = SPACES
+                MOVE "SELECT CAST(COUNT(DISTINCT from_email) AS CHAR), MIN(from_email) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND from_email IS NOT NULL" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                UNSTRING WS-RESULT DELIMITED BY "|"
+                    INTO WS-REV-CNT WS-REV-MINFROM
+                END-UNSTRING
+                IF WS-REV-CNT(1:1) = "0"
+                    MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                IF WS-REV-CNT NOT = "1"
+                    MOVE "ERROR|AMBIGUOUS_TRANSACTION" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                MOVE WS-REV-MINFROM TO WS-REV-FROM
+            END-IF
+            *> Already reversed? One reversal per (ref, sender).
+            MOVE "SELECT 1 FROM transfer_reversals WHERE orig_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            MOVE WS-REV-FROM TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "ERROR|NO_DATA"
                 MOVE "ERROR|ALREADY_REVERSED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            *> The original debit (sender side) and credit (target side).
-            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' LIMIT 1" TO WS-PREP-SQL
+            *> The original debit (sender side) and credit (target side), scoped
+            *> to the sender so a shared reference cannot pick the wrong rows.
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            MOVE WS-REV-FROM TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
@@ -335,11 +372,12 @@
             UNSTRING WS-RESULT DELIMITED BY "|"
                 INTO WS-SENDER-ACC WS-REV-AMT WS-SENDER-CUR
             END-UNSTRING
-            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'CREDIT' LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'CREDIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            MOVE WS-REV-FROM TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
@@ -374,12 +412,13 @@
             END-IF
             SET STEP-OK TO TRUE
             *> One-time marker (PK on orig_ref): a duplicate means already reversed.
-            MOVE "INSERT INTO transfer_reversals (orig_ref, actor_id) SELECT ?, id FROM users WHERE email = ?" TO WS-PREP-SQL
+            MOVE "INSERT INTO transfer_reversals (orig_ref, from_email, actor_id) SELECT ?, ?, id FROM users WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            MOVE WS-REV-FROM TO WS-BIND-2
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
@@ -409,28 +448,30 @@
                 END-IF
             END-IF
             IF STEP-OK
-                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'CREDIT', ?, 'Reversal in')" TO WS-PREP-SQL
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'Reversal in', ?)" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 MOVE WS-REV-AMT TO WS-BIND-3
                 MOVE WS-SENDER-CUR TO WS-BIND-4
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                MOVE WS-REV-FROM TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF
             IF STEP-OK
-                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) VALUES (?, ?, ?, 'DEBIT', ?, 'Reversal out')" TO WS-PREP-SQL
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'Reversal out', ?)" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-TARGET-ACC TO WS-BIND-2
                 MOVE WS-REV-CAMT TO WS-BIND-3
                 MOVE WS-TARGET-CUR TO WS-BIND-4
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                MOVE WS-REV-FROM TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
@@ -520,11 +561,12 @@
                 END-IF
             END-IF
             MOVE "0" TO WS-REVERSED
-            MOVE "SELECT 1 FROM transfer_reversals WHERE orig_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT 1 FROM transfer_reversals WHERE orig_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            MOVE WS-TX-FROM TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "ERROR|NO_DATA"
                 MOVE "1" TO WS-REVERSED
@@ -1017,6 +1059,22 @@
                 END-IF
             END-IF
             
+            *> Tag the DEBIT row with the transfer's sender so a shared txn_ref
+            *> cannot make a reversal pick the wrong transfer.
+            IF WS-TRANSFER-OK
+                MOVE "UPDATE ledger SET from_email = ? WHERE txn_ref = ? AND account_id = ? AND type = 'DEBIT' AND from_email IS NULL ORDER BY ledger_id DESC LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-2
+                MOVE WS-SENDER-ACC TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+            
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
@@ -1032,6 +1090,21 @@
                     BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+            
+            *> Tag the CREDIT row with the transfer's sender too (same reason).
+            IF WS-TRANSFER-OK
+                MOVE "UPDATE ledger SET from_email = ? WHERE txn_ref = ? AND account_id = ? AND type = 'CREDIT' AND from_email IS NULL ORDER BY ledger_id DESC LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-2
+                MOVE WS-TARGET-ACC TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF

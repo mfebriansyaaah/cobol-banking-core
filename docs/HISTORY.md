@@ -1719,3 +1719,13 @@ _merged 2026-10-15_
 - feat(core): GET_MFA_STATE (role + MFA flag) for the login enrolment prompt
 - docs: sync HISTORY.md to post-merge state (#168)
 
+## #170 wallet-authz-denied
+
+_merged 2026-10-15_
+
+- docs(adr): 0017 wallet denials are now attributed
+- docs: AUTHZ_DENIED now covers wallet denials + counts
+- test: audit-integrity suite covers wallet-side denials
+- feat(core): attribute wallet denials (RECONCILE/REVERSE/balance read) as AUTHZ_DENIED
+- docs: sync HISTORY.md to post-merge state (#169)
+

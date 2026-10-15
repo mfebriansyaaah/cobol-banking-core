@@ -90,9 +90,11 @@ CREATE TABLE IF NOT EXISTS ledger (
     amount DECIMAL(18, 4) NOT NULL,
     type ENUM('CREDIT', 'DEBIT') NOT NULL,
     currency_id INT NOT NULL,
+    from_email VARCHAR(100) NULL, -- the transfer's sender (txn_ref is unique per sender)
     description VARCHAR(255),
     exchange_rate DECIMAL(18, 6) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_ledger_ref_sender (txn_ref, from_email),
     CONSTRAINT fk_ledger_acc FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
     CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id)
 ) ENGINE=InnoDB;
@@ -172,9 +174,11 @@ CREATE TABLE IF NOT EXISTS pending_transactions_archive (
 
 -- 9. Tabel Transfer Reversals (one-time compensating reversal of a transfer)
 CREATE TABLE IF NOT EXISTS transfer_reversals (
-    orig_ref VARCHAR(50) PRIMARY KEY,
+    orig_ref VARCHAR(50) NOT NULL,
+    from_email VARCHAR(100) NOT NULL DEFAULT '', -- the original sender (ref is per-sender)
     actor_id INT NOT NULL,
     reversed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (orig_ref, from_email),
     CONSTRAINT fk_reversal_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
