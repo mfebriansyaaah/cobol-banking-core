@@ -1611,3 +1611,14 @@ _merged 2026-10-15_
 - feat(db): refresh_sessions user-agent + ip columns (migration 0023)
 - docs: sync HISTORY.md to post-merge state (#158)
 
+## #161 admin-role-hierarchy
+
+_merged 2026-10-15_
+
+- docs(adr): 0013 admin role hierarchy and separation of duties
+- docs: admin role hierarchy in STATUS and specs + counts
+- test: admin role-hierarchy suite + ci step 38/38
+- feat(core): enforce role hierarchy on session revocation of another account
+- feat(core): enforce role hierarchy on SET_USER_STATUS (lower rank cannot administer higher)
+- docs: sync HISTORY.md to post-merge state (#159)
+
