@@ -38,7 +38,7 @@ So the repo carries two DB stacks and two I/O contracts, only one of which is li
 - Migration was incremental per action; the legacy program stayed in the tree (marked
   dead) until the last required action was ported, then was removed together with the
   old Windows ODBC build target.
-- New auth actions must join the routing contract in `AGENTS.md` and be tested like the
+- New auth actions must join the routing contract (dispatch in `cobol/src/main_logic.cob`) and be tested like the
   wallet actions.
 - The sed-based `EXEC SQL` → `CALL "SQL_EXECUTE"` shim became redundant with this
   decision and was removed along with the legacy program.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Docs integrity check: every repo path referenced from AGENTS.md /
+# Docs integrity check: every repo path referenced from CODING_STANDARDS.md /
 # CODING_STANDARDS.md / SPEC-*.md / docs/adr/*.md must actually exist.
 # Guards against docs drifting from code and ADRs.
 # Paths described as future/missing must be written WITHOUT backticks.

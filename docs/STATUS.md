@@ -67,7 +67,8 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `REVOKE_ACCESS_TOKEN` | jti, email, ttl seconds | deny one access token until it would expire | `SUCCESS\|TOKEN_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` |
 
-The routing contract lives in `AGENTS.md`; `ci.sh` verifies every routed
+The routing contract is that every action dispatched by `cobol/src/main_logic.cob`
+is handled by its owning module; `ci.sh` verifies every routed
 action has a handler in its owning module.
 
 ## 3. Database (`cobol_db`)
