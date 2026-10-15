@@ -59,6 +59,14 @@ before=$(q "SELECT COUNT(*) FROM audit_trail WHERE action='AUTHZ_DENIED'")
 run SET_USER_STATUS "$U" SUSPENDED ghost_ai@test.com >/dev/null
 check "unknown actor is not attributed" "$before" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='AUTHZ_DENIED'")"
 
+# --- wallet-side denials (RECONCILE / REVERSE / balance read) -------------
+run RECONCILE "$U" >/dev/null
+check "RECONCILE denial is audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE a.action='AUTHZ_DENIED' AND u.email='$U' AND a.entity_id='RECONCILE'")"
+run REVERSE_TRANSFER NOSUCH "$U" >/dev/null
+check "REVERSE denial is audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE a.action='AUTHZ_DENIED' AND u.email='$U' AND a.entity_id='REVERSE_TRANSFER'")"
+run CHECK_BALANCE "$V" "$U" >/dev/null
+check "balance-read denial is audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE a.action='AUTHZ_DENIED' AND u.email='$U' AND a.entity_id='CHECK_BALANCE' AND a.detail='$V'")"
+
 # --- read-path indexes ----------------------------------------------------
 check "action index exists" "1" "$(q "SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema='$DB_NAME' AND table_name='audit_trail' AND index_name='idx_audit_action'")"
 check "actor index exists" "1" "$(q "SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema='$DB_NAME' AND table_name='audit_trail' AND index_name='idx_audit_actor'")"
