@@ -1,11 +1,25 @@
 #!/bin/bash
-# Protect the integration branches: no direct commits on main/master, except the
-# deliberate post-merge documentation sync (message starts with "docs: sync").
+# Two guards on every commit:
+#  1) Refuse AI-attribution trailers, so the authorship record reflects the
+#     human author only (no Assisted-by / Generated-by / Co-authored-by: AI).
+#  2) Protect the integration branches: no direct commits on main/master,
+#     except the deliberate post-merge documentation sync ("docs: sync ...").
 # args: $1 = path to the commit message file.
+msgfile="$1"
+
+# 1) AI-attribution trailers.
+if grep -qiE '^[[:space:]]*(assisted-by|generated-by|generated-with|ai-model|ai-generated|ai-assisted)[[:space:]]*:' "$msgfile" \
+   || grep -qiE '^[[:space:]]*co-authored-by:.*\b(copilot|claude|anthropic|openai|chatgpt|gpt|cursor|devin|gemini|windsurf|codeium|tabnine|opencode|aider|replit|codex)\b' "$msgfile"; then
+    echo "commit-msg: refusing AI-attribution trailers."
+    echo "Remove any 'Assisted-by:' / 'Generated-by:' / 'Co-authored-by: <AI service>' lines."
+    exit 1
+fi
+
+# 2) Integration branches.
 branch="$(git symbolic-ref --short HEAD 2>/dev/null)"
 case "$branch" in
   main|master)
-    msg="$(head -1 "$1" 2>/dev/null)"
+    msg="$(head -1 "$msgfile" 2>/dev/null)"
     case "$msg" in
       "docs: sync"*) exit 0 ;;
     esac
