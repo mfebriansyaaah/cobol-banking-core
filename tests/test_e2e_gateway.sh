@@ -119,7 +119,7 @@ TOKEN2=$(jget "['token']")
 [ -n "$TOKEN2" ] && check "refresh returns an access token" "ok" "ok" || check "refresh returns an access token" "a token" "empty"
 
 http GET /metrics "$TOKEN2"
-check "metrics (authenticated)" "200" "$CODE"
+check "metrics is admin-only" "403" "$CODE"
 
 http POST /auth/logout "" "{\"refreshToken\":\"$REFRESH\"}"
 check "logout" "200" "$CODE"

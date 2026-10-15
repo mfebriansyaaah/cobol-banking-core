@@ -8,10 +8,10 @@ set -e
 # (600000). Individual KDF tests override this per call.
 export PBKDF2_ITERATIONS="${PBKDF2_ITERATIONS:-100000}"
 
-echo "=== [1/42] Docs integrity check ==="
+echo "=== [1/43] Docs integrity check ==="
 ./tests/docs_check.sh
 
-echo "=== [2/42] Static COBOL checks ==="
+echo "=== [2/43] Static COBOL checks ==="
 viol=0
 
 # Violation 1: sentence period inside an inline IF/ELSE scope.
@@ -106,69 +106,69 @@ if [ "$viol" = 1 ]; then
 fi
 echo "OK"
 
-echo "=== [3/42] Build ==="
+echo "=== [3/43] Build ==="
 build_log=$(./build.sh 2>&1 || true)
 echo "$build_log" | grep -E "^cobol.*error:" && { echo "BUILD FAILED"; exit 1; }
 echo "$build_log" | grep -q "SUCCESS: Binary created" || { echo "BUILD FAILED"; exit 1; }
 echo "Build OK"
 
-echo "=== [4/42] Functional suite ==="
+echo "=== [4/43] Functional suite ==="
 func_out=$(./tests/test_suite.sh 2>/dev/null)
 echo "$func_out" | tail -1
 func_fail=$(echo "$func_out" | grep -oE '[0-9]+ failed' | grep -oE '[0-9]+' | head -1 || echo 0)
 func_fail=${func_fail:-0}
 [ "$func_fail" -eq 0 ] || { echo "FUNCTIONAL SUITE FAILED"; exit 1; }
 
-echo "=== [5/42] Atomic transaction suite ==="
+echo "=== [5/43] Atomic transaction suite ==="
 atomic_out=$(./tests/test_atomic_txn.sh 2>/dev/null)
 atomic_pass=$(echo "$atomic_out" | grep -c '\[0;32mPASS' || true)
 atomic_fail=$(echo "$atomic_out" | grep -c '\[0;31mFAIL' || true)
 echo "atomic: $atomic_pass passed, $atomic_fail failed"
 [ "$atomic_fail" -eq 0 ] || { echo "ATOMIC SUITE FAILED"; exit 1; }
 
-echo "=== [6/42] Ledger atomic suite ==="
+echo "=== [6/43] Ledger atomic suite ==="
 ledger_out=$(./tests/test_ledger_atomic.sh 2>/dev/null)
 ledger_pass=$(echo "$ledger_out" | grep -c '\[0;32mPASS' || true)
 ledger_fail=$(echo "$ledger_out" | grep -c '\[0;31mFAIL' || true)
 echo "ledger: $ledger_pass passed, $ledger_fail failed"
 [ "$ledger_fail" -eq 0 ] || { echo "LEDGER SUITE FAILED"; exit 1; }
 
-echo "=== [7/42] Reconciliation suite ==="
+echo "=== [7/43] Reconciliation suite ==="
 recon_out=$(./tests/test_reconciliation.sh 2>/dev/null)
 recon_pass=$(echo "$recon_out" | grep -c '\[0;32mPASS' || true)
 recon_fail=$(echo "$recon_out" | grep -c '\[0;31mFAIL' || true)
 echo "reconciliation: $recon_pass passed, $recon_fail failed"
 [ "$recon_fail" -eq 0 ] || { echo "RECONCILIATION SUITE FAILED"; exit 1; }
 
-echo "=== [8/42] Auth login suite ==="
+echo "=== [8/43] Auth login suite ==="
 auth_out=$(./tests/test_auth_login.sh 2>/dev/null)
 auth_pass=$(echo "$auth_out" | grep -c '\[0;32mPASS' || true)
 auth_fail=$(echo "$auth_out" | grep -c '\[0;31mFAIL' || true)
 echo "auth: $auth_pass passed, $auth_fail failed"
 [ "$auth_fail" -eq 0 ] || { echo "AUTH SUITE FAILED"; exit 1; }
 
-echo "=== [9/42] Signup + verify suite ==="
+echo "=== [9/43] Signup + verify suite ==="
 signup_out=$(./tests/test_signup_verify.sh 2>/dev/null)
 signup_pass=$(echo "$signup_out" | grep -c '\[0;32mPASS' || true)
 signup_fail=$(echo "$signup_out" | grep -c '\[0;31mFAIL' || true)
 echo "signup/verify: $signup_pass passed, $signup_fail failed"
 [ "$signup_fail" -eq 0 ] || { echo "SIGNUP SUITE FAILED"; exit 1; }
 
-echo "=== [10/42] Role suite ==="
+echo "=== [10/43] Role suite ==="
 role_out=$(./tests/test_roles.sh 2>/dev/null)
 role_pass=$(echo "$role_out" | grep -c '\[0;32mPASS' || true)
 role_fail=$(echo "$role_out" | grep -c '\[0;31mFAIL' || true)
 echo "roles: $role_pass passed, $role_fail failed"
 [ "$role_fail" -eq 0 ] || { echo "ROLE SUITE FAILED"; exit 1; }
 
-echo "=== [11/42] User profile suite ==="
+echo "=== [11/43] User profile suite ==="
 profile_out=$(./tests/test_user_profile.sh 2>/dev/null)
 profile_pass=$(echo "$profile_out" | grep -c '\[0;32mPASS' || true)
 profile_fail=$(echo "$profile_out" | grep -c '\[0;31mFAIL' || true)
 echo "profile: $profile_pass passed, $profile_fail failed"
 [ "$profile_fail" -eq 0 ] || { echo "PROFILE SUITE FAILED"; exit 1; }
 
-echo "=== [12/42] API gateway suite ==="
+echo "=== [12/43] API gateway suite ==="
 if [ -d middleware ]; then
     npm --prefix middleware ci --silent >/dev/null 2>&1 || npm --prefix middleware install --silent >/dev/null 2>&1
     if npm --prefix middleware test --silent >/tmp/opencode/gateway.out 2>&1; then
@@ -184,206 +184,213 @@ else
     echo "middleware/ absent; skipping"
 fi
 
-echo "=== [13/42] Login lockout suite ==="
+echo "=== [13/43] Login lockout suite ==="
 lockout_out=$(./tests/test_login_lockout.sh 2>/dev/null)
 lockout_pass=$(echo "$lockout_out" | grep -c '\[0;32mPASS' || true)
 lockout_fail=$(echo "$lockout_out" | grep -c '\[0;31mFAIL' || true)
 echo "lockout: $lockout_pass passed, $lockout_fail failed"
 [ "$lockout_fail" -eq 0 ] || { echo "LOCKOUT SUITE FAILED"; exit 1; }
 
-echo "=== [14/42] Idempotent transfer suite ==="
+echo "=== [14/43] Idempotent transfer suite ==="
 idem_out=$(./tests/test_idempotent_transfer.sh 2>/dev/null)
 idem_pass=$(echo "$idem_out" | grep -c '\[0;32mPASS' || true)
 idem_fail=$(echo "$idem_out" | grep -c '\[0;31mFAIL' || true)
 echo "idempotent transfer: $idem_pass passed, $idem_fail failed"
 [ "$idem_fail" -eq 0 ] || { echo "IDEMPOTENT SUITE FAILED"; exit 1; }
 
-echo "=== [15/42] Transfer validity suite ==="
+echo "=== [15/43] Transfer validity suite ==="
 validity_out=$(./tests/test_transfer_validity.sh 2>/dev/null)
 validity_pass=$(echo "$validity_out" | grep -c '\[0;32mPASS' || true)
 validity_fail=$(echo "$validity_out" | grep -c '\[0;31mFAIL' || true)
 echo "transfer validity: $validity_pass passed, $validity_fail failed"
 [ "$validity_fail" -eq 0 ] || { echo "TRANSFER VALIDITY SUITE FAILED"; exit 1; }
 
-echo "=== [16/42] Concurrent opposing transfers ==="
+echo "=== [16/43] Concurrent opposing transfers ==="
 conc_out=$(./tests/test_concurrent_transfer.sh 2>/dev/null)
 conc_pass=$(echo "$conc_out" | grep -c '\[0;32mPASS' || true)
 conc_fail=$(echo "$conc_out" | grep -c '\[0;31mFAIL' || true)
 echo "concurrent transfer: $conc_pass passed, $conc_fail failed"
 [ "$conc_fail" -eq 0 ] || { echo "CONCURRENT SUITE FAILED"; exit 1; }
 
-echo "=== [17/42] SQL injection mitigation suite ==="
+echo "=== [17/43] SQL injection mitigation suite ==="
 inj_out=$(./tests/test_injection.sh 2>/dev/null)
 inj_pass=$(echo "$inj_out" | grep -c '\[0;32mPASS' || true)
 inj_fail=$(echo "$inj_out" | grep -c '\[0;31mFAIL' || true)
 echo "injection: $inj_pass passed, $inj_fail failed"
 [ "$inj_fail" -eq 0 ] || { echo "INJECTION SUITE FAILED"; exit 1; }
 
-echo "=== [18/42] Refresh session suite ==="
+echo "=== [18/43] Refresh session suite ==="
 sess_out=$(./tests/test_session.sh 2>/dev/null)
 sess_pass=$(echo "$sess_out" | grep -c '\[0;32mPASS' || true)
 sess_fail=$(echo "$sess_out" | grep -c '\[0;31mFAIL' || true)
 echo "session: $sess_pass passed, $sess_fail failed"
 [ "$sess_fail" -eq 0 ] || { echo "SESSION SUITE FAILED"; exit 1; }
 
-echo "=== [19/42] Prepared statement suite ==="
+echo "=== [19/43] Prepared statement suite ==="
 prep_out=$(./tests/test_prepared.sh 2>/dev/null)
 prep_pass=$(echo "$prep_out" | grep -c '\[0;32mPASS' || true)
 prep_fail=$(echo "$prep_out" | grep -c '\[0;31mFAIL' || true)
 echo "prepared: $prep_pass passed, $prep_fail failed"
 [ "$prep_fail" -eq 0 ] || { echo "PREPARED SUITE FAILED"; exit 1; }
 
-echo "=== [20/42] Deep health (PING) suite ==="
+echo "=== [20/43] Deep health (PING) suite ==="
 ping_out=$(./tests/test_ping.sh 2>/dev/null)
 ping_pass=$(echo "$ping_out" | grep -c '\[0;32mPASS' || true)
 ping_fail=$(echo "$ping_out" | grep -c '\[0;31mFAIL' || true)
 echo "ping: $ping_pass passed, $ping_fail failed"
 [ "$ping_fail" -eq 0 ] || { echo "PING SUITE FAILED"; exit 1; }
 
-echo "=== [21/42] Migration check ==="
+echo "=== [21/43] Migration check ==="
 ./database/migrate.sh --check
 
-echo "=== [22/42] Migration tooling suite ==="
+echo "=== [22/43] Migration tooling suite ==="
 mig_out=$(./tests/test_migrate.sh 2>/dev/null)
 mig_pass=$(echo "$mig_out" | grep -c '\[0;32mPASS' || true)
 mig_fail=$(echo "$mig_out" | grep -c '\[0;31mFAIL' || true)
 echo "migrations: $mig_pass passed, $mig_fail failed"
 [ "$mig_fail" -eq 0 ] || { echo "MIGRATION SUITE FAILED"; exit 1; }
 
-echo "=== [23/42] Status/docs integrity ==="
+echo "=== [23/43] Status/docs integrity ==="
 ./tests/status_check.sh
 
-echo "=== [24/42] End-to-end HTTP smoke ==="
+echo "=== [24/43] End-to-end HTTP smoke ==="
 e2e_out=$(./tests/test_e2e_gateway.sh 2>/dev/null)
 e2e_pass=$(echo "$e2e_out" | grep -c '\[0;32mPASS' || true)
 e2e_fail=$(echo "$e2e_out" | grep -c '\[0;31mFAIL' || true)
 echo "e2e: $e2e_pass passed, $e2e_fail failed"
 [ "$e2e_fail" -eq 0 ] || { echo "E2E SUITE FAILED"; exit 1; }
 
-echo "=== [25/42] Serve mode suite ==="
+echo "=== [25/43] Serve mode suite ==="
 serve_out=$(./tests/test_serve_mode.sh 2>/dev/null)
 serve_pass=$(echo "$serve_out" | grep -c '\[0;32mPASS' || true)
 serve_fail=$(echo "$serve_out" | grep -c '\[0;31mFAIL' || true)
 echo "serve: $serve_pass passed, $serve_fail failed"
 [ "$serve_fail" -eq 0 ] || { echo "SERVE MODE SUITE FAILED"; exit 1; }
 
-echo "=== [26/42] End-to-end HTTP smoke (pool mode) ==="
+echo "=== [26/43] End-to-end HTTP smoke (pool mode) ==="
 pool_out=$(COBOL_POOL_SIZE=4 ./tests/test_e2e_gateway.sh 2>/dev/null)
 pool_pass=$(echo "$pool_out" | grep -c '\[0;32mPASS' || true)
 pool_fail=$(echo "$pool_out" | grep -c '\[0;31mFAIL' || true)
 echo "e2e pool: $pool_pass passed, $pool_fail failed"
 [ "$pool_fail" -eq 0 ] || { echo "E2E POOL SUITE FAILED"; exit 1; }
 
-echo "=== [27/42] Password reset/change suite ==="
+echo "=== [27/43] Password reset/change suite ==="
 pw_out=$(./tests/test_password.sh 2>/dev/null)
 pw_pass=$(echo "$pw_out" | grep -c '\[0;32mPASS' || true)
 pw_fail=$(echo "$pw_out" | grep -c '\[0;31mFAIL' || true)
 echo "password: $pw_pass passed, $pw_fail failed"
 [ "$pw_fail" -eq 0 ] || { echo "PASSWORD SUITE FAILED"; exit 1; }
 
-echo "=== [28/42] Verification attempt cap suite ==="
+echo "=== [28/43] Verification attempt cap suite ==="
 cap_out=$(./tests/test_verify_cap.sh 2>/dev/null)
 cap_pass=$(echo "$cap_out" | grep -c '\[0;32mPASS' || true)
 cap_fail=$(echo "$cap_out" | grep -c '\[0;31mFAIL' || true)
 echo "verify-cap: $cap_pass passed, $cap_fail failed"
 [ "$cap_fail" -eq 0 ] || { echo "VERIFY CAP SUITE FAILED"; exit 1; }
 
-echo "=== [29/42] Password KDF suite ==="
+echo "=== [29/43] Password KDF suite ==="
 kdf_out=$(./tests/test_password_kdf.sh 2>/dev/null)
 kdf_pass=$(echo "$kdf_out" | grep -c '\[0;32mPASS' || true)
 kdf_fail=$(echo "$kdf_out" | grep -c '\[0;31mFAIL' || true)
 echo "kdf: $kdf_pass passed, $kdf_fail failed"
 [ "$kdf_fail" -eq 0 ] || { echo "KDF SUITE FAILED"; exit 1; }
 
-echo "=== [30/42] MFA (TOTP) suite ==="
+echo "=== [30/43] MFA (TOTP) suite ==="
 mfa_out=$(./tests/test_mfa.sh 2>/dev/null)
 mfa_pass=$(echo "$mfa_out" | grep -c '\[0;32mPASS' || true)
 mfa_fail=$(echo "$mfa_out" | grep -c '\[0;31mFAIL' || true)
 echo "mfa: $mfa_pass passed, $mfa_fail failed"
 [ "$mfa_fail" -eq 0 ] || { echo "MFA SUITE FAILED"; exit 1; }
 
-echo "=== [31/42] Session management suite ==="
+echo "=== [31/43] Session management suite ==="
 sess_out=$(./tests/test_sessions_manage.sh 2>/dev/null)
 sess_pass=$(echo "$sess_out" | grep -c '\[0;32mPASS' || true)
 sess_fail=$(echo "$sess_out" | grep -c '\[0;31mFAIL' || true)
 echo "sessions: $sess_pass passed, $sess_fail failed"
 [ "$sess_fail" -eq 0 ] || { echo "SESSION SUITE FAILED"; exit 1; }
 
-echo "=== [32/42] Account lifecycle suite ==="
+echo "=== [32/43] Account status suite ==="
 stat_out=$(./tests/test_account_status.sh 2>/dev/null)
 stat_pass=$(echo "$stat_out" | grep -c '\[0;32mPASS' || true)
 stat_fail=$(echo "$stat_out" | grep -c '\[0;31mFAIL' || true)
 echo "account-status: $stat_pass passed, $stat_fail failed"
 [ "$stat_fail" -eq 0 ] || { echo "ACCOUNT STATUS SUITE FAILED"; exit 1; }
 
-echo "=== [33/42] Transfer limits suite ==="
+echo "=== [33/43] Transfer limits suite ==="
 lim_out=$(./tests/test_transfer_limits.sh 2>/dev/null)
 lim_pass=$(echo "$lim_out" | grep -c '\[0;32mPASS' || true)
 lim_fail=$(echo "$lim_out" | grep -c '\[0;31mFAIL' || true)
 echo "limits: $lim_pass passed, $lim_fail failed"
 [ "$lim_fail" -eq 0 ] || { echo "TRANSFER LIMITS SUITE FAILED"; exit 1; }
 
-echo "=== [34/42] Transfer reversal suite ==="
+echo "=== [34/43] Transfer reversal suite ==="
 rev_out=$(./tests/test_transfer_reversal.sh 2>/dev/null)
 rev_pass=$(echo "$rev_out" | grep -c '\[0;32mPASS' || true)
 rev_fail=$(echo "$rev_out" | grep -c '\[0;31mFAIL' || true)
 echo "reversal: $rev_pass passed, $rev_fail failed"
 [ "$rev_fail" -eq 0 ] || { echo "REVERSAL SUITE FAILED"; exit 1; }
 
-echo "=== [35/42] Wallet observability suite ==="
+echo "=== [35/43] Wallet observability suite ==="
 obs_out=$(./tests/test_wallet_observability.sh 2>/dev/null)
 obs_pass=$(echo "$obs_out" | grep -c '\[0;32mPASS' || true)
 obs_fail=$(echo "$obs_out" | grep -c '\[0;31mFAIL' || true)
 echo "observability: $obs_pass passed, $obs_fail failed"
 [ "$obs_fail" -eq 0 ] || { echo "OBSERVABILITY SUITE FAILED"; exit 1; }
 
-echo "=== [36/42] Account lifecycle suite ==="
+echo "=== [36/43] Account lifecycle suite ==="
 lc_out=$(./tests/test_account_lifecycle.sh 2>/dev/null)
 lc_pass=$(echo "$lc_out" | grep -c '\[0;32mPASS' || true)
 lc_fail=$(echo "$lc_out" | grep -c '\[0;31mFAIL' || true)
 echo "lifecycle: $lc_pass passed, $lc_fail failed"
 [ "$lc_fail" -eq 0 ] || { echo "ACCOUNT LIFECYCLE SUITE FAILED"; exit 1; }
 
-echo "=== [37/42] Token rotation suite ==="
+echo "=== [37/43] Token rotation suite ==="
 rot_out=$(./tests/test_token_rotation.sh 2>/dev/null)
 rot_pass=$(echo "$rot_out" | grep -c '\[0;32mPASS' || true)
 rot_fail=$(echo "$rot_out" | grep -c '\[0;31mFAIL' || true)
 echo "rotation: $rot_pass passed, $rot_fail failed"
 [ "$rot_fail" -eq 0 ] || { echo "TOKEN ROTATION SUITE FAILED"; exit 1; }
 
-echo "=== [38/42] Admin role-hierarchy suite ==="
+echo "=== [38/43] Admin role-hierarchy suite ==="
 hier_out=$(./tests/test_admin_hierarchy.sh 2>/dev/null)
 hier_pass=$(echo "$hier_out" | grep -c '\[0;32mPASS' || true)
 hier_fail=$(echo "$hier_out" | grep -c '\[0;31mFAIL' || true)
 echo "hierarchy: $hier_pass passed, $hier_fail failed"
 [ "$hier_fail" -eq 0 ] || { echo "ADMIN HIERARCHY SUITE FAILED"; exit 1; }
 
-echo "=== [39/42] Last-admin protection suite ==="
+echo "=== [39/43] Last-admin protection suite ==="
 la_out=$(./tests/test_last_admin.sh 2>/dev/null)
 la_pass=$(echo "$la_out" | grep -c '\[0;32mPASS' || true)
 la_fail=$(echo "$la_out" | grep -c '\[0;31mFAIL' || true)
 echo "last-admin: $la_pass passed, $la_fail failed"
 [ "$la_fail" -eq 0 ] || { echo "LAST-ADMIN SUITE FAILED"; exit 1; }
 
-echo "=== [40/42] Audit actor-attribution suite ==="
+echo "=== [40/43] Audit actor-attribution suite ==="
 aa_out=$(./tests/test_audit_actor.sh 2>/dev/null)
 aa_pass=$(echo "$aa_out" | grep -c '\[0;32mPASS' || true)
 aa_fail=$(echo "$aa_out" | grep -c '\[0;31mFAIL' || true)
 echo "audit-actor: $aa_pass passed, $aa_fail failed"
 [ "$aa_fail" -eq 0 ] || { echo "AUDIT ACTOR SUITE FAILED"; exit 1; }
 
-echo "=== [41/42] Audit read suite ==="
+echo "=== [41/43] Audit read suite ==="
 ar_out=$(./tests/test_audit_read.sh 2>/dev/null)
 ar_pass=$(echo "$ar_out" | grep -c '\[0;32mPASS' || true)
 ar_fail=$(echo "$ar_out" | grep -c '\[0;31mFAIL' || true)
 echo "audit-read: $ar_pass passed, $ar_fail failed"
 [ "$ar_fail" -eq 0 ] || { echo "AUDIT READ SUITE FAILED"; exit 1; }
 
-echo "=== [42/42] Audit integrity suite ==="
+echo "=== [42/43] Audit integrity suite ==="
 ai_out=$(./tests/test_audit_integrity.sh 2>/dev/null)
 ai_pass=$(echo "$ai_out" | grep -c '\[0;32mPASS' || true)
 ai_fail=$(echo "$ai_out" | grep -c '\[0;31mFAIL' || true)
 echo "audit-integrity: $ai_pass passed, $ai_fail failed"
 [ "$ai_fail" -eq 0 ] || { echo "AUDIT INTEGRITY SUITE FAILED"; exit 1; }
+
+echo "=== [43/43] Admin recovery suite ==="
+ar2_out=$(./tests/test_admin_recovery.sh 2>/dev/null)
+ar2_pass=$(echo "$ar2_out" | grep -c '\[0;32mPASS' || true)
+ar2_fail=$(echo "$ar2_out" | grep -c '\[0;31mFAIL' || true)
+echo "admin-recovery: $ar2_pass passed, $ar2_fail failed"
+[ "$ar2_fail" -eq 0 ] || { echo "ADMIN RECOVERY SUITE FAILED"; exit 1; }
 
 echo "=== ALL GREEN ==="

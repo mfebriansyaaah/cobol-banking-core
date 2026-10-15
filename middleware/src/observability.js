@@ -64,7 +64,10 @@ export function createRequestObserver({ logger = null } = {}) {
     const start = performance.now();
 
     res.on('finish', () => {
-      const route = (req.route && `${req.baseUrl || ''}${req.route.path || ''}`) || req.path;
+      // Matched routes use their template; unmatched requests collapse to a
+      // constant so a raw path (which may carry an email/PII) never becomes a
+      // high-cardinality metric or log label.
+      const route = (req.route && `${req.baseUrl || ''}${req.route.path || ''}`) || 'unmatched';
       const durationMs = Math.round(performance.now() - start);
       recordRequest({ method: req.method, route, status: res.statusCode });
       if (logger) {

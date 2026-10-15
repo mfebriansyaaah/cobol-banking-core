@@ -1643,3 +1643,34 @@ _merged 2026-10-15_
 - feat(core): refuse to demote the last active SUPER_ADMIN (CHANGE_ROLE)
 - docs: sync HISTORY.md to post-merge state (#161)
 
+## #163 audit-actor
+
+_merged 2026-10-15_
+
+- docs(adr): 0015 audit actor attribution
+- docs: audit actor attribution in STATUS and auth spec + counts
+- test: audit actor-attribution suite + ci step 40/40
+- feat(core): attribute admin actions to the actor; audit REVOKE_USER_SESSION and ARCHIVE_AUDIT
+- feat(db): add audit_trail.actor_id + archive (migration 0024)
+- docs: sync HISTORY.md to post-merge state (#162)
+
+## #164 audit-read
+
+_merged 2026-10-15_
+
+- docs(adr): 0016 audit read and retention
+- docs: audit read API + retention bound in STATUS and specs + counts
+- test: audit-read suite, gateway test, route map + ci step 41/41
+- feat(gateway): GET /admin/audit route + AUDIT_ACTION validation
+- feat(core): LIST_AUDIT read action + refuse zero-day ARCHIVE_AUDIT retention
+
+## #165 audit-integrity
+
+_merged 2026-10-15_
+
+- docs(adr): 0017 audit integrity
+- docs: audit integrity in STATUS and auth spec + counts
+- test: audit integrity suite + ci step 42/42
+- feat(core): record refused authorization attempts as AUTHZ_DENIED
+- feat(db): audit read indexes + preserve-evidence trigger on user delete (migration 0025)
+

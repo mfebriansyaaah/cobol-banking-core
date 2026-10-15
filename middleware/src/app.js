@@ -151,6 +151,14 @@ export const ROUTES = [
     { name: 'status', pattern: USER_STATUS, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
+  { method: 'post', path: '/admin/unlock', action: 'UNLOCK_USER', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/mfa-reset', action: 'ADMIN_RESET_MFA', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
   { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
@@ -284,6 +292,19 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     }
   };
 
+  // Role gate for operator-only endpoints (checked live in COBOL). CHECK_ROLE
+  // allows the actor to test their own role, so it works as a self role check.
+  const requireRole = (role) => async (req, res, next) => {
+    try {
+      const email = (req.user && req.user.email) || '';
+      const raw = await invoke('CHECK_ROLE', [email, role, email]);
+      if (raw === 'SUCCESS|ROLE_OK') return next();
+      return res.status(403).json({ error: 'FORBIDDEN' });
+    } catch (err) {
+      return next(err);
+    }
+  };
+
   // Deep health: confirm the COBOL core can reach the database.
   router.get('/health', async (_req, res) => {
     const t0 = Date.now();
@@ -303,7 +324,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
 
   // Prometheus-style counters (support only). Authenticated to keep the
   // surface closed; scrapers send a bearer token.
-  router.get('/metrics', apiLimiter, requireAuth, requireActiveToken, (_req, res) => {
+  router.get('/metrics', apiLimiter, requireAuth, requireActiveToken, requireRole('SUPER_ADMIN'), (_req, res) => {
     res.type('text/plain').send(metricsText());
   });
 

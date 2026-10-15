@@ -20,6 +20,8 @@ const TOKEN_IDENTITY = {
   UPDATE_PROFILE: 'actor',
   DEACTIVATE_ACCOUNT: 'actor',
   SET_USER_STATUS: 'actor',
+  UNLOCK_USER: 'actor',
+  ADMIN_RESET_MFA: 'actor',
   REVERSE_TRANSFER: 'actor',
   TX_STATUS: 'actor',
   MFA_ENROLL_BEGIN: 'actor',

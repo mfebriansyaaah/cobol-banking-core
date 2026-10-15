@@ -245,6 +245,20 @@ test('admin audit trail is readable by a SUPER_ADMIN only', async (t) => {
   assert.ok(ok.body.data[2].includes(admin), 'records the acting admin');
 });
 
+test('admin recovery endpoints are admin-only', async (t) => {
+  const admin = `gw_rec_${Date.now()}@test.com`;
+  const target = `gw_rec_t_${Date.now()}@test.com`;
+  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
+    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
+  }
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+
+  assert.equal((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${userToken}`).send({ email: target })).status, 403);
+  assert.deepEqual((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${adminToken}`).send({ email: target })).body.data, ['ACCOUNT_UNLOCKED']);
+  assert.deepEqual((await request(app).post('/admin/mfa-reset').set('Authorization', `Bearer ${adminToken}`).send({ email: target })).body.data, ['MFA_RESET']);
+});
+
 test('reusing an idempotency key with different details is a conflict', async (t) => {
   const em = `gw_idem_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
