@@ -57,7 +57,25 @@ q "INSERT INTO refresh_sessions (jti,family,email,revoked,expires_at) VALUES ('j
 check "expired token" "ERROR|SESSION_EXPIRED" "$(run CONSUME_SESSION jr2)"
 check "expired token not consumed" "0" "$(q "SELECT revoked FROM refresh_sessions WHERE jti='jr2';")"
 
-q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM users WHERE email='$U';"
+# Family limits: absolute lifetime and rotation cap.
+run STORE_SESSION jr3 "$U" 7 famR3 >/dev/null
+check "family is tracked" "0" "$(q "SELECT rotations FROM refresh_families WHERE family='famR3';")"
+check "first rotation counted" "SUCCESS|SESSION_CONSUMED" "$(run CONSUME_SESSION jr3)"
+check "rotation count incremented" "1" "$(q "SELECT rotations FROM refresh_families WHERE family='famR3';")"
+
+# Older than the absolute lifetime is refused and the family is revoked.
+run STORE_SESSION jr4 "$U" 7 famR4 >/dev/null
+q "UPDATE refresh_families SET created_at = DATE_SUB(NOW(), INTERVAL 40 DAY) WHERE family='famR4';"
+check "absolute lifetime exceeded" "ERROR|SESSION_FAMILY_EXPIRED" "$(export REFRESH_ABSOLUTE_TTL_DAYS=30; run CONSUME_SESSION jr4)"
+check "over-age family revoked" "1" "$(q "SELECT COUNT(*) FROM refresh_sessions WHERE family='famR4' AND revoked=1;")"
+
+# Reaching the rotation cap refuses the next rotation.
+run STORE_SESSION jr5 "$U" 7 famR5 >/dev/null
+check "rotation within the cap" "SUCCESS|SESSION_CONSUMED" "$(export REFRESH_MAX_ROTATIONS=1; run CONSUME_SESSION jr5)"
+run STORE_SESSION jr6 "$U" 7 famR5 >/dev/null
+check "rotation cap reached" "ERROR|SESSION_FAMILY_EXPIRED" "$(export REFRESH_MAX_ROTATIONS=1; run CONSUME_SESSION jr6)"
+
+q "DELETE FROM refresh_sessions WHERE email='$U'; DELETE FROM refresh_families WHERE email='$U'; DELETE FROM users WHERE email='$U';"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
