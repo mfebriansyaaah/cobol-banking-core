@@ -1697,3 +1697,14 @@ _merged 2026-10-15_
 - feat(auth): short-lived step-up tokens; reject purpose-tagged tokens as access tokens
 - docs: sync HISTORY.md to post-merge state (#166)
 
+## #168 admin-mfa-required
+
+_merged 2026-10-15_
+
+- docs(adr): 0020 admin accounts must have MFA enabled
+- docs: admin MFA mandate in STATUS and auth spec + counts
+- test: step-up suite covers the admin MFA mandate
+- test(gateway): seed MFA-enabled admins and step up with a TOTP code
+- feat(core): require MFA for admin step-up (MFA_SETUP_REQUIRED)
+- docs: sync HISTORY.md to post-merge state (#167)
+
