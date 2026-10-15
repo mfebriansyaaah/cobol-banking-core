@@ -6,7 +6,7 @@
 import { spawn } from 'node:child_process';
 import { BINARY } from './binary.js';
 import { InvocationTimeout, InvocationError } from './errors.js';
-import { setGauge } from './observability.js';
+import { setGauge, incCounter } from './observability.js';
 
 class Pool {
   constructor({ size, timeoutMs, pipeline = 1, binary }) {
@@ -63,7 +63,10 @@ class Pool {
     }
     w.pending = [];
     this.workers = this.workers.filter((x) => x !== w);
-    if (!this.closed) this._addWorker();
+    if (!this.closed) {
+      incCounter('gateway_cobol_pool_restarts_total');
+      this._addWorker();
+    }
     this._dispatch();
     this._publish();
   }
