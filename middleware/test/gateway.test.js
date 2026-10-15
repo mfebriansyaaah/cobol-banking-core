@@ -467,13 +467,15 @@ test('session listing and revoke-all over HTTP', async () => {
   const em = `gw_sess_${Date.now()}@test.com`;
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Sess', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
-  const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
+  const login = await request(app).post('/auth/login').set('User-Agent', 'gw-test-agent/1.0').send({ email: em, password: 'secret123' });
   const auth = { Authorization: `Bearer ${login.body.token}` };
 
   const list = await request(app).get('/sessions').query({ email: em }).set(auth);
   assert.equal(list.status, 200);
   assert.equal(list.body.data[0], 'SESSIONS');
   assert.ok(list.body.data[1].length > 0, 'lists the active refresh session');
+  assert.match(list.body.data[1], /current/, 'marks the calling device as the current session');
+  assert.match(list.body.data[1], /gw-test-agent/, 'records the client user-agent');
 
   assert.deepEqual((await request(app).post('/sessions/revoke-all').set(auth).send({ email: em })).body.data, ['SESSIONS_REVOKED']);
   // The version bump kills the access token we were using.

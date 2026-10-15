@@ -22,6 +22,12 @@ run() {
     cat output.txt
 }
 
+run6() {
+    printf "%s|%s|%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" "$6" "$7" > input.txt
+    "$BIN" >/dev/null 2>&1
+    cat output.txt
+}
+
 check() {
     local name="$1" expected="$2" actual="$3"
     if [ "$actual" = "$expected" ]; then
@@ -37,6 +43,15 @@ check_contains() {
         echo -e "${GREEN}PASS${NC} $name"; passed=$((passed+1))
     else
         echo -e "${RED}FAIL${NC} $name (expected to contain [$needle] got [$actual])"; failed=$((failed+1))
+    fi
+}
+
+check_not_contains() {
+    local name="$1" needle="$2" actual="$3"
+    if [[ "$actual" != *"$needle"* ]]; then
+        echo -e "${GREEN}PASS${NC} $name"; passed=$((passed+1))
+    else
+        echo -e "${RED}FAIL${NC} $name (expected not to contain [$needle] got [$actual])"; failed=$((failed+1))
     fi
 }
 
@@ -60,6 +75,14 @@ check_contains "list has session 1" "sessjti001" "$out"
 check_contains "list has session 2" "sessjti002" "$out"
 check "list is owner-or-admin only" "ERROR|FORBIDDEN" "$(run LIST_SESSIONS "$U" other@test.com)"
 check_contains "admin can list" "sessjti001" "$(run LIST_SESSIONS "$U" "$ADM")"
+
+# --- metadata + current session ------------------------------------------
+run6 STORE_SESSION sessjti003 "$U" 30 famMeta "Mozilla/5.0 (Test)" "203.0.113.7" >/dev/null
+meta=$(run LIST_SESSIONS "$U" "$U" famMeta)
+check_contains "list shows the user-agent" "Mozilla/5.0 (Test)" "$meta"
+check_contains "list shows the ip" "203.0.113.7" "$meta"
+check_contains "list marks the current session" "current" "$meta"
+check_not_contains "a non-matching sid marks nothing current" "current" "$(run LIST_SESSIONS "$U" "$U" famOther)"
 
 # --- revoke one ----------------------------------------------------------
 check "revoke needs ownership" "ERROR|FORBIDDEN" "$(run REVOKE_USER_SESSION "$U" other@test.com sessjti001)"
