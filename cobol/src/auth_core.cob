@@ -30,6 +30,9 @@
         01  WS-REVOKED-FLAG         PIC X(1) VALUE "0".
         01  WS-SESSION-EMAIL        PIC X(100) VALUE SPACES.
         01  WS-FAMILY-OVER-LIMIT    PIC 9 VALUE 0.
+        01  WS-LIMIT                PIC X(10) VALUE "50".
+        01  WS-OFFSET               PIC X(10) VALUE "0".
+        01  WS-TOTAL                PIC X(20) VALUE SPACES.
         01  WS-ABS-TTL-STR          PIC X(20) VALUE SPACES.
         01  WS-MAX-ROT-STR          PIC X(20) VALUE SPACES.
         01  WS-AGE-STR              PIC X(20) VALUE SPACES.
@@ -150,6 +153,8 @@
                     PERFORM REVOKE-ALL-SESSIONS-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "ARCHIVE_AUDIT"
                     PERFORM ARCHIVE-AUDIT-LOGIC
+                WHEN LS-CMD-ACTION(1:10) = "LIST_AUDIT"
+                    PERFORM LIST-AUDIT-LOGIC
                 WHEN LS-CMD-ACTION(1:17) = "GET_TOKEN_VERSION"
                     PERFORM GET-TOKEN-VERSION-LOGIC
                 WHEN LS-CMD-ACTION(1:4) = "PING"
@@ -1597,9 +1602,63 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        LIST-AUDIT-LOGIC.
+            *> p1 = actor (SUPER_ADMIN), p2 = action filter, p3 = email filter,
+            *> p4 = limit, p5 = offset. Read-only view of the audit trail.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM4 NOT = SPACES
+                MOVE WS-PARAM4-TRIMMED(1:WS-P4-LEN) TO WS-LIMIT
+            END-IF
+            IF LS-PARAM5 NOT = SPACES
+                MOVE WS-PARAM5-TRIMMED(1:WS-P5-LEN) TO WS-OFFSET
+            END-IF
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM audit_trail a JOIN users uo ON a.user_id = uo.id WHERE a.action = COALESCE(NULLIF(?, ''), a.action) AND uo.email = COALESCE(NULLIF(?, ''), uo.email)" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-TOTAL
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT CONCAT(a.audit_id, ':', DATE_FORMAT(a.created_at, '%Y-%m-%dT%H:%i:%s'), ':', a.action, ':', uo.email, ':', COALESCE(ua.email, ''), ':', COALESCE(a.entity_type, ''), ':', COALESCE(a.entity_id, ''), ':', a.status, ':', "
+                   "REPLACE(REPLACE(COALESCE(a.detail, ''), '|', '/'), ';', ',')) FROM audit_trail a JOIN users uo ON a.user_id = uo.id LEFT JOIN users ua ON a.actor_id = ua.id WHERE a.action = COALESCE(NULLIF(?, ''), a.action) AND uo.email = COALESCE(NULLIF(?, ''), uo.email) ORDER BY a.audit_id DESC LIMIT ? OFFSET ?"
+                   DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                STRING "SUCCESS|AUDIT|" WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|AUDIT|" WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
         ARCHIVE-AUDIT-LOGIC.
             *> p1 = retention days, p2 = actor (SUPER_ADMIN). Move older audit
             *> rows to the immutable archive, keeping the live table bounded.
+            *> Retention must be a positive number of days: days=0 would move the
+            *> entire live trail in one call, so it is refused here (the gateway
+            *> pattern already restricts it to digits).
+            IF WS-PARAM1-TRIMMED(1:1) < "1" OR WS-PARAM1-TRIMMED(1:1) > "9"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
