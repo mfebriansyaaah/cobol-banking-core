@@ -19,11 +19,17 @@ export function seedUser(email, role = 'USER') {
   }
 }
 
+// Enable MFA for a seeded user with a known base32 secret (so tests can produce
+// valid TOTP codes). Returns false when mysql is unavailable.
+export const TEST_MFA_SECRET = 'JBSWY3DPEHPK3PXP';
+export function enableMfa(email, secret = TEST_MFA_SECRET) {
+  return runSql(`UPDATE users SET mfa_enabled=1, mfa_secret='${secret}' WHERE email='${email}'`);
+}
+
 // Run an arbitrary SQL statement against the test database (used to put
 // resources into states the API cannot, e.g. freeze an account). Returns false
 // when the mysql client is unavailable.
-export function runSql(sql) {
-  const u = process.env.DB_USER ?? 'cobol_user';
+export function runSql(sql) {  const u = process.env.DB_USER ?? 'cobol_user';
   const p = process.env.DB_PASS ?? 'cobol_pass';
   const n = process.env.DB_NAME ?? 'cobol_db';
   try {
