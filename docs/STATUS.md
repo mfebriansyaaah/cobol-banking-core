@@ -55,7 +55,8 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `CHANGE_PASSWORD` | email, current, new, actor (self) | verify current password, set new hash, bump `token_version`, audit | `SUCCESS\|PASSWORD_CHANGED` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|WEAK_PASSWORD` * `ERROR\|FORBIDDEN` * `ERROR\|PASSWORD_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role, actor (self-or-admin) | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update; **refuses to demote the last active SUPER_ADMIN** (`ERROR\|LAST_ADMIN`); audit row **attributed to the actor** (entity_id = target) | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|LAST_ADMIN` * `ERROR\|ROLE_CHANGE_FAILED` |
-| `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive`; **audited** (actor) | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
+| `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive`; retention must be **≥ 1 day** (0 is refused); **audited** (actor) | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
+| `cobol/src/auth_core.cob` | `LIST_AUDIT` | actor (SUPER_ADMIN), action (opt), email (opt), limit (50), offset (0) | read the audit trail as `id:created:action:subject:actor:entity_type:entity_id:status:detail;...` with a total; action/email filters and paging | `SUCCESS\|AUDIT\|<total>\|<rows>` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | remove one refresh session (per-device logout) | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `LIST_SESSIONS` | email, actor (self-or-admin), sid | active (unrevoked, unexpired) refresh sessions as `jti:created:expires:user-agent:ip:current;...` (`current` marks the caller's own family) | `SUCCESS\|SESSIONS\|...` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_LIST_FAILED` |
@@ -113,6 +114,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_admin_hierarchy.sh` | 12 | role hierarchy: a MANAGER cannot suspend/close/verify a SUPER_ADMIN nor revoke its sessions; equal/higher ranks allowed; self-service unaffected |
 | `tests/test_last_admin.sh` | 13 | last-admin protection: cannot demote/suspend/close/unverify or self-deactivate the final active SUPER_ADMIN; allowed once a second super exists |
 | `tests/test_audit_actor.sh` | 10 | audit attribution: admin-on-other actions record subject + `actor_id`; `REVOKE_USER_SESSION` is audited; `ARCHIVE_AUDIT` self-audited; archive preserves `actor_id`; self-service leaves it NULL |
+| `tests/test_audit_read.sh` | 9 | `LIST_AUDIT` SUPER_ADMIN-only, action/email filters, limit/offset paging with a stable total, zero-day retention refused |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
 | `tests/test_migrate.sh` | 8 | migration runner idempotent; --check detects pending; dead columns/table gone |
@@ -123,10 +125,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 79 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 80 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, **audit read**, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **499**; with the gateway suite **79** the full run is
-**578 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **508**; with the gateway suite **80** the full run is
+**588 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -143,7 +145,9 @@ Held by a bearer JWT (public: `/health`, `/auth/signup`, `/auth/verify`,
 (read-only balance/ledger check), `/metrics` (Prometheus counters, bearer),
 `/auth/logout` (per-device: removes the presented refresh session and denies the
 bearer if sent), `/auth/revoke` (revokes the presented
-access token), `/admin/audit/archive` (moves old audit rows to the archive).
+access token), `/admin/audit/archive` (moves old audit rows to the archive), and
+`/admin/audit` (GET, SUPER_ADMIN read of the audit trail with action/email
+filters and paging).
 Both admin routes (`/admin/role` POST, `/admin/reconcile`) take the actor from
 the verified token, never the request body. The per-user reads (`/users/:email`,
 `/wallet/balance`, `/profile`) and the role check `GET /admin/role` allow the
@@ -204,6 +208,7 @@ list page size is capped at 100 (`limit` 1..100).
 - Account lifecycle: `users.status` is `UNVERIFIED`/`VERIFIED`/`SUSPENDED`/`CLOSED`. The owner can soft-close their account (`DEACTIVATE_ACCOUNT` -> `CLOSED`) and an admin can set any status (`SET_USER_STATUS`). Login refuses `SUSPENDED`/`CLOSED` with `USER_SUSPENDED`/`USER_CLOSED`; deactivation and every status change bump `token_version` and revoke refresh sessions, so existing tokens die immediately.
 - **Admin role hierarchy** (USER < MANAGER < SUPER_ADMIN): an actor may not administer an account ranked **above** it. `SET_USER_STATUS`, `REVOKE_USER_SESSION` and `REVOKE_ALL_SESSIONS` refuse when the actor is lower-ranked than the target — so a MANAGER can never suspend/close a SUPER_ADMIN or force-logout its sessions. Equal ranks are allowed (a SUPER_ADMIN may act on a peer for incident response), and self-service is always allowed. FASE B (last-admin protection) builds on this.
 - **Last-admin protection**: the system refuses to leave itself without an active (VERIFIED) SUPER_ADMIN. `CHANGE_ROLE` rejects demoting the last one, `SET_USER_STATUS` rejects suspending/closing/unverifying it, and `DEACTIVATE_ACCOUNT` rejects self-closing it — all with `ERROR|LAST_ADMIN` (HTTP 409). Once a second active SUPER_ADMIN exists the change is allowed. Recovery if the admin population is ever lost is out-of-band (a DBA sets `role='SUPER_ADMIN'`); see ADR 0014.
+- **The audit trail is readable over HTTP**: `GET /admin/audit` (SUPER_ADMIN) lists `audit_trail` rows (`id:created:action:subject:actor:entity_type:entity_id:status:detail`) with an optional `action` and `email` filter and `limit`/`offset` paging, plus a total. `ARCHIVE_AUDIT` requires a retention of at least one day (days=0 would move the whole live trail in one call and is refused).
 - Profile actions validate their own inputs in COBOL (email shape, date-of-birth format/ranges) as defence-in-depth alongside the gateway patterns; an email-change whose new address is taken between request and confirm is reported as `EMAIL_EXISTS` rather than an opaque failure.
 - Refresh **rotation is atomic** (`CONSUME_SESSION`: a single conditional revoke; concurrent callers cannot both win). A replay of a consumed token is reuse — the gateway's `/auth/refresh` rejects it, the whole family is revoked, the user's `token_version` is bumped (so previously issued access tokens die immediately) and a `SESSION_REUSED` audit row is written.
 - **Logout is per-device**: `/auth/logout` removes only the presented refresh session (so replaying a logged-out token is a plain `SESSION_NOT_FOUND`, not a reuse that would nuke every device) and, when the bearer is also presented, adds that access token's `jti` to the denylist. Other devices are unaffected; `POST /sessions/revoke-all` remains the logout-everywhere path.
