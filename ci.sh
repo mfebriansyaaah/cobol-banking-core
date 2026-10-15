@@ -74,7 +74,7 @@ else
 fi
 
 # Violation 4: every action the router dispatches must have a handler in the
-# owning module (router/owner agreement - the routing contract in AGENTS.md).
+# owning module (router/owner agreement - the routing contract).
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
     if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob; then
         echo "router: action '$name' has no handler in any core module"

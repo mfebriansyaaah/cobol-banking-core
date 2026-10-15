@@ -37,7 +37,7 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 
 ## Code style (enforced today)
 
-- Action names must agree between `cobol/src/main_logic.cob` and the owning module (routing contract in `AGENTS.md`).
+- Action names must agree between `cobol/src/main_logic.cob` and the owning module (the routing contract).
 - Output pipe-delimited, one line; no `GOBACK` in `PERFORM`ed paragraphs (see `CODING_STANDARDS.md`).
 
 ## Open questions
