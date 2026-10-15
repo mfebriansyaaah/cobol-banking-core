@@ -58,7 +58,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive` | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | remove one refresh session (per-device logout) | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
-| `cobol/src/auth_core.cob` | `LIST_SESSIONS` | email, actor (self-or-admin) | active (unrevoked, unexpired) refresh sessions as `jti:created:expires;...` | `SUCCESS\|SESSIONS\|...` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_LIST_FAILED` |
+| `cobol/src/auth_core.cob` | `LIST_SESSIONS` | email, actor (self-or-admin), sid | active (unrevoked, unexpired) refresh sessions as `jti:created:expires:user-agent:ip:current;...` (`current` marks the caller's own family) | `SUCCESS\|SESSIONS\|...` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_LIST_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_USER_SESSION` | email, actor, session id | revoke one session that belongs to the account (self-or-admin) | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_ALL_SESSIONS` | email, actor (self-or-admin) | bump `token_version` **and** revoke every refresh session (logout everywhere), audited | `SUCCESS\|SESSIONS_REVOKED` * `ERROR\|FORBIDDEN` * `ERROR\|SESSIONS_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `CONSUME_SESSION` | jti | **atomic** rotate: consume (revoke) the session in one conditional update and enforce the family's absolute lifetime / rotation cap; a replay is reuse — kills the family, bumps `token_version` and audits | `SUCCESS\|SESSION_CONSUMED` * `ERROR\|SESSION_REUSED` * `ERROR\|SESSION_NOT_FOUND` * `ERROR\|SESSION_EXPIRED` * `ERROR\|SESSION_FAMILY_EXPIRED` |
@@ -74,7 +74,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
 `users` (with `token_version`) * `currencies` * `accounts` * `ledger` *
-`verification_logs` * `audit_trail` * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` * `refresh_sessions` (jti + `family`) * `refresh_families` (absolute lifetime + `rotations`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
+`verification_logs` * `audit_trail` * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` * `refresh_sessions` (jti + `family` + user-agent/ip) * `refresh_families` (absolute lifetime + `rotations`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -107,7 +107,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_account_status.sh` | 13 | transfer needs ACTIVE sender/target and enabled currencies; failures move nothing; frozen balance still readable |
 | `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
 | `tests/test_session.sh` | 18 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version + per-token revocation |
-| `tests/test_sessions_manage.sh` | 15 | list active sessions, revoke one (owner/admin, own only), revoke-all (version bump + all refresh revoked, audited) |
+| `tests/test_sessions_manage.sh` | 19 | list active sessions (user-agent + IP, current session marked), revoke one (owner/admin, own only), revoke-all (version bump + all refresh revoked, audited) |
 | `tests/test_token_rotation.sh` | 20 | atomic consume (first wins), replay reuse kills family + bumps version + audits, unknown/expired, family absolute lifetime + rotation cap (`SESSION_FAMILY_EXPIRED` + audit), denylist pruning on store |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
@@ -121,8 +121,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
 | `middleware/` (node --test) | 79 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, pool gauges), idempotency conflict, self-transfer, audit archive, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
 
-Shell suites total **460**; with the gateway suite **79** the full run is
-**539 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **464**; with the gateway suite **79** the full run is
+**543 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -204,6 +204,7 @@ list page size is capped at 100 (`limit` 1..100).
 - **JWT is algorithm-pinned**: every `jwt.verify` passes `algorithms: ['HS256']` and every `jwt.sign` sets `algorithm: 'HS256'`, so algorithm-confusion tokens (`alg: none`, HS384, ...) are rejected. In production `assertSecureConfig` additionally refuses secrets that are missing, the development defaults, shorter than 32 characters, or identical between access and refresh.
 - **Refresh families have an absolute lifetime and a rotation cap**: each login starts a family (`refresh_families`); `CONSUME_SESSION` refuses — and revokes the family with `SESSION_FAMILY_EXPIRED` — once it is older than `REFRESH_ABSOLUTE_TTL_DAYS` (default 30) or has rotated more than `REFRESH_MAX_ROTATIONS` times (default 100), forcing a fresh login even though the current refresh token is still within its own expiry. Set either to 0 to disable that check. The check **fails closed** if the family state cannot be read.
 - **Security events are audited**: reuse (`SESSION_REUSED`) and a forced family expiry (`SESSION_FAMILY_EXPIRED`) both write an `audit_trail` row with `status='FAILED'`. The access-token denylist is pruned of expired rows whenever a session is stored (`STORE_SESSION` housekeeping, alongside expired `refresh_sessions`), so it does not grow without bound.
+- **Sessions carry metadata and the current device is marked**: `STORE_SESSION` records the client **user-agent and IP** on each refresh session, and `GET /sessions` returns them. The access token now carries a `sid` claim equal to its refresh-session `family`, so the list marks the caller's own session with `current`.
 - Optional transfer caps are read from the environment and **off by default** (0): TRANSFER_MAX_PER_TXN caps one debit, TRANSFER_DAILY_LIMIT caps the rolling 24h debit total per account (from the `ledger`); the values are whole units of the sender's currency.
 - Email change updates `users.email`; related FKs (`refresh_sessions`, `pending_transactions`) cascade on update (migrations 0003 and 0004, which repairs a 0001/0003 ordering regression), so a logged-in user with a transfer intent can still change their email.
 - Prepared statements are used for the parameterized queries in `user_core`, `wallet_core` and most of `auth_core`; the remaining `auth_core` statements (login/lockout, signup/verify, audit) embed `mysql_real_escape_string`-escaped values, which the whitelist validator plus escaping keep safe. The locking `SELECT ... FOR UPDATE` uses `SQL_PREPARE_EXEC_LOCK` (bound params, no row fetch) because reading its result via `mysql_stmt_store_result` makes MariaDB raise `ER_CHECKREAD` (1020) under contention. Prepared SQL is bounded at 1023 chars (`WS-PREP-SQL` `PIC X(1024)`).
