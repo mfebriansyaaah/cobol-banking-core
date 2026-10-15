@@ -1236,6 +1236,12 @@
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) SELECT id, 'SESSION_FAMILY_EXPIRED', 'USER', id, 'FAILED' FROM users WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-SESSION-EMAIL TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             ELSE
                 MOVE "UPDATE refresh_families SET rotations = rotations + 1 WHERE family = ?" TO WS-PREP-SQL
                 MOVE WS-FAMILY TO WS-BIND-1
