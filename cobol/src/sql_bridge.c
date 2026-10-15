@@ -431,6 +431,117 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     /* pooled: connection kept for reuse */
 }
 
+/* --- Prepared execute with up to seven bound parameters -----------------
+ * Same as SQL_PREPARE_EXEC but with one extra slot, for the CREDIT ledger
+ * insert which binds the rate twice (multiply + snapshot) plus the sender.
+ * ------------------------------------------------------------------------ */
+
+void SQL_PREPARE_EXEC7(char *sql, int nparams,
+                       char *p1, char *p2, char *p3, char *p4, char *p5, char *p6, char *p7) {
+    if (!sql) return;
+
+    char query[1024];
+    strncpy(query, sql, 1023);
+    query[1023] = '\0';
+    trim_trailing_spaces(query);
+    if (query[0] == '\0') return;
+
+    MYSQL *conn = G_CONN;
+    if (conn == NULL) {
+        conn = bridge_connect();
+        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
+    }
+
+    MYSQL_STMT *st = mysql_stmt_init(conn);
+    if (st == NULL) {
+        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
+        return;
+    }
+    if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
+        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
+        mysql_stmt_close(st);
+        return;
+    }
+
+    char *src[7] = { p1, p2, p3, p4, p5, p6, p7 };
+    static char bufs[7][512];
+    static unsigned long lens[7];
+    MYSQL_BIND bind[7];
+    memset(bind, 0, sizeof(bind));
+
+    int n = nparams;
+    if (n < 0) n = 0;
+    if (n > 7) n = 7;
+
+    for (int i = 0; i < n; i++) {
+        memset(bufs[i], 0, sizeof(bufs[i]));
+        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
+        trim_trailing_spaces(bufs[i]);
+        lens[i] = (unsigned long)strlen(bufs[i]);
+        bind[i].buffer_type = MYSQL_TYPE_STRING;
+        bind[i].buffer = bufs[i];
+        bind[i].buffer_length = 511;
+        bind[i].length = &lens[i];
+    }
+    if (n > 0 && mysql_stmt_bind_param(st, bind)) {
+        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
+        mysql_stmt_close(st);
+        return;
+    }
+
+    if (mysql_stmt_execute(st)) {
+        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
+        mysql_stmt_close(st);
+        return;
+    }
+
+    MYSQL_RES *meta = mysql_stmt_result_metadata(st);
+    if (meta == NULL) {
+        long affected = (long)mysql_stmt_affected_rows(st);
+        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
+    } else {
+        unsigned int nf = mysql_num_fields(meta);
+        static char rbuf[32][512];
+        static unsigned long rlen[32];
+        MYSQL_BIND rb[32];
+        memset(rb, 0, sizeof(rb));
+        unsigned int cols = nf < 32 ? nf : 32;
+        for (unsigned int i = 0; i < cols; i++) {
+            memset(rbuf[i], 0, sizeof(rbuf[i]));
+            rlen[i] = 0;
+            rb[i].buffer_type = MYSQL_TYPE_STRING;
+            rb[i].buffer = rbuf[i];
+            rb[i].buffer_length = 511;
+            rb[i].length = &rlen[i];
+        }
+        if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
+            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
+            mysql_free_result(meta);
+            mysql_stmt_close(st);
+            return;
+        }
+        int rc = mysql_stmt_fetch(st);
+        if (rc == 0 || rc == MYSQL_DATA_TRUNCATED) {
+            G_RESULT[0] = '\0';
+            for (unsigned int i = 0; i < cols; i++) {
+                char temp[512];
+                unsigned long l = rlen[i] < 511 ? rlen[i] : 511;
+                memcpy(temp, rbuf[i], l);
+                temp[l] = '\0';
+                sanitize_string(temp);
+                trim_trailing_spaces(temp);
+                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
+                if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
+            }
+        } else {
+            strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
+        }
+        mysql_free_result(meta);
+    }
+
+    mysql_stmt_close(st);
+}
+
 /* --- Prepared execute without reading rows ------------------------------
  * Binds parameters and runs the statement, but does not fetch/bind a result
  * set. Used for a locking `SELECT ... FOR UPDATE` whose rows are not needed;
