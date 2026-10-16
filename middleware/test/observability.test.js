@@ -132,3 +132,11 @@ test('recordRequest observes latency histograms and counters', () => {
   assert.match(text, /# TYPE demo_events_total counter/);
   assert.match(text, /demo_events_total 3/);
 });
+
+test('pushMetrics aborts a hung collector instead of hanging', async () => {
+  const server = http.createServer(() => { /* never respond */ });
+  await new Promise((resolve) => server.listen(0, resolve));
+  const { port } = server.address();
+  await assert.rejects(pushMetrics(`http://127.0.0.1:${port}/sink`, null, 50));
+  await new Promise((resolve) => server.close(resolve));
+});

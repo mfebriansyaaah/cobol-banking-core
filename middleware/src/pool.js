@@ -127,6 +127,9 @@ class Pool {
       try { w.child.stdin.write('QUIT\n'); } catch { /* ignore */ }
       try { w.child.kill(); } catch { /* ignore */ }
     }
+    setGauge('gateway_cobol_pool_workers', 0);
+    setGauge('gateway_cobol_pool_busy', 0);
+    setGauge('gateway_cobol_pool_queued', 0);
   }
 }
 

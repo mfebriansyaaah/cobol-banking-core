@@ -155,24 +155,40 @@ export { jsonLogger };
 // (e.g. a Pushgateway or an OTLP-HTTP bridge) so they persist beyond the
 // process and survive restarts on the collecting side.
 
-export async function pushMetrics(url, logger = null) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'text/plain; version=0.0.4' },
-    body: metricsText(),
-  });
-  if (!res.ok && logger) {
-    logger({ ts: new Date().toISOString(), level: 'warn', event: 'metrics_push_failed', status: res.status });
+export async function pushMetrics(url, logger = null, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain; version=0.0.4' },
+      body: metricsText(),
+      signal: controller.signal,
+    });
+    if (!res.ok && logger) {
+      logger({ ts: new Date().toISOString(), level: 'warn', event: 'metrics_push_failed', status: res.status });
+    }
+    return res.status;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.status;
 }
 
 export function startMetricsExporter({ url, intervalMs = 15000, logger = null } = {}) {
   if (!url) return () => {};
-  const timer = setInterval(() => {
-    pushMetrics(url, logger).catch(() => {
-      if (logger) logger({ ts: new Date().toISOString(), level: 'warn', event: 'metrics_push_error' });
-    });
+  let inFlight = false;
+  const timer = setInterval(async () => {
+    // Skip if the previous push is still running (a slow/hung collector must
+    // not pile up overlapping requests).
+    if (inFlight) return;
+    inFlight = true;
+    try {
+      await pushMetrics(url, logger);
+    } catch (err) {
+      if (logger) logger({ ts: new Date().toISOString(), level: 'warn', event: 'metrics_push_error', message: err && err.message });
+    } finally {
+      inFlight = false;
+    }
   }, intervalMs);
   if (timer.unref) timer.unref();
   return () => clearInterval(timer);
