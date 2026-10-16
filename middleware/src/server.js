@@ -6,6 +6,18 @@ import { resetPool } from './pool.js';
 
 assertSecureConfig();
 const port = process.env.PORT || 3000;
+
+// Surface a production misconfiguration early: without SMTP the verification
+// codes are never delivered (delivery is best-effort, so this is a warning).
+if (process.env.NODE_ENV === 'production' && !process.env.SMTP_HOST) {
+  jsonLogger({
+    ts: new Date().toISOString(),
+    level: 'warn',
+    event: 'mailer_not_configured',
+    message: 'SMTP_HOST is not set; verification emails will not be delivered',
+  });
+}
+
 const server = buildApp({ logger: jsonLogger }).listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`api-gateway listening on :${port}`);
