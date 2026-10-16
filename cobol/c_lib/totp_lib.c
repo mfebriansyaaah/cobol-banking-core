@@ -8,8 +8,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include "random_lib.h"
 
 typedef struct {
     uint32_t state[5];
@@ -177,16 +176,8 @@ static uint32_t totp_at(const uint8_t *key, size_t keylen, uint64_t counter) {
 void generate_mfa_secret(char *out) {
     if (out == NULL) return;
     uint8_t key[20];
-    int got = 0;
-    int fd = open("/dev/urandom", O_RDONLY);
-    if (fd != -1) {
-        ssize_t n = read(fd, key, sizeof(key));
-        close(fd);
-        got = (n == (ssize_t)sizeof(key));
-    }
-    if (!got) {
-        for (size_t i = 0; i < sizeof(key); i++) key[i] = (uint8_t)(rand() & 0xff);
-    }
+    /* Fail-closed OS entropy: no rand() fallback. */
+    secure_random_bytes(key, sizeof(key));
     base32_encode(key, sizeof(key), out);
 }
 
