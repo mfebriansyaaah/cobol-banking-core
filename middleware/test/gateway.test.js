@@ -849,3 +849,15 @@ test('refresh rotates and a replay is rejected', async () => {
   assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken })).status, 401);
   assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: rotated })).status, 401);
 });
+
+test('liveness and readiness probes', async () => {
+  const live = await request(app).get('/live');
+  assert.equal(live.status, 200);
+  assert.equal(live.body.status, 'alive');
+
+  const ready = await request(app).get('/ready');
+  assert.equal(ready.status, 200);
+  assert.equal(ready.body.status, 'ready');
+  assert.equal(ready.body.checks.db, 'up');
+  assert.ok(['up', 'off'].includes(ready.body.checks.pool));
+});
