@@ -38,6 +38,7 @@
         01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
         01  WS-ABS-TTL-STR          PIC X(20) VALUE SPACES.
         01  WS-MAX-ROT-STR          PIC X(20) VALUE SPACES.
+        01  WS-CD-STR               PIC X(20) VALUE SPACES.
         01  WS-AGE-STR              PIC X(20) VALUE SPACES.
         01  WS-ROT-STR              PIC X(20) VALUE SPACES.
         01  WS-ABS-SECS             PIC 9(14) VALUE 0.
@@ -689,6 +690,21 @@
                 MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            *> Same per-account cooldown as signup resends (neutral reuse).
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "RESEND_COOLDOWN_SECONDS" BY REFERENCE "60" BY REFERENCE WS-CD-STR
+            IF WS-CD-STR(1:1) >= "1" AND WS-CD-STR(1:1) <= "9"
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "SELECT COUNT(*) FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0 AND created_at > DATE_SUB(NOW(), INTERVAL " WS-CD-STR DELIMITED BY SIZE " SECOND)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:1) >= "1" AND WS-RESULT(1:1) <= "9"
+                    MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -860,6 +876,23 @@
                 MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            *> Per-account resend cooldown: a fresh unused code issued inside
+            *> the window is reused neutrally (no new code, no new email), so
+            *> the endpoint cannot flood a mailbox or the table. Zero disables.
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "RESEND_COOLDOWN_SECONDS" BY REFERENCE "60" BY REFERENCE WS-CD-STR
+            IF WS-CD-STR(1:1) >= "1" AND WS-CD-STR(1:1) <= "9"
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "SELECT COUNT(*) FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0 AND created_at > DATE_SUB(NOW(), INTERVAL " WS-CD-STR DELIMITED BY SIZE " SECOND)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:1) >= "1" AND WS-RESULT(1:1) <= "9"
+                    MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
