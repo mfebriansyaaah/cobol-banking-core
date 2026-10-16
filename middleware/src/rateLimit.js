@@ -1,6 +1,7 @@
 // Fixed-window rate limiter. Support-only security: it counts requests, it does
 // not touch business logic. Counters live in a pluggable store so several
 // gateway instances can share them (Redis); the default store is in-memory.
+import { incCounter } from './observability.js';
 
 /** In-process fixed-window counter. */
 export function memoryStore() {
@@ -51,7 +52,11 @@ export function storeFromEnv() {
 
 /**
  * Build a limiter middleware over a store. If the store fails, the request is
- * allowed (fail-open): a broken counter must not take the API down.
+ * allowed (fail-open): a broken counter must not take the API down. The event
+ * is counted (`gateway_ratelimit_failopen_total`, exported via /metrics and
+ * the push exporter) so a dead store — and the absent brute-force protection
+ * — is visible instead of silent. Deliberately counter-only: logging every
+ * request during an outage would flood the logs.
  */
 export function createRateLimiter({ store, windowMs = 15 * 60 * 1000, max = 100 }) {
   return async function limit(req, res, next) {
@@ -60,6 +65,7 @@ export function createRateLimiter({ store, windowMs = 15 * 60 * 1000, max = 100 
     try {
       result = await store.hit(req.ip || 'unknown', windowMs);
     } catch {
+      incCounter('gateway_ratelimit_failopen_total');
       return next();
     }
     if (result.count > max) {

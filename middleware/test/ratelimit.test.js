@@ -70,3 +70,31 @@ test('public probes are rate limited', async () => {
   assert.equal((await request(fresh).get('/ready')).status, 429);
   if (saved === undefined) delete process.env.API_RATE_LIMIT_MAX; else process.env.API_RATE_LIMIT_MAX = saved;
 });
+
+test('a broken store fails open instead of taking the API down', async () => {
+  const broken = { hit: async () => { throw new Error('store down'); } };
+  const limit = createRateLimiter({ store: broken, windowMs: 60000, max: 1 });
+  let proceeded = false;
+  const res = { headers: {} };
+  res.set = (k, v) => { res.headers[k] = v; };
+  res.status = (c) => { res.code = c; return res; };
+  res.json = (b) => { res.body = b; return res; };
+  await limit({ ip: '9.9.9.9' }, res, () => { proceeded = true; });
+  assert.equal(proceeded, true);
+  assert.equal(res.code, undefined);
+});
+
+test('fail-open events are counted for operators', async () => {
+  const { resetMetrics, metricsText } = await import('../src/observability.js');
+  resetMetrics();
+  const broken = { hit: async () => { throw new Error('store down'); } };
+  const limit = createRateLimiter({ store: broken, windowMs: 60000, max: 1 });
+  const res = { headers: {} };
+  res.set = () => {};
+  res.status = (c) => { res.code = c; return res; };
+  res.json = () => res;
+  await limit({ ip: '9.9.9.9' }, res, () => {});
+  await limit({ ip: '9.9.9.9' }, res, () => {});
+  assert.match(metricsText(), /# TYPE gateway_ratelimit_failopen_total counter/);
+  assert.match(metricsText(), /gateway_ratelimit_failopen_total 2/);
+});
