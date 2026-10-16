@@ -351,8 +351,10 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     return next();
   };
 
-  // Deep health: confirm the COBOL core can reach the database.
-  router.get('/health', async (_req, res) => {
+  // Deep health: confirm the COBOL core can reach the database. Rate-limited:
+  // it is public and performs a COBOL/DB round-trip, so it must not be an
+  // anonymous amplification vector.
+  router.get('/health', apiLimiter, async (_req, res) => {
     const t0 = Date.now();
     try {
       const raw = await invoke('PING', []);
@@ -372,8 +374,16 @@ export function buildRouter({ mailer, tokenStore } = {}) {
   router.get('/live', (_req, res) => res.json({ status: 'alive' }));
 
   // Readiness: dependencies usable (DB reachable, pool has a worker when
-  // pooling is on). Used by orchestrators/load balancers to gate traffic.
-  router.get('/ready', async (_req, res) => {
+  // pooling is on). Public like a readiness probe must be, so it is
+  // rate-limited and its result is cached for a short window (PROBE_CACHE_MS)
+  // to bound the DB round-trips an anonymous caller can trigger.
+  let readyCache = null; // { at, status, body }
+  router.get('/ready', apiLimiter, async (_req, res) => {
+    const ttl = Number(process.env.PROBE_CACHE_MS || 1000);
+    const now = Date.now();
+    if (readyCache && now - readyCache.at < ttl) {
+      return res.status(readyCache.status).json(readyCache.body);
+    }
     const checks = {};
     try {
       const raw = await invoke('PING', []);
@@ -387,7 +397,10 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     // make the instance unready — but it is surfaced here.
     checks.mailer = process.env.SMTP_HOST ? 'configured' : 'unset';
     const ok = checks.db === 'up' && checks.pool !== 'down';
-    return res.status(ok ? 200 : 503).json({ status: ok ? 'ready' : 'not_ready', checks });
+    const status = ok ? 200 : 503;
+    const body = { status: ok ? 'ready' : 'not_ready', checks };
+    readyCache = { at: now, status, body };
+    return res.status(status).json(body);
   });
 
   // Prometheus-style counters (support only). Authenticated to keep the
