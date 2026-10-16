@@ -113,9 +113,19 @@ export function metricsText() {
 // --- Request logging -----------------------------------------------------
 const jsonLogger = (line) => process.stdout.write(`${JSON.stringify(line)}\n`);
 
+// A caller-supplied correlation id is only echoed when it is well formed: a
+// bounded length and a safe charset, so it cannot inject into logs or bloat
+// them. Anything else is replaced with a freshly minted UUID.
+const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,64}$/;
+
+function requestIdFor(req) {
+  const raw = req.get('x-request-id');
+  return raw && REQUEST_ID_RE.test(raw) ? raw : randomUUID();
+}
+
 export function createRequestObserver({ logger = null } = {}) {
   return function observe(req, res, next) {
-    const id = req.get('x-request-id') || randomUUID();
+    const id = requestIdFor(req);
     res.set('X-Request-Id', id);
     const start = performance.now();
 
