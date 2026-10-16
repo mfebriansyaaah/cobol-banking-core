@@ -527,7 +527,7 @@ test('password reset and change over HTTP', async () => {
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'final1234' })).status, 200);
 });
 
-test('resend verification issues a fresh code', async () => {
+test('resend verification reuses the pending code inside the cooldown', async () => {
   const em = `gw_resend_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Resend', dob: '1990-01-01' });
   assert.equal(s.status, 200);

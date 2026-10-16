@@ -83,7 +83,9 @@ RE="resend_ok@test.com"
 q "DELETE FROM verification_logs WHERE email='$RE'; DELETE FROM users WHERE email='$RE';"
 rout=$(run REQUEST_SIGNUP "$RE" secret123 'Resend Ok' '1990-01-01')
 rcode1=$(echo "$rout" | cut -d'|' -f3)
-rout2=$(run RESEND_VERIFICATION "$RE" '' '' '')
+# The reissue path below disables the resend cooldown; the cooldown itself
+# (immediate resend reuses the pending code) is covered in test_resend_cooldown.sh.
+rout2=$(RESEND_COOLDOWN_SECONDS=0 run RESEND_VERIFICATION "$RE" '' '' '')
 rcode2=$(echo "$rout2" | cut -d'|' -f3)
 case "$rout2" in
     SUCCESS\|CODE_SENT\|[0-9][0-9][0-9][0-9][0-9][0-9]) check "resend returns a new code" "ok" "ok" ;;

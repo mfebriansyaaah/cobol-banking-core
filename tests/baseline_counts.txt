@@ -26,7 +26,7 @@ e2e-pool 22
 password 14
 verify-cap 10
 kdf 8
-mfa 16
+mfa 20
 sessions-manage 19
 account-status 13
 transfer-limits 10
@@ -45,3 +45,4 @@ mfa-state 5
 ledger-integrity 4
 rng 5
 grants 5
+resend-cooldown 7

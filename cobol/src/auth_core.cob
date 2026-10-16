@@ -38,6 +38,7 @@
         01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
         01  WS-ABS-TTL-STR          PIC X(20) VALUE SPACES.
         01  WS-MAX-ROT-STR          PIC X(20) VALUE SPACES.
+        01  WS-CD-STR               PIC X(20) VALUE SPACES.
         01  WS-AGE-STR              PIC X(20) VALUE SPACES.
         01  WS-ROT-STR              PIC X(20) VALUE SPACES.
         01  WS-ABS-SECS             PIC 9(14) VALUE 0.
@@ -689,6 +690,21 @@
                 MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            *> Same per-account cooldown as signup resends (neutral reuse).
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "RESEND_COOLDOWN_SECONDS" BY REFERENCE "60" BY REFERENCE WS-CD-STR
+            IF WS-CD-STR(1:1) >= "1" AND WS-CD-STR(1:1) <= "9"
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "SELECT COUNT(*) FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0 AND created_at > DATE_SUB(NOW(), INTERVAL " WS-CD-STR DELIMITED BY SIZE " SECOND)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:1) >= "1" AND WS-RESULT(1:1) <= "9"
+                    MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -860,6 +876,23 @@
                 MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            *> Per-account resend cooldown: a fresh unused code issued inside
+            *> the window is reused neutrally (no new code, no new email), so
+            *> the endpoint cannot flood a mailbox or the table. Zero disables.
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "RESEND_COOLDOWN_SECONDS" BY REFERENCE "60" BY REFERENCE WS-CD-STR
+            IF WS-CD-STR(1:1) >= "1" AND WS-CD-STR(1:1) <= "9"
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "SELECT COUNT(*) FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0 AND created_at > DATE_SUB(NOW(), INTERVAL " WS-CD-STR DELIMITED BY SIZE " SECOND)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:1) >= "1" AND WS-RESULT(1:1) <= "9"
+                    MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -883,6 +916,34 @@
             *> Arm the lockout and record a failed login. Used for a wrong
             *> password and a wrong MFA code. Skipped when already locked.
             IF WS-LOCKED = "0"
+                MOVE "UPDATE users SET locked_until = CASE WHEN failed_logins + 1 >= 3 THEN DATE_ADD(NOW(), INTERVAL 15 MINUTE) ELSE locked_until END, failed_logins = failed_logins + 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (?, 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-RECORD-FAILURE.
+            *> Count a wrong MFA code like a failed login (per-account
+            *> lockout): 3 failures lock the account for 15 minutes, and a
+            *> good login or password reset clears the counter. No-op while
+            *> already locked or when the owner row is gone. Expects
+            *> WS-PARAM1-TRIMMED = the owner email.
+            MOVE "SELECT CAST(id AS CHAR), CASE WHEN locked_until IS NOT NULL AND locked_until > NOW() THEN '1' ELSE '0' END FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA" OR WS-RESULT(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-USER-ID WS-LOCKED
+            END-UNSTRING
+            IF WS-LOCKED NOT = "1"
                 MOVE "UPDATE users SET locked_until = CASE WHEN failed_logins + 1 >= 3 THEN DATE_ADD(NOW(), INTERVAL 15 MINUTE) ELSE locked_until END, failed_logins = failed_logins + 1 WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -945,6 +1006,7 @@
             MOVE WS-RESULT TO WS-MFA-SECRET
             CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM2-TRIMMED BY REFERENCE WS-VERIFY
             IF WS-VERIFY NOT = "1"
+                PERFORM MFA-RECORD-FAILURE
                 MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -980,6 +1042,7 @@
             MOVE WS-RESULT TO WS-MFA-SECRET
             CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM2-TRIMMED BY REFERENCE WS-VERIFY
             IF WS-VERIFY NOT = "1"
+                PERFORM MFA-RECORD-FAILURE
                 MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
