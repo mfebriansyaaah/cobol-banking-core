@@ -134,15 +134,16 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 92 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 93 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
 
-Shell suites total **557**; with the gateway suite **92** the full run is
-**649 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **557**; with the gateway suite **93** the full run is
+**650 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
 
-Held by a bearer JWT (public: `/health`, `/live`, `/ready`, `/auth/signup`, `/auth/verify`,
+Held by a bearer JWT (public but rate-limited: `/health`, `/live`, `/ready`; public:
+`/auth/signup`, `/auth/verify`,
 `/auth/login`, `/auth/forgot`, `/auth/reset-password`, `/auth/resend`, `/auth/refresh):
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile` (GET/PATCH), `/profile/deactivate`,
@@ -174,7 +175,9 @@ Status mapping: 200 on `SUCCESS`; 400/401/403/404/409/423/429/500/504 by error
 code (see `middleware/src/result.js`; session/token failures map to 401 and
 internal/bridge failures to 500). Input-line cap 500 bytes; fixed-window
 rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
-`API_RATE_LIMIT_*` on the rest; `/health` exempt; counters are shared via Redis
+`API_RATE_LIMIT_*` on the rest, including the public probes (`/health`, `/ready`;
+`/live` stays exempt as pure liveness), whose DB round-trip is cached for
+PROBE_CACHE_MS; counters are shared via Redis
 when REDIS_URL is set, and the client IP follows TRUST_PROXY); access token
 15m + refresh 7d
 (`middleware/.env.example`). Every response carries `X-Request-Id`, and the
