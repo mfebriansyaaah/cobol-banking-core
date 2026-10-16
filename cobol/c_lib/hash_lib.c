@@ -10,13 +10,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <stddef.h>
-#ifdef _WIN32
-#include <windows.h>
-#include <wincrypt.h>
-#endif
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/stat.h>
+#include "random_lib.h"
 
 typedef struct {
     uint8_t data[64];
@@ -254,13 +248,8 @@ static void pbkdf2_sha256(const uint8_t *pass, size_t passlen,
 }
 
 static void random_salt(uint8_t *buf, size_t n) {
-    int fd = open("/dev/urandom", O_RDONLY);
-    if (fd != -1) {
-        ssize_t got = read(fd, buf, n);
-        close(fd);
-        if (got == (ssize_t)n) return;
-    }
-    for (size_t i = 0; i < n; i++) buf[i] = (uint8_t)(rand() & 0xff);
+    /* Fail-closed OS entropy: no rand() fallback. */
+    secure_random_bytes(buf, n);
 }
 
 static size_t rtrim_len(const char *s, size_t max) {
@@ -382,23 +371,12 @@ void password_needs_rehash(char *stored_hash, char *result) {
 }
 
 /**
- * Fetch a secure random 32-bit integer from the OS
- */static unsigned int get_secure_random_uint32() {
+ * Fetch a secure random 32-bit integer from the OS CSPRNG. Fail-closed: a
+ * missing OS source aborts rather than returning a predictable constant.
+ */
+static unsigned int get_secure_random_uint32(void) {
     unsigned int rand_val = 0;
-#ifdef _WIN32
-    HCRYPTPROV hProvider = 0;
-    if (CryptAcquireContext(&hProvider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
-        CryptGenRandom(hProvider, sizeof(rand_val), (BYTE*)&rand_val);
-        CryptReleaseContext(hProvider, 0);
-    }
-#else
-    int fd = open("/dev/urandom", O_RDONLY);
-    if (fd != -1) {
-        read(fd, &rand_val, sizeof(rand_val));
-        close(fd);
-    }
-#endif
-    if (rand_val == 0) rand_val = 123456; // Fallback
+    secure_random_bytes((unsigned char *)&rand_val, sizeof(rand_val));
     return rand_val;
 }
 
