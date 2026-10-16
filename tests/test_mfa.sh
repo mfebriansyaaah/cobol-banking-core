@@ -27,7 +27,10 @@ totp() {
 import sys, base64, hmac, hashlib, struct, time
 s = sys.argv[1]
 key = base64.b32decode(s + '=' * ((8 - len(s) % 8) % 8))
-c = int(time.time()) // 30
+t = time.time()
+c = int(t) // 30
+if t % 30 > 25:
+    c += 1  # near the window end, mint the next step (server allows ±1)
 h = hmac.new(key, struct.pack('>Q', c), hashlib.sha1).digest()
 o = h[-1] & 0xf
 print(f"{struct.unpack('>I', h[o:o+4])[0] & 0x7fffffff:06d}"[-6:])
