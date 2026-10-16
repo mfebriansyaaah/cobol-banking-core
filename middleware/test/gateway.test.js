@@ -27,8 +27,14 @@ function fromBase32(s) {
 }
 
 function totp(secret) {
+  // Near the end of a 30s window, mint the NEXT step's code instead: the
+  // server accepts ±1 step, so this removes the boundary race where a code
+  // computed in step N is only verified in step N+2 under load.
+  const now = Date.now();
+  let step = Math.floor(now / 30000);
+  if (now % 30000 > 25000) step += 1;
   const buf = Buffer.alloc(8);
-  buf.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
+  buf.writeBigUInt64BE(BigInt(step));
   const h = createHmac('sha1', fromBase32(secret)).update(buf).digest();
   const o = h[h.length - 1] & 0xf;
   const bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];
