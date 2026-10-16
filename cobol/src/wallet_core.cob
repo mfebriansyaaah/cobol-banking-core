@@ -68,7 +68,7 @@
         01  WS-AMOUNT-NUM          PIC S9(16)V99 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(50) VALUE SPACES.
-        01  WS-RAND                PIC X(6)  VALUE SPACES.
+        01  WS-RAND                PIC X(7)  VALUE SPACES.
         01  WS-MAX-TXN-STR         PIC X(20) VALUE SPACES.
         01  WS-DAILY-LIMIT-STR     PIC X(20) VALUE SPACES.
         01  WS-PRIOR-TOTAL-STR     PIC X(30) VALUE SPACES.
