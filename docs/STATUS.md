@@ -134,10 +134,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_verify_cap.sh` | 10 | verification attempt cap for SIGNUP, PASSWORD_RESET and EMAIL_CHANGE (below cap, burn at cap, fresh code, single active code) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
-| `middleware/` (node --test) | 89 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, mailer, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 90 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **mailer robustness (timeout + failure counters)**, worker pool (pipelined), error mapping |
 
-Shell suites total **557**; with the gateway suite **89** the full run is
-**646 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **557**; with the gateway suite **90** the full run is
+**647 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
@@ -183,7 +183,8 @@ status, `error` code, `durationMs`, `cobolMs`); a thrown/transport failure also
 logs an `event: gateway_error` line (code, message, stack). Counters are served
 at `/metrics` — including `gateway_errors_total{code=...}`, latency histograms
 (`gateway_request_duration_ms`, `gateway_cobol_duration_ms`) and a
-`gateway_cobol_pool_restarts_total` counter — and, when
+`gateway_cobol_pool_restarts_total` counter, and mailer delivery
+(`gateway_mailer_sent_total`/`gateway_mailer_failed_total`) — and, when
 METRICS_PUSH_URL is set, pushed periodically to a collector (with a timeout and
 an overlap guard, so a slow collector cannot pile up requests). Unexpected
 process-level failures are logged as `event: process_error`.
