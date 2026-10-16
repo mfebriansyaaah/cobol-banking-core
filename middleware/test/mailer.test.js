@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMailer } from '../src/mailer.js';
+import { createMailer, verificationSubject } from '../src/mailer.js';
 import { metricsText } from '../src/observability.js';
 
 test('the development stub logs the event without the code', async () => {
@@ -62,4 +62,11 @@ test('a failing SMTP does not throw and is counted', async () => {
       if (v === undefined) delete process.env[k]; else process.env[k] = v;
     }
   }
+});
+
+test('the verification subject depends on the purpose', () => {
+  assert.equal(verificationSubject('PASSWORD_RESET'), 'Reset your password');
+  assert.equal(verificationSubject('EMAIL_CHANGE'), 'Confirm your new email address');
+  assert.equal(verificationSubject('SIGNUP'), 'Verify your account');
+  assert.equal(verificationSubject(undefined), 'Verify your account');
 });
