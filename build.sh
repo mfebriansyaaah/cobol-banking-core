@@ -22,6 +22,7 @@ cobc -free -x -o "$COBOL_BIN" \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \
     cobol/c_lib/settings_lib.c \
+    cobol/c_lib/random_lib.c \
     -L/usr/lib/x86_64-linux-gnu -lmysqlclient -Wall -Wextra -O2
 
 if [ -f "$COBOL_BIN" ]; then
