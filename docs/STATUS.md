@@ -88,6 +88,10 @@ The bridge reads its connection from the environment
 (`DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASS`/`DB_NAME`, with development
 defaults); no credentials are compiled into the source. The gateway passes its
 own environment (see `middleware/.env.example`) to the binary it spawns.
+In production the runtime account is **DML-only** (SELECT/INSERT/UPDATE/DELETE)
+so a bug cannot DROP/ALTER tables; `database/grants.sh` provisions that account
+plus a separate privileged migration account (`database/migrate.sh` runs under
+DB_MIGRATE_USER/DB_MIGRATE_PASS, defaulting to the app credentials).
 
 Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; `database/migrate.sh --check` verifies none are pending. Seed data: `database/seed_test_data.sql`.
 
@@ -135,10 +139,11 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
 | `tests/test_rng.sh` | 5 | fail-closed OS CSPRNG helper builds clean and returns fresh, non-zero bytes; MFA secrets and password salts are fresh per call |
+| `tests/test_grants.sh` | 5 | least-privilege guardrail (no DB): app grant is DML-only with no DDL, migration grant is full DDL, the two accounts differ, migrations use a separate credential |
 | `middleware/` (node --test) | 93 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
 
-Shell suites total **562**; with the gateway suite **93** the full run is
-**655 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **567**; with the gateway suite **93** the full run is
+**660 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode).
 
 ## 5. Gateway surface (`middleware/`)
