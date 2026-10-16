@@ -7,6 +7,7 @@ import { buildParams, ValidationError, PATTERNS, assertLineLength } from './vali
 import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, signStepUp, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText, recordError } from './observability.js';
+import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
@@ -365,6 +366,25 @@ export function buildRouter({ mailer, tokenStore } = {}) {
       res.set('X-Cobol-Ms', String(Date.now() - t0));
       return res.status(503).json({ status: 'degraded', db: 'down' });
     }
+  });
+
+  // Liveness: the process is up. No dependencies — never flaps on a DB blip.
+  router.get('/live', (_req, res) => res.json({ status: 'alive' }));
+
+  // Readiness: dependencies usable (DB reachable, pool has a worker when
+  // pooling is on). Used by orchestrators/load balancers to gate traffic.
+  router.get('/ready', async (_req, res) => {
+    const checks = {};
+    try {
+      const raw = await invoke('PING', []);
+      checks.db = raw === 'SUCCESS|PONG' ? 'up' : 'down';
+    } catch {
+      checks.db = 'down';
+    }
+    const pool = getPool();
+    checks.pool = pool ? (pool.stats().size > 0 ? 'up' : 'down') : 'off';
+    const ok = checks.db === 'up' && checks.pool !== 'down';
+    return res.status(ok ? 200 : 503).json({ status: ok ? 'ready' : 'not_ready', checks });
   });
 
   // Prometheus-style counters (support only). Authenticated to keep the
