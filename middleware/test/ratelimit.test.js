@@ -98,3 +98,16 @@ test('fail-open events are counted for operators', async () => {
   assert.match(metricsText(), /# TYPE gateway_ratelimit_failopen_total counter/);
   assert.match(metricsText(), /gateway_ratelimit_failopen_total 2/);
 });
+
+test('loopback X-Forwarded-For selects the rate-limit key', async () => {
+  // Supertest dials in over loopback, which the default trust setting
+  // honours: each forged client IP gets its own bucket (separate keys),
+  // while reusing one key exhausts it. Documents the trust model the
+  // limiter depends on.
+  const fresh = buildApp();
+  const get = (ip) => request(fresh).get('/users').set('X-Forwarded-For', ip);
+  assert.equal((await get('10.0.0.1')).status, 401);
+  assert.equal((await get('10.0.0.1')).status, 401);
+  assert.equal((await get('10.0.0.1')).status, 429);
+  assert.equal((await get('10.0.0.2')).status, 401);
+});

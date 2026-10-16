@@ -27,11 +27,12 @@ test('oversized JSON bodies are rejected before COBOL runs', async () => {
   assert.equal(getVerificationCode('big@test.com'), '');
 });
 
-test('trustProxyWarning flags an unset or over-permissive TRUST_PROXY', () => {
+test('trustProxyWarning flags an over-permissive TRUST_PROXY', () => {
   const saved = process.env.TRUST_PROXY;
   try {
+    // Unset is sound now (loopback-only default); only "true" warns.
     delete process.env.TRUST_PROXY;
-    assert.match(trustProxyWarning(), /not set/);
+    assert.equal(trustProxyWarning(), null);
     process.env.TRUST_PROXY = 'true';
     assert.match(trustProxyWarning(), /spoof/);
     process.env.TRUST_PROXY = '1';
