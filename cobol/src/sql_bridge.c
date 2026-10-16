@@ -271,7 +271,13 @@ void SQL_EXECUTE_ROWS() {
 
 void SQL_BEGIN() {
     if (G_CONN != NULL) {
-        G_CONN = NULL;   /* keep the pooled connection */
+        /* A previous transaction is still open (missed COMMIT/ROLLBACK):
+         * roll it back rather than abandoning it — the START TRANSACTION
+         * below would otherwise implicitly commit its partial work. The
+         * pooled connection itself is kept for reuse. */
+        mysql_query(G_CONN, "ROLLBACK");
+        fprintf(stderr, "[SQL_BRIDGE] Rolled back a leaked transaction\\n");
+        G_CONN = NULL;
     }
     G_CONN = bridge_connect();
     if (G_CONN == NULL) {
