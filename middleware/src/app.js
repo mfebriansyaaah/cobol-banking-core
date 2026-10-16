@@ -515,6 +515,22 @@ export function buildRouter({ mailer, tokenStore } = {}) {
   return router;
 }
 
+// Advisory misconfiguration check for the rate-limit key: without TRUST_PROXY
+// every client behind a load balancer shares one IP (the limiter collapses
+// into self-DoS), while TRUST_PROXY=true trusts any X-Forwarded-For header and
+// lets callers spoof their key (the limiter is bypassed). Returns a warning
+// message, or null when the setting looks sound.
+export function trustProxyWarning() {
+  const v = process.env.TRUST_PROXY;
+  if (!v) {
+    return 'TRUST_PROXY is not set; behind a proxy every client shares one rate-limit key (set it to the hop count, e.g. 1)';
+  }
+  if (v === 'true') {
+    return 'TRUST_PROXY=true trusts any X-Forwarded-For header, letting callers spoof the rate-limit key (use a hop count or subnet instead)';
+  }
+  return null;
+}
+
 export function buildApp({ logger = null, mailer = null, tokenStore = null } = {}) {
   const app = express();
   // Behind a proxy the client IP (and so the rate-limit key) must come from the

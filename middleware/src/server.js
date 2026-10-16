@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { buildApp } from './app.js';
+import { buildApp, trustProxyWarning } from './app.js';
 import { assertSecureConfig } from './auth.js';
 import { jsonLogger, startMetricsExporter } from './observability.js';
 import { resetPool } from './pool.js';
@@ -24,6 +24,19 @@ if (process.env.NODE_ENV === 'production' && !process.env.SMTP_HOST) {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
     secure: process.env.SMTP_SECURE === 'true',
+  });
+}
+
+// Surface a production misconfiguration early: the rate-limit key is the
+// client IP, so a wrong TRUST_PROXY either collapses the limiter (unset
+// behind a proxy) or lets callers spoof it (over-permissive).
+const proxyWarning = trustProxyWarning();
+if (process.env.NODE_ENV === 'production' && proxyWarning) {
+  jsonLogger({
+    ts: new Date().toISOString(),
+    level: 'warn',
+    event: 'trust_proxy_warning',
+    message: proxyWarning,
   });
 }
 
