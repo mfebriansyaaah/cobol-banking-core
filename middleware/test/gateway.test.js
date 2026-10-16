@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql, enableMfa, TEST_MFA_SECRET } from './support.js';
+import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -70,7 +70,7 @@ test('protected route requires a token', async () => {
   assert.equal(res.body.error, 'MISSING_TOKEN');
 });
 
-test('signup -> verify -> login -> authorized call', async (t) => {
+test('signup -> verify -> login -> authorized call', async () => {
   const signup = await request(app)
     .post('/auth/signup')
     .send({ email: unique, password: 'secret123', name: 'Gateway User', dob: '1990-01-01' });
@@ -94,7 +94,7 @@ test('signup -> verify -> login -> authorized call', async (t) => {
   assert.equal(denied.status, 403);
   assert.equal(denied.body.error, 'FORBIDDEN');
 
-  if (!seedUser('gw_admin_list@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed an admin');
+  requireSeed(seedUser('gw_admin_list@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_list@test.com', password: 'secret123' })).body.token;
 
   const users = await request(app)
@@ -118,7 +118,7 @@ test('wrong password maps to 401', async () => {
   assert.equal(res.body.error, 'INVALID_CREDENTIALS');
 });
 
-test('bare-value endpoints return 200 with data', async (t) => {
+test('bare-value endpoints return 200 with data', async () => {
   const em = `gw_bare_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
@@ -129,7 +129,7 @@ test('bare-value endpoints return 200 with data', async (t) => {
   assert.equal((await request(app).get('/users/sender@test.com').set(auth)).status, 403);
   assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(auth)).status, 403);
 
-  if (!seedUser('gw_admin_bare@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed an admin');
+  requireSeed(seedUser('gw_admin_bare@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_bare@test.com', password: 'secret123' })).body.token;
   const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
@@ -202,13 +202,11 @@ test('replaying a rotated refresh token revokes the whole family', async () => {
   assert.equal(after.body.error, 'INVALID_REFRESH_TOKEN');
 });
 
-test('role change authorizes by the token actor, ignoring the body', async (t) => {
+test('role change authorizes by the token actor, ignoring the body', async () => {
   const admin = `gw_admin_${Date.now()}@test.com`;
   const target = `gw_target_${Date.now()}@test.com`;
   const plainUser = `gw_plain_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER') || !seedUser(plainUser, 'USER')) {
-    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
-  }
+  requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER') && seedUser(plainUser, 'USER'), 'seed role-change users');
   enableMfa(admin);
 
   const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) });
@@ -237,12 +235,10 @@ test('role change authorizes by the token actor, ignoring the body', async (t) =
   assert.equal(spoof.body.error, 'FORBIDDEN');
 });
 
-test('admin audit trail is readable by a SUPER_ADMIN only', async (t) => {
+test('admin audit trail is readable by a SUPER_ADMIN only', async () => {
   const admin = `gw_audit_${Date.now()}@test.com`;
   const target = `gw_audit_t_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
-    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
-  }
+  requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed audit-trail users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
   const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
@@ -266,12 +262,10 @@ test('admin audit trail is readable by a SUPER_ADMIN only', async (t) => {
   assert.ok(ok.body.data[2].includes(admin), 'records the acting admin');
 });
 
-test('admin recovery endpoints are admin-only', async (t) => {
+test('admin recovery endpoints are admin-only', async () => {
   const admin = `gw_rec_${Date.now()}@test.com`;
   const target = `gw_rec_t_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
-    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
-  }
+  requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed recovery users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
   const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
@@ -283,12 +277,10 @@ test('admin recovery endpoints are admin-only', async (t) => {
   assert.deepEqual((await request(app).post('/admin/mfa-reset').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target })).body.data, ['MFA_RESET']);
 });
 
-test('privileged admin writes require a fresh step-up', async (t) => {
+test('privileged admin writes require a fresh step-up', async () => {
   const admin = `gw_su_${Date.now()}@test.com`;
   const target = `gw_su_t_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN') || !seedUser(target, 'USER')) {
-    return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
-  }
+  requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed step-up users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
 
@@ -311,9 +303,9 @@ test('privileged admin writes require a fresh step-up', async (t) => {
   );
 });
 
-test('an admin without MFA is prompted to enrol at login', async (t) => {
+test('an admin without MFA is prompted to enrol at login', async () => {
   const admin = `gw_enr_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed a SUPER_ADMIN');
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
 
   const login = await request(app).post('/auth/login').send({ email: admin, password: 'secret123' });
   assert.equal(login.status, 200);
@@ -332,12 +324,12 @@ test('an admin without MFA is prompted to enrol at login', async (t) => {
   assert.notEqual(refreshed.body.mfaEnrollmentRequired, true, 'prompt clears once MFA is enabled');
 });
 
-test('reusing an idempotency key with different details is a conflict', async (t) => {
+test('reusing an idempotency key with different details is a conflict', async () => {
   const em = `gw_idem_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
-  if (!seedAccount(em, '500.00')) return t.skip('mysql unavailable to seed an account');
+  requireSeed(seedAccount(em, '500.00'), 'seed an account');
 
   const key = `gw-${Date.now()}`;
   const first = await request(app)
@@ -363,20 +355,18 @@ test('reusing an idempotency key with different details is a conflict', async (t
   assert.equal(conflict.body.error, 'IDEMPOTENCY_CONFLICT');
 });
 
-test('an in-progress intent blocks a same-key transfer, then replays once committed', async (t) => {
+test('an in-progress intent blocks a same-key transfer, then replays once committed', async () => {
   const em = `gw_inprog_${Date.now()}@test.com`;
   const to = 'receiver@test.com';
   const amount = '1.00';
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'InProg User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
-  if (!seedAccount(em, '500.00')) return t.skip('mysql unavailable to seed an account');
+  requireSeed(seedAccount(em, '500.00'), 'seed an account');
 
   const key = `gw-inprog-${Date.now()}`;
   // Same key and details already in flight (PENDING): another attempt holds it.
-  if (!runSql(`INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('${key}','${em}','${to}',${amount},'PENDING')`)) {
-    return t.skip('mysql unavailable to seed a pending intent');
-  }
+  requireSeed(runSql(`INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('${key}','${em}','${to}',${amount},'PENDING')`), 'seed a pending intent');
 
   const blocked = await request(app)
     .post('/wallet/transfer')
@@ -398,12 +388,12 @@ test('an in-progress intent blocks a same-key transfer, then replays once commit
   runSql(`DELETE FROM pending_transactions WHERE txn_ref='${key}'`);
 });
 
-test('transfer amount is decided by COBOL, not the gateway shape', async (t) => {
+test('transfer amount is decided by COBOL, not the gateway shape', async () => {
   const em = `gw_amt_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
-  if (!seedAccount(em, '100.00')) return t.skip('mysql unavailable to seed an account');
+  requireSeed(seedAccount(em, '100.00'), 'seed an account');
 
   // A numeric zero passes shape validation and is refused by COBOL.
   const zero = await request(app)
@@ -432,8 +422,8 @@ test('transfer amount is decided by COBOL, not the gateway shape', async (t) => 
   assert.equal(self.body.error, 'SELF_TRANSFER');
 });
 
-test('the list page size is bounded', async (t) => {
-  if (!seedUser('gw_admin_limit@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed an admin');
+test('the list page size is bounded', async () => {
+  requireSeed(seedUser('gw_admin_limit@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   const token = (await request(app).post('/auth/login').send({ email: 'gw_admin_limit@test.com', password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
 
@@ -448,9 +438,9 @@ test('the list page size is bounded', async (t) => {
   assert.equal((await request(app).get('/users?limit=abc').set(auth)).status, 400);
 });
 
-test('a large list is not truncated at 500 bytes', async (t) => {
-  if (!seedUser('gw_admin_bulk@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable');
-  if (!seedManyUsers('gw_bulk_', 25)) return t.skip('mysql unavailable');
+test('a large list is not truncated at 500 bytes', async () => {
+  requireSeed(seedUser('gw_admin_bulk@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
+  requireSeed(seedManyUsers('gw_bulk_', 25), 'seed bulk users');
   const token = (await request(app).post('/auth/login').send({ email: 'gw_admin_bulk@test.com', password: 'secret123' })).body.token;
 
   const res = await request(app).get('/users?limit=100').set('Authorization', `Bearer ${token}`);
@@ -478,8 +468,8 @@ test('one access token can be revoked without affecting another session', async 
   assert.equal((await request(app).get(`/users/${em}`).set('Authorization', `Bearer ${second}`)).status, 200);
 });
 
-test('audit archiving is admin-only', async (t) => {
-  if (!seedUser('gw_admin_archive@test.com', 'SUPER_ADMIN')) return t.skip('mysql unavailable');
+test('audit archiving is admin-only', async () => {
+  requireSeed(seedUser('gw_admin_archive@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   enableMfa('gw_admin_archive@test.com');
   const adminToken = await adminLoginFor('gw_admin_archive@test.com');
 

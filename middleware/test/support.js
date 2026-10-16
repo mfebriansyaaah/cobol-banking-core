@@ -1,7 +1,15 @@
 // Test support: seed a VERIFIED user with the shared test password so the
-// gateway suites can exercise admin-only and self-or-admin paths. Returns false
-// when the mysql client is unavailable, letting callers skip.
+// gateway suites can exercise admin-only and self-or-admin paths. Seed helpers
+// return false when the mysql client is unavailable; callers must pass the
+// result through requireSeed so a broken database fails the test instead of
+// silently skipping it (a skip would hide lost coverage as green).
 import { execFileSync } from 'node:child_process';
+
+// Fail the test when a database prerequisite cannot be seeded. Every gateway
+// test needs the database; skipping would report green while covering nothing.
+export function requireSeed(ok, what) {
+  if (!ok) throw new Error(`test prerequisite failed: cannot ${what} (mysql required)`);
+}
 
 export function seedUser(email, role = 'USER') {
   const u = process.env.DB_USER ?? 'cobol_user';

@@ -4,7 +4,7 @@ import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { resetMetrics, recordRequest, recordError, incCounter, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
-import { getVerificationCode, seedUser } from './support.js';
+import { getVerificationCode, seedUser, requireSeed } from './support.js';
 
 test('metricsText renders recorded counters', () => {
   resetMetrics();
@@ -60,7 +60,7 @@ test('/metrics requires a token', async () => {
   assert.equal(denied.status, 401);
 });
 
-test('/metrics is admin-only', async (t) => {
+test('/metrics is admin-only', async () => {
   resetMetrics();
   const app = buildApp();
   const em = `obs_${Date.now()}@test.com`;
@@ -74,7 +74,7 @@ test('/metrics is admin-only', async (t) => {
 
   // A SUPER_ADMIN sees the counters.
   const admin = `obs_admin_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN')) return t.skip('mysql client unavailable to seed a SUPER_ADMIN');
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
   const m = await request(app).get('/metrics').set('Authorization', `Bearer ${adminToken}`);
   assert.equal(m.status, 200);
