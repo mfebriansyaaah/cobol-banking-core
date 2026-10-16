@@ -116,7 +116,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_transfer_reversal.sh` | 27 | admin-only one-time reversal (compensating entries, balances restored, audit names the sender), status owner/admin-only, admin sender filter/determinism, shared-ref reversal requires the sender (`AMBIGUOUS_TRANSACTION`), ALREADY_REVERSED, insufficient claw-back |
 | `tests/test_ledger_integrity.sh` | 4 | ledger is append-only (UPDATE refused), a negative amount is refused, and deleting an account preserves its ledger rows in `ledger_archive` |
 | `tests/test_account_status.sh` | 13 | transfer needs ACTIVE sender/target and enabled currencies; failures move nothing; frozen balance still readable |
-| `tests/test_injection.sh` | 9 | auth values escaped (accepted literally); user/wallet still whitelist-only |
+| `tests/test_injection.sh` | 11 | auth values escaped (accepted literally); user/wallet still whitelist-only; bridge diagnostics carry no email addresses |
 | `tests/test_session.sh` | 18 | STORE/CHECK/REVOKE_SESSION, reuse detection, pruning, token-version + per-token revocation |
 | `tests/test_sessions_manage.sh` | 19 | list active sessions (user-agent + IP, current session marked), revoke one (owner/admin, own only), revoke-all (version bump + all refresh revoked, audited) |
 | `tests/test_token_rotation.sh` | 20 | atomic consume (first wins), replay reuse kills family + bumps version + audits, unknown/expired, family absolute lifetime + rotation cap (`SESSION_FAMILY_EXPIRED` + audit), denylist pruning on store |
@@ -144,8 +144,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_c_memory.sh` | 12 | C/COBOL boundary contract under ASan+UBSan (1-byte result fields, 6-digit codes, 32-char secrets, fast refusal of absurd KDF costs) |
 | `middleware/` (node --test) | 104 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
 
-Shell suites total **607**; with the gateway suite **104** the full run is
-**711 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **609**; with the gateway suite **104** the full run is
+**713 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite

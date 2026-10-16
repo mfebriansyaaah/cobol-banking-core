@@ -55,6 +55,18 @@ check "apostrophe name stored literally" "O'Brien" "$(q "SELECT full_name FROM u
 check "verify with metachar password" "SUCCESS|EMAIL_VERIFIED" "$(run VERIFY_EMAIL inj1@test.com "$code")"
 check "login with metachar password" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN inj1@test.com "a'b\\c;dE")"
 
+# Bridge diagnostics must not leak the concatenated SQL (emails) to stderr.
+printf "%s|%s|%s|%s|%s\n" "AUTH_LOGIN" "inj1@test.com" "secret" "" "" > input.txt
+diag=$("$BIN" 2>&1 >/dev/null)
+case "$diag" in
+    *"[SQL_BRIDGE]"*) check "bridge diagnostic marker emitted" "ok" "ok" ;;
+    *) check "bridge diagnostic marker emitted" "ok" "missing" ;;
+esac
+case "$diag" in
+    *"inj1@test.com"*) check "no email in diagnostics" "absent" "present" ;;
+    *) check "no email in diagnostics" "absent" "absent" ;;
+esac
+
 # An injection-shaped password is just a literal; it cannot create rows or drop anything.
 out=$(run REQUEST_SIGNUP inj2@test.com "x') OR 1=1--zz" "Bobby Tables" '1990-01-01')
 check_contains "injection-shaped password is literal" "SUCCESS|USER_CREATED" "$out"

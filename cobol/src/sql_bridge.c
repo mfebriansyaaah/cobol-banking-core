@@ -112,7 +112,9 @@ void SQL_EXECUTE() {
         }
     }
 
-    fprintf(stderr, "[SQL_BRIDGE] Executing: %s\\n", G_QUERY);
+    /* Length only: G_QUERY on this path holds concatenated literals (emails),
+     * so the text itself must never reach the logs. */
+    fprintf(stderr, "[SQL_BRIDGE] Executing query (%zu bytes)\\n", strlen(G_QUERY));
 
     if (mysql_query(conn, G_QUERY)) {
         snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
@@ -214,7 +216,7 @@ void SQL_EXECUTE_ROWS() {
         }
     }
 
-    fprintf(stderr, "[SQL_BRIDGE] Executing rows: %s\\n", G_QUERY);
+    fprintf(stderr, "[SQL_BRIDGE] Executing rows query (%zu bytes)\\n", strlen(G_QUERY));
 
     if (mysql_query(conn, G_QUERY)) {
         snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
