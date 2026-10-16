@@ -296,8 +296,9 @@ void hash_password_v2(char *password, char *output_hash) {
  */
 void verify_password(char *password, char *stored_hash, char *result) {
     if (password == NULL || stored_hash == NULL || result == NULL) return;
+    /* Single-char out-param (the COBOL field is one byte): no terminator is
+     * written, so no byte past the caller's field is touched. */
     result[0] = '0';
-    result[1] = '\0';
 
     size_t plen = rtrim_len(password, 100);
     char stored[256];
@@ -315,7 +316,9 @@ void verify_password(char *password, char *stored_hash, char *result) {
         int iters = atoi(iter_s);
         uint8_t salt[PBKDF2_SALT_BYTES];
         int saltlen = hex_to_bytes(salt_s, salt, sizeof(salt));
-        if (saltlen <= 0 || iters <= 0) return;
+        /* Refuse absurd costs before burning CPU: only the DB can supply a
+         * stored hash, but a corrupt row must not become a CPU-DoS vector. */
+        if (saltlen <= 0 || iters <= 0 || (long)iters > PBKDF2_MAX_ITERATIONS) return;
 
         uint8_t key[32];
         pbkdf2_sha256((const uint8_t *)password, plen, salt, (size_t)saltlen, (uint32_t)iters, key);
@@ -345,8 +348,8 @@ void verify_password(char *password, char *stored_hash, char *result) {
  */
 void password_needs_rehash(char *stored_hash, char *result) {
     if (stored_hash == NULL || result == NULL) return;
+    /* Single-char out-param: no terminator is written (see verify_password). */
     result[0] = '0';
-    result[1] = '\0';
 
     char stored[256];
     size_t slen = rtrim_len(stored_hash, 255);

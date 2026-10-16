@@ -45,4 +45,5 @@ mfa-state 5
 ledger-integrity 4
 rng 5
 grants 5
+c-memory 12
 resend-cooldown 7

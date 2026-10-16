@@ -187,8 +187,8 @@ void generate_mfa_secret(char *out) {
  */
 void totp_verify(char *secret_b32, char *code, char *result) {
     if (secret_b32 == NULL || code == NULL || result == NULL) return;
+    /* Single-char out-param: no terminator is written (see verify_password). */
     result[0] = '0';
-    result[1] = '\0';
 
     char digits[16];
     int n = 0;
