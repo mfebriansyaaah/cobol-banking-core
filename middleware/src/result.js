@@ -1,7 +1,7 @@
 // Translate a COBOL result line ("SUCCESS|..." / "ERROR|<code>|...") into an
 // HTTP status and a JSON body. No business logic lives here.
 
-const ERROR_STATUS = {
+export const ERROR_STATUS = {
   MISSING_ACTION: 400,
   INVALID_ACTION: 400,
   INVALID_CODE: 400,
