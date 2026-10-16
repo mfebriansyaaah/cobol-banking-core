@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMailer, verificationSubject } from '../src/mailer.js';
+import { createMailer, verificationSubject, mailerFrom } from '../src/mailer.js';
 import { metricsText } from '../src/observability.js';
 
 test('the development stub logs the event without the code', async () => {
@@ -69,4 +69,20 @@ test('the verification subject depends on the purpose', () => {
   assert.equal(verificationSubject('EMAIL_CHANGE'), 'Confirm your new email address');
   assert.equal(verificationSubject('SIGNUP'), 'Verify your account');
   assert.equal(verificationSubject(undefined), 'Verify your account');
+});
+
+test('the sender address honours MAIL_FROM_NAME', () => {
+  const savedFrom = process.env.MAIL_FROM;
+  const savedName = process.env.MAIL_FROM_NAME;
+  try {
+    delete process.env.MAIL_FROM;
+    delete process.env.MAIL_FROM_NAME;
+    assert.equal(mailerFrom(), 'no-reply@cobol-banking.local');
+    process.env.MAIL_FROM = 'x@y.com';
+    process.env.MAIL_FROM_NAME = 'CobolBank';
+    assert.equal(mailerFrom(), 'CobolBank <x@y.com>');
+  } finally {
+    if (savedFrom === undefined) delete process.env.MAIL_FROM; else process.env.MAIL_FROM = savedFrom;
+    if (savedName === undefined) delete process.env.MAIL_FROM_NAME; else process.env.MAIL_FROM_NAME = savedName;
+  }
 });
