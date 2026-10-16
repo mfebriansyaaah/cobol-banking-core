@@ -296,8 +296,9 @@ void hash_password_v2(char *password, char *output_hash) {
  */
 void verify_password(char *password, char *stored_hash, char *result) {
     if (password == NULL || stored_hash == NULL || result == NULL) return;
+    /* Single-char out-param (the COBOL field is one byte): no terminator is
+     * written, so no byte past the caller's field is touched. */
     result[0] = '0';
-    result[1] = '\0';
 
     size_t plen = rtrim_len(password, 100);
     char stored[256];
@@ -345,8 +346,8 @@ void verify_password(char *password, char *stored_hash, char *result) {
  */
 void password_needs_rehash(char *stored_hash, char *result) {
     if (stored_hash == NULL || result == NULL) return;
+    /* Single-char out-param: no terminator is written (see verify_password). */
     result[0] = '0';
-    result[1] = '\0';
 
     char stored[256];
     size_t slen = rtrim_len(stored_hash, 255);
