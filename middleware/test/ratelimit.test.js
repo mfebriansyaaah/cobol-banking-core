@@ -33,8 +33,9 @@ test('non-auth endpoints are rate limited past the configured max', async () => 
   assert.equal(third.body.error, 'RATE_LIMITED');
 });
 
-test('health is not rate limited', async () => {
-  const res = await request(app).get('/health');
+test('the health probe responds', async () => {
+  const fresh = buildApp();
+  const res = await request(fresh).get('/health');
   assert.equal(res.status, 200);
 });
 
@@ -59,4 +60,13 @@ test('a shared store enforces one limit across instances', async () => {
   assert.equal(third.code, 429);
   assert.equal(third.body.error, 'RATE_LIMITED');
   assert.ok(third.headers['Retry-After']);
+});
+
+test('public probes are rate limited', async () => {
+  const saved = process.env.API_RATE_LIMIT_MAX;
+  process.env.API_RATE_LIMIT_MAX = '1';
+  const fresh = buildApp();
+  assert.equal((await request(fresh).get('/health')).status, 200);
+  assert.equal((await request(fresh).get('/ready')).status, 429);
+  if (saved === undefined) delete process.env.API_RATE_LIMIT_MAX; else process.env.API_RATE_LIMIT_MAX = saved;
 });
