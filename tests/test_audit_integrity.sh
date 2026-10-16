@@ -1,8 +1,9 @@
 #!/bin/bash
 # Audit integrity suite: refused authorization attempts are recorded
 # (AUTHZ_DENIED), unknown actors are not attributed, the audit read indexes
-# exist, and deleting a user preserves their live audit rows in the immutable
-# archive (the pre-delete trigger) instead of destroying them via the FK cascade.
+# exist, audit rows are append-only (UPDATE refused), and deleting a user
+# preserves their live audit rows in the immutable archive (the pre-delete
+# trigger) instead of destroying them via the FK cascade.
 # Usage: ./tests/test_audit_integrity.sh
 
 BIN="./cobol/bin/main_logic"
@@ -79,6 +80,12 @@ q "DELETE FROM users WHERE email='$D'; DELETE FROM audit_trail_archive WHERE act
 q "DELETE FROM users WHERE email='$D';"
 check "live row removed by the delete" "0" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='AI_DELTEST'")"
 check "evidence preserved in the archive" "1" "$(q "SELECT COUNT(*) FROM audit_trail_archive WHERE action='AI_DELTEST'")"
+
+# --- the audit trail is append-only (no in-place edit) ---------------------
+q "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (832,'AI_UPDTEST','USER','SUCCESS');"
+q "UPDATE audit_trail SET status='FAILED' WHERE action='AI_UPDTEST';"
+check "audit row update is refused" "SUCCESS" "$(q "SELECT status FROM audit_trail WHERE action='AI_UPDTEST' ORDER BY audit_id DESC LIMIT 1;")"
+q "DELETE FROM audit_trail WHERE action='AI_UPDTEST';"
 
 q "DELETE FROM users WHERE email IN ('$SA','$MG','$U','$V'); DELETE FROM audit_trail WHERE action='AUTHZ_DENIED'; DELETE FROM audit_trail_archive WHERE action IN ('AUTHZ_DENIED','AI_DELTEST');"
 
