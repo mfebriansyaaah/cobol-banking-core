@@ -23,7 +23,9 @@ A banking core where **all business logic lives in COBOL**:
   (period-in-IF, GOBACK placement, router prefix collisions, router/owner
   agreement, `users(email)` FK cascade, gateway action coverage), build, the
   shell suites (functional, transactional, security, prepared-statement,
-  migration), the API-gateway node suite, and an end-to-end HTTP smoke against a
+  migration), the API-gateway node suite, the C/COBOL buffer contract
+  (`docs/BUFFER_CONTRACT.md`, enforced by `tests/buffer_contract_check.sh`),
+  and an end-to-end HTTP smoke against a
   live gateway. Must exit 0 with `ALL GREEN`.
 
 ## 2. Modules and actions (current behavior)
