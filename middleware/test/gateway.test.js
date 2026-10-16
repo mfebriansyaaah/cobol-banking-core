@@ -363,6 +363,41 @@ test('reusing an idempotency key with different details is a conflict', async (t
   assert.equal(conflict.body.error, 'IDEMPOTENCY_CONFLICT');
 });
 
+test('an in-progress intent blocks a same-key transfer, then replays once committed', async (t) => {
+  const em = `gw_inprog_${Date.now()}@test.com`;
+  const to = 'receiver@test.com';
+  const amount = '1.00';
+  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'InProg User', dob: '1990-01-01' });
+  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
+  if (!seedAccount(em, '500.00')) return t.skip('mysql unavailable to seed an account');
+
+  const key = `gw-inprog-${Date.now()}`;
+  // Same key and details already in flight (PENDING): another attempt holds it.
+  if (!runSql(`INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('${key}','${em}','${to}',${amount},'PENDING')`)) {
+    return t.skip('mysql unavailable to seed a pending intent');
+  }
+
+  const blocked = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', key)
+    .send({ to, amount });
+  assert.equal(blocked.status, 409);
+  assert.equal(blocked.body.error, 'TRANSFER_IN_PROGRESS');
+
+  // Once the original attempt commits, the same key is a replay (no movement).
+  assert.ok(runSql(`UPDATE pending_transactions SET status='COMMITTED' WHERE txn_ref='${key}' AND from_email='${em}'`));
+  const replay = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', key)
+    .send({ to, amount });
+  assert.equal(replay.status, 200);
+
+  runSql(`DELETE FROM pending_transactions WHERE txn_ref='${key}'`);
+});
+
 test('transfer amount is decided by COBOL, not the gateway shape', async (t) => {
   const em = `gw_amt_${Date.now()}@test.com`;
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
