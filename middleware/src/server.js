@@ -28,8 +28,7 @@ if (process.env.NODE_ENV === 'production' && !process.env.SMTP_HOST) {
 }
 
 // Surface a production misconfiguration early: the rate-limit key is the
-// client IP, so a wrong TRUST_PROXY either collapses the limiter (unset
-// behind a proxy) or lets callers spoof it (over-permissive).
+// client IP, so an over-permissive TRUST_PROXY lets callers spoof it.
 const proxyWarning = trustProxyWarning();
 if (process.env.NODE_ENV === 'production' && proxyWarning) {
   jsonLogger({
