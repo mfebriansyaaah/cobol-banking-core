@@ -4,7 +4,7 @@ import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { resetMetrics, recordRequest, recordError, incCounter, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
-import { getVerificationCode, seedUser } from './support.js';
+import { getVerificationCode, seedUser, requireSeed } from './support.js';
 
 test('metricsText renders recorded counters', () => {
   resetMetrics();

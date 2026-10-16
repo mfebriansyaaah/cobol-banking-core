@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, getVerificationCode } from './support.js';
+import { seedUser, seedAccount, getVerificationCode, requireSeed } from './support.js';
 
 const app = buildApp();
 
