@@ -36,3 +36,27 @@ function shutdown(signal) {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Log unexpected process-level failures as structured lines so they are not
+// silent. An uncaught exception leaves the process in an undefined state, so it
+// is logged and the process exits non-zero.
+function fatalLog(kind, err) {
+  jsonLogger({
+    ts: new Date().toISOString(),
+    level: 'error',
+    event: 'process_error',
+    kind,
+    message: err && err.message,
+    stack: err && err.stack,
+  });
+}
+
+process.on('uncaughtException', (err) => {
+  fatalLog('uncaughtException', err);
+  try { resetPool(); } catch { /* ignore */ }
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  fatalLog('unhandledRejection', reason instanceof Error ? reason : new Error(String(reason)));
+});
