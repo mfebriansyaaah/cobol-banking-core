@@ -39,6 +39,11 @@ test('every bearer endpoint responds', async () => {
   const { token, email } = await freshUser();
   const auth = { Authorization: `Bearer ${token}` };
 
+  // A second self-created user stands in for "another account": this suite
+  // creates its own fixtures instead of depending on seed data.
+  const other = await freshUser();
+  requireSeed(seedAccount(other.email, '100.00'), 'seed an account');
+
   const admin = `ep_admin_${Date.now()}@test.com`;
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
@@ -46,14 +51,14 @@ test('every bearer endpoint responds', async () => {
 
   // A plain user may not read another account; an admin may.
   assert.equal((await request(app).get('/users').set(auth)).status, 403);
-  assert.equal((await request(app).get('/users/sender@test.com').set(auth)).status, 403);
-  assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(auth)).status, 403);
-  assert.equal((await request(app).get('/profile?email=sender@test.com').set(auth)).status, 403);
+  assert.equal((await request(app).get(`/users/${other.email}`).set(auth)).status, 403);
+  assert.equal((await request(app).get(`/wallet/balance?email=${other.email}`).set(auth)).status, 403);
+  assert.equal((await request(app).get(`/profile?email=${other.email}`).set(auth)).status, 403);
 
   assert.equal((await request(app).get('/users').set(adminAuth)).status, 200);
-  assert.equal((await request(app).get('/users/sender@test.com').set(adminAuth)).status, 200);
-  assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth)).status, 200);
-  assert.equal((await request(app).get('/profile?email=sender@test.com').set(adminAuth)).status, 200);
+  assert.equal((await request(app).get(`/users/${other.email}`).set(adminAuth)).status, 200);
+  assert.equal((await request(app).get(`/wallet/balance?email=${other.email}`).set(adminAuth)).status, 200);
+  assert.equal((await request(app).get(`/profile?email=${other.email}`).set(adminAuth)).status, 200);
 
   // Transfers are always sent from the authenticated account: the body `from`
   // is ignored. Seed an account for this user and prove another's is untouched.
@@ -62,19 +67,19 @@ test('every bearer endpoint responds', async () => {
     .post('/wallet/transfer')
     .set(auth)
     .set('Idempotency-Key', `ep-${Date.now()}`)
-    .send({ from: 'sender@test.com', to: 'receiver@test.com', amount: '1.00' });
+    .send({ from: other.email, to: other.email, amount: '1.00' });
   assert.equal(xfer.status, 200);
-  assert.match((await request(app).get('/wallet/balance?email=sender@test.com').set(adminAuth)).body.balances[0].balance, /^\d+\.\d{2}$/);
+  assert.match((await request(app).get(`/wallet/balance?email=${other.email}`).set(adminAuth)).body.balances[0].balance, /^\d+\.\d{2}$/);
 
   // admin checks before the email changes
   assert.equal((await request(app).get(`/admin/role?email=${admin}&role=SUPER_ADMIN`).set(adminAuth)).status, 200);
   // a user may check their own role, but not another's
   assert.equal((await request(app).get(`/admin/role?email=${email}&role=USER`).set(auth)).status, 200);
-  assert.equal((await request(app).get('/admin/role?email=sender@test.com&role=USER').set(auth)).status, 403);
+  assert.equal((await request(app).get(`/admin/role?email=${other.email}&role=USER`).set(auth)).status, 403);
   // non-admin actor is refused by the route (business rule), not a 404; a
   // spoofed body `actor` is ignored because the actor comes from the token
   const userStep = await stepUpFor(token);
-  assert.equal((await request(app).post('/admin/role').set(auth).set('X-Step-Up', userStep).send({ email: 'receiver@test.com', role: 'MANAGER', actor: admin })).status, 403);
+  assert.equal((await request(app).post('/admin/role').set(auth).set('X-Step-Up', userStep).send({ email: other.email, role: 'MANAGER', actor: admin })).status, 403);
 
   // Reconcile: an admin is allowed (200 reconciled / 409 mismatch); a plain
   // user is refused and a body `actor` cannot impersonate an admin.
@@ -87,7 +92,7 @@ test('every bearer endpoint responds', async () => {
   const spoof = await request(app)
     .post('/profile/email/request')
     .set(auth)
-    .send({ email: 'sender@test.com', newEmail: `ep_spoof_${Date.now()}@test.com`, actor: 'sender@test.com', password: 'secret123' });
+    .send({ email: other.email, newEmail: `ep_spoof_${Date.now()}@test.com`, actor: other.email, password: 'secret123' });
   assert.equal(spoof.status, 403);
   assert.equal(spoof.body.error, 'FORBIDDEN');
 
