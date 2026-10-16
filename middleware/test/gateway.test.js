@@ -27,8 +27,14 @@ function fromBase32(s) {
 }
 
 function totp(secret) {
+  // Near the end of a 30s window, mint the NEXT step's code instead: the
+  // server accepts ±1 step, so this removes the boundary race where a code
+  // computed in step N is only verified in step N+2 under load.
+  const now = Date.now();
+  let step = Math.floor(now / 30000);
+  if (now % 30000 > 25000) step += 1;
   const buf = Buffer.alloc(8);
-  buf.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
+  buf.writeBigUInt64BE(BigInt(step));
   const h = createHmac('sha1', fromBase32(secret)).update(buf).digest();
   const o = h[h.length - 1] & 0xf;
   const bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];
@@ -886,4 +892,23 @@ test('liveness and readiness probes', async () => {
   assert.equal(ready.body.checks.db, 'up');
   assert.ok(['up', 'off'].includes(ready.body.checks.pool));
   assert.ok(['configured', 'unset'].includes(ready.body.checks.mailer));
+});
+
+test('readiness reports 503 when the database is down', async () => {
+  // A fresh app (fresh probe cache and limiter); the spawned COBOL process
+  // inherits this process' environment, so a bogus DB name fails PING fast
+  // (unknown database). Test files run in separate processes, so the swap
+  // cannot disturb parallel suites.
+  const app = buildApp();
+  const saved = process.env.DB_NAME;
+  process.env.DB_NAME = 'nonexistent_db_xyz';
+  try {
+    const res = await request(app).get('/ready');
+    assert.equal(res.status, 503);
+    assert.equal(res.body.status, 'not_ready');
+    assert.equal(res.body.checks.db, 'down');
+  } finally {
+    if (saved === undefined) delete process.env.DB_NAME;
+    else process.env.DB_NAME = saved;
+  }
 });
