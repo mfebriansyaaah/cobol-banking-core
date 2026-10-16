@@ -2,8 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
-import { buildApp } from '../src/app.js';
+import { buildApp, trustProxyWarning } from '../src/app.js';
 import { assertSecureConfig } from '../src/auth.js';
+import { getVerificationCode } from './support.js';
 
 test('security headers are set on responses', async () => {
   const app = buildApp();
@@ -12,6 +13,33 @@ test('security headers are set on responses', async () => {
   assert.equal(res.headers['x-content-type-options'], 'nosniff');
   assert.ok(res.headers['x-frame-options']);
   assert.ok(res.headers['content-security-policy']);
+});
+
+test('oversized JSON bodies are rejected before COBOL runs', async () => {
+  const app = buildApp();
+  const big = await request(app)
+    .post('/auth/signup')
+    .send({ email: 'big@test.com', password: 'secret123', name: 'B'.repeat(25 * 1024), dob: '1990-01-01' });
+  assert.equal(big.status, 413);
+  assert.equal(big.body.error, 'BODY_TOO_LARGE');
+  assert.equal(big.body.data, undefined);
+  // Never reached the core: no verification code was stored for the sender.
+  assert.equal(getVerificationCode('big@test.com'), '');
+});
+
+test('trustProxyWarning flags an unset or over-permissive TRUST_PROXY', () => {
+  const saved = process.env.TRUST_PROXY;
+  try {
+    delete process.env.TRUST_PROXY;
+    assert.match(trustProxyWarning(), /not set/);
+    process.env.TRUST_PROXY = 'true';
+    assert.match(trustProxyWarning(), /spoof/);
+    process.env.TRUST_PROXY = '1';
+    assert.equal(trustProxyWarning(), null);
+  } finally {
+    if (saved === undefined) delete process.env.TRUST_PROXY;
+    else process.env.TRUST_PROXY = saved;
+  }
 });
 
 test('assertSecureConfig refuses production with default secrets', () => {
