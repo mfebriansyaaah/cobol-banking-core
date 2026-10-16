@@ -4,6 +4,18 @@
 // failing or missing SMTP never fails the request, and failures are counted.
 import { incCounter } from './observability.js';
 
+// Subject per verification purpose (else a generic verification subject).
+export function verificationSubject(purpose) {
+  switch (purpose) {
+    case 'EMAIL_CHANGE':
+      return 'Confirm your new email address';
+    case 'PASSWORD_RESET':
+      return 'Reset your password';
+    default:
+      return 'Verify your account';
+  }
+}
+
 export function createMailer({ logger = null } = {}) {
   let transport;
   const timeoutMs = Number(process.env.SMTP_TIMEOUT_MS || 10000);
@@ -55,7 +67,7 @@ export function createMailer({ logger = null } = {}) {
       const sent = await deliver({
         from: process.env.MAIL_FROM || 'no-reply@cobol-banking.local',
         to,
-        subject: purpose === 'EMAIL_CHANGE' ? 'Confirm your new email address' : 'Verify your account',
+        subject: verificationSubject(purpose),
         text: `Your verification code is ${code}`,
       });
       if (sent) return;
