@@ -860,4 +860,5 @@ test('liveness and readiness probes', async () => {
   assert.equal(ready.body.status, 'ready');
   assert.equal(ready.body.checks.db, 'up');
   assert.ok(['up', 'off'].includes(ready.body.checks.pool));
+  assert.ok(['configured', 'unset'].includes(ready.body.checks.mailer));
 });
