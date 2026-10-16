@@ -174,6 +174,10 @@ if [ -d middleware ]; then
     if npm --prefix middleware test --silent >/tmp/opencode/gateway.out 2>&1; then
         gw_pass=$(grep -cE '^✔|^ℹ pass' /tmp/opencode/gateway.out || true)
         echo "gateway: $(grep -E '^ℹ pass|^ℹ fail' /tmp/opencode/gateway.out | tr '\n' ' ')"
+        # A skipped test reports green while covering nothing; fail loudly so
+        # lost coverage (e.g. an unavailable database) can never pass silently.
+        gw_skip=$(grep -E '^ℹ skipped' /tmp/opencode/gateway.out | grep -oE '[0-9]+' | head -1 || true)
+        [ "${gw_skip:-0}" -eq 0 ] || { echo "GATEWAY SUITE HAS SKIPPED TESTS (lost coverage)"; exit 1; }
         echo "Gateway OK"
     else
         echo "GATEWAY SUITE FAILED"
