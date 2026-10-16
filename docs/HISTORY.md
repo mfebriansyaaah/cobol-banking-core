@@ -1769,3 +1769,43 @@ _merged 2026-10-15_
 - test: reversal audit names the sender
 - feat(core): reversal audit row records the sender in detail
 
+## #175 observability-errors
+
+_merged 2026-10-15_
+
+- docs(adr): 0025 error observability
+- docs: error observability in STATUS + counts
+- test: failed requests are counted by error code
+- feat(gateway): log thrown/transport errors and count them by code
+- feat(observability): gateway_errors_total counter + error field in the request log
+- docs: sync HISTORY.md to post-merge state (#174)
+
+## #176 observability-latency
+
+_merged 2026-10-15_
+
+- docs(adr): 0026 latency histograms and pool restart counter
+- docs: latency metrics in STATUS + counts
+- test: latency histograms and pool restart counter
+- feat(pool): count worker restarts (gateway_cobol_pool_restarts_total)
+- feat(observability): request/COBOL latency histograms + generic counters
+
+## #177 observability-readiness
+
+_merged 2026-10-16_
+
+- docs(adr): 0027 liveness and readiness probes
+- docs: liveness/readiness in STATUS + counts
+- test: liveness and readiness probes
+- feat(gateway): /live and /ready probes (liveness vs readiness)
+
+## #178 observability-hardening
+
+_merged 2026-10-16_
+
+- docs(adr): 0028 operational hardening
+- docs: operational hardening in STATUS + counts
+- test: pushMetrics aborts a hung collector
+- feat(server): log process-level errors; zero pool gauges on close
+- feat(observability): metrics push timeout + overlap guard
+
