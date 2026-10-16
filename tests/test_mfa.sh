@@ -88,6 +88,23 @@ check "disabled after" "0" "$(q "SELECT mfa_enabled FROM users WHERE email='$U';
 check "login works without a code now" "SUCCESS|LOGIN_OK" "$(run AUTH_LOGIN "$U" secret123)"
 check "disable when not enabled" "ERROR|MFA_NOT_ENABLED" "$(run MFA_DISABLE "$U" 000000 "$U")"
 
+# --- wrong MFA codes arm the per-account lockout --------------------------
+W="mfa_lock@test.com"
+q "DELETE FROM users WHERE email='$W'; DELETE FROM verification_logs WHERE email='$W';"
+wc=$(run REQUEST_SIGNUP "$W" secret123 'Mfa Lock' '1990-01-01' | cut -d'|' -f3)
+run VERIFY_EMAIL "$W" "$wc" >/dev/null
+run MFA_ENROLL_BEGIN "$W" "$W" >/dev/null
+WSEC=$(q "SELECT mfa_secret FROM users WHERE email='$W';")
+run MFA_ENROLL_CONFIRM "$W" "$(totp "$WSEC")" "$W" >/dev/null
+run MFA_DISABLE "$W" 000000 "$W" >/dev/null
+check "one bad MFA code counted" "1" "$(q "SELECT failed_logins FROM users WHERE email='$W';")"
+run MFA_DISABLE "$W" 000000 "$W" >/dev/null
+run MFA_DISABLE "$W" 000000 "$W" >/dev/null
+check "three bad MFA codes counted" "3" "$(q "SELECT failed_logins FROM users WHERE email='$W';")"
+check "third bad code locks the account" "ERROR|ACCOUNT_LOCKED" "$(run AUTH_LOGIN "$W" secret123 "$(totp "$WSEC")")"
+check "lockout has an expiry" "1" "$(q "SELECT locked_until IS NOT NULL FROM users WHERE email='$W';")"
+q "DELETE FROM users WHERE email='$W'; DELETE FROM verification_logs WHERE email='$W';"
+
 q "DELETE FROM users WHERE email='$U'; DELETE FROM verification_logs WHERE email='$U';"
 
 echo "======================================================================"
