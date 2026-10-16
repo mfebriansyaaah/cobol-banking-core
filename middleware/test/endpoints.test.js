@@ -35,12 +35,12 @@ test('every public endpoint responds', async () => {
   assert.equal((await request(app).post('/auth/logout').send({ refreshToken: login.body.refreshToken })).status, 200);
 });
 
-test('every bearer endpoint responds', async (t) => {
+test('every bearer endpoint responds', async () => {
   const { token, email } = await freshUser();
   const auth = { Authorization: `Bearer ${token}` };
 
   const admin = `ep_admin_${Date.now()}@test.com`;
-  if (!seedUser(admin, 'SUPER_ADMIN')) return t.skip('mysql unavailable to seed an admin');
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
   const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
@@ -57,7 +57,7 @@ test('every bearer endpoint responds', async (t) => {
 
   // Transfers are always sent from the authenticated account: the body `from`
   // is ignored. Seed an account for this user and prove another's is untouched.
-  if (!seedAccount(email, '500.00')) return t.skip('mysql unavailable to seed an account');
+  requireSeed(seedAccount(email, '500.00'), 'seed an account');
   const xfer = await request(app)
     .post('/wallet/transfer')
     .set(auth)
