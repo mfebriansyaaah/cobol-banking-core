@@ -83,3 +83,18 @@ test('a broken store fails open instead of taking the API down', async () => {
   assert.equal(proceeded, true);
   assert.equal(res.code, undefined);
 });
+
+test('fail-open events are counted for operators', async () => {
+  const { resetMetrics, metricsText } = await import('../src/observability.js');
+  resetMetrics();
+  const broken = { hit: async () => { throw new Error('store down'); } };
+  const limit = createRateLimiter({ store: broken, windowMs: 60000, max: 1 });
+  const res = { headers: {} };
+  res.set = () => {};
+  res.status = (c) => { res.code = c; return res; };
+  res.json = () => res;
+  await limit({ ip: '9.9.9.9' }, res, () => {});
+  await limit({ ip: '9.9.9.9' }, res, () => {});
+  assert.match(metricsText(), /# TYPE gateway_ratelimit_failopen_total counter/);
+  assert.match(metricsText(), /gateway_ratelimit_failopen_total 2/);
+});
