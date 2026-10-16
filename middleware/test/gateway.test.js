@@ -887,3 +887,22 @@ test('liveness and readiness probes', async () => {
   assert.ok(['up', 'off'].includes(ready.body.checks.pool));
   assert.ok(['configured', 'unset'].includes(ready.body.checks.mailer));
 });
+
+test('readiness reports 503 when the database is down', async () => {
+  // A fresh app (fresh probe cache and limiter); the spawned COBOL process
+  // inherits this process' environment, so a bogus DB name fails PING fast
+  // (unknown database). Test files run in separate processes, so the swap
+  // cannot disturb parallel suites.
+  const app = buildApp();
+  const saved = process.env.DB_NAME;
+  process.env.DB_NAME = 'nonexistent_db_xyz';
+  try {
+    const res = await request(app).get('/ready');
+    assert.equal(res.status, 503);
+    assert.equal(res.body.status, 'not_ready');
+    assert.equal(res.body.checks.db, 'down');
+  } finally {
+    if (saved === undefined) delete process.env.DB_NAME;
+    else process.env.DB_NAME = saved;
+  }
+});
