@@ -16,6 +16,15 @@ if (process.env.NODE_ENV === 'production' && !process.env.SMTP_HOST) {
     event: 'mailer_not_configured',
     message: 'SMTP_HOST is not set; verification emails will not be delivered',
   });
+} else if (process.env.SMTP_HOST) {
+  jsonLogger({
+    ts: new Date().toISOString(),
+    level: 'info',
+    event: 'mailer_configured',
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: process.env.SMTP_SECURE === 'true',
+  });
 }
 
 const server = buildApp({ logger: jsonLogger }).listen(port, () => {
