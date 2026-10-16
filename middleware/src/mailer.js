@@ -4,6 +4,13 @@
 // failing or missing SMTP never fails the request, and failures are counted.
 import { incCounter } from './observability.js';
 
+// Sender address, optionally with a display name ("Name <addr>").
+export function mailerFrom() {
+  const addr = process.env.MAIL_FROM || 'no-reply@cobol-banking.local';
+  const name = process.env.MAIL_FROM_NAME;
+  return name ? `${name} <${addr}>` : addr;
+}
+
 // Subject per verification purpose (else a generic verification subject).
 export function verificationSubject(purpose) {
   switch (purpose) {
@@ -65,7 +72,7 @@ export function createMailer({ logger = null } = {}) {
   return {
     async sendVerification({ to, purpose, code }) {
       const sent = await deliver({
-        from: process.env.MAIL_FROM || 'no-reply@cobol-banking.local',
+        from: mailerFrom(),
         to,
         subject: verificationSubject(purpose),
         text: `Your verification code is ${code}`,
@@ -82,7 +89,7 @@ export function createMailer({ logger = null } = {}) {
 
     async sendNotice({ to, subject, text }) {
       const sent = await deliver({
-        from: process.env.MAIL_FROM || 'no-reply@cobol-banking.local',
+        from: mailerFrom(),
         to,
         subject,
         text,
