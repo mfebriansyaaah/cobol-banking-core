@@ -33,6 +33,11 @@ mysql cobol_db < database/schema.sql
 mysql cobol_db < database/seed_test_data.sql
 database/migrate.sh            # records/applies database/migrations/NNN_*.sql
 
+# 1b. (Production) provision least-privilege accounts: a DML-only application
+# user and a separate DDL migration user. Review, then apply as an admin:
+#   database/grants.sh --print
+#   APP_DB_PASS=... MIGRATE_DB_PASS=... database/grants.sh
+
 # 2. Build the COBOL binary
 ./build.sh
 
