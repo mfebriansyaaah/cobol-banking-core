@@ -261,6 +261,17 @@ BEGIN
 END//
 DELIMITER ;
 
+-- The audit trail is append-only: a correction is a new entry, never an
+-- in-place edit. (DELETE stays allowed so the user-delete cascade can move
+-- rows into audit_trail_archive via the snapshot trigger above.)
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS trg_audit_no_update BEFORE UPDATE ON audit_trail
+FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'audit_trail is append-only (no UPDATE)';
+END//
+DELIMITER ;
+
 -- Ledger durability + immutability: append-only (no UPDATE), and preserve rows
 -- in the immutable archive before an account delete cascades them away.
 DELIMITER //
