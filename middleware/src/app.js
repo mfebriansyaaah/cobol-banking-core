@@ -383,6 +383,9 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     }
     const pool = getPool();
     checks.pool = pool ? (pool.stats().size > 0 ? 'up' : 'down') : 'off';
+    // Informational only: delivery is best-effort, so a missing SMTP does not
+    // make the instance unready — but it is surfaced here.
+    checks.mailer = process.env.SMTP_HOST ? 'configured' : 'unset';
     const ok = checks.db === 'up' && checks.pool !== 'down';
     return res.status(ok ? 200 : 503).json({ status: ok ? 'ready' : 'not_ready', checks });
   });
