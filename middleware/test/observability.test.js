@@ -39,6 +39,21 @@ test('a request is logged with an id, route and latency', async () => {
   assert.equal(line.path, undefined);
 });
 
+test('a well-formed x-request-id is echoed for tracing', async () => {
+  const app = buildApp();
+  const res = await request(app).get('/live').set('X-Request-Id', 'trace-abc.123_XYZ');
+  assert.equal(res.status, 200);
+  assert.equal(res.headers['x-request-id'], 'trace-abc.123_XYZ');
+});
+
+test('a malformed or oversized x-request-id is replaced', async () => {
+  const app = buildApp();
+  const bad = await request(app).get('/live').set('X-Request-Id', 'x'.repeat(200));
+  assert.equal(bad.status, 200);
+  assert.notEqual(bad.headers['x-request-id'], 'x'.repeat(200));
+  assert.match(bad.headers['x-request-id'], /^[0-9a-f-]{36}$/);
+});
+
 test('/metrics requires a token', async () => {
   const app = buildApp();
   const denied = await request(app).get('/metrics');
