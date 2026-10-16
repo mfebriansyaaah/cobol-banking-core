@@ -1,0 +1,47 @@
+# Baseline: expected passing assertions per suite. ci.sh records the actual
+# counts during the run and the final step fails on any mismatch, so deleted
+# or silently lost assertions cannot pass unnoticed. Update these numbers
+# deliberately (with docs/STATUS.md) whenever a suite gains/loses assertions.
+functional 16
+atomic 5
+ledger-atomic 17
+reconciliation 10
+auth-login 6
+signup-verify 27
+roles 17
+user-profile 41
+gateway 98
+lockout 14
+idempotent-transfer 27
+transfer-validity 36
+concurrent 4
+injection 9
+session 18
+prepared 15
+ping 3
+migrate 8
+e2e 22
+serve 12
+e2e-pool 22
+password 14
+verify-cap 10
+kdf 8
+mfa 16
+sessions-manage 19
+account-status 13
+transfer-limits 10
+reversal 27
+observability 7
+lifecycle 15
+rotation 20
+admin-hierarchy 12
+last-admin 13
+audit-actor 10
+audit-read 9
+audit-integrity 12
+admin-recovery 11
+step-up 10
+mfa-state 5
+ledger-integrity 4
+rng 5
+grants 5
