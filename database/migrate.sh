@@ -11,7 +11,14 @@ DB_USER="${DB_USER:-cobol_user}"
 DB_PASS="${DB_PASS:-cobol_pass}"
 DB_NAME="${DB_NAME:-cobol_db}"
 
-mysqlc() { mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" "$@"; }
+# Migrations create/alter/drop schema objects, so they need DDL rights. Run
+# them under a dedicated privileged account (see database/grants.sh) instead of
+# the DML-only application account; defaults to the app credentials for
+# backward compatibility.
+DB_MIGRATE_USER="${DB_MIGRATE_USER:-$DB_USER}"
+DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}"
+
+mysqlc() { mysql -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" "$@"; }
 
 mysqlc -e "CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(64) PRIMARY KEY,
