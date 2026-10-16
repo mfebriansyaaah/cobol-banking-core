@@ -140,10 +140,10 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_mfa.sh` | 16 | TOTP enrol/confirm/login/disable, MFA required and enforced, owner-only, bad codes rejected |
 | `tests/test_rng.sh` | 5 | fail-closed OS CSPRNG helper builds clean and returns fresh, non-zero bytes; MFA secrets and password salts are fresh per call |
 | `tests/test_grants.sh` | 5 | least-privilege guardrail (no DB): app grant is DML-only with no DDL, migration grant is full DDL, the two accounts differ, migrations use a separate credential |
-| `middleware/` (node --test) | 99 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 101 | gateway: contract, injection, rate limit (auth + api, shared store), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
 
-Shell suites total **584**; with the gateway suite **99** the full run is
-**683 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **584**; with the gateway suite **101** the full run is
+**685 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
@@ -187,7 +187,11 @@ rate limiting per client (`RATE_LIMIT_*` on `/auth/*`, more generous
 `API_RATE_LIMIT_*` on the rest, including the public probes (`/health`, `/ready`;
 `/live` stays exempt as pure liveness), whose DB round-trip is cached for
 PROBE_CACHE_MS; counters are shared via Redis
-when REDIS_URL is set, and the client IP follows TRUST_PROXY); access token
+when REDIS_URL is set, and the client IP follows TRUST_PROXY — which must be the
+trusted hop count, never "true" (production startup warns on an unset or
+over-permissive value, since the limiter key depends on it). JSON bodies are
+capped at JSON_BODY_LIMIT (default 20kb, 413 beyond it); every request carries
+the 500-byte input-line cap before COBOL runs. Access token
 15m + refresh 7d
 (`middleware/.env.example`). Every response carries `X-Request-Id`, and the
 server logs one JSON line per request (`event: http_request` with method, route,
