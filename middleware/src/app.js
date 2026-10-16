@@ -540,7 +540,7 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
   app.use(createRequestObserver({ logger }));
   // Legitimate bodies are under a kilobyte (short credential/profile fields);
   // reject anything larger before it costs parsing memory or reaches COBOL.
-  app.use(express.json({ limit: '20kb' }));
+  app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20kb' }));
   app.use(buildRouter({ mailer: mailer || createMailer({ logger }), tokenStore: tokenStore || createTokenStore() }));
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
