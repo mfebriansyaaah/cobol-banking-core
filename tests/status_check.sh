@@ -26,5 +26,25 @@ done
 # 3) The router and the starters must exist for the verify commands to work.
 [ -f cobol/src/main_logic.cob ] || { echo "router missing"; fail=1; }
 
+# 4) The headline assertion counts in STATUS.md must equal the baseline
+#    manifest (shell total = every non-gateway entry, gateway total = the
+#    gateway entry, full total = their sum), so the documented numbers cannot
+#    drift from what CI actually runs.
+BASE="tests/baseline_counts.txt"
+if [ -f "$BASE" ]; then
+    base_shell=$(awk '$1 !~ /^#/ && $1 != "gateway" {s+=$2} END {print s+0}' "$BASE")
+    base_gw=$(awk '$1 == "gateway" {print $2}' "$BASE")
+    base_full=$((base_shell + base_gw))
+    status_shell=$(grep -oE 'Shell suites total \*\*[0-9]+\*\*' "$STATUS" | grep -oE '[0-9]+' | head -1)
+    status_gw=$(grep -oE 'gateway suite \*\*[0-9]+\*\*' "$STATUS" | grep -oE '[0-9]+' | head -1)
+    status_full=$(grep -oE '\*\*[0-9]+ assertions\*\*' "$STATUS" | grep -oE '[0-9]+' | head -1)
+    [ "$status_shell" = "$base_shell" ] || { echo "STATUS shell total $status_shell != baseline $base_shell"; fail=1; }
+    [ "$status_gw" = "$base_gw" ] || { echo "STATUS gateway total $status_gw != baseline $base_gw"; fail=1; }
+    [ "$status_full" = "$base_full" ] || { echo "STATUS full total $status_full != baseline $base_full"; fail=1; }
+else
+    echo "baseline manifest missing: $BASE"
+    fail=1
+fi
+
 [ "$fail" -eq 0 ] || { echo "status check FAILED"; exit 1; }
 echo "status check OK"
