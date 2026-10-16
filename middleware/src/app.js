@@ -522,7 +522,9 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
   app.set('trust proxy', process.env.TRUST_PROXY || false);
   app.use(helmet());
   app.use(createRequestObserver({ logger }));
-  app.use(express.json());
+  // Legitimate bodies are under a kilobyte (short credential/profile fields);
+  // reject anything larger before it costs parsing memory or reaches COBOL.
+  app.use(express.json({ limit: '20kb' }));
   app.use(buildRouter({ mailer: mailer || createMailer({ logger }), tokenStore: tokenStore || createTokenStore() }));
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
@@ -537,6 +539,9 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
     } else if (err instanceof InvocationError) {
       status = 502;
       code = 'COBOL_UNAVAILABLE';
+    } else if (err.status === 413 || err.type === 'entity.too.large') {
+      status = 413;
+      code = 'BODY_TOO_LARGE';
     }
     res.locals.errorCode = code;
     recordError(code);
