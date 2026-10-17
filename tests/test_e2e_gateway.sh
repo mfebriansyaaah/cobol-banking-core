@@ -42,7 +42,7 @@ SERVER_PID=$!
 
 up=0
 for _ in $(seq 1 40); do
-    code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/health" 2>/dev/null || true)
+    if ! code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/health" 2>/dev/null); then code="000"; fi
     if [ "$code" = "200" ]; then up=1; break; fi
     sleep 0.25
 done
