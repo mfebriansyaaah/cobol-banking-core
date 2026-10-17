@@ -2157,3 +2157,18 @@ _merged 2026-10-17_
 - feat(journal): post journal header and verify balanced legs in TRANSFER
 - feat(journal): journal_entries table and migration 0030
 
+## #213 gate1-holds-fees
+
+_merged 2026-10-17_
+
+- chore(holds): wire holds suite into CI as step 36
+- fix(holds): frozen-balance expectation with available field
+- fix(holds): resolve zero-vs-many accounts, serve-mode balance format
+- docs(holds): ADR-0061, matrix row, status, specs, PRD boundary
+- feat(gateway): holds endpoints, available balance, REASON pattern
+- test(holds): holds, fees and available-balance suite
+- feat(fees): scheduled transfer fees as separate journals
+- feat(holds): enforce available balance in transfers and balances
+- feat(holds): PLACE_HOLD and RELEASE_HOLD actions
+- feat(holds): account_holds and fee_schedule tables, migration 0031
+
