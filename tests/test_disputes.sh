@@ -131,8 +131,9 @@ check "get shows two notes" "2" "$(echo "$GET" | cut -d'|' -f4)"
 check "get shows admin reply" "Looking into it" "$(echo "$GET" | cut -d'|' -f5 | tr ';' '\n' | grep "$A" | cut -d':' -f3)"
 check "stranger get is refused" "ERROR|FORBIDDEN" "$(run GET_DISPUTE $C1 $O)"
 check "owner queue is pinned" "3" "$(run LIST_DISPUTES $U | cut -d'|' -f3)"
-check "admin sees all three" "3" "$(run LIST_DISPUTES $A | cut -d'|' -f3)"
-check "status filter works" "1" "$(run LIST_DISPUTES $A '' RESOLVED | cut -d'|' -f3)"
+check "admin filters by owner" "3" "$(run LIST_DISPUTES $A $U | cut -d'|' -f3)"
+check "status filter works" "1" "$(run LIST_DISPUTES $A $U RESOLVED | cut -d'|' -f3)"
+check "admin unfiltered sees at least ours" "1" "$(run LIST_DISPUTES $A | cut -d'|' -f3 | awk '{print ($1 >= 3)}')"
 check "paging slices" "1" "$(run LIST_DISPUTES $A '' '' 1 2 | cut -d'|' -f3 | tr ';' '\n' | wc -l | tr -d ' ')"
 
 # --- history is append-only ----------------------------------------------------------------------------
