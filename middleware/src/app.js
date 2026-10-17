@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -52,7 +52,7 @@ export const ROUTES = [
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
-    { name: 'mfaCode', pattern: CODE, required: false },
+    { name: 'mfaCode', pattern: MFA_CODE, required: false },
   ], onSuccess: async (body, input, { req }) => {
     const ver = await tokenVersion(input.email);
     const issued = signRefresh({ email: input.email });
@@ -75,7 +75,7 @@ export const ROUTES = [
   { method: 'post', path: '/auth/step-up', action: 'VERIFY_REAUTH', tokenIdentity: 'email', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
-    { name: 'mfaCode', pattern: CODE, required: false },
+    { name: 'mfaCode', pattern: MFA_CODE, required: false },
   ], onSuccess: async (body, input) => {
     const ver = await tokenVersion(input.email);
     return { data: ['STEP_UP_OK'], stepUpToken: signStepUp({ email: input.email, ver }) };
@@ -211,6 +211,34 @@ export const ROUTES = [
     { name: 'currentPassword', pattern: PASSWORD, required: true },
     { name: 'newPassword', pattern: PASSWORD, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/mfa/backup-codes', action: 'MFA_BACKUP_CODES', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ], onSuccess: async (body) => {
+    return { data: ['BACKUP_CODES'], codes: String(body.data[1] || '').split(',').filter(Boolean) };
+  } },
+  { method: 'post', path: '/mfa/recover', action: 'REQUEST_MFA_RECOVERY', public: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'password', pattern: PASSWORD, required: true },
+  ] },
+  { method: 'post', path: '/mfa/recover/confirm', action: 'VERIFY_MFA_RECOVERY', public: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'code', pattern: CODE, required: true },
+  ] },
+  { method: 'post', path: '/admin/mfa-recovery/approve', action: 'APPROVE_MFA_RECOVERY', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'requestId', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/mfa-recovery/reject', action: 'REJECT_MFA_RECOVERY', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'requestId', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'get', path: '/admin/mfa-recovery', action: 'LIST_MFA_RECOVERY', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'status', pattern: RECOVERY_STATUS, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: LIMIT, required: false },
   ] },
   { method: 'post', path: '/mfa/enroll', action: 'MFA_ENROLL_BEGIN', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
