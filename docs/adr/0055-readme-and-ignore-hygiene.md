@@ -8,7 +8,7 @@ Phase: CI/engineering hygiene audit (FASE C).
 
 Two small rot sources, both verified by execution rather than assumed:
 
-- `.gitignore` listed a root-anchored `/package-lock.json` that cannot match
+- `.gitignore` listed a root-anchored package-lock pattern that cannot match
   the tracked `middleware/package-lock.json`, plus entries for things that no
   longer exist (ODBC configs retired with ADR-0002, an `interop_test`
   binary, `docs/agents/`).
