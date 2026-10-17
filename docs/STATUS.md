@@ -95,7 +95,7 @@ so a bug cannot DROP/ALTER tables; `database/grants.sh` provisions that account
 plus a separate privileged migration account (`database/migrate.sh` runs under
 DB_MIGRATE_USER/DB_MIGRATE_PASS, defaulting to the app credentials).
 
-Migrations applied by `database/migrate.sh` (a failure aborts naming the file and records nothing, so a retry resumes there) and tracked in `schema_migrations`; `database/migrate.sh --check` verifies none are pending. `database/schema.sql` is the fresh-install baseline: it folds every migration to date and pre-records them, so a new database only ever runs newer migrations (adding a migration means folding its objects into `schema.sql` and extending the baseline list — enforced by `tests/test_migrate.sh`). Seed data: `database/seed_test_data.sql` (re-runnable: fixture rows are kept when present, ledger seed rows reset by key).
+Migrations applied by `database/migrate.sh` (a failure aborts naming the file and records nothing, so a retry resumes there) and tracked in `schema_migrations`; `database/migrate.sh --check` verifies none are pending. `database/schema.sql` is the fresh-install baseline: it folds every migration to date and pre-records them, so a new database only ever runs newer migrations (adding a migration means folding its objects into `schema.sql` and extending the baseline list — enforced by `tests/test_migrate.sh`). Seed data: `database/seed_test_data.sql` (re-runnable: fixture rows are kept when present, ledger seed rows reset by key). Full policy: `docs/SCHEMA_POLICY.md` (source of truth, fold-then-extend rule, never re-run `schema.sql` live, dev-only seeds, benign column-order drift).
 
 ## 4. Test suites (all green under `./ci.sh`)
 
