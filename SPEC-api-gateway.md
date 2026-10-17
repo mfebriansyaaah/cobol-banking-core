@@ -42,6 +42,10 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 | POST | `/admin/mfa-reset` | `ADMIN_RESET_MFA` (clear a user's MFA) | bearer (admin) |
 | POST | `/admin/holds` | `PLACE_HOLD` (amount, optional `days`/`currency`/`reason`) | bearer (SUPER_ADMIN) + step-up |
 | POST | `/admin/holds/release` | `RELEASE_HOLD` (`holdId`) | bearer (SUPER_ADMIN) + step-up |
+| POST | `/admin/requests` | `REQUEST_OPERATION` (`operation`/`target`/`detail`) | bearer (SUPER_ADMIN) + step-up |
+| POST | `/admin/requests/approve` | `APPROVE_REQUEST` (`requestId`) | bearer (SUPER_ADMIN) + step-up |
+| POST | `/admin/requests/reject` | `REJECT_REQUEST` (`requestId`) | bearer (SUPER_ADMIN) + step-up |
+| GET | `/admin/requests` | `LIST_REQUESTS` (optional `status`/`limit`/`offset`) | bearer (SUPER_ADMIN) |
 | GET | `/admin/reconcile` | `RECONCILE` (read-only diagnostic) | bearer (SUPER_ADMIN) |
 | POST | `/admin/reconcile/run` | `RUN_RECONCILIATION` (optional `trigger`) | bearer (SUPER_ADMIN) + step-up |
 | GET | `/admin/reconcile/runs` | `LIST_RECONCILIATIONS` (optional `limit`/`offset`) | bearer (SUPER_ADMIN) |
