@@ -6,9 +6,9 @@
 -- acknowledge time (no hardcoded SLA — the deadline is human policy, and the
 -- list view computes an overdue flag from it). Resolution text is stored on
 -- the terminal transition; every transition is audited by the COBOL actions.
--- dispute_messages: append-only case history. Immutability is enforced in
--- the database itself (BEFORE UPDATE/DELETE triggers abort), the same
--- mechanism the ledger and audit trail use; the COBOL layer only INSERTs.
+-- dispute_messages: append-only case history. UPDATE is refused by a trigger
+-- (the ledger/audit mechanism); DELETE stays allowed so the user/case-delete
+-- cascade can remove rows. No COBOL action updates or deletes messages.
 CREATE TABLE IF NOT EXISTS dispute_cases (
     case_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -49,9 +49,4 @@ BEGIN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'dispute_messages is append-only (no UPDATE)';
 END//
 
-CREATE TRIGGER IF NOT EXISTS trg_dispute_msg_no_delete BEFORE DELETE ON dispute_messages
-FOR EACH ROW
-BEGIN
-    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'dispute_messages is append-only (no DELETE)';
-END//
 DELIMITER ;

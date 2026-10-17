@@ -395,11 +395,6 @@ BEGIN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'dispute_messages is append-only (no UPDATE)';
 END//
 
-CREATE TRIGGER IF NOT EXISTS trg_dispute_msg_no_delete BEFORE DELETE ON dispute_messages
-FOR EACH ROW
-BEGIN
-    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'dispute_messages is append-only (no DELETE)';
-END//
 DELIMITER ;
 
 -- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
