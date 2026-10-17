@@ -48,6 +48,20 @@ export function runSql(sql) {  const u = process.env.DB_USER ?? 'cobol_user';
   }
 }
 
+// Run a SQL query and return its first cell (trimmed). Returns '' on error.
+// Used by tests that assert a database invariant (e.g. ledger consistency).
+export function queryScalar(sql) {
+  const u = process.env.DB_USER ?? 'cobol_user';
+  const p = process.env.DB_PASS ?? 'cobol_pass';
+  const n = process.env.DB_NAME ?? 'cobol_db';
+  try {
+    return execFileSync('mysql', ['-u', u, `-p${p}`, n, '-N', '-B', '-e', sql],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return '';
+  }
+}
+
 // Read the latest unused verification code for an email from the database.
 // Tests use this because the gateway no longer returns the code in the response.
 export function getVerificationCode(email, purpose = 'SIGNUP') {

@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
+import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -318,6 +318,14 @@ test('admin hold lifecycle is admin-only', async () => {
   const rerelease = await request(app).post('/admin/holds/release').set(auth).send({ holdId });
   assert.equal(rerelease.status, 404);
   assert.equal(rerelease.body.error, 'UNKNOWN_TRANSACTION');
+});
+
+test('seeded accounts reconcile against the ledger', async () => {
+  const em = `gw_seedrec_${Date.now()}@test.com`;
+  requireSeed(seedUser(em, 'USER') && seedAccount(em, '1000.00'), 'seed an account');
+  const net = `(SELECT COALESCE(SUM(CASE WHEN type='CREDIT' THEN amount ELSE -amount END),0) FROM ledger l JOIN accounts a ON a.account_id=l.account_id JOIN users u ON u.id=a.user_id WHERE u.email='${em}')`;
+  const balance = `(SELECT balance FROM accounts a JOIN users u ON u.id=a.user_id WHERE u.email='${em}')`;
+  assert.equal(queryScalar(`SELECT ${balance} = ${net}`), '1', 'a seeded balance must equal its ledger sum');
 });
 
 test('reconciliation runs record results and resolve exceptions', async () => {

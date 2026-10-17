@@ -75,6 +75,10 @@ check "dashboard other forbidden for non-admin" "ERROR|FORBIDDEN" "$(run GET_DAS
 check "dashboard unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_DASHBOARD ghost@test.com "$ADMIN" "")"
 
 # --- LIST_USERS + paging ---
+# The seeded account must reconcile against the ledger (a balance with no
+# ledger row would show up as a false reconciliation mismatch).
+check "seeded account reconciles against the ledger" "1" "$(q "SELECT (SELECT balance FROM accounts WHERE account_id=950) = COALESCE((SELECT SUM(CASE WHEN type='CREDIT' THEN amount ELSE -amount END) FROM ledger WHERE account_id=950),0);")"
+
 check_contains "list users header" "SUCCESS|LIST_DONE|" "$(run LIST_USERS "" "" "$ADMIN")"
 check_contains "list users includes a known user" "950:$U" "$(run LIST_USERS "" "" "$ADMIN")"
 check_contains "get_user is enriched" "SUCCESS|USER|950|$U|Prof User|VERIFIED|USER|" "$(run GET_USER "$U" "$U" "")"
