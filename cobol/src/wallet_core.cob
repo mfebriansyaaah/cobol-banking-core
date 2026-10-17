@@ -847,7 +847,7 @@
             END-IF.
             MOVE WS-RESULT TO WS-ST-CLOSE
             MOVE SPACES TO WS-PREP-SQL
-            STRING "SELECT CONCAT(l.ledger_id, ':', DATE_FORMAT(l.created_at, '%Y-%m-%dT%H:%i:%s'), ':', " DELIMITED BY SIZE
+            STRING "SELECT CONCAT(l.ledger_id, ':', DATE(l.created_at), ':', " DELIMITED BY SIZE
                    "COALESCE(j.value_date, DATE(l.created_at)), ':', l.txn_ref, ':', " DELIMITED BY SIZE
                    "COALESCE(j.source, 'TRANSFER'), ':', l.type, ':', " DELIMITED BY SIZE
                    "REPLACE(FORMAT(l.amount, " DELIMITED BY SIZE
