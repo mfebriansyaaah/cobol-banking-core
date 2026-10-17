@@ -985,6 +985,47 @@ test('liveness and readiness probes', async () => {
   assert.ok(['configured', 'unset'].includes(ready.body.checks.mailer));
 });
 
+test('dual control gates designated operations', async () => {
+  const maker = `gw_dc_mkr_${Date.now()}@test.com`;
+  const checker = `gw_dc_chk_${Date.now()}@test.com`;
+  const target = `gw_dc_tgt_${Date.now()}@test.com`;
+  requireSeed(seedUser(maker, 'SUPER_ADMIN') && seedUser(checker, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed dual-control users');
+  enableMfa(maker);
+  enableMfa(checker);
+  const makerToken = await adminLoginFor(maker);
+  const checkerToken = await adminLoginFor(checker);
+  const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+  const makerStep = await stepUpFor(makerToken);
+  const checkerStep = await stepUpFor(checkerToken);
+  const userStep = await stepUpFor(userToken);
+  const mkAuth = { Authorization: `Bearer ${makerToken}`, 'X-Step-Up': makerStep };
+  const ckAuth = { Authorization: `Bearer ${checkerToken}`, 'X-Step-Up': checkerStep };
+  requireSeed(runSql(`INSERT IGNORE INTO dual_control_operations (operation) VALUES ('CHANGE_ROLE')`), 'designate role changes');
+  try {
+    // A direct change is refused while the operation is designated.
+    const direct = await request(app).post('/admin/role').set(mkAuth).send({ email: target, role: 'MANAGER' });
+    assert.equal(direct.status, 403);
+    assert.equal(direct.body.error, 'DUAL_CONTROL_REQUIRED');
+
+    const placed = await request(app).post('/admin/requests').set(mkAuth).send({ operation: 'CHANGE_ROLE', target, detail: 'MANAGER' });
+    assert.equal(placed.status, 200);
+    assert.equal(placed.body.data[0], 'REQUEST_PLACED');
+    const reqId = placed.body.data[1];
+
+    // The maker cannot approve their own request.
+    const self = await request(app).post('/admin/requests/approve').set(mkAuth).send({ requestId: reqId });
+    assert.equal(self.status, 403);
+
+    const approved = await request(app).post('/admin/requests/approve').set(ckAuth).send({ requestId: reqId });
+    assert.deepEqual(approved.body.data, ['REQUEST_APPROVED']);
+
+    const listed = await request(app).get('/admin/requests').set({ Authorization: `Bearer ${checkerToken}` }).query({ status: 'APPROVED' });
+    assert.ok(listed.body.data.slice(2).join(';').includes(`${reqId}:CHANGE_ROLE`), 'the approved request is listed');
+  } finally {
+    requireSeed(runSql(`DELETE FROM maker_requests WHERE maker_email IN ('${maker}','${checker}'); DELETE FROM dual_control_operations WHERE operation = 'CHANGE_ROLE';`), 'undesignate role changes');
+  }
+});
+
 test('readiness reports 503 when the database is down', async () => {
   // A fresh app (fresh probe cache and limiter); the spawned COBOL process
   // inherits this process' environment, so a bogus DB name fails PING fast

@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0032 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0033 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0033 - dual-control designation and maker requests
 --   baseline-0032 - reconciliation runs (immutable) and findings
 --   baseline-0031 - account_holds, fee_schedule, FEE_INCOME/FEE enums
 --   baseline-0030 - journal_entries header, ledger/audit journal link
@@ -288,6 +289,26 @@ CREATE TABLE IF NOT EXISTS reconciliation_findings (
     KEY idx_finding_status (status)
 ) ENGINE=InnoDB;
 
+-- 9e. Dual control: designation list plus maker requests
+CREATE TABLE IF NOT EXISTS dual_control_operations (
+    operation VARCHAR(50) PRIMARY KEY
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS maker_requests (
+    request_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    operation VARCHAR(50) NOT NULL,
+    target_email VARCHAR(100) NOT NULL,
+    detail VARCHAR(255) NULL,
+    maker_email VARCHAR(100) NOT NULL,
+    checker_email VARCHAR(100) NULL,
+    state ENUM('PENDING','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    decided_at TIMESTAMP NULL,
+    CONSTRAINT fk_maker_request_op FOREIGN KEY (operation)
+        REFERENCES dual_control_operations(operation),
+    KEY idx_maker_state (state)
+) ENGINE=InnoDB;
+
 -- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
@@ -364,7 +385,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0029_fx_lookup_index'),
 ('0030_journal_entries'),
 ('0031_holds_fees'),
-('0032_reconciliation_runs');
+('0032_reconciliation_runs'),
+('0033_dual_control');
 
 
 -- Indexes
