@@ -131,6 +131,10 @@ if build_log=$(./build.sh 2>&1); then build_rc=0; else build_rc=$?; fi
 [ "$build_rc" -eq 0 ] || { echo "BUILD FAILED (rc=$build_rc)"; echo "$build_log" | tail -20; exit 1; }
 echo "$build_log" | grep -E "^cobol.*error:" && { echo "BUILD FAILED"; exit 1; }
 echo "$build_log" | grep -q "SUCCESS: Binary created" || { echo "BUILD FAILED"; exit 1; }
+bw_log="$(mktemp)"
+printf '%s\n' "$build_log" > "$bw_log"
+./tests/warning_check.sh "$bw_log"
+rm -f "$bw_log"
 echo "Build OK"
 
 echo "=== [4/66] Functional suite ==="
