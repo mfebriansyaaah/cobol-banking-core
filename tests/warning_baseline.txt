@@ -1,0 +1,17 @@
+# Build-warning ratchet (tests/warning_check.sh).
+# Per-class counts from `./build.sh` (cobc -Wall -Wextra). CI fails when a class
+# grows, so new code cannot add warnings; lower a number as debt is paid down.
+#
+# classes:
+#   others            duplicate USING BY REFERENCE from the fixed-arity SQL
+#                     bridge signature (intentional bind padding)
+#   terminator        scope terminators (END-CALL/END-IF/...) absent on legacy
+#                     statements; rule 14 requires them on new code (the ratchet
+#                     enforces that), bulk retrofit tracked as debt
+#   possible-truncate reviewed benign: `MOVE WS-RESULT (X(16384))` into a scalar
+#                     field that holds a single short value, `MOVE WS-I (9(5))`
+#                     into 9(3) length fields bounded by 100, and validated
+#                     `WS-PARAMn-TRIMMED` copies; see docs/BUILD_WARNINGS.md
+others 1087
+terminator 1006
+possible-truncate 79
