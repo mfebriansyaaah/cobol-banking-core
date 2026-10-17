@@ -2090,3 +2090,48 @@ _merged 2026-10-17_
 - test(hooks): installed hooks match tracked, tampering detected
 - feat(scripts): verify installed hooks match with --check
 
+## #207 regulated-bank-charter
+
+_merged 2026-10-17_
+
+- docs(readme): state the mandatory COBOL authority
+- docs(dev): prohibit business logic outside COBOL
+- docs(prd): require COBOL as the business-logic authority
+- docs(readme): mark quick start as development-only
+- docs(readme): link the mission and gates from the entry point
+- docs(readme): disclose prototype and regulatory status
+- docs(dev): establish mandatory regulated-banking controls
+- docs(prd): reset product charter for regulated banking
+
+## #208 cobol-authority
+
+_merged 2026-10-17_
+
+- docs: record CI failure-handling in ADR-0057
+- chore(ci): explicit curl failure value in gateway wait loop
+- chore(ci): explicit exit codes instead of || true guards
+- docs(db): translate schema comments to English
+- docs: record COBOL enrolment decision and trigger exception
+- test(auth): cover COBOL enrolment decision table
+- refactor(gateway): consume COBOL enrolment decision, drop JS replica
+- feat(auth): decide MFA enrolment requirement in COBOL
+
+## #209 workflow-fat-prs
+
+_merged 2026-10-17_
+
+- docs: immortalize micro-commit, fat-PR workflow as rule 43
+
+## #210 gate0-traceability
+
+_merged 2026-10-17_
+
+- docs(gate0): point STATUS gaps at the traceability matrix
+- docs(gate0): adopt traceability as a merge gate in ADR-0058
+- docs(wallet): fix prepared-statement and credential drift in spec
+- chore(gate0): enforce traceability in CI status step
+- chore(gate0): include traceability matrix in docs integrity check
+- test(gate0): check matrix coverage, shape, evidence, owners, gates
+- docs(gate0): record retention and approval per requirement in matrix
+- docs(gate0): add requirements traceability matrix
+
