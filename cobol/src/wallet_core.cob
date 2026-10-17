@@ -64,24 +64,31 @@
             88  WS-TRANSFER-FAIL-CURINACT VALUE 'CINA'.
             88  WS-TRANSFER-FAIL-LIMIT VALUE 'LIMT'.
             88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.
-        01  WS-BALANCE-NUM         PIC S9(16)V99 COMP-3.
-        01  WS-AMOUNT-NUM          PIC S9(16)V99 COMP-3.
+        01  WS-BALANCE-NUM         PIC S9(16)V9999 COMP-3.
+        01  WS-AMOUNT-NUM          PIC S9(16)V9999 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(50) VALUE SPACES.
         01  WS-RAND                PIC X(7)  VALUE SPACES.
         01  WS-MAX-TXN-STR         PIC X(20) VALUE SPACES.
         01  WS-DAILY-LIMIT-STR     PIC X(20) VALUE SPACES.
         01  WS-PRIOR-TOTAL-STR     PIC X(30) VALUE SPACES.
-        01  WS-MAX-TXN-NUM         PIC S9(16)V99 COMP-3.
-        01  WS-DAILY-LIMIT-NUM     PIC S9(16)V99 COMP-3.
-        01  WS-PRIOR-TOTAL-NUM     PIC S9(16)V99 COMP-3.
+        01  WS-MAX-TXN-NUM         PIC S9(16)V9999 COMP-3.
+        01  WS-DAILY-LIMIT-NUM     PIC S9(16)V9999 COMP-3.
+        01  WS-PRIOR-TOTAL-NUM     PIC S9(16)V9999 COMP-3.
+        01  WS-PARSE-SRC           PIC X(100) VALUE SPACES.
+        01  WS-PARSE-BUF           PIC X(100) VALUE SPACES.
+        01  WS-PARSE-NUM           PIC S9(16)V9999 COMP-3.
+        01  WS-CAP-SRC             PIC X(20) VALUE SPACES.
+        01  WS-CAP-OK              PIC X(1) VALUE "Y".
+        01  WS-CAP-LEN             PIC 9(3) VALUE 0.
+        01  WS-PREC-NUM            PIC S9(4) VALUE 0.
         01  WS-REV-AMT             PIC X(30) VALUE SPACES.
         01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
         01  WS-REV-FROM            PIC X(100) VALUE SPACES.
         01  WS-REV-CNT             PIC X(10) VALUE SPACES.
         01  WS-REV-MINFROM         PIC X(100) VALUE SPACES.
-        01  WS-REV-AMT-NUM         PIC S9(16)V99 COMP-3.
-        01  WS-REV-CAMT-NUM        PIC S9(16)V99 COMP-3.
+        01  WS-REV-AMT-NUM         PIC S9(16)V9999 COMP-3.
+        01  WS-REV-CAMT-NUM        PIC S9(16)V9999 COMP-3.
         01  WS-TX-FROM             PIC X(100) VALUE SPACES.
         01  WS-TX-TO               PIC X(100) VALUE SPACES.
         01  WS-TX-AMT              PIC X(30) VALUE SPACES.
@@ -96,7 +103,7 @@
         01  WS-INTENT-TO           PIC X(100) VALUE SPACES.
         01  WS-INTENT-AMT          PIC X(30) VALUE SPACES.
         01  WS-INTENT-STATUS       PIC X(10) VALUE SPACES.
-        01  WS-INTENT-AMOUNT-NUM   PIC S9(16)V99 COMP-3.
+        01  WS-INTENT-AMOUNT-NUM   PIC S9(16)V9999 COMP-3.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
@@ -281,7 +288,7 @@
                 EXIT PARAGRAPH
             END-IF.
             *> Every account the user holds, as iso:balance:status rows.
-            MOVE "SELECT CONCAT(c.iso_code, ':', ROUND(a.balance,2), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
+            MOVE "SELECT CONCAT(c.iso_code, ':', REPLACE(FORMAT(a.balance,c.prec_val), ',', ''), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -359,7 +366,7 @@
             END-IF
             *> The original debit (sender side) and credit (target side), scoped
             *> to the sender so a shared reference cannot pick the wrong rows.
-            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-REV-FROM TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -373,7 +380,7 @@
             UNSTRING WS-RESULT DELIMITED BY "|"
                 INTO WS-SENDER-ACC WS-REV-AMT WS-SENDER-CUR
             END-UNSTRING
-            MOVE "SELECT CAST(account_id AS CHAR), CAST(ROUND(amount,2) AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'CREDIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'CREDIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-REV-FROM TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -397,15 +404,19 @@
                 EXIT PARAGRAPH
             END-IF
             *> The target must still hold the credited amount to claw it back.
-            MOVE "SELECT CONCAT(ROUND(balance,2)) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE "SELECT CONCAT(balance) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
             MOVE WS-TARGET-ACC TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             MOVE WS-RESULT TO WS-SENDER-BAL
-            COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-SENDER-BAL)
-            COMPUTE WS-REV-CAMT-NUM = FUNCTION NUMVAL(WS-REV-CAMT)
+            MOVE WS-SENDER-BAL TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
+            MOVE WS-REV-CAMT TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-REV-CAMT-NUM
             IF WS-BALANCE-NUM < WS-REV-CAMT-NUM
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
@@ -593,8 +604,11 @@
             EXIT PARAGRAPH.
 
         VALIDATE-AMOUNT.
-            *> Defense-in-depth: the core also checks the amount is a plain
-            *> positive decimal with at most two fractional digits.
+            *> Defense-in-depth: the core checks the amount is a plain positive
+            *> decimal and counts its fraction digits, so the per-currency
+            *> precision check (after the sender account is resolved) can
+            *> enforce them against that currency's prec_val. At most four
+            *> fraction digits: the DECIMAL(18,4) schema cannot store more.
             MOVE 0 TO WS-AMT-DOTS
             MOVE 0 TO WS-AMT-DIGITS
             MOVE 0 TO WS-AMT-FRAC
@@ -619,9 +633,65 @@
                     END-IF
                 END-IF
             END-PERFORM
-            IF WS-AMT-DOTS > 1 OR WS-AMT-FRAC > 2 OR WS-AMT-DIGITS < 1
+            IF WS-AMT-DOTS > 1 OR WS-AMT-FRAC > 4 OR WS-AMT-DIGITS < 1
+                OR WS-AMT-DIGITS > 15
                 SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
             END-IF.
+            EXIT PARAGRAPH.
+
+        PARSE-MAJOR.
+            *> Canonical money parse into major units. The program compiles
+            *> with DECIMAL-POINT IS COMMA, so NUMVAL reads a dot as a
+            *> thousands separator ("100.01" would parse as 10001). Normalize
+            *> the dot to a comma first; callers pass only validated
+            *> digit/dot strings or exact decimals read back from the DB.
+            MOVE WS-PARSE-SRC TO WS-PARSE-BUF
+            INSPECT WS-PARSE-BUF REPLACING ALL "." BY ","
+            COMPUTE WS-PARSE-NUM = FUNCTION NUMVAL(WS-PARSE-BUF)
+            EXIT PARAGRAPH.
+
+        CHECK-CAP-DIGITS.
+            *> Caps are whole major units, digits only: env_or_raw keeps the raw
+            *> text so a dotted or malformed setting fails closed below
+            *> instead of silently becoming a different number.
+            MOVE "Y" TO WS-CAP-OK
+            MOVE 0 TO WS-CAP-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-CAP-LEN > 0
+                IF WS-CAP-SRC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-CAP-LEN
+                END-IF
+            END-PERFORM
+            IF WS-CAP-LEN = 0
+                MOVE "N" TO WS-CAP-OK
+            ELSE
+                PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-CAP-LEN
+                    IF WS-CAP-SRC(WS-I:1) < "0" OR WS-CAP-SRC(WS-I:1) > "9"
+                        MOVE "N" TO WS-CAP-OK
+                    END-IF
+                END-PERFORM
+            END-IF
+            EXIT PARAGRAPH.
+
+        CHECK-DAILY-TOTAL.
+            *> Rolling 24h debit total, read at full stored precision and
+            *> compared in major units — no fixed scaling.
+            MOVE "SELECT CAST(COALESCE(SUM(l.amount),0) AS CHAR) FROM ledger l WHERE l.account_id = ? AND l.type = 'DEBIT' AND l.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)" TO WS-PREP-SQL
+            MOVE WS-SENDER-ACC TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            ELSE
+                MOVE WS-RESULT TO WS-PRIOR-TOTAL-STR
+                MOVE WS-PRIOR-TOTAL-STR TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-PRIOR-TOTAL-NUM
+                IF WS-PRIOR-TOTAL-NUM + WS-AMOUNT-NUM > WS-DAILY-LIMIT-NUM
+                    SET WS-TRANSFER-FAIL-DAILY TO TRUE
+                END-IF
+            END-IF
             EXIT PARAGRAPH.
 
         CHECK-TRANSIENT.
@@ -656,7 +726,8 @@
             END-IF
 
             *> Any account whose stored balance differs from its ledger sum.
-            MOVE "SELECT CAST(a.account_id AS CHAR), CONCAT(ROUND(a.balance,2)), CONCAT(ROUND(COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0),2)) FROM accounts a LEFT JOIN ledger l ON l.account_id = a.account_id GROUP BY a.account_id, a.balance HAVING a.balance <> COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0)" TO WS-PREP-SQL
+            *> Display rounds to each currency's own precision.
+            MOVE "SELECT CAST(a.account_id AS CHAR), CONCAT(REPLACE(FORMAT(a.balance,c.prec_val), ',', '')), CONCAT(REPLACE(FORMAT(COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0),c.prec_val), ',', '')) FROM accounts a LEFT JOIN ledger l ON l.account_id = a.account_id JOIN currencies c ON c.currency_id = a.currency_id GROUP BY a.account_id, a.balance, c.prec_val HAVING a.balance <> COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0)" TO WS-PREP-SQL
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -772,7 +843,7 @@
             *> exists with different details (or belongs to someone else) is a
             *> conflict, not a silent success.
             IF LS-PARAM4 NOT = SPACES
-                MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE "SELECT from_email, to_email, CONCAT(amount), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -786,8 +857,12 @@
                         UNSTRING WS-RESULT DELIMITED BY "|"
                             INTO WS-INTENT-FROM WS-INTENT-TO WS-INTENT-AMT WS-INTENT-STATUS
                         END-UNSTRING
-                        COMPUTE WS-INTENT-AMOUNT-NUM = FUNCTION NUMVAL(WS-INTENT-AMT)
-                        COMPUTE WS-AMOUNT-NUM = FUNCTION NUMVAL(WS-PARAM3-TRIMMED)
+                        MOVE WS-INTENT-AMT TO WS-PARSE-SRC
+                        PERFORM PARSE-MAJOR
+                        MOVE WS-PARSE-NUM TO WS-INTENT-AMOUNT-NUM
+                        MOVE WS-PARAM3-TRIMMED TO WS-PARSE-SRC
+                        PERFORM PARSE-MAJOR
+                        MOVE WS-PARSE-NUM TO WS-AMOUNT-NUM
                         IF WS-INTENT-FROM(1:WS-P1-LEN) = WS-PARAM1-TRIMMED(1:WS-P1-LEN)
                            AND WS-INTENT-TO(1:WS-P2-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
                            AND WS-INTENT-AMOUNT-NUM = WS-AMOUNT-NUM
@@ -919,7 +994,28 @@
                     SET WS-TRANSFER-FAIL-CURINACT TO TRUE
                 END-IF
             END-IF
-            
+
+            *> Precision gate: the amount must fit the sender currency, and
+            *> both precisions must be storable. prec_val beyond 4 has no
+            *> exact DECIMAL(18,4) representation, so transfers refuse
+            *> fail-closed instead of rounding silently.
+            IF WS-TRANSFER-OK
+                COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-SENDER-PREC)
+                IF WS-PREC-NUM < 0 OR WS-PREC-NUM > 4
+                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+                ELSE
+                    IF WS-AMT-FRAC > WS-PREC-NUM
+                        SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                    END-IF
+                END-IF
+            END-IF
+            IF WS-TRANSFER-OK
+                COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-TARGET-PREC)
+                IF WS-PREC-NUM < 0 OR WS-PREC-NUM > 4
+                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+                END-IF
+            END-IF
+
             *> Lock both account rows in one statement, ordered by id, so two
             *> opposing transfers cannot deadlock (and MariaDB does not hit the
             *> two-statement ER_CHECKREAD).
@@ -927,9 +1023,10 @@
                 PERFORM LOCK-ACCOUNTS
             END-IF
             
-            *> Read the sender balance now that its row is locked.
+            *> Read the sender balance now that its row is locked, at full
+            *> stored precision for an exact sufficiency check.
             IF WS-TRANSFER-OK
-                MOVE "SELECT CONCAT(ROUND(balance,2)) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE "SELECT CONCAT(balance) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
                 MOVE WS-SENDER-ACC TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -989,48 +1086,56 @@
             
             *> Amount must be positive, and the sender must be able to cover it.
             IF WS-TRANSFER-OK
-                COMPUTE WS-AMOUNT-NUM = FUNCTION NUMVAL(WS-PARAM3-TRIMMED)
+                MOVE WS-PARAM3-TRIMMED TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-AMOUNT-NUM
                 IF WS-AMOUNT-NUM <= 0
                     SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
                 END-IF
             END-IF
             
-            *> Optional per-transaction limit (sender currency); 0 disables it.
+            *> Optional per-transaction limit, in whole units of the sender
+            *> currency; 0 disables it. A non-numeric setting fails closed.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-MAX-TXN-STR
-                CALL "env_or" USING BY REFERENCE "TRANSFER_MAX_PER_TXN" BY REFERENCE "0" BY REFERENCE WS-MAX-TXN-STR
-                COMPUTE WS-MAX-TXN-NUM = FUNCTION NUMVAL(WS-MAX-TXN-STR) * 100
-                IF WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
+                CALL "env_or_raw" USING BY REFERENCE "TRANSFER_MAX_PER_TXN" BY REFERENCE "0" BY REFERENCE WS-MAX-TXN-STR
+                MOVE WS-MAX-TXN-STR TO WS-CAP-SRC
+                PERFORM CHECK-CAP-DIGITS
+                IF WS-CAP-OK NOT = "Y"
                     SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+                ELSE
+                    MOVE WS-MAX-TXN-STR TO WS-PARSE-SRC
+                    PERFORM PARSE-MAJOR
+                    MOVE WS-PARSE-NUM TO WS-MAX-TXN-NUM
+                    IF WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
+                        SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+                    END-IF
                 END-IF
             END-IF
             
-            *> Optional rolling 24h debit limit per account; 0 disables it.
+            *> Optional rolling 24h debit limit per account, in whole units of
+            *> the sender currency; 0 disables it.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-DAILY-LIMIT-STR
-                CALL "env_or" USING BY REFERENCE "TRANSFER_DAILY_LIMIT" BY REFERENCE "0" BY REFERENCE WS-DAILY-LIMIT-STR
-                COMPUTE WS-DAILY-LIMIT-NUM = FUNCTION NUMVAL(WS-DAILY-LIMIT-STR) * 100
-                IF WS-DAILY-LIMIT-NUM > 0
-                    MOVE "SELECT CAST(ROUND(COALESCE(SUM(l.amount),0) * 100, 0) AS CHAR) FROM ledger l WHERE l.account_id = ? AND l.type = 'DEBIT' AND l.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)" TO WS-PREP-SQL
-                    MOVE WS-SENDER-ACC TO WS-BIND-1
-                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                    IF WS-RESULT(1:5) = "ERROR"
-                        SET WS-TRANSFER-FAIL-DB TO TRUE
-                    ELSE
-                        MOVE WS-RESULT TO WS-PRIOR-TOTAL-STR
-                        COMPUTE WS-PRIOR-TOTAL-NUM = FUNCTION NUMVAL(WS-PRIOR-TOTAL-STR)
-                        IF WS-PRIOR-TOTAL-NUM + WS-AMOUNT-NUM > WS-DAILY-LIMIT-NUM
-                            SET WS-TRANSFER-FAIL-DAILY TO TRUE
-                        END-IF
+                CALL "env_or_raw" USING BY REFERENCE "TRANSFER_DAILY_LIMIT" BY REFERENCE "0" BY REFERENCE WS-DAILY-LIMIT-STR
+                MOVE WS-DAILY-LIMIT-STR TO WS-CAP-SRC
+                PERFORM CHECK-CAP-DIGITS
+                IF WS-CAP-OK NOT = "Y"
+                    SET WS-TRANSFER-FAIL-DAILY TO TRUE
+                ELSE
+                    MOVE WS-DAILY-LIMIT-STR TO WS-PARSE-SRC
+                    PERFORM PARSE-MAJOR
+                    MOVE WS-PARSE-NUM TO WS-DAILY-LIMIT-NUM
+                    IF WS-DAILY-LIMIT-NUM > 0
+                        PERFORM CHECK-DAILY-TOTAL
                     END-IF
                 END-IF
             END-IF
             
             IF WS-TRANSFER-OK
-                COMPUTE WS-BALANCE-NUM = FUNCTION NUMVAL(WS-SENDER-BAL)
+                MOVE WS-SENDER-BAL TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
                 IF WS-BALANCE-NUM < WS-AMOUNT-NUM
                     SET WS-TRANSFER-FAIL-INSUF TO TRUE
                 END-IF

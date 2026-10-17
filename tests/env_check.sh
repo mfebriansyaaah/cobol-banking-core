@@ -23,8 +23,8 @@ for v in $(grep -rhoE "process\.env\.[A-Z][A-Z0-9_]*" middleware/src/*.js | sed 
     fi
 done
 
-# Core: CALL "env_or" USING BY REFERENCE "NAME" (the first quoted literal).
-for v in $(grep -rhoE 'CALL "env_or" USING BY REFERENCE "[A-Z_]+"' cobol/src/*.cob | grep -oE '"[A-Z_]+"' | tr -d '"' | sort -u); do
+# Core: CALL "env_or"/"env_or_raw" USING BY REFERENCE "NAME" (the first quoted literal).
+for v in $(grep -rhoE 'CALL "env_or(_raw)?" USING BY REFERENCE "[A-Z_]+"' cobol/src/*.cob | grep -oE '"[A-Z_]+"' | tr -d '"' | sort -u); do
     if ! documented "$v"; then
         echo "env check: '$v' is read by the COBOL core but missing from $EXAMPLE"
         fail=1
