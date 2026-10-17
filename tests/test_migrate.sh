@@ -10,6 +10,21 @@ check(){ if [ "$2" = "$3" ]; then echo -e "${GREEN}PASS${NC} $1"; passed=$((pass
 echo "======================================================================"
 echo "  MIGRATION TOOLING SUITE"
 echo "======================================================================"
+
+# --- failing migration: loud, attributed, and unrecorded -----------------
+TMP_MIGRATION="database/migrations/9999_zz_tmp_fail.sql"
+trap 'rm -f "$TMP_MIGRATION"' EXIT
+echo "THIS IS NOT VALID SQL;" > "$TMP_MIGRATION"
+fail_out="$(./database/migrate.sh 2>&1; echo "rc=$?")"
+if echo "$fail_out" | grep -q "migration FAILED: 9999_zz_tmp_fail" && echo "$fail_out" | grep -q "rc=[1-9]"; then
+    check "failing migration aborts with attribution" "loud" "loud"
+else
+    check "failing migration aborts with attribution" "loud" "quiet rc=$? out: $(echo "$fail_out" | tail -2 | tr '\n' ' ')"
+fi
+check "failed migration is not recorded" "0" "$(q "SELECT COUNT(*) FROM schema_migrations WHERE version='9999_zz_tmp_fail';")"
+rm -f "$TMP_MIGRATION"
+trap - EXIT
+
 ./database/migrate.sh >/dev/null 2>&1
 check "all migration files recorded" "$(ls database/migrations/*.sql | wc -l | tr -d ' ')" "$(q "SELECT COUNT(*) FROM schema_migrations;")"
 check "re-run is idempotent" "no pending migrations" "$(./database/migrate.sh 2>&1 | tail -1)"
