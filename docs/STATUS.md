@@ -68,6 +68,10 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `CHANGE_PASSWORD` | email, current, new, actor (self) | verify current password, set new hash, bump `token_version`, audit | `SUCCESS\|PASSWORD_CHANGED` * `ERROR\|INVALID_CREDENTIALS` * `ERROR\|WEAK_PASSWORD` * `ERROR\|FORBIDDEN` * `ERROR\|PASSWORD_CHANGE_FAILED` |
 | `cobol/src/auth_core.cob` | `CHECK_ROLE` | email, role, actor (self-or-admin) | does the user hold the role | `SUCCESS\|ROLE_OK` * `ERROR\|ROLE_DENIED` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `CHANGE_ROLE` | target, role, actor(actor must be SUPER_ADMIN) | transactional update; **refuses to demote the last active SUPER_ADMIN** (`ERROR\|LAST_ADMIN`); audit row **attributed to the actor** (entity_id = target) | `SUCCESS\|ROLE_CHANGED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_ROLE` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|LAST_ADMIN` * `ERROR\|ROLE_CHANGE_FAILED` |
+| `cobol/src/auth_core.cob` | `REQUEST_OPERATION` | operation, target, detail, maker (maker must be SUPER_ADMIN; operation must be designated and executable) | opens a PENDING maker request | `SUCCESS\|REQUEST_PLACED\|<id>` * `ERROR\|INVALID_INPUT` * `ERROR\|FORBIDDEN` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_ROLE` * `ERROR\|DB_ERROR` |
+| `cobol/src/auth_core.cob` | `APPROVE_REQUEST` | request_id, checker (SUPER_ADMIN, never the maker) | re-validates everything and executes the effect in the same transaction; self-approval is forbidden | `SUCCESS\|REQUEST_APPROVED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|UNKNOWN_TRANSACTION` * `ERROR\|ACCOUNT_NOT_FOUND` * `ERROR\|INVALID_ROLE` * `ERROR\|LAST_ADMIN` * `ERROR\|DB_ERROR` |
+| `cobol/src/auth_core.cob` | `REJECT_REQUEST` | request_id, checker (SUPER_ADMIN, never the maker) | PENDING becomes REJECTED | `SUCCESS\|REQUEST_REJECTED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|UNKNOWN_TRANSACTION` * `ERROR\|DB_ERROR` |
+| `cobol/src/auth_core.cob` | `LIST_REQUESTS` | actor (SUPER_ADMIN), status filter, limit, offset | paged maker requests, newest first | `SUCCESS\|REQUESTS\|<total>[\|<rows>]` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` |
 | `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive`; retention must be **≥ 1 day** (0 is refused); **audited** (actor) | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
 | `cobol/src/auth_core.cob` | `LIST_AUDIT` | actor (SUPER_ADMIN), action (opt), email (opt), limit (50), offset (0) | read the audit trail as `id:created:action:subject:actor:entity_type:entity_id:status:detail;...` with a total; action/email filters and paging | `SUCCESS\|AUDIT\|<total>\|<rows>` * `ERROR\|FORBIDDEN` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
@@ -89,7 +93,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
 `users` (with `token_version`) * `currencies` * `accounts` * `ledger` (with `from_email`) * `ledger_archive` *
-`verification_logs` * `journal_entries` * `audit_trail` (subject `user_id` + `actor_id`, posting `journal_id`) * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` (ref + sender) * `account_holds` (state machine) * `fee_schedule` (per-currency flat fee) * `reconciliation_runs` (immutable) * `reconciliation_findings` (ownership lifecycle) * `refresh_sessions` (jti + `family` + user-agent/ip) * `refresh_families` (absolute lifetime + `rotations`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
+`verification_logs` * `journal_entries` * `audit_trail` (subject `user_id` + `actor_id`, posting `journal_id`) * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` (ref + sender) * `account_holds` (state machine) * `fee_schedule` (per-currency flat fee) * `reconciliation_runs` (immutable) * `reconciliation_findings` (ownership lifecycle) * `dual_control_operations` (designation) * `maker_requests` (PENDING/APPROVED/REJECTED) * `refresh_sessions` (jti + `family` + user-agent/ip) * `refresh_families` (absolute lifetime + `rotations`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -175,7 +179,7 @@ Held by a bearer JWT (public but rate-limited: `/health`, `/live`, `/ready`; pub
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile` (GET/PATCH), `/profile/deactivate`,
 `/profile/email/request`,
-`/profile/email/confirm`, `/profile/password`, `/admin/user-status`, `/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/reconcile/run`, `/admin/reconcile/runs`, `/admin/reconcile/exceptions`, `/admin/reconcile/acknowledge`, `/admin/reconcile/resolve`, `/mfa/enroll`, `/mfa/confirm`,
+`/profile/email/confirm`, `/profile/password`, `/admin/user-status`, `/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/reconcile/run`, `/admin/reconcile/runs`, `/admin/reconcile/exceptions`, `/admin/reconcile/acknowledge`, `/admin/reconcile/resolve`, `/admin/requests`, `/admin/requests/approve`, `/admin/requests/reject`, `/mfa/enroll`, `/mfa/confirm`,
 `/mfa/disable`, `/sessions` (GET), `/sessions/revoke`, `/sessions/revoke-all`,
 `/admin/role` (GET/POST),
 `/admin/reconcile`
@@ -187,7 +191,7 @@ access token), `/admin/audit/archive` (moves old audit rows to the archive), and
 filters and paging), and `/auth/step-up` (POST, bearer: re-verify your own
 password/MFA and mint a short-lived step-up proof).
 Privileged admin writes — `POST /admin/role`, `/admin/user-status`,
-`/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/audit/archive` and a transfer
+`/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/requests`, `/admin/requests/approve`, `/admin/requests/reject`, `/admin/audit/archive` and a transfer
 reversal — additionally require a fresh step-up proof in the `X-Step-Up` header
 (short-lived, STEP_UP_TTL_SECONDS default 300s, bound to the caller and its
 token version); a missing/invalid proof is 401 STEP_UP_REQUIRED.
