@@ -34,7 +34,7 @@ q "UPDATE accounts SET balance=1000.00 WHERE account_id=1;"
 
 out=$(printf 'PING\nCHECK_BALANCE|sender@test.com|sender@test.com||\nQUIT\n' | "$BIN" --serve 2>/dev/null)
 check "serve: ping" "SUCCESS|PONG" "$(printf '%s\n' "$out" | sed -n '1p')"
-check "serve: check balance" "SUCCESS|BALANCES|USD:1000.00:ACTIVE" "$(printf '%s\n' "$out" | sed -n '2p')"
+check "serve: check balance" "SUCCESS|BALANCES|USD:1000.00:1000.00:ACTIVE" "$(printf '%s\n' "$out" | sed -n '2p')"
 
 out2=$(printf 'PING\nPING\nPING\nQUIT\n' | "$BIN" --serve 2>/dev/null)
 check "serve: three responses" "3" "$(printf '%s\n' "$out2" | grep -c 'SUCCESS|PONG')"
@@ -55,7 +55,7 @@ out=$( { printf 'PING\n'; sleep 0.4; kill_db; sleep 0.2;
          printf 'PING\nCHECK_BALANCE|sender@test.com|sender@test.com||\nQUIT\n'; } | "$BIN" --serve 2>/dev/null )
 check "lifecycle: ping before kill" "SUCCESS|PONG" "$(printf '%s\n' "$out" | sed -n '1p')"
 check "lifecycle: ping after kill" "SUCCESS|PONG" "$(printf '%s\n' "$out" | sed -n '2p')"
-check "lifecycle: query after kill" "SUCCESS|BALANCES|USD:1000.00:ACTIVE" "$(printf '%s\n' "$out" | sed -n '3p')"
+check "lifecycle: query after kill" "SUCCESS|BALANCES|USD:1000.00:1000.00:ACTIVE" "$(printf '%s\n' "$out" | sed -n '3p')"
 
 # Transaction over the pooled connection: one movement, idempotent replay.
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1;

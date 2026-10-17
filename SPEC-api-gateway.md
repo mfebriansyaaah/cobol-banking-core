@@ -40,6 +40,8 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 | POST | `/admin/audit/archive` | `ARCHIVE_AUDIT` (`days` ≥ 1) | bearer (SUPER_ADMIN) |
 | POST | `/admin/unlock` | `UNLOCK_USER` (clear a lockout) | bearer (admin) |
 | POST | `/admin/mfa-reset` | `ADMIN_RESET_MFA` (clear a user's MFA) | bearer (admin) |
+| POST | `/admin/holds` | `PLACE_HOLD` (amount, optional `days`/`currency`/`reason`) | bearer (SUPER_ADMIN) + step-up |
+| POST | `/admin/holds/release` | `RELEASE_HOLD` (`holdId`) | bearer (SUPER_ADMIN) + step-up |
 | GET | `/metrics` | — (Prometheus counters) | bearer (SUPER_ADMIN) |
 
 ### Result to HTTP mapping

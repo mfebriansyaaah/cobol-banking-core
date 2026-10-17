@@ -283,6 +283,39 @@ test('admin recovery endpoints are admin-only', async () => {
   assert.deepEqual((await request(app).post('/admin/mfa-reset').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target })).body.data, ['MFA_RESET']);
 });
 
+test('admin hold lifecycle is admin-only', async () => {
+  const admin = `gw_hold_${Date.now()}@test.com`;
+  const target = `gw_hold_t_${Date.now()}@test.com`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed hold users');
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
+  const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+  requireSeed(seedAccount(target, '100.00'), 'seed target account');
+  const adminStep = await stepUpFor(adminToken);
+  const userStep = await stepUpFor(userToken);
+  const auth = { Authorization: `Bearer ${adminToken}`, 'X-Step-Up': adminStep };
+
+  // A non-admin cannot place a hold, even with a step-up proof.
+  assert.equal((await request(app).post('/admin/holds').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ email: target, amount: '10.00' })).status, 403);
+
+  const placed = await request(app).post('/admin/holds').set(auth).send({ email: target, amount: '10.00', reason: 'review' });
+  assert.equal(placed.status, 200);
+  assert.equal(placed.body.data[0], 'HOLD_PLACED');
+  assert.match(placed.body.data[1], /^[0-9]+$/);
+  const holdId = placed.body.data[1];
+
+  // Held funds are no longer spendable.
+  const denied = await request(app).post('/wallet/transfer').set('Authorization', `Bearer ${userToken}`).set('Idempotency-Key', `hold-${Date.now()}`).send({ to: 'receiver@test.com', amount: '95.00' });
+  assert.equal(denied.status, 409);
+  assert.equal(denied.body.error, 'INSUFFICIENT_FUNDS');
+
+  const released = await request(app).post('/admin/holds/release').set(auth).send({ holdId });
+  assert.deepEqual(released.body.data, ['HOLD_RELEASED']);
+  const rerelease = await request(app).post('/admin/holds/release').set(auth).send({ holdId });
+  assert.equal(rerelease.status, 404);
+  assert.equal(rerelease.body.error, 'UNKNOWN_TRANSACTION');
+});
+
 test('privileged admin writes require a fresh step-up', async () => {
   const admin = `gw_su_${Date.now()}@test.com`;
   const target = `gw_su_t_${Date.now()}@test.com`;
