@@ -2135,3 +2135,13 @@ _merged 2026-10-17_
 - docs(gate0): record retention and approval per requirement in matrix
 - docs(gate0): add requirements traceability matrix
 
+## #211 gate1-precision
+
+_merged 2026-10-17_
+
+- fix(precision): single-period sentences for new paragraphs
+- docs(precision): ADR-0059, matrix row, status, spec, knob docs
+- feat(gateway): forward up to 4dp amounts, COBOL enforces precision
+- test(precision): per-currency limit boundaries for 0/2/3 decimals
+- feat(precision): parse money in major units, drop fixed x100 scaling
+
