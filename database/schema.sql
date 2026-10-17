@@ -238,6 +238,43 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- 12b. Migration baseline: fresh installs start here. Every migration
+-- whose effects are already folded into this file is recorded below, so
+-- database/migrate.sh only applies newer ones. When adding a migration, fold
+-- its objects into this file AND extend this list (enforced by
+-- tests/test_migrate.sh: the listed versions must equal the migration files).
+INSERT IGNORE INTO schema_migrations (version) VALUES
+('0001_pending_transactions_cascade'),
+('0002_refresh_sessions'),
+('0003_email_fk_update_cascade'),
+('0004_pending_fk_update_cascade'),
+('0005_refresh_session_family'),
+('0006_user_token_version'),
+('0007_drop_unused_schema'),
+('0008_exchange_rates'),
+('0009_revoked_access_tokens'),
+('0010_audit_trail_archive'),
+('0011_password_reset_purpose'),
+('0012_verification_attempts'),
+('0013_login_lockout_columns'),
+('0014_mfa_totp'),
+('0015_pending_key_scoped'),
+('0016_transfer_reversals'),
+('0017_ledger_exchange_rate'),
+('0018_audit_detail'),
+('0019_pending_id'),
+('0020_pending_archive'),
+('0021_user_status_lifecycle'),
+('0022_refresh_family_limits'),
+('0023_session_metadata'),
+('0024_audit_actor'),
+('0025_audit_integrity'),
+('0026_ledger_sender'),
+('0027_ledger_integrity'),
+('0028_audit_append_only'),
+('0029_fx_lookup_index');
+
+
 -- Indexes
 CREATE INDEX idx_user_email ON users(email);
 CREATE INDEX idx_currency_iso ON currencies(iso_code);
