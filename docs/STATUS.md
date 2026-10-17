@@ -114,7 +114,7 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_idempotent_transfer.sh` | 27 | replay-no-op, key reuse conflict, per-sender scoping, unique auto refs, failure retry, archived key runs fresh |
 | `tests/test_transfer_validity.sh` | 36 | positive-amount, malformed-amount rejection (core-level), self-transfer, cross-currency (direct + inverse rate + missing rate), target precision, rate snapshot, multi-account selection by currency + ambiguity (`AMBIGUOUS_ACCOUNT`) |
 | `tests/test_wallet_observability.sh` | 7 | TRANSFER audit context (target:amount:currency, actor), idempotency-intent retention (stale archived, fresh kept) |
-| `tests/test_transfer_limits.sh` | 10 | per-transaction cap (boundary + over) and rolling 24h cap, rejected transfers move nothing |
+| `tests/test_transfer_limits.sh` | 27 | per-transaction cap (boundary + over) and rolling 24h cap, rejected transfers move nothing; integer/1dp amounts in major units, dotted cap fails closed, IDR (prec 0) and 3-decimal boundaries |
 | `tests/test_transfer_reversal.sh` | 27 | admin-only one-time reversal (compensating entries, balances restored, audit names the sender), status owner/admin-only, admin sender filter/determinism, shared-ref reversal requires the sender (`AMBIGUOUS_TRANSACTION`), ALREADY_REVERSED, insufficient claw-back |
 | `tests/test_ledger_integrity.sh` | 4 | ledger is append-only (UPDATE refused), a negative amount is refused, and deleting an account preserves its ledger rows in `ledger_archive` |
 | `tests/test_account_status.sh` | 13 | transfer needs ACTIVE sender/target and enabled currencies; failures move nothing; frozen balance still readable |
@@ -149,8 +149,8 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
 | `middleware/` (node --test) | 104 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
 
-Shell suites total **629**; with the gateway suite **104** the full run is
-**733 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **646**; with the gateway suite **104** the full run is
+**750 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
