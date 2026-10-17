@@ -395,6 +395,17 @@
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
+                MOVE "DELETE FROM mfa_backup_codes WHERE user_id = (SELECT id FROM users WHERE email = ?)" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
                 MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'ADMIN_RESET_MFA', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-2

@@ -1093,3 +1093,52 @@ test('readiness reports 503 when the database is down', async () => {
     else process.env.DB_NAME = saved;
   }
 });
+
+test('mfa backup codes and assisted recovery work end to end', async () => {
+  const user = `gw_mfarec_${Date.now()}@test.com`;
+  const admin = `gw_mfarec_adm_${Date.now()}@test.com`;
+  requireSeed(seedUser(user, 'USER') && seedUser(admin, 'SUPER_ADMIN'), 'seed recovery users');
+  enableMfa(user);
+  enableMfa(admin);
+  const userToken = (await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) })).body.token;
+  assert.ok(userToken);
+  const adminToken = await adminLoginFor(admin);
+
+  // Backup codes are issued once and work in place of TOTP.
+  const gen = await request(app).post('/mfa/backup-codes').set('Authorization', `Bearer ${userToken}`).send({ email: user });
+  assert.equal(gen.body.data[0], 'BACKUP_CODES');
+  assert.equal(gen.body.codes.length, 8);
+  const [first, second] = gen.body.codes;
+  const blocked = await request(app).get('/admin/mfa-recovery').set('Authorization', `Bearer ${userToken}`);
+  assert.equal(blocked.status, 403);
+
+  const loginBackup = await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: first });
+  assert.equal(loginBackup.body.data[0], 'LOGIN_OK');
+  const replay = await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: first });
+  assert.equal(replay.body.error, 'INVALID_MFA');
+
+  // Assisted recovery: request, verify the emailed code, approve as admin.
+  const req = await request(app).post('/mfa/recover').send({ email: user, password: 'secret123' });
+  assert.deepEqual(req.body.data, ['CODE_SENT']);
+  const code = getVerificationCode(user, 'MFA_RECOVERY');
+  assert.ok(/^\d{6}$/.test(code));
+  const confirm = await request(app).post('/mfa/recover/confirm').send({ email: user, code });
+  assert.deepEqual(confirm.body.data, ['RECOVERY_VERIFIED']);
+  const queue = await request(app).get('/admin/mfa-recovery').set('Authorization', `Bearer ${adminToken}`).query({ status: 'VERIFIED' });
+  assert.equal(queue.body.data[0], 'RECOVERY_REQUESTS');
+  const reqId = queue.body.data.find((r) => r.includes(user)).split(':')[0];
+  assert.ok(reqId);
+
+  // A non-admin cannot approve; the admin's step-up approval clears MFA.
+  const userStep = await stepUpFor(userToken);
+  assert.equal((await request(app).post('/admin/mfa-recovery/approve').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ requestId: reqId })).status, 403);
+  const adminStep = await stepUpFor(adminToken);
+  const approved = await request(app).post('/admin/mfa-recovery/approve').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ requestId: reqId });
+  assert.deepEqual(approved.body.data, ['RECOVERY_APPROVED']);
+
+  const after = await request(app).post('/auth/login').send({ email: user, password: 'secret123' });
+  assert.equal(after.body.data[0], 'LOGIN_OK');
+  // With MFA cleared the old codes are inert: plain login works, codes are ignored.
+  const secondLogin = await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: second });
+  assert.equal(secondLogin.body.data[0], 'LOGIN_OK');
+});
