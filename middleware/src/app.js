@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OPERATION, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -294,6 +294,26 @@ export const ROUTES = [
     { name: 'findingId', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'note', pattern: REASON, required: false },
+  ] },
+  { method: 'post', path: '/admin/requests', action: 'REQUEST_OPERATION', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'operation', pattern: OPERATION, required: true },
+    { name: 'target', pattern: EMAIL, required: true },
+    { name: 'detail', pattern: KEY, required: false },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/requests/approve', action: 'APPROVE_REQUEST', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'requestId', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/requests/reject', action: 'REJECT_REQUEST', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'requestId', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'get', path: '/admin/requests', action: 'LIST_REQUESTS', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'status', pattern: REQUEST_STATUS, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: LIMIT, required: false },
   ] },
   { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
