@@ -10,7 +10,7 @@ const NAME = /^[A-Za-z0-9 .'-]{1,100}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const CODE = /^\d{6}$/;
 const ROLE = /^(USER|MANAGER|SUPER_ADMIN)$/;
-const AMOUNT = /^\d{1,13}(\.\d{1,2})?$/;
+const AMOUNT = /^\d{1,13}(\.\d{1,4})?$/;
 const INT = /^\d{1,6}$/;
 // Page size is capped as a boundary/resource guard (1..100); COBOL still
 // defaults to 20 when limit is omitted.

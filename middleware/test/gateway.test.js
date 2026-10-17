@@ -426,6 +426,16 @@ test('transfer amount is decided by COBOL, not the gateway shape', async () => {
     .send({ to: em, amount: '1.00' });
   assert.equal(self.status, 400);
   assert.equal(self.body.error, 'SELF_TRANSFER');
+
+  // The gateway forwards up-to-4dp amounts; COBOL enforces the currency's
+  // own precision (USD prec 2 refuses three decimals — core authority).
+  const milli = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${token}`)
+    .set('Idempotency-Key', `milli-${Date.now()}`)
+    .send({ to: 'receiver@test.com', amount: '1.234' });
+  assert.equal(milli.status, 400);
+  assert.equal(milli.body.error, 'INVALID_AMOUNT');
 });
 
 test('the list page size is bounded', async () => {
