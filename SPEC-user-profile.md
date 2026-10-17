@@ -33,7 +33,7 @@ Profile management: a read-only dashboard of essential account info, plus a stri
 ## Notes / not yet done
 
 - A profile may be updated in place: `UPDATE_PROFILE` sets `full_name` (and `dob` when supplied) for the owner only, with an audit row. `GET_DASHBOARD` now returns the full profile (email, name, status, role, dob, created) and covers every account the user holds (multi-currency), and works for users with no accounts; a per-account drill-down is not implemented.
-- `LIST_USERS` is paged (`limit`/`offset`) using the multi-row bridge call (`SQL_EXECUTE_ROWS`); the response is one pipe-delimited line, so the result is still bounded by the COBOL output buffer size.
+- `LIST_USERS` is paged (`limit`/`offset`) using the prepared multi-row bridge call (`SQL_PREPARE_EXEC_ROWS`); the response is one pipe-delimited line, so the result is still bounded by the COBOL output buffer size.
 - Email-change code expiry is 24h to match signup; a shorter window (the original open question suggested 15 min) is not implemented.
 - `audit_trail` records a `EMAIL_CHANGE` row on a successful confirm; the old address is notified out of band and the change forces a clean re-login (token-version bump + refresh-session revocation). Other profile reads are not audited (and need not be).
 

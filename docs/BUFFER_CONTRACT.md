@@ -21,7 +21,7 @@ source field size; a write of `k` bytes needs a destination of at least `k`.
 | verify/totp `result[0]` only | 1, no terminator | `WS-VERIFY`, `WS-NEEDS-REHASH` | 1 | single-char comparisons; terminator writes were removed (ADR 0045) |
 | `generate_random_code` (`%06d` + NUL) | 7 | `WS-CODE`, `WS-RAND` | 7 | exact fit (`WS-RAND` was 6: fixed, ADR 0045) |
 | `generate_mfa_secret` (32 chars + NUL) | 33 | `WS-MFA-SECRET` | 64 | fits |
-| `hash_password[_v2]` output | <= ~111 + NUL | `WS-HASH`, `WS-STORED` | 256 | fits |
+| `hash_password_v2` output | <= ~111 + NUL | `WS-HASH` | 256 | fits (legacy `SHA256_` hashes are verify-only; the old hasher is removed) |
 | result row fields | 255 / 511 + NUL | `temp[256]` / `temp[512]`, `rbuf[][512]` | local | C-side only; overlong values truncate (documented, ADR 0045) |
 
 Notes:

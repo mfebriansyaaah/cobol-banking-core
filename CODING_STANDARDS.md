@@ -15,7 +15,7 @@ Rules a reviewer enforces on every COBOL/C-bridge diff. Mechanical violations sh
 
 7. **Never null-pad a buffer COBOL will treat as alphanumeric.** `strncpy` fills the remainder with `\0`; `libcob` then refuses the WRITE (`status 71`, invalid data for LINE SEQUENTIAL). Fill the rest of the buffer with spaces before returning (`memset(result, ' ', N)`).
 8. **Copy at most the COBOL field's size** from COBOL-visible buffers. A `PIC X(512)` field must be read with a ≤511-byte copy — reading 1023 bytes walks into adjacent working-storage and corrupts queries/results.
-9. **Pick the right bridge call for the shape.** `SQL_EXECUTE`/`GET_RESULT` read a single row (`mysql_fetch_row` once) — correct for lookups. For a list, use `SQL_EXECUTE_ROWS`, which returns every row with fields joined by `|` and rows joined by `;`; do not wrap a list in `GROUP_CONCAT` when the row-mode call fits.
+9. **Pick the right bridge call for the shape.** `SQL_EXECUTE`/`GET_RESULT` read a single row (`mysql_fetch_row` once) — correct for lookups. For a list, use the prepared multi-row call (`SQL_PREPARE_EXEC_ROWS`), which returns every row with fields joined by `|` and rows joined by `;`; do not wrap a list in `GROUP_CONCAT` when the row-mode call fits. The locking read uses `SQL_PREPARE_EXEC_LOCK`, which skips row fetching by design.
 
 ## COBOL / SQL boundary
 
