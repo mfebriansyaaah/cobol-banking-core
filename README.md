@@ -1,7 +1,8 @@
 # Cobol Banking Core
 
 A development banking-core prototype targeting a regulated-bank mission, where
-**financial business logic lives in COBOL**, with C and JavaScript as support.
+**all business logic is authoritative in COBOL** and C/JavaScript are restricted
+to infrastructure adapters and capabilities COBOL cannot provide directly.
 
 > **Regulatory status:** this repository is a development prototype, not a
 > licensed, certified, regulator-approved, or production-ready banking system.
