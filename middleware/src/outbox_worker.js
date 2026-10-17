@@ -13,15 +13,15 @@
 // Operational logs go to stdout WITHOUT codes or message bodies (redacted);
 // the delivery record (log transport) or the SMTP provider holds content.
 //
-// Usage: node middleware/outbox_worker.js [--once] [--limit N] [--worker ID]
-//   OUTBOX_TRANSPORT=smtp node middleware/outbox_worker.js --once
-//   OUTBOX_TRANSPORT=log OUTBOX_LOG_FILE=/tmp/outbox.log node middleware/outbox_worker.js --once
-//   cron: * * * * * OUTBOX_TRANSPORT=smtp node /opt/cobol-banking-core/middleware/outbox_worker.js --once --limit 100
+// Usage: node middleware/src/outbox_worker.js [--once] [--limit N] [--worker ID]
+//   OUTBOX_TRANSPORT=smtp node middleware/src/outbox_worker.js --once
+//   OUTBOX_TRANSPORT=log OUTBOX_LOG_FILE=/tmp/outbox.log node middleware/src/outbox_worker.js --once
+//   cron: * * * * * OUTBOX_TRANSPORT=smtp node /opt/cobol-banking-core/middleware/src/outbox_worker.js --once --limit 100
 
 import { appendFile } from 'node:fs/promises';
-import { invoke } from './src/invoker.js';
-import { toHttp } from './src/result.js';
-import { createMailer, mailerFrom, verificationSubject } from './src/mailer.js';
+import { invoke } from './invoker.js';
+import { toHttp } from './result.js';
+import { createMailer, mailerFrom, verificationSubject } from './mailer.js';
 
 function arg(name, fallback) {
   const i = process.argv.indexOf(name);

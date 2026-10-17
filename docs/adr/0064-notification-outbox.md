@@ -20,7 +20,7 @@ observable state at all.
   requires it (signup/resend/forgot-password/email-change codes, plus the
   abandoned-address notice). A committed action can never lose its
   notification; a rolled-back one never emits.
-- `middleware/outbox_worker.js` (plus `scripts/outbox_worker.sh`)
+- `middleware/src/outbox_worker.js` (plus `scripts/outbox_worker.sh`)
   dispatches due rows through the existing mailer and marks the outcome
   (`SENT`/`FAILED` with backoff, `DEAD` past the attempt budget) via new
   COBOL actions `OUTBOX_CLAIM`/`OUTBOX_MARK`; `LIST_OUTBOX` (SUPER_ADMIN)

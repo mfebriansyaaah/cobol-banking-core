@@ -77,13 +77,13 @@ check_absent "stdout never carries the code" "$CODE1" "$OUT1"
 # --- without SMTP the send fails, retries, then dead-letters --------------------
 export OUTBOX_MAX_ATTEMPTS=2
 run REQUEST_SIGNUP ob_fail@test.com secret123 ObFail 1990-01-01 >/dev/null
-OUT2="$(node middleware/outbox_worker.js --once --limit 50 2>&1)"
+OUT2="$(node middleware/src/outbox_worker.js --once --limit 50 2>&1)"
 check_contains "failed send is reported" "outbox_failed" "$OUT2"
 check "row is FAILED with attempts" "FAILED|1" "$(q "SELECT CONCAT(state, '|', attempts) FROM notification_outbox WHERE recipient='ob_fail@test.com';")"
 check "retry is scheduled" "1" "$(q "SELECT next_attempt_at IS NOT NULL FROM notification_outbox WHERE recipient='ob_fail@test.com';")"
-check "not-yet-due rows are skipped" "FAILED|1" "$(node middleware/outbox_worker.js --once --limit 50 >/dev/null 2>&1; q "SELECT CONCAT(state, '|', attempts) FROM notification_outbox WHERE recipient='ob_fail@test.com';")"
+check "not-yet-due rows are skipped" "FAILED|1" "$(node middleware/src/outbox_worker.js --once --limit 50 >/dev/null 2>&1; q "SELECT CONCAT(state, '|', attempts) FROM notification_outbox WHERE recipient='ob_fail@test.com';")"
 q "UPDATE notification_outbox SET next_attempt_at = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE recipient='ob_fail@test.com';"
-OUT3="$(node middleware/outbox_worker.js --once --limit 50 2>&1)"
+OUT3="$(node middleware/src/outbox_worker.js --once --limit 50 2>&1)"
 check_contains "exhausted budget dead-letters" "outbox_dead_letter" "$OUT3"
 check "row is DEAD" "DEAD" "$(q "SELECT state FROM notification_outbox WHERE recipient='ob_fail@test.com';")"
 unset OUTBOX_MAX_ATTEMPTS

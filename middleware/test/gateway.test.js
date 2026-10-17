@@ -1050,7 +1050,7 @@ test('verification codes flow through the outbox', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'gw-ob-'));
   try {
     const logFile = path.join(dir, 'outbox.log');
-    const workerPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'outbox_worker.js');
+    const workerPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'src', 'outbox_worker.js');
     const runWorker = () => new Promise((resolve, reject) => {
       execFile('node', [workerPath, '--once', '--limit', '500'], {
         env: { ...process.env, OUTBOX_TRANSPORT: 'log', OUTBOX_LOG_FILE: logFile },
