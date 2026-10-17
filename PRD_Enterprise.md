@@ -197,7 +197,7 @@ The following are **not implemented or not evidenced as production controls**:
 account-opening/funding/withdrawal products, jurisdiction-specific KYC/AML and
 sanctions workflows, fraud case management, dual control, durable notifications,
 regulatory/finance reporting, interest/rewards,
-production backup/restore/DR evidence, licensing/certification, and independent
+production backup/restore scheduling and DR drills against approved RPO/RTO, licensing/certification, and independent
 security/compliance approval. See `docs/STATUS.md` for known technical gaps.
 
 This boundary must be reflected in demos, documentation, and deployment claims.
