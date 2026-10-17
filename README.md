@@ -1,7 +1,13 @@
 # Cobol Banking Core
 
-An enterprise-style banking core where **all business logic lives in COBOL**, with
-C and JavaScript as support only.
+A development banking-core prototype targeting a regulated-bank mission, where
+**financial business logic lives in COBOL**, with C and JavaScript as support.
+
+> **Regulatory status:** this repository is a development prototype, not a
+> licensed, certified, regulator-approved, or production-ready banking system.
+> Do not use it to hold customer funds or production customer data. The target
+> mission, mandatory release gates, and current capability boundary are defined
+> in `PRD_Enterprise.md`.
 
 - `cobol/bin/main_logic` — one COBOL binary. By default it reads one
   pipe-delimited request line from `input.txt` and writes one result line to
