@@ -2316,3 +2316,9 @@ _merged 2026-10-17_
 - docs(build): triage the COBOL warning classes and document the ratchet
 - chore(build): freeze the COBOL warning count with a per-class ratchet
 
+## #227 fx-policy-decision-draft
+
+_merged 2026-10-18_
+
+- docs(adr): draft FX rounding, fee-reversal, and rate-validity decisions
+
