@@ -42,8 +42,8 @@ database/migrate.sh            # records/applies database/migrations/NNN_*.sql
 # 2. Build the COBOL binary
 ./build.sh
 
-# 3. Run one action
-printf 'CHECK_BALANCE|sender@test.com|||\n' > input.txt
+# 3. Run one action (p2 is the acting owner: self-reads need actor == target)
+printf 'CHECK_BALANCE|sender@test.com|sender@test.com||\n' > input.txt
 ./cobol/bin/main_logic
 cat output.txt                 # -> SUCCESS|BALANCES|USD:1000.00:ACTIVE
 
@@ -78,9 +78,11 @@ still the development defaults. Tokens carry an issuer and audience
 Verification codes are delivered out of band (`SMTP_*`, or a development stub
 that logs the event without the code) and are never returned in HTTP responses.
 Access tokens carry a per-user version that is checked on every request and is
-bumped on logout (`REVOKE_TOKENS`), so an access token can be revoked before it
-expires. A single token can also be denied by `jti` via `POST /auth/revoke`; the
-denylist is shared (DB) behind a `tokenStore` seam.
+bumped on logout-everywhere (`POST /sessions/revoke-all`), so live access
+tokens die immediately. Per-device logout (`POST /auth/logout`) instead revokes
+the refresh session and denylists the presented access token by `jti`; a single
+token can also be denied that way via `POST /auth/revoke`. The denylist is
+shared (DB) behind a `tokenStore` seam.
 
 Accounts can add a TOTP second factor: `POST /mfa/enroll` returns the secret and
 an `otpauth://` URI, `POST /mfa/confirm` turns it on, and once enabled
@@ -126,7 +128,8 @@ periodically to a collector (Pushgateway/OTLP-HTTP).
 Audit retention: `POST /admin/audit/archive` (SUPER_ADMIN) moves `audit_trail`
 rows older than a retention window into the immutable `audit_trail_archive`.
 
-Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
+Public routes: `/live` (no dependencies), `/health` (deep) and `/ready`
+(readiness), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/forgot`, `/auth/reset-password`, `/auth/resend`, `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a
 user's record/balance/profile allow the owner or an admin, listing users is
@@ -135,12 +138,13 @@ email-change flow only acts on the token's own email and requires the current
 password; confirming it revokes the sessions (clean re-login). The owner can
 update their name (and date of birth) via `PATCH /profile`, and soft-close the
 account via `POST /profile/deactivate` (admins set any status via
-`POST /admin/user-status`; login refuses suspended/closed accounts). Each request
-runs the
+`POST /admin/user-status`; login refuses suspended/closed accounts). In file mode
+(the default) each request runs the
 binary in its own working directory (see
-`docs/adr/0001-invocation-model.md`); responses carry `X-Cobol-Ms` and
+`docs/adr/0001-invocation-model.md`); a worker pool is used when
+`COBOL_POOL_SIZE` is set. Responses carry `X-Cobol-Ms` and
 `X-Request-Id`. The server logs one JSON line per request and serves
-Prometheus-style counters at `GET /metrics` (bearer).
+Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
 
 ## Where things are documented
 - `CODING_STANDARDS.md` — rules a reviewer enforces.

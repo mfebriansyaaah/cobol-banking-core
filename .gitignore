@@ -4,25 +4,18 @@
 cobol/bin/
 cobol/bin/*.o
 cobol/bin/main_logic
-cobol/bin/interop_test
 
 # I/O and temporary files
 input.txt
 output.txt
 
 # Configuration and Secrets
-cobol/config/odbc.ini
-cobol/config/odbcinst.ini
-
-# Local tooling output
-docs/agents/
+tests/.dbenv
 
 # OS generated files
 .DS_Store
 Thumbs.db
 sql_debug.log
-tests/.dbenv
 
 # Node
 middleware/node_modules/
-/package-lock.json
