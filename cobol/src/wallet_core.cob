@@ -199,6 +199,15 @@
                     PERFORM TRIM-PARAM3
                     PERFORM TRIM-PARAM4
                     PERFORM LIST-EXCEPTIONS-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "ACK_EXCEPTION"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM ACK-EXCEPTION-LOGIC
+                WHEN LS-CMD-ACTION(1:17) = "RESOLVE_EXCEPTION"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM RESOLVE-EXCEPTION-LOGIC
                 WHEN LS-CMD-ACTION(1:10) = "PLACE_HOLD"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
@@ -1695,6 +1704,189 @@
                 STRING "SUCCESS|EXCEPTIONS|" WS-RTOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 END-STRING
             END-IF.
+            EXIT PARAGRAPH.
+
+        ACK-EXCEPTION-LOGIC.
+            *> p1 = finding_id, p2 = actor (SUPER_ADMIN). Claims ownership:
+            *> OPEN becomes ACKNOWLEDGED with the actor as owner.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-PARAM1-TRIMMED TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN"
+            MOVE "SELECT finding_id FROM reconciliation_findings WHERE finding_id = ? FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT status FROM reconciliation_findings WHERE finding_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "OPEN"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE reconciliation_findings SET status = 'ACKNOWLEDGED', owner_email = ? WHERE finding_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT a.id, a.id, 'RECONCILE_ACK', 'ACCOUNT', ?, 'SUCCESS' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_COMMIT"
+            MOVE "SUCCESS|EXCEPTION_ACKNOWLEDGED" TO LS-OUTPUT-BUFFER
+            EXIT PARAGRAPH.
+
+        RESOLVE-EXCEPTION-LOGIC.
+            *> p1 = finding_id, p2 = actor (SUPER_ADMIN), p3 = note (opt).
+            *> Closes an ACKNOWLEDGED finding; the run link is kept.
+            SET WS-TRANSFER-OK TO TRUE
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-PARAM1-TRIMMED TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-LEN > 0
+                PERFORM VALIDATE-RESOLVE-NOTE
+            END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN"
+            MOVE "SELECT finding_id FROM reconciliation_findings WHERE finding_id = ? FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT status FROM reconciliation_findings WHERE finding_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "ACKNOWLEDGED"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-LEN = 0
+                MOVE "UPDATE reconciliation_findings SET status = 'RESOLVED', resolution_note = NULL, resolved_at = NOW() WHERE finding_id = ?" TO WS-PREP-SQL
+            ELSE
+                MOVE "UPDATE reconciliation_findings SET status = 'RESOLVED', resolution_note = ?, resolved_at = NOW() WHERE finding_id = ?" TO WS-PREP-SQL
+            END-IF.
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            IF WS-P3-LEN = 0
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            ELSE
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            END-IF.
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT a.id, a.id, 'RECONCILE_RESOLVE', 'ACCOUNT', ?, ?, 'SUCCESS' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_COMMIT"
+            MOVE "SUCCESS|EXCEPTION_RESOLVED" TO LS-OUTPUT-BUFFER
+            EXIT PARAGRAPH.
+
+        VALIDATE-RESOLVE-NOTE.
+            *> Notes use the safe alphabet (letters, digits, space, -/_/.).
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-P3-LEN
+                EVALUATE TRUE
+                    WHEN WS-PARAM3-TRIMMED(WS-I:1) >= "a" AND WS-PARAM3-TRIMMED(WS-I:1) <= "z"
+                        CONTINUE
+                    WHEN WS-PARAM3-TRIMMED(WS-I:1) >= "A" AND WS-PARAM3-TRIMMED(WS-I:1) <= "Z"
+                        CONTINUE
+                    WHEN WS-PARAM3-TRIMMED(WS-I:1) >= "0" AND WS-PARAM3-TRIMMED(WS-I:1) <= "9"
+                        CONTINUE
+                    WHEN WS-PARAM3-TRIMMED(WS-I:1) = " " OR WS-PARAM3-TRIMMED(WS-I:1) = "-" OR WS-PARAM3-TRIMMED(WS-I:1) = "_" OR WS-PARAM3-TRIMMED(WS-I:1) = "."
+                        CONTINUE
+                    WHEN OTHER
+                        SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                END-EVALUATE
+            END-PERFORM.
             EXIT PARAGRAPH.
 
         LOCK-ACCOUNTS.
