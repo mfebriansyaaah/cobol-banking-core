@@ -2211,3 +2211,18 @@ _merged 2026-10-17_
 - feat(outbox): enqueue in signup/resend/forgot/email flows, claim/mark/list actions
 - feat(outbox): notification outbox table, migration 0034
 
+## #217 gate2-mfa-recovery
+
+_merged 2026-10-17_
+
+- docs(recovery): ADR 0065, status, traceability, and specs
+- fix(recovery): verify only the newest pending request
+- chore(recovery): wire MFA recovery suite into CI as step 51
+- feat(gateway): backup codes and recovery endpoints plus e2e test
+- test(recovery): backup codes and assisted recovery suite
+- fix(outbox): deliver MFA recovery notices
+- feat(recovery): assisted recovery request/verify/approve/reject/list
+- fix(recovery): admin reset clears backup codes
+- feat(recovery): backup codes, login/step-up acceptance, cleanup on disable
+- feat(recovery): backup codes and recovery tables, migration 0035
+
