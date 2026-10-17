@@ -23,7 +23,8 @@ A development banking-core prototype targeting a regulated-bank mission, where
   and maps the result line to HTTP.
 - MySQL database `cobol_db`.
 
-See `docs/STATUS.md` for the full current state and `SPEC-*.md` per module.
+See `PRD_Enterprise.md` for the regulated-bank mission and release gates,
+`docs/STATUS.md` for the actual current state, and `SPEC-*.md` per module.
 
 ## Prerequisites
 
