@@ -64,7 +64,9 @@ q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER','$NOACCT'
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (954,'$NOACCT','x','No Acct','1991-01-01','VERIFIED','USER');
    INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES
-   (950,950,1,250.00,'SAVINGS'),(952,950,3,0.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');"
+   (950,950,1,250.00,'SAVINGS'),(952,950,3,0.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');
+   INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) VALUES
+   ('PROF_FUND',950,250.00,'CREDIT',1,'Profile suite opening');"
 
 # --- GET_DASHBOARD ---
 check_contains "dashboard self profile" "SUCCESS|DASHBOARD|$U|Prof User|VERIFIED|USER|1990-01-01|" "$(run GET_DASHBOARD "$U" "$U" "")"

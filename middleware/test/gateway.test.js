@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
+import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -374,6 +374,9 @@ test('reconciliation runs record results and resolve exceptions', async () => {
   const closed = await request(app).post('/admin/reconcile/resolve').set(auth).send({ findingId, note: 'again' });
   assert.equal(closed.status, 404);
   assert.equal(closed.body.error, 'UNKNOWN_TRANSACTION');
+
+  // Undo the drift so the fixture reconciles again and leaves no residue.
+  requireSeed(runSql(`UPDATE accounts SET balance = 100.00 WHERE user_id = (SELECT id FROM users WHERE email = '${target}')`), 'restore the balance');
 });
 
 test('privileged admin writes require a fresh step-up', async () => {
@@ -838,7 +841,7 @@ test('cross-currency transfer falls back to the inverse rate', async () => {
   const auth = { Authorization: `Bearer ${token}` };
   // Only an IDR account: the IDR->USD pair does not exist directly, so the
   // gateway/core must use the reciprocal of USD->IDR.
-  runSql(`INSERT INTO accounts (user_id, currency_id, balance, status) SELECT id, 3, 100000.00, 'ACTIVE' FROM users WHERE email='${em}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=users.id)`);
+  requireSeed(seedAccountCurrency(em, 3, '100000.00'), 'seed an IDR account');
 
   const key = `fx-${Date.now()}`;
   const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', key).send({ to: 'receiver@test.com', amount: '15700' });
@@ -853,8 +856,7 @@ test('transfer selects the sender account by currency', async () => {
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
-  runSql(`INSERT INTO accounts (user_id,currency_id,balance,status) SELECT id,1,1000.00,'ACTIVE' FROM users WHERE email='${em}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=users.id)`);
-  runSql(`INSERT INTO accounts (user_id,currency_id,balance,status) SELECT id,2,1000.00,'ACTIVE' FROM users WHERE email='${em}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=users.id AND a.currency_id=2)`);
+  requireSeed(seedAccountCurrency(em, 1, '1000.00') && seedAccountCurrency(em, 2, '1000.00'), 'seed USD and EUR accounts');
 
   const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mc-${Date.now()}`).send({ to: 'receiver@test.com', amount: '100.00', fromCurrency: 'EUR' });
   assert.equal(res.status, 200);
@@ -1162,8 +1164,6 @@ test('account statements show postings with opening and closing balances', async
   const other = `gw_stmt_o_${Date.now()}@test.com`;
   requireSeed(seedUser(user, 'USER') && seedUser(other, 'USER'), 'seed statement users');
   requireSeed(seedAccount(user, '1000.00') && seedAccount(other, '1000.00'), 'seed statement accounts');
-  // Fixture funding rows so the ledger backs the seeded balances.
-  requireSeed(runSql(`INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) SELECT 'GWSTMT_FUND',(SELECT account_id FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='${user}')),1000,'CREDIT',1,'E2E funding'`) && runSql(`INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) SELECT 'GWSTMT_FUND',(SELECT account_id FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='${other}')),1000,'CREDIT',1,'E2E funding'`), 'seed funding legs');
   const userToken = (await request(app).post('/auth/login').send({ email: user, password: 'secret123' })).body.token;
   const otherToken = (await request(app).post('/auth/login').send({ email: other, password: 'secret123' })).body.token;
   assert.ok(userToken && otherToken);

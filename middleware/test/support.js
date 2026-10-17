@@ -99,18 +99,50 @@ export function seedManyUsers(prefix, n, role = 'USER') {
 
 // Ensure the user has one USD savings account (used by transfer tests, whose
 // sender is the authenticated token identity). Returns false when mysql is absent.
-export function seedAccount(email, balance = '1000.00') {
+// Insert a matching opening ledger row for the account, so a seeded balance
+// reconciles against the ledger instead of showing up as a false
+// reconciliation mismatch (the ledger is the source of truth for balances).
+// Idempotent: only inserts when the account has no ledger rows yet.
+function seedOpeningLedger(email, currencyId) {
   const u = process.env.DB_USER ?? 'cobol_user';
   const p = process.env.DB_PASS ?? 'cobol_pass';
   const n = process.env.DB_NAME ?? 'cobol_db';
   const sql =
-    'INSERT INTO accounts (user_id, currency_id, account_type, balance, status) ' +
-    `SELECT u.id, 1, 'SAVINGS', ${balance}, 'ACTIVE' FROM users u ` +
-    `WHERE u.email='${email}' AND NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id=u.id);`;
+    'INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) ' +
+    "SELECT CONCAT('SEED', a.account_id), a.account_id, a.balance, 'CREDIT', a.currency_id, 'Seed opening' " +
+    'FROM accounts a JOIN users u ON u.id = a.user_id ' +
+    `WHERE u.email='${email}' AND a.currency_id=${currencyId} ` +
+    'AND NOT EXISTS (SELECT 1 FROM ledger l WHERE l.account_id = a.account_id);';
   try {
     execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
     return true;
   } catch {
     return false;
   }
+}
+
+// Ensure the user has one account in `currencyId` with `balance` and a matching
+// opening ledger row. `firstOnly` keeps the original seedAccount contract (one
+// account total); otherwise the guard is per currency (multi-currency fixtures).
+export function seedAccountCurrency(email, currencyId, balance, firstOnly = false) {
+  const u = process.env.DB_USER ?? 'cobol_user';
+  const p = process.env.DB_PASS ?? 'cobol_pass';
+  const n = process.env.DB_NAME ?? 'cobol_db';
+  const guard = firstOnly
+    ? 'NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id = u.id)'
+    : `NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id = u.id AND a.currency_id = ${currencyId})`;
+  const sql =
+    'INSERT INTO accounts (user_id, currency_id, account_type, balance, status) ' +
+    `SELECT u.id, ${currencyId}, 'SAVINGS', ${balance}, 'ACTIVE' FROM users u ` +
+    `WHERE u.email='${email}' AND ${guard};`;
+  try {
+    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
+  } catch {
+    return false;
+  }
+  return seedOpeningLedger(email, currencyId);
+}
+
+export function seedAccount(email, balance = '1000.00') {
+  return seedAccountCurrency(email, 1, balance, true);
 }
