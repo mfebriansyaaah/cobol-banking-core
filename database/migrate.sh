@@ -50,9 +50,17 @@ for f in database/migrations/*.sql; do
         echo "already applied: $v"
     else
         echo "applying: $v"
-        mysqlc < "$f" 2>/dev/null
-        mysqlc -e "INSERT INTO schema_migrations (version) VALUES ('$v');" 2>/dev/null
-        applied_any=1
+        # Fail loudly naming the file: a swallowed error once hid which
+        # migration broke a fresh install. The version is only recorded on
+        # success, so a retry resumes here instead of skipping silently.
+        if err=$(mysqlc < "$f" 2>&1); then
+            mysqlc -e "INSERT INTO schema_migrations (version) VALUES ('$v');" 2>/dev/null
+            applied_any=1
+        else
+            echo "migration FAILED: $v"
+            echo "$err" | head -5
+            exit 1
+        fi
     fi
 done
 
