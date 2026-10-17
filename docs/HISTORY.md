@@ -2226,3 +2226,15 @@ _merged 2026-10-17_
 - feat(recovery): backup codes, login/step-up acceptance, cleanup on disable
 - feat(recovery): backup codes and recovery tables, migration 0035
 
+## #218 gate2-statements
+
+_merged 2026-10-17_
+
+- docs(statements): ADR 0066, status, traceability, and specs
+- chore(statements): wire statements suite into CI as step 52
+- fix(statements): date-only posting rows so fields stay colon-free
+- test(statements): gateway e2e plus baseline and status counts
+- test(statements): statement suite with balances, ranges, and paging
+- feat(gateway): GET /statements endpoint with parsed lines
+- feat(statements): read-only STATEMENT action with opening/closing balances
+
