@@ -2292,3 +2292,11 @@ _merged 2026-10-17_
 - fix(fx): exact inverse-rate conversion via DECIMAL(30,18) snapshot
 - test(fx): reproduce inverse-rate over-credit (6.40 vs 6.37)
 
+## #224 tx-status-precision
+
+_merged 2026-10-17_
+
+- docs(fx): ADR 0071 and specs for TX_STATUS currency precision
+- fix(fx): TX_STATUS formats the amount at the sender currency precision
+- test(fx): reproduce TX_STATUS fixed 2dp for an IDR sender
+
