@@ -45,6 +45,7 @@ mfa-state 5
 ledger-integrity 4
 rng 5
 grants 5
+hooks 4
 c-memory 12
 seed 6
 bridge-txn 5
