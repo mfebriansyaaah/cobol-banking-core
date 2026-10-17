@@ -1,10 +1,14 @@
 // Endpoint smoke suite: every gateway route is exercised once. Guards the
 // result/HTTP contract that the per-feature tests only cover in part.
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { seedUser, seedAccount, getVerificationCode, requireSeed } from './support.js';
+
+// Remove the users this suite created so the shared test database stays
+// consistent for the suites that run after it (see gateway.test.js).
+after(() => runSql("DELETE FROM users WHERE email LIKE 'ep\\_%'"));
+import { seedUser, seedAccount, getVerificationCode, requireSeed, runSql } from './support.js';
 
 const app = buildApp();
 
