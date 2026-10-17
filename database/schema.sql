@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0031 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0032 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0032 - reconciliation runs (immutable) and findings
 --   baseline-0031 - account_holds, fee_schedule, FEE_INCOME/FEE enums
 --   baseline-0030 - journal_entries header, ledger/audit journal link
 --   baseline-0029 - FX lookup index restored (idx_exchange_lookup)
@@ -258,6 +259,35 @@ CREATE TABLE IF NOT EXISTS fee_schedule (
         REFERENCES currencies(currency_id)
 ) ENGINE=InnoDB;
 
+-- 9d. Recorded reconciliation runs (immutable) and exception findings
+CREATE TABLE IF NOT EXISTS reconciliation_runs (
+    run_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    trigger_src ENUM('MANUAL','SCHEDULED') NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    status ENUM('CLEAN','MISMATCH') NOT NULL,
+    mismatch_count INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_recon_created (created_at)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS reconciliation_findings (
+    finding_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    run_id BIGINT NOT NULL,
+    account_id INT NOT NULL,
+    balance DECIMAL(18, 4) NOT NULL,
+    ledger_sum DECIMAL(18, 4) NOT NULL,
+    status ENUM('OPEN','ACKNOWLEDGED','RESOLVED') NOT NULL DEFAULT 'OPEN',
+    owner_email VARCHAR(100) NULL,
+    resolution_note VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP NULL,
+    CONSTRAINT fk_finding_run FOREIGN KEY (run_id)
+        REFERENCES reconciliation_runs(run_id),
+    CONSTRAINT fk_finding_account FOREIGN KEY (account_id)
+        REFERENCES accounts(account_id) ON DELETE CASCADE,
+    KEY idx_finding_status (status)
+) ENGINE=InnoDB;
+
 -- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
@@ -333,7 +363,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0028_audit_append_only'),
 ('0029_fx_lookup_index'),
 ('0030_journal_entries'),
-('0031_holds_fees');
+('0031_holds_fees'),
+('0032_reconciliation_runs');
 
 
 -- Indexes
@@ -349,6 +380,13 @@ CREATE INDEX idx_audit_entity ON audit_trail(entity_type, entity_id);
 
 -- Preserve live audit rows in the immutable archive before a user delete
 -- cascades them away, so deleting a user cannot destroy audit evidence.
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS trg_recon_run_no_update BEFORE UPDATE ON reconciliation_runs
+FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'reconciliation runs are immutable';
+END//
+
 DELIMITER //
 CREATE TRIGGER IF NOT EXISTS trg_audit_snapshot_user_delete BEFORE DELETE ON users
 FOR EACH ROW
