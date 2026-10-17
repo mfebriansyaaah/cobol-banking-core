@@ -2172,3 +2172,16 @@ _merged 2026-10-17_
 - feat(holds): PLACE_HOLD and RELEASE_HOLD actions
 - feat(holds): account_holds and fee_schedule tables, migration 0031
 
+## #214 gate1-reconciliation
+
+_merged 2026-10-17_
+
+- docs(recon): ADR-0062, matrix rows, status, specs, PRD boundary
+- chore(recon): wire reconciliation runs suite into CI as step 36
+- test(recon): recorded runs and exception workflow suite
+- feat(gateway): reconciliation runs endpoints and export scripts
+- feat(recon): ACK_EXCEPTION and RESOLVE_EXCEPTION workflow
+- feat(recon): LIST_RECONCILIATIONS and LIST_EXCEPTIONS views
+- feat(recon): RUN_RECONCILIATION recorded runs
+- feat(recon): reconciliation runs and findings tables, migration 0032
+
