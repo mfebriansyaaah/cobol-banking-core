@@ -1182,3 +1182,48 @@ test('account statements show postings with opening and closing balances', async
   const blocked = await request(app).get('/statements').set('Authorization', `Bearer ${otherToken}`).query({ email: user, currency: 'USD' });
   assert.equal(blocked.status, 403);
 });
+
+test('dispute tickets run the full lifecycle end to end', async () => {
+  const user = `gw_dsp_${Date.now()}@test.com`;
+  const admin = `gw_dsp_adm_${Date.now()}@test.com`;
+  requireSeed(seedUser(user, 'USER') && seedUser(admin, 'SUPER_ADMIN'), 'seed dispute users');
+  enableMfa(admin);
+  const userToken = (await request(app).post('/auth/login').send({ email: user, password: 'secret123' })).body.token;
+  assert.ok(userToken);
+  const adminToken = await adminLoginFor(admin);
+
+  // A customer opens a case about their own issue.
+  const opened = await request(app).post('/disputes').set('Authorization', `Bearer ${userToken}`).send({ email: user, subject: 'Missing transfer', detail: 'Where is my money' });
+  assert.equal(opened.body.data[0], 'DISPUTE_OPENED');
+  const caseId = opened.body.caseId;
+  assert.ok(caseId);
+
+  // Notes accumulate; a stranger cannot read or write the case.
+  const stranger = `gw_dsp_x_${Date.now()}@test.com`;
+  requireSeed(seedUser(stranger, 'USER'), 'seed stranger');
+  const strangerToken = (await request(app).post('/auth/login').send({ email: stranger, password: 'secret123' })).body.token;
+  assert.equal((await request(app).get(`/disputes/${caseId}`).set('Authorization', `Bearer ${strangerToken}`).query({})).status, 403);
+  assert.equal((await request(app).get('/disputes').set('Authorization', `Bearer ${strangerToken}`)).body.cases.length, 0);
+
+  const noted = await request(app).post(`/disputes/${caseId}/notes`).set('Authorization', `Bearer ${userToken}`).send({ body: 'Extra info here' });
+  assert.deepEqual(noted.body.data, ['DISPUTE_NOTED']);
+
+  // The admin acknowledges (with a due date), then resolves with step-up.
+  const adminStep = await stepUpFor(adminToken);
+  const acked = await request(app).post(`/disputes/${caseId}/acknowledge`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ due: '2099-01-31' });
+  assert.deepEqual(acked.body.data, ['DISPUTE_ACKNOWLEDGED']);
+  const resolved = await request(app).post(`/disputes/${caseId}/resolve`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ resolution: 'Money returned' });
+  assert.deepEqual(resolved.body.data, ['DISPUTE_RESOLVED']);
+
+  // The customer sees the resolution and the full note history.
+  const got = await request(app).get(`/disputes/${caseId}`).set('Authorization', `Bearer ${userToken}`);
+  assert.equal(got.body.case.state, 'RESOLVED');
+  assert.equal(got.body.case.resolution, 'Money returned');
+  assert.equal(got.body.messages.length, 1);
+
+  // The admin queue lists the case; terminal cases refuse new notes.
+  const queue = await request(app).get('/disputes').set('Authorization', `Bearer ${adminToken}`).query({ status: 'RESOLVED' });
+  assert.ok(queue.body.cases.some((c) => c.caseId === String(caseId) && c.state === 'RESOLVED'));
+  const late = await request(app).post(`/disputes/${caseId}/notes`).set('Authorization', `Bearer ${userToken}`).send({ body: 'Too late' });
+  assert.equal(late.body.error, 'INVALID_STATUS');
+});

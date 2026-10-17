@@ -103,6 +103,11 @@
         01  WS-ST-CLOSE             PIC X(30) VALUE SPACES.
         01  WS-DATE-SRC             PIC X(10) VALUE SPACES.
         01  WS-DATE-BAD             PIC 9     VALUE 0.
+        01  WS-DSP-CASE             PIC X(20) VALUE SPACES.
+        01  WS-DSP-STATE            PIC X(14) VALUE SPACES.
+        01  WS-DSP-OWNER            PIC X(100) VALUE SPACES.
+        01  WS-DSP-DUE              PIC X(500) VALUE SPACES.
+        01  WS-DSP-DUELEN           PIC 9(5)  VALUE 0.
         01  WS-RTOTAL              PIC X(20) VALUE SPACES.
         01  WS-RLEN                PIC 9(5)  VALUE 0.
         01  WS-HOLD-ID             PIC X(20) VALUE SPACES.
@@ -231,6 +236,44 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM RELEASE-HOLD-LOGIC
+                WHEN LS-CMD-ACTION(1:12) = "OPEN_DISPUTE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
+                    PERFORM TRIM-PARAM5
+                    PERFORM OPEN-DISPUTE-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "ADD_DISPUTE_NOTE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM ADD-DISPUTE-NOTE-LOGIC
+                WHEN LS-CMD-ACTION(1:11) = "ACK_DISPUTE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM ACK-DISPUTE-LOGIC
+                WHEN LS-CMD-ACTION(1:15) = "RESOLVE_DISPUTE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM RESOLVE-DISPUTE-LOGIC
+                WHEN LS-CMD-ACTION(1:14) = "REJECT_DISPUTE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM REJECT-DISPUTE-LOGIC
+                WHEN LS-CMD-ACTION(1:13) = "LIST_DISPUTES"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
+                    PERFORM TRIM-PARAM5
+                    PERFORM LIST-DISPUTES-LOGIC
+                WHEN LS-CMD-ACTION(1:11) = "GET_DISPUTE"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM GET-DISPUTE-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "STATEMENT"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
@@ -921,6 +964,559 @@
                     END-IF
                 END-IF
             END-PERFORM.
+            EXIT PARAGRAPH.
+
+        OPEN-DISPUTE-LOGIC.
+            *> p1 = owner email, p2 = actor (must be the owner: a case is
+            *> opened by the customer it belongs to), p3 = subject,
+            *> p4 = detail, p5 = txn_ref (optional; must be the owner's
+            *> own transaction when given).
+            IF WS-PARAM1-TRIMMED NOT = WS-PARAM2-TRIMMED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-LEN = 0 OR WS-P4-LEN = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P5-LEN > 0
+                MOVE "SELECT 1 FROM pending_transactions WHERE txn_ref = ? AND (from_email = ? OR to_email = ?) LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM5-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "SELECT 1 FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id WHERE l.txn_ref = ? AND u.email = ? LIMIT 1" TO WS-PREP-SQL
+                    MOVE WS-PARAM5-TRIMMED TO WS-BIND-1
+                    MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                        BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    IF WS-RESULT = "ERROR|NO_DATA"
+                        MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                        EXIT PARAGRAPH
+                    END-IF
+                    IF WS-RESULT(1:5) = "ERROR"
+                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                        EXIT PARAGRAPH
+                    END-IF
+                ELSE
+                    IF WS-RESULT(1:5) = "ERROR"
+                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                        EXIT PARAGRAPH
+                    END-IF
+                END-IF
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            MOVE "INSERT INTO dispute_cases (user_id, txn_ref, subject, detail) SELECT id, ?, ?, ? FROM users WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM5-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-3
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE WS-RESULT TO WS-DSP-CASE
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, 'DISPUTE_OPENED', 'DISPUTE', ?, 'SUCCESS' FROM users u, users a WHERE u.email = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-DSP-CASE TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|DISPUTE_OPENED|" DELIMITED BY SIZE
+                       WS-DSP-CASE DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOAD-DISPUTE-CASE.
+            *> Loads WS-DSP-OWNER (owner email) and WS-DSP-STATE for the case
+            *> named by p1. Emits UNKNOWN_TRANSACTION / INVALID_INPUT / DB_ERROR.
+            MOVE WS-PARAM1-TRIMMED TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT u.email, d.state FROM dispute_cases d JOIN users u ON u.id = d.user_id WHERE d.case_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-DSP-OWNER WS-DSP-STATE
+            END-UNSTRING
+            EXIT PARAGRAPH.
+
+        CHECK-DISPUTE-VISIBILITY.
+            *> WS-DSP-OWNER / WS-DSP-STATE are loaded. The actor (p2) may
+            *> proceed when they own the case or are a SUPER_ADMIN.
+            IF WS-PARAM2-TRIMMED = WS-DSP-OWNER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ADD-DISPUTE-NOTE-LOGIC.
+            *> p1 = case_id, p2 = actor (owner or SUPER_ADMIN), p3 = note.
+            *> Notes append to the immutable case history; terminal cases
+            *> refuse new notes.
+            IF WS-P3-LEN = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-DISPUTE-CASE
+            IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM CHECK-DISPUTE-VISIBILITY
+            IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-DSP-STATE NOT = "OPEN" AND WS-DSP-STATE NOT = "ACKNOWLEDGED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO dispute_messages (case_id, author_id, body) VALUES (?, (SELECT id FROM users WHERE email = ?), ?)" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|DISPUTE_NOTED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACK-DISPUTE-LOGIC.
+            *> p1 = case_id, p2 = actor (SUPER_ADMIN), p3 = due date
+            *> (optional). Claims ownership: only OPEN cases can be
+            *> acknowledged, and the acking admin becomes the assignee.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-PARAM3-TRIMMED TO WS-DATE-SRC
+            PERFORM CHECK-ST-DATE
+            IF WS-DATE-BAD NOT = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-DISPUTE-CASE
+            IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-DSP-STATE NOT = "OPEN"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            MOVE "UPDATE dispute_cases SET state = 'ACKNOWLEDGED', assigned_to = (SELECT id FROM users WHERE email = ?), due_date = NULLIF(?, ''), decided_at = NULL WHERE case_id = ? AND state = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT d.user_id, a.id, 'DISPUTE_ACK', 'DISPUTE', ?, 'SUCCESS' FROM dispute_cases d, users a WHERE d.case_id = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|DISPUTE_ACKNOWLEDGED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RESOLVE-DISPUTE-LOGIC.
+            *> p1 = case_id, p2 = actor (SUPER_ADMIN), p3 = resolution.
+            *> Only an acknowledged case can be resolved.
+            IF WS-P3-LEN = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-DISPUTE-CASE
+            IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-DSP-STATE NOT = "ACKNOWLEDGED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            MOVE "UPDATE dispute_cases SET state = 'RESOLVED', resolution = ?, decided_at = NOW() WHERE case_id = ? AND state = 'ACKNOWLEDGED'" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT d.user_id, a.id, 'DISPUTE_RESOLVED', 'DISPUTE', ?, 'SUCCESS' FROM dispute_cases d, users a WHERE d.case_id = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|DISPUTE_RESOLVED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        REJECT-DISPUTE-LOGIC.
+            *> p1 = case_id, p2 = actor (SUPER_ADMIN), p3 = reason. An
+            *> OPEN or ACKNOWLEDGED case can be refused with a reason.
+            IF WS-P3-LEN = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-DISPUTE-CASE
+            IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-DSP-STATE NOT = "OPEN" AND WS-DSP-STATE NOT = "ACKNOWLEDGED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
+            MOVE "UPDATE dispute_cases SET state = 'REJECTED', resolution = ?, decided_at = NOW() WHERE case_id = ? AND state IN ('OPEN', 'ACKNOWLEDGED')" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT d.user_id, a.id, 'DISPUTE_REJECTED', 'DISPUTE', ?, 'SUCCESS' FROM dispute_cases d, users a WHERE d.case_id = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE "SUCCESS|DISPUTE_REJECTED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK"
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LIST-DISPUTES-LOGIC.
+            *> p1 = actor, p2 = email filter (admin only; anyone else is
+            *> pinned to their own cases), p3 = status filter, p4 = limit,
+            *> p5 = offset. Read-only queue with an overdue flag computed
+            *> from the admin-set due date (no automatic escalation).
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-DSP-STATE
+            IF WS-DSP-STATE NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM1-TRIMMED TO WS-PARAM2-TRIMMED
+                MOVE WS-P1-LEN TO WS-P2-LEN
+            END-IF.
+            IF WS-PARAM3-TRIMMED NOT = SPACES AND WS-PARAM3-TRIMMED NOT = "OPEN" AND WS-PARAM3-TRIMMED NOT = "ACKNOWLEDGED" AND WS-PARAM3-TRIMMED NOT = "RESOLVED" AND WS-PARAM3-TRIMMED NOT = "REJECTED"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-RLIMIT
+            MOVE "0" TO WS-ROFFSET
+            IF WS-P4-LEN > 0
+                MOVE WS-PARAM4-TRIMMED TO WS-RLIMIT
+            END-IF.
+            IF WS-P5-LEN > 0
+                MOVE WS-PARAM5-TRIMMED TO WS-ROFFSET
+            END-IF.
+            MOVE WS-RLIMIT TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-ROFFSET TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM dispute_cases d JOIN users u ON u.id = d.user_id WHERE u.email = COALESCE(NULLIF(?, ''), u.email) AND d.state = COALESCE(NULLIF(?, ''), d.state)" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-RTOTAL
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT CONCAT(d.case_id, ':', u.email, ':', d.subject, ':', d.state, ':', " DELIMITED BY SIZE
+                   "COALESCE(d.due_date, ''), ':', CASE WHEN d.due_date IS NOT NULL AND " DELIMITED BY SIZE
+                   "d.due_date < CURDATE() AND d.state IN ('OPEN', 'ACKNOWLEDGED') THEN '1' " DELIMITED BY SIZE
+                   "ELSE '0' END, ':', DATE(d.created_at)) FROM dispute_cases d JOIN users u " DELIMITED BY SIZE
+                   "ON u.id = d.user_id WHERE u.email = COALESCE(NULLIF(?, ''), u.email) AND " DELIMITED BY SIZE
+                   "d.state = COALESCE(NULLIF(?, ''), d.state) ORDER BY d.case_id DESC " DELIMITED BY SIZE
+                   "LIMIT ? OFFSET ?" DELIMITED BY SIZE
+               INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            MOVE WS-RLIMIT TO WS-BIND-3
+            MOVE WS-ROFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT NOT = "ERROR|NO_DATA"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                STRING "SUCCESS|DISPUTES|" DELIMITED BY SIZE
+                       WS-RTOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RUN-RESULT-LEN
+                STRING "SUCCESS|DISPUTES|" DELIMITED BY SIZE
+                       WS-RTOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        GET-DISPUTE-LOGIC.
+            *> p1 = case_id, p2 = actor (owner or SUPER_ADMIN). Returns the
+            *> case plus its append-only message history, oldest first.
+            PERFORM LOAD-DISPUTE-CASE
+            IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM CHECK-DISPUTE-VISIBILITY
+            IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(d.case_id, ':', u.email, ':', COALESCE(d.txn_ref, ''), ':', d.subject, ':', d.detail, ':', d.state, ':', COALESCE((SELECT email FROM users WHERE id = d.assigned_to), ''), ':', COALESCE(d.due_date, ''), ':', CASE WHEN d.due_date IS NOT NULL AND d.due_date < CURDATE() AND d.state IN ('OPEN', 'ACKNOWLEDGED') THEN '1' ELSE '0' END, ':', DATE(d.created_at), ':', COALESCE(d.resolution, '')) FROM dispute_cases d JOIN users u ON u.id = d.user_id WHERE d.case_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RUN-RESULT-LEN
+            MOVE WS-RESULT(1:WS-RLEN) TO WS-DSP-DUE
+            MOVE WS-RLEN TO WS-DSP-DUELEN
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM dispute_messages WHERE case_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-RTOTAL
+            MOVE "SELECT CONCAT(m.msg_id, ':', COALESCE((SELECT email FROM users WHERE id = m.author_id), ''), ':', m.body, ':', DATE(m.created_at)) FROM dispute_messages m WHERE m.case_id = ? ORDER BY m.msg_id LIMIT 100" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT NOT = "ERROR|NO_DATA"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                STRING "SUCCESS|DISPUTE|" DELIMITED BY SIZE
+                       WS-DSP-DUE(1:WS-DSP-DUELEN) DELIMITED BY SIZE "|" DELIMITED BY SIZE
+                       WS-RTOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RUN-RESULT-LEN
+                STRING "SUCCESS|DISPUTE|" DELIMITED BY SIZE
+                       WS-DSP-DUE(1:WS-DSP-DUELEN) DELIMITED BY SIZE "|" DELIMITED BY SIZE
+                       WS-RTOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
             EXIT PARAGRAPH.
 
         PLACE-HOLD-LOGIC.

@@ -30,6 +30,13 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 | GET | `/users/:email` | `GET_USER` | bearer |
 | GET | `/wallet/balance` | `CHECK_BALANCE` | bearer |
 | GET | `/statements` | `STATEMENT` (`email`, `currency`, optional `range`=`from,to`, `limit`/`offset`) | bearer (owner or admin) |
+| POST | `/disputes` | `OPEN_DISPUTE` (`subject`, `detail`, optional `ref`) | bearer (owner) |
+| POST | `/disputes/:id/notes` | `ADD_DISPUTE_NOTE` (`body`) | bearer (owner or admin) |
+| POST | `/disputes/:id/acknowledge` | `ACK_DISPUTE` (optional `due`) | bearer (SUPER_ADMIN) + step-up |
+| POST | `/disputes/:id/resolve` | `RESOLVE_DISPUTE` (`resolution`) | bearer (SUPER_ADMIN) + step-up |
+| POST | `/disputes/:id/reject` | `REJECT_DISPUTE` (`reason`) | bearer (SUPER_ADMIN) + step-up |
+| GET | `/disputes` | `LIST_DISPUTES` (optional `email`/`status`/`limit`/`offset`) | bearer (owner pinned, admin full) |
+| GET | `/disputes/:id` | `GET_DISPUTE` | bearer (owner or admin) |
 | POST | `/wallet/transfer` | `TRANSFER` (optional `Idempotency-Key` header) | bearer |
 | GET | `/profile` | `GET_DASHBOARD` | bearer |
 | POST | `/profile/email/request` | `REQ_EMAIL_CHANGE` | bearer |

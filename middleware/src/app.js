@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -138,6 +138,66 @@ export const ROUTES = [
         return { id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed: reversed === '1', description: desc.join(':') };
       });
     return { data: ['STATEMENT'], opening: body.data[1], closing: body.data[2], currency: body.data[3], total: body.data[4], lines: rows };
+  } },
+  { method: 'post', path: '/disputes', action: 'OPEN_DISPUTE', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'subject', pattern: REASON, required: true },
+    { name: 'detail', pattern: REASON, required: true },
+    { name: 'ref', pattern: KEY, required: false },
+  ], onSuccess: async (body) => {
+    return { data: ['DISPUTE_OPENED'], caseId: body.data[1] };
+  } },
+  { method: 'post', path: '/disputes/:id/notes', action: 'ADD_DISPUTE_NOTE', tokenIdentity: 'actor', fields: [
+    { name: 'id', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'body', pattern: REASON, required: true },
+  ] },
+  { method: 'post', path: '/disputes/:id/acknowledge', action: 'ACK_DISPUTE', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'id', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'due', pattern: DATE, required: false },
+  ] },
+  { method: 'post', path: '/disputes/:id/resolve', action: 'RESOLVE_DISPUTE', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'id', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'resolution', pattern: REASON, required: true },
+  ] },
+  { method: 'post', path: '/disputes/:id/reject', action: 'REJECT_DISPUTE', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'id', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'reason', pattern: REASON, required: true },
+  ] },
+  { method: 'get', path: '/disputes', action: 'LIST_DISPUTES', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'email', pattern: EMAIL, required: false },
+    { name: 'status', pattern: DISPUTE_STATUS, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: LIMIT, required: false },
+  ], onSuccess: async (body) => {
+    // One row per case: id, owner, subject, state, due date, overdue flag, opened date.
+    const cases = String(body.data[2] || '')
+      .split(';')
+      .filter(Boolean)
+      .map((row) => {
+        const [caseId, email, subject, state, due, overdue, created] = row.split(':');
+        return { caseId, email, subject, state, due, overdue: overdue === '1', created };
+      });
+    return { data: ['DISPUTES'], total: body.data[1], cases };
+  } },
+  { method: 'get', path: '/disputes/:id', action: 'GET_DISPUTE', tokenIdentity: 'actor', fields: [
+    { name: 'id', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ], onSuccess: async (body) => {
+    const [caseId, email, ref, subject, detail, state, assignee, due, overdue, created, resolution] = String(body.data[1] || '').split(':');
+    const messages = String(body.data[3] || '')
+      .split(';')
+      .filter(Boolean)
+      .map((row) => {
+        const [msgId, author, msgBody, sentAt] = row.split(':');
+        return { msgId, author, body: msgBody, sentAt };
+      });
+    return { data: ['DISPUTE'], case: { caseId, email, ref, subject, detail, state, assignee, due, overdue: overdue === '1', created, resolution }, total: body.data[2], messages };
   } },
   { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', fields: [
     { name: 'from', pattern: EMAIL, required: true },

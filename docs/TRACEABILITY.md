@@ -68,7 +68,7 @@ Conventions:
 | Req ID | Requirement | Status | Control / implementation | Tests / evidence | Owner | Retention / approval | Gate |
 |---|---|---|---|---|---|---|---|
 | E-P1-NOTIFY | Transactional outbox/queue, bounded retries, delivery status, dead-letter, redaction, alerting; money movement never rolled back for mail failure | implemented | Transactional outbox in `cobol/src/auth_core.cob` and `cobol/src/user_core.cob` (enqueue inside the business transaction); dispatch worker with bounded retries, delivery status, and dead-letter rows | `tests/test_outbox.sh`, gateway outbox flow (`middleware/test/gateway.test.js`), `middleware/src/outbox_worker.js`, `scripts/outbox_worker.sh` | UNASSIGNED | No retention defined; no approval recorded | Gate 2 open |
-| E-P1-DISPUTES | Ticket lifecycle linked to accounts/transactions, assignments, deadlines, escalation, immutable history | missing | No ticketing | Blocked: needs dispute-workflow design and owner | UNASSIGNED | No retention defined; no approval recorded | Gate 2 BLOCKED |
+| E-P1-DISPUTES | Ticket lifecycle linked to accounts/transactions, assignments, deadlines, escalation, immutable history | implemented | Ticket lifecycle in `cobol/src/wallet_core.cob`: owner-only `OPEN_DISPUTE` (owned-ref check), owner/admin `ADD_DISPUTE_NOTE`, `SUPER_ADMIN` `ACK_DISPUTE` (assigns + due date) / `RESOLVE_DISPUTE` / `REJECT_DISPUTE` with strict ordering, all transitions audited; append-only `dispute_messages` (trigger); owner-pinned `LIST_DISPUTES`/`GET_DISPUTE` with overdue flags | `tests/test_disputes.sh`, gateway dispute flow (`middleware/test/gateway.test.js`) | UNASSIGNED | No retention defined; no approval recorded | Gate 2 open |
 
 ## F. Platform and operations
 
