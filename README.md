@@ -126,7 +126,8 @@ periodically to a collector (Pushgateway/OTLP-HTTP).
 Audit retention: `POST /admin/audit/archive` (SUPER_ADMIN) moves `audit_trail`
 rows older than a retention window into the immutable `audit_trail_archive`.
 
-Public routes: `/health` (deep), `/auth/signup`, `/auth/verify`, `/auth/login`,
+Public routes: `/live` (no dependencies), `/health` (deep) and `/ready`
+(readiness), `/auth/signup`, `/auth/verify`, `/auth/login`,
 `/auth/forgot`, `/auth/reset-password`, `/auth/resend`, `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
 acting identity always comes from the token, never the request body. Reads of a
 user's record/balance/profile allow the owner or an admin, listing users is
