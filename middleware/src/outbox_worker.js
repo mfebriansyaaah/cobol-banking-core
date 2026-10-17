@@ -30,12 +30,16 @@ function arg(name, fallback) {
 
 function subjectFor(purpose) {
   if (purpose === 'EMAIL_CHANGED') return 'Your account email was changed';
+  if (purpose === 'MFA_RECOVERY_NOTICE') return 'Your account MFA was reset';
   return verificationSubject(purpose);
 }
 
 function textFor({ purpose, code, detail }) {
   if (purpose === 'EMAIL_CHANGED') {
     return `Your account email was changed to ${detail}. If this was not you, contact support.`;
+  }
+  if (purpose === 'MFA_RECOVERY_NOTICE') {
+    return 'Your multi-factor authentication was reset by an administrator. If this was not you, contact support immediately.';
   }
   return `Your verification code is ${code}`;
 }
@@ -76,7 +80,7 @@ async function main() {
     let sent = false;
     let error = '';
     try {
-      if (purpose !== 'SIGNUP' && purpose !== 'PASSWORD_RESET' && purpose !== 'EMAIL_CHANGE' && purpose !== 'EMAIL_CHANGED') {
+      if (purpose !== 'SIGNUP' && purpose !== 'PASSWORD_RESET' && purpose !== 'EMAIL_CHANGE' && purpose !== 'EMAIL_CHANGED' && purpose !== 'MFA_RECOVERY' && purpose !== 'MFA_RECOVERY_NOTICE') {
         error = `unknown purpose ${purpose}`;
       } else if (transport === 'log') {
         await appendFile(logFile, JSON.stringify({ ts: new Date().toISOString(), id, to, purpose, subject, text }) + '\n');
