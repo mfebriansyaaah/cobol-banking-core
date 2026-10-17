@@ -28,7 +28,7 @@
 --   v1.1.0 - Fixed index typo, added performance indexes on verification_logs
 --   v1.0.0 - Initial schema: users, ledger, verification_logs tables
 
--- 1. Tabel Users (Identity & Profile)
+-- 1. Table Users (Identity & Profile)
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 2. Tabel Currencies (Multi-currency Support)
+-- 2. Table Currencies (Multi-currency Support)
 -- Standard: ISO 4217 (e.g., USD, IDR, EUR)
 CREATE TABLE IF NOT EXISTS currencies (
     currency_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,7 +63,7 @@ INSERT IGNORE INTO currencies (iso_code, symbol, prec_val) VALUES
 ('IDR', 'Rp', 0),
 ('GBP', '£', 2);
 
--- 3. Tabel Exchange Rates (Currency Conversion)
+-- 3. Table Exchange Rates (Currency Conversion)
 CREATE TABLE IF NOT EXISTS exchange_rates (
     rate_id INT AUTO_INCREMENT PRIMARY KEY,
     base_currency_id INT NOT NULL,
@@ -80,7 +80,7 @@ INSERT IGNORE INTO exchange_rates (base_currency_id, target_currency_id, exchang
 (1, 3, 15700.00), -- USD to IDR
 (1, 4, 0.79);     -- USD to GBP
 
--- 4. Tabel Accounts (User Financial Accounts)
+-- 4. Table Accounts (User Financial Accounts)
 CREATE TABLE IF NOT EXISTS accounts (
     account_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     UNIQUE KEY unique_user_currency (user_id, currency_id)
 ) ENGINE=InnoDB;
 
--- 5. Tabel Ledger (Refactored for Multi-Currency & Atomic Txns)
+-- 5. Table Ledger (Refactored for Multi-Currency & Atomic Txns)
 DROP TABLE IF EXISTS ledger;
 CREATE TABLE IF NOT EXISTS ledger (
     ledger_id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS ledger_archive (
     KEY idx_ledger_archive_account (account_id)
 ) ENGINE=InnoDB;
 
--- 6. Tabel Verification Logs (Anti-Spam & Tracking)
+-- 6. Table Verification Logs (Anti-Spam & Tracking)
 CREATE TABLE IF NOT EXISTS verification_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL,
@@ -142,14 +142,14 @@ CREATE TABLE IF NOT EXISTS verification_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 7. Tabel Audit Trail (Financial Compliance & Security)
+-- 7. Table Audit Trail (Financial Compliance & Security)
 CREATE TABLE IF NOT EXISTS audit_trail (
     audit_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     actor_id INT NULL, -- who performed it; NULL = the subject performed it
     action VARCHAR(100) NOT NULL,
-    entity_type VARCHAR(50), -- Contoh: 'ACCOUNT', 'LEDGER', 'USER'
-    entity_id VARCHAR(50),   -- ID dari entity yang diubah
+    entity_type VARCHAR(50), -- Example: 'ACCOUNT', 'LEDGER', 'USER'
+    entity_id VARCHAR(50),   -- ID of the changed entity
     detail VARCHAR(255),     -- free-form context (e.g. transfer "to:amount:currency")
     status ENUM('SUCCESS', 'FAILED') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS audit_trail_archive (
     KEY idx_archive_created (created_at)
 ) ENGINE=InnoDB;
 
--- 8. Tabel Pending Transactions (Intent Persistence for Recovery)
+-- 8. Table Pending Transactions (Intent Persistence for Recovery)
 CREATE TABLE IF NOT EXISTS pending_transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     txn_ref VARCHAR(50) NOT NULL,
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS pending_transactions_archive (
     KEY idx_pending_archive_created (created_at)
 ) ENGINE=InnoDB;
 
--- 9. Tabel Transfer Reversals (one-time compensating reversal of a transfer)
+-- 9. Table Transfer Reversals (one-time compensating reversal of a transfer)
 CREATE TABLE IF NOT EXISTS transfer_reversals (
     orig_ref VARCHAR(50) NOT NULL,
     from_email VARCHAR(100) NOT NULL DEFAULT '', -- the original sender (ref is per-sender)
@@ -213,7 +213,7 @@ CREATE TABLE IF NOT EXISTS transfer_reversals (
     CONSTRAINT fk_reversal_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 10. Tabel Refresh Sessions (JWT refresh-token revocation by jti)
+-- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
     family VARCHAR(50) NOT NULL,
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS revoked_access_tokens (
     CONSTRAINT fk_revoked_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 12. Tabel Schema Migrations (applied-migration tracking)
+-- 12. Table Schema Migrations (applied-migration tracking)
 CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(64) PRIMARY KEY,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

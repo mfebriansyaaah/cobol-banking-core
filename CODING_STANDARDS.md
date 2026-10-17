@@ -88,7 +88,10 @@ invariant, bypass evidence, or claim compliance without accountable approval.
     stored procedures, jobs, and external integrations must not implement or
     override these rules. If a technical layer performs defense-in-depth
     checks, COBOL must independently enforce the authoritative rule and tests
-    must prove both paths agree.
+    must prove both paths agree. The sole standing exception is
+    append-only/update-refusing and delete-cascade archive triggers, which are
+    database integrity constraints of last resort (see ADR-0057): they encode
+    no who/when/why decisions, and any new trigger needs its own approved ADR.
 22. **Other languages are infrastructure adapters only.** C/JavaScript may
     implement capabilities COBOL does not provide directly (HTTP/network and
     process transport, database-driver calls, cryptographic primitives,
