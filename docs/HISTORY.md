@@ -2145,3 +2145,15 @@ _merged 2026-10-17_
 - test(precision): per-currency limit boundaries for 0/2/3 decimals
 - feat(precision): parse money in major units, drop fixed x100 scaling
 
+## #212 gate1-journal
+
+_merged 2026-10-17_
+
+- fix(journal): rejoin sentences to satisfy the inline-scope rule
+- docs(journal): ADR-0060, matrix row, status, spec, PRD boundary
+- chore(journal): wire journal suite into CI as step 35
+- test(journal): journal invariant and crash-recovery suite
+- feat(journal): journalize reversals and link audit rows
+- feat(journal): post journal header and verify balanced legs in TRANSFER
+- feat(journal): journal_entries table and migration 0030
+
