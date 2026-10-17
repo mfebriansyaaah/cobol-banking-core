@@ -646,9 +646,22 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            *> The user's profile plus all their accounts, as iso:balance pairs.
-            *> LEFT JOIN so a user with no accounts still has a profile row.
-            MOVE "SELECT u.email, u.full_name, u.status, u.role, u.dob, DATE_FORMAT(u.created_at, '%Y-%m-%dT%H:%i:%s'), COALESCE(GROUP_CONCAT(CONCAT(c.iso_code, ':', ROUND(a.balance,2)) ORDER BY a.account_id SEPARATOR ';'), '') FROM users u LEFT JOIN accounts a ON a.user_id = u.id LEFT JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? GROUP BY u.id" TO WS-PREP-SQL
+            *> The user's profile plus all their accounts, as
+            *> iso:balance:available:status rows (same projection as
+            *> CHECK_BALANCE, so holds reduce the spendable figure here
+            *> too). LEFT JOIN so a user with no accounts still has one.
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT u.email, u.full_name, u.status, u.role, u.dob, " DELIMITED BY SIZE
+                   "DATE_FORMAT(u.created_at, '%Y-%m-%dT%H:%i:%s'), COALESCE(GROUP_CONCAT(" DELIMITED BY SIZE
+                   "CONCAT(c.iso_code, ':', REPLACE(FORMAT(a.balance,c.prec_val), ',', ''), ':', " DELIMITED BY SIZE
+                   "REPLACE(FORMAT(a.balance - COALESCE((SELECT SUM(h.amount) FROM account_holds h " DELIMITED BY SIZE
+                   "WHERE h.account_id = a.account_id AND h.state = 'PLACED' AND " DELIMITED BY SIZE
+                   "(h.expires_at IS NULL OR h.expires_at > NOW())),0),c.prec_val), ',', ''), ':', " DELIMITED BY SIZE
+                   "a.status) ORDER BY a.account_id SEPARATOR ';'), '') FROM users u " DELIMITED BY SIZE
+                   "LEFT JOIN accounts a ON a.user_id = u.id LEFT JOIN currencies c ON " DELIMITED BY SIZE
+                   "c.currency_id = a.currency_id WHERE u.email = ? GROUP BY u.id" DELIMITED BY SIZE
+               INTO WS-PREP-SQL
+            END-STRING
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
