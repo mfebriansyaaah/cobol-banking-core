@@ -29,6 +29,7 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 | GET | `/users` | `LIST_USERS` (optional `limit`/`offset` query) | bearer |
 | GET | `/users/:email` | `GET_USER` | bearer |
 | GET | `/wallet/balance` | `CHECK_BALANCE` | bearer |
+| GET | `/statements` | `STATEMENT` (`email`, `currency`, optional `range`=`from,to`, `limit`/`offset`) | bearer (owner or admin) |
 | POST | `/wallet/transfer` | `TRANSFER` (optional `Idempotency-Key` header) | bearer |
 | GET | `/profile` | `GET_DASHBOARD` | bearer |
 | POST | `/profile/email/request` | `REQ_EMAIL_CHANGE` | bearer |
