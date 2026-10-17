@@ -153,6 +153,7 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_holds.sh` | 32 | hold lifecycle (place/release/expire/ambiguity/closed/precision), available-balance enforcement, lazy expiry, per-currency scheduled fees as separate journals, scoped reconciliation |
 | `tests/test_reconciliation_runs.sh` | 28 | recorded runs (clean/mismatch, scheduled trigger, immutability), exception ownership and strict resolution, lists, scripts (scheduler + CSV export) |
 | `tests/test_dual_control.sh` | 29 | maker-checker: designation-gated CHANGE_ROLE, no self-approval, re-validation and last-admin at approve time, reject flow, bypass refusal, undesignate restores direct use |
+| `tests/test_outbox.sh` | 23 | transactional enqueue on signup/resend/forgot/email-change, worker dispatch with retries, dead-letter after budget, stale-claim reaping, redaction, list view without codes |
 | `tests/test_resend_cooldown.sh` | 7 | per-account resend cooldown for SIGNUP and PASSWORD_RESET (immediate re-request reuses the pending code neutrally, zero disables and reissues) |
 | `tests/test_seed.sh` | 6 | seed fixtures are re-runnable (users/accounts kept, ledger seed rows reset, balances unchanged) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
@@ -164,8 +165,8 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
 | `middleware/` (node --test) | 104 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
 
-Shell suites total **765**; with the gateway suite **107** the full run is
-**872 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **788**; with the gateway suite **107** the full run is
+**895 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite

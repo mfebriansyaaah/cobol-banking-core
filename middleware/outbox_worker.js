@@ -76,14 +76,14 @@ async function main() {
     let sent = false;
     let error = '';
     try {
-      if (transport === 'log') {
+      if (purpose !== 'SIGNUP' && purpose !== 'PASSWORD_RESET' && purpose !== 'EMAIL_CHANGE' && purpose !== 'EMAIL_CHANGED') {
+        error = `unknown purpose ${purpose}`;
+      } else if (transport === 'log') {
         await appendFile(logFile, JSON.stringify({ ts: new Date().toISOString(), id, to, purpose, subject, text }) + '\n');
         sent = true;
-      } else if (purpose === 'SIGNUP' || purpose === 'PASSWORD_RESET' || purpose === 'EMAIL_CHANGE' || purpose === 'EMAIL_CHANGED') {
+      } else {
         sent = await mailer.deliver({ from, to, subject, text });
         if (!sent) error = 'delivery failed';
-      } else {
-        error = `unknown purpose ${purpose}`;
       }
     } catch (err) {
       error = String((err && err.message) || err).slice(0, 200);
