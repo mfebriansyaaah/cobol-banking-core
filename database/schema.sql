@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0033 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0034 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0034 - transactional notification outbox
 --   baseline-0033 - dual-control designation and maker requests
 --   baseline-0032 - reconciliation runs (immutable) and findings
 --   baseline-0031 - account_holds, fee_schedule, FEE_INCOME/FEE enums
@@ -309,6 +310,24 @@ CREATE TABLE IF NOT EXISTS maker_requests (
     KEY idx_maker_state (state)
 ) ENGINE=InnoDB;
 
+-- 9f. Transactional notification outbox (worker-dispatched; codes never exposed)
+CREATE TABLE IF NOT EXISTS notification_outbox (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    recipient VARCHAR(100) NOT NULL,
+    purpose VARCHAR(32) NOT NULL,
+    code VARCHAR(20) NOT NULL DEFAULT '',
+    detail VARCHAR(255) NOT NULL DEFAULT '',
+    state ENUM('PENDING','SENDING','SENT','FAILED','DEAD') NOT NULL DEFAULT 'PENDING',
+    attempts INT NOT NULL DEFAULT 0,
+    next_attempt_at TIMESTAMP NULL,
+    last_error VARCHAR(255) NULL,
+    claimed_by VARCHAR(100) NULL,
+    claimed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sent_at TIMESTAMP NULL,
+    KEY idx_outbox_due (state, next_attempt_at, created_at)
+) ENGINE=InnoDB;
+
 -- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
@@ -386,7 +405,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0030_journal_entries'),
 ('0031_holds_fees'),
 ('0032_reconciliation_runs'),
-('0033_dual_control');
+('0033_dual_control'),
+('0034_notification_outbox');
 
 
 -- Indexes

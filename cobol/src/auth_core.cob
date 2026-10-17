@@ -37,6 +37,12 @@
         01  WS-REQ-STATUS           PIC X(12) VALUE SPACES.
         01  WS-DIGITS-BAD           PIC 9 VALUE 0.
         01  WS-CHECK-LEN            PIC 9(3) VALUE 0.
+        01  WS-NOTIF-TO             PIC X(100) VALUE SPACES.
+        01  WS-NOTIF-PURPOSE        PIC X(32)  VALUE SPACES.
+        01  WS-NOTIF-CODE           PIC X(20)  VALUE SPACES.
+        01  WS-NOTIF-DETAIL         PIC X(100) VALUE SPACES.
+        01  WS-NOTIF-FAIL           PIC 9      VALUE 0.
+        01  WS-OUTBOX-MAX           PIC 9(3)   VALUE 5.
         01  WS-FAMILY               PIC X(50) VALUE SPACES.
         01  WS-REVOKED-FLAG         PIC X(1) VALUE "0".
         01  WS-SESSION-EMAIL        PIC X(100) VALUE SPACES.
@@ -72,6 +78,7 @@
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
         01  WS-I                    PIC 9(3).
+        01  WS-J                    PIC 9(5) VALUE 0.
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
@@ -173,6 +180,12 @@
                     PERFORM ARCHIVE-AUDIT-LOGIC
                 WHEN LS-CMD-ACTION(1:10) = "LIST_AUDIT"
                     PERFORM LIST-AUDIT-LOGIC
+                WHEN LS-CMD-ACTION(1:12) = "OUTBOX_CLAIM"
+                    PERFORM OUTBOX-CLAIM-LOGIC
+                WHEN LS-CMD-ACTION(1:11) = "OUTBOX_MARK"
+                    PERFORM OUTBOX-MARK-LOGIC
+                WHEN LS-CMD-ACTION(1:12) = "LIST_OUTBOX"
+                    PERFORM LIST-OUTBOX-LOGIC
                 WHEN LS-CMD-ACTION(1:17) = "REQUEST_OPERATION"
                     PERFORM REQUEST-OPERATION-LOGIC
                 WHEN LS-CMD-ACTION(1:16) = "APPROVE_REQUEST"
@@ -581,6 +594,17 @@
             END-IF
             
             IF STEP-OK
+                MOVE WS-PARAM1-TRIMMED TO WS-NOTIF-TO
+                MOVE "SIGNUP" TO WS-NOTIF-PURPOSE
+                MOVE WS-CODE(1:6) TO WS-NOTIF-CODE
+                MOVE SPACES TO WS-NOTIF-DETAIL
+                PERFORM ENQUEUE-NOTIFICATION
+            END-IF.
+            IF WS-NOTIF-FAIL NOT = 0
+                SET STEP-FAIL TO TRUE
+            END-IF.
+
+            IF STEP-OK
                 PERFORM GET-USER-ID
                 MOVE SPACES TO WS-QUERY
                 STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
@@ -723,22 +747,44 @@
                     EXIT PARAGRAPH
                 END-IF
             END-IF
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            CALL "generate_random_code" USING BY REFERENCE WS-CODE
-            MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'PASSWORD_RESET', DATE_ADD(NOW(), INTERVAL 1 HOUR))" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            MOVE WS-CODE TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                MOVE "ERROR|RESET_FAILED" TO LS-OUTPUT-BUFFER
-            ELSE
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "generate_random_code" USING BY REFERENCE WS-CODE
+                MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'PASSWORD_RESET', DATE_ADD(NOW(), INTERVAL 1 HOUR))" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-CODE TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE WS-PARAM1-TRIMMED TO WS-NOTIF-TO
+                MOVE "PASSWORD_RESET" TO WS-NOTIF-PURPOSE
+                MOVE WS-CODE(1:6) TO WS-NOTIF-CODE
+                MOVE SPACES TO WS-NOTIF-DETAIL
+                PERFORM ENQUEUE-NOTIFICATION
+            END-IF.
+            IF WS-NOTIF-FAIL NOT = 0
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|CODE_SENT|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|RESET_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
@@ -911,22 +957,44 @@
                     EXIT PARAGRAPH
                 END-IF
             END-IF
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            CALL "generate_random_code" USING BY REFERENCE WS-CODE
-            MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            MOVE WS-CODE TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                MOVE "ERROR|RESEND_FAILED" TO LS-OUTPUT-BUFFER
-            ELSE
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "generate_random_code" USING BY REFERENCE WS-CODE
+                MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-CODE TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE WS-PARAM1-TRIMMED TO WS-NOTIF-TO
+                MOVE "SIGNUP" TO WS-NOTIF-PURPOSE
+                MOVE WS-CODE(1:6) TO WS-NOTIF-CODE
+                MOVE SPACES TO WS-NOTIF-DETAIL
+                PERFORM ENQUEUE-NOTIFICATION
+            END-IF.
+            IF WS-NOTIF-FAIL NOT = 0
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|CODE_SENT|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|RESEND_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
@@ -1691,6 +1759,23 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        ENQUEUE-NOTIFICATION.
+            *> Transactional outbox: the intent commits or rolls back with
+            *> the business action that created it. Sets WS-NOTIF-FAIL on
+            *> DB error; the caller maps it to its own failure output.
+            MOVE 0 TO WS-NOTIF-FAIL
+            MOVE "INSERT INTO notification_outbox (recipient, purpose, code, detail) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-NOTIF-TO TO WS-BIND-1
+            MOVE WS-NOTIF-PURPOSE TO WS-BIND-2
+            MOVE WS-NOTIF-CODE TO WS-BIND-3
+            MOVE WS-NOTIF-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE 1 TO WS-NOTIF-FAIL
+            END-IF.
+            EXIT PARAGRAPH.
+
         VALIDATE-DIGITS.
             *> WS-CHECK (WS-CHECK-LEN chars) must be all digits.
             MOVE 0 TO WS-DIGITS-BAD
@@ -1702,6 +1787,236 @@
                     MOVE 1 TO WS-DIGITS-BAD
                 END-IF
             END-PERFORM.
+            EXIT PARAGRAPH.
+
+        OUTBOX-CLAIM-LOGIC.
+            *> p1 = max rows, p2 = worker id. Reaps stale SENDING claims,
+            *> then claims due rows (PENDING or retry-due FAILED within the
+            *> attempt budget) for this worker. Local-only infrastructure
+            *> call: not exposed over HTTP, so no role gate applies.
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            MOVE WS-P1-LEN TO WS-CHECK-LEN
+            PERFORM VALIDATE-DIGITS
+            IF WS-DIGITS-BAD NOT = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-PARAM2-TRIMMED = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "OUTBOX_MAX_ATTEMPTS" BY REFERENCE "5" BY REFERENCE WS-CD-STR
+            COMPUTE WS-OUTBOX-MAX = FUNCTION NUMVAL(WS-CD-STR)
+            CALL "SQL_BEGIN"
+            MOVE "UPDATE notification_outbox SET state = 'PENDING', claimed_by = NULL, claimed_at = NULL WHERE state = 'SENDING' AND claimed_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "UPDATE notification_outbox SET state = 'SENDING', attempts = attempts + 1, claimed_by = ?, claimed_at = NOW() WHERE id IN (SELECT id FROM (SELECT id FROM notification_outbox WHERE state IN ('PENDING','FAILED') AND (next_attempt_at IS NULL OR next_attempt_at <= NOW()) AND attempts < ? ORDER BY created_at LIMIT ?) t)" DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-OUTBOX-MAX TO WS-BIND-2
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(id, ':', recipient, ':', purpose, ':', code, ':', detail) FROM notification_outbox WHERE claimed_by = ? AND state = 'SENDING' ORDER BY id" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_COMMIT"
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|CLAIMED" TO LS-OUTPUT-BUFFER
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|CLAIMED|" WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        OUTBOX-MARK-LOGIC.
+            *> p1 = id, p2 = SENT|FAILED, p3 = error, p4 = worker. Records the
+            *> delivery outcome; failures past the attempt budget go to the
+            *> dead-letter state for operator review. Local-only call.
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            MOVE WS-P1-LEN TO WS-CHECK-LEN
+            PERFORM VALIDATE-DIGITS
+            IF WS-DIGITS-BAD NOT = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-PARAM2-TRIMMED NOT = "SENT" AND WS-PARAM2-TRIMMED NOT = "FAILED"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-PARAM4-TRIMMED = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT state, claimed_by FROM notification_outbox WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-REQ-STATUS WS-REQ-MAKER
+            END-UNSTRING
+            MOVE 0 TO WS-REQ-MLEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-REQ-MLEN > 0
+                IF WS-REQ-MAKER(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-REQ-MLEN
+                END-IF
+            END-PERFORM
+            IF WS-REQ-STATUS NOT = "SENDING"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P4-LEN NOT = WS-REQ-MLEN
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-PARAM4-TRIMMED(1:WS-P4-LEN) NOT = WS-REQ-MAKER(1:WS-REQ-MLEN)
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "OUTBOX_MAX_ATTEMPTS" BY REFERENCE "5" BY REFERENCE WS-CD-STR
+            COMPUTE WS-OUTBOX-MAX = FUNCTION NUMVAL(WS-CD-STR)
+            IF WS-PARAM2-TRIMMED = "SENT"
+                MOVE "UPDATE notification_outbox SET state = 'SENT', sent_at = NOW(), claimed_by = NULL, claimed_at = NULL WHERE id = ? AND state = 'SENDING'" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                MOVE "SUCCESS|MARKED|SENT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE notification_outbox SET state = 'DEAD', last_error = LEFT(?, 200), claimed_by = NULL, claimed_at = NULL WHERE id = ? AND state = 'SENDING' AND claimed_by = ? AND attempts >= ?" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-3
+            MOVE WS-OUTBOX-MAX TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT = "SUCCESS|AFFECTED_1"
+                MOVE "SUCCESS|MARKED|DEAD" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE notification_outbox SET state = 'FAILED', next_attempt_at = NOW() + INTERVAL (1 << LEAST(attempts, 5)) MINUTE, last_error = LEFT(?, 200), claimed_by = NULL, claimed_at = NULL WHERE id = ? AND state = 'SENDING' AND claimed_by = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM4-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR" OR WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|MARKED|" "FAILED" DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        LIST-OUTBOX-LOGIC.
+            *> p1 = actor (SUPER_ADMIN), p2 = status filter, p3 = limit,
+            *> p4 = offset. Read-only view; rows never carry codes.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-PARAM2-TRIMMED NOT = SPACES AND WS-PARAM2-TRIMMED NOT = "PENDING" AND WS-PARAM2-TRIMMED NOT = "SENDING" AND WS-PARAM2-TRIMMED NOT = "SENT" AND WS-PARAM2-TRIMMED NOT = "FAILED" AND WS-PARAM2-TRIMMED NOT = "DEAD"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-PARAM3-TRIMMED NOT = SPACES
+                MOVE WS-PARAM3-TRIMMED TO WS-LIMIT
+            END-IF.
+            IF WS-PARAM4-TRIMMED NOT = SPACES
+                MOVE WS-PARAM4-TRIMMED TO WS-OFFSET
+            END-IF.
+            MOVE WS-LIMIT TO WS-CHECK
+            MOVE 0 TO WS-CHECK-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-CHECK-LEN > 0
+                IF WS-CHECK(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-CHECK-LEN
+                END-IF
+            END-PERFORM
+            PERFORM VALIDATE-DIGITS
+            IF WS-DIGITS-BAD NOT = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-OFFSET TO WS-CHECK
+            MOVE 0 TO WS-CHECK-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-CHECK-LEN > 0
+                IF WS-CHECK(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-CHECK-LEN
+                END-IF
+            END-PERFORM
+            PERFORM VALIDATE-DIGITS
+            IF WS-DIGITS-BAD NOT = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM notification_outbox WHERE state = COALESCE(NULLIF(?, ''), state)" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE WS-RESULT TO WS-TOTAL
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT CONCAT(id, ':', recipient, ':', purpose, ':', state, ':', attempts, ':', DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s')) FROM notification_outbox WHERE state = COALESCE(NULLIF(?, ''), state) ORDER BY id DESC LIMIT ? OFFSET ?"
+                   DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            MOVE WS-LIMIT TO WS-BIND-2
+            MOVE WS-OFFSET TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                STRING "SUCCESS|OUTBOX|" WS-TOTAL DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|OUTBOX|" WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
             EXIT PARAGRAPH.
 
         STORE-SESSION-LOGIC.
@@ -1980,9 +2295,9 @@
         TRIM-RESULT-LEN.
             *> Compute WS-RLEN = length of WS-RESULT without trailing spaces.
             MOVE 0 TO WS-RLEN
-            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
-                IF WS-RESULT(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16383 BY -1 UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
                 END-IF
             END-PERFORM
             IF WS-RLEN = 0

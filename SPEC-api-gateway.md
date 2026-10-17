@@ -52,6 +52,7 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 | GET | `/admin/reconcile/exceptions` | `LIST_EXCEPTIONS` (optional `status`/`limit`/`offset`) | bearer (SUPER_ADMIN) |
 | POST | `/admin/reconcile/acknowledge` | `ACK_EXCEPTION` (`findingId`) | bearer (SUPER_ADMIN) + step-up |
 | POST | `/admin/reconcile/resolve` | `RESOLVE_EXCEPTION` (`findingId`, optional `note`) | bearer (SUPER_ADMIN) + step-up |
+| GET | `/admin/outbox` | `LIST_OUTBOX` (optional `status`/`limit`/`offset`; never exposes codes) | bearer (SUPER_ADMIN) |
 | GET | `/metrics` | — (Prometheus counters) | bearer (SUPER_ADMIN) |
 
 ### Result to HTTP mapping

@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OPERATION, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -22,11 +22,10 @@ export const ROUTES = [
     { name: 'password', pattern: PASSWORD, required: true },
     { name: 'name', pattern: NAME, required: true },
     { name: 'dob', pattern: DATE, required: true },
-  ], onSuccess: async (body, input, { mailer }) => {
-    // Out of band delivery; never returned to the client. A neutral response
+  ], onSuccess: async () => {
+    // Delivery is owned by the outbox worker (transactional enqueue in
+    // COBOL); the code is never returned to the client. A neutral response
     // (no code) is sent when the email is already registered.
-    const code = body.data[1];
-    if (code) await mailer.sendVerification({ to: input.email, purpose: 'SIGNUP', code });
     return { data: ['USER_CREATED'] };
   } },
   { method: 'post', path: '/auth/verify', action: 'VERIFY_EMAIL', public: true, fields: [
@@ -35,10 +34,8 @@ export const ROUTES = [
   ] },
   { method: 'post', path: '/auth/forgot', action: 'FORGOT_PASSWORD', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
-  ], onSuccess: async (body, input, { mailer }) => {
-    // Neutral: a code is delivered only when the account exists.
-    const code = body.data[1];
-    if (code) await mailer.sendVerification({ to: input.email, purpose: 'PASSWORD_RESET', code });
+  ], onSuccess: async () => {
+    // Neutral: a code is queued only when the account exists.
     return { data: ['CODE_SENT'] };
   } },
   { method: 'post', path: '/auth/reset-password', action: 'RESET_PASSWORD', public: true, fields: [
@@ -48,10 +45,8 @@ export const ROUTES = [
   ] },
   { method: 'post', path: '/auth/resend', action: 'RESEND_VERIFICATION', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
-  ], onSuccess: async (body, input, { mailer }) => {
-    // Neutral: a new code is delivered only when an UNVERIFIED account exists.
-    const code = body.data[1];
-    if (code) await mailer.sendVerification({ to: input.email, purpose: 'SIGNUP', code });
+  ], onSuccess: async () => {
+    // Neutral: a new code is queued only when an UNVERIFIED account exists.
     return { data: ['CODE_SENT'] };
   } },
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
@@ -198,10 +193,8 @@ export const ROUTES = [
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
-  ], onSuccess: async (body, input, { mailer }) => {
-    // Neutral: a code is delivered only when the new address is free.
-    const code = body.data[1];
-    if (code) await mailer.sendVerification({ to: input.newEmail, purpose: 'EMAIL_CHANGE', code });
+  ], onSuccess: async () => {
+    // Neutral: a code is queued only when the new address is free.
     return { data: ['CODE_SENT'] };
   } },
   { method: 'post', path: '/profile/email/confirm', action: 'CONFIRM_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
@@ -209,13 +202,8 @@ export const ROUTES = [
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async (body, input, { mailer }) => {
-    // Notify the address being abandoned.
-    await mailer.sendNotice({
-      to: input.email,
-      subject: 'Your account email was changed',
-      text: `Your account email was changed to ${input.newEmail}. If this was not you, contact support.`,
-    });
+  ], onSuccess: async () => {
+    // The abandoned address is notified through the outbox.
     return { data: ['EMAIL_CHANGED'] };
   } },
   { method: 'post', path: '/profile/password', action: 'CHANGE_PASSWORD', tokenIdentity: 'actor', fields: [
@@ -289,6 +277,12 @@ export const ROUTES = [
   { method: 'post', path: '/admin/reconcile/acknowledge', action: 'ACK_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'findingId', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'get', path: '/admin/outbox', action: 'LIST_OUTBOX', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'status', pattern: OUTBOX_STATUS, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: LIMIT, required: false },
   ] },
   { method: 'post', path: '/admin/reconcile/resolve', action: 'RESOLVE_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'findingId', pattern: INT, required: true },

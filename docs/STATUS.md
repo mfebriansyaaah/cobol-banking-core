@@ -74,6 +74,9 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `LIST_REQUESTS` | actor (SUPER_ADMIN), status filter, limit, offset | paged maker requests, newest first | `SUCCESS\|REQUESTS\|<total>[\|<rows>]` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` |
 | `cobol/src/auth_core.cob` | `ARCHIVE_AUDIT` | retention days, actor (SUPER_ADMIN) | move audit rows older than the window to `audit_trail_archive`; retention must be **≥ 1 day** (0 is refused); **audited** (actor) | `SUCCESS\|ARCHIVED` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|AUDIT_ARCHIVE_FAILED` |
 | `cobol/src/auth_core.cob` | `LIST_AUDIT` | actor (SUPER_ADMIN), action (opt), email (opt), limit (50), offset (0) | read the audit trail as `id:created:action:subject:actor:entity_type:entity_id:status:detail;...` with a total; action/email filters and paging | `SUCCESS\|AUDIT\|<total>\|<rows>` * `ERROR\|FORBIDDEN` |
+| `cobol/src/auth_core.cob` | `OUTBOX_CLAIM` | max rows, worker id | reaps stale claims and hands due rows to one worker | `SUCCESS\|CLAIMED` * `ERROR\|INVALID_INPUT` * `ERROR\|DB_ERROR` |
+| `cobol/src/auth_core.cob` | `OUTBOX_MARK` | id, SENT|FAILED, error, worker id | records the delivery outcome; past the attempt budget the row goes dead-letter | `SUCCESS\|MARKED\|<SENT\|FAILED\|DEAD>` * `ERROR\|INVALID_INPUT` * `ERROR\|UNKNOWN_TRANSACTION` * `ERROR\|DB_ERROR` |
+| `cobol/src/auth_core.cob` | `LIST_OUTBOX` | actor (SUPER_ADMIN), status filter, limit, offset | paged outbox rows without codes or message bodies | `SUCCESS\|OUTBOX\|<total>[\|<rows>]` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` |
 | `cobol/src/auth_core.cob` | `STORE_SESSION` | jti, email, days | record a refresh-token session | `SUCCESS\|SESSION_STORED` * `ERROR\|SESSION_STORE_FAILED` |
 | `cobol/src/auth_core.cob` | `REVOKE_SESSION` | jti | remove one refresh session (per-device logout) | `SUCCESS\|SESSION_REVOKED` * `ERROR\|SESSION_REVOKE_FAILED` |
 | `cobol/src/auth_core.cob` | `LIST_SESSIONS` | email, actor (self-or-admin), sid | active (unrevoked, unexpired) refresh sessions as `jti:created:expires:user-agent:ip:current;...` (`current` marks the caller's own family) | `SUCCESS\|SESSIONS\|...` * `ERROR\|FORBIDDEN` * `ERROR\|SESSION_LIST_FAILED` |
@@ -93,7 +96,7 @@ action has a handler in its owning module.
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
 `users` (with `token_version`) * `currencies` * `accounts` * `ledger` (with `from_email`) * `ledger_archive` *
-`verification_logs` * `journal_entries` * `audit_trail` (subject `user_id` + `actor_id`, posting `journal_id`) * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` (ref + sender) * `account_holds` (state machine) * `fee_schedule` (per-currency flat fee) * `reconciliation_runs` (immutable) * `reconciliation_findings` (ownership lifecycle) * `dual_control_operations` (designation) * `maker_requests` (PENDING/APPROVED/REJECTED) * `refresh_sessions` (jti + `family` + user-agent/ip) * `refresh_families` (absolute lifetime + `rotations`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
+`verification_logs` * `journal_entries` * `audit_trail` (subject `user_id` + `actor_id`, posting `journal_id`) * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` (ref + sender) * `account_holds` (state machine) * `fee_schedule` (per-currency flat fee) * `reconciliation_runs` (immutable) * `reconciliation_findings` (ownership lifecycle) * `dual_control_operations` (designation) * `maker_requests` (PENDING/APPROVED/REJECTED) * `notification_outbox` (PENDING/SENDING/SENT/FAILED/DEAD) * `refresh_sessions` (jti + `family` + user-agent/ip) * `refresh_families` (absolute lifetime + `rotations`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations`
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -153,6 +156,7 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_holds.sh` | 32 | hold lifecycle (place/release/expire/ambiguity/closed/precision), available-balance enforcement, lazy expiry, per-currency scheduled fees as separate journals, scoped reconciliation |
 | `tests/test_reconciliation_runs.sh` | 28 | recorded runs (clean/mismatch, scheduled trigger, immutability), exception ownership and strict resolution, lists, scripts (scheduler + CSV export) |
 | `tests/test_dual_control.sh` | 29 | maker-checker: designation-gated CHANGE_ROLE, no self-approval, re-validation and last-admin at approve time, reject flow, bypass refusal, undesignate restores direct use |
+| `tests/test_outbox.sh` | 23 | transactional enqueue on signup/resend/forgot/email-change, worker dispatch with retries, dead-letter after budget, stale-claim reaping, redaction, list view without codes |
 | `tests/test_resend_cooldown.sh` | 7 | per-account resend cooldown for SIGNUP and PASSWORD_RESET (immediate re-request reuses the pending code neutrally, zero disables and reissues) |
 | `tests/test_seed.sh` | 6 | seed fixtures are re-runnable (users/accounts kept, ledger seed rows reset, balances unchanged) |
 | `tests/test_password_kdf.sh` | 8 | PBKDF2 cost configurable + modern default, legacy SHA256 upgrade, rehash-on-login for under-cost PBKDF2, no needless rehash |
@@ -162,10 +166,10 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_hooks.sh` | 4 | installed git hooks match tracked (`--check`), tampering detected, reinstall restores |
 | `tests/test_c_memory.sh` | 12 | C/COBOL boundary contract under ASan+UBSan (1-byte result fields, 6-digit codes, 32-char secrets, fast refusal of absurd KDF costs) |
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
-| `middleware/` (node --test) | 104 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 108 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
-Shell suites total **765**; with the gateway suite **107** the full run is
-**872 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **788**; with the gateway suite **108** the full run is
+**896 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
@@ -179,7 +183,7 @@ Held by a bearer JWT (public but rate-limited: `/health`, `/live`, `/ready`; pub
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
 (`Idempotency-Key`), `/profile` (GET/PATCH), `/profile/deactivate`,
 `/profile/email/request`,
-`/profile/email/confirm`, `/profile/password`, `/admin/user-status`, `/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/reconcile/run`, `/admin/reconcile/runs`, `/admin/reconcile/exceptions`, `/admin/reconcile/acknowledge`, `/admin/reconcile/resolve`, `/admin/requests`, `/admin/requests/approve`, `/admin/requests/reject`, `/mfa/enroll`, `/mfa/confirm`,
+`/profile/email/confirm`, `/profile/password`, `/admin/user-status`, `/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/reconcile/run`, `/admin/reconcile/runs`, `/admin/reconcile/exceptions`, `/admin/reconcile/acknowledge`, `/admin/reconcile/resolve`, `/admin/requests`, `/admin/requests/approve`, `/admin/requests/reject`, `/admin/outbox`, `/mfa/enroll`, `/mfa/confirm`,
 `/mfa/disable`, `/sessions` (GET), `/sessions/revoke`, `/sessions/revoke-all`,
 `/admin/role` (GET/POST),
 `/admin/reconcile`
@@ -240,8 +244,13 @@ refresh tokens are bound to an issuer and audience
 Tokens are signed and verified with **HMAC-SHA256 only** (`algorithms: ['HS256']`
 on verify), so a token claiming `alg: none` or another algorithm family is
 rejected. Verification codes (`/auth/signup`, `/profile/email/request`) are
-delivered out of band (SMTP when configured, otherwise logged without the code
-in development) and are never returned in the HTTP response. Access tokens carry
+queued in the transactional outbox by COBOL and delivered out of band by
+`scripts/outbox_worker.sh` (SMTP when configured, otherwise logged without
+the code in development); they are never returned in the HTTP response, and
+the list view (`GET /admin/outbox`) never exposes codes. A successful money
+movement never waits on the worker: notifications that cannot be delivered
+stay observable (`PENDING`/`FAILED`) and age into dead-letter rows instead
+of rolling anything back. Access tokens carry
 the user's token version, checked on every protected request (`CHECK_TOKEN`);
 an admin/status change or a password/email change bumps it, so already-issued
 access tokens can be revoked before they expire. A single token can be revoked
