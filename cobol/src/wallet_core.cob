@@ -93,6 +93,16 @@
         01  WS-RUN-COUNT           PIC X(10) VALUE SPACES.
         01  WS-RLIMIT              PIC X(10) VALUE "50".
         01  WS-ROFFSET             PIC X(10) VALUE "0".
+        01  WS-ST-ACC               PIC X(20) VALUE SPACES.
+        01  WS-ST-PREC              PIC X(5)  VALUE SPACES.
+        01  WS-ST-ISO               PIC X(10) VALUE SPACES.
+        01  WS-ST-FROM              PIC X(10) VALUE SPACES.
+        01  WS-ST-TO                PIC X(10) VALUE SPACES.
+        01  WS-ST-QFROM             PIC X(10) VALUE SPACES.
+        01  WS-ST-OPEN              PIC X(30) VALUE SPACES.
+        01  WS-ST-CLOSE             PIC X(30) VALUE SPACES.
+        01  WS-DATE-SRC             PIC X(10) VALUE SPACES.
+        01  WS-DATE-BAD             PIC 9     VALUE 0.
         01  WS-RTOTAL              PIC X(20) VALUE SPACES.
         01  WS-RLEN                PIC 9(5)  VALUE 0.
         01  WS-HOLD-ID             PIC X(20) VALUE SPACES.
@@ -221,6 +231,14 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM RELEASE-HOLD-LOGIC
+                WHEN LS-CMD-ACTION(1:9) = "STATEMENT"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
+                    PERFORM TRIM-PARAM5
+                    PERFORM TRIM-PARAM6
+                    PERFORM STATEMENT-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -696,6 +714,213 @@
                        INTO LS-OUTPUT-BUFFER
                 END-STRING
             END-IF.
+            EXIT PARAGRAPH.
+
+        STATEMENT-LOGIC.
+            *> p1 = owner email, p2 = actor (owner or admin via
+            *> ALLOW-READ), p3 = currency ISO (pins the account),
+            *> p4 = "from,to" ISO posting dates (each side optional),
+            *> p5 = limit, p6 = offset. Read-only account statement:
+            *> opening and closing balances plus one row per posting in
+            *> range, oldest first, each with posting/value dates,
+            *> reference, source, side, amount, balance after the row,
+            *> a reversal flag, and the ledger description. Balances and
+            *> lines are projected from the immutable ledger, so every
+            *> statement is reproducible from source records.
+            PERFORM ALLOW-READ
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-LEN = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-ST-FROM WS-ST-TO
+            UNSTRING WS-PARAM4-TRIMMED DELIMITED BY ","
+                INTO WS-ST-FROM WS-ST-TO
+            END-UNSTRING
+            MOVE WS-ST-FROM TO WS-DATE-SRC
+            PERFORM CHECK-ST-DATE
+            IF WS-DATE-BAD NOT = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-ST-TO TO WS-DATE-SRC
+            PERFORM CHECK-ST-DATE
+            IF WS-DATE-BAD NOT = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-ST-FROM NOT = SPACES
+                IF WS-ST-TO NOT = SPACES
+                    IF WS-ST-FROM > WS-ST-TO
+                        MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                        EXIT PARAGRAPH
+                    END-IF
+                END-IF
+            END-IF.
+            MOVE "50" TO WS-RLIMIT
+            MOVE "0" TO WS-ROFFSET
+            IF WS-P5-LEN > 0
+                MOVE WS-PARAM5-TRIMMED TO WS-RLIMIT
+            END-IF.
+            IF WS-P6-LEN > 0
+                MOVE WS-PARAM6-TRIMMED TO WS-ROFFSET
+            END-IF.
+            MOVE WS-RLIMIT TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-ROFFSET TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(a.account_id AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-ST-ACC WS-ST-PREC WS-ST-ISO
+            END-UNSTRING
+            IF WS-ST-FROM = SPACES
+                MOVE "1000-01-01" TO WS-ST-QFROM
+            ELSE
+                MOVE WS-ST-FROM TO WS-ST-QFROM
+            END-IF.
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT REPLACE(FORMAT(COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 - amount END), 0), " WS-ST-PREC(1:1) "), ',', '') FROM ledger WHERE account_id = ? AND DATE(created_at) < ?" DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-ST-ACC TO WS-BIND-1
+            MOVE WS-ST-QFROM TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-ST-OPEN
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ledger WHERE account_id = ? AND DATE(created_at) >= COALESCE(NULLIF(?, ''), DATE(created_at)) AND DATE(created_at) <= COALESCE(NULLIF(?, ''), DATE(created_at))" TO WS-PREP-SQL
+            MOVE WS-ST-ACC TO WS-BIND-1
+            MOVE WS-ST-FROM TO WS-BIND-2
+            MOVE WS-ST-TO TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-RTOTAL
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT REPLACE(FORMAT((? + COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 - amount END), 0)), " WS-ST-PREC(1:1) "), ',', '') FROM ledger WHERE account_id = ? AND DATE(created_at) >= COALESCE(NULLIF(?, ''), DATE(created_at)) AND DATE(created_at) <= COALESCE(NULLIF(?, ''), DATE(created_at))" DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-ST-OPEN TO WS-BIND-1
+            MOVE WS-ST-ACC TO WS-BIND-2
+            MOVE WS-ST-FROM TO WS-BIND-3
+            MOVE WS-ST-TO TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-ST-CLOSE
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT CONCAT(l.ledger_id, ':', DATE_FORMAT(l.created_at, '%Y-%m-%dT%H:%i:%s'), ':', " DELIMITED BY SIZE
+                   "COALESCE(j.value_date, DATE(l.created_at)), ':', l.txn_ref, ':', " DELIMITED BY SIZE
+                   "COALESCE(j.source, 'TRANSFER'), ':', l.type, ':', " DELIMITED BY SIZE
+                   "REPLACE(FORMAT(l.amount, " DELIMITED BY SIZE
+                   WS-ST-PREC DELIMITED BY SPACE
+                   "), ',', ''), ':', REPLACE(FORMAT((? + SUM(CASE WHEN l.type = 'CREDIT' " DELIMITED BY SIZE
+                   "THEN l.amount ELSE 0 - l.amount END) OVER (ORDER BY l.ledger_id)), " DELIMITED BY SIZE
+                   WS-ST-PREC DELIMITED BY SPACE
+                   "), ',', ''), ':', EXISTS(SELECT 1 FROM ledger x JOIN journal_entries y " DELIMITED BY SIZE
+                   "ON y.journal_id = x.journal_id WHERE x.txn_ref = l.txn_ref AND " DELIMITED BY SIZE
+                   "x.from_email <=> l.from_email AND y.source = 'REVERSAL'), ':', " DELIMITED BY SIZE
+                   "l.description) FROM ledger l LEFT JOIN journal_entries j ON j.journal_id = " DELIMITED BY SIZE
+                   "l.journal_id WHERE l.account_id = ? AND DATE(l.created_at) >= " DELIMITED BY SIZE
+                   "COALESCE(NULLIF(?, ''), DATE(l.created_at)) AND DATE(l.created_at) <= " DELIMITED BY SIZE
+                   "COALESCE(NULLIF(?, ''), DATE(l.created_at)) ORDER BY l.ledger_id " DELIMITED BY SIZE
+                   "LIMIT ? OFFSET ?" DELIMITED BY SIZE
+               INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-ST-OPEN TO WS-BIND-1
+            MOVE WS-ST-ACC TO WS-BIND-2
+            MOVE WS-ST-FROM TO WS-BIND-3
+            MOVE WS-ST-TO TO WS-BIND-4
+            MOVE WS-RLIMIT TO WS-BIND-5
+            MOVE WS-ROFFSET TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT NOT = "ERROR|NO_DATA"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                STRING "SUCCESS|STATEMENT|" DELIMITED BY SIZE
+                       WS-ST-OPEN DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-ST-CLOSE DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-ST-ISO DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RTOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RUN-RESULT-LEN
+                STRING "SUCCESS|STATEMENT|" DELIMITED BY SIZE
+                       WS-ST-OPEN DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-ST-CLOSE DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-ST-ISO DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RTOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHECK-ST-DATE.
+            *> WS-DATE-SRC holds "" or YYYY-MM-DD; sets WS-DATE-BAD = 1
+            *> when the shape is wrong (the gateway also enforces DATE).
+            MOVE 0 TO WS-DATE-BAD
+            IF WS-DATE-SRC = SPACES
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-DATE-SRC(5:1) NOT = "-" OR WS-DATE-SRC(8:1) NOT = "-"
+                MOVE 1 TO WS-DATE-BAD
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VARYING WS-J FROM 1 BY 1 UNTIL WS-J > 10
+                IF WS-J NOT = 5 AND WS-J NOT = 8
+                    IF WS-DATE-SRC(WS-J:1) < "0" OR WS-DATE-SRC(WS-J:1) > "9"
+                        MOVE 1 TO WS-DATE-BAD
+                    END-IF
+                END-IF
+            END-PERFORM.
             EXIT PARAGRAPH.
 
         PLACE-HOLD-LOGIC.
