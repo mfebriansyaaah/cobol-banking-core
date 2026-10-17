@@ -36,6 +36,11 @@
         01  WS-ALEN                 PIC 9(3) VALUE 1.
         01  WS-RLEN                 PIC 9(5) VALUE 1.
         01  WS-CODE                 PIC X(7) VALUE SPACES.
+        01  WS-NOTIF-TO             PIC X(100) VALUE SPACES.
+        01  WS-NOTIF-PURPOSE        PIC X(32)  VALUE SPACES.
+        01  WS-NOTIF-CODE           PIC X(20)  VALUE SPACES.
+        01  WS-NOTIF-DETAIL         PIC X(100) VALUE SPACES.
+        01  WS-NOTIF-FAIL           PIC 9      VALUE 0.
         01  WS-PLAIN                PIC X(100) VALUE SPACES.
         01  WS-STORED               PIC X(256) VALUE SPACES.
         01  WS-VERIFY               PIC X(1) VALUE SPACES.
@@ -724,6 +729,8 @@
 
             *> Drop any earlier unused code so only one is active at a time
             *> (a fresh request invalidates the previous code).
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN"
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'EMAIL_CHANGE' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
@@ -743,8 +750,26 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
 
             IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE WS-PARAM2-TRIMMED TO WS-NOTIF-TO
+                MOVE "EMAIL_CHANGE" TO WS-NOTIF-PURPOSE
+                MOVE WS-CODE(1:6) TO WS-NOTIF-CODE
+                MOVE SPACES TO WS-NOTIF-DETAIL
+                PERFORM ENQUEUE-NOTIFICATION
+            END-IF.
+            IF WS-NOTIF-FAIL NOT = 0
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|CODE_SENT|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK"
                 MOVE "ERROR|EMAIL_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
             END-IF
             
             MOVE SPACES TO LS-OUTPUT-BUFFER
@@ -889,11 +914,40 @@
             END-IF
             
             IF STEP-OK
+                MOVE WS-PARAM1-TRIMMED TO WS-NOTIF-TO
+                MOVE "EMAIL_CHANGED" TO WS-NOTIF-PURPOSE
+                MOVE SPACES TO WS-NOTIF-CODE
+                MOVE WS-PARAM2-TRIMMED TO WS-NOTIF-DETAIL
+                PERFORM ENQUEUE-NOTIFICATION
+            END-IF.
+            IF WS-NOTIF-FAIL NOT = 0
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
                 CALL "SQL_COMMIT"
                 MOVE "SUCCESS|EMAIL_CHANGED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|EMAIL_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ENQUEUE-NOTIFICATION.
+            *> Transactional outbox: the intent commits or rolls back with
+            *> the business action that created it. Sets WS-NOTIF-FAIL on
+            *> DB error; the caller maps it to its own failure output.
+            MOVE 0 TO WS-NOTIF-FAIL
+            MOVE "INSERT INTO notification_outbox (recipient, purpose, code, detail) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-NOTIF-TO TO WS-BIND-1
+            MOVE WS-NOTIF-PURPOSE TO WS-BIND-2
+            MOVE WS-NOTIF-CODE TO WS-BIND-3
+            MOVE WS-NOTIF-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE 1 TO WS-NOTIF-FAIL
             END-IF.
             EXIT PARAGRAPH.
 
