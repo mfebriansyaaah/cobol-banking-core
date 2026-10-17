@@ -189,14 +189,14 @@ must not precede P0/P1 controls.
 
 The repository currently provides authentication and authorization, user
 profiles, a multi-currency internal transfer path between existing accounts,
-mutable account balances with spendable-balance enforcement, holds, scheduled per-currency fees as separate journals, journal-headed postings (balanced-leg verified pre-commit), audit-linked journals, recorded reconciliation runs with an exception workflow, maker-checker for designated operations (designation empty by default), transactional notification outbox with a dispatch worker, MFA backup codes and assisted recovery, read-only customer statements, transfer limits,
+mutable account balances with spendable-balance enforcement, holds, scheduled per-currency fees as separate journals, journal-headed postings (balanced-leg verified pre-commit), audit-linked journals, recorded reconciliation runs with an exception workflow, maker-checker for designated operations (designation empty by default), transactional notification outbox with a dispatch worker, MFA backup codes and assisted recovery, read-only customer statements, dispute ticketing, transfer limits,
 reversal, audit/session administration, a Node.js API gateway, and a MySQL/C
 bridge. It includes substantial security and CI guardrails.
 
 The following are **not implemented or not evidenced as production controls**:
 account-opening/funding/withdrawal products, jurisdiction-specific KYC/AML and
 sanctions workflows, fraud case management, dual control, durable notifications,
-regulatory/finance reporting, interest/rewards, ticketing,
+regulatory/finance reporting, interest/rewards,
 production backup/restore/DR evidence, licensing/certification, and independent
 security/compliance approval. See `docs/STATUS.md` for known technical gaps.
 
