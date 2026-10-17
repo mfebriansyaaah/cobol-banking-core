@@ -87,6 +87,13 @@
         01  WS-FEE-STR             PIC X(30) VALUE SPACES.
         01  WS-FEE-EXACT           PIC X(1)  VALUE SPACES.
         01  WS-INCOME-ACC          PIC X(20) VALUE SPACES.
+        01  WS-RUN-ID              PIC X(20) VALUE SPACES.
+        01  WS-RUN-TRIGGER         PIC X(10) VALUE SPACES.
+        01  WS-RUN-COUNT           PIC X(10) VALUE SPACES.
+        01  WS-RLIMIT              PIC X(10) VALUE "50".
+        01  WS-ROFFSET             PIC X(10) VALUE "0".
+        01  WS-RTOTAL              PIC X(20) VALUE SPACES.
+        01  WS-RLEN                PIC 9(5)  VALUE 0.
         01  WS-HOLD-ID             PIC X(20) VALUE SPACES.
         01  WS-HOLD-FRAC           PIC 9(2) VALUE 0.
         01  WS-HOLD-AMOUNT-NUM     PIC S9(16)V9999 COMP-3.
@@ -177,6 +184,10 @@
                 WHEN LS-CMD-ACTION(1:9) = "RECONCILE"
                     PERFORM TRIM-PARAM1
                     PERFORM RECONCILE-LOGIC
+                WHEN LS-CMD-ACTION(1:18) = "RUN_RECONCILIATION"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM RUN-RECONCILIATION-LOGIC
                 WHEN LS-CMD-ACTION(1:10) = "PLACE_HOLD"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
@@ -1449,6 +1460,106 @@
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "ERROR|MISMATCH|" WS-RESULT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RUN-RECONCILIATION-LOGIC.
+            *> p1 = actor (SUPER_ADMIN), p2 = trigger (MANUAL/SCHEDULED).
+            *> Computes the balance-vs-ledger outcome first, then inserts one
+            *> immutable run row plus one OPEN finding per mismatch. A crash
+            *> before COMMIT leaves no partial run behind.
+            MOVE "MANUAL" TO WS-RUN-TRIGGER
+            IF WS-P2-LEN > 0
+                MOVE WS-PARAM2-TRIMMED TO WS-RUN-TRIGGER
+            END-IF.
+            IF WS-RUN-TRIGGER NOT = "MANUAL" AND WS-RUN-TRIGGER NOT = "SCHEDULED"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
+                MOVE SPACES TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN"
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM (SELECT a.account_id FROM accounts a LEFT JOIN ledger l ON l.account_id = a.account_id GROUP BY a.account_id, a.balance HAVING a.balance <> COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0)) t" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-RUN-COUNT
+            IF WS-RUN-COUNT = "0"
+                MOVE "INSERT INTO reconciliation_runs (trigger_src, actor_email, status, mismatch_count) VALUES (?, ?, 'CLEAN', 0)" TO WS-PREP-SQL
+            ELSE
+                MOVE "INSERT INTO reconciliation_runs (trigger_src, actor_email, status, mismatch_count) VALUES (?, ?, 'MISMATCH', ?)" TO WS-PREP-SQL
+            END-IF.
+            MOVE WS-RUN-TRIGGER TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            MOVE WS-RUN-COUNT TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-RUN-ID
+            IF WS-RUN-COUNT NOT = "0"
+                MOVE "INSERT INTO reconciliation_findings (run_id, account_id, balance, ledger_sum) SELECT ?, a.account_id, a.balance, COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0) FROM accounts a LEFT JOIN ledger l ON l.account_id = a.account_id GROUP BY a.account_id, a.balance HAVING a.balance <> COALESCE(SUM(CASE WHEN l.type = 'CREDIT' THEN l.amount ELSE -l.amount END),0)" TO WS-PREP-SQL
+                MOVE WS-RUN-ID TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    CALL "SQL_ROLLBACK"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            CALL "SQL_COMMIT"
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|RUN_RECORDED|" WS-RUN-ID DELIMITED BY SPACE
+                   "|" DELIMITED BY SIZE WS-RUN-COUNT DELIMITED BY SPACE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        TRIM-RUN-RESULT-LEN.
+            *> Compute WS-RLEN = length of WS-RESULT without trailing spaces.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
             END-IF.
             EXIT PARAGRAPH.
 
