@@ -1,11 +1,25 @@
 -- E-Wallet Enterprise Secure Database Schema
--- Target: MySQL 8.0 (InnoDB, utf8mb4)
+-- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: 1.7.0
+-- Version: baseline-0029 (fresh-install snapshot; see the baseline block by
+--   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0029 - FX lookup index restored (idx_exchange_lookup)
+--   baseline-0028 - audit_trail append-only (no UPDATE)
+--   baseline-0027 - ledger durability (append-only + archive triggers)
+--   baseline-0024..0026 - audit actor attribution/integrity, ledger sender
+--   baseline-0021..0023 - account lifecycle, refresh family limits, session metadata
+--   baseline-0018..0020 - audit detail, pending id/archive
+--   baseline-0014..0017 - MFA TOTP, per-sender idempotency key, reversals, ledger FX rate
+--   baseline-0011..0013 - password-reset purpose, verification attempts, login lockout
+--   baseline-0010 - audit_trail_archive (retention + archive)
+--   baseline-0008..0009 - exchange_rates (re-introduced), revoked access tokens
+--   baseline-0006..0007 - token_version; dropped unused schema (users.balance etc.)
+--   baseline-0002..0005 - refresh_sessions, email FK cascades, session families
+--   baseline-0001 - pending intents cascade on user delete
+-- Changelog (pre-baseline era):
 --   v1.7.0 - email FKs ON UPDATE CASCADE (email change with sessions/pending)
--- Changelog:
 --   v1.6.0 - refresh_sessions table (refresh-token revocation by jti)
 --   v1.5.0 - pending_transactions FKs ON DELETE CASCADE (idempotent transfers)
 --   v1.4.0 - pending_transactions table for transfer intents

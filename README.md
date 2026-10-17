@@ -29,9 +29,10 @@ client, and Node.js 18+ with npm.
 ```sh
 # 1. Database: create, apply schema, seed test data, apply migrations
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS cobol_db;"
-mysql cobol_db < database/schema.sql
-mysql cobol_db < database/seed_test_data.sql
+mysql cobol_db < database/schema.sql   # fresh-install baseline (never re-run on live data)
+mysql cobol_db < database/seed_test_data.sql   # dev fixtures, safe to re-run
 database/migrate.sh            # records/applies database/migrations/NNN_*.sql
+                               # ("no pending migrations" on a fresh database)
 
 # 1b. (Production) provision least-privilege accounts: a DML-only application
 # user and a separate DDL migration user. Review, then apply as an admin:
