@@ -2284,3 +2284,11 @@ _merged 2026-10-17_
 - docs(hygiene): list statements and disputes routes in STATUS gateway inventory
 - docs(hygiene): list dispute tables in STATUS schema inventory
 
+## #223 inverse-fx-rounding
+
+_merged 2026-10-17_
+
+- docs(fx): ADR 0070, status and spec for exact inverse-rate conversion
+- fix(fx): exact inverse-rate conversion via DECIMAL(30,18) snapshot
+- test(fx): reproduce inverse-rate over-credit (6.40 vs 6.37)
+
