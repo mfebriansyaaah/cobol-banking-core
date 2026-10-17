@@ -14,7 +14,7 @@ record, never as magic numbers in scripts.
 | Latency histograms (`gateway_latency_ms`) | `GET /metrics` | Compare against the approved SLO; check pool saturation (`pool_*` gauges) and slow-query log |
 | Pool gauges (`pool_*`) + restart counter | `GET /metrics` | Restart counter rising → capture logs, inspect bridge/DB; saturation → scale or shed load per deploy runbook |
 | `/ready` / `/health` probes | load balancer / monitor | `503` → see incident-response (SEV1/SEV2); cached-probe staleness → check DB reachability, not the app |
-| Reconciliation mismatches | `RUN_RECONCILIATION` / `scheduled_reconcile.sh` | New mismatch → SEV2 triage; never adjust ledger to silence it |
+| Reconciliation mismatches | `RUN_RECONCILIATION` / `scheduled_reconcile.sh` (exits 2 with `ALERT\|DIVERGENCE` on any recorded mismatch) | New mismatch → SEV2 triage; never adjust ledger to silence it |
 | Outbox lag (`PENDING` age, dead letters) | `LIST_OUTBOX` | Worker down → restart via `scripts/outbox_worker.sh`; poison message → fix cause, never delete the row silently |
 | Disk / backup age | cron + `backups/` manifest dates | Missing or stale backup → SEV2; run `backup.sh` now and fix the schedule |
 

@@ -68,7 +68,7 @@ q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER','$NOACCT'
 
 # --- GET_DASHBOARD ---
 check_contains "dashboard self profile" "SUCCESS|DASHBOARD|$U|Prof User|VERIFIED|USER|1990-01-01|" "$(run GET_DASHBOARD "$U" "$U" "")"
-check_contains "dashboard self accounts" "|USD:250.00;IDR:0.00" "$(run GET_DASHBOARD "$U" "$U" "")"
+check_contains "dashboard self accounts" "|USD:250.00:250.00:ACTIVE;IDR:0:0:ACTIVE" "$(run GET_DASHBOARD "$U" "$U" "")"
 check_contains "dashboard by admin" "SUCCESS|DASHBOARD|$U|Prof User|VERIFIED|USER|1990-01-01|" "$(run GET_DASHBOARD "$U" "$ADMIN" "")"
 check_contains "dashboard without accounts still works" "SUCCESS|DASHBOARD|$NOACCT|No Acct|VERIFIED|USER|1991-01-01|" "$(run GET_DASHBOARD "$NOACCT" "$NOACCT" "")"
 check "dashboard other forbidden for non-admin" "ERROR|FORBIDDEN" "$(run GET_DASHBOARD "$U" "$OTHER" "")"
