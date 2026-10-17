@@ -29,7 +29,7 @@ kdf 8
 mfa 20
 sessions-manage 19
 account-status 13
-transfer-limits 10
+transfer-limits 27
 reversal 27
 observability 7
 lifecycle 15
