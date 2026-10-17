@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0030 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0031 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0031 - account_holds, fee_schedule, FEE_INCOME/FEE enums
 --   baseline-0030 - journal_entries header, ledger/audit journal link
 --   baseline-0029 - FX lookup index restored (idx_exchange_lookup)
 --   baseline-0028 - audit_trail append-only (no UPDATE)
@@ -86,7 +87,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     account_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     currency_id INT NOT NULL,
-    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT') DEFAULT 'SAVINGS',
+    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT', 'FEE_INCOME') DEFAULT 'SAVINGS',  -- FEE_INCOME: bank-owned fee collection account (one active per currency)
     balance DECIMAL(18, 4) NOT NULL DEFAULT 0.0000 CHECK (balance >= 0),
     status ENUM('ACTIVE', 'FROZEN', 'CLOSED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -102,7 +103,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS journal_entries (
     journal_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     txn_ref VARCHAR(50) NOT NULL,
-    source ENUM('TRANSFER','REVERSAL') NOT NULL,
+    source ENUM('TRANSFER','REVERSAL','FEE') NOT NULL,
     actor_email VARCHAR(100) NOT NULL,
     value_date DATE NOT NULL DEFAULT (CURRENT_DATE),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -231,6 +232,32 @@ CREATE TABLE IF NOT EXISTS transfer_reversals (
     CONSTRAINT fk_reversal_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- 9b. Account holds (spendable-balance locks; PLACED rows reduce available)
+CREATE TABLE IF NOT EXISTS account_holds (
+    hold_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    account_id INT NOT NULL,
+    amount DECIMAL(18, 4) NOT NULL,
+    state ENUM('PLACED','RELEASED','EXPIRED') NOT NULL DEFAULT 'PLACED',
+    reason VARCHAR(100) NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    expires_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_hold_amount CHECK (amount > 0),
+    KEY idx_hold_account (account_id, state),
+    CONSTRAINT fk_hold_account FOREIGN KEY (account_id)
+        REFERENCES accounts(account_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 9c. Fee schedule (bank-owned per-currency flat fee; no row = no fee)
+CREATE TABLE IF NOT EXISTS fee_schedule (
+    currency_id INT PRIMARY KEY,
+    fee_amount DECIMAL(18, 4) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT chk_fee_amount CHECK (fee_amount >= 0),
+    CONSTRAINT fk_fee_currency FOREIGN KEY (currency_id)
+        REFERENCES currencies(currency_id)
+) ENGINE=InnoDB;
+
 -- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
@@ -305,7 +332,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0027_ledger_integrity'),
 ('0028_audit_append_only'),
 ('0029_fx_lookup_index'),
-('0030_journal_entries');
+('0030_journal_entries'),
+('0031_holds_fees');
 
 
 -- Indexes

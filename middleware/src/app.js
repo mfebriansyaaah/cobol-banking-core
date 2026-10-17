@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -115,13 +115,13 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ], onSuccess: async (body) => {
-    // Every account, parsed from "iso:balance:status" rows.
+    // Every account, parsed from "iso:balance:available:status" rows.
     const balances = String(body.data[1] || '')
       .split(';')
       .filter(Boolean)
       .map((row) => {
-        const [currency, balance, status] = row.split(':');
-        return { currency, balance, status };
+        const [currency, balance, available, status] = row.split(':');
+        return { currency, balance, available, status };
       });
     return { data: ['BALANCES'], balances };
   } },
@@ -179,6 +179,18 @@ export const ROUTES = [
   ] },
   { method: 'post', path: '/admin/mfa-reset', action: 'ADMIN_RESET_MFA', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/holds', action: 'PLACE_HOLD', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'amount', pattern: AMOUNT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'days', pattern: INT, required: false },
+    { name: 'currency', pattern: CURRENCY, required: false },
+    { name: 'reason', pattern: REASON, required: false },
+  ] },
+  { method: 'post', path: '/admin/holds/release', action: 'RELEASE_HOLD', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'holdId', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
   { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [

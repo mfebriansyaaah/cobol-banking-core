@@ -82,6 +82,19 @@
         01  WS-CAP-OK              PIC X(1) VALUE "Y".
         01  WS-CAP-LEN             PIC 9(3) VALUE 0.
         01  WS-PREC-NUM            PIC S9(4) VALUE 0.
+        01  WS-JV-PREC             PIC X(2)  VALUE SPACES.
+        01  WS-FEE-NUM             PIC S9(16)V9999 COMP-3.
+        01  WS-FEE-STR             PIC X(30) VALUE SPACES.
+        01  WS-FEE-EXACT           PIC X(1)  VALUE SPACES.
+        01  WS-INCOME-ACC          PIC X(20) VALUE SPACES.
+        01  WS-HOLD-ID             PIC X(20) VALUE SPACES.
+        01  WS-HOLD-FRAC           PIC 9(2) VALUE 0.
+        01  WS-HOLD-AMOUNT-NUM     PIC S9(16)V9999 COMP-3.
+        01  WS-HOLD-BAL-NUM        PIC S9(16)V9999 COMP-3.
+        01  WS-HELD-NUM            PIC S9(16)V9999 COMP-3.
+        01  WS-HELD-STR            PIC X(30) VALUE SPACES.
+        01  WS-HOLD-ACC            PIC X(20) VALUE SPACES.
+        01  WS-HOLD-DAYS           PIC X(20) VALUE SPACES.
         01  WS-REV-AMT             PIC X(30) VALUE SPACES.
         01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
         01  WS-REV-FROM            PIC X(100) VALUE SPACES.
@@ -164,6 +177,18 @@
                 WHEN LS-CMD-ACTION(1:9) = "RECONCILE"
                     PERFORM TRIM-PARAM1
                     PERFORM RECONCILE-LOGIC
+                WHEN LS-CMD-ACTION(1:10) = "PLACE_HOLD"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
+                    PERFORM TRIM-PARAM5
+                    PERFORM TRIM-PARAM6
+                    PERFORM PLACE-HOLD-LOGIC
+                WHEN LS-CMD-ACTION(1:12) = "RELEASE_HOLD"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM RELEASE-HOLD-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
@@ -287,8 +312,8 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            *> Every account the user holds, as iso:balance:status rows.
-            MOVE "SELECT CONCAT(c.iso_code, ':', REPLACE(FORMAT(a.balance,c.prec_val), ',', ''), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
+            *> Every account the user holds, as iso:balance:available:status rows.
+            MOVE "SELECT CONCAT(c.iso_code, ':', REPLACE(FORMAT(a.balance,c.prec_val), ',', ''), ':', REPLACE(FORMAT(a.balance - COALESCE((SELECT SUM(h.amount) FROM account_holds h WHERE h.account_id = a.account_id AND h.state = 'PLACED' AND (h.expires_at IS NULL OR h.expires_at > NOW())),0),c.prec_val), ',', ''), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -540,6 +565,7 @@
             *> serve mode Working-Storage survives across requests.
             SET WS-TRANSFER-OK TO TRUE
             IF STEP-OK
+                MOVE WS-TARGET-PREC TO WS-JV-PREC
                 PERFORM VERIFY-JOURNAL-BALANCED
             END-IF.
             IF WS-TRANSFER-FAIL-DB
@@ -638,6 +664,458 @@
                        INTO LS-OUTPUT-BUFFER
                 END-STRING
             END-IF.
+            EXIT PARAGRAPH.
+
+        PLACE-HOLD-LOGIC.
+            *> p1 = owner email, p2 = amount, p3 = actor (SUPER_ADMIN),
+            *> p4 = expiry in days (empty/0 = none), p5 = currency pin
+            *> (required when the owner holds several accounts), p6 = reason.
+            *> Locks part of an account's balance: PLACED holds reduce the
+            *> spendable balance until released or expired.
+            SET WS-TRANSFER-OK TO TRUE.
+            IF WS-TRANSFER-OK
+                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM3-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                PERFORM VALIDATE-HOLD-AMOUNT
+            END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                PERFORM RESOLVE-HOLD-ACCOUNT
+            END-IF.
+            IF WS-TRANSFER-FAIL-SENDER
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-FAIL-CONFLICT
+                MOVE "ERROR|AMBIGUOUS_ACCOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-FAIL-CLOSED
+                MOVE "ERROR|ACCOUNT_CLOSED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-FAIL-CURINACT
+                MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                PERFORM VALIDATE-HOLD-DAYS
+            END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                PERFORM INSERT-HOLD-ROW
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-FAIL-INSUF
+                MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|HOLD_PLACED|" WS-HOLD-ID DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RELEASE-HOLD-LOGIC.
+            *> p1 = hold_id, p2 = actor (SUPER_ADMIN). Releases a PLACED hold;
+            *> anything else is reported as unknown.
+            SET WS-TRANSFER-OK TO TRUE.
+            IF WS-TRANSFER-OK
+                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE WS-PARAM1-TRIMMED TO WS-CAP-SRC
+                PERFORM CHECK-CAP-DIGITS
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "N"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                PERFORM APPLY-HOLD-RELEASE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-FAIL-CONFLICT
+                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE "SUCCESS|HOLD_RELEASED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-HOLD-AMOUNT.
+            *> Amount syntax for holds (p2): plain positive decimal; the
+            *> fraction count is checked against the account precision later.
+            MOVE 0 TO WS-HOLD-FRAC
+            MOVE 0 TO WS-AMT-DOTS
+            MOVE 0 TO WS-AMT-DIGITS
+            MOVE "0" TO WS-AMT-SEEN-DOT
+            IF WS-P2-LEN < 1
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-P2-LEN
+                IF WS-PARAM2-TRIMMED(WS-I:1) = "."
+                    ADD 1 TO WS-AMT-DOTS
+                    MOVE "1" TO WS-AMT-SEEN-DOT
+                ELSE
+                    IF WS-PARAM2-TRIMMED(WS-I:1) >= "0"
+                       AND WS-PARAM2-TRIMMED(WS-I:1) <= "9"
+                        ADD 1 TO WS-AMT-DIGITS
+                        IF WS-AMT-SEEN-DOT = "1"
+                            ADD 1 TO WS-HOLD-FRAC
+                        END-IF
+                    ELSE
+                        SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                    END-IF
+                END-IF
+            END-PERFORM.
+            IF WS-AMT-DOTS > 1 OR WS-HOLD-FRAC > 4 OR WS-AMT-DIGITS < 1
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
+            IF WS-AMT-DIGITS > 15
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-PARAM2-TRIMMED TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-HOLD-AMOUNT-NUM
+            IF WS-HOLD-AMOUNT-NUM <= 0
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RESOLVE-HOLD-ACCOUNT.
+            *> Find the owner's account (pinned by p5 when several exist) and
+            *> check the amount fits its precision.
+            IF WS-P5-LEN > 0
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM5-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            ELSE
+                MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            END-IF.
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                SET WS-TRANSFER-FAIL-SENDER TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-SENDER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P5-LEN = 0 AND WS-RESULT = "0"
+                SET WS-TRANSFER-FAIL-SENDER TO TRUE
+            END-IF.
+            IF WS-P5-LEN = 0 AND WS-RESULT NOT = "0" AND WS-RESULT NOT = "1"
+                SET WS-TRANSFER-FAIL-CONFLICT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-CONFLICT
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P5-LEN = 0
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    SET WS-TRANSFER-FAIL-SENDER TO TRUE
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-FAIL-SENDER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-HOLD-ACC WS-SENDER-USER WS-SENDER-CUR
+                     WS-SENDER-STATUS WS-SENDER-CURACTIVE WS-SENDER-PREC
+                     WS-SENDER-ISO
+            END-UNSTRING
+            IF WS-SENDER-STATUS = "CLOSED"
+                SET WS-TRANSFER-FAIL-CLOSED TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-CLOSED
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-SENDER-CURACTIVE NOT = "1"
+                SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-CURINACT
+                EXIT PARAGRAPH
+            END-IF.
+            COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-SENDER-PREC)
+            IF WS-PREC-NUM < 0 OR WS-PREC-NUM > 4
+                SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-CURINACT
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-HOLD-FRAC > WS-PREC-NUM
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-HOLD-DAYS.
+            *> Expiry in whole days; empty means no expiry. Anything else is
+            *> an invalid parameter, not a silent default.
+            MOVE SPACES TO WS-HOLD-DAYS
+            IF WS-P4-LEN = 0
+                MOVE "0" TO WS-HOLD-DAYS
+            END-IF.
+            IF WS-P4-LEN > 0
+                MOVE WS-PARAM4-TRIMMED TO WS-CAP-SRC
+                PERFORM CHECK-CAP-DIGITS
+                IF WS-CAP-OK = "Y"
+                    MOVE WS-PARAM4-TRIMMED TO WS-HOLD-DAYS
+                ELSE
+                    SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P6-LEN > 0
+                PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-P6-LEN
+                    EVALUATE TRUE
+                        WHEN WS-PARAM6-TRIMMED(WS-I:1) >= "a" AND WS-PARAM6-TRIMMED(WS-I:1) <= "z"
+                            CONTINUE
+                        WHEN WS-PARAM6-TRIMMED(WS-I:1) >= "A" AND WS-PARAM6-TRIMMED(WS-I:1) <= "Z"
+                            CONTINUE
+                        WHEN WS-PARAM6-TRIMMED(WS-I:1) >= "0" AND WS-PARAM6-TRIMMED(WS-I:1) <= "9"
+                            CONTINUE
+                        WHEN WS-PARAM6-TRIMMED(WS-I:1) = " " OR WS-PARAM6-TRIMMED(WS-I:1) = "-" OR WS-PARAM6-TRIMMED(WS-I:1) = "_" OR WS-PARAM6-TRIMMED(WS-I:1) = "."
+                            CONTINUE
+                        WHEN OTHER
+                            SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                    END-EVALUATE
+                END-PERFORM
+            END-IF.
+            EXIT PARAGRAPH.
+
+        INSERT-HOLD-ROW.
+            *> Lock the account, re-check under lock, insert the hold, audit.
+            CALL "SQL_BEGIN"
+            MOVE "SELECT account_id FROM accounts WHERE account_id = ? FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-HOLD-ACC TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(balance, '|', COALESCE((SELECT SUM(amount) FROM account_holds WHERE account_id = a.account_id AND state = 'PLACED' AND (expires_at IS NULL OR expires_at > NOW())),0)) FROM accounts a WHERE a.account_id = ?" TO WS-PREP-SQL
+            MOVE WS-HOLD-ACC TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-SENDER-BAL WS-HELD-STR
+            END-UNSTRING
+            MOVE WS-SENDER-BAL TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-HOLD-BAL-NUM
+            MOVE WS-HELD-STR TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-HELD-NUM
+            IF WS-HELD-NUM + WS-HOLD-AMOUNT-NUM > WS-HOLD-BAL-NUM
+                CALL "SQL_ROLLBACK"
+                SET WS-TRANSFER-FAIL-INSUF TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-INSUF
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-HOLD-DAYS = "0"
+                MOVE "INSERT INTO account_holds (account_id, amount, state, reason, actor_email, expires_at) VALUES (?, ?, 'PLACED', ?, ?, NULL)" TO WS-PREP-SQL
+            ELSE
+                MOVE "INSERT INTO account_holds (account_id, amount, state, reason, actor_email, expires_at) VALUES (?, ?, 'PLACED', ?, ?, DATE_ADD(NOW(), INTERVAL ? DAY))" TO WS-PREP-SQL
+            END-IF.
+            MOVE WS-HOLD-ACC TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            PERFORM FILL-HOLD-REMAINING-BINDS
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-HOLD-ID
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT u.id, a.id, 'PLACE_HOLD', 'ACCOUNT', ?, ?, 'SUCCESS' FROM users u, users a WHERE u.email = ? AND a.email = ?" TO WS-PREP-SQL
+            MOVE WS-HOLD-ACC TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_COMMIT"
+            EXIT PARAGRAPH.
+
+        FILL-HOLD-REMAINING-BINDS.
+            *> Reason (p6) is optional free text from a safe alphabet; the
+            *> bind count differs with the expiry variant.
+            IF WS-P6-LEN = 0
+                MOVE SPACES TO WS-BIND-3
+            ELSE
+                MOVE WS-PARAM6-TRIMMED(1:WS-P6-LEN) TO WS-BIND-3
+            END-IF
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-4
+            IF WS-HOLD-DAYS NOT = "0"
+                MOVE WS-HOLD-DAYS TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            ELSE
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
+            END-IF.
+            EXIT PARAGRAPH.
+
+        APPLY-HOLD-RELEASE.
+            *> Lock the hold row; only a PLACED hold can be released.
+            CALL "SQL_BEGIN"
+            MOVE "SELECT hold_id FROM account_holds WHERE hold_id = ? FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT state FROM account_holds WHERE hold_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "PLACED"
+                CALL "SQL_ROLLBACK"
+                SET WS-TRANSFER-FAIL-CONFLICT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-CONFLICT
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE account_holds SET state = 'RELEASED' WHERE hold_id = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, 'RELEASE_HOLD', 'ACCOUNT', ?, 'SUCCESS' FROM account_holds h JOIN accounts ac ON ac.account_id = h.account_id JOIN users u ON u.id = ac.user_id, users a WHERE h.hold_id = ? AND a.email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_COMMIT"
             EXIT PARAGRAPH.
 
         VALIDATE-AMOUNT.
@@ -751,13 +1229,177 @@
             *> (credit = debit x rate) and reversals (debit = credit x rate).
             *> A violation rolls the whole posting back.
             MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND (MAX(CASE WHEN type='CREDIT' THEN amount END) = ROUND(MAX(CASE WHEN type='DEBIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?) OR MAX(CASE WHEN type='DEBIT' THEN amount END) = ROUND(MAX(CASE WHEN type='CREDIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?)),'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
-            MOVE WS-TARGET-PREC TO WS-BIND-1
-            MOVE WS-TARGET-PREC TO WS-BIND-2
+            MOVE WS-JV-PREC TO WS-BIND-1
+            MOVE WS-JV-PREC TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "BALANCED"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOOKUP-TRANSFER-FEE.
+            *> Bank-owned per-currency flat fee in major units. No schedule
+            *> row means no fee; a fee the currency cannot represent exactly
+            *> fails closed instead of rounding silently.
+            MOVE "SELECT CAST(fee_amount AS CHAR), fee_amount = ROUND(fee_amount, ?) FROM fee_schedule WHERE currency_id = ?" TO WS-PREP-SQL
+            MOVE WS-SENDER-PREC TO WS-BIND-1
+            MOVE WS-SENDER-CUR TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE 0 TO WS-FEE-NUM
+            END-IF.
+            IF WS-RESULT = "ERROR|NO_DATA"
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-FEE-STR WS-FEE-EXACT
+            END-UNSTRING
+            IF WS-FEE-EXACT NOT = "1"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-FEE-STR TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-FEE-NUM
+            EXIT PARAGRAPH.
+
+        POST-FEE-JOURNAL.
+            *> The fee is its own posting: DEBIT the sender, CREDIT the
+            *> currency's fee-income account, verified like any journal.
+            MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'FEE_INCOME' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-SENDER-CUR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-INCOME-ACC
+            MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'FEE', ?)" TO WS-PREP-SQL
+            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-FEE-STR TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-FEE-STR TO WS-BIND-1
+            MOVE WS-INCOME-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'Fee out', 1, @jid, ?)" TO WS-PREP-SQL
+            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            MOVE WS-FEE-STR TO WS-BIND-3
+            MOVE WS-SENDER-CUR TO WS-BIND-4
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'Fee in', 1, @jid, ?)" TO WS-PREP-SQL
+            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-INCOME-ACC TO WS-BIND-2
+            MOVE WS-FEE-STR TO WS-BIND-3
+            MOVE WS-SENDER-CUR TO WS-BIND-4
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-SENDER-PREC TO WS-JV-PREC
+            PERFORM VERIFY-JOURNAL-BALANCED
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-DETAIL
+            STRING WS-FEE-STR DELIMITED BY SPACE ":" DELIMITED BY SIZE
+                   WS-SENDER-ISO DELIMITED BY SPACE
+                   INTO WS-DETAIL
+            END-STRING
+            MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'FEE', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
+            MOVE WS-SENDER-USER TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            MOVE WS-DETAIL TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             EXIT PARAGRAPH.
@@ -822,6 +1464,19 @@
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT hold_id FROM account_holds WHERE account_id IN (?, ?) AND state = 'PLACED' FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-SENDER-ACC TO WS-BIND-1
+            MOVE WS-TARGET-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             EXIT PARAGRAPH.
@@ -1088,6 +1743,9 @@
             IF WS-TRANSFER-OK AND WS-PREC-NUM > 4
                 SET WS-TRANSFER-FAIL-CURINACT TO TRUE
             END-IF.
+            IF WS-TRANSFER-OK
+                PERFORM LOOKUP-TRANSFER-FEE
+            END-IF.
 
             *> Lock both account rows in one statement, ordered by id, so two
             *> opposing transfers cannot deadlock (and MariaDB does not hit the
@@ -1096,14 +1754,26 @@
                 PERFORM LOCK-ACCOUNTS
             END-IF
             
-            *> Read the sender balance now that its row is locked, at full
-            *> stored precision for an exact sufficiency check.
+            *> Expire stale holds, then read the spendable (available) balance:
+            *> ledger balance minus live PLACED holds, at full precision.
             IF WS-TRANSFER-OK
-                MOVE "SELECT CONCAT(balance) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE "UPDATE account_holds SET state = 'EXPIRED' WHERE account_id = ? AND state = 'PLACED' AND expires_at IS NOT NULL AND expires_at <= NOW()" TO WS-PREP-SQL
                 MOVE WS-SENDER-ACC TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE "SELECT CONCAT(balance - COALESCE((SELECT SUM(amount) FROM account_holds WHERE account_id = ? AND state = 'PLACED' AND (expires_at IS NULL OR expires_at > NOW())),0)) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-SENDER-ACC TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT = "ERROR|NO_DATA"
                     SET WS-TRANSFER-FAIL-SENDER TO TRUE
@@ -1211,7 +1881,7 @@
                 MOVE WS-SENDER-BAL TO WS-PARSE-SRC
                 PERFORM PARSE-MAJOR
                 MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
-                IF WS-BALANCE-NUM < WS-AMOUNT-NUM
+                IF WS-BALANCE-NUM < WS-AMOUNT-NUM + WS-FEE-NUM
                     SET WS-TRANSFER-FAIL-INSUF TO TRUE
                 END-IF
             END-IF
@@ -1357,7 +2027,13 @@
             *> Every leg is written against the open journal; verify the
             *> journal balances before anything becomes durable.
             IF WS-TRANSFER-OK
+                MOVE WS-TARGET-PREC TO WS-JV-PREC
                 PERFORM VERIFY-JOURNAL-BALANCED
+            END-IF.
+            *> A configured fee posts as its own journal after the principal
+            *> legs have balanced; the fee journal is verified the same way.
+            IF WS-TRANSFER-OK AND WS-FEE-NUM > 0
+                PERFORM POST-FEE-JOURNAL
             END-IF.
             *> Commit or roll back the whole movement.
             IF WS-TRANSFER-OK

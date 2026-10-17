@@ -76,8 +76,8 @@ assert_output "LIST_USERS" "" "" "$ADMIN" "" "SUCCESS|LIST_DONE" "List users suc
 assert_output "LIST_USERS" "" "" "sender@test.com" "" "ERROR|FORBIDDEN" "List users forbidden for non-admin"
 
 # --- Feature Tests: CHECK_BALANCE ---
-assert_output "CHECK_BALANCE" "sender@test.com" "$ADMIN" "" "" "SUCCESS|BALANCES|USD:1000.00:ACTIVE" "Check balance for sender"
-assert_output "CHECK_BALANCE" "receiver@test.com" "$ADMIN" "" "" "SUCCESS|BALANCES|USD:0.00:ACTIVE" "Check balance for receiver"
+assert_output "CHECK_BALANCE" "sender@test.com" "$ADMIN" "" "" "SUCCESS|BALANCES|USD:1000.00:1000.00:ACTIVE" "Check balance for sender"
+assert_output "CHECK_BALANCE" "receiver@test.com" "$ADMIN" "" "" "SUCCESS|BALANCES|USD:0.00:0.00:ACTIVE" "Check balance for receiver"
 assert_output "CHECK_BALANCE" "unknown@test.com" "$ADMIN" "" "" "ERROR|ACCOUNT_NOT_FOUND" "Check balance for unknown user"
 assert_output "CHECK_BALANCE" "sender@test.com" "receiver@test.com" "" "" "ERROR|FORBIDDEN" "Check another user's balance is forbidden"
 
