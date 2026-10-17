@@ -115,13 +115,13 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ], onSuccess: async (body) => {
-    // Every account, parsed from "iso:balance:status" rows.
+    // Every account, parsed from "iso:balance:available:status" rows.
     const balances = String(body.data[1] || '')
       .split(';')
       .filter(Boolean)
       .map((row) => {
-        const [currency, balance, status] = row.split(':');
-        return { currency, balance, status };
+        const [currency, balance, available, status] = row.split(':');
+        return { currency, balance, available, status };
       });
     return { data: ['BALANCES'], balances };
   } },

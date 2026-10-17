@@ -307,8 +307,8 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            *> Every account the user holds, as iso:balance:status rows.
-            MOVE "SELECT CONCAT(c.iso_code, ':', REPLACE(FORMAT(a.balance,c.prec_val), ',', ''), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
+            *> Every account the user holds, as iso:balance:available:status rows.
+            MOVE "SELECT CONCAT(c.iso_code, ':', REPLACE(FORMAT(a.balance,c.prec_val), ',', ''), ':', REPLACE(FORMAT(a.balance - COALESCE((SELECT SUM(h.amount) FROM account_holds h WHERE h.account_id = a.account_id AND h.state = 'PLACED' AND (h.expires_at IS NULL OR h.expires_at > NOW())),0),c.prec_val), ',', ''), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
@@ -1289,6 +1289,19 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT hold_id FROM account_holds WHERE account_id IN (?, ?) AND state = 'PLACED' FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-SENDER-ACC TO WS-BIND-1
+            MOVE WS-TARGET-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
             EXIT PARAGRAPH.
 
         TRANSFER-LOGIC.
@@ -1561,14 +1574,26 @@
                 PERFORM LOCK-ACCOUNTS
             END-IF
             
-            *> Read the sender balance now that its row is locked, at full
-            *> stored precision for an exact sufficiency check.
+            *> Expire stale holds, then read the spendable (available) balance:
+            *> ledger balance minus live PLACED holds, at full precision.
             IF WS-TRANSFER-OK
-                MOVE "SELECT CONCAT(balance) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE "UPDATE account_holds SET state = 'EXPIRED' WHERE account_id = ? AND state = 'PLACED' AND expires_at IS NOT NULL AND expires_at <= NOW()" TO WS-PREP-SQL
                 MOVE WS-SENDER-ACC TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE "SELECT CONCAT(balance - COALESCE((SELECT SUM(amount) FROM account_holds WHERE account_id = ? AND state = 'PLACED' AND (expires_at IS NULL OR expires_at > NOW())),0)) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-SENDER-ACC TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT = "ERROR|NO_DATA"
                     SET WS-TRANSFER-FAIL-SENDER TO TRUE
