@@ -68,17 +68,6 @@ void trim_trailing_spaces(char *str) {
     }
 }
 
-void trim_leading_spaces(char *str) {
-    if (!str) return;
-    int start = 0;
-    while (str[start] && isspace((unsigned char)str[start])) {
-        start++;
-    }
-    if (start > 0) {
-        memmove(str, str + start, strlen(str + start) + 1);
-    }
-}
-
 void SET_QUERY(char *query) {
     if (!query) return;
     memset(G_QUERY, 0, sizeof(G_QUERY));
