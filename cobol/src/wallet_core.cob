@@ -707,6 +707,29 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        VERIFY-JOURNAL-BALANCED.
+            *> Pre-commit guard: the journal must hold exactly one DEBIT leg
+            *> and one CREDIT leg whose amounts agree — exact equality within
+            *> one currency, debit times rate rounded to the target precision
+            *> across currencies. A violation rolls the whole posting back.
+            IF WS-SENDER-CUR = WS-TARGET-CUR
+                MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND SUM(CASE WHEN type='DEBIT' THEN amount ELSE -amount END)=0,'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            ELSE
+                MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND MAX(CASE WHEN type='CREDIT' THEN amount END) = ROUND(MAX(CASE WHEN type='DEBIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?),'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
+                MOVE WS-TARGET-PREC TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            END-IF.
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT NOT = "BALANCED"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
         CHECK-TRANSIENT.
             *> WS-RESULT holds "ERROR|<kind>|<errno>" from the bridge. Flag a
             *> retriable condition (lock wait, deadlock, lost connection).
@@ -1161,6 +1184,30 @@
                 END-IF
             END-IF
             
+            *> Open the journal header for this posting: one row per transfer
+            *> with source, reference, and initiator. Legs and audit rows
+            *> below point at it through the connection-scoped @jid.
+            IF WS-TRANSFER-OK
+                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                ELSE
+                    MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET WS-TRANSFER-FAIL-DB TO TRUE
+                    END-IF
+                END-IF
+            END-IF.
             *> Debit sender, rounded to its currency precision.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
@@ -1200,7 +1247,7 @@
             *> The CREDIT row snapshots the applied rate.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, from_email) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
                 END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
@@ -1219,7 +1266,7 @@
             
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, from_email) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
                 END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-TARGET-ACC TO WS-BIND-2
@@ -1247,7 +1294,7 @@
                        WS-SENDER-ISO DELIMITED BY SPACE
                        INTO WS-DETAIL
                 END-STRING
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS', ?)" TO WS-PREP-SQL
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
                 MOVE WS-SENDER-USER TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 MOVE WS-DETAIL TO WS-BIND-3
@@ -1274,6 +1321,11 @@
                 END-IF
             END-IF
             
+            *> Every leg is written against the open journal; verify the
+            *> journal balances before anything becomes durable.
+            IF WS-TRANSFER-OK
+                PERFORM VERIFY-JOURNAL-BALANCED
+            END-IF.
             *> Commit or roll back the whole movement.
             IF WS-TRANSFER-OK
                 CALL "SQL_COMMIT"
