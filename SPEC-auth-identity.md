@@ -33,6 +33,10 @@ Password hashing uses a **slow KDF**: PBKDF2-HMAC-SHA256 (100,000 iterations, 16
 
 `tests/test_auth_login.sh`, `tests/test_signup_verify.sh`, `tests/test_roles.sh`. Wired into `ci.sh`.
 
+### Notifications
+
+Signup, resend, password-reset, and email-change codes are written to the transactional outbox (`notification_outbox`) in the same transaction as the verification row; a separate worker (`scripts/outbox_worker.sh`) dispatches them. The gateway never sends mail inline and never sees codes beyond the action output.
+
 ### Retired
 
 The legacy ODBC stack — the embedded-SQL auth program, its Windows ODBC build script, and the sed-based `EXEC SQL` shim — has been removed (ADR-0002). There is now a single DB stack (`sql_bridge.c`, libmysqlclient) and a single I/O contract (`input.txt` / `output.txt`).
