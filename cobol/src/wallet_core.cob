@@ -82,6 +82,11 @@
         01  WS-CAP-OK              PIC X(1) VALUE "Y".
         01  WS-CAP-LEN             PIC 9(3) VALUE 0.
         01  WS-PREC-NUM            PIC S9(4) VALUE 0.
+        01  WS-JV-PREC             PIC X(2)  VALUE SPACES.
+        01  WS-FEE-NUM             PIC S9(16)V9999 COMP-3.
+        01  WS-FEE-STR             PIC X(30) VALUE SPACES.
+        01  WS-FEE-EXACT           PIC X(1)  VALUE SPACES.
+        01  WS-INCOME-ACC          PIC X(20) VALUE SPACES.
         01  WS-HOLD-ID             PIC X(20) VALUE SPACES.
         01  WS-HOLD-FRAC           PIC 9(2) VALUE 0.
         01  WS-HOLD-AMOUNT-NUM     PIC S9(16)V9999 COMP-3.
@@ -560,6 +565,7 @@
             *> serve mode Working-Storage survives across requests.
             SET WS-TRANSFER-OK TO TRUE
             IF STEP-OK
+                MOVE WS-TARGET-PREC TO WS-JV-PREC
                 PERFORM VERIFY-JOURNAL-BALANCED
             END-IF.
             IF WS-TRANSFER-FAIL-DB
@@ -1216,13 +1222,177 @@
             *> (credit = debit x rate) and reversals (debit = credit x rate).
             *> A violation rolls the whole posting back.
             MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND (MAX(CASE WHEN type='CREDIT' THEN amount END) = ROUND(MAX(CASE WHEN type='DEBIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?) OR MAX(CASE WHEN type='DEBIT' THEN amount END) = ROUND(MAX(CASE WHEN type='CREDIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?)),'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
-            MOVE WS-TARGET-PREC TO WS-BIND-1
-            MOVE WS-TARGET-PREC TO WS-BIND-2
+            MOVE WS-JV-PREC TO WS-BIND-1
+            MOVE WS-JV-PREC TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "BALANCED"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOOKUP-TRANSFER-FEE.
+            *> Bank-owned per-currency flat fee in major units. No schedule
+            *> row means no fee; a fee the currency cannot represent exactly
+            *> fails closed instead of rounding silently.
+            MOVE "SELECT CAST(fee_amount AS CHAR), fee_amount = ROUND(fee_amount, ?) FROM fee_schedule WHERE currency_id = ?" TO WS-PREP-SQL
+            MOVE WS-SENDER-PREC TO WS-BIND-1
+            MOVE WS-SENDER-CUR TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE 0 TO WS-FEE-NUM
+            END-IF.
+            IF WS-RESULT = "ERROR|NO_DATA"
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-FEE-STR WS-FEE-EXACT
+            END-UNSTRING
+            IF WS-FEE-EXACT NOT = "1"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-FEE-STR TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-FEE-NUM
+            EXIT PARAGRAPH.
+
+        POST-FEE-JOURNAL.
+            *> The fee is its own posting: DEBIT the sender, CREDIT the
+            *> currency's fee-income account, verified like any journal.
+            MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'FEE_INCOME' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-SENDER-CUR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-INCOME-ACC
+            MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'FEE', ?)" TO WS-PREP-SQL
+            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-FEE-STR TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-FEE-STR TO WS-BIND-1
+            MOVE WS-INCOME-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'Fee out', 1, @jid, ?)" TO WS-PREP-SQL
+            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            MOVE WS-FEE-STR TO WS-BIND-3
+            MOVE WS-SENDER-CUR TO WS-BIND-4
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'Fee in', 1, @jid, ?)" TO WS-PREP-SQL
+            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-INCOME-ACC TO WS-BIND-2
+            MOVE WS-FEE-STR TO WS-BIND-3
+            MOVE WS-SENDER-CUR TO WS-BIND-4
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-SENDER-PREC TO WS-JV-PREC
+            PERFORM VERIFY-JOURNAL-BALANCED
+            IF WS-TRANSFER-FAIL-DB
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-DETAIL
+            STRING WS-FEE-STR DELIMITED BY SPACE ":" DELIMITED BY SIZE
+                   WS-SENDER-ISO DELIMITED BY SPACE
+                   INTO WS-DETAIL
+            END-STRING
+            MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'FEE', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
+            MOVE WS-SENDER-USER TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            MOVE WS-DETAIL TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             EXIT PARAGRAPH.
@@ -1566,6 +1736,9 @@
             IF WS-TRANSFER-OK AND WS-PREC-NUM > 4
                 SET WS-TRANSFER-FAIL-CURINACT TO TRUE
             END-IF.
+            IF WS-TRANSFER-OK
+                PERFORM LOOKUP-TRANSFER-FEE
+            END-IF.
 
             *> Lock both account rows in one statement, ordered by id, so two
             *> opposing transfers cannot deadlock (and MariaDB does not hit the
@@ -1701,7 +1874,7 @@
                 MOVE WS-SENDER-BAL TO WS-PARSE-SRC
                 PERFORM PARSE-MAJOR
                 MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
-                IF WS-BALANCE-NUM < WS-AMOUNT-NUM
+                IF WS-BALANCE-NUM < WS-AMOUNT-NUM + WS-FEE-NUM
                     SET WS-TRANSFER-FAIL-INSUF TO TRUE
                 END-IF
             END-IF
@@ -1847,7 +2020,13 @@
             *> Every leg is written against the open journal; verify the
             *> journal balances before anything becomes durable.
             IF WS-TRANSFER-OK
+                MOVE WS-TARGET-PREC TO WS-JV-PREC
                 PERFORM VERIFY-JOURNAL-BALANCED
+            END-IF.
+            *> A configured fee posts as its own journal after the principal
+            *> legs have balanced; the fee journal is verified the same way.
+            IF WS-TRANSFER-OK AND WS-FEE-NUM > 0
+                PERFORM POST-FEE-JOURNAL
             END-IF.
             *> Commit or roll back the whole movement.
             IF WS-TRANSFER-OK
