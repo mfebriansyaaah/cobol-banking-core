@@ -125,6 +125,7 @@
         01  WS-REV-MINFROM         PIC X(100) VALUE SPACES.
         01  WS-REV-AMT-NUM         PIC S9(16)V9999 COMP-3.
         01  WS-REV-CAMT-NUM        PIC S9(16)V9999 COMP-3.
+        01  WS-SQL-PTR             PIC 9(5)  VALUE 0.
         01  WS-TX-FROM             PIC X(100) VALUE SPACES.
         01  WS-TX-TO               PIC X(100) VALUE SPACES.
         01  WS-TX-AMT              PIC X(30) VALUE SPACES.
@@ -686,9 +687,27 @@
                 MOVE 1 TO WS-ALLOWED
             END-IF
             *> Optional sender filter (p3) lets an admin target one sender; a
-            *> non-admin's query is always pinned to their own email.
+            *> non-admin's query is always pinned to their own email. The
+            *> amount is formatted at the sender currency's own precision: the
+            *> ledger DEBIT leg names the posted currency, and a still-pending
+            *> intent falls back to the sender's account currency when it is
+            *> unambiguous (a single currency), else 2 decimals. FORMAT (not
+            *> ROUND) is used because ROUND keeps its input scale when the
+            *> precision is a subquery, which MySQL cannot fold at prepare time.
+            MOVE SPACES TO WS-PREP-SQL
+            MOVE 1 TO WS-SQL-PTR
+            STRING "SELECT p.from_email, p.to_email, REPLACE(FORMAT(p.amount, COALESCE(" DELIMITED BY SIZE
+                   "(SELECT c.prec_val FROM ledger l JOIN currencies c ON c.currency_id = l.currency_id " DELIMITED BY SIZE
+                   "WHERE l.txn_ref = p.txn_ref AND l.from_email = p.from_email AND l.type = 'DEBIT' LIMIT 1), " DELIMITED BY SIZE
+                   "(SELECT MIN(c.prec_val) FROM accounts a JOIN users u ON u.id = a.user_id " DELIMITED BY SIZE
+                   "JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = p.from_email " DELIMITED BY SIZE
+                   "GROUP BY u.email HAVING COUNT(DISTINCT a.currency_id) = 1), 2)), ',', ''), p.status " DELIMITED BY SIZE
+                   "FROM pending_transactions p WHERE p.txn_ref = ?" DELIMITED BY SIZE
+                INTO WS-PREP-SQL WITH POINTER WS-SQL-PTR
+            END-STRING
             IF WS-P3-LEN > 0
-                MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+                STRING " AND p.from_email = ? LIMIT 1" DELIMITED BY SIZE INTO WS-PREP-SQL WITH POINTER WS-SQL-PTR
+                END-STRING
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -696,13 +715,15 @@
                     BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             ELSE
                 IF WS-ALLOWED = 1
-                    MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? ORDER BY id DESC LIMIT 1" TO WS-PREP-SQL
+                    STRING " ORDER BY p.id DESC LIMIT 1" DELIMITED BY SIZE INTO WS-PREP-SQL WITH POINTER WS-SQL-PTR
+                    END-STRING
                     MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                     CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                         BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                         BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 ELSE
-                    MOVE "SELECT from_email, to_email, CONCAT(ROUND(amount,2)), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+                    STRING " AND p.from_email = ? LIMIT 1" DELIMITED BY SIZE INTO WS-PREP-SQL WITH POINTER WS-SQL-PTR
+                    END-STRING
                     MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                     MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
                     CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2

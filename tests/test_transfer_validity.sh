@@ -124,6 +124,16 @@ check "self-transfer rejected" "ERROR|SELF_TRANSFER" "$(run TRANSFER sender@test
 check "self-transfer: no movement" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 check "self-transfer: no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
 
+# TX_STATUS reports the amount at the sender currency's own precision, not a
+# fixed 2 decimals: an IDR sender (prec 0) shows 100, a USD sender 100.00.
+setup
+q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
+check "idr sender transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 100 idrstat "")"
+check "tx status shows the IDR amount whole" "100" "$(run TX_STATUS idrstat idr_validity@test.com | cut -d'|' -f6)"
+setup
+check "usd sender transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 100 usdstat "")"
+check "tx status shows the USD amount at 2dp" "100.00" "$(run TX_STATUS usdstat sender@test.com | cut -d'|' -f6)"
+
 # A multi-account sender can pick the account by currency (p5).
 setup
 q "DELETE FROM accounts WHERE user_id=985; DELETE FROM users WHERE id=985;
