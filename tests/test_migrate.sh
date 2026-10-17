@@ -21,6 +21,14 @@ check "reapplied after pending" "1" "$(q "SELECT COUNT(*) FROM schema_migrations
 check "check green after apply" "0" "$(./database/migrate.sh --check >/dev/null 2>&1; echo $?)"
 check "users.balance/verification_code dropped" "0" "$(q "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='$DB_NAME' AND table_name='users' AND column_name IN ('balance','verification_code');")"
 check "exchange_rates table present (FX)" "1" "$(q "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_name='exchange_rates';")"
+check "FX pair lookup index present" "1" "$(q "SELECT COUNT(DISTINCT index_name) FROM information_schema.statistics WHERE table_schema='$DB_NAME' AND table_name='exchange_rates' AND index_name='idx_exchange_lookup';")"
+
+# --- migration baseline (fresh installs start from schema.sql) ------------
+base_list="$(grep -oE "'00[0-9]{2}_[a-z0-9_]+'" database/schema.sql | tr -d "'" | sort -u)"
+file_list="$(for f in database/migrations/*.sql; do basename "$f" .sql; done | sort -u)"
+check "baseline lists every migration file" "$file_list" "$base_list"
+orphans="$(q "SELECT version FROM schema_migrations;" | sort -u | comm -23 - <(echo "$file_list"))"
+check "no orphan migration records" "" "$orphans"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"
