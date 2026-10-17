@@ -1,6 +1,6 @@
-# FX rounding, fee reversal, and rate validity (owner decision)
+# FX rounding, fee reversal, and rate validity
 
-Status: **proposed — awaiting owner decision**
+Status: accepted
 Date: 2026-10-18
 Phase: Gate 1 / Gate 0 boundary.
 
@@ -93,20 +93,38 @@ C: documentation only; the stale-rate risk stays open.
 
 ## Decision
 
-_Not made._ For each of D1, D2, D3 record the chosen option here with the
-accountable owner and date, e.g.:
+Decided **2026-10-18** by **nineboll07 (owner)**. In a licensed entity the
+named compliance/finance owners must ratify these before production (Gate 0).
 
 ```
-D1: option ? — approved by <compliance>, <finance> on <date>
-D2: option ? — approved by <compliance>, <finance> on <date>
-D3: option ? — approved by <compliance>, <ops> on <date>
+D1: option A — nineboll07 (owner), 2026-10-18
+D2: option C — nineboll07 (owner), 2026-10-18
+D3: option A — nineboll07 (owner), 2026-10-18
 ```
 
-Then open the implementation PR(s); the change must not hardcode the policy.
+- **D1 — option A: book the residual.** The sender is debited and the target
+  credited at each currency's own precision; the value residual is posted,
+  inside the same transaction, to a bank-owned FX gain/loss account. It is
+  represented as a new `account_type` (FX_PNL), one active account per
+  currency, mirroring `FEE_INCOME`. The residual for a posting goes to the
+  target currency's FX P&L account.
+- **D2 — option C: refund by reason.** A reversal carries a required reason
+  (missing reason is `ERROR|INVALID_INPUT`). A policy table maps reason →
+  refund (yes/no), seeded with `BANK_ERROR` (refund) and `CUSTOMER_ERROR`
+  (retain); the policy lives in data, not code. A refund posts a compensating
+  `FEE` journal (bank → sender) with its own balanced-leg verification.
+- **D3 — option A: enforce a window, fail closed.** A maximum rate age
+  (default 24 hours, configurable, not hardcoded) is enforced in the transfer
+  path; a rate older than the window is rejected with a new
+  `ERROR|RATE_STALE`, mapped to HTTP 409, distinct from `RATE_NOT_FOUND`.
+
+Implementation is tracked as PR-C follow-ups; none of the three may be
+hardcoded (each is owner-controlled data or configuration, with tests).
 
 ## Consequences
 
-- Until decided, the current behavior stands and is recorded as an unratified
-  policy gap in `docs/TRACEABILITY.md` (`B-P0-PRECISION`, `B-P1-LIFECYCLE`).
-- No implementation is safe to guess: each option changes money or accounting
-  records and needs the owner's sign-off above.
+- The decisions are ratified; the current behavior stands until the
+  implementation PR(s) land. `docs/TRACEABILITY.md` (`B-P0-PRECISION`,
+  `B-P1-LIFECYCLE`) tracks the remaining implementation work.
+- Each decision changes money or accounting records, so implementation lands
+  as its own reviewed PR with tests; nothing is hardcoded.
