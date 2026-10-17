@@ -2251,3 +2251,16 @@ _merged 2026-10-17_
 - feat(disputes): open/note/ack/resolve/reject/list/get actions in COBOL
 - feat(disputes): dispute cases and append-only messages, migration 0036
 
+## #220 gate2-ops-hardening
+
+_merged 2026-10-17_
+
+- chore(ops): wire backup suite into CI as step 54
+- docs(ops): qualify PRD boundary for tested backup mechanism
+- docs(ops): ADR 0068, status, traceability, and runbook index
+- chore(ops): dependency audit in CI as step 63
+- docs(ops): patch policy and release evidence checklist
+- docs(ops): incident, alert, backup-restore, and deploy runbooks
+- test(ops): backup round-trip suite with canary rewind check
+- feat(ops): backup and restore scripts with manifest verification
+
