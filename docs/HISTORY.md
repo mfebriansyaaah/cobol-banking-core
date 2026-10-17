@@ -2300,3 +2300,12 @@ _merged 2026-10-17_
 - fix(fx): TX_STATUS formats the amount at the sender currency precision
 - test(fx): reproduce TX_STATUS fixed 2dp for an IDR sender
 
+## #225 seed-ledger-consistency
+
+_merged 2026-10-17_
+
+- docs(seed): note ledger-consistent test fixtures
+- test(seed): suites clean up their fixtures so the ledger stays consistent
+- test(seed): back seeded balances with matching ledger rows
+- test(seed): reproduce seeded balances that ignore the ledger
+
