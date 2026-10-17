@@ -1142,3 +1142,43 @@ test('mfa backup codes and assisted recovery work end to end', async () => {
   const secondLogin = await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: second });
   assert.equal(secondLogin.body.data[0], 'LOGIN_OK');
 });
+
+test('account statements show postings with opening and closing balances', async () => {
+  const user = `gw_stmt_${Date.now()}@test.com`;
+  const other = `gw_stmt_o_${Date.now()}@test.com`;
+  requireSeed(seedUser(user, 'USER') && seedUser(other, 'USER'), 'seed statement users');
+  requireSeed(seedAccount(user, '1000.00') && seedAccount(other, '1000.00'), 'seed statement accounts');
+  // Fixture funding rows so the ledger backs the seeded balances.
+  requireSeed(runSql(`INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) SELECT 'GWSTMT_FUND',(SELECT account_id FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='${user}')),1000,'CREDIT',1,'E2E funding'`) && runSql(`INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) SELECT 'GWSTMT_FUND',(SELECT account_id FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='${other}')),1000,'CREDIT',1,'E2E funding'`), 'seed funding legs');
+  const userToken = (await request(app).post('/auth/login').send({ email: user, password: 'secret123' })).body.token;
+  const otherToken = (await request(app).post('/auth/login').send({ email: other, password: 'secret123' })).body.token;
+  assert.ok(userToken && otherToken);
+
+  const ref = `gwstmt${Date.now()}`;
+  const sent = await request(app).post('/wallet/transfer').set('Authorization', `Bearer ${userToken}`).send({ from: user, to: other, amount: '25.00', idempotencyKey: ref });
+  assert.equal(sent.body.data[0], 'TRANSFER_OK');
+
+  const stmt = await request(app).get('/statements').set('Authorization', `Bearer ${userToken}`).query({ email: user, currency: 'USD', limit: '50' });
+  assert.equal(stmt.body.opening, '0.00');
+  assert.equal(stmt.body.closing, '975.00');
+  assert.equal(stmt.body.currency, 'USD');
+  assert.equal(stmt.body.lines.length, 2);
+  const out = stmt.body.lines.find((l) => l.side === 'DEBIT');
+  assert.equal(out.ref, ref);
+  assert.equal(out.source, 'TRANSFER');
+  assert.equal(out.amount, '25.00');
+  assert.equal(out.balanceAfter, '975.00');
+  assert.equal(out.reversed, false);
+  assert.equal(stmt.body.lines.at(-1).balanceAfter, stmt.body.closing);
+
+  const counter = await request(app).get('/statements').set('Authorization', `Bearer ${otherToken}`).query({ email: other, currency: 'USD' });
+  assert.equal(counter.body.closing, '1025.00');
+
+  const page = await request(app).get('/statements').set('Authorization', `Bearer ${userToken}`).query({ email: user, currency: 'USD', limit: '1', offset: '1' });
+  assert.equal(page.body.total, '2');
+  assert.equal(page.body.lines.length, 1);
+
+  // A stranger cannot read someone else's statement.
+  const blocked = await request(app).get('/statements').set('Authorization', `Bearer ${otherToken}`).query({ email: user, currency: 'USD' });
+  assert.equal(blocked.status, 403);
+});
