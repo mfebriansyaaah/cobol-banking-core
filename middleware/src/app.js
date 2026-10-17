@@ -64,8 +64,9 @@ export const ROUTES = [
     const ua = sanitizeMeta(req && req.headers && req.headers['user-agent'], 120);
     const ip = sanitizeMeta(req && req.ip, 45);
     await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti, ua, ip]);
-    // An admin without MFA logs in but may only enrol MFA until it is enabled.
-    const enroll = needsEnroll(await invoke('GET_MFA_STATE', [input.email]));
+    // Whether an admin without MFA must enrol next is decided by COBOL; the
+    // gateway forwards the flag without reimplementing the admin-role rule.
+    const enroll = (await invoke('MFA_ENROLL_REQUIRED', [input.email])) === 'SUCCESS|1';
     return {
       ...body,
       token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }),
@@ -285,13 +286,6 @@ function sanitizeMeta(value, max) {
     .slice(0, max);
 }
 
-// Whether a freshly authenticated account is an admin that still lacks MFA and
-// therefore gets a limited "enroll" access token (ADR 0020 follow-up).
-function needsEnroll(mfaState) {
-  const [, role, mfa] = String(mfaState).split('|');
-  return (role === 'SUPER_ADMIN' || role === 'MANAGER') && mfa !== '1';
-}
-
 async function tokenVersion(email) {
   try {
     const raw = await invoke('GET_TOKEN_VERSION', [email]);
@@ -424,7 +418,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
       const ua = sanitizeMeta(req.headers && req.headers['user-agent'], 120);
       const ip = sanitizeMeta(req.ip, 45);
       await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family, ua, ip]);
-      const enroll = needsEnroll(await invoke('GET_MFA_STATE', [payload.email]));
+      const enroll = (await invoke('MFA_ENROLL_REQUIRED', [payload.email])) === 'SUCCESS|1';
       return res.json({
         data: ['REFRESHED'],
         token: signToken({ email: payload.email, ver, jti: randomUUID(), sid: family }),
