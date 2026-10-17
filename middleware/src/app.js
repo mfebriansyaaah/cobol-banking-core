@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -119,6 +119,25 @@ export const ROUTES = [
         return { currency, balance, available, status };
       });
     return { data: ['BALANCES'], balances };
+  } },
+  { method: 'get', path: '/statements', action: 'STATEMENT', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'currency', pattern: CURRENCY, required: true },
+    { name: 'range', pattern: DATERANGE, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: LIMIT, required: false },
+  ], onSuccess: async (body) => {
+    // One row per posting: id, posting/value dates, ref, source, side,
+    // amount, balance after the row, reversal flag, description.
+    const rows = String(body.data[5] || '')
+      .split(';')
+      .filter(Boolean)
+      .map((row) => {
+        const [id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed, ...desc] = row.split(':');
+        return { id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed: reversed === '1', description: desc.join(':') };
+      });
+    return { data: ['STATEMENT'], opening: body.data[1], closing: body.data[2], currency: body.data[3], total: body.data[4], lines: rows };
   } },
   { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', fields: [
     { name: 'from', pattern: EMAIL, required: true },

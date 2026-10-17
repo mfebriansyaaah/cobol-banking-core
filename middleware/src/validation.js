@@ -8,6 +8,7 @@ const EMAIL = /^[A-Za-z0-9._%+-]{1,100}@[A-Za-z0-9.-]{1,100}$/;
 const PASSWORD = /^[^|\n\r]{1,100}$/;
 const NAME = /^[A-Za-z0-9 .'-]{1,100}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const DATERANGE = /^(\d{4}-\d{2}-\d{2})?,(\d{4}-\d{2}-\d{2})?$/;
 const CODE = /^\d{6}$/;
 const MFA_CODE = /^(\d{6}|\d{10})$/;
 const RECOVERY_STATUS = /^(PENDING|VERIFIED|APPROVED|REJECTED)$/;
@@ -29,7 +30,7 @@ const USER_STATUS = /^(UNVERIFIED|VERIFIED|SUSPENDED|CLOSED)$/;
 // Audit action filter: an upper-case action token (e.g. SET_USER_STATUS).
 const AUDIT_ACTION = /^[A-Z][A-Z_]{0,59}$/;
 
-export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION };
+export const PATTERNS = { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION };
 
 export class ValidationError extends Error {
   constructor(field) {
