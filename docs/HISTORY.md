@@ -2264,3 +2264,13 @@ _merged 2026-10-17_
 - test(ops): backup round-trip suite with canary rewind check
 - feat(ops): backup and restore scripts with manifest verification
 
+## #221 gate1-balance-leftovers
+
+_merged 2026-10-17_
+
+- docs(balance): dashboard action row matches new projection
+- docs(balance): ADR 0069, B-P0-BALANCE implemented, dashboard spec
+- test(balance): profile available e2e plus baseline and status counts
+- feat(ops): scheduled reconcile alerts on any recorded divergence
+- feat(balance): dashboard shows available balance with per-currency precision
+
