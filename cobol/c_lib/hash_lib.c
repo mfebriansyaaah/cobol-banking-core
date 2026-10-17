@@ -122,25 +122,6 @@ void sha256_final(SHA256_CTX *ctx, uint8_t hash[]) {
     }
 }
 
-/**
- * Simple Password Hash Wrapper for COBOL
- */
-void hash_password(char* password, char* output_hash) {
-    if (password == NULL || output_hash == NULL) return;
-
-    SHA256_CTX ctx;
-    uint8_t hash[32];
-    
-    sha256_init(&ctx);
-    sha256_update(&ctx, (uint8_t*)password, strlen(password));
-    sha256_final(&ctx, hash);
-
-    sprintf(output_hash, "SHA256_");
-    for (int i = 0; i < 32; i++) {
-        sprintf(output_hash + 7 + (i * 2), "%02x", hash[i]);
-    }
-}
-
 /* ------------------------------------------------------------------ *
  * Slow KDF: PBKDF2-HMAC-SHA256 (self-contained, reuses sha256 above). *
  * ------------------------------------------------------------------ */

@@ -68,17 +68,6 @@ void trim_trailing_spaces(char *str) {
     }
 }
 
-void trim_leading_spaces(char *str) {
-    if (!str) return;
-    int start = 0;
-    while (str[start] && isspace((unsigned char)str[start])) {
-        start++;
-    }
-    if (start > 0) {
-        memmove(str, str + start, strlen(str + start) + 1);
-    }
-}
-
 void SET_QUERY(char *query) {
     if (!query) return;
     memset(G_QUERY, 0, sizeof(G_QUERY));
@@ -192,75 +181,6 @@ void SQL_ESCAPE(char *in, char *out, int outmax) {
     }
     if (elen > (size_t)outmax) elen = (size_t)outmax;
     memcpy(out, escaped, elen);
-}
-
-/* --- Multi-row execute ---------------------------------------------------
- * Like SQL_EXECUTE but concatenates EVERY row: fields joined by '|', rows
- * joined by ';'. Lets a COBOL action read a list without GROUP_CONCAT hacks.
- * ------------------------------------------------------------------------ */
-
-void SQL_EXECUTE_ROWS() {
-    MYSQL *conn;
-    MYSQL_RES *res;
-    MYSQL_ROW row;
-    int own_conn = 0;
-
-    if (G_CONN != NULL) {
-        conn = G_CONN;
-    } else {
-        conn = bridge_connect();
-        own_conn = 1;
-        if (conn == NULL) {
-            strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383);
-            return;
-        }
-    }
-
-    fprintf(stderr, "[SQL_BRIDGE] Executing rows query (%zu bytes)\\n", strlen(G_QUERY));
-
-    if (mysql_query(conn, G_QUERY)) {
-        snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    res = mysql_store_result(conn);
-    if (res == NULL) {
-        long affected = mysql_affected_rows(conn);
-        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    G_RESULT[0] = '\0';
-    unsigned int num_fields = mysql_num_fields(res);
-    int first_row = 1;
-    while ((row = mysql_fetch_row(res)) != NULL) {
-        if (!first_row) {
-            strncat(G_RESULT, ";", 16383 - strlen(G_RESULT) - 1);
-        }
-        first_row = 0;
-        for (unsigned int i = 0; i < num_fields; i++) {
-            if (row[i]) {
-                char temp[256];
-                strncpy(temp, row[i], 255);
-                temp[255] = '\0';
-                sanitize_string(temp);
-                trim_trailing_spaces(temp);
-                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
-            } else {
-                strncat(G_RESULT, "NULL", 16383 - strlen(G_RESULT) - 1);
-            }
-            if (i < num_fields - 1) {
-                strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
-            }
-        }
-    }
-    if (first_row) {
-        strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
-    }
-    mysql_free_result(res);
-    /* pooled: connection kept for reuse */
 }
 
 /* --- Transaction control -------------------------------------------------
