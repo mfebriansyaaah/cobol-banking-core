@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0035 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0036 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0036 - dispute cases and messages
 --   baseline-0035 - MFA backup codes and recovery requests
 --   baseline-0034 - transactional notification outbox
 --   baseline-0033 - dual-control designation and maker requests
@@ -353,6 +354,54 @@ CREATE TABLE IF NOT EXISTS mfa_recovery_requests (
     KEY idx_recovery_state (state)
 ) ENGINE=InnoDB;
 
+-- 9h. Customer disputes (cases with controlled lifecycle, append-only notes)
+CREATE TABLE IF NOT EXISTS dispute_cases (
+    case_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    txn_ref VARCHAR(50) NULL,
+    subject VARCHAR(100) NOT NULL,
+    detail VARCHAR(100) NOT NULL,
+    state ENUM('OPEN','ACKNOWLEDGED','RESOLVED','REJECTED') NOT NULL DEFAULT 'OPEN',
+    assigned_to INT NULL,
+    due_date DATE NULL,
+    resolution VARCHAR(100) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    decided_at TIMESTAMP NULL,
+    CONSTRAINT fk_dispute_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dispute_assignee FOREIGN KEY (assigned_to)
+        REFERENCES users(id) ON DELETE SET NULL,
+    KEY idx_dispute_user_state (user_id, state)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS dispute_messages (
+    msg_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    case_id BIGINT NOT NULL,
+    author_id INT NOT NULL,
+    body VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_msg_case FOREIGN KEY (case_id)
+        REFERENCES dispute_cases(case_id) ON DELETE CASCADE,
+    CONSTRAINT fk_msg_author FOREIGN KEY (author_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    KEY idx_msg_case (case_id, msg_id)
+) ENGINE=InnoDB;
+
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS trg_dispute_msg_no_update BEFORE UPDATE ON dispute_messages
+FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'dispute_messages is append-only (no UPDATE)';
+END//
+
+CREATE TRIGGER IF NOT EXISTS trg_dispute_msg_no_delete BEFORE DELETE ON dispute_messages
+FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'dispute_messages is append-only (no DELETE)';
+END//
+DELIMITER ;
+
 -- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
@@ -432,7 +481,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0032_reconciliation_runs'),
 ('0033_dual_control'),
 ('0034_notification_outbox'),
-('0035_mfa_recovery');
+('0035_mfa_recovery'),
+('0036_disputes');
 
 
 -- Indexes
