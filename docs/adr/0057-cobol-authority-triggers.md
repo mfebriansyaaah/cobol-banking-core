@@ -35,6 +35,12 @@ layers. An audit found two frictions against that rule:
   orchestration remain COBOL actions (`ARCHIVE_AUDIT`, explicit status
   changes). Any new trigger requires its own approved ADR; silent expansion
   of trigger logic is rejected by rule 21 as amended.
+- **CI failure handling is explicit.** `ci.sh` captures each step’s exit code
+  and fails loudly with it instead of relying on `set -e` aborts or
+  `|| true` guards; counting uses an always-zero awk helper. Standard-output
+  redirection of suite stderr is retained (parsers depend on clean stdout),
+  but a non-zero exit now fails the step with its tail visible — concealment
+  is removed, not the redirection.
 
 ## Consequences
 
