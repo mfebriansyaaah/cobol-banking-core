@@ -1,6 +1,7 @@
 #!/bin/bash
-# MFA-state suite: GET_MFA_STATE returns the role and MFA flag the gateway uses
-# to prompt an admin (SUPER_ADMIN/MANAGER) to enrol MFA at login.
+# MFA-enrolment decision suite: MFA_ENROLL_REQUIRED answers whether the account
+# must enrol MFA (1 for SUPER_ADMIN/MANAGER without MFA, else 0). The gateway
+# forwards this flag instead of reimplementing the admin-role rule.
 # Usage: ./tests/test_mfa_state.sh
 
 BIN="./cobol/bin/main_logic"
@@ -31,7 +32,7 @@ check() {
 }
 
 echo "======================================================================"
-echo "  MFA-STATE SUITE (GET_MFA_STATE)"
+echo "  MFA-STATE SUITE (MFA_ENROLL_REQUIRED)"
 echo "======================================================================"
 
 q "DELETE FROM users WHERE email IN ('mf_a@test.com','mf_b@test.com','mf_m@test.com','mf_u@test.com');
@@ -41,11 +42,11 @@ q "DELETE FROM users WHERE email IN ('mf_a@test.com','mf_b@test.com','mf_m@test.
    (892,'mf_m@test.com','x','M','1990-01-01','VERIFIED','MANAGER',FALSE),
    (893,'mf_u@test.com','x','U','1990-01-01','VERIFIED','USER',FALSE);"
 
-check "super without MFA" "SUCCESS|SUPER_ADMIN|0" "$(run GET_MFA_STATE mf_a@test.com)"
-check "super with MFA" "SUCCESS|SUPER_ADMIN|1" "$(run GET_MFA_STATE mf_b@test.com)"
-check "manager without MFA" "SUCCESS|MANAGER|0" "$(run GET_MFA_STATE mf_m@test.com)"
-check "plain user" "SUCCESS|USER|0" "$(run GET_MFA_STATE mf_u@test.com)"
-check "unknown account" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_MFA_STATE ghost_mf@test.com)"
+check "super without MFA must enrol" "SUCCESS|1" "$(run MFA_ENROLL_REQUIRED mf_a@test.com)"
+check "super with MFA is done" "SUCCESS|0" "$(run MFA_ENROLL_REQUIRED mf_b@test.com)"
+check "manager without MFA must enrol" "SUCCESS|1" "$(run MFA_ENROLL_REQUIRED mf_m@test.com)"
+check "plain user is exempt" "SUCCESS|0" "$(run MFA_ENROLL_REQUIRED mf_u@test.com)"
+check "unknown account" "ERROR|ACCOUNT_NOT_FOUND" "$(run MFA_ENROLL_REQUIRED ghost_mf@test.com)"
 
 q "DELETE FROM users WHERE email IN ('mf_a@test.com','mf_b@test.com','mf_m@test.com','mf_u@test.com');"
 
