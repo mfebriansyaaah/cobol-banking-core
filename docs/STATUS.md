@@ -95,7 +95,7 @@ so a bug cannot DROP/ALTER tables; `database/grants.sh` provisions that account
 plus a separate privileged migration account (`database/migrate.sh` runs under
 DB_MIGRATE_USER/DB_MIGRATE_PASS, defaulting to the app credentials).
 
-Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; `database/migrate.sh --check` verifies none are pending. `database/schema.sql` is the fresh-install baseline: it folds every migration to date and pre-records them, so a new database only ever runs newer migrations (adding a migration means folding its objects into `schema.sql` and extending the baseline list — enforced by `tests/test_migrate.sh`). Seed data: `database/seed_test_data.sql`.
+Migrations applied by `database/migrate.sh` (a failure aborts naming the file and records nothing, so a retry resumes there) and tracked in `schema_migrations`; `database/migrate.sh --check` verifies none are pending. `database/schema.sql` is the fresh-install baseline: it folds every migration to date and pre-records them, so a new database only ever runs newer migrations (adding a migration means folding its objects into `schema.sql` and extending the baseline list — enforced by `tests/test_migrate.sh`). Seed data: `database/seed_test_data.sql`.
 
 ## 4. Test suites (all green under `./ci.sh`)
 
@@ -132,7 +132,7 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_mfa_state.sh` | 5 | `GET_MFA_STATE` returns role + MFA flag for the login enrolment prompt |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
 | `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
-| `tests/test_migrate.sh` | 11 | migration runner idempotent; --check detects pending; dead columns/table gone; baseline lists every file; FX index present; no orphan records |
+| `tests/test_migrate.sh` | 13 | migration runner idempotent; --check detects pending; dead columns/table gone; baseline lists every file; FX index present; no orphan records; failures abort naming the file and record nothing |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 22 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout; `/wallet/balance` envelope + currency |
 | `tests/test_serve_mode.sh` | 12 | long-running `--serve`, file mode unchanged, connection lifecycle (reconnect + transaction) |
@@ -147,8 +147,8 @@ Migrations applied by `database/migrate.sh` and tracked in `schema_migrations`; 
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
 | `middleware/` (node --test) | 104 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name**, worker pool (pipelined), error mapping |
 
-Shell suites total **617**; with the gateway suite **104** the full run is
-**721 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **619**; with the gateway suite **104** the full run is
+**723 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
