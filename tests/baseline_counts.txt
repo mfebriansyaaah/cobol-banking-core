@@ -53,3 +53,4 @@ resend-cooldown 7
 journal 30
 holds 32
 recon-runs 28
+dual-control 29
