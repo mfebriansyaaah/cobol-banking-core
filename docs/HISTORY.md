@@ -1809,3 +1809,284 @@ _merged 2026-10-16_
 - feat(server): log process-level errors; zero pool gauges on close
 - feat(observability): metrics push timeout + overlap guard
 
+## #179 mailer-robustness
+
+_merged 2026-10-16_
+
+- docs(adr): 0029 best-effort email delivery
+- docs: mailer delivery counters in STATUS + counts
+- test: a failing SMTP does not throw and is counted
+- chore(config): document SMTP_TIMEOUT_MS
+- feat(mailer): SMTP timeouts + best-effort delivery with sent/failed counters
+- docs: sync HISTORY.md to post-merge state (#178)
+
+## #180 mailer-subjects
+
+_merged 2026-10-16_
+
+- docs(adr): 0030 per-purpose email subject
+- docs: per-purpose mailer subject in STATUS + counts
+- test: verification subject by purpose
+- feat(mailer): per-purpose verification subject
+
+## #181 mailer-readiness
+
+_merged 2026-10-16_
+
+- docs(adr): 0031 mailer readiness and startup warning
+- test: readiness includes the mailer check
+- feat(server): warn at startup when production has no SMTP
+- feat(gateway): /ready reports the mailer configuration
+
+## #182 mailer-config
+
+_merged 2026-10-16_
+
+- docs: mailer sender config + counts (adr 0032)
+- test: sender address honours MAIL_FROM_NAME
+- chore(config): document MAIL_FROM_NAME
+- feat(server): log mailer_configured at startup (no secrets)
+- feat(mailer): configurable sender display name (mailerFrom)
+
+## #183 security-probes
+
+_merged 2026-10-16_
+
+- docs: STATUS counts and probe exemptions (adr 0033)
+- docs: add ADR 0033 (rate-limited probes)
+- test(gateway): cover rate-limited public probes
+- chore(config): document PROBE_CACHE_MS
+- feat(gateway): rate-limit and cache the public probes
+
+## #184 security-rng
+
+_merged 2026-10-16_
+
+- docs: fail-closed rng + counts (adr 0034)
+- test(core): add CSPRNG freshness suite (ci step 47)
+- fix(core): fail closed on RNG error for MFA secrets
+- fix(core): fail closed on RNG error for salts and codes
+- feat(core): add fail-closed OS CSPRNG helper
+
+## #185 security-db-grants
+
+_merged 2026-10-16_
+
+- docs: db least privilege + counts (adr 0035)
+- docs: document least-privilege database accounts
+- test(db): add least-privilege guardrail suite (ci step 48)
+- feat(db): run migrations under a separate privileged credential
+- feat(db): add least-privilege account provisioning
+
+## #186 security-hygiene
+
+_merged 2026-10-16_
+
+- docs: audit immutability + request id (adr 0036)
+- test(gateway): echo well-formed request ids, replace the rest
+- feat(gateway): validate and cap X-Request-Id
+- test(db): audit row UPDATE is refused
+- feat(db): make audit_trail append-only (migration 0028)
+
+## #187 test-coverage
+
+_merged 2026-10-16_
+
+- docs: add ADR 0037 (test coverage contract)
+- docs: record coverage guards and counts
+- test(gateway): in-progress idempotency key blocks then replays
+- test(gateway): lock the full result-code to HTTP-status contract
+- refactor(gateway): export the error-status map for contract tests
+
+## #188 test-no-silent-skips
+
+_merged 2026-10-16_
+
+- docs: no silent test skips (adr 0038)
+- feat(ci): fail the gateway step when any test is skipped
+- test(gateway): same no-skip policy for smoke and metrics suites
+- test(gateway): fail instead of silently skipping on DB-seed loss
+- test(gateway): add requireSeed helper failing on DB-seed loss
+
+## #189 test-assertion-baseline
+
+_merged 2026-10-16_
+
+- docs: corrected machine-checked counts (adr 0039)
+- test: verify STATUS headline counts against the baseline manifest
+- test: add per-suite assertion-count baseline manifest
+- feat(ci): verify the run against the assertion-count baseline
+- feat(ci): record per-suite pass counts during the run
+
+## #190 test-hygiene
+
+_merged 2026-10-16_
+
+- docs: test hygiene + counts (adr 0040)
+- test(gateway): self-sufficient fixtures in the endpoint smoke suite
+- test(shell): same TOTP boundary hardening for the MFA suite
+- test(gateway): harden TOTP generation against the 30s boundary
+- test(gateway): cover readiness 503 when the database is down
+
+## #191 abuse-body-proxy
+
+_merged 2026-10-16_
+
+- docs: body cap and trust-proxy warning + counts (adr 0041)
+- test(gateway): cover the body cap and the trust-proxy warning
+- chore(config): document TRUST_PROXY and the JSON body cap
+- feat(gateway): warn on rate-limit-key spoofing via TRUST_PROXY
+- feat(gateway): cap JSON body size and map overflow to 413
+
+## #192 abuse-account-throttle
+
+_merged 2026-10-16_
+
+- docs: per-account abuse throttles + counts (adr 0042)
+- feat(ci): wire the resend-cooldown suite into CI
+- test(auth): wrong MFA codes arm the per-account lockout
+- test(auth): cover the resend cooldown and reuse semantics
+- feat(auth): count wrong MFA codes toward the per-account lockout
+- feat(auth): per-account cooldown on code resends
+
+## #193 abuse-failopen-metric
+
+_merged 2026-10-16_
+
+- docs: counted limiter fail-open + counts (adr 0043)
+- test: baseline manifest tracks the new fail-open tests
+- test(gateway): fail-open events are counted for operators
+- test(gateway): a broken limiter store fails the request open
+- feat(gateway): count rate-limiter fail-open events
+
+## #194 abuse-lockout-docs
+
+_merged 2026-10-16_
+
+- docs: lockout model and loopback trust + counts (adr 0044)
+- docs: document the lockout-as-DoS model and trust defaults
+- test: baseline manifest tracks the trust-model test
+- test(gateway): cover the loopback trust model and warning
+- feat(gateway): default trust proxy to loopback
+
+## #195 bridge-memory-safety
+
+_merged 2026-10-16_
+
+- docs: C memory safety + counts (adr 0045)
+- feat(ci): wire the C memory-boundary suite into CI
+- test(clib): ASan boundary-contract suite for the C/COBOL sizes
+- fix(clib): refuse absurd PBKDF2 costs before burning CPU
+- fix(core): size WS-RAND for the code plus its terminator
+- fix(clib): stop writing a terminator past single-char result fields
+
+## #196 bridge-log-redaction
+
+_merged 2026-10-16_
+
+- docs: add ADR 0046 (bridge log redaction)
+- docs: bridge diagnostics wording and counts
+- test: baseline manifest tracks the diagnostic checks
+- test(bridge): diagnostics carry no email addresses
+- fix(bridge): stop logging concatenated SQL text to stderr
+
+## #197 bridge-begin-guard
+
+_merged 2026-10-17_
+
+- docs: add ADR 0047 (begin re-entry guard)
+- docs: bridge transaction wording and counts
+- feat(ci): wire the bridge transaction suite into CI
+- test(bridge): re-entry rolls back the leaked transaction
+- fix(bridge): roll back a leaked transaction on SQL_BEGIN re-entry
+
+## #198 bridge-buffer-contract
+
+_merged 2026-10-17_
+
+- docs: add ADR 0048 (buffer contract)
+- docs: reference the buffer contract in STATUS
+- feat(ci): enforce the buffer contract on every run
+- test: machine-check the COBOL side of the buffer contract
+- docs: add the C/COBOL buffer contract
+
+## #199 db-baseline
+
+_merged 2026-10-17_
+
+- docs: migration baseline + counts (adr 0049)
+- test: baseline manifest tracks the migration checks
+- test(db): baseline coverage, FX index, and orphan checks
+- feat(db): seed the migration baseline in schema.sql
+- feat(db): restore the FX pair lookup index (migration 0029)
+
+## #200 db-migrate-diagnostics
+
+_merged 2026-10-17_
+
+- docs: add ADR 0050 (migration failure semantics)
+- docs: migration failure semantics and counts
+- test: baseline manifest tracks the diagnostics checks
+- test(db): failing migrations abort loudly and unrecorded
+- feat(db): fail loudly naming the broken migration
+
+## #201 db-idempotent-seeds
+
+_merged 2026-10-17_
+
+- docs: add ADR 0051 (idempotent seeds)
+- docs: idempotent seeds wording and counts
+- feat(ci): wire the seed idempotency suite into CI
+- test(db): development seeds are safe to re-apply
+- feat(db): make the development seeds re-runnable
+
+## #202 db-schema-policy
+
+_merged 2026-10-17_
+
+- docs: add ADR 0052 (schema policy)
+- docs: refresh the schema header to the baseline era
+- docs: annotate the fresh-install flow in README
+- docs: reference the schema policy from STATUS
+- docs: add the schema management policy
+
+## #203 env-coverage
+
+_merged 2026-10-17_
+
+- docs: env coverage guarantee + counts (adr 0053)
+- feat(ci): enforce env documentation on every run
+- test: check every config knob is documented in .env.example
+- docs(config): document transfer-limit and retention knobs
+- docs(config): document the JWT, refresh, and MFA issuer knobs
+
+## #204 dead-code-removal
+
+_merged 2026-10-17_
+
+- docs: add ADR 0054 (dead-code removal)
+- docs: point bridge guidance at the prepared multi-row calls
+- chore(clib): remove the uncalled legacy SHA256 hasher
+- chore(bridge): remove uncalled SQL_EXECUTE_ROWS
+- chore(bridge): remove unreferenced trim_leading_spaces
+
+## #205 hygiene-gitignore-readme
+
+_merged 2026-10-17_
+
+- docs: register ADR 0055 and fix its ignore-pattern reference
+- docs: add ADR 0055 (readme and ignore hygiene)
+- docs: fix stale quick-start and gateway claims
+- docs: list the liveness/readiness probes as public routes
+- chore: drop stale gitignore entries
+
+## #206 hygiene-closeout
+
+_merged 2026-10-17_
+
+- docs: hygiene close-out + counts (adr 0056)
+- docs: record the self-contained shell suite convention
+- feat(ci): wire the hook hygiene suite into CI
+- test(hooks): installed hooks match tracked, tampering detected
+- feat(scripts): verify installed hooks match with --check
+
