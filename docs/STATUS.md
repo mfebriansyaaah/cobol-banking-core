@@ -201,9 +201,10 @@ exposed socket keeps its peer IP), a hop count/subnet when the proxy lives on an
 never "true" (production startup warns on the over-permissive value, since the limiter key
 depends on it; session IPs stored on refresh sessions follow the same key). JSON bodies are
 capped at JSON_BODY_LIMIT (default 20kb, 413 beyond it); every request carries
-the 500-byte input-line cap before COBOL runs. Access token
-15m + refresh 7d
-(`middleware/.env.example`). Every response carries `X-Request-Id`, and the
+the 500-byte input-line cap before COBOL runs. Every knob the code reads is
+documented with its default in `middleware/.env.example` (gateway and core
+alike; enforced by `tests/env_check.sh`). Access token
+15m + refresh 7d. Every response carries `X-Request-Id`, and the
 server logs one JSON line per request (`event: http_request` with method, route,
 status, `error` code, `durationMs`, `cobolMs`); a thrown/transport failure also
 logs an `event: gateway_error` line (code, message, stack). Counters are served
