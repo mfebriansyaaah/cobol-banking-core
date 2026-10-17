@@ -175,3 +175,9 @@ invariant, bypass evidence, or claim compliance without accountable approval.
 42. **No direct integration-branch commits.** Work on a topic branch and merge
     through review. The only local `main` commit permitted is the generated
     post-merge `docs: sync HISTORY.md ...` sync.
+43. **Micro-tasks land as single pushed commits; PRs stay fat.** Each
+    micro-task is exactly one atomic commit, pushed immediately after it is
+    created and verified. A pull request collects several related commits
+    that form one coherent change — never a slim, single-commit PR for work
+    that naturally decomposes. There is no fixed minimum commit count;
+    completeness and cohesion of the change decide.
