@@ -33,6 +33,10 @@ client, and Node.js 18+ with npm.
 
 ## Quick start
 
+The commands below are for a local development prototype only. They do not
+provision a regulated production environment; production is blocked until the
+PRD release gates are approved and evidenced.
+
 ```sh
 # 1. Database: create, apply schema, seed test data, apply migrations
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS cobol_db;"
