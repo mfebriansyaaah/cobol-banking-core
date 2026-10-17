@@ -867,6 +867,12 @@ test('profile is structured and works without accounts', async () => {
   assert.equal(res.body.profile.email, em);
   assert.equal(res.body.profile.status, 'VERIFIED');
   assert.deepEqual(res.body.accounts, []);
+
+  requireSeed(seedAccount(em, '250.00'), 'seed profile account');
+  const withAcct = await request(app).get('/profile').query({ email: em }).set('Authorization', `Bearer ${token}`);
+  assert.equal(withAcct.body.accounts.length, 1);
+  assert.equal(withAcct.body.accounts[0].balance, withAcct.body.accounts[0].available);
+  assert.equal(withAcct.body.accounts[0].status, 'ACTIVE');
 });
 
 test('email-change request is neutral for a taken address', async () => {

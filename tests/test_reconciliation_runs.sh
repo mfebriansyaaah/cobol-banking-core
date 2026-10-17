@@ -139,6 +139,16 @@ else
     check "export refuses an unknown run" "exit 1" "exit 1"
 fi
 
+# --- scheduled runner alerts on divergence --------------------------------------------------
+RECON_ACTOR=$ADM ./scripts/scheduled_reconcile.sh >/tmp/opencode/sched_alert.out 2>/tmp/opencode/sched_alert.err; ALRC=$?
+check "scheduled runner alerts on divergence" "2" "$ALRC"
+check "alert names the divergence" "ALERT|DIVERGENCE" "$(grep -o 'ALERT|DIVERGENCE' /tmp/opencode/sched_alert.err | head -1)"
+M_BEFORE="$(cut -d'|' -f4 /tmp/opencode/sched_alert.out)"
+q "UPDATE accounts SET balance=500 WHERE account_id=981; UPDATE accounts SET balance=0 WHERE account_id=982;"
+OUT_AFTER="$(RECON_ACTOR=$ADM ./scripts/scheduled_reconcile.sh 2>/dev/null)"; ALRC2=$?
+check "fixing fixtures drops two mismatches" "$((M_BEFORE - 2))" "$(echo "$OUT_AFTER" | cut -d'|' -f4)"
+check "alert still fires for remaining drift" "2" "$ALRC2"
+
 echo "======================================================================"
 echo "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"

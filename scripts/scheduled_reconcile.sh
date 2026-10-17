@@ -26,6 +26,20 @@ printf "RUN_RECONCILIATION|%s|SCHEDULED\n" "$RECON_ACTOR" > "$WORK/input.txt"
 out="$(cat "$WORK/output.txt")"
 echo "$out"
 case "$out" in
-    SUCCESS\|RUN_RECORDED\|*) exit 0 ;;
+    SUCCESS\|RUN_RECORDED\|*)
+        mism="$(echo "$out" | cut -d'|' -f4)"
+        case "$mism" in
+            ''|*[!0-9]*)
+                echo "scheduled reconciliation returned an unreadable count" >&2
+                exit 1
+                ;;
+        esac
+        if [ "$mism" != "0" ]; then
+            run_id="$(echo "$out" | cut -d'|' -f3)"
+            echo "ALERT|DIVERGENCE|run=$run_id mismatches=$mism recorded by reconciliation; triage per docs/runbooks/alert-response.md" >&2
+            exit 2
+        fi
+        exit 0
+        ;;
     *) echo "scheduled reconciliation failed" >&2; exit 1 ;;
 esac

@@ -226,8 +226,8 @@ export const ROUTES = [
     const [email, name, status, role, dob, createdAt, accounts = ''] = body.data.slice(1);
     const balances = accounts
       ? accounts.split(';').map((row) => {
-          const [currency, balance] = row.split(':');
-          return { currency, balance };
+          const [currency, balance, available, status] = row.split(':');
+          return { currency, balance, available, status };
         })
       : [];
     return { data: ['PROFILE'], profile: { email, name, status, role, dob, createdAt }, accounts: balances };
