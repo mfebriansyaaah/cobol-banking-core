@@ -64,7 +64,9 @@ q "DELETE FROM verification_logs WHERE email IN ('$U','$UNEW','$OTHER','$NOACCT'
    INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
    (954,'$NOACCT','x','No Acct','1991-01-01','VERIFIED','USER');
    INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES
-   (950,950,1,250.00,'SAVINGS'),(952,950,3,0.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');"
+   (950,950,1,250.00,'SAVINGS'),(952,950,3,0.00,'SAVINGS'),(951,951,1,0.00,'SAVINGS');
+   INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) VALUES
+   ('PROF_FUND',950,250.00,'CREDIT',1,'Profile suite opening');"
 
 # --- GET_DASHBOARD ---
 check_contains "dashboard self profile" "SUCCESS|DASHBOARD|$U|Prof User|VERIFIED|USER|1990-01-01|" "$(run GET_DASHBOARD "$U" "$U" "")"
@@ -75,6 +77,10 @@ check "dashboard other forbidden for non-admin" "ERROR|FORBIDDEN" "$(run GET_DAS
 check "dashboard unknown user" "ERROR|ACCOUNT_NOT_FOUND" "$(run GET_DASHBOARD ghost@test.com "$ADMIN" "")"
 
 # --- LIST_USERS + paging ---
+# The seeded account must reconcile against the ledger (a balance with no
+# ledger row would show up as a false reconciliation mismatch).
+check "seeded account reconciles against the ledger" "1" "$(q "SELECT (SELECT balance FROM accounts WHERE account_id=950) = COALESCE((SELECT SUM(CASE WHEN type='CREDIT' THEN amount ELSE -amount END) FROM ledger WHERE account_id=950),0);")"
+
 check_contains "list users header" "SUCCESS|LIST_DONE|" "$(run LIST_USERS "" "" "$ADMIN")"
 check_contains "list users includes a known user" "950:$U" "$(run LIST_USERS "" "" "$ADMIN")"
 check_contains "get_user is enriched" "SUCCESS|USER|950|$U|Prof User|VERIFIED|USER|" "$(run GET_USER "$U" "$U" "")"
@@ -135,6 +141,11 @@ rc=$(run REQ_EMAIL_CHANGE "$RU" "$RN" "$RU" secret123 | cut -d'|' -f3)
 q "INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (956,'$RN','x','Taken','1990-01-01','VERIFIED','USER');"
 check "confirm race reports EMAIL_EXISTS" "ERROR|EMAIL_EXISTS" "$(run CONFIRM_EMAIL_CHANGE "$RU" "$RN" "$rc" "$RU")"
 q "DELETE FROM verification_logs WHERE email IN ('$RU','$RN'); DELETE FROM users WHERE email IN ('$RU','$RN');"
+
+# Leave no fixtures behind: a lingering seeded balance would show up as a false
+# reconciliation mismatch once another suite wipes the ledger.
+q "DELETE FROM verification_logs WHERE email LIKE 'prof%';
+   DELETE FROM users WHERE id IN (950,951,953,954);"
 
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"

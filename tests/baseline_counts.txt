@@ -9,8 +9,8 @@ reconciliation 10
 auth-login 6
 signup-verify 27
 roles 17
-user-profile 41
-gateway 111
+user-profile 42
+gateway 112
 lockout 14
 idempotent-transfer 27
 transfer-validity 45
