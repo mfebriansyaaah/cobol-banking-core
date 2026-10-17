@@ -2274,3 +2274,13 @@ _merged 2026-10-17_
 - feat(ops): scheduled reconcile alerts on any recorded divergence
 - feat(balance): dashboard shows available balance with per-currency precision
 
+## #222 hygiene-sync
+
+_merged 2026-10-17_
+
+- docs(hygiene): drop implemented controls from PRD not-implemented list
+- docs(hygiene): correct stale holds/fees gaps in traceability matrix
+- docs(hygiene): describe divergence alerting instead of claiming none exists
+- docs(hygiene): list statements and disputes routes in STATUS gateway inventory
+- docs(hygiene): list dispute tables in STATUS schema inventory
+
