@@ -660,16 +660,23 @@
                 IF WS-CAP-SRC(WS-I:1) NOT = SPACE
                     MOVE WS-I TO WS-CAP-LEN
                 END-IF
-            END-PERFORM
+            END-PERFORM.
             IF WS-CAP-LEN = 0
                 MOVE "N" TO WS-CAP-OK
-            ELSE
-                PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-CAP-LEN
-                    IF WS-CAP-SRC(WS-I:1) < "0" OR WS-CAP-SRC(WS-I:1) > "9"
-                        MOVE "N" TO WS-CAP-OK
-                    END-IF
-                END-PERFORM
-            END-IF
+            END-IF.
+            IF WS-CAP-LEN > 0
+                PERFORM CHECK-CAP-CHARS
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHECK-CAP-CHARS.
+            *> Character scan kept in its own paragraph so the loop above
+            *> stays a single sentence per the inline-scope rule.
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-CAP-LEN
+                IF WS-CAP-SRC(WS-I:1) < "0" OR WS-CAP-SRC(WS-I:1) > "9"
+                    MOVE "N" TO WS-CAP-OK
+                END-IF
+            END-PERFORM.
             EXIT PARAGRAPH.
 
         CHECK-DAILY-TOTAL.
@@ -684,14 +691,20 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             ELSE
-                MOVE WS-RESULT TO WS-PRIOR-TOTAL-STR
-                MOVE WS-PRIOR-TOTAL-STR TO WS-PARSE-SRC
-                PERFORM PARSE-MAJOR
-                MOVE WS-PARSE-NUM TO WS-PRIOR-TOTAL-NUM
-                IF WS-PRIOR-TOTAL-NUM + WS-AMOUNT-NUM > WS-DAILY-LIMIT-NUM
-                    SET WS-TRANSFER-FAIL-DAILY TO TRUE
-                END-IF
-            END-IF
+                PERFORM RECORD-DAILY-TOTAL
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RECORD-DAILY-TOTAL.
+            *> Comparison kept in its own paragraph so each branch above is
+            *> one sentence per the inline-scope rule.
+            MOVE WS-RESULT TO WS-PRIOR-TOTAL-STR
+            MOVE WS-PRIOR-TOTAL-STR TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-PRIOR-TOTAL-NUM
+            IF WS-PRIOR-TOTAL-NUM + WS-AMOUNT-NUM > WS-DAILY-LIMIT-NUM
+                SET WS-TRANSFER-FAIL-DAILY TO TRUE
+            END-IF.
             EXIT PARAGRAPH.
 
         CHECK-TRANSIENT.
@@ -1001,20 +1014,25 @@
             *> fail-closed instead of rounding silently.
             IF WS-TRANSFER-OK
                 COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-SENDER-PREC)
-                IF WS-PREC-NUM < 0 OR WS-PREC-NUM > 4
-                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
-                ELSE
-                    IF WS-AMT-FRAC > WS-PREC-NUM
-                        SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
-                    END-IF
-                END-IF
-            END-IF
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-PREC-NUM < 0
+                SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-PREC-NUM > 4
+                SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-AMT-FRAC > WS-PREC-NUM
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+            END-IF.
             IF WS-TRANSFER-OK
                 COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-TARGET-PREC)
-                IF WS-PREC-NUM < 0 OR WS-PREC-NUM > 4
-                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
-                END-IF
-            END-IF
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-PREC-NUM < 0
+                SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-PREC-NUM > 4
+                SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+            END-IF.
 
             *> Lock both account rows in one statement, ordered by id, so two
             *> opposing transfers cannot deadlock (and MariaDB does not hit the
@@ -1101,17 +1119,18 @@
                 CALL "env_or_raw" USING BY REFERENCE "TRANSFER_MAX_PER_TXN" BY REFERENCE "0" BY REFERENCE WS-MAX-TXN-STR
                 MOVE WS-MAX-TXN-STR TO WS-CAP-SRC
                 PERFORM CHECK-CAP-DIGITS
-                IF WS-CAP-OK NOT = "Y"
-                    SET WS-TRANSFER-FAIL-LIMIT TO TRUE
-                ELSE
-                    MOVE WS-MAX-TXN-STR TO WS-PARSE-SRC
-                    PERFORM PARSE-MAJOR
-                    MOVE WS-PARSE-NUM TO WS-MAX-TXN-NUM
-                    IF WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
-                        SET WS-TRANSFER-FAIL-LIMIT TO TRUE
-                    END-IF
-                END-IF
-            END-IF
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "N"
+                SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "Y"
+                MOVE WS-MAX-TXN-STR TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-MAX-TXN-NUM
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
+                SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+            END-IF.
             
             *> Optional rolling 24h debit limit per account, in whole units of
             *> the sender currency; 0 disables it.
@@ -1120,17 +1139,18 @@
                 CALL "env_or_raw" USING BY REFERENCE "TRANSFER_DAILY_LIMIT" BY REFERENCE "0" BY REFERENCE WS-DAILY-LIMIT-STR
                 MOVE WS-DAILY-LIMIT-STR TO WS-CAP-SRC
                 PERFORM CHECK-CAP-DIGITS
-                IF WS-CAP-OK NOT = "Y"
-                    SET WS-TRANSFER-FAIL-DAILY TO TRUE
-                ELSE
-                    MOVE WS-DAILY-LIMIT-STR TO WS-PARSE-SRC
-                    PERFORM PARSE-MAJOR
-                    MOVE WS-PARSE-NUM TO WS-DAILY-LIMIT-NUM
-                    IF WS-DAILY-LIMIT-NUM > 0
-                        PERFORM CHECK-DAILY-TOTAL
-                    END-IF
-                END-IF
-            END-IF
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "N"
+                SET WS-TRANSFER-FAIL-DAILY TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "Y"
+                MOVE WS-DAILY-LIMIT-STR TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-DAILY-LIMIT-NUM
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-DAILY-LIMIT-NUM > 0
+                PERFORM CHECK-DAILY-TOTAL
+            END-IF.
             
             IF WS-TRANSFER-OK
                 MOVE WS-SENDER-BAL TO WS-PARSE-SRC
