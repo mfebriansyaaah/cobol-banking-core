@@ -199,7 +199,9 @@ Held by a bearer JWT (public but rate-limited: `/health`, `/live`, `/ready`; pub
 `/auth/signup`, `/auth/verify`,
 `/auth/login`, `/auth/forgot`, `/auth/reset-password`, `/auth/resend`, `/auth/refresh):
 `/users`, `/users/:email`, `/wallet/balance`, `/wallet/transfer`
-(`Idempotency-Key`), `/profile` (GET/PATCH), `/profile/deactivate`,
+(`Idempotency-Key`), `/statements`, `/disputes` (GET/POST), `/disputes/:id` (GET),
+`/disputes/:id/notes`, `/disputes/:id/acknowledge`, `/disputes/:id/resolve`,
+`/disputes/:id/reject`, `/profile` (GET/PATCH), `/profile/deactivate`,
 `/profile/email/request`,
 `/profile/email/confirm`, `/profile/password`, `/admin/user-status`, `/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/reconcile/run`, `/admin/reconcile/runs`, `/admin/reconcile/exceptions`, `/admin/reconcile/acknowledge`, `/admin/reconcile/resolve`, `/admin/requests`, `/admin/requests/approve`, `/admin/requests/reject`, `/admin/outbox`, `/mfa/backup-codes`, `/mfa/recover`, `/mfa/recover/confirm`, `/admin/mfa-recovery/approve`, `/admin/mfa-recovery/reject`, `/admin/mfa-recovery`, `/mfa/enroll`, `/mfa/confirm`,
 `/mfa/disable`, `/sessions` (GET), `/sessions/revoke`, `/sessions/revoke-all`,
