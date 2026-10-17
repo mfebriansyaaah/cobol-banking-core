@@ -423,7 +423,7 @@
                 MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            SET STEP-OK TO TRUE.
+            SET STEP-OK TO TRUE
             *> Open the journal header for this reversal; legs and the audit
             *> row below point at it through the connection-scoped @jid.
             IF STEP-OK
@@ -538,7 +538,7 @@
             *> journal balances before anything becomes durable. The guard
             *> flag is shared with TRANSFER-LOGIC, so reset it first: in
             *> serve mode Working-Storage survives across requests.
-            SET WS-TRANSFER-OK TO TRUE.
+            SET WS-TRANSFER-OK TO TRUE
             IF STEP-OK
                 PERFORM VERIFY-JOURNAL-BALANCED
             END-IF.
