@@ -11,7 +11,7 @@ Manage balances and record every cent moving in or out, with absolute data integ
 
 - **Source:** `cobol/src/wallet_core.cob` (program id `wallet_core`).
 - **Reachable through:** `cobol/src/main_logic.cob` routes `CHECK_BALANCE` and `TRANSFER` here. Compiled into the single binary by `build.sh`.
-- **DB access:** through the C bridge `cobol/src/sql_bridge.c` (`SET_QUERY` / `SQL_EXECUTE` / `GET_RESULT`) which uses **libmysqlclient**, not ODBC. Database `cobol_db`, credentials from `cobol/src/sql_bridge.c`.
+- **DB access:** through the C bridge `cobol/src/sql_bridge.c` (`SQL_PREPARE_EXEC` / `SQL_EXECUTE` / `GET_RESULT`) which uses **libmysqlclient**, not ODBC. Database `cobol_db`, connection from the environment (`DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASS`/`DB_NAME`, with development defaults); no credentials are compiled into the source.
 - **I/O:** reads one pipe-delimited line `ACTION|p1|p2|p3|p4`; result line in `output.txt`.
 
 ### Actions actually implemented
@@ -31,7 +31,7 @@ Manage balances and record every cent moving in or out, with absolute data integ
 - [x] **Row locking**: the sender account is read `SELECT … FOR UPDATE` before the balance check.
 - [x] **Balance/ledger reconciliation**: `RECONCILE` reports any account whose stored balance differs from its ledger sum.
 - [x] **Idempotency**: an optional key (`p4`) makes `TRANSFER` replay-safe — a repeated key returns the prior success without moving money again; the intent is recorded in `pending_transactions` (`PENDING`→`COMMITTED`, rolled back on failure).
-- [ ] Amounts are passed as trimmed text and injected into SQL directly (no server-side bind/prepared statement).
+- [x] **Server-side binding**: the transfer path (lock, debit/credit, ledger inserts, audit, intent) runs through `SQL_PREPARE_EXEC` / `SQL_PREPARE_EXEC_LOCK` / `SQL_PREPARE_EXEC_ROWS`. The only interpolation left is the retention housekeeping (`pending_transactions` archive/prune), which embeds the env-supplied day count after guarding it to a leading digit.
 
 ### Tests
 
@@ -49,4 +49,4 @@ Manage balances and record every cent moving in or out, with absolute data integ
 
 - **Resolved** (ADR-free, chosen in Phase 1): transaction control is exposed as `SQL_BEGIN`/`SQL_COMMIT`/`SQL_ROLLBACK` verbs on the bridge, sharing a persistent connection for the transaction span.
 - Reconciliation is covered by the dedicated `RECONCILE` action (not by `CHECK_BALANCE`, which still reads `accounts.balance` directly).
-- Remaining scope: move to server-side parameter binding (prepared statements) instead of string interpolation.
+- Remaining scope: bind the retention-housekeeping day count as a server-side parameter instead of interpolating it (see `SPEC-auth-identity.md` for the remaining `auth_core` escaped statements).

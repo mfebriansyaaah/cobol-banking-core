@@ -314,6 +314,7 @@ echo "migrate $mig_pass" >> "$BASELINE_RUN"
 
 echo "=== [23/56] Status/docs integrity ==="
 ./tests/status_check.sh
+./tests/traceability_check.sh
 
 echo "=== [24/56] End-to-end HTTP smoke ==="
 run_step e2e_out e2e_rc ./tests/test_e2e_gateway.sh
