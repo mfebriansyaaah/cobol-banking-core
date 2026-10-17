@@ -46,5 +46,6 @@ ledger-integrity 4
 rng 5
 grants 5
 c-memory 12
+seed 6
 bridge-txn 5
 resend-cooldown 7
