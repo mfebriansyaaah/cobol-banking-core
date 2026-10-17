@@ -13,7 +13,7 @@ user-profile 41
 gateway 111
 lockout 14
 idempotent-transfer 27
-transfer-validity 36
+transfer-validity 41
 concurrent 4
 injection 11
 session 18

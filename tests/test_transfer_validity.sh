@@ -84,7 +84,7 @@ check "fx sender debited in its currency" "900.0000" "$(q "SELECT balance FROM a
 check "fx target credited at the rate" "1570000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
 check "fx debit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=1 AND type='DEBIT' AND amount=100.00;")"
 check "fx credit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=961 AND type='CREDIT' AND amount=1570000.00;")"
-check "fx rate is snapshotted on the ledger" "15700.000000" "$(q "SELECT exchange_rate FROM ledger WHERE account_id=961 AND type='CREDIT';")"
+check "fx rate is snapshotted on the ledger" "15700.000000000000000000" "$(q "SELECT exchange_rate FROM ledger WHERE account_id=961 AND type='CREDIT';")"
 
 # IDR has zero minor units, so the converted credit is a whole number.
 setup
@@ -96,6 +96,22 @@ setup
 q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
 check "fx uses the inverse rate" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 15700 "")"
 check "fx inverse credit rounded to USD" "1.0000" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
+
+# The reciprocal must carry enough precision that the credit is exact at the
+# target currency's precision: 100000 IDR / 15700 = 6.3694... -> 6.37 USD.
+# A 6-decimal reciprocal (0.000064) would over-credit to 6.40 (a ~0.5% loss).
+setup
+q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
+check "fx inverse converts exactly" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 100000 "")"
+check "fx inverse credit is 6.37 USD" "6.3700" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
+check "fx inverse ledger credit is 6.37" "6.3700" "$(q "SELECT amount FROM ledger WHERE account_id=2 AND type='CREDIT';")"
+
+# Precision must hold at scale too: 100000000000 IDR / 15700 = 6369426.75 USD
+# (the 6-decimal reciprocal would credit 6400000.00).
+setup
+q "UPDATE accounts SET balance=100000000000.00 WHERE account_id=961;"
+check "fx inverse stays exact at scale" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 100000000000 "")"
+check "fx inverse large credit is 6369426.75" "6369426.7500" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
 
 # Neither direction exists for this pair.
 setup
