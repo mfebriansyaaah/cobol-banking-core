@@ -19,7 +19,7 @@ injection 11
 session 18
 prepared 15
 ping 3
-migrate 8
+migrate 11
 e2e 22
 serve 12
 e2e-pool 22
