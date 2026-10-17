@@ -189,7 +189,7 @@ must not precede P0/P1 controls.
 
 The repository currently provides authentication and authorization, user
 profiles, a multi-currency internal transfer path between existing accounts,
-mutable account balances with ledger entries/reconciliation, transfer limits,
+mutable account balances with journal-headed postings (balanced-leg verified pre-commit), audit-linked journals, reconciliation, transfer limits,
 reversal, audit/session administration, a Node.js API gateway, and a MySQL/C
 bridge. It includes substantial security and CI guardrails.
 
