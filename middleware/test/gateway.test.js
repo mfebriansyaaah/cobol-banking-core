@@ -316,6 +316,54 @@ test('admin hold lifecycle is admin-only', async () => {
   assert.equal(rerelease.body.error, 'UNKNOWN_TRANSACTION');
 });
 
+test('reconciliation runs record results and resolve exceptions', async () => {
+  const admin = `gw_rec_${Date.now()}@test.com`;
+  const target = `gw_rect_${Date.now()}@test.com`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed reconcile users');
+  enableMfa(admin);
+  const adminToken = await adminLoginFor(admin);
+  const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
+  requireSeed(seedAccount(target, '100.00'), 'seed target account');
+  const adminStep = await stepUpFor(adminToken);
+  const userStep = await stepUpFor(userToken);
+  const auth = { Authorization: `Bearer ${adminToken}`, 'X-Step-Up': adminStep };
+
+  // A non-admin cannot run a recorded reconciliation.
+  assert.equal((await request(app).post('/admin/reconcile/run').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({})).status, 403);
+
+  // Drift the target balance directly so this run must find it.
+  requireSeed(runSql(`UPDATE accounts SET balance = 999.00 WHERE user_id = (SELECT id FROM users WHERE email = '${target}')`), 'drift the balance');
+  const run = await request(app).post('/admin/reconcile/run').set(auth).send({ trigger: 'MANUAL' });
+  assert.equal(run.status, 200);
+  assert.equal(run.body.data[0], 'RUN_RECORDED');
+  const runId = run.body.data[1];
+  assert.match(runId, /^[0-9]+$/);
+  assert.ok(Number(run.body.data[2]) >= 1, 'run reports its mismatches');
+
+  const runs = await request(app).get('/admin/reconcile/runs').set('Authorization', `Bearer ${adminToken}`).query({ limit: '10' });
+  assert.equal(runs.status, 200);
+  assert.equal(runs.body.data[0], 'RUNS');
+  assert.ok(runs.body.data.slice(2).join(';').includes(`MANUAL`), 'the run is listed');
+
+  const open = await request(app).get('/admin/reconcile/exceptions').set('Authorization', `Bearer ${adminToken}`).query({ status: 'OPEN' });
+  assert.equal(open.status, 200);
+  assert.equal(open.body.data[0], 'EXCEPTIONS');
+  const mine = open.body.data.slice(2).join(';').split(';').filter((r) => r.includes(`:${runId}:`));
+  assert.ok(mine.length >= 1, 'the run produced an open finding');
+  const findingId = mine[0].split(':')[0];
+
+  const ack = await request(app).post('/admin/reconcile/acknowledge').set(auth).send({ findingId });
+  assert.deepEqual(ack.body.data, ['EXCEPTION_ACKNOWLEDGED']);
+  const resolve = await request(app).post('/admin/reconcile/resolve').set(auth).send({ findingId, note: 'opening balance corrected' });
+  assert.deepEqual(resolve.body.data, ['EXCEPTION_RESOLVED']);
+
+  const resolved = await request(app).get('/admin/reconcile/exceptions').set('Authorization', `Bearer ${adminToken}`).query({ status: 'RESOLVED' });
+  assert.ok(resolved.body.data.slice(2).join(';').includes(`${findingId}:${runId}`), 'resolution is listed with its run');
+  const closed = await request(app).post('/admin/reconcile/resolve').set(auth).send({ findingId, note: 'again' });
+  assert.equal(closed.status, 404);
+  assert.equal(closed.body.error, 'UNKNOWN_TRANSACTION');
+});
+
 test('privileged admin writes require a fresh step-up', async () => {
   const admin = `gw_su_${Date.now()}@test.com`;
   const target = `gw_su_t_${Date.now()}@test.com`;

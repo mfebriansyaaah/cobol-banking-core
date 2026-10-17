@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -268,6 +268,32 @@ export const ROUTES = [
   // Requires a SUPER_ADMIN actor, taken from the verified token (not the body).
   { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  // Recorded reconciliation: same check, but the run and its findings are
+  // stored immutably for ownership, resolution, and export.
+  { method: 'post', path: '/admin/reconcile/run', action: 'RUN_RECONCILIATION', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'trigger', pattern: TRIGGER_SRC, required: false },
+  ] },
+  { method: 'get', path: '/admin/reconcile/runs', action: 'LIST_RECONCILIATIONS', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: LIMIT, required: false },
+  ] },
+  { method: 'get', path: '/admin/reconcile/exceptions', action: 'LIST_EXCEPTIONS', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'status', pattern: RECON_STATUS, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: LIMIT, required: false },
+  ] },
+  { method: 'post', path: '/admin/reconcile/acknowledge', action: 'ACK_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'findingId', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/reconcile/resolve', action: 'RESOLVE_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'findingId', pattern: INT, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'note', pattern: REASON, required: false },
   ] },
   { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },

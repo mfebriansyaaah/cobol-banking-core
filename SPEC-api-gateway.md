@@ -42,6 +42,12 @@ Every response carries `X-Cobol-Ms`, the COBOL call latency in milliseconds.
 | POST | `/admin/mfa-reset` | `ADMIN_RESET_MFA` (clear a user's MFA) | bearer (admin) |
 | POST | `/admin/holds` | `PLACE_HOLD` (amount, optional `days`/`currency`/`reason`) | bearer (SUPER_ADMIN) + step-up |
 | POST | `/admin/holds/release` | `RELEASE_HOLD` (`holdId`) | bearer (SUPER_ADMIN) + step-up |
+| GET | `/admin/reconcile` | `RECONCILE` (read-only diagnostic) | bearer (SUPER_ADMIN) |
+| POST | `/admin/reconcile/run` | `RUN_RECONCILIATION` (optional `trigger`) | bearer (SUPER_ADMIN) + step-up |
+| GET | `/admin/reconcile/runs` | `LIST_RECONCILIATIONS` (optional `limit`/`offset`) | bearer (SUPER_ADMIN) |
+| GET | `/admin/reconcile/exceptions` | `LIST_EXCEPTIONS` (optional `status`/`limit`/`offset`) | bearer (SUPER_ADMIN) |
+| POST | `/admin/reconcile/acknowledge` | `ACK_EXCEPTION` (`findingId`) | bearer (SUPER_ADMIN) + step-up |
+| POST | `/admin/reconcile/resolve` | `RESOLVE_EXCEPTION` (`findingId`, optional `note`) | bearer (SUPER_ADMIN) + step-up |
 | GET | `/metrics` | — (Prometheus counters) | bearer (SUPER_ADMIN) |
 
 ### Result to HTTP mapping
