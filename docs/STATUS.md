@@ -244,11 +244,17 @@ list page size is capped at 100 (`limit` 1..100).
 ## 6. Governance documents
 
 - `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
+- `docs/TRACEABILITY.md` - requirement → control → test/evidence → owner matrix (Gate 0; checked by `tests/traceability_check.sh`), plus `docs/adr/0058-requirement-traceability.md`.
 - `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md`, `docs/adr/0008-metrics-export.md`, `docs/adr/0009-audit-retention.md`, `docs/adr/0010-worker-pool-invocation.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 
 ## 7. Known gaps (deliberate, by scale)
+
+Requirement-by-requirement status (including what is `missing` and blocked)
+lives in `docs/TRACEABILITY.md`, machine-checked by
+`tests/traceability_check.sh`. The notes below are the operator-relevant
+details behind those rows.
 
 - Password KDF is PBKDF2-SHA256 at 600000 iterations (modern guidance), overridable with the PBKDF2_ITERATIONS env var (the test suite runs at 100000). Login rehashes any legacy `SHA256_` hash or PBKDF2 hash below the current cost on a successful password check, and the derived-key comparison is constant-time.
 - Login lockout lives on the user row (`failed_logins` / `locked_until`; 3 failures sets a 15-minute block) and is **masked**: a wrong password returns the same `INVALID_CREDENTIALS` whether the account is unknown, unlocked, or locked, so it cannot enumerate or probe lock state; only a correct password reveals `ACCOUNT_LOCKED`. A good login or a password reset clears the counter. **Lockout-as-DoS model**: anyone who knows an email can keep that account login-blocked with 3 failures per 15-minute window (the block is time-based, and per-IP limits only slow a distributed attacker) — accepted because the alternative (no lockout) enables password guessing, and the errors stay masked so the attacker cannot confirm the account even exists. Lockout never kills live sessions or touches step-up (which deliberately does not count failures, so an admin under pressure cannot be wedged out of privileged writes). Recovery, in order: wait out the 15-minute window, self-service password reset (clears the counter and rotates credentials), or admin `POST /admin/unlock` (rank-gated, audited). The emailed reset itself is cooldown-throttled per account, not a flood vector.
