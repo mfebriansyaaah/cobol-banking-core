@@ -78,6 +78,7 @@
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
         01  WS-I                    PIC 9(3).
+        01  WS-J                    PIC 9(5) VALUE 0.
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
@@ -2294,9 +2295,9 @@
         TRIM-RESULT-LEN.
             *> Compute WS-RLEN = length of WS-RESULT without trailing spaces.
             MOVE 0 TO WS-RLEN
-            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
-                IF WS-RESULT(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16383 BY -1 UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
                 END-IF
             END-PERFORM
             IF WS-RLEN = 0
