@@ -714,6 +714,10 @@
                 MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            IF WS-TRANSFER-FAIL-AMOUNT
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             IF WS-TRANSFER-OK
                 PERFORM VALIDATE-HOLD-DAYS
             END-IF.
@@ -853,7 +857,10 @@
             IF WS-TRANSFER-FAIL-SENDER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-P5-LEN = 0 AND WS-RESULT NOT = "1"
+            IF WS-P5-LEN = 0 AND WS-RESULT = "0"
+                SET WS-TRANSFER-FAIL-SENDER TO TRUE
+            END-IF.
+            IF WS-P5-LEN = 0 AND WS-RESULT NOT = "0" AND WS-RESULT NOT = "1"
                 SET WS-TRANSFER-FAIL-CONFLICT TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-CONFLICT
