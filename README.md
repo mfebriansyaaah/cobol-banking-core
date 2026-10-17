@@ -1,7 +1,14 @@
 # Cobol Banking Core
 
-An enterprise-style banking core where **all business logic lives in COBOL**, with
-C and JavaScript as support only.
+A development banking-core prototype targeting a regulated-bank mission, where
+**all business logic is authoritative in COBOL** and C/JavaScript are restricted
+to infrastructure adapters and capabilities COBOL cannot provide directly.
+
+> **Regulatory status:** this repository is a development prototype, not a
+> licensed, certified, regulator-approved, or production-ready banking system.
+> Do not use it to hold customer funds or production customer data. The target
+> mission, mandatory release gates, and current capability boundary are defined
+> in `PRD_Enterprise.md`.
 
 - `cobol/bin/main_logic` — one COBOL binary. By default it reads one
   pipe-delimited request line from `input.txt` and writes one result line to
@@ -17,7 +24,8 @@ C and JavaScript as support only.
   and maps the result line to HTTP.
 - MySQL database `cobol_db`.
 
-See `docs/STATUS.md` for the full current state and `SPEC-*.md` per module.
+See `PRD_Enterprise.md` for the regulated-bank mission and release gates,
+`docs/STATUS.md` for the actual current state, and `SPEC-*.md` per module.
 
 ## Prerequisites
 
@@ -25,6 +33,10 @@ GnuCOBOL (`cobc`), `gcc`, `libmysqlclient-dev`, a MySQL/MariaDB server, the `mys
 client, and Node.js 18+ with npm.
 
 ## Quick start
+
+The commands below are for a local development prototype only. They do not
+provision a regulated production environment; production is blocked until the
+PRD release gates are approved and evidenced.
 
 ```sh
 # 1. Database: create, apply schema, seed test data, apply migrations
