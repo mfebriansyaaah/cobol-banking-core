@@ -37,6 +37,15 @@
         01  WS-REQ-STATUS           PIC X(12) VALUE SPACES.
         01  WS-DIGITS-BAD           PIC 9 VALUE 0.
         01  WS-CHECK-LEN            PIC 9(3) VALUE 0.
+        01  WS-BACKUP-CODE          PIC X(20)  VALUE SPACES.
+        01  WS-BACKUP-N             PIC 9(2)   VALUE 0.
+        01  WS-BACKUP-ID            PIC X(20)  VALUE SPACES.
+        01  WS-BACKUP-OK            PIC 9      VALUE 0.
+        01  WS-BACKUP-LIST          PIC X(100) VALUE SPACES.
+        01  WS-BACKUP-POS           PIC 9(3)   VALUE 1.
+        01  WS-CODE2                PIC X(7)   VALUE SPACES.
+        01  WS-REC-ID               PIC X(20)  VALUE SPACES.
+        01  WS-REC-STATE            PIC X(12)  VALUE SPACES.
         01  WS-NOTIF-TO             PIC X(100) VALUE SPACES.
         01  WS-NOTIF-PURPOSE        PIC X(32)  VALUE SPACES.
         01  WS-NOTIF-CODE           PIC X(20)  VALUE SPACES.
@@ -156,6 +165,8 @@
                     PERFORM MFA-ENROLL-CONFIRM-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "MFA_DISABLE"
                     PERFORM MFA-DISABLE-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "MFA_BACKUP_CODES"
+                    PERFORM MFA-BACKUP-CODES-LOGIC
                 WHEN LS-CMD-ACTION(1:10) = "CHECK_ROLE"
                     PERFORM CHECK-ROLE-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "CHANGE_ROLE"
@@ -454,6 +465,9 @@
                 MOVE WS-RESULT TO WS-MFA-SECRET
                 CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-VERIFY
                 IF WS-VERIFY NOT = "1"
+                    PERFORM CHECK-BACKUP-CODE
+                END-IF
+                IF WS-VERIFY NOT = "1" AND WS-BACKUP-OK NOT = "1"
                     PERFORM RECORD-LOGIN-FAILURE
                     MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
@@ -1136,11 +1150,167 @@
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT(1:5) = "ERROR"
+
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "DELETE FROM mfa_backup_codes WHERE user_id = (SELECT id FROM users WHERE email = ?)" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-IF.            IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|MFA_DISABLE_FAILED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "SUCCESS|MFA_DISABLED" TO LS-OUTPUT-BUFFER
             END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-BACKUP-CODES-LOGIC.
+            *> p1 = email, p2 = actor (owner). Issues 8 fresh single-use
+            *> backup codes, hashed at rest, shown exactly once. Replaces
+            *> any previous set. Requires MFA to be enabled already.
+            SET STEP-OK TO TRUE
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(mfa_enabled AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:1) NOT = "1"
+                MOVE "ERROR|MFA_NOT_ENABLED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-USER-ID
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM.
+            IF WS-ID-LEN = 0
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN"
+            MOVE "DELETE FROM mfa_backup_codes WHERE user_id = ?" TO WS-PREP-SQL
+            MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-BACKUP-LIST
+            SET STEP-OK TO TRUE
+            PERFORM VARYING WS-BACKUP-N FROM 1 BY 1 UNTIL WS-BACKUP-N > 8 OR STEP-FAIL
+                CALL "generate_random_code" USING BY REFERENCE WS-CODE
+                CALL "generate_random_code" USING BY REFERENCE WS-CODE2
+                STRING WS-CODE(1:6) WS-CODE2(1:4) DELIMITED BY SIZE INTO WS-BACKUP-CODE(1:10)
+                END-STRING
+                MOVE SPACES TO WS-PLAIN
+                MOVE WS-BACKUP-CODE(1:10) TO WS-PLAIN
+                CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
+                MOVE "INSERT INTO mfa_backup_codes (user_id, code_hash) VALUES (?, ?)" TO WS-PREP-SQL
+                MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+                MOVE WS-HASH TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    COMPUTE WS-BACKUP-POS = (WS-BACKUP-N - 1) * 11 + 1
+                    IF WS-BACKUP-N > 1
+                        STRING "," DELIMITED BY SIZE WS-BACKUP-CODE(1:10) DELIMITED BY SIZE INTO WS-BACKUP-LIST(WS-BACKUP-POS - 1:11)
+                        END-STRING
+                    ELSE
+                        MOVE WS-BACKUP-CODE(1:10) TO WS-BACKUP-LIST(1:10)
+                    END-IF
+                END-IF
+            END-PERFORM.
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, u.id, 'MFA_BACKUP_ISSUED', 'USER', u.id, 'SUCCESS' FROM users u WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|BACKUP_CODES|" WS-BACKUP-LIST(1:87) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK"
+                MOVE "ERROR|MFA_ENROLL_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHECK-BACKUP-CODE.
+            *> p1 = owner email, p3 = candidate 10-digit code. Burns the
+            *> matched row and sets WS-BACKUP-OK. Tried only after TOTP
+            *> fails, and only for login/step-up (never for enrol/disable).
+            MOVE 0 TO WS-BACKUP-OK
+            IF WS-P3-LEN NOT = 10
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR" OR WS-RESULT = "ERROR|NO_DATA"
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT TO WS-USER-ID
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM.
+            IF WS-ID-LEN = 0
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE 0 TO WS-BACKUP-N
+            PERFORM VARYING WS-BACKUP-N FROM 0 BY 1 UNTIL WS-BACKUP-N >= 8 OR WS-BACKUP-OK NOT = 0
+                MOVE "SELECT CAST(id AS CHAR), code_hash FROM mfa_backup_codes WHERE user_id = ? AND used = 0 ORDER BY id LIMIT 1 OFFSET ?" TO WS-PREP-SQL
+                MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+                MOVE WS-BACKUP-N TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT NOT = "ERROR|NO_DATA" AND WS-RESULT(1:5) NOT = "ERROR"
+                    UNSTRING WS-RESULT DELIMITED BY "|"
+                        INTO WS-BACKUP-ID WS-HASH
+                    END-UNSTRING
+                    MOVE SPACES TO WS-PLAIN
+                    MOVE WS-PARAM3-TRIMMED(1:WS-P3-LEN) TO WS-PLAIN
+                    MOVE WS-HASH TO WS-STORED
+                    CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
+                    IF WS-VERIFY = "1"
+                        MOVE "UPDATE mfa_backup_codes SET used = 1 WHERE id = ?" TO WS-PREP-SQL
+                        MOVE WS-BACKUP-ID TO WS-BIND-1
+                        CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                        CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                        IF WS-RESULT(1:5) NOT = "ERROR"
+                            MOVE 1 TO WS-BACKUP-OK
+                        END-IF
+                    END-IF
+                END-IF
+            END-PERFORM.
             EXIT PARAGRAPH.
 
         MFA-ENROLL-REQUIRED-LOGIC.
@@ -1222,6 +1392,9 @@
                 MOVE WS-RESULT TO WS-MFA-SECRET
                 CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-VERIFY
                 IF WS-VERIFY NOT = "1"
+                    PERFORM CHECK-BACKUP-CODE
+                END-IF
+                IF WS-VERIFY NOT = "1" AND WS-BACKUP-OK NOT = "1"
                     MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
                 END-IF
