@@ -50,3 +50,4 @@ c-memory 12
 seed 6
 bridge-txn 5
 resend-cooldown 7
+journal 30

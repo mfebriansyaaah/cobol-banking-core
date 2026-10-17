@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0029 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0030 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0030 - journal_entries header, ledger/audit journal link
 --   baseline-0029 - FX lookup index restored (idx_exchange_lookup)
 --   baseline-0028 - audit_trail append-only (no UPDATE)
 --   baseline-0027 - ledger durability (append-only + archive triggers)
@@ -96,6 +97,18 @@ CREATE TABLE IF NOT EXISTS accounts (
 ) ENGINE=InnoDB;
 
 -- 5. Table Ledger (Refactored for Multi-Currency & Atomic Txns)
+-- 5a. Journal header (one row per posting event: business date, source,
+-- reference, initiator; legs and audit rows point at it)
+CREATE TABLE IF NOT EXISTS journal_entries (
+    journal_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    txn_ref VARCHAR(50) NOT NULL,
+    source ENUM('TRANSFER','REVERSAL') NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    value_date DATE NOT NULL DEFAULT (CURRENT_DATE),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_journal_ref (txn_ref)
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS ledger;
 CREATE TABLE IF NOT EXISTS ledger (
     ledger_id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -107,11 +120,13 @@ CREATE TABLE IF NOT EXISTS ledger (
     from_email VARCHAR(100) NULL, -- the transfer's sender (txn_ref is unique per sender)
     description VARCHAR(255),
     exchange_rate DECIMAL(18, 6) NULL,
+    journal_id BIGINT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_ledger_amount CHECK (amount >= 0),
     KEY idx_ledger_ref_sender (txn_ref, from_email),
     CONSTRAINT fk_ledger_acc FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
-    CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id)
+    CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id),
+    CONSTRAINT fk_ledger_journal FOREIGN KEY (journal_id) REFERENCES journal_entries(journal_id)
 ) ENGINE=InnoDB;
 
 -- 6b. Immutable ledger archive (rows move here before an account is deleted)
@@ -125,6 +140,7 @@ CREATE TABLE IF NOT EXISTS ledger_archive (
     from_email VARCHAR(100) NULL,
     description VARCHAR(255),
     exchange_rate DECIMAL(18, 6) NULL,
+    journal_id BIGINT NULL,
     created_at TIMESTAMP NULL,
     archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     KEY idx_ledger_archive_account (account_id)
@@ -151,6 +167,7 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     entity_type VARCHAR(50), -- Example: 'ACCOUNT', 'LEDGER', 'USER'
     entity_id VARCHAR(50),   -- ID of the changed entity
     detail VARCHAR(255),     -- free-form context (e.g. transfer "to:amount:currency")
+    journal_id BIGINT NULL, -- the journal_entries row for money movements
     status ENUM('SUCCESS', 'FAILED') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     KEY idx_audit_action (action),
@@ -168,6 +185,7 @@ CREATE TABLE IF NOT EXISTS audit_trail_archive (
     entity_id VARCHAR(50),
     detail VARCHAR(255),
     status ENUM('SUCCESS', 'FAILED') NOT NULL,
+    journal_id BIGINT NULL,
     created_at TIMESTAMP,
     archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     KEY idx_archive_created (created_at)
@@ -286,7 +304,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0026_ledger_sender'),
 ('0027_ledger_integrity'),
 ('0028_audit_append_only'),
-('0029_fx_lookup_index');
+('0029_fx_lookup_index'),
+('0030_journal_entries');
 
 
 -- Indexes
@@ -306,8 +325,8 @@ DELIMITER //
 CREATE TRIGGER IF NOT EXISTS trg_audit_snapshot_user_delete BEFORE DELETE ON users
 FOR EACH ROW
 BEGIN
-    INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at)
-    SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, created_at
+    INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at)
+    SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at
     FROM audit_trail WHERE user_id = OLD.id;
 END//
 DELIMITER ;
@@ -335,8 +354,8 @@ END//
 CREATE TRIGGER IF NOT EXISTS trg_ledger_archive_account BEFORE DELETE ON accounts
 FOR EACH ROW
 BEGIN
-    INSERT IGNORE INTO ledger_archive (ledger_id, txn_ref, account_id, amount, type, currency_id, from_email, description, exchange_rate, created_at)
-    SELECT ledger_id, txn_ref, account_id, amount, type, currency_id, from_email, description, exchange_rate, created_at
+    INSERT IGNORE INTO ledger_archive (ledger_id, txn_ref, account_id, amount, type, currency_id, from_email, description, exchange_rate, journal_id, created_at)
+    SELECT ledger_id, txn_ref, account_id, amount, type, currency_id, from_email, description, exchange_rate, journal_id, created_at
     FROM ledger WHERE account_id = OLD.account_id;
 END//
 DELIMITER ;
