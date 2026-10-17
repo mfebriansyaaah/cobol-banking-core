@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0034 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0035 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0035 - MFA backup codes and recovery requests
 --   baseline-0034 - transactional notification outbox
 --   baseline-0033 - dual-control designation and maker requests
 --   baseline-0032 - reconciliation runs (immutable) and findings
@@ -155,7 +156,7 @@ CREATE TABLE IF NOT EXISTS verification_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL,
     code VARCHAR(6) NOT NULL,
-    purpose ENUM('SIGNUP', 'EMAIL_CHANGE', 'PASSWORD_RESET') NOT NULL,
+    purpose ENUM('SIGNUP', 'EMAIL_CHANGE', 'PASSWORD_RESET', 'MFA_RECOVERY') NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     is_used BOOLEAN DEFAULT FALSE,
     attempts INT NOT NULL DEFAULT 0,
@@ -328,6 +329,30 @@ CREATE TABLE IF NOT EXISTS notification_outbox (
     KEY idx_outbox_due (state, next_attempt_at, created_at)
 ) ENGINE=InnoDB;
 
+-- 9g. MFA backup codes (hashed, single-use) and recovery requests
+CREATE TABLE IF NOT EXISTS mfa_backup_codes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    code_hash VARCHAR(255) NOT NULL,
+    used BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_backup_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    KEY idx_backup_user (user_id, used)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS mfa_recovery_requests (
+    request_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    state ENUM('PENDING','VERIFIED','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    decided_at TIMESTAMP NULL,
+    decided_by INT NULL,
+    CONSTRAINT fk_recovery_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    KEY idx_recovery_state (state)
+) ENGINE=InnoDB;
+
 -- 10. Table Refresh Sessions (JWT refresh-token revocation by jti)
 CREATE TABLE IF NOT EXISTS refresh_sessions (
     jti VARCHAR(50) PRIMARY KEY,
@@ -406,7 +431,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0031_holds_fees'),
 ('0032_reconciliation_runs'),
 ('0033_dual_control'),
-('0034_notification_outbox');
+('0034_notification_outbox'),
+('0035_mfa_recovery');
 
 
 -- Indexes
