@@ -70,6 +70,7 @@ export function createMailer({ logger = null } = {}) {
   }
 
   return {
+    deliver,
     async sendVerification({ to, purpose, code }) {
       const sent = await deliver({
         from: mailerFrom(),

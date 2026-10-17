@@ -1,6 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
+import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { seedUser, seedAccount, seedManyUsers, getVerificationCode, runSql, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
@@ -1023,6 +1027,51 @@ test('dual control gates designated operations', async () => {
     assert.ok(listed.body.data.slice(2).join(';').includes(`${reqId}:CHANGE_ROLE`), 'the approved request is listed');
   } finally {
     requireSeed(runSql(`DELETE FROM maker_requests WHERE maker_email IN ('${maker}','${checker}'); DELETE FROM dual_control_operations WHERE operation = 'CHANGE_ROLE';`), 'undesignate role changes');
+  }
+});
+
+test('verification codes flow through the outbox', async () => {
+  const em = `gw_ob_${Date.now()}@test.com`;
+  const admin = `gw_ob_adm_${Date.now()}@test.com`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed outbox admin');
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+
+  const signup = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Outbox', dob: '1990-01-01' });
+  assert.equal(signup.status, 200);
+
+  // The signup queued a PENDING row, without exposing the code.
+  const queued = await request(app).get('/admin/outbox').set('Authorization', `Bearer ${adminToken}`).query({ status: 'PENDING' });
+  assert.equal(queued.status, 200);
+  assert.equal(queued.body.data[0], 'OUTBOX');
+  assert.ok(!JSON.stringify(queued.body).includes(getVerificationCode(em) ?? 'no-such-code'), 'the code is never exposed');
+  assert.ok(queued.body.data.slice(2).join(';').includes(em), 'the signup row is queued');
+
+  // The worker delivers it; the delivered code verifies the account.
+  const dir = await mkdtemp(path.join(tmpdir(), 'gw-ob-'));
+  try {
+    const logFile = path.join(dir, 'outbox.log');
+    const workerPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'outbox_worker.js');
+    const runWorker = () => new Promise((resolve, reject) => {
+      execFile('node', [workerPath, '--once', '--limit', '500'], {
+        env: { ...process.env, OUTBOX_TRANSPORT: 'log', OUTBOX_LOG_FILE: logFile },
+      }, (err, stdout) => (err ? reject(err) : resolve(stdout)));
+    });
+    // Other suites run in parallel and share the outbox; keep dispatching
+    // until our row is delivered (bounded; residue is finite per run).
+    let delivered = null;
+    let dbgRounds = [];
+    for (let r = 0; r < 8 && !delivered; r++) {
+      const out = await runWorker();
+      const lines = (await readFile(logFile, 'utf8')).trim().split('\n').map((x) => JSON.parse(x));
+      delivered = lines.find((x) => x.to === em);
+      dbgRounds.push({ r, newLines: lines.length, outLen: String(out).length });
+      if (r === 7) console.log('DBG-OUTBOX-LOOP ' + JSON.stringify({ em, dbgRounds, totalLines: lines.length }));
+    }
+    assert.ok(delivered, 'our row was delivered');
+    const verify = await request(app).post('/auth/verify').send({ email: em, code: delivered.text.match(/\d{6}/)[0] });
+    assert.equal(verify.body.data[0], 'EMAIL_VERIFIED');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
   }
 });
 
