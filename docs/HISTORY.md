@@ -2238,3 +2238,16 @@ _merged 2026-10-17_
 - feat(gateway): GET /statements endpoint with parsed lines
 - feat(statements): read-only STATEMENT action with opening/closing balances
 
+## #219 gate2-disputes
+
+_merged 2026-10-17_
+
+- docs(disputes): ADR 0067, status, traceability, and specs
+- chore(disputes): wire disputes suite into CI as step 53
+- test(disputes): gateway e2e plus baseline and status counts
+- test(disputes): ticket lifecycle suite with authz and immutability
+- feat(gateway): dispute ticket endpoints with parsed views
+- fix(disputes): allow cascade delete of messages, keep update-immutability
+- feat(disputes): open/note/ack/resolve/reject/list/get actions in COBOL
+- feat(disputes): dispute cases and append-only messages, migration 0036
+
