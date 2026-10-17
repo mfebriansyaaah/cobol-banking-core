@@ -3059,8 +3059,12 @@
                         BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                     CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                     IF WS-RESULT = "ERROR|NO_DATA"
-                        *> Fall back to the inverse pair, if any.
-                        MOVE "SELECT CAST(ROUND(1 / exchange_rate, 6) AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
+                        *> Fall back to the inverse pair, if any. The reciprocal
+                        *> must carry enough precision that the credited amount
+                        *> is exact at the target currency's precision even at
+                        *> scale, so it is scaled explicitly (a plain ROUND to 6
+                        *> decimals over-credits by ~0.5%).
+                        MOVE "SELECT CAST(CAST(1 AS DECIMAL(30,20)) / exchange_rate AS DECIMAL(30,18)) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
                         MOVE WS-TARGET-CUR TO WS-BIND-1
                         MOVE WS-SENDER-CUR TO WS-BIND-2
                         CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
