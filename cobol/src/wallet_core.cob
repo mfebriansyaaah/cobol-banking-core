@@ -380,7 +380,7 @@
             UNSTRING WS-RESULT DELIMITED BY "|"
                 INTO WS-SENDER-ACC WS-REV-AMT WS-SENDER-CUR
             END-UNSTRING
-            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'CREDIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(l.currency_id AS CHAR), CAST(exchange_rate AS CHAR), CAST(c.prec_val AS CHAR) FROM ledger l JOIN currencies c ON c.currency_id = l.currency_id WHERE txn_ref = ? AND type = 'CREDIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-REV-FROM TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -392,7 +392,8 @@
                 EXIT PARAGRAPH
             END-IF
             UNSTRING WS-RESULT DELIMITED BY "|"
-                INTO WS-TARGET-ACC WS-REV-CAMT WS-TARGET-CUR
+                INTO WS-TARGET-ACC WS-REV-CAMT WS-TARGET-CUR WS-RATE-STR
+                     WS-TARGET-PREC
             END-UNSTRING
             SET WS-TRANSFER-OK TO TRUE
             CALL "SQL_BEGIN"
@@ -422,7 +423,31 @@
                 MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            SET STEP-OK TO TRUE
+            SET STEP-OK TO TRUE.
+            *> Open the journal header for this reversal; legs and the audit
+            *> row below point at it through the connection-scoped @jid.
+            IF STEP-OK
+                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'REVERSAL', ?)" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
             *> One-time marker (PK on orig_ref): a duplicate means already reversed.
             MOVE "INSERT INTO transfer_reversals (orig_ref, from_email, actor_id) SELECT ?, ?, id FROM users WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
@@ -460,22 +485,23 @@
                 END-IF
             END-IF
             IF STEP-OK
-                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'Reversal in', ?)" TO WS-PREP-SQL
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'Reversal in', ?, @jid, ?)" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 MOVE WS-REV-AMT TO WS-BIND-3
                 MOVE WS-SENDER-CUR TO WS-BIND-4
-                MOVE WS-REV-FROM TO WS-BIND-5
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                MOVE WS-RATE-STR TO WS-BIND-5
+                MOVE WS-REV-FROM TO WS-BIND-6
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF
             IF STEP-OK
-                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'Reversal out', ?)" TO WS-PREP-SQL
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'Reversal out', 1, @jid, ?)" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-TARGET-ACC TO WS-BIND-2
                 MOVE WS-REV-CAMT TO WS-BIND-3
@@ -499,7 +525,7 @@
                 MOVE WS-RESULT TO WS-BIND-1
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
                 MOVE WS-REV-FROM TO WS-BIND-3
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, detail, status) VALUES (?, 'REVERSE_TRANSFER', 'LEDGER', ?, ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, detail, status, journal_id) VALUES (?, 'REVERSE_TRANSFER', 'LEDGER', ?, ?, 'SUCCESS', @jid)" TO WS-PREP-SQL
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                     BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
@@ -508,6 +534,17 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF
+            *> Every leg is written against the open journal; verify the
+            *> journal balances before anything becomes durable. The guard
+            *> flag is shared with TRANSFER-LOGIC, so reset it first: in
+            *> serve mode Working-Storage survives across requests.
+            SET WS-TRANSFER-OK TO TRUE.
+            IF STEP-OK
+                PERFORM VERIFY-JOURNAL-BALANCED
+            END-IF.
+            IF WS-TRANSFER-FAIL-DB
+                SET STEP-FAIL TO TRUE
+            END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT"
                 MOVE "SUCCESS|TRANSFER_REVERSED" TO LS-OUTPUT-BUFFER
@@ -709,21 +746,16 @@
 
         VERIFY-JOURNAL-BALANCED.
             *> Pre-commit guard: the journal must hold exactly one DEBIT leg
-            *> and one CREDIT leg whose amounts agree — exact equality within
-            *> one currency, debit times rate rounded to the target precision
-            *> across currencies. A violation rolls the whole posting back.
-            IF WS-SENDER-CUR = WS-TARGET-CUR
-                MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND SUM(CASE WHEN type='DEBIT' THEN amount ELSE -amount END)=0,'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            ELSE
-                MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND MAX(CASE WHEN type='CREDIT' THEN amount END) = ROUND(MAX(CASE WHEN type='DEBIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?),'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
-                MOVE WS-TARGET-PREC TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            END-IF.
+            *> and one CREDIT leg whose amounts agree through the snapshotted
+            *> rate — in either direction, so one paragraph serves transfers
+            *> (credit = debit x rate) and reversals (debit = credit x rate).
+            *> A violation rolls the whole posting back.
+            MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND (MAX(CASE WHEN type='CREDIT' THEN amount END) = ROUND(MAX(CASE WHEN type='DEBIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?) OR MAX(CASE WHEN type='DEBIT' THEN amount END) = ROUND(MAX(CASE WHEN type='CREDIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?)),'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
+            MOVE WS-TARGET-PREC TO WS-BIND-1
+            MOVE WS-TARGET-PREC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "BALANCED"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -1197,15 +1229,16 @@
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
-                ELSE
-                    MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
-                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                    IF WS-RESULT(1:5) = "ERROR"
-                        SET WS-TRANSFER-FAIL-DB TO TRUE
-                    END-IF
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF.
             *> Debit sender, rounded to its currency precision.
