@@ -31,9 +31,24 @@ processor, or regulatory authority. These require explicit integrations,
 contracts, owners, and jurisdiction-specific requirements; they must not be
 represented as implemented merely because an API seam exists.
 
-The COBOL/C/Node.js architecture is an implementation choice, not a product
-requirement. Business invariants must have one authoritative implementation
-and must not be duplicated inconsistently across transports.
+**COBOL is the mandatory and sole authority for business logic.** This is an
+architectural requirement, not an implementation preference. Business logic
+includes financial calculations and postings, account/product state
+transitions, eligibility, limits, pricing/fees, fraud/compliance decisions,
+and business authorization. C, Node.js, SQL triggers, jobs, and integrations
+must not independently make or alter these decisions. If another component
+must enforce a technical boundary, COBOL must remain the final authoritative
+decision point and the behavior must be covered by cross-boundary tests.
+
+Other languages and infrastructure are permitted only as supporting adapters
+for capabilities COBOL does not provide directly: HTTP/network transport,
+process management, database-driver access, cryptographic primitives,
+queue/provider clients, serialization, and observability. They may perform
+syntax/size validation and defense-in-depth checks, but domain validation and
+business outcomes must be implemented and enforced in COBOL. A capability
+must not be moved out of COBOL merely for convenience; any technical exception
+requires an explicit ADR, security/finance review, and proof that COBOL remains
+the source of truth.
 
 ## 3. Regulatory and governance prerequisites
 
