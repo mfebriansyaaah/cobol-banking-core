@@ -1,10 +1,11 @@
 -- E-Wallet Enterprise Secure Database Schema
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
--- Version: baseline-0036 (fresh-install snapshot; see the baseline block by
+-- Version: baseline-0037 (fresh-install snapshot; see the baseline block by
 --   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
 --       with database/migrate.sh. See docs/STATUS.md for schema details.
+--   baseline-0037 - ledger exchange rate precision
 --   baseline-0036 - dispute cases and messages
 --   baseline-0035 - MFA backup codes and recovery requests
 --   baseline-0034 - transactional notification outbox
@@ -125,7 +126,7 @@ CREATE TABLE IF NOT EXISTS ledger (
     currency_id INT NOT NULL,
     from_email VARCHAR(100) NULL, -- the transfer's sender (txn_ref is unique per sender)
     description VARCHAR(255),
-    exchange_rate DECIMAL(18, 6) NULL,
+    exchange_rate DECIMAL(30, 18) NULL,
     journal_id BIGINT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_ledger_amount CHECK (amount >= 0),
@@ -145,7 +146,7 @@ CREATE TABLE IF NOT EXISTS ledger_archive (
     currency_id INT NOT NULL,
     from_email VARCHAR(100) NULL,
     description VARCHAR(255),
-    exchange_rate DECIMAL(18, 6) NULL,
+    exchange_rate DECIMAL(30, 18) NULL,
     journal_id BIGINT NULL,
     created_at TIMESTAMP NULL,
     archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -477,7 +478,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0033_dual_control'),
 ('0034_notification_outbox'),
 ('0035_mfa_recovery'),
-('0036_disputes');
+('0036_disputes'),
+('0037_ledger_rate_precision');
 
 
 -- Indexes

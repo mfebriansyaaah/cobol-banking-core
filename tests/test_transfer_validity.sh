@@ -84,7 +84,7 @@ check "fx sender debited in its currency" "900.0000" "$(q "SELECT balance FROM a
 check "fx target credited at the rate" "1570000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=961;")"
 check "fx debit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=1 AND type='DEBIT' AND amount=100.00;")"
 check "fx credit ledger row" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE account_id=961 AND type='CREDIT' AND amount=1570000.00;")"
-check "fx rate is snapshotted on the ledger" "15700.000000" "$(q "SELECT exchange_rate FROM ledger WHERE account_id=961 AND type='CREDIT';")"
+check "fx rate is snapshotted on the ledger" "15700.000000000000000000" "$(q "SELECT exchange_rate FROM ledger WHERE account_id=961 AND type='CREDIT';")"
 
 # IDR has zero minor units, so the converted credit is a whole number.
 setup
