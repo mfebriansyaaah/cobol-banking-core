@@ -291,6 +291,7 @@ list page size is capped at 100 (`limit` 1..100).
 - `docs/TRACEABILITY.md` - requirement → control → test/evidence → owner matrix (Gate 0; checked by `tests/traceability_check.sh`), plus `docs/adr/0058-requirement-traceability.md`.
 - `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md`, `docs/adr/0008-metrics-export.md`, `docs/adr/0009-audit-retention.md`, `docs/adr/0010-worker-pool-invocation.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
+- `docs/BUILD_WARNINGS.md` - build-warning triage and the CI warning ratchet (`tests/warning_check.sh`, `tests/warning_baseline.txt`).
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 
 ## 7. Known gaps (deliberate, by scale)
