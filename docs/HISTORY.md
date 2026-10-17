@@ -2322,3 +2322,9 @@ _merged 2026-10-18_
 
 - docs(adr): draft FX rounding, fee-reversal, and rate-validity decisions
 
+## #228 fx-policy-decision-fill
+
+_merged 2026-10-18_
+
+- docs(adr): record the FX/fee/rate decisions (D1 book residual, D2 refund by reason, D3 window)
+
