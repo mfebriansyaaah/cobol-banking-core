@@ -2185,3 +2185,15 @@ _merged 2026-10-17_
 - feat(recon): RUN_RECONCILIATION recorded runs
 - feat(recon): reconciliation runs and findings tables, migration 0032
 
+## #215 gate2-dual-control
+
+_merged 2026-10-17_
+
+- docs(dual): ADR-0063, matrix row, status, specs, PRD boundary
+- chore(dual): wire dual-control suite into CI as step 37
+- feat(gateway): dual-control endpoints, OPERATION patterns, contract test
+- test(dual): dual-control request and approval suite
+- feat(dual): gate CHANGE_ROLE behind designation, DUAL_CONTROL_REQUIRED
+- feat(dual): REQUEST/APPROVE/REJECT/LIST actions
+- feat(dual): maker requests and designation tables, migration 0033
+
