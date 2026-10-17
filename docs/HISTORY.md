@@ -2309,3 +2309,10 @@ _merged 2026-10-17_
 - test(seed): back seeded balances with matching ledger rows
 - test(seed): reproduce seeded balances that ignore the ledger
 
+## #226 build-warning-ratchet
+
+_merged 2026-10-17_
+
+- docs(build): triage the COBOL warning classes and document the ratchet
+- chore(build): freeze the COBOL warning count with a per-class ratchet
+
