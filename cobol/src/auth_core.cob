@@ -1235,7 +1235,19 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            
+            *> A designated operation cannot run directly: it must travel
+            *> the maker-checker request path instead.
+            MOVE "SELECT COUNT(*) FROM dual_control_operations WHERE operation = 'CHANGE_ROLE'" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT NOT = "0"
+                MOVE "ERROR|DUAL_CONTROL_REQUIRED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             *> The new role must be one of the known roles.
             MOVE "SELECT 1 WHERE ? IN ('USER','MANAGER','SUPER_ADMIN')" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
