@@ -2197,3 +2197,17 @@ _merged 2026-10-17_
 - feat(dual): REQUEST/APPROVE/REJECT/LIST actions
 - feat(dual): maker requests and designation tables, migration 0033
 
+## #216 gate2-outbox
+
+_merged 2026-10-17_
+
+- chore(outbox): worker under src/, env docs, test robustness
+- docs(outbox): ADR-0064, matrix row, status, specs, PRD boundary
+- chore(outbox): wire outbox suite into CI as step 38
+- chore(outbox): gateway count 107 to 108
+- feat(gateway): outbox-owned delivery, LIST_OUTBOX endpoint
+- test(outbox): transactional outbox and worker dispatch suite
+- fix(outbox): full multi-row output and worker row parsing
+- feat(outbox): enqueue in signup/resend/forgot/email flows, claim/mark/list actions
+- feat(outbox): notification outbox table, migration 0034
+
