@@ -81,80 +81,94 @@ invariant, bypass evidence, or claim compliance without accountable approval.
     release resources, avoid undefined behavior, and fail closed for security-
     critical entropy or integrity operations. Run sanitizer tests for memory
     boundary changes.
-21. **Keep business invariants authoritative.** Transport code may validate
-    shape and authenticate requests; financial decisions, authorization
-    policy, posting, and state transitions must not be duplicated in a way that
-    permits inconsistent outcomes.
+21. **All business logic is implemented and decided in COBOL.** COBOL is the
+    mandatory, sole authority for financial calculations/postings, business
+    authorization, eligibility, limits, pricing/fees, fraud/compliance
+    outcomes, and business state transitions. C, JavaScript, SQL triggers,
+    stored procedures, jobs, and external integrations must not implement or
+    override these rules. If a technical layer performs defense-in-depth
+    checks, COBOL must independently enforce the authoritative rule and tests
+    must prove both paths agree.
+22. **Other languages are infrastructure adapters only.** C/JavaScript may
+    implement capabilities COBOL does not provide directly (HTTP/network and
+    process transport, database-driver calls, cryptographic primitives,
+    serialization, queues/provider clients, and observability), plus
+    syntactic/size validation and safe error mapping. They must not decide
+    business outcomes for convenience. Any exception requires an approved ADR,
+    security and finance review, an explicit scope, and tests proving that
+    COBOL remains the source of truth. A capability that COBOL can provide
+    must be implemented there unless an approved exception documents why it
+    cannot safely do so.
 
 ## 4. SQL and database
 
-22. **Name columns explicitly.** No `SELECT *`, positional schema assumptions,
+23. **Name columns explicitly.** No `SELECT *`, positional schema assumptions,
     or inserts without a column list.
-23. **Indexes and constraints are product controls.** Add/retain constraints
+24. **Indexes and constraints are product controls.** Add/retain constraints
     for uniqueness, references, valid state, and nonnegative/valid amounts.
     A performance or integrity constraint change must include evidence and a
     migration test.
-24. **Do not hide database errors.** A migration or posting failure must be
+25. **Do not hide database errors.** A migration or posting failure must be
     attributable, must not be recorded as successful, and must have a defined
     retry/recovery behavior. Never swallow errors merely to make CI pass.
 
 ## 5. API, identity, and security
 
-25. **Identity comes from verified credentials.** Actor/sender/subject identity
+26. **Identity comes from verified credentials.** Actor/sender/subject identity
     used for authorization comes from the verified token or trusted service
     context, never a caller-controlled body field.
-26. **Validate before invoking COBOL.** Reject malformed fields and composed
+27. **Validate before invoking COBOL.** Reject malformed fields and composed
     records exceeding the fixed input buffer before invocation. Keep explicit
     body, timeout, queue, and rate limits.
-27. **Preserve neutral responses.** Authentication, recovery, and enrollment
+28. **Preserve neutral responses.** Authentication, recovery, and enrollment
     flows must not reveal account existence or secret state without an approved
     policy exception and threat analysis.
-28. **No secrets in logs, errors, or fixtures.** Redact tokens, passwords,
+29. **No secrets in logs, errors, or fixtures.** Redact tokens, passwords,
     verification/MFA codes, connection strings, and unnecessary PII. Public
     errors must not expose SQL, stack traces, or internal paths.
-29. **Configuration is discoverable and checked.** Every environment variable
+30. **Configuration is discoverable and checked.** Every environment variable
     read by gateway or core must have a documented default/meaning in
     `middleware/.env.example`; `tests/env_check.sh` is mandatory.
-30. **Access changes are revocable.** Role/status/password/MFA/session changes
+31. **Access changes are revocable.** Role/status/password/MFA/session changes
     must explicitly define effects on current access and refresh sessions, and
     test those effects.
 
 ## 6. Tests and evidence
 
-31. **Every requirement has a test/evidence link.** Add deterministic unit,
+32. **Every requirement has a test/evidence link.** Add deterministic unit,
     integration, negative, authorization, and failure-path tests appropriate to
     the risk. Money movement requires balance/journal assertions, not just HTTP
     status assertions.
-32. **Tests are order-independent and isolated.** Reset only their own
+33. **Tests are order-independent and isolated.** Reset only their own
     synthetic fixtures; use unique identifiers. No shared seeded-row mutation
     may make another suite pass or fail accidentally.
-33. **No silent skips or swallowed failures.** A missing dependency, seed, or
+34. **No silent skips or swallowed failures.** A missing dependency, seed, or
     required service must fail the relevant suite. Do not use `set +e`, ignored
     exit codes, `|| true`, or broad redirection to conceal a failure.
-34. **Keep count and contract baselines current.** Update
+35. **Keep count and contract baselines current.** Update
     `tests/baseline_counts.txt`, `docs/STATUS.md`, and the relevant contract
     tests together when assertions intentionally change. Any decrease needs an
     explicit reason.
-35. **Run the full gate.** `./ci.sh` must finish `ALL GREEN`. Targeted tests do
+36. **Run the full gate.** `./ci.sh` must finish `ALL GREEN`. Targeted tests do
     not substitute for the full suite before a PR.
-36. **Negative controls for guardrails.** New static/contract checks should
+37. **Negative controls for guardrails.** New static/contract checks should
     demonstrate that a deliberately broken fixture is rejected, where
     practical, so a vacuous checker cannot pass.
-37. **Shell suite convention.** Each shell suite remains self-contained with
+38. **Shell suite convention.** Each shell suite remains self-contained with
     local helpers and explicit assertion accounting; shared helpers are not
     introduced without demonstrating that they reduce, rather than multiply,
     failure coupling.
 
 ## 7. Review and communication
 
-38. **English repository artifacts.** Source, comments, docs, commit messages,
+39. **English repository artifacts.** Source, comments, docs, commit messages,
     and PR text are in English. User-facing discussion may use the user's
     language.
-39. **Atomic, reviewable commits.** One logical change per commit; no generated
+40. **Atomic, reviewable commits.** One logical change per commit; no generated
     binaries, local secrets, temporary fixtures, or unrelated cleanup.
-40. **Document deliberate gaps.** A known limitation must name impact, scope,
+41. **Document deliberate gaps.** A known limitation must name impact, scope,
     mitigation, owner/decision if known, and exit criteria. Do not label a
     deferred control “complete.”
-41. **No direct integration-branch commits.** Work on a topic branch and merge
+42. **No direct integration-branch commits.** Work on a topic branch and merge
     through review. The only local `main` commit permitted is the generated
     post-merge `docs: sync HISTORY.md ...` sync.
