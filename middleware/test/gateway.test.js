@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { execFile } from 'node:child_process';
@@ -7,6 +7,13 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
+
+// Remove the users this suite created (their accounts, ledger rows, sessions
+// and pending intents cascade away) so the shared test database is left
+// consistent: a lingering seeded account with no ledger row would otherwise
+// show up as a false reconciliation mismatch once another suite wipes the
+// ledger.
+after(() => runSql("DELETE FROM users WHERE email LIKE 'gw\\_%'"));
 import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
 
 const app = buildApp();

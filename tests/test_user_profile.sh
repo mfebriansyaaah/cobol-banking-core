@@ -142,6 +142,11 @@ q "INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (
 check "confirm race reports EMAIL_EXISTS" "ERROR|EMAIL_EXISTS" "$(run CONFIRM_EMAIL_CHANGE "$RU" "$RN" "$rc" "$RU")"
 q "DELETE FROM verification_logs WHERE email IN ('$RU','$RN'); DELETE FROM users WHERE email IN ('$RU','$RN');"
 
+# Leave no fixtures behind: a lingering seeded balance would show up as a false
+# reconciliation mismatch once another suite wipes the ledger.
+q "DELETE FROM verification_logs WHERE email LIKE 'prof%';
+   DELETE FROM users WHERE id IN (950,951,953,954);"
+
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"
