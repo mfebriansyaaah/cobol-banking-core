@@ -233,6 +233,7 @@ CREATE TABLE IF NOT EXISTS transfer_reversals (
     orig_ref VARCHAR(50) NOT NULL,
     from_email VARCHAR(100) NOT NULL DEFAULT '', -- the original sender (ref is per-sender)
     actor_id INT NOT NULL,
+    reason VARCHAR(100) NULL, -- reversal reason selecting the fee-refund policy (D2)
     reversed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (orig_ref, from_email),
     CONSTRAINT fk_reversal_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE
@@ -264,7 +265,18 @@ CREATE TABLE IF NOT EXISTS fee_schedule (
         REFERENCES currencies(currency_id)
 ) ENGINE=InnoDB;
 
--- 9d. Recorded reconciliation runs (immutable) and exception findings
+-- 9d. Reversal fee-refund policy (D2: reason -> refund yes/no, data not code)
+CREATE TABLE IF NOT EXISTS reversal_fee_policy (
+    reason VARCHAR(100) PRIMARY KEY,
+    refund_fee TINYINT(1) NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT IGNORE INTO reversal_fee_policy (reason, refund_fee) VALUES
+('BANK_ERROR', 1),
+('CUSTOMER_ERROR', 0);
+
+-- 9e. Recorded reconciliation runs (immutable) and exception findings
 CREATE TABLE IF NOT EXISTS reconciliation_runs (
     run_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     trigger_src ENUM('MANUAL','SCHEDULED') NOT NULL,
@@ -479,7 +491,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0034_notification_outbox'),
 ('0035_mfa_recovery'),
 ('0036_disputes'),
-('0037_ledger_rate_precision');
+('0037_ledger_rate_precision'),
+('0038_reversal_fee_policy');
 
 
 -- Indexes
