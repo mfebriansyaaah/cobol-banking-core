@@ -30,7 +30,7 @@ mfa 20
 sessions-manage 19
 account-status 13
 transfer-limits 27
-reversal 45
+reversal 77
 observability 7
 lifecycle 15
 rotation 20
