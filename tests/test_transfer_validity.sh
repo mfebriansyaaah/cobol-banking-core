@@ -17,14 +17,17 @@ passed=0; failed=0
 q() { mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "$1" 2>/dev/null; }
 
 setup() {
-    q "DELETE FROM accounts WHERE account_id IN (961,963);
-       DELETE FROM users WHERE id IN (961,963);
+    q "DELETE FROM accounts WHERE account_id IN (961,963,996,997);
+       DELETE FROM users WHERE id IN (961,963,996);
        INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
        (961,'idr_validity@test.com','x','IDR User','1990-01-01','VERIFIED','USER'),
-       (963,'eur_validity@test.com','x','EUR User','1990-01-01','VERIFIED','USER');
+       (963,'eur_validity@test.com','x','EUR User','1990-01-01','VERIFIED','USER'),
+       (996,'fx_bank@test.com','x','FX Bank','1990-01-01','VERIFIED','USER');
        INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES
        (961,961,3,0.00,'SAVINGS'),
-       (963,963,2,0.00,'SAVINGS');
+       (963,963,2,0.00,'SAVINGS'),
+       (996,996,1,1000.00,'FX_PNL'),
+       (997,996,2,1000.00,'FX_PNL');
        UPDATE accounts SET balance=1000.00 WHERE account_id=1;
        UPDATE accounts SET balance=0.00 WHERE account_id=2;
        DELETE FROM ledger;
@@ -32,7 +35,7 @@ setup() {
 q "UPDATE exchange_rates SET updated_at = NOW();"
 }
 
-teardown() { q "DELETE FROM accounts WHERE account_id IN (961,963); DELETE FROM users WHERE id IN (961,963);"; }
+teardown() { q "DELETE FROM accounts WHERE account_id IN (961,963,996,997); DELETE FROM users WHERE id IN (961,963,996);"; }
 
 run() {
     printf "%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" > input.txt
@@ -106,6 +109,36 @@ q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
 check "fx inverse converts exactly" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 100000 "")"
 check "fx inverse credit is 6.37 USD" "6.3700" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
 check "fx inverse ledger credit is 6.37" "6.3700" "$(q "SELECT amount FROM ledger WHERE account_id=2 AND type='CREDIT';")"
+
+# D1 residual to FX_PNL: 1.01 USD -> EUR @0.92 posts 0.93; the -0.0008
+# shortfall (loss) debits the EUR FX gain/loss account.
+setup
+check "fx loss transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com eur_validity@test.com 1.01 "")"
+check "fx loss credit rounded" "0.9300" "$(q "SELECT balance FROM accounts WHERE account_id=963;")"
+check "fx loss booked to pnl" "999.9992" "$(q "SELECT balance FROM accounts WHERE account_id=997;")"
+check "fx loss leg amount" "0.0008" "$(q "SELECT amount FROM ledger WHERE account_id=997 AND description='FX loss';")"
+
+# 1.10 USD -> EUR @0.92 posts 1.01; the +0.002 leftover (gain) credits it.
+setup
+check "fx gain transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com eur_validity@test.com 1.10 "")"
+check "fx gain credit rounded" "1.0100" "$(q "SELECT balance FROM accounts WHERE account_id=963;")"
+check "fx gain booked to pnl" "1000.0020" "$(q "SELECT balance FROM accounts WHERE account_id=997;")"
+check "fx gain leg amount" "0.0020" "$(q "SELECT amount FROM ledger WHERE account_id=997 AND description='FX gain';")"
+
+# Exact postings carry no residual and need no FX_PNL account.
+setup
+q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
+check "fx uses the inverse rate" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 15700 "")"
+check "exact posting writes no residual" "0" "$(q "SELECT COUNT(*) FROM ledger WHERE description IN ('FX gain','FX loss');")"
+
+# Missing FX_PNL account fails the transfer closed (GBP has none).
+setup
+q "INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (998,'gbp_validity@test.com','x','GBP User','1990-01-01','VERIFIED','USER');
+   INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES (998,998,4,0.00,'SAVINGS');"
+check "missing FX_PNL fails closed" "ERROR|DB_ERROR" "$(run TRANSFER sender@test.com gbp_validity@test.com 1.01 "")"
+check "failed transfer moved nothing" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "failed transfer wrote no ledger" "0" "$(q "SELECT COUNT(*) FROM ledger;")"
+q "DELETE FROM accounts WHERE account_id=998; DELETE FROM users WHERE id=998;"
 
 # Rate too old -> rejected (rate validity window D3). 30 hours > 24h max age.
 setup
