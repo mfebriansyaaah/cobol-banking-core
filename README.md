@@ -163,8 +163,22 @@ Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
 - `SPEC-wallet-core.md`, `SPEC-auth-identity.md`, `SPEC-user-profile.md`,
   `SPEC-api-gateway.md` — per-module as-built behaviour and gaps.
 - `docs/STATUS.md` — current-state snapshot; `docs/HISTORY.md` — merged phases.
-- `docs/adr/` — architecture decisions.
+- `docs/adr/` — architecture decisions (incl. `docs/adr/0072-fx-fee-rate-policy.md`).
 - `database/migrate.sh` — versioned schema migrations.
+
+## Recent controls worth knowing about
+- **Cross-currency transfers** book their rounding residual (exact value minus
+  the posted credit, at 4-decimal ledger scale) to a bank-owned `FX_PNL`
+  account in the same journal; exact postings carry no residual leg. A rate
+  older than `RATE_MAX_AGE_SECONDS` (default 24h) is rejected with
+  `ERROR|RATE_STALE` (HTTP 409).
+- **Transfer reversals** require a reason. A fee is refunded only for reasons
+  listed in the owner-controlled `reversal_fee_policy` table (`BANK_ERROR`
+  refunds, `CUSTOMER_ERROR` retains it).
+- **Signing-secret rotation** is restart-staged with a bounded overlap
+  (`*_PREVIOUS` + `*_PREVIOUS_UNTIL`); `docs/runbooks/secret-rotation.md`.
+- **Worker pool** settings are validated at startup and the queue is bounded
+  (`COBOL_POOL_*`); invalid config fails fast instead of hanging requests.
 
 ## Development notes
 
