@@ -2689,3 +2689,10 @@ _merged 2026-10-19_
 - docs: summarize recent FX, fee, rotation, and pool controls in README
 - docs: sync HISTORY.md to post-merge state (#240)
 
+## #242 user-email-and-audit-archive
+
+_merged 2026-10-19_
+
+- fix(audit): restore audit-trail journal correlation and honest email-change result
+- docs: sync HISTORY.md to post-merge state (#241)
+
