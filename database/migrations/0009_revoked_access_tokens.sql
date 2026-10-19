@@ -12,4 +12,4 @@ CREATE TABLE IF NOT EXISTS revoked_access_tokens (
     CONSTRAINT fk_revoked_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE INDEX idx_revoked_expires ON revoked_access_tokens (expires_at);
+CREATE INDEX IF NOT EXISTS idx_revoked_expires ON revoked_access_tokens (expires_at);

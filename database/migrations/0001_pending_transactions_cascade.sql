@@ -7,11 +7,11 @@
 -- Applied to the development database on 2026-10-11.
 
 ALTER TABLE pending_transactions
-    DROP FOREIGN KEY fk_pending_from;
+    DROP FOREIGN KEY IF EXISTS fk_pending_from;
 ALTER TABLE pending_transactions
     ADD CONSTRAINT fk_pending_from FOREIGN KEY (from_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE pending_transactions
-    DROP FOREIGN KEY fk_pending_to;
+    DROP FOREIGN KEY IF EXISTS fk_pending_to;
 ALTER TABLE pending_transactions
     ADD CONSTRAINT fk_pending_to FOREIGN KEY (to_email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE;

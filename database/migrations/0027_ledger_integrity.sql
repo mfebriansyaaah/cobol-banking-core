@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS ledger_archive (
     KEY idx_ledger_archive_account (account_id)
 ) ENGINE=InnoDB;
 
-ALTER TABLE ledger ADD CONSTRAINT chk_ledger_amount CHECK (amount >= 0);
+ALTER TABLE ledger ADD CONSTRAINT IF NOT EXISTS chk_ledger_amount CHECK (amount >= 0);
 
 DELIMITER //
 CREATE TRIGGER IF NOT EXISTS trg_ledger_no_update BEFORE UPDATE ON ledger
