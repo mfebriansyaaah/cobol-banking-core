@@ -29,6 +29,7 @@ setup() {
        UPDATE accounts SET balance=0.00 WHERE account_id=2;
        DELETE FROM ledger;
        DELETE FROM pending_transactions;"
+q "UPDATE exchange_rates SET updated_at = NOW();"
 }
 
 teardown() { q "DELETE FROM accounts WHERE account_id IN (961,963); DELETE FROM users WHERE id IN (961,963);"; }
@@ -105,6 +106,15 @@ q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
 check "fx inverse converts exactly" "SUCCESS|TRANSFER_OK" "$(run TRANSFER idr_validity@test.com receiver@test.com 100000 "")"
 check "fx inverse credit is 6.37 USD" "6.3700" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
 check "fx inverse ledger credit is 6.37" "6.3700" "$(q "SELECT amount FROM ledger WHERE account_id=2 AND type='CREDIT';")"
+
+# Rate too old -> rejected (rate validity window D3). 30 hours > 24h max age.
+setup
+q "UPDATE accounts SET balance=100000.00 WHERE account_id=961;"
+q "UPDATE exchange_rates SET updated_at = DATE_SUB(NOW(), INTERVAL 30 HOUR) WHERE base_currency_id=1 AND target_currency_id=3;"
+check "stale rate rejected" "ERROR|RATE_STALE" "$(run TRANSFER idr_validity@test.com receiver@test.com 100000 "")"
+# restore fresh rate so subsequent tests are unaffected
+q "UPDATE exchange_rates SET updated_at = NOW() WHERE base_currency_id=1 AND target_currency_id=3;"
+
 
 # Precision must hold at scale too: 100000000000 IDR / 15700 = 6369426.75 USD
 # (the 6-decimal reciprocal would credit 6400000.00).
