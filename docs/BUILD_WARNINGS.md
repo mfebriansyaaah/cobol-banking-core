@@ -8,7 +8,7 @@ are fixed; never raise one to accept new ones.
 
 ## Classes
 
-### `-Wothers` — duplicate USING BY REFERENCE (1087)
+### `-Wothers` — duplicate USING BY REFERENCE (1085)
 
 The SQL bridge (`SQL_PREPARE_EXEC`, `SQL_PREPARE_EXEC_ROWS`, ...) has a
 fixed-arity signature, so callers pad unused bind slots by passing the same
@@ -24,11 +24,11 @@ most are single-line `CALL` statements, and a bulk mechanical retrofit is high
 churn for no behavioral gain, so it is paid down incrementally rather than in
 one sweep.
 
-### `-Wpossible-truncate` — reviewed benign (79)
+### `-Wpossible-truncate` — reviewed benign (77)
 
-All 79 were reviewed; none can lose data at the current bounds:
+All 77 remaining warnings were reviewed; none can lose data at the current bounds:
 
-- **69 "sending field larger than receiving field".** Two shapes:
+- **67 "sending field larger than receiving field".** Two shapes:
   - `MOVE WS-RESULT TO <scalar>`: `WS-RESULT` is `X(16384)` but every such
     query returns a single short value (an id, a status, a rate, a count, a
     formatted balance ≤ 23 chars, a PBKDF2 hash ≤ 256, a base32 secret ≤ 64).

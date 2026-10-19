@@ -12,6 +12,6 @@
 #                     field that holds a single short value, `MOVE WS-I (9(5))`
 #                     into 9(3) length fields bounded by 100, and validated
 #                     `WS-PARAMn-TRIMMED` copies; see docs/BUILD_WARNINGS.md
-others 1087
+others 1085
 terminator 1006
-possible-truncate 79
+possible-truncate 77
