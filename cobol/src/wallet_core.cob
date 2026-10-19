@@ -844,12 +844,13 @@
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 MOVE WS-RESULT TO WS-BIND-1
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                MOVE WS-REV-FROM TO WS-BIND-3
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, detail, status, journal_id) VALUES (?, 'REVERSE_TRANSFER', 'LEDGER', ?, ?, 'SUCCESS', @jid)" TO WS-PREP-SQL
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                MOVE WS-BIND-1 TO WS-BIND-2
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+                MOVE WS-REV-FROM TO WS-BIND-4
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id) VALUES (?, ?, 'REVERSE_TRANSFER', 'LEDGER', ?, ?, 'SUCCESS', @jid)" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-4
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
@@ -3093,6 +3094,9 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3150,6 +3154,9 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "SUPER_ADMIN"
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
+                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.

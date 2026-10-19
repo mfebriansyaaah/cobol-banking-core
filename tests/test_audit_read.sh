@@ -76,7 +76,7 @@ check_not_contains "action filter excludes others" "UPDATE_PROFILE" "$byaction"
 check_contains "row carries the acting admin" "$A" "$byaction"
 
 byemail=$(run5 LIST_AUDIT "$A" "" "$B" "50" "0")
-check "email filter total" "3" "$(echo "$byemail" | cut -d'|' -f3)"
+check "email filter total" "4" "$(echo "$byemail" | cut -d'|' -f3)"
 
 paged=$(run5 LIST_AUDIT "$A" SET_USER_STATUS "" "1" "0")
 rows=$(echo "$paged" | cut -d'|' -f4-)
