@@ -2328,3 +2328,11 @@ _merged 2026-10-18_
 
 - docs(adr): record the FX/fee/rate decisions (D1 book residual, D2 refund by reason, D3 window)
 
+## #229 fx-rate-window
+
+_merged 2026-10-19_
+
+- chore(fx): document RATE_MAX_AGE_SECONDS and D3 counts
+- test(fx): stale-rate regression and gateway contract (D3)
+- feat(fx): enforce exchange-rate validity window (D3)
+
