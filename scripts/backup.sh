@@ -19,7 +19,7 @@ STAMP="cobol-${DB_NAME}-${TS}"
 SQL="$OUT_DIR/${STAMP}.sql"
 MANIFEST="$OUT_DIR/${STAMP}.manifest"
 
-TABLES="users accounts currencies exchange_rates journal_entries ledger ledger_archive verification_logs audit_trail audit_trail_archive pending_transactions pending_transactions_archive transfer_reversals account_holds fee_schedule reconciliation_runs reconciliation_findings dual_control_operations maker_requests notification_outbox mfa_backup_codes mfa_recovery_requests dispute_cases dispute_messages refresh_sessions refresh_families revoked_access_tokens schema_migrations"
+TABLES="users accounts currencies exchange_rates journal_entries ledger ledger_archive verification_logs audit_trail audit_trail_archive pending_transactions pending_transactions_archive transfer_reversals account_holds fee_schedule reversal_fee_policy reconciliation_runs reconciliation_findings dual_control_operations maker_requests notification_outbox mfa_backup_codes mfa_recovery_requests dispute_cases dispute_messages refresh_sessions refresh_families revoked_access_tokens schema_migrations"
 
 mysqldump -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" \
     --single-transaction --routines --triggers --events \
@@ -38,6 +38,15 @@ chmod 600 "$SQL"
     done
 } > "$MANIFEST"
 chmod 600 "$MANIFEST"
+
+# Automatic completeness check: the manifest must cover every base table in
+# the database, so a forgotten table cannot silently drop out of a backup.
+DB_TABLE_COUNT="$(mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_type='BASE TABLE';" 2>/dev/null)"
+MANIFEST_TABLE_COUNT="$(grep -c '^table ' "$MANIFEST")"
+if [ "$DB_TABLE_COUNT" != "$MANIFEST_TABLE_COUNT" ]; then
+    echo "manifest incomplete: db has $DB_TABLE_COUNT base tables, manifest has $MANIFEST_TABLE_COUNT" >&2
+    exit 1
+fi
 
 echo "wrote $SQL"
 echo "wrote $MANIFEST"
