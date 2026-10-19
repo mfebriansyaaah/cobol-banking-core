@@ -177,6 +177,7 @@ test('access tokens are pinned to HS256', async () => {
 const ROT_CLAIMS = { issuer: 'cobol-banking-core', audience: 'cobol-banking-api' };
 const ROT_PREV = 'previous-rotation-secret-value-0001';
 const ROT_UNKNOWN = 'never-configured-secret-value-0002';
+const inSeconds = (deltaSeconds) => String(Math.floor(Date.now() / 1000) + deltaSeconds);
 
 function withPrevious(env) {
   const saved = {};
@@ -194,7 +195,7 @@ function withPrevious(env) {
 }
 
 test('access tokens minted before rotation still verify', () => {
-  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV });
+  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: inSeconds(300) });
   try {
     const prevToken = jwt.sign({ email: 'rot@test.com' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
     assert.equal(verifyAccess(prevToken).email, 'rot@test.com');
@@ -206,7 +207,7 @@ test('access tokens minted before rotation still verify', () => {
 });
 
 test('refresh tokens minted before rotation still verify', () => {
-  const restore = withPrevious({ REFRESH_SECRET_PREVIOUS: ROT_PREV });
+  const restore = withPrevious({ REFRESH_SECRET_PREVIOUS: ROT_PREV, REFRESH_SECRET_PREVIOUS_UNTIL: inSeconds(300) });
   try {
     const prevToken = jwt.sign({ email: 'rot@test.com', jti: 'j' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
     assert.equal(verifyRefresh(prevToken).email, 'rot@test.com');
@@ -218,7 +219,7 @@ test('refresh tokens minted before rotation still verify', () => {
 });
 
 test('step-up tokens minted before rotation still verify, purpose still enforced', () => {
-  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV });
+  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: inSeconds(300) });
   try {
     const prevToken = jwt.sign({ email: 'rot@test.com', purpose: 'step-up' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
     assert.equal(verifyStepUp(prevToken).email, 'rot@test.com');
@@ -236,7 +237,7 @@ test('step-up tokens minted before rotation still verify, purpose still enforced
 
 test('rotated access tokens pass the bearer middleware', async () => {
   const app = buildApp();
-  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV });
+  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: inSeconds(300) });
   try {
     // Valid signature under the previous secret: requireAuth passes and the
     // request fails later at token activeness (unknown jti), not at auth.
@@ -255,7 +256,7 @@ test('rotated access tokens pass the bearer middleware', async () => {
 });
 
 test('assertSecureConfig guards previous secrets in production', () => {
-  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
+  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
   const restore = () => {
     for (const key of Object.keys(saved)) {
       if (saved[key] === undefined) delete process.env[key];
@@ -274,7 +275,13 @@ test('assertSecureConfig guards previous secrets in production', () => {
     process.env.DB_NAME = 'bank_prod';
     delete process.env.JWT_SECRET_PREVIOUS;
     delete process.env.REFRESH_SECRET_PREVIOUS;
+    delete process.env.JWT_SECRET_PREVIOUS_UNTIL;
+    delete process.env.REFRESH_SECRET_PREVIOUS_UNTIL;
     assert.doesNotThrow(() => assertSecureConfig());
+
+    // A staged previous secret always carries its overlap deadline here.
+    process.env.JWT_SECRET_PREVIOUS_UNTIL = inSeconds(3600);
+    process.env.REFRESH_SECRET_PREVIOUS_UNTIL = inSeconds(3600);
 
     // Default, short, or current-equal previous values are refused.
     process.env.JWT_SECRET_PREVIOUS = 'dev-secret-change-me';
@@ -292,6 +299,121 @@ test('assertSecureConfig guards previous secrets in production', () => {
     process.env.REFRESH_SECRET_PREVIOUS = process.env.REFRESH_SECRET;
     assert.throws(() => assertSecureConfig(), /must differ/);
     process.env.REFRESH_SECRET_PREVIOUS = 'another-strong-previous-secret-0004';
+    assert.doesNotThrow(() => assertSecureConfig());
+  } finally {
+    restore();
+  }
+});
+
+test('a previous secret is honored only until its overlap deadline', () => {
+  const prevToken = jwt.sign({ email: 'rot@test.com' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+  // Deadline in the future: the staged secret still verifies.
+  let restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: inSeconds(60) });
+  try {
+    assert.equal(verifyAccess(prevToken).email, 'rot@test.com');
+  } finally {
+    restore();
+  }
+  // Deadline passed: the same secret stops being accepted.
+  restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: inSeconds(-60) });
+  try {
+    assert.equal(verifyAccess(prevToken), null);
+  } finally {
+    restore();
+  }
+  // No deadline at all: not honored (the overlap must be bounded).
+  restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: undefined });
+  try {
+    assert.equal(verifyAccess(prevToken), null);
+  } finally {
+    restore();
+  }
+  // A malformed deadline is treated the same as a missing one.
+  restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: 'soon' });
+  try {
+    assert.equal(verifyAccess(prevToken), null);
+  } finally {
+    restore();
+  }
+});
+
+test('production requires an overlap deadline for a staged previous secret', () => {
+  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
+  const restore = () => {
+    for (const key of Object.keys(saved)) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.JWT_SECRET = 'a-strong-production-secret-value-0001';
+    process.env.REFRESH_SECRET = 'another-strong-production-secret-0002';
+    process.env.DB_HOST = 'db.internal';
+    process.env.DB_USER = 'app_rw';
+    process.env.DB_PASS = 'a-strong-database-password-0003';
+    process.env.DB_NAME = 'bank_prod';
+    delete process.env.JWT_SECRET_PREVIOUS;
+    delete process.env.REFRESH_SECRET_PREVIOUS;
+    delete process.env.JWT_SECRET_PREVIOUS_UNTIL;
+    delete process.env.REFRESH_SECRET_PREVIOUS_UNTIL;
+    assert.doesNotThrow(() => assertSecureConfig());
+
+    process.env.JWT_SECRET_PREVIOUS = 'a-strong-previous-secret-value-0005';
+    assert.throws(() => assertSecureConfig(), /JWT_SECRET_PREVIOUS_UNTIL/);
+    process.env.JWT_SECRET_PREVIOUS_UNTIL = 'not-a-number';
+    assert.throws(() => assertSecureConfig(), /JWT_SECRET_PREVIOUS_UNTIL/);
+    process.env.JWT_SECRET_PREVIOUS_UNTIL = '0';
+    assert.throws(() => assertSecureConfig(), /JWT_SECRET_PREVIOUS_UNTIL/);
+    process.env.JWT_SECRET_PREVIOUS_UNTIL = inSeconds(3600);
+    assert.doesNotThrow(() => assertSecureConfig());
+
+    // A deadline in the past is a completed rotation, not a misconfiguration:
+    // the secret is simply no longer honored.
+    process.env.JWT_SECRET_PREVIOUS_UNTIL = inSeconds(-3600);
+    assert.doesNotThrow(() => assertSecureConfig());
+  } finally {
+    restore();
+  }
+});
+
+test('secrets shared across the rotation family are refused', () => {
+  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
+  const restore = () => {
+    for (const key of Object.keys(saved)) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.JWT_SECRET = 'a-strong-production-secret-value-0001';
+    process.env.REFRESH_SECRET = 'another-strong-production-secret-0002';
+    process.env.DB_HOST = 'db.internal';
+    process.env.DB_USER = 'app_rw';
+    process.env.DB_PASS = 'a-strong-database-password-0003';
+    process.env.DB_NAME = 'bank_prod';
+    delete process.env.JWT_SECRET_PREVIOUS;
+    delete process.env.REFRESH_SECRET_PREVIOUS;
+    delete process.env.JWT_SECRET_PREVIOUS_UNTIL;
+    delete process.env.REFRESH_SECRET_PREVIOUS_UNTIL;
+
+    // A token signed for one purpose must not verify as another, so no two
+    // configured secrets may share a value.
+    process.env.JWT_SECRET_PREVIOUS = process.env.REFRESH_SECRET;
+    process.env.JWT_SECRET_PREVIOUS_UNTIL = inSeconds(3600);
+    assert.throws(() => assertSecureConfig(), /must differ/);
+    process.env.JWT_SECRET_PREVIOUS = process.env.JWT_SECRET;
+    assert.throws(() => assertSecureConfig(), /must differ/);
+    process.env.JWT_SECRET_PREVIOUS = 'a-strong-previous-secret-value-0005';
+    assert.doesNotThrow(() => assertSecureConfig());
+
+    process.env.REFRESH_SECRET_PREVIOUS = process.env.JWT_SECRET;
+    process.env.REFRESH_SECRET_PREVIOUS_UNTIL = inSeconds(3600);
+    assert.throws(() => assertSecureConfig(), /must differ/);
+    process.env.REFRESH_SECRET_PREVIOUS = process.env.JWT_SECRET_PREVIOUS;
+    assert.throws(() => assertSecureConfig(), /must differ/);
+    process.env.REFRESH_SECRET_PREVIOUS = 'another-strong-previous-secret-0006';
     assert.doesNotThrow(() => assertSecureConfig());
   } finally {
     restore();

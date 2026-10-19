@@ -2656,3 +2656,11 @@ _merged 2026-10-19_
 - feat(config): refuse production with development database settings
 - docs: sync HISTORY.md to post-merge state (#236)
 
+## #238 pool-config-guard
+
+_merged 2026-10-19_
+
+- test(pool): cover config validation and saturation
+- fix(pool): validate pool settings and bound the queue
+- docs: sync HISTORY.md to post-merge state (#237)
+

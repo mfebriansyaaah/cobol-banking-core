@@ -40,3 +40,8 @@ owner decisions (Gate 0); the workflow below applies once they exist.
   outside the COBOL bridge (triggers will refuse some of it, and the
   rest destroys the audit chain).
 - No `main` rewrites; recovery is forward-only plus tested restore.
+
+## Related
+
+- Suspected signing-key compromise: rotate immediately with no overlap
+  (`secret-rotation.md`), then revoke sessions and treat it as an incident.
