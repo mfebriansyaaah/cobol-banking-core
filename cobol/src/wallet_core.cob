@@ -65,6 +65,7 @@
             88  WS-TRANSFER-FAIL-CURINACT VALUE 'CINA'.
             88  WS-TRANSFER-FAIL-LIMIT VALUE 'LIMT'.
             88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.
+            88  WS-TRANSFER-FAIL-STALE VALUE 'STAL'.
         01  WS-BALANCE-NUM         PIC S9(16)V9999 COMP-3.
         01  WS-AMOUNT-NUM          PIC S9(16)V9999 COMP-3.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
@@ -155,6 +156,9 @@
         01  WS-SENDER-ISO          PIC X(3)  VALUE SPACES.
         01  WS-TARGET-PREC         PIC X(2)  VALUE SPACES.
         01  WS-RATE-STR            PIC X(40) VALUE SPACES.
+        01  WS-RATE-UPDATED        PIC X(30) VALUE SPACES.
+        01  WS-RATE-AGE-STR        PIC X(20) VALUE SPACES.
+        01  WS-RATE-CUTOFF         PIC X(30) VALUE SPACES.
 
         LINKAGE SECTION.
        01  LS-CMD-ACTION          PIC X(30).
@@ -2068,6 +2072,46 @@
             END-PERFORM.
             EXIT PARAGRAPH.
 
+        CHECK-RATE-STALE.
+            *> Rate validity window D3, default 24h, fail closed.
+            *> WS-RATE-UPDATED holds YYYY-MM-DD HH:MM:SS, compared
+            *> as text against the cutoff timestamp.
+            MOVE SPACES TO WS-RATE-AGE-STR
+            CALL "env_or_raw" USING BY REFERENCE "RATE_MAX_AGE_SECONDS"
+                BY REFERENCE "86400" BY REFERENCE WS-RATE-AGE-STR
+            END-CALL
+            MOVE WS-RATE-AGE-STR TO WS-CAP-SRC
+            PERFORM CHECK-CAP-DIGITS
+            IF WS-CAP-OK = "N"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT CAST(DATE_SUB(NOW(), INTERVAL "
+                DELIMITED BY SIZE WS-RATE-AGE-STR DELIMITED BY SPACE
+                " SECOND) AS CHAR)" DELIMITED BY SIZE
+                INTO WS-PREP-SQL
+            END-STRING
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL
+                BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-RATE-CUTOFF
+            END-UNSTRING
+            IF WS-RATE-UPDATED < WS-RATE-CUTOFF
+                SET WS-TRANSFER-FAIL-STALE TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
         CHECK-DAILY-TOTAL.
             *> Rolling 24h debit total, read at full stored precision and
             *> compared in major units — no fixed scaling.
@@ -3072,7 +3116,7 @@
             IF WS-TRANSFER-OK
                 MOVE "1" TO WS-RATE-STR
                 IF WS-SENDER-CUR NOT = WS-TARGET-CUR
-                    MOVE "SELECT CAST(exchange_rate AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
+                    MOVE "SELECT CAST(exchange_rate AS CHAR), CAST(updated_at AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
                     MOVE WS-SENDER-CUR TO WS-BIND-1
                     MOVE WS-TARGET-CUR TO WS-BIND-2
                     CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -3085,7 +3129,7 @@
                         *> is exact at the target currency's precision even at
                         *> scale, so it is scaled explicitly (a plain ROUND to 6
                         *> decimals over-credits by ~0.5%).
-                        MOVE "SELECT CAST(CAST(1 AS DECIMAL(30,20)) / exchange_rate AS DECIMAL(30,18)) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
+                        MOVE "SELECT CAST(CAST(1 AS DECIMAL(30,20)) / exchange_rate AS DECIMAL(30,18)), CAST(updated_at AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
                         MOVE WS-TARGET-CUR TO WS-BIND-1
                         MOVE WS-SENDER-CUR TO WS-BIND-2
                         CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -3098,14 +3142,20 @@
                             IF WS-RESULT(1:5) = "ERROR"
                                 SET WS-TRANSFER-FAIL-DB TO TRUE
                             ELSE
-                                MOVE WS-RESULT TO WS-RATE-STR
+                                UNSTRING WS-RESULT DELIMITED BY "|"
+                                    INTO WS-RATE-STR WS-RATE-UPDATED
+                                END-UNSTRING
+                                PERFORM CHECK-RATE-STALE
                             END-IF
                         END-IF
                     ELSE
                         IF WS-RESULT(1:5) = "ERROR"
                             SET WS-TRANSFER-FAIL-DB TO TRUE
                         ELSE
-                            MOVE WS-RESULT TO WS-RATE-STR
+                            UNSTRING WS-RESULT DELIMITED BY "|"
+                                INTO WS-RATE-STR WS-RATE-UPDATED
+                            END-UNSTRING
+                            PERFORM CHECK-RATE-STALE
                         END-IF
                     END-IF
                 END-IF
@@ -3342,31 +3392,35 @@
                             IF WS-TRANSFER-FAIL-AMOUNT
                                 MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                             ELSE
-                                IF WS-TRANSFER-FAIL-CURR
-                                    MOVE "ERROR|RATE_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                IF WS-TRANSFER-FAIL-STALE
+                                    MOVE "ERROR|RATE_STALE" TO LS-OUTPUT-BUFFER
                                 ELSE
-                                    IF WS-TRANSFER-FAIL-SENDER
-                                        MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                    IF WS-TRANSFER-FAIL-CURR
+                                        MOVE "ERROR|RATE_NOT_FOUND" TO LS-OUTPUT-BUFFER
                                     ELSE
-                                        IF WS-TRANSFER-FAIL-TARGET
-                                            MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                                        IF WS-TRANSFER-FAIL-SENDER
+                                            MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                                         ELSE
-                                            IF WS-TRANSFER-FAIL-FROZEN
-                                                MOVE "ERROR|ACCOUNT_FROZEN" TO LS-OUTPUT-BUFFER
+                                            IF WS-TRANSFER-FAIL-TARGET
+                                                MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
                                             ELSE
-                                                IF WS-TRANSFER-FAIL-CLOSED
-                                                    MOVE "ERROR|ACCOUNT_CLOSED" TO LS-OUTPUT-BUFFER
+                                                IF WS-TRANSFER-FAIL-FROZEN
+                                                    MOVE "ERROR|ACCOUNT_FROZEN" TO LS-OUTPUT-BUFFER
                                                 ELSE
-                                                    IF WS-TRANSFER-FAIL-CURINACT
-                                                        MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
+                                                    IF WS-TRANSFER-FAIL-CLOSED
+                                                        MOVE "ERROR|ACCOUNT_CLOSED" TO LS-OUTPUT-BUFFER
                                                     ELSE
-                                                        IF WS-TRANSFER-FAIL-LIMIT
-                                                            MOVE "ERROR|LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+                                                        IF WS-TRANSFER-FAIL-CURINACT
+                                                            MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
                                                         ELSE
-                                                            IF WS-TRANSFER-FAIL-DAILY
-                                                                MOVE "ERROR|DAILY_LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+                                                            IF WS-TRANSFER-FAIL-LIMIT
+                                                                MOVE "ERROR|LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
                                                             ELSE
-                                                                MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                                                IF WS-TRANSFER-FAIL-DAILY
+                                                                    MOVE "ERROR|DAILY_LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+                                                                ELSE
+                                                                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                                                                END-IF
                                                             END-IF
                                                         END-IF
                                                     END-IF
