@@ -134,6 +134,10 @@
         01  WS-REV-FEE-ISO         PIC X(3)  VALUE SPACES.
         01  WS-REV-FEE-PREC        PIC X(2)  VALUE SPACES.
         01  WS-REV-FEE-NUM         PIC S9(16)V9999 COMP-3.
+        01  WS-REV-FX-ACC          PIC X(20) VALUE SPACES.
+        01  WS-REV-FX-AMT          PIC X(30) VALUE SPACES.
+        01  WS-REV-FX-DESC         PIC X(16) VALUE SPACES.
+        01  WS-REV-FX-NUM          PIC S9(16)V9999 COMP-3.
         01  WS-SQL-PTR             PIC 9(5)  VALUE 0.
         01  WS-TX-FROM             PIC X(100) VALUE SPACES.
         01  WS-TX-TO               PIC X(100) VALUE SPACES.
@@ -467,6 +471,9 @@
             MOVE SPACES TO WS-REV-FEE-ACC
             MOVE SPACES TO WS-REV-FEE-AMT
             MOVE SPACES TO WS-REV-FEE-CUR
+            MOVE SPACES TO WS-REV-FX-ACC
+            MOVE SPACES TO WS-REV-FX-AMT
+            MOVE SPACES TO WS-REV-FX-DESC
             IF WS-P4-LEN = 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -516,7 +523,7 @@
             END-IF
             *> The original debit (sender side) and credit (target side), scoped
             *> to the sender so a shared reference cannot pick the wrong rows.
-            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND description = 'Transfer out' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-REV-FROM TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -530,7 +537,7 @@
             UNSTRING WS-RESULT DELIMITED BY "|"
                 INTO WS-SENDER-ACC WS-REV-AMT WS-SENDER-CUR
             END-UNSTRING
-            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(l.currency_id AS CHAR), CAST(exchange_rate AS CHAR), CAST(c.prec_val AS CHAR) FROM ledger l JOIN currencies c ON c.currency_id = l.currency_id WHERE txn_ref = ? AND type = 'CREDIT' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(l.currency_id AS CHAR), CAST(exchange_rate AS CHAR), CAST(c.prec_val AS CHAR) FROM ledger l JOIN currencies c ON c.currency_id = l.currency_id WHERE txn_ref = ? AND type = 'CREDIT' AND description = 'Transfer in' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-REV-FROM TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -545,6 +552,31 @@
                 INTO WS-TARGET-ACC WS-REV-CAMT WS-TARGET-CUR WS-RATE-STR
                      WS-TARGET-PREC
             END-UNSTRING
+            *> The original residual leg, if the posting rounded. A gain was
+            *> credited to FX_PNL, a loss debited from it; the reversal posts
+            *> the mirror leg so the gain is clawed back or the loss returned.
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR), description FROM ledger WHERE txn_ref = ? AND description IN ('FX gain', 'FX loss') AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-REV-FROM TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO WS-REV-FX-DESC
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                UNSTRING WS-RESULT DELIMITED BY "|"
+                    INTO WS-REV-FX-ACC WS-REV-FX-AMT WS-TARGET-CUR
+                         WS-REV-FX-DESC
+                END-UNSTRING
+            END-IF
             *> Fee legs of the original transfer, if it carried a fee.
             MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND description = 'Fee out' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
@@ -616,6 +648,32 @@
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
+            END-IF
+            *> A gain clawback needs the FX account to still hold it.
+            IF WS-REV-FX-DESC = "FX gain"
+                MOVE "SELECT CONCAT(balance) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-REV-FX-ACC TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                    BY REFERENCE WS-BIND-5
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                END-CALL
+                UNSTRING WS-RESULT DELIMITED BY "|"
+                    INTO WS-SENDER-BAL
+                END-UNSTRING
+                MOVE WS-SENDER-BAL TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
+                MOVE WS-REV-FX-AMT TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-REV-FX-NUM
+                IF WS-BALANCE-NUM < WS-REV-FX-NUM
+                    CALL "SQL_ROLLBACK" END-CALL
+                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
             END-IF
             SET STEP-OK TO TRUE
             *> Open the journal header for this reversal; legs and the audit
@@ -711,6 +769,73 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF
+            *> Mirror the original residual in this journal: claw back a
+            *> gain with a DEBIT, return a loss with a CREDIT, so the full
+            *> posting unwinds atomically and verifies balanced.
+            IF STEP-OK AND WS-REV-FX-DESC = "FX gain"
+                MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-REV-FX-AMT TO WS-BIND-1
+                MOVE WS-REV-FX-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                    BY REFERENCE WS-BIND-5
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                END-CALL
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+                IF STEP-OK
+                    MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'FX reversal out', 1, @jid, ?)" TO WS-PREP-SQL
+                    MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                    MOVE WS-REV-FX-ACC TO WS-BIND-2
+                    MOVE WS-REV-FX-AMT TO WS-BIND-3
+                    MOVE WS-TARGET-CUR TO WS-BIND-4
+                    MOVE WS-REV-FROM TO WS-BIND-5
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                    END-CALL
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    END-CALL
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET STEP-FAIL TO TRUE
+                    END-IF
+                END-IF
+            END-IF
+            IF STEP-OK AND WS-REV-FX-DESC = "FX loss"
+                MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-REV-FX-AMT TO WS-BIND-1
+                MOVE WS-REV-FX-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                    BY REFERENCE WS-BIND-5
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                END-CALL
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+                IF STEP-OK
+                    MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'FX reversal in', 1, @jid, ?)" TO WS-PREP-SQL
+                    MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                    MOVE WS-REV-FX-ACC TO WS-BIND-2
+                    MOVE WS-REV-FX-AMT TO WS-BIND-3
+                    MOVE WS-TARGET-CUR TO WS-BIND-4
+                    MOVE WS-REV-FROM TO WS-BIND-5
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                    END-CALL
+                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                    END-CALL
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET STEP-FAIL TO TRUE
+                    END-IF
+                END-IF
+            END-IF
             IF STEP-OK
                 MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
@@ -735,9 +860,12 @@
             *> flag is shared with TRANSFER-LOGIC, so reset it first: in
             *> serve mode Working-Storage survives across requests.
             SET WS-TRANSFER-OK TO TRUE
-            IF STEP-OK
+            IF STEP-OK AND WS-REV-FX-DESC = SPACES
                 MOVE WS-TARGET-PREC TO WS-JV-PREC
                 PERFORM VERIFY-JOURNAL-BALANCED
+            END-IF.
+            IF STEP-OK AND WS-REV-FX-DESC NOT = SPACES
+                PERFORM VERIFY-JOURNAL-REVERSAL-FX-BALANCED
             END-IF.
             IF WS-TRANSFER-FAIL-DB
                 SET STEP-FAIL TO TRUE
@@ -2775,6 +2903,25 @@
             *> target-side net (credit plus signed residual) at 4dp
             *> ledger scale, exactly: E4 = ROUND(D x R, 4) = C + S.
             MOVE "SELECT IF(COUNT(*)=3 AND SUM(type='DEBIT')>=1 AND SUM(type='CREDIT')>=1 AND ROUND(MAX(CASE WHEN description = 'Transfer out' THEN amount END) * MAX(CASE WHEN description = 'Transfer in' THEN exchange_rate END), 4) = SUM(CASE WHEN currency_id = ? THEN CASE WHEN type = 'CREDIT' THEN amount ELSE 0 - amount END END), 'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
+            MOVE WS-TARGET-CUR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT NOT = "BALANCED"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VERIFY-JOURNAL-REVERSAL-FX-BALANCED.
+            *> Three-leg reversal journal unwinding an FX posting with a
+            *> residual: the sender credit converted at the snapshotted
+            *> rate equals the negated target-side net at 4dp ledger
+            *> scale, exactly: E4 = ROUND(D x R, 4) = 0 - (signed legs).
+            MOVE "SELECT IF(COUNT(*)=3 AND SUM(type='DEBIT')>=1 AND SUM(type='CREDIT')>=1 AND ROUND(MAX(CASE WHEN description = 'Reversal in' THEN amount END) * MAX(CASE WHEN description = 'Reversal in' THEN exchange_rate END), 4) = 0 - SUM(CASE WHEN currency_id = ? THEN CASE WHEN type = 'CREDIT' THEN amount ELSE 0 - amount END END), 'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
             MOVE WS-TARGET-CUR TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
