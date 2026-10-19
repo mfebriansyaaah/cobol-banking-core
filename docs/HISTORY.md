@@ -2608,3 +2608,11 @@ _merged 2026-10-19_
 - feat(fx): FX_PNL account type for the D1 residual (migration 0039)
 - docs: sync HISTORY.md to post-merge state (#230)
 
+## #232 auth-secret-rotation
+
+_merged 2026-10-19_
+
+- test(auth): rotation overlap coverage and counts
+- feat(auth): overlapping signing-secret rotation
+- docs: sync HISTORY.md to post-merge state (#231)
+
