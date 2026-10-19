@@ -2664,3 +2664,21 @@ _merged 2026-10-19_
 - fix(pool): validate pool settings and bound the queue
 - docs: sync HISTORY.md to post-merge state (#237)
 
+## #239 secret-rotation-bound
+
+_merged 2026-10-19_
+
+- test(auth): cover the bounded rotation overlap
+- docs(runbook): secret rotation and emergency revocation
+- feat(auth): bound the signing-secret rotation overlap
+- docs: sync HISTORY.md to post-merge state (#238)
+
+## #240 docs-hygiene
+
+_merged 2026-10-19_
+
+- chore: ignore backup dumps and clean the backup test on exit
+- docs: sync warning counts, CI step count, and backup hygiene
+- docs: record the merged FX decisions and migration retry semantics
+- test(docs): scan every tracked Markdown, resolve relative paths
+
