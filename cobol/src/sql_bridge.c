@@ -25,7 +25,34 @@ static const char *env_or(const char *name, const char *fallback) {
     return (v && v[0] != '\0') ? v : fallback;
 }
 
-static MYSQL *bridge_connect(void) {
+/* True when the process is in production but the database credentials are
+ * still the development defaults (or unset). Production must set them
+ * explicitly; the gateway refuses to start on the same condition, and this
+ * is the fail-closed backstop for a directly-invoked binary. */
+static int db_config_insecure(void) {
+    const char *env = getenv("NODE_ENV");
+    if (env == NULL || strcmp(env, "production") != 0) return 0;
+    const char *user = getenv("DB_USER");
+    const char *pass = getenv("DB_PASS");
+    int dev_user = (user == NULL || user[0] == '\0' || strcmp(user, "cobol_user") == 0);
+    int dev_pass = (pass == NULL || pass[0] == '\0' || strcmp(pass, "cobol_pass") == 0);
+    return dev_user || dev_pass;
+}
+
+/* Report why a connection could not be established, distinguishing an
+ * insecure configuration from an unreachable database. */
+static void set_connect_error(int insecure) {
+    strncpy(G_RESULT, insecure ? "ERROR|DB_CONFIG_INSECURE" : "ERROR|DB_CONN_FAILED", 16383);
+}
+
+static MYSQL *bridge_connect(int *insecure) {
+    if (insecure != NULL) *insecure = 0;
+    /* Fail closed before touching the network: a production process must not
+     * silently connect with the development credentials baked in below. */
+    if (db_config_insecure()) {
+        if (insecure != NULL) *insecure = 1;
+        return NULL;
+    }
     /* Reuse the keep-alive connection when it is still alive; if the server
      * dropped it (idle timeout, restart, kill), reconnect once. */
     if (G_POOL != NULL) {
@@ -93,10 +120,11 @@ void SQL_EXECUTE() {
     if (G_CONN != NULL) {
         conn = G_CONN;
     } else {
-        conn = bridge_connect();
+        int insecure = 0;
+        conn = bridge_connect(&insecure);
         own_conn = 1;
         if (conn == NULL) {
-            strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383);
+            set_connect_error(insecure);
             return;
         }
     }
@@ -166,7 +194,7 @@ void SQL_ESCAPE(char *in, char *out, int outmax) {
     MYSQL *conn = G_CONN;
     int own = 0;
     if (conn == NULL) {
-        conn = bridge_connect();
+        conn = bridge_connect(NULL);
         own = 1;
     }
     size_t elen;
@@ -199,9 +227,10 @@ void SQL_BEGIN() {
         fprintf(stderr, "[SQL_BRIDGE] Rolled back a leaked transaction\\n");
         G_CONN = NULL;
     }
-    G_CONN = bridge_connect();
+    int insecure = 0;
+    G_CONN = bridge_connect(&insecure);
     if (G_CONN == NULL) {
-        strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383);
+        set_connect_error(insecure);
         return;
     }
     if (mysql_query(G_CONN, "START TRANSACTION")) {
@@ -257,9 +286,10 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     MYSQL *conn = G_CONN;
     int own_conn = 0;
     if (conn == NULL) {
-        conn = bridge_connect();
+        int insecure = 0;
+        conn = bridge_connect(&insecure);
         own_conn = 1;
-        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
+        if (conn == NULL) { set_connect_error(insecure); return; }
     }
 
     MYSQL_STMT *st = mysql_stmt_init(conn);
@@ -376,8 +406,9 @@ void SQL_PREPARE_EXEC7(char *sql, int nparams,
 
     MYSQL *conn = G_CONN;
     if (conn == NULL) {
-        conn = bridge_connect();
-        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
+        int insecure = 0;
+        conn = bridge_connect(&insecure);
+        if (conn == NULL) { set_connect_error(insecure); return; }
     }
 
     MYSQL_STMT *st = mysql_stmt_init(conn);
@@ -490,9 +521,10 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     MYSQL *conn = G_CONN;
     int own_conn = 0;
     if (conn == NULL) {
-        conn = bridge_connect();
+        int insecure = 0;
+        conn = bridge_connect(&insecure);
         own_conn = 1;
-        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
+        if (conn == NULL) { set_connect_error(insecure); return; }
     }
 
     MYSQL_STMT *st = mysql_stmt_init(conn);
@@ -564,9 +596,10 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     MYSQL *conn = G_CONN;
     int own_conn = 0;
     if (conn == NULL) {
-        conn = bridge_connect();
+        int insecure = 0;
+        conn = bridge_connect(&insecure);
         own_conn = 1;
-        if (conn == NULL) { strncpy(G_RESULT, "ERROR|DB_CONN_FAILED", 16383); return; }
+        if (conn == NULL) { set_connect_error(insecure); return; }
     }
 
     MYSQL_STMT *st = mysql_stmt_init(conn);

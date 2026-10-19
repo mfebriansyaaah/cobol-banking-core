@@ -100,7 +100,7 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `GET_TOKEN_VERSION` | email | current access-token version for a user | `SUCCESS\|<ver>` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `CHECK_TOKEN` | email, version, jti | access token is current and not denylisted | `SUCCESS\|TOKEN_VALID` * `ERROR\|TOKEN_REVOKED` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `REVOKE_ACCESS_TOKEN` | jti, email, ttl seconds | deny one access token until it would expire | `SUCCESS\|TOKEN_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
-| `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` |
+| `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` * `ERROR\|DB_CONFIG_INSECURE` |
 
 The routing contract is that every action dispatched by `cobol/src/main_logic.cob`
 is handled by its owning module; `ci.sh` verifies every routed
@@ -159,7 +159,7 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_stepup.sh` | 10 | `VERIFY_REAUTH` (step-up): correct/wrong password, unknown/suspended account, **admin without MFA refused (`MFA_SETUP_REQUIRED`)**, MFA required/bad/good code |
 | `tests/test_mfa_state.sh` | 5 | `MFA_ENROLL_REQUIRED` decision table (admin without MFA must enrol, others exempt) |
 | `tests/test_prepared.sh` | 15 | signup/login/transfer/reconcile (`SQL_PREPARE_EXEC`), locking read (`SQL_PREPARE_EXEC_LOCK`) and list (`SQL_PREPARE_EXEC_ROWS`) through prepared statements |
-| `tests/test_ping.sh` | 3 | deep-health PING reaches the DB; connection settings come from the environment |
+| `tests/test_ping.sh` | 7 | deep-health PING reaches the DB; connection settings come from the environment; production refuses development DB credentials and a missing password with `DB_CONFIG_INSECURE`; explicit credentials reach the DB; development keeps the local defaults |
 | `tests/test_migrate.sh` | 28 | migration runner idempotent; --check detects pending; dead columns/table gone; baseline lists every file; FX index present; no orphan records; failures abort naming the file and record nothing; every statement statically guarded for re-run; a half-applied scratch migration converges; every recorded migration re-applies cleanly; the documented non-replayable ones (ENUM narrowing, AUTO_INCREMENT PK rewrites) fail loudly without corrupting |
 | `tests/test_concurrent_transfer.sh` | 4 | opposing concurrent transfers all succeed, money conserved |
 | `tests/test_e2e_gateway.sh` | 22 | live-gateway HTTP flow: signup→verify→login→transfer→refresh→metrics→logout; `/wallet/balance` envelope + currency |
@@ -185,10 +185,10 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_hooks.sh` | 4 | installed git hooks match tracked (`--check`), tampering detected, reinstall restores |
 | `tests/test_c_memory.sh` | 12 | C/COBOL boundary contract under ASan+UBSan (1-byte result fields, 6-digit codes, 32-char secrets, fast refusal of absurd KDF costs) |
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
-| `middleware/` (node --test) | 117 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
+| `middleware/` (node --test) | 118 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
-Shell suites total **1015**; with the gateway suite **117** the full run is
-**1132 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **1019**; with the gateway suite **118** the full run is
+**1137 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
@@ -258,7 +258,13 @@ an overlap guard, so a slow collector cannot pile up requests). Unexpected
 process-level failures are logged as `event: process_error`.
 `helmet` sets standard security headers, and in production the server refuses to
 start while JWT_SECRET/REFRESH_SECRET are unset, still the development
-defaults, shorter than 32 characters, or **identical to each other**. Access and
+defaults, shorter than 32 characters, or **identical to each other**. The same
+startup guard refuses to run with database settings left at their development
+defaults: DB_HOST, DB_USER, DB_PASS and DB_NAME must all be set explicitly, and
+the credentials may not be the bridge's `cobol_user`/`cobol_pass`/`cobol_db`
+defaults. The C bridge enforces the same rule at connect time (fail-closed
+backstop for a directly-invoked binary), reporting `ERROR|DB_CONFIG_INSECURE`
+distinctly from an unreachable database. Access and
 refresh tokens are bound to an issuer and audience
 (JWT_ISSUER / JWT_AUDIENCE, defaulting to `cobol-banking-core` /
 `cobol-banking-api`) and verification rejects tokens that do not match them.

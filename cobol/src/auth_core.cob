@@ -3177,15 +3177,21 @@
             EXIT PARAGRAPH.
 
         PING-LOGIC.
-            *> Deep health: confirm the database answers a trivial query.
+            *> Deep health: confirm the database answers a trivial query. An
+            *> insecure production configuration is reported distinctly from
+            *> an unreachable database so operators can tell them apart.
             MOVE SPACES TO WS-QUERY
             MOVE "SELECT 1" TO WS-QUERY
             CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
             CALL "SQL_EXECUTE"
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT(1:5) = "ERROR"
-                MOVE "ERROR|DB_DOWN" TO LS-OUTPUT-BUFFER
+            IF WS-RESULT(1:24) = "ERROR|DB_CONFIG_INSECURE"
+                MOVE "ERROR|DB_CONFIG_INSECURE" TO LS-OUTPUT-BUFFER
             ELSE
-                MOVE "SUCCESS|PONG" TO LS-OUTPUT-BUFFER
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_DOWN" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "SUCCESS|PONG" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
             EXIT PARAGRAPH.

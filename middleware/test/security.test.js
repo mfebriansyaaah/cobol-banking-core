@@ -44,7 +44,15 @@ test('trustProxyWarning flags an over-permissive TRUST_PROXY', () => {
 });
 
 test('assertSecureConfig refuses production with default secrets', () => {
-  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET };
+  const saved = {
+    NODE_ENV: process.env.NODE_ENV,
+    JWT_SECRET: process.env.JWT_SECRET,
+    REFRESH_SECRET: process.env.REFRESH_SECRET,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASS: process.env.DB_PASS,
+    DB_NAME: process.env.DB_NAME,
+  };
   const restore = () => {
     for (const key of Object.keys(saved)) {
       if (saved[key] === undefined) delete process.env[key];
@@ -53,6 +61,12 @@ test('assertSecureConfig refuses production with default secrets', () => {
   };
   try {
     process.env.NODE_ENV = 'production';
+    // Explicit, non-default database settings so these cases isolate the
+    // secret checks (the database guard has its own test below).
+    process.env.DB_HOST = 'db.internal';
+    process.env.DB_USER = 'app_rw';
+    process.env.DB_PASS = 'a-strong-database-password-0003';
+    process.env.DB_NAME = 'bank_prod';
     delete process.env.JWT_SECRET;
     delete process.env.REFRESH_SECRET;
     assert.throws(() => assertSecureConfig(), /refusing to start/);
@@ -68,6 +82,52 @@ test('assertSecureConfig refuses production with default secrets', () => {
     // Too-short secrets are refused.
     process.env.REFRESH_SECRET = 'short';
     assert.throws(() => assertSecureConfig(), /min 32 chars/);
+  } finally {
+    restore();
+  }
+});
+
+test('assertSecureConfig refuses production with development database settings', () => {
+  const saved = {
+    NODE_ENV: process.env.NODE_ENV,
+    JWT_SECRET: process.env.JWT_SECRET,
+    REFRESH_SECRET: process.env.REFRESH_SECRET,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASS: process.env.DB_PASS,
+    DB_NAME: process.env.DB_NAME,
+  };
+  const restore = () => {
+    for (const key of Object.keys(saved)) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.JWT_SECRET = 'a-strong-production-secret-value-0001';
+    process.env.REFRESH_SECRET = 'another-strong-production-secret-0002';
+    process.env.DB_HOST = 'db.internal';
+    process.env.DB_USER = 'app_rw';
+    process.env.DB_PASS = 'a-strong-database-password-0003';
+    process.env.DB_NAME = 'bank_prod';
+    assert.doesNotThrow(() => assertSecureConfig());
+
+    // The C bridge defaults are refused even when explicitly set.
+    for (const [key, devDefault] of [['DB_USER', 'cobol_user'], ['DB_PASS', 'cobol_pass'], ['DB_NAME', 'cobol_db']]) {
+      const good = process.env[key];
+      process.env[key] = devDefault;
+      assert.throws(() => assertSecureConfig(), /development default/, key);
+      process.env[key] = good;
+    }
+
+    // Unset database settings are refused rather than silently defaulted.
+    for (const key of ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME']) {
+      const good = process.env[key];
+      delete process.env[key];
+      assert.throws(() => assertSecureConfig(), /refusing to start/, key);
+      process.env[key] = good;
+    }
   } finally {
     restore();
   }
@@ -195,7 +255,7 @@ test('rotated access tokens pass the bearer middleware', async () => {
 });
 
 test('assertSecureConfig guards previous secrets in production', () => {
-  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS };
+  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
   const restore = () => {
     for (const key of Object.keys(saved)) {
       if (saved[key] === undefined) delete process.env[key];
@@ -206,6 +266,12 @@ test('assertSecureConfig guards previous secrets in production', () => {
     process.env.NODE_ENV = 'production';
     process.env.JWT_SECRET = 'a-strong-production-secret-value-0001';
     process.env.REFRESH_SECRET = 'another-strong-production-secret-0002';
+    // Explicit, non-default database settings so this case isolates the
+    // previous-secret checks.
+    process.env.DB_HOST = 'db.internal';
+    process.env.DB_USER = 'app_rw';
+    process.env.DB_PASS = 'a-strong-database-password-0003';
+    process.env.DB_NAME = 'bank_prod';
     delete process.env.JWT_SECRET_PREVIOUS;
     delete process.env.REFRESH_SECRET_PREVIOUS;
     assert.doesNotThrow(() => assertSecureConfig());

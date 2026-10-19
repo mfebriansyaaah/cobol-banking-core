@@ -47,7 +47,21 @@ const DEV_JWT_SECRET = 'dev-secret-change-me';
 const DEV_REFRESH_SECRET = 'dev-refresh-secret-change-me';
 const MIN_SECRET_LENGTH = 32;
 
-// Refuse to run in production with development, short, or identical secrets.
+// Development defaults baked into the C bridge (cobol/src/sql_bridge.c) and
+// middleware/.env.example. Production must set these explicitly: a deployment
+// that silently inherits them would run against the development database with
+// the development account.
+const DEV_DB_DEFAULTS = {
+  DB_USER: 'cobol_user',
+  DB_PASS: 'cobol_pass',
+  DB_NAME: 'cobol_db',
+};
+// Must be present in production (any value); there is no safe silent default
+// for where the database lives.
+const REQUIRED_DB_VARS = ['DB_HOST'];
+
+// Refuse to run in production with development, short, or identical secrets,
+// or with database credentials left at their development defaults.
 export function assertSecureConfig() {
   if (process.env.NODE_ENV !== 'production') return;
   const problems = [];
@@ -71,6 +85,14 @@ export function assertSecureConfig() {
     if (refreshPrev === DEV_REFRESH_SECRET) problems.push('REFRESH_SECRET_PREVIOUS');
     else if (refreshPrev.length < MIN_SECRET_LENGTH) problems.push(`REFRESH_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
     else if (refreshPrev === refreshSecret) problems.push('REFRESH_SECRET_PREVIOUS must differ from REFRESH_SECRET');
+  }
+  for (const [name, devDefault] of Object.entries(DEV_DB_DEFAULTS)) {
+    const value = process.env[name] || '';
+    if (!value) problems.push(name);
+    else if (value === devDefault) problems.push(`${name} (development default)`);
+  }
+  for (const name of REQUIRED_DB_VARS) {
+    if (!(process.env[name] || '')) problems.push(name);
   }
   if (problems.length > 0) {
     throw new Error(`refusing to start in production: set ${problems.join(', ')} to a strong, non-default value`);

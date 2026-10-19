@@ -2639,3 +2639,11 @@ _merged 2026-10-19_
 - feat(db): enforce one active control account per currency (audit P2)
 - docs: sync HISTORY.md to post-merge state (#234)
 
+## #236 resumable-migrations
+
+_merged 2026-10-19_
+
+- test(db): verify every migration resumes after a partial apply
+- fix(db): make every migration resumable after partial apply (audit P3)
+- docs: sync HISTORY.md to post-merge state (#235)
+
