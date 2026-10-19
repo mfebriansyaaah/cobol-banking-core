@@ -2631,3 +2631,11 @@ _merged 2026-10-19_
 - fix(reverse): unwind FX residual legs on reversal
 - docs: sync HISTORY.md to post-merge state (#233)
 
+## #235 control-account-uniqueness
+
+_merged 2026-10-19_
+
+- test(db): control-account uniqueness suite wired into CI
+- feat(db): enforce one active control account per currency (audit P2)
+- docs: sync HISTORY.md to post-merge state (#234)
+
