@@ -15,12 +15,13 @@ CREATE TABLE IF NOT EXISTS journal_entries (
     KEY idx_journal_ref (txn_ref)
 ) ENGINE=InnoDB;
 
-ALTER TABLE ledger ADD COLUMN journal_id BIGINT NULL,
-    ADD CONSTRAINT fk_ledger_journal FOREIGN KEY (journal_id)
-        REFERENCES journal_entries(journal_id);
-ALTER TABLE ledger_archive ADD COLUMN journal_id BIGINT NULL;
-ALTER TABLE audit_trail ADD COLUMN journal_id BIGINT NULL;
-ALTER TABLE audit_trail_archive ADD COLUMN journal_id BIGINT NULL;
+ALTER TABLE ledger ADD COLUMN IF NOT EXISTS journal_id BIGINT NULL;
+ALTER TABLE ledger DROP FOREIGN KEY IF EXISTS fk_ledger_journal;
+ALTER TABLE ledger ADD CONSTRAINT fk_ledger_journal FOREIGN KEY (journal_id)
+    REFERENCES journal_entries(journal_id);
+ALTER TABLE ledger_archive ADD COLUMN IF NOT EXISTS journal_id BIGINT NULL;
+ALTER TABLE audit_trail ADD COLUMN IF NOT EXISTS journal_id BIGINT NULL;
+ALTER TABLE audit_trail_archive ADD COLUMN IF NOT EXISTS journal_id BIGINT NULL;
 
 DELIMITER //
 DROP TRIGGER IF EXISTS trg_ledger_archive_account//

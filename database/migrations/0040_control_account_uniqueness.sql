@@ -8,7 +8,7 @@
 -- A transfer with a missing or duplicated control account keeps failing
 -- closed in COBOL (DB_ERROR); this migration only makes "duplicated"
 -- impossible to create. It aborts loudly if duplicates already exist.
-ALTER TABLE accounts ADD COLUMN control_slot VARCHAR(32) GENERATED ALWAYS AS
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS control_slot VARCHAR(32) GENERATED ALWAYS AS
   (CASE WHEN status = 'ACTIVE' AND account_type IN ('FX_PNL','FEE_INCOME')
         THEN CONCAT(currency_id, '/', account_type) ELSE NULL END) STORED,
-  ADD UNIQUE KEY uniq_active_control_acct (control_slot);
+  ADD UNIQUE KEY IF NOT EXISTS uniq_active_control_acct (control_slot);

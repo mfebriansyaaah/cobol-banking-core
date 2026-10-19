@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS reversal_fee_policy (
 INSERT IGNORE INTO reversal_fee_policy (reason, refund_fee) VALUES
 ('BANK_ERROR', 1),
 ('CUSTOMER_ERROR', 0);
-ALTER TABLE transfer_reversals ADD COLUMN reason VARCHAR(100) NULL;
+ALTER TABLE transfer_reversals ADD COLUMN IF NOT EXISTS reason VARCHAR(100) NULL;
