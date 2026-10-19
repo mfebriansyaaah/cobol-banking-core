@@ -216,6 +216,7 @@ export const ROUTES = [
     { name: 'ref', pattern: KEY, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'sender', pattern: EMAIL, required: false },
+    { name: 'reason', pattern: REASON, required: true },
   ] },
 
   { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [

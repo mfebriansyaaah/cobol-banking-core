@@ -1809,3 +1809,530 @@ _merged 2026-10-16_
 - feat(server): log process-level errors; zero pool gauges on close
 - feat(observability): metrics push timeout + overlap guard
 
+## #179 mailer-robustness
+
+_merged 2026-10-16_
+
+- docs(adr): 0029 best-effort email delivery
+- docs: mailer delivery counters in STATUS + counts
+- test: a failing SMTP does not throw and is counted
+- chore(config): document SMTP_TIMEOUT_MS
+- feat(mailer): SMTP timeouts + best-effort delivery with sent/failed counters
+- docs: sync HISTORY.md to post-merge state (#178)
+
+## #180 mailer-subjects
+
+_merged 2026-10-16_
+
+- docs(adr): 0030 per-purpose email subject
+- docs: per-purpose mailer subject in STATUS + counts
+- test: verification subject by purpose
+- feat(mailer): per-purpose verification subject
+
+## #181 mailer-readiness
+
+_merged 2026-10-16_
+
+- docs(adr): 0031 mailer readiness and startup warning
+- test: readiness includes the mailer check
+- feat(server): warn at startup when production has no SMTP
+- feat(gateway): /ready reports the mailer configuration
+
+## #182 mailer-config
+
+_merged 2026-10-16_
+
+- docs: mailer sender config + counts (adr 0032)
+- test: sender address honours MAIL_FROM_NAME
+- chore(config): document MAIL_FROM_NAME
+- feat(server): log mailer_configured at startup (no secrets)
+- feat(mailer): configurable sender display name (mailerFrom)
+
+## #183 security-probes
+
+_merged 2026-10-16_
+
+- docs: STATUS counts and probe exemptions (adr 0033)
+- docs: add ADR 0033 (rate-limited probes)
+- test(gateway): cover rate-limited public probes
+- chore(config): document PROBE_CACHE_MS
+- feat(gateway): rate-limit and cache the public probes
+
+## #184 security-rng
+
+_merged 2026-10-16_
+
+- docs: fail-closed rng + counts (adr 0034)
+- test(core): add CSPRNG freshness suite (ci step 47)
+- fix(core): fail closed on RNG error for MFA secrets
+- fix(core): fail closed on RNG error for salts and codes
+- feat(core): add fail-closed OS CSPRNG helper
+
+## #185 security-db-grants
+
+_merged 2026-10-16_
+
+- docs: db least privilege + counts (adr 0035)
+- docs: document least-privilege database accounts
+- test(db): add least-privilege guardrail suite (ci step 48)
+- feat(db): run migrations under a separate privileged credential
+- feat(db): add least-privilege account provisioning
+
+## #186 security-hygiene
+
+_merged 2026-10-16_
+
+- docs: audit immutability + request id (adr 0036)
+- test(gateway): echo well-formed request ids, replace the rest
+- feat(gateway): validate and cap X-Request-Id
+- test(db): audit row UPDATE is refused
+- feat(db): make audit_trail append-only (migration 0028)
+
+## #187 test-coverage
+
+_merged 2026-10-16_
+
+- docs: add ADR 0037 (test coverage contract)
+- docs: record coverage guards and counts
+- test(gateway): in-progress idempotency key blocks then replays
+- test(gateway): lock the full result-code to HTTP-status contract
+- refactor(gateway): export the error-status map for contract tests
+
+## #188 test-no-silent-skips
+
+_merged 2026-10-16_
+
+- docs: no silent test skips (adr 0038)
+- feat(ci): fail the gateway step when any test is skipped
+- test(gateway): same no-skip policy for smoke and metrics suites
+- test(gateway): fail instead of silently skipping on DB-seed loss
+- test(gateway): add requireSeed helper failing on DB-seed loss
+
+## #189 test-assertion-baseline
+
+_merged 2026-10-16_
+
+- docs: corrected machine-checked counts (adr 0039)
+- test: verify STATUS headline counts against the baseline manifest
+- test: add per-suite assertion-count baseline manifest
+- feat(ci): verify the run against the assertion-count baseline
+- feat(ci): record per-suite pass counts during the run
+
+## #190 test-hygiene
+
+_merged 2026-10-16_
+
+- docs: test hygiene + counts (adr 0040)
+- test(gateway): self-sufficient fixtures in the endpoint smoke suite
+- test(shell): same TOTP boundary hardening for the MFA suite
+- test(gateway): harden TOTP generation against the 30s boundary
+- test(gateway): cover readiness 503 when the database is down
+
+## #191 abuse-body-proxy
+
+_merged 2026-10-16_
+
+- docs: body cap and trust-proxy warning + counts (adr 0041)
+- test(gateway): cover the body cap and the trust-proxy warning
+- chore(config): document TRUST_PROXY and the JSON body cap
+- feat(gateway): warn on rate-limit-key spoofing via TRUST_PROXY
+- feat(gateway): cap JSON body size and map overflow to 413
+
+## #192 abuse-account-throttle
+
+_merged 2026-10-16_
+
+- docs: per-account abuse throttles + counts (adr 0042)
+- feat(ci): wire the resend-cooldown suite into CI
+- test(auth): wrong MFA codes arm the per-account lockout
+- test(auth): cover the resend cooldown and reuse semantics
+- feat(auth): count wrong MFA codes toward the per-account lockout
+- feat(auth): per-account cooldown on code resends
+
+## #193 abuse-failopen-metric
+
+_merged 2026-10-16_
+
+- docs: counted limiter fail-open + counts (adr 0043)
+- test: baseline manifest tracks the new fail-open tests
+- test(gateway): fail-open events are counted for operators
+- test(gateway): a broken limiter store fails the request open
+- feat(gateway): count rate-limiter fail-open events
+
+## #194 abuse-lockout-docs
+
+_merged 2026-10-16_
+
+- docs: lockout model and loopback trust + counts (adr 0044)
+- docs: document the lockout-as-DoS model and trust defaults
+- test: baseline manifest tracks the trust-model test
+- test(gateway): cover the loopback trust model and warning
+- feat(gateway): default trust proxy to loopback
+
+## #195 bridge-memory-safety
+
+_merged 2026-10-16_
+
+- docs: C memory safety + counts (adr 0045)
+- feat(ci): wire the C memory-boundary suite into CI
+- test(clib): ASan boundary-contract suite for the C/COBOL sizes
+- fix(clib): refuse absurd PBKDF2 costs before burning CPU
+- fix(core): size WS-RAND for the code plus its terminator
+- fix(clib): stop writing a terminator past single-char result fields
+
+## #196 bridge-log-redaction
+
+_merged 2026-10-16_
+
+- docs: add ADR 0046 (bridge log redaction)
+- docs: bridge diagnostics wording and counts
+- test: baseline manifest tracks the diagnostic checks
+- test(bridge): diagnostics carry no email addresses
+- fix(bridge): stop logging concatenated SQL text to stderr
+
+## #197 bridge-begin-guard
+
+_merged 2026-10-17_
+
+- docs: add ADR 0047 (begin re-entry guard)
+- docs: bridge transaction wording and counts
+- feat(ci): wire the bridge transaction suite into CI
+- test(bridge): re-entry rolls back the leaked transaction
+- fix(bridge): roll back a leaked transaction on SQL_BEGIN re-entry
+
+## #198 bridge-buffer-contract
+
+_merged 2026-10-17_
+
+- docs: add ADR 0048 (buffer contract)
+- docs: reference the buffer contract in STATUS
+- feat(ci): enforce the buffer contract on every run
+- test: machine-check the COBOL side of the buffer contract
+- docs: add the C/COBOL buffer contract
+
+## #199 db-baseline
+
+_merged 2026-10-17_
+
+- docs: migration baseline + counts (adr 0049)
+- test: baseline manifest tracks the migration checks
+- test(db): baseline coverage, FX index, and orphan checks
+- feat(db): seed the migration baseline in schema.sql
+- feat(db): restore the FX pair lookup index (migration 0029)
+
+## #200 db-migrate-diagnostics
+
+_merged 2026-10-17_
+
+- docs: add ADR 0050 (migration failure semantics)
+- docs: migration failure semantics and counts
+- test: baseline manifest tracks the diagnostics checks
+- test(db): failing migrations abort loudly and unrecorded
+- feat(db): fail loudly naming the broken migration
+
+## #201 db-idempotent-seeds
+
+_merged 2026-10-17_
+
+- docs: add ADR 0051 (idempotent seeds)
+- docs: idempotent seeds wording and counts
+- feat(ci): wire the seed idempotency suite into CI
+- test(db): development seeds are safe to re-apply
+- feat(db): make the development seeds re-runnable
+
+## #202 db-schema-policy
+
+_merged 2026-10-17_
+
+- docs: add ADR 0052 (schema policy)
+- docs: refresh the schema header to the baseline era
+- docs: annotate the fresh-install flow in README
+- docs: reference the schema policy from STATUS
+- docs: add the schema management policy
+
+## #203 env-coverage
+
+_merged 2026-10-17_
+
+- docs: env coverage guarantee + counts (adr 0053)
+- feat(ci): enforce env documentation on every run
+- test: check every config knob is documented in .env.example
+- docs(config): document transfer-limit and retention knobs
+- docs(config): document the JWT, refresh, and MFA issuer knobs
+
+## #204 dead-code-removal
+
+_merged 2026-10-17_
+
+- docs: add ADR 0054 (dead-code removal)
+- docs: point bridge guidance at the prepared multi-row calls
+- chore(clib): remove the uncalled legacy SHA256 hasher
+- chore(bridge): remove uncalled SQL_EXECUTE_ROWS
+- chore(bridge): remove unreferenced trim_leading_spaces
+
+## #205 hygiene-gitignore-readme
+
+_merged 2026-10-17_
+
+- docs: register ADR 0055 and fix its ignore-pattern reference
+- docs: add ADR 0055 (readme and ignore hygiene)
+- docs: fix stale quick-start and gateway claims
+- docs: list the liveness/readiness probes as public routes
+- chore: drop stale gitignore entries
+
+## #206 hygiene-closeout
+
+_merged 2026-10-17_
+
+- docs: hygiene close-out + counts (adr 0056)
+- docs: record the self-contained shell suite convention
+- feat(ci): wire the hook hygiene suite into CI
+- test(hooks): installed hooks match tracked, tampering detected
+- feat(scripts): verify installed hooks match with --check
+
+## #207 regulated-bank-charter
+
+_merged 2026-10-17_
+
+- docs(readme): state the mandatory COBOL authority
+- docs(dev): prohibit business logic outside COBOL
+- docs(prd): require COBOL as the business-logic authority
+- docs(readme): mark quick start as development-only
+- docs(readme): link the mission and gates from the entry point
+- docs(readme): disclose prototype and regulatory status
+- docs(dev): establish mandatory regulated-banking controls
+- docs(prd): reset product charter for regulated banking
+
+## #208 cobol-authority
+
+_merged 2026-10-17_
+
+- docs: record CI failure-handling in ADR-0057
+- chore(ci): explicit curl failure value in gateway wait loop
+- chore(ci): explicit exit codes instead of || true guards
+- docs(db): translate schema comments to English
+- docs: record COBOL enrolment decision and trigger exception
+- test(auth): cover COBOL enrolment decision table
+- refactor(gateway): consume COBOL enrolment decision, drop JS replica
+- feat(auth): decide MFA enrolment requirement in COBOL
+
+## #209 workflow-fat-prs
+
+_merged 2026-10-17_
+
+- docs: immortalize micro-commit, fat-PR workflow as rule 43
+
+## #210 gate0-traceability
+
+_merged 2026-10-17_
+
+- docs(gate0): point STATUS gaps at the traceability matrix
+- docs(gate0): adopt traceability as a merge gate in ADR-0058
+- docs(wallet): fix prepared-statement and credential drift in spec
+- chore(gate0): enforce traceability in CI status step
+- chore(gate0): include traceability matrix in docs integrity check
+- test(gate0): check matrix coverage, shape, evidence, owners, gates
+- docs(gate0): record retention and approval per requirement in matrix
+- docs(gate0): add requirements traceability matrix
+
+## #211 gate1-precision
+
+_merged 2026-10-17_
+
+- fix(precision): single-period sentences for new paragraphs
+- docs(precision): ADR-0059, matrix row, status, spec, knob docs
+- feat(gateway): forward up to 4dp amounts, COBOL enforces precision
+- test(precision): per-currency limit boundaries for 0/2/3 decimals
+- feat(precision): parse money in major units, drop fixed x100 scaling
+
+## #212 gate1-journal
+
+_merged 2026-10-17_
+
+- fix(journal): rejoin sentences to satisfy the inline-scope rule
+- docs(journal): ADR-0060, matrix row, status, spec, PRD boundary
+- chore(journal): wire journal suite into CI as step 35
+- test(journal): journal invariant and crash-recovery suite
+- feat(journal): journalize reversals and link audit rows
+- feat(journal): post journal header and verify balanced legs in TRANSFER
+- feat(journal): journal_entries table and migration 0030
+
+## #213 gate1-holds-fees
+
+_merged 2026-10-17_
+
+- chore(holds): wire holds suite into CI as step 36
+- fix(holds): frozen-balance expectation with available field
+- fix(holds): resolve zero-vs-many accounts, serve-mode balance format
+- docs(holds): ADR-0061, matrix row, status, specs, PRD boundary
+- feat(gateway): holds endpoints, available balance, REASON pattern
+- test(holds): holds, fees and available-balance suite
+- feat(fees): scheduled transfer fees as separate journals
+- feat(holds): enforce available balance in transfers and balances
+- feat(holds): PLACE_HOLD and RELEASE_HOLD actions
+- feat(holds): account_holds and fee_schedule tables, migration 0031
+
+## #214 gate1-reconciliation
+
+_merged 2026-10-17_
+
+- docs(recon): ADR-0062, matrix rows, status, specs, PRD boundary
+- chore(recon): wire reconciliation runs suite into CI as step 36
+- test(recon): recorded runs and exception workflow suite
+- feat(gateway): reconciliation runs endpoints and export scripts
+- feat(recon): ACK_EXCEPTION and RESOLVE_EXCEPTION workflow
+- feat(recon): LIST_RECONCILIATIONS and LIST_EXCEPTIONS views
+- feat(recon): RUN_RECONCILIATION recorded runs
+- feat(recon): reconciliation runs and findings tables, migration 0032
+
+## #215 gate2-dual-control
+
+_merged 2026-10-17_
+
+- docs(dual): ADR-0063, matrix row, status, specs, PRD boundary
+- chore(dual): wire dual-control suite into CI as step 37
+- feat(gateway): dual-control endpoints, OPERATION patterns, contract test
+- test(dual): dual-control request and approval suite
+- feat(dual): gate CHANGE_ROLE behind designation, DUAL_CONTROL_REQUIRED
+- feat(dual): REQUEST/APPROVE/REJECT/LIST actions
+- feat(dual): maker requests and designation tables, migration 0033
+
+## #216 gate2-outbox
+
+_merged 2026-10-17_
+
+- chore(outbox): worker under src/, env docs, test robustness
+- docs(outbox): ADR-0064, matrix row, status, specs, PRD boundary
+- chore(outbox): wire outbox suite into CI as step 38
+- chore(outbox): gateway count 107 to 108
+- feat(gateway): outbox-owned delivery, LIST_OUTBOX endpoint
+- test(outbox): transactional outbox and worker dispatch suite
+- fix(outbox): full multi-row output and worker row parsing
+- feat(outbox): enqueue in signup/resend/forgot/email flows, claim/mark/list actions
+- feat(outbox): notification outbox table, migration 0034
+
+## #217 gate2-mfa-recovery
+
+_merged 2026-10-17_
+
+- docs(recovery): ADR 0065, status, traceability, and specs
+- fix(recovery): verify only the newest pending request
+- chore(recovery): wire MFA recovery suite into CI as step 51
+- feat(gateway): backup codes and recovery endpoints plus e2e test
+- test(recovery): backup codes and assisted recovery suite
+- fix(outbox): deliver MFA recovery notices
+- feat(recovery): assisted recovery request/verify/approve/reject/list
+- fix(recovery): admin reset clears backup codes
+- feat(recovery): backup codes, login/step-up acceptance, cleanup on disable
+- feat(recovery): backup codes and recovery tables, migration 0035
+
+## #218 gate2-statements
+
+_merged 2026-10-17_
+
+- docs(statements): ADR 0066, status, traceability, and specs
+- chore(statements): wire statements suite into CI as step 52
+- fix(statements): date-only posting rows so fields stay colon-free
+- test(statements): gateway e2e plus baseline and status counts
+- test(statements): statement suite with balances, ranges, and paging
+- feat(gateway): GET /statements endpoint with parsed lines
+- feat(statements): read-only STATEMENT action with opening/closing balances
+
+## #219 gate2-disputes
+
+_merged 2026-10-17_
+
+- docs(disputes): ADR 0067, status, traceability, and specs
+- chore(disputes): wire disputes suite into CI as step 53
+- test(disputes): gateway e2e plus baseline and status counts
+- test(disputes): ticket lifecycle suite with authz and immutability
+- feat(gateway): dispute ticket endpoints with parsed views
+- fix(disputes): allow cascade delete of messages, keep update-immutability
+- feat(disputes): open/note/ack/resolve/reject/list/get actions in COBOL
+- feat(disputes): dispute cases and append-only messages, migration 0036
+
+## #220 gate2-ops-hardening
+
+_merged 2026-10-17_
+
+- chore(ops): wire backup suite into CI as step 54
+- docs(ops): qualify PRD boundary for tested backup mechanism
+- docs(ops): ADR 0068, status, traceability, and runbook index
+- chore(ops): dependency audit in CI as step 63
+- docs(ops): patch policy and release evidence checklist
+- docs(ops): incident, alert, backup-restore, and deploy runbooks
+- test(ops): backup round-trip suite with canary rewind check
+- feat(ops): backup and restore scripts with manifest verification
+
+## #221 gate1-balance-leftovers
+
+_merged 2026-10-17_
+
+- docs(balance): dashboard action row matches new projection
+- docs(balance): ADR 0069, B-P0-BALANCE implemented, dashboard spec
+- test(balance): profile available e2e plus baseline and status counts
+- feat(ops): scheduled reconcile alerts on any recorded divergence
+- feat(balance): dashboard shows available balance with per-currency precision
+
+## #222 hygiene-sync
+
+_merged 2026-10-17_
+
+- docs(hygiene): drop implemented controls from PRD not-implemented list
+- docs(hygiene): correct stale holds/fees gaps in traceability matrix
+- docs(hygiene): describe divergence alerting instead of claiming none exists
+- docs(hygiene): list statements and disputes routes in STATUS gateway inventory
+- docs(hygiene): list dispute tables in STATUS schema inventory
+
+## #223 inverse-fx-rounding
+
+_merged 2026-10-17_
+
+- docs(fx): ADR 0070, status and spec for exact inverse-rate conversion
+- fix(fx): exact inverse-rate conversion via DECIMAL(30,18) snapshot
+- test(fx): reproduce inverse-rate over-credit (6.40 vs 6.37)
+
+## #224 tx-status-precision
+
+_merged 2026-10-17_
+
+- docs(fx): ADR 0071 and specs for TX_STATUS currency precision
+- fix(fx): TX_STATUS formats the amount at the sender currency precision
+- test(fx): reproduce TX_STATUS fixed 2dp for an IDR sender
+
+## #225 seed-ledger-consistency
+
+_merged 2026-10-17_
+
+- docs(seed): note ledger-consistent test fixtures
+- test(seed): suites clean up their fixtures so the ledger stays consistent
+- test(seed): back seeded balances with matching ledger rows
+- test(seed): reproduce seeded balances that ignore the ledger
+
+## #226 build-warning-ratchet
+
+_merged 2026-10-17_
+
+- docs(build): triage the COBOL warning classes and document the ratchet
+- chore(build): freeze the COBOL warning count with a per-class ratchet
+
+## #227 fx-policy-decision-draft
+
+_merged 2026-10-18_
+
+- docs(adr): draft FX rounding, fee-reversal, and rate-validity decisions
+
+## #228 fx-policy-decision-fill
+
+_merged 2026-10-18_
+
+- docs(adr): record the FX/fee/rate decisions (D1 book residual, D2 refund by reason, D3 window)
+
+## #229 fx-rate-window
+
+_merged 2026-10-19_
+
+- chore(fx): document RATE_MAX_AGE_SECONDS and D3 counts
+- test(fx): stale-rate regression and gateway contract (D3)
+- feat(fx): enforce exchange-rate validity window (D3)
+

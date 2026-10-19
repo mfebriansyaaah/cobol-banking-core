@@ -87,7 +87,7 @@ check "legs carry the journal" "0" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_r
 check "audit row carries the journal" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='TRANSFER' AND detail LIKE 'j_b@test.com:250.00%' AND journal_id = (SELECT journal_id FROM journal_entries WHERE txn_ref='j1');")"
 
 # --- a reversal opens its own REVERSAL journal ---------------------------------
-check "reversal ok" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER j1 j_adm@test.com j_a@test.com)"
+check "reversal ok" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER j1 j_adm@test.com j_a@test.com BANK_ERROR)"
 check "two journals for the ref" "2" "$(q "SELECT COUNT(*) FROM journal_entries WHERE txn_ref='j1';")"
 check "reversal journal source and actor" "REVERSAL|j_adm@test.com" "$(q "SELECT CONCAT(source, '|', actor_email) FROM journal_entries WHERE txn_ref='j1' AND source='REVERSAL';")"
 check "four legs total" "4" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='j1';")"

@@ -67,21 +67,25 @@ check "status unknown ref" "ERROR|UNKNOWN_TRANSACTION" "$(run TX_STATUS nope sen
 
 # --- reversal ------------------------------------------------------------
 check "reversal is admin-only" "ERROR|FORBIDDEN" "$(run REVERSE_TRANSFER rev-1 sender@test.com)"
-check "unknown ref is not reversible" "ERROR|UNKNOWN_TRANSACTION" "$(run REVERSE_TRANSFER nope "$ADM")"
-check "admin reverses" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER rev-1 "$ADM")"
+check "unknown ref is not reversible" "ERROR|UNKNOWN_TRANSACTION" "$(run REVERSE_TRANSFER nope "$ADM" "" "BANK_ERROR")"
+check "missing reason rejected" "ERROR|INVALID_INPUT" "$(run REVERSE_TRANSFER rev-1 "$ADM")"
+check "unknown reason rejected" "ERROR|INVALID_INPUT" "$(run REVERSE_TRANSFER rev-1 "$ADM" "" "BOGUS")"
+check "no marker on invalid reason" "0" "$(q "SELECT COUNT(*) FROM transfer_reversals WHERE orig_ref='rev-1';")"
+check "admin reverses" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER rev-1 "$ADM" "" "BANK_ERROR")"
 check "sender restored" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 check "target clawed back" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
 check "compensating ledger rows" "4" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='rev-1';")"
 check "reversal audited" "1" "$(q "SELECT COUNT(*) FROM audit_trail WHERE action='REVERSE_TRANSFER' AND entity_id='rev-1';")"
 check "reversal audit names the sender" "sender@test.com" "$(q "SELECT detail FROM audit_trail WHERE action='REVERSE_TRANSFER' AND entity_id='rev-1' ORDER BY audit_id DESC LIMIT 1")"
+check "reversal reason recorded" "BANK_ERROR" "$(q "SELECT reason FROM transfer_reversals WHERE orig_ref='rev-1';")"
 check_contains "status is now REVERSED" "REVERSED" "$(run TX_STATUS rev-1 sender@test.com)"
-check "second reversal refused" "ERROR|ALREADY_REVERSED" "$(run REVERSE_TRANSFER rev-1 "$ADM")"
+check "second reversal refused" "ERROR|ALREADY_REVERSED" "$(run REVERSE_TRANSFER rev-1 "$ADM" "" "BANK_ERROR")"
 
 # --- cannot reverse when the target spent the money ----------------------
 setup
 run TRANSFER sender@test.com receiver@test.com 100.00 rev-2 >/dev/null
 q "UPDATE accounts SET balance=0.00 WHERE account_id=2;"
-check "reversal needs the target to hold funds" "ERROR|INSUFFICIENT_FUNDS" "$(run REVERSE_TRANSFER rev-2 "$ADM")"
+check "reversal needs the target to hold funds" "ERROR|INSUFFICIENT_FUNDS" "$(run REVERSE_TRANSFER rev-2 "$ADM" "" "BANK_ERROR")"
 check "failed reversal left the sender" "900.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
 check "failed reversal wrote no marker" "0" "$(q "SELECT COUNT(*) FROM transfer_reversals WHERE orig_ref='rev-2';")"
 
@@ -95,11 +99,41 @@ check "admin filters by sender" "10.00" "$(run TX_STATUS dup-k "$ADM" sender@tes
 check "owner still sees their own with the shared ref" "10.00" "$(run TX_STATUS dup-k sender@test.com | cut -d'|' -f6)"
 
 # Reversal of a shared ref needs the sender, and reverses only that transfer.
-check "reversal of a shared ref is ambiguous" "ERROR|AMBIGUOUS_TRANSACTION" "$(run REVERSE_TRANSFER dup-k "$ADM")"
-check "reversal with the sender succeeds" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" receiver@test.com)"
-check "the same reversal is refused" "ERROR|ALREADY_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" receiver@test.com)"
+check "reversal of a shared ref is ambiguous" "ERROR|AMBIGUOUS_TRANSACTION" "$(run REVERSE_TRANSFER dup-k "$ADM" "" "BANK_ERROR")"
+check "reversal with the sender succeeds" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" receiver@test.com "BANK_ERROR")"
+check "the same reversal is refused" "ERROR|ALREADY_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" receiver@test.com "BANK_ERROR")"
 check "the other sender's transfer is untouched" "COMMITTED" "$(run TX_STATUS dup-k "$ADM" sender@test.com | cut -d'|' -f3)"
-check "the other sender can still be reversed" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" sender@test.com)"
+check "the other sender can still be reversed" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER dup-k "$ADM" sender@test.com "BANK_ERROR")"
+
+# --- fee refund by reason (D2) ------------------------------------------------
+# A transfer carrying a per-currency flat fee posts separate FEE legs; a
+# BANK_ERROR reversal refunds the fee, a CUSTOMER_ERROR reversal retains it.
+setup
+q "DELETE FROM fee_schedule WHERE currency_id = 1;
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (995,'rev_bank@test.com','x','Fee Bank','1990-01-01','VERIFIED','USER') ON DUPLICATE KEY UPDATE status='VERIFIED';
+   INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES (995,995,1,0,'FEE_INCOME') ON DUPLICATE KEY UPDATE account_type='FEE_INCOME',status='ACTIVE',balance=0;
+   INSERT INTO fee_schedule (currency_id, fee_amount) VALUES (1, 2.50);"
+check "fee transfer" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 100.00 feeref1)"
+check "fee posted to income" "2.5000" "$(q "SELECT balance FROM accounts WHERE account_id=995;")"
+check "sender debited principal plus fee" "897.5000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "BANK_ERROR refunds the fee" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER feeref1 "$ADM" "" "BANK_ERROR")"
+check "fee returned to sender" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "fee clawed back from income" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=995;")"
+check "refund legs posted" "2" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='feeref1' AND description LIKE 'Fee refund%';")"
+check "refund reason recorded" "BANK_ERROR" "$(q "SELECT reason FROM transfer_reversals WHERE orig_ref='feeref1';")"
+
+setup
+q "DELETE FROM fee_schedule WHERE currency_id = 1;
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (995,'rev_bank@test.com','x','Fee Bank','1990-01-01','VERIFIED','USER') ON DUPLICATE KEY UPDATE status='VERIFIED';
+   INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES (995,995,1,0,'FEE_INCOME') ON DUPLICATE KEY UPDATE account_type='FEE_INCOME',status='ACTIVE',balance=0;
+   INSERT INTO fee_schedule (currency_id, fee_amount) VALUES (1, 2.50);"
+check "fee transfer again" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 100.00 feeref2)"
+check "CUSTOMER_ERROR retains the fee" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER feeref2 "$ADM" "" "CUSTOMER_ERROR")"
+check "principal back but fee kept" "997.5000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "fee retained in income" "2.5000" "$(q "SELECT balance FROM accounts WHERE account_id=995;")"
+check "no refund legs posted" "0" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='feeref2' AND description LIKE 'Fee refund%';")"
+check "retain reason recorded" "CUSTOMER_ERROR" "$(q "SELECT reason FROM transfer_reversals WHERE orig_ref='feeref2';")"
+q "DELETE FROM fee_schedule WHERE currency_id = 1; UPDATE accounts SET balance=0 WHERE account_id=995;"
 
 teardown
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1; UPDATE accounts SET balance=0.00 WHERE account_id=2;

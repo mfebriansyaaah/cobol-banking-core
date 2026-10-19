@@ -92,7 +92,7 @@ check "unknown currency has no account" "ERROR|ACCOUNT_NOT_FOUND" "$(run STATEME
 q "INSERT INTO ledger (txn_ref,account_id,amount,type,currency_id,description) VALUES ('STMT_FUND',975,1000,'CREDIT',1,'Suite funding');
    UPDATE accounts SET balance=1000 WHERE account_id=975;"
 check "transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER $U $O 100.00 STMT001)"
-check "reversal ok" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER STMT001 $A $U)"
+check "reversal ok" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER STMT001 $A $U CUSTOMER_ERROR)"
 
 STMT="$(run STATEMENT $U $U USD , 50 0)"
 check "statement ok" "SUCCESS|STATEMENT" "$(echo "$STMT" | cut -d'|' -f1-2 | cut -d'|' -f1-2)"

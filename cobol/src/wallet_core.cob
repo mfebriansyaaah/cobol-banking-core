@@ -126,6 +126,14 @@
         01  WS-REV-MINFROM         PIC X(100) VALUE SPACES.
         01  WS-REV-AMT-NUM         PIC S9(16)V9999 COMP-3.
         01  WS-REV-CAMT-NUM        PIC S9(16)V9999 COMP-3.
+        01  WS-REV-REASON          PIC X(100) VALUE SPACES.
+        01  WS-REV-REFUND          PIC X(1)  VALUE "0".
+        01  WS-REV-FEE-ACC         PIC X(20) VALUE SPACES.
+        01  WS-REV-FEE-AMT         PIC X(30) VALUE SPACES.
+        01  WS-REV-FEE-CUR         PIC X(20) VALUE SPACES.
+        01  WS-REV-FEE-ISO         PIC X(3)  VALUE SPACES.
+        01  WS-REV-FEE-PREC        PIC X(2)  VALUE SPACES.
+        01  WS-REV-FEE-NUM         PIC S9(16)V9999 COMP-3.
         01  WS-SQL-PTR             PIC 9(5)  VALUE 0.
         01  WS-TX-FROM             PIC X(100) VALUE SPACES.
         01  WS-TX-TO               PIC X(100) VALUE SPACES.
@@ -188,6 +196,7 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM TRIM-PARAM3
+                    PERFORM TRIM-PARAM4
                     PERFORM REVERSE-TRANSFER-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "TX_STATUS"
                     PERFORM TRIM-PARAM1
@@ -445,6 +454,18 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            *> Reversal reason selects the fee-refund policy (D2); a missing
+            *> reason is rejected before any state is read or written.
+            MOVE SPACES TO WS-REV-REASON
+            MOVE "0" TO WS-REV-REFUND
+            MOVE SPACES TO WS-REV-FEE-ACC
+            MOVE SPACES TO WS-REV-FEE-AMT
+            MOVE SPACES TO WS-REV-FEE-CUR
+            IF WS-P4-LEN = 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-PARAM4-TRIMMED(1:WS-P4-LEN) TO WS-REV-REASON
             *> Resolve the transfer's sender. txn_ref is unique per sender, so a
             *> shared reference is refused unless the sender is given (p3).
             MOVE SPACES TO WS-REV-FROM
@@ -518,6 +539,50 @@
                 INTO WS-TARGET-ACC WS-REV-CAMT WS-TARGET-CUR WS-RATE-STR
                      WS-TARGET-PREC
             END-UNSTRING
+            *> Fee legs of the original transfer, if it carried a fee.
+            MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND description = 'Fee out' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-REV-FROM TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO WS-REV-FEE-AMT
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                UNSTRING WS-RESULT DELIMITED BY "|"
+                    INTO WS-REV-FEE-ACC WS-REV-FEE-AMT WS-REV-FEE-CUR
+                END-UNSTRING
+            END-IF
+            *> Policy: the reason decides refund or retain; unknown reasons
+            *> fail closed even when no fee is due.
+            MOVE "SELECT CAST(refund_fee AS CHAR) FROM reversal_fee_policy WHERE reason = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-REV-REASON TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-REV-REFUND
+            END-UNSTRING
             SET WS-TRANSFER-OK TO TRUE
             CALL "SQL_BEGIN"
             *> Lock both original accounts (ordered) before touching balances.
@@ -572,13 +637,15 @@
                 END-IF
             END-IF.
             *> One-time marker (PK on orig_ref): a duplicate means already reversed.
-            MOVE "INSERT INTO transfer_reversals (orig_ref, from_email, actor_id) SELECT ?, ?, id FROM users WHERE email = ?" TO WS-PREP-SQL
+            MOVE "INSERT INTO transfer_reversals (orig_ref, from_email, actor_id, reason) SELECT ?, ?, id, ? FROM users WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-REV-FROM TO WS-BIND-2
-            MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
+            MOVE WS-REV-REASON TO WS-BIND-3
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
@@ -668,6 +735,10 @@
             END-IF.
             IF WS-TRANSFER-FAIL-DB
                 SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK AND WS-REV-REFUND = "1"
+                AND WS-REV-FEE-AMT NOT = SPACES
+                PERFORM POST-FEE-REFUND
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT"
@@ -2319,6 +2390,194 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        POST-FEE-REFUND.
+            *> Compensating fee legs for a refund-by-reason reversal: DEBIT
+            *> the fee-income account, CREDIT the original sender, verified
+            *> as its own journal like any posting.
+            MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'FEE_INCOME' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-REV-FEE-CUR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-INCOME-ACC
+            END-UNSTRING
+            *> The income account must still hold the fee to return it.
+            MOVE "SELECT CONCAT(balance) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-INCOME-ACC TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-SENDER-BAL
+            END-UNSTRING
+            MOVE WS-SENDER-BAL TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
+            MOVE WS-REV-FEE-AMT TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            MOVE WS-PARSE-NUM TO WS-REV-FEE-NUM
+            IF WS-BALANCE-NUM < WS-REV-FEE-NUM
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'FEE', ?)" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-REV-FEE-AMT TO WS-BIND-1
+            MOVE WS-INCOME-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+            MOVE WS-REV-FEE-AMT TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'Fee refund out', 1, @jid, ?)" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-INCOME-ACC TO WS-BIND-2
+            MOVE WS-REV-FEE-AMT TO WS-BIND-3
+            MOVE WS-REV-FEE-CUR TO WS-BIND-4
+            MOVE WS-REV-FROM TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'Fee refund in', 1, @jid, ?)" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            MOVE WS-REV-FEE-AMT TO WS-BIND-3
+            MOVE WS-REV-FEE-CUR TO WS-BIND-4
+            MOVE WS-REV-FROM TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT CAST(prec_val AS CHAR), iso_code FROM currencies WHERE currency_id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-REV-FEE-CUR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-REV-FEE-PREC WS-REV-FEE-ISO
+            END-UNSTRING
+            MOVE WS-REV-FEE-PREC TO WS-JV-PREC
+            PERFORM VERIFY-JOURNAL-BALANCED
+            IF WS-TRANSFER-FAIL-DB
+                SET STEP-FAIL TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-DETAIL
+            STRING WS-REV-FEE-AMT DELIMITED BY SPACE ":" DELIMITED BY SIZE
+                   WS-REV-FEE-ISO DELIMITED BY SPACE
+                   INTO WS-DETAIL
+            END-STRING
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-REV-FROM TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-SENDER-USER
+            END-UNSTRING
+            MOVE WS-SENDER-USER TO WS-BIND-1
+            MOVE WS-SENDER-ACC TO WS-BIND-2
+            MOVE WS-DETAIL TO WS-BIND-3
+            MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'FEE', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
+                BY REFERENCE WS-BIND-5
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
             END-IF.
             EXIT PARAGRAPH.
 
