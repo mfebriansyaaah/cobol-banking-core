@@ -2682,3 +2682,10 @@ _merged 2026-10-19_
 - docs: record the merged FX decisions and migration retry semantics
 - test(docs): scan every tracked Markdown, resolve relative paths
 
+## #241 readme-summary
+
+_merged 2026-10-19_
+
+- docs: summarize recent FX, fee, rotation, and pool controls in README
+- docs: sync HISTORY.md to post-merge state (#240)
+
