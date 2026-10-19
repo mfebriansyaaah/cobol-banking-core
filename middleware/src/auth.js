@@ -21,6 +21,28 @@ const VERIFY_OPTS = { algorithms: [ALGORITHM], ...JWT_CLAIMS };
 // Refresh-token lifetime in whole days (mirrors REFRESH_EXPIRES_IN for storage).
 export const REFRESH_TTL_DAYS = Number(process.env.REFRESH_TTL_DAYS || 7);
 
+// Overlapping secret rotation: *_PREVIOUS holds the pre-rotation value so
+// tokens minted before a restart still verify during the overlap window.
+// Signing always uses the current secret; verification tries current,
+// then previous. The previous value is read per call (not captured at
+// import) so tests and rotation tooling can stage it at any time.
+function candidates(current, previous) {
+  if (previous && previous !== current) return [current, previous];
+  return [current];
+}
+
+function verifyWithAny(token, current, previous) {
+  let lastErr;
+  for (const secret of candidates(current, previous)) {
+    try {
+      return jwt.verify(token, secret, VERIFY_OPTS);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
+}
+
 const DEV_JWT_SECRET = 'dev-secret-change-me';
 const DEV_REFRESH_SECRET = 'dev-refresh-secret-change-me';
 const MIN_SECRET_LENGTH = 32;
@@ -37,6 +59,18 @@ export function assertSecureConfig() {
   else if (refreshSecret.length < MIN_SECRET_LENGTH) problems.push(`REFRESH_SECRET (min ${MIN_SECRET_LENGTH} chars)`);
   if (accessSecret && refreshSecret && accessSecret === refreshSecret) {
     problems.push('REFRESH_SECRET must differ from JWT_SECRET');
+  }
+  const accessPrev = process.env.JWT_SECRET_PREVIOUS || '';
+  const refreshPrev = process.env.REFRESH_SECRET_PREVIOUS || '';
+  if (accessPrev) {
+    if (accessPrev === DEV_JWT_SECRET) problems.push('JWT_SECRET_PREVIOUS');
+    else if (accessPrev.length < MIN_SECRET_LENGTH) problems.push(`JWT_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
+    else if (accessPrev === accessSecret) problems.push('JWT_SECRET_PREVIOUS must differ from JWT_SECRET');
+  }
+  if (refreshPrev) {
+    if (refreshPrev === DEV_REFRESH_SECRET) problems.push('REFRESH_SECRET_PREVIOUS');
+    else if (refreshPrev.length < MIN_SECRET_LENGTH) problems.push(`REFRESH_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
+    else if (refreshPrev === refreshSecret) problems.push('REFRESH_SECRET_PREVIOUS must differ from REFRESH_SECRET');
   }
   if (problems.length > 0) {
     throw new Error(`refusing to start in production: set ${problems.join(', ')} to a strong, non-default value`);
@@ -63,13 +97,13 @@ export function signRefresh(payload, jti = randomUUID()) {
 }
 
 export function verifyRefresh(token) {
-  return jwt.verify(token, REFRESH_SECRET, VERIFY_OPTS);
+  return verifyWithAny(token, REFRESH_SECRET, process.env.REFRESH_SECRET_PREVIOUS || '');
 }
 
 /** Verify an access token, returning its payload or null (never throws). */
 export function verifyAccess(token) {
   try {
-    const p = jwt.verify(token, SECRET, VERIFY_OPTS);
+    const p = verifyWithAny(token, SECRET, process.env.JWT_SECRET_PREVIOUS || '');
     return p.purpose ? null : p;
   } catch {
     return null;
@@ -91,7 +125,7 @@ export function signStepUp(payload) {
 }
 
 export function verifyStepUp(token) {
-  const p = jwt.verify(token, SECRET, VERIFY_OPTS);
+  const p = verifyWithAny(token, SECRET, process.env.JWT_SECRET_PREVIOUS || '');
   if (p.purpose !== 'step-up') throw new Error('not a step-up token');
   return p;
 }
@@ -104,7 +138,7 @@ export function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'MISSING_TOKEN' });
   }
   try {
-    req.user = jwt.verify(token, SECRET, VERIFY_OPTS);
+    req.user = verifyWithAny(token, SECRET, process.env.JWT_SECRET_PREVIOUS || '');
     // A step-up (or any other purpose-tagged) token is not an access token.
     if (req.user.purpose) {
       return res.status(401).json({ error: 'INVALID_TOKEN' });
