@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { buildApp, trustProxyWarning } from '../src/app.js';
-import { assertSecureConfig } from '../src/auth.js';
+import { assertSecureConfig, verifyAccess, verifyRefresh, verifyStepUp } from '../src/auth.js';
 import { getVerificationCode } from './support.js';
 
 test('security headers are set on responses', async () => {
@@ -112,4 +112,122 @@ test('access tokens are pinned to HS256', async () => {
   const res = await request(app).get('/users').set('Authorization', `Bearer ${hs384}`);
   assert.equal(res.status, 401);
   assert.equal(res.body.error, 'INVALID_TOKEN');
+});
+
+const ROT_CLAIMS = { issuer: 'cobol-banking-core', audience: 'cobol-banking-api' };
+const ROT_PREV = 'previous-rotation-secret-value-0001';
+const ROT_UNKNOWN = 'never-configured-secret-value-0002';
+
+function withPrevious(env) {
+  const saved = {};
+  for (const key of Object.keys(env)) {
+    saved[key] = process.env[key];
+    if (env[key] === undefined) delete process.env[key];
+    else process.env[key] = env[key];
+  }
+  return () => {
+    for (const key of Object.keys(saved)) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  };
+}
+
+test('access tokens minted before rotation still verify', () => {
+  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV });
+  try {
+    const prevToken = jwt.sign({ email: 'rot@test.com' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+    assert.equal(verifyAccess(prevToken).email, 'rot@test.com');
+    const unknownToken = jwt.sign({ email: 'rot@test.com' }, ROT_UNKNOWN, { expiresIn: '5m', ...ROT_CLAIMS });
+    assert.equal(verifyAccess(unknownToken), null);
+  } finally {
+    restore();
+  }
+});
+
+test('refresh tokens minted before rotation still verify', () => {
+  const restore = withPrevious({ REFRESH_SECRET_PREVIOUS: ROT_PREV });
+  try {
+    const prevToken = jwt.sign({ email: 'rot@test.com', jti: 'j' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+    assert.equal(verifyRefresh(prevToken).email, 'rot@test.com');
+    const unknownToken = jwt.sign({ email: 'rot@test.com', jti: 'j' }, ROT_UNKNOWN, { expiresIn: '5m', ...ROT_CLAIMS });
+    assert.throws(() => verifyRefresh(unknownToken));
+  } finally {
+    restore();
+  }
+});
+
+test('step-up tokens minted before rotation still verify, purpose still enforced', () => {
+  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV });
+  try {
+    const prevToken = jwt.sign({ email: 'rot@test.com', purpose: 'step-up' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+    assert.equal(verifyStepUp(prevToken).email, 'rot@test.com');
+    // A purpose-tagged token is not an access token, even across rotation.
+    assert.equal(verifyAccess(prevToken), null);
+    // An untagged token is not a step-up proof, even across rotation.
+    const noPurpose = jwt.sign({ email: 'rot@test.com' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+    assert.throws(() => verifyStepUp(noPurpose), /not a step-up token/);
+    const unknownToken = jwt.sign({ email: 'rot@test.com', purpose: 'step-up' }, ROT_UNKNOWN, { expiresIn: '5m', ...ROT_CLAIMS });
+    assert.throws(() => verifyStepUp(unknownToken));
+  } finally {
+    restore();
+  }
+});
+
+test('rotated access tokens pass the bearer middleware', async () => {
+  const app = buildApp();
+  const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV });
+  try {
+    // Valid signature under the previous secret: requireAuth passes and the
+    // request fails later at token activeness (unknown jti), not at auth.
+    const prevToken = jwt.sign({ email: 'rot@test.com', ver: 1, jti: 'no-such-session' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+    const past = await request(app).get('/users').set('Authorization', `Bearer ${prevToken}`);
+    assert.equal(past.status, 401);
+    assert.equal(past.body.error, 'TOKEN_REVOKED');
+    // Unknown secret fails at auth itself.
+    const unknownToken = jwt.sign({ email: 'rot@test.com', ver: 1, jti: 'no-such-session' }, ROT_UNKNOWN, { expiresIn: '5m', ...ROT_CLAIMS });
+    const stopped = await request(app).get('/users').set('Authorization', `Bearer ${unknownToken}`);
+    assert.equal(stopped.status, 401);
+    assert.equal(stopped.body.error, 'INVALID_TOKEN');
+  } finally {
+    restore();
+  }
+});
+
+test('assertSecureConfig guards previous secrets in production', () => {
+  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS };
+  const restore = () => {
+    for (const key of Object.keys(saved)) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.JWT_SECRET = 'a-strong-production-secret-value-0001';
+    process.env.REFRESH_SECRET = 'another-strong-production-secret-0002';
+    delete process.env.JWT_SECRET_PREVIOUS;
+    delete process.env.REFRESH_SECRET_PREVIOUS;
+    assert.doesNotThrow(() => assertSecureConfig());
+
+    // Default, short, or current-equal previous values are refused.
+    process.env.JWT_SECRET_PREVIOUS = 'dev-secret-change-me';
+    assert.throws(() => assertSecureConfig(), /JWT_SECRET_PREVIOUS/);
+    process.env.JWT_SECRET_PREVIOUS = 'short';
+    assert.throws(() => assertSecureConfig(), /min 32 chars/);
+    process.env.JWT_SECRET_PREVIOUS = process.env.JWT_SECRET;
+    assert.throws(() => assertSecureConfig(), /must differ/);
+    process.env.JWT_SECRET_PREVIOUS = 'a-strong-previous-secret-value-0003';
+
+    process.env.REFRESH_SECRET_PREVIOUS = 'dev-refresh-secret-change-me';
+    assert.throws(() => assertSecureConfig(), /REFRESH_SECRET_PREVIOUS/);
+    process.env.REFRESH_SECRET_PREVIOUS = 'short';
+    assert.throws(() => assertSecureConfig(), /min 32 chars/);
+    process.env.REFRESH_SECRET_PREVIOUS = process.env.REFRESH_SECRET;
+    assert.throws(() => assertSecureConfig(), /must differ/);
+    process.env.REFRESH_SECRET_PREVIOUS = 'another-strong-previous-secret-0004';
+    assert.doesNotThrow(() => assertSecureConfig());
+  } finally {
+    restore();
+  }
 });

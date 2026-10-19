@@ -2598,3 +2598,13 @@ _merged 2026-10-19_
 - docs: sync HISTORY.md to post-merge state (#210)
 - docs: sync HISTORY.md to post-merge state (#206)
 
+## #231 fx-pnl-residual
+
+_merged 2026-10-19_
+
+- test(fx): gateway currency-selection uses an exact FX amount
+- test(fx): D1 residual coverage and counts
+- feat(fx): book the FX rounding residual to FX_PNL (D1)
+- feat(fx): FX_PNL account type for the D1 residual (migration 0039)
+- docs: sync HISTORY.md to post-merge state (#230)
+
