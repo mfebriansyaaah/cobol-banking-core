@@ -794,11 +794,7 @@
             ELSE
                 CALL "SQL_ROLLBACK"
                 MOVE "ERROR|EMAIL_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
-            END-IF
-            
-            MOVE SPACES TO LS-OUTPUT-BUFFER
-            STRING "SUCCESS|CODE_SENT|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
-            END-STRING.
+            END-IF.
             EXIT PARAGRAPH.
 
         ACTION-CONFIRM-EMAIL-CHANGE.
@@ -927,9 +923,10 @@
             IF STEP-OK
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'EMAIL_CHANGE', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
                 MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+                MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-2
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -1049,9 +1046,10 @@
                 END-IF
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'UPDATE_PROFILE', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
                 MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+                MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-2
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
+                    BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
