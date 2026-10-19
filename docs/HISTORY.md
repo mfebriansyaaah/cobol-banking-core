@@ -2623,3 +2623,11 @@ _merged 2026-10-19_
 - docs: Gate 0 decision checklist unblocking the remaining plan
 - docs: sync HISTORY.md to post-merge state (#232)
 
+## #234 fx-reversal-residual
+
+_merged 2026-10-19_
+
+- test(reversal): cover FX residual unwind on reversal
+- fix(reverse): unwind FX residual legs on reversal
+- docs: sync HISTORY.md to post-merge state (#233)
+

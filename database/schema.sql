@@ -100,7 +100,11 @@ CREATE TABLE IF NOT EXISTS accounts (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_acc_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id),
-    UNIQUE KEY unique_user_currency (user_id, currency_id)
+    UNIQUE KEY unique_user_currency (user_id, currency_id),
+    control_slot VARCHAR(32) GENERATED ALWAYS AS
+      (CASE WHEN status = 'ACTIVE' AND account_type IN ('FX_PNL','FEE_INCOME')
+            THEN CONCAT(currency_id, '/', account_type) ELSE NULL END) STORED,
+    UNIQUE KEY uniq_active_control_acct (control_slot)
 ) ENGINE=InnoDB;
 
 -- 5. Table Ledger (Refactored for Multi-Currency & Atomic Txns)
@@ -493,7 +497,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0036_disputes'),
 ('0037_ledger_rate_precision'),
 ('0038_reversal_fee_policy'),
-('0039_fx_pnl_account');
+('0039_fx_pnl_account'),
+('0040_control_account_uniqueness');
 
 
 -- Indexes
