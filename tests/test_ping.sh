@@ -15,6 +15,22 @@ check "unknown action still invalid" "ERROR|INVALID_ACTION" "$(run ZZZ "" "" "")
 printf 'PING\n' > input.txt
 out=$(DB_NAME=nonexistent_$$ "$BIN" >/dev/null 2>&1; cat output.txt)
 check "DB settings read from the environment" "ERROR|DB_DOWN" "$out"
+
+# Production refuses to connect with the development credentials, and says so
+# distinctly from an unreachable database (fail-closed backstop behind the
+# gateway's startup guard).
+printf 'PING\n' > input.txt
+out=$(NODE_ENV=production "$BIN" >/dev/null 2>&1; cat output.txt)
+check "production refuses dev DB credentials" "ERROR|DB_CONFIG_INSECURE" "$out"
+printf 'PING\n' > input.txt
+out=$(NODE_ENV=production DB_USER=app_rw "$BIN" >/dev/null 2>&1; cat output.txt)
+check "production refuses a missing DB password" "ERROR|DB_CONFIG_INSECURE" "$out"
+printf 'PING\n' > input.txt
+out=$(NODE_ENV=production DB_USER=app_rw DB_PASS=strongsecret DB_NAME=cobol_db DB_HOST=localhost "$BIN" >/dev/null 2>&1; cat output.txt)
+check "production with explicit credentials reaches the DB" "ERROR|DB_DOWN" "$out"
+printf 'PING\n' > input.txt
+out=$(NODE_ENV=development "$BIN" >/dev/null 2>&1; cat output.txt)
+check "development keeps the local defaults" "SUCCESS|PONG" "$out"
 echo "======================================================================"
 echo -e "Tests Completed: ${GREEN}${passed} passed${NC}, ${RED}${failed} failed${NC}"
 echo "======================================================================"
