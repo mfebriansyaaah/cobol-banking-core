@@ -865,7 +865,9 @@ test('transfer selects the sender account by currency', async () => {
   const auth = { Authorization: `Bearer ${token}` };
   requireSeed(seedAccountCurrency(em, 1, '1000.00') && seedAccountCurrency(em, 2, '1000.00'), 'seed USD and EUR accounts');
 
-  const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mc-${Date.now()}`).send({ to: 'receiver@test.com', amount: '100.00', fromCurrency: 'EUR' });
+  // 92.00 EUR -> exactly 100.00 USD at the 0.92 rate (exact postings
+  // carry no residual and need no FX_PNL account).
+  const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mc-${Date.now()}`).send({ to: 'receiver@test.com', amount: '92.00', fromCurrency: 'EUR' });
   assert.equal(res.status, 200);
 
   const bad = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mcbad-${Date.now()}`).send({ to: 'receiver@test.com', amount: '1.00', fromCurrency: 'JPY' });
