@@ -126,7 +126,7 @@ export const ROUTES = [
     { name: 'currency', pattern: CURRENCY, required: true },
     { name: 'range', pattern: DATERANGE, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ], onSuccess: async (body) => {
     // One row per posting: id, posting/value dates, ref, source, side,
     // amount, balance after the row, reversal flag, description.
@@ -173,7 +173,7 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: false },
     { name: 'status', pattern: DISPUTE_STATUS, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ], onSuccess: async (body) => {
     // One row per case: id, owner, subject, state, due date, overdue flag, opened date.
     const cases = String(body.data[2] || '')
@@ -318,7 +318,7 @@ export const ROUTES = [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'status', pattern: RECOVERY_STATUS, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ] },
   { method: 'post', path: '/mfa/enroll', action: 'MFA_ENROLL_BEGIN', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
@@ -374,13 +374,13 @@ export const ROUTES = [
   { method: 'get', path: '/admin/reconcile/runs', action: 'LIST_RECONCILIATIONS', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ] },
   { method: 'get', path: '/admin/reconcile/exceptions', action: 'LIST_EXCEPTIONS', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'status', pattern: RECON_STATUS, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ] },
   { method: 'post', path: '/admin/reconcile/acknowledge', action: 'ACK_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'findingId', pattern: INT, required: true },
@@ -390,7 +390,7 @@ export const ROUTES = [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'status', pattern: OUTBOX_STATUS, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ] },
   { method: 'post', path: '/admin/reconcile/resolve', action: 'RESOLVE_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'findingId', pattern: INT, required: true },
@@ -415,7 +415,7 @@ export const ROUTES = [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'status', pattern: REQUEST_STATUS, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
   ] },
   { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },

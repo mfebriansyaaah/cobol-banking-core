@@ -6,9 +6,17 @@ import { incCounter } from './observability.js';
 /** In-process fixed-window counter. */
 export function memoryStore() {
   const hits = new Map();
+  function evict(now) {
+    for (const [k, rec] of hits) {
+      if (now > rec.reset) hits.delete(k);
+    }
+  }
   return {
+    get size() { return hits.size; },
+    stats() { return { size: hits.size }; },
     async hit(key, windowMs) {
       const now = Date.now();
+      evict(now);
       let rec = hits.get(key);
       if (!rec || now > rec.reset) {
         rec = { count: 0, reset: now + windowMs };
