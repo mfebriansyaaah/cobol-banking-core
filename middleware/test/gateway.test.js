@@ -833,7 +833,7 @@ test('transfer status and reversal over HTTP', async () => {
   const scoped = await request(app).get(`/transactions/${key}`).query({ sender: em }).set('Authorization', `Bearer ${adminToken}`);
   assert.equal(scoped.status, 200);
   assert.equal(scoped.body.data[2], em);
-  const rev = await request(app).post(`/transactions/${key}/reverse`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({});
+  const rev = await request(app).post(`/transactions/${key}/reverse`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ reason: 'BANK_ERROR' });
   assert.equal(rev.status, 200);
   assert.deepEqual(rev.body.data, ['TRANSFER_REVERSED']);
 
