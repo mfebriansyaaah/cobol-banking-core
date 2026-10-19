@@ -2135,7 +2135,47 @@ _merged 2026-10-17_
 - docs(gate0): record retention and approval per requirement in matrix
 - docs(gate0): add requirements traceability matrix
 
+## #207 docs: sync main to origin/main post-merge (#207-#210)
+
+_merged 2026-10-17_
+
+- docs(gate0): point STATUS gaps at the traceability matrix
+- docs(gate0): adopt traceability as a merge gate in ADR-0058
+- docs(wallet): fix prepared-statement and credential drift in spec
+- chore(gate0): enforce traceability in CI status step
+- chore(gate0): include traceability matrix in docs integrity check
+- test(gate0): check matrix coverage, shape, evidence, owners, gates
+- docs(gate0): record retention and approval per requirement in matrix
+- docs(gate0): add requirements traceability matrix
+- docs: immortalize micro-commit, fat-PR workflow as rule 43
+- docs: record CI failure-handling in ADR-0057
+- chore(ci): explicit curl failure value in gateway wait loop
+- chore(ci): explicit exit codes instead of || true guards
+- docs(db): translate schema comments to English
+- docs: record COBOL enrolment decision and trigger exception
+- test(auth): cover COBOL enrolment decision table
+- refactor(gateway): consume COBOL enrolment decision, drop JS replica
+- feat(auth): decide MFA enrolment requirement in COBOL
+- docs(readme): state the mandatory COBOL authority
+- docs(dev): prohibit business logic outside COBOL
+- docs(prd): require COBOL as the business-logic authority
+- docs(readme): mark quick start as development-only
+- docs(readme): link the mission and gates from the entry point
+- docs(readme): disclose prototype and regulatory status
+- docs(dev): establish mandatory regulated-banking controls
+- docs(prd): reset product charter for regulated banking
+
 ## #211 gate1-precision
+
+_merged 2026-10-17_
+
+- fix(precision): single-period sentences for new paragraphs
+- docs(precision): ADR-0059, matrix row, status, spec, knob docs
+- feat(gateway): forward up to 4dp amounts, COBOL enforces precision
+- test(precision): per-currency limit boundaries for 0/2/3 decimals
+- feat(precision): parse money in major units, drop fixed x100 scaling
+
+## #211 docs: sync main to origin/main post-merge (#211)
 
 _merged 2026-10-17_
 
@@ -2157,7 +2197,34 @@ _merged 2026-10-17_
 - feat(journal): post journal header and verify balanced legs in TRANSFER
 - feat(journal): journal_entries table and migration 0030
 
+## #212 docs: sync main to origin/main post-merge (#212)
+
+_merged 2026-10-17_
+
+- fix(journal): rejoin sentences to satisfy the inline-scope rule
+- docs(journal): ADR-0060, matrix row, status, spec, PRD boundary
+- chore(journal): wire journal suite into CI as step 35
+- test(journal): journal invariant and crash-recovery suite
+- feat(journal): journalize reversals and link audit rows
+- feat(journal): post journal header and verify balanced legs in TRANSFER
+- feat(journal): journal_entries table and migration 0030
+
 ## #213 gate1-holds-fees
+
+_merged 2026-10-17_
+
+- chore(holds): wire holds suite into CI as step 36
+- fix(holds): frozen-balance expectation with available field
+- fix(holds): resolve zero-vs-many accounts, serve-mode balance format
+- docs(holds): ADR-0061, matrix row, status, specs, PRD boundary
+- feat(gateway): holds endpoints, available balance, REASON pattern
+- test(holds): holds, fees and available-balance suite
+- feat(fees): scheduled transfer fees as separate journals
+- feat(holds): enforce available balance in transfers and balances
+- feat(holds): PLACE_HOLD and RELEASE_HOLD actions
+- feat(holds): account_holds and fee_schedule tables, migration 0031
+
+## #213 docs: sync main to origin/main post-merge (#213)
 
 _merged 2026-10-17_
 
@@ -2185,6 +2252,19 @@ _merged 2026-10-17_
 - feat(recon): RUN_RECONCILIATION recorded runs
 - feat(recon): reconciliation runs and findings tables, migration 0032
 
+## #214 docs: sync main to origin/main post-merge (#214)
+
+_merged 2026-10-17_
+
+- docs(recon): ADR-0062, matrix rows, status, specs, PRD boundary
+- chore(recon): wire reconciliation runs suite into CI as step 36
+- test(recon): recorded runs and exception workflow suite
+- feat(gateway): reconciliation runs endpoints and export scripts
+- feat(recon): ACK_EXCEPTION and RESOLVE_EXCEPTION workflow
+- feat(recon): LIST_RECONCILIATIONS and LIST_EXCEPTIONS views
+- feat(recon): RUN_RECONCILIATION recorded runs
+- feat(recon): reconciliation runs and findings tables, migration 0032
+
 ## #215 gate2-dual-control
 
 _merged 2026-10-17_
@@ -2197,7 +2277,33 @@ _merged 2026-10-17_
 - feat(dual): REQUEST/APPROVE/REJECT/LIST actions
 - feat(dual): maker requests and designation tables, migration 0033
 
+## #215 docs: sync main to origin/main post-merge (#215)
+
+_merged 2026-10-17_
+
+- docs(dual): ADR-0063, matrix row, status, specs, PRD boundary
+- chore(dual): wire dual-control suite into CI as step 37
+- feat(gateway): dual-control endpoints, OPERATION patterns, contract test
+- test(dual): dual-control request and approval suite
+- feat(dual): gate CHANGE_ROLE behind designation, DUAL_CONTROL_REQUIRED
+- feat(dual): REQUEST/APPROVE/REJECT/LIST actions
+- feat(dual): maker requests and designation tables, migration 0033
+
 ## #216 gate2-outbox
+
+_merged 2026-10-17_
+
+- chore(outbox): worker under src/, env docs, test robustness
+- docs(outbox): ADR-0064, matrix row, status, specs, PRD boundary
+- chore(outbox): wire outbox suite into CI as step 38
+- chore(outbox): gateway count 107 to 108
+- feat(gateway): outbox-owned delivery, LIST_OUTBOX endpoint
+- test(outbox): transactional outbox and worker dispatch suite
+- fix(outbox): full multi-row output and worker row parsing
+- feat(outbox): enqueue in signup/resend/forgot/email flows, claim/mark/list actions
+- feat(outbox): notification outbox table, migration 0034
+
+## #216 docs: sync main to origin/main post-merge (#216)
 
 _merged 2026-10-17_
 
@@ -2226,6 +2332,21 @@ _merged 2026-10-17_
 - feat(recovery): backup codes, login/step-up acceptance, cleanup on disable
 - feat(recovery): backup codes and recovery tables, migration 0035
 
+## #217 docs: sync main to origin/main post-merge (#217)
+
+_merged 2026-10-17_
+
+- docs(recovery): ADR 0065, status, traceability, and specs
+- fix(recovery): verify only the newest pending request
+- chore(recovery): wire MFA recovery suite into CI as step 51
+- feat(gateway): backup codes and recovery endpoints plus e2e test
+- test(recovery): backup codes and assisted recovery suite
+- fix(outbox): deliver MFA recovery notices
+- feat(recovery): assisted recovery request/verify/approve/reject/list
+- fix(recovery): admin reset clears backup codes
+- feat(recovery): backup codes, login/step-up acceptance, cleanup on disable
+- feat(recovery): backup codes and recovery tables, migration 0035
+
 ## #218 gate2-statements
 
 _merged 2026-10-17_
@@ -2238,7 +2359,32 @@ _merged 2026-10-17_
 - feat(gateway): GET /statements endpoint with parsed lines
 - feat(statements): read-only STATEMENT action with opening/closing balances
 
+## #218 docs: sync main to origin/main post-merge (#218)
+
+_merged 2026-10-17_
+
+- docs(statements): ADR 0066, status, traceability, and specs
+- chore(statements): wire statements suite into CI as step 52
+- fix(statements): date-only posting rows so fields stay colon-free
+- test(statements): gateway e2e plus baseline and status counts
+- test(statements): statement suite with balances, ranges, and paging
+- feat(gateway): GET /statements endpoint with parsed lines
+- feat(statements): read-only STATEMENT action with opening/closing balances
+
 ## #219 gate2-disputes
+
+_merged 2026-10-17_
+
+- docs(disputes): ADR 0067, status, traceability, and specs
+- chore(disputes): wire disputes suite into CI as step 53
+- test(disputes): gateway e2e plus baseline and status counts
+- test(disputes): ticket lifecycle suite with authz and immutability
+- feat(gateway): dispute ticket endpoints with parsed views
+- fix(disputes): allow cascade delete of messages, keep update-immutability
+- feat(disputes): open/note/ack/resolve/reject/list/get actions in COBOL
+- feat(disputes): dispute cases and append-only messages, migration 0036
+
+## #219 docs: sync main to origin/main post-merge (#219)
 
 _merged 2026-10-17_
 
@@ -2264,7 +2410,30 @@ _merged 2026-10-17_
 - test(ops): backup round-trip suite with canary rewind check
 - feat(ops): backup and restore scripts with manifest verification
 
+## #220 docs: sync main to origin/main post-merge (#220)
+
+_merged 2026-10-17_
+
+- chore(ops): wire backup suite into CI as step 54
+- docs(ops): qualify PRD boundary for tested backup mechanism
+- docs(ops): ADR 0068, status, traceability, and runbook index
+- chore(ops): dependency audit in CI as step 63
+- docs(ops): patch policy and release evidence checklist
+- docs(ops): incident, alert, backup-restore, and deploy runbooks
+- test(ops): backup round-trip suite with canary rewind check
+- feat(ops): backup and restore scripts with manifest verification
+
 ## #221 gate1-balance-leftovers
+
+_merged 2026-10-17_
+
+- docs(balance): dashboard action row matches new projection
+- docs(balance): ADR 0069, B-P0-BALANCE implemented, dashboard spec
+- test(balance): profile available e2e plus baseline and status counts
+- feat(ops): scheduled reconcile alerts on any recorded divergence
+- feat(balance): dashboard shows available balance with per-currency precision
+
+## #221 docs: sync main to origin/main post-merge (#221)
 
 _merged 2026-10-17_
 
@@ -2284,6 +2453,16 @@ _merged 2026-10-17_
 - docs(hygiene): list statements and disputes routes in STATUS gateway inventory
 - docs(hygiene): list dispute tables in STATUS schema inventory
 
+## #222 docs: sync main to origin/main post-merge (#222)
+
+_merged 2026-10-17_
+
+- docs(hygiene): drop implemented controls from PRD not-implemented list
+- docs(hygiene): correct stale holds/fees gaps in traceability matrix
+- docs(hygiene): describe divergence alerting instead of claiming none exists
+- docs(hygiene): list statements and disputes routes in STATUS gateway inventory
+- docs(hygiene): list dispute tables in STATUS schema inventory
+
 ## #223 inverse-fx-rounding
 
 _merged 2026-10-17_
@@ -2292,7 +2471,23 @@ _merged 2026-10-17_
 - fix(fx): exact inverse-rate conversion via DECIMAL(30,18) snapshot
 - test(fx): reproduce inverse-rate over-credit (6.40 vs 6.37)
 
+## #223 docs: sync main to origin/main post-merge (#223)
+
+_merged 2026-10-17_
+
+- docs(fx): ADR 0070, status and spec for exact inverse-rate conversion
+- fix(fx): exact inverse-rate conversion via DECIMAL(30,18) snapshot
+- test(fx): reproduce inverse-rate over-credit (6.40 vs 6.37)
+
 ## #224 tx-status-precision
+
+_merged 2026-10-17_
+
+- docs(fx): ADR 0071 and specs for TX_STATUS currency precision
+- fix(fx): TX_STATUS formats the amount at the sender currency precision
+- test(fx): reproduce TX_STATUS fixed 2dp for an IDR sender
+
+## #224 docs: sync main to origin/main post-merge (#224)
 
 _merged 2026-10-17_
 
@@ -2309,7 +2504,23 @@ _merged 2026-10-17_
 - test(seed): back seeded balances with matching ledger rows
 - test(seed): reproduce seeded balances that ignore the ledger
 
+## #225 docs: sync main to origin/main post-merge (#225)
+
+_merged 2026-10-17_
+
+- docs(seed): note ledger-consistent test fixtures
+- test(seed): suites clean up their fixtures so the ledger stays consistent
+- test(seed): back seeded balances with matching ledger rows
+- test(seed): reproduce seeded balances that ignore the ledger
+
 ## #226 build-warning-ratchet
+
+_merged 2026-10-17_
+
+- docs(build): triage the COBOL warning classes and document the ratchet
+- chore(build): freeze the COBOL warning count with a per-class ratchet
+
+## #226 docs: sync main to origin/main post-merge (#226)
 
 _merged 2026-10-17_
 
@@ -2322,7 +2533,19 @@ _merged 2026-10-18_
 
 - docs(adr): draft FX rounding, fee-reversal, and rate-validity decisions
 
+## #227 docs: sync main to origin/main post-merge (#227)
+
+_merged 2026-10-18_
+
+- docs(adr): draft FX rounding, fee-reversal, and rate-validity decisions
+
 ## #228 fx-policy-decision-fill
+
+_merged 2026-10-18_
+
+- docs(adr): record the FX/fee/rate decisions (D1 book residual, D2 refund by reason, D3 window)
+
+## #228 docs: sync main to origin/main post-merge (#228)
 
 _merged 2026-10-18_
 
@@ -2335,4 +2558,43 @@ _merged 2026-10-19_
 - chore(fx): document RATE_MAX_AGE_SECONDS and D3 counts
 - test(fx): stale-rate regression and gateway contract (D3)
 - feat(fx): enforce exchange-rate validity window (D3)
+
+## #229 docs: sync main to origin/main post-merge (#229)
+
+_merged 2026-10-19_
+
+- chore(fx): document RATE_MAX_AGE_SECONDS and D3 counts
+- test(fx): stale-rate regression and gateway contract (D3)
+- feat(fx): enforce exchange-rate validity window (D3)
+
+## #230 fee-refund-reason
+
+_merged 2026-10-19_
+
+- test(fx): carry reversal reason in journal and statement suites
+- test(fx): reversal reason coverage and D2 counts
+- fix(fx): refund journal and legs use the reversal ref and actor
+- feat(fx): refund transfer fees by reversal reason (D2)
+- feat(fx): reversal fee-refund policy table and reason column (D2)
+- docs: sync HISTORY.md to post-merge state (#229)
+- docs: sync HISTORY.md to post-merge state (#228)
+- docs: sync HISTORY.md to post-merge state (#227)
+- docs: sync HISTORY.md to post-merge state (#226)
+- docs: sync HISTORY.md to post-merge state (#225)
+- docs: sync HISTORY.md to post-merge state (#224)
+- docs: sync HISTORY.md to post-merge state (#223)
+- docs: sync HISTORY.md to post-merge state (#222)
+- docs: sync HISTORY.md to post-merge state (#221)
+- docs: sync HISTORY.md to post-merge state (#220)
+- docs: sync HISTORY.md to post-merge state (#219)
+- docs: sync HISTORY.md to post-merge state (#218)
+- docs: sync HISTORY.md to post-merge state (#217)
+- docs: sync HISTORY.md to post-merge state (#216)
+- docs: sync HISTORY.md to post-merge state (#215)
+- docs: sync HISTORY.md to post-merge state (#214)
+- docs: sync HISTORY.md to post-merge state (#213)
+- docs: sync HISTORY.md to post-merge state (#212)
+- docs: sync HISTORY.md to post-merge state (#211)
+- docs: sync HISTORY.md to post-merge state (#210)
+- docs: sync HISTORY.md to post-merge state (#206)
 
