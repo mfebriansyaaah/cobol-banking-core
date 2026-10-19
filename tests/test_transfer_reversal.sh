@@ -135,6 +135,58 @@ check "no refund legs posted" "0" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_re
 check "retain reason recorded" "CUSTOMER_ERROR" "$(q "SELECT reason FROM transfer_reversals WHERE orig_ref='feeref2';")"
 q "DELETE FROM fee_schedule WHERE currency_id = 1; UPDATE accounts SET balance=0 WHERE account_id=995;"
 
+# --- FX residual reversal -----------------------------------------------------
+# A cross-currency posting books its rounding residual to FX_PNL; reversal
+# must unwind it atomically: pinned legs, mirrored residual, balanced journal.
+setup
+q "DELETE FROM fee_schedule WHERE currency_id IN (1,2);
+   INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (988,'fxp_rev_bank@test.com','x','FX Bank','1990-01-01','VERIFIED','USER'),(989,'eur_rev@test.com','x','EUR Rev','1990-01-01','VERIFIED','USER') ON DUPLICATE KEY UPDATE status='VERIFIED';
+   INSERT INTO accounts (account_id,user_id,currency_id,balance,account_type) VALUES (988,988,2,1000.00,'FX_PNL'),(989,989,2,0.00,'SAVINGS') ON DUPLICATE KEY UPDATE status='ACTIVE';
+   UPDATE accounts SET balance=1000.00 WHERE account_id=988; UPDATE accounts SET balance=0.00 WHERE account_id=989;"
+check "fx loss transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com eur_rev@test.com 1.01 fxrev-loss)"
+check "fx loss leg posted" "0.0008" "$(q "SELECT amount FROM ledger WHERE txn_ref='fxrev-loss' AND description='FX loss';")"
+check "fx loss pnl debited" "999.9992" "$(q "SELECT balance FROM accounts WHERE account_id=988;")"
+check "fx loss reversal ok" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER fxrev-loss "$ADM" "" "BANK_ERROR")"
+check "fx loss sender restored" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "fx loss target clawed back" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=989;")"
+check "fx loss pnl restored" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=988;")"
+check "fx loss reversal leg posted" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='fxrev-loss' AND description='FX reversal in';")"
+check "fx loss reversal leg amount" "0.0008" "$(q "SELECT amount FROM ledger WHERE txn_ref='fxrev-loss' AND description='FX reversal in';")"
+check "fx loss six legs total" "6" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='fxrev-loss';")"
+
+setup
+q "UPDATE accounts SET balance=1000.00 WHERE account_id=988; UPDATE accounts SET balance=0.00 WHERE account_id=989;"
+check "fx gain transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com eur_rev@test.com 1.10 fxrev-gain)"
+check "fx gain leg posted" "0.0020" "$(q "SELECT amount FROM ledger WHERE txn_ref='fxrev-gain' AND description='FX gain';")"
+check "fx gain pnl credited" "1000.0020" "$(q "SELECT balance FROM accounts WHERE account_id=988;")"
+check "fx gain reversal ok" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER fxrev-gain "$ADM" "" "BANK_ERROR")"
+check "fx gain sender restored" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "fx gain target clawed back" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=989;")"
+check "fx gain pnl clawed back" "1000.0000" "$(q "SELECT balance FROM accounts WHERE account_id=988;")"
+check "fx gain reversal leg posted" "1" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='fxrev-gain' AND description='FX reversal out';")"
+check "fx gain reversal leg amount" "0.0020" "$(q "SELECT amount FROM ledger WHERE txn_ref='fxrev-gain' AND description='FX reversal out';")"
+check "fx gain six legs total" "6" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='fxrev-gain';")"
+
+setup
+q "UPDATE accounts SET balance=1000.00 WHERE account_id=988; UPDATE accounts SET balance=0.00 WHERE account_id=989;"
+check "fx underfunded transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com eur_rev@test.com 1.10 fxrev-short)"
+q "UPDATE accounts SET balance=0.00 WHERE account_id=988;"
+check "underfunded fx clawback refused" "ERROR|INSUFFICIENT_FUNDS" "$(run REVERSE_TRANSFER fxrev-short "$ADM" "" "BANK_ERROR")"
+check "failed reversal moved nothing" "998.9000" "$(q "SELECT balance FROM accounts WHERE account_id=1;")"
+check "failed reversal kept target credit" "1.0100" "$(q "SELECT balance FROM accounts WHERE account_id=989;")"
+check "failed reversal wrote no marker" "0" "$(q "SELECT COUNT(*) FROM transfer_reversals WHERE orig_ref='fxrev-short';")"
+check "failed reversal wrote no legs" "0" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='fxrev-short' AND description IN ('Reversal in','Reversal out','FX reversal in','FX reversal out');")"
+
+setup
+q "UPDATE accounts SET balance=100.00 WHERE account_id=989;"
+check "exact fx transfer ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER eur_rev@test.com receiver@test.com 92 fxrev-exact)"
+check "exact posting writes no residual" "0" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='fxrev-exact' AND description IN ('FX gain','FX loss');")"
+check "exact fx reversal ok" "SUCCESS|TRANSFER_REVERSED" "$(run REVERSE_TRANSFER fxrev-exact "$ADM" "" "BANK_ERROR")"
+check "exact fx four legs total" "4" "$(q "SELECT COUNT(*) FROM ledger WHERE txn_ref='fxrev-exact';")"
+check "exact fx sender restored" "100.0000" "$(q "SELECT balance FROM accounts WHERE account_id=989;")"
+check "exact fx target clawed back" "0.0000" "$(q "SELECT balance FROM accounts WHERE account_id=2;")"
+q "DELETE FROM ledger WHERE txn_ref LIKE 'fxrev-%'; DELETE FROM pending_transactions WHERE txn_ref LIKE 'fxrev-%'; DELETE FROM transfer_reversals WHERE orig_ref LIKE 'fxrev-%'; DELETE FROM audit_trail WHERE journal_id IN (SELECT journal_id FROM journal_entries WHERE txn_ref LIKE 'fxrev-%'); DELETE FROM journal_entries WHERE txn_ref LIKE 'fxrev-%'; DELETE FROM accounts WHERE account_id IN (988,989); DELETE FROM users WHERE id IN (988,989);"
+
 teardown
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1; UPDATE accounts SET balance=0.00 WHERE account_id=2;
    DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM transfer_reversals;"
