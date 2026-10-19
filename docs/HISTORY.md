@@ -2647,3 +2647,12 @@ _merged 2026-10-19_
 - fix(db): make every migration resumable after partial apply (audit P3)
 - docs: sync HISTORY.md to post-merge state (#235)
 
+## #237 db-config-guard
+
+_merged 2026-10-19_
+
+- test(config): cover the production DB guard end to end
+- feat(bridge): fail closed on dev DB credentials in production
+- feat(config): refuse production with development database settings
+- docs: sync HISTORY.md to post-merge state (#236)
+

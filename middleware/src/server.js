@@ -1,10 +1,13 @@
 import 'dotenv/config';
 import { buildApp, trustProxyWarning } from './app.js';
 import { assertSecureConfig } from './auth.js';
+import { assertPoolConfig } from './pool.js';
 import { jsonLogger, startMetricsExporter } from './observability.js';
 import { resetPool } from './pool.js';
 
 assertSecureConfig();
+// A malformed worker-pool setting must fail at boot, not hang the first request.
+assertPoolConfig();
 const port = process.env.PORT || 3000;
 
 // Surface a production misconfiguration early: without SMTP the verification

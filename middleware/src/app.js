@@ -1,7 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import { randomUUID } from 'node:crypto';
-import { invoke, InvocationTimeout, InvocationError } from './invoker.js';
+import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, signStepUp, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
@@ -706,6 +706,9 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
     } else if (err instanceof InvocationTimeout) {
       status = 504;
       code = 'GATEWAY_TIMEOUT';
+    } else if (err instanceof PoolSaturated) {
+      status = 503;
+      code = 'POOL_SATURATED';
     } else if (err instanceof InvocationError) {
       status = 502;
       code = 'COBOL_UNAVAILABLE';

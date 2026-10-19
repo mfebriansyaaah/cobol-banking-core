@@ -3,11 +3,10 @@ import { spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { BINARY } from './binary.js';
-import { InvocationTimeout, InvocationError } from './errors.js';
+import { InvocationTimeout, InvocationError, PoolSaturated } from './errors.js';
 import { getPool } from './pool.js';
 
-export { BINARY, InvocationTimeout, InvocationError };
-
+export { BINARY, InvocationTimeout, InvocationError, PoolSaturated };
 // File mode (ADR-0001): the binary reads input.txt / writes output.txt in its
 // own working directory. Used by default, and by all shell suites.
 async function fileInvoke(action, params = [], opts = {}) {
