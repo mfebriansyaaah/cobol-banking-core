@@ -20,6 +20,10 @@ DB_NAME="${DB_NAME:-cobol_db}"
 BAKDIR="./backups/.ci-verify-$$"
 CANARY="bakcanary_$$"
 
+# Clean up on any exit, including an interrupted run, so a partial CI never
+# leaves a dump directory behind.
+trap 'rm -rf "$BAKDIR"' EXIT
+
 check() {
     local name="$1" expected="$2" actual="$3"
     if [ "$actual" = "$expected" ]; then
