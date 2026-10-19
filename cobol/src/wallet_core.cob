@@ -2441,8 +2441,8 @@
                 EXIT PARAGRAPH
             END-IF
             MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'FEE', ?)" TO WS-PREP-SQL
-            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
                 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
@@ -2495,7 +2495,7 @@
                 EXIT PARAGRAPH
             END-IF
             MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, 'Fee refund out', 1, @jid, ?)" TO WS-PREP-SQL
-            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-INCOME-ACC TO WS-BIND-2
             MOVE WS-REV-FEE-AMT TO WS-BIND-3
             MOVE WS-REV-FEE-CUR TO WS-BIND-4
@@ -2511,7 +2511,7 @@
                 EXIT PARAGRAPH
             END-IF
             MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, 'Fee refund in', 1, @jid, ?)" TO WS-PREP-SQL
-            MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-SENDER-ACC TO WS-BIND-2
             MOVE WS-REV-FEE-AMT TO WS-BIND-3
             MOVE WS-REV-FEE-CUR TO WS-BIND-4
