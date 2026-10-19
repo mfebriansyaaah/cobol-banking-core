@@ -9,6 +9,9 @@ cobol/bin/main_logic
 input.txt
 output.txt
 
+# Database dumps (scripts/backup.sh default output; never commit customer data)
+backups/
+
 # Configuration and Secrets
 tests/.dbenv
 

@@ -16,14 +16,17 @@ was blind.)
 
 - Capture each migration's output; on a non-zero exit, print
   `migration FAILED: <version>` plus the database error and exit 1 without
-  recording. A retry therefore resumes at the same file instead of skipping
-  silently.
+  recording. A retry replays the same file rather than skipping silently;
+  because DDL auto-commits, ordinary statements must be idempotent. The
+  documented non-replayable exceptions and manual recovery procedure are in
+  `docs/SCHEMA_POLICY.md`.
 - Cover with two suite checks that inject a syntactically invalid migration
   (sorted last, removed afterwards by trap): the run aborts non-zero naming
   the file, and no `schema_migrations` row is written for it.
 
 ## Consequences
 
-- Migration failures are attributable on sight; the runner stays fail-stop
-  with resume-here semantics.
+- Migration failures are attributable on sight; the runner stays fail-stop.
+  Resume is automatic only for guarded/idempotent migration statements; known
+  exceptions require schema inspection and deliberate version repair.
 - Shell 617 -> 619, gateway 104 unchanged; full run 723 assertions.

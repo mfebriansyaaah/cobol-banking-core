@@ -23,11 +23,22 @@ Both paths must converge to the same shape (verified by audit diffing
    `DROP TABLE IF EXISTS ledger` and non-idempotent `CREATE INDEX`
    statements: it is a fresh-install baseline, not a migration tool. Live
    databases move forward only via `database/migrate.sh`.
-3. **Migrations run once, in order, fail-stop.** `database/migrate.sh`
-   records each version only after success; a failure aborts naming the
-   file, and a retry resumes there. `database/migrate.sh --check` gates CI.
-   Migrations need DDL rights — run them as the migrate account from
-   `database/grants.sh`, never as the DML-only application account.
+3. **Migrations run in order and fail-stop; retries are explicit.**
+   `database/migrate.sh` records each version only after the whole file
+   succeeds and aborts naming a failed file. Because MySQL/MariaDB DDL
+   auto-commits, a retry replays the file: every ordinary statement must be
+   safe to re-run (guarded DDL, idempotent seeds, scoped updates). CI checks
+   this contract and tests resume after a simulated partial apply.
+   **Documented exceptions:** 0007 drops schema objects and must not be
+   replayed on the post-FX live schema; 0011 narrows an ENUM and can refuse
+   re-application when newer enum values are present; 0015 and 0019 rewrite
+   the primary key around an AUTO_INCREMENT column and fail at parse time on
+   re-run. These failures do not imply the original migration was rolled
+   back. Inspect `information_schema` and migration effects before recovery;
+   only re-record a version after confirming its complete intended state.
+   `database/migrate.sh --check` gates CI. Migrations need DDL rights — run
+   them as the migrate account from `database/grants.sh`, never as the
+   DML-only application account.
 4. **Seeds are dev-only and re-runnable.** `database/seed_test_data.sql`
    keeps existing fixture rows and resets exactly the two ledger seed rows
    by key. Never apply it to production data.

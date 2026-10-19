@@ -7,11 +7,10 @@ Phase: Gate 1 / Gate 0 boundary.
 ## Context
 
 The accounting audit (Oct 2026) found three policy questions the code cannot
-answer on its own. Each has a current behavior that is internally consistent
-but unratified. Changing any of them moves money or changes accounting
+answer on its own. Each has a behavior that moves money or changes accounting
 records, so each needs an accountable owner (compliance + finance; security
-where noted). This ADR is a draft: it records the options and their
-implications and is accepted only when an owner signs off below.
+where noted). The options and owner decisions are recorded below. Licensed-
+entity compliance/finance ratification is still required before production.
 
 None of these may be hardcoded. Whichever option is chosen must live in
 owner-controlled data or configuration, with tests, per
@@ -19,7 +18,7 @@ owner-controlled data or configuration, with tests, per
 
 ## D1 — FX rounding and the debit/credit value gap
 
-**Current behavior.** For a cross-currency transfer, the sender is debited
+**Observed before implementation.** For a cross-currency transfer, the sender is debited
 `ROUND(amount, sender_prec)` and the target is credited
 `ROUND(amount * rate, target_prec)`; the two legs are rounded independently
 and no account records the difference.
@@ -43,11 +42,12 @@ account type (schema) + rounding tests. B: documentation only, but the
 rounding rule stays undefined. C: fee semantics, disclosure text, and a fee
 leg on every cross-currency posting.
 
-**Blocked:** `B-P0-PRECISION` "defined rounding".
+**Implementation.** PR #231 books the 4dp residual to the target currency's
+FX_PNL account in the same journal; exact postings skip the extra leg.
 
 ## D2 — Fee refund on reversal
 
-**Current behavior.** A reversal refunds the principal; a fee posted by the
+**Observed before implementation.** A reversal refunded the principal; a fee posted by the
 original transfer stays in the bank's `FEE_INCOME` account. The reversal posts
 only the two principal legs.
 
@@ -67,14 +67,17 @@ only the two principal legs.
 B: two extra legs + verification + tests. C: a reason code on the reversal
 request, a policy table, and tests per reason.
 
-**Blocked:** `B-P1-LIFECYCLE` "fees ... failed/reversed/returned" completeness.
+**Implementation.** PR #230 requires a reversal reason and consults the
+owner-controlled `reversal_fee_policy` table; `BANK_ERROR` refunds,
+`CUSTOMER_ERROR` retains the fee, and the reason is recorded on the marker.
 
 ## D3 — Exchange-rate validity window
 
-**Current behavior.** `exchange_rates` has `updated_at`, but a transfer uses
+**Observed before implementation.** `exchange_rates` had `updated_at`, but a transfer used
 whatever rate row is present regardless of age; a stale rate posts silently.
 
-**Evidence.** No validity column and no age check in the transfer path.
+**Evidence at decision time.** No validity column and no age check in the
+transfer path; PR #229 implements the selected control.
 
 **Options.**
 - **A — Enforce a window.** Add a maximum age (owner-set) and refuse stale
@@ -89,7 +92,9 @@ a transfer-path check, a new error code + its HTTP status, and tests.
 B: an alert signal in the scheduler/metrics, no posting change.
 C: documentation only; the stale-rate risk stays open.
 
-**Blocked:** `B-P0-PRECISION` "rate source/validity".
+**Implementation.** PR #229 enforces `RATE_MAX_AGE_SECONDS` (default 24 hours)
+in both direct and inverse lookup paths; stale rates fail closed with
+`ERROR|RATE_STALE` (HTTP 409).
 
 ## Decision
 
@@ -118,13 +123,14 @@ D3: option A — nineboll07 (owner), 2026-10-18
   path; a rate older than the window is rejected with a new
   `ERROR|RATE_STALE`, mapped to HTTP 409, distinct from `RATE_NOT_FOUND`.
 
-Implementation is tracked as PR-C follow-ups; none of the three may be
-hardcoded (each is owner-controlled data or configuration, with tests).
+All three implementations are merged and tested. Their policies remain
+owner-controlled; none is hardcoded. The licensed entity's named compliance
+and finance owners must ratify the decisions before production.
 
 ## Consequences
 
-- The decisions are ratified; the current behavior stands until the
-  implementation PR(s) land. `docs/TRACEABILITY.md` (`B-P0-PRECISION`,
-  `B-P1-LIFECYCLE`) tracks the remaining implementation work.
-- Each decision changes money or accounting records, so implementation lands
-  as its own reviewed PR with tests; nothing is hardcoded.
+- The implementations are merged in PRs #229-#231. `docs/TRACEABILITY.md`
+  records their controls and tests; production ratification remains open at
+  Gate 0.
+- Each decision changes money or accounting records, so each implementation
+  landed as its own reviewed PR with tests; none of the policies is hardcoded.
