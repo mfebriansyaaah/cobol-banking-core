@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     account_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     currency_id INT NOT NULL,
-    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT', 'FEE_INCOME') DEFAULT 'SAVINGS',  -- FEE_INCOME: bank-owned fee collection account (one active per currency)
+    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT', 'FEE_INCOME', 'FX_PNL') DEFAULT 'SAVINGS',  -- FEE_INCOME: bank-owned fee collection account (one active per currency); FX_PNL: bank-owned FX gain/loss account (one active per currency, D1)
     balance DECIMAL(18, 4) NOT NULL DEFAULT 0.0000 CHECK (balance >= 0),
     status ENUM('ACTIVE', 'FROZEN', 'CLOSED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -492,7 +492,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0035_mfa_recovery'),
 ('0036_disputes'),
 ('0037_ledger_rate_precision'),
-('0038_reversal_fee_policy');
+('0038_reversal_fee_policy'),
+('0039_fx_pnl_account');
 
 
 -- Indexes
