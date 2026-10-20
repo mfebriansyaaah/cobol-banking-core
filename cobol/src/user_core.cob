@@ -61,12 +61,18 @@
         01  WS-TARGET-ROLE          PIC X(12) VALUE SPACES.
         01  WS-LAST-ADMIN           PIC 9 VALUE 0.
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-CD-STR               PIC X(20) VALUE SPACES.
+        01  WS-DORM-ACTOR           PIC X(100) VALUE SPACES.
+        01  WS-DORM-COUNT           PIC 9(5) VALUE 0.
+        01  WS-GRACE-STR            PIC X(20) VALUE SPACES.
+        01  WS-HP                   PIC 9(5) VALUE 1.
         01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
         01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -135,6 +141,16 @@
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
                     PERFORM ACTION-UNLOCK-USER
+                WHEN LS-CMD-ACTION(1:12) = "MARK_DORMANT"
+                    PERFORM TRIM-PARAM1
+                    PERFORM ACTION-MARK-DORMANT
+                WHEN LS-CMD-ACTION(1:15) = "SUSPEND_DORMANT"
+                    PERFORM TRIM-PARAM1
+                    PERFORM ACTION-SUSPEND-DORMANT
+                WHEN LS-CMD-ACTION(1:18) = "REACTIVATE_DORMANT"
+                    PERFORM TRIM-PARAM1
+                    PERFORM TRIM-PARAM2
+                    PERFORM ACTION-REACTIVATE-DORMANT
                 WHEN LS-CMD-ACTION(1:15) = "ADMIN_RESET_MFA"
                     PERFORM TRIM-PARAM1
                     PERFORM TRIM-PARAM2
@@ -460,6 +476,229 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT.
+            EXIT PARAGRAPH.
+
+        ALLOW-DORMANCY.
+            *> WS-DORM-ACTOR must be a SUPER_ADMIN. A refusal is audited.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-DORM-ACTOR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUPER_ADMIN"
+                MOVE 1 TO WS-ALLOWED
+            END-IF.
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-DORM-ACTOR TO WS-DENIED-ACTOR
+                MOVE WS-DORM-ACTOR TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        TRIM-DORM-RESULT.
+            *> WS-RLEN = length of WS-RESULT without trailing spaces.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-RLEN
+                END-IF
+            END-PERFORM.
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-MARK-DORMANT.
+            *> p1 = actor (SUPER_ADMIN). Flag accounts whose last sign-in is
+            *> older than DORMANT_AFTER_DAYS and queue a notice. Never changes
+            *> the account status; SUPER_ADMINs are left to access review.
+            MOVE WS-PARAM1-TRIMMED TO WS-DORM-ACTOR
+            PERFORM ALLOW-DORMANCY
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "DORMANT_AFTER_DAYS" BY REFERENCE "0" BY REFERENCE WS-CD-STR END-CALL
+            IF WS-CD-STR(1:1) < "1" OR WS-CD-STR(1:1) > "9"
+                MOVE "ERROR|POLICY_DISABLED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT email FROM users WHERE status = 'VERIFIED' AND role <> 'SUPER_ADMIN' AND dormant_notified_at IS NULL AND last_login_at IS NOT NULL AND last_login_at < DATE_SUB(NOW(), INTERVAL " WS-CD-STR " DAY) ORDER BY last_login_at LIMIT 100" DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
+            CALL "SQL_EXECUTE" END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|DORMANT_NOTIFIED|00000" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-DORM-RESULT
+            MOVE 0 TO WS-DORM-COUNT
+            MOVE 1 TO WS-HP
+            PERFORM UNTIL WS-HP > WS-RLEN
+                MOVE SPACES TO WS-EMAIL
+                UNSTRING WS-RESULT(1:WS-RLEN) DELIMITED BY ";"
+                    INTO WS-EMAIL WITH POINTER WS-HP
+                END-UNSTRING
+                PERFORM NOTIFY-DORMANT-USER
+            END-PERFORM
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|DORMANT_NOTIFIED|" WS-DORM-COUNT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+            END-STRING
+            EXIT PARAGRAPH.
+
+        NOTIFY-DORMANT-USER.
+            *> WS-EMAIL is the selected address. Flags it, queues the notice,
+            *> and audits it. A failed enqueue clears the flag so the next run
+            *> retries instead of silently losing the warning.
+            IF WS-EMAIL = SPACES
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE users SET dormant_notified_at = NOW() WHERE email = ? AND status = 'VERIFIED'" TO WS-PREP-SQL
+            MOVE WS-EMAIL TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-EMAIL TO WS-NOTIF-TO
+            MOVE "DORMANT_NOTICE" TO WS-NOTIF-PURPOSE
+            MOVE SPACES TO WS-NOTIF-CODE
+            MOVE SPACES TO WS-NOTIF-DETAIL
+            PERFORM ENQUEUE-NOTIFICATION
+            IF WS-NOTIF-FAIL NOT = 0
+                MOVE "UPDATE users SET dormant_notified_at = NULL WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-EMAIL TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'DORMANT_NOTICE', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
+            MOVE WS-EMAIL TO WS-BIND-1
+            MOVE WS-DORM-ACTOR TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            ADD 1 TO WS-DORM-COUNT END-ADD
+            EXIT PARAGRAPH.
+
+        ACTION-SUSPEND-DORMANT.
+            *> p1 = actor (SUPER_ADMIN). Suspend accounts notified at least
+            *> DORMANT_GRACE_DAYS ago that still have no newer sign-in.
+            MOVE WS-PARAM1-TRIMMED TO WS-DORM-ACTOR
+            PERFORM ALLOW-DORMANCY
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "DORMANT_AFTER_DAYS" BY REFERENCE "0" BY REFERENCE WS-CD-STR END-CALL
+            IF WS-CD-STR(1:1) < "1" OR WS-CD-STR(1:1) > "9"
+                MOVE "ERROR|POLICY_DISABLED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-GRACE-STR
+            CALL "env_or" USING BY REFERENCE "DORMANT_GRACE_DAYS" BY REFERENCE "14" BY REFERENCE WS-GRACE-STR END-CALL
+            IF WS-GRACE-STR(1:1) < "0" OR WS-GRACE-STR(1:1) > "9"
+                MOVE "14" TO WS-GRACE-STR
+            END-IF.
+            MOVE SPACES TO WS-QUERY
+            STRING "SELECT email FROM users WHERE status = 'VERIFIED' AND role <> 'SUPER_ADMIN' AND dormant_notified_at IS NOT NULL AND dormant_notified_at < DATE_SUB(NOW(), INTERVAL " WS-GRACE-STR " DAY) AND last_login_at IS NOT NULL AND last_login_at < DATE_SUB(NOW(), INTERVAL " WS-CD-STR " DAY) ORDER BY dormant_notified_at LIMIT 100" DELIMITED BY SIZE INTO WS-QUERY
+            END-STRING
+            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
+            CALL "SQL_EXECUTE" END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|DORMANT_SUSPENDED|00000" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-DORM-RESULT
+            MOVE 0 TO WS-DORM-COUNT
+            MOVE 1 TO WS-HP
+            PERFORM UNTIL WS-HP > WS-RLEN
+                MOVE SPACES TO WS-EMAIL
+                UNSTRING WS-RESULT(1:WS-RLEN) DELIMITED BY ";"
+                    INTO WS-EMAIL WITH POINTER WS-HP
+                END-UNSTRING
+                PERFORM SUSPEND-DORMANT-USER
+            END-PERFORM
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|DORMANT_SUSPENDED|" WS-DORM-COUNT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+            END-STRING
+            EXIT PARAGRAPH.
+
+        SUSPEND-DORMANT-USER.
+            *> WS-EMAIL is the selected address. Suspends it, revokes its
+            *> sessions, and audits the suspension.
+            IF WS-EMAIL = SPACES
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE users SET status = 'SUSPENDED', dormant_notified_at = NULL, token_version = token_version + 1 WHERE email = ? AND status = 'VERIFIED'" TO WS-PREP-SQL
+            MOVE WS-EMAIL TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-EMAIL TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'DORMANT_SUSPENDED', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
+            MOVE WS-EMAIL TO WS-BIND-1
+            MOVE WS-DORM-ACTOR TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            ADD 1 TO WS-DORM-COUNT END-ADD
+            EXIT PARAGRAPH.
+
+        ACTION-REACTIVATE-DORMANT.
+            *> p1 = email, p2 = actor (SUPER_ADMIN). Clears a dormant
+            *> suspension and any pending flag; refuses other statuses.
+            MOVE 0 TO WS-BAD
+            MOVE WS-PARAM1-TRIMMED TO WS-CHECK
+            PERFORM VALIDATE-EMAIL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-PARAM2-TRIMMED TO WS-DORM-ACTOR
+            PERFORM ALLOW-DORMANCY
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE users SET status = 'VERIFIED', dormant_notified_at = NULL, token_version = token_version + 1 WHERE email = ? AND status = 'SUSPENDED'" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'DORMANT_REACTIVATED', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-DORM-ACTOR TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE "SUCCESS|DORMANT_REACTIVATED" TO LS-OUTPUT-BUFFER
             EXIT PARAGRAPH.
 
         ALLOW-ADMIN.
