@@ -8,13 +8,13 @@ are fixed; never raise one to accept new ones.
 
 ## Classes
 
-### `-Wothers` — duplicate USING BY REFERENCE (1085)
+### `-Wothers` — duplicate USING BY REFERENCE (1058)
 
 The SQL bridge (`SQL_PREPARE_EXEC`, `SQL_PREPARE_EXEC_ROWS`, ...) has a
 fixed-arity signature, so callers pad unused bind slots by passing the same
 `WS-BIND-n` several times. The warning is the intended padding, not a bug.
 
-### `-Wterminator` — missing scope terminators (1006)
+### `-Wterminator` — missing scope terminators (994)
 
 `CALL`, `IF`, `COMPUTE`, `ADD`, `WRITE`, `ACCEPT`, `DISPLAY` without their
 `END-…` terminator. `CODING_STANDARDS.md` rule 14 requires explicit
