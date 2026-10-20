@@ -2188,6 +2188,87 @@ CREATE TABLE IF NOT EXISTS ref_report_layout (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- Reference-data tables folded from migration 0052 (batch 5)
+CREATE TABLE IF NOT EXISTS ref_report_column (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_report_filter (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_report_parameter (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_report_schedule (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_report_delivery (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_export_schedule (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_export_delivery (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_file_source (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_file_status (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_file_direction (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -2244,7 +2325,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0048_ref_entities_batch2'),
 ('0049_ref_entities_batch3'),
 ('0050_ref_entities_batch4'),
-('0051_ref_entities_batch4_tail');
+('0051_ref_entities_batch4_tail'),
+('0052_ref_entities_batch5');
 
 
 -- Indexes
