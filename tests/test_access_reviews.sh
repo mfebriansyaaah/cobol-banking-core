@@ -12,6 +12,8 @@ if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
 DB_USER="${DB_USER:-cobol_user}"
 DB_PASS="${DB_PASS:-cobol_pass}"
 DB_NAME="${DB_NAME:-cobol_db}"
+. ./tests/serve_harness.sh
+core_start
 
 GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
 passed=0; failed=0
@@ -19,9 +21,7 @@ passed=0; failed=0
 q() { mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "$1" 2>/dev/null; }
 
 run() {
-    printf "%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" > input.txt
-    "$BIN" >/dev/null 2>&1
-    cat output.txt
+    core_run "$@"
 }
 
 check() {
@@ -63,7 +63,7 @@ teardown() {
          ('DECIDE_ACCESS_ITEM','OPEN_ACCESS_REVIEW','CLOSE_ACCESS_REVIEW','LIST_ACCESS_REVIEWS','GET_ACCESS_REVIEW');
        DELETE FROM users WHERE email IN ('$A1','$A2','$M','$U');"
 }
-trap teardown EXIT
+trap 'core_stop; teardown' EXIT
 
 echo "======================================================================"
 echo "  ACCESS REVIEW SUITE"

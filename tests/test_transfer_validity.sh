@@ -5,6 +5,7 @@
 # Usage: ./tests/test_transfer_validity.sh
 
 BIN="./cobol/bin/main_logic"
+. ./tests/serve_harness.sh
 
 if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
 DB_USER="${DB_USER:-cobol_user}"
@@ -38,9 +39,7 @@ q "UPDATE exchange_rates SET updated_at = NOW();"
 teardown() { q "DELETE FROM accounts WHERE account_id IN (961,963,996,997); DELETE FROM users WHERE id IN (961,963,996);"; }
 
 run() {
-    printf "%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" > input.txt
-    "$BIN" >/dev/null 2>&1
-    cat output.txt
+    core_run "$@"
 }
 
 # Six-parameter variant (adds p5 = fromCurrency).
@@ -62,6 +61,9 @@ check() {
 echo "======================================================================"
 echo "  TRANSFER VALIDITY SUITE"
 echo "======================================================================"
+core_start
+trap core_stop EXIT
+
 setup
 
 check "same currency ok" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 100.00 "")"
