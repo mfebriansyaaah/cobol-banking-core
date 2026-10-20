@@ -2830,7 +2830,7 @@
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-PARAM3-TRIMMED NOT = SPACES
                 CALL "SQL_BEGIN" END-CALL
                 MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ? AND family <> ? AND revoked = 0" TO WS-PREP-SQL
@@ -2857,7 +2857,7 @@
                 MOVE "SUCCESS|OTHER_SESSIONS_REVOKED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-            END-IF
+            END-IF.
             EXIT PARAGRAPH.
 
         LOGIN-NOTICE-LOGIC.
@@ -2872,11 +2872,11 @@
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT 1 FROM known_devices WHERE email = ? AND user_agent = ? AND ip = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
@@ -2904,11 +2904,11 @@
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            END-IF
+            END-IF.
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SUCCESS|NOTICE_RECORDED" TO LS-OUTPUT-BUFFER
             EXIT PARAGRAPH.
 
@@ -3324,17 +3324,17 @@
             CALL "env_or" USING BY REFERENCE "ADMIN_IDLE_TIMEOUT_SECONDS" BY REFERENCE "1800" BY REFERENCE WS-CD-STR END-CALL
             IF WS-CD-STR(1:1) < "0" OR WS-CD-STR(1:1) > "9"
                 MOVE "1800" TO WS-CD-STR
-            END-IF
+            END-IF.
             IF WS-CD-STR = "0"
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT CAST(TIMESTAMPDIFF(SECOND, COALESCE(s.last_seen_at, s.created_at), NOW()) AS CHAR), u.role, s.email, s.family FROM refresh_sessions s JOIN users u ON u.email = s.email WHERE s.jti = ? AND s.revoked = 0 AND s.expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE SPACES TO WS-IDLE-AGE
             MOVE SPACES TO WS-ROLE
             MOVE SPACES TO WS-SESSION-EMAIL
@@ -3344,7 +3344,7 @@
             END-UNSTRING
             IF WS-ROLE NOT = "SUPER_ADMIN" AND WS-ROLE NOT = "MANAGER"
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             COMPUTE WS-IDLE-SECS = FUNCTION NUMVAL(WS-IDLE-AGE) END-COMPUTE
             COMPUTE WS-IDLE-LIMIT = FUNCTION NUMVAL(WS-CD-STR) END-COMPUTE
             IF WS-IDLE-SECS > WS-IDLE-LIMIT
@@ -3361,7 +3361,7 @@
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                 MOVE 1 TO WS-IDLE-EXPIRED
-            END-IF
+            END-IF.
             EXIT PARAGRAPH.
 
         CONSUME-SESSION-LOGIC.
