@@ -6,6 +6,7 @@
 # Usage: ./tests/test_holds.sh
 
 BIN="./cobol/bin/main_logic"
+. ./tests/serve_harness.sh
 
 if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
 DB_USER="${DB_USER:-cobol_user}"
@@ -18,9 +19,7 @@ passed=0; failed=0
 q() { mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "$1" 2>/dev/null; }
 
 run() {
-    printf "%s|%s|%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" "$6" "$7" > input.txt
-    "$BIN" >/dev/null 2>&1
-    cat output.txt
+    core_run "$@"
 }
 
 check() {
@@ -71,7 +70,8 @@ teardown() {
        DELETE FROM accounts WHERE account_id IN (991,992,993,995);
        DELETE FROM users WHERE id IN (991,992,993,994,995);"
 }
-trap teardown EXIT
+trap 'core_stop; teardown' EXIT
+core_start
 
 echo "======================================================================"
 echo "  HOLDS AND FEES SUITE"

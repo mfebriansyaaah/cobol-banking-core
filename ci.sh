@@ -5,8 +5,9 @@
 set -e
 
 # Keep the KDF cheap for the test run; production uses the compiled default
-# (600000). Individual KDF tests override this per call.
-export PBKDF2_ITERATIONS="${PBKDF2_ITERATIONS:-100000}"
+# (600000). The KDF suite sets its own costs per call and asserts the compiled
+# default, so this only affects the unrelated suites' fixture hashing.
+export PBKDF2_ITERATIONS="${PBKDF2_ITERATIONS:-10000}"
 
 # Per-suite pass counts recorded during this run; the final step compares them
 # against tests/baseline_counts.txt so silently dropped assertions fail CI.

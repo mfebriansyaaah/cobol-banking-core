@@ -9,6 +9,9 @@ if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
 DB_USER="${DB_USER:-cobol_user}"
 DB_PASS="${DB_PASS:-cobol_pass}"
 DB_NAME="${DB_NAME:-cobol_db}"
+. ./tests/serve_harness.sh
+core_start
+trap core_stop EXIT
 
 GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
 passed=0; failed=0
@@ -26,9 +29,7 @@ reset() {
 }
 
 run() {
-    printf "%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" > input.txt
-    "$BIN" >/dev/null 2>&1
-    cat output.txt
+    core_run "$@"
 }
 
 check() {

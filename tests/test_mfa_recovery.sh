@@ -15,6 +15,8 @@ if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
 DB_USER="${DB_USER:-cobol_user}"
 DB_PASS="${DB_PASS:-cobol_pass}"
 DB_NAME="${DB_NAME:-cobol_db}"
+. ./tests/serve_harness.sh
+core_start
 
 GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
 passed=0; failed=0
@@ -22,9 +24,7 @@ passed=0; failed=0
 q() { mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "$1" 2>/dev/null; }
 
 run() {
-    printf "%s|%s|%s|%s|%s|%s|%s\n" "$1" "$2" "$3" "$4" "$5" "$6" "$7" > input.txt
-    "$BIN" >/dev/null 2>&1
-    cat output.txt
+    core_run "$@"
 }
 
 totp() {
@@ -76,7 +76,7 @@ teardown() {
        DELETE FROM audit_trail WHERE action IN ('MFA_BACKUP_ISSUED','MFA_RECOVERY','RECOVERY_REJECTED') AND user_id IN (SELECT id FROM users WHERE email LIKE 'rec_%@test.com');
        DELETE FROM users WHERE email IN ('$U','$A','$B');"
 }
-trap teardown EXIT
+trap 'core_stop; teardown' EXIT
 
 echo "======================================================================"
 echo "  MFA RECOVERY SUITE"

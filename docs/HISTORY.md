@@ -2745,3 +2745,39 @@ _merged 2026-10-20_
 - docs(adr): 0074 scoped permissions
 - docs: sync HISTORY.md to post-merge state (#246)
 
+## #248 session-security-telemetry
+
+_merged 2026-10-20_
+
+- fix(outbox): deliver new-device notices and drain the queue in the suite
+- style(cobol): close the new session paragraphs with explicit terminators
+- docs: record session security, device notices, and the new counts
+- test: session-security suite wired into CI as step 69
+- feat(gateway): revoke-other-devices route, device notices, and auth-failure metric
+- feat(core): revoke-other-devices, idle bound for admins, device notices, and auth audit taxonomy
+- feat(db): migration 0043 session idle basis and known devices
+- docs(adr): 0075 session security and authentication telemetry
+- docs: sync HISTORY.md to post-merge state (#247)
+
+## ? Merge remote-tracking branch origin/main into chore/coverage-measurement
+
+_merged 2026-10-20_
+
+- fix(outbox): deliver new-device notices and drain the queue in the suite
+- style(cobol): close the new session paragraphs with explicit terminators
+- docs: record session security, device notices, and the new counts
+- test: session-security suite wired into CI as step 69
+- feat(gateway): revoke-other-devices route, device notices, and auth-failure metric
+- feat(core): revoke-other-devices, idle bound for admins, device notices, and auth audit taxonomy
+- feat(db): migration 0043 session idle basis and known devices
+- docs(adr): 0075 session security and authentication telemetry
+
+## #249 coverage-measurement
+
+_merged 2026-10-20_
+
+- docs: define coverage measurement, floors, and the ratchet
+- chore(ci): wire the coverage gate into CI as step 69
+- feat(test): gateway coverage and the coverage gate
+- feat(scripts): measure COBOL statement coverage from the generated C
+
