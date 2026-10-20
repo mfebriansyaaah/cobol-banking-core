@@ -134,7 +134,8 @@ test('email change works for a logged-in user (related rows exist)', async () =>
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
 
-  const reqc = await request(app).post('/profile/email/request').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, password: 'secret123' });
+  const confStep = await stepUpFor(token);
+  const reqc = await request(app).post('/profile/email/request').set('Authorization', `Bearer ${token}`).set('X-Step-Up', confStep).send({ email: em, newEmail: ne, password: 'secret123' });
   assert.equal(reqc.status, 200);
   const confirm = await request(app).post('/profile/email/confirm').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') });
   assert.equal(confirm.status, 200);
@@ -686,7 +687,8 @@ test('MFA enrol, enforce at login, disable over HTTP', async () => {
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 401);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123', mfaCode: totp(enroll.body.secret) })).status, 200);
 
-  assert.deepEqual((await request(app).post('/mfa/disable').set(auth).send({ email: em, code: totp(enroll.body.secret) })).body.data, ['MFA_DISABLED']);
+  const disableStep = await request(app).post('/auth/step-up').set(auth).send({ password: 'secret123', mfaCode: totp(enroll.body.secret) });
+  assert.deepEqual((await request(app).post('/mfa/disable').set(auth).set('X-Step-Up', disableStep.body.stepUpToken).send({ email: em, code: totp(enroll.body.secret) })).body.data, ['MFA_DISABLED']);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 200);
 });
 
@@ -871,8 +873,9 @@ test('email-change request is neutral for a taken address', async () => {
   await request(app).post('/auth/signup').send({ email: taken, password: 'secret123', name: 'Taken', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: taken, code: getVerificationCode(taken) });
 
-  const a = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: taken, password: 'secret123' });
-  const b = await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: `gw_free_${Date.now()}@test.com`, password: 'secret123' });
+  const neutralStep = await stepUpFor(token);
+  const a = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', neutralStep).send({ email: em, newEmail: taken, password: 'secret123' });
+  const b = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', neutralStep).send({ email: em, newEmail: `gw_free_${Date.now()}@test.com`, password: 'secret123' });
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
   assert.deepEqual(a.body, b.body); // identical neutral response
@@ -941,7 +944,8 @@ test('email-change confirm reports a taken address (race)', async () => {
   const auth = { Authorization: `Bearer ${token}` };
   const ne = `gw_racenew_${Date.now()}@test.com`;
 
-  assert.equal((await request(app).post('/profile/email/request').set(auth).send({ email: em, newEmail: ne, password: 'secret123' })).status, 200);
+  const raceStep = await stepUpFor(token);
+  assert.equal((await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', raceStep).send({ email: em, newEmail: ne, password: 'secret123' })).status, 200);
   const code = getVerificationCode(ne, 'EMAIL_CHANGE');
   // Someone else takes the address between the request and the confirm.
   runSql(`INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ('${ne}','x','Taken','1990-01-01','VERIFIED','USER')`);

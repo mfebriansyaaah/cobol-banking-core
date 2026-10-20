@@ -2835,3 +2835,13 @@ _merged 2026-10-20_
 - perf(db): apply one migration per replay iteration with migrate.sh --only
 - docs: sync HISTORY.md to post-merge state (#254)
 
+## #256 nightly-coverage
+
+_merged 2026-10-20_
+
+- docs: record the nightly coverage cadence and counts
+- feat(scripts): nightly coverage job with a fresh-report guard
+- perf(ci): stop running the coverage gate on every merge
+- docs(adr): 0078 coverage cadence
+- docs: sync HISTORY.md to post-merge state (#255)
+

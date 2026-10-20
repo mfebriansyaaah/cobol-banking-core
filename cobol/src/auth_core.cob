@@ -251,6 +251,8 @@
                     PERFORM REVOKE-OTHER-DEVICES-LOGIC
                 WHEN LS-CMD-ACTION(1:12) = "LOGIN_NOTICE"
                     PERFORM LOGIN-NOTICE-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "STEP_UP_REQUIRED"
+                    PERFORM STEP-UP-REQUIRED-LOGIC
                 WHEN LS-CMD-ACTION(1:16) = "CHECK_PERMISSION"
                     PERFORM CHECK-PERMISSION-LOGIC
                 WHEN LS-CMD-ACTION(1:16) = "LIST_PERMISSIONS"
@@ -2963,6 +2965,46 @@
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SUCCESS|NOTICE_RECORDED" TO LS-OUTPUT-BUFFER
+            EXIT PARAGRAPH.
+
+        STEP-UP-REQUIRED-LOGIC.
+            *> p1 = email, p2 = action, p3 = amount (optional; 0 when absent).
+            *> Answers whether the owner-controlled catalogue requires a fresh
+            *> step-up proof for this action at this amount.
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-PARAM3-TRIMMED = SPACES
+                MOVE "0" TO WS-BIND-1
+            ELSE
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            END-IF.
+            MOVE "SELECT CAST(CASE WHEN min_amount > 0 AND ? < min_amount THEN 0 ELSE 1 END AS CHAR) FROM step_up_policy WHERE action = ? AND enabled = 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|STEP_UP_NOT_REQUIRED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT = "1"
+                MOVE "SUCCESS|STEP_UP_REQUIRED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|STEP_UP_NOT_REQUIRED" TO LS-OUTPUT-BUFFER
+            END-IF.
             EXIT PARAGRAPH.
 
         CHECK-PERMISSION-LOGIC.

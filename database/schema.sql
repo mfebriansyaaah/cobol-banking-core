@@ -415,6 +415,21 @@ END//
 
 DELIMITER ;
 
+-- 9l. Risk-based step-up policy (owner-controlled data). The core answers
+-- STEP_UP_REQUIRED from this table; the gateway verifies the short-lived
+-- proof. Email change and MFA disable are required by default; transfer is
+-- catalogued but disabled until the owner sets a threshold.
+CREATE TABLE IF NOT EXISTS step_up_policy (
+    action VARCHAR(30) NOT NULL PRIMARY KEY,
+    min_amount DECIMAL(18,4) NOT NULL DEFAULT 0,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE
+) ENGINE=InnoDB;
+
+INSERT IGNORE INTO step_up_policy (action, min_amount, enabled) VALUES
+    ('REQ_EMAIL_CHANGE', 0, TRUE),
+    ('MFA_DISABLE', 0, TRUE),
+    ('TRANSFER', 0, FALSE);
+
 -- 9k. Password policy: bounded history and the owner-controlled deny list.
 -- password_history keeps the last N password hashes a user set (the count is
 -- PASSWORD_HISTORY_COUNT, 0 disables it); password_blocklist is keyed by the
@@ -605,7 +620,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0041_access_review'),
 ('0042_scoped_permissions'),
 ('0043_session_security'),
-('0044_password_policy');
+('0044_password_policy'),
+('0045_customer_step_up');
 
 
 -- Indexes
