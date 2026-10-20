@@ -12,7 +12,7 @@ viol=0
 # Violation 1: sentence period inside an inline IF/ELSE scope.
 # Paragraph headers (line that is nothing but an identifier ending in '.')
 # reset the IF depth. Covers every module actually compiled by build.sh.
-BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob cobol/src/auth_core.cob"
+BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob cobol/src/auth_core.cob cobol/src/ref_core.cob"
 for f in $BUILT_COB; do
     awk '
         /^[[:space:]]*[A-Z0-9][A-Z0-9-]*\.[[:space:]]*$/ {ifdepth=0; next}
@@ -71,7 +71,7 @@ fi
 # Violation 4: every action the router dispatches must have a handler in the
 # owning module (router/owner agreement - the routing contract).
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
-    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob; then
+    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_core.cob; then
         echo "router: action '$name' has no handler in any core module"
         viol=1
     fi
