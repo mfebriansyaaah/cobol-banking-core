@@ -178,6 +178,7 @@ Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
   refunds, `CUSTOMER_ERROR` retains it).
 - **Signing-secret rotation** is restart-staged with a bounded overlap
   (`*_PREVIOUS` + `*_PREVIOUS_UNTIL`); `docs/runbooks/secret-rotation.md`.
+- **Dormant lifecycle** (ADR 0080): opt-in two-phase dormancy (`DORMANT_AFTER_DAYS`, `DORMANT_GRACE_DAYS`) warns idle accounts, then suspends them; privileged accounts are left to access review.
 - **Customer step-up** (ADR 0079): email change and MFA disable require a fresh `X-Step-Up` proof; a transfer requires one once the owner enables the `step_up_policy` row with a threshold (shipped disabled).
 - **Password policy** (ADR 0077): common passwords are refused from the owner-controlled deny list (`PASSWORD_BLOCKED`), and the last `PASSWORD_HISTORY_COUNT` passwords cannot be reused (`PASSWORD_REUSED`).
 - **Session security** (ADR 0075): revoke every other device while keeping this one; an administrator refresh idle past `ADMIN_IDLE_TIMEOUT_SECONDS` is refused and audited; a first sign-in from a new fingerprint queues a `NEW_DEVICE` notice; `/metrics` counts auth failures by reason.
