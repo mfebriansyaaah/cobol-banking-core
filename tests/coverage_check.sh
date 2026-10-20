@@ -66,7 +66,15 @@ for m in r["modules"]:
 fi
 
 if [ "$RUN_GATEWAY" -eq 1 ]; then
-    if [ ! -f "$GATEWAY_REPORT" ] || ! grep -q 'end of coverage report' "$GATEWAY_REPORT"; then
+    # Reuse a report only when it is both complete and recent: a stale report
+    # from an earlier run would measure the wrong revision.
+    fresh=0
+    if [ -f "$GATEWAY_REPORT" ] && grep -q 'end of coverage report' "$GATEWAY_REPORT"; then
+        if [ -n "$(find "$GATEWAY_REPORT" -mmin -60 2>/dev/null)" ]; then
+            fresh=1
+        fi
+    fi
+    if [ "$fresh" -eq 0 ]; then
         echo "== running the gateway suite with coverage ==" >&2
         ( cd middleware && node --import ./preload.mjs --test \
             --experimental-test-coverage \

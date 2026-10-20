@@ -27,9 +27,21 @@ lines ran.
   change removes exercised code (for example deleting a branch), never to
   accept a regression.
 
-`tests/coverage_check.sh` enforces both and is wired into `ci.sh`. The
-gateway step runs the suite once with coverage enabled, so the gate reuses
-that report instead of repeating the run.
+`tests/coverage_check.sh` enforces both. **It runs nightly, not on every
+merge** (ADR 0078): `scripts/nightly.sh` measures both surfaces, writes a
+timestamped log, and exits non-zero on a failure. Schedule it with cron or a
+systemd timer:
+
+```sh
+# cron: 02:30 every night
+30 2 * * * cd /opt/cobol-banking-core && ./scripts/nightly.sh /var/lib/cobol/coverage >> /var/log/cobol-coverage.log 2>&1
+```
+
+A red nightly run is the alert; the existing alert runbook applies. The full
+`./ci.sh` merge gate no longer runs the measurement, so a merge needs the
+functional evidence, while the release needs a recent green nightly run
+(`docs/release-checklist.md`). The check reuses a gateway report only when it
+is complete and less than an hour old; otherwise it runs the suite itself.
 
 ## Running it
 

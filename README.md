@@ -163,7 +163,7 @@ Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
 - `SPEC-wallet-core.md`, `SPEC-auth-identity.md`, `SPEC-user-profile.md`,
   `SPEC-api-gateway.md` — per-module as-built behaviour and gaps.
 - `docs/STATUS.md` — current-state snapshot; `docs/HISTORY.md` — merged phases.
-- `docs/COVERAGE.md` — coverage measurement, the 30% floor, and the ratchet.
+- `docs/COVERAGE.md` — coverage measurement, the 30% floor, and the ratchet; it runs nightly via `scripts/nightly.sh` (ADR 0078), not on every merge.
 - `docs/adr/` — architecture decisions (incl. `docs/adr/0072-fx-fee-rate-policy.md`).
 - `database/migrate.sh` — versioned schema migrations.
 
