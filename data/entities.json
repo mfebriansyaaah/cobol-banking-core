@@ -4599,6 +4599,29 @@
       },
       "order": "code",
       "createTable": true
+    },
+    {
+      "name": "report_layout",
+      "code": "RLY",
+      "table": "ref_report_layout",
+      "route": "/reference/report-layouts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
     }
   ]
 }
