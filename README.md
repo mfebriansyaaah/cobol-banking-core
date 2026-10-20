@@ -195,7 +195,7 @@ Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
 - Gateway smoke tests: `npm --prefix middleware test` includes
   `endpoints.test.js`, which exercises every route; `./tests/test_e2e_gateway.sh`
   drives a full flow over real HTTP against a live server (run by `ci.sh`).
-- Before creating a branch (and after every merge), run `./scripts/sync_main.sh [branch]`: it syncs `main`, regenerates `docs/HISTORY.md`, commits the sync locally (never pushed), prunes merged branches, applies pending migrations, and optionally creates the new branch.
+- Before creating a branch (and after every merge), run `./scripts/sync_main.sh [branch]`: it syncs `main`, regenerates `docs/HISTORY.md`, commits the sync locally (never pushed), prunes merged branches, applies pending migrations, and optionally creates the new branch. It **refuses while any pull request is still open** — merge (or close) the previous PR first.
 - While iterating, `./ci-fast.sh` runs an affected-surface gate (docs in seconds, core smoke under a minute, middleware ~2 minutes). The full `./ci.sh` stays the merge/release evidence; see `docs/adr/0076-tiered-ci.md`.
 - Functional shell suites run through `tests/serve_harness.sh` (one `--serve` process, the worker-pool protocol) unless they need fresh-process semantics; see the header of that file before adding a suite.
 - Shell safety: to stop stray servers, match with a bracket pattern
