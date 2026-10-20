@@ -1,6 +1,5 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHmac } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -14,43 +13,10 @@ import { buildApp } from '../src/app.js';
 // show up as a false reconciliation mismatch once another suite wipes the
 // ledger.
 after(() => runSql("DELETE FROM users WHERE email LIKE 'gw\\_%'"));
-import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, TEST_MFA_SECRET, requireSeed } from './support.js';
+import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, totp, TEST_MFA_SECRET, requireSeed } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
-
-// RFC 6238 TOTP (SHA-1 / 6 digits / 30s) for the MFA test below.
-function fromBase32(s) {
-  const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-  let bits = 0, value = 0;
-  const out = [];
-  for (const ch of s) {
-    const idx = alpha.indexOf(ch);
-    if (idx === -1) continue;
-    value = (value << 5) | idx;
-    bits += 5;
-    if (bits >= 8) {
-      out.push((value >>> (bits - 8)) & 0xff);
-      bits -= 8;
-    }
-  }
-  return Buffer.from(out);
-}
-
-function totp(secret) {
-  // Near the end of a 30s window, mint the NEXT step's code instead: the
-  // server accepts ±1 step, so this removes the boundary race where a code
-  // computed in step N is only verified in step N+2 under load.
-  const now = Date.now();
-  let step = Math.floor(now / 30000);
-  if (now % 30000 > 25000) step += 1;
-  const buf = Buffer.alloc(8);
-  buf.writeBigUInt64BE(BigInt(step));
-  const h = createHmac('sha1', fromBase32(secret)).update(buf).digest();
-  const o = h[h.length - 1] & 0xf;
-  const bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];
-  return String(bin % 1000000).padStart(6, '0');
-}
 
 // Obtain a step-up proof (header value) for a bearer token; required by the
 // privileged admin writes.

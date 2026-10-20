@@ -4,6 +4,7 @@
 // result through requireSeed so a broken database fails the test instead of
 // silently skipping it (a skip would hide lost coverage as green).
 import { execFileSync } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 
 // Fail the test when a database prerequisite cannot be seeded. Every gateway
 // test needs the database; skipping would report green while covering nothing.
@@ -32,6 +33,30 @@ export function seedUser(email, role = 'USER') {
 export const TEST_MFA_SECRET = 'JBSWY3DPEHPK3PXP';
 export function enableMfa(email, secret = TEST_MFA_SECRET) {
   return runSql(`UPDATE users SET mfa_enabled=1, mfa_secret='${secret}' WHERE email='${email}'`);
+}
+
+// TOTP code for a base32 secret (RFC 6238, SHA-1, 6 digits, 30s). Near the
+// end of a window the NEXT step is minted, so a code computed in step N is
+// still accepted in step N+1 under load (the server allows +/-1 step).
+export function totp(secret) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = '';
+  for (const ch of secret.toUpperCase().replace(/=+$/, '')) {
+    const idx = alphabet.indexOf(ch);
+    if (idx < 0) continue;
+    bits += idx.toString(2).padStart(5, '0');
+  }
+  const bytes = [];
+  for (let i = 0; i + 8 <= bits.length; i += 8) bytes.push(parseInt(bits.slice(i, i + 8), 2));
+  const now = Date.now();
+  let step = Math.floor(now / 30000);
+  if (now % 30000 > 25000) step += 1;
+  const buf = Buffer.alloc(8);
+  buf.writeBigUInt64BE(BigInt(step));
+  const h = createHmac('sha1', Buffer.from(bytes)).update(buf).digest();
+  const o = h[h.length - 1] & 0xf;
+  const bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];
+  return String(bin % 1000000).padStart(6, '0');
 }
 
 // Run an arbitrary SQL statement against the test database (used to put
