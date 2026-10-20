@@ -2781,3 +2781,11 @@ _merged 2026-10-20_
 - feat(test): gateway coverage and the coverage gate
 - feat(scripts): measure COBOL statement coverage from the generated C
 
+## #250 serve-harness
+
+_merged 2026-10-20_
+
+- chore(ci): lower the test-only KDF cost to 10k iterations
+- test: run the functional suites through the shared serve-mode harness
+- docs: sync HISTORY.md to post-merge state (#249)
+
