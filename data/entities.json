@@ -735,6 +735,190 @@
       },
       "order": "code",
       "createTable": true
+    },
+    {
+      "name": "account_status",
+      "code": "ACS",
+      "table": "ref_account_status",
+      "route": "/reference/account-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "payment_type",
+      "code": "PMT",
+      "table": "ref_payment_type",
+      "route": "/reference/payment-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "card_type",
+      "code": "CRD",
+      "table": "ref_card_type",
+      "route": "/reference/card-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "address_type",
+      "code": "ADR",
+      "table": "ref_address_type",
+      "route": "/reference/address-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "phone_type",
+      "code": "PHN",
+      "table": "ref_phone_type",
+      "route": "/reference/phone-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "email_type",
+      "code": "EMT",
+      "table": "ref_email_type",
+      "route": "/reference/email-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "review_state",
+      "code": "RVS",
+      "table": "ref_review_state",
+      "route": "/reference/review-states",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_group",
+      "code": "RPG",
+      "table": "ref_report_group",
+      "route": "/reference/report-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
     }
   ]
 }
