@@ -2828,3 +2828,10 @@ _merged 2026-10-20_
 
 - fix(scripts): merge main after checkout and replay a local HISTORY commit
 
+## #255 parallel-migration-replay
+
+_merged 2026-10-20_
+
+- perf(db): apply one migration per replay iteration with migrate.sh --only
+- docs: sync HISTORY.md to post-merge state (#254)
+
