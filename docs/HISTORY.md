@@ -2845,3 +2845,14 @@ _merged 2026-10-20_
 - docs(adr): 0078 coverage cadence
 - docs: sync HISTORY.md to post-merge state (#255)
 
+## #257 customer-step-up
+
+_merged 2026-10-20_
+
+- docs: record the customer step-up policy and the new counts
+- test: customer step-up suite wired into CI as step 70
+- feat(gateway): enforce customer step-up on email change, MFA disable, and transfers
+- feat(core): STEP_UP_REQUIRED reads the step-up policy
+- docs(adr): 0079 customer step-up; migration 0045 policy table
+- docs: sync HISTORY.md to post-merge state (#256)
+

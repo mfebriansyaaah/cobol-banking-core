@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS users (
     failed_logins INT NOT NULL DEFAULT 0,
     locked_until TIMESTAMP NULL DEFAULT NULL,
     last_login_at TIMESTAMP NULL DEFAULT NULL,
+    dormant_notified_at TIMESTAMP NULL DEFAULT NULL,
     mfa_secret VARCHAR(64) NULL DEFAULT NULL,
     mfa_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -621,11 +622,13 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0042_scoped_permissions'),
 ('0043_session_security'),
 ('0044_password_policy'),
-('0045_customer_step_up');
+('0045_customer_step_up'),
+('0046_dormant_lifecycle');
 
 
 -- Indexes
 CREATE INDEX idx_user_email ON users(email);
+CREATE INDEX idx_users_dormant ON users(status, last_login_at);
 CREATE INDEX idx_currency_iso ON currencies(iso_code);
 CREATE INDEX idx_exchange_lookup ON exchange_rates(base_currency_id, target_currency_id);
 CREATE INDEX idx_acc_user ON accounts(user_id);

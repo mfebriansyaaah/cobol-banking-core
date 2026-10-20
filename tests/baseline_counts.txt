@@ -65,3 +65,4 @@ permissions 23
 session-security 26
 password-policy 18
 step-up-policy 14
+dormancy 19
