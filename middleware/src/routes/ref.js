@@ -6003,4 +6003,34 @@ export const REF_ROUTES = [
     { name: 'code', pattern: PATTERNS.REF_CODE, required: true }, BLANK, BLANK, BLANK, BLANK,
     { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
   ] },
+  { method: 'get', path: '/reference/report-layouts', action: 'REF_RLY_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, BLANK,
+    { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+  ] },
+  { method: 'get', path: '/reference/report-layouts/:code', action: 'REF_RLY_GET', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.REF_CODE, required: true }, BLANK, BLANK, BLANK, BLANK,
+    { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/reference/report-layouts', action: 'REF_RLY_CREATE', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.REF_CODE, required: true },
+    { name: 'symbol', pattern: PATTERNS.SYMBOL, required: true },
+    { name: 'precision', pattern: PATTERNS.INT, required: true },
+    { name: 'active', pattern: PATTERNS.FLAG, required: true },
+    BLANK,
+    { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+  ] },
+  { method: 'put', path: '/reference/report-layouts/:code', action: 'REF_RLY_UPDATE', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.REF_CODE, required: true },
+    { name: 'symbol', pattern: PATTERNS.SYMBOL, required: true },
+    { name: 'precision', pattern: PATTERNS.INT, required: true },
+    { name: 'active', pattern: PATTERNS.FLAG, required: true },
+    BLANK,
+    { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+  ] },
+  { method: 'delete', path: '/reference/report-layouts/:code', action: 'REF_RLY_DEACT', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.REF_CODE, required: true }, BLANK, BLANK, BLANK, BLANK,
+    { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+  ] },
 ];
