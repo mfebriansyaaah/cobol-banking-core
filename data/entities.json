@@ -2759,6 +2759,926 @@
       },
       "order": "code",
       "createTable": true
+    },
+    {
+      "name": "account_purpose",
+      "code": "APR",
+      "table": "ref_account_purpose",
+      "route": "/reference/account-purposes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_ownership",
+      "code": "AOW",
+      "table": "ref_account_ownership",
+      "route": "/reference/account-ownerships",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_restriction",
+      "code": "ARS",
+      "table": "ref_account_restriction",
+      "route": "/reference/account-restrictions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_feature",
+      "code": "AFT",
+      "table": "ref_account_feature",
+      "route": "/reference/account-features",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "product_feature",
+      "code": "PFT",
+      "table": "ref_product_feature",
+      "route": "/reference/product-features",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "product_group",
+      "code": "PGR",
+      "table": "ref_product_group",
+      "route": "/reference/product-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "product_family",
+      "code": "PFM",
+      "table": "ref_product_family",
+      "route": "/reference/product-families",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "product_status",
+      "code": "PDS",
+      "table": "ref_product_status",
+      "route": "/reference/product-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "pricing_tier",
+      "code": "PTR",
+      "table": "ref_pricing_tier",
+      "route": "/reference/pricing-tiers",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "pricing_group",
+      "code": "PGP",
+      "table": "ref_pricing_group",
+      "route": "/reference/pricing-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_waiver",
+      "code": "FWV",
+      "table": "ref_fee_waiver",
+      "route": "/reference/fee-waivers",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_cap",
+      "code": "FCP",
+      "table": "ref_fee_cap",
+      "route": "/reference/fee-caps",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_rounding",
+      "code": "FRD",
+      "table": "ref_fee_rounding",
+      "route": "/reference/fee-roundings",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "charge_group",
+      "code": "CGR",
+      "table": "ref_charge_group",
+      "route": "/reference/charge-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "tax_group",
+      "code": "TGR",
+      "table": "ref_tax_group",
+      "route": "/reference/tax-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "tax_rate_type",
+      "code": "TRT",
+      "table": "ref_tax_rate_type",
+      "route": "/reference/tax-rate-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "limit_basis",
+      "code": "LMB",
+      "table": "ref_limit_basis",
+      "route": "/reference/limit-bases",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "limit_frequency",
+      "code": "LFQ",
+      "table": "ref_limit_frequency",
+      "route": "/reference/limit-frequencies",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "limit_scope",
+      "code": "LSC",
+      "table": "ref_limit_scope",
+      "route": "/reference/limit-scopes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "transaction_class",
+      "code": "TCL",
+      "table": "ref_transaction_class",
+      "route": "/reference/transaction-classes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "transaction_group",
+      "code": "TXG",
+      "table": "ref_transaction_group",
+      "route": "/reference/transaction-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "transaction_status",
+      "code": "TSR",
+      "table": "ref_transaction_status",
+      "route": "/reference/transaction-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "transaction_channel",
+      "code": "TCH",
+      "table": "ref_transaction_channel",
+      "route": "/reference/transaction-channels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "payment_scheme",
+      "code": "PSM",
+      "table": "ref_payment_scheme",
+      "route": "/reference/payment-schemes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "payment_rail",
+      "code": "PRL",
+      "table": "ref_payment_rail",
+      "route": "/reference/payment-rails",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "settlement_cycle",
+      "code": "SCY",
+      "table": "ref_settlement_cycle",
+      "route": "/reference/settlement-cycles",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "clearing_cycle",
+      "code": "CCY",
+      "table": "ref_clearing_cycle",
+      "route": "/reference/clearing-cycles",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "cut_off_group",
+      "code": "COG",
+      "table": "ref_cut_off_group",
+      "route": "/reference/cut-off-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "value_date_rule",
+      "code": "VDR",
+      "table": "ref_value_date_rule",
+      "route": "/reference/value-date-rules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "posting_window",
+      "code": "PWN",
+      "table": "ref_posting_window",
+      "route": "/reference/posting-windows",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "reversal_reason",
+      "code": "RVR",
+      "table": "ref_reversal_reason",
+      "route": "/reference/reversal-reasons",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "adjustment_reason",
+      "code": "AJR",
+      "table": "ref_adjustment_reason",
+      "route": "/reference/adjustment-reasons",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "dispute_reason",
+      "code": "DSR",
+      "table": "ref_dispute_reason",
+      "route": "/reference/dispute-reasons",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "complaint_category",
+      "code": "CMC",
+      "table": "ref_complaint_category",
+      "route": "/reference/complaint-categories",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "service_level",
+      "code": "SVL",
+      "table": "ref_service_level",
+      "route": "/reference/service-levels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "escalation_level",
+      "code": "ESL",
+      "table": "ref_escalation_level",
+      "route": "/reference/escalation-levels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "case_priority",
+      "code": "CSP",
+      "table": "ref_case_priority",
+      "route": "/reference/case-priorities",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "case_status",
+      "code": "CST",
+      "table": "ref_case_status",
+      "route": "/reference/case-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "workflow_action",
+      "code": "WFA",
+      "table": "ref_workflow_action",
+      "route": "/reference/workflow-actions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "workflow_role",
+      "code": "WFR",
+      "table": "ref_workflow_role",
+      "route": "/reference/workflow-roles",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
     }
   ]
 }
