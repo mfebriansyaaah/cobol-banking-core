@@ -47,13 +47,17 @@ count_ext() {
 
 total_code=0
 cobol_code=0
+total_raw=0
+cobol_raw=0
 printf '%-8s %6s %9s %8s %9s %9s %8s\n' "language" "files" "raw" "blank" "comment" "net" "share"
 for ext in cob c h sql sh js mjs; do
     n="$(printf '%s\n' "$files" | grep -cE "\.${ext}$" || true)"
     [ "$n" = "0" ] && continue
     read -r raw blank comment code <<< "$(count_ext "$ext")"
     total_code=$((total_code + code))
+    total_raw=$((total_raw + raw))
     [ "$ext" = "cob" ] && cobol_code=$((cobol_code + code))
+    [ "$ext" = "cob" ] && cobol_raw=$((cobol_raw + raw))
 done
 
 for ext in cob c h sql sh js mjs; do
@@ -74,7 +78,7 @@ for ext in cob c h sql sh js mjs; do
     esac
     printf '%-8s %6d %9d %8d %9d %9d %7d.%d%%\n' "$label" "$n" "$raw" "$blank" "$comment" "$code" $((share / 10)) $((share % 10))
 done
-printf '%-8s %6d %9s %8s %9s %9d\n' "TOTAL" "$(printf '%s\n' "$files" | grep -c . || true)" "" "" "" "$total_code"
+printf '%-8s %6d %9d %8s %9s %9d\n' "TOTAL" "$(printf '%s\n' "$files" | grep -c . || true)" "$total_raw" "" "" "$total_code"
 
 if [ -n "$SINCE" ]; then
     echo
@@ -101,13 +105,16 @@ if [ "$CHECK" = "1" ]; then
         exit 1
     fi
     pct=$((cobol_code * 1000 / total_code))
-    if [ "$pct" -lt 500 ]; then
-        echo "FAIL: COBOL share is $((pct / 10)).$((pct % 10))% (minimum 50%)"
+    raw_pct=$((cobol_raw * 1000 / total_raw))
+    echo "COBOL net share: $((pct / 10)).$((pct % 10))%"
+    echo "COBOL raw share: $((raw_pct / 10)).$((raw_pct % 10))%"
+    if [ "$pct" -lt 500 ] || [ "$raw_pct" -lt 500 ]; then
+        echo "FAIL: COBOL share is below 50% (net $((pct / 10)).$((pct % 10))%, raw $((raw_pct / 10)).$((raw_pct % 10))%)"
         exit 1
     fi
-    if [ "$pct" -lt 550 ]; then
-        echo "WARN: COBOL share is $((pct / 10)).$((pct % 10))% (target 55%+)"
+    if [ "$pct" -lt 550 ] || [ "$raw_pct" -lt 550 ]; then
+        echo "WARN: COBOL share is below the 55% target"
     else
-        echo "OK: COBOL share is $((pct / 10)).$((pct % 10))%"
+        echo "OK: COBOL share meets the 55% target"
     fi
 fi
