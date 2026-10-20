@@ -4622,6 +4622,236 @@
       },
       "order": "code",
       "createTable": true
+    },
+    {
+      "name": "report_column",
+      "code": "RCL",
+      "table": "ref_report_column",
+      "route": "/reference/report-columns",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_filter",
+      "code": "RFL",
+      "table": "ref_report_filter",
+      "route": "/reference/report-filters",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_parameter",
+      "code": "RPM",
+      "table": "ref_report_parameter",
+      "route": "/reference/report-parameters",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_schedule",
+      "code": "RSD",
+      "table": "ref_report_schedule",
+      "route": "/reference/report-schedules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_delivery",
+      "code": "RDV",
+      "table": "ref_report_delivery",
+      "route": "/reference/report-deliveries",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "export_schedule",
+      "code": "ESD",
+      "table": "ref_export_schedule",
+      "route": "/reference/export-schedules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "export_delivery",
+      "code": "EDV",
+      "table": "ref_export_delivery",
+      "route": "/reference/export-deliveries",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "file_source",
+      "code": "FSR",
+      "table": "ref_file_source",
+      "route": "/reference/file-sources",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "file_status",
+      "code": "FST",
+      "table": "ref_file_status",
+      "route": "/reference/file-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "file_direction",
+      "code": "FDR",
+      "table": "ref_file_direction",
+      "route": "/reference/file-directions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
     }
   ]
 }
