@@ -177,6 +177,7 @@ Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
   refunds, `CUSTOMER_ERROR` retains it).
 - **Signing-secret rotation** is restart-staged with a bounded overlap
   (`*_PREVIOUS` + `*_PREVIOUS_UNTIL`); `docs/runbooks/secret-rotation.md`.
+- **Scoped permissions** (ADR 0074): read-mostly gates check a named permission (`AUDIT_READ`, `AUDIT_ARCHIVE`, `RECONCILE_READ`, `RECONCILE_RUN`) instead of the rank; phase 1 preserves current access exactly. `CHECK_PERMISSION` answers, `LIST_PERMISSIONS` projects the set in login/profile responses.
 - **Access review** (SUPER_ADMIN): open a review that snapshots every
   privileged account, record an `ATTESTED`/`REVOKED` decision per item
   (never your own), and close it once every item is decided and every
