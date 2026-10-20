@@ -2797,3 +2797,13 @@ _merged 2026-10-20_
 - feat(ci): extract the static checks and add the affected-surface fast gate
 - docs: sync HISTORY.md to post-merge state (#250)
 
+## #252 sync-main-script
+
+_merged 2026-10-20_
+
+- docs: state the no-sync-while-a-pr-is-open rule
+- fix(scripts): check open PRs before switching to main
+- feat(scripts): refuse to sync while a pull request is still open
+- docs: make the sync step mandatory before creating a branch
+- feat(scripts): sync main and prepare the next branch in one step
+
