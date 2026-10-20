@@ -181,3 +181,10 @@ invariant, bypass evidence, or claim compliance without accountable approval.
     that form one coherent change — never a slim, single-commit PR for work
     that naturally decomposes. There is no fixed minimum commit count;
     completeness and cohesion of the change decide.
+
+    While iterating, `./ci-fast.sh` runs the affected-surface gate (static
+    checks, build, warning ratchet, migration check, a money-path smoke set
+    for core changes, the gateway suite for middleware changes; see
+    `docs/adr/0076-tiered-ci.md`). The full `./ci.sh` run remains the merge
+    and release evidence and must be green on the final commit before the PR
+    is opened; the fast gate never replaces it.
