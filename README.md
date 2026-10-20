@@ -195,5 +195,6 @@ Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
 - Gateway smoke tests: `npm --prefix middleware test` includes
   `endpoints.test.js`, which exercises every route; `./tests/test_e2e_gateway.sh`
   drives a full flow over real HTTP against a live server (run by `ci.sh`).
+- Functional shell suites run through `tests/serve_harness.sh` (one `--serve` process, the worker-pool protocol) unless they need fresh-process semantics; see the header of that file before adding a suite.
 - Shell safety: to stop stray servers, match with a bracket pattern
   (`pkill -f "[s]erver.js"`) so the pattern does not match the command itself.
