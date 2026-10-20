@@ -2179,6 +2179,15 @@ CREATE TABLE IF NOT EXISTS ref_audit_severity (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- Reference-data table folded from migration 0051 (report layout)
+CREATE TABLE IF NOT EXISTS ref_report_layout (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -2234,7 +2243,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0047_ref_entities'),
 ('0048_ref_entities_batch2'),
 ('0049_ref_entities_batch3'),
-('0050_ref_entities_batch4');
+('0050_ref_entities_batch4'),
+('0051_ref_entities_batch4_tail');
 
 
 -- Indexes
