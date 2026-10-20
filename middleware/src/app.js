@@ -213,7 +213,7 @@ export const ROUTES = [
       });
     return { data: ['DISPUTE'], case: { caseId, email, ref, subject, detail, state, assignee, due, overdue: overdue === '1', created, resolution }, total: body.data[2], messages };
   } },
-  { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', fields: [
+  { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', stepUpPolicy: 'TRANSFER', fields: [
     { name: 'from', pattern: EMAIL, required: true },
     { name: 'to', pattern: EMAIL, required: true },
     { name: 'amount', pattern: AMOUNT, required: true },
@@ -282,7 +282,7 @@ export const ROUTES = [
     { name: 'holdId', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', stepUpPolicy: 'REQ_EMAIL_CHANGE', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
@@ -350,7 +350,7 @@ export const ROUTES = [
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
-  { method: 'post', path: '/mfa/disable', action: 'MFA_DISABLE', tokenIdentity: 'actor', fields: [
+  { method: 'post', path: '/mfa/disable', action: 'MFA_DISABLE', tokenIdentity: 'actor', stepUpPolicy: 'MFA_DISABLE', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
@@ -591,25 +591,56 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     }
   };
 
-  // Step-up gate for privileged admin writes: require a fresh, short-lived
-  // proof (from POST /auth/step-up) bound to this caller and its token version.
-  const requireStepUp = (req, res, next) => {
+  // Verify a fresh, short-lived step-up proof (from POST /auth/step-up) bound
+  // to this caller and its token version. Returns true when it is valid;
+  // otherwise it has already written the 401.
+  const stepUpProofValid = (req, res) => {
     const token = req.get('x-step-up') || (req.body && req.body.stepUpToken) || '';
     if (!token) {
       recordAuthFailure('STEP_UP_REQUIRED');
-      return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      return false;
     }
     let payload;
     try {
       payload = verifyStepUp(token);
     } catch {
-      return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      return false;
     }
     const u = req.user || {};
     if (payload.email !== u.email || String(payload.ver) !== String(u.ver)) {
-      return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      return false;
     }
+    return true;
+  };
+
+  // Static gate for privileged admin writes (always required).
+  const requireStepUp = (req, res, next) => {
+    if (!stepUpProofValid(req, res)) return undefined;
     return next();
+  };
+
+  // Risk-based gate for customer actions: COBOL's STEP_UP_REQUIRED reads the
+  // owner-controlled policy and decides; the gateway only enforces the answer.
+  const requireStepUpPolicy = (action) => async (req, res, next) => {
+    try {
+      const email = (req.user && req.user.email) || '';
+      const amount = (req.body && req.body.amount) ?? (req.query && req.query.amount) ?? '';
+      const raw = await invoke('STEP_UP_REQUIRED', [email, action, String(amount)]);
+      if (raw === 'SUCCESS|STEP_UP_REQUIRED') {
+        if (!stepUpProofValid(req, res)) return undefined;
+        return next();
+      }
+      if (raw.startsWith('ERROR')) {
+        recordAuthFailure('STEP_UP_POLICY_FAILED');
+        return res.status(500).json({ error: 'STEP_UP_POLICY_FAILED' });
+      }
+      return next();
+    } catch (err) {
+      return next(err);
+    }
   };
 
   // Deep health: confirm the COBOL core can reach the database. Rate-limited:
@@ -771,6 +802,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     if (!route.public) chain.push(requireAuth);
     if (!route.public) chain.push(requireActiveToken);
     if (route.stepUp) chain.push(requireStepUp);
+    else if (route.stepUpPolicy) chain.push(requireStepUpPolicy(route.stepUpPolicy));
     chain.push(handler);
     router[route.method](route.path, ...chain);
   }
