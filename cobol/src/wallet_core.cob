@@ -416,7 +416,7 @@
             *> WS-PERM-REQ names the permission WS-PERM-ACTOR must hold. A
             *> refused attempt is audited; the caller then reports FORBIDDEN.
             MOVE 0 TO WS-ALLOWED
-            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM role_permissions rp JOIN users u ON u.role = rp.role WHERE u.email = ? AND rp.permission = ?" TO WS-PREP-SQL
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM role_permissions rp JOIN users u ON u.role = rp.role WHERE u.email = ? AND BINARY rp.permission = ?" TO WS-PREP-SQL
             MOVE WS-PERM-ACTOR TO WS-BIND-1
             MOVE WS-PERM-REQ TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
