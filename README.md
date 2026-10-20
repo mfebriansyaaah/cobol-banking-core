@@ -177,6 +177,10 @@ Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
   refunds, `CUSTOMER_ERROR` retains it).
 - **Signing-secret rotation** is restart-staged with a bounded overlap
   (`*_PREVIOUS` + `*_PREVIOUS_UNTIL`); `docs/runbooks/secret-rotation.md`.
+- **Access review** (SUPER_ADMIN): open a review that snapshots every
+  privileged account, record an `ATTESTED`/`REVOKED` decision per item
+  (never your own), and close it once every item is decided and every
+  revoked access is actually gone. See `docs/adr/0073-access-review-attestation.md`.
 - **Worker pool** settings are validated at startup and the queue is bounded
   (`COBOL_POOL_*`); invalid config fails fast instead of hanging requests.
 
