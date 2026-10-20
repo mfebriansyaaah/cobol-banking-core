@@ -1839,6 +1839,926 @@
       },
       "order": "code",
       "createTable": true
+    },
+    {
+      "name": "account_group",
+      "code": "AGP",
+      "table": "ref_account_group",
+      "route": "/reference/account-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_subtype",
+      "code": "AST",
+      "table": "ref_account_subtype",
+      "route": "/reference/account-subtypes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "balance_class",
+      "code": "BCL",
+      "table": "ref_balance_class",
+      "route": "/reference/balance-classes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "ledger_class",
+      "code": "LCL",
+      "table": "ref_ledger_class",
+      "route": "/reference/ledger-classes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "journal_type",
+      "code": "JTY",
+      "table": "ref_journal_type",
+      "route": "/reference/journal-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "posting_frequency",
+      "code": "PFR",
+      "table": "ref_posting_frequency",
+      "route": "/reference/posting-frequencies",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "accrual_basis",
+      "code": "ACB",
+      "table": "ref_accrual_basis",
+      "route": "/reference/accrual-bases",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "day_count_basis",
+      "code": "DCB",
+      "table": "ref_day_count_basis",
+      "route": "/reference/day-count-bases",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "interest_basis",
+      "code": "INB",
+      "table": "ref_interest_basis",
+      "route": "/reference/interest-bases",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "compounding_method",
+      "code": "CPM",
+      "table": "ref_compounding_method",
+      "route": "/reference/compounding-methods",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "rate_index",
+      "code": "RIX",
+      "table": "ref_rate_index",
+      "route": "/reference/rate-indices",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "rate_benchmark",
+      "code": "RBK",
+      "table": "ref_rate_benchmark",
+      "route": "/reference/rate-benchmarks",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "spread_type",
+      "code": "SPT",
+      "table": "ref_spread_type",
+      "route": "/reference/spread-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_basis",
+      "code": "FEB",
+      "table": "ref_fee_basis",
+      "route": "/reference/fee-bases",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_frequency",
+      "code": "FFQ",
+      "table": "ref_fee_frequency",
+      "route": "/reference/fee-frequencies",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "charge_basis",
+      "code": "CHB",
+      "table": "ref_charge_basis",
+      "route": "/reference/charge-bases",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "tax_basis",
+      "code": "TXB",
+      "table": "ref_tax_basis",
+      "route": "/reference/tax-bases",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "tax_jurisdiction",
+      "code": "TXJ",
+      "table": "ref_tax_jurisdiction",
+      "route": "/reference/tax-jurisdictions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "document_category",
+      "code": "DCT",
+      "table": "ref_document_category",
+      "route": "/reference/document-categories",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "document_format",
+      "code": "DFM",
+      "table": "ref_document_format",
+      "route": "/reference/document-formats",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "notification_priority",
+      "code": "NPR",
+      "table": "ref_notification_priority",
+      "route": "/reference/notification-priorities",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "delivery_channel",
+      "code": "DCH",
+      "table": "ref_delivery_channel",
+      "route": "/reference/delivery-channels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "message_type",
+      "code": "MSG",
+      "table": "ref_message_type",
+      "route": "/reference/message-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "template_scope",
+      "code": "TSC",
+      "table": "ref_template_scope",
+      "route": "/reference/template-scopes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_frequency",
+      "code": "RFQ",
+      "table": "ref_report_frequency",
+      "route": "/reference/report-frequencies",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_category",
+      "code": "RCG",
+      "table": "ref_report_category",
+      "route": "/reference/report-categories",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "export_type",
+      "code": "EXT",
+      "table": "ref_export_type",
+      "route": "/reference/export-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "file_format",
+      "code": "FFM",
+      "table": "ref_file_format",
+      "route": "/reference/file-formats",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "batch_group",
+      "code": "BGR",
+      "table": "ref_batch_group",
+      "route": "/reference/batch-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "batch_status",
+      "code": "BST",
+      "table": "ref_batch_status",
+      "route": "/reference/batch-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "job_priority",
+      "code": "JPR",
+      "table": "ref_job_priority",
+      "route": "/reference/job-priorities",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "schedule_type",
+      "code": "SCH",
+      "table": "ref_schedule_type",
+      "route": "/reference/schedule-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "calendar_type",
+      "code": "CLT",
+      "table": "ref_calendar_type",
+      "route": "/reference/calendar-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "timezone_region",
+      "code": "TZR",
+      "table": "ref_timezone_region",
+      "route": "/reference/timezone-regions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "country_group",
+      "code": "CGP",
+      "table": "ref_country_group",
+      "route": "/reference/country-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "region_group",
+      "code": "RGP",
+      "table": "ref_region_group",
+      "route": "/reference/region-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "branch_group",
+      "code": "BGP",
+      "table": "ref_branch_group",
+      "route": "/reference/branch-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "channel_class",
+      "code": "CHC",
+      "table": "ref_channel_class",
+      "route": "/reference/channel-classes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "user_segment",
+      "code": "USG",
+      "table": "ref_user_segment",
+      "route": "/reference/user-segments",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "customer_segment",
+      "code": "CSG",
+      "table": "ref_customer_segment",
+      "route": "/reference/customer-segments",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
     }
   ]
 }
