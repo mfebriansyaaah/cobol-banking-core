@@ -29,7 +29,6 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-git checkout main >/dev/null 2>&1 || { echo "sync_main: cannot switch to main" >&2; exit 1; }
 
 echo "sync_main: fetching origin"
 git fetch origin --prune >/dev/null
@@ -69,6 +68,8 @@ if ! git merge --ff-only origin/main >/dev/null 2>&1; then
     echo "sync_main: local main has commits not on origin; merging"
     git merge --no-edit origin/main >/dev/null
 fi
+
+git checkout main >/dev/null 2>&1 || { echo "sync_main: cannot switch to main" >&2; exit 1; }
 
 echo "sync_main: regenerating docs/HISTORY.md"
 ./docs/gen_history.sh > docs/HISTORY.md
