@@ -257,6 +257,18 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
+  // Dormant account lifecycle (ADR 0080): flag, suspend after the grace
+  // window, and reactivate. SUPER_ADMIN only; the core reads the policy.
+  { method: 'post', path: '/admin/dormancy/mark', action: 'MARK_DORMANT', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/dormancy/suspend', action: 'SUSPEND_DORMANT', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
+  { method: 'post', path: '/admin/dormancy/reactivate', action: 'REACTIVATE_DORMANT', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+  ] },
   { method: 'post', path: '/admin/user-status', action: 'SET_USER_STATUS', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'status', pattern: USER_STATUS, required: true },

@@ -32,6 +32,7 @@ function subjectFor(purpose) {
   if (purpose === 'EMAIL_CHANGED') return 'Your account email was changed';
   if (purpose === 'MFA_RECOVERY_NOTICE') return 'Your account MFA was reset';
   if (purpose === 'NEW_DEVICE') return 'New sign-in to your account';
+  if (purpose === 'DORMANT_NOTICE') return 'Your account has been inactive';
   return verificationSubject(purpose);
 }
 
@@ -44,6 +45,9 @@ function textFor({ purpose, code, detail }) {
   }
   if (purpose === 'NEW_DEVICE') {
     return `A new sign-in to your account was detected from ${detail}. If this was not you, change your password and contact support.`;
+  }
+  if (purpose === 'DORMANT_NOTICE') {
+    return 'Your account has not been used for a while. Sign in soon to keep it active; it will be suspended after the grace period. Contact support if you need help.';
   }
   return `Your verification code is ${code}`;
 }
@@ -84,7 +88,7 @@ async function main() {
     let sent = false;
     let error = '';
     try {
-      if (purpose !== 'SIGNUP' && purpose !== 'PASSWORD_RESET' && purpose !== 'EMAIL_CHANGE' && purpose !== 'EMAIL_CHANGED' && purpose !== 'MFA_RECOVERY' && purpose !== 'MFA_RECOVERY_NOTICE' && purpose !== 'NEW_DEVICE') {
+      if (purpose !== 'SIGNUP' && purpose !== 'PASSWORD_RESET' && purpose !== 'EMAIL_CHANGE' && purpose !== 'EMAIL_CHANGED' && purpose !== 'MFA_RECOVERY' && purpose !== 'MFA_RECOVERY_NOTICE' && purpose !== 'NEW_DEVICE' && purpose !== 'DORMANT_NOTICE') {
         error = `unknown purpose ${purpose}`;
       } else if (transport === 'log') {
         await appendFile(logFile, JSON.stringify({ ts: new Date().toISOString(), id, to, purpose, subject, text }) + '\n');
