@@ -54,6 +54,7 @@ DEFAULT_SUITES=(
     test_holds
     test_permissions
     test_password_policy
+    test_step_up_policy
 )
 ALL_SUITES=(
     test_suite test_atomic_txn test_ledger_atomic test_reconciliation
