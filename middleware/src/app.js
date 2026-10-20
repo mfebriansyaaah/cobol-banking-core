@@ -67,6 +67,7 @@ export const ROUTES = [
       token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }),
       refreshToken: issued.token,
       mfaEnrollmentRequired: enroll,
+      permissions: await listPermissions(input.email),
     };
   } },
 
@@ -231,7 +232,7 @@ export const ROUTES = [
           return { currency, balance, available, status };
         })
       : [];
-    return { data: ['PROFILE'], profile: { email, name, status, role, dob, createdAt }, accounts: balances };
+    return { data: ['PROFILE'], profile: { email, name, status, role, dob, createdAt }, accounts: balances, permissions: await listPermissions(email) };
   } },
   { method: 'patch', path: '/profile', action: 'UPDATE_PROFILE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
@@ -514,6 +515,19 @@ function sanitizeMeta(value, max) {
     .slice(0, max);
 }
 
+// The permissions an account holds, for clients to render. Authorization
+// itself stays in COBOL; this is a read-only projection, never a decision.
+async function listPermissions(email) {
+  try {
+    const raw = await invoke('LIST_PERMISSIONS', [email]);
+    if (!raw.startsWith('SUCCESS|PERMISSIONS')) return [];
+    const rows = raw.split('|')[2] || '';
+    return rows ? rows.split(';').filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
 async function tokenVersion(email) {
   try {
     const raw = await invoke('GET_TOKEN_VERSION', [email]);
@@ -542,13 +556,15 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     }
   };
 
-  // Role gate for operator-only endpoints (checked live in COBOL). CHECK_ROLE
-  // allows the actor to test their own role, so it works as a self role check.
-  const requireRole = (role) => async (req, res, next) => {
+  // Permission gate for operator-only endpoints (checked live in COBOL).
+  // CHECK_PERMISSION answers whether the actor holds the permission, so a
+  // future grant to another role needs no gateway change.
+  const requirePermission = (permission) => async (req, res, next) => {
     try {
       const email = (req.user && req.user.email) || '';
-      const raw = await invoke('CHECK_ROLE', [email, role, email]);
-      if (raw === 'SUCCESS|ROLE_OK') return next();
+      const raw = await invoke('CHECK_PERMISSION', [email, permission]);
+      if (raw === 'SUCCESS|PERMISSION_OK') return next();
+      if (raw === 'ERROR|ACCOUNT_NOT_FOUND') return res.status(404).json({ error: 'ACCOUNT_NOT_FOUND' });
       return res.status(403).json({ error: 'FORBIDDEN' });
     } catch (err) {
       return next(err);
@@ -627,7 +643,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
 
   // Prometheus-style counters (support only). Authenticated to keep the
   // surface closed; scrapers send a bearer token.
-  router.get('/metrics', apiLimiter, requireAuth, requireActiveToken, requireRole('SUPER_ADMIN'), (_req, res) => {
+  router.get('/metrics', apiLimiter, requireAuth, requireActiveToken, requirePermission('AUDIT_READ'), (_req, res) => {
     res.type('text/plain').send(metricsText());
   });
 
