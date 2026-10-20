@@ -2807,3 +2807,24 @@ _merged 2026-10-20_
 - docs: make the sync step mandatory before creating a branch
 - feat(scripts): sync main and prepare the next branch in one step
 
+## #253 password-policy
+
+_merged 2026-10-20_
+
+- fix(ops): back up the password policy tables too
+- style(cobol): close the password-policy scopes with explicit terminators
+- docs: record the password policy and the new counts
+- test: password policy suite wired into CI as step 69
+- feat(gateway): map PASSWORD_BLOCKED and PASSWORD_REUSED
+- feat(core): password deny list and bounded history at signup/change/reset
+- feat(crypto): sha256_hex_lower for the deny-list key
+- feat(db): migration 0044 password history and deny list
+- docs(adr): 0077 password policy
+- docs: sync HISTORY.md to post-merge state (#252)
+
+## #254 sync-main-order
+
+_merged 2026-10-20_
+
+- fix(scripts): merge main after checkout and replay a local HISTORY commit
+
