@@ -28,10 +28,10 @@ run_step() {
     return 0
 }
 
-echo "=== [1/67] Docs integrity check ==="
+echo "=== [1/68] Docs integrity check ==="
 ./tests/docs_check.sh
 
-echo "=== [2/67] Static COBOL checks ==="
+echo "=== [2/68] Static COBOL checks ==="
 viol=0
 
 # Violation 1: sentence period inside an inline IF/ELSE scope.
@@ -126,7 +126,7 @@ if [ "$viol" = 1 ]; then
 fi
 echo "OK"
 
-echo "=== [3/67] Build ==="
+echo "=== [3/68] Build ==="
 if build_log=$(./build.sh 2>&1); then build_rc=0; else build_rc=$?; fi
 [ "$build_rc" -eq 0 ] || { echo "BUILD FAILED (rc=$build_rc)"; echo "$build_log" | tail -20; exit 1; }
 echo "$build_log" | grep -E "^cobol.*error:" && { echo "BUILD FAILED"; exit 1; }
@@ -137,7 +137,7 @@ printf '%s\n' "$build_log" > "$bw_log"
 rm -f "$bw_log"
 echo "Build OK"
 
-echo "=== [4/67] Functional suite ==="
+echo "=== [4/68] Functional suite ==="
 run_step func_out func_rc ./tests/test_suite.sh
 [ "$func_rc" -eq 0 ] || { echo "FUNCTIONAL (rc=$func_rc)"; echo "$func_out" | tail -5; exit 1; }
 echo "$func_out" | tail -1
@@ -147,7 +147,7 @@ func_fail=${func_fail:-0}
 func_pass=$(echo "$func_out" | count_matches '\\[PASS\\]')
 echo "functional $func_pass" >> "$BASELINE_RUN"
 
-echo "=== [5/67] Atomic transaction suite ==="
+echo "=== [5/68] Atomic transaction suite ==="
 run_step atomic_out atomic_rc ./tests/test_atomic_txn.sh
 [ "$atomic_rc" -eq 0 ] || { echo "ATOMIC (rc=$atomic_rc)"; echo "$atomic_out" | tail -5; exit 1; }
 atomic_pass=$(echo "$atomic_out" | count_matches '\\[0;32mPASS')
@@ -156,7 +156,7 @@ echo "atomic: $atomic_pass passed, $atomic_fail failed"
 echo "atomic $atomic_pass" >> "$BASELINE_RUN"
 [ "$atomic_fail" -eq 0 ] || { echo "ATOMIC SUITE FAILED"; exit 1; }
 
-echo "=== [6/67] Ledger atomic suite ==="
+echo "=== [6/68] Ledger atomic suite ==="
 run_step ledger_out ledger_rc ./tests/test_ledger_atomic.sh
 [ "$ledger_rc" -eq 0 ] || { echo "LEDGER (rc=$ledger_rc)"; echo "$ledger_out" | tail -5; exit 1; }
 ledger_pass=$(echo "$ledger_out" | count_matches '\\[0;32mPASS')
@@ -165,7 +165,7 @@ echo "ledger: $ledger_pass passed, $ledger_fail failed"
 echo "ledger-atomic $ledger_pass" >> "$BASELINE_RUN"
 [ "$ledger_fail" -eq 0 ] || { echo "LEDGER SUITE FAILED"; exit 1; }
 
-echo "=== [7/67] Reconciliation suite ==="
+echo "=== [7/68] Reconciliation suite ==="
 run_step recon_out recon_rc ./tests/test_reconciliation.sh
 [ "$recon_rc" -eq 0 ] || { echo "RECONCILIATION (rc=$recon_rc)"; echo "$recon_out" | tail -5; exit 1; }
 recon_pass=$(echo "$recon_out" | count_matches '\\[0;32mPASS')
@@ -174,7 +174,7 @@ echo "reconciliation: $recon_pass passed, $recon_fail failed"
 echo "reconciliation $recon_pass" >> "$BASELINE_RUN"
 [ "$recon_fail" -eq 0 ] || { echo "RECONCILIATION SUITE FAILED"; exit 1; }
 
-echo "=== [8/67] Auth login suite ==="
+echo "=== [8/68] Auth login suite ==="
 run_step auth_out auth_rc ./tests/test_auth_login.sh
 [ "$auth_rc" -eq 0 ] || { echo "AUTH (rc=$auth_rc)"; echo "$auth_out" | tail -5; exit 1; }
 auth_pass=$(echo "$auth_out" | count_matches '\\[0;32mPASS')
@@ -183,7 +183,7 @@ echo "auth: $auth_pass passed, $auth_fail failed"
 echo "auth-login $auth_pass" >> "$BASELINE_RUN"
 [ "$auth_fail" -eq 0 ] || { echo "AUTH SUITE FAILED"; exit 1; }
 
-echo "=== [9/67] Signup + verify suite ==="
+echo "=== [9/68] Signup + verify suite ==="
 run_step signup_out signup_rc ./tests/test_signup_verify.sh
 [ "$signup_rc" -eq 0 ] || { echo "SIGNUP (rc=$signup_rc)"; echo "$signup_out" | tail -5; exit 1; }
 signup_pass=$(echo "$signup_out" | count_matches '\\[0;32mPASS')
@@ -192,7 +192,7 @@ echo "signup/verify: $signup_pass passed, $signup_fail failed"
 echo "signup-verify $signup_pass" >> "$BASELINE_RUN"
 [ "$signup_fail" -eq 0 ] || { echo "SIGNUP SUITE FAILED"; exit 1; }
 
-echo "=== [10/67] Role suite ==="
+echo "=== [10/68] Role suite ==="
 run_step role_out role_rc ./tests/test_roles.sh
 [ "$role_rc" -eq 0 ] || { echo "ROLE (rc=$role_rc)"; echo "$role_out" | tail -5; exit 1; }
 role_pass=$(echo "$role_out" | count_matches '\\[0;32mPASS')
@@ -201,7 +201,7 @@ echo "roles: $role_pass passed, $role_fail failed"
 echo "roles $role_pass" >> "$BASELINE_RUN"
 [ "$role_fail" -eq 0 ] || { echo "ROLE SUITE FAILED"; exit 1; }
 
-echo "=== [11/67] User profile suite ==="
+echo "=== [11/68] User profile suite ==="
 run_step profile_out profile_rc ./tests/test_user_profile.sh
 [ "$profile_rc" -eq 0 ] || { echo "PROFILE (rc=$profile_rc)"; echo "$profile_out" | tail -5; exit 1; }
 profile_pass=$(echo "$profile_out" | count_matches '\\[0;32mPASS')
@@ -210,7 +210,7 @@ echo "profile: $profile_pass passed, $profile_fail failed"
 echo "user-profile $profile_pass" >> "$BASELINE_RUN"
 [ "$profile_fail" -eq 0 ] || { echo "PROFILE SUITE FAILED"; exit 1; }
 
-echo "=== [12/67] API gateway suite ==="
+echo "=== [12/68] API gateway suite ==="
 if [ -d middleware ]; then
     npm --prefix middleware ci --silent >/dev/null 2>&1 || npm --prefix middleware install --silent >/dev/null 2>&1
     if npm --prefix middleware test --silent >/tmp/opencode/gateway.out 2>&1; then
@@ -232,7 +232,7 @@ else
     echo "middleware/ absent; skipping"
 fi
 
-echo "=== [13/67] Login lockout suite ==="
+echo "=== [13/68] Login lockout suite ==="
 run_step lockout_out lockout_rc ./tests/test_login_lockout.sh
 [ "$lockout_rc" -eq 0 ] || { echo "LOCKOUT (rc=$lockout_rc)"; echo "$lockout_out" | tail -5; exit 1; }
 lockout_pass=$(echo "$lockout_out" | count_matches '\\[0;32mPASS')
@@ -241,7 +241,7 @@ echo "lockout: $lockout_pass passed, $lockout_fail failed"
 echo "lockout $lockout_pass" >> "$BASELINE_RUN"
 [ "$lockout_fail" -eq 0 ] || { echo "LOCKOUT SUITE FAILED"; exit 1; }
 
-echo "=== [14/67] Idempotent transfer suite ==="
+echo "=== [14/68] Idempotent transfer suite ==="
 run_step idem_out idem_rc ./tests/test_idempotent_transfer.sh
 [ "$idem_rc" -eq 0 ] || { echo "IDEMPOTENT (rc=$idem_rc)"; echo "$idem_out" | tail -5; exit 1; }
 idem_pass=$(echo "$idem_out" | count_matches '\\[0;32mPASS')
@@ -250,7 +250,7 @@ echo "idempotent transfer: $idem_pass passed, $idem_fail failed"
 echo "idempotent-transfer $idem_pass" >> "$BASELINE_RUN"
 [ "$idem_fail" -eq 0 ] || { echo "IDEMPOTENT SUITE FAILED"; exit 1; }
 
-echo "=== [15/67] Transfer validity suite ==="
+echo "=== [15/68] Transfer validity suite ==="
 run_step validity_out validity_rc ./tests/test_transfer_validity.sh
 [ "$validity_rc" -eq 0 ] || { echo "TRANSFER VALIDITY (rc=$validity_rc)"; echo "$validity_out" | tail -5; exit 1; }
 validity_pass=$(echo "$validity_out" | count_matches '\\[0;32mPASS')
@@ -259,7 +259,7 @@ echo "transfer validity: $validity_pass passed, $validity_fail failed"
 echo "transfer-validity $validity_pass" >> "$BASELINE_RUN"
 [ "$validity_fail" -eq 0 ] || { echo "TRANSFER VALIDITY SUITE FAILED"; exit 1; }
 
-echo "=== [16/67] Concurrent opposing transfers ==="
+echo "=== [16/68] Concurrent opposing transfers ==="
 run_step conc_out conc_rc ./tests/test_concurrent_transfer.sh
 [ "$conc_rc" -eq 0 ] || { echo "CONCURRENT (rc=$conc_rc)"; echo "$conc_out" | tail -5; exit 1; }
 conc_pass=$(echo "$conc_out" | count_matches '\\[0;32mPASS')
@@ -268,7 +268,7 @@ echo "concurrent transfer: $conc_pass passed, $conc_fail failed"
 echo "concurrent $conc_pass" >> "$BASELINE_RUN"
 [ "$conc_fail" -eq 0 ] || { echo "CONCURRENT SUITE FAILED"; exit 1; }
 
-echo "=== [17/67] SQL injection mitigation suite ==="
+echo "=== [17/68] SQL injection mitigation suite ==="
 run_step inj_out inj_rc ./tests/test_injection.sh
 [ "$inj_rc" -eq 0 ] || { echo "INJECTION (rc=$inj_rc)"; echo "$inj_out" | tail -5; exit 1; }
 inj_pass=$(echo "$inj_out" | count_matches '\\[0;32mPASS')
@@ -277,7 +277,7 @@ echo "injection: $inj_pass passed, $inj_fail failed"
 echo "injection $inj_pass" >> "$BASELINE_RUN"
 [ "$inj_fail" -eq 0 ] || { echo "INJECTION SUITE FAILED"; exit 1; }
 
-echo "=== [18/67] Refresh session suite ==="
+echo "=== [18/68] Refresh session suite ==="
 run_step sess_out sess_rc ./tests/test_session.sh
 [ "$sess_rc" -eq 0 ] || { echo "SESSION (rc=$sess_rc)"; echo "$sess_out" | tail -5; exit 1; }
 sess_pass=$(echo "$sess_out" | count_matches '\\[0;32mPASS')
@@ -286,7 +286,7 @@ echo "session: $sess_pass passed, $sess_fail failed"
 echo "session $sess_pass" >> "$BASELINE_RUN"
 [ "$sess_fail" -eq 0 ] || { echo "SESSION SUITE FAILED"; exit 1; }
 
-echo "=== [19/67] Prepared statement suite ==="
+echo "=== [19/68] Prepared statement suite ==="
 run_step prep_out prep_rc ./tests/test_prepared.sh
 [ "$prep_rc" -eq 0 ] || { echo "PREPARED (rc=$prep_rc)"; echo "$prep_out" | tail -5; exit 1; }
 prep_pass=$(echo "$prep_out" | count_matches '\\[0;32mPASS')
@@ -295,7 +295,7 @@ echo "prepared: $prep_pass passed, $prep_fail failed"
 echo "prepared $prep_pass" >> "$BASELINE_RUN"
 [ "$prep_fail" -eq 0 ] || { echo "PREPARED SUITE FAILED"; exit 1; }
 
-echo "=== [20/67] Deep health (PING) suite ==="
+echo "=== [20/68] Deep health (PING) suite ==="
 run_step ping_out ping_rc ./tests/test_ping.sh
 [ "$ping_rc" -eq 0 ] || { echo "PING (rc=$ping_rc)"; echo "$ping_out" | tail -5; exit 1; }
 ping_pass=$(echo "$ping_out" | count_matches '\\[0;32mPASS')
@@ -304,10 +304,10 @@ echo "ping: $ping_pass passed, $ping_fail failed"
 echo "ping $ping_pass" >> "$BASELINE_RUN"
 [ "$ping_fail" -eq 0 ] || { echo "PING SUITE FAILED"; exit 1; }
 
-echo "=== [21/67] Migration check ==="
+echo "=== [21/68] Migration check ==="
 ./database/migrate.sh --check
 
-echo "=== [22/67] Migration tooling suite ==="
+echo "=== [22/68] Migration tooling suite ==="
 run_step mig_out mig_rc ./tests/test_migrate.sh
 [ "$mig_rc" -eq 0 ] || { echo "MIGRATION (rc=$mig_rc)"; echo "$mig_out" | tail -5; exit 1; }
 mig_pass=$(echo "$mig_out" | count_matches '\\[0;32mPASS')
@@ -316,11 +316,11 @@ echo "migrations: $mig_pass passed, $mig_fail failed"
 echo "migrate $mig_pass" >> "$BASELINE_RUN"
 [ "$mig_fail" -eq 0 ] || { echo "MIGRATION SUITE FAILED"; exit 1; }
 
-echo "=== [23/67] Status/docs integrity ==="
+echo "=== [23/68] Status/docs integrity ==="
 ./tests/status_check.sh
 ./tests/traceability_check.sh
 
-echo "=== [24/67] End-to-end HTTP smoke ==="
+echo "=== [24/68] End-to-end HTTP smoke ==="
 run_step e2e_out e2e_rc ./tests/test_e2e_gateway.sh
 [ "$e2e_rc" -eq 0 ] || { echo "E2E (rc=$e2e_rc)"; echo "$e2e_out" | tail -5; exit 1; }
 e2e_pass=$(echo "$e2e_out" | count_matches '\\[0;32mPASS')
@@ -329,7 +329,7 @@ echo "e2e: $e2e_pass passed, $e2e_fail failed"
 echo "e2e $e2e_pass" >> "$BASELINE_RUN"
 [ "$e2e_fail" -eq 0 ] || { echo "E2E SUITE FAILED"; exit 1; }
 
-echo "=== [25/67] Serve mode suite ==="
+echo "=== [25/68] Serve mode suite ==="
 run_step serve_out serve_rc ./tests/test_serve_mode.sh
 [ "$serve_rc" -eq 0 ] || { echo "SERVE MODE (rc=$serve_rc)"; echo "$serve_out" | tail -5; exit 1; }
 serve_pass=$(echo "$serve_out" | count_matches '\\[0;32mPASS')
@@ -338,7 +338,7 @@ echo "serve: $serve_pass passed, $serve_fail failed"
 echo "serve $serve_pass" >> "$BASELINE_RUN"
 [ "$serve_fail" -eq 0 ] || { echo "SERVE MODE SUITE FAILED"; exit 1; }
 
-echo "=== [26/67] End-to-end HTTP smoke (pool mode) ==="
+echo "=== [26/68] End-to-end HTTP smoke (pool mode) ==="
 run_step pool_out pool_rc env COBOL_POOL_SIZE=4 ./tests/test_e2e_gateway.sh
 [ "$pool_rc" -eq 0 ] || { echo "E2E POOL (rc=$pool_rc)"; echo "$pool_out" | tail -5; exit 1; }
 pool_pass=$(echo "$pool_out" | count_matches '\\[0;32mPASS')
@@ -347,7 +347,7 @@ echo "e2e pool: $pool_pass passed, $pool_fail failed"
 echo "e2e-pool $pool_pass" >> "$BASELINE_RUN"
 [ "$pool_fail" -eq 0 ] || { echo "E2E POOL SUITE FAILED"; exit 1; }
 
-echo "=== [27/67] Password reset/change suite ==="
+echo "=== [27/68] Password reset/change suite ==="
 run_step pw_out pw_rc ./tests/test_password.sh
 [ "$pw_rc" -eq 0 ] || { echo "PASSWORD (rc=$pw_rc)"; echo "$pw_out" | tail -5; exit 1; }
 pw_pass=$(echo "$pw_out" | count_matches '\\[0;32mPASS')
@@ -356,7 +356,7 @@ echo "password: $pw_pass passed, $pw_fail failed"
 echo "password $pw_pass" >> "$BASELINE_RUN"
 [ "$pw_fail" -eq 0 ] || { echo "PASSWORD SUITE FAILED"; exit 1; }
 
-echo "=== [28/67] Verification attempt cap suite ==="
+echo "=== [28/68] Verification attempt cap suite ==="
 run_step cap_out cap_rc ./tests/test_verify_cap.sh
 [ "$cap_rc" -eq 0 ] || { echo "VERIFY CAP (rc=$cap_rc)"; echo "$cap_out" | tail -5; exit 1; }
 cap_pass=$(echo "$cap_out" | count_matches '\\[0;32mPASS')
@@ -365,7 +365,7 @@ echo "verify-cap: $cap_pass passed, $cap_fail failed"
 echo "verify-cap $cap_pass" >> "$BASELINE_RUN"
 [ "$cap_fail" -eq 0 ] || { echo "VERIFY CAP SUITE FAILED"; exit 1; }
 
-echo "=== [29/67] Password KDF suite ==="
+echo "=== [29/68] Password KDF suite ==="
 run_step kdf_out kdf_rc ./tests/test_password_kdf.sh
 [ "$kdf_rc" -eq 0 ] || { echo "KDF (rc=$kdf_rc)"; echo "$kdf_out" | tail -5; exit 1; }
 kdf_pass=$(echo "$kdf_out" | count_matches '\\[0;32mPASS')
@@ -374,7 +374,7 @@ echo "kdf: $kdf_pass passed, $kdf_fail failed"
 echo "kdf $kdf_pass" >> "$BASELINE_RUN"
 [ "$kdf_fail" -eq 0 ] || { echo "KDF SUITE FAILED"; exit 1; }
 
-echo "=== [30/67] MFA (TOTP) suite ==="
+echo "=== [30/68] MFA (TOTP) suite ==="
 run_step mfa_out mfa_rc ./tests/test_mfa.sh
 [ "$mfa_rc" -eq 0 ] || { echo "MFA (rc=$mfa_rc)"; echo "$mfa_out" | tail -5; exit 1; }
 mfa_pass=$(echo "$mfa_out" | count_matches '\\[0;32mPASS')
@@ -383,7 +383,7 @@ echo "mfa: $mfa_pass passed, $mfa_fail failed"
 echo "mfa $mfa_pass" >> "$BASELINE_RUN"
 [ "$mfa_fail" -eq 0 ] || { echo "MFA SUITE FAILED"; exit 1; }
 
-echo "=== [31/67] Session management suite ==="
+echo "=== [31/68] Session management suite ==="
 run_step sess_out sess_rc ./tests/test_sessions_manage.sh
 [ "$sess_rc" -eq 0 ] || { echo "SESSION (rc=$sess_rc)"; echo "$sess_out" | tail -5; exit 1; }
 sess_pass=$(echo "$sess_out" | count_matches '\\[0;32mPASS')
@@ -392,7 +392,7 @@ echo "sessions: $sess_pass passed, $sess_fail failed"
 echo "sessions-manage $sess_pass" >> "$BASELINE_RUN"
 [ "$sess_fail" -eq 0 ] || { echo "SESSION SUITE FAILED"; exit 1; }
 
-echo "=== [32/67] Account status suite ==="
+echo "=== [32/68] Account status suite ==="
 run_step stat_out stat_rc ./tests/test_account_status.sh
 [ "$stat_rc" -eq 0 ] || { echo "ACCOUNT STATUS (rc=$stat_rc)"; echo "$stat_out" | tail -5; exit 1; }
 stat_pass=$(echo "$stat_out" | count_matches '\\[0;32mPASS')
@@ -401,7 +401,7 @@ echo "account-status: $stat_pass passed, $stat_fail failed"
 echo "account-status $stat_pass" >> "$BASELINE_RUN"
 [ "$stat_fail" -eq 0 ] || { echo "ACCOUNT STATUS SUITE FAILED"; exit 1; }
 
-echo "=== [33/67] Transfer limits suite ==="
+echo "=== [33/68] Transfer limits suite ==="
 run_step lim_out lim_rc ./tests/test_transfer_limits.sh
 [ "$lim_rc" -eq 0 ] || { echo "TRANSFER LIMITS (rc=$lim_rc)"; echo "$lim_out" | tail -5; exit 1; }
 lim_pass=$(echo "$lim_out" | count_matches '\\[0;32mPASS')
@@ -410,7 +410,7 @@ echo "limits: $lim_pass passed, $lim_fail failed"
 echo "transfer-limits $lim_pass" >> "$BASELINE_RUN"
 [ "$lim_fail" -eq 0 ] || { echo "TRANSFER LIMITS SUITE FAILED"; exit 1; }
 
-echo "=== [34/67] Transfer reversal suite ==="
+echo "=== [34/68] Transfer reversal suite ==="
 run_step rev_out rev_rc ./tests/test_transfer_reversal.sh
 [ "$rev_rc" -eq 0 ] || { echo "REVERSAL (rc=$rev_rc)"; echo "$rev_out" | tail -5; exit 1; }
 rev_pass=$(echo "$rev_out" | count_matches '\\[0;32mPASS')
@@ -419,7 +419,7 @@ echo "reversal: $rev_pass passed, $rev_fail failed"
 echo "reversal $rev_pass" >> "$BASELINE_RUN"
 [ "$rev_fail" -eq 0 ] || { echo "REVERSAL SUITE FAILED"; exit 1; }
 
-echo "=== [35/67] Journal suite ==="
+echo "=== [35/68] Journal suite ==="
 run_step journal_out journal_rc ./tests/test_journal.sh
 [ "$journal_rc" -eq 0 ] || { echo "JOURNAL (rc=$journal_rc)"; echo "$journal_out" | tail -5; exit 1; }
 journal_pass=$(echo "$journal_out" | count_matches '\\[0;32mPASS')
@@ -428,7 +428,7 @@ echo "journal: $journal_pass passed, $journal_fail failed"
 echo "journal $journal_pass" >> "$BASELINE_RUN"
 [ "$journal_fail" -eq 0 ] || { echo "JOURNAL SUITE FAILED"; exit 1; }
 
-echo "=== [39/67] Holds and fees suite ==="
+echo "=== [39/68] Holds and fees suite ==="
 run_step holds_out holds_rc ./tests/test_holds.sh
 [ "$holds_rc" -eq 0 ] || { echo "HOLDS (rc=$holds_rc)"; echo "$holds_out" | tail -5; exit 1; }
 holds_pass=$(echo "$holds_out" | count_matches '\\[0;32mPASS')
@@ -437,7 +437,7 @@ echo "holds: $holds_pass passed, $holds_fail failed"
 echo "holds $holds_pass" >> "$BASELINE_RUN"
 [ "$holds_fail" -eq 0 ] || { echo "HOLDS SUITE FAILED"; exit 1; }
 
-echo "=== [37/67] Dual control suite ==="
+echo "=== [37/68] Dual control suite ==="
 run_step dual_out dual_rc ./tests/test_dual_control.sh
 [ "$dual_rc" -eq 0 ] || { echo "DUAL CONTROL (rc=$dual_rc)"; echo "$dual_out" | tail -5; exit 1; }
 dual_pass=$(echo "$dual_out" | count_matches '\\[0;32mPASS')
@@ -446,7 +446,7 @@ echo "dual-control: $dual_pass passed, $dual_fail failed"
 echo "dual-control $dual_pass" >> "$BASELINE_RUN"
 [ "$dual_fail" -eq 0 ] || { echo "DUAL CONTROL SUITE FAILED"; exit 1; }
 
-echo "=== [38/67] Outbox suite ==="
+echo "=== [38/68] Outbox suite ==="
 run_step outbox_out outbox_rc ./tests/test_outbox.sh
 [ "$outbox_rc" -eq 0 ] || { echo "OUTBOX (rc=$outbox_rc)"; echo "$outbox_out" | tail -5; exit 1; }
 outbox_pass=$(echo "$outbox_out" | count_matches '\\[0;32mPASS')
@@ -455,7 +455,7 @@ echo "outbox: $outbox_pass passed, $outbox_fail failed"
 echo "outbox $outbox_pass" >> "$BASELINE_RUN"
 [ "$outbox_fail" -eq 0 ] || { echo "OUTBOX SUITE FAILED"; exit 1; }
 
-echo "=== [36/67] Reconciliation runs suite ==="
+echo "=== [36/68] Reconciliation runs suite ==="
 run_step reconruns_out reconruns_rc ./tests/test_reconciliation_runs.sh
 [ "$reconruns_rc" -eq 0 ] || { echo "RECONCILIATION RUNS (rc=$reconruns_rc)"; echo "$reconruns_out" | tail -5; exit 1; }
 reconruns_pass=$(echo "$reconruns_out" | count_matches '\\[0;32mPASS')
@@ -464,7 +464,7 @@ echo "recon-runs: $reconruns_pass passed, $reconruns_fail failed"
 echo "recon-runs $reconruns_pass" >> "$BASELINE_RUN"
 [ "$reconruns_fail" -eq 0 ] || { echo "RECONCILIATION RUNS SUITE FAILED"; exit 1; }
 
-echo "=== [40/67] Wallet observability suite ==="
+echo "=== [40/68] Wallet observability suite ==="
 run_step obs_out obs_rc ./tests/test_wallet_observability.sh
 [ "$obs_rc" -eq 0 ] || { echo "OBSERVABILITY (rc=$obs_rc)"; echo "$obs_out" | tail -5; exit 1; }
 obs_pass=$(echo "$obs_out" | count_matches '\\[0;32mPASS')
@@ -473,7 +473,7 @@ echo "observability: $obs_pass passed, $obs_fail failed"
 echo "observability $obs_pass" >> "$BASELINE_RUN"
 [ "$obs_fail" -eq 0 ] || { echo "OBSERVABILITY SUITE FAILED"; exit 1; }
 
-echo "=== [41/67] Account lifecycle suite ==="
+echo "=== [41/68] Account lifecycle suite ==="
 run_step lc_out lc_rc ./tests/test_account_lifecycle.sh
 [ "$lc_rc" -eq 0 ] || { echo "ACCOUNT LIFECYCLE (rc=$lc_rc)"; echo "$lc_out" | tail -5; exit 1; }
 lc_pass=$(echo "$lc_out" | count_matches '\\[0;32mPASS')
@@ -482,7 +482,7 @@ echo "lifecycle: $lc_pass passed, $lc_fail failed"
 echo "lifecycle $lc_pass" >> "$BASELINE_RUN"
 [ "$lc_fail" -eq 0 ] || { echo "ACCOUNT LIFECYCLE SUITE FAILED"; exit 1; }
 
-echo "=== [42/67] Token rotation suite ==="
+echo "=== [42/68] Token rotation suite ==="
 run_step rot_out rot_rc ./tests/test_token_rotation.sh
 [ "$rot_rc" -eq 0 ] || { echo "TOKEN ROTATION (rc=$rot_rc)"; echo "$rot_out" | tail -5; exit 1; }
 rot_pass=$(echo "$rot_out" | count_matches '\\[0;32mPASS')
@@ -491,7 +491,7 @@ echo "rotation: $rot_pass passed, $rot_fail failed"
 echo "rotation $rot_pass" >> "$BASELINE_RUN"
 [ "$rot_fail" -eq 0 ] || { echo "TOKEN ROTATION SUITE FAILED"; exit 1; }
 
-echo "=== [43/67] Admin role-hierarchy suite ==="
+echo "=== [43/68] Admin role-hierarchy suite ==="
 run_step hier_out hier_rc ./tests/test_admin_hierarchy.sh
 [ "$hier_rc" -eq 0 ] || { echo "ADMIN HIERARCHY (rc=$hier_rc)"; echo "$hier_out" | tail -5; exit 1; }
 hier_pass=$(echo "$hier_out" | count_matches '\\[0;32mPASS')
@@ -500,7 +500,7 @@ echo "hierarchy: $hier_pass passed, $hier_fail failed"
 echo "admin-hierarchy $hier_pass" >> "$BASELINE_RUN"
 [ "$hier_fail" -eq 0 ] || { echo "ADMIN HIERARCHY SUITE FAILED"; exit 1; }
 
-echo "=== [44/67] Last-admin protection suite ==="
+echo "=== [44/68] Last-admin protection suite ==="
 run_step la_out la_rc ./tests/test_last_admin.sh
 [ "$la_rc" -eq 0 ] || { echo "LAST-ADMIN (rc=$la_rc)"; echo "$la_out" | tail -5; exit 1; }
 la_pass=$(echo "$la_out" | count_matches '\\[0;32mPASS')
@@ -509,7 +509,7 @@ echo "last-admin: $la_pass passed, $la_fail failed"
 echo "last-admin $la_pass" >> "$BASELINE_RUN"
 [ "$la_fail" -eq 0 ] || { echo "LAST-ADMIN SUITE FAILED"; exit 1; }
 
-echo "=== [45/67] Audit actor-attribution suite ==="
+echo "=== [45/68] Audit actor-attribution suite ==="
 run_step aa_out aa_rc ./tests/test_audit_actor.sh
 [ "$aa_rc" -eq 0 ] || { echo "AUDIT ACTOR (rc=$aa_rc)"; echo "$aa_out" | tail -5; exit 1; }
 aa_pass=$(echo "$aa_out" | count_matches '\\[0;32mPASS')
@@ -518,7 +518,7 @@ echo "audit-actor: $aa_pass passed, $aa_fail failed"
 echo "audit-actor $aa_pass" >> "$BASELINE_RUN"
 [ "$aa_fail" -eq 0 ] || { echo "AUDIT ACTOR SUITE FAILED"; exit 1; }
 
-echo "=== [46/67] Audit read suite ==="
+echo "=== [46/68] Audit read suite ==="
 run_step ar_out ar_rc ./tests/test_audit_read.sh
 [ "$ar_rc" -eq 0 ] || { echo "AUDIT READ (rc=$ar_rc)"; echo "$ar_out" | tail -5; exit 1; }
 ar_pass=$(echo "$ar_out" | count_matches '\\[0;32mPASS')
@@ -527,7 +527,7 @@ echo "audit-read: $ar_pass passed, $ar_fail failed"
 echo "audit-read $ar_pass" >> "$BASELINE_RUN"
 [ "$ar_fail" -eq 0 ] || { echo "AUDIT READ SUITE FAILED"; exit 1; }
 
-echo "=== [47/67] Audit integrity suite ==="
+echo "=== [47/68] Audit integrity suite ==="
 run_step ai_out ai_rc ./tests/test_audit_integrity.sh
 [ "$ai_rc" -eq 0 ] || { echo "AUDIT INTEGRITY (rc=$ai_rc)"; echo "$ai_out" | tail -5; exit 1; }
 ai_pass=$(echo "$ai_out" | count_matches '\\[0;32mPASS')
@@ -536,7 +536,7 @@ echo "audit-integrity: $ai_pass passed, $ai_fail failed"
 echo "audit-integrity $ai_pass" >> "$BASELINE_RUN"
 [ "$ai_fail" -eq 0 ] || { echo "AUDIT INTEGRITY SUITE FAILED"; exit 1; }
 
-echo "=== [48/67] Admin recovery suite ==="
+echo "=== [48/68] Admin recovery suite ==="
 run_step ar2_out ar2_rc ./tests/test_admin_recovery.sh
 [ "$ar2_rc" -eq 0 ] || { echo "ADMIN RECOVERY (rc=$ar2_rc)"; echo "$ar2_out" | tail -5; exit 1; }
 ar2_pass=$(echo "$ar2_out" | count_matches '\\[0;32mPASS')
@@ -545,7 +545,7 @@ echo "admin-recovery: $ar2_pass passed, $ar2_fail failed"
 echo "admin-recovery $ar2_pass" >> "$BASELINE_RUN"
 [ "$ar2_fail" -eq 0 ] || { echo "ADMIN RECOVERY SUITE FAILED"; exit 1; }
 
-echo "=== [49/67] Step-up (re-authentication) suite ==="
+echo "=== [49/68] Step-up (re-authentication) suite ==="
 run_step su_out su_rc ./tests/test_stepup.sh
 [ "$su_rc" -eq 0 ] || { echo "STEP-UP (rc=$su_rc)"; echo "$su_out" | tail -5; exit 1; }
 su_pass=$(echo "$su_out" | count_matches '\\[0;32mPASS')
@@ -554,7 +554,7 @@ echo "step-up: $su_pass passed, $su_fail failed"
 echo "step-up $su_pass" >> "$BASELINE_RUN"
 [ "$su_fail" -eq 0 ] || { echo "STEP-UP SUITE FAILED"; exit 1; }
 
-echo "=== [50/67] MFA-state suite ==="
+echo "=== [50/68] MFA-state suite ==="
 run_step ms_out ms_rc ./tests/test_mfa_state.sh
 [ "$ms_rc" -eq 0 ] || { echo "MFA STATE (rc=$ms_rc)"; echo "$ms_out" | tail -5; exit 1; }
 ms_pass=$(echo "$ms_out" | count_matches '\\[0;32mPASS')
@@ -563,7 +563,7 @@ echo "mfa-state: $ms_pass passed, $ms_fail failed"
 echo "mfa-state $ms_pass" >> "$BASELINE_RUN"
 [ "$ms_fail" -eq 0 ] || { echo "MFA STATE SUITE FAILED"; exit 1; }
 
-echo "=== [51/67] MFA recovery suite ==="
+echo "=== [51/68] MFA recovery suite ==="
 run_step mfar_out mfar_rc ./tests/test_mfa_recovery.sh
 [ "$mfar_rc" -eq 0 ] || { echo "MFA RECOVERY (rc=$mfar_rc)"; echo "$mfar_out" | tail -5; exit 1; }
 mfar_pass=$(echo "$mfar_out" | count_matches '\\[0;32mPASS')
@@ -572,7 +572,7 @@ echo "mfa-recovery: $mfar_pass passed, $mfar_fail failed"
 echo "mfa-recovery $mfar_pass" >> "$BASELINE_RUN"
 [ "$mfar_fail" -eq 0 ] || { echo "MFA RECOVERY SUITE FAILED"; exit 1; }
 
-echo "=== [52/67] Statements suite ==="
+echo "=== [52/68] Statements suite ==="
 run_step stmt_out stmt_rc ./tests/test_statements.sh
 [ "$stmt_rc" -eq 0 ] || { echo "STATEMENTS (rc=$stmt_rc)"; echo "$stmt_out" | tail -5; exit 1; }
 stmt_pass=$(echo "$stmt_out" | count_matches '\\[0;32mPASS')
@@ -581,7 +581,7 @@ echo "statements: $stmt_pass passed, $stmt_fail failed"
 echo "statements $stmt_pass" >> "$BASELINE_RUN"
 [ "$stmt_fail" -eq 0 ] || { echo "STATEMENTS SUITE FAILED"; exit 1; }
 
-echo "=== [53/67] Disputes suite ==="
+echo "=== [53/68] Disputes suite ==="
 run_step dsp_out dsp_rc ./tests/test_disputes.sh
 [ "$dsp_rc" -eq 0 ] || { echo "DISPUTES (rc=$dsp_rc)"; echo "$dsp_out" | tail -5; exit 1; }
 dsp_pass=$(echo "$dsp_out" | count_matches '\\[0;32mPASS')
@@ -590,7 +590,7 @@ echo "disputes: $dsp_pass passed, $dsp_fail failed"
 echo "disputes $dsp_pass" >> "$BASELINE_RUN"
 [ "$dsp_fail" -eq 0 ] || { echo "DISPUTES SUITE FAILED"; exit 1; }
 
-echo "=== [54/67] Backup/restore suite ==="
+echo "=== [54/68] Backup/restore suite ==="
 run_step bkr_out bkr_rc ./tests/test_backup_restore.sh
 [ "$bkr_rc" -eq 0 ] || { echo "BACKUP RESTORE (rc=$bkr_rc)"; echo "$bkr_out" | tail -5; exit 1; }
 bkr_pass=$(echo "$bkr_out" | count_matches '\\[0;32mPASS')
@@ -599,7 +599,7 @@ echo "backup_restore: $bkr_pass passed, $bkr_fail failed"
 echo "backup_restore $bkr_pass" >> "$BASELINE_RUN"
 [ "$bkr_fail" -eq 0 ] || { echo "BACKUP RESTORE SUITE FAILED"; exit 1; }
 
-echo "=== [55/67] Ledger integrity suite ==="
+echo "=== [55/68] Ledger integrity suite ==="
 run_step li_out li_rc ./tests/test_ledger_integrity.sh
 [ "$li_rc" -eq 0 ] || { echo "LEDGER INTEGRITY (rc=$li_rc)"; echo "$li_out" | tail -5; exit 1; }
 li_pass=$(echo "$li_out" | count_matches '\\[0;32mPASS')
@@ -608,7 +608,7 @@ echo "ledger-integrity: $li_pass passed, $li_fail failed"
 echo "ledger-integrity $li_pass" >> "$BASELINE_RUN"
 [ "$li_fail" -eq 0 ] || { echo "LEDGER INTEGRITY SUITE FAILED"; exit 1; }
 
-echo "=== [56/67] RNG (CSPRNG) suite ==="
+echo "=== [56/68] RNG (CSPRNG) suite ==="
 run_step rng_out rng_rc ./tests/test_rng.sh
 [ "$rng_rc" -eq 0 ] || { echo "RNG (rc=$rng_rc)"; echo "$rng_out" | tail -5; exit 1; }
 rng_pass=$(echo "$rng_out" | count_matches '\\[0;32mPASS')
@@ -617,7 +617,7 @@ echo "rng: $rng_pass passed, $rng_fail failed"
 echo "rng $rng_pass" >> "$BASELINE_RUN"
 [ "$rng_fail" -eq 0 ] || { echo "RNG SUITE FAILED"; exit 1; }
 
-echo "=== [57/67] Least-privilege database suite ==="
+echo "=== [57/68] Least-privilege database suite ==="
 run_step gr_out gr_rc ./tests/test_grants.sh
 [ "$gr_rc" -eq 0 ] || { echo "GRANTS (rc=$gr_rc)"; echo "$gr_out" | tail -5; exit 1; }
 gr_pass=$(echo "$gr_out" | count_matches '\\[0;32mPASS')
@@ -626,7 +626,7 @@ echo "grants: $gr_pass passed, $gr_fail failed"
 echo "grants $gr_pass" >> "$BASELINE_RUN"
 [ "$gr_fail" -eq 0 ] || { echo "GRANTS SUITE FAILED"; exit 1; }
 
-echo "=== [58/67] Resend cooldown suite ==="
+echo "=== [58/68] Resend cooldown suite ==="
 run_step rc_out rc_rc ./tests/test_resend_cooldown.sh
 [ "$rc_rc" -eq 0 ] || { echo "RESEND COOLDOWN (rc=$rc_rc)"; echo "$rc_out" | tail -5; exit 1; }
 rc_pass=$(echo "$rc_out" | count_matches '\\[0;32mPASS')
@@ -635,7 +635,7 @@ echo "resend-cooldown: $rc_pass passed, $rc_fail failed"
 echo "resend-cooldown $rc_pass" >> "$BASELINE_RUN"
 [ "$rc_fail" -eq 0 ] || { echo "RESEND COOLDOWN SUITE FAILED"; exit 1; }
 
-echo "=== [59/67] C memory-boundary suite ==="
+echo "=== [59/68] C memory-boundary suite ==="
 run_step cm_out cm_rc ./tests/test_c_memory.sh
 [ "$cm_rc" -eq 0 ] || { echo "C MEMORY (rc=$cm_rc)"; echo "$cm_out" | tail -5; exit 1; }
 cm_pass=$(echo "$cm_out" | count_matches '\\[0;32mPASS')
@@ -644,7 +644,7 @@ echo "c-memory: $cm_pass passed, $cm_fail failed"
 echo "c-memory $cm_pass" >> "$BASELINE_RUN"
 [ "$cm_fail" -eq 0 ] || { echo "C MEMORY SUITE FAILED"; exit 1; }
 
-echo "=== [60/67] Bridge transaction suite ==="
+echo "=== [60/68] Bridge transaction suite ==="
 run_step bt_out bt_rc ./tests/test_bridge_txn.sh
 [ "$bt_rc" -eq 0 ] || { echo "BRIDGE TXN (rc=$bt_rc)"; echo "$bt_out" | tail -5; exit 1; }
 bt_pass=$(echo "$bt_out" | count_matches '\\[0;32mPASS')
@@ -653,10 +653,10 @@ echo "bridge-txn: $bt_pass passed, $bt_fail failed"
 echo "bridge-txn $bt_pass" >> "$BASELINE_RUN"
 [ "$bt_fail" -eq 0 ] || { echo "BRIDGE TXN SUITE FAILED"; exit 1; }
 
-echo "=== [61/67] Buffer contract check ==="
+echo "=== [61/68] Buffer contract check ==="
 ./tests/buffer_contract_check.sh
 
-echo "=== [62/67] Seed idempotency suite ==="
+echo "=== [62/68] Seed idempotency suite ==="
 run_step seed_out seed_rc ./tests/test_seed.sh
 [ "$seed_rc" -eq 0 ] || { echo "SEED (rc=$seed_rc)"; echo "$seed_out" | tail -5; exit 1; }
 seed_pass=$(echo "$seed_out" | count_matches '\\[0;32mPASS')
@@ -665,10 +665,10 @@ echo "seed: $seed_pass passed, $seed_fail failed"
 echo "seed $seed_pass" >> "$BASELINE_RUN"
 [ "$seed_fail" -eq 0 ] || { echo "SEED SUITE FAILED"; exit 1; }
 
-echo "=== [63/67] Env coverage check ==="
+echo "=== [63/68] Env coverage check ==="
 ./tests/env_check.sh
 
-echo "=== [64/67] Dependency audit ==="
+echo "=== [64/68] Dependency audit ==="
 if npm --prefix middleware audit --omit=dev --audit-level=high > /tmp/opencode/dep_audit.out 2>&1; then
     tail -3 /tmp/opencode/dep_audit.out
     echo "dependency audit clean (high/critical)"
@@ -678,7 +678,7 @@ else
     exit 1
 fi
 
-echo "=== [65/67] Git hook hygiene suite ==="
+echo "=== [65/68] Git hook hygiene suite ==="
 run_step hk_out hk_rc ./tests/test_hooks.sh
 [ "$hk_rc" -eq 0 ] || { echo "HOOKS (rc=$hk_rc)"; echo "$hk_out" | tail -5; exit 1; }
 hk_pass=$(echo "$hk_out" | count_matches '\\[0;32mPASS')
@@ -687,7 +687,7 @@ echo "hooks: $hk_pass passed, $hk_fail failed"
 echo "hooks $hk_pass" >> "$BASELINE_RUN"
 [ "$hk_fail" -eq 0 ] || { echo "HOOKS SUITE FAILED"; exit 1; }
 
-echo "=== [66/67] Control-account uniqueness suite ==="
+echo "=== [66/68] Control-account uniqueness suite ==="
 run_step ctl_out ctl_rc ./tests/test_control_accounts.sh
 [ "$ctl_rc" -eq 0 ] || { echo "CONTROL ACCOUNTS (rc=$ctl_rc)"; echo "$ctl_out" | tail -5; exit 1; }
 ctl_pass=$(echo "$ctl_out" | count_matches '\\[0;32mPASS')
@@ -696,7 +696,16 @@ echo "control-accounts: $ctl_pass passed, $ctl_fail failed"
 echo "control-accounts $ctl_pass" >> "$BASELINE_RUN"
 [ "$ctl_fail" -eq 0 ] || { echo "CONTROL ACCOUNTS SUITE FAILED"; exit 1; }
 
-echo "=== [67/67] Assertion-count baseline ==="
+echo "=== [67/68] Access review suite ==="
+run_step ar_out ar_rc ./tests/test_access_reviews.sh
+[ "$ar_rc" -eq 0 ] || { echo "ACCESS REVIEWS (rc=$ar_rc)"; echo "$ar_out" | tail -5; exit 1; }
+ar_pass=$(echo "$ar_out" | count_matches '\\[0;32mPASS')
+ar_fail=$(echo "$ar_out" | count_matches '\\[0;31mFAIL')
+echo "access-reviews: $ar_pass passed, $ar_fail failed"
+echo "access-reviews $ar_pass" >> "$BASELINE_RUN"
+[ "$ar_fail" -eq 0 ] || { echo "ACCESS REVIEWS SUITE FAILED"; exit 1; }
+
+echo "=== [68/68] Assertion-count baseline ==="
 ./tests/baseline_check.sh "$BASELINE_RUN"
 
 echo "=== ALL GREEN ==="

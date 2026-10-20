@@ -11,7 +11,7 @@ import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION } = PATTERNS;
+const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -427,6 +427,74 @@ export const ROUTES = [
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
   // Read-only audit trail (SUPER_ADMIN): optional action/email filters + paging.
+  // Access review (ADR 0073): a SUPER_ADMIN opens a review, records a
+  // decision per privileged account, and closes it once every item is
+  // decided and every revoked access is actually gone.
+  { method: 'post', path: '/admin/access-reviews', action: 'OPEN_ACCESS_REVIEW', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'periodStart', pattern: DATE, required: true },
+    { name: 'periodEnd', pattern: DATE, required: true },
+  ], onSuccess: async (body) => {
+    return { data: ['REVIEW_OPENED'], reviewId: body.data[1], itemCount: Number(body.data[2]) };
+  } },
+  { method: 'get', path: '/admin/access-reviews', action: 'LIST_ACCESS_REVIEWS', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'state', pattern: REVIEW_STATE, required: false },
+    { name: 'limit', pattern: LIMIT, required: false },
+    { name: 'offset', pattern: INT, required: false },
+  ], onSuccess: async (body) => {
+    const total = Number(body.data[1]);
+    const reviews = String(body.data[2] || '')
+      .split(';')
+      .filter(Boolean)
+      .map((row) => {
+        const [id, periodStart, periodEnd, state, openedBy, itemCount, closedBy, closedAt] = row.split(':');
+        return { id, periodStart, periodEnd, state, openedBy, itemCount: Number(itemCount), closedBy, closedAt };
+      });
+    return { data: ['REVIEWS'], total, reviews };
+  } },
+  { method: 'get', path: '/admin/access-reviews/:id', action: 'GET_ACCESS_REVIEW', tokenIdentity: 'actor', fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'id', pattern: INT, required: true },
+  ], onSuccess: async (body) => {
+    const [id, periodStart, periodEnd, state, openedBy, closedBy, closedAt, itemRows] = body.data.slice(1);
+    const items = String(itemRows || '')
+      .split(';')
+      .filter(Boolean)
+      .map((row) => {
+        const [itemId, email, role, status, mfaEnabled, decision, reviewer, lastLoginAt, note] = row.split(':');
+        return {
+          itemId,
+          email,
+          role,
+          status,
+          mfaEnabled: mfaEnabled === '1',
+          decision,
+          reviewer,
+          lastLoginAt,
+          note,
+        };
+      });
+    return {
+      data: ['REVIEW'],
+      review: { id, periodStart, periodEnd, state, openedBy, closedBy, closedAt },
+      items,
+    };
+  } },
+  { method: 'post', path: '/admin/access-review-items/:itemId/decide', action: 'DECIDE_ACCESS_ITEM', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'itemId', pattern: INT, required: true },
+    { name: 'decision', pattern: REVIEW_DECISION, required: true },
+    { name: 'note', pattern: REASON, required: false },
+  ], onSuccess: async (body) => {
+    return { data: ['ITEM_DECIDED'], itemId: body.data[1], decision: body.data[2] };
+  } },
+  { method: 'post', path: '/admin/access-reviews/:id/close', action: 'CLOSE_ACCESS_REVIEW', tokenIdentity: 'actor', stepUp: true, fields: [
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'id', pattern: INT, required: true },
+  ], onSuccess: async (body) => {
+    return { data: ['REVIEW_CLOSED'], reviewId: body.data[1] };
+  } },
   { method: 'get', path: '/admin/audit', action: 'LIST_AUDIT', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'action', pattern: AUDIT_ACTION, required: false },

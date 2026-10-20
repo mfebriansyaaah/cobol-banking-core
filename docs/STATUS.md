@@ -100,6 +100,11 @@ A banking core where **all business logic lives in COBOL**:
 | `cobol/src/auth_core.cob` | `GET_TOKEN_VERSION` | email | current access-token version for a user | `SUCCESS\|<ver>` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `CHECK_TOKEN` | email, version, jti | access token is current and not denylisted | `SUCCESS\|TOKEN_VALID` * `ERROR\|TOKEN_REVOKED` * `ERROR\|ACCOUNT_NOT_FOUND` |
 | `cobol/src/auth_core.cob` | `REVOKE_ACCESS_TOKEN` | jti, email, ttl seconds | deny one access token until it would expire | `SUCCESS\|TOKEN_REVOKED` * `ERROR\|TOKEN_REVOKE_FAILED` |
+| `cobol/src/auth_core.cob` | `OPEN_ACCESS_REVIEW` | actor (SUPER_ADMIN), period start, period end | opens an access review: snapshots every `MANAGER`/`SUPER_ADMIN` account with its role, status, MFA state, and last sign-in; only one review may be open at a time; audited | `SUCCESS\|REVIEW_OPENED\|<id>\|<items>` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|REVIEW_ALREADY_OPEN` * `ERROR\|DB_ERROR` |
+| `cobol/src/auth_core.cob` | `LIST_ACCESS_REVIEWS` | actor (SUPER_ADMIN), state filter, limit, offset | paged reviews, newest first | `SUCCESS\|REVIEWS\|<total>[\|<rows>]` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` |
+| `cobol/src/auth_core.cob` | `GET_ACCESS_REVIEW` | actor (SUPER_ADMIN), review id | the review and its items as they stand now (item rows separated by `;`, their fields by `:`) | `SUCCESS\|REVIEW\|<id>\|<start>\|<end>\|<state>\|<opened_by>\|<closed_by>\|<closed_at>\|<items>` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|UNKNOWN_TRANSACTION` |
+| `cobol/src/auth_core.cob` | `DECIDE_ACCESS_ITEM` | actor (SUPER_ADMIN), item id, decision (`ATTESTED`/`REVOKED`), note (opt) | records a decision on one privileged account; **the reviewer is never the subject** (self-attestation is refused and audited); a closed review and an already-decided item are refused; audited | `SUCCESS\|ITEM_DECIDED\|<item>\|<decision>` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|INVALID_STATUS` * `ERROR\|UNKNOWN_TRANSACTION` * `ERROR\|DB_ERROR` |
+| `cobol/src/auth_core.cob` | `CLOSE_ACCESS_REVIEW` | actor (SUPER_ADMIN), review id | closes the review: refused while any item is undecided (`REVIEW_INCOMPLETE`) and while a revoked subject still holds a privileged role in a verified state (`REVOCATION_PENDING`); the removal itself goes through the ordinary privileged actions, so it keeps the rank check, the last-admin guard, and the maker-checker designation; audited | `SUCCESS\|REVIEW_CLOSED\|<id>` * `ERROR\|FORBIDDEN` * `ERROR\|INVALID_INPUT` * `ERROR\|INVALID_STATUS` * `ERROR\|REVIEW_INCOMPLETE` * `ERROR\|REVOCATION_PENDING` * `ERROR\|UNKNOWN_TRANSACTION` * `ERROR\|DB_ERROR` |
 | `cobol/src/auth_core.cob` | `PING` | - | deep health: DB reachability | `SUCCESS\|PONG` * `ERROR\|DB_DOWN` * `ERROR\|DB_CONFIG_INSECURE` |
 
 The routing contract is that every action dispatched by `cobol/src/main_logic.cob`
@@ -109,8 +114,8 @@ action has a handler in its owning module.
 ## 3. Database (`cobol_db`)
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
-`users` (with `token_version`) * `currencies` * `accounts` * `ledger` (with `from_email`) * `ledger_archive` *
-`verification_logs` (incl. `MFA_RECOVERY` purpose) * `journal_entries` * `audit_trail` (subject `user_id` + `actor_id`, posting `journal_id`) * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` (ref + sender) * `account_holds` (state machine) * `fee_schedule` (per-currency flat fee) * `reconciliation_runs` (immutable) * `reconciliation_findings` (ownership lifecycle) * `dual_control_operations` (designation) * `maker_requests` (PENDING/APPROVED/REJECTED) * `notification_outbox` (PENDING/SENDING/SENT/FAILED/DEAD) * `refresh_sessions` (jti + `family` + user-agent/ip) * `refresh_families` (absolute lifetime + `rotations`) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations` * `mfa_backup_codes` (hashed, single-use) * `mfa_recovery_requests` (PENDING/VERIFIED/APPROVED/REJECTED) * `dispute_cases` (OPEN/ACKNOWLEDGED/RESOLVED/REJECTED) * `dispute_messages` (append-only)
+`users` (with `token_version` and `last_login_at`) * `currencies` * `accounts` * `ledger` (with `from_email`) * `ledger_archive` *
+`verification_logs` (incl. `MFA_RECOVERY` purpose) * `journal_entries` * `audit_trail` (subject `user_id` + `actor_id`, posting `journal_id`) * `audit_trail_archive` * `pending_transactions` * `pending_transactions_archive` * `transfer_reversals` (ref + sender) * `account_holds` (state machine) * `fee_schedule` (per-currency flat fee) * `reconciliation_runs` (immutable) * `reconciliation_findings` (ownership lifecycle) * `dual_control_operations` (designation) * `maker_requests` (PENDING/APPROVED/REJECTED) * `notification_outbox` (PENDING/SENDING/SENT/FAILED/DEAD) * `refresh_sessions` (jti + `family` + user-agent/ip) * `refresh_families` (absolute lifetime + `rotations`) * `access_reviews` (OPEN/CLOSED, period, opener/closer) * `access_review_items` (snapshot of a privileged account: role, status, MFA state, last sign-in, decision, reviewer) * `exchange_rates` * `revoked_access_tokens` * `schema_migrations` * `mfa_backup_codes` (hashed, single-use) * `mfa_recovery_requests` (PENDING/VERIFIED/APPROVED/REJECTED) * `dispute_cases` (OPEN/ACKNOWLEDGED/RESOLVED/REJECTED) * `dispute_messages` (append-only)
 (transfer intents, `PENDING`->`COMMITTED`, cascaded on user delete -
 `database/migrations/0001_*.sql`).
 
@@ -182,13 +187,14 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_rng.sh` | 5 | fail-closed OS CSPRNG helper builds clean and returns fresh, non-zero bytes; MFA secrets and password salts are fresh per call |
 | `tests/test_grants.sh` | 5 | least-privilege guardrail (no DB): app grant is DML-only with no DDL, migration grant is full DDL, the two accounts differ, migrations use a separate credential |
 | `tests/test_control_accounts.sh` | 13 | bank-owned FX_PNL/FEE_INCOME uniqueness: generated slot maps exactly the ACTIVE lookup predicate, duplicate ACTIVE rows refused per type, INACTIVE/FROZEN map to NULL, exactly one ACTIVE row per pair |
+| `tests/test_access_reviews.sh` | 42 | access review: only a SUPER_ADMIN opens a review, the snapshot covers every privileged account, the reviewer is never the subject, a review closes only when every item is decided and every revoked access is actually gone, and opening/deciding/closing are audited |
 | `tests/test_hooks.sh` | 4 | installed git hooks match tracked (`--check`), tampering detected, reinstall restores |
 | `tests/test_c_memory.sh` | 12 | C/COBOL boundary contract under ASan+UBSan (1-byte result fields, 6-digit codes, 32-char secrets, fast refusal of absurd KDF costs) |
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
 | `middleware/` (node --test) | 126 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **bounded signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
-Shell suites total **1019**; with the gateway suite **126** the full run is
-**1145 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **1061**; with the gateway suite **126** the full run is
+**1187 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
@@ -214,9 +220,14 @@ bearer if sent), `/auth/revoke` (revokes the presented
 access token), `/admin/audit/archive` (moves old audit rows to the archive), and
 `/admin/audit` (GET, SUPER_ADMIN read of the audit trail with action/email
 filters and paging), and `/auth/step-up` (POST, bearer: re-verify your own
-password/MFA and mint a short-lived step-up proof).
+password/MFA and mint a short-lived step-up proof), and the access-review
+routes `POST /admin/access-reviews` (open), `GET /admin/access-reviews`
+(list), `GET /admin/access-reviews/:id` (read), `POST
+/admin/access-review-items/:itemId/decide` (record a decision), and `POST
+/admin/access-reviews/:id/close` (close) - all SUPER_ADMIN, and the three
+writes need a step-up proof.
 Privileged admin writes — `POST /admin/role`, `/admin/user-status`,
-`/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/requests`, `/admin/requests/approve`, `/admin/requests/reject`, `/admin/audit/archive` and a transfer
+`/admin/unlock`, `/admin/mfa-reset`, `/admin/holds`, `/admin/holds/release`, `/admin/requests`, `/admin/requests/approve`, `/admin/requests/reject`, `/admin/audit/archive`, the access-review writes (`/admin/access-reviews`, `/admin/access-review-items/:itemId/decide`, `/admin/access-reviews/:id/close`) and a transfer
 reversal — additionally require a fresh step-up proof in the `X-Step-Up` header
 (short-lived, STEP_UP_TTL_SECONDS default 300s, bound to the caller and its
 token version); a missing/invalid proof is 401 STEP_UP_REQUIRED.
@@ -323,6 +334,18 @@ details behind those rows.
 - Email-change requests are **neutral**: requesting a change to an already-registered address returns the same `CODE_SENT` success with no code (nothing delivered and no `EMAIL_CHANGE` code stored), so the action cannot enumerate emails. Email change is owner-only, requires the **current password**, and on confirm **bumps `token_version` and revokes every refresh session** (clean re-login); the old address is notified.
 - Account lifecycle: `users.status` is `UNVERIFIED`/`VERIFIED`/`SUSPENDED`/`CLOSED`. The owner can soft-close their account (`DEACTIVATE_ACCOUNT` -> `CLOSED`) and an admin can set any status (`SET_USER_STATUS`). Login refuses `SUSPENDED`/`CLOSED` with `USER_SUSPENDED`/`USER_CLOSED`; deactivation and every status change bump `token_version` and revoke refresh sessions, so existing tokens die immediately.
 - **Admin role hierarchy** (USER < MANAGER < SUPER_ADMIN): an actor may not administer an account ranked **above** it. `SET_USER_STATUS`, `REVOKE_USER_SESSION` and `REVOKE_ALL_SESSIONS` refuse when the actor is lower-ranked than the target — so a MANAGER can never suspend/close a SUPER_ADMIN or force-logout its sessions. Equal ranks are allowed (a SUPER_ADMIN may act on a peer for incident response), and self-service is always allowed. FASE B (last-admin protection) builds on this.
+- **Access review and attestation** (ADR 0073): a SUPER_ADMIN opens a review
+  that snapshots every `MANAGER`/`SUPER_ADMIN` account with the role, account
+  status, MFA state, and last sign-in at that moment; a reviewer records a
+  decision (`ATTESTED` or `REVOKED`) per item, and may never attest its own
+  access; the review closes only when every item is decided and every revoked
+  subject has actually lost the privileged role (otherwise `REVIEW_INCOMPLETE`
+  or `REVOCATION_PENDING`). The removal itself runs through the ordinary
+  privileged actions, so it keeps the rank check, the last-admin guard, and
+  the maker-checker designation. `users.last_login_at` is written on a
+  successful login so a reviewer can see how long an account has been dormant.
+  The review cadence, the accountable owner, and the evidence retention are
+  Gate 0 decisions and are not assumed here.
 - **Last-admin protection**: the system refuses to leave itself without an active (VERIFIED) SUPER_ADMIN. `CHANGE_ROLE` rejects demoting the last one, `SET_USER_STATUS` rejects suspending/closing/unverifying it, and `DEACTIVATE_ACCOUNT` rejects self-closing it — all with `ERROR|LAST_ADMIN` (HTTP 409). Once a second active SUPER_ADMIN exists the change is allowed. Recovery if the admin population is ever lost is out-of-band (a DBA sets `role='SUPER_ADMIN'`); see ADR 0014.
 - **The audit trail is readable over HTTP**: `GET /admin/audit` (SUPER_ADMIN) lists `audit_trail` rows (`id:created:action:subject:actor:entity_type:entity_id:status:detail`) with an optional `action` and `email` filter and `limit`/`offset` paging, plus a total. `ARCHIVE_AUDIT` requires a retention of at least one day (days=0 would move the whole live trail in one call and is refused).
 - **Privileged accounts and recovery**: `MANAGER` may read any user (`GET_USER`/`LIST_USERS`/balances/session lists), set another user's status, revoke their sessions, and unlock/reset MFA — but never a higher-ranked account, and it cannot change roles, reverse transfers, reconcile, archive the audit, or read the audit trail (all SUPER_ADMIN-only). `/metrics` is **SUPER_ADMIN-only**. `POST /admin/unlock` (clear a lockout) and `POST /admin/mfa-reset` (disable a user's MFA) let an admin recover a user, both rank-gated and audited. **Step-up**: privileged admin writes (role change, status, unlock, MFA reset, audit archive, transfer reversal) require a fresh re-authentication proof from `POST /auth/step-up` in the `X-Step-Up` header — short-lived (STEP_UP_TTL_SECONDS, default 300s), bound to the caller and its token version, and not usable as an access token. **Admin accounts (SUPER_ADMIN/MANAGER) must have MFA enabled**: without it, step-up is refused (`MFA_SETUP_REQUIRED`) and no privileged write is possible; a non-admin needs only the password. At **login and refresh** the response carries `mfaEnrollmentRequired: true` for an admin without MFA, so the client is prompted to enrol; login and enrolment stay available, but no privileged write succeeds until MFA is enabled.

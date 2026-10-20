@@ -8,7 +8,7 @@ import { buildApp } from '../src/app.js';
 // Remove the users this suite created so the shared test database stays
 // consistent for the suites that run after it (see gateway.test.js).
 after(() => runSql("DELETE FROM users WHERE email LIKE 'ep\\_%'"));
-import { seedUser, seedAccount, getVerificationCode, requireSeed, runSql } from './support.js';
+import { seedUser, seedAccount, getVerificationCode, requireSeed, runSql, enableMfa, totp, TEST_MFA_SECRET } from './support.js';
 
 const app = buildApp();
 
@@ -22,6 +22,12 @@ async function freshUser() {
 
 async function stepUpFor(token, password = 'secret123') {
   const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password });
+  return r.body.stepUpToken;
+}
+
+// Step-up for an MFA-enabled admin: the second factor is required as well.
+async function adminStepUpFor(token, password = 'secret123') {
+  const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password, mfaCode: totp(TEST_MFA_SECRET) });
   return r.body.stepUpToken;
 }
 
@@ -50,7 +56,10 @@ test('every bearer endpoint responds', async () => {
 
   const admin = `ep_admin_${Date.now()}@test.com`;
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
+  // An admin needs MFA to obtain a step-up proof, so the privileged writes
+  // below can be exercised end to end.
+  requireSeed(enableMfa(admin), 'enable MFA for the admin');
+  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) })).body.token;
   const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
   // A plain user may not read another account; an admin may.
@@ -84,6 +93,46 @@ test('every bearer endpoint responds', async () => {
   // spoofed body `actor` is ignored because the actor comes from the token
   const userStep = await stepUpFor(token);
   assert.equal((await request(app).post('/admin/role').set(auth).set('X-Step-Up', userStep).send({ email: other.email, role: 'MANAGER', actor: admin })).status, 403);
+
+  // Access review (ADR 0073): a SUPER_ADMIN opens a review, reads it, and
+  // records a decision on a privileged account that is not itself.
+  const adminStep = await adminStepUpFor(adminToken);
+  const opened = await request(app)
+    .post('/admin/access-reviews')
+    .set(adminAuth)
+    .set('X-Step-Up', adminStep)
+    .send({ periodStart: '2026-10-01', periodEnd: '2026-10-31' });
+  assert.equal(opened.status, 200, JSON.stringify(opened.body));
+  const reviewId = opened.body.reviewId;
+  assert.ok(Number.isInteger(Number(reviewId)), 'review id is returned');
+  assert.ok(Number(opened.body.itemCount) >= 1, 'the review snapshots privileged accounts');
+
+  const listed = await request(app).get('/admin/access-reviews').set(adminAuth);
+  assert.equal(listed.status, 200);
+  assert.ok(listed.body.total >= 1, 'the review is listed');
+  assert.ok(listed.body.reviews.some((r) => String(r.id) === String(reviewId)), 'the opened review is in the list');
+
+  const detail = await request(app).get(`/admin/access-reviews/${reviewId}`).set(adminAuth);
+  assert.equal(detail.status, 200);
+  assert.equal(detail.body.review.state, 'OPEN');
+  assert.ok(Array.isArray(detail.body.items), 'the review carries its items');
+  const otherItem = detail.body.items.find((i) => i.email !== admin);
+  assert.ok(otherItem, 'at least one item covers another account');
+  const decided = await request(app)
+    .post(`/admin/access-review-items/${otherItem.itemId}/decide`)
+    .set(adminAuth)
+    .set('X-Step-Up', adminStep)
+    .send({ decision: 'ATTESTED', note: 'still needed' });
+  assert.equal(decided.status, 200, JSON.stringify(decided.body));
+  assert.equal(decided.body.decision, 'ATTESTED');
+
+  // A plain user may not open or read a review.
+  assert.equal((await request(app).post('/admin/access-reviews').set(auth).set('X-Step-Up', userStep).send({ periodStart: '2026-10-01', periodEnd: '2026-10-31' })).status, 403);
+  assert.equal((await request(app).get('/admin/access-reviews').set(auth)).status, 403);
+  // A privileged write without a step-up proof is refused.
+  assert.equal((await request(app).post('/admin/access-reviews').set(adminAuth).send({ periodStart: '2026-10-01', periodEnd: '2026-10-31' })).status, 401);
+  // Leave no open review behind for the next suite.
+  runSql(`DELETE FROM access_review_items WHERE review_id=${reviewId}; DELETE FROM access_reviews WHERE review_id=${reviewId};`);
 
   // Reconcile: an admin is allowed (200 reconciled / 409 mismatch); a plain
   // user is refused and a body `actor` cannot impersonate an admin.
