@@ -2390,7 +2390,7 @@
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE WS-PARAM2-TRIMMED TO WS-CHECK
             MOVE WS-P2-LEN TO WS-DATE-LEN
             MOVE 0 TO WS-BAD
@@ -2398,7 +2398,7 @@
             IF WS-BAD NOT = 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE WS-PARAM3-TRIMMED TO WS-CHECK
             MOVE WS-P3-LEN TO WS-DATE-LEN
             MOVE 0 TO WS-BAD
@@ -2406,22 +2406,22 @@
             IF WS-BAD NOT = 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-PARAM2-TRIMMED(1:10) > WS-PARAM3-TRIMMED(1:10)
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT COUNT(*) FROM access_reviews WHERE state = 'OPEN'" TO WS-PREP-SQL
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT NOT = "0"
                 MOVE "ERROR|REVIEW_ALREADY_OPEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             CALL "SQL_BEGIN" END-CALL
             MOVE "INSERT INTO access_reviews (period_start, period_end, state, opened_by) VALUES (?, ?, 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
@@ -2433,7 +2433,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
@@ -2449,7 +2449,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM access_review_items WHERE review_id = ?" TO WS-PREP-SQL
             MOVE WS-AR-ID TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
@@ -2468,7 +2468,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             CALL "SQL_COMMIT" END-CALL
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|REVIEW_OPENED|" DELIMITED BY SPACE WS-AR-ID DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-COUNT DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER
@@ -2482,11 +2482,11 @@
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-PARAM2-TRIMMED NOT = SPACES AND WS-PARAM2-TRIMMED NOT = "OPEN" AND WS-PARAM2-TRIMMED NOT = "CLOSED"
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "50" TO WS-LIMIT
             MOVE "0" TO WS-OFFSET
             IF WS-PARAM3-TRIMMED NOT = SPACES
@@ -2498,7 +2498,7 @@
                     EXIT PARAGRAPH
                 END-IF
                 MOVE WS-PARAM3-TRIMMED(1:10) TO WS-LIMIT
-            END-IF
+            END-IF.
             IF WS-PARAM4-TRIMMED NOT = SPACES
                 MOVE WS-PARAM4-TRIMMED TO WS-CHECK
                 MOVE WS-P4-LEN TO WS-CHECK-LEN
@@ -2508,7 +2508,7 @@
                     EXIT PARAGRAPH
                 END-IF
                 MOVE WS-PARAM4-TRIMMED(1:10) TO WS-OFFSET
-            END-IF
+            END-IF.
             MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM access_reviews WHERE state = COALESCE(NULLIF(?, ''), state)" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
@@ -2530,7 +2530,7 @@
                 PERFORM TRIM-RESULT-LEN
                 STRING "SUCCESS|REVIEWS|" DELIMITED BY SPACE WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 END-STRING
-            END-IF
+            END-IF.
             EXIT PARAGRAPH.
 
         GET-ACCESS-REVIEW-LOGIC.
@@ -2541,14 +2541,14 @@
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE WS-PARAM2-TRIMMED TO WS-CHECK
             MOVE WS-P2-LEN TO WS-CHECK-LEN
             PERFORM VALIDATE-DIGITS
             IF WS-DIGITS-BAD NOT = 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT review_id, period_start, period_end, state, opened_by, COALESCE(closed_by, ''), COALESCE(DATE_FORMAT(closed_at, '%Y-%m-%d'), '') FROM access_reviews WHERE review_id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
@@ -2556,11 +2556,11 @@
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE SPACES TO WS-AR-ID
             MOVE SPACES TO WS-AR-DATE1
             MOVE SPACES TO WS-AR-DATE2
@@ -2583,7 +2583,7 @@
             ELSE
                 PERFORM TRIM-RESULT-LEN
                 MOVE WS-RESULT(1:WS-RLEN) TO WS-AR-ITEMS
-            END-IF
+            END-IF.
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|REVIEW|" DELIMITED BY SPACE WS-AR-ID DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-DATE1 DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-DATE2 DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-STATE DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-OPENBY DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-CLOSEDBY DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-CLOSEDAT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-AR-ITEMS(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
             END-STRING
@@ -2597,18 +2597,18 @@
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE WS-PARAM2-TRIMMED TO WS-CHECK
             MOVE WS-P2-LEN TO WS-CHECK-LEN
             PERFORM VALIDATE-DIGITS
             IF WS-DIGITS-BAD NOT = 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-PARAM3-TRIMMED NOT = "ATTESTED" AND WS-PARAM3-TRIMMED NOT = "REVOKED"
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT CONCAT(i.email, ':', i.decision, ':', r.state) FROM access_review_items i JOIN access_reviews r ON r.review_id = i.review_id WHERE i.item_id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
@@ -2616,11 +2616,11 @@
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE SPACES TO WS-AR-EMAIL
             MOVE SPACES TO WS-AR-DECISION
             MOVE SPACES TO WS-AR-STATE
@@ -2636,11 +2636,11 @@
             IF WS-AR-STATE NOT = "OPEN"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-AR-DECISION NOT = "PENDING"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             *> The reviewer is never the subject: a privileged account may not
             *> attest its own access.
             IF WS-AR-ELEN = WS-P1-LEN AND WS-AR-EMAIL(1:WS-AR-ELEN) = WS-PARAM1-TRIMMED(1:WS-P1-LEN)
@@ -2649,7 +2649,7 @@
                 PERFORM AUDIT-DENIED
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             *> The note travels in a row whose fields are separated by ':' and
             *> whose rows are separated by ';', so neither may appear in it.
             MOVE WS-PARAM4-TRIMMED TO WS-AR-NOTE
@@ -2666,7 +2666,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE SPACES TO WS-AR-DETAIL
             STRING "decision=" DELIMITED BY SPACE WS-PARAM3-TRIMMED DELIMITED BY SPACE ";subject=" DELIMITED BY SPACE WS-AR-EMAIL DELIMITED BY SPACE INTO WS-AR-DETAIL
             END-STRING
@@ -2680,7 +2680,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             CALL "SQL_COMMIT" END-CALL
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|ITEM_DECIDED|" DELIMITED BY SPACE WS-PARAM2-TRIMMED DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-PARAM3-TRIMMED DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER
@@ -2696,14 +2696,14 @@
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE WS-PARAM2-TRIMMED TO WS-CHECK
             MOVE WS-P2-LEN TO WS-CHECK-LEN
             PERFORM VALIDATE-DIGITS
             IF WS-DIGITS-BAD NOT = 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT state FROM access_reviews WHERE review_id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
@@ -2711,15 +2711,15 @@
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT NOT = "OPEN"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM access_review_items WHERE review_id = ? AND decision = 'PENDING'" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
@@ -2727,11 +2727,11 @@
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT NOT = "0"
                 MOVE "ERROR|REVIEW_INCOMPLETE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             *> A REVOKED decision is a decision to remove the access, not the
             *> removal itself: the review cannot close while the subject
             *> still holds a privileged role in a verified state.
@@ -2742,11 +2742,11 @@
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             IF WS-RESULT NOT = "0"
                 MOVE "ERROR|REVOCATION_PENDING" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             CALL "SQL_BEGIN" END-CALL
             MOVE "UPDATE access_reviews SET state = 'CLOSED', closed_by = ?, closed_at = NOW() WHERE review_id = ? AND state = 'OPEN'" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
@@ -2757,7 +2757,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             MOVE SPACES TO WS-AR-DETAIL
             STRING "closed_by=" DELIMITED BY SPACE WS-PARAM1-TRIMMED DELIMITED BY SPACE INTO WS-AR-DETAIL
             END-STRING
@@ -2771,7 +2771,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
             CALL "SQL_COMMIT" END-CALL
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|REVIEW_CLOSED|" DELIMITED BY SPACE WS-PARAM2-TRIMMED DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER
@@ -3358,7 +3358,7 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT = "SUPER_ADMIN"
                 MOVE 1 TO WS-ALLOWED
-            END-IF
+            END-IF.
             IF WS-ALLOWED NOT = 1
                 MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
                 MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
