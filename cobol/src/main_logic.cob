@@ -238,7 +238,13 @@
             ELSE IF CMD-ACTION(1:4) = "PING"
                 CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG
             ELSE
-                MOVE "ERROR|INVALID_ACTION" TO WS-OUTPUT-MSG
+                *> Access-review actions dispatch from here so the legacy
+                *> chain keeps its shape and every new scope is closed.
+                IF CMD-ACTION(1:18) = "OPEN_ACCESS_REVIEW" OR CMD-ACTION(1:19) = "LIST_ACCESS_REVIEWS" OR CMD-ACTION(1:17) = "GET_ACCESS_REVIEW" OR CMD-ACTION(1:18) = "DECIDE_ACCESS_ITEM" OR CMD-ACTION(1:19) = "CLOSE_ACCESS_REVIEW"
+                    CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
+                ELSE
+                    MOVE "ERROR|INVALID_ACTION" TO WS-OUTPUT-MSG
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
