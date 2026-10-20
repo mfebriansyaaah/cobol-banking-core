@@ -62,14 +62,15 @@ if [ "$gh_ok" -eq 0 ]; then
     fi
 fi
 
-# Fast-forward when possible (the usual case); fall back to a merge when the
-# local main carries a HISTORY commit that has not ridden a PR yet.
-if ! git merge --ff-only origin/main >/dev/null 2>&1; then
-    echo "sync_main: local main has commits not on origin; merging"
-    git merge --no-edit origin/main >/dev/null
-fi
-
 git checkout main >/dev/null 2>&1 || { echo "sync_main: cannot switch to main" >&2; exit 1; }
+
+# Main is now checked out. Fast-forward when possible; when the local main
+# carries a HISTORY commit that origin does not, replay that local-only docs
+# commit on top (a merge commit would be refused by the main-branch hook).
+if ! git merge --ff-only origin/main >/dev/null 2>&1; then
+    echo "sync_main: replaying the local HISTORY commit onto origin/main"
+    git rebase origin/main >/dev/null
+fi
 
 echo "sync_main: regenerating docs/HISTORY.md"
 ./docs/gen_history.sh > docs/HISTORY.md
