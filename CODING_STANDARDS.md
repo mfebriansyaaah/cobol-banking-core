@@ -182,6 +182,10 @@ invariant, bypass evidence, or claim compliance without accountable approval.
     that naturally decomposes. There is no fixed minimum commit count;
     completeness and cohesion of the change decide.
 
+    Before creating the next branch, run `./scripts/sync_main.sh [branch]`
+    so the branch starts from the merged main, the generated history is
+    current, and merged branches are pruned. The script refuses a dirty tree
+    and never pushes the local HISTORY commit.
     While iterating, `./ci-fast.sh` runs the affected-surface gate (static
     checks, build, warning ratchet, migration check, a money-path smoke set
     for core changes, the gateway suite for middleware changes; see
