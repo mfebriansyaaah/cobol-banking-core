@@ -110,6 +110,21 @@ test('every bearer endpoint responds', async () => {
   const userStep = await stepUpFor(token);
   assert.equal((await request(app).post('/admin/role').set(auth).set('X-Step-Up', userStep).send({ email: other.email, role: 'MANAGER', actor: admin })).status, 403);
 
+  // Session security (ADR 0075): revoke every other device while keeping the
+  // caller's own family; a plain user cannot revoke another account's devices.
+  const revOthers = await request(app).post('/sessions/revoke-others').set(auth).send({ email });
+  assert.equal(revOthers.status, 200, JSON.stringify(revOthers.body));
+  assert.deepEqual(revOthers.body.data, ['OTHER_SESSIONS_REVOKED']);
+  assert.equal((await request(app).post('/sessions/revoke-others').set(auth).send({ email: other.email })).status, 403);
+  // The caller's own session survives, so the token still works.
+  assert.equal((await request(app).get('/users').set(auth)).status, 403);
+
+  // Authentication failures are counted by reason for operators.
+  await request(app).post('/auth/login').send({ email, password: 'wrong-password' });
+  const metrics = await request(app).get('/metrics').set(adminAuth);
+  assert.equal(metrics.status, 200);
+  assert.match(metrics.text, /gateway_auth_failures_total\{reason="INVALID_CREDENTIALS"\}/);
+
   // Access review (ADR 0073): a SUPER_ADMIN opens a review, reads it, and
   // records a decision on a privileged account that is not itself.
   const adminStep = await adminStepUpFor(adminToken);

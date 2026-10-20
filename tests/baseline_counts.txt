@@ -62,3 +62,4 @@ outbox 23
 control-accounts 13
 access-reviews 42
 permissions 23
+session-security 26

@@ -6,12 +6,22 @@ import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, signStepUp, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
-import { createRequestObserver, metricsText, recordError } from './observability.js';
+import { createRequestObserver, metricsText, recordError, recordAuthFailure } from './observability.js';
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
+
+// Reasons counted in gateway_auth_failures_total. Telemetry only: the code
+// still decides, this list only decides which failures are worth counting as
+// authentication events.
+const AUTH_FAILURE_CODES = new Set([
+  'INVALID_CREDENTIALS', 'INVALID_MFA', 'MFA_REQUIRED', 'MFA_SETUP_REQUIRED',
+  'ACCOUNT_LOCKED', 'USER_SUSPENDED', 'USER_CLOSED', 'UNVERIFIED',
+  'SESSION_NOT_FOUND', 'SESSION_EXPIRED', 'SESSION_FAMILY_EXPIRED', 'SESSION_REUSED',
+  'TOKEN_REVOKED', 'PERMISSION_DENIED', 'FORBIDDEN', 'ROLE_DENIED',
+]);
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
@@ -59,6 +69,9 @@ export const ROUTES = [
     const ua = sanitizeMeta(req && req.headers && req.headers['user-agent'], 120);
     const ip = sanitizeMeta(req && req.ip, 45);
     await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti, ua, ip]);
+    // Announce a first sign-in from this fingerprint. Best effort: the login
+    // must not fail because the notice could not be queued.
+    try { await invoke('LOGIN_NOTICE', [input.email, ua, ip]); } catch { /* best effort */ }
     // Whether an admin without MFA must enrol next is decided by COBOL; the
     // gateway forwards the flag without reimplementing the admin-role rule.
     const enroll = (await invoke('MFA_ENROLL_REQUIRED', [input.email])) === 'SUCCESS|1';
@@ -356,6 +369,12 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
   ] },
+  // Sign out every other device, keeping the caller's own session family.
+  { method: 'post', path: '/sessions/revoke-others', action: 'REVOKE_OTHER_DEVICES', tokenIdentity: 'actor', tokenSid: true, fields: [
+    { name: 'email', pattern: EMAIL, required: true },
+    { name: 'actor', pattern: EMAIL, required: true },
+    { name: 'sid', pattern: KEY, required: true },
+  ] },
   { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: true },
@@ -565,6 +584,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
       const raw = await invoke('CHECK_PERMISSION', [email, permission]);
       if (raw === 'SUCCESS|PERMISSION_OK') return next();
       if (raw === 'ERROR|ACCOUNT_NOT_FOUND') return res.status(404).json({ error: 'ACCOUNT_NOT_FOUND' });
+      recordAuthFailure('PERMISSION_DENIED');
       return res.status(403).json({ error: 'FORBIDDEN' });
     } catch (err) {
       return next(err);
@@ -575,7 +595,10 @@ export function buildRouter({ mailer, tokenStore } = {}) {
   // proof (from POST /auth/step-up) bound to this caller and its token version.
   const requireStepUp = (req, res, next) => {
     const token = req.get('x-step-up') || (req.body && req.body.stepUpToken) || '';
-    if (!token) return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+    if (!token) {
+      recordAuthFailure('STEP_UP_REQUIRED');
+      return res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+    }
     let payload;
     try {
       payload = verifyStepUp(token);
@@ -662,6 +685,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
       const ua = sanitizeMeta(req.headers && req.headers['user-agent'], 120);
       const ip = sanitizeMeta(req.ip, 45);
       await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family, ua, ip]);
+      try { await invoke('LOGIN_NOTICE', [payload.email, ua, ip]); } catch { /* best effort */ }
       const enroll = (await invoke('MFA_ENROLL_REQUIRED', [payload.email])) === 'SUCCESS|1';
       return res.json({
         data: ['REFRESHED'],
@@ -731,6 +755,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
         if (status !== 200 && body && body.error) {
           res.locals.errorCode = body.error;
           recordError(body.error);
+          if (AUTH_FAILURE_CODES.has(body.error)) recordAuthFailure(body.error);
         }
         if (status === 200 && route.onSuccess) {
           return res.status(status).json(await route.onSuccess(body, input, { mailer, req }));

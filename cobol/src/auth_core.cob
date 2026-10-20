@@ -38,6 +38,12 @@
         01  WS-REQ-STATUS           PIC X(12) VALUE SPACES.
         01  WS-PERM-REQ             PIC X(30) VALUE SPACES.
         01  WS-PERM-ACTOR           PIC X(100) VALUE SPACES.
+        01  WS-IDLE-EXPIRED         PIC 9 VALUE 0.
+        01  WS-IDLE-AGE             PIC X(20) VALUE SPACES.
+        01  WS-IDLE-SECS            PIC 9(14) VALUE 0.
+        01  WS-IDLE-LIMIT           PIC 9(14) VALUE 0.
+        01  WS-STEPUP-ACTION        PIC X(20) VALUE SPACES.
+        01  WS-AUDIT-STATUS         PIC X(7)  VALUE SPACES.
         01  WS-AR-ID                PIC X(20) VALUE SPACES.
         01  WS-AR-ITEM               PIC X(20) VALUE SPACES.
         01  WS-AR-STATE              PIC X(12) VALUE SPACES.
@@ -234,6 +240,10 @@
                     PERFORM REJECT-REQUEST-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "LIST_REQUESTS"
                     PERFORM LIST-REQUESTS-LOGIC
+                WHEN LS-CMD-ACTION(1:20) = "REVOKE_OTHER_DEVICES"
+                    PERFORM REVOKE-OTHER-DEVICES-LOGIC
+                WHEN LS-CMD-ACTION(1:12) = "LOGIN_NOTICE"
+                    PERFORM LOGIN-NOTICE-LOGIC
                 WHEN LS-CMD-ACTION(1:16) = "CHECK_PERMISSION"
                     PERFORM CHECK-PERMISSION-LOGIC
                 WHEN LS-CMD-ACTION(1:16) = "LIST_PERMISSIONS"
@@ -498,6 +508,9 @@
             *>      required. A wrong code is throttled like a wrong password.
             IF WS-MFA-ON = "1"
                 IF WS-PARAM3-TRIMMED(1:1) = SPACE
+                    MOVE "STEP_UP_FAILED" TO WS-STEPUP-ACTION
+                    MOVE "FAILED" TO WS-AUDIT-STATUS
+                    PERFORM AUDIT-STEPUP
                     MOVE "ERROR|MFA_REQUIRED" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
                 END-IF
@@ -546,6 +559,10 @@
                 *> 4a) Record the sign-in, so a privileged access review can
                 *>     see how long an account has been dormant.
                 MOVE "UPDATE users SET last_login_at = NOW() WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) SELECT id, 'AUTH_LOGIN_SUCCESS', 'USER', id, 'SUCCESS' FROM users WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
@@ -826,6 +843,15 @@
                 MOVE WS-CODE TO WS-BIND-2
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) SELECT id, 'PASSWORD_RESET_REQUESTED', 'USER', id, 'SUCCESS' FROM users WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
@@ -1810,12 +1836,18 @@
             MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
             CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
             IF WS-VERIFY NOT = "1"
+                MOVE "STEP_UP_FAILED" TO WS-STEPUP-ACTION
+                MOVE "FAILED" TO WS-AUDIT-STATUS
+                PERFORM AUDIT-STEPUP
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             *> Admin accounts must have MFA enabled to step up: a SUPER_ADMIN or
             *> MANAGER without MFA cannot perform a privileged action.
             IF (WS-ROLE = "SUPER_ADMIN" OR WS-ROLE = "MANAGER") AND WS-MFA-ON NOT = "1"
+                MOVE "STEP_UP_FAILED" TO WS-STEPUP-ACTION
+                MOVE "FAILED" TO WS-AUDIT-STATUS
+                PERFORM AUDIT-STEPUP
                 MOVE "ERROR|MFA_SETUP_REQUIRED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -1835,10 +1867,16 @@
                     PERFORM CHECK-BACKUP-CODE
                 END-IF
                 IF WS-VERIFY NOT = "1" AND WS-BACKUP-OK NOT = "1"
+                    MOVE "STEP_UP_FAILED" TO WS-STEPUP-ACTION
+                    MOVE "FAILED" TO WS-AUDIT-STATUS
+                    PERFORM AUDIT-STEPUP
                     MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
                 END-IF
             END-IF.
+            MOVE "STEP_UP_OK" TO WS-STEPUP-ACTION
+            MOVE "SUCCESS" TO WS-AUDIT-STATUS
+            PERFORM AUDIT-STEPUP
             MOVE "SUCCESS|REAUTH_OK" TO LS-OUTPUT-BUFFER.
             EXIT PARAGRAPH.
 
@@ -2784,6 +2822,96 @@
             END-STRING
             EXIT PARAGRAPH.
 
+        REVOKE-OTHER-DEVICES-LOGIC.
+            *> p1 = email, p2 = actor, p3 = presented family. Revoke every
+            *> refresh session of the account except the caller's own family,
+            *> so the other devices fail on their next refresh or request.
+            PERFORM ALLOW-MANAGE-SESSION
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-PARAM3-TRIMMED NOT = SPACES
+                CALL "SQL_BEGIN" END-CALL
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ? AND family <> ? AND revoked = 0" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    CALL "SQL_ROLLBACK" END-CALL
+                    MOVE "ERROR|SESSIONS_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'SESSIONS_REVOKED_OTHERS', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    CALL "SQL_ROLLBACK" END-CALL
+                    MOVE "ERROR|SESSIONS_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|OTHER_SESSIONS_REVOKED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOGIN-NOTICE-LOGIC.
+            *> p1 = email, p2 = user agent, p3 = IP. Records the sign-in
+            *> fingerprint and enqueues a NEW_DEVICE notice the first time the
+            *> account is seen from it. Notification is best-effort: the login
+            *> must not fail because the notice could not be queued.
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM known_devices WHERE email = ? AND user_agent = ? AND ip = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "INSERT IGNORE INTO known_devices (email, user_agent, ip) VALUES (?, ?, ?)" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:18) = "SUCCESS|AFFECTED_1"
+                    MOVE WS-PARAM1-TRIMMED TO WS-NOTIF-TO
+                    MOVE "NEW_DEVICE" TO WS-NOTIF-PURPOSE
+                    MOVE SPACES TO WS-NOTIF-CODE
+                    MOVE WS-PARAM3-TRIMMED TO WS-NOTIF-DETAIL
+                    PERFORM ENQUEUE-NOTIFICATION
+                END-IF
+            ELSE
+                MOVE "UPDATE known_devices SET last_seen_at = NOW() WHERE email = ? AND user_agent = ? AND ip = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SUCCESS|NOTICE_RECORDED" TO LS-OUTPUT-BUFFER
+            EXIT PARAGRAPH.
+
         CHECK-PERMISSION-LOGIC.
             *> p1 = email, p2 = permission. Answers whether the account
             *> holds the permission. The gateway renders the answer and the
@@ -3152,8 +3280,8 @@
                 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             MOVE SPACES TO WS-PREP-SQL
-            STRING "INSERT INTO refresh_sessions (jti, family, email, expires_at, user_agent, ip) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL "
-                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY), ?, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
+            STRING "INSERT INTO refresh_sessions (jti, family, email, expires_at, user_agent, ip, last_seen_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL "
+                   WS-PARAM3-TRIMMED(1:WS-P3-LEN) " DAY), ?, ?, NOW())" DELIMITED BY SIZE INTO WS-PREP-SQL
             END-STRING
             MOVE WS-PARAM5-TRIMMED TO WS-BIND-4
             MOVE WS-PARAM6-TRIMMED TO WS-BIND-5
@@ -3185,11 +3313,68 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        ENFORCE-IDLE-TIMEOUT.
+            *> p1 = refresh jti. For administrators, refuse a refresh whose
+            *> previous activity is older than ADMIN_IDLE_TIMEOUT_SECONDS:
+            *> revoke the family, kill every access token, and audit. A value
+            *> of 0 disables the bound. Unknown/expired sessions fall through
+            *> to the ordinary consume path, which reports them.
+            MOVE 0 TO WS-IDLE-EXPIRED
+            MOVE SPACES TO WS-CD-STR
+            CALL "env_or" USING BY REFERENCE "ADMIN_IDLE_TIMEOUT_SECONDS" BY REFERENCE "1800" BY REFERENCE WS-CD-STR END-CALL
+            IF WS-CD-STR(1:1) < "0" OR WS-CD-STR(1:1) > "9"
+                MOVE "1800" TO WS-CD-STR
+            END-IF.
+            IF WS-CD-STR = "0"
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(TIMESTAMPDIFF(SECOND, COALESCE(s.last_seen_at, s.created_at), NOW()) AS CHAR), u.role, s.email, s.family FROM refresh_sessions s JOIN users u ON u.email = s.email WHERE s.jti = ? AND s.revoked = 0 AND s.expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-IDLE-AGE
+            MOVE SPACES TO WS-ROLE
+            MOVE SPACES TO WS-SESSION-EMAIL
+            MOVE SPACES TO WS-FAMILY
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-IDLE-AGE WS-ROLE WS-SESSION-EMAIL WS-FAMILY
+            END-UNSTRING
+            IF WS-ROLE NOT = "SUPER_ADMIN" AND WS-ROLE NOT = "MANAGER"
+                EXIT PARAGRAPH
+            END-IF.
+            COMPUTE WS-IDLE-SECS = FUNCTION NUMVAL(WS-IDLE-AGE) END-COMPUTE
+            COMPUTE WS-IDLE-LIMIT = FUNCTION NUMVAL(WS-CD-STR) END-COMPUTE
+            IF WS-IDLE-SECS > WS-IDLE-LIMIT
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE family = ?" TO WS-PREP-SQL
+                MOVE WS-FAMILY TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                MOVE "UPDATE users SET token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-SESSION-EMAIL TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) SELECT id, 'SESSION_IDLE_TIMEOUT', 'USER', id, 'FAILED' FROM users WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-SESSION-EMAIL TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                MOVE 1 TO WS-IDLE-EXPIRED
+            END-IF.
+            EXIT PARAGRAPH.
+
         CONSUME-SESSION-LOGIC.
             *> p1 = jti. Atomically consume the refresh session: only the first
             *> caller wins. A later call on an already-revoked jti is reuse and
-            *> kills the whole family plus every access token.
-            MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE jti = ? AND revoked = 0 AND expires_at > NOW()" TO WS-PREP-SQL
+            *> kills the whole family plus every access token. An administrator
+            *> idle past the configured bound is refused first.
+            PERFORM ENFORCE-IDLE-TIMEOUT
+            IF WS-IDLE-EXPIRED = 1
+                MOVE "ERROR|SESSION_EXPIRED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE refresh_sessions SET revoked = 1, last_seen_at = NOW() WHERE jti = ? AND revoked = 0 AND expires_at > NOW()" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
@@ -3430,6 +3615,17 @@
                 MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
                 PERFORM AUDIT-DENIED
             END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-STEPUP.
+            *> WS-STEPUP-ACTION / WS-AUDIT-STATUS / p1 = email. Best-effort:
+            *> a failed audit row must not change the step-up decision.
+            MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) SELECT id, ?, 'USER', id, ? FROM users WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-STEPUP-ACTION TO WS-BIND-1
+            MOVE WS-AUDIT-STATUS TO WS-BIND-2
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             EXIT PARAGRAPH.
 
         ALLOW-SUPER-ADMIN.
