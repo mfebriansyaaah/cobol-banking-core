@@ -2789,3 +2789,11 @@ _merged 2026-10-20_
 - test: run the functional suites through the shared serve-mode harness
 - docs: sync HISTORY.md to post-merge state (#249)
 
+## #251 tiered-ci
+
+_merged 2026-10-20_
+
+- docs: record the tiered CI policy, fast gate, and release evidence
+- feat(ci): extract the static checks and add the affected-surface fast gate
+- docs: sync HISTORY.md to post-merge state (#250)
+
