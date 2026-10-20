@@ -477,6 +477,7 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_agent VARCHAR(255) NULL,
     ip VARCHAR(45) NULL,
+    last_seen_at TIMESTAMP NULL DEFAULT NULL,
     KEY idx_refresh_family (family),
     CONSTRAINT fk_refresh_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -488,6 +489,18 @@ CREATE TABLE IF NOT EXISTS refresh_families (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     rotations INT NOT NULL DEFAULT 0,
     CONSTRAINT fk_refresh_family_user FOREIGN KEY (email) REFERENCES users(email) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- 10c. Known sign-in fingerprints (durable "seen this device before" record).
+-- The first sighting enqueues a NEW_DEVICE outbox notice; a repeat does not.
+-- No credential or code is stored here.
+CREATE TABLE IF NOT EXISTS known_devices (
+    email VARCHAR(100) NOT NULL,
+    user_agent VARCHAR(255) NOT NULL DEFAULT '',
+    ip VARCHAR(45) NOT NULL DEFAULT '',
+    first_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (email, user_agent, ip)
 ) ENGINE=InnoDB;
 
 -- 11. Access-token denylist (per-token revocation; complements users.token_version)
@@ -553,7 +566,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0039_fx_pnl_account'),
 ('0040_control_account_uniqueness'),
 ('0041_access_review'),
-('0042_scoped_permissions');
+('0042_scoped_permissions'),
+('0043_session_security');
 
 
 -- Indexes
