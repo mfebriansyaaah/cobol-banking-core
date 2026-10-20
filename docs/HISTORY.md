@@ -2730,3 +2730,18 @@ _merged 2026-10-20_
 - docs(adr): 0073 access review and attestation
 - docs: sync HISTORY.md to post-merge state (#245)
 
+## #247 scoped-permissions
+
+_merged 2026-10-20_
+
+- fix(ops): back up the permission catalog tables too
+- style(cobol): close the permission paragraphs with explicit terminators
+- docs: record the permission catalog, its gates, and the new counts
+- fix(core): exact permission-name matching independent of DB collation
+- test: permission matrix suite wired into CI as step 68
+- feat(gateway): permission-gated metrics and effective-permission projection
+- feat(core): CHECK_PERMISSION and LIST_PERMISSIONS with permission-aware audit and reconcile gates
+- feat(db): migration 0042 scoped permission catalog and role mappings
+- docs(adr): 0074 scoped permissions
+- docs: sync HISTORY.md to post-merge state (#246)
+
