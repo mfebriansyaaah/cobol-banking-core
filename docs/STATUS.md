@@ -189,6 +189,7 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_rng.sh` | 5 | fail-closed OS CSPRNG helper builds clean and returns fresh, non-zero bytes; MFA secrets and password salts are fresh per call |
 | `tests/test_grants.sh` | 5 | least-privilege guardrail (no DB): app grant is DML-only with no DDL, migration grant is full DDL, the two accounts differ, migrations use a separate credential |
 | `tests/test_control_accounts.sh` | 13 | bank-owned FX_PNL/FEE_INCOME uniqueness: generated slot maps exactly the ACTIVE lookup predicate, duplicate ACTIVE rows refused per type, INACTIVE/FROZEN map to NULL, exactly one ACTIVE row per pair |
+| `tests/coverage_check.sh` | gate | coverage floor and ratchet: COBOL statement coverage mapped from the generated C over a representative subset plus the gateway line/branch report; 30% floor, 1pp ratchet (see `docs/COVERAGE.md`) |
 | `tests/test_permissions.sh` | 23 | scoped permissions: CHECK_PERMISSION answers and LIST_PERMISSIONS projects the grant, the read-mostly audit/reconcile gates enforce the permission instead of the rank, a grant inserted as data takes effect and its removal revokes it |
 | `tests/test_access_reviews.sh` | 42 | access review: only a SUPER_ADMIN opens a review, the snapshot covers every privileged account, the reviewer is never the subject, a review closes only when every item is decided and every revoked access is actually gone, and opening/deciding/closing are audited |
 | `tests/test_hooks.sh` | 4 | installed git hooks match tracked (`--check`), tampering detected, reinstall restores |
@@ -319,6 +320,7 @@ list page size is capped at 100 (`limit` 1..100).
 - `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md`, `docs/adr/0008-metrics-export.md`, `docs/adr/0009-audit-retention.md`, `docs/adr/0010-worker-pool-invocation.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
 - `docs/BUILD_WARNINGS.md` - build-warning triage and the CI warning ratchet (`tests/warning_check.sh`, `tests/warning_baseline.txt`).
+- `docs/COVERAGE.md` - coverage definition, floors, and the ratchet (`scripts/coverage_cobol.sh`, `tests/coverage_check.sh`, `tests/coverage_baseline.txt`).
 - `scripts/install-hooks.sh` - installs a pre-commit hook that blocks commits on `main`.
 
 ## 7. Known gaps (deliberate, by scale)

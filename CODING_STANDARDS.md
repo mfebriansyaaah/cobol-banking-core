@@ -148,7 +148,7 @@ invariant, bypass evidence, or claim compliance without accountable approval.
 34. **No silent skips or swallowed failures.** A missing dependency, seed, or
     required service must fail the relevant suite. Do not use `set +e`, ignored
     exit codes, `|| true`, or broad redirection to conceal a failure.
-35. **Keep count and contract baselines current.** Update
+35. **Keep count, contract, and coverage baselines current.** Update
     `tests/baseline_counts.txt`, `docs/STATUS.md`, and the relevant contract
     tests together when assertions intentionally change. Any decrease needs an
     explicit reason.
