@@ -10,6 +10,7 @@ const metrics = {
   total: 0,
   byRoute: new Map(), // key: `${method}|${route}|${status}` -> count
   byError: new Map(), // key: error code -> count
+  authFailures: new Map(), // key: authentication failure reason -> count
   counters: new Map(), // name -> count
   histograms: new Map(), // name -> { buckets: number[], sum, count }
   gauges: new Map(), // name -> value
@@ -19,6 +20,7 @@ export function resetMetrics() {
   metrics.total = 0;
   metrics.byRoute.clear();
   metrics.byError.clear();
+  metrics.authFailures.clear();
   metrics.counters.clear();
   metrics.histograms.clear();
   metrics.gauges.clear();
@@ -61,6 +63,12 @@ export function observeHistogram(name, value) {
   }
 }
 
+/** Count an authentication failure by reason (telemetry only). */
+export function recordAuthFailure(reason) {
+  if (!reason) return;
+  metrics.authFailures.set(reason, (metrics.authFailures.get(reason) || 0) + 1);
+}
+
 /** Count a failed request by its error code (business or transport). */
 export function recordError(code) {
   if (!code) return;
@@ -99,6 +107,13 @@ export function metricsText() {
     lines.push(`${name}_bucket{le="+Inf"} ${h.count}`);
     lines.push(`${name}_sum ${h.sum}`);
     lines.push(`${name}_count ${h.count}`);
+  }
+  if (metrics.authFailures.size > 0) {
+    lines.push('# HELP gateway_auth_failures_total Authentication failures by reason.');
+    lines.push('# TYPE gateway_auth_failures_total counter');
+    for (const [reason, count] of metrics.authFailures) {
+      lines.push(`gateway_auth_failures_total{reason="${escapeLabel(reason)}"} ${count}`);
+    }
   }
   if (metrics.byError.size > 0) {
     lines.push('# HELP gateway_errors_total Failed requests by error code.');
