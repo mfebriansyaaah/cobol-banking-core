@@ -1,7 +1,7 @@
 #!/bin/bash
 # Apply pending database migrations once each, recording them in
 # schema_migrations. Idempotent: already-applied migrations are skipped.
-# Usage: database/migrate.sh
+# Usage: database/migrate.sh [--check | --only <version>]
 
 set -e
 cd "$(dirname "$0")/.."
@@ -24,6 +24,30 @@ mysqlc -e "CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(64) PRIMARY KEY,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;" 2>/dev/null
+
+# Apply exactly one version (used by the replay test so it does not scan every
+# file for each iteration). Idempotent: an already-recorded version is a no-op.
+if [ "$1" = "--only" ]; then
+    v="${2:-}"
+    [ -n "$v" ] || { echo "usage: migrate.sh --only <version>" >&2; exit 2; }
+    f="database/migrations/$v.sql"
+    [ -f "$f" ] || { echo "unknown migration: $v" >&2; exit 2; }
+    already="$(mysqlc -N -B -e "SELECT COUNT(*) FROM schema_migrations WHERE version='$v';" 2>/dev/null)"
+    if [ "$already" = "1" ]; then
+        echo "already applied: $v"
+        exit 0
+    fi
+    echo "applying: $v"
+    if err=$(mysqlc < "$f" 2>&1); then
+        mysqlc -e "INSERT INTO schema_migrations (version) VALUES ('$v');" 2>/dev/null
+        echo "migrations applied"
+        exit 0
+    else
+        echo "migration FAILED: $v"
+        echo "$err" | head -5
+        exit 1
+    fi
+fi
 
 if [ "$1" = "--check" ]; then
     pending=""

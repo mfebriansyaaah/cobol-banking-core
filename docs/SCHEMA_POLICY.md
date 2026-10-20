@@ -36,7 +36,9 @@ Both paths must converge to the same shape (verified by audit diffing
    re-run. These failures do not imply the original migration was rolled
    back. Inspect `information_schema` and migration effects before recovery;
    only re-record a version after confirming its complete intended state.
-   `database/migrate.sh --check` gates CI. Migrations need DDL rights — run
+   `database/migrate.sh --check` gates CI. `database/migrate.sh --only <version>`
+applies exactly one file (used by the replay test so it does not scan every
+migration per iteration). Migrations need DDL rights — run
    them as the migrate account from `database/grants.sh`, never as the
    DML-only application account.
 4. **Seeds are dev-only and re-runnable.** `database/seed_test_data.sql`
