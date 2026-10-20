@@ -1,0 +1,1844 @@
+{
+  "entities": [
+    {
+      "name": "currency",
+      "code": "CUR",
+      "table": "currencies",
+      "route": "/reference/currencies",
+      "param": "iso",
+      "key": {
+        "column": "iso_code",
+        "length": 3
+      },
+      "label": {
+        "column": "symbol",
+        "max": 5
+      },
+      "number": {
+        "column": "prec_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "iso_code",
+      "createTable": false
+    },
+    {
+      "name": "country",
+      "code": "CTR",
+      "table": "ref_country",
+      "route": "/reference/countries",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 2
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "holiday",
+      "code": "HOL",
+      "table": "ref_holiday",
+      "route": "/reference/holidays",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 10
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "channel",
+      "code": "CHN",
+      "table": "ref_channel",
+      "route": "/reference/channels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "branch",
+      "code": "BRN",
+      "table": "ref_branch",
+      "route": "/reference/branches",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "cost_center",
+      "code": "CCT",
+      "table": "ref_cost_center",
+      "route": "/reference/cost-centers",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "document_type",
+      "code": "DTP",
+      "table": "ref_document_type",
+      "route": "/reference/document-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "notification_template",
+      "code": "NTP",
+      "table": "ref_notification_template",
+      "route": "/reference/notification-templates",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "status_code",
+      "code": "STS",
+      "table": "ref_status_code",
+      "route": "/reference/status-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "rate_source",
+      "code": "RTS",
+      "table": "ref_rate_source",
+      "route": "/reference/rate-sources",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "product_type",
+      "code": "PRD",
+      "table": "ref_product_type",
+      "route": "/reference/product-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_type",
+      "code": "ACT",
+      "table": "ref_account_type",
+      "route": "/reference/account-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "transaction_code",
+      "code": "TXN",
+      "table": "ref_transaction_code",
+      "route": "/reference/transaction-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_code",
+      "code": "FEE",
+      "table": "ref_fee_code",
+      "route": "/reference/fee-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "charge_code",
+      "code": "CHG",
+      "table": "ref_charge_code",
+      "route": "/reference/charge-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "limit_type",
+      "code": "LMT",
+      "table": "ref_limit_type",
+      "route": "/reference/limit-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "limit_profile",
+      "code": "LMP",
+      "table": "ref_limit_profile",
+      "route": "/reference/limit-profiles",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "settlement_account",
+      "code": "STL",
+      "table": "ref_settlement_account",
+      "route": "/reference/settlement-accounts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "clearing_account",
+      "code": "CLR",
+      "table": "ref_clearing_account",
+      "route": "/reference/clearing-accounts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "suspense_account",
+      "code": "SUS",
+      "table": "ref_suspense_account",
+      "route": "/reference/suspense-accounts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "rounding_rule",
+      "code": "RND",
+      "table": "ref_rounding_rule",
+      "route": "/reference/rounding-rules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "precision_rule",
+      "code": "PRC",
+      "table": "ref_precision_rule",
+      "route": "/reference/precision-rules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "tax_code",
+      "code": "TAX",
+      "table": "ref_tax_code",
+      "route": "/reference/tax-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "language",
+      "code": "LNG",
+      "table": "ref_language",
+      "route": "/reference/languages",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 3
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "timezone",
+      "code": "TZ",
+      "table": "ref_timezone",
+      "route": "/reference/timezones",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 5
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "country_region",
+      "code": "RGN",
+      "table": "ref_country_region",
+      "route": "/reference/country-regions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "currency_pair",
+      "code": "CPR",
+      "table": "ref_currency_pair",
+      "route": "/reference/currency-pairs",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 7
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "holiday_calendar",
+      "code": "HCD",
+      "table": "ref_holiday_calendar",
+      "route": "/reference/holiday-calendars",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "document_template",
+      "code": "DTM",
+      "table": "ref_document_template",
+      "route": "/reference/document-templates",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "notification_channel",
+      "code": "NCH",
+      "table": "ref_notification_channel",
+      "route": "/reference/notification-channels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "audit_event_type",
+      "code": "AET",
+      "table": "ref_audit_event_type",
+      "route": "/reference/audit-event-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "status_reason",
+      "code": "SRN",
+      "table": "ref_status_reason",
+      "route": "/reference/status-reasons",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_status",
+      "code": "ACS",
+      "table": "ref_account_status",
+      "route": "/reference/account-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "payment_type",
+      "code": "PMT",
+      "table": "ref_payment_type",
+      "route": "/reference/payment-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "card_type",
+      "code": "CRD",
+      "table": "ref_card_type",
+      "route": "/reference/card-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "address_type",
+      "code": "ADR",
+      "table": "ref_address_type",
+      "route": "/reference/address-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "phone_type",
+      "code": "PHN",
+      "table": "ref_phone_type",
+      "route": "/reference/phone-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "email_type",
+      "code": "EMT",
+      "table": "ref_email_type",
+      "route": "/reference/email-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "review_state",
+      "code": "RVS",
+      "table": "ref_review_state",
+      "route": "/reference/review-states",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_group",
+      "code": "RPG",
+      "table": "ref_report_group",
+      "route": "/reference/report-groups",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "city",
+      "code": "CTY",
+      "table": "ref_city",
+      "route": "/reference/cities",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "province",
+      "code": "PRV",
+      "table": "ref_province",
+      "route": "/reference/provinces",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "district",
+      "code": "DST",
+      "table": "ref_district",
+      "route": "/reference/districts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "postal_code",
+      "code": "PST",
+      "table": "ref_postal_code",
+      "route": "/reference/postal-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "region",
+      "code": "REG",
+      "table": "ref_region",
+      "route": "/reference/regions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "department",
+      "code": "DEP",
+      "table": "ref_department",
+      "route": "/reference/departments",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "team",
+      "code": "TEM",
+      "table": "ref_team",
+      "route": "/reference/teams",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "job_title",
+      "code": "JOB",
+      "table": "ref_job_title",
+      "route": "/reference/job-titles",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "employee_grade",
+      "code": "EGR",
+      "table": "ref_employee_grade",
+      "route": "/reference/employee-grades",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "profit_center",
+      "code": "PCT",
+      "table": "ref_profit_center",
+      "route": "/reference/profit-centers",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "loan_type",
+      "code": "LNT",
+      "table": "ref_loan_type",
+      "route": "/reference/loan-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "deposit_type",
+      "code": "DPT",
+      "table": "ref_deposit_type",
+      "route": "/reference/deposit-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "card_product",
+      "code": "CDP",
+      "table": "ref_card_product",
+      "route": "/reference/card-products",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_type",
+      "code": "FTP",
+      "table": "ref_fee_type",
+      "route": "/reference/fee-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "charge_type",
+      "code": "CHT",
+      "table": "ref_charge_type",
+      "route": "/reference/charge-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "rate_type",
+      "code": "RTT",
+      "table": "ref_rate_type",
+      "route": "/reference/rate-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "tier",
+      "code": "TER",
+      "table": "ref_tier",
+      "route": "/reference/tiers",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "device_type",
+      "code": "DVT",
+      "table": "ref_device_type",
+      "route": "/reference/device-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "error_code",
+      "code": "ERR",
+      "table": "ref_error_code",
+      "route": "/reference/error-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "reason_code",
+      "code": "RSN",
+      "table": "ref_reason_code",
+      "route": "/reference/reason-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "document_status",
+      "code": "DCS",
+      "table": "ref_document_status",
+      "route": "/reference/document-statuses",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "template_type",
+      "code": "TPT",
+      "table": "ref_template_type",
+      "route": "/reference/template-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "queue",
+      "code": "QUE",
+      "table": "ref_queue",
+      "route": "/reference/queues",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "priority",
+      "code": "PRI",
+      "table": "ref_priority",
+      "route": "/reference/priorities",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "sla_profile",
+      "code": "SLA",
+      "table": "ref_sla_profile",
+      "route": "/reference/sla-profiles",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "calendar",
+      "code": "CAL",
+      "table": "ref_calendar",
+      "route": "/reference/calendars",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "business_day",
+      "code": "BDY",
+      "table": "ref_business_day",
+      "route": "/reference/business-days",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "cut_off_time",
+      "code": "COT",
+      "table": "ref_cut_off_time",
+      "route": "/reference/cut-off-times",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "settlement_type",
+      "code": "STP",
+      "table": "ref_settlement_type",
+      "route": "/reference/settlement-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "payment_channel",
+      "code": "PCH",
+      "table": "ref_payment_channel",
+      "route": "/reference/payment-channels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "card_network",
+      "code": "CNW",
+      "table": "ref_card_network",
+      "route": "/reference/card-networks",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "merchant_category",
+      "code": "MCC",
+      "table": "ref_merchant_category",
+      "route": "/reference/merchant-categories",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_class",
+      "code": "ACL",
+      "table": "ref_account_class",
+      "route": "/reference/account-classes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "balance_type",
+      "code": "BLT",
+      "table": "ref_balance_type",
+      "route": "/reference/balance-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "entry_type",
+      "code": "ETY",
+      "table": "ref_entry_type",
+      "route": "/reference/entry-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "journal_source",
+      "code": "JSR",
+      "table": "ref_journal_source",
+      "route": "/reference/journal-sources",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "posting_rule",
+      "code": "PSR",
+      "table": "ref_posting_rule",
+      "route": "/reference/posting-rules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "gl_category",
+      "code": "GLC",
+      "table": "ref_gl_category",
+      "route": "/reference/gl-categories",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "statement_format",
+      "code": "STF",
+      "table": "ref_statement_format",
+      "route": "/reference/statement-formats",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "report_type",
+      "code": "RPT",
+      "table": "ref_report_type",
+      "route": "/reference/report-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    }
+  ]
+}

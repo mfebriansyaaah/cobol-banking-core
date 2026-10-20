@@ -18,6 +18,7 @@ cobc -free -x -o "$COBOL_BIN" \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \
     cobol/src/auth_core.cob \
+    cobol/src/ref_core.cob \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \

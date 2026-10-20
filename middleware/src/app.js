@@ -10,6 +10,7 @@ import { createRequestObserver, metricsText, recordError, recordAuthFailure } fr
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
+import { REF_ROUTES } from './routes/ref.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -27,6 +28,7 @@ const AUTH_FAILURE_CODES = new Set([
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
 // names the field filled from the verified token, never from the request body.
 export const ROUTES = [
+  ...REF_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
