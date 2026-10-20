@@ -550,6 +550,126 @@
                 WHEN LS-CMD-ACTION(1:13) = "REF_SRN_DEACT"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SRN-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_ACS_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACS-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_ACS_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACS-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_ACS_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACS-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_ACS_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACS-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_ACS_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACS-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_PMT_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PMT-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_PMT_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PMT-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_PMT_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PMT-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_PMT_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PMT-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_PMT_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PMT-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_CRD_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CRD-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_CRD_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CRD-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_CRD_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CRD-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_CRD_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CRD-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_CRD_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CRD-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_ADR_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ADR-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_ADR_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ADR-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_ADR_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ADR-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_ADR_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ADR-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_ADR_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ADR-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_PHN_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PHN-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_PHN_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PHN-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_PHN_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PHN-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_PHN_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PHN-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_PHN_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-PHN-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_EMT_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-EMT-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_EMT_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-EMT-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_EMT_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-EMT-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_EMT_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-EMT-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_EMT_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-EMT-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_RVS_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RVS-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_RVS_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RVS-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_RVS_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RVS-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_RVS_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RVS-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_RVS_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RVS-DEACT
+                WHEN LS-CMD-ACTION(1:12) = "REF_RPG_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RPG-LIST
+                WHEN LS-CMD-ACTION(1:11) = "REF_RPG_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RPG-GET
+                WHEN LS-CMD-ACTION(1:14) = "REF_RPG_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RPG-CREATE
+                WHEN LS-CMD-ACTION(1:14) = "REF_RPG_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RPG-UPDATE
+                WHEN LS-CMD-ACTION(1:13) = "REF_RPG_DEACT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-RPG-DEACT
                 WHEN OTHER
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
@@ -8478,6 +8598,1950 @@
             END-IF.
             IF STEP-OK
                 MOVE "ref_status_reason" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-ACS-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 4
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ACS-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_account_status" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_account_status ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ACS-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 4
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_account_status WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-ACS-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-ACS-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_account_status (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_account_status" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ACS-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-ACS-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_account_status SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_account_status" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ACS-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 4
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_account_status SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_account_status" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-PMT-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 6
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PMT-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_payment_type" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_payment_type ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PMT-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_payment_type WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-PMT-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-PMT-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_payment_type (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_payment_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PMT-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-PMT-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_payment_type SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_payment_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PMT-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_payment_type SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_payment_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-CRD-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 6
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CRD-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_card_type" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_card_type ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CRD-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_card_type WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-CRD-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-CRD-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_card_type (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_card_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CRD-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-CRD-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_card_type SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_card_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CRD-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_card_type SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_card_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-ADR-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 6
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ADR-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_address_type" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_address_type ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ADR-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_address_type WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-ADR-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-ADR-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_address_type (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_address_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ADR-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-ADR-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_address_type SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_address_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ADR-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_address_type SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_address_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-PHN-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 6
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PHN-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_phone_type" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_phone_type ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PHN-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_phone_type WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-PHN-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-PHN-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_phone_type (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_phone_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PHN-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-PHN-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_phone_type SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_phone_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-PHN-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_phone_type SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_phone_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-EMT-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 6
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-EMT-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_email_type" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_email_type ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-EMT-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_email_type WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-EMT-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-EMT-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_email_type (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_email_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-EMT-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-EMT-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_email_type SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_email_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-EMT-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_email_type SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_email_type" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-RVS-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 4
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RVS-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_review_state" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_review_state ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RVS-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 4
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_review_state WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-RVS-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-RVS-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_review_state (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_review_state" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RVS-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-RVS-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_review_state SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_review_state" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RVS-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 4
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_review_state SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_review_state" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_DEACTIVATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        VALIDATE-RPG-INPUT.
+            MOVE 0 TO WS-BAD
+            IF WS-P1-LEN NOT = 6
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P2-LEN < 1 OR WS-P2-LEN > 64
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P3-LEN NOT = 1 OR WS-P3-TRIMMED(1:1) IS NOT NUMERIC
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-LEN NOT = 1
+                MOVE 1 TO WS-BAD
+            END-IF.
+            IF WS-P4-TRIMMED(1:1) NOT = "0" AND WS-P4-TRIMMED(1:1) NOT = "1"
+                MOVE 1 TO WS-BAD
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RPG-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "20" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF LS-PARAM1 NOT = SPACES
+                MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+            END-IF.
+            IF LS-PARAM2 NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM ref_report_group" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE WS-RESULT(1:20) TO WS-TOTAL
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_report_group ORDER BY code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-LIMIT TO WS-BIND-1
+            MOVE WS-OFFSET TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|REF_LIST|" DELIMITED BY SIZE
+                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RPG-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(code, ':', label, ':', num_val, ':', is_active) FROM ref_report_group WHERE code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REF_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-RPG-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-RPG-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO ref_report_group (code, label, num_val, is_active) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_report_group" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_CREATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|PREPARE_FAILED|1062" OR WS-ERR = "ERROR|EXEC_FAILED|1062"
+                    MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RPG-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM VALIDATE-RPG-INPUT
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_report_group SET label = ?, num_val = ?, is_active = ? WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_report_group" TO WS-AUDIT-ENTITY
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
+                PERFORM AUDIT-REF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|REF_UPDATED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-ERR = "ERROR|NOT_FOUND"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-RPG-DEACT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-LEN NOT = 6
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE ref_report_group SET is_active = FALSE WHERE code = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE WS-RESULT(1:40) TO WS-ERR
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ref_report_group" TO WS-AUDIT-ENTITY
                 MOVE WS-P1-TRIMMED TO WS-AUDIT-KEY
                 MOVE "DEACTIVATE" TO WS-AUDIT-ACTION
                 PERFORM AUDIT-REF
