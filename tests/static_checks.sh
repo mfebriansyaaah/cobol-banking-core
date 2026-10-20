@@ -102,6 +102,6 @@ fi
 echo "OK"
 
 # The tiered-gate scripts are shell; a syntax error there must fail here.
-for f in ci-fast.sh tests/static_checks.sh tests/serve_harness.sh tests/coverage_check.sh scripts/coverage_cobol.sh scripts/sync_main.sh; do
+for f in ci-fast.sh tests/static_checks.sh tests/serve_harness.sh tests/coverage_check.sh scripts/coverage_cobol.sh scripts/sync_main.sh scripts/nightly.sh; do
     bash -n "$f" || { echo "static: shell syntax error in $f"; exit 1; }
 done
