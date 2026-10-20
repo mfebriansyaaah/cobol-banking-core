@@ -572,6 +572,17 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- 12a. Reference-data audit trail (7-day volume sprint, migration 0047)
+CREATE TABLE IF NOT EXISTS reference_audit (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    entity VARCHAR(64) NOT NULL,
+    entity_key VARCHAR(128) NOT NULL,
+    action VARCHAR(32) NOT NULL,
+    actor_email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_reference_audit_entity (entity, entity_key)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -623,7 +634,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0043_session_security'),
 ('0044_password_policy'),
 ('0045_customer_step_up'),
-('0046_dormant_lifecycle');
+('0046_dormant_lifecycle'),
+('0047_ref_entities');
 
 
 -- Indexes
