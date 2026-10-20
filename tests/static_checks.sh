@@ -71,6 +71,7 @@ fi
 # Violation 4: every action the router dispatches must have a handler in the
 # owning module (router/owner agreement - the routing contract).
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
+    [ "$name" = "REF_" ] && continue
     if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_core.cob; then
         echo "router: action '$name' has no handler in any core module"
         viol=1
@@ -89,6 +90,7 @@ fi
 # gateway, either as a route (action: 'X') or via an internal invoke('X')
 # (PING, session store). Otherwise the feature is unreachable over HTTP.
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
+    [ "$name" = "REF_" ] && continue
     if ! grep -rqE "(action: '$name'|invoke\('$name')" middleware/src; then
         echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
         viol=1

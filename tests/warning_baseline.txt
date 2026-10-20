@@ -13,5 +13,5 @@
 #                     into 9(3) length fields bounded by 100, and validated
 #                     `WS-PARAMn-TRIMMED` copies; see docs/BUILD_WARNINGS.md
 others 1058
-terminator 1049
+terminator 994
 possible-truncate 77
