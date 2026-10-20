@@ -2696,3 +2696,23 @@ _merged 2026-10-19_
 - fix(audit): restore audit-trail journal correlation and honest email-change result
 - docs: sync HISTORY.md to post-merge state (#241)
 
+## #243 audit-attribution-and-denials
+
+_merged 2026-10-19_
+
+- test: update expectations for corrected audit attribution and AUTHZ_DENIED rows
+- fix(cobol): attribute CHANGE_ROLE and REVERSE_TRANSFER audit rows; record AUTHZ_DENIED on sensitive admin gates
+- docs: sync HISTORY.md to post-merge state (#242)
+
+## #244 gateway-paging-and-ratelimit-eviction
+
+_merged 2026-10-20_
+
+- fix(gateway): validate offset as INT in 7 routes; evict expired keys in memoryStore
+
+## #245 backup-manifest-and-csv-export
+
+_merged 2026-10-20_
+
+- fix(ops): include reversal_fee_policy in backup manifest with auto completeness check; sanitize CSV export
+
