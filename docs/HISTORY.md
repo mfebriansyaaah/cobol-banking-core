@@ -2716,3 +2716,17 @@ _merged 2026-10-20_
 
 - fix(ops): include reversal_fee_policy in backup manifest with auto completeness check; sanitize CSV export
 
+## #246 access-review-attestation
+
+_merged 2026-10-20_
+
+- fix(ops): back up the access-review tables too
+- docs: record the access-review control, its routes, and the new counts
+- test: access review suite wired into CI as step 67
+- style(cobol): close the access-review scopes with explicit terminators
+- feat(gateway): access-review routes with step-up, and the new error codes
+- feat(core): access-review actions in COBOL and record the sign-in time
+- feat(db): migration 0041 access reviews and last_login_at
+- docs(adr): 0073 access review and attestation
+- docs: sync HISTORY.md to post-merge state (#245)
+

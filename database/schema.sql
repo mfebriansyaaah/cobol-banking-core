@@ -415,6 +415,24 @@ END//
 
 DELIMITER ;
 
+-- 9j. Scoped permission catalog (capabilities as data, not code).
+-- role_permissions maps each role to the permissions it holds; phase 1
+-- reproduces the current behavior (SUPER_ADMIN holds every permission,
+-- other roles hold none of the new ones), so granting anything further is
+-- a Gate 0 owner decision, not a migration.
+CREATE TABLE IF NOT EXISTS permissions (
+    name VARCHAR(30) NOT NULL PRIMARY KEY,
+    description VARCHAR(255) NOT NULL DEFAULT ''
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS role_permissions (
+    role ENUM('USER','MANAGER','SUPER_ADMIN') NOT NULL,
+    permission VARCHAR(30) NOT NULL,
+    PRIMARY KEY (role, permission),
+    CONSTRAINT fk_role_perm_perm FOREIGN KEY (permission)
+        REFERENCES permissions(name) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- 9i. Access review and attestation (periodic re-attestation of privileged accounts)
 -- A review snapshots every MANAGER/SUPER_ADMIN account with the state that
 -- matters to a reviewer. The items are evidence of that moment and carry no
@@ -534,7 +552,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0038_reversal_fee_policy'),
 ('0039_fx_pnl_account'),
 ('0040_control_account_uniqueness'),
-('0041_access_review');
+('0041_access_review'),
+('0042_scoped_permissions');
 
 
 -- Indexes

@@ -62,6 +62,22 @@ test('every bearer endpoint responds', async () => {
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) })).body.token;
   const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
+  // Permissions are projected, not decided, by the gateway: the login
+  // response carries the effective permission set, and /metrics stays
+  // closed to anyone without AUDIT_READ.
+  const userLogin = await request(app).post('/auth/login').send({ email, password: 'secret123' });
+  assert.equal(userLogin.status, 200);
+  assert.ok(Array.isArray(userLogin.body.permissions), 'login carries permissions');
+  assert.deepEqual(userLogin.body.permissions, [], 'a plain user holds no catalogued permission');
+  const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) });
+  assert.ok(adminLogin.body.permissions.includes('AUDIT_READ'), 'an admin holds AUDIT_READ');
+  assert.ok(adminLogin.body.permissions.includes('RECONCILE_RUN'), 'an admin holds RECONCILE_RUN');
+  const profile = await request(app).get('/profile').set(adminAuth).query({ email: admin });
+  assert.equal(profile.status, 200);
+  assert.ok(profile.body.permissions.includes('AUDIT_ARCHIVE'), 'the profile carries permissions');
+  assert.equal((await request(app).get('/metrics').set(auth)).status, 403);
+  assert.equal((await request(app).get('/metrics').set(adminAuth)).status, 200);
+
   // A plain user may not read another account; an admin may.
   assert.equal((await request(app).get('/users').set(auth)).status, 403);
   assert.equal((await request(app).get(`/users/${other.email}`).set(auth)).status, 403);

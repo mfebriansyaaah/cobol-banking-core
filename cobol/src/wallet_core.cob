@@ -34,6 +34,8 @@
         01  WS-ALLOWED              PIC 9 VALUE 0.
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
         01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
+        01  WS-PERM-REQ             PIC X(30) VALUE SPACES.
+        01  WS-PERM-ACTOR           PIC X(100) VALUE SPACES.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
@@ -406,6 +408,25 @@
             IF WS-ALLOWED NOT = 1
                 MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
                 MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-PERMISSION.
+            *> WS-PERM-REQ names the permission WS-PERM-ACTOR must hold. A
+            *> refused attempt is audited; the caller then reports FORBIDDEN.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM role_permissions rp JOIN users u ON u.role = rp.role WHERE u.email = ? AND BINARY rp.permission = ?" TO WS-PREP-SQL
+            MOVE WS-PERM-ACTOR TO WS-BIND-1
+            MOVE WS-PERM-REQ TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT NOT = "0"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-PERM-ACTOR TO WS-DENIED-ACTOR
+                MOVE WS-PERM-ACTOR TO WS-DENIED-TARGET
                 PERFORM AUDIT-DENIED
             END-IF.
             EXIT PARAGRAPH.
@@ -2951,18 +2972,11 @@
             EXIT PARAGRAPH.
 
         RECONCILE-LOGIC.
-            *> Only a SUPER_ADMIN (the actor, p1) may run the diagnostic.
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-
-            IF WS-RESULT NOT = "SUPER_ADMIN"
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
-                MOVE SPACES TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
+            *> The actor (p1) must hold RECONCILE_READ.
+            MOVE "RECONCILE_READ" TO WS-PERM-REQ
+            MOVE WS-PARAM1-TRIMMED TO WS-PERM-ACTOR
+            PERFORM ALLOW-PERMISSION
+            IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -2997,16 +3011,11 @@
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT NOT = "SUPER_ADMIN"
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
-                MOVE SPACES TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
+            *> The actor (p1) must hold RECONCILE_RUN.
+            MOVE "RECONCILE_RUN" TO WS-PERM-REQ
+            MOVE WS-PARAM1-TRIMMED TO WS-PERM-ACTOR
+            PERFORM ALLOW-PERMISSION
+            IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3087,16 +3096,11 @@
         LIST-RECONCILIATIONS-LOGIC.
             *> p1 = actor (SUPER_ADMIN), p2 = limit, p3 = offset. Read-only
             *> view of recorded runs, newest first.
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT NOT = "SUPER_ADMIN"
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
+            *> The actor (p1) must hold RECONCILE_READ.
+            MOVE "RECONCILE_READ" TO WS-PERM-REQ
+            MOVE WS-PARAM1-TRIMMED TO WS-PERM-ACTOR
+            PERFORM ALLOW-PERMISSION
+            IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3147,16 +3151,11 @@
         LIST-EXCEPTIONS-LOGIC.
             *> p1 = actor (SUPER_ADMIN), p2 = status filter, p3 = limit,
             *> p4 = offset. Read-only view of exception findings.
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT NOT = "SUPER_ADMIN"
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
+            *> The actor (p1) must hold RECONCILE_READ.
+            MOVE "RECONCILE_READ" TO WS-PERM-REQ
+            MOVE WS-PARAM1-TRIMMED TO WS-PERM-ACTOR
+            PERFORM ALLOW-PERMISSION
+            IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.

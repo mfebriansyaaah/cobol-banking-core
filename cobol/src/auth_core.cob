@@ -36,6 +36,8 @@
         01  WS-REQ-MLEN             PIC 9(3) VALUE 0.
         01  WS-REC-EMAIL            PIC X(100) VALUE SPACES.
         01  WS-REQ-STATUS           PIC X(12) VALUE SPACES.
+        01  WS-PERM-REQ             PIC X(30) VALUE SPACES.
+        01  WS-PERM-ACTOR           PIC X(100) VALUE SPACES.
         01  WS-AR-ID                PIC X(20) VALUE SPACES.
         01  WS-AR-ITEM               PIC X(20) VALUE SPACES.
         01  WS-AR-STATE              PIC X(12) VALUE SPACES.
@@ -232,6 +234,10 @@
                     PERFORM REJECT-REQUEST-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "LIST_REQUESTS"
                     PERFORM LIST-REQUESTS-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "CHECK_PERMISSION"
+                    PERFORM CHECK-PERMISSION-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "LIST_PERMISSIONS"
+                    PERFORM LIST-PERMISSIONS-LOGIC
                 WHEN LS-CMD-ACTION(1:18) = "OPEN_ACCESS_REVIEW"
                     PERFORM OPEN-ACCESS-REVIEW-LOGIC
                 WHEN LS-CMD-ACTION(1:19) = "LIST_ACCESS_REVIEWS"
@@ -2778,6 +2784,84 @@
             END-STRING
             EXIT PARAGRAPH.
 
+        CHECK-PERMISSION-LOGIC.
+            *> p1 = email, p2 = permission. Answers whether the account
+            *> holds the permission. The gateway renders the answer and the
+            *> ALLOW-PERMISSION helper enforces it in the migrated gates.
+            *> Unknown permissions are refused; unknown accounts are refused.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT 1 FROM permissions WHERE BINARY name = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM role_permissions rp JOIN users u ON u.role = rp.role WHERE u.email = ? AND BINARY rp.permission = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT NOT = "0"
+                MOVE "SUCCESS|PERMISSION_OK" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "ERROR|PERMISSION_DENIED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LIST-PERMISSIONS-LOGIC.
+            *> p1 = email. Lists every permission the account holds, for the
+            *> login and profile responses. Permission names carry no row or
+            *> field separators, so the rows read back unambiguous.
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT permission FROM role_permissions rp JOIN users u ON u.role = rp.role WHERE u.email = ? ORDER BY permission" DELIMITED BY SIZE INTO WS-PREP-SQL
+            END-STRING
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                STRING "SUCCESS|PERMISSIONS" DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|PERMISSIONS|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
         ENQUEUE-NOTIFICATION.
             *> Transactional outbox: the intent commits or rolls back with
             *> the business action that created it. Sets WS-NOTIF-FAIL on
@@ -3386,6 +3470,25 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        ALLOW-PERMISSION.
+            *> WS-PERM-REQ names the permission WS-PERM-ACTOR must hold. A
+            *> refused attempt is audited; the caller then reports FORBIDDEN.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM role_permissions rp JOIN users u ON u.role = rp.role WHERE u.email = ? AND BINARY rp.permission = ?" TO WS-PREP-SQL
+            MOVE WS-PERM-ACTOR TO WS-BIND-1
+            MOVE WS-PERM-REQ TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT NOT = "0"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-PERM-ACTOR TO WS-DENIED-ACTOR
+                MOVE WS-PERM-ACTOR TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
         AUDIT-DENIED.
             *> Records a refused authorization attempt for the actor named by
             *> WS-DENIED-ACTOR; unknown actors produce no row. Best-effort.
@@ -3563,14 +3666,10 @@
         LIST-AUDIT-LOGIC.
             *> p1 = actor (SUPER_ADMIN), p2 = action filter, p3 = email filter,
             *> p4 = limit, p5 = offset. Read-only view of the audit trail.
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT NOT = "SUPER_ADMIN"
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-ACTOR
-                MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
+            MOVE "AUDIT_READ" TO WS-PERM-REQ
+            MOVE WS-PARAM1-TRIMMED TO WS-PERM-ACTOR
+            PERFORM ALLOW-PERMISSION
+            IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -3620,16 +3719,10 @@
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT NOT = "SUPER_ADMIN"
-                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
-                MOVE WS-PARAM2-TRIMMED TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
+            MOVE "AUDIT_ARCHIVE" TO WS-PERM-REQ
+            MOVE WS-PARAM2-TRIMMED TO WS-PERM-ACTOR
+            PERFORM ALLOW-PERMISSION
+            IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
