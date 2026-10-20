@@ -10,6 +10,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <ctype.h>
 #include "random_lib.h"
 
 typedef struct {
@@ -375,4 +376,30 @@ void generate_random_code(char* output_code) {
     unsigned int secure_val = get_secure_random_uint32();
     int code = (secure_val % 900000) + 100000;
     sprintf(output_code, "%06d", code);
+}
+
+/**
+ * Lowercase SHA-256 hex digest, used by the owner-controlled password deny
+ * list. The input is lowercased first so matching is case-insensitive, and
+ * exactly `outlen` hex bytes are written with no terminator because the COBOL
+ * field is space padded (docs/BUFFER_CONTRACT.md).
+ */
+void sha256_hex_lower(char *input, char *output, int outlen) {
+    if (input == NULL || output == NULL || outlen <= 0) return;
+    size_t len = rtrim_len(input, 100);
+    uint8_t lower[100];
+    for (size_t i = 0; i < len; i++) {
+        lower[i] = (uint8_t)tolower((unsigned char)input[i]);
+    }
+    SHA256_CTX ctx;
+    uint8_t digest[32];
+    sha256_init(&ctx);
+    sha256_update(&ctx, lower, len);
+    sha256_final(&ctx, digest);
+    static const char hexchars[] = "0123456789abcdef";
+    int n = outlen < 64 ? outlen : 64;
+    for (int i = 0; i < n; i++) {
+        uint8_t byte = digest[i / 2];
+        output[i] = hexchars[(i % 2 == 0) ? (byte >> 4) : (byte & 0x0f)];
+    }
 }
