@@ -126,11 +126,12 @@ rm -f "$TMP_RESUME"
 
 # --- every recorded migration re-applies cleanly -------------------------
 # Simulates "crash after DDL, before the version row": delete one version
-# row at a time and require migrate.sh to converge instead of failing on
-# already-applied objects. Each iteration restores the version row
-# afterwards so one genuine failure cannot cascade into the next, and the
-# outcome is aggregated into a single assertion so adding a migration does
-# not change this suite's count. Excluded by design: 0007 drops the live FX
+# row at a time and require migrate.sh --only <version> to converge instead
+# of failing on already-applied objects (--only skips the per-iteration scan
+# of every migration file, which made this loop O(n^2)). Each iteration
+# restores the version row afterwards so one genuine failure cannot cascade
+# into the next, and the outcome is aggregated into a single assertion so
+# adding a migration does not change this suite's count. Excluded by design: 0007 drops the live FX
 # table (its re-run target is a pre-FX schema); 0011 narrows an ENUM and
 # 0015/0019 rewrite the primary key of an AUTO_INCREMENT table in one
 # atomic statement — re-applying those fails at parse time without touching
@@ -140,7 +141,7 @@ reapply_bad=""
 for v in $(q "SELECT version FROM schema_migrations ORDER BY version;"); do
     case "$v" in 0007_*|0011_*|0015_*|0019_*|9999_*) continue;; esac
     q "DELETE FROM schema_migrations WHERE version='$v';"
-    if out="$(./database/migrate.sh 2>&1)" && [ "$(q "SELECT COUNT(*) FROM schema_migrations WHERE version='$v';")" = "1" ]; then
+    if out="$(./database/migrate.sh --only "$v" 2>&1)" && [ "$(q "SELECT COUNT(*) FROM schema_migrations WHERE version='$v';")" = "1" ]; then
         :
     else
         reapply_bad="${reapply_bad}${v} "
@@ -157,20 +158,20 @@ check "every recorded migration re-applies" "" "$reapply_bad"
 # time without touching data). Recovery is re-recording the version row.
 q "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES ('zz_sent@test.com', '000000', 'MFA_RECOVERY', NOW() + INTERVAL 1 HOUR);"
 q "DELETE FROM schema_migrations WHERE version='0011_password_reset_purpose';"
-if ./database/migrate.sh >/dev/null 2>&1; then got11="applied"; else got11="failed"; fi
+if ./database/migrate.sh --only 0011_password_reset_purpose >/dev/null 2>&1; then got11="applied"; else got11="failed"; fi
 check "superseded re-apply fails loudly" "failed" "$got11"
 check "failed re-apply changes nothing" "1" "$(q "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='$DB_NAME' AND table_name='verification_logs' AND column_name='purpose' AND column_type LIKE '%MFA_RECOVERY%';")"
 q "DELETE FROM verification_logs WHERE email='zz_sent@test.com';"
 q "INSERT IGNORE INTO schema_migrations (version) VALUES ('0011_password_reset_purpose');"
 check "version re-recorded after loud failure" "1" "$(q "SELECT COUNT(*) FROM schema_migrations WHERE version='0011_password_reset_purpose';")"
 q "DELETE FROM schema_migrations WHERE version='0015_pending_key_scoped';"
-if ./database/migrate.sh >/dev/null 2>&1; then got15="applied"; else got15="failed"; fi
+if ./database/migrate.sh --only 0015_pending_key_scoped >/dev/null 2>&1; then got15="applied"; else got15="failed"; fi
 check "scoped-key re-apply fails loudly" "failed" "$got15"
 check "failed re-apply keeps the primary key" "id" "$(q "SELECT GROUP_CONCAT(column_name ORDER BY seq_in_index) FROM information_schema.statistics WHERE table_schema='$DB_NAME' AND table_name='pending_transactions' AND index_name='PRIMARY';")"
 q "INSERT IGNORE INTO schema_migrations (version) VALUES ('0015_pending_key_scoped');"
 check "version re-recorded after loud failure" "1" "$(q "SELECT COUNT(*) FROM schema_migrations WHERE version='0015_pending_key_scoped';")"
 q "DELETE FROM schema_migrations WHERE version='0019_pending_id';"
-if ./database/migrate.sh >/dev/null 2>&1; then got19="applied"; else got19="failed"; fi
+if ./database/migrate.sh --only 0019_pending_id >/dev/null 2>&1; then got19="applied"; else got19="failed"; fi
 check "atomic rewrite re-apply fails loudly" "failed" "$got19"
 check "failed re-apply keeps the primary key" "id" "$(q "SELECT GROUP_CONCAT(column_name ORDER BY seq_in_index) FROM information_schema.statistics WHERE table_schema='$DB_NAME' AND table_name='pending_transactions' AND index_name='PRIMARY';")"
 q "INSERT IGNORE INTO schema_migrations (version) VALUES ('0019_pending_id');"
