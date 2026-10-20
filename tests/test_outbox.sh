@@ -67,7 +67,7 @@ check "queued code matches the verification log" "$(q "SELECT code FROM verifica
 
 # --- log transport delivers and marks SENT ------------------------------------
 export OUTBOX_TRANSPORT=log OUTBOX_LOG_FILE="$LOG"
-OUT1="$($WORKER --once --limit 50 2>&1)"
+OUT1="$($WORKER --once --limit 1000 2>&1)"
 unset OUTBOX_TRANSPORT OUTBOX_LOG_FILE
 check_contains "worker reports the send" "outbox_sent" "$OUT1"
 check "row is SENT" "SENT" "$(q "SELECT state FROM notification_outbox WHERE recipient='ob_signup@test.com';")"
@@ -77,7 +77,7 @@ check_absent "stdout never carries the code" "$CODE1" "$OUT1"
 # --- without SMTP the send fails, retries, then dead-letters --------------------
 export OUTBOX_MAX_ATTEMPTS=2
 run REQUEST_SIGNUP ob_fail@test.com secret123 ObFail 1990-01-01 >/dev/null
-OUT2="$(node middleware/src/outbox_worker.js --once --limit 50 2>&1)"
+OUT2="$(node middleware/src/outbox_worker.js --once --limit 1000 2>&1)"
 check_contains "failed send is reported" "outbox_failed" "$OUT2"
 check "row is FAILED with attempts" "FAILED|1" "$(q "SELECT CONCAT(state, '|', attempts) FROM notification_outbox WHERE recipient='ob_fail@test.com';")"
 check "retry is scheduled" "1" "$(q "SELECT next_attempt_at IS NOT NULL FROM notification_outbox WHERE recipient='ob_fail@test.com';")"

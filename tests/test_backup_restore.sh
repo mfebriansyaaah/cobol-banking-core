@@ -49,7 +49,7 @@ check "manifest exists" "1" "$([ -f "$MANIFEST" ] && echo 1 || echo 0)"
 check "dump is owner-only" "600" "$(stat -c %a "$SQL" 2>/dev/null)"
 check "manifest is owner-only" "600" "$(stat -c %a "$MANIFEST" 2>/dev/null)"
 check "manifest records git rev" "1" "$(grep -c '^git_rev: [0-9a-f]*$' "$MANIFEST")"
-check "manifest covers all 33 tables" "33" "$(grep -c '^table ' "$MANIFEST")"
+check "manifest covers all 34 tables" "34" "$(grep -c '^table ' "$MANIFEST")"
 check "dump carries latest schema" "1" "$(grep -c 'CREATE TABLE .*dispute_cases' "$SQL")"
 check "dump carries triggers" "1" "$(grep -c 'trg_ledger_no_update' "$SQL")"
 
