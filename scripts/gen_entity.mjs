@@ -27,11 +27,11 @@ function write(rel, content) {
 }
 
 function dispatchBlock() {
-  return entities.map((e) => ACTIONS.map((a) => {
-    const name = action(e, a);
-    return `            ELSE IF CMD-ACTION(1:${name.length}) = "${name}"\n` +
-      `                CALL "ref_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL\n`;
-  }).join('')).join('');
+  return `            IF CMD-ACTION(1:4) = "REF_"
+                CALL "ref_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
+                EXIT PARAGRAPH
+            END-IF
+`;
 }
 
 function mainLogic() {

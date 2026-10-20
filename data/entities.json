@@ -6,10 +6,20 @@
       "table": "currencies",
       "route": "/reference/currencies",
       "param": "iso",
-      "key": { "column": "iso_code", "length": 3 },
-      "label": { "column": "symbol", "max": 5 },
-      "number": { "column": "prec_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "iso_code",
+        "length": 3
+      },
+      "label": {
+        "column": "symbol",
+        "max": 5
+      },
+      "number": {
+        "column": "prec_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "iso_code",
       "createTable": false
     },
@@ -19,10 +29,20 @@
       "table": "ref_country",
       "route": "/reference/countries",
       "param": "code",
-      "key": { "column": "code", "length": 2 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 2
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -32,10 +52,20 @@
       "table": "ref_holiday",
       "route": "/reference/holidays",
       "param": "code",
-      "key": { "column": "code", "length": 10 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 10
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -45,10 +75,20 @@
       "table": "ref_channel",
       "route": "/reference/channels",
       "param": "code",
-      "key": { "column": "code", "length": 4 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -58,10 +98,20 @@
       "table": "ref_branch",
       "route": "/reference/branches",
       "param": "code",
-      "key": { "column": "code", "length": 6 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -71,10 +121,20 @@
       "table": "ref_cost_center",
       "route": "/reference/cost-centers",
       "param": "code",
-      "key": { "column": "code", "length": 8 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -84,10 +144,20 @@
       "table": "ref_document_type",
       "route": "/reference/document-types",
       "param": "code",
-      "key": { "column": "code", "length": 6 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -97,10 +167,20 @@
       "table": "ref_notification_template",
       "route": "/reference/notification-templates",
       "param": "code",
-      "key": { "column": "code", "length": 8 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -110,10 +190,20 @@
       "table": "ref_status_code",
       "route": "/reference/status-codes",
       "param": "code",
-      "key": { "column": "code", "length": 4 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -123,10 +213,20 @@
       "table": "ref_rate_source",
       "route": "/reference/rate-sources",
       "param": "code",
-      "key": { "column": "code", "length": 6 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     },
@@ -136,10 +236,503 @@
       "table": "ref_product_type",
       "route": "/reference/product-types",
       "param": "code",
-      "key": { "column": "code", "length": 6 },
-      "label": { "column": "label", "max": 64 },
-      "number": { "column": "num_val" },
-      "flag": { "column": "is_active" },
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "account_type",
+      "code": "ACT",
+      "table": "ref_account_type",
+      "route": "/reference/account-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "transaction_code",
+      "code": "TXN",
+      "table": "ref_transaction_code",
+      "route": "/reference/transaction-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "fee_code",
+      "code": "FEE",
+      "table": "ref_fee_code",
+      "route": "/reference/fee-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "charge_code",
+      "code": "CHG",
+      "table": "ref_charge_code",
+      "route": "/reference/charge-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "limit_type",
+      "code": "LMT",
+      "table": "ref_limit_type",
+      "route": "/reference/limit-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "limit_profile",
+      "code": "LMP",
+      "table": "ref_limit_profile",
+      "route": "/reference/limit-profiles",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "settlement_account",
+      "code": "STL",
+      "table": "ref_settlement_account",
+      "route": "/reference/settlement-accounts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "clearing_account",
+      "code": "CLR",
+      "table": "ref_clearing_account",
+      "route": "/reference/clearing-accounts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "suspense_account",
+      "code": "SUS",
+      "table": "ref_suspense_account",
+      "route": "/reference/suspense-accounts",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "rounding_rule",
+      "code": "RND",
+      "table": "ref_rounding_rule",
+      "route": "/reference/rounding-rules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "precision_rule",
+      "code": "PRC",
+      "table": "ref_precision_rule",
+      "route": "/reference/precision-rules",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "tax_code",
+      "code": "TAX",
+      "table": "ref_tax_code",
+      "route": "/reference/tax-codes",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "language",
+      "code": "LNG",
+      "table": "ref_language",
+      "route": "/reference/languages",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 3
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "timezone",
+      "code": "TZ",
+      "table": "ref_timezone",
+      "route": "/reference/timezones",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 5
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "country_region",
+      "code": "RGN",
+      "table": "ref_country_region",
+      "route": "/reference/country-regions",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 4
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "currency_pair",
+      "code": "CPR",
+      "table": "ref_currency_pair",
+      "route": "/reference/currency-pairs",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 7
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "holiday_calendar",
+      "code": "HCD",
+      "table": "ref_holiday_calendar",
+      "route": "/reference/holiday-calendars",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "document_template",
+      "code": "DTM",
+      "table": "ref_document_template",
+      "route": "/reference/document-templates",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "notification_channel",
+      "code": "NCH",
+      "table": "ref_notification_channel",
+      "route": "/reference/notification-channels",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "audit_event_type",
+      "code": "AET",
+      "table": "ref_audit_event_type",
+      "route": "/reference/audit-event-types",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 8
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
+      "order": "code",
+      "createTable": true
+    },
+    {
+      "name": "status_reason",
+      "code": "SRN",
+      "table": "ref_status_reason",
+      "route": "/reference/status-reasons",
+      "param": "code",
+      "key": {
+        "column": "code",
+        "length": 6
+      },
+      "label": {
+        "column": "label",
+        "max": 64
+      },
+      "number": {
+        "column": "num_val"
+      },
+      "flag": {
+        "column": "is_active"
+      },
       "order": "code",
       "createTable": true
     }
