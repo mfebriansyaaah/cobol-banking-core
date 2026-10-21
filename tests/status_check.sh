@@ -12,7 +12,7 @@ fail=0
 # 1) Every backticked ALL_CAPS action name in STATUS.md must exist either in
 #    the router or in a core module.
 for name in $(grep -oE '`[A-Z][A-Z_]{2,}`' "$STATUS" | tr -d '`' | sort -u); do
-    if ! grep -q "$name" cobol/src/main_logic.cob cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/report_delivery_core.cob cobol/src/dispute_ops_core.cob cobol/src/export_archive_core.cob cobol/src/recon_ops_core.cob cobol/src/alert_core.cob cobol/src/import_core.cob cobol/src/import_post_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/payment_core.cob cobol/src/recon_core.cob cobol/src/sql_bridge.c; then
+    if ! grep -q "$name" cobol/src/main_logic.cob cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/report_delivery_core.cob cobol/src/dispute_ops_core.cob cobol/src/export_archive_core.cob cobol/src/recon_ops_core.cob cobol/src/alert_core.cob cobol/src/dashboard_core.cob cobol/src/import_core.cob cobol/src/import_post_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/payment_core.cob cobol/src/recon_core.cob cobol/src/sql_bridge.c; then
         echo "STATUS claims action '$name' not found in any COBOL module"
         fail=1
     fi
