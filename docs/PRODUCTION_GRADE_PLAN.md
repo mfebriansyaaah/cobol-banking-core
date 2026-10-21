@@ -29,8 +29,8 @@ control.
 - Generated reference module: **206 entities / 1.030 actions**, isolated under
   `cobol/src/generated/` and tagged `@generated`.
 - Curated Phase 1 modules: generic reference engine, GL core (accounts,
-  period control, manual and multi-line journals, trial balance), and the
-  batch/EOD foundation (jobs, steps, checkpointed runs, control totals, retry).
+  period control, manual and multi-line journals, trial balance), batch/EOD
+  foundation, report engine, and import/export staging.
 - Full `./ci.sh` is green on the current slice.
 - Target runtime ADR accepted; operations/security ratification remains an
   external Gate 0 item.

@@ -55,13 +55,13 @@ Current baseline measured 2026-10-21 after the GL and batch/EOD slices:
 
 | Component | Net lines |
 |---|---:|
-| Curated COBOL | 13.191 |
+| Curated COBOL | 15.865 |
 | C and header | 1.179 |
-| SQL | 4.708 |
-| Shell | 22.519 |
-| JavaScript | 11.494 |
-| **Total non-generated** | **53.091** |
-| COBOL share | 24,8% |
+| SQL | 4.953 |
+| Shell | 22.717 |
+| JavaScript | 11.771 |
+| **Total non-generated** | **56.485** |
+| COBOL share | 28,0% |
 
 Target:
 
@@ -71,7 +71,7 @@ Target:
 | Total COBOL floor | **>= 60.000** |
 | Curated COBOL | **>= 50.000** |
 | COBOL share | **>= 50%** |
-| Remaining gap | **46.909** |
+| Remaining gap | **43.515** |
 
 Workstream budget (curated COBOL):
 
@@ -93,13 +93,14 @@ remain the release gates.
 
 ## 3. Current slice queue
 
-Sprint 1 has delivered GL period/multi-line journals (533 net) and the
-batch/EOD foundation (2.769 net). The next two-module slices are:
+Sprint 1 has delivered GL period/multi-line journals (533 net), the batch/EOD
+foundation (2.769 net), and the report + import/export slice. The next
+two-module slices are:
 
-1. Report engine + import/export.
-2. Real EOD jobs (fee/hold/dormant/statement) + fee/limit/velocity rules.
-3. Reference engine expansion + auth/user/dispute gaps.
-4. Payments hardening + reconciliation/reporting.
+1. Real EOD jobs (fee/hold/dormant/statement) + fee/limit/velocity rules.
+2. Reference engine expansion + auth/user/dispute gaps.
+3. Payments hardening + reconciliation/reporting.
+4. Import posting adapters + fixed-width report layouts.
 
 Each slice must follow the rules above. A one-day result is measured in
 **merged, tested net**, not in raw editor output.
