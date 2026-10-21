@@ -423,4 +423,6 @@ production claim include:
 - No SAST/DAST, SBOM, secret scan, or independent penetration test evidence.
 - No approved SLO/RPO/RTO or completed disaster-recovery drill.
 - No owner-approved production scope, jurisdiction, or compliance matrix.
+- Target runtime is GnuCOBOL/MySQL/Linux (ADR 0082, technical decision);
+  operations/security ratification is still pending.
 - The 100k/60k milestone is a lab artifact and is not production evidence.

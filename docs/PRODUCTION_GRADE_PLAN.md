@@ -165,7 +165,7 @@ is checked after each cutover.
 - Move the generated module to `cobol/src/generated/` and tag it `@generated`.
 - Add `scripts/loc_report.sh --check-floor` to the merge gate.
 - Run the full `./ci.sh`; fix every failure.
-- Decide the target runtime: GnuCOBOL/MySQL or z/OS/CICS/DB2.
+- Target runtime decided: GnuCOBOL/MySQL/Linux under portable-core constraints (`docs/adr/0082-target-runtime.md`); operations/security ratification pending.
 - Write the data dictionary and the initial risk register.
 
 Exit: full CI green, floor gate active, runtime decision recorded.
@@ -243,7 +243,7 @@ Exit: go/no-go decision by accountable owners, not by CI alone.
 2. Add `--check-floor` to `scripts/loc_report.sh`.
 3. Keep the generated module isolated under `cobol/src/generated/` with an `@generated` marker.
 4. Run and fix the full `./ci.sh`.
-5. Write the target-runtime ADR.
+5. Accept the target-runtime ADR (0082).
 6. Build the generic reference-data engine.
 7. Add one curated replacement module (ledger/GL) before deleting generated code.
 8. Add Dockerfile, compose, and CI/CD.

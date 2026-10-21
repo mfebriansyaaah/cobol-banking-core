@@ -1,8 +1,8 @@
 # 0082 - Target runtime for production-grade COBOL
 
-Status: Proposed
+Status: Accepted (technical decision; operations/security ratification pending)
 Date: 2026-10-21
-Deciders: repository owner, architecture, operations, security
+Deciders: repository owner (technical); operations and security owners pending
 Related: `docs/PRODUCTION_GRADE_PLAN.md`, `docs/GATE0_DECISIONS.md` item 17,
 `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`
 
@@ -27,17 +27,33 @@ requirements. It is a Gate 0 decision, not a code-only decision.
 
 ## Decision
 
-**Pending.** This ADR records the options and their consequences. No option is
-selected until the owner and the accountable operations/security owners sign
-it in `docs/GATE0_DECISIONS.md` item 17.
+**Option A - GnuCOBOL/MySQL/Linux.**
 
-Until the decision is made:
+Accepted by the repository owner on 2026-10-21 as the technical target runtime.
+This is a technical architecture decision; it does not satisfy G0-SIGNOFF or any
+compliance gate. Operations and security owners must ratify the operational
+controls before production.
+
+### Portability constraints
 
 - Do not add platform-specific APIs, transaction managers, or file systems to
   the curated COBOL modules.
 - Keep database access behind the existing bridge interface.
 - Keep online invocation behind the gateway/worker protocol.
+- Isolate record layouts in copybooks and keep batch/file access behind a
+  narrow module boundary.
 - Keep the generated reference module isolated and out of production scope.
+- Reopen this ADR if the licensed entity mandates z/OS/CICS/DB2 or a mainframe
+  operations model; in that case, use Option B or C rather than growing
+  platform-specific code inside the curated core.
+
+### Consequences of Option A
+
+- The current CI, tests, runbooks, and development workflow remain valid.
+- Production evidence is still required: SLOs, HA, DR, security assessment,
+  observability, data governance, and change control.
+- Mainframe compatibility is not provided by this decision; a later port would
+  be a separate project.
 
 ## Consequences by option
 
@@ -82,5 +98,7 @@ Until the decision is made:
 
 ## Status
 
-Proposed. Sign-off is recorded in `docs/GATE0_DECISIONS.md` item 17. This ADR
-does not authorize production use of any platform.
+Accepted as a technical decision by the repository owner on 2026-10-21,
+recorded in `docs/GATE0_DECISIONS.md` item 17. This ADR does not authorize
+production use of any platform; business, compliance, operations, and security
+sign-offs remain required.

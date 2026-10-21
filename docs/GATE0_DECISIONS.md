@@ -2,7 +2,11 @@
 
 Status: checklist. Nothing here is approved until the named owners sign
 it; code stays closed (fail-closed defaults, owner-controlled data, no
-production wiring) while any item is open. Sources: `docs/TRACEABILITY.md`
+production wiring) while any item is open.
+
+Decision log: item 17 (technical target runtime) was decided by the repository
+owner on 2026-10-21. It is a technical architecture decision and does not
+satisfy G0-SIGNOFF; all other items remain open. Sources: `docs/TRACEABILITY.md`
 (Gate 0 rows), `PRD_Enterprise.md` section 3, `docs/adr/0072-fx-fee-rate-policy.md`.
 
 How to use this file: for each item, fill Owner, Decision, and Date.
@@ -153,13 +157,11 @@ same PR that implements the unblocked work.
 
 ## 17. Target runtime and production-grade acceptance criteria
 
-- **Decide:** whether the production target is GnuCOBOL/MySQL (enterprise-grade
-  engineering on the current stack) or a mainframe platform (z/OS, CICS, DB2,
-  VSAM, JCL, RACF, MQ); name the production-grade acceptance criteria and the
-  evidence owners.
-- **Owner:** TBD (architecture + operations + security).
-- **Date:** TBD.
-- **Unblocks:** Phase 0 of `docs/PRODUCTION_GRADE_PLAN.md`. Without this
-  decision, the deployment, security, and performance workstreams can drift
-  toward different platforms. Options and consequences are recorded in
-  `docs/adr/0082-target-runtime.md`.
+- **Decision:** **A - GnuCOBOL/MySQL/Linux**, with portable-core constraints.
+  Recorded in `docs/adr/0082-target-runtime.md`.
+- **Owner:** repository owner (technical decision, 2026-10-21); operations and
+  security ratification pending.
+- **Date:** 2026-10-21.
+- **Unblocks:** Phase 0/1 of `docs/PRODUCTION_GRADE_PLAN.md`. The deployment,
+  security, and performance workstreams now target GnuCOBOL/MySQL/Linux.
+  Mainframe options B/C remain available only by reopening ADR 0082.
