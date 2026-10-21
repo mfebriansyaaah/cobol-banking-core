@@ -14,6 +14,8 @@ import { REF_ROUTES } from './routes/ref.js';
 import { REF_ENGINE_ROUTES } from './routes/ref_engine.js';
 import { GL_ROUTES } from './routes/gl.js';
 import { BATCH_ROUTES } from './routes/batch.js';
+import { REPORT_ROUTES } from './routes/report.js';
+import { IMPORT_ROUTES } from './routes/import.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -35,6 +37,8 @@ export const ROUTES = [
   ...REF_ENGINE_ROUTES,
   ...GL_ROUTES,
   ...BATCH_ROUTES,
+  ...REPORT_ROUTES,
+  ...IMPORT_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
