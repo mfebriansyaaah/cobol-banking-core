@@ -29,6 +29,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/ref_engine.cob \
     cobol/src/gl_core.cob \
     cobol/src/batch_core.cob \
+    cobol/src/report_core.cob \
+    cobol/src/import_core.cob \
     "$REF_OBJ" \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
