@@ -62,8 +62,8 @@ added to production scope.
 ## Reference-data cutover (2026-10)
 
 Migration 0054 copies the country and holiday reference data into the generic
-engine. The legacy `ref_country` and `ref_holiday` tables remain as a read-only
-safety copy for one release. New production reference data must use
+engine. The legacy `ref_country`, `ref_holiday`, `ref_fee_code`, `ref_limit_type`, and
+`ref_product_type` tables remain as a read-only safety copy for one release. New production reference data must use
 `ref_type`/`ref_value`/`ref_value_version`; a later cleanup migration may drop
 the legacy tables after the safety window.
 
