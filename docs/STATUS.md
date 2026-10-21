@@ -476,3 +476,5 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
+- Non-generated net baseline: 49.697; target 100.000 per
+  `docs/NON_GENERATED_100K_PLAN.md`.

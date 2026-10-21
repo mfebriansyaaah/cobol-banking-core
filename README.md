@@ -48,6 +48,9 @@ reference-data model and curated domain modules. `./ci.sh` remains the merge
 gate; `./scripts/ci-7d.sh` is a volume-sprint gate and must not be used as a
 production gate.
 
+Non-generated net baseline: 49.697; the 100k plan is in
+`docs/NON_GENERATED_100K_PLAN.md`.
+
 Measure the current state with:
 
 ```sh
