@@ -31,6 +31,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/batch_core.cob \
     cobol/src/report_core.cob \
     cobol/src/report_delivery_core.cob \
+    cobol/src/dispute_ops_core.cob \
+    cobol/src/export_archive_core.cob \
     cobol/src/import_core.cob \
     cobol/src/import_post_core.cob \
     cobol/src/fee_core.cob \
