@@ -185,29 +185,6 @@
       "createTable": true
     },
     {
-      "name": "product_type",
-      "code": "PRD",
-      "table": "ref_product_type",
-      "route": "/reference/product-types",
-      "param": "code",
-      "key": {
-        "column": "code",
-        "length": 6
-      },
-      "label": {
-        "column": "label",
-        "max": 64
-      },
-      "number": {
-        "column": "num_val"
-      },
-      "flag": {
-        "column": "is_active"
-      },
-      "order": "code",
-      "createTable": true
-    },
-    {
       "name": "account_type",
       "code": "ACT",
       "table": "ref_account_type",
@@ -254,56 +231,10 @@
       "createTable": true
     },
     {
-      "name": "fee_code",
-      "code": "FEE",
-      "table": "ref_fee_code",
-      "route": "/reference/fee-codes",
-      "param": "code",
-      "key": {
-        "column": "code",
-        "length": 6
-      },
-      "label": {
-        "column": "label",
-        "max": 64
-      },
-      "number": {
-        "column": "num_val"
-      },
-      "flag": {
-        "column": "is_active"
-      },
-      "order": "code",
-      "createTable": true
-    },
-    {
       "name": "charge_code",
       "code": "CHG",
       "table": "ref_charge_code",
       "route": "/reference/charge-codes",
-      "param": "code",
-      "key": {
-        "column": "code",
-        "length": 6
-      },
-      "label": {
-        "column": "label",
-        "max": 64
-      },
-      "number": {
-        "column": "num_val"
-      },
-      "flag": {
-        "column": "is_active"
-      },
-      "order": "code",
-      "createTable": true
-    },
-    {
-      "name": "limit_type",
-      "code": "LMT",
-      "table": "ref_limit_type",
-      "route": "/reference/limit-types",
       "param": "code",
       "key": {
         "column": "code",
