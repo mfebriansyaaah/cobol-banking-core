@@ -173,6 +173,10 @@ Exit: full CI green, floor gate active, runtime decision recorded.
 
 ### Phase 1 - Build replacements (6-8 weeks)
 
+Status 2026-10-21: the generic reference-data engine is implemented (schema,
+COBOL actions, gateway routes, and a 14-assertion suite); cutover of the
+generated entities is still pending.
+
 - Generic reference-data engine.
 - Ledger/GL module, batch/EOD engine, report engine, import/export.
 - Dockerfile, docker-compose, CI/CD, SAST/SBOM, correlation IDs.
