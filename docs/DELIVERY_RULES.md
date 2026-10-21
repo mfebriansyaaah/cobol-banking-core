@@ -55,13 +55,13 @@ Current baseline measured 2026-10-21 after the GL and batch/EOD slices:
 
 | Component | Net lines |
 |---|---:|
-| Curated COBOL | 24.011 |
+| Curated COBOL | 25.921 |
 | C and header | 1.179 |
-| SQL | 5.599 |
-| Shell | 23.393 |
-| JavaScript | 12.712 |
-| **Total non-generated** | **66.894** |
-| COBOL share | 35,8% |
+| SQL | 5.712 |
+| Shell | 23.636 |
+| JavaScript | 12.864 |
+| **Total non-generated** | **69.312** |
+| COBOL share | 37,3% |
 
 Target:
 
@@ -71,7 +71,7 @@ Target:
 | Total COBOL floor | **>= 60.000** |
 | Curated COBOL | **>= 50.000** |
 | COBOL share | **>= 50%** |
-| Remaining gap | **33.106** |
+| Remaining gap | **30.688** |
 
 Workstream budget (curated COBOL):
 
@@ -96,12 +96,13 @@ remain the release gates.
 Sprint 1 has delivered GL period/multi-line journals, the batch/EOD
 foundation, report + import/export, the EOD/fee/velocity control plane,
 statement archive + EOD job execution, reference/notification expansion, and
-payment policy + reconciliation reporting. The next two-module slices are:
+payment policy + reconciliation reporting, and import ledger posting + report
+delivery. The next two-module slices are:
 
-1. Import posting adapters + fixed-width report layouts.
-2. Dispute SLA/assignment + notification delivery wiring.
-3. Recurring report schedules + retained export storage.
-4. Payment policy wiring into the transfer path + reconciliation auto-assignment.
+1. Dispute SLA/assignment + notification delivery wiring.
+2. Retained export storage + payment policy wiring into the transfer path.
+3. Reconciliation auto-assignment + schedule failure alerting.
+4. Statement/import reconciliation adapters + operational dashboards.
 
 Each slice must follow the rules above. A one-day result is measured in
 **merged, tested net**, not in raw editor output.
