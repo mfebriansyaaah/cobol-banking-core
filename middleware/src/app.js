@@ -24,6 +24,7 @@ import { REF_EXT_ROUTES } from './routes/ref_ext.js';
 import { NOTIFICATION_ROUTES } from './routes/notification.js';
 import { PAYMENT_ROUTES } from './routes/payment.js';
 import { RECON_ROUTES } from './routes/recon.js';
+import { REPORT_DELIVERY_ROUTES } from './routes/report_delivery.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -55,6 +56,7 @@ export const ROUTES = [
   ...NOTIFICATION_ROUTES,
   ...PAYMENT_ROUTES,
   ...RECON_ROUTES,
+  ...REPORT_DELIVERY_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
