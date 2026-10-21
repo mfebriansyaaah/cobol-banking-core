@@ -33,6 +33,8 @@ adapters and capabilities COBOL cannot provide directly.
   - `report_core.cob` - report templates, columns, runs, rows, and export.
   - `import_core.cob` - staged batches, row validation, correction, posting,
     and export.
+  - `fee_core.cob` - fee rules/tiers/waivers, duration limits, and velocity.
+  - `eod_core.cob` - EOD calendar, runs, phases, close, and fail control.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -44,11 +46,11 @@ Measured 2026-10-21:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **58.093** |
-| Curated COBOL net | **17.224** (29,6%) |
-| Total COBOL net | **69.358** |
-| Full CI | **78 steps / 1460 assertions** |
-| Non-generated gap to 100.000 | **41.907** |
+| Non-generated net | **61.361** |
+| Curated COBOL net | **19.738** (32,1%) |
+| Total COBOL net | **71.872** |
+| Full CI | **80 steps / 1505 assertions** |
+| Non-generated gap to 100.000 | **38.639** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a

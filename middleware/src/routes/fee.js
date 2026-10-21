@@ -1,0 +1,147 @@
+import { PATTERNS } from '../validation.js';
+
+const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
+const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
+
+export const FEE_ROUTES = [
+  {
+    method: 'post', path: '/fees/rules', action: 'FEE_RULE_CREATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'name', pattern: PATTERNS.RPT_NAME, required: true },
+      { name: 'type', pattern: PATTERNS.FEE_TYPE, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      { name: 'amounts', pattern: PATTERNS.FEE_AMOUNTS, required: true },
+      ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/fees/rules', action: 'FEE_RULE_LIST',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      { name: 'type', pattern: PATTERNS.FEE_TYPE, required: false },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: false },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'patch', path: '/fees/rules/:code', action: 'FEE_RULE_UPDATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'enabled', pattern: PATTERNS.FLAG, required: true },
+      { name: 'priority', pattern: PATTERNS.INT, required: true },
+      { name: 'amounts', pattern: PATTERNS.FEE_AMOUNTS, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/fees/rules/:code/tiers', action: 'FEE_TIER_CREATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'tierNo', pattern: PATTERNS.INT, required: true },
+      { name: 'from', pattern: PATTERNS.AMOUNT, required: true },
+      { name: 'to', pattern: PATTERNS.AMOUNT, required: true },
+      { name: 'options', pattern: PATTERNS.FEE_TIER_OPTIONS, required: true },
+      ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/fees/rules/:code/tiers', action: 'FEE_TIER_LIST',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/fees/rules/:code/waivers', action: 'FEE_WAIVER_CREATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'reason', pattern: PATTERNS.BATCH_DETAIL, required: true },
+      { name: 'from', pattern: PATTERNS.DATE, required: true },
+      { name: 'to', pattern: PATTERNS.DATE, required: true },
+      ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/fees/rules/:code/waivers', action: 'FEE_WAIVER_LIST',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/fees/calculate', action: 'FEE_CALCULATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'rule', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/velocity/profiles', action: 'VEL_PROFILE_CREATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'name', pattern: PATTERNS.RPT_NAME, required: true },
+      { name: 'options', pattern: PATTERNS.VEL_OPTIONS, required: true },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/velocity/profiles', action: 'VEL_PROFILE_LIST',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      { name: 'enabled', pattern: PATTERNS.FLAG, required: false },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/velocity/check', action: 'VEL_CHECK',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'profile', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/velocity/record', action: 'VEL_RECORD',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'profile', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/velocity/usage', action: 'VEL_USAGE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'profile', pattern: PATTERNS.BATCH_CODE, required: true },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+];
