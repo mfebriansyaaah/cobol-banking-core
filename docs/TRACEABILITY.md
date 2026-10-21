@@ -20,7 +20,7 @@ Conventions:
 ## Out of PRD scope
 
 The 211 generated reference entities produced by the October 2026 volume
-sprint (`cobol/src/ref_core.cob`) are a lab artifact. They are not a PRD
+sprint (`cobol/src/generated/ref_core.cob`) are a lab artifact. They are not a PRD
 requirement, a production control, or a compliance claim, and they are
 therefore not mapped as requirement rows here. Production reference data is
 governed by `docs/PRODUCTION_GRADE_PLAN.md`; no row below claims the generated

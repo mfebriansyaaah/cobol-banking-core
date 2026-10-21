@@ -22,7 +22,7 @@ to infrastructure adapters and capabilities COBOL cannot provide directly.
 - `middleware/` — Node.js/Express API gateway, the only HTTP interface; it
   validates input shapes, invokes the binary per request (own working directory),
   and maps the result line to HTTP.
-- `cobol/src/ref_core.cob` — generated reference-data module: 211 entities,
+- `cobol/src/generated/ref_core.cob` — generated reference-data module: 211 entities,
   1,055 actions, and a uniform reference contract. It is a volume-sprint lab
   artifact, not a production data model.
 - MySQL database `cobol_db`.
