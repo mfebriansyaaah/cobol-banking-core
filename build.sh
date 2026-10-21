@@ -26,6 +26,7 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \
     cobol/src/auth_core.cob \
+    cobol/src/ref_engine.cob \
     "$REF_OBJ" \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
