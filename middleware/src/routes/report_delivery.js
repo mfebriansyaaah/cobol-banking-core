@@ -93,6 +93,25 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
+    method: 'get', path: '/reports/schedule-failures', action: 'RDL_SCHEDULE_FAILS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/reports/schedules/:id/history', action: 'RDL_SCHEDULE_HISTORY',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
     method: 'post', path: '/reports/schedules/:id/run', action: 'RDL_SCHEDULE_RUN',
     tokenIdentity: 'actor',
     fields: [

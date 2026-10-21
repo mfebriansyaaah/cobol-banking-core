@@ -87,3 +87,5 @@ recon_ops 21
 alert_center 22
 payment_enforcement 10
 dashboard 15
+statement_recon 13
+schedule_history 7

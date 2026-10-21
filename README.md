@@ -49,6 +49,7 @@ adapters and capabilities COBOL cannot provide directly.
   - `recon_ops_core.cob` - assignment rules, auto-assignment, and owner workload.
   - `alert_core.cob` - operational alerts with scans, acknowledgement, and history.
   - `dashboard_core.cob` - read-only cross-domain operational dashboards.
+  - `statement_recon_core.cob` - statement-to-ledger matching and recon runs.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -56,15 +57,15 @@ adapters and capabilities COBOL cannot provide directly.
 
 ## Current state and target
 
-Measured 2026-10-21:
+Measured 2026-10-22:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **75.557** |
-| Curated COBOL net | **30.796** (40,7%) |
-| Total COBOL net | **82.930** |
-| Full CI | **94 steps / 1743 assertions** |
-| Non-generated gap to 100.000 | **24.443** |
+| Non-generated net | **76.915** |
+| Curated COBOL net | **31.749** (41,2%) |
+| Total COBOL net | **83.883** |
+| Full CI | **96 steps / 1763 assertions** |
+| Non-generated gap to 100.000 | **23.085** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
