@@ -128,4 +128,82 @@ export const REPORT_ROUTES = [
       BLANK, BLANK, BLANK, ACTOR,
     ],
   },
+  {
+    method: 'patch', path: '/reports/templates/:code', action: 'RPT_TEMPLATE_UPDATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.RPT_CODE, required: true },
+      { name: 'enabled', pattern: PATTERNS.FLAG, required: true },
+      { name: 'format', pattern: PATTERNS.RPT_FORMAT, required: true },
+      { name: 'title', pattern: PATTERNS.RPT_NAME, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/reports/templates/:code/clone', action: 'RPT_TEMPLATE_CLONE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.RPT_CODE, required: true },
+      { name: 'newCode', pattern: PATTERNS.RPT_CODE, required: true },
+      { name: 'name', pattern: PATTERNS.RPT_NAME, required: true },
+      { name: 'title', pattern: PATTERNS.RPT_NAME, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'delete', path: '/reports/templates/:code', action: 'RPT_TEMPLATE_DELETE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.RPT_CODE, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/reports/runs/:id/retry', action: 'RPT_RUN_RETRY',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/reports/runs/:id/generate', action: 'RPT_RUN_GENERATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      { name: 'from', pattern: PATTERNS.DATE, required: true },
+      { name: 'to', pattern: PATTERNS.DATE, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'delete', path: '/reports/runs/:id', action: 'RPT_RUN_DELETE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'delete', path: '/reports/templates/:code/columns/:ordinal', action: 'RPT_COLUMN_DELETE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.RPT_CODE, required: true },
+      { name: 'ordinal', pattern: PATTERNS.INT, required: true },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'patch', path: '/reports/templates/:code/columns/:ordinal', action: 'RPT_COLUMN_UPDATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.RPT_CODE, required: true },
+      { name: 'ordinal', pattern: PATTERNS.INT, required: true },
+      { name: 'header', pattern: PATTERNS.RPT_NAME, required: true },
+      { name: 'source', pattern: PATTERNS.KEY, required: true },
+      { name: 'options', pattern: PATTERNS.RPT_COLUMN_OPTIONS, required: true },
+      ACTOR,
+    ],
+  },
 ];

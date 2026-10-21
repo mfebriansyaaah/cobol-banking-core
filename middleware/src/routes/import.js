@@ -99,4 +99,68 @@ export const IMPORT_ROUTES = [
       BLANK, BLANK, BLANK, ACTOR,
     ],
   },
+  {
+    method: 'post', path: '/imports/batches/:code/bulk', action: 'IMP_BATCH_STAGE_BULK',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'chunk1', pattern: PATTERNS.IMP_CHUNK, required: true },
+      { name: 'chunk2', pattern: PATTERNS.IMP_CHUNK, required: false },
+      { name: 'chunk3', pattern: PATTERNS.IMP_CHUNK, required: false },
+      { name: 'chunk4', pattern: PATTERNS.IMP_CHUNK, required: false },
+      ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/imports/batches/:code/clone', action: 'IMP_BATCH_CLONE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'newCode', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'source', pattern: PATTERNS.RPT_NAME, required: true },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/imports/batches/:code/rows/:rowNo/skip', action: 'IMP_ROW_SKIP',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'rowNo', pattern: PATTERNS.INT, required: true },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'delete', path: '/imports/batches/:code', action: 'IMP_BATCH_DELETE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/imports/batches/:code/retry', action: 'IMP_BATCH_RETRY',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/imports/batches/:code/rows/:rowNo/unskip', action: 'IMP_ROW_UNSKIP',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'rowNo', pattern: PATTERNS.INT, required: true },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/imports/batches/:code/summary', action: 'IMP_BATCH_SUMMARY',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
 ];
