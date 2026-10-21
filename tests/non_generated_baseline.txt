@@ -1,5 +1,5 @@
 # Net non-generated code baseline.
 # Excludes docs/markdown/lockfiles and cobol/src/generated/ref_core.cob.
 # Ratchet: never lower these values; raise them as curated code grows.
-non_generated_net 65205
-non_generated_cobol_net 22708
+non_generated_net 66894
+non_generated_cobol_net 24011

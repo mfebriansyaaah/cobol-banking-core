@@ -67,6 +67,8 @@ DEFAULT_SUITES=(
     test_eod_jobs
     test_ref_ext
     test_notification
+    test_payment
+    test_recon
 )
 ALL_SUITES=(
     test_suite test_atomic_txn test_ledger_atomic test_reconciliation
@@ -93,13 +95,15 @@ ALL_SUITES=(
     test_eod_jobs
     test_ref_ext
     test_notification
+    test_payment
+    test_recon
 )
 case "$MODE" in
     default) SUITES=("${DEFAULT_SUITES[@]}") ;;
     all) SUITES=("${ALL_SUITES[@]}") ;;
 esac
 
-MODULES=(main_logic user_core wallet_core auth_core ref_engine gl_core batch_core report_core import_core fee_core eod_core statement_core eod_jobs_core ref_ext_core notification_core)
+MODULES=(main_logic user_core wallet_core auth_core ref_engine gl_core batch_core report_core import_core fee_core eod_core statement_core eod_jobs_core ref_ext_core notification_core payment_core recon_core)
 COBOL_SRC="cobol/src"
 C_SRC="cobol/src/sql_bridge.c cobol/c_lib/hash_lib.c cobol/c_lib/totp_lib.c cobol/c_lib/settings_lib.c cobol/c_lib/random_lib.c"
 
