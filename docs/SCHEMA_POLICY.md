@@ -48,6 +48,17 @@ migration per iteration). Migrations need DDL rights — run
    `schema.sql` groups them logically. This is benign by construction (no
    positional access) and must not be "fixed" with table rebuilds.
 
+## Reference-data tables (lab artifact, 2026-10)
+
+Migrations 0047 through 0052 create 211 `ref_*` tables from
+`data/entities.json` and fold them into `database/schema.sql`. They are a
+volume-sprint artifact, not a production data model. New production reference
+data must use the generic model in `docs/PRODUCTION_GRADE_PLAN.md`
+(`ref_type`, `ref_value`, versioning, translations, hierarchy, audit), not the
+entity generator. Until the consolidation in Phase 2, the fold-then-extend rule
+still applies to every new migration, and no new generated `ref_*` table may be
+added to production scope.
+
 ## Fresh install
 
 ```sh

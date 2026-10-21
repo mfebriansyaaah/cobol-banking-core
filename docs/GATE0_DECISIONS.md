@@ -150,3 +150,15 @@ same PR that implements the unblocked work.
 - **Date:** TBD.
 - **Unblocks:** production use of the FX/fee/rate path. Implementation
   is complete and tested; only the sign-off is missing.
+
+## 17. Target runtime and production-grade acceptance criteria
+
+- **Decide:** whether the production target is GnuCOBOL/MySQL (enterprise-grade
+  engineering on the current stack) or a mainframe platform (z/OS, CICS, DB2,
+  VSAM, JCL, RACF, MQ); name the production-grade acceptance criteria and the
+  evidence owners.
+- **Owner:** TBD (architecture + operations + security).
+- **Date:** TBD.
+- **Unblocks:** Phase 0 of `docs/PRODUCTION_GRADE_PLAN.md`. Without this
+  decision, the deployment, security, and performance workstreams can drift
+  toward different platforms.

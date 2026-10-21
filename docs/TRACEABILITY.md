@@ -17,6 +17,15 @@ Conventions:
 - Owner is `UNASSIGNED` on every row until Gate 0 names the accountable
   bank, security, compliance, finance, legal, and operations owners.
 
+## Out of PRD scope
+
+The 211 generated reference entities produced by the October 2026 volume
+sprint (`cobol/src/ref_core.cob`) are a lab artifact. They are not a PRD
+requirement, a production control, or a compliance claim, and they are
+therefore not mapped as requirement rows here. Production reference data is
+governed by `docs/PRODUCTION_GRADE_PLAN.md`; no row below claims the generated
+module as an implemented control.
+
 ## Gate 0 — Product/regulatory definition (PRD section 3)
 
 | Req ID | Requirement | Status | Control / implementation | Tests / evidence | Owner | Retention / approval | Gate |

@@ -45,6 +45,14 @@ If a change ever makes one of these values larger than its field, that is a
 real defect — the review above is what makes them benign, and a new truncation
 warning fails the ratchet.
 
+## Volume-sprint note (2026-10)
+
+The 211-entity generated reference module adds no new warning classes; the
+frozen baseline is unchanged. The single-binary build now takes about 2.5
+minutes at this size. Phase 0 of `docs/PRODUCTION_GRADE_PLAN.md` splits the
+generated module and restores a faster inner loop; until then, keep using the
+warning ratchet and do not raise a baseline to accept generated warnings.
+
 ## Using the ratchet
 
 ```sh
