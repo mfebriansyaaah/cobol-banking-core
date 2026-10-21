@@ -8,6 +8,7 @@
 #   ./scripts/loc_report.sh --check
 #   ./scripts/loc_report.sh --check-floor
 #   ./scripts/loc_report.sh --quality
+#   ./scripts/loc_report.sh --non-generated [--check]
 #   ./scripts/loc_report.sh --since main
 set -e
 cd "$(dirname "$0")/.."
@@ -16,12 +17,14 @@ SINCE=""
 CHECK=0
 FLOOR=0
 QUALITY=0
+NONGEN=0
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --since) SINCE="${2:-}"; shift 2 ;;
         --check) CHECK=1; shift ;;
         --check-floor) CHECK=1; FLOOR=1; shift ;;
         --quality) QUALITY=1; shift ;;
+        --non-generated) NONGEN=1; shift ;;
         *) echo "usage: $0 [--since <ref>] [--check] [--check-floor] [--quality]" >&2; exit 2 ;;
     esac
 done
@@ -65,6 +68,53 @@ count_cobol_file() {
     ' "$1"
 }
 
+count_net_file() {
+    file="$1"
+    ext="${file##*.}"
+    awk -v e="$ext" '
+        /^[[:space:]]*$/ { next }
+        {
+            line=$0
+            sub(/^[[:space:]]+/, "", line)
+            if (e=="cob" && (line ~ /^\*/ || line ~ /^\*>/)) next
+            if (e=="sh" && line ~ /^#/) next
+            if ((e=="js" || e=="mjs" || e=="c" || e=="h") && (line ~ /^\/\// || line ~ /^\/\*/ || line ~ /^\*/)) next
+            if (e=="sql" && line ~ /^--/) next
+            code++
+        }
+        END { print code+0 }
+    ' "$file"
+}
+
+compute_non_generated() {
+    read -r _ _ _ nong_cobol <<< "$(count_ext cob)"
+    read -r _ _ _ nong_c <<< "$(count_ext c)"
+    read -r _ _ _ nong_h <<< "$(count_ext h)"
+    read -r _ _ _ nong_sql <<< "$(count_ext sql)"
+    read -r _ _ _ nong_shell <<< "$(count_ext sh)"
+    read -r _ _ _ nong_js <<< "$(count_ext js)"
+    read -r _ _ _ nong_mjs <<< "$(count_ext mjs)"
+    generated_cobol=0
+    while IFS= read -r f; do
+        [ -z "$f" ] && continue
+        case "$f" in
+            cobol/src/generated/*) ;;
+            *) continue ;;
+        esac
+        generated_cobol=$((generated_cobol + $(count_cobol_file "$f")))
+    done <<< "$(printf '%s\n' "$files" | grep -E '\.cob$' || true)"
+    nong_cobol=$((nong_cobol - generated_cobol))
+    nong_c=$((nong_c + nong_h))
+    nong_js=$((nong_js + nong_mjs))
+    nong_total=$((nong_cobol + nong_c + nong_sql + nong_shell + nong_js))
+    nong_files=$(printf '%s\n' "$files" | grep -E '\.(cob|c|h|sql|sh|js|mjs)$' | grep -v '^cobol/src/generated/' | wc -l)
+    if [ "$nong_total" -gt 0 ]; then
+        nong_cobol_per_mille=$((nong_cobol * 1000 / nong_total))
+    else
+        nong_cobol_per_mille=0
+    fi
+}
+
 compute_quality() {
     curated_net=0
     generated_net=0
@@ -94,6 +144,45 @@ compute_quality() {
         generated_per_mille=0
     fi
 }
+
+if [ "$NONGEN" = "1" ]; then
+    compute_non_generated
+    echo "NON-GENERATED CODE (net; excludes @generated files)"
+    echo "  COBOL net:   $nong_cobol"
+    echo "  C net:       $nong_c"
+    echo "  SQL net:     $nong_sql"
+    echo "  Shell net:   $nong_shell"
+    echo "  JS net:      $nong_js"
+    echo "  total net:   $nong_total  ($nong_files files)"
+    echo "  COBOL share: $((nong_cobol_per_mille / 10)).$((nong_cobol_per_mille % 10))%"
+    baseline=""
+    baseline_cobol=""
+    if [ -f tests/non_generated_baseline.txt ]; then
+        baseline="$(awk '$1 == "non_generated_net" {print $2}' tests/non_generated_baseline.txt)"
+        baseline_cobol="$(awk '$1 == "non_generated_cobol_net" {print $2}' tests/non_generated_baseline.txt)"
+    fi
+    target=100000
+    gap=$((target - nong_total))
+    [ "$gap" -lt 0 ] && gap=0
+    echo "  baseline:    ${baseline:-unset}"
+    echo "  gap to 100000: $gap"
+    if [ "$CHECK" = "1" ]; then
+        if [ -z "$baseline" ]; then
+            echo "FAIL: tests/non_generated_baseline.txt is missing or has no baseline"
+            exit 1
+        fi
+        if [ "$nong_total" -lt "$baseline" ]; then
+            echo "FAIL: non-generated net $nong_total is below baseline $baseline"
+            exit 1
+        fi
+        if [ -n "$baseline_cobol" ] && [ "$nong_cobol" -lt "$baseline_cobol" ]; then
+            echo "FAIL: non-generated COBOL $nong_cobol is below baseline $baseline_cobol"
+            exit 1
+        fi
+        echo "OK: non-generated net $nong_total >= baseline $baseline"
+    fi
+    exit 0
+fi
 
 if [ "$QUALITY" = "1" ]; then
     compute_quality
