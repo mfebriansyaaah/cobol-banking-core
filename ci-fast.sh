@@ -97,7 +97,7 @@ if [ "$touch_cobol" -eq 1 ]; then
         holds:test_holds permissions:test_permissions access-reviews:test_access_reviews
         session-security:test_session_security disputes:test_disputes
         journal:test_journal recon-runs:test_reconciliation_runs
-        ref-engine:test_ref_engine"
+        ref-engine:test_ref_engine gl:test_gl"
     for pair in $CORE_SUITES; do
         key="${pair%%:*}"
         suite="${pair##*:}"

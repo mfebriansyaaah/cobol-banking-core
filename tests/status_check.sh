@@ -12,7 +12,7 @@ fail=0
 # 1) Every backticked ALL_CAPS action name in STATUS.md must exist either in
 #    the router or in a core module.
 for name in $(grep -oE '`[A-Z][A-Z_]{2,}`' "$STATUS" | tr -d '`' | sort -u); do
-    if ! grep -q "$name" cobol/src/main_logic.cob cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/sql_bridge.c; then
+    if ! grep -q "$name" cobol/src/main_logic.cob cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/sql_bridge.c; then
         echo "STATUS claims action '$name' not found in any COBOL module"
         fail=1
     fi
