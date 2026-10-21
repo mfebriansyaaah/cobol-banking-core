@@ -24,52 +24,6 @@
       "createTable": false
     },
     {
-      "name": "country",
-      "code": "CTR",
-      "table": "ref_country",
-      "route": "/reference/countries",
-      "param": "code",
-      "key": {
-        "column": "code",
-        "length": 2
-      },
-      "label": {
-        "column": "label",
-        "max": 64
-      },
-      "number": {
-        "column": "num_val"
-      },
-      "flag": {
-        "column": "is_active"
-      },
-      "order": "code",
-      "createTable": true
-    },
-    {
-      "name": "holiday",
-      "code": "HOL",
-      "table": "ref_holiday",
-      "route": "/reference/holidays",
-      "param": "code",
-      "key": {
-        "column": "code",
-        "length": 10
-      },
-      "label": {
-        "column": "label",
-        "max": 64
-      },
-      "number": {
-        "column": "num_val"
-      },
-      "flag": {
-        "column": "is_active"
-      },
-      "order": "code",
-      "createTable": true
-    },
-    {
       "name": "channel",
       "code": "CHN",
       "table": "ref_channel",
