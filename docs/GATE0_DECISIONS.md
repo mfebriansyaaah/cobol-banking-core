@@ -9,7 +9,11 @@ owner on 2026-10-21. It is a technical architecture decision and does not
 satisfy G0-SIGNOFF; all other items remain open.
 
 Consolidated status, input checklist, and proposed technical defaults:
-`docs/GATE0_PACKET.md`. Sources: `docs/TRACEABILITY.md`
+`docs/GATE0_PACKET.md`.
+
+Owner posture (2026-10-21): target production berlisensi, full product scope,
+technical defaults deferred. This is an intent, not an approval; items 1-16
+remain open and require the inputs in the packet. Sources: `docs/TRACEABILITY.md`
 (Gate 0 rows), `PRD_Enterprise.md` section 3, `docs/adr/0072-fx-fee-rate-policy.md`.
 
 How to use this file: for each item, fill Owner, Decision, and Date.
