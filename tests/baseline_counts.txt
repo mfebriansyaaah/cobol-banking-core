@@ -79,3 +79,5 @@ ref_ext 10
 notification 12
 payment 11
 recon_report 11
+import_post 35
+report_delivery 29

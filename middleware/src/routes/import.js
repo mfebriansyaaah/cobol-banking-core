@@ -81,6 +81,34 @@ export const IMPORT_ROUTES = [
     ],
   },
   {
+    method: 'post', path: '/imports/batches/:code/ledger-post', action: 'IMPP_LEDGER',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'postingDate', pattern: PATTERNS.DATE, required: true },
+      { name: 'description', pattern: PATTERNS.NTF_TEXT, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/imports/postings', action: 'IMPP_LIST',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/imports/postings/:id', action: 'IMPP_GET',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
     method: 'post', path: '/imports/batches/:code/fail', action: 'IMP_BATCH_FAIL',
     tokenIdentity: 'actor',
     fields: [

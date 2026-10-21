@@ -42,6 +42,8 @@ adapters and capabilities COBOL cannot provide directly.
   - `notification_core.cob` - templates, preferences, and outbox enqueue.
   - `payment_core.cob` - per-currency limits, user overrides, and usage checks.
   - `recon_core.cob` - reconciliation notes, assignment, aging, and export.
+  - `import_post_core.cob` - balanced LEDGER import posting into the GL journal.
+  - `report_delivery_core.cob` - fixed-width layouts and recurring report delivery.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -53,11 +55,11 @@ Measured 2026-10-21:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **66.894** |
-| Curated COBOL net | **24.011** (35,8%) |
-| Total COBOL net | **76.145** |
-| Full CI | **86 steps / 1569 assertions** |
-| Non-generated gap to 100.000 | **33.106** |
+| Non-generated net | **69.312** |
+| Curated COBOL net | **25.921** (37,3%) |
+| Total COBOL net | **78.055** |
+| Full CI | **88 steps / 1633 assertions** |
+| Non-generated gap to 100.000 | **30.688** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
