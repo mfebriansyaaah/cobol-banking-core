@@ -168,6 +168,9 @@
         01  WS-TARGET-CURACTIVE    PIC X(1)  VALUE SPACES.
         01  WS-SENDER-PREC         PIC X(2)  VALUE SPACES.
         01  WS-SENDER-ISO          PIC X(3)  VALUE SPACES.
+        01  WS-PAY-ACTION          PIC X(30) VALUE SPACES.
+        01  WS-PAY-ACTOR           PIC X(100) VALUE SPACES.
+        01  WS-PAY-OUT             PIC X(16384) VALUE SPACES.
         01  WS-TARGET-PREC         PIC X(2)  VALUE SPACES.
         01  WS-RATE-STR            PIC X(40) VALUE SPACES.
         01  WS-RATE-UPDATED        PIC X(30) VALUE SPACES.
@@ -2432,6 +2435,29 @@
             END-PERFORM.
             EXIT PARAGRAPH.
 
+        CHECK-PAYMENT-POLICY.
+            *> Owner-configured policy is enforced after the environment
+            *> caps. No policy row means no additional restriction.
+            MOVE "PAY_ENFORCE" TO WS-PAY-ACTION
+            MOVE WS-PARAM1-TRIMMED TO WS-PAY-ACTOR
+            MOVE SPACES TO WS-PAY-OUT
+            CALL "payment_core" USING WS-PAY-ACTION WS-PARAM1-TRIMMED
+                WS-SENDER-ISO WS-PARAM3-TRIMMED WS-PARAM4-TRIMMED
+                WS-PARAM5-TRIMMED WS-PAY-ACTOR WS-PAY-OUT
+            END-CALL
+            IF WS-PAY-OUT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+            ELSE
+                IF WS-PAY-OUT(1:27) = "SUCCESS|PAY_ENFORCE|BLOCKED"
+                    IF WS-PAY-OUT(28:10) = "|PER_TXN"
+                        SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+                    ELSE
+                        SET WS-TRANSFER-FAIL-DAILY TO TRUE
+                    END-IF
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
         CHECK-DAILY-TOTAL.
             *> Rolling 24h debit total, read at full stored precision and
             *> compared in major units — no fixed scaling.
@@ -3834,6 +3860,10 @@
             END-IF.
             IF WS-TRANSFER-OK AND WS-DAILY-LIMIT-NUM > 0
                 PERFORM CHECK-DAILY-TOTAL
+            END-IF.
+            
+            IF WS-TRANSFER-OK
+                PERFORM CHECK-PAYMENT-POLICY
             END-IF.
             
             IF WS-TRANSFER-OK

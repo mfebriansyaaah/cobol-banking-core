@@ -1,0 +1,497 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. dashboard_core.
+      *> Read-only operational dashboards across banking domains.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-RESULT               PIC X(16384) VALUE SPACES.
+       01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
+       01  WS-BIND-1               PIC X(256) VALUE SPACES.
+       01  WS-BIND-2               PIC X(256) VALUE SPACES.
+       01  WS-BIND-3               PIC X(256) VALUE SPACES.
+       01  WS-BIND-4               PIC X(256) VALUE SPACES.
+       01  WS-BIND-5               PIC X(256) VALUE SPACES.
+       01  WS-BIND-6               PIC X(256) VALUE SPACES.
+       01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P1-LEN               PIC 9(3) VALUE 1.
+       01  WS-P2-LEN               PIC 9(3) VALUE 1.
+       01  WS-P3-LEN               PIC 9(3) VALUE 1.
+       01  WS-P4-LEN               PIC 9(3) VALUE 1.
+       01  WS-P5-LEN               PIC 9(3) VALUE 1.
+       01  WS-P6-LEN               PIC 9(3) VALUE 1.
+       01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+       01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+       01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+       01  WS-I                    PIC 9(3) VALUE 1.
+       01  WS-J                    PIC 9(5) VALUE 1.
+       01  WS-RLEN                 PIC 9(5) VALUE 1.
+       01  WS-BAD                  PIC 9(3) VALUE 0.
+       01  WS-ALLOWED              PIC 9 VALUE 0.
+       01  WS-TOTAL                PIC X(100) VALUE SPACES.
+       01  WS-DATE-IN              PIC X(100) VALUE SPACES.
+       01  WS-DATE-LEN             PIC 9(3) VALUE 0.
+       01  WS-MONTH                PIC 99 VALUE 0.
+       01  WS-DAY                  PIC 99 VALUE 0.
+       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
+       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
+       01  WS-OUT                  PIC X(16384) VALUE SPACES.
+       01  WS-AT-COUNT             PIC 9(3) VALUE 0.
+       01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+       01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+       01  F-QUOTE                 PIC X VALUE "'".
+       01  F-DQUOTE                PIC X VALUE '"'.
+       01  F-BSLASH                PIC X VALUE "\".
+       01  F-SEMI                  PIC X VALUE ";".
+       01  F-TICK                  PIC X VALUE "`".
+
+       LINKAGE SECTION.
+       01  LS-CMD-ACTION           PIC X(30).
+       01  LS-PARAM1               PIC X(100).
+       01  LS-PARAM2               PIC X(100).
+       01  LS-PARAM3               PIC X(100).
+       01  LS-PARAM4               PIC X(100).
+       01  LS-PARAM5               PIC X(100).
+       01  LS-PARAM6               PIC X(100).
+       01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+       MAIN-LOGIC.
+           PERFORM VALIDATE-ALL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               GOBACK
+           END-IF
+           EVALUATE TRUE
+               WHEN LS-CMD-ACTION(1:12) = "DSH_OVERVIEW"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-OVERVIEW
+               WHEN LS-CMD-ACTION(1:12) = "DSH_PAYMENTS"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-PAYMENTS
+               WHEN LS-CMD-ACTION(1:9) = "DSH_RECON"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-RECON
+               WHEN LS-CMD-ACTION(1:12) = "DSH_DISPUTES"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-DISPUTES
+               WHEN LS-CMD-ACTION(1:10) = "DSH_ALERTS"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ALERTS
+               WHEN LS-CMD-ACTION(1:10) = "DSH_OUTBOX"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-OUTBOX
+               WHEN LS-CMD-ACTION(1:11) = "DSH_REPORTS"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-REPORTS
+               WHEN LS-CMD-ACTION(1:11) = "DSH_IMPORTS"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-IMPORTS
+               WHEN LS-CMD-ACTION(1:12) = "DSH_ACCOUNTS"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ACCOUNTS
+               WHEN LS-CMD-ACTION(1:8) = "DSH_FEES"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-FEES
+               WHEN LS-CMD-ACTION(1:10) = "DSH_POLICY"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-POLICY
+               WHEN LS-CMD-ACTION(1:12) = "DSH_CASHFLOW"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-CASHFLOW
+               WHEN OTHER
+                   MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+           END-EVALUATE.
+           GOBACK.
+
+       VALIDATE-ALL.
+           MOVE 0 TO WS-BAD
+           MOVE LS-PARAM1 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM2 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM3 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM4 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM5 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM6 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT.
+           EXIT PARAGRAPH.
+
+       VALIDATE-INPUT.
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-SEMI
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+           EXIT PARAGRAPH.
+
+       TRIM-ALL.
+           MOVE LS-PARAM1 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P1-LEN
+           MOVE LS-PARAM2 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P2-LEN
+           MOVE LS-PARAM3 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P3-LEN
+           MOVE LS-PARAM4 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P4-LEN
+           MOVE LS-PARAM5 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P5-LEN
+           MOVE LS-PARAM6 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P6-LEN.
+           EXIT PARAGRAPH.
+
+       TRIM-VALUE.
+           MOVE WS-TRIM-IN TO WS-TRIM-OUT
+           MOVE 0 TO WS-TRIM-LEN
+           PERFORM VARYING WS-I FROM 100 BY -1
+               UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+               IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-TRIM-LEN
+               END-IF
+           END-PERFORM
+           IF WS-TRIM-LEN = 0
+               MOVE 1 TO WS-TRIM-LEN
+           END-IF.
+           EXIT PARAGRAPH.
+
+       VALIDATE-DATE-FIELD.
+           MOVE 0 TO WS-BAD
+           MOVE 0 TO WS-DATE-LEN
+           PERFORM VARYING WS-I FROM 100 BY -1
+               UNTIL WS-I < 1 OR WS-DATE-LEN > 0
+               IF WS-DATE-IN(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-DATE-LEN
+               END-IF
+           END-PERFORM
+           IF WS-DATE-LEN NOT = 10
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-DATE-IN(5:1) NOT = "-" OR WS-DATE-IN(8:1) NOT = "-"
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-DATE-IN(1:4) IS NOT NUMERIC
+              OR WS-DATE-IN(6:2) IS NOT NUMERIC
+              OR WS-DATE-IN(9:2) IS NOT NUMERIC
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-BAD = 0
+               COMPUTE WS-MONTH = FUNCTION NUMVAL(WS-DATE-IN(6:2)) END-COMPUTE
+               COMPUTE WS-DAY = FUNCTION NUMVAL(WS-DATE-IN(9:2)) END-COMPUTE
+               IF WS-MONTH < 1 OR WS-MONTH > 12 OR WS-DAY < 1 OR WS-DAY > 31
+                   MOVE 1 TO WS-BAD
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ALLOW-ADMIN.
+           MOVE 0 TO WS-ALLOWED
+           MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P6-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+               MOVE 1 TO WS-ALLOWED
+           END-IF
+           IF WS-ALLOWED NOT = 1
+               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+               MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
+               PERFORM AUDIT-DENIED
+           END-IF.
+           EXIT PARAGRAPH.
+
+       AUDIT-DENIED.
+           MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, 'AUTHZ_DENIED', 'DASHBOARD', 0, 'DENIED' FROM users u, users a WHERE u.email = ? AND a.email = ?" TO WS-PREP-SQL
+           MOVE WS-DENIED-ACTOR TO WS-BIND-1
+           MOVE WS-DENIED-ACTOR TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+           EXIT PARAGRAPH.
+
+       TRIM-RESULT-LEN.
+           MOVE 0 TO WS-RLEN
+           PERFORM VARYING WS-J FROM 16384 BY -1
+               UNTIL WS-J < 1 OR WS-RLEN > 0
+               IF WS-RESULT(WS-J:1) NOT = SPACE
+                   MOVE WS-J TO WS-RLEN
+               END-IF
+           END-PERFORM
+           IF WS-RLEN = 0
+               MOVE 1 TO WS-RLEN
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-OVERVIEW.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(balance), 0)) FROM accounts" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE WS-RESULT(1:100) TO WS-OUT
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(amount), 0)) FROM ledger WHERE type = 'DEBIT'" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           STRING WS-OUT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:100) DELIMITED BY SIZE INTO WS-OUT END-STRING
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(amount), 0)) FROM pending_transactions" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_OVERVIEW|" DELIMITED BY SIZE WS-OUT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:100) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-PAYMENTS.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(l.amount), 0), '|', COUNT(DISTINCT l.account_id)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN currencies c ON c.currency_id = a.currency_id WHERE l.type = 'DEBIT' AND DATE(l.created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) AND (? = '' OR c.iso_code = ?)" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-P3-TRIMMED TO WS-BIND-3
+           MOVE WS-P3-TRIMMED TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_PAYMENTS|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-RECON.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'CLEAN'), 0), '|', COALESCE(SUM(status = 'MISMATCH'), 0)) FROM reconciliation_runs" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE WS-RESULT(1:100) TO WS-OUT
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'ACKNOWLEDGED'), 0), '|', COALESCE(SUM(status = 'RESOLVED'), 0), '|', COALESCE(SUM(status <> 'RESOLVED' AND due_date IS NOT NULL AND due_date < CURDATE()), 0)) FROM reconciliation_findings" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_RECON|" DELIMITED BY SIZE WS-OUT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-DISPUTES.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(state = 'OPEN'), 0), '|', COALESCE(SUM(state = 'ACKNOWLEDGED'), 0), '|', COALESCE(SUM(state = 'RESOLVED'), 0), '|', COALESCE(SUM(state = 'REJECTED'), 0), '|', COALESCE(SUM(assigned_to IS NULL AND state IN ('OPEN', 'ACKNOWLEDGED')), 0), '|', COALESCE(SUM(due_date IS NOT NULL AND due_date < CURDATE() AND state IN ('OPEN', 'ACKNOWLEDGED')), 0)) FROM dispute_cases" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_DISPUTES|" DELIMITED BY SIZE WS-RESULT(1:300) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-ALERTS.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(state = 'OPEN'), 0), '|', COALESCE(SUM(state = 'ACKNOWLEDGED'), 0), '|', COALESCE(SUM(state = 'RESOLVED'), 0), '|', COALESCE(SUM(severity = 'CRITICAL' AND state <> 'RESOLVED'), 0), '|', COALESCE(SUM(severity = 'WARNING' AND state <> 'RESOLVED'), 0)) FROM ops_alert" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_ALERTS|" DELIMITED BY SIZE WS-RESULT(1:300) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-OUTBOX.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(state = 'PENDING'), 0), '|', COALESCE(SUM(state = 'SENDING'), 0), '|', COALESCE(SUM(state = 'SENT'), 0), '|', COALESCE(SUM(state = 'FAILED'), 0), '|', COALESCE(SUM(state = 'DEAD'), 0)) FROM notification_outbox" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_OUTBOX|" DELIMITED BY SIZE WS-RESULT(1:300) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-REPORTS.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'RUNNING'), 0), '|', COALESCE(SUM(status = 'COMPLETED'), 0), '|', COALESCE(SUM(status = 'FAILED'), 0)) FROM report_run" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE WS-RESULT(1:100) TO WS-OUT
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(enabled = 1), 0), '|', COALESCE(SUM(enabled = 1 AND next_run_date <= CURDATE()), 0)) FROM report_schedule" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_REPORTS|" DELIMITED BY SIZE WS-OUT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:100) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-IMPORTS.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'STAGED'), 0), '|', COALESCE(SUM(status = 'VALIDATED'), 0), '|', COALESCE(SUM(status = 'COMPLETED'), 0), '|', COALESCE(SUM(status = 'FAILED'), 0), '|', COALESCE(SUM(total_rows), 0), '|', COALESCE(SUM(invalid_rows), 0)) FROM import_batch" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_IMPORTS|" DELIMITED BY SIZE WS-RESULT(1:300) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-ACCOUNTS.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'FROZEN'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0)) FROM accounts" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE WS-RESULT(1:100) TO WS-OUT
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(balance), 0)) FROM accounts WHERE status = 'ACTIVE'" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_ACCOUNTS|" DELIMITED BY SIZE WS-OUT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:100) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-FEES.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(amount), 0)) FROM ledger WHERE type = 'DEBIT' AND description LIKE '%FEE%'" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_FEES|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-POLICY.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(enabled = 1), 0)) FROM payment_policy" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE WS-RESULT(1:100) TO WS-OUT
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(enabled = 1), 0)) FROM payment_profile" TO WS-PREP-SQL
+           PERFORM SQL-PREPARE-SCALAR
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_POLICY|" DELIMITED BY SIZE WS-OUT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:100) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-CASHFLOW.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE SPACES TO WS-PREP-SQL
+           STRING
+               "SELECT CONCAT(DATE(l.created_at), ':', " DELIMITED BY SIZE
+               "SUM(IF(l.type = 'DEBIT', l.amount, 0)), ':', " DELIMITED BY SIZE
+               "SUM(IF(l.type = 'CREDIT', l.amount, 0))) " DELIMITED BY SIZE
+               "FROM ledger l JOIN accounts a ON a.account_id = l.account_id " DELIMITED BY SIZE
+               "JOIN currencies c ON c.currency_id = a.currency_id " DELIMITED BY SIZE
+               "WHERE DATE(l.created_at) BETWEEN " DELIMITED BY SIZE
+               "COALESCE(NULLIF(?, ''), DATE_SUB(CURDATE(), INTERVAL 30 DAY)) " DELIMITED BY SIZE
+               "AND COALESCE(NULLIF(?, ''), CURDATE()) " DELIMITED BY SIZE
+               "AND (? = '' OR c.iso_code = ?) " DELIMITED BY SIZE
+               "GROUP BY DATE(l.created_at) ORDER BY DATE(l.created_at) LIMIT 31" DELIMITED BY SIZE
+               INTO WS-PREP-SQL
+           END-STRING
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-P3-TRIMMED TO WS-BIND-3
+           MOVE WS-P3-TRIMMED TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|DSH_CASHFLOW|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DSH_CASHFLOW|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       SQL-PREPARE-SCALAR.
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+           EXIT PARAGRAPH.
