@@ -35,6 +35,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/eod_core.cob \
     cobol/src/statement_core.cob \
     cobol/src/eod_jobs_core.cob \
+    cobol/src/ref_ext_core.cob \
+    cobol/src/notification_core.cob \
     "$REF_OBJ" \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
