@@ -75,3 +75,5 @@ fee 21
 eod 24
 statement 10
 eod_jobs 10
+ref_ext 10
+notification 12
