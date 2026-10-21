@@ -1,0 +1,676 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. payment_core.
+      *> Payment policy, per-user overrides, and daily usage checks.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-RESULT               PIC X(16384) VALUE SPACES.
+       01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
+       01  WS-BIND-1               PIC X(256) VALUE SPACES.
+       01  WS-BIND-2               PIC X(256) VALUE SPACES.
+       01  WS-BIND-3               PIC X(256) VALUE SPACES.
+       01  WS-BIND-4               PIC X(256) VALUE SPACES.
+       01  WS-BIND-5               PIC X(256) VALUE SPACES.
+       01  WS-BIND-6               PIC X(256) VALUE SPACES.
+       01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P1-LEN               PIC 9(3) VALUE 1.
+       01  WS-P2-LEN               PIC 9(3) VALUE 1.
+       01  WS-P3-LEN               PIC 9(3) VALUE 1.
+       01  WS-P4-LEN               PIC 9(3) VALUE 1.
+       01  WS-P5-LEN               PIC 9(3) VALUE 1.
+       01  WS-P6-LEN               PIC 9(3) VALUE 1.
+       01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+       01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+       01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+       01  WS-I                    PIC 9(3) VALUE 1.
+       01  WS-J                    PIC 9(5) VALUE 1.
+       01  WS-RLEN                 PIC 9(5) VALUE 1.
+       01  WS-BAD                  PIC 9(3) VALUE 0.
+       01  WS-BAD-SAVE             PIC 9 VALUE 0.
+       01  WS-ALLOWED              PIC 9 VALUE 0.
+       01  WS-STEP                 PIC X VALUE 'Y'.
+           88  STEP-OK             VALUE 'Y'.
+           88  STEP-FAIL           VALUE 'N'.
+       01  WS-ERR                  PIC X(40) VALUE SPACES.
+       01  WS-TOTAL                PIC X(100) VALUE SPACES.
+       01  WS-LIMIT                PIC X(10) VALUE SPACES.
+       01  WS-OFFSET               PIC X(10) VALUE SPACES.
+       01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
+       01  WS-POLICY-MAX           PIC X(30) VALUE SPACES.
+       01  WS-POLICY-DAILY         PIC X(30) VALUE SPACES.
+       01  WS-POLICY-COUNT         PIC X(20) VALUE SPACES.
+       01  WS-POLICY-THRESHOLD     PIC X(30) VALUE SPACES.
+       01  WS-POLICY-PERCENT       PIC X(10) VALUE SPACES.
+       01  WS-POLICY-ENABLED       PIC X(1) VALUE SPACES.
+       01  WS-PROFILE-DAILY        PIC X(30) VALUE SPACES.
+       01  WS-PROFILE-COUNT        PIC X(20) VALUE SPACES.
+       01  WS-PROFILE-ENABLED      PIC X(1) VALUE SPACES.
+       01  WS-USED-AMOUNT          PIC X(30) VALUE SPACES.
+       01  WS-USED-COUNT           PIC X(20) VALUE SPACES.
+       01  WS-CHECK-AMOUNT         PIC 9(20)V9(4) VALUE 0.
+       01  WS-CHECK-USED           PIC 9(20)V9(4) VALUE 0.
+       01  WS-CHECK-COUNT          PIC 9(18) VALUE 0.
+       01  WS-CHECK-LIMIT          PIC 9(20)V9(4) VALUE 0.
+       01  WS-CHECK-MAX            PIC 9(20)V9(4) VALUE 0.
+       01  WS-CHECK-MAXCOUNT       PIC 9(18) VALUE 0.
+       01  WS-MAX-NORM             PIC X(30) VALUE SPACES.
+       01  WS-LIMIT-NORM           PIC X(30) VALUE SPACES.
+       01  WS-USED-NORM            PIC X(30) VALUE SPACES.
+       01  WS-AMOUNT-NORM          PIC X(30) VALUE SPACES.
+       01  WS-DEC-IN               PIC X(30) VALUE SPACES.
+       01  WS-DEC-LEN              PIC 9(3) VALUE 0.
+       01  WS-DOT-COUNT            PIC 9(3) VALUE 0.
+       01  WS-AT-COUNT             PIC 9(3) VALUE 0.
+       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+       01  WS-AUDIT-USER           PIC X(100) VALUE SPACES.
+       01  WS-AUDIT-CURRENCY       PIC X(3) VALUE SPACES.
+       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+       01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+       01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+       01  F-QUOTE                 PIC X VALUE "'".
+       01  F-DQUOTE                PIC X VALUE '"'.
+       01  F-BSLASH                PIC X VALUE "\".
+       01  F-SEMI                  PIC X VALUE ";".
+       01  F-TICK                  PIC X VALUE "`".
+
+       LINKAGE SECTION.
+       01  LS-CMD-ACTION           PIC X(30).
+       01  LS-PARAM1               PIC X(100).
+       01  LS-PARAM2               PIC X(100).
+       01  LS-PARAM3               PIC X(100).
+       01  LS-PARAM4               PIC X(100).
+       01  LS-PARAM5               PIC X(100).
+       01  LS-PARAM6               PIC X(100).
+       01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+       MAIN-LOGIC.
+           PERFORM VALIDATE-ALL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               GOBACK
+           END-IF
+           EVALUATE TRUE
+               WHEN LS-CMD-ACTION(1:14) = "PAY_POLICY_SET"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-POLICY-SET
+               WHEN LS-CMD-ACTION(1:15) = "PAY_POLICY_LIST"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-POLICY-LIST
+               WHEN LS-CMD-ACTION(1:14) = "PAY_POLICY_GET"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-POLICY-GET
+               WHEN LS-CMD-ACTION(1:15) = "PAY_PROFILE_SET"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-PROFILE-SET
+               WHEN LS-CMD-ACTION(1:16) = "PAY_PROFILE_LIST"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-PROFILE-LIST
+               WHEN LS-CMD-ACTION(1:15) = "PAY_DAILY_USAGE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-DAILY-USAGE
+               WHEN LS-CMD-ACTION(1:9) = "PAY_CHECK"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-CHECK
+               WHEN OTHER
+                   MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+           END-EVALUATE.
+           GOBACK.
+
+       VALIDATE-ALL.
+           MOVE 0 TO WS-BAD
+           MOVE LS-PARAM1 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM2 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM3 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM4 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM5 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM6 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT.
+           EXIT PARAGRAPH.
+
+       VALIDATE-INPUT.
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-SEMI
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+           EXIT PARAGRAPH.
+
+       TRIM-ALL.
+           MOVE LS-PARAM1 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P1-LEN
+           MOVE LS-PARAM2 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P2-LEN
+           MOVE LS-PARAM3 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P3-LEN
+           MOVE LS-PARAM4 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P4-LEN
+           MOVE LS-PARAM5 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P5-LEN
+           MOVE LS-PARAM6 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P6-LEN.
+           EXIT PARAGRAPH.
+
+       TRIM-VALUE.
+           MOVE WS-TRIM-IN TO WS-TRIM-OUT
+           MOVE 0 TO WS-TRIM-LEN
+           PERFORM VARYING WS-I FROM 100 BY -1
+               UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+               IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-TRIM-LEN
+               END-IF
+           END-PERFORM
+           IF WS-TRIM-LEN = 0
+               MOVE 1 TO WS-TRIM-LEN
+           END-IF.
+           EXIT PARAGRAPH.
+
+       VALIDATE-DECIMAL.
+           MOVE 0 TO WS-BAD
+           MOVE 0 TO WS-DOT-COUNT
+           MOVE 0 TO WS-DEC-LEN
+           PERFORM VARYING WS-I FROM 30 BY -1
+               UNTIL WS-I < 1 OR WS-DEC-LEN > 0
+               IF WS-DEC-IN(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-DEC-LEN
+               END-IF
+           END-PERFORM
+           IF WS-DEC-LEN < 1 OR WS-DEC-LEN > 20
+               MOVE 1 TO WS-BAD
+           END-IF.
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-DEC-LEN
+               IF WS-DEC-IN(WS-I:1) = "."
+                   ADD 1 TO WS-DOT-COUNT END-ADD
+               ELSE
+                   IF WS-DEC-IN(WS-I:1) IS NOT NUMERIC
+                       MOVE 1 TO WS-BAD
+                   END-IF
+               END-IF
+           END-PERFORM.
+           IF WS-DOT-COUNT > 1
+               MOVE 1 TO WS-BAD
+           END-IF.
+           EXIT PARAGRAPH.
+
+       VALIDATE-EMAIL.
+           MOVE 0 TO WS-BAD
+           MOVE 0 TO WS-AT-COUNT
+           INSPECT WS-P1-TRIMMED TALLYING WS-AT-COUNT FOR ALL "@"
+           IF WS-AT-COUNT NOT = 1
+               MOVE 1 TO WS-BAD
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ALLOW-ADMIN.
+           MOVE 0 TO WS-ALLOWED
+           MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P6-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+               MOVE 1 TO WS-ALLOWED
+           END-IF
+           IF WS-ALLOWED NOT = 1
+               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+               MOVE "PAYMENT_CORE" TO WS-DENIED-TARGET
+               PERFORM AUDIT-DENIED
+           END-IF.
+           EXIT PARAGRAPH.
+
+       AUDIT-PAYMENT.
+           MOVE "INSERT INTO payment_audit (action, actor_email, user_email, currency_code, detail) VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), ?)" TO WS-PREP-SQL
+           MOVE WS-AUDIT-ACTION TO WS-BIND-1
+           MOVE WS-P6-TRIMMED TO WS-BIND-2
+           MOVE WS-AUDIT-USER TO WS-BIND-3
+           MOVE WS-AUDIT-CURRENCY TO WS-BIND-4
+           MOVE WS-AUDIT-DETAIL TO WS-BIND-5
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           EXIT PARAGRAPH.
+
+       AUDIT-DENIED.
+           MOVE "AUTHZ_DENIED" TO WS-AUDIT-ACTION
+           MOVE SPACES TO WS-AUDIT-USER WS-AUDIT-CURRENCY
+           MOVE WS-DENIED-TARGET TO WS-AUDIT-DETAIL
+           MOVE WS-DENIED-ACTOR TO WS-P6-TRIMMED
+           PERFORM AUDIT-PAYMENT.
+           EXIT PARAGRAPH.
+
+       TRIM-RESULT-LEN.
+           MOVE 0 TO WS-RLEN
+           PERFORM VARYING WS-J FROM 16384 BY -1
+               UNTIL WS-J < 1 OR WS-RLEN > 0
+               IF WS-RESULT(WS-J:1) NOT = SPACE
+                   MOVE WS-J TO WS-RLEN
+               END-IF
+           END-PERFORM
+           IF WS-RLEN = 0
+               MOVE 1 TO WS-RLEN
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-POLICY-SET.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-POLICY-MAX WS-POLICY-DAILY WS-POLICY-COUNT WS-POLICY-THRESHOLD WS-POLICY-PERCENT
+           UNSTRING WS-P2-TRIMMED DELIMITED BY ","
+               INTO WS-POLICY-MAX WS-POLICY-DAILY WS-POLICY-COUNT WS-POLICY-THRESHOLD WS-POLICY-PERCENT
+           END-UNSTRING
+           MOVE WS-POLICY-MAX TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           MOVE WS-POLICY-DAILY TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           MOVE WS-POLICY-COUNT TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           MOVE WS-POLICY-THRESHOLD TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           MOVE WS-POLICY-PERCENT TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO payment_policy (currency_code, max_per_txn, daily_limit, daily_count, hold_threshold, hold_percent, enabled, updated_by) VALUES (?, ?, ?, ?, ?, ?, TRUE, 'SYSTEM') ON DUPLICATE KEY UPDATE max_per_txn=VALUES(max_per_txn), daily_limit=VALUES(daily_limit), daily_count=VALUES(daily_count), hold_threshold=VALUES(hold_threshold), hold_percent=VALUES(hold_percent)" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-POLICY-MAX TO WS-BIND-2
+           MOVE WS-POLICY-DAILY TO WS-BIND-3
+           MOVE WS-POLICY-COUNT TO WS-BIND-4
+           MOVE WS-POLICY-THRESHOLD TO WS-BIND-5
+           MOVE WS-POLICY-PERCENT TO WS-BIND-6
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE payment_policy SET enabled = ?, updated_by = ? WHERE currency_code = ?" TO WS-PREP-SQL
+               MOVE WS-P3-TRIMMED TO WS-BIND-1
+               MOVE WS-P6-TRIMMED TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "POLICY_SET" TO WS-AUDIT-ACTION
+               MOVE SPACES TO WS-AUDIT-USER
+               MOVE WS-P1-TRIMMED(1:3) TO WS-AUDIT-CURRENCY
+               MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-PAYMENT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|PAY_POLICY_SET" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-POLICY-LIST.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM1 NOT = SPACES
+               MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM payment_policy WHERE (? = '' OR currency_code = ?)" TO WS-PREP-SQL
+           MOVE WS-P3-TRIMMED TO WS-BIND-1
+           MOVE WS-P3-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE WS-RESULT(1:20) TO WS-TOTAL
+           MOVE "SELECT CONCAT(currency_code, ':', max_per_txn, ':', daily_limit, ':', daily_count, ':', hold_threshold, ':', hold_percent, ':', IF(enabled, '1', '0')) FROM payment_policy WHERE (? = '' OR currency_code = ?) ORDER BY currency_code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P3-TRIMMED TO WS-BIND-1
+           MOVE WS-P3-TRIMMED TO WS-BIND-2
+           MOVE WS-LIMIT TO WS-BIND-3
+           MOVE WS-OFFSET TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           IF WS-RESULT = "ERROR|NO_DATA"
+               STRING "SUCCESS|PAY_POLICIES|" DELIMITED BY SIZE WS-TOTAL DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER END-STRING
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               PERFORM TRIM-RESULT-LEN
+               STRING "SUCCESS|PAY_POLICIES|" DELIMITED BY SIZE WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-POLICY-GET.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(max_per_txn, ':', daily_limit, ':', daily_count, ':', hold_threshold, ':', hold_percent, ':', IF(enabled, '1', '0')) FROM payment_policy WHERE currency_code = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|PAY_POLICY|" DELIMITED BY SIZE WS-P1-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE WS-RESULT(1:100) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-PROFILE-SET.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM VALIDATE-EMAIL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-P4-TRIMMED NOT = "0" AND WS-P4-TRIMMED NOT = "1"
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-PROFILE-DAILY WS-PROFILE-COUNT
+           UNSTRING WS-P3-TRIMMED DELIMITED BY "," INTO WS-PROFILE-DAILY WS-PROFILE-COUNT
+           END-UNSTRING
+           MOVE WS-PROFILE-DAILY TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           MOVE WS-PROFILE-COUNT TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO payment_profile (user_email, currency_code, daily_limit, daily_count, enabled, updated_by) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE daily_limit=VALUES(daily_limit), daily_count=VALUES(daily_count), enabled=VALUES(enabled), updated_by=VALUES(updated_by)" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-PROFILE-DAILY TO WS-BIND-3
+           MOVE WS-PROFILE-COUNT TO WS-BIND-4
+           MOVE WS-P4-TRIMMED TO WS-BIND-5
+           MOVE WS-P6-TRIMMED TO WS-BIND-6
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "PROFILE_SET" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED TO WS-AUDIT-USER
+               MOVE WS-P2-TRIMMED(1:3) TO WS-AUDIT-CURRENCY
+               MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-PAYMENT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|PAY_PROFILE_SET" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-PROFILE-LIST.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM payment_profile WHERE user_email = ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE WS-RESULT(1:20) TO WS-TOTAL
+           MOVE "SELECT CONCAT(currency_code, ':', daily_limit, ':', daily_count, ':', IF(enabled, '1', '0')) FROM payment_profile WHERE user_email = ? ORDER BY currency_code LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-LIMIT TO WS-BIND-2
+           MOVE WS-OFFSET TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           IF WS-RESULT = "ERROR|NO_DATA"
+               STRING "SUCCESS|PAY_PROFILES|" DELIMITED BY SIZE WS-TOTAL DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER END-STRING
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               PERFORM TRIM-RESULT-LEN
+               STRING "SUCCESS|PAY_PROFILES|" DELIMITED BY SIZE WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-DAILY-USAGE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND DATE(l.created_at) = CURDATE()" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-USED-AMOUNT WS-USED-COUNT
+           END-UNSTRING
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|PAY_USAGE|" DELIMITED BY SIZE WS-USED-AMOUNT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-USED-COUNT DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-CHECK.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM VALIDATE-EMAIL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P3-TRIMMED(1:30) TO WS-DEC-IN
+           PERFORM VALIDATE-DECIMAL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(max_per_txn, '|', daily_limit, '|', daily_count, '|', IF(enabled, '1', '0')) FROM payment_policy WHERE currency_code = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P2-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|RULE_NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-POLICY-MAX WS-POLICY-DAILY WS-POLICY-COUNT WS-POLICY-ENABLED
+           END-UNSTRING
+           IF WS-POLICY-ENABLED NOT = "1"
+               MOVE "ERROR|POLICY_DISABLED" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND DATE(l.created_at) = CURDATE()" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-USED-AMOUNT WS-USED-COUNT
+           END-UNSTRING
+           MOVE WS-P3-TRIMMED(1:30) TO WS-AMOUNT-NORM
+           INSPECT WS-AMOUNT-NORM REPLACING ALL "." BY ","
+           MOVE WS-USED-AMOUNT TO WS-USED-NORM
+           INSPECT WS-USED-NORM REPLACING ALL "." BY ","
+           MOVE WS-POLICY-MAX TO WS-MAX-NORM
+           INSPECT WS-MAX-NORM REPLACING ALL "." BY ","
+           MOVE WS-POLICY-DAILY TO WS-LIMIT-NORM
+           INSPECT WS-LIMIT-NORM REPLACING ALL "." BY ","
+           COMPUTE WS-CHECK-AMOUNT = FUNCTION NUMVAL(WS-AMOUNT-NORM) END-COMPUTE
+           COMPUTE WS-CHECK-USED = FUNCTION NUMVAL(WS-USED-NORM) END-COMPUTE
+           COMPUTE WS-CHECK-COUNT = FUNCTION NUMVAL(WS-USED-COUNT) END-COMPUTE
+           COMPUTE WS-CHECK-MAX = FUNCTION NUMVAL(WS-MAX-NORM) END-COMPUTE
+           COMPUTE WS-CHECK-LIMIT = FUNCTION NUMVAL(WS-LIMIT-NORM) END-COMPUTE
+           COMPUTE WS-CHECK-MAXCOUNT = FUNCTION NUMVAL(WS-POLICY-COUNT) END-COMPUTE
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           IF WS-CHECK-MAX > 0 AND WS-CHECK-AMOUNT > WS-CHECK-MAX
+               STRING "SUCCESS|PAY_CHECK|BLOCKED|PER_TXN" DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+           ELSE
+               IF WS-CHECK-LIMIT > 0 AND WS-CHECK-AMOUNT + WS-CHECK-USED > WS-CHECK-LIMIT
+                   STRING "SUCCESS|PAY_CHECK|BLOCKED|DAILY_LIMIT" DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+               ELSE
+                   IF WS-CHECK-MAXCOUNT > 0 AND WS-CHECK-COUNT + 1 > WS-CHECK-MAXCOUNT
+                       STRING "SUCCESS|PAY_CHECK|BLOCKED|DAILY_COUNT" DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+                   ELSE
+                       STRING "SUCCESS|PAY_CHECK|OK|" DELIMITED BY SIZE WS-USED-AMOUNT DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-USED-COUNT DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER END-STRING
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
