@@ -5,6 +5,42 @@ const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 
 export const GL_ROUTES = [
   {
+    method: 'get', path: '/gl/periods', action: 'GL_PERIOD_LIST',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/gl/periods', action: 'GL_PERIOD_OPEN',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'period', pattern: PATTERNS.GL_PERIOD, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/gl/periods/:period/close', action: 'GL_PERIOD_CLOSE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'period', pattern: PATTERNS.GL_PERIOD, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/gl/journals/multiline', action: 'GL_JOURNAL_POST_ML',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'date', pattern: PATTERNS.DATE, required: true },
+      { name: 'description', pattern: PATTERNS.NAME, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      { name: 'lines', pattern: PATTERNS.GL_LINES, required: true },
+      BLANK, ACTOR,
+    ],
+  },
+  {
     method: 'get', path: '/gl/accounts', action: 'GL_ACCOUNT_LIST',
     tokenIdentity: 'actor',
     fields: [

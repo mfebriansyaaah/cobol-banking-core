@@ -67,4 +67,4 @@ password-policy 18
 step-up-policy 14
 dormancy 19
 ref_engine 24
-gl 12
+gl 22

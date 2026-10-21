@@ -43,6 +43,20 @@
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
        01  WS-COUNT                PIC X(10) VALUE SPACES.
+       01  WS-PERIOD               PIC X(7) VALUE SPACES.
+       01  WS-PERIOD-STATUS        PIC X(10) VALUE SPACES.
+       01  WS-PERIOD-BAD           PIC 9 VALUE 0.
+       01  WS-LINES                PIC X(100) VALUE SPACES.
+       01  WS-LINE                 PIC X(100) VALUE SPACES.
+       01  WS-ACC                  PIC X(20) VALUE SPACES.
+       01  WS-DR                   PIC X(30) VALUE SPACES.
+       01  WS-CR                   PIC X(30) VALUE SPACES.
+       01  WS-LINE-NO              PIC 9(2) VALUE 1.
+       01  WS-LINE-PTR             PIC 9(3) VALUE 1.
+       01  WS-BALANCE              PIC X(20) VALUE SPACES.
+       01  WS-Z                    PIC 9(3) VALUE 1.
+       01  WS-DR-ZERO              PIC 9 VALUE 1.
+       01  WS-CR-ZERO              PIC 9 VALUE 1.
        01  WS-CURRENCY             PIC X(3) VALUE SPACES.
        01  WS-AMOUNT               PIC X(30) VALUE SPACES.
        01  WS-AMT-LEN              PIC 9(3) VALUE 1.
@@ -91,12 +105,24 @@
                WHEN LS-CMD-ACTION(1:17) = "GL_ACCOUNT_CREATE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-ACCOUNT-CREATE
+               WHEN LS-CMD-ACTION(1:18) = "GL_JOURNAL_POST_ML"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-JOURNAL-POST-ML
                WHEN LS-CMD-ACTION(1:15) = "GL_JOURNAL_POST"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-JOURNAL-POST
                WHEN LS-CMD-ACTION(1:16) = "GL_TRIAL_BALANCE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-TRIAL-BALANCE
+               WHEN LS-CMD-ACTION(1:14) = "GL_PERIOD_OPEN"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-PERIOD-OPEN
+               WHEN LS-CMD-ACTION(1:15) = "GL_PERIOD_CLOSE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-PERIOD-CLOSE
+               WHEN LS-CMD-ACTION(1:14) = "GL_PERIOD_LIST"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-PERIOD-LIST
                WHEN OTHER
                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
            END-EVALUATE.
@@ -111,7 +137,12 @@
            MOVE LS-PARAM3 TO WS-CHECK
            PERFORM VALIDATE-INPUT
            MOVE LS-PARAM4 TO WS-CHECK
-           PERFORM VALIDATE-INPUT
+           EVALUATE TRUE
+               WHEN LS-CMD-ACTION(1:18) = "GL_JOURNAL_POST_ML"
+                   PERFORM VALIDATE-LINES
+               WHEN OTHER
+                   PERFORM VALIDATE-INPUT
+           END-EVALUATE.
            MOVE LS-PARAM5 TO WS-CHECK
            PERFORM VALIDATE-INPUT
            MOVE LS-PARAM6 TO WS-CHECK
@@ -123,6 +154,13 @@
            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-DQUOTE
            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-BSLASH
            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-SEMI
+           INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-TICK.
+           EXIT PARAGRAPH.
+
+       VALIDATE-LINES.
+           INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-QUOTE
+           INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-DQUOTE
+           INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-BSLASH
            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-TICK.
            EXIT PARAGRAPH.
 
@@ -484,6 +522,19 @@
                MOVE "ERROR|INVALID_DATE" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           PERFORM CHECK-PERIOD
+           IF WS-PERIOD-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-PERIOD-BAD = 1
+               MOVE "ERROR|PERIOD_NOT_OPEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-PERIOD-STATUS NOT = "OPEN"
+               MOVE "ERROR|PERIOD_CLOSED" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
            IF WS-P2-LEN < 1 OR WS-P2-LEN > 100
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
@@ -608,6 +659,410 @@
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       CHECK-PERIOD.
+           MOVE 0 TO WS-PERIOD-BAD
+           MOVE SPACES TO WS-PERIOD-STATUS
+           MOVE WS-P1-TRIMMED(1:7) TO WS-PERIOD
+           MOVE "SELECT status FROM gl_period WHERE period_code = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-PERIOD TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE 1 TO WS-PERIOD-BAD
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE 2 TO WS-PERIOD-BAD
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:10) TO WS-PERIOD-STATUS.
+           EXIT PARAGRAPH.
+
+       VALIDATE-PERIOD.
+           MOVE 0 TO WS-BAD
+           IF WS-P1-LEN NOT = 7
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-P1-TRIMMED(5:1) NOT = "-"
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-P1-TRIMMED(1:4) IS NOT NUMERIC
+              OR WS-P1-TRIMMED(6:2) IS NOT NUMERIC
+               MOVE 1 TO WS-BAD
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-PERIOD-OPEN.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM VALIDATE-PERIOD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_PERIOD" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT IGNORE INTO gl_period (period_code,status) VALUES (?, 'OPEN')" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "SELECT status FROM gl_period WHERE period_code = ? LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT = "ERROR|NO_DATA"
+                   MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   IF WS-RESULT(1:5) = "ERROR"
+                       MOVE WS-RESULT(1:40) TO WS-ERR
+                       SET STEP-FAIL TO TRUE
+                   ELSE
+                       MOVE WS-RESULT(1:10) TO WS-PERIOD-STATUS
+                   END-IF
+               END-IF
+           END-IF.
+           IF STEP-OK
+               IF WS-PERIOD-STATUS = "CLOSED"
+                   MOVE "ERROR|PERIOD_CLOSED" TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "PERIOD_OPEN" TO WS-AUDIT-ACTION
+               MOVE SPACES TO WS-AUDIT-JOURNAL
+               MOVE SPACES TO WS-AUDIT-ACCOUNT
+               MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-GL
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|GL_PERIOD_OPEN" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               IF WS-ERR = "ERROR|PERIOD_CLOSED"
+                   MOVE "ERROR|PERIOD_CLOSED" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-PERIOD-CLOSE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM VALIDATE-PERIOD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_PERIOD" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "UPDATE gl_period SET status = 'CLOSED', closed_by = ?, closed_at = NOW() WHERE period_code = ? AND status = 'OPEN'" TO WS-PREP-SQL
+           MOVE WS-P6-TRIMMED TO WS-BIND-1
+           MOVE WS-P1-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "SUCCESS|AFFECTED_0"
+               MOVE "ERROR|INVALID_STATUS" TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "PERIOD_CLOSE" TO WS-AUDIT-ACTION
+               MOVE SPACES TO WS-AUDIT-JOURNAL
+               MOVE SPACES TO WS-AUDIT-ACCOUNT
+               MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-GL
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|GL_PERIOD_CLOSED" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               IF WS-ERR = "ERROR|INVALID_STATUS"
+                   MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-PERIOD-LIST.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM1 NOT = SPACES
+               MOVE WS-P1-TRIMMED(1:WS-P1-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM gl_period" TO WS-PREP-SQL
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE WS-RESULT(1:20) TO WS-TOTAL
+           MOVE "SELECT CONCAT(period_code, ':', status, ':', COALESCE(closed_by, '')) FROM gl_period ORDER BY period_code DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-LIMIT TO WS-BIND-1
+           MOVE WS-OFFSET TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           IF WS-RESULT = "ERROR|NO_DATA"
+               STRING "SUCCESS|GL_PERIODS|" DELIMITED BY SIZE
+                      WS-TOTAL DELIMITED BY SPACE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               PERFORM TRIM-RESULT-LEN
+               STRING "SUCCESS|GL_PERIODS|" DELIMITED BY SIZE
+                      WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
+                      WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-JOURNAL-POST-ML.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE LS-PARAM1 TO WS-P1-TRIMMED
+           MOVE 10 TO WS-P1-LEN
+           PERFORM VALIDATE-DATE
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_DATE" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-PERIOD
+           IF WS-PERIOD-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-PERIOD-BAD = 1
+               MOVE "ERROR|PERIOD_NOT_OPEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-PERIOD-STATUS NOT = "OPEN"
+               MOVE "ERROR|PERIOD_CLOSED" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-P2-LEN < 1 OR WS-P2-LEN > 100
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-P3-LEN NOT = 3 OR WS-P3-TRIMMED(1:3) IS NOT ALPHABETIC
+               MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-P4-LEN < 1 OR WS-P4-LEN > 100
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P4-TRIMMED TO WS-LINES
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO gl_journal (posting_date, description, currency_code, status, source, created_by) VALUES (?, ?, ?, 'POSTED', 'MANUAL_ML', ?)" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-P3-TRIMMED TO WS-BIND-3
+           MOVE WS-P6-TRIMMED TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-JOURNAL-ID
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE 1 TO WS-LINE-NO
+               MOVE 1 TO WS-LINE-PTR
+               PERFORM UNTIL WS-LINE-NO > 10 OR WS-LINE-PTR > WS-P4-LEN
+                   OR STEP-FAIL
+                   MOVE SPACES TO WS-LINE
+                   UNSTRING WS-LINES DELIMITED BY ";" INTO WS-LINE
+                       WITH POINTER WS-LINE-PTR
+                   END-UNSTRING
+                   IF WS-LINE = SPACES
+                       EXIT PERFORM
+                   END-IF
+                   PERFORM PROCESS-ML-LINE
+                   ADD 1 TO WS-LINE-NO END-ADD
+               END-PERFORM
+           END-IF.
+           IF STEP-OK
+               MOVE "SELECT IF(COUNT(*)=0,'EMPTY',IF(SUM(debit_amount)=SUM(credit_amount) AND SUM(debit_amount)>0,'BALANCED','UNBALANCED')) FROM gl_journal_line WHERE journal_id = ?" TO WS-PREP-SQL
+               MOVE WS-JOURNAL-ID TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-BALANCE
+                   IF WS-BALANCE NOT = "BALANCED"
+                       MOVE "ERROR|UNBALANCED" TO WS-ERR
+                       SET STEP-FAIL TO TRUE
+                   END-IF
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "JOURNAL_POST_ML" TO WS-AUDIT-ACTION
+               MOVE WS-JOURNAL-ID TO WS-AUDIT-JOURNAL
+               MOVE SPACES TO WS-AUDIT-ACCOUNT
+               MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-GL
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|GL_POSTED_ML|" DELIMITED BY SIZE
+                      WS-JOURNAL-ID DELIMITED BY SPACE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               IF WS-ERR = "ERROR|UNBALANCED"
+                   MOVE "ERROR|UNBALANCED" TO LS-OUTPUT-BUFFER
+               ELSE
+                   IF WS-ERR = "ERROR|ACCOUNT_NOT_FOUND"
+                       MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                   ELSE
+                       IF WS-ERR = "ERROR|INVALID_INPUT"
+                           MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                       ELSE
+                           MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       PROCESS-ML-LINE.
+           MOVE SPACES TO WS-ACC WS-DR WS-CR
+           UNSTRING WS-LINE DELIMITED BY ":" INTO WS-ACC WS-DR WS-CR
+           END-UNSTRING
+           IF WS-ACC = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO WS-ERR
+               SET STEP-FAIL TO TRUE
+               EXIT PARAGRAPH
+           END-IF
+           MOVE 1 TO WS-DR-ZERO WS-CR-ZERO
+           PERFORM VARYING WS-Z FROM 1 BY 1 UNTIL WS-Z > 30
+               IF WS-DR(WS-Z:1) IS NUMERIC AND WS-DR(WS-Z:1) NOT = "0"
+                   MOVE 0 TO WS-DR-ZERO
+               END-IF
+               IF WS-CR(WS-Z:1) IS NUMERIC AND WS-CR(WS-Z:1) NOT = "0"
+                   MOVE 0 TO WS-CR-ZERO
+               END-IF
+           END-PERFORM
+           IF WS-DR-ZERO = WS-CR-ZERO
+               MOVE "ERROR|INVALID_INPUT" TO WS-ERR
+               SET STEP-FAIL TO TRUE
+               EXIT PARAGRAPH
+           END-IF
+           MOVE "SELECT 1 FROM gl_account WHERE account_code = ? AND is_active = TRUE LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-ACC TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|ACCOUNT_NOT_FOUND" TO WS-ERR
+               SET STEP-FAIL TO TRUE
+               EXIT PARAGRAPH
+           END-IF
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+               EXIT PARAGRAPH
+           END-IF
+           MOVE "INSERT INTO gl_journal_line (journal_id, gl_account_code, debit_amount, credit_amount, memo) VALUES (?, ?, ?, ?, ?)" TO WS-PREP-SQL
+           MOVE WS-JOURNAL-ID TO WS-BIND-1
+           MOVE WS-ACC TO WS-BIND-2
+           MOVE WS-DR TO WS-BIND-3
+           MOVE WS-CR TO WS-BIND-4
+           MOVE WS-P2-TRIMMED TO WS-BIND-5
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
            END-IF.
            EXIT PARAGRAPH.
 
