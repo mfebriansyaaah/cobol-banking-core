@@ -24,37 +24,48 @@ synthetic pilot is an engineering rehearsal, not the target product.
 
 ### 0.1 Interview inputs recorded (2026-10-21)
 
-- Jurisdiction: Indonesia.
-- License type: payment / e-money; regulator OJK.
-- Permitted currencies: IDR + USD.
-- Customer segments: Retail + SME.
-- Operating countries: Indonesia only.
-- End-of-day / reporting: daily + monthly internal; regulator reports TBD.
-- Target launch: Q1 2027.
-- Still missing: legal entity name, license number/status/date, and named owners.
+- Legal entity: **PT Flopay Teknologi Indonesia**.
+- Jurisdiction: **Indonesia**.
+- License: **28/145/DKSP/Srt/B**, Izin Penyelenggara Uang Elektronik dan
+  Transfer Dana; status **active**; issued **12 May 2026**; supervised by
+  **Bank Indonesia and OJK**.
+- Permitted products / currencies: e-money and transfer; **IDR + USD**.
+- Customer segments: **Retail + SME**.
+- Operating countries: **Indonesia only**.
+- End-of-day / reporting: daily + monthly internal; monthly **LBPUE** through
+  the **BI-Antasena API** in **XML/XBRL**.
+- Target launch: **Q1 2027**.
+- Named owners: Compliance Muhammad Febriansyah; Legal Sarah Wijaya; Risk Andi
+  Pratama; Security Hendra Gunawan; Finance Rina Amelia; Operations Kevin
+  Kusuma.
+- Evidence: the license certificate and signed approvals belong in the bank's
+  private evidence store; this repository records the decision and the evidence
+  reference only. Do not commit identity documents or personal contact details.
 
 ## 1. Status summary
 
 | # | Item | Status | Owner | Input needed | Proposed default | Unblocks |
 |---:|---|---|---|---|---|---|
 | 17 | Target runtime | Decided (technical) | Repository owner | Operations/security ratification | A - GnuCOBOL/MySQL/Linux (`docs/adr/0082-target-runtime.md`) | Phase 0/1 |
-| 1 | Legal entity, license, jurisdiction | Blocked - entity name/license/owners required | TBD (legal + compliance) | Entity name, license number/status/date, jurisdiction evidence, owners | Partial: Indonesia, payment/e-money, OJK, IDR+USD | G0-ENTITY and all BLOCKED rows |
-| 2 | Accountable owners and sign-off | Blocked | TBD (executive) | Named owners for compliance, legal, risk, security, finance, operations | None | G0-SIGNOFF |
-| 3 | Product and customer scope | Decided (owner intent): full scope; Retail + SME; Indonesia; IDR + USD | TBD (product + compliance) | Final product list, excluded products, compliance scope | Full scope; daily + monthly EOD; regulator reports TBD | A-P1-LIFECYCLE, B-P1-LIFECYCLE |
-| 4 | KYC/CDD design and provider | Blocked | TBD (compliance) | Identification, verification, risk, consent, retention, provider | None; jurisdiction-specific | A-P0-CDD |
-| 5 | Sanctions/PEP and monitoring | Blocked | TBD (compliance + risk) | Provider, lists, rules, risk states, escalation | None; jurisdiction-specific | C-P0-RISK |
-| 6 | Fraud operations | Blocked | TBD (risk + operations) | Queues, false positives, dual control, rule versioning | None; needs operating model | C-P1-FRAUDOPS |
-| 7 | Disaster recovery | Deferred | TBD (operations + security) | RPO/RTO, recovery site, drill schedule | Section 2 is a starting point; owner deferred | F-P0-RESIL (DR leg) |
-| 8 | Limits approval basis | Blocked | TBD (risk + finance) | Per-customer/product/channel limits, velocity | Conservative default in section 3; needs approval | C-P0-LIMITS |
-| 9 | Regulatory reports and trial balance | Partial input | TBD (finance + compliance) | Report list, formats, trial-balance layout, export rules | Daily + monthly internal; regulator formats TBD | D-P1-REPORTS |
-| 10 | Owner-controlled money data | Blocked | TBD (finance) | Fee amounts, hold policy, FX residual materiality | Seed values are placeholders only | B-P1-LIFECYCLE (fees) |
-| 11 | SLOs, load targets, alerts | Deferred | TBD (operations) | Availability, latency, capacity, alert thresholds | Section 2 is a starting point; owner deferred | F-P0-RESIL (SLO/load) |
-| 12 | Patch windows and exception approver | Deferred | TBD (security + operations) | Patch windows, emergency approver | Section 2 is a starting point; owner deferred | `docs/patch-policy.md` rule 3 |
-| 13 | Incident severity and roster | Deferred | TBD (operations) | SEV definitions, paging roster, contacts | Section 2 is a starting point; owner deferred | F-P0-SECOPS, incident runbook |
-| 14 | Data retention, legal hold, keys | Blocked | TBD (legal + compliance + security) | Retention schedule, legal hold, key management | Draft in section 2; legal must approve | F-P1-DATA, D-P0-AUDIT |
-| 15 | Release approvals and independent assessment | Deferred | TBD (security + operations) | Approvers, production identity, assessment provider | Section 2 is a starting point; owner deferred | F-P1-CHANGE, F-P0-SECOPS |
-| 16 | ADR 0072 production ratification | Blocked | TBD (compliance + finance) | Ratify D1/D2/D3 for production | Implementation is complete; sign-off missing | FX/fee/rate production use |
+| 1 | Legal entity, license, jurisdiction | Decided (owner input) - evidence/sign-off pending | Muhammad Febriansyah (Compliance); Sarah Wijaya (Legal) | License certificate and formal sign-off | PT Flopay Teknologi Indonesia; Indonesia; 28/145/DKSP/Srt/B; active 2026-05-12; BI + OJK | G0-ENTITY |
+| 2 | Accountable owners and sign-off | Named - formal sign-off pending | Named owners (see section 3.2) | Signed approvals | Six named owners recorded | G0-SIGNOFF |
+| 3 | Product and customer scope | Decided (owner intent): full scope; Retail + SME; Indonesia; IDR + USD | Compliance + Operations | Final product list, excluded products, compliance scope | e-money and transfer; daily + monthly internal EOD; regulator reports TBD | A-P1-LIFECYCLE, B-P1-LIFECYCLE |
+| 4 | KYC/CDD design and provider | Blocked | Muhammad Febriansyah (Compliance) | Identification, verification, risk, consent, retention, provider | None; Indonesia-specific | A-P0-CDD |
+| 5 | Sanctions/PEP and monitoring | Blocked | Muhammad Febriansyah (Compliance); Andi Pratama (Risk) | Provider, lists, rules, risk states, escalation | None; Indonesia-specific | C-P0-RISK |
+| 6 | Fraud operations | Blocked | Andi Pratama (Risk); Kevin Kusuma (Operations) | Queues, false positives, dual control, rule versioning | None; needs operating model | C-P1-FRAUDOPS |
+| 7 | Disaster recovery | Deferred | Kevin Kusuma (Operations); Hendra Gunawan (Security) | RPO/RTO, recovery site, drill schedule | Section 2 is a starting point; owner deferred | F-P0-RESIL (DR leg) |
+| 8 | Limits approval basis | Blocked | Andi Pratama (Risk); Rina Amelia (Finance) | Per-customer/product/channel limits, velocity | Conservative default in section 2; needs approval | C-P0-LIMITS |
+| 9 | Regulatory reports and trial balance | Partial input | Rina Amelia (Finance); Muhammad Febriansyah (Compliance) | LBPUE mapping, trial-balance layout, export rules | Monthly LBPUE via BI-Antasena API (XML/XBRL); daily + monthly internal | D-P1-REPORTS |
+| 10 | Owner-controlled money data | Blocked | Rina Amelia (Finance) | Fee amounts, hold policy, FX residual materiality | Seed values are placeholders only | B-P1-LIFECYCLE (fees) |
+| 11 | SLOs, load targets, alerts | Deferred | Kevin Kusuma (Operations) | Availability, latency, capacity, alert thresholds | Section 2 is a starting point; owner deferred | F-P0-RESIL (SLO/load) |
+| 12 | Patch windows and exception approver | Deferred | Hendra Gunawan (Security); Kevin Kusuma (Operations) | Patch windows, emergency approver | Section 2 is a starting point; owner deferred | `docs/patch-policy.md` rule 3 |
+| 13 | Incident severity and roster | Deferred | Kevin Kusuma (Operations) | SEV definitions, paging roster, contacts | Section 2 is a starting point; owner deferred | F-P0-SECOPS, incident runbook |
+| 14 | Data retention, legal hold, keys | Blocked | Sarah Wijaya (Legal); Muhammad Febriansyah (Compliance); Hendra Gunawan (Security) | Retention schedule, legal hold, key management | Section 2 is a starting point; legal must approve | F-P1-DATA, D-P0-AUDIT |
+| 15 | Release approvals and independent assessment | Deferred | Hendra Gunawan (Security); Kevin Kusuma (Operations) | Approvers, production identity, assessment provider | Section 2 is a starting point; owner deferred | F-P1-CHANGE, F-P0-SECOPS |
+| 16 | ADR 0072 production ratification | Blocked | Rina Amelia (Finance); Muhammad Febriansyah (Compliance) | Ratify D1/D2/D3 for production | Implementation is complete; sign-off missing | FX/fee/rate production use |
 
+Owner mapping is proposed from the roles named on 2026-10-21. Each named owner
+must confirm the assignment; this table is not a sign-off.
 ## 2. Proposed technical defaults (not accepted)
 
 These are engineering starting points, not approvals. The owner deferred the
@@ -141,32 +152,39 @@ return them in the review thread; do not mark an item complete without evidence.
 
 ### 3.1 Legal entity and jurisdiction (item 1)
 
-- Legal entity name: TBD - owner to provide
+- Legal entity name: PT Flopay Teknologi Indonesia
 - Jurisdiction / country: Indonesia
-- License type, number, status: Payment / e-money; number, status, and issue date TBD
-- Regulator(s): OJK
-- Permitted products and currencies: IDR + USD
-- Reporting obligations: daily + monthly internal; regulator reporting TBD
+- License type: Izin Penyelenggara Uang Elektronik dan Transfer Dana
+- License number: 28/145/DKSP/Srt/B
+- License status and issue date: Active; 12 May 2026
+- Regulator(s): Bank Indonesia and OJK
+- Permitted products and currencies: e-money and transfer; IDR + USD
+- Reporting obligations: daily + monthly internal; monthly LBPUE through the
+  BI-Antasena API in XML/XBRL
 - Target launch date: Q1 2027
+- Evidence reference: license certificate and formal sign-off in the private
+  evidence store (reference TBD)
 
 ### 3.2 Named owners and sign-off (item 2)
 
 | Role | Name | Contact | Decision date |
 |---|---|---|---|
-| Compliance | TBD |  |  |
-| Legal | TBD |  |  |
-| Risk | TBD |  |  |
-| Security | TBD |  |  |
-| Finance/accounting | TBD |  |  |
-| Operations | TBD |  |  |
-| Repository owner (technical) | repository owner |  | 2026-10-21 (runtime/posture only) |
+| Compliance | Muhammad Febriansyah (Chief Compliance Officer) | TBD | Named 2026-10-21; sign-off pending |
+| Legal | Sarah Wijaya (VP of Legal Affairs) | TBD | Named 2026-10-21; sign-off pending |
+| Risk | Andi Pratama (Chief Risk Officer) | TBD | Named 2026-10-21; sign-off pending |
+| Security | Hendra Gunawan (Chief Information Security Officer) | TBD | Named 2026-10-21; sign-off pending |
+| Finance/accounting | Rina Amelia (Chief Financial Officer) | TBD | Named 2026-10-21; sign-off pending |
+| Operations | Kevin Kusuma (Chief Operating Officer) | TBD | Named 2026-10-21; sign-off pending |
+| Repository owner (technical) | repository owner | TBD | 2026-10-21 (runtime/posture only) |
 
 ### 3.3 Product and customer scope (item 3)
 
-- Launch products (full scope selected): full product scope (owner intent); final list TBD
+- Launch products (full scope selected): e-money and transfer; final product
+  list TBD
 - Customer segments: Retail + SME
 - Countries and currencies: Indonesia only; IDR + USD
-- End-of-day and reporting needs: daily + monthly internal; regulator reports TBD
+- End-of-day and reporting needs: daily + monthly internal; monthly LBPUE via
+  the BI-Antasena API in XML/XBRL
 - Excluded products: TBD
 
 ### 3.4 KYC/CDD, sanctions, and fraud (items 4-6)
@@ -191,10 +209,12 @@ return them in the review thread; do not mark an item complete without evidence.
 
 ### 3.6 Regulatory reports and trial balance (item 9)
 
-- Required regulator reports and formats: ___________________________
-- Trial-balance layout: ____________________________________________
-- Reproducibility and export rules: _________________________________
-- Finance/compliance approver: _____________________________________
+- Required regulator reports and formats: monthly LBPUE through the BI-Antasena
+  API in XML/XBRL
+- Trial-balance layout: TBD
+- Reproducibility and export rules: TBD
+- Finance/compliance approver: Rina Amelia (Finance) and Muhammad Febriansyah
+  (Compliance); formal sign-off pending
 
 ### 3.7 Operations, security, and release (items 7, 11-15)
 
@@ -239,13 +259,13 @@ production or compliance claim is permitted.
 
 | Role | Name | Decision | Date | Notes |
 |---|---|---|---|---|
-| Repository owner (technical) |  |  |  |  |
-| Compliance |  |  |  |  |
-| Legal |  |  |  |  |
-| Risk |  |  |  |  |
-| Security |  |  |  |  |
-| Finance/accounting |  |  |  |  |
-| Operations |  |  |  |  |
+| Repository owner (technical) | repository owner |  | 2026-10-21 | Runtime/posture only |
+| Compliance | Muhammad Febriansyah |  |  | Named 2026-10-21; formal sign-off pending |
+| Legal | Sarah Wijaya |  |  | Named 2026-10-21; formal sign-off pending |
+| Risk | Andi Pratama |  |  | Named 2026-10-21; formal sign-off pending |
+| Security | Hendra Gunawan |  |  | Named 2026-10-21; formal sign-off pending |
+| Finance/accounting | Rina Amelia |  |  | Named 2026-10-21; formal sign-off pending |
+| Operations | Kevin Kusuma |  |  | Named 2026-10-21; formal sign-off pending |
 
 A signature approves only the item named next to it. It does not approve the
 whole repository or any unlisted control.

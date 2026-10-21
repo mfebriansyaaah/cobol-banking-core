@@ -15,10 +15,14 @@ Owner posture (2026-10-21): target production berlisensi, full product scope,
 technical defaults deferred. This is an intent, not an approval; items 1-16
 remain open and require the inputs in the packet.
 
-Batch 1 interview inputs (2026-10-21): Indonesia; payment/e-money; regulator
-OJK; IDR + USD; Retail + SME; Indonesia only; daily + monthly internal EOD;
-target launch Q1 2027. Legal entity name, license number/status/date, named
-owners, and regulator report formats are still pending. Sources: `docs/TRACEABILITY.md`
+Batch 1 interview inputs (2026-10-21): PT Flopay Teknologi Indonesia;
+Indonesia; license 28/145/DKSP/Srt/B (Izin Penyelenggara Uang Elektronik dan
+Transfer Dana), active 2026-05-12; supervised by Bank Indonesia and OJK;
+e-money and transfer; IDR + USD; Retail + SME; Indonesia only; daily + monthly
+internal EOD; monthly LBPUE through the BI-Antasena API in XML/XBRL; target
+launch Q1 2027. Named owners: Compliance Muhammad Febriansyah; Legal Sarah
+Wijaya; Risk Andi Pratama; Security Hendra Gunawan; Finance Rina Amelia;
+Operations Kevin Kusuma. Formal evidence and sign-offs are pending. Sources: `docs/TRACEABILITY.md`
 (Gate 0 rows), `PRD_Enterprise.md` section 3, `docs/adr/0072-fx-fee-rate-policy.md`.
 
 How to use this file: for each item, fill Owner, Decision, and Date.
@@ -28,24 +32,33 @@ same PR that implements the unblocked work.
 
 ## 1. Jurisdiction, legal entity, license (blocks everything)
 
-- **Decide:** operating legal entity name, license type/number, jurisdiction(s),
-  permitted products, customer types, currencies, reporting obligations.
-- **Owner:** TBD (bank legal + compliance).
-- **Date:** TBD.
-- **Unblocks:** G0-ENTITY, and every row marked `BLOCKED` at Gate 0/2/3.
-- **Note:** `PRD_Enterprise.md` section 3 items 1-2. Until this is named,
-  compliance-sensitive work (KYC, screening, reports, DR) cannot start.
+- **Decision:** PT Flopay Teknologi Indonesia; Indonesia; license
+  28/145/DKSP/Srt/B (Izin Penyelenggara Uang Elektronik dan Transfer Dana),
+  active, issued 2026-05-12; supervised by Bank Indonesia and OJK; products
+  e-money and transfer; currencies IDR + USD; monthly LBPUE through the
+  BI-Antasena API in XML/XBRL.
+- **Owner:** Muhammad Febriansyah (Chief Compliance Officer) and Sarah Wijaya
+  (VP of Legal Affairs).
+- **Date:** 2026-10-21 (owner input recorded; formal evidence and sign-off
+  pending).
+- **Unblocks:** G0-ENTITY, subject to the license certificate and sign-off.
+- **Note:** owner-provided input, not an independent verification. The license
+  certificate and formal approvals belong in the private evidence store.
 
 ## 2. Accountable owners and sign-off records (blocks everything)
 
-- **Decide:** named owners for compliance, legal, risk, security,
-  finance/accounting, operations; where written sign-offs are recorded.
-- **Owner:** TBD.
-- **Date:** TBD.
-- **Unblocks:** G0-SIGNOFF and every `UNASSIGNED` owner cell.
-- **Note:** provisional owner `nineboll07` recorded decisions D1-D3 on
-  2026-10-18 (`docs/adr/0072-fx-fee-rate-policy.md`); a licensed entity's
-  compliance + finance owners must still ratify them for production.
+- **Decision:** named owners recorded: Compliance Muhammad Febriansyah (CCO);
+  Legal Sarah Wijaya (VP Legal Affairs); Risk Andi Pratama (CRO); Security
+  Hendra Gunawan (CISO); Finance Rina Amelia (CFO); Operations Kevin Kusuma
+  (COO).
+- **Owner:** each named owner for their domain; the repository owner for the
+  technical runtime decision.
+- **Date:** 2026-10-21 (named; formal sign-off pending).
+- **Unblocks:** G0-SIGNOFF, subject to signatures.
+- **Note:** formal sign-offs belong in the private evidence store. The earlier
+  provisional decision by `nineboll07` on 2026-10-18
+  (`docs/adr/0072-fx-fee-rate-policy.md`) still needs the licensed entity's
+  compliance and finance owners to ratify it.
 
 ## 3. Product and customer scope
 
