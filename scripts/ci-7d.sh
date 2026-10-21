@@ -1,4 +1,6 @@
 #!/bin/bash
+# LAB-ONLY volume gate. Superseded by docs/PRODUCTION_GRADE_PLAN.md.
+# Do not use as a production merge gate.
 # Fast gate for the 7-day volume sprint. It is not the full merge gate.
 set -e
 cd "$(dirname "$0")/.."
