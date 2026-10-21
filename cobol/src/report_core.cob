@@ -48,6 +48,7 @@
        01  WS-FOUND                PIC 9 VALUE 0.
        01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
        01  WS-TEMPLATE-ID          PIC X(20) VALUE SPACES.
+       01  WS-SOURCE-TEMPLATE-ID   PIC X(20) VALUE SPACES.
        01  WS-TEMPLATE-CODE        PIC X(40) VALUE SPACES.
        01  WS-TEMPLATE-NAME        PIC X(100) VALUE SPACES.
        01  WS-TEMPLATE-TYPE        PIC X(30) VALUE SPACES.
@@ -71,6 +72,11 @@
        01  WS-RUN-CHECKSUM         PIC X(64) VALUE SPACES.
        01  WS-RUN-ERROR            PIC X(40) VALUE SPACES.
        01  WS-RUN-VERSION          PIC X(10) VALUE SPACES.
+       01  WS-NEW-CODE             PIC X(40) VALUE SPACES.
+       01  WS-NEW-NAME             PIC X(100) VALUE SPACES.
+       01  WS-NEW-TITLE            PIC X(100) VALUE SPACES.
+       01  WS-DATE-IN              PIC X(100) VALUE SPACES.
+       01  WS-DATE-LEN             PIC 9(3) VALUE 0.
        01  WS-CODE-IN              PIC X(100) VALUE SPACES.
        01  WS-CODE-LEN             PIC 9(3) VALUE 0.
        01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
@@ -136,6 +142,12 @@
                WHEN LS-CMD-ACTION(1:15) = "RPT_COLUMN_LIST"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-COLUMN-LIST
+               WHEN LS-CMD-ACTION(1:17) = "RPT_COLUMN_DELETE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-COLUMN-DELETE
+               WHEN LS-CMD-ACTION(1:17) = "RPT_COLUMN_UPDATE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-COLUMN-UPDATE
                WHEN LS-CMD-ACTION(1:13) = "RPT_RUN_START"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-RUN-START
@@ -157,6 +169,24 @@
                WHEN LS-CMD-ACTION(1:14) = "RPT_RUN_EXPORT"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-RUN-EXPORT
+               WHEN LS-CMD-ACTION(1:14) = "RPT_RUN_DELETE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-RUN-DELETE
+               WHEN LS-CMD-ACTION(1:19) = "RPT_TEMPLATE_UPDATE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-TEMPLATE-UPDATE
+               WHEN LS-CMD-ACTION(1:18) = "RPT_TEMPLATE_CLONE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-TEMPLATE-CLONE
+               WHEN LS-CMD-ACTION(1:19) = "RPT_TEMPLATE_DELETE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-TEMPLATE-DELETE
+               WHEN LS-CMD-ACTION(1:13) = "RPT_RUN_RETRY"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-RUN-RETRY
+               WHEN LS-CMD-ACTION(1:16) = "RPT_RUN_GENERATE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-RUN-GENERATE
                WHEN OTHER
                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
            END-EVALUATE.
@@ -291,6 +321,28 @@
                END-IF
            END-PERFORM.
            IF WS-DOT-COUNT > 1
+               MOVE 1 TO WS-BAD
+           END-IF.
+           EXIT PARAGRAPH.
+
+       VALIDATE-DATE-FIELD.
+           MOVE 0 TO WS-BAD
+           MOVE 0 TO WS-DATE-LEN
+           PERFORM VARYING WS-I FROM 100 BY -1
+               UNTIL WS-I < 1 OR WS-DATE-LEN > 0
+               IF WS-DATE-IN(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-DATE-LEN
+               END-IF
+           END-PERFORM
+           IF WS-DATE-LEN NOT = 10
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-DATE-IN(5:1) NOT = "-" OR WS-DATE-IN(8:1) NOT = "-"
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-DATE-IN(1:4) IS NOT NUMERIC
+              OR WS-DATE-IN(6:2) IS NOT NUMERIC
+              OR WS-DATE-IN(9:2) IS NOT NUMERIC
                MOVE 1 TO WS-BAD
            END-IF.
            EXIT PARAGRAPH.
@@ -1409,4 +1461,694 @@
                   WS-PART2(1:WS-PART2-LEN) DELIMITED BY SIZE
                   INTO LS-OUTPUT-BUFFER
            END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-TEMPLATE-UPDATE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+              OR LS-PARAM3 = SPACES OR LS-PARAM4 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P1-TRIMMED TO WS-CODE-IN
+           PERFORM VALIDATE-CODE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-P2-TRIMMED NOT = "0" AND WS-P2-TRIMMED NOT = "1"
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-P3-TRIMMED NOT = "CSV" AND WS-P3-TRIMMED NOT = "FIXED"
+              AND WS-P3-TRIMMED NOT = "JSON"
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-TEMPLATE
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "UPDATE report_template SET enabled = ?, output_format = ?, title = ? WHERE id = ?" TO WS-PREP-SQL
+           MOVE WS-P2-TRIMMED TO WS-BIND-1
+           MOVE WS-P3-TRIMMED TO WS-BIND-2
+           MOVE WS-P4-TRIMMED TO WS-BIND-3
+           MOVE WS-TEMPLATE-ID TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "TEMPLATE_UPDATE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-TEMPLATE
+               MOVE SPACES TO WS-AUDIT-RUN
+               MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-REPORT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|RPT_TEMPLATE_UPDATED" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-TEMPLATE-CLONE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+              OR LS-PARAM3 = SPACES OR LS-PARAM4 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P1-TRIMMED TO WS-CODE-IN
+           PERFORM VALIDATE-CODE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P2-TRIMMED TO WS-CODE-IN
+           PERFORM VALIDATE-CODE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-TEMPLATE
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-TEMPLATE-ID TO WS-SOURCE-TEMPLATE-ID
+           MOVE "SELECT 1 FROM report_template WHERE template_code = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P2-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "1"
+               MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO report_template (template_code, name, report_type, output_format, title, enabled, created_by) VALUES (?, ?, ?, ?, ?, TRUE, ?)" TO WS-PREP-SQL
+           MOVE WS-P2-TRIMMED TO WS-BIND-1
+           MOVE WS-P3-TRIMMED TO WS-BIND-2
+           MOVE WS-TEMPLATE-TYPE TO WS-BIND-3
+           MOVE WS-TEMPLATE-FORMAT TO WS-BIND-4
+           MOVE WS-P4-TRIMMED TO WS-BIND-5
+           MOVE WS-P6-TRIMMED TO WS-BIND-6
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-TEMPLATE-ID
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO report_template_column (template_id, ordinal, header, source_field, width, align, column_format) SELECT ?, ordinal, header, source_field, width, align, column_format FROM report_template_column WHERE template_id = ?" TO WS-PREP-SQL
+               MOVE WS-TEMPLATE-ID TO WS-BIND-1
+               MOVE WS-SOURCE-TEMPLATE-ID TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "TEMPLATE_CLONE" TO WS-AUDIT-ACTION
+               MOVE WS-P2-TRIMMED(1:40) TO WS-AUDIT-TEMPLATE
+               MOVE SPACES TO WS-AUDIT-RUN
+               MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-REPORT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|RPT_TEMPLATE_CLONED|" DELIMITED BY SIZE
+                      WS-TEMPLATE-ID DELIMITED BY SPACE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-TEMPLATE-DELETE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-TEMPLATE
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM report_run WHERE template_id = ?" TO WS-PREP-SQL
+           MOVE WS-TEMPLATE-ID TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF FUNCTION NUMVAL(WS-RESULT) > 0
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "DELETE FROM report_template WHERE id = ?" TO WS-PREP-SQL
+           MOVE WS-TEMPLATE-ID TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "TEMPLATE_DELETE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-TEMPLATE
+               MOVE SPACES TO WS-AUDIT-RUN
+               MOVE "deleted" TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-REPORT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|RPT_TEMPLATE_DELETED" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-RUN-RETRY.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-RUN
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RUN-STATUS NOT = "FAILED"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT template_id FROM report_run WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-TEMPLATE-ID
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO report_run (template_id, status, parameters, created_by) VALUES (?, 'RUNNING', ?, ?)" TO WS-PREP-SQL
+           MOVE WS-TEMPLATE-ID TO WS-BIND-1
+           MOVE WS-RUN-PARAMS TO WS-BIND-2
+           MOVE WS-P6-TRIMMED TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-RUN-ID
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "RUN_RETRY" TO WS-AUDIT-ACTION
+               MOVE WS-RUN-TEMPLATE TO WS-AUDIT-TEMPLATE
+               MOVE WS-RUN-ID TO WS-AUDIT-RUN
+               MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-REPORT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|RPT_RUN_RETRIED|" DELIMITED BY SIZE
+                      WS-RUN-ID DELIMITED BY SPACE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-RUN-GENERATE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+              OR LS-PARAM3 = SPACES OR LS-PARAM4 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P2-TRIMMED TO WS-DATE-IN
+           PERFORM VALIDATE-DATE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P3-TRIMMED TO WS-DATE-IN
+           PERFORM VALIDATE-DATE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-P4-LEN NOT = 3 OR WS-P4-TRIMMED(1:3) IS NOT ALPHABETIC
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-RUN
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RUN-STATUS NOT = "RUNNING"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT report_type FROM report_template t JOIN report_run r ON r.template_id = t.id WHERE r.id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:20) NOT = "TRIAL_BALANCE"
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-PREP-SQL
+           STRING "INSERT INTO report_run_row (run_id, ordinal, row_data, debit, credit) " DELIMITED BY SIZE
+                  "SELECT ?, ROW_NUMBER() OVER (ORDER BY a.account_code), " DELIMITED BY SIZE
+                  "CONCAT(a.account_code, ',', a.name, ',', " DELIMITED BY SIZE
+                  "CAST(COALESCE(t.debit, 0) AS CHAR), ',', " DELIMITED BY SIZE
+                  "CAST(COALESCE(t.credit, 0) AS CHAR)), " DELIMITED BY SIZE
+                  "COALESCE(t.debit, 0), COALESCE(t.credit, 0) " DELIMITED BY SIZE
+                  "FROM gl_account a LEFT JOIN (SELECT l.gl_account_code, " DELIMITED BY SIZE
+                  "SUM(l.debit_amount) debit, SUM(l.credit_amount) credit " DELIMITED BY SIZE
+                  "FROM gl_journal_line l JOIN gl_journal j ON j.id = l.journal_id " DELIMITED BY SIZE
+                  "WHERE j.status = 'POSTED' AND j.currency_code = ? " DELIMITED BY SIZE
+                  "AND j.posting_date BETWEEN ? AND ? GROUP BY l.gl_account_code) t " DELIMITED BY SIZE
+                  "ON t.gl_account_code = a.account_code ORDER BY a.account_code" DELIMITED BY SIZE
+                  INTO WS-PREP-SQL
+           END-STRING
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P4-TRIMMED TO WS-BIND-2
+           MOVE WS-P2-TRIMMED TO WS-BIND-3
+           MOVE WS-P3-TRIMMED TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM report_run_row WHERE run_id = ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-TOTAL
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "RUN_GENERATE" TO WS-AUDIT-ACTION
+           MOVE WS-RUN-TEMPLATE TO WS-AUDIT-TEMPLATE
+           MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-RUN
+           MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+           PERFORM AUDIT-REPORT
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|RPT_GENERATED|" DELIMITED BY SIZE
+                      WS-TOTAL DELIMITED BY SPACE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-RUN-DELETE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-RUN
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RUN-STATUS NOT = "FAILED"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "DELETE FROM report_run WHERE id = ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "RUN_DELETE" TO WS-AUDIT-ACTION
+               MOVE WS-RUN-TEMPLATE TO WS-AUDIT-TEMPLATE
+               MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-RUN
+               MOVE "deleted" TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-REPORT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|RPT_RUN_DELETED" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-COLUMN-DELETE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P1-TRIMMED TO WS-CODE-IN
+           PERFORM VALIDATE-CODE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P2-TRIMMED(1:30) TO WS-COUNT-IN
+           PERFORM VALIDATE-COUNT-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-TEMPLATE
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "DELETE FROM report_template_column WHERE template_id = ? AND ordinal = ?" TO WS-PREP-SQL
+           MOVE WS-TEMPLATE-ID TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "SUCCESS|AFFECTED_0"
+               MOVE "ERROR|NOT_FOUND" TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "COLUMN_DELETE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-TEMPLATE
+               MOVE SPACES TO WS-AUDIT-RUN
+               MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-REPORT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|RPT_COLUMN_DELETED" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               IF WS-ERR = "ERROR|NOT_FOUND"
+                   MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-COLUMN-UPDATE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+              OR LS-PARAM3 = SPACES OR LS-PARAM4 = SPACES
+              OR LS-PARAM5 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P1-TRIMMED TO WS-CODE-IN
+           PERFORM VALIDATE-CODE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P2-TRIMMED(1:30) TO WS-COUNT-IN
+           PERFORM VALIDATE-COUNT-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-WIDTH WS-ALIGN WS-COL-FORMAT
+           UNSTRING WS-P5-TRIMMED DELIMITED BY ","
+               INTO WS-WIDTH WS-ALIGN WS-COL-FORMAT
+           END-UNSTRING
+           MOVE WS-WIDTH TO WS-COUNT-IN
+           PERFORM VALIDATE-COUNT-FIELD
+           IF WS-BAD > 0 OR FUNCTION NUMVAL(WS-COUNT-IN) < 1
+              OR FUNCTION NUMVAL(WS-COUNT-IN) > 80
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-ALIGN NOT = "LEFT" AND WS-ALIGN NOT = "RIGHT"
+              AND WS-ALIGN NOT = "CENTER"
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-COL-FORMAT NOT = "TEXT" AND WS-COL-FORMAT NOT = "AMOUNT"
+              AND WS-COL-FORMAT NOT = "DATE" AND WS-COL-FORMAT NOT = "INTEGER"
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM CHECK-TEMPLATE
+           IF WS-LOOKUP-BAD = 1
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-LOOKUP-BAD = 2
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT id FROM report_template_column WHERE template_id = ? AND ordinal = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-TEMPLATE-ID TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-COL-ID
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "UPDATE report_template_column SET header = ?, source_field = ? WHERE id = ?" TO WS-PREP-SQL
+           MOVE WS-P3-TRIMMED TO WS-BIND-1
+           MOVE WS-P4-TRIMMED TO WS-BIND-2
+           MOVE WS-COL-ID TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE WS-RESULT(1:40) TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE report_template_column SET width = ?, align = ?, column_format = ? WHERE id = ?" TO WS-PREP-SQL
+               MOVE WS-WIDTH TO WS-BIND-1
+               MOVE WS-ALIGN TO WS-BIND-2
+               MOVE WS-COL-FORMAT TO WS-BIND-3
+               MOVE WS-COL-ID TO WS-BIND-4
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "COLUMN_UPDATE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-TEMPLATE
+               MOVE SPACES TO WS-AUDIT-RUN
+               MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-REPORT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|RPT_COLUMN_UPDATED" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
            EXIT PARAGRAPH.
