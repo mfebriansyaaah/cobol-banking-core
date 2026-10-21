@@ -176,7 +176,8 @@ Exit: full CI green, floor gate active, runtime decision recorded.
 Status 2026-10-21: the generic reference-data engine is implemented (schema,
 COBOL actions, gateway routes, and an 18-assertion suite). Country, holiday, fee_code, limit_type, and product_type
 are cut over; 206 generated entities remain for later cutover. The GL core
-(chart of accounts, balanced journals, trial balance) is implemented.
+(chart of accounts, period open/close control, balanced manual and multi-line
+journals, trial balance) is implemented; the first Sprint 1 slice is merged.
 
 - Generic reference-data engine.
 - Ledger/GL module, batch/EOD engine, report engine, import/export.
