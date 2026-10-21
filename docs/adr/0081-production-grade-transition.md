@@ -9,9 +9,9 @@ Related: `PRD_Enterprise.md`, `docs/PRODUCTION_GRADE_PLAN.md`,
 ## Context
 
 The October 2026 volume sprint produced a large generated reference-data
-module: 211 entities, 1.055 actions, 211 smoke suites, and roughly 52.700 net
+module: 211 entities, 1.055 actions, 211 smoke suites, and 53.394 net
 COBOL lines. The repository reached 109.344 raw lines / 101.200 net lines,
-with 64.703 COBOL raw / 62.544 COBOL net.
+with 64.703 COBOL raw / 62.544 COBOL net (9.150 curated / 53.394 generated net).
 
 The volume milestone is useful as a lab artifact and as evidence that the
 generator, build, and smoke harness scale. It is not a production data model,

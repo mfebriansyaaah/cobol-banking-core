@@ -68,9 +68,9 @@ Current composition (approximate, measured before isolation):
 
 | Component | Net COBOL | Curated share |
 |---|---:|---:|
-| Core (auth, wallet, user, main) | ~9.800 | curated |
-| Generated reference module | ~52.700 | generated |
-| **Total** | **62.544** | **~16%** |
+| Core (auth, wallet, user, main) | 9.150 | curated |
+| Generated reference module | 53.394 | generated |
+| **Total** | **62.544** | **14,6%** |
 
 Target composition:
 
@@ -241,7 +241,7 @@ Exit: go/no-go decision by accountable owners, not by CI alone.
 
 1. Tag `milestone/100k-60k`.
 2. Add `--check-floor` to `scripts/loc_report.sh`.
-3. Move `cobol/src/ref_core.cob` to `cobol/src/generated/`.
+3. Keep the generated module isolated under `cobol/src/generated/` with an `@generated` marker.
 4. Run and fix the full `./ci.sh`.
 5. Write the target-runtime ADR.
 6. Build the generic reference-data engine.

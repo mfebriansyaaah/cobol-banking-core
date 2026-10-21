@@ -161,4 +161,5 @@ same PR that implements the unblocked work.
 - **Date:** TBD.
 - **Unblocks:** Phase 0 of `docs/PRODUCTION_GRADE_PLAN.md`. Without this
   decision, the deployment, security, and performance workstreams can drift
-  toward different platforms.
+  toward different platforms. Options and consequences are recorded in
+  `docs/adr/0082-target-runtime.md`.
