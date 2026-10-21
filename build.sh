@@ -36,6 +36,7 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/recon_ops_core.cob \
     cobol/src/alert_core.cob \
     cobol/src/dashboard_core.cob \
+    cobol/src/statement_recon_core.cob \
     cobol/src/import_core.cob \
     cobol/src/import_post_core.cob \
     cobol/src/fee_core.cob \
