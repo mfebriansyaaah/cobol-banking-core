@@ -56,6 +56,7 @@ DEFAULT_SUITES=(
     test_password_policy
     test_step_up_policy
     test_dormancy
+    test_ref_engine
 )
 ALL_SUITES=(
     test_suite test_atomic_txn test_ledger_atomic test_reconciliation
@@ -71,13 +72,14 @@ ALL_SUITES=(
     test_journal test_holds test_reconciliation_runs test_dual_control
     test_mfa test_password_kdf test_permissions test_session_security
     test_access_reviews
+    test_ref_engine
 )
 case "$MODE" in
     default) SUITES=("${DEFAULT_SUITES[@]}") ;;
     all) SUITES=("${ALL_SUITES[@]}") ;;
 esac
 
-MODULES=(main_logic user_core wallet_core auth_core)
+MODULES=(main_logic user_core wallet_core auth_core ref_engine)
 COBOL_SRC="cobol/src"
 C_SRC="cobol/src/sql_bridge.c cobol/c_lib/hash_lib.c cobol/c_lib/totp_lib.c cobol/c_lib/settings_lib.c cobol/c_lib/random_lib.c"
 
