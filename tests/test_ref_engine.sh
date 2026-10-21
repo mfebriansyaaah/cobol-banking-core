@@ -103,6 +103,19 @@ check_contains "holiday cutover list" "NEWYEAR:New Year:1:ACTIVE" \
 check_contains "holiday cutover get" "NEWYEAR:New Year:1:ACTIVE" \
     "$(run RFE_VALUE_GET holiday NEWYEAR '' '' '' "$ADM")"
 
+check_contains "fee code cutover list" "TRANSF:Transfer fee:1:ACTIVE" \
+    "$(run RFE_VALUE_LIST fee_code 50 0 '' '' "$ADM")"
+check_contains "fee code cutover get" "TRANSF:Transfer fee:1:ACTIVE" \
+    "$(run RFE_VALUE_GET fee_code TRANSF '' '' '' "$ADM")"
+check_contains "limit type cutover list" "DAILYL:Daily limit:1:ACTIVE" \
+    "$(run RFE_VALUE_LIST limit_type 50 0 '' '' "$ADM")"
+check_contains "limit type cutover get" "DAILYL:Daily limit:1:ACTIVE" \
+    "$(run RFE_VALUE_GET limit_type DAILYL '' '' '' "$ADM")"
+check_contains "product type cutover list" "EWALLT:E-wallet:1:ACTIVE" \
+    "$(run RFE_VALUE_LIST product_type 50 0 '' '' "$ADM")"
+check_contains "product type cutover get" "EWALLT:E-wallet:1:ACTIVE" \
+    "$(run RFE_VALUE_GET product_type EWALLT '' '' '' "$ADM")"
+
 check "audit rows recorded" "4" \
     "$(q "SELECT COUNT(*) FROM ref_engine_audit WHERE type_code='test_type';")"
 

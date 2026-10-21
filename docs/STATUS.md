@@ -122,12 +122,12 @@ action has a handler in its owning module.
 ## 2a. Generated reference-data module (frozen volume artifact)
 
 The October 2026 volume sprint added 211 generated reference entities; after
-the first cutover, 209 entities and 1,045 actions remain in
+the first two cutovers, 206 entities and 1,030 actions remain in
 `cobol/src/generated/ref_core.cob`, with a uniform
 `code/label/num_val/is_active` contract. They are produced by
-`scripts/gen_entity.mjs` and exercised by 209 smoke suites (2,299 assertions)
+`scripts/gen_entity.mjs` and exercised by 206 smoke suites (2,266 assertions)
 run through `scripts/ci-7d.sh`. The measured split is 9.902 curated
-net COBOL and 52.890 generated net COBOL (15,7% curated).
+net COBOL and 52.134 generated net COBOL (15,9% curated).
 
 This module is a **frozen generated artifact**. It is not a PRD requirement,
 not a curated production data model, and not part of the merge gate. The production-grade
@@ -142,9 +142,10 @@ The generic engine replaces per-entity generated CRUD with a type/value/version
 model: effective dating, approval, translations, hierarchy, and audit. The
 generated reference module stays in place until each domain is cut over.
 
-Country and holiday are cut over: their data lives in the engine and is served
-by `/reference-engine/values?type=country|holiday`. The legacy `ref_country`
-and `ref_holiday` tables remain as a read-only safety copy for one release.
+Country, holiday, fee_code, limit_type, and product_type are cut over: their
+data lives in the engine and is served by
+`/reference-engine/values?type=<domain>`. The legacy tables remain as a
+read-only safety copy for one release.
 
 | Module | Action | Behavior |
 |---|---|---|
@@ -243,11 +244,11 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_hooks.sh` | 4 | installed git hooks match tracked (`--check`), tampering detected, reinstall restores |
 | `tests/test_c_memory.sh` | 12 | C/COBOL boundary contract under ASan+UBSan (1-byte result fields, 6-digit codes, 32-char secrets, fast refusal of absurd KDF costs) |
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
-| `tests/test_ref_engine.sh` | 18 | reference engine: type/value creation, DRAFT -> ACTIVE -> RETIRED lifecycle, history, authorization, duplicate rejection, audit, country/holiday cutover |
+| `tests/test_ref_engine.sh` | 24 | reference engine: type/value creation, DRAFT -> ACTIVE -> RETIRED lifecycle, history, authorization, duplicate rejection, audit, country/holiday/fee/limit/product cutover |
 | `middleware/` (node --test) | 126 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **bounded signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
-Shell suites total **1179**; with the gateway suite **126** the full run is
-**1305 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **1185**; with the gateway suite **126** the full run is
+**1311 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
