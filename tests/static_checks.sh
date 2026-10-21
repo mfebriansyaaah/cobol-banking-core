@@ -12,7 +12,7 @@ viol=0
 # Violation 1: sentence period inside an inline IF/ELSE scope.
 # Paragraph headers (line that is nothing but an identifier ending in '.')
 # reset the IF depth. Covers every module actually compiled by build.sh.
-BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/generated/ref_core.cob"
+BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/generated/ref_core.cob"
 for f in $BUILT_COB; do
     awk '
         /^[[:space:]]*[A-Z0-9][A-Z0-9-]*\.[[:space:]]*$/ {ifdepth=0; next}
@@ -73,7 +73,8 @@ fi
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
     [ "$name" = "REF_" ] && continue
     [ "$name" = "RFE_" ] && continue
-    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/generated/ref_core.cob; then
+    [ "$name" = "GL_" ] && continue
+    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/generated/ref_core.cob; then
         echo "router: action '$name' has no handler in any core module"
         viol=1
     fi
@@ -93,6 +94,7 @@ fi
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
     [ "$name" = "REF_" ] && continue
     [ "$name" = "RFE_" ] && continue
+    [ "$name" = "GL_" ] && continue
     if ! grep -rqE "(action: '$name'|invoke\('$name')" middleware/src; then
         echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
         viol=1
