@@ -13,7 +13,12 @@ Consolidated status, input checklist, and proposed technical defaults:
 
 Owner posture (2026-10-21): target production berlisensi, full product scope,
 technical defaults deferred. This is an intent, not an approval; items 1-16
-remain open and require the inputs in the packet. Sources: `docs/TRACEABILITY.md`
+remain open and require the inputs in the packet.
+
+Batch 1 interview inputs (2026-10-21): Indonesia; payment/e-money; regulator
+OJK; IDR + USD; Retail + SME; Indonesia only; daily + monthly internal EOD;
+target launch Q1 2027. Legal entity name, license number/status/date, named
+owners, and regulator report formats are still pending. Sources: `docs/TRACEABILITY.md`
 (Gate 0 rows), `PRD_Enterprise.md` section 3, `docs/adr/0072-fx-fee-rate-policy.md`.
 
 How to use this file: for each item, fill Owner, Decision, and Date.

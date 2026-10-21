@@ -22,20 +22,31 @@ This raises the Gate 0 bar. It does not close any item, and the repository
 remains a development prototype until the items below are signed. The optional
 synthetic pilot is an engineering rehearsal, not the target product.
 
+### 0.1 Interview inputs recorded (2026-10-21)
+
+- Jurisdiction: Indonesia.
+- License type: payment / e-money; regulator OJK.
+- Permitted currencies: IDR + USD.
+- Customer segments: Retail + SME.
+- Operating countries: Indonesia only.
+- End-of-day / reporting: daily + monthly internal; regulator reports TBD.
+- Target launch: Q1 2027.
+- Still missing: legal entity name, license number/status/date, and named owners.
+
 ## 1. Status summary
 
 | # | Item | Status | Owner | Input needed | Proposed default | Unblocks |
 |---:|---|---|---|---|---|---|
 | 17 | Target runtime | Decided (technical) | Repository owner | Operations/security ratification | A - GnuCOBOL/MySQL/Linux (`docs/adr/0082-target-runtime.md`) | Phase 0/1 |
-| 1 | Legal entity, license, jurisdiction | Blocked - details required | TBD (legal + compliance) | Entity name, jurisdiction, license type/number/status, products, currencies | Owner reports an entity exists; the details must be recorded in section 3 | G0-ENTITY and all BLOCKED rows |
+| 1 | Legal entity, license, jurisdiction | Blocked - entity name/license/owners required | TBD (legal + compliance) | Entity name, license number/status/date, jurisdiction evidence, owners | Partial: Indonesia, payment/e-money, OJK, IDR+USD | G0-ENTITY and all BLOCKED rows |
 | 2 | Accountable owners and sign-off | Blocked | TBD (executive) | Named owners for compliance, legal, risk, security, finance, operations | None | G0-SIGNOFF |
-| 3 | Product and customer scope | Decided (owner intent): full scope | TBD (product + compliance) | Customer segments, countries, currencies, EOD/reporting scope | Full product scope selected; compliance scope pending | A-P1-LIFECYCLE, B-P1-LIFECYCLE |
+| 3 | Product and customer scope | Decided (owner intent): full scope; Retail + SME; Indonesia; IDR + USD | TBD (product + compliance) | Final product list, excluded products, compliance scope | Full scope; daily + monthly EOD; regulator reports TBD | A-P1-LIFECYCLE, B-P1-LIFECYCLE |
 | 4 | KYC/CDD design and provider | Blocked | TBD (compliance) | Identification, verification, risk, consent, retention, provider | None; jurisdiction-specific | A-P0-CDD |
 | 5 | Sanctions/PEP and monitoring | Blocked | TBD (compliance + risk) | Provider, lists, rules, risk states, escalation | None; jurisdiction-specific | C-P0-RISK |
 | 6 | Fraud operations | Blocked | TBD (risk + operations) | Queues, false positives, dual control, rule versioning | None; needs operating model | C-P1-FRAUDOPS |
 | 7 | Disaster recovery | Deferred | TBD (operations + security) | RPO/RTO, recovery site, drill schedule | Section 2 is a starting point; owner deferred | F-P0-RESIL (DR leg) |
 | 8 | Limits approval basis | Blocked | TBD (risk + finance) | Per-customer/product/channel limits, velocity | Conservative default in section 3; needs approval | C-P0-LIMITS |
-| 9 | Regulatory reports and trial balance | Blocked | TBD (finance + compliance) | Report list, formats, trial-balance layout, export rules | Generic trial balance only; no regulatory formats | D-P1-REPORTS |
+| 9 | Regulatory reports and trial balance | Partial input | TBD (finance + compliance) | Report list, formats, trial-balance layout, export rules | Daily + monthly internal; regulator formats TBD | D-P1-REPORTS |
 | 10 | Owner-controlled money data | Blocked | TBD (finance) | Fee amounts, hold policy, FX residual materiality | Seed values are placeholders only | B-P1-LIFECYCLE (fees) |
 | 11 | SLOs, load targets, alerts | Deferred | TBD (operations) | Availability, latency, capacity, alert thresholds | Section 2 is a starting point; owner deferred | F-P0-RESIL (SLO/load) |
 | 12 | Patch windows and exception approver | Deferred | TBD (security + operations) | Patch windows, emergency approver | Section 2 is a starting point; owner deferred | `docs/patch-policy.md` rule 3 |
@@ -130,33 +141,33 @@ return them in the review thread; do not mark an item complete without evidence.
 
 ### 3.1 Legal entity and jurisdiction (item 1)
 
-- Legal entity name: ________________________________________________
-- Jurisdiction / country: ___________________________________________
-- License type, number, status: _____________________________________
-- Regulator(s): ____________________________________________________
-- Permitted products and currencies: ________________________________
-- Reporting obligations: ___________________________________________
-- Target launch date: ______________________________________________
+- Legal entity name: TBD - owner to provide
+- Jurisdiction / country: Indonesia
+- License type, number, status: Payment / e-money; number, status, and issue date TBD
+- Regulator(s): OJK
+- Permitted products and currencies: IDR + USD
+- Reporting obligations: daily + monthly internal; regulator reporting TBD
+- Target launch date: Q1 2027
 
 ### 3.2 Named owners and sign-off (item 2)
 
 | Role | Name | Contact | Decision date |
 |---|---|---|---|
-| Compliance |  |  |  |
-| Legal |  |  |  |
-| Risk |  |  |  |
-| Security |  |  |  |
-| Finance/accounting |  |  |  |
-| Operations |  |  |  |
-| Repository owner (technical) |  |  |  |
+| Compliance | TBD |  |  |
+| Legal | TBD |  |  |
+| Risk | TBD |  |  |
+| Security | TBD |  |  |
+| Finance/accounting | TBD |  |  |
+| Operations | TBD |  |  |
+| Repository owner (technical) | repository owner |  | 2026-10-21 (runtime/posture only) |
 
 ### 3.3 Product and customer scope (item 3)
 
-- Launch products (full scope selected): ____________________________
-- Customer segments: _______________________________________________
-- Countries and currencies: _________________________________________
-- End-of-day and reporting needs: ___________________________________
-- Excluded products: _______________________________________________
+- Launch products (full scope selected): full product scope (owner intent); final list TBD
+- Customer segments: Retail + SME
+- Countries and currencies: Indonesia only; IDR + USD
+- End-of-day and reporting needs: daily + monthly internal; regulator reports TBD
+- Excluded products: TBD
 
 ### 3.4 KYC/CDD, sanctions, and fraud (items 4-6)
 

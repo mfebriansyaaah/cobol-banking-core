@@ -427,7 +427,9 @@ production claim include:
   operations/security ratification is still pending.
 - The 100k/60k milestone is a lab artifact and is not production evidence.
 - Owner posture: target production berlisensi, full product scope;
-  Gate 0 inputs are pending in `docs/GATE0_PACKET.md`. The repository remains
-  a development prototype until those items are signed.
+  Gate 0 inputs are pending in `docs/GATE0_PACKET.md`. Batch 1 inputs recorded:
+  Indonesia, payment/e-money (OJK), IDR + USD, Retail + SME, Indonesia only,
+  daily + monthly internal EOD, target Q1 2027. The repository remains a
+  development prototype until those items are signed.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
