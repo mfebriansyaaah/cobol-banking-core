@@ -55,6 +55,8 @@ check_contains "list report columns" "1:Account:account_code:20:RIGHT:TEXT" \
     "$(run RPT_COLUMN_LIST RPT_TEST 50 0 '' '' "$ADM")"
 check "duplicate column rejected" "ERROR|DUPLICATE" \
     "$(run RPT_COLUMN_CREATE RPT_TEST 1 Account account_code '20,RIGHT,TEXT' "$ADM")"
+check "update report column" "SUCCESS|RPT_COLUMN_UPDATED" \
+    "$(run RPT_COLUMN_UPDATE RPT_TEST 2 'Debit Amount' debit '24,RIGHT,AMOUNT' "$ADM")"
 check_contains "get template with columns" "RPT_TEST:Trial Balance:TRIAL_BALANCE:CSV:1:Trial Balance" \
     "$(run RPT_TEMPLATE_GET RPT_TEST 1 '' '' '' "$ADM")"
 
@@ -77,7 +79,7 @@ check_contains "run status completed" "COMPLETED:2026-10-01,2026-10-31,IDR:2:100
     "$(run RPT_RUN_STATUS "$RUN_ID" 0 '' '' '' "$ADM")"
 check "completed run cannot complete again" "ERROR|INVALID_STATUS" \
     "$(run RPT_RUN_COMPLETE "$RUN_ID" '2,100,100' checksum '' '' "$ADM")"
-check_contains "export report CSV" "Account,Debit,Credit|1000,Cash,100.00" \
+check_contains "export report CSV" "Account,Debit Amount,Credit|1000,Cash,100.00" \
     "$(run RPT_RUN_EXPORT "$RUN_ID" CSV '' '' '' "$ADM")"
 check_contains "run list filters completed" "RPT_TEST:COMPLETED" \
     "$(run RPT_RUN_LIST 50 0 COMPLETED RPT_TEST '' "$ADM")"
@@ -91,7 +93,52 @@ check_contains "failed run status" "FAILED" \
 check "failed run cannot export" "ERROR|REPORT_NOT_COMPLETE" \
     "$(run RPT_RUN_EXPORT "$FAIL_ID" CSV '' '' '' "$ADM")"
 
-check "report audit rows recorded" "9" \
+check "update report template" "SUCCESS|RPT_TEMPLATE_UPDATED" \
+    "$(run RPT_TEMPLATE_UPDATE RPT_TEST 1 FIXED 'Updated Trial Balance' '' "$ADM")"
+check_contains "clone report template" "SUCCESS|RPT_TEMPLATE_CLONED|" \
+    "$(run RPT_TEMPLATE_CLONE RPT_TEST RPT_CLONE 'Clone' 'Clone Title' '' "$ADM")"
+check_contains "clone copied columns" "1:Account:account_code" \
+    "$(run RPT_TEMPLATE_GET RPT_CLONE 1 '' '' '' "$ADM")"
+check "delete unused clone" "SUCCESS|RPT_TEMPLATE_DELETED" \
+    "$(run RPT_TEMPLATE_DELETE RPT_CLONE '' '' '' '' "$ADM")"
+
+GEN_OUT="$(run RPT_RUN_START RPT_TEST '2026-10-01,2026-10-31,IDR' '' '' '' "$ADM")"
+GEN_ID="$(printf '%s' "$GEN_OUT" | cut -d'|' -f3)"
+check_contains "generate trial-balance rows" "SUCCESS|RPT_GENERATED|" \
+    "$(run RPT_RUN_GENERATE "$GEN_ID" 2026-10-01 2026-10-31 IDR '' "$ADM")"
+check_contains "generated run has rows" "1000,Cash" \
+    "$(run RPT_RUN_STATUS "$GEN_ID" 1 '' '' '' "$ADM")"
+
+check_contains "retry failed report run" "SUCCESS|RPT_RUN_RETRIED|" \
+    "$(run RPT_RUN_RETRY "$FAIL_ID" '' '' '' '' "$ADM")"
+check "delete failed report run" "SUCCESS|RPT_RUN_DELETED" \
+    "$(run RPT_RUN_DELETE "$FAIL_ID" '' '' '' '' "$ADM")"
+check "delete report column" "SUCCESS|RPT_COLUMN_DELETED" \
+    "$(run RPT_COLUMN_DELETE RPT_TEST 3 '' '' '' "$ADM")"
+
+check "missing template rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_TEMPLATE_GET MISSING 1 '' '' '' "$ADM")"
+check "missing run rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_RUN_STATUS 999999 0 '' '' '' "$ADM")"
+check "zero row ordinal rejected" "ERROR|INVALID_INPUT" \
+    "$(run RPT_RUN_ROW "$RUN_ID" 0 1 0 x "$ADM")"
+check "template with runs cannot be deleted" "ERROR|INVALID_STATUS" \
+    "$(run RPT_TEMPLATE_DELETE RPT_TEST '' '' '' '' "$ADM")"
+check "missing column update rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_COLUMN_UPDATE RPT_TEST 99 X x '10,LEFT,TEXT' "$ADM")"
+
+check "missing template update rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_TEMPLATE_UPDATE MISSING 1 CSV T '' "$ADM")"
+check "missing generate run rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_RUN_GENERATE 999999 2026-10-01 2026-10-31 IDR '' "$ADM")"
+check "missing export run rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_RUN_EXPORT 999999 CSV '' '' '' "$ADM")"
+check "missing template delete rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_TEMPLATE_DELETE MISSING '' '' '' '' "$ADM")"
+check "missing column delete rejected" "ERROR|NOT_FOUND" \
+    "$(run RPT_COLUMN_DELETE MISSING 1 '' '' '' "$ADM")"
+
+check "report audit rows recorded" "18" \
     "$(q "SELECT COUNT(*) FROM report_audit WHERE actor_email IN ('$ADM','$USR');")"
 
 echo "----------------------------------------------------------------------"

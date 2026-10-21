@@ -17,7 +17,7 @@ check_contains() { local n="$1" x="$2" a="$3"; if [[ "$a" == *"$x"* ]]; then ech
 ADM="report_admin@test.com"; USR="report_user@test.com"
 cleanup() {
     q "DELETE FROM import_audit WHERE actor_email IN ('$ADM','$USR');
-       DELETE FROM import_batch WHERE batch_code LIKE 'IMP_TEST%' OR batch_code LIKE 'IMP_BAD%' OR batch_code LIKE 'IMP_FAIL%';"
+       DELETE FROM import_batch WHERE batch_code LIKE 'IMP_TEST%' OR batch_code LIKE 'IMP_BAD%' OR batch_code LIKE 'IMP_FAIL%' OR batch_code LIKE 'IMP_BULK%' OR batch_code LIKE 'IMP_CLONE%';"
 }
 setup() {
     cleanup
@@ -58,6 +58,8 @@ check "post validated batch" "SUCCESS|IMP_POSTED|2" \
     "$(run IMP_BATCH_POST IMP_TEST '' '' '' '' "$ADM")"
 check_contains "batch completed" "COMPLETED:2:2:0:2" \
     "$(run IMP_BATCH_GET IMP_TEST 0 '' '' '' "$ADM")"
+check_contains "batch row summary" "SUCCESS|IMP_SUMMARY|COMPLETED|2|2|0|2|" \
+    "$(run IMP_BATCH_SUMMARY IMP_TEST '' '' '' '' "$ADM")"
 check_contains "export posted batch" "1:POSTED:1000:100:0" \
     "$(run IMP_BATCH_EXPORT IMP_TEST CSV '' '' '' "$ADM")"
 check "no import errors" "SUCCESS|IMP_ERRORS|0" \
@@ -86,8 +88,55 @@ check "fail import batch" "SUCCESS|IMP_FAILED" \
     "$(run IMP_BATCH_FAIL IMP_FAIL TEST_FAIL 'forced failure' '' '' "$ADM")"
 check_contains "failed batch status" "FAILED" \
     "$(run IMP_BATCH_GET IMP_FAIL 0 '' '' '' "$ADM")"
+check "retry failed batch" "SUCCESS|IMP_BATCH_RETRIED" \
+    "$(run IMP_BATCH_RETRY IMP_FAIL '' '' '' '' "$ADM")"
+check_contains "retried batch is staged" "STAGED" \
+    "$(run IMP_BATCH_GET IMP_FAIL 0 '' '' '' "$ADM")"
 
-check "import audit rows recorded" "11" \
+check_contains "create bulk batch" "SUCCESS|IMP_BATCH_CREATED|" \
+    "$(run IMP_BATCH_CREATE IMP_BULK bulk.csv LEDGER '' '' "$ADM")"
+check "bulk stage rows" "SUCCESS|IMP_BULK_STAGED|4" \
+    "$(run IMP_BATCH_STAGE_BULK IMP_BULK '1000:100:0;4000:0:100' '5000:10:0;1100:0:10' '' '' "$ADM")"
+check "validate bulk batch" "SUCCESS|IMP_VALIDATED|4|0" \
+    "$(run IMP_BATCH_VALIDATE IMP_BULK '' '' '' '' "$ADM")"
+check "skip a valid row" "SUCCESS|IMP_ROW_SKIPPED" \
+    "$(run IMP_ROW_SKIP IMP_BULK 4 '' '' '' "$ADM")"
+check_contains "skip updates counts" "VALIDATED:4:3:0:0" \
+    "$(run IMP_BATCH_GET IMP_BULK 0 '' '' '' "$ADM")"
+check "unskip a row" "SUCCESS|IMP_ROW_UNSKIPPED" \
+    "$(run IMP_ROW_UNSKIP IMP_BULK 4 '' '' '' "$ADM")"
+check_contains "unskip resets batch" "STAGED" \
+    "$(run IMP_BATCH_GET IMP_BULK 0 '' '' '' "$ADM")"
+check_contains "clone completed batch" "SUCCESS|IMP_BATCH_CLONED|" \
+    "$(run IMP_BATCH_CLONE IMP_TEST IMP_CLONE cloned.csv '' '' "$ADM")"
+check_contains "clone rows are staged" "STAGED" \
+    "$(run IMP_BATCH_GET IMP_CLONE 1 '' '' '' "$ADM")"
+check "delete staged clone" "SUCCESS|IMP_BATCH_DELETED" \
+    "$(run IMP_BATCH_DELETE IMP_CLONE '' '' '' '' "$ADM")"
+
+check "missing batch rejected" "ERROR|NOT_FOUND" \
+    "$(run IMP_BATCH_GET MISSING 0 '' '' '' "$ADM")"
+check "staging into completed batch rejected" "ERROR|INVALID_STATUS" \
+    "$(run IMP_ROW_STAGE IMP_TEST 99 '1000:1:0' '' '' "$ADM")"
+check "unskip on completed batch rejected" "ERROR|INVALID_STATUS" \
+    "$(run IMP_ROW_UNSKIP IMP_TEST 1 '' '' '' "$ADM")"
+check "completed batch cannot be deleted" "ERROR|INVALID_STATUS" \
+    "$(run IMP_BATCH_DELETE IMP_TEST '' '' '' '' "$ADM")"
+check "missing error batch rejected" "ERROR|NOT_FOUND" \
+    "$(run IMP_ERROR_LIST MISSING 50 0 '' '' "$ADM")"
+
+check "missing clone source rejected" "ERROR|NOT_FOUND" \
+    "$(run IMP_BATCH_CLONE MISSING IMP_X x.csv '' '' "$ADM")"
+check "completed batch cannot retry" "ERROR|INVALID_STATUS" \
+    "$(run IMP_BATCH_RETRY IMP_TEST '' '' '' '' "$ADM")"
+check "missing summary rejected" "ERROR|NOT_FOUND" \
+    "$(run IMP_BATCH_SUMMARY MISSING '' '' '' '' "$ADM")"
+check "missing batch delete rejected" "ERROR|NOT_FOUND" \
+    "$(run IMP_BATCH_DELETE MISSING '' '' '' '' "$ADM")"
+check "missing skip batch rejected" "ERROR|NOT_FOUND" \
+    "$(run IMP_ROW_SKIP MISSING 1 '' '' '' "$ADM")"
+
+check "import audit rows recorded" "19" \
     "$(q "SELECT COUNT(*) FROM import_audit WHERE actor_email IN ('$ADM','$USR');")"
 
 echo "----------------------------------------------------------------------"

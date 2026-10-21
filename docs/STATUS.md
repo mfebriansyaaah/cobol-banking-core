@@ -126,8 +126,8 @@ the cutovers, 206 entities and 1,030 actions remain in
 `cobol/src/generated/ref_core.cob`, with a uniform
 `code/label/num_val/is_active` contract. They are produced by
 `scripts/gen_entity.mjs` and exercised by 206 smoke suites (2,266 assertions)
-run through `scripts/ci-7d.sh`. The measured split is 15.865 curated
-net COBOL and 52.134 generated net COBOL (23,3% curated).
+run through `scripts/ci-7d.sh`. The measured split is 17.224 curated
+net COBOL and 52.134 generated net COBOL (24,8% curated).
 
 This module is a **frozen generated artifact**. It is not a PRD requirement,
 not a curated production data model, and not part of the merge gate. The production-grade
@@ -207,6 +207,14 @@ read-only safety copy for one release.
 | `cobol/src/report_core.cob` | `RPT_RUN_FAIL` | fail a running report with a coded reason |
 | `cobol/src/report_core.cob` | `RPT_RUN_LIST` | paged runs with status/template filters |
 | `cobol/src/report_core.cob` | `RPT_RUN_EXPORT` | export a completed run as CSV/FIXED header and row data |
+| `cobol/src/report_core.cob` | `RPT_TEMPLATE_UPDATE` | update template enablement, format, and title |
+| `cobol/src/report_core.cob` | `RPT_TEMPLATE_CLONE` | clone a template and all ordered columns |
+| `cobol/src/report_core.cob` | `RPT_TEMPLATE_DELETE` | delete a template only when it has no runs |
+| `cobol/src/report_core.cob` | `RPT_COLUMN_UPDATE` | update a column header, source, width, align, and format |
+| `cobol/src/report_core.cob` | `RPT_COLUMN_DELETE` | delete an ordered column |
+| `cobol/src/report_core.cob` | `RPT_RUN_RETRY` | start a new run from a failed run's template/parameters |
+| `cobol/src/report_core.cob` | `RPT_RUN_GENERATE` | populate a trial-balance run from posted GL journals |
+| `cobol/src/report_core.cob` | `RPT_RUN_DELETE` | delete a failed run and its rows |
 
 ## 2f. Import/export foundation (Phase 1)
 
@@ -222,6 +230,13 @@ read-only safety copy for one release.
 | `cobol/src/import_core.cob` | `IMP_BATCH_POST` | post a fully valid batch and mark rows POSTED |
 | `cobol/src/import_core.cob` | `IMP_BATCH_FAIL` | fail a batch with a coded reason |
 | `cobol/src/import_core.cob` | `IMP_BATCH_EXPORT` | export batch rows as CSV/FIXED data |
+| `cobol/src/import_core.cob` | `IMP_BATCH_STAGE_BULK` | stage up to four semicolon-separated chunks in one call |
+| `cobol/src/import_core.cob` | `IMP_BATCH_CLONE` | clone a batch definition and its rows into a new code |
+| `cobol/src/import_core.cob` | `IMP_BATCH_RETRY` | reset a failed batch to STAGED |
+| `cobol/src/import_core.cob` | `IMP_ROW_SKIP` | skip a validated row and recompute counts |
+| `cobol/src/import_core.cob` | `IMP_ROW_UNSKIP` | reset a skipped row to STAGED |
+| `cobol/src/import_core.cob` | `IMP_BATCH_DELETE` | delete a STAGED/FAILED batch and its rows |
+| `cobol/src/import_core.cob` | `IMP_BATCH_SUMMARY` | row-status counts for a batch |
 
 ## 3. Database (`cobol_db`)
 
@@ -312,12 +327,12 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_ref_engine.sh` | 24 | reference engine: type/value creation, DRAFT -> ACTIVE -> RETIRED lifecycle, history, authorization, duplicate rejection, audit, country/holiday/fee/limit/product cutover |
 | `tests/test_gl.sh` | 22 | general ledger: chart of accounts, balanced manual and multi-line journals, period open/close control, trial balance, validation, authorization, audit |
 | `tests/test_batch.sh` | 34 | batch/EOD foundation: job and step definitions, run lifecycle, active-run guard, checkpoints, balanced control totals, step transitions, retry, EOD future-date guard, audit |
-| `tests/test_report.sh` | 25 | report engine: templates, ordered columns, run/row lifecycle, total verification, completion guard, CSV export, authorization, audit |
-| `tests/test_import.sh` | 25 | import/export: batch staging, row validation (ledger/accounts/reference/payments), error listing, correction/revalidation, posting guard, export, audit |
+| `tests/test_report.sh` | 45 | report engine: templates, ordered columns, run/row lifecycle, total verification, completion guard, CSV export, authorization, audit |
+| `tests/test_import.sh` | 48 | import/export: batch staging, row validation (ledger/accounts/reference/payments), error listing, correction/revalidation, posting guard, export, audit |
 | `middleware/` (node --test) | 126 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **bounded signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
-Shell suites total **1291**; with the gateway suite **126** the full run is
-**1417 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **1334**; with the gateway suite **126** the full run is
+**1460 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
@@ -532,5 +547,5 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 56.485; target 100.000 per
+- Non-generated net baseline: 58.093; target 100.000 per
   `docs/DELIVERY_RULES.md`.
