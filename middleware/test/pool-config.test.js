@@ -120,14 +120,17 @@ test('a full queue is rejected with backpressure', async () => {
 });
 
 test('a request that waits too long is failed, not left hanging', async () => {
-  const pool = blockingPool({ timeoutMs: 120 });
+  const pool = blockingPool({ timeoutMs: 200 });
   const inFlight = settle(pool.invoke('A'));
   const started = Date.now();
-  const queued = settle(pool.invoke('B'));
+  // Give the queued request a shorter budget than the in-flight call so the
+  // queue-wait path is exercised deterministically instead of racing the
+  // in-flight timeout and the worker-free event.
+  const queued = settle(pool.invoke('B', [], { timeoutMs: 60 }));
   await waitFor(queued);
   assert.ok(queued.error instanceof InvocationTimeout, `queued: ${queued.error}`);
   assert.match(queued.error.message, /queue wait/);
-  assert.ok(Date.now() - started >= 100, 'waited for the budget before failing');
+  assert.ok(Date.now() - started >= 50, 'waited for the queue budget before failing');
   await waitFor(inFlight);
   assert.ok(inFlight.error instanceof InvocationTimeout, `in flight: ${inFlight.error}`);
 });
