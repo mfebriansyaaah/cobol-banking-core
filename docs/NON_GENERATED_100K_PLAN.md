@@ -21,18 +21,18 @@ separate decision.
 
 | Component | Net lines |
 |---|---:|
-| Curated COBOL | 11.012 |
+| Curated COBOL | 13.191 |
 | C and header | 1.179 |
-| SQL | 4.469 |
-| Shell | 22.281 |
-| JavaScript | 11.289 |
-| **Total non-generated** | **50.230** |
-| COBOL share | 21,9% |
+| SQL | 4.708 |
+| Shell | 22.427 |
+| JavaScript | 11.494 |
+| **Total non-generated** | **52.999** |
+| COBOL share | 24,8% |
 
-This is +533 lines over the 49.697 baseline recorded when the plan merged:
-GL period open/close control, multi-line journals, the period migration, the
-expanded 22-assertion GL suite, and the gateway error mapping. The baseline
-file is `tests/non_generated_baseline.txt`.
+This is +3.302 lines over the 49.697 baseline recorded when the plan merged.
+The GL slice added 533 net (447 COBOL); the batch/EOD foundation added 2.769
+net (2.179 COBOL, 590 SQL/Shell/JS). The baseline file is
+`tests/non_generated_baseline.txt`.
 
 ## 3. Target
 
@@ -45,8 +45,8 @@ file is `tests/non_generated_baseline.txt`.
 | COBOL share | **>= 50%** (recommended 56%) |
 
 Recommended additions (original budget): **+45.500 COBOL +4.803 other =
-+50.303**. At the current 50.230 baseline this leaves a 533-line buffer over
-100.000; the remaining gap is **49.770**.
++50.303**. At the current 52.999 baseline this leaves a 3.302-line buffer over
+100.000; the remaining gap is **47.001**.
 
 ## 4. Workstream budget
 

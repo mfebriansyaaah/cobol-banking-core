@@ -178,6 +178,8 @@ COBOL actions, gateway routes, and an 18-assertion suite). Country, holiday, fee
 are cut over; 206 generated entities remain for later cutover. The GL core
 (chart of accounts, period open/close control, balanced manual and multi-line
 journals, trial balance) is implemented; the first Sprint 1 slice is merged.
+The batch/EOD foundation (job definitions, checkpointed runs, control totals,
+retry) is the second slice.
 
 - Generic reference-data engine.
 - Ledger/GL module, batch/EOD engine, report engine, import/export.

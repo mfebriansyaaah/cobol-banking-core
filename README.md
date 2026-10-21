@@ -26,6 +26,9 @@ adapters and capabilities COBOL cannot provide directly.
 - `cobol/src/gl_core.cob` — general-ledger core (Phase 1):
   chart of accounts, period open/close control, balanced manual and
   multi-line journals, and trial balance.
+- `cobol/src/batch_core.cob` — batch/EOD foundation (Phase 1):
+  job and step definitions, checkpointed runs, control totals, retry, and
+  audit.
 - `cobol/src/ref_engine.cob` — generic reference-data engine (Phase 1):
   type/value/version, effective dating, approval, history, and audit.
 - `cobol/src/generated/ref_core.cob` — generated reference-data module: 206 entities,
@@ -49,7 +52,7 @@ reference-data model and curated domain modules. `./ci.sh` remains the merge
 gate; `./scripts/ci-7d.sh` is a volume-sprint gate and must not be used as a
 production gate.
 
-Non-generated net baseline: 49.697; the 100k plan is in
+Non-generated net baseline: 52.999; the 100k plan is in
 `docs/NON_GENERATED_100K_PLAN.md`.
 
 Measure the current state with:
