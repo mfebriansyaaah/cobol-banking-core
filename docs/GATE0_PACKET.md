@@ -8,32 +8,47 @@ input each one needs, a proposed technical default where one is safe, and the
 blank fields that only the accountable business owners can fill. It does not
 change the traceability matrix or create a compliance claim.
 
+## 0. Owner posture (2026-10-21)
+
+The repository owner selected:
+
+- **Gate 0 posture:** target production berlisensi.
+- **Product scope:** full product scope.
+- **Technical defaults:** deferred; adjust after load test and owner review.
+- **Legal entity:** reported as existing; the details are still required in
+  section 3.
+
+This raises the Gate 0 bar. It does not close any item, and the repository
+remains a development prototype until the items below are signed. The optional
+synthetic pilot is an engineering rehearsal, not the target product.
+
 ## 1. Status summary
 
 | # | Item | Status | Owner | Input needed | Proposed default | Unblocks |
 |---:|---|---|---|---|---|---|
 | 17 | Target runtime | Decided (technical) | Repository owner | Operations/security ratification | A - GnuCOBOL/MySQL/Linux (`docs/adr/0082-target-runtime.md`) | Phase 0/1 |
-| 1 | Legal entity, license, jurisdiction | Blocked | TBD (legal + compliance) | Entity name, license, jurisdiction, products, currencies | None; cannot be invented | G0-ENTITY and all BLOCKED rows |
+| 1 | Legal entity, license, jurisdiction | Blocked - details required | TBD (legal + compliance) | Entity name, jurisdiction, license type/number/status, products, currencies | Owner reports an entity exists; the details must be recorded in section 3 | G0-ENTITY and all BLOCKED rows |
 | 2 | Accountable owners and sign-off | Blocked | TBD (executive) | Named owners for compliance, legal, risk, security, finance, operations | None | G0-SIGNOFF |
-| 3 | Product and customer scope | Blocked | TBD (product + compliance) | Launch products, customer segments, EOD scope | Pilot: internal transfer only, synthetic data | A-P1-LIFECYCLE, B-P1-LIFECYCLE |
+| 3 | Product and customer scope | Decided (owner intent): full scope | TBD (product + compliance) | Customer segments, countries, currencies, EOD/reporting scope | Full product scope selected; compliance scope pending | A-P1-LIFECYCLE, B-P1-LIFECYCLE |
 | 4 | KYC/CDD design and provider | Blocked | TBD (compliance) | Identification, verification, risk, consent, retention, provider | None; jurisdiction-specific | A-P0-CDD |
 | 5 | Sanctions/PEP and monitoring | Blocked | TBD (compliance + risk) | Provider, lists, rules, risk states, escalation | None; jurisdiction-specific | C-P0-RISK |
 | 6 | Fraud operations | Blocked | TBD (risk + operations) | Queues, false positives, dual control, rule versioning | None; needs operating model | C-P1-FRAUDOPS |
-| 7 | Disaster recovery | Draftable | TBD (operations + security) | RPO/RTO, recovery site, drill schedule | RPO 15 min, RTO 4 h for pilot; see section 2 | F-P0-RESIL (DR leg) |
+| 7 | Disaster recovery | Deferred | TBD (operations + security) | RPO/RTO, recovery site, drill schedule | Section 2 is a starting point; owner deferred | F-P0-RESIL (DR leg) |
 | 8 | Limits approval basis | Blocked | TBD (risk + finance) | Per-customer/product/channel limits, velocity | Conservative default in section 3; needs approval | C-P0-LIMITS |
 | 9 | Regulatory reports and trial balance | Blocked | TBD (finance + compliance) | Report list, formats, trial-balance layout, export rules | Generic trial balance only; no regulatory formats | D-P1-REPORTS |
 | 10 | Owner-controlled money data | Blocked | TBD (finance) | Fee amounts, hold policy, FX residual materiality | Seed values are placeholders only | B-P1-LIFECYCLE (fees) |
-| 11 | SLOs, load targets, alerts | Draftable | TBD (operations) | Availability, latency, capacity, alert thresholds | Draft in section 2 | F-P0-RESIL (SLO/load) |
-| 12 | Patch windows and exception approver | Draftable | TBD (security + operations) | Patch windows, emergency approver | Critical <= 7 days, high <= 30, medium <= 90 | `docs/patch-policy.md` rule 3 |
-| 13 | Incident severity and roster | Draftable | TBD (operations) | SEV definitions, paging roster, contacts | Draft in section 2 | F-P0-SECOPS, incident runbook |
+| 11 | SLOs, load targets, alerts | Deferred | TBD (operations) | Availability, latency, capacity, alert thresholds | Section 2 is a starting point; owner deferred | F-P0-RESIL (SLO/load) |
+| 12 | Patch windows and exception approver | Deferred | TBD (security + operations) | Patch windows, emergency approver | Section 2 is a starting point; owner deferred | `docs/patch-policy.md` rule 3 |
+| 13 | Incident severity and roster | Deferred | TBD (operations) | SEV definitions, paging roster, contacts | Section 2 is a starting point; owner deferred | F-P0-SECOPS, incident runbook |
 | 14 | Data retention, legal hold, keys | Blocked | TBD (legal + compliance + security) | Retention schedule, legal hold, key management | Draft in section 2; legal must approve | F-P1-DATA, D-P0-AUDIT |
-| 15 | Release approvals and independent assessment | Draftable | TBD (security + operations) | Approvers, production identity, assessment provider | Draft in section 2 | F-P1-CHANGE, F-P0-SECOPS |
+| 15 | Release approvals and independent assessment | Deferred | TBD (security + operations) | Approvers, production identity, assessment provider | Section 2 is a starting point; owner deferred | F-P1-CHANGE, F-P0-SECOPS |
 | 16 | ADR 0072 production ratification | Blocked | TBD (compliance + finance) | Ratify D1/D2/D3 for production | Implementation is complete; sign-off missing | FX/fee/rate production use |
 
-## 2. Proposed technical defaults
+## 2. Proposed technical defaults (not accepted)
 
-These are engineering proposals, not approvals. An owner may accept, change, or
-reject each one. Record the decision and date in `docs/GATE0_DECISIONS.md`.
+These are engineering starting points, not approvals. The owner deferred the
+numbers on 2026-10-21; they will be adjusted after load testing and owner
+review. Record the final decision and date in `docs/GATE0_DECISIONS.md`.
 
 ### 2.1 Availability and latency (item 11)
 
@@ -107,39 +122,107 @@ Numeric thresholds are proposals until the owner approves them.
 - Release evidence: `docs/release-checklist.md` completed and attached.
 - Rollback: previous revision plus verified backup manifest.
 
-## 3. Business decisions that cannot be defaulted
+## 3. Required inputs (business decisions)
 
-These require named accountable owners and, in most cases, a licensed entity
-and jurisdiction:
+These require named accountable owners and, because the posture is a licensed
+production target, a licensed entity and jurisdiction. Fill the blanks here or
+return them in the review thread; do not mark an item complete without evidence.
 
-1. Legal entity, license, jurisdiction, permitted products, currencies.
-2. Named owners for compliance, legal, risk, security, finance, operations.
-3. Launch product scope and customer segments.
-4. KYC/CDD design, provider, evidence retention.
-5. Sanctions/PEP screening and transaction monitoring.
-6. Fraud operations model and dual-control overrides.
-7. Approved limits and velocity basis.
-8. Regulatory reports and trial-balance format.
-9. Fee amounts, hold policy, FX residual materiality.
-10. ADR 0072 D1/D2/D3 production ratification.
+### 3.1 Legal entity and jurisdiction (item 1)
+
+- Legal entity name: ________________________________________________
+- Jurisdiction / country: ___________________________________________
+- License type, number, status: _____________________________________
+- Regulator(s): ____________________________________________________
+- Permitted products and currencies: ________________________________
+- Reporting obligations: ___________________________________________
+- Target launch date: ______________________________________________
+
+### 3.2 Named owners and sign-off (item 2)
+
+| Role | Name | Contact | Decision date |
+|---|---|---|---|
+| Compliance |  |  |  |
+| Legal |  |  |  |
+| Risk |  |  |  |
+| Security |  |  |  |
+| Finance/accounting |  |  |  |
+| Operations |  |  |  |
+| Repository owner (technical) |  |  |  |
+
+### 3.3 Product and customer scope (item 3)
+
+- Launch products (full scope selected): ____________________________
+- Customer segments: _______________________________________________
+- Countries and currencies: _________________________________________
+- End-of-day and reporting needs: ___________________________________
+- Excluded products: _______________________________________________
+
+### 3.4 KYC/CDD, sanctions, and fraud (items 4-6)
+
+- KYC/CDD design and provider: ______________________________________
+- Identification and verification methods: __________________________
+- Risk classification and consent: __________________________________
+- Evidence retention: ______________________________________________
+- Sanctions/PEP provider and lists: _________________________________
+- Transaction-monitoring rules and risk states: _____________________
+- Escalation and case ownership: ____________________________________
+- Fraud operations model and dual control: __________________________
+
+### 3.5 Limits and owner-controlled money data (items 8 and 10)
+
+- Per-customer/product/channel limits: ______________________________
+- Velocity basis: __________________________________________________
+- Fee amounts and effective dates: __________________________________
+- Hold policy: _____________________________________________________
+- FX residual materiality: _________________________________________
+- Owner/approver: __________________________________________________
+
+### 3.6 Regulatory reports and trial balance (item 9)
+
+- Required regulator reports and formats: ___________________________
+- Trial-balance layout: ____________________________________________
+- Reproducibility and export rules: _________________________________
+- Finance/compliance approver: _____________________________________
+
+### 3.7 Operations, security, and release (items 7, 11-15)
+
+- RPO / RTO target: ________________________________________________
+- SLO, latency, and capacity targets: _______________________________
+- Alert thresholds and on-call roster: ______________________________
+- Patch windows and emergency approver: ____________________________
+- Incident severity definitions: ____________________________________
+- Retention schedule and legal hold: ________________________________
+- Key management (KMS/HSM): ________________________________________
+- Release approvers and independent assessment: ____________________
+
+### 3.8 ADR 0072 production ratification (item 16)
+
+- D1 (FX residual to FX_PNL): ______________________________________
+- D2 (fee refund by reason): _______________________________________
+- D3 (24h rate window): ____________________________________________
+- Finance/compliance approver and date: ____________________________
 
 Until these are signed, the repository remains a development prototype. No
 demo, README, or release note may claim production or regulatory readiness.
 
-## 4. Recommended minimum pilot scope
+## 4. Production target scope
 
-A safe pilot that does not require jurisdiction-specific approvals:
+The owner selected **full product scope** for a licensed production target. The
+pilot-only scope is no longer the target. A synthetic pilot may still be used
+as an engineering rehearsal, but it does not satisfy Gate 0.
 
-- Synthetic data only; no real customer funds or production customer data.
-- Internal transfers between existing synthetic accounts only.
-- No external funding, withdrawal, card, or payment rails.
-- No KYC, AML, sanctions, fraud, or regulatory reporting claims.
-- No production SLO or compliance claim; use the proposal in section 2 as a
-  test target only.
-- The pilot is an engineering rehearsal, not a licensed product.
+Full scope requires every item in this packet, including:
 
-This scope unblocks Phase 1/2 engineering while the business decisions remain
-open. It does not unblock a production launch.
+- A licensed entity and jurisdiction.
+- KYC/CDD, sanctions/PEP, transaction monitoring, and fraud operations.
+- Approved limits, fee amounts, hold policy, and FX residual materiality.
+- Regulatory reports and a trial balance.
+- SLO, load, DR, retention, key management, and independent assessment.
+- Owner sign-offs for every row in section 3.
+
+Until those are complete, the repository remains a development prototype. No
+production or compliance claim is permitted.
 
 ## 5. Sign-off record
 

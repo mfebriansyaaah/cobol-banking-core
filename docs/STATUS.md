@@ -426,5 +426,8 @@ production claim include:
 - Target runtime is GnuCOBOL/MySQL/Linux (ADR 0082, technical decision);
   operations/security ratification is still pending.
 - The 100k/60k milestone is a lab artifact and is not production evidence.
+- Owner posture: target production berlisensi, full product scope;
+  Gate 0 inputs are pending in `docs/GATE0_PACKET.md`. The repository remains
+  a development prototype until those items are signed.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
