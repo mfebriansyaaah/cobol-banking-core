@@ -430,7 +430,13 @@ production claim include:
   Entity: PT Flopay Teknologi Indonesia (Indonesia); license 28/145/DKSP/Srt/B
   (Izin Penyelenggara Uang Elektronik dan Transfer Dana), active 2026-05-12,
   supervised by Bank Indonesia and OJK. Named owners are recorded in
-  `docs/GATE0_PACKET.md`; formal evidence and sign-off are pending. The
-  repository remains a development prototype until those items are signed.
+  `docs/GATE0_PACKET.md`; formal evidence and sign-off are pending. Batch 2
+  inputs: KYC in-house + Dukcapil; sanctions/PEP Dow Jones; monitoring in-house
+  COBOL rules; fraud 24/7 in-house; limits IDR 25m/50m and USD 5k/10k; fee
+  IDR 2,500/txn; risk-based auto hold; FX residual 0.01; SLO 99.95% with read
+  p95 200ms and transfer p95 400ms; RPO 5m/RTO 1h; patch 3/14/30 days;
+  retention 7y/90d/30d; reports LBPUE + trial balance; release approvers owner
+  + CISO + COO + Compliance. The repository remains a development prototype
+  until those items are signed.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.

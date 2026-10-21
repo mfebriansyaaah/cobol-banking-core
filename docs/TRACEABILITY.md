@@ -26,6 +26,12 @@ therefore not mapped as requirement rows here. Production reference data is
 governed by `docs/PRODUCTION_GRADE_PLAN.md`; no row below claims the generated
 module as an implemented control.
 
+Owner inputs and proposed controls are recorded in `docs/GATE0_PACKET.md`
+section 3. They do not flip a requirement to implemented; the status column
+below reflects code and evidence, not decisions. The Batch 2 controls (KYC
+provider, sanctions/PEP provider, monitoring, limits, reporting, SLO, and
+retention) still need implementation and sign-off.
+
 ## Gate 0 — Product/regulatory definition (PRD section 3)
 
 | Req ID | Requirement | Status | Control / implementation | Tests / evidence | Owner | Retention / approval | Gate |

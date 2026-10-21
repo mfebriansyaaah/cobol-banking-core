@@ -22,7 +22,16 @@ e-money and transfer; IDR + USD; Retail + SME; Indonesia only; daily + monthly
 internal EOD; monthly LBPUE through the BI-Antasena API in XML/XBRL; target
 launch Q1 2027. Named owners: Compliance Muhammad Febriansyah; Legal Sarah
 Wijaya; Risk Andi Pratama; Security Hendra Gunawan; Finance Rina Amelia;
-Operations Kevin Kusuma. Formal evidence and sign-offs are pending. Sources: `docs/TRACEABILITY.md`
+Operations Kevin Kusuma. Formal evidence and sign-offs are pending.
+
+Batch 2 interview inputs (2026-10-21): KYC in-house with Dukcapil; sanctions/PEP
+Dow Jones; transaction monitoring in-house COBOL rules; fraud operations 24/7
+in-house; limits IDR 25m/txn and 50m/day, USD 5k/txn and 10k/day; fee
+IDR 2,500/txn; risk-based auto hold; FX residual materiality 0.01; SLO 99.95%
+with read p95 200ms and transfer p95 400ms; RPO 5m/RTO 1h; patch 3/14/30 days;
+retention 7y/90d/30d; on-call 24/7; reports LBPUE + trial balance; release
+approvers owner + CISO + COO + Compliance; ADR 0072 D1/D2/D3 accepted as
+implemented. Formal evidence and sign-offs are pending. Sources: `docs/TRACEABILITY.md`
 (Gate 0 rows), `PRD_Enterprise.md` section 3, `docs/adr/0072-fx-fee-rate-policy.md`.
 
 How to use this file: for each item, fill Owner, Decision, and Date.
