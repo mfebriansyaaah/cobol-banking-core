@@ -77,3 +77,5 @@ statement 10
 eod_jobs 10
 ref_ext 10
 notification 12
+payment 11
+recon_report 11

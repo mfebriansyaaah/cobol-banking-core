@@ -40,6 +40,8 @@ adapters and capabilities COBOL cannot provide directly.
     statement EOD execution.
   - `ref_ext_core.cob` - translations, hierarchy, as-of lookup, clone, export.
   - `notification_core.cob` - templates, preferences, and outbox enqueue.
+  - `payment_core.cob` - per-currency limits, user overrides, and usage checks.
+  - `recon_core.cob` - reconciliation notes, assignment, aging, and export.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -51,11 +53,11 @@ Measured 2026-10-21:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **65.205** |
-| Curated COBOL net | **22.708** (34,8%) |
-| Total COBOL net | **74.842** |
-| Full CI | **84 steps / 1547 assertions** |
-| Non-generated gap to 100.000 | **34.795** |
+| Non-generated net | **66.894** |
+| Curated COBOL net | **24.011** (35,8%) |
+| Total COBOL net | **76.145** |
+| Full CI | **86 steps / 1569 assertions** |
+| Non-generated gap to 100.000 | **33.106** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a

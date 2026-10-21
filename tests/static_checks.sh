@@ -84,7 +84,9 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "STMT_" ] && continue
     [ "$name" = "RX_" ] && continue
     [ "$name" = "NTF_" ] && continue
-    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/import_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/generated/ref_core.cob; then
+    [ "$name" = "PAY_" ] && continue
+    [ "$name" = "RECON_" ] && continue
+    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/import_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/payment_core.cob cobol/src/recon_core.cob cobol/src/generated/ref_core.cob; then
         echo "router: action '$name' has no handler in any core module"
         viol=1
     fi
@@ -115,6 +117,8 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "STMT_" ] && continue
     [ "$name" = "RX_" ] && continue
     [ "$name" = "NTF_" ] && continue
+    [ "$name" = "PAY_" ] && continue
+    [ "$name" = "RECON_" ] && continue
     if ! grep -rqE "(action: '$name'|invoke\('$name')" middleware/src; then
         echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
         viol=1
