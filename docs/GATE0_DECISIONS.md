@@ -6,7 +6,10 @@ production wiring) while any item is open.
 
 Decision log: item 17 (technical target runtime) was decided by the repository
 owner on 2026-10-21. It is a technical architecture decision and does not
-satisfy G0-SIGNOFF; all other items remain open. Sources: `docs/TRACEABILITY.md`
+satisfy G0-SIGNOFF; all other items remain open.
+
+Consolidated status, input checklist, and proposed technical defaults:
+`docs/GATE0_PACKET.md`. Sources: `docs/TRACEABILITY.md`
 (Gate 0 rows), `PRD_Enterprise.md` section 3, `docs/adr/0072-fx-fee-rate-policy.md`.
 
 How to use this file: for each item, fill Owner, Decision, and Date.
