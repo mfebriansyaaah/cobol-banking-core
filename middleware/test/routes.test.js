@@ -40,6 +40,21 @@ const TOKEN_IDENTITY = {
   GL_PERIOD_OPEN: 'actor',
   GL_PERIOD_CLOSE: 'actor',
   GL_PERIOD_LIST: 'actor',
+  BATCH_JOB_CREATE: 'actor',
+  BATCH_JOB_LIST: 'actor',
+  BATCH_JOB_UPDATE: 'actor',
+  BATCH_STEP_CREATE: 'actor',
+  BATCH_STEP_LIST: 'actor',
+  BATCH_RUN_START: 'actor',
+  BATCH_RUN_STATUS: 'actor',
+  BATCH_RUN_LIST: 'actor',
+  BATCH_RUN_CHECKPOINT: 'actor',
+  BATCH_RUN_COMPLETE: 'actor',
+  BATCH_RUN_FAIL: 'actor',
+  BATCH_RUN_RETRY: 'actor',
+  BATCH_RUN_STEP: 'actor',
+  BATCH_CONTROL_TOTAL: 'actor',
+  BATCH_EOD_START: 'actor',
 };
 
 test('every identity-authorized action takes its identity from the token', () => {
