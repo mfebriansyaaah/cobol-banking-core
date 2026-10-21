@@ -48,6 +48,7 @@ adapters and capabilities COBOL cannot provide directly.
   - `export_archive_core.cob` - retained report/import exports with checksum and expiry.
   - `recon_ops_core.cob` - assignment rules, auto-assignment, and owner workload.
   - `alert_core.cob` - operational alerts with scans, acknowledgement, and history.
+  - `dashboard_core.cob` - read-only cross-domain operational dashboards.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -59,11 +60,11 @@ Measured 2026-10-21:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **74.805** |
-| Curated COBOL net | **30.209** (40,3%) |
-| Total COBOL net | **82.343** |
-| Full CI | **92 steps / 1718 assertions** |
-| Non-generated gap to 100.000 | **25.195** |
+| Non-generated net | **75.557** |
+| Curated COBOL net | **30.796** (40,7%) |
+| Total COBOL net | **82.930** |
+| Full CI | **94 steps / 1743 assertions** |
+| Non-generated gap to 100.000 | **24.443** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
