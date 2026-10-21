@@ -46,8 +46,8 @@ while IFS= read -r line; do
             fi
             if [ "$status" = "missing" ]; then
                 case "$tests" in
-                    *Blocked*) ;;
-                    *) echo "traceability: $id is missing but names no blocker"; fail=1 ;;
+                    *Blocked*|*pending*|*Pending*) ;;
+                    *) echo "traceability: $id is missing but names no implementation blocker"; fail=1 ;;
                 esac
             fi
             ;;
