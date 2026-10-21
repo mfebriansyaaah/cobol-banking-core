@@ -75,7 +75,9 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "RFE_" ] && continue
     [ "$name" = "GL_" ] && continue
     [ "$name" = "BATCH_" ] && continue
-    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/generated/ref_core.cob; then
+    [ "$name" = "RPT_" ] && continue
+    [ "$name" = "IMP_" ] && continue
+    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/import_core.cob cobol/src/generated/ref_core.cob; then
         echo "router: action '$name' has no handler in any core module"
         viol=1
     fi
@@ -97,6 +99,8 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "RFE_" ] && continue
     [ "$name" = "GL_" ] && continue
     [ "$name" = "BATCH_" ] && continue
+    [ "$name" = "RPT_" ] && continue
+    [ "$name" = "IMP_" ] && continue
     if ! grep -rqE "(action: '$name'|invoke\('$name')" middleware/src; then
         echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
         viol=1
