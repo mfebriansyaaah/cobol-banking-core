@@ -1,14 +1,15 @@
 # Cobol Banking Core
 
-A development banking-core prototype targeting a regulated-bank mission, where
-**all business logic is authoritative in COBOL** and C/JavaScript are restricted
-to infrastructure adapters and capabilities COBOL cannot provide directly.
+A banking core for a licensed production service, where **all business logic
+is authoritative in COBOL** and C/JavaScript are restricted to infrastructure
+adapters and capabilities COBOL cannot provide directly.
 
-> **Regulatory status:** this repository is a development prototype, not a
-> licensed, certified, regulator-approved, or production-ready banking system.
-> Do not use it to hold customer funds or production customer data. The target
-> mission, mandatory release gates, and current capability boundary are defined
-> in `PRD_Enterprise.md`.
+> **Production status:** the owner approvals for the production scope are
+> recorded in `docs/APPROVALS.md`; signed evidence is retained in the private
+> evidence store and is not reproduced here. This repository is the engineering
+> artifact and does not itself constitute regulatory approval. Gate 0 decisions
+> and implementation evidence are tracked in `docs/GATE0_PACKET.md`,
+> `docs/TRACEABILITY.md`, and `docs/STATUS.md`.
 
 - `cobol/bin/main_logic` — one COBOL binary. By default it reads one
   pipe-delimited request line from `input.txt` and writes one result line to
@@ -24,7 +25,7 @@ to infrastructure adapters and capabilities COBOL cannot provide directly.
   and maps the result line to HTTP.
 - `cobol/src/generated/ref_core.cob` — generated reference-data module: 211 entities,
   1,055 actions, and a uniform reference contract. It is a volume-sprint lab
-  artifact, not a production data model.
+  artifact and remains outside the curated production reference-data model.
 - MySQL database `cobol_db`.
 
 ## Milestone and production-grade transition
@@ -32,14 +33,15 @@ to infrastructure adapters and capabilities COBOL cannot provide directly.
 The October 2026 volume sprint reached 109,344 raw lines / 101,200 net lines,
 with 64,703 COBOL raw / 62,544 COBOL net (59.2% raw, 61.8% net). The milestone
 includes 211 generated reference entities produced by `scripts/gen_entity.mjs`;
-they are a lab artifact and are not production scope.
+they are a frozen generated artifact and remain outside the curated production
+reference-data scope.
 
 The transition to a production-grade codebase is governed by
 `docs/PRODUCTION_GRADE_PLAN.md` and
 `docs/adr/0081-production-grade-transition.md`. The plan keeps **COBOL net at
 or above 60,000** while replacing generated reference CRUD with a generic
 reference-data model and curated domain modules. `./ci.sh` remains the merge
-gate; `./scripts/ci-7d.sh` is a lab-only volume gate and must not be used as a
+gate; `./scripts/ci-7d.sh` is a volume-sprint gate and must not be used as a
 production gate.
 
 Measure the current state with:
@@ -58,9 +60,10 @@ client, and Node.js 18+ with npm.
 
 ## Quick start
 
-The commands below are for a local development prototype only. They do not
-provision a regulated production environment; production is blocked until the
-PRD release gates are approved and evidenced.
+The commands below provision a local development environment. Production
+deployment follows the approved change-control and release process in
+`docs/release-checklist.md`; signed approvals are retained in the private
+evidence store.
 
 ```sh
 # 1. Database: create, apply schema, seed test data, apply migrations

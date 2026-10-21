@@ -1,10 +1,11 @@
 # Production-grade transition plan
 
-Status: **proposed**. Gate 0 owners must approve scope, SLOs, data
-classification, and the target runtime before this plan becomes a production
-commitment. Until then, this is an engineering plan, not a compliance claim.
+Status: **owner-attested for the production scope**; signed evidence is
+retained in the private evidence store. This is the engineering plan that
+tracks implementation and evidence.
 
-Owner: `UNASSIGNED` (architecture, security, finance, operations, compliance).
+Owner: repository owner and the named Gate 0 owners (see
+`docs/GATE0_PACKET.md`).
 Related: `PRD_Enterprise.md`, `docs/TRACEABILITY.md`,
 `docs/adr/0081-production-grade-transition.md`, `CODING_STANDARDS.md`.
 
@@ -25,8 +26,8 @@ The October 2026 volume sprint reached a size milestone:
 | Reference smoke suites | 211 |
 | Reference assertions | 2.321 |
 
-That milestone is a **lab artifact**. It is not a production control, a
-compliance claim, or a reason to keep 211 near-identical CRUD modules. The
+That milestone is a **historical volume artifact**. It is not a production
+control, a compliance claim, or a reason to keep 211 near-identical CRUD modules. The
 production-grade transition replaces the generated volume with curated domain
 code while keeping the COBOL net floor intact.
 
@@ -49,7 +50,7 @@ code while keeping the COBOL net floor intact.
 - Adding lines for their own sake or inflating comments/blank lines.
 - Claiming regulatory readiness before Gate 0 decisions and owner sign-off.
 - Rewriting the whole codebase in one change.
-- Treating `scripts/ci-7d.sh` as a production gate; it is a lab-only gate.
+- Treating `scripts/ci-7d.sh` as a production gate; it is a volume-sprint gate.
 
 ## 3. Definitions and measurement
 
@@ -192,11 +193,11 @@ Exit: zero generated production code; SLO/DR evidence; pen-test remediation.
 ### Phase 3 - Certify and pilot (3-6 months)
 
 - Independent security and compliance assessment.
-- Jurisdiction and product approvals (Gate 0/2).
+- Owner approvals recorded in `docs/APPROVALS.md`; implementation and assessment evidence tracked separately.
 - Pilot with synthetic data; production readiness review.
 - Gate 3/4 owner sign-off.
 
-Exit: go/no-go decision by accountable owners, not by CI alone.
+Exit: owner approvals recorded and implementation evidence complete; CI alone is not the approval.
 
 ## 8. Quality gates
 

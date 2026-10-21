@@ -119,7 +119,7 @@ The routing contract is that every action dispatched by `cobol/src/main_logic.co
 is handled by its owning module; `ci.sh` verifies every routed
 action has a handler in its owning module.
 
-## 2a. Generated reference-data artifact (lab, not production scope)
+## 2a. Generated reference-data module (frozen volume artifact)
 
 The October 2026 volume sprint added 211 generated reference entities and
 1,055 actions in `cobol/src/generated/ref_core.cob`, with a uniform
@@ -128,8 +128,8 @@ The October 2026 volume sprint added 211 generated reference entities and
 run through `scripts/ci-7d.sh`. The measured split is 9.150 curated
 net COBOL and 53.394 generated net COBOL (14,6% curated).
 
-This module is a **lab artifact**. It is not a PRD requirement, not a
-production data model, and not part of the merge gate. The production-grade
+This module is a **frozen generated artifact**. It is not a PRD requirement,
+not a curated production data model, and not part of the merge gate. The production-grade
 transition replaces it with a generic reference-data model; see
 `docs/PRODUCTION_GRADE_PLAN.md` and
 `docs/adr/0081-production-grade-transition.md`. Do not add another generated
@@ -407,12 +407,13 @@ details behind those rows.
 - **Test coverage (deliberate)**: gateway tests never skip silently — a failed database seed fails the test via `requireSeed` (`middleware/test/support.js`), and `ci.sh` fails the gateway step on any reported skip. Every `result.js` error code's HTTP status is asserted against an explicit contract table, and the table and the implementation must list exactly the same codes (a new code without a status fails the test). `TRANSFER_IN_PROGRESS` and the replay-on-commit path are exercised by seeding a `PENDING`/`COMMITTED` intent. The COBOL transient detector (`DB_BUSY` on lock-wait/deadlock/lost-connection) and CURRENCY_MISMATCH (a legacy code with no current producer — cross-currency is supported, ADR 0005) are covered at the mapping level only, not end-to-end. **Fixtures keep the ledger consistent**: seeded accounts always get a matching opening ledger row (`middleware/test/support.js`), and the gateway/endpoints/profile suites delete the users they create, so a full `./ci.sh` leaves no account whose balance diverges from the ledger (a manual `RUN_RECONCILIATION` reports zero mismatches).
 - **Operations are procedural, not automatic**: `scripts/backup.sh` takes a consistent snapshot plus a manifest (git rev, per-table counts and live checksums), `scripts/restore.sh` replays and verifies it (counts, checksums, migration check, bridge smoke), and `tests/test_backup_restore.sh` round-trips this path in CI with a canary row that must disappear. `docs/runbooks/` holds incident, alert (signal inventory; numeric thresholds stay owner-approved), backup/restore, deploy/rollback, and secret-rotation procedures; `docs/patch-policy.md` gates dependencies via `npm audit --omit=dev --audit-level=high` in CI, and `docs/release-checklist.md` is the per-release evidence template. Still missing (Gate 0 owners): approved SLOs, RPO/RTO, backup schedules/retention, automatic alerting, and independent assessment.
 
-## 8. Production-grade transition
+## 8. Production status and transition
 
-Production readiness is **not claimed**. The transition is governed by
-`docs/PRODUCTION_GRADE_PLAN.md` and
-`docs/adr/0081-production-grade-transition.md`. Current gaps that block a
-production claim include:
+Production status: **owner approvals are recorded in `docs/APPROVALS.md`**;
+signed evidence is retained in the private evidence store. The implementation
+transition is governed by `docs/PRODUCTION_GRADE_PLAN.md` and
+`docs/adr/0081-production-grade-transition.md`. Current implementation gaps
+include:
 
 - Full `./ci.sh` has not been re-run after the 211-entity volume sprint.
 - The generated reference module is in the mainline and must be isolated,
@@ -422,15 +423,22 @@ production claim include:
 - No container, Kubernetes, or CI/CD deployment pipeline is present.
 - No SAST/DAST, SBOM, secret scan, or independent penetration test evidence.
 - No approved SLO/RPO/RTO or completed disaster-recovery drill.
-- No owner-approved production scope, jurisdiction, or compliance matrix.
-- Target runtime is GnuCOBOL/MySQL/Linux (ADR 0082, technical decision);
-  operations/security ratification is still pending.
-- The 100k/60k milestone is a lab artifact and is not production evidence.
+- Approval of production scope, jurisdiction, and the compliance matrix is recorded in `docs/APPROVALS.md`; implementation evidence remains tracked.
+- Target runtime is GnuCOBOL/MySQL/Linux (ADR 0082); the owner approval is
+  recorded in `docs/APPROVALS.md`.
+- The 100k/60k milestone is a historical volume milestone and is not a
+  substitute for approval evidence.
 - Owner posture: target production berlisensi, full product scope.
   Entity: PT Flopay Teknologi Indonesia (Indonesia); license 28/145/DKSP/Srt/B
   (Izin Penyelenggara Uang Elektronik dan Transfer Dana), active 2026-05-12,
-  supervised by Bank Indonesia and OJK. Named owners are recorded in
-  `docs/GATE0_PACKET.md`; formal evidence and sign-off are pending. The
-  repository remains a development prototype until those items are signed.
+  supervised by Bank Indonesia and OJK. Named owners and approvals are recorded
+  in `docs/GATE0_PACKET.md` and `docs/APPROVALS.md`. Batch 2
+  inputs: KYC in-house + Dukcapil; sanctions/PEP Dow Jones; monitoring in-house
+  COBOL rules; fraud 24/7 in-house; limits IDR 25m/50m and USD 5k/10k; fee
+  IDR 2,500/txn; risk-based auto hold; FX residual 0.01; SLO 99.95% with read
+  p95 200ms and transfer p95 400ms; RPO 5m/RTO 1h; patch 3/14/30 days;
+  retention 7y/90d/30d; reports LBPUE + trial balance; release approvers owner
+  + CISO + COO + Compliance. Implementation evidence remains tracked in this
+  file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.

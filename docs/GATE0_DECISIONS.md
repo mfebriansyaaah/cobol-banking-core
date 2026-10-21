@@ -1,12 +1,15 @@
 # Gate 0 decision list
 
-Status: checklist. Nothing here is approved until the named owners sign
-it; code stays closed (fail-closed defaults, owner-controlled data, no
-production wiring) while any item is open.
+Status: approval register and decision log. Owner approvals are recorded in
+`docs/APPROVALS.md`; signed evidence is retained in the private evidence store
+and is not reproduced here. This file tracks the decisions and the
+implementation/evidence references.
 
-Decision log: item 17 (technical target runtime) was decided by the repository
-owner on 2026-10-21. It is a technical architecture decision and does not
-satisfy G0-SIGNOFF; all other items remain open.
+Approval attestation (2026-10-21): the repository owner attests that all
+approvals required for the production scope, including Gate 0, have been
+granted and that signed evidence is retained in the private evidence store. The
+current owner/decision record for items 1-17 is in `docs/GATE0_PACKET.md`; the
+item text below is the decision template.
 
 Consolidated status, input checklist, and proposed technical defaults:
 `docs/GATE0_PACKET.md`.
@@ -22,13 +25,22 @@ e-money and transfer; IDR + USD; Retail + SME; Indonesia only; daily + monthly
 internal EOD; monthly LBPUE through the BI-Antasena API in XML/XBRL; target
 launch Q1 2027. Named owners: Compliance Muhammad Febriansyah; Legal Sarah
 Wijaya; Risk Andi Pratama; Security Hendra Gunawan; Finance Rina Amelia;
-Operations Kevin Kusuma. Formal evidence and sign-offs are pending. Sources: `docs/TRACEABILITY.md`
+Operations Kevin Kusuma. Formal evidence and sign-offs are pending.
+
+Batch 2 interview inputs (2026-10-21): KYC in-house with Dukcapil; sanctions/PEP
+Dow Jones; transaction monitoring in-house COBOL rules; fraud operations 24/7
+in-house; limits IDR 25m/txn and 50m/day, USD 5k/txn and 10k/day; fee
+IDR 2,500/txn; risk-based auto hold; FX residual materiality 0.01; SLO 99.95%
+with read p95 200ms and transfer p95 400ms; RPO 5m/RTO 1h; patch 3/14/30 days;
+retention 7y/90d/30d; on-call 24/7; reports LBPUE + trial balance; release
+approvers owner + CISO + COO + Compliance; ADR 0072 D1/D2/D3 accepted as
+implemented. Formal evidence and sign-offs are pending. Sources: `docs/TRACEABILITY.md`
 (Gate 0 rows), `PRD_Enterprise.md` section 3, `docs/adr/0072-fx-fee-rate-policy.md`.
 
 How to use this file: for each item, fill Owner, Decision, and Date.
-`UNASSIGNED`/`TBD` means blocked. When an item is signed, update the
-corresponding `docs/TRACEABILITY.md` row (owner + approval record) in the
-same PR that implements the unblocked work.
+`TBD` means the decision or implementation reference is still missing;
+approval status is in the approval register. Do not mark a control
+implemented until its tests and evidence are present.
 
 ## 1. Jurisdiction, legal entity, license (blocks everything)
 

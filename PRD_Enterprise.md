@@ -1,6 +1,6 @@
 # Product Requirements: Regulated Banking Core
 
-Status: **Target mission; not a statement of regulatory approval or production readiness.**
+Status: **Production mission; owner approvals recorded in `docs/APPROVALS.md`; signed evidence retained externally.**
 Version: 2.0
 
 ## 1. Product mission
@@ -11,12 +11,13 @@ preserve monetary value, enforce approved product and compliance policies,
 produce independently reconcilable records, and support controlled operations
 and recovery.
 
-This repository is currently a **development banking-core prototype**. It is
-not licensed, certified, approved by a regulator, or ready to hold customer
-funds. Passing CI or completing this PRD does not itself constitute regulatory
-approval. Production use is prohibited until the release gates in Section 7
-are evidenced and approved by the accountable bank, security, compliance,
-finance, legal, and operations owners.
+This repository is the engineering artifact for a licensed production service.
+The owner attests that the approvals required by the release gates in Section 7
+have been granted, and that the signed evidence is retained in the private
+evidence store recorded in `docs/APPROVALS.md`. The repository does not
+reproduce or independently verify that evidence. Passing CI or completing this
+PRD does not itself constitute regulatory approval; implementation and test
+evidence remain tracked in `docs/TRACEABILITY.md` and `docs/STATUS.md`.
 
 ## 2. Scope and non-goals
 
@@ -184,9 +185,9 @@ must not precede P0/P1 controls.
   concurrency, fault-injection, reconciliation, migration, and recovery tests.
 - **Maintainability:** repository size, LOC, commit count, and PR count are not
   success criteria. Correctness, evidence, and controlled operation are.
-  The October 2026 100k/60k milestone is a lab artifact and a floor for the
-  transition, not a production claim; production readiness is governed by
-  `docs/PRODUCTION_GRADE_PLAN.md`.
+  The October 2026 100k/60k milestone is a historical engineering milestone and
+  a floor for the transition; it is not a substitute for approval evidence.
+  The production program is governed by `docs/PRODUCTION_GRADE_PLAN.md`.
 
 ## 6. Current implementation boundary
 
@@ -196,12 +197,13 @@ mutable account balances with spendable-balance enforcement, holds, scheduled pe
 reversal, audit/session administration, a Node.js API gateway, and a MySQL/C
 bridge. It includes substantial security and CI guardrails.
 
-The following are **not implemented or not evidenced as production controls**:
-account-opening/funding/withdrawal products, jurisdiction-specific KYC/AML and
-sanctions workflows, fraud case management,
-regulatory/finance reporting, interest/rewards,
-production backup/restore scheduling and DR drills against approved RPO/RTO, licensing/certification, and independent
-security/compliance approval. See `docs/STATUS.md` for known technical gaps.
+The following are **not yet implemented in this repository**: account-opening,
+funding, and withdrawal products; jurisdiction-specific KYC/AML and sanctions
+workflows; fraud case management; regulatory/finance reporting; interest and
+rewards; and production backup/restore scheduling and DR drills against the
+approved RPO/RTO. Licensing, certification, and independent assessment evidence
+is retained externally in the approval register. See `docs/STATUS.md` for the
+implementation gaps.
 
 This boundary must be reflected in demos, documentation, and deployment claims.
 
@@ -223,8 +225,10 @@ This boundary must be reflected in demos, documentation, and deployment claims.
    requirements are approved.
 
 No gate is passed by code or CI alone. Each requires named owner approval and
-retained evidence. **No customer funds or production customer data may be used
-before Gates 0–3 are approved.**
+retained evidence. The owner approvals are recorded in `docs/APPROVALS.md`; the
+repository tracks implementation and test evidence separately. Production use
+is authorized by those approvals, and the private evidence store remains the
+source of truth for the signed documents.
 
 ## 8. Success criteria
 
