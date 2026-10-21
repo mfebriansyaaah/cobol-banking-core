@@ -37,6 +37,7 @@ check_contains() {
 }
 
 ADM="batch_admin@test.com"
+TOMORROW="$(date -d tomorrow +%F)"
 USR="batch_user@test.com"
 
 cleanup_rows() {
@@ -130,7 +131,7 @@ EOD_OUT="$(run BATCH_EOD_START 2026-10-21 EOD_TEST '' '' '' "$ADM")"
 check_contains "start EOD run" "SUCCESS|BATCH_RUN_STARTED|" "$EOD_OUT"
 EOD_ID="$(printf '%s' "$EOD_OUT" | cut -d'|' -f3)"
 check "future EOD date rejected" "ERROR|FUTURE_DATE" \
-    "$(run BATCH_EOD_START 2026-10-22 EOD_TEST '' '' '' "$ADM")"
+    "$(run BATCH_EOD_START "$TOMORROW" EOD_TEST '' '' '' "$ADM")"
 check "fail EOD run" "SUCCESS|BATCH_RUN_FAILED" \
     "$(run BATCH_RUN_FAIL "$EOD_ID" TEST_FAIL 'forced failure' '' '' "$ADM")"
 RETRY_OUT="$(run BATCH_RUN_RETRY "$EOD_ID" '' '' '' '' "$ADM")"
