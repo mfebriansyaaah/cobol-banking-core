@@ -30,6 +30,9 @@ adapters and capabilities COBOL cannot provide directly.
   - `ref_engine.cob` - generic reference data.
   - `gl_core.cob` - chart of accounts, period control, journals, trial balance.
   - `batch_core.cob` - jobs, steps, checkpointed runs, control totals, retry.
+  - `report_core.cob` - report templates, columns, runs, rows, and export.
+  - `import_core.cob` - staged batches, row validation, correction, posting,
+    and export.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -41,11 +44,11 @@ Measured 2026-10-21:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **53.091** |
-| Curated COBOL net | **13.191** (24,8%) |
-| Total COBOL net | **65.325** |
-| Full CI | **76 steps / 1367 assertions** |
-| Non-generated gap to 100.000 | **46.909** |
+| Non-generated net | **56.485** |
+| Curated COBOL net | **15.865** (28,0%) |
+| Total COBOL net | **67.999** |
+| Full CI | **78 steps / 1417 assertions** |
+| Non-generated gap to 100.000 | **43.515** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
