@@ -23,6 +23,8 @@ adapters and capabilities COBOL cannot provide directly.
 - `middleware/` — Node.js/Express API gateway, the only HTTP interface; it
   validates input shapes, invokes the binary per request (own working directory),
   and maps the result line to HTTP.
+- `cobol/src/gl_core.cob` — general-ledger core (Phase 1):
+  chart of accounts, balanced manual journals, and trial balance.
 - `cobol/src/ref_engine.cob` — generic reference-data engine (Phase 1):
   type/value/version, effective dating, approval, history, and audit.
 - `cobol/src/generated/ref_core.cob` — generated reference-data module: 206 entities,
