@@ -59,6 +59,14 @@ entity generator. Until the consolidation in Phase 2, the fold-then-extend rule
 still applies to every new migration, and no new generated `ref_*` table may be
 added to production scope.
 
+## Reference-data cutover (2026-10)
+
+Migration 0054 copies the country and holiday reference data into the generic
+engine. The legacy `ref_country` and `ref_holiday` tables remain as a read-only
+safety copy for one release. New production reference data must use
+`ref_type`/`ref_value`/`ref_value_version`; a later cleanup migration may drop
+the legacy tables after the safety window.
+
 ## Fresh install
 
 ```sh

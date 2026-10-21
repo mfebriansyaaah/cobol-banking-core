@@ -25,8 +25,8 @@ adapters and capabilities COBOL cannot provide directly.
   and maps the result line to HTTP.
 - `cobol/src/ref_engine.cob` — generic reference-data engine (Phase 1):
   type/value/version, effective dating, approval, history, and audit.
-- `cobol/src/generated/ref_core.cob` — generated reference-data module: 211 entities,
-  1,055 actions, and a uniform reference contract. It is a volume-sprint lab
+- `cobol/src/generated/ref_core.cob` — generated reference-data module: 209 entities,
+  1,045 actions, and a uniform reference contract. It is a volume-sprint lab
   artifact and remains outside the curated production reference-data model.
 - MySQL database `cobol_db`.
 
@@ -34,7 +34,7 @@ adapters and capabilities COBOL cannot provide directly.
 
 The October 2026 volume sprint reached 109,344 raw lines / 101,200 net lines,
 with 64,703 COBOL raw / 62,544 COBOL net (59.2% raw, 61.8% net). The milestone
-includes 211 generated reference entities produced by `scripts/gen_entity.mjs`;
+includes 209 generated reference entities produced by `scripts/gen_entity.mjs`;
 they are a frozen generated artifact and remain outside the curated production
 reference-data scope.
 
