@@ -21,12 +21,13 @@ lines ran.
 
 ## Volume-sprint note (2026-10)
 
-The baseline below predates the 211-entity generated reference module. That
-module is lab-only and will be excluded from the production coverage target
-when it is isolated under `cobol/src/generated/`. Phase 0 re-baselines curated
-code after the isolation; until then the numbers below are frozen and must not
-be used to claim production coverage. Production targets are **90% for money
-paths** and **70% overall for curated code**.
+The 211-entity generated reference module is isolated under
+`cobol/src/generated/` and is not part of the measured module set in
+`scripts/coverage_cobol.sh` (main_logic, user_core, wallet_core, auth_core).
+The baseline below is the curated-core baseline; it is frozen until Phase 0
+re-baselines the curated modules. Do not use it to claim production coverage.
+Production targets are **90% for money paths** and **70% overall for curated
+code**.
 
 ## Floors and ratchet
 

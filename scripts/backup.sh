@@ -19,7 +19,14 @@ STAMP="cobol-${DB_NAME}-${TS}"
 SQL="$OUT_DIR/${STAMP}.sql"
 MANIFEST="$OUT_DIR/${STAMP}.manifest"
 
-TABLES="users accounts currencies exchange_rates journal_entries ledger ledger_archive verification_logs audit_trail audit_trail_archive pending_transactions pending_transactions_archive transfer_reversals account_holds fee_schedule reversal_fee_policy reconciliation_runs reconciliation_findings dual_control_operations maker_requests access_reviews access_review_items permissions role_permissions known_devices password_history password_blocklist step_up_policy notification_outbox mfa_backup_codes mfa_recovery_requests dispute_cases dispute_messages refresh_sessions refresh_families revoked_access_tokens schema_migrations"
+TABLES="$(mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e \
+    "SELECT table_name FROM information_schema.tables
+      WHERE table_schema = '$DB_NAME' AND table_type = 'BASE TABLE'
+      ORDER BY table_name;" 2>/dev/null)"
+if [ -z "$TABLES" ]; then
+    echo "backup: no base tables found for $DB_NAME" >&2
+    exit 1
+fi
 
 mysqldump -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" \
     --single-transaction --routines --triggers --events \

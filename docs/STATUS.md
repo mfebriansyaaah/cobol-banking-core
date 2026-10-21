@@ -122,10 +122,11 @@ action has a handler in its owning module.
 ## 2a. Generated reference-data artifact (lab, not production scope)
 
 The October 2026 volume sprint added 211 generated reference entities and
-1,055 actions in `cobol/src/ref_core.cob`, with a uniform
+1,055 actions in `cobol/src/generated/ref_core.cob`, with a uniform
 `code/label/num_val/is_active` contract. They are produced by
 `scripts/gen_entity.mjs` and exercised by 211 smoke suites (2,321 assertions)
-run through `scripts/ci-7d.sh`.
+run through `scripts/ci-7d.sh`. The measured split is 9.150 curated
+net COBOL and 53.394 generated net COBOL (14,6% curated).
 
 This module is a **lab artifact**. It is not a PRD requirement, not a
 production data model, and not part of the merge gate. The production-grade
