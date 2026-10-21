@@ -211,7 +211,8 @@ rules above.
 46. **Generated code is isolated and tagged.** Generator output lives under
     `cobol/src/generated/`, carries an `@generated` marker, and is excluded
     from the production coverage target. Generated code may be exercised by a
-    lab gate, but it is not a production control and must not be cited as one.
+    volume-sprint gate, but it is not a production control and must not be
+    cited as one.
 47. **Curated share ratchets upward.** The curated COBOL share is reported on
     every production-bound change. The merge gate starts at 40% and rises to
     100%; generated share must not increase. Lowering a ratchet requires an
@@ -224,8 +225,8 @@ rules above.
 49. **Production gates are evidence gates.** A release candidate needs full
     `./ci.sh`, the floor and curated-share gates, coverage, security scans,
     SLO/RPO/RTO evidence, a backup/restore drill, data classification, and
-    owner approvals. `scripts/ci-7d.sh` is a lab-only volume gate and is not
-    a production merge gate.
+    owner approvals. `scripts/ci-7d.sh` is a volume-sprint gate and is not a
+    production merge gate.
 50. **Reference data is governed.** New reference data uses the generic
     reference-data model with effective dating, versioning, approval,
     translations, hierarchy, and audit. Do not add another generated

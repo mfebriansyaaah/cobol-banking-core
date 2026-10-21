@@ -4,7 +4,7 @@ Copy for each release; attach the artifacts to the release record.
 Owner approver names and maintenance window are Gate 0 decisions.
 
 - [ ] Revision: `git rev-parse HEAD` → ______
-- [ ] `./ci.sh` ALL GREEN at this revision (paste tail). The lab-only `./scripts/ci-7d.sh` is not a production gate.
+- [ ] `./ci.sh` ALL GREEN at this revision (paste tail). The volume-sprint `./scripts/ci-7d.sh` is not a merge gate.
 - [ ] COBOL floor: `./scripts/loc_report.sh --check-floor` reports at least 60.000 net COBOL lines and the curated share has not regressed.
 - [ ] Generated code: no new `@generated` module enters production scope; the reference-data consolidation plan is current (`docs/PRODUCTION_GRADE_PLAN.md`).
 - [ ] (Iteration only) `./ci-fast.sh` green on each pushed commit; it does not replace the full run above (`docs/adr/0076-tiered-ci.md`).

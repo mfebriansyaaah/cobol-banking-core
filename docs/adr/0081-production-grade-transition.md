@@ -62,5 +62,5 @@ floor that the owner set.
 - **Delete generated code first and rebuild later.** Rejected: it breaks the
   COBOL floor and the no-net-loss rule.
 - **Treat the volume milestone as production-ready.** Rejected: size and CI
-  green are not production evidence, and the repository is explicitly a
-  prototype.
+  green are not production evidence. Owner approvals are recorded separately
+  in the approval register; the generated volume is not a control.

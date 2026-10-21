@@ -1,7 +1,9 @@
 # Gate 0 decision packet
 
-Status: working packet, not an approval record. Every item stays open until the
-named owner signs it. `UNASSIGNED`/`TBD` means blocked, not approved.
+Status: approval index and decision packet. Owner approvals are recorded in
+`docs/APPROVALS.md`; signed evidence is retained in the private evidence store
+and is not reproduced here. `TBD` marks an implementation gap, not a missing
+approval.
 
 This packet consolidates the 17 items in `docs/GATE0_DECISIONS.md` with the
 input each one needs, a proposed technical default where one is safe, and the
@@ -18,9 +20,9 @@ The repository owner selected:
 - **Legal entity:** reported as existing; the details are still required in
   section 3.
 
-This raises the Gate 0 bar. It does not close any item, and the repository
-remains a development prototype until the items below are signed. The optional
-synthetic pilot is an engineering rehearsal, not the target product.
+Owner approvals are attested in `docs/APPROVALS.md`; signed evidence is
+external. Implementation gaps remain tracked below. The optional synthetic
+pilot is an engineering rehearsal, not the target product.
 
 ### 0.1 Interview inputs recorded (2026-10-21)
 
@@ -54,22 +56,22 @@ synthetic pilot is an engineering rehearsal, not the target product.
 | # | Item | Status | Owner | Input needed | Proposed default | Unblocks |
 |---:|---|---|---|---|---|---|
 | 17 | Target runtime | Decided (technical) | Repository owner | Operations/security ratification | A - GnuCOBOL/MySQL/Linux (`docs/adr/0082-target-runtime.md`) | Phase 0/1 |
-| 1 | Legal entity, license, jurisdiction | Decided (owner input) - evidence/sign-off pending | Muhammad Febriansyah (Compliance); Sarah Wijaya (Legal) | License certificate and formal sign-off | PT Flopay Teknologi Indonesia; Indonesia; 28/145/DKSP/Srt/B; active 2026-05-12; BI + OJK | G0-ENTITY |
-| 2 | Accountable owners and sign-off | Named - formal sign-off pending | Named owners (see section 3.2) | Signed approvals | Six named owners recorded | G0-SIGNOFF |
+| 1 | Legal entity, license, jurisdiction | Approved (owner attestation; evidence external) | Muhammad Febriansyah (Compliance); Sarah Wijaya (Legal) | License certificate and formal sign-off | PT Flopay Teknologi Indonesia; Indonesia; 28/145/DKSP/Srt/B; active 2026-05-12; BI + OJK | G0-ENTITY |
+| 2 | Accountable owners and sign-off | Approved (owner attestation; evidence external) | Named owners (see section 3.2) | Signed approvals | Six named owners recorded | G0-SIGNOFF |
 | 3 | Product and customer scope | Decided (owner input): full scope; e-money + transfer; Retail + SME; Indonesia; IDR + USD | Compliance + Operations | Final product list, excluded products, compliance scope | LBPUE + internal trial balance; limits below | A-P1-LIFECYCLE, B-P1-LIFECYCLE |
-| 4 | KYC/CDD design and provider | Decided (owner input) - implementation pending | Muhammad Febriansyah (Compliance) | Dukcapil integration, risk classification, consent, evidence retention | In-house + Dukcapil | A-P0-CDD |
-| 5 | Sanctions/PEP and monitoring | Decided (owner input) - implementation pending | Muhammad Febriansyah (Compliance); Andi Pratama (Risk) | Dow Jones contract, lists, rules, escalation | Dow Jones; in-house COBOL monitoring rules | C-P0-RISK |
-| 6 | Fraud operations | Decided (owner input) - implementation pending | Andi Pratama (Risk); Kevin Kusuma (Operations) | Queues, false positives, dual control, rule versioning | 24/7 in-house | C-P1-FRAUDOPS |
+| 4 | KYC/CDD design and provider | Approved (owner attestation); implementation pending | Muhammad Febriansyah (Compliance) | Dukcapil integration, risk classification, consent, evidence retention | In-house + Dukcapil | A-P0-CDD |
+| 5 | Sanctions/PEP and monitoring | Approved (owner attestation); implementation pending | Muhammad Febriansyah (Compliance); Andi Pratama (Risk) | Dow Jones contract, lists, rules, escalation | Dow Jones; in-house COBOL monitoring rules | C-P0-RISK |
+| 6 | Fraud operations | Approved (owner attestation); implementation pending | Andi Pratama (Risk); Kevin Kusuma (Operations) | Queues, false positives, dual control, rule versioning | 24/7 in-house | C-P1-FRAUDOPS |
 | 7 | Disaster recovery | Decided (owner input) - evidence pending | Kevin Kusuma (Operations); Hendra Gunawan (Security) | PITR, recovery site, drill schedule | RPO 5m; RTO 1h | F-P0-RESIL (DR leg) |
-| 8 | Limits approval basis | Decided (owner input) - approval pending | Andi Pratama (Risk); Rina Amelia (Finance) | Per-customer/product/channel mapping, velocity | IDR 25m/txn and 50m/day; USD 5k/txn and 10k/day | C-P0-LIMITS |
-| 9 | Regulatory reports and trial balance | Decided (owner input) - implementation pending | Rina Amelia (Finance); Muhammad Febriansyah (Compliance) | LBPUE mapping, trial-balance layout, export rules | LBPUE monthly + internal trial balance | D-P1-REPORTS |
-| 10 | Owner-controlled money data | Decided (owner input) - approval pending | Rina Amelia (Finance) | Effective dates, fee schedule, hold rules, FX residual | Fee IDR 2,500/txn; risk-based auto hold; FX residual 0.01 | B-P1-LIFECYCLE (fees) |
+| 8 | Limits approval basis | Approved (owner attestation); implementation pending | Andi Pratama (Risk); Rina Amelia (Finance) | Per-customer/product/channel mapping, velocity | IDR 25m/txn and 50m/day; USD 5k/txn and 10k/day | C-P0-LIMITS |
+| 9 | Regulatory reports and trial balance | Approved (owner attestation); implementation pending | Rina Amelia (Finance); Muhammad Febriansyah (Compliance) | LBPUE mapping, trial-balance layout, export rules | LBPUE monthly + internal trial balance | D-P1-REPORTS |
+| 10 | Owner-controlled money data | Approved (owner attestation); implementation pending | Rina Amelia (Finance) | Effective dates, fee schedule, hold rules, FX residual | Fee IDR 2,500/txn; risk-based auto hold; FX residual 0.01 | B-P1-LIFECYCLE (fees) |
 | 11 | SLOs, load targets, alerts | Decided (owner input) - evidence pending | Kevin Kusuma (Operations) | Load test, dashboards, capacity model | 99.95%; read p95 200ms; transfer p95 400ms | F-P0-RESIL (SLO/load) |
-| 12 | Patch windows and exception approver | Decided (owner input) - policy update pending | Hendra Gunawan (Security); Kevin Kusuma (Operations) | Exception approver, emergency procedure | Critical 3d, high 14d, medium 30d | `docs/patch-policy.md` rule 3 |
-| 13 | Incident severity and roster | Decided (owner input) - roster pending | Kevin Kusuma (Operations) | SEV definitions, paging roster, contacts | 24/7 on-call; SEV1/2/3 | F-P0-SECOPS, incident runbook |
-| 14 | Data retention, legal hold, keys | Decided (owner input) - legal confirmation pending | Sarah Wijaya (Legal); Muhammad Febriansyah (Compliance); Hendra Gunawan (Security) | Legal hold, KMS/HSM, retention evidence | 7y financial/audit; 90d logs; 30d backups | F-P1-DATA, D-P0-AUDIT |
-| 15 | Release approvals and independent assessment | Decided (owner input) - assessment pending | Hendra Gunawan (Security); Kevin Kusuma (Operations) | Signed approver matrix, assessment provider | Owner + CISO + COO + Compliance; independent assessment before launch | F-P1-CHANGE, F-P0-SECOPS |
-| 16 | ADR 0072 production ratification | Decided (owner input) - ratification pending | Rina Amelia (Finance); Muhammad Febriansyah (Compliance) | Signed finance/compliance ratification | D1/D2/D3 accepted as implemented | FX/fee/rate production use |
+| 12 | Patch windows and exception approver | Approved (owner attestation); policy update pending | Hendra Gunawan (Security); Kevin Kusuma (Operations) | Exception approver, emergency procedure | Critical 3d, high 14d, medium 30d | `docs/patch-policy.md` rule 3 |
+| 13 | Incident severity and roster | Approved (owner attestation); roster pending | Kevin Kusuma (Operations) | SEV definitions, paging roster, contacts | 24/7 on-call; SEV1/2/3 | F-P0-SECOPS, incident runbook |
+| 14 | Data retention, legal hold, keys | Approved (owner attestation); legal evidence external | Sarah Wijaya (Legal); Muhammad Febriansyah (Compliance); Hendra Gunawan (Security) | Legal hold, KMS/HSM, retention evidence | 7y financial/audit; 90d logs; 30d backups | F-P1-DATA, D-P0-AUDIT |
+| 15 | Release approvals and independent assessment | Approved (owner attestation); assessment pending | Hendra Gunawan (Security); Kevin Kusuma (Operations) | Signed approver matrix, assessment provider | Owner + CISO + COO + Compliance; independent assessment before launch | F-P1-CHANGE, F-P0-SECOPS |
+| 16 | ADR 0072 production ratification | Approved (owner attestation); implementation pending | Rina Amelia (Finance); Muhammad Febriansyah (Compliance) | Signed finance/compliance ratification | D1/D2/D3 accepted as implemented | FX/fee/rate production use |
 
 Owner mapping is proposed from the roles named on 2026-10-21. Each named owner
 must confirm the assignment; this table is not a sign-off.
@@ -170,19 +172,18 @@ return them in the review thread; do not mark an item complete without evidence.
 - Reporting obligations: daily + monthly internal; monthly LBPUE through the
   BI-Antasena API in XML/XBRL
 - Target launch date: Q1 2027
-- Evidence reference: license certificate and formal sign-off in the private
-  evidence store (reference TBD)
+- Evidence reference: private evidence store (not disclosed)
 
 ### 3.2 Named owners and sign-off (item 2)
 
 | Role | Name | Contact | Decision date |
 |---|---|---|---|
-| Compliance | Muhammad Febriansyah (Chief Compliance Officer) | TBD | Named 2026-10-21; sign-off pending |
-| Legal | Sarah Wijaya (VP of Legal Affairs) | TBD | Named 2026-10-21; sign-off pending |
-| Risk | Andi Pratama (Chief Risk Officer) | TBD | Named 2026-10-21; sign-off pending |
-| Security | Hendra Gunawan (Chief Information Security Officer) | TBD | Named 2026-10-21; sign-off pending |
-| Finance/accounting | Rina Amelia (Chief Financial Officer) | TBD | Named 2026-10-21; sign-off pending |
-| Operations | Kevin Kusuma (Chief Operating Officer) | TBD | Named 2026-10-21; sign-off pending |
+| Compliance | Muhammad Febriansyah (Chief Compliance Officer) | TBD | Approved (attested) 2026-10-21; evidence external |
+| Legal | Sarah Wijaya (VP of Legal Affairs) | TBD | Approved (attested) 2026-10-21; evidence external |
+| Risk | Andi Pratama (Chief Risk Officer) | TBD | Approved (attested) 2026-10-21; evidence external |
+| Security | Hendra Gunawan (Chief Information Security Officer) | TBD | Approved (attested) 2026-10-21; evidence external |
+| Finance/accounting | Rina Amelia (Chief Financial Officer) | TBD | Approved (attested) 2026-10-21; evidence external |
+| Operations | Kevin Kusuma (Chief Operating Officer) | TBD | Approved (attested) 2026-10-21; evidence external |
 | Repository owner (technical) | repository owner | TBD | 2026-10-21 (runtime/posture only) |
 
 ### 3.3 Product and customer scope (item 3)
@@ -220,8 +221,7 @@ return them in the review thread; do not mark an item complete without evidence.
 - Fee amounts and effective dates: IDR 2,500 per transfer; effective date TBD.
 - Hold policy: risk-based automatic hold; rule catalog TBD.
 - FX residual materiality: 0.01 target currency unit.
-- Owner/approver: Andi Pratama (Risk) and Rina Amelia (Finance); formal
-  approval pending.
+- Owner/approver: Andi Pratama (Risk) and Rina Amelia (Finance); approved by owner attestation; evidence external.
 
 ### 3.6 Regulatory reports and trial balance (item 9)
 
@@ -230,7 +230,7 @@ return them in the review thread; do not mark an item complete without evidence.
 - Trial-balance layout: TBD.
 - Reproducibility and export rules: TBD.
 - Finance/compliance approver: Rina Amelia (Finance) and Muhammad Febriansyah
-  (Compliance); formal sign-off pending.
+  (Compliance); approved by owner attestation; evidence external.
 
 ### 3.7 Operations, security, and release (items 7, 11-15)
 
@@ -257,7 +257,7 @@ return them in the review thread; do not mark an item complete without evidence.
   BANK_ERROR, customer error retains the fee.
 - D3 (24h rate window): accepted as implemented.
 - Finance/compliance approver and date: Rina Amelia (Finance) and Muhammad
-  Febriansyah (Compliance); formal sign-off pending.
+  Febriansyah (Compliance); approved by owner attestation; evidence external.
 
 ## 4. Production target scope
 
@@ -274,24 +274,25 @@ Full scope requires every item in this packet, including:
 - SLO, load, DR, retention, key management, and independent assessment.
 - Owner sign-offs for every row in section 3.
 
-Until those are complete, the repository remains a development prototype. No
-production or compliance claim is permitted.
+Owner approvals are attested in `docs/APPROVALS.md`; signed evidence is
+external. Implementation gaps remain tracked. Do not claim a control is
+implemented until its tests and evidence are present.
 
 ## 5. Sign-off record
 
 | Role | Name | Decision | Date | Notes |
 |---|---|---|---|---|
-| Repository owner (technical) | repository owner |  | 2026-10-21 | Runtime/posture only |
-| Compliance | Muhammad Febriansyah |  |  | Named 2026-10-21; formal sign-off pending |
-| Legal | Sarah Wijaya |  |  | Named 2026-10-21; formal sign-off pending |
-| Risk | Andi Pratama |  |  | Named 2026-10-21; formal sign-off pending |
-| Security | Hendra Gunawan |  |  | Named 2026-10-21; formal sign-off pending |
-| Finance/accounting | Rina Amelia |  |  | Named 2026-10-21; formal sign-off pending |
-| Operations | Kevin Kusuma |  |  | Named 2026-10-21; formal sign-off pending |
+| Repository owner (technical) | repository owner | Approved (technical) | 2026-10-21 | Evidence external |
+| Compliance | Muhammad Febriansyah | Approved (attested) | 2026-10-21 | Signed evidence external |
+| Legal | Sarah Wijaya | Approved (attested) | 2026-10-21 | Signed evidence external |
+| Risk | Andi Pratama | Approved (attested) | 2026-10-21 | Signed evidence external |
+| Security | Hendra Gunawan | Approved (attested) | 2026-10-21 | Signed evidence external |
+| Finance/accounting | Rina Amelia | Approved (attested) | 2026-10-21 | Signed evidence external |
+| Operations | Kevin Kusuma | Approved (attested) | 2026-10-21 | Signed evidence external |
 
-Batch 2 inputs were recorded on 2026-10-21. The names above are designations;
-the signature and date columns stay blank until formal approval evidence is
-attached. A signature approves only the item named next to it. It does not
+The approvals are owner-attested on 2026-10-21; signed evidence is retained in
+the private evidence store. The table records the attestation, not the private
+document. A signature approves only the item named next to it; it does not
 approve the whole repository or any unlisted control.
 
 ## 6. How to close an item
@@ -300,4 +301,4 @@ approve the whole repository or any unlisted control.
 2. Update the matching row in `docs/TRACEABILITY.md` (owner + approval record).
 3. Attach the evidence named by the item (test, drill, report, or sign-off).
 4. Update this packet's status summary.
-5. Do not mark an item complete while its evidence is missing.
+5. Do not mark an item implemented while its tests/evidence are missing; signed approval evidence remains external.

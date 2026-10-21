@@ -64,8 +64,8 @@ controls before production.
   operations, and Linux hardening.
 - Production evidence is still required: SLOs, HA, DR, security assessment,
   and change control.
-- Best fit for a prototype-to-product path where the business logic matters
-  more than mainframe compatibility.
+- Best fit for an engineering-to-production path where the business logic
+  matters more than mainframe compatibility.
 
 ### B. z/OS / CICS / DB2 / VSAM
 
