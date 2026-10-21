@@ -1,0 +1,75 @@
+import { PATTERNS } from '../validation.js';
+
+const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
+const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
+
+export const STATEMENT_ROUTES = [
+  {
+    method: 'post', path: '/statements/runs', action: 'STMT_RUN_START',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'from', pattern: PATTERNS.DATE, required: true },
+      { name: 'to', pattern: PATTERNS.DATE, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/statements/runs/:id/generate', action: 'STMT_RUN_GENERATE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/statements/runs/:id', action: 'STMT_RUN_STATUS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      { name: 'details', pattern: PATTERNS.FLAG, required: false },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/statements/runs', action: 'STMT_RUN_LIST',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      { name: 'status', pattern: PATTERNS.RPT_STATUS, required: false },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: false },
+      BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/statements/archive/:runId/:email', action: 'STMT_ARCHIVE_GET',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'runId', pattern: PATTERNS.INT, required: true },
+      { name: 'lines', pattern: PATTERNS.FLAG, required: false },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'get', path: '/statements/archive/:runId/:email/export', action: 'STMT_ARCHIVE_EXPORT',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'runId', pattern: PATTERNS.INT, required: true },
+      { name: 'format', pattern: PATTERNS.RPT_FORMAT, required: true },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post', path: '/statements/runs/:id/fail', action: 'STMT_RUN_FAIL',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: PATTERNS.INT, required: true },
+      { name: 'errorCode', pattern: PATTERNS.BATCH_CODE, required: true },
+      { name: 'detail', pattern: PATTERNS.BATCH_DETAIL, required: false },
+      BLANK, BLANK, ACTOR,
+    ],
+  },
+];
