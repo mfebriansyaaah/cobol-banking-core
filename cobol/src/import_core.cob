@@ -1007,10 +1007,28 @@
                            MOVE WS-RESULT(1:40) TO WS-ERR
                            SET STEP-FAIL TO TRUE
                        ELSE
-                           IF WS-ROW-STATUS = "VALID"
-                               ADD 1 TO WS-VALID-COUNT END-ADD
-                           ELSE
-                               ADD 1 TO WS-INVALID-COUNT END-ADD
+                           IF WS-ROW-STATUS = "VALID" AND WS-BATCH-TYPE = "LEDGER"
+                               MOVE "UPDATE import_row SET parsed_account = ?, debit_amount = ?, credit_amount = ? WHERE id = ?" TO WS-PREP-SQL
+                               MOVE WS-ACC TO WS-BIND-1
+                               MOVE WS-DR TO WS-BIND-2
+                               MOVE WS-CR TO WS-BIND-3
+                               MOVE WS-ROW-ID TO WS-BIND-4
+                               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                               END-CALL
+                               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                               IF WS-RESULT(1:5) = "ERROR"
+                                   MOVE WS-RESULT(1:40) TO WS-ERR
+                                   SET STEP-FAIL TO TRUE
+                               END-IF
+                           END-IF
+                           IF STEP-OK
+                               IF WS-ROW-STATUS = "VALID"
+                                   ADD 1 TO WS-VALID-COUNT END-ADD
+                               ELSE
+                                   ADD 1 TO WS-INVALID-COUNT END-ADD
+                               END-IF
                            END-IF
                        END-IF
                    END-IF
