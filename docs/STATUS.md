@@ -122,12 +122,12 @@ action has a handler in its owning module.
 ## 2a. Generated reference-data module (frozen volume artifact)
 
 The October 2026 volume sprint added 211 generated reference entities; after
-the first two cutovers, 206 entities and 1,030 actions remain in
+the cutovers, 206 entities and 1,030 actions remain in
 `cobol/src/generated/ref_core.cob`, with a uniform
 `code/label/num_val/is_active` contract. They are produced by
 `scripts/gen_entity.mjs` and exercised by 206 smoke suites (2,266 assertions)
-run through `scripts/ci-7d.sh`. The measured split is 9.902 curated
-net COBOL and 52.134 generated net COBOL (15,9% curated).
+run through `scripts/ci-7d.sh`. The measured split is 13.191 curated
+net COBOL and 52.134 generated net COBOL (20,1% curated).
 
 This module is a **frozen generated artifact**. It is not a PRD requirement,
 not a curated production data model, and not part of the merge gate. The production-grade
@@ -403,7 +403,7 @@ list page size is capped at 100 (`limit` 1..100).
 
 ## 6. Governance documents
 
-- `docs/HISTORY.md` - every merged phase, its commits, and date (regenerate with `docs/gen_history.sh`).
+- `docs/DELIVERY_RULES.md` - mandatory two-module slice workflow, volume target, and definition of done.
 - `docs/TRACEABILITY.md` - requirement → control → test/evidence → owner matrix (Gate 0; checked by `tests/traceability_check.sh`), plus `docs/adr/0058-requirement-traceability.md`.
 - `docs/adr/0001-invocation-model.md`, `docs/adr/0002-auth-db-stack.md`, `docs/adr/0003-idempotent-transfers.md`, `docs/adr/0004-schema-migrations.md`, `docs/adr/0005-cross-currency-transfers.md`, `docs/adr/0006-token-revocation.md`, `docs/adr/0007-distributed-rate-limiting.md`, `docs/adr/0008-metrics-export.md`, `docs/adr/0009-audit-retention.md`, `docs/adr/0010-worker-pool-invocation.md` - decisions.
 - `CODING_STANDARDS.md` - review rules.
@@ -474,11 +474,8 @@ transition is governed by `docs/PRODUCTION_GRADE_PLAN.md` and
 `docs/adr/0081-production-grade-transition.md`. Current implementation gaps
 include:
 
-- Full `./ci.sh` has not been re-run after the 211-entity volume sprint.
-- The generated reference module is in the mainline and must be isolated,
-  tagged, and replaced by the generic reference-data model.
-- COBOL coverage must be re-baselined after generated code is excluded from
-  the production coverage target.
+- The generated reference module is isolated and tagged, and must be replaced
+  by the generic reference-data model; it must not grow.
 - No container, Kubernetes, or CI/CD deployment pipeline is present.
 - No SAST/DAST, SBOM, secret scan, or independent penetration test evidence.
 - No approved SLO/RPO/RTO or completed disaster-recovery drill.
@@ -501,5 +498,5 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 52.999; target 100.000 per
-  `docs/NON_GENERATED_100K_PLAN.md`.
+- Non-generated net baseline: 53.091; target 100.000 per
+  `docs/DELIVERY_RULES.md`.

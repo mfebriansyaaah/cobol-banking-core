@@ -1,243 +1,138 @@
 # Cobol Banking Core
 
-A banking core for a licensed production service, where **all business logic
-is authoritative in COBOL** and C/JavaScript are restricted to infrastructure
+A banking core for a licensed production service where **all business logic is
+authoritative in COBOL**. C and JavaScript are restricted to infrastructure
 adapters and capabilities COBOL cannot provide directly.
 
-> **Production status:** the owner approvals for the production scope are
-> recorded in `docs/APPROVALS.md`; signed evidence is retained in the private
-> evidence store and is not reproduced here. This repository is the engineering
-> artifact and does not itself constitute regulatory approval. Gate 0 decisions
-> and implementation evidence are tracked in `docs/GATE0_PACKET.md`,
-> `docs/TRACEABILITY.md`, and `docs/STATUS.md`.
+> **Production status:** owner approvals are recorded in `docs/APPROVALS.md`;
+> signed evidence is retained in the private evidence store and is not
+> reproduced here. This repository is the engineering artifact and does not
+> itself constitute regulatory approval. Gate 0 decisions and evidence are
+> tracked in `docs/GATE0_PACKET.md`, `docs/TRACEABILITY.md`, and
+> `docs/STATUS.md`.
 
-- `cobol/bin/main_logic` — one COBOL binary. By default it reads one
+## Architecture
+
+- `cobol/bin/main_logic` - one COBOL binary. By default it reads one
   pipe-delimited request line from `input.txt` and writes one result line to
-  `output.txt` (`ACTION|param1|param2|param3|param4`); with `--serve` it runs
-  long-lived, reading request lines from stdin and writing one result line per
-  request to stdout.
-- `cobol/src/sql_bridge.c` — C bridge to MySQL (`libmysqlclient`): prepared
-  statements, escaping, and transactions. `cobol/c_lib/hash_lib.c` — PBKDF2 hashing
-  (600000 iterations by default, rehashed on login when below target) and secure code generation.
-  `cobol/c_lib/totp_lib.c` — TOTP for MFA. `cobol/c_lib/settings_lib.c` — read optional limits from the environment.
-- `middleware/` — Node.js/Express API gateway, the only HTTP interface; it
-  validates input shapes, invokes the binary per request (own working directory),
-  and maps the result line to HTTP.
-- `cobol/src/gl_core.cob` — general-ledger core (Phase 1):
-  chart of accounts, period open/close control, balanced manual and
-  multi-line journals, and trial balance.
-- `cobol/src/batch_core.cob` — batch/EOD foundation (Phase 1):
-  job and step definitions, checkpointed runs, control totals, retry, and
-  audit.
-- `cobol/src/ref_engine.cob` — generic reference-data engine (Phase 1):
-  type/value/version, effective dating, approval, history, and audit.
-- `cobol/src/generated/ref_core.cob` — generated reference-data module: 206 entities,
-  1,030 actions, and a uniform reference contract. It is a volume-sprint lab
-  artifact and remains outside the curated production reference-data model.
+  `output.txt`; with `--serve` it handles one request per stdin line (the
+  worker-pool protocol).
+- `cobol/src/sql_bridge.c` - C bridge to MySQL (prepared statements, escaping,
+  transactions). `cobol/c_lib/` holds PBKDF2, TOTP, settings, and CSPRNG
+  helpers.
+- `middleware/` - Node.js/Express API gateway, the only HTTP interface. It
+  validates input, invokes the binary, and maps result lines to HTTP.
+- Curated COBOL modules:
+  - `wallet_core.cob` - ledger, transfers, holds, reversals, statements,
+    disputes, reconciliation.
+  - `auth_core.cob` - identity, sessions, MFA, access reviews, policies.
+  - `user_core.cob` - users, profile, lifecycle.
+  - `ref_engine.cob` - generic reference data.
+  - `gl_core.cob` - chart of accounts, period control, journals, trial balance.
+  - `batch_core.cob` - jobs, steps, checkpointed runs, control totals, retry.
+- `cobol/src/generated/ref_core.cob` - frozen generated reference module:
+  206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
+  production coverage target, and must not grow.
 - MySQL database `cobol_db`.
 
-## Milestone and production-grade transition
+## Current state and target
 
-The October 2026 volume sprint reached 109,344 raw lines / 101,200 net lines,
-with 64,703 COBOL raw / 62,544 COBOL net (59.2% raw, 61.8% net). The milestone
-includes 209 generated reference entities produced by `scripts/gen_entity.mjs`;
-they are a frozen generated artifact and remain outside the curated production
-reference-data scope.
+Measured 2026-10-21:
 
-The transition to a production-grade codebase is governed by
-`docs/PRODUCTION_GRADE_PLAN.md` and
-`docs/adr/0081-production-grade-transition.md`. The plan keeps **COBOL net at
-or above 60,000** while replacing generated reference CRUD with a generic
-reference-data model and curated domain modules. `./ci.sh` remains the merge
-gate; `./scripts/ci-7d.sh` is a volume-sprint gate and must not be used as a
-production gate.
+| Metric | Value |
+|---|---:|
+| Non-generated net | **53.091** |
+| Curated COBOL net | **13.191** (24,8%) |
+| Total COBOL net | **65.325** |
+| Full CI | **76 steps / 1367 assertions** |
+| Non-generated gap to 100.000 | **46.909** |
 
-Non-generated net baseline: 52.999; the 100k plan is in
-`docs/NON_GENERATED_100K_PLAN.md`.
+The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
+**>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
+production-readiness claim.
 
-Measure the current state with:
+## Delivery rules (mandatory)
 
-```sh
-./scripts/loc_report.sh
-```
+Read `docs/DELIVERY_RULES.md` before starting work. In short:
 
-See `PRD_Enterprise.md` for the regulated-bank mission and release gates,
-`docs/STATUS.md` for the actual current state, and `SPEC-*.md` per module.
-
-## Prerequisites
-
-GnuCOBOL (`cobc`), `gcc`, `libmysqlclient-dev`, a MySQL/MariaDB server, the `mysql`
-client, and Node.js 18+ with npm.
+- **One PR = two modules**, target **5.000-6.500 net**.
+- **One full CI, one push** at the end.
+- **15-minute interface freeze** before code.
+- **Parallel worktrees/subagents** after the freeze.
+- **Table-driven tests** wired into `ci.sh` and `tests/baseline_counts.txt`.
+- **`./scripts/finalize_slice.sh`** before the full gate.
+- **One review per PR**; merge before starting the next slice.
+- No generated `ref_core` growth, padding, duplicate paragraphs, or dead
+  actions.
 
 ## Quick start
 
-The commands below provision a local development environment. Production
-deployment follows the approved change-control and release process in
-`docs/release-checklist.md`; signed approvals are retained in the private
-evidence store.
+Prerequisites: GnuCOBOL (`cobc`), `gcc`, `libmysqlclient-dev`, MySQL/MariaDB,
+the `mysql` client, and Node.js 18+ with npm.
 
 ```sh
-# 1. Database: create, apply schema, seed test data, apply migrations
+# 1. Database: create, apply baseline schema, seed dev fixtures, migrate
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS cobol_db;"
-mysql cobol_db < database/schema.sql   # fresh-install baseline (never re-run on live data)
-mysql cobol_db < database/seed_test_data.sql   # dev fixtures, safe to re-run
-database/migrate.sh            # records/applies database/migrations/NNN_*.sql
-                               # ("no pending migrations" on a fresh database)
-
-# 1b. (Production) provision least-privilege accounts: a DML-only application
-# user and a separate DDL migration user. Review, then apply as an admin:
-#   database/grants.sh --print
-#   APP_DB_PASS=... MIGRATE_DB_PASS=... database/grants.sh
+mysql cobol_db < database/schema.sql          # fresh install only
+mysql cobol_db < database/seed_test_data.sql # dev fixtures, safe to re-run
+database/migrate.sh                          # apply recorded migrations
 
 # 2. Build the COBOL binary
 ./build.sh
 
-# 3. Run one action (p2 is the acting owner: self-reads need actor == target)
+# 3. Run one action
 printf 'CHECK_BALANCE|sender@test.com|sender@test.com||\n' > input.txt
 ./cobol/bin/main_logic
-cat output.txt                 # -> SUCCESS|BALANCES|USD:1000.00:ACTIVE
+cat output.txt                                # SUCCESS|BALANCES|USD:1000.00:ACTIVE
 
-# 4. Run everything (static checks, build, all suites)
-./ci.sh                        # must end with "ALL GREEN"
+# 4. Full gate
+./ci.sh                                       # must end with ALL GREEN
 ```
 
-Test credentials default to `cobol_user`/`cobol_pass` on `cobol_db`; override via
-`tests/.dbenv` (gitignored). See `database/migrate.sh --check` for pending
-migrations.
+Test credentials default to `cobol_user`/`cobol_pass` on `cobol_db`; override
+via `tests/.dbenv` (gitignored). Production uses least-privilege accounts from
+`database/grants.sh`.
 
 ## API gateway
 
 ```sh
 npm --prefix middleware install
-npm --prefix middleware start     # reads middleware/.env (see middleware/.env.example)
+npm --prefix middleware start
 ```
 
-The COBOL binary reads its database connection from the environment
-(`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`; development defaults);
-the gateway passes its environment through to the binary it spawns.
+The gateway reads `middleware/.env` (see `.env.example`). The COBOL binary
+reads `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, and `DB_NAME` from its
+environment. Set `COBOL_POOL_SIZE` to use the warm worker pool; otherwise each
+request runs in its own working directory. Responses carry `X-Cobol-Ms` and
+`X-Request-Id`; metrics are exposed at `/metrics` for a SUPER_ADMIN bearer.
 
-Invocation is one process per request by default. Set `COBOL_POOL_SIZE` to run a
-warm worker pool over the binary's `--serve` mode instead (ADR-0010);
-`COBOL_POOL_PIPELINE` caps in-flight requests per worker.
+Behavior is specified per module in `SPEC-wallet-core.md`,
+`SPEC-auth-identity.md`, `SPEC-user-profile.md`, and `SPEC-api-gateway.md`.
+Requests must use the bearer token as the acting identity; the gateway never
+takes the actor from the body.
 
-Security headers are set with `helmet`. In production (`NODE_ENV=production`)
-the server refuses to start while `JWT_SECRET`/`REFRESH_SECRET` are unset or
-still the development defaults. Tokens carry an issuer and audience
-(`JWT_ISSUER`/`JWT_AUDIENCE`) that verification enforces.
+## Documentation
 
-Verification codes are delivered out of band (`SMTP_*`, or a development stub
-that logs the event without the code) and are never returned in HTTP responses.
-Access tokens carry a per-user version that is checked on every request and is
-bumped on logout-everywhere (`POST /sessions/revoke-all`), so live access
-tokens die immediately. Per-device logout (`POST /auth/logout`) instead revokes
-the refresh session and denylists the presented access token by `jti`; a single
-token can also be denied that way via `POST /auth/revoke`. The denylist is
-shared (DB) behind a `tokenStore` seam.
-
-Accounts can add a TOTP second factor: `POST /mfa/enroll` returns the secret and
-an `otpauth://` URI, `POST /mfa/confirm` turns it on, and once enabled
-`POST /auth/login` also needs the current `mfaCode`. Passwords use PBKDF2-SHA256
-(600000 iterations, rehashed on login when below target). Users can see their
-active sessions (`GET /sessions`), revoke one (`POST /sessions/revoke`), or log
-out everywhere (`POST /sessions/revoke-all`).
-
-Responses use one envelope - success `{ data: [...] }`, failure
-`{ error, detail? }`. `/users` is paged (`limit` 1..100, `offset`).
-
-Transfers convert the target credit using `exchange_rates` (base -> target) when
-the accounts use different currencies; if only the inverse pair exists its
-reciprocal is used, and a pair with neither direction fails with `RATE_NOT_FOUND`.
-Debit/credit are rounded to each currency's precision and the applied rate is
-recorded on the `ledger` CREDIT row. The core validates the amount itself (a
-positive decimal with at most two fractional digits). A transfer only goes
-through when both accounts are `ACTIVE` and both currencies are enabled
-(otherwise `ACCOUNT_FROZEN` / `ACCOUNT_CLOSED` / `CURRENCY_INACTIVE`).
-`POST /wallet/transfer` requires an `Idempotency-Key` header; retrying with the
-same key replays instead of moving money twice (keys are scoped per sender);
-`fromCurrency`/`toCurrency` optionally pin which account is used when a user
-holds several.
-Optional caps `TRANSFER_MAX_PER_TXN` (one debit) and `TRANSFER_DAILY_LIMIT`
-(rolling 24h per account) are off unless set in the environment. A SUPER_ADMIN
-can reverse a transfer once (`POST /transactions/:ref/reverse`), and its status
-is readable at `GET /transactions/:ref` (admins may add `?sender=<email>` to
-pick a sender when a reference is shared). Each transfer records
-`to:amount:currency` on the audit row; transient DB failures (lock wait /
-deadlock / lost connection) surface as `DB_BUSY` (503), and idempotency intents
-older than `PENDING_RETENTION_DAYS` (default 30) are archived.
-
-The binary writes its result in 500-char records; the gateway reassembles them,
-so large list responses are not cut at 500 bytes.
-
-Rate-limit counters are per process by default; set `REDIS_URL` to share them
-across gateway instances, and `TRUST_PROXY` when behind a proxy so the client
-IP is read from the forwarded headers.
-
-Metrics are exposed at `GET /metrics`; set `METRICS_PUSH_URL` to also push them
-periodically to a collector (Pushgateway/OTLP-HTTP).
-
-Audit retention: `POST /admin/audit/archive` (SUPER_ADMIN) moves `audit_trail`
-rows older than a retention window into the immutable `audit_trail_archive`.
-
-Public routes: `/live` (no dependencies), `/health` (deep) and `/ready`
-(readiness), `/auth/signup`, `/auth/verify`, `/auth/login`,
-`/auth/forgot`, `/auth/reset-password`, `/auth/resend`, `/auth/refresh`, `/auth/logout`. Everything else needs a bearer token; the
-acting identity always comes from the token, never the request body. Reads of a
-user's record/balance/profile allow the owner or an admin, listing users is
-admin-only, a transfer is always sent from the token's account, and the
-email-change flow only acts on the token's own email and requires the current
-password; confirming it revokes the sessions (clean re-login). The owner can
-update their name (and date of birth) via `PATCH /profile`, and soft-close the
-account via `POST /profile/deactivate` (admins set any status via
-`POST /admin/user-status`; login refuses suspended/closed accounts). In file mode
-(the default) each request runs the
-binary in its own working directory (see
-`docs/adr/0001-invocation-model.md`); a worker pool is used when
-`COBOL_POOL_SIZE` is set. Responses carry `X-Cobol-Ms` and
-`X-Request-Id`. The server logs one JSON line per request and serves
-Prometheus-style counters at `GET /metrics` (SUPER_ADMIN bearer token).
-
-## Where things are documented
-- `CODING_STANDARDS.md` — rules a reviewer enforces.
-- `SPEC-wallet-core.md`, `SPEC-auth-identity.md`, `SPEC-user-profile.md`,
-  `SPEC-api-gateway.md` — per-module as-built behaviour and gaps.
-- `docs/STATUS.md` — current-state snapshot; `docs/HISTORY.md` — merged phases.
-- `docs/COVERAGE.md` — coverage measurement, the 30% floor, and the ratchet; it runs nightly via `scripts/nightly.sh` (ADR 0078), not on every merge.
-- `docs/adr/` — architecture decisions (incl. `docs/adr/0072-fx-fee-rate-policy.md`).
-- `database/migrate.sh` — versioned schema migrations.
-
-## Recent controls worth knowing about
-- **Cross-currency transfers** book their rounding residual (exact value minus
-  the posted credit, at 4-decimal ledger scale) to a bank-owned `FX_PNL`
-  account in the same journal; exact postings carry no residual leg. A rate
-  older than `RATE_MAX_AGE_SECONDS` (default 24h) is rejected with
-  `ERROR|RATE_STALE` (HTTP 409).
-- **Transfer reversals** require a reason. A fee is refunded only for reasons
-  listed in the owner-controlled `reversal_fee_policy` table (`BANK_ERROR`
-  refunds, `CUSTOMER_ERROR` retains it).
-- **Signing-secret rotation** is restart-staged with a bounded overlap
-  (`*_PREVIOUS` + `*_PREVIOUS_UNTIL`); `docs/runbooks/secret-rotation.md`.
-- **Dormant lifecycle** (ADR 0080): opt-in two-phase dormancy (`DORMANT_AFTER_DAYS`, `DORMANT_GRACE_DAYS`) warns idle accounts, then suspends them; privileged accounts are left to access review.
-- **Customer step-up** (ADR 0079): email change and MFA disable require a fresh `X-Step-Up` proof; a transfer requires one once the owner enables the `step_up_policy` row with a threshold (shipped disabled).
-- **Password policy** (ADR 0077): common passwords are refused from the owner-controlled deny list (`PASSWORD_BLOCKED`), and the last `PASSWORD_HISTORY_COUNT` passwords cannot be reused (`PASSWORD_REUSED`).
-- **Session security** (ADR 0075): revoke every other device while keeping this one; an administrator refresh idle past `ADMIN_IDLE_TIMEOUT_SECONDS` is refused and audited; a first sign-in from a new fingerprint queues a `NEW_DEVICE` notice; `/metrics` counts auth failures by reason.
-- **Scoped permissions** (ADR 0074): read-mostly gates check a named permission (`AUDIT_READ`, `AUDIT_ARCHIVE`, `RECONCILE_READ`, `RECONCILE_RUN`) instead of the rank; phase 1 preserves current access exactly. `CHECK_PERMISSION` answers, `LIST_PERMISSIONS` projects the set in login/profile responses.
-- **Access review** (SUPER_ADMIN): open a review that snapshots every
-  privileged account, record an `ATTESTED`/`REVOKED` decision per item
-  (never your own), and close it once every item is decided and every
-  revoked access is actually gone. See `docs/adr/0073-access-review-attestation.md`.
-- **Worker pool** settings are validated at startup and the queue is bounded
-  (`COBOL_POOL_*`); invalid config fails fast instead of hanging requests.
+- `docs/DELIVERY_RULES.md` - mandatory slice workflow, volume target, and
+  definition of done.
+- `docs/STATUS.md` - current modules, actions, tables, suites, and known gaps.
+- `docs/PRODUCTION_GRADE_PLAN.md` - production workstreams, gates, and risks.
+- `CODING_STANDARDS.md` - review rules.
+- `docs/APPROVALS.md`, `docs/GATE0_PACKET.md`, `docs/GATE0_DECISIONS.md`,
+  `docs/TRACEABILITY.md` - owner decisions, evidence, and requirement mapping.
+- `docs/COVERAGE.md`, `docs/BUILD_WARNINGS.md`, `docs/BUFFER_CONTRACT.md`,
+  `docs/SCHEMA_POLICY.md` - measurement and contract policies.
+- `docs/runbooks/` - incident, alert, backup/restore, deploy/rollback, and
+  secret-rotation procedures.
+- `docs/adr/` - architecture decisions.
 
 ## Development notes
 
-- Install the tracked git hooks once per clone: `scripts/install-hooks.sh`. The
-  `commit-msg` hook refuses commits directly on `main`/`master`, except the
-  deliberate `docs: sync ...` post-merge documentation commit.
-- Gateway smoke tests: `npm --prefix middleware test` includes
-  `endpoints.test.js`, which exercises every route; `./tests/test_e2e_gateway.sh`
-  drives a full flow over real HTTP against a live server (run by `ci.sh`).
-- Before creating a branch (and after every merge), run `./scripts/sync_main.sh [branch]`: it syncs `main`, regenerates `docs/HISTORY.md`, commits the sync locally (never pushed), prunes merged branches, applies pending migrations, and optionally creates the new branch. It **refuses while any pull request is still open** — merge (or close) the previous PR first.
-- While iterating, `./ci-fast.sh` runs an affected-surface gate (docs in seconds, core smoke under a minute, middleware ~2 minutes). The full `./ci.sh` stays the merge/release evidence; see `docs/adr/0076-tiered-ci.md`.
-- Functional shell suites run through `tests/serve_harness.sh` (one `--serve` process, the worker-pool protocol) unless they need fresh-process semantics; see the header of that file before adding a suite.
-- Shell safety: to stop stray servers, match with a bracket pattern
-  (`pkill -f "[s]erver.js"`) so the pattern does not match the command itself.
+- Install hooks once per clone: `./scripts/install-hooks.sh`.
+- Start a slice from merged `main`: `./scripts/sync_main.sh <branch>`.
+- Use `./ci-fast.sh` while iterating; full `./ci.sh` is the merge evidence.
+- Functional shell suites use `tests/serve_harness.sh` unless they need
+  fresh-process semantics.
+- Stop stray servers with a bracket pattern (`pkill -f "[s]erver.js"`).
+
+See `PRD_Enterprise.md` for the regulated-bank mission and release gates.

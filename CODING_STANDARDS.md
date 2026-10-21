@@ -157,10 +157,10 @@ invariant, bypass evidence, or claim compliance without accountable approval.
 37. **Negative controls for guardrails.** New static/contract checks should
     demonstrate that a deliberately broken fixture is rejected, where
     practical, so a vacuous checker cannot pass.
-38. **Shell suite convention.** Each shell suite remains self-contained with
-    local helpers and explicit assertion accounting; shared helpers are not
-    introduced without demonstrating that they reduce, rather than multiply,
-    failure coupling.
+38. **Table-driven shell suites.** Each module gets one `tests/test_<module>.sh`
+    with one setup and a table of cases, plus explicit assertion accounting.
+    Shared harness helpers are allowed when they reduce duplication; wire the
+    suite into `ci.sh` and `tests/baseline_counts.txt` in the same PR.
 
 ## 7. Review and communication
 
@@ -173,26 +173,15 @@ invariant, bypass evidence, or claim compliance without accountable approval.
     mitigation, owner/decision if known, and exit criteria. Do not label a
     deferred control “complete.”
 42. **No direct integration-branch commits.** Work on a topic branch and merge
-    through review. The only local `main` commit permitted is the generated
-    post-merge `docs: sync HISTORY.md ...` sync.
-43. **Micro-tasks land as single pushed commits; PRs stay fat.** Each
-    micro-task is exactly one atomic commit, pushed immediately after it is
-    created and verified. A pull request collects several related commits
-    that form one coherent change — never a slim, single-commit PR for work
-    that naturally decomposes. There is no fixed minimum commit count;
-    completeness and cohesion of the change decide.
-
-    Before creating the next branch, run `./scripts/sync_main.sh [branch]`
-    so the branch starts from the merged main, the generated history is
-    current, and merged branches are pruned. The script refuses a dirty tree,
-    **refuses while any pull request is still open** (merge or close the
-    previous one first), and never pushes the local HISTORY commit.
-    While iterating, `./ci-fast.sh` runs the affected-surface gate (static
-    checks, build, warning ratchet, migration check, a money-path smoke set
-    for core changes, the gateway suite for middleware changes; see
-    `docs/adr/0076-tiered-ci.md`). The full `./ci.sh` run remains the merge
-    and release evidence and must be green on the final commit before the PR
-    is opened; the fast gate never replaces it.
+    through review. Do not commit on `main`/`master`; every change goes through
+    a PR.
+43. **One slice, one push, one review.** A slice is one PR with two modules,
+    target 5.000-6.500 net. Commit atomically per module, but push once after
+    the full `./ci.sh` is green and open one PR. Do not push every commit and
+    do not iterate on a draft PR. Run `./scripts/finalize_slice.sh` before the
+    gate; start the branch from merged main with `./scripts/sync_main.sh`.
+    While iterating, `./ci-fast.sh` may be used, but it never replaces the full
+    gate on the final commit. See `docs/DELIVERY_RULES.md`.
 
 ## 8. Production-grade transition (2026-10)
 
@@ -214,9 +203,9 @@ rules above.
     volume-sprint gate, but it is not a production control and must not be
     cited as one.
 47. **Curated share ratchets upward.** The curated COBOL share is reported on
-    every production-bound change. The merge gate starts at 40% and rises to
-    100%; generated share must not increase. Lowering a ratchet requires an
-    owner-approved ADR amendment.
+    every production-bound change and may not fall below
+    `tests/curated_share_baseline.txt`; generated share must not increase.
+    Lowering the ratchet requires an owner-approved ADR amendment.
 48. **No volume inflation.** Blank lines, comments, duplicated paragraphs,
     dead actions, unused copybooks, and generated code copied into curated
     modules do not count toward the floor or the curated share. Net SLOC is
@@ -230,5 +219,9 @@ rules above.
 50. **Reference data is governed.** New reference data uses the generic
     reference-data model with effective dating, versioning, approval,
     translations, hierarchy, and audit. Do not add another generated
-    `ref_*` table or another copy of the 211-entity generator to production
+    `ref_*` table or another copy of the 206-entity generator to production
     scope.
+51. **Delivery rules are mandatory.** `docs/DELIVERY_RULES.md` is the single
+    workflow contract: two modules per PR, one full CI, one push, one review,
+    interface freeze, parallel work, table-driven tests, and the finalize
+    script. If this document and that one differ, the delivery rules win.

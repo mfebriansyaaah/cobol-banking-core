@@ -46,5 +46,10 @@ else
     fail=1
 fi
 
+if ! ./scripts/loc_report.sh --non-generated --check >/dev/null; then
+    echo "status check: non-generated baseline is stale"
+    fail=1
+fi
+
 [ "$fail" -eq 0 ] || { echo "status check FAILED"; exit 1; }
 echo "status check OK"
