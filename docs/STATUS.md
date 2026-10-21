@@ -165,6 +165,10 @@ read-only safety copy for one release.
 | `cobol/src/gl_core.cob` | `GL_ACCOUNT_LIST` | paged chart of accounts |
 | `cobol/src/gl_core.cob` | `GL_ACCOUNT_CREATE` | create a GL account with type and normal side |
 | `cobol/src/gl_core.cob` | `GL_JOURNAL_POST` | one balanced debit/credit journal in a currency |
+| `cobol/src/gl_core.cob` | `GL_JOURNAL_POST_ML` | balanced multi-line journal (2-10 lines) in an open period |
+| `cobol/src/gl_core.cob` | `GL_PERIOD_OPEN` | open a YYYY-MM accounting period |
+| `cobol/src/gl_core.cob` | `GL_PERIOD_CLOSE` | close an open period and record the closer |
+| `cobol/src/gl_core.cob` | `GL_PERIOD_LIST` | paged period status list |
 | `cobol/src/gl_core.cob` | `GL_TRIAL_BALANCE` | debit/credit totals and per-account rows for a date range |
 
 ## 3. Database (`cobol_db`)
@@ -254,11 +258,11 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_c_memory.sh` | 12 | C/COBOL boundary contract under ASan+UBSan (1-byte result fields, 6-digit codes, 32-char secrets, fast refusal of absurd KDF costs) |
 | `tests/test_bridge_txn.sh` | 5 | re-entered `SQL_BEGIN` rolls back leaked work (harness fails pre-fix with the row committed), normal commit persists, empty close reports `NO_TRANSACTION` |
 | `tests/test_ref_engine.sh` | 24 | reference engine: type/value creation, DRAFT -> ACTIVE -> RETIRED lifecycle, history, authorization, duplicate rejection, audit, country/holiday/fee/limit/product cutover |
-| `tests/test_gl.sh` | 12 | general ledger: chart of accounts, balanced journal posting, trial balance, validation, authorization, audit |
+| `tests/test_gl.sh` | 22 | general ledger: chart of accounts, balanced manual and multi-line journals, period open/close control, trial balance, validation, authorization, audit |
 | `middleware/` (node --test) | 126 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **bounded signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
-Shell suites total **1197**; with the gateway suite **126** the full run is
-**1323 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **1207**; with the gateway suite **126** the full run is
+**1333 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite

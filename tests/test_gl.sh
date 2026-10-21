@@ -1,7 +1,8 @@
 #!/bin/bash
 # General-ledger core suite (Phase 1).
-# Covers chart-of-accounts creation, balanced manual journals, trial balance,
-# validation, authorization, duplicate rejection, and GL audit rows.
+# Covers chart-of-accounts creation, balanced manual and multi-line journals,
+# period open/close control, trial balance, validation, authorization,
+# duplicate rejection, and GL audit rows.
 # Usage: ./tests/test_gl.sh
 
 BIN="./cobol/bin/main_logic"
@@ -44,6 +45,8 @@ setup() {
        DELETE FROM gl_journal_line WHERE gl_account_code='9000' OR journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'GL test%');
        DELETE FROM gl_journal WHERE description LIKE 'GL test%';
        DELETE FROM gl_account WHERE account_code='9000';
+       INSERT INTO gl_period (period_code,status,closed_by,closed_at) VALUES ('2026-10','OPEN',NULL,NULL)
+       ON DUPLICATE KEY UPDATE status='OPEN',closed_by=NULL,closed_at=NULL;
        DELETE FROM users WHERE email IN ('$ADM','$USR');
        INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES
        (982,'$ADM','x','GL Admin','1990-01-01','VERIFIED','SUPER_ADMIN'),
@@ -57,6 +60,8 @@ teardown() {
        DELETE FROM gl_journal WHERE description LIKE 'GL test%';
        DELETE FROM gl_account WHERE account_code='9000';
        DELETE FROM audit_trail WHERE action='AUTHZ_DENIED' AND actor_id=983;
+       INSERT INTO gl_period (period_code,status,closed_by,closed_at) VALUES ('2026-10','OPEN',NULL,NULL)
+       ON DUPLICATE KEY UPDATE status='OPEN',closed_by=NULL,closed_at=NULL;
        DELETE FROM users WHERE email IN ('$ADM','$USR');"
 }
 
@@ -90,8 +95,28 @@ check "non-admin forbidden" "ERROR|FORBIDDEN" \
     "$(run GL_ACCOUNT_LIST 50 0 '' '' '' "$USR")"
 check "duplicate account rejected" "ERROR|DUPLICATE" \
     "$(run GL_ACCOUNT_CREATE 9000 'Again' ASSET DEBIT '' "$ADM")"
-check "GL audit rows recorded" "2" \
-    "$(q "SELECT COUNT(*) FROM gl_audit WHERE actor_email='$ADM' AND action IN ('ACCOUNT_CREATE','JOURNAL_POST');")"
+check "open period" "SUCCESS|GL_PERIOD_OPEN" \
+    "$(run GL_PERIOD_OPEN 2026-10 '' '' '' '' "$ADM")"
+check_contains "post multi-line journal" "SUCCESS|GL_POSTED_ML|" \
+    "$(run GL_JOURNAL_POST_ML 2026-10-21 'GL test multiline' IDR '5000:100:0;1000:50:0;4000:0:150' '' "$ADM")"
+check_contains "multi-line trial balance credit" "4000:Fee income:REVENUE:0.0000000000:150.0000000000" \
+    "$(run GL_TRIAL_BALANCE 2026-10-01 2026-10-31 IDR '' '' "$ADM")"
+check "unknown multi-line account rejected" "ERROR|ACCOUNT_NOT_FOUND" \
+    "$(run GL_JOURNAL_POST_ML 2026-10-21 'GL test bad ml' IDR '5000:10:0;9999:0:10' '' "$ADM")"
+check "two-sided multi-line line rejected" "ERROR|INVALID_INPUT" \
+    "$(run GL_JOURNAL_POST_ML 2026-10-21 'GL test bad ml' IDR '5000:10:10;1000:0:10' '' "$ADM")"
+check "unbalanced multi-line rejected" "ERROR|UNBALANCED" \
+    "$(run GL_JOURNAL_POST_ML 2026-10-21 'GL test bad ml' IDR '5000:100:0;1000:0:50' '' "$ADM")"
+check "close period" "SUCCESS|GL_PERIOD_CLOSED" \
+    "$(run GL_PERIOD_CLOSE 2026-10 '' '' '' '' "$ADM")"
+check "post after close rejected" "ERROR|PERIOD_CLOSED" \
+    "$(run GL_JOURNAL_POST 2026-10-21 'GL test closed' 5000 1000 'IDR:10.00' "$ADM")"
+check_contains "period list shows closed" "2026-10:CLOSED" \
+    "$(run GL_PERIOD_LIST 50 0 '' '' '' "$ADM")"
+check "reopen closed rejected" "ERROR|PERIOD_CLOSED" \
+    "$(run GL_PERIOD_OPEN 2026-10 '' '' '' '' "$ADM")"
+check "GL audit rows recorded" "5" \
+    "$(q "SELECT COUNT(*) FROM gl_audit WHERE actor_email='$ADM' AND action IN ('ACCOUNT_CREATE','JOURNAL_POST','PERIOD_OPEN','JOURNAL_POST_ML','PERIOD_CLOSE');")"
 
 echo "----------------------------------------------------------------------"
 echo "PASSED: $passed  FAILED: $failed"
