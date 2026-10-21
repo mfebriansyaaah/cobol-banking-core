@@ -94,6 +94,15 @@ check "duplicate rejected" "ERROR|DUPLICATE" \
     "$(run RFE_VALUE_CREATE test_type TEST_CODE 'Again' 'x:2' '' "$ADM")"
 check "invalid type rejected" "ERROR|INVALID_INPUT" \
     "$(run RFE_TYPE_CREATE '' 'Bad' '' '' '' "$ADM")"
+check_contains "country cutover list" "ID:Indonesia:1:ACTIVE" \
+    "$(run RFE_VALUE_LIST country 50 0 '' '' "$ADM")"
+check_contains "country cutover get" "ID:Indonesia:1:ACTIVE" \
+    "$(run RFE_VALUE_GET country ID '' '' '' "$ADM")"
+check_contains "holiday cutover list" "NEWYEAR:New Year:1:ACTIVE" \
+    "$(run RFE_VALUE_LIST holiday 50 0 '' '' "$ADM")"
+check_contains "holiday cutover get" "NEWYEAR:New Year:1:ACTIVE" \
+    "$(run RFE_VALUE_GET holiday NEWYEAR '' '' '' "$ADM")"
+
 check "audit rows recorded" "4" \
     "$(q "SELECT COUNT(*) FROM ref_engine_audit WHERE type_code='test_type';")"
 

@@ -174,8 +174,8 @@ Exit: full CI green, floor gate active, runtime decision recorded.
 ### Phase 1 - Build replacements (6-8 weeks)
 
 Status 2026-10-21: the generic reference-data engine is implemented (schema,
-COBOL actions, gateway routes, and a 14-assertion suite); cutover of the
-generated entities is still pending.
+COBOL actions, gateway routes, and an 18-assertion suite). Country and holiday
+are cut over; 209 generated entities remain for later cutover.
 
 - Generic reference-data engine.
 - Ledger/GL module, batch/EOD engine, report engine, import/export.
