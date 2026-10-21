@@ -85,3 +85,5 @@ dispute_ops 22
 export_archive 20
 recon_ops 21
 alert_center 22
+payment_enforcement 10
+dashboard 15
