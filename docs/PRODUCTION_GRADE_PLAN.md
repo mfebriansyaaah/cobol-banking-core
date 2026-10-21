@@ -6,7 +6,7 @@ tracks implementation and evidence.
 
 Owner: repository owner and the named Gate 0 owners (see
 `docs/GATE0_PACKET.md`).
-Related: `PRD_Enterprise.md`, `docs/TRACEABILITY.md`,
+Related: `PRD_Enterprise.md`, `docs/TRACEABILITY.md`, `docs/NON_GENERATED_100K_PLAN.md`,
 `docs/adr/0081-production-grade-transition.md`, `CODING_STANDARDS.md`.
 
 ## 1. Context
