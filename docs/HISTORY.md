@@ -2856,3 +2856,88 @@ _merged 2026-10-20_
 - docs(adr): 0079 customer step-up; migration 0045 policy table
 - docs: sync HISTORY.md to post-merge state (#256)
 
+## #258 dormant-lifecycle
+
+_merged 2026-10-20_
+
+- docs: record the dormant lifecycle and the new counts
+- test: dormant lifecycle suite wired into CI as step 71
+- feat(gateway): dormancy routes and outbox notice
+- feat(core): two-phase dormant lifecycle actions
+- feat(db): migration 0046 dormant flag and scan index
+- docs(adr): 0080 dormant account lifecycle
+- docs: sync HISTORY.md to post-merge state (#257)
+
+## #259 loc-7d-atomic
+
+_merged 2026-10-20_
+
+- chore(lab): enforce raw and net COBOL share
+- feat(gateway,test): add 40 reference route groups and suites
+- feat(db,core): add tables and actions for 40 reference entities
+- feat(lab): add 40 reference entities (80 total)
+- feat(gateway,test): add 8 reference route groups and suites
+- feat(db,core): add tables and actions for 8 reference entities
+- feat(lab): add 8 reference entities (40 total)
+- test(lab): add 21 reference smoke suites
+- feat(gateway): add 21 reference route groups
+- feat(core): regenerate the reference core for 32 entities
+- feat(db): extend the reference migration to 32 entities
+- feat(lab): add 21 reference entities (32 total)
+- test(lab): add 11 reference smoke suites
+- feat(gateway): add reference routes and validation patterns
+- feat(core): add reference core with 11 entities
+- feat(db): add reference audit table and migration 0047
+- feat(scripts): add reference entity generator
+- feat(scripts): add fast gate
+- feat(scripts): add LOC report
+- docs(lab): add 7-day fast-lane policy
+
+## #260 loc-7d-batch2
+
+_merged 2026-10-20_
+
+- test(lab): add 40 reference smoke suites
+- feat(gateway): add 40 reference route groups
+- feat(core): regenerate the reference core for 120 entities
+- feat(db): add migration 0048 and fold its tables into the baseline
+- feat(lab): add 40 reference entities (120 total)
+- fix(db): fold the 0047 reference tables into the schema baseline
+
+## #261 loc-7d-batch3
+
+_merged 2026-10-21_
+
+- test(lab): add 40 reference smoke suites
+- feat(gateway): add 40 reference route groups
+- feat(core): regenerate the reference core for 160 entities
+- feat(db): add migration 0049 and fold its tables into the baseline
+- feat(lab): add 40 reference entities (160 total)
+
+## #262 loc-7d-batch4
+
+_merged 2026-10-21_
+
+- test(lab): add 40 reference smoke suites
+- feat(gateway): add 40 reference route groups
+- feat(core): regenerate the reference core for 200 entities
+- feat(db): add migration 0050 and fold its tables into the baseline
+- feat(lab): add 40 reference entities (200 total)
+
+## #263 loc-7d-batch4
+
+_merged 2026-10-21_
+
+- feat(db,core,gateway,test): generate the report layout reference action
+- feat(lab): add the report layout reference entity
+
+## #264 loc-7d-batch5
+
+_merged 2026-10-21_
+
+- test(lab): add 10 reference smoke suites
+- feat(gateway): add 10 reference route groups
+- feat(core): regenerate the reference core for 211 entities
+- feat(db): add migration 0052 and fold its tables into the baseline
+- feat(lab): add 10 reference entities (211 total)
+

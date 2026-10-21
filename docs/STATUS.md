@@ -1,6 +1,6 @@
 # STATUS.md - Current state of the project
 
-Snapshot of the running system as of 2026-10-11. Every factual claim here is
+Snapshot of the running system as of 2026-10-21. Every factual claim here is
 verifiable: suite counts by running `./ci.sh`, action names by grepping
 `cobol/src/`, and the cross-references by `tests/status_check.sh` (wired into
 `ci.sh`).
@@ -118,6 +118,21 @@ A banking core where **all business logic lives in COBOL**:
 The routing contract is that every action dispatched by `cobol/src/main_logic.cob`
 is handled by its owning module; `ci.sh` verifies every routed
 action has a handler in its owning module.
+
+## 2a. Generated reference-data artifact (lab, not production scope)
+
+The October 2026 volume sprint added 211 generated reference entities and
+1,055 actions in `cobol/src/ref_core.cob`, with a uniform
+`code/label/num_val/is_active` contract. They are produced by
+`scripts/gen_entity.mjs` and exercised by 211 smoke suites (2,321 assertions)
+run through `scripts/ci-7d.sh`.
+
+This module is a **lab artifact**. It is not a PRD requirement, not a
+production data model, and not part of the merge gate. The production-grade
+transition replaces it with a generic reference-data model; see
+`docs/PRODUCTION_GRADE_PLAN.md` and
+`docs/adr/0081-production-grade-transition.md`. Do not add another generated
+`ref_*` table or copy the generator into production scope.
 
 ## 3. Database (`cobol_db`)
 
@@ -390,3 +405,21 @@ details behind those rows.
 - **Test execution**: most functional shell suites run their requests through `tests/serve_harness.sh`, which keeps one `main_logic --serve` process (the same protocol the worker pool uses) instead of spawning a process per assertion. Suites that need fresh-process semantics (crash injection, per-call environment, file-mode assertions) keep the default invocation. The test-only KDF cost is 10000 iterations (`ci.sh`); the KDF suite asserts the compiled production default (600000) with explicit per-call values.
 - **Test coverage (deliberate)**: gateway tests never skip silently — a failed database seed fails the test via `requireSeed` (`middleware/test/support.js`), and `ci.sh` fails the gateway step on any reported skip. Every `result.js` error code's HTTP status is asserted against an explicit contract table, and the table and the implementation must list exactly the same codes (a new code without a status fails the test). `TRANSFER_IN_PROGRESS` and the replay-on-commit path are exercised by seeding a `PENDING`/`COMMITTED` intent. The COBOL transient detector (`DB_BUSY` on lock-wait/deadlock/lost-connection) and CURRENCY_MISMATCH (a legacy code with no current producer — cross-currency is supported, ADR 0005) are covered at the mapping level only, not end-to-end. **Fixtures keep the ledger consistent**: seeded accounts always get a matching opening ledger row (`middleware/test/support.js`), and the gateway/endpoints/profile suites delete the users they create, so a full `./ci.sh` leaves no account whose balance diverges from the ledger (a manual `RUN_RECONCILIATION` reports zero mismatches).
 - **Operations are procedural, not automatic**: `scripts/backup.sh` takes a consistent snapshot plus a manifest (git rev, per-table counts and live checksums), `scripts/restore.sh` replays and verifies it (counts, checksums, migration check, bridge smoke), and `tests/test_backup_restore.sh` round-trips this path in CI with a canary row that must disappear. `docs/runbooks/` holds incident, alert (signal inventory; numeric thresholds stay owner-approved), backup/restore, deploy/rollback, and secret-rotation procedures; `docs/patch-policy.md` gates dependencies via `npm audit --omit=dev --audit-level=high` in CI, and `docs/release-checklist.md` is the per-release evidence template. Still missing (Gate 0 owners): approved SLOs, RPO/RTO, backup schedules/retention, automatic alerting, and independent assessment.
+
+## 8. Production-grade transition
+
+Production readiness is **not claimed**. The transition is governed by
+`docs/PRODUCTION_GRADE_PLAN.md` and
+`docs/adr/0081-production-grade-transition.md`. Current gaps that block a
+production claim include:
+
+- Full `./ci.sh` has not been re-run after the 211-entity volume sprint.
+- The generated reference module is in the mainline and must be isolated,
+  tagged, and replaced by the generic reference-data model.
+- COBOL coverage must be re-baselined after generated code is excluded from
+  the production coverage target.
+- No container, Kubernetes, or CI/CD deployment pipeline is present.
+- No SAST/DAST, SBOM, secret scan, or independent penetration test evidence.
+- No approved SLO/RPO/RTO or completed disaster-recovery drill.
+- No owner-approved production scope, jurisdiction, or compliance matrix.
+- The 100k/60k milestone is a lab artifact and is not production evidence.

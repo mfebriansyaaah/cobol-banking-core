@@ -184,6 +184,9 @@ must not precede P0/P1 controls.
   concurrency, fault-injection, reconciliation, migration, and recovery tests.
 - **Maintainability:** repository size, LOC, commit count, and PR count are not
   success criteria. Correctness, evidence, and controlled operation are.
+  The October 2026 100k/60k milestone is a lab artifact and a floor for the
+  transition, not a production claim; production readiness is governed by
+  `docs/PRODUCTION_GRADE_PLAN.md`.
 
 ## 6. Current implementation boundary
 

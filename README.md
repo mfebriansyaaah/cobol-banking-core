@@ -22,7 +22,31 @@ to infrastructure adapters and capabilities COBOL cannot provide directly.
 - `middleware/` — Node.js/Express API gateway, the only HTTP interface; it
   validates input shapes, invokes the binary per request (own working directory),
   and maps the result line to HTTP.
+- `cobol/src/ref_core.cob` — generated reference-data module: 211 entities,
+  1,055 actions, and a uniform reference contract. It is a volume-sprint lab
+  artifact, not a production data model.
 - MySQL database `cobol_db`.
+
+## Milestone and production-grade transition
+
+The October 2026 volume sprint reached 109,344 raw lines / 101,200 net lines,
+with 64,703 COBOL raw / 62,544 COBOL net (59.2% raw, 61.8% net). The milestone
+includes 211 generated reference entities produced by `scripts/gen_entity.mjs`;
+they are a lab artifact and are not production scope.
+
+The transition to a production-grade codebase is governed by
+`docs/PRODUCTION_GRADE_PLAN.md` and
+`docs/adr/0081-production-grade-transition.md`. The plan keeps **COBOL net at
+or above 60,000** while replacing generated reference CRUD with a generic
+reference-data model and curated domain modules. `./ci.sh` remains the merge
+gate; `./scripts/ci-7d.sh` is a lab-only volume gate and must not be used as a
+production gate.
+
+Measure the current state with:
+
+```sh
+./scripts/loc_report.sh
+```
 
 See `PRD_Enterprise.md` for the regulated-bank mission and release gates,
 `docs/STATUS.md` for the actual current state, and `SPEC-*.md` per module.
