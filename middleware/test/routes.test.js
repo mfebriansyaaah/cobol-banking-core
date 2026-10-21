@@ -32,6 +32,14 @@ const TOKEN_IDENTITY = {
   REVOKE_USER_SESSION: 'actor',
   REVOKE_ALL_SESSIONS: 'actor',
   TRANSFER: 'from',
+  GL_ACCOUNT_LIST: 'actor',
+  GL_ACCOUNT_CREATE: 'actor',
+  GL_JOURNAL_POST: 'actor',
+  GL_JOURNAL_POST_ML: 'actor',
+  GL_TRIAL_BALANCE: 'actor',
+  GL_PERIOD_OPEN: 'actor',
+  GL_PERIOD_CLOSE: 'actor',
+  GL_PERIOD_LIST: 'actor',
 };
 
 test('every identity-authorized action takes its identity from the token', () => {
