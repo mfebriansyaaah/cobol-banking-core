@@ -73,3 +73,5 @@ report 45
 import 48
 fee 21
 eod 24
+statement 10
+eod_jobs 10
