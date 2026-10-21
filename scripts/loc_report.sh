@@ -6,16 +6,19 @@
 # Usage:
 #   ./scripts/loc_report.sh
 #   ./scripts/loc_report.sh --check
+#   ./scripts/loc_report.sh --check-floor
 #   ./scripts/loc_report.sh --since main
 set -e
 cd "$(dirname "$0")/.."
 
 SINCE=""
 CHECK=0
+FLOOR=0
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --since) SINCE="${2:-}"; shift 2 ;;
         --check) CHECK=1; shift ;;
+        --check-floor) CHECK=1; FLOOR=1; shift ;;
         *) echo "usage: $0 [--since <ref>] [--check]" >&2; exit 2 ;;
     esac
 done
@@ -116,5 +119,12 @@ if [ "$CHECK" = "1" ]; then
         echo "WARN: COBOL share is below the 55% target"
     else
         echo "OK: COBOL share meets the 55% target"
+    fi
+    if [ "$FLOOR" = "1" ]; then
+        if [ "$cobol_code" -lt 60000 ]; then
+            echo "FAIL: COBOL net is $cobol_code (floor 60000)"
+            exit 1
+        fi
+        echo "OK: COBOL net floor $cobol_code >= 60000"
     fi
 fi
