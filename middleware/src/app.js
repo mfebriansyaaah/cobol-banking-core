@@ -50,6 +50,8 @@ import { LOAN_ROUTES } from './routes/loan.js';
 import { DEPOSIT_ROUTES } from './routes/deposit.js';
 import { CARD_ROUTES } from './routes/card.js';
 import { TAX_REPORT_ROUTES } from './routes/tax_report.js';
+import { POLICY_ATTESTATION_ROUTES } from './routes/policy_attestation.js';
+import { REGULATORY_CALENDAR_ROUTES } from './routes/regulatory_calendar.js';
 import { FX_DEAL_ROUTES } from './routes/fx_deal.js';
 import { TREASURY_POSITION_ROUTES } from './routes/treasury_position.js';
 import { SETTLEMENT_RECON_ROUTES } from './routes/settlement_recon.js';
@@ -114,6 +116,8 @@ export const ROUTES = [
   ...DEPOSIT_ROUTES,
   ...CARD_ROUTES,
   ...TAX_REPORT_ROUTES,
+  ...POLICY_ATTESTATION_ROUTES,
+  ...REGULATORY_CALENDAR_ROUTES,
   ...FX_DEAL_ROUTES,
   ...TREASURY_POSITION_ROUTES,
   ...SETTLEMENT_RECON_ROUTES,
