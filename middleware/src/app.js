@@ -38,6 +38,8 @@ import { EXPORT_STREAM_ROUTES } from './routes/export_stream.js';
 import { ALERT_ESCALATION_ROUTES } from './routes/alert_escalation.js';
 import { AUDIT_DRILLDOWN_ROUTES } from './routes/audit_drilldown.js';
 import { COMPLIANCE_EXPORT_ROUTES } from './routes/compliance_export.js';
+import { PAYMENT_HOLD_ROUTES } from './routes/payment_hold.js';
+import { ONCALL_DELIVERY_ROUTES } from './routes/oncall_delivery.js';
 import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './routes/payment_instructions.js';
 import { ONCALL_ROUTES } from './routes/oncall.js';
@@ -86,6 +88,8 @@ export const ROUTES = [
   ...ALERT_ESCALATION_ROUTES,
   ...AUDIT_DRILLDOWN_ROUTES,
   ...COMPLIANCE_EXPORT_ROUTES,
+  ...PAYMENT_HOLD_ROUTES,
+  ...ONCALL_DELIVERY_ROUTES,
   ...STATEMENT_RECON_ROUTES,
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...ONCALL_ROUTES,
