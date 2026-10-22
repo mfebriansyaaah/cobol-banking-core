@@ -51,6 +51,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/oncall_delivery_core.cob \
     cobol/src/compliance_retention_core.cob \
     cobol/src/report_scheduler_core.cob \
+    cobol/src/settlement_recon_core.cob \
+    cobol/src/statement_delivery_core.cob \
     cobol/src/import_core.cob \
     cobol/src/import_post_core.cob \
     cobol/src/fee_core.cob \
