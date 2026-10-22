@@ -97,3 +97,5 @@ recon_exception 16
 dispute_notify 12
 export_stream 11
 alert_escalation 13
+audit_drilldown 13
+compliance_export 14
