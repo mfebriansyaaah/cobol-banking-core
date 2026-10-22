@@ -6,6 +6,6 @@
 # COBOL numbers come from scripts/coverage_cobol.sh (statement coverage
 # mapped from the generated C over the default representative suite subset).
 # Gateway numbers come from Node's --experimental-test-coverage over src/**.
-cobol_total 74.15
-gateway_lines 99.01
-gateway_branches 82.95
+cobol_total 74.55
+gateway_lines 99.02
+gateway_branches 82.98

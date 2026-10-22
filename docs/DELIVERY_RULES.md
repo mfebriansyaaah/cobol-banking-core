@@ -55,13 +55,13 @@ Current baseline measured 2026-10-21 after the GL and batch/EOD slices:
 
 | Component | Net lines |
 |---|---:|
-| Curated COBOL | 35.238 |
+| Curated COBOL | 36.936 |
 | C and header | 1.179 |
-| SQL | 6.433 |
-| Shell | 24.628 |
-| JavaScript | 13.812 |
-| **Total non-generated** | **81.290** |
-| COBOL share | 43,3% |
+| SQL | 6.592 |
+| Shell | 24.778 |
+| JavaScript | 13.961 |
+| **Total non-generated** | **83.446** |
+| COBOL share | 44,2% |
 
 Target:
 
@@ -71,7 +71,7 @@ Target:
 | Total COBOL floor | **>= 60.000** |
 | Curated COBOL | **>= 50.000** |
 | COBOL share | **>= 50%** |
-| Remaining gap | **18.710** |
+| Remaining gap | **16.554** |
 
 Workstream budget (curated COBOL):
 
@@ -100,13 +100,14 @@ payment policy + reconciliation reporting, and import ledger posting + report
 delivery, dispute operations + retained export storage, and reconciliation
 auto-assignment + operations alerting, and payment policy enforcement +
 operational dashboards, statement reconciliation, schedule run history,
-standing payment instructions, on-call routing, audit analytics, and import
-reconciliation. The next two-module slices are:
+standing payment instructions, on-call routing, audit analytics, import
+reconciliation, reconciliation exceptions, and dispute customer notifications.
+The next two-module slices are:
 
-1. Dispute customer notifications + export download streaming.
-2. Alert escalation automation + reconciliation exception workflows.
+1. Export download streaming + alert escalation automation.
+2. Reconciliation exception workflows + retained audit analytics drill-down.
 3. Payment instruction holds + on-call paging delivery.
-4. Retained audit analytics drill-down + compliance exports.
+4. Compliance exports + dispute customer journey analytics.
 
 Each slice must follow the rules above. A one-day result is measured in
 **merged, tested net**, not in raw editor output.

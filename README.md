@@ -54,6 +54,8 @@ adapters and capabilities COBOL cannot provide directly.
   - `oncall_core.cob` - rotations, shifts, escalation steps, and pages.
   - `audit_analytics_core.cob` - audit summaries, trends, anomalies, retention, snapshots.
   - `import_recon_core.cob` - import-to-GL reconciliation runs and exception items.
+  - `recon_exception_core.cob` - reconciliation exception cases, notes, SLA, and closure.
+  - `dispute_notify_core.cob` - dispute customer notification templates and delivery tracking.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -65,11 +67,11 @@ Measured 2026-10-22:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **81.290** |
-| Curated COBOL net | **35.238** (43,3%) |
-| Total COBOL net | **87.372** |
-| Full CI | **100 steps / 1824 assertions** |
-| Non-generated gap to 100.000 | **18.710** |
+| Non-generated net | **83.446** |
+| Curated COBOL net | **36.936** (44,2%) |
+| Total COBOL net | **89.070** |
+| Full CI | **102 steps / 1852 assertions** |
+| Non-generated gap to 100.000 | **16.554** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
