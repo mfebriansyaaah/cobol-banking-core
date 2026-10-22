@@ -109,3 +109,5 @@ audit_snapshot 8
 report_archive 8
 kyc_review 8
 regulatory_report 8
+loan 8
+deposit 8

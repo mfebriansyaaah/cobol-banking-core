@@ -46,6 +46,8 @@ import { AUDIT_SNAPSHOT_ROUTES } from './routes/audit_snapshot.js';
 import { REPORT_ARCHIVE_ROUTES } from './routes/report_archive.js';
 import { KYC_REVIEW_ROUTES } from './routes/kyc_review.js';
 import { REGULATORY_REPORT_ROUTES } from './routes/regulatory_report.js';
+import { LOAN_ROUTES } from './routes/loan.js';
+import { DEPOSIT_ROUTES } from './routes/deposit.js';
 import { SETTLEMENT_RECON_ROUTES } from './routes/settlement_recon.js';
 import { STATEMENT_DELIVERY_ROUTES } from './routes/statement_delivery.js';
 import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
@@ -104,6 +106,8 @@ export const ROUTES = [
   ...REPORT_ARCHIVE_ROUTES,
   ...KYC_REVIEW_ROUTES,
   ...REGULATORY_REPORT_ROUTES,
+  ...LOAN_ROUTES,
+  ...DEPOSIT_ROUTES,
   ...SETTLEMENT_RECON_ROUTES,
   ...STATEMENT_DELIVERY_ROUTES,
   ...STATEMENT_RECON_ROUTES,
