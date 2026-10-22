@@ -2213,7 +2213,7 @@ CREATE TABLE IF NOT EXISTS ref_report_parameter (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS ref_report_schedule (
+CREATE TABLE IF NOT EXISTS ref_report_scheduler (
     code VARCHAR(6) PRIMARY KEY,
     label VARCHAR(64) NOT NULL,
     num_val INT NOT NULL DEFAULT 0,
@@ -3212,7 +3212,10 @@ CREATE TABLE IF NOT EXISTS report_layout (
     CHECK (page_length BETWEEN 10 AND 200)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS report_schedule (
+DROP TABLE IF EXISTS report_scheduler_run;
+DROP TABLE IF EXISTS report_scheduler_audit;
+DROP TABLE IF EXISTS report_scheduler;
+CREATE TABLE IF NOT EXISTS report_scheduler (
     id INT AUTO_INCREMENT PRIMARY KEY,
     template_code VARCHAR(40) NOT NULL,
     frequency ENUM('DAILY','WEEKLY','MONTHLY') NOT NULL,
@@ -3226,7 +3229,7 @@ CREATE TABLE IF NOT EXISTS report_schedule (
     created_by VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_report_schedule_due (enabled, next_run_date),
+    INDEX idx_report_scheduler_due (enabled, next_run_date),
     CHECK (recipient LIKE '%@%')
 ) ENGINE=InnoDB;
 
@@ -3392,7 +3395,7 @@ CREATE TABLE IF NOT EXISTS ops_alert_audit (
 
 -- Phase 1 Sprint 1 slice 12: schedule run history and statement reconciliation.
 
-CREATE TABLE IF NOT EXISTS report_schedule_run (
+CREATE TABLE IF NOT EXISTS report_scheduler_run (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     schedule_id INT NOT NULL,
     report_run_id INT NULL,
@@ -3406,7 +3409,7 @@ CREATE TABLE IF NOT EXISTS report_schedule_run (
     finished_at DATETIME NULL,
     created_by VARCHAR(100) NOT NULL,
     CONSTRAINT fk_schedule_run_schedule FOREIGN KEY (schedule_id)
-        REFERENCES report_schedule(id) ON DELETE CASCADE,
+        REFERENCES report_scheduler(id) ON DELETE CASCADE,
     CONSTRAINT fk_schedule_run_report FOREIGN KEY (report_run_id)
         REFERENCES report_run(id) ON DELETE SET NULL,
     INDEX idx_schedule_run_status (status, started_at),
@@ -3906,6 +3909,72 @@ CREATE TABLE IF NOT EXISTS oncall_delivery_audit (
     INDEX idx_oncall_delivery_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 1 Sprint 1 slice 19: compliance retention and report scheduling.
+
+CREATE TABLE IF NOT EXISTS compliance_retention_policy (
+    policy_code VARCHAR(40) PRIMARY KEY,
+    entity_type VARCHAR(50) NOT NULL,
+    retention_days INT NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (retention_days BETWEEN 1 AND 3650)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS compliance_retention_run (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    policy_code VARCHAR(40) NOT NULL,
+    archived_count BIGINT NOT NULL DEFAULT 0,
+    purged_count BIGINT NOT NULL DEFAULT 0,
+    status ENUM('RUNNING','COMPLETED','FAILED') NOT NULL DEFAULT 'RUNNING',
+    executed_by VARCHAR(100) NOT NULL,
+    executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_retention_run_policy FOREIGN KEY (policy_code)
+        REFERENCES compliance_retention_policy(policy_code) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS compliance_retention_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    policy_code VARCHAR(40) NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_retention_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS report_scheduler (
+    schedule_code VARCHAR(40) PRIMARY KEY,
+    report_type VARCHAR(40) NOT NULL,
+    frequency ENUM('DAILY','WEEKLY','MONTHLY') NOT NULL,
+    next_run_at DATETIME NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS report_scheduler_run (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    schedule_code VARCHAR(40) NOT NULL,
+    status ENUM('RUNNING','COMPLETED','FAILED') NOT NULL DEFAULT 'RUNNING',
+    row_count BIGINT NOT NULL DEFAULT 0,
+    error_detail VARCHAR(255) NULL,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at DATETIME NULL,
+    CONSTRAINT fk_schedule_run FOREIGN KEY (schedule_code)
+        REFERENCES report_scheduler(schedule_code) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS report_scheduler_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    schedule_code VARCHAR(40) NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_schedule_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -3984,7 +4053,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0070_recon_dispute_notify'),
 ('0071_export_escalation'),
 ('0072_audit_compliance'),
-('0073_hold_delivery');
+('0073_hold_delivery'),
+('0074_retention_scheduler');
 
 
 -- Indexes

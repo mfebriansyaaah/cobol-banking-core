@@ -40,6 +40,8 @@ import { AUDIT_DRILLDOWN_ROUTES } from './routes/audit_drilldown.js';
 import { COMPLIANCE_EXPORT_ROUTES } from './routes/compliance_export.js';
 import { PAYMENT_HOLD_ROUTES } from './routes/payment_hold.js';
 import { ONCALL_DELIVERY_ROUTES } from './routes/oncall_delivery.js';
+import { COMPLIANCE_RETENTION_ROUTES } from './routes/compliance_retention.js';
+import { REPORT_SCHEDULER_ROUTES } from './routes/report_scheduler.js';
 import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './routes/payment_instructions.js';
 import { ONCALL_ROUTES } from './routes/oncall.js';
@@ -90,6 +92,8 @@ export const ROUTES = [
   ...COMPLIANCE_EXPORT_ROUTES,
   ...PAYMENT_HOLD_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
+  ...COMPLIANCE_RETENTION_ROUTES,
+  ...REPORT_SCHEDULER_ROUTES,
   ...STATEMENT_RECON_ROUTES,
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...ONCALL_ROUTES,
