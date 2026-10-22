@@ -113,3 +113,5 @@ loan 8
 deposit 8
 fx_deal 8
 treasury_position 6
+card 9
+tax_report 8
