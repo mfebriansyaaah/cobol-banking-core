@@ -104,9 +104,11 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "ALE_" ] && continue
     [ "$name" = "ADR_" ] && continue
     [ "$name" = "CEX_" ] && continue
+    [ "$name" = "PHL_" ] && continue
+    [ "$name" = "ODL_" ] && continue
     [ "$name" = "XST_" ] && continue
     [ "$name" = "ALE_" ] && continue
-    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/report_delivery_core.cob cobol/src/dispute_ops_core.cob cobol/src/export_archive_core.cob cobol/src/recon_ops_core.cob cobol/src/alert_core.cob cobol/src/dashboard_core.cob cobol/src/statement_recon_core.cob cobol/src/payment_instruction_core.cob cobol/src/oncall_core.cob cobol/src/audit_analytics_core.cob cobol/src/import_recon_core.cob cobol/src/recon_exception_core.cob cobol/src/dispute_notify_core.cob cobol/src/export_stream_core.cob cobol/src/alert_escalation_core.cob cobol/src/audit_drilldown_core.cob cobol/src/compliance_export_core.cob cobol/src/import_core.cob cobol/src/import_post_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/payment_core.cob cobol/src/recon_core.cob cobol/src/generated/ref_core.cob; then
+    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/report_delivery_core.cob cobol/src/dispute_ops_core.cob cobol/src/export_archive_core.cob cobol/src/recon_ops_core.cob cobol/src/alert_core.cob cobol/src/dashboard_core.cob cobol/src/statement_recon_core.cob cobol/src/payment_instruction_core.cob cobol/src/oncall_core.cob cobol/src/audit_analytics_core.cob cobol/src/import_recon_core.cob cobol/src/recon_exception_core.cob cobol/src/dispute_notify_core.cob cobol/src/export_stream_core.cob cobol/src/alert_escalation_core.cob cobol/src/audit_drilldown_core.cob cobol/src/compliance_export_core.cob cobol/src/payment_hold_core.cob cobol/src/oncall_delivery_core.cob cobol/src/import_core.cob cobol/src/import_post_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/payment_core.cob cobol/src/recon_core.cob cobol/src/generated/ref_core.cob; then
         echo "router: action '$name' has no handler in any core module"
         viol=1
     fi
@@ -159,6 +161,8 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "ALE_" ] && continue
     [ "$name" = "ADR_" ] && continue
     [ "$name" = "CEX_" ] && continue
+    [ "$name" = "PHL_" ] && continue
+    [ "$name" = "ODL_" ] && continue
     if ! grep -rqE "(action: '$name'|invoke\('$name')" middleware/src; then
         echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
         viol=1
