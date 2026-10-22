@@ -67,15 +67,15 @@ adapters and capabilities COBOL cannot provide directly.
 
 ## Current state and target
 
-Measured 2026-10-22:
+Measured 2026-10-23:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **92.098** |
-| Curated COBOL net | **43.499** (47,2%) |
-| Total COBOL net | **95.633** |
-| Full CI | **114 steps / 1981 assertions** |
-| Non-generated gap to 100.000 | **7.902** |
+| Non-generated net | **93.365** |
+| Curated COBOL net | **44.453** (47,6%) |
+| Total COBOL net | **96.587** |
+| Full CI | **116 steps / 1997 assertions** |
+| Non-generated gap to 100.000 | **6.635** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
