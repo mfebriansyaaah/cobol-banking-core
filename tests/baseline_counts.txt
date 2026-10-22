@@ -105,3 +105,5 @@ compliance_retention 9
 report_scheduler 11
 settlement_recon 12
 statement_delivery 11
+audit_snapshot 8
+report_archive 8
