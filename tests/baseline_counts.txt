@@ -115,3 +115,5 @@ fx_deal 8
 treasury_position 6
 card 9
 tax_report 8
+policy_attestation 7
+regulatory_calendar 7

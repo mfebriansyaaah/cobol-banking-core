@@ -61,6 +61,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/treasury_position_core.cob \
     cobol/src/card_core.cob \
     cobol/src/tax_report_core.cob \
+    cobol/src/policy_attestation_core.cob \
+    cobol/src/regulatory_calendar_core.cob \
     cobol/src/settlement_recon_core.cob \
     cobol/src/statement_delivery_core.cob \
     cobol/src/import_core.cob \
