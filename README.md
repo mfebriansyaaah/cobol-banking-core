@@ -52,6 +52,8 @@ adapters and capabilities COBOL cannot provide directly.
   - `statement_recon_core.cob` - statement-to-ledger matching and recon runs.
   - `payment_instruction_core.cob` - standing instructions and execution history.
   - `oncall_core.cob` - rotations, shifts, escalation steps, and pages.
+  - `audit_analytics_core.cob` - audit summaries, trends, anomalies, retention, snapshots.
+  - `import_recon_core.cob` - import-to-GL reconciliation runs and exception items.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -63,11 +65,11 @@ Measured 2026-10-22:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **79.288** |
-| Curated COBOL net | **33.612** (42,3%) |
-| Total COBOL net | **85.746** |
-| Full CI | **98 steps / 1793 assertions** |
-| Non-generated gap to 100.000 | **20.712** |
+| Non-generated net | **81.290** |
+| Curated COBOL net | **35.238** (43,3%) |
+| Total COBOL net | **87.372** |
+| Full CI | **100 steps / 1824 assertions** |
+| Non-generated gap to 100.000 | **18.710** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
