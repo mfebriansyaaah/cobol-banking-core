@@ -87,6 +87,8 @@ DEFAULT_SUITES=(
     test_dispute_notify
     test_export_stream
     test_alert_escalation
+    test_audit_drilldown
+    test_compliance_export
 )
 ALL_SUITES=(
     test_suite test_atomic_txn test_ledger_atomic test_reconciliation
@@ -133,13 +135,15 @@ ALL_SUITES=(
     test_dispute_notify
     test_export_stream
     test_alert_escalation
+    test_audit_drilldown
+    test_compliance_export
 )
 case "$MODE" in
     default) SUITES=("${DEFAULT_SUITES[@]}") ;;
     all) SUITES=("${ALL_SUITES[@]}") ;;
 esac
 
-MODULES=(main_logic user_core wallet_core auth_core ref_engine gl_core batch_core report_core report_delivery_core dispute_ops_core export_archive_core recon_ops_core alert_core dashboard_core statement_recon_core payment_instruction_core oncall_core audit_analytics_core import_recon_core recon_exception_core dispute_notify_core export_stream_core alert_escalation_core import_core import_post_core fee_core eod_core statement_core eod_jobs_core ref_ext_core notification_core payment_core recon_core)
+MODULES=(main_logic user_core wallet_core auth_core ref_engine gl_core batch_core report_core report_delivery_core dispute_ops_core export_archive_core recon_ops_core alert_core dashboard_core statement_recon_core payment_instruction_core oncall_core audit_analytics_core import_recon_core recon_exception_core dispute_notify_core export_stream_core alert_escalation_core audit_drilldown_core compliance_export_core import_core import_post_core fee_core eod_core statement_core eod_jobs_core ref_ext_core notification_core payment_core recon_core)
 COBOL_SRC="cobol/src"
 C_SRC="cobol/src/sql_bridge.c cobol/c_lib/hash_lib.c cobol/c_lib/totp_lib.c cobol/c_lib/settings_lib.c cobol/c_lib/random_lib.c"
 

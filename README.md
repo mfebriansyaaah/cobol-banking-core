@@ -56,6 +56,10 @@ adapters and capabilities COBOL cannot provide directly.
   - `import_recon_core.cob` - import-to-GL reconciliation runs and exception items.
   - `recon_exception_core.cob` - reconciliation exception cases, notes, SLA, and closure.
   - `dispute_notify_core.cob` - dispute customer notification templates and delivery tracking.
+  - `export_stream_core.cob` - time-limited, counted export download tokens and chunk streaming.
+  - `alert_escalation_core.cob` - escalation policies, steps, and paged run tracking.
+  - `audit_drilldown_core.cob` - saved audit drill-down queries and ad-hoc audit pivots.
+  - `compliance_export_core.cob` - compliance export packages with seal, attest, and checksum verification.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -67,11 +71,11 @@ Measured 2026-10-22:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **85.210** |
-| Curated COBOL net | **38.307** (44,9%) |
-| Total COBOL net | **90.441** |
-| Full CI | **104 steps / 1876 assertions** |
-| Non-generated gap to 100.000 | **14.790** |
+| Non-generated net | **87.171** |
+| Curated COBOL net | **39.853** (45,7%) |
+| Total COBOL net | **91.987** |
+| Full CI | **106 steps / 1903 assertions** |
+| Non-generated gap to 100.000 | **12.829** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
 **>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
