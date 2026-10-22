@@ -101,3 +101,5 @@ audit_drilldown 13
 compliance_export 14
 payment_hold 9
 oncall_delivery 10
+compliance_retention 9
+report_scheduler 11
