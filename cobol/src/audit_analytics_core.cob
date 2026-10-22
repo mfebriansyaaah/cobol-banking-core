@@ -1,0 +1,837 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. audit_analytics_core.
+      *> Audit analytics, anomaly detection, and retention.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-RESULT               PIC X(16384) VALUE SPACES.
+       01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
+       01  WS-BIND-1               PIC X(256) VALUE SPACES.
+       01  WS-BIND-2               PIC X(256) VALUE SPACES.
+       01  WS-BIND-3               PIC X(256) VALUE SPACES.
+       01  WS-BIND-4               PIC X(256) VALUE SPACES.
+       01  WS-BIND-5               PIC X(256) VALUE SPACES.
+       01  WS-BIND-6               PIC X(256) VALUE SPACES.
+       01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P1-LEN               PIC 9(3) VALUE 1.
+       01  WS-P2-LEN               PIC 9(3) VALUE 1.
+       01  WS-P3-LEN               PIC 9(3) VALUE 1.
+       01  WS-P4-LEN               PIC 9(3) VALUE 1.
+       01  WS-P5-LEN               PIC 9(3) VALUE 1.
+       01  WS-P6-LEN               PIC 9(3) VALUE 1.
+       01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+       01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+       01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+       01  WS-I                    PIC 9(3) VALUE 1.
+       01  WS-J                    PIC 9(5) VALUE 1.
+       01  WS-RLEN                 PIC 9(5) VALUE 1.
+       01  WS-BAD                  PIC 9(3) VALUE 0.
+       01  WS-ALLOWED              PIC 9 VALUE 0.
+       01  WS-STEP                 PIC X VALUE 'Y'.
+           88  STEP-OK             VALUE 'Y'.
+           88  STEP-FAIL           VALUE 'N'.
+       01  WS-TOTAL                PIC X(100) VALUE SPACES.
+       01  WS-LIMIT                PIC X(10) VALUE SPACES.
+       01  WS-OFFSET               PIC X(10) VALUE SPACES.
+       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
+       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
+       01  WS-DATE-IN              PIC X(100) VALUE SPACES.
+       01  WS-DATE-LEN             PIC 9(3) VALUE 0.
+       01  WS-AT-COUNT             PIC 9(3) VALUE 0.
+       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+       01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+       01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+       01  F-QUOTE                 PIC X VALUE "'".
+       01  F-DQUOTE                PIC X VALUE '"'.
+       01  F-BSLASH                PIC X VALUE "\".
+       01  F-SEMI                  PIC X VALUE ";".
+       01  F-TICK                  PIC X VALUE "`".
+
+       LINKAGE SECTION.
+       01  LS-CMD-ACTION           PIC X(30).
+       01  LS-PARAM1               PIC X(100).
+       01  LS-PARAM2               PIC X(100).
+       01  LS-PARAM3               PIC X(100).
+       01  LS-PARAM4               PIC X(100).
+       01  LS-PARAM5               PIC X(100).
+       01  LS-PARAM6               PIC X(100).
+       01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+       MAIN-LOGIC.
+           PERFORM VALIDATE-ALL
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               GOBACK
+           END-IF
+           EVALUATE TRUE
+               WHEN LS-CMD-ACTION(1:12) = "AAN_SUMMARY"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-SUMMARY
+               WHEN LS-CMD-ACTION(1:11) = "AAN_ACTIONS"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ACTIONS
+               WHEN LS-CMD-ACTION(1:10) = "AAN_ACTORS"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ACTORS
+               WHEN LS-CMD-ACTION(1:12) = "AAN_ENTITIES"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ENTITIES
+               WHEN LS-CMD-ACTION(1:9) = "AAN_TREND"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-TREND
+               WHEN LS-CMD-ACTION(1:12) = "AAN_FAILURES"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-FAILURES
+               WHEN LS-CMD-ACTION(1:16) = "AAN_ACTOR_DETAIL"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ACTOR-DETAIL
+               WHEN LS-CMD-ACTION(1:11) = "AAN_ANOMALY"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ANOMALY
+               WHEN LS-CMD-ACTION(1:13) = "AAN_RETENTION"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-RETENTION
+               WHEN LS-CMD-ACTION(1:12) = "AAN_SNAPSHOT"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-SNAPSHOT
+               WHEN LS-CMD-ACTION(1:10) = "AAN_SEARCH"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-SEARCH
+               WHEN OTHER
+                   MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+           END-EVALUATE.
+           GOBACK.
+
+       VALIDATE-ALL.
+           MOVE 0 TO WS-BAD
+           MOVE LS-PARAM1 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM2 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM3 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM4 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM5 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT
+           MOVE LS-PARAM6 TO WS-TRIM-IN
+           PERFORM VALIDATE-INPUT.
+           EXIT PARAGRAPH.
+
+       VALIDATE-INPUT.
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-SEMI
+           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+           EXIT PARAGRAPH.
+
+       TRIM-ALL.
+           MOVE LS-PARAM1 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P1-LEN
+           MOVE LS-PARAM2 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P2-LEN
+           MOVE LS-PARAM3 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P3-LEN
+           MOVE LS-PARAM4 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P4-LEN
+           MOVE LS-PARAM5 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P5-LEN
+           MOVE LS-PARAM6 TO WS-TRIM-IN
+           PERFORM TRIM-VALUE
+           MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+           MOVE WS-TRIM-LEN TO WS-P6-LEN.
+           EXIT PARAGRAPH.
+
+       TRIM-VALUE.
+           MOVE WS-TRIM-IN TO WS-TRIM-OUT
+           MOVE 0 TO WS-TRIM-LEN
+           PERFORM VARYING WS-I FROM 100 BY -1
+               UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+               IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-TRIM-LEN
+               END-IF
+           END-PERFORM
+           IF WS-TRIM-LEN = 0
+               MOVE 1 TO WS-TRIM-LEN
+           END-IF.
+           EXIT PARAGRAPH.
+
+       VALIDATE-COUNT-FIELD.
+           MOVE 0 TO WS-BAD
+           MOVE 0 TO WS-COUNT-LEN
+           PERFORM VARYING WS-I FROM 30 BY -1
+               UNTIL WS-I < 1 OR WS-COUNT-LEN > 0
+               IF WS-COUNT-IN(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-COUNT-LEN
+               END-IF
+           END-PERFORM
+           IF WS-COUNT-LEN < 1 OR WS-COUNT-LEN > 18
+               MOVE 1 TO WS-BAD
+           END-IF.
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-COUNT-LEN
+               IF WS-COUNT-IN(WS-I:1) IS NOT NUMERIC
+                   MOVE 1 TO WS-BAD
+               END-IF
+           END-PERFORM.
+           EXIT PARAGRAPH.
+
+       VALIDATE-DATE-FIELD.
+           MOVE 0 TO WS-BAD
+           MOVE 0 TO WS-DATE-LEN
+           PERFORM VARYING WS-I FROM 100 BY -1
+               UNTIL WS-I < 1 OR WS-DATE-LEN > 0
+               IF WS-DATE-IN(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-DATE-LEN
+               END-IF
+           END-PERFORM
+           IF WS-DATE-LEN NOT = 10
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-DATE-IN(5:1) NOT = "-" OR WS-DATE-IN(8:1) NOT = "-"
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-DATE-IN(1:4) IS NOT NUMERIC
+              OR WS-DATE-IN(6:2) IS NOT NUMERIC
+              OR WS-DATE-IN(9:2) IS NOT NUMERIC
+               MOVE 1 TO WS-BAD
+           END-IF.
+           IF WS-BAD = 0
+               MOVE FUNCTION NUMVAL(WS-DATE-IN(6:2)) TO WS-COUNT-IN
+               PERFORM VALIDATE-COUNT-FIELD
+               IF WS-BAD > 0 OR FUNCTION NUMVAL(WS-COUNT-IN) < 1 OR FUNCTION NUMVAL(WS-COUNT-IN) > 12
+                   MOVE 1 TO WS-BAD
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ALLOW-ADMIN.
+           MOVE 0 TO WS-ALLOWED
+           MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P6-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+               MOVE 1 TO WS-ALLOWED
+           END-IF
+           IF WS-ALLOWED NOT = 1
+               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+               MOVE "AUDIT_ANALYTICS" TO WS-DENIED-TARGET
+               PERFORM AUDIT-DENIED
+           END-IF.
+           EXIT PARAGRAPH.
+
+       AUDIT-DENIED.
+           MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, 'AUTHZ_DENIED', 'AUDIT_ANALYTICS', 0, 'FAILED' FROM users u, users a WHERE u.email = ? AND a.email = ?" TO WS-PREP-SQL
+           MOVE WS-DENIED-ACTOR TO WS-BIND-1
+           MOVE WS-DENIED-ACTOR TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+           EXIT PARAGRAPH.
+
+       TRIM-RESULT-LEN.
+           MOVE 0 TO WS-RLEN
+           PERFORM VARYING WS-J FROM 16384 BY -1
+               UNTIL WS-J < 1 OR WS-RLEN > 0
+               IF WS-RESULT(WS-J:1) NOT = SPACE
+                   MOVE WS-J TO WS-RLEN
+               END-IF
+           END-PERFORM
+           IF WS-RLEN = 0
+               MOVE 1 TO WS-RLEN
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-SUMMARY.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'SUCCESS'), 0), '|', COALESCE(SUM(status = 'FAILED'), 0), '|', COUNT(DISTINCT action), '|', COUNT(DISTINCT COALESCE(actor_id, 0))) FROM audit_trail WHERE DATE(created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) AND (? = '' OR actor_id = (SELECT id FROM users WHERE email = ? LIMIT 1)) AND (? = '' OR entity_type = ?)" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-P3-TRIMMED TO WS-BIND-3
+           MOVE WS-P3-TRIMMED TO WS-BIND-4
+           MOVE WS-P4-TRIMMED TO WS-BIND-5
+           MOVE WS-P4-TRIMMED TO WS-BIND-6
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:300) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-ACTIONS.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES OR LS-PARAM2 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM4 NOT = SPACES
+               MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CONCAT(action, ':', COUNT(*), ':', COALESCE(SUM(status = 'FAILED'), 0)) FROM audit_trail WHERE DATE(created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) GROUP BY action ORDER BY COUNT(*) DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-LIMIT TO WS-BIND-3
+           MOVE WS-OFFSET TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_ACTIONS|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_ACTIONS|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-ACTORS.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES OR LS-PARAM2 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM4 NOT = SPACES
+               MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CONCAT(COALESCE(u.email, 'SYSTEM'), ':', COUNT(*), ':', COALESCE(SUM(a.status = 'FAILED'), 0)) FROM audit_trail a LEFT JOIN users u ON u.id = a.actor_id WHERE DATE(a.created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) GROUP BY a.actor_id ORDER BY COUNT(*) DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-LIMIT TO WS-BIND-3
+           MOVE WS-OFFSET TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_ACTORS|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_ACTORS|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-ENTITIES.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES OR LS-PARAM2 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM4 NOT = SPACES
+               MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CONCAT(COALESCE(entity_type, 'NONE'), ':', COUNT(*), ':', COALESCE(SUM(status = 'FAILED'), 0)) FROM audit_trail WHERE DATE(created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) GROUP BY entity_type ORDER BY COUNT(*) DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-LIMIT TO WS-BIND-3
+           MOVE WS-OFFSET TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_ENTITIES|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_ENTITIES|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-TREND.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES OR LS-PARAM2 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "SELECT CONCAT(DATE(created_at), ':', COUNT(*), ':', COALESCE(SUM(status = 'FAILED'), 0)) FROM audit_trail WHERE DATE(created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) AND (? = '' OR actor_id = (SELECT id FROM users WHERE email = ? LIMIT 1)) GROUP BY DATE(created_at) ORDER BY DATE(created_at) LIMIT 90" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-P3-TRIMMED TO WS-BIND-3
+           MOVE WS-P3-TRIMMED TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_TREND|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_TREND|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-FAILURES.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES OR LS-PARAM2 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM4 NOT = SPACES
+               MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CONCAT(audit_id, ':', action, ':', COALESCE(entity_type, ''), ':', entity_id, ':', created_at) FROM audit_trail WHERE status = 'FAILED' AND DATE(created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) ORDER BY created_at DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-LIMIT TO WS-BIND-3
+           MOVE WS-OFFSET TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_FAILURES|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_FAILURES|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-ACTOR-DETAIL.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "SELECT CONCAT(action, ':', COUNT(*), ':', COALESCE(SUM(status = 'FAILED'), 0)) FROM audit_trail WHERE actor_id = (SELECT id FROM users WHERE email = ? LIMIT 1) AND DATE(created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) GROUP BY action ORDER BY COUNT(*) DESC" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-P3-TRIMMED TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_ACTOR|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_ACTOR|" DELIMITED BY SIZE WS-P1-TRIMMED DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-ANOMALY.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "10" TO WS-COUNT-IN
+           IF LS-PARAM1 NOT = SPACES
+               MOVE WS-P1-TRIMMED(1:30) TO WS-COUNT-IN
+           END-IF.
+           MOVE "24" TO WS-COUNT-IN
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED(1:30) TO WS-COUNT-IN
+           END-IF
+           MOVE WS-P1-TRIMMED(1:30) TO WS-COUNT-IN
+           PERFORM VALIDATE-COUNT-FIELD
+           IF WS-BAD > 0 OR FUNCTION NUMVAL(WS-COUNT-IN) < 1 OR FUNCTION NUMVAL(WS-COUNT-IN) > 100000
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE WS-P2-TRIMMED(1:30) TO WS-COUNT-IN
+           PERFORM VALIDATE-COUNT-FIELD
+           IF WS-BAD > 0 OR FUNCTION NUMVAL(WS-COUNT-IN) < 1 OR FUNCTION NUMVAL(WS-COUNT-IN) > 8760
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+           END-IF.
+           MOVE "SELECT CONCAT(COALESCE(u.email, 'SYSTEM'), ':', COUNT(*)) FROM audit_trail a LEFT JOIN users u ON u.id = a.actor_id WHERE a.created_at >= DATE_SUB(NOW(), INTERVAL ? HOUR) GROUP BY a.actor_id HAVING COUNT(*) >= ? ORDER BY COUNT(*) DESC LIMIT ?" TO WS-PREP-SQL
+           MOVE WS-P2-TRIMMED TO WS-BIND-1
+           MOVE WS-P1-TRIMMED TO WS-BIND-2
+           MOVE WS-LIMIT TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_ANOMALY|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_ANOMALY|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-RETENTION.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P1-TRIMMED TO WS-DATE-IN
+           PERFORM VALIDATE-DATE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at) SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at FROM audit_trail WHERE created_at < ? AND user_id IS NOT NULL" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "DELETE FROM audit_trail WHERE created_at < ?" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "AUDIT_ANALYTICS" TO WS-AUDIT-ACTION
+               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+               MOVE SPACES TO WS-AUDIT-DETAIL
+               MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-ANALYTICS
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|AAN_RETENTION" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|AAN_RETENTION" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-SNAPSHOT.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P1-TRIMMED TO WS-DATE-IN
+           PERFORM VALIDATE-DATE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO audit_analytics_snapshot (snapshot_date, action, actor_email, event_count, failure_count) SELECT ?, action, COALESCE((SELECT email FROM users WHERE id = actor_id), 'SYSTEM'), COUNT(*), COALESCE(SUM(status = 'FAILED'), 0) FROM audit_trail WHERE DATE(created_at) = ? GROUP BY action, actor_id ON DUPLICATE KEY UPDATE event_count = VALUES(event_count), failure_count = VALUES(failure_count)" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P1-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "AUDIT_ANALYTICS" TO WS-AUDIT-ACTION
+               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+               MOVE SPACES TO WS-AUDIT-DETAIL
+               MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-ANALYTICS
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|AAN_SNAPSHOT" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-SEARCH.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 NOT = SPACES
+               MOVE WS-P1-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           IF LS-PARAM2 NOT = SPACES
+               MOVE WS-P2-TRIMMED TO WS-DATE-IN
+               PERFORM VALIDATE-DATE-FIELD
+               IF WS-BAD > 0
+                   MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF LS-PARAM3 NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+           END-IF.
+           IF LS-PARAM4 NOT = SPACES
+               MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CONCAT(audit_id, ':', action, ':', COALESCE(entity_type, ''), ':', entity_id, ':', status, ':', created_at) FROM audit_trail WHERE (? = '' OR action = ?) AND DATE(created_at) BETWEEN COALESCE(NULLIF(?, ''), '1970-01-01') AND COALESCE(NULLIF(?, ''), CURDATE()) ORDER BY created_at DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P5-TRIMMED TO WS-BIND-1
+           MOVE WS-P5-TRIMMED TO WS-BIND-2
+           MOVE WS-P1-TRIMMED TO WS-BIND-3
+           MOVE WS-P2-TRIMMED TO WS-BIND-4
+           MOVE WS-LIMIT TO WS-BIND-5
+           MOVE WS-OFFSET TO WS-BIND-6
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|AAN_SEARCH|0" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|AAN_SEARCH|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+       AUDIT-ANALYTICS.
+           MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, ?, 'AUDIT_ANALYTICS', 0, 'SUCCESS' FROM users u, users a WHERE u.email = ? AND a.email = ?" TO WS-PREP-SQL
+           MOVE WS-AUDIT-ACTION TO WS-BIND-1
+           MOVE WS-P6-TRIMMED TO WS-BIND-2
+           MOVE WS-P6-TRIMMED TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+           EXIT PARAGRAPH.
