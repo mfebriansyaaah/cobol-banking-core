@@ -42,6 +42,8 @@ import { PAYMENT_HOLD_ROUTES } from './routes/payment_hold.js';
 import { ONCALL_DELIVERY_ROUTES } from './routes/oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './routes/compliance_retention.js';
 import { REPORT_SCHEDULER_ROUTES } from './routes/report_scheduler.js';
+import { SETTLEMENT_RECON_ROUTES } from './routes/settlement_recon.js';
+import { STATEMENT_DELIVERY_ROUTES } from './routes/statement_delivery.js';
 import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './routes/payment_instructions.js';
 import { ONCALL_ROUTES } from './routes/oncall.js';
@@ -94,6 +96,8 @@ export const ROUTES = [
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...REPORT_SCHEDULER_ROUTES,
+  ...SETTLEMENT_RECON_ROUTES,
+  ...STATEMENT_DELIVERY_ROUTES,
   ...STATEMENT_RECON_ROUTES,
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...ONCALL_ROUTES,
