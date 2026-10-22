@@ -30,6 +30,8 @@ import { EXPORT_ARCHIVE_ROUTES } from './routes/export_archive.js';
 import { RECON_OPS_ROUTES } from './routes/recon_ops.js';
 import { ALERT_ROUTES } from './routes/alerts.js';
 import { DASHBOARD_ROUTES } from './routes/dashboard.js';
+import { AUDIT_ANALYTICS_ROUTES } from './routes/audit_analytics.js';
+import { IMPORT_RECON_ROUTES } from './routes/import_recon.js';
 import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './routes/payment_instructions.js';
 import { ONCALL_ROUTES } from './routes/oncall.js';
@@ -70,6 +72,8 @@ export const ROUTES = [
   ...RECON_OPS_ROUTES,
   ...ALERT_ROUTES,
   ...DASHBOARD_ROUTES,
+  ...AUDIT_ANALYTICS_ROUTES,
+  ...IMPORT_RECON_ROUTES,
   ...STATEMENT_RECON_ROUTES,
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...ONCALL_ROUTES,
