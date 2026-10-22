@@ -1,0 +1,51 @@
+import { PATTERNS } from '../validation.js';
+const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
+const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
+export const PAYMENT_INSTRUCTION_ROUTES = [
+  { method: 'post', path: '/payments/instructions', action: 'PIC_CREATE', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+    { name: 'from', pattern: PATTERNS.EMAIL, required: true },
+    { name: 'to', pattern: PATTERNS.EMAIL, required: true },
+    { name: 'amount', pattern: PATTERNS.PIC_AMOUNT, required: true },
+    { name: 'schedule', pattern: PATTERNS.PIC_SCHEDULE, required: true },
+    ACTOR,
+  ] },
+  { method: 'get', path: '/payments/instructions', action: 'PIC_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'status', pattern: PATTERNS.RPT_STATUS, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    { name: 'from', pattern: PATTERNS.EMAIL, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/payments/instructions/due', action: 'PIC_DUE', tokenIdentity: 'actor', fields: [
+    { name: 'asOf', pattern: PATTERNS.DATE, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/payments/instructions/:code', action: 'PIC_GET', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/payments/instructions/:code/pause', action: 'PIC_PAUSE', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/payments/instructions/:code/resume', action: 'PIC_RESUME', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/payments/instructions/:code/cancel', action: 'PIC_CANCEL', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/payments/instructions/:code/execute', action: 'PIC_EXECUTE', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/payments/instructions/:code/history', action: 'PIC_HISTORY', tokenIdentity: 'actor', fields: [
+    { name: 'code', pattern: PATTERNS.BATCH_CODE, required: true },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
+];
