@@ -43,6 +43,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/import_recon_core.cob \
     cobol/src/recon_exception_core.cob \
     cobol/src/dispute_notify_core.cob \
+    cobol/src/export_stream_core.cob \
+    cobol/src/alert_escalation_core.cob \
     cobol/src/import_core.cob \
     cobol/src/import_post_core.cob \
     cobol/src/fee_core.cob \
