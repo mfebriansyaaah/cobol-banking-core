@@ -121,3 +121,5 @@ budget 6
 procurement 8
 vendor 6
 asset 6
+vendor_risk 4
+asset_maintenance 4
