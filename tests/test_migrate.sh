@@ -181,7 +181,7 @@ check "exchange_rates table present (FX)" "1" "$(q "SELECT COUNT(*) FROM informa
 check "FX pair lookup index present" "1" "$(q "SELECT COUNT(DISTINCT index_name) FROM information_schema.statistics WHERE table_schema='$DB_NAME' AND table_name='exchange_rates' AND index_name='idx_exchange_lookup';")"
 
 # --- migration baseline (fresh installs start from schema.sql) ------------
-base_list="$(grep -oE "'00[0-9]{2}_[a-z0-9_]+'" database/schema.sql | tr -d "'" | sort -u)"
+base_list="$(grep -oE "'0[0-9]{3}_[a-z0-9_]+'" database/schema.sql | tr -d "'" | sort -u)"
 file_list="$(for f in database/migrations/*.sql; do basename "$f" .sql; done | sort -u)"
 check "baseline lists every migration file" "$file_list" "$base_list"
 orphans="$(q "SELECT version FROM schema_migrations;" | sort -u | comm -23 - <(echo "$file_list"))"

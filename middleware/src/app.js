@@ -87,6 +87,7 @@ import { DISASTER_RECOVERY_ROUTES } from './routes/disaster_recovery.js';
 import { CAPACITY_PLAN_ROUTES } from './routes/capacity_plan.js';
 import { AUDIT_RETENTION_ROUTES } from './routes/audit_retention.js';
 import { COMPLIANCE_AUDIT_ROUTES } from './routes/compliance_audit.js';
+import { VENDOR_COMPLIANCE_ROUTES } from './routes/vendor_compliance.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -181,6 +182,7 @@ export const ROUTES = [
   ...CAPACITY_PLAN_ROUTES,
   ...AUDIT_RETENTION_ROUTES,
   ...COMPLIANCE_AUDIT_ROUTES,
+  ...VENDOR_COMPLIANCE_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },

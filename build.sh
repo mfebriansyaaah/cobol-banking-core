@@ -95,6 +95,7 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/capacity_plan_core.cob \
     cobol/src/audit_retention_core.cob \
     cobol/src/compliance_audit_core.cob \
+    cobol/src/vendor_compliance_core.cob \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \

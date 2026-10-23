@@ -10520,6 +10520,29 @@ CREATE TABLE IF NOT EXISTS compliance_audit (
     INDEX idx_compliance_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 2 slice: vendor compliance tracking.
+
+CREATE TABLE IF NOT EXISTS vendor_compliance (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    vendor_code VARCHAR(64) NOT NULL,
+    status ENUM('PENDING','APPROVED') NOT NULL DEFAULT 'PENDING',
+    assessed_by VARCHAR(100) NOT NULL,
+    assessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    approved_by VARCHAR(100) NULL,
+    approved_at DATETIME NULL,
+    INDEX idx_vendor_compliance_status (status)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS vendor_compliance_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    assessment_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_vendor_compliance_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -10624,7 +10647,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0096_disaster_recovery'),
 ('0097_capacity_plan'),
 ('0098_audit_retention'),
-('0099_compliance_audit');
+('0099_compliance_audit'),
+('0100_vendor_compliance');
 
 
 -- Indexes
