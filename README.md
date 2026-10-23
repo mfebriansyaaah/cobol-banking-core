@@ -64,6 +64,8 @@ adapters and capabilities COBOL cannot provide directly.
   - `key_rotation_core.cob` - key rotation plans with bounded overlap and audit.
   - `dsar_core.cob` - data subject access requests, export/erase, legal-hold blocking.
   - `retention_job_core.cob` - retention policies and runs honouring legal holds.
+  - `slo_report_core.cob` - SLO definitions and burn-rate measurements.
+  - `pipeline_alert_core.cob` - idempotent pipeline failure alerts.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.

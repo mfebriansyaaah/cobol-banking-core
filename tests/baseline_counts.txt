@@ -140,3 +140,5 @@ legal_hold 9
 key_rotation 9
 dsar 9
 retention_job 9
+slo_report 7
+pipeline_alert 8

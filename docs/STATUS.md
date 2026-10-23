@@ -796,6 +796,8 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_key_rotation.sh` | 9 | key rotation: plan CRUD, rotate/complete/cancel, due, summary, forbidden |
 | `tests/test_dsar.sh` | 9 | DSAR: receive/start/fulfil/reject, legal-hold block, list, summary |
 | `tests/test_retention_job.sh` | 9 | retention job: policy CRUD, run/idempotency, hold-skip, summary, forbidden |
+| `tests/test_slo_report.sh` | 7 | SLO report: define/list/get/record/burn/summary/forbidden |
+| `tests/test_pipeline_alert.sh` | 8 | pipeline alert: raise/refresh/list/get/ack/resolve/summary/forbidden |
 | `middleware/` (node --test) | 126 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **bounded signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
 Shell suites total **2094**; with the gateway suite **126** the full run is
@@ -1359,3 +1361,25 @@ include:
 | `cobol/src/vendor_risk_core.cob` | `VRK_LIST` | (auto-documented; refine description) |
 | `cobol/src/vendor_risk_core.cob` | `VRK_RETIRE` | (auto-documented; refine description) |
 | `cobol/src/vendor_risk_core.cob` | `VRK_SUMMARY` | (auto-documented; refine description) |
+
+## pipeline_alert_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/pipeline_alert_core.cob` | `PAL_ACK` | (auto-documented; refine description) |
+| `cobol/src/pipeline_alert_core.cob` | `PAL_GET` | (auto-documented; refine description) |
+| `cobol/src/pipeline_alert_core.cob` | `PAL_LIST` | (auto-documented; refine description) |
+| `cobol/src/pipeline_alert_core.cob` | `PAL_RAISE` | (auto-documented; refine description) |
+| `cobol/src/pipeline_alert_core.cob` | `PAL_RESOLVE` | (auto-documented; refine description) |
+| `cobol/src/pipeline_alert_core.cob` | `PAL_SUMMARY` | (auto-documented; refine description) |
+
+## slo_report_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/slo_report_core.cob` | `SLO_BURN` | (auto-documented; refine description) |
+| `cobol/src/slo_report_core.cob` | `SLO_DEFINE` | (auto-documented; refine description) |
+| `cobol/src/slo_report_core.cob` | `SLO_GET` | (auto-documented; refine description) |
+| `cobol/src/slo_report_core.cob` | `SLO_LIST` | (auto-documented; refine description) |
+| `cobol/src/slo_report_core.cob` | `SLO_RECORD` | (auto-documented; refine description) |
+| `cobol/src/slo_report_core.cob` | `SLO_SUMMARY` | (auto-documented; refine description) |

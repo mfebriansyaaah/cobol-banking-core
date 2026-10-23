@@ -78,6 +78,8 @@ import { STATEMENT_DELIVERY_ROUTES } from './routes/statement_delivery.js';
 import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './routes/payment_instructions.js';
 import { ONCALL_ROUTES } from './routes/oncall.js';
+import { SLO_REPORT_ROUTES } from './routes/slo_report.js';
+import { PIPELINE_ALERT_ROUTES } from './routes/pipeline_alert.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -163,6 +165,8 @@ export const ROUTES = [
   ...STATEMENT_RECON_ROUTES,
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...ONCALL_ROUTES,
+  ...SLO_REPORT_ROUTES,
+  ...PIPELINE_ALERT_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },

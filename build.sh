@@ -93,6 +93,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/key_rotation_core.cob \
     cobol/src/dsar_core.cob \
     cobol/src/retention_job_core.cob \
+    cobol/src/slo_report_core.cob \
+    cobol/src/pipeline_alert_core.cob \
     "$REF_OBJ" \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
