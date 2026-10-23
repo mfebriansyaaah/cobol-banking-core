@@ -85,6 +85,7 @@ import { BACKUP_RESTORE_ROUTES } from './routes/backup_restore.js';
 import { SECRET_ROTATION_ROUTES } from './routes/secret_rotation.js';
 import { DISASTER_RECOVERY_ROUTES } from './routes/disaster_recovery.js';
 import { CAPACITY_PLAN_ROUTES } from './routes/capacity_plan.js';
+import { AUDIT_RETENTION_ROUTES } from './routes/audit_retention.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -177,6 +178,7 @@ export const ROUTES = [
   ...SECRET_ROTATION_ROUTES,
   ...DISASTER_RECOVERY_ROUTES,
   ...CAPACITY_PLAN_ROUTES,
+  ...AUDIT_RETENTION_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },

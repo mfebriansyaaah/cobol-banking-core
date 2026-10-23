@@ -93,6 +93,7 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/secret_rotation_core.cob \
     cobol/src/disaster_recovery_core.cob \
     cobol/src/capacity_plan_core.cob \
+    cobol/src/audit_retention_core.cob \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \
