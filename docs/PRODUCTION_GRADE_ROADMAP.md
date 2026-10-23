@@ -7,7 +7,7 @@
 | PR-01 | `phase-1/kyc-risk` | done (slice 30) |
 | PR-02 | `phase-1/fraud-reporting` | done (slice 31) |
 | PR-03 | `phase-1/limits-fees` | done (slice 33) |
-| PR-04 | `phase-2/cutover-observability` | partial (observability modules done; generated cut-over pending) |
+| PR-04 | `phase-2/cutover-observability` | partial (observability modules done; cutover batch 1/21 of 206 entities) |
 | PR-05 | `phase-3/security-data-cert` | done (this slice) |
 
 Status is derived from merged slices and the module files present under
