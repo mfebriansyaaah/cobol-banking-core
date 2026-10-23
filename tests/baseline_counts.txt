@@ -147,3 +147,4 @@ change_control 8
 backup_restore_core 7
 secret_rotation_core 7
 disaster_recovery_core 7
+capacity_plan_core 6
