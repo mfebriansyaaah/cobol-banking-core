@@ -107,6 +107,8 @@ DEFAULT_SUITES=(
     test_tax_report
     test_policy_attestation
     test_regulatory_calendar
+    test_budget
+    test_procurement
 )
 ALL_SUITES=(
     test_suite test_atomic_txn test_ledger_atomic test_reconciliation
@@ -173,6 +175,8 @@ ALL_SUITES=(
     test_tax_report
     test_policy_attestation
     test_regulatory_calendar
+    test_budget
+    test_procurement
 )
 case "$MODE" in
     default) SUITES=("${DEFAULT_SUITES[@]}") ;;

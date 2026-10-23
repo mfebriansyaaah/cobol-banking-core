@@ -1,4 +1,4 @@
 # Curated COBOL share baseline, in per-mille of total COBOL net.
 # Ratchet: raise when curated code grows; never lower it to accept generated
 # code. See docs/PRODUCTION_GRADE_PLAN.md and CODING_STANDARDS.md rule 47.
-curated_share_per_mille 477
+curated_share_per_mille 481
