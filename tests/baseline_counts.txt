@@ -144,3 +144,4 @@ slo_report 7
 pipeline_alert 8
 incident 9
 change_control 8
+backup_restore_core 7

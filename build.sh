@@ -89,6 +89,7 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/pipeline_alert_core.cob \
     cobol/src/incident_core.cob \
     cobol/src/change_control_core.cob \
+    cobol/src/backup_restore_core.cob \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \

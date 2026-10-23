@@ -1009,7 +1009,7 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 118.598; target 100.000 per
+- Non-generated net baseline: 111.693; target 100.000 per
   `docs/DELIVERY_RULES.md`.
 
 
@@ -1402,3 +1402,14 @@ include:
 | `cobol/src/incident_core.cob` | `INC_RAISE` | (auto-documented; refine description) |
 | `cobol/src/incident_core.cob` | `INC_RESOLVE` | (auto-documented; refine description) |
 | `cobol/src/incident_core.cob` | `INC_SUMMARY` | (auto-documented; refine description) |
+
+## backup_restore_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/backup_restore_core.cob` | `BKP_GET` | (auto-documented; refine description) |
+| `cobol/src/backup_restore_core.cob` | `BKP_LIST` | (auto-documented; refine description) |
+| `cobol/src/backup_restore_core.cob` | `BKP_RESTORE` | (auto-documented; refine description) |
+| `cobol/src/backup_restore_core.cob` | `BKP_START` | (auto-documented; refine description) |
+| `cobol/src/backup_restore_core.cob` | `BKP_SUMMARY` | (auto-documented; refine description) |
+| `cobol/src/backup_restore_core.cob` | `BKP_VERIFY` | (auto-documented; refine description) |

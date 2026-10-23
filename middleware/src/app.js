@@ -81,6 +81,7 @@ import { SLO_REPORT_ROUTES } from './routes/slo_report.js';
 import { PIPELINE_ALERT_ROUTES } from './routes/pipeline_alert.js';
 import { INCIDENT_ROUTES } from './routes/incident.js';
 import { CHANGE_CONTROL_ROUTES } from './routes/change_control.js';
+import { BACKUP_RESTORE_ROUTES } from './routes/backup_restore.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -169,6 +170,7 @@ export const ROUTES = [
   ...PIPELINE_ALERT_ROUTES,
   ...INCIDENT_ROUTES,
   ...CHANGE_CONTROL_ROUTES,
+  ...BACKUP_RESTORE_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
