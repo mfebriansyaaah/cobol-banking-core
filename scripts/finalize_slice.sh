@@ -64,6 +64,7 @@ if [ "$CHECK" -eq 1 ]; then
     ./tests/status_check.sh
     ./tests/docs_check.sh
     ./tests/traceability_check.sh
+    ./tests/progress_check.sh
     echo "finalize check OK: total=$total cobol=$cobol share=$share gap=$gap suites=$shell_total+$gateway_total steps=$steps"
     exit 0
 fi
@@ -150,8 +151,13 @@ if m and current > int(m.group(1)):
 print(f"finalize: total={total_f} cobol={cobol_f} share={share_f}% gap={gap_f} suites={shell_f2}+{gateway_f2} steps={steps}")
 PY
 
+if [ "$CHECK" -eq 0 ]; then
+    ./scripts/sync_status_modules.sh
+fi
+
 ./scripts/loc_report.sh --non-generated --check
 ./tests/status_check.sh
 ./tests/docs_check.sh
 ./tests/traceability_check.sh
+./tests/progress_check.sh
 echo "finalize OK: baseline and documented counts updated; run ./ci.sh next."

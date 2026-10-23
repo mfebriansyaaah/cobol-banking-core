@@ -1,5 +1,19 @@
 # Production-grade roadmap: curated COBOL >60% after cut-over
 
+## 0. Progress (auto-tracked)
+
+| PR | Branch | Status |
+|---|---|---|
+| PR-01 | `phase-1/kyc-risk` | done (slice 30) |
+| PR-02 | `phase-1/fraud-reporting` | done (slice 31) |
+| PR-03 | `phase-1/limits-fees` | done (slice 33) |
+| PR-04 | `phase-2/cutover-observability` | pending |
+| PR-05 | `phase-3/security-data-cert` | done (this slice) |
+
+Status is derived from merged slices and the module files present under
+`cobol/src/`. Run `./scripts/progress_report.sh` for the live view and
+`./tests/progress_check.sh` for the CI gate.
+
 This is the executable PR plan for adding curated COBOL without growing the
 generated module, then finishing the production-grade phases. Each code PR
 has **at least two modules**; a PR may carry three or four when the modules

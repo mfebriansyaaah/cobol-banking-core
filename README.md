@@ -60,6 +60,10 @@ adapters and capabilities COBOL cannot provide directly.
   - `alert_escalation_core.cob` - escalation policies, steps, and paged run tracking.
   - `audit_drilldown_core.cob` - saved audit drill-down queries and ad-hoc audit pivots.
   - `compliance_export_core.cob` - compliance export packages with seal, attest, and checksum verification.
+  - `legal_hold_core.cob` - legal holds with placement, release, and hold-blocking checks.
+  - `key_rotation_core.cob` - key rotation plans with bounded overlap and audit.
+  - `dsar_core.cob` - data subject access requests, export/erase, legal-hold blocking.
+  - `retention_job_core.cob` - retention policies and runs honouring legal holds.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -71,10 +75,10 @@ Measured 2026-10-23:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **102.684** |
-| Curated COBOL net | **51.341** (49,9%) |
-| Total COBOL net | **103.475** |
-| Full CI | **135 steps / 2143 assertions** |
+| Non-generated net | **107.396** |
+| Curated COBOL net | **54.884** (51,1%) |
+| Total COBOL net | **107.018** |
+| Full CI | **144 steps / 2220 assertions** |
 | Non-generated gap to 100.000 | **0** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and

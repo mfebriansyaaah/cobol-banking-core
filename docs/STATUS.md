@@ -628,6 +628,55 @@ unchanged.
 | `cobol/src/compliance_export_core.cob` | `CEX_VERIFY` | verify the sealed checksum |
 | `cobol/src/compliance_export_core.cob` | `CEX_SUMMARY` | package state counts |
 
+## 2ai. Legal hold (Phase 3)
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/legal_hold_core.cob` | `LHO_PLACE` | place an active legal hold on a subject |
+| `cobol/src/legal_hold_core.cob` | `LHO_RELEASE` | release an active legal hold |
+| `cobol/src/legal_hold_core.cob` | `LHO_LIST` | paged holds with status filter |
+| `cobol/src/legal_hold_core.cob` | `LHO_GET` | read one hold |
+| `cobol/src/legal_hold_core.cob` | `LHO_CHECK` | held/not-held decision |
+| `cobol/src/legal_hold_core.cob` | `LHO_SUMMARY` | state counts |
+
+## 2aj. Key rotation (Phase 3)
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/key_rotation_core.cob` | `KRO_PLAN_CREATE` | create a rotation plan with bounded overlap |
+| `cobol/src/key_rotation_core.cob` | `KRO_PLAN_LIST` | paged plans |
+| `cobol/src/key_rotation_core.cob` | `KRO_PLAN_GET` | read one plan |
+| `cobol/src/key_rotation_core.cob` | `KRO_ROTATE` | bump version and stay active |
+| `cobol/src/key_rotation_core.cob` | `KRO_COMPLETE` | complete a plan |
+| `cobol/src/key_rotation_core.cob` | `KRO_CANCEL` | cancel a plan |
+| `cobol/src/key_rotation_core.cob` | `KRO_DUE` | plans due by a date |
+| `cobol/src/key_rotation_core.cob` | `KRO_SUMMARY` | state counts |
+
+## 2ak. Data subject requests (Phase 3)
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/dsar_core.cob` | `DSR_RECEIVE` | receive an EXPORT/ERASE request |
+| `cobol/src/dsar_core.cob` | `DSR_LIST` | paged requests |
+| `cobol/src/dsar_core.cob` | `DSR_GET` | read one request |
+| `cobol/src/dsar_core.cob` | `DSR_START` | move to in progress |
+| `cobol/src/dsar_core.cob` | `DSR_FULFILL` | fulfil; ERASE refused under legal hold |
+| `cobol/src/dsar_core.cob` | `DSR_REJECT` | reject with a reason |
+| `cobol/src/dsar_core.cob` | `DSR_SUMMARY` | state counts |
+
+## 2al. Retention jobs (Phase 3)
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/retention_job_core.cob` | `RTJ_POLICY_SET` | upsert a retention policy |
+| `cobol/src/retention_job_core.cob` | `RTJ_POLICY_LIST` | paged policies |
+| `cobol/src/retention_job_core.cob` | `RTJ_POLICY_GET` | read one policy |
+| `cobol/src/retention_job_core.cob` | `RTJ_RUN` | run retention, honouring legal holds |
+| `cobol/src/retention_job_core.cob` | `RTJ_RUN_LIST` | paged runs |
+| `cobol/src/retention_job_core.cob` | `RTJ_RUN_GET` | read one run |
+| `cobol/src/retention_job_core.cob` | `RTJ_SUMMARY` | state counts |
+
+
 ## 3. Database (`cobol_db`)
 
 Tables in `database/schema.sql` (evolves via `database/migrations/`):
@@ -743,10 +792,14 @@ Migrations applied by `database/migrate.sh` (a failure aborts naming the file an
 | `tests/test_import_recon.sh` | 17 | import reconciliation: start/match/finish, items/export, list/get/summary, retry guard, authorization, audit |
 | `tests/test_recon_exception.sh` | 16 | reconciliation exceptions: open/assign/note/resolve/reject/escalate/close/overdue/history, authorization, audit |
 | `tests/test_dispute_notify.sh` | 12 | dispute notifications: templates, enqueue/outbox, retry, summary, authorization, audit |
+| `tests/test_legal_hold.sh` | 9 | legal hold: place/list/get/check/summary/release/duplicate/forbidden/audit |
+| `tests/test_key_rotation.sh` | 9 | key rotation: plan CRUD, rotate/complete/cancel, due, summary, forbidden |
+| `tests/test_dsar.sh` | 9 | DSAR: receive/start/fulfil/reject, legal-hold block, list, summary |
+| `tests/test_retention_job.sh` | 9 | retention job: policy CRUD, run/idempotency, hold-skip, summary, forbidden |
 | `middleware/` (node --test) | 126 | gateway: contract, injection, rate limit (auth + api, shared store, counted fail-open, loopback trust), refresh rotation/reuse, access-token revocation (version + per-token), per-device logout, **JWT algorithm pinning**, **bounded signing-secret rotation overlap**, **step-up on admin writes**, **admin MFA-enrol prompt**, **error metrics (`gateway_errors_total`)**, **latency histograms + pool restart counter**, **liveness/readiness probes, rate-limited + cached probes, 503 when down**, timeout, line cap, paging cap, uniform envelope, multi-record output, every-endpoint smoke, actor-token guard, anti-enumeration, attempt cap, lockout masking, MFA, session listing/revoke-all, JWT issuer/audience, wallet account status, required idempotency key, transfer limits, transfer status/reversal, inverse FX, account selection, structured profile, rich user listing, neutral email change, profile update, account lifecycle, email-change race, observability (pull + push, admin-only, pool gauges), idempotency conflict **+ in-progress/replay**, every error code's HTTP status (contract table), self-sufficient smoke fixtures, boundary-safe TOTP, self-transfer, audit archive, **audit read**, **admin recovery**, password reset/change, resend verification, security headers/config, **validated request id**, **JSON body cap (413)**, **trust-proxy warning**, **mailer robustness, per-purpose subject, sender name, transactional outbox flow (signup to verified via worker delivery)**, worker pool (pipelined), error mapping |
 
-Shell suites total **2058**; with the gateway suite **126** the full run is
-**2184 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
+Shell suites total **2094**; with the gateway suite **126** the full run is
+**2220 assertions**, all green as of this snapshot (plus a second end-to-end HTTP
 smoke run in pool mode, counted above). The three headline numbers are
 machine-checked: `tests/status_check.sh` recomputes them from
 `tests/baseline_counts.txt`, and `ci.sh` fails its final step when any suite
@@ -923,7 +976,7 @@ details behind those rows.
 - `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, `CHANGE_ROLE`, and `AUTHZ_DENIED` (a refused authorization attempt for an authenticated actor, `detail` = the attempted target). **AUTHZ_DENIED** is written by the shared guards in `auth_core`, `user_core` and `wallet_core` — including the SUPER_ADMIN-only `RECONCILE`/`REVERSE_TRANSFER` and the `CHECK_BALANCE`/`GET_DASHBOARD` self-or-admin reads. **Actor attribution**: rows have a subject `user_id` and an `actor_id` that names who performed the action; admin-on-other events (`SET_USER_STATUS`, `SESSIONS_REVOKED`, `REVOKE_USER_SESSION`, `ARCHIVE_AUDIT`) set it, while self-service rows leave it NULL (the subject acted). Refresh tokens are single-use and rotate within a `family`; presenting an already-revoked token is treated as reuse and revokes the whole family (all sessions for that login), so a stolen token cannot be replayed.
 - Expired `refresh_sessions` and `verification_logs` are pruned opportunistically (on session store and on signup). `audit_trail` is **append-only** (like `ledger`, an `UPDATE`-refusing trigger — migration 0028/`schema.sql`) and bounded: `ARCHIVE_AUDIT` moves rows past a retention window into the immutable `audit_trail_archive`; a correction is a new appended entry, never an in-place edit. Deleting a user **does not destroy their history**: a `BEFORE DELETE ON users` trigger copies the user's live `audit_trail` rows into `audit_trail_archive` before the FK cascade removes them. `audit_trail` is indexed on `action` and `actor_id` for the read path.
 - Results are written as 500-char records and reassembled by the gateway; the buffers are 16 KB, so extremely large lists still have an upper bound. Invocation defaults to **process-per-request** (file mode); serve mode + keep-alive connection + a **gateway worker pool** are implemented and enabled with COBOL_POOL_SIZE (ADR-0010 phases 1-3). Every pool setting is **validated at startup** (a non-integer or out-of-range COBOL_POOL_SIZE / COBOL_POOL_PIPELINE / COBOL_POOL_TIMEOUT_MS / COBOL_POOL_QUEUE_MAX refuses to boot instead of leaving requests queued forever), the waiting queue is **bounded** (a request arriving at a full queue is rejected with 503 POOL_SATURATED), a request that waits longer than the timeout fails with 504, and closing the pool fails whatever is still waiting rather than leaking it.
-- **Coverage cadence** (ADR 0078): the full `./ci.sh` (135 steps) no longer runs the coverage measurement; `scripts/nightly.sh` runs it on a schedule (30% floor, 1pp ratchet) and the release checklist requires a recent green run.
+- **Coverage cadence** (ADR 0078): the full `./ci.sh` (144 steps) no longer runs the coverage measurement; `scripts/nightly.sh` runs it on a schedule (30% floor, 1pp ratchet) and the release checklist requires a recent green run.
 - **Tiered CI** (ADR 0076): `./ci-fast.sh` is the affected-surface inner-loop gate (docs-only changes finish in seconds; core changes run a twelve-suite money-path smoke set; middleware changes run the full gateway suite) and checks the assertion counts of what it runs against the same baseline manifest. `./ci.sh` remains the 71-step full merge and release evidence.
 - **Test execution**: most functional shell suites run their requests through `tests/serve_harness.sh`, which keeps one `main_logic --serve` process (the same protocol the worker pool uses) instead of spawning a process per assertion. Suites that need fresh-process semantics (crash injection, per-call environment, file-mode assertions) keep the default invocation. The test-only KDF cost is 10000 iterations (`ci.sh`); the KDF suite asserts the compiled production default (600000) with explicit per-call values.
 - **Test coverage (deliberate)**: gateway tests never skip silently — a failed database seed fails the test via `requireSeed` (`middleware/test/support.js`), and `ci.sh` fails the gateway step on any reported skip. Every `result.js` error code's HTTP status is asserted against an explicit contract table, and the table and the implementation must list exactly the same codes (a new code without a status fails the test). `TRANSFER_IN_PROGRESS` and the replay-on-commit path are exercised by seeding a `PENDING`/`COMMITTED` intent. The COBOL transient detector (`DB_BUSY` on lock-wait/deadlock/lost-connection) and CURRENCY_MISMATCH (a legacy code with no current producer — cross-currency is supported, ADR 0005) are covered at the mapping level only, not end-to-end. **Fixtures keep the ledger consistent**: seeded accounts always get a matching opening ledger row (`middleware/test/support.js`), and the gateway/endpoints/profile suites delete the users they create, so a full `./ci.sh` leaves no account whose balance diverges from the ledger (a manual `RUN_RECONCILIATION` reports zero mismatches).
@@ -961,5 +1014,348 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 102.684; target 100.000 per
+- Non-generated net baseline: 107.396; target 100.000 per
   `docs/DELIVERY_RULES.md`.
+
+
+## asset_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/asset_core.cob` | `AST_ADD` | (auto-documented; refine description) |
+| `cobol/src/asset_core.cob` | `AST_LIST` | (auto-documented; refine description) |
+| `cobol/src/asset_core.cob` | `AST_RETIRE` | (auto-documented; refine description) |
+| `cobol/src/asset_core.cob` | `AST_SUMMARY` | (auto-documented; refine description) |
+
+## asset_maintenance_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/asset_maintenance_core.cob` | `AMT_ADD` | (auto-documented; refine description) |
+| `cobol/src/asset_maintenance_core.cob` | `AMT_LIST` | (auto-documented; refine description) |
+| `cobol/src/asset_maintenance_core.cob` | `AMT_RETIRE` | (auto-documented; refine description) |
+| `cobol/src/asset_maintenance_core.cob` | `AMT_SUMMARY` | (auto-documented; refine description) |
+
+## audit_snapshot_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/audit_snapshot_core.cob` | `ASN_CREATE` | (auto-documented; refine description) |
+| `cobol/src/audit_snapshot_core.cob` | `ASN_GET` | (auto-documented; refine description) |
+| `cobol/src/audit_snapshot_core.cob` | `ASN_LIST` | (auto-documented; refine description) |
+| `cobol/src/audit_snapshot_core.cob` | `ASN_SUMMARY` | (auto-documented; refine description) |
+| `cobol/src/audit_snapshot_core.cob` | `ASN_VERIFY` | (auto-documented; refine description) |
+
+## budget_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/budget_core.cob` | `BUD_LINE_LIST` | (auto-documented; refine description) |
+| `cobol/src/budget_core.cob` | `BUD_LINE_SET` | (auto-documented; refine description) |
+| `cobol/src/budget_core.cob` | `BUD_SPEND` | (auto-documented; refine description) |
+| `cobol/src/budget_core.cob` | `BUD_SUMMARY` | (auto-documented; refine description) |
+
+## card_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/card_core.cob` | `CARD_BLOCK` | (auto-documented; refine description) |
+| `cobol/src/card_core.cob` | `CARD_CLOSE` | (auto-documented; refine description) |
+| `cobol/src/card_core.cob` | `CARD_GET` | (auto-documented; refine description) |
+| `cobol/src/card_core.cob` | `CARD_ISSUE` | (auto-documented; refine description) |
+| `cobol/src/card_core.cob` | `CARD_LIST` | (auto-documented; refine description) |
+| `cobol/src/card_core.cob` | `CARD_SUMMARY` | (auto-documented; refine description) |
+| `cobol/src/card_core.cob` | `CARD_UNBLOCK` | (auto-documented; refine description) |
+
+## compliance_retention_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/compliance_retention_core.cob` | `CRT_POLICY_DELETE` | (auto-documented; refine description) |
+| `cobol/src/compliance_retention_core.cob` | `CRT_POLICY_LIST` | (auto-documented; refine description) |
+| `cobol/src/compliance_retention_core.cob` | `CRT_POLICY_SET` | (auto-documented; refine description) |
+| `cobol/src/compliance_retention_core.cob` | `CRT_RETENTION_RUN` | (auto-documented; refine description) |
+| `cobol/src/compliance_retention_core.cob` | `CRT_RUN_LIST` | (auto-documented; refine description) |
+| `cobol/src/compliance_retention_core.cob` | `CRT_SUMMARY` | (auto-documented; refine description) |
+
+## deposit_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/deposit_core.cob` | `DEP_CLOSE` | (auto-documented; refine description) |
+| `cobol/src/deposit_core.cob` | `DEP_GET` | (auto-documented; refine description) |
+| `cobol/src/deposit_core.cob` | `DEP_LIST` | (auto-documented; refine description) |
+| `cobol/src/deposit_core.cob` | `DEP_MATURE` | (auto-documented; refine description) |
+| `cobol/src/deposit_core.cob` | `DEP_OPEN` | (auto-documented; refine description) |
+| `cobol/src/deposit_core.cob` | `DEP_SUMMARY` | (auto-documented; refine description) |
+
+## fee_waiver_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/fee_waiver_core.cob` | `FWV_SUMMARY` | (auto-documented; refine description) |
+| `cobol/src/fee_waiver_core.cob` | `FWV_WAIVER_APPROVE` | (auto-documented; refine description) |
+| `cobol/src/fee_waiver_core.cob` | `FWV_WAIVER_CREATE` | (auto-documented; refine description) |
+| `cobol/src/fee_waiver_core.cob` | `FWV_WAIVER_LIST` | (auto-documented; refine description) |
+| `cobol/src/fee_waiver_core.cob` | `FWV_WAIVER_REJECT` | (auto-documented; refine description) |
+
+## fraud_ops_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/fraud_ops_core.cob` | `FOP_BLOCK` | (auto-documented; refine description) |
+| `cobol/src/fraud_ops_core.cob` | `FOP_CLEAR` | (auto-documented; refine description) |
+| `cobol/src/fraud_ops_core.cob` | `FOP_CREATE` | (auto-documented; refine description) |
+| `cobol/src/fraud_ops_core.cob` | `FOP_LIST` | (auto-documented; refine description) |
+| `cobol/src/fraud_ops_core.cob` | `FOP_REVIEW` | (auto-documented; refine description) |
+| `cobol/src/fraud_ops_core.cob` | `FOP_SUMMARY` | (auto-documented; refine description) |
+
+## fx_deal_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/fx_deal_core.cob` | `FXD_CANCEL` | (auto-documented; refine description) |
+| `cobol/src/fx_deal_core.cob` | `FXD_CONFIRM` | (auto-documented; refine description) |
+| `cobol/src/fx_deal_core.cob` | `FXD_CREATE` | (auto-documented; refine description) |
+| `cobol/src/fx_deal_core.cob` | `FXD_GET` | (auto-documented; refine description) |
+| `cobol/src/fx_deal_core.cob` | `FXD_LIST` | (auto-documented; refine description) |
+| `cobol/src/fx_deal_core.cob` | `FXD_SETTLE` | (auto-documented; refine description) |
+| `cobol/src/fx_deal_core.cob` | `FXD_SUMMARY` | (auto-documented; refine description) |
+
+## gl_period_close_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/gl_period_close_core.cob` | `GPC_CLOSE` | (auto-documented; refine description) |
+| `cobol/src/gl_period_close_core.cob` | `GPC_LIST` | (auto-documented; refine description) |
+| `cobol/src/gl_period_close_core.cob` | `GPC_LOCK` | (auto-documented; refine description) |
+| `cobol/src/gl_period_close_core.cob` | `GPC_SUMMARY` | (auto-documented; refine description) |
+| `cobol/src/gl_period_close_core.cob` | `GPC_UNLOCK` | (auto-documented; refine description) |
+
+## gl_reval_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/gl_reval_core.cob` | `GRL_LINE_ADD` | (auto-documented; refine description) |
+| `cobol/src/gl_reval_core.cob` | `GRL_RUN_COMPLETE` | (auto-documented; refine description) |
+| `cobol/src/gl_reval_core.cob` | `GRL_RUN_GET` | (auto-documented; refine description) |
+| `cobol/src/gl_reval_core.cob` | `GRL_RUN_LIST` | (auto-documented; refine description) |
+| `cobol/src/gl_reval_core.cob` | `GRL_RUN_START` | (auto-documented; refine description) |
+| `cobol/src/gl_reval_core.cob` | `GRL_SUMMARY` | (auto-documented; refine description) |
+
+## kyc_review_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/kyc_review_core.cob` | `KYC_APPROVE` | (auto-documented; refine description) |
+| `cobol/src/kyc_review_core.cob` | `KYC_CREATE` | (auto-documented; refine description) |
+| `cobol/src/kyc_review_core.cob` | `KYC_ESCALATE` | (auto-documented; refine description) |
+| `cobol/src/kyc_review_core.cob` | `KYC_GET` | (auto-documented; refine description) |
+| `cobol/src/kyc_review_core.cob` | `KYC_LIST` | (auto-documented; refine description) |
+| `cobol/src/kyc_review_core.cob` | `KYC_REJECT` | (auto-documented; refine description) |
+| `cobol/src/kyc_review_core.cob` | `KYC_SUMMARY` | (auto-documented; refine description) |
+
+## lbpue_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/lbpue_core.cob` | `LBP_CREATE` | (auto-documented; refine description) |
+| `cobol/src/lbpue_core.cob` | `LBP_GET` | (auto-documented; refine description) |
+| `cobol/src/lbpue_core.cob` | `LBP_LIST` | (auto-documented; refine description) |
+| `cobol/src/lbpue_core.cob` | `LBP_SUBMIT` | (auto-documented; refine description) |
+| `cobol/src/lbpue_core.cob` | `LBP_SUMMARY` | (auto-documented; refine description) |
+
+## limit_profile_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/limit_profile_core.cob` | `LPR_GET` | (auto-documented; refine description) |
+| `cobol/src/limit_profile_core.cob` | `LPR_LIST` | (auto-documented; refine description) |
+| `cobol/src/limit_profile_core.cob` | `LPR_SET` | (auto-documented; refine description) |
+| `cobol/src/limit_profile_core.cob` | `LPR_SUMMARY` | (auto-documented; refine description) |
+
+## loan_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/loan_core.cob` | `LOAN_APPLY` | (auto-documented; refine description) |
+| `cobol/src/loan_core.cob` | `LOAN_APPROVE` | (auto-documented; refine description) |
+| `cobol/src/loan_core.cob` | `LOAN_DISBURSE` | (auto-documented; refine description) |
+| `cobol/src/loan_core.cob` | `LOAN_GET` | (auto-documented; refine description) |
+| `cobol/src/loan_core.cob` | `LOAN_LIST` | (auto-documented; refine description) |
+| `cobol/src/loan_core.cob` | `LOAN_REJECT` | (auto-documented; refine description) |
+| `cobol/src/loan_core.cob` | `LOAN_REPAY` | (auto-documented; refine description) |
+| `cobol/src/loan_core.cob` | `LOAN_SUMMARY` | (auto-documented; refine description) |
+
+## oncall_delivery_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/oncall_delivery_core.cob` | `ODL_CLEANUP` | (auto-documented; refine description) |
+| `cobol/src/oncall_delivery_core.cob` | `ODL_CONFIRM` | (auto-documented; refine description) |
+| `cobol/src/oncall_delivery_core.cob` | `ODL_ENQUEUE` | (auto-documented; refine description) |
+| `cobol/src/oncall_delivery_core.cob` | `ODL_GET` | (auto-documented; refine description) |
+| `cobol/src/oncall_delivery_core.cob` | `ODL_LIST` | (auto-documented; refine description) |
+| `cobol/src/oncall_delivery_core.cob` | `ODL_RETRY` | (auto-documented; refine description) |
+| `cobol/src/oncall_delivery_core.cob` | `ODL_SEND` | (auto-documented; refine description) |
+| `cobol/src/oncall_delivery_core.cob` | `ODL_SUMMARY` | (auto-documented; refine description) |
+
+## payment_hold_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/payment_hold_core.cob` | `PHL_CAPTURE` | (auto-documented; refine description) |
+| `cobol/src/payment_hold_core.cob` | `PHL_EXPIRE` | (auto-documented; refine description) |
+| `cobol/src/payment_hold_core.cob` | `PHL_GET` | (auto-documented; refine description) |
+| `cobol/src/payment_hold_core.cob` | `PHL_LIST` | (auto-documented; refine description) |
+| `cobol/src/payment_hold_core.cob` | `PHL_RELEASE` | (auto-documented; refine description) |
+| `cobol/src/payment_hold_core.cob` | `PHL_RESERVE` | (auto-documented; refine description) |
+| `cobol/src/payment_hold_core.cob` | `PHL_SUMMARY` | (auto-documented; refine description) |
+
+## policy_attestation_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/policy_attestation_core.cob` | `PAT_ATTEST` | (auto-documented; refine description) |
+| `cobol/src/policy_attestation_core.cob` | `PAT_CREATE` | (auto-documented; refine description) |
+| `cobol/src/policy_attestation_core.cob` | `PAT_LIST` | (auto-documented; refine description) |
+| `cobol/src/policy_attestation_core.cob` | `PAT_SUMMARY` | (auto-documented; refine description) |
+
+## procurement_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/procurement_core.cob` | `PRC_REQUEST_APPROVE` | (auto-documented; refine description) |
+| `cobol/src/procurement_core.cob` | `PRC_REQUEST_CREATE` | (auto-documented; refine description) |
+| `cobol/src/procurement_core.cob` | `PRC_REQUEST_LIST` | (auto-documented; refine description) |
+| `cobol/src/procurement_core.cob` | `PRC_REQUEST_ORDER` | (auto-documented; refine description) |
+| `cobol/src/procurement_core.cob` | `PRC_REQUEST_REJECT` | (auto-documented; refine description) |
+| `cobol/src/procurement_core.cob` | `PRC_SUMMARY` | (auto-documented; refine description) |
+
+## regulatory_calendar_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/regulatory_calendar_core.cob` | `RCL_EVENT_CREATE` | (auto-documented; refine description) |
+| `cobol/src/regulatory_calendar_core.cob` | `RCL_EVENT_DONE` | (auto-documented; refine description) |
+| `cobol/src/regulatory_calendar_core.cob` | `RCL_EVENT_LIST` | (auto-documented; refine description) |
+| `cobol/src/regulatory_calendar_core.cob` | `RCL_SUMMARY` | (auto-documented; refine description) |
+
+## regulatory_report_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/regulatory_report_core.cob` | `REG_ACCEPT` | (auto-documented; refine description) |
+| `cobol/src/regulatory_report_core.cob` | `REG_CREATE` | (auto-documented; refine description) |
+| `cobol/src/regulatory_report_core.cob` | `REG_GET` | (auto-documented; refine description) |
+| `cobol/src/regulatory_report_core.cob` | `REG_LIST` | (auto-documented; refine description) |
+| `cobol/src/regulatory_report_core.cob` | `REG_REJECT` | (auto-documented; refine description) |
+| `cobol/src/regulatory_report_core.cob` | `REG_SUBMIT` | (auto-documented; refine description) |
+| `cobol/src/regulatory_report_core.cob` | `REG_SUMMARY` | (auto-documented; refine description) |
+
+## report_archive_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/report_archive_core.cob` | `RPA_ARCHIVE` | (auto-documented; refine description) |
+| `cobol/src/report_archive_core.cob` | `RPA_GET` | (auto-documented; refine description) |
+| `cobol/src/report_archive_core.cob` | `RPA_LIST` | (auto-documented; refine description) |
+| `cobol/src/report_archive_core.cob` | `RPA_PURGE` | (auto-documented; refine description) |
+| `cobol/src/report_archive_core.cob` | `RPA_SUMMARY` | (auto-documented; refine description) |
+
+## report_scheduler_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/report_scheduler_core.cob` | `RSC_RUN_COMPLETE` | (auto-documented; refine description) |
+| `cobol/src/report_scheduler_core.cob` | `RSC_RUN_LIST` | (auto-documented; refine description) |
+| `cobol/src/report_scheduler_core.cob` | `RSC_RUN_START` | (auto-documented; refine description) |
+| `cobol/src/report_scheduler_core.cob` | `RSC_SCHEDULE_DELETE` | (auto-documented; refine description) |
+| `cobol/src/report_scheduler_core.cob` | `RSC_SCHEDULE_GET` | (auto-documented; refine description) |
+| `cobol/src/report_scheduler_core.cob` | `RSC_SCHEDULE_LIST` | (auto-documented; refine description) |
+| `cobol/src/report_scheduler_core.cob` | `RSC_SCHEDULE_SET` | (auto-documented; refine description) |
+| `cobol/src/report_scheduler_core.cob` | `RSC_SUMMARY` | (auto-documented; refine description) |
+
+## risk_screening_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/risk_screening_core.cob` | `RSK_HIT_LIST` | (auto-documented; refine description) |
+| `cobol/src/risk_screening_core.cob` | `RSK_PROFILE_GET` | (auto-documented; refine description) |
+| `cobol/src/risk_screening_core.cob` | `RSK_PROFILE_SET` | (auto-documented; refine description) |
+| `cobol/src/risk_screening_core.cob` | `RSK_SCREEN` | (auto-documented; refine description) |
+| `cobol/src/risk_screening_core.cob` | `RSK_SUMMARY` | (auto-documented; refine description) |
+
+## sanctions_hold_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/sanctions_hold_core.cob` | `SHL_HOLD_CREATE` | (auto-documented; refine description) |
+| `cobol/src/sanctions_hold_core.cob` | `SHL_HOLD_LIST` | (auto-documented; refine description) |
+| `cobol/src/sanctions_hold_core.cob` | `SHL_HOLD_RELEASE` | (auto-documented; refine description) |
+| `cobol/src/sanctions_hold_core.cob` | `SHL_SUMMARY` | (auto-documented; refine description) |
+
+## settlement_recon_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/settlement_recon_core.cob` | `STR_ITEM_ADD` | (auto-documented; refine description) |
+| `cobol/src/settlement_recon_core.cob` | `STR_ITEM_LIST` | (auto-documented; refine description) |
+| `cobol/src/settlement_recon_core.cob` | `STR_ITEM_RESOLVE` | (auto-documented; refine description) |
+| `cobol/src/settlement_recon_core.cob` | `STR_RUN_COMPLETE` | (auto-documented; refine description) |
+| `cobol/src/settlement_recon_core.cob` | `STR_RUN_GET` | (auto-documented; refine description) |
+| `cobol/src/settlement_recon_core.cob` | `STR_RUN_LIST` | (auto-documented; refine description) |
+| `cobol/src/settlement_recon_core.cob` | `STR_RUN_START` | (auto-documented; refine description) |
+| `cobol/src/settlement_recon_core.cob` | `STR_SUMMARY` | (auto-documented; refine description) |
+
+## statement_delivery_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/statement_delivery_core.cob` | `STL_CLEANUP` | (auto-documented; refine description) |
+| `cobol/src/statement_delivery_core.cob` | `STL_DELIVER` | (auto-documented; refine description) |
+| `cobol/src/statement_delivery_core.cob` | `STL_ENQUEUE` | (auto-documented; refine description) |
+| `cobol/src/statement_delivery_core.cob` | `STL_GET` | (auto-documented; refine description) |
+| `cobol/src/statement_delivery_core.cob` | `STL_LIST` | (auto-documented; refine description) |
+| `cobol/src/statement_delivery_core.cob` | `STL_RETRY` | (auto-documented; refine description) |
+| `cobol/src/statement_delivery_core.cob` | `STL_SEND` | (auto-documented; refine description) |
+| `cobol/src/statement_delivery_core.cob` | `STL_SUMMARY` | (auto-documented; refine description) |
+
+## tax_report_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/tax_report_core.cob` | `TAX_CLOSE` | (auto-documented; refine description) |
+| `cobol/src/tax_report_core.cob` | `TAX_CREATE` | (auto-documented; refine description) |
+| `cobol/src/tax_report_core.cob` | `TAX_FILE` | (auto-documented; refine description) |
+| `cobol/src/tax_report_core.cob` | `TAX_GET` | (auto-documented; refine description) |
+| `cobol/src/tax_report_core.cob` | `TAX_LIST` | (auto-documented; refine description) |
+| `cobol/src/tax_report_core.cob` | `TAX_PAY` | (auto-documented; refine description) |
+| `cobol/src/tax_report_core.cob` | `TAX_SUMMARY` | (auto-documented; refine description) |
+
+## treasury_position_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/treasury_position_core.cob` | `TRP_CLOSE` | (auto-documented; refine description) |
+| `cobol/src/treasury_position_core.cob` | `TRP_LIST` | (auto-documented; refine description) |
+| `cobol/src/treasury_position_core.cob` | `TRP_OPEN` | (auto-documented; refine description) |
+| `cobol/src/treasury_position_core.cob` | `TRP_SUMMARY` | (auto-documented; refine description) |
+
+## vendor_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/vendor_core.cob` | `VND_VENDOR_LIST` | (auto-documented; refine description) |
+| `cobol/src/vendor_core.cob` | `VND_VENDOR_RETIRE` | (auto-documented; refine description) |
+| `cobol/src/vendor_core.cob` | `VND_VENDOR_SET` | (auto-documented; refine description) |
+| `cobol/src/vendor_core.cob` | `VND_VENDOR_SUMMARY` | (auto-documented; refine description) |
+
+## vendor_risk_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/vendor_risk_core.cob` | `VRK_ASSESS` | (auto-documented; refine description) |
+| `cobol/src/vendor_risk_core.cob` | `VRK_LIST` | (auto-documented; refine description) |
+| `cobol/src/vendor_risk_core.cob` | `VRK_RETIRE` | (auto-documented; refine description) |
+| `cobol/src/vendor_risk_core.cob` | `VRK_SUMMARY` | (auto-documented; refine description) |

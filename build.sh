@@ -89,6 +89,10 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/notification_core.cob \
     cobol/src/payment_core.cob \
     cobol/src/recon_core.cob \
+    cobol/src/legal_hold_core.cob \
+    cobol/src/key_rotation_core.cob \
+    cobol/src/dsar_core.cob \
+    cobol/src/retention_job_core.cob \
     "$REF_OBJ" \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \

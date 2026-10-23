@@ -41,6 +41,10 @@ import { COMPLIANCE_EXPORT_ROUTES } from './routes/compliance_export.js';
 import { PAYMENT_HOLD_ROUTES } from './routes/payment_hold.js';
 import { ONCALL_DELIVERY_ROUTES } from './routes/oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './routes/compliance_retention.js';
+import { LEGAL_HOLD_ROUTES } from './routes/legal_hold.js';
+import { KEY_ROTATION_ROUTES } from './routes/key_rotation.js';
+import { DSAR_ROUTES } from './routes/dsar.js';
+import { RETENTION_JOB_ROUTES } from './routes/retention_job.js';
 import { REPORT_SCHEDULER_ROUTES } from './routes/report_scheduler.js';
 import { AUDIT_SNAPSHOT_ROUTES } from './routes/audit_snapshot.js';
 import { REPORT_ARCHIVE_ROUTES } from './routes/report_archive.js';
@@ -122,6 +126,10 @@ export const ROUTES = [
   ...PAYMENT_HOLD_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
+  ...LEGAL_HOLD_ROUTES,
+  ...KEY_ROTATION_ROUTES,
+  ...DSAR_ROUTES,
+  ...RETENTION_JOB_ROUTES,
   ...REPORT_SCHEDULER_ROUTES,
   ...AUDIT_SNAPSHOT_ROUTES,
   ...REPORT_ARCHIVE_ROUTES,
