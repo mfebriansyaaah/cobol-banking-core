@@ -55,13 +55,13 @@ Current baseline measured 2026-10-21 after the GL and batch/EOD slices:
 
 | Component | Net lines |
 |---|---:|
-| Curated COBOL | 57.246 |
+| Curated COBOL | 57.666 |
 | C and header | 1.179 |
-| SQL | 17.439 |
-| Shell | 27.380 |
-| JavaScript | 9.000 |
-| **Total non-generated** | **112.244** |
-| COBOL share | 51,0% |
+| SQL | 17.486 |
+| Shell | 27.436 |
+| JavaScript | 9.032 |
+| **Total non-generated** | **112.799** |
+| COBOL share | 51,1% |
 
 Target:
 
