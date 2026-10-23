@@ -52,6 +52,8 @@ import { LOAN_ROUTES } from './routes/loan.js';
 import { DEPOSIT_ROUTES } from './routes/deposit.js';
 import { CARD_ROUTES } from './routes/card.js';
 import { TAX_REPORT_ROUTES } from './routes/tax_report.js';
+import { GL_REVAL_ROUTES } from './routes/gl_reval.js';
+import { GL_PERIOD_CLOSE_ROUTES } from './routes/gl_period_close.js';
 import { SANCTIONS_HOLD_ROUTES } from './routes/sanctions_hold.js';
 import { KYC_ROUTES } from './routes/kyc.js';
 import { RISK_SCREENING_ROUTES } from './routes/risk_screening.js';
@@ -129,6 +131,8 @@ export const ROUTES = [
   ...DEPOSIT_ROUTES,
   ...CARD_ROUTES,
   ...TAX_REPORT_ROUTES,
+  ...GL_REVAL_ROUTES,
+  ...GL_PERIOD_CLOSE_ROUTES,
   ...SANCTIONS_HOLD_ROUTES,
   ...KYC_ROUTES,
   ...RISK_SCREENING_ROUTES,
