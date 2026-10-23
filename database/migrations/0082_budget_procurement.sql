@@ -1,0 +1,39 @@
+-- Phase 1 Sprint 1 slice 27: budget and procurement.
+
+CREATE TABLE IF NOT EXISTS budget_line (
+    budget_code VARCHAR(40) PRIMARY KEY,
+    cost_center VARCHAR(40) NOT NULL,
+    amount DECIMAL(18,4) NOT NULL,
+    spent DECIMAL(18,4) NOT NULL DEFAULT 0,
+    period VARCHAR(20) NOT NULL,
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS budget_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    budget_code VARCHAR(40) NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS procurement_request (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    request_code VARCHAR(40) NOT NULL,
+    item VARCHAR(120) NOT NULL,
+    amount DECIMAL(18,4) NOT NULL,
+    status ENUM('DRAFT','SUBMITTED','APPROVED','REJECTED','ORDERED') NOT NULL DEFAULT 'DRAFT',
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS procurement_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    request_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
