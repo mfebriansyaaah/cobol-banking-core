@@ -4371,6 +4371,43 @@ CREATE TABLE IF NOT EXISTS procurement_audit (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- Phase 1 Sprint 1 slice 28: vendor and asset registers.
+
+CREATE TABLE IF NOT EXISTS vendor (
+    vendor_code VARCHAR(40) PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    status ENUM('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS vendor_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    vendor_code VARCHAR(40) NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS asset_register (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    asset_code VARCHAR(40) NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    status ENUM('ACTIVE','RETIRED') NOT NULL DEFAULT 'ACTIVE',
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS asset_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    asset_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -4458,7 +4495,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0079_fx_treasury'),
 ('0080_card_tax'),
 ('0081_policy_calendar'),
-('0082_budget_procurement');
+('0082_budget_procurement'),
+('0083_vendor_asset');
 
 
 -- Indexes

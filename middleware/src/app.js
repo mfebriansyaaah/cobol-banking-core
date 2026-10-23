@@ -52,6 +52,8 @@ import { CARD_ROUTES } from './routes/card.js';
 import { TAX_REPORT_ROUTES } from './routes/tax_report.js';
 import { POLICY_ATTESTATION_ROUTES } from './routes/policy_attestation.js';
 import { REGULATORY_CALENDAR_ROUTES } from './routes/regulatory_calendar.js';
+import { VENDOR_ROUTES } from './routes/vendor.js';
+import { ASSET_ROUTES } from './routes/asset.js';
 import { BUDGET_ROUTES } from './routes/budget.js';
 import { PROCUREMENT_ROUTES } from './routes/procurement.js';
 import { FX_DEAL_ROUTES } from './routes/fx_deal.js';
@@ -120,6 +122,8 @@ export const ROUTES = [
   ...TAX_REPORT_ROUTES,
   ...POLICY_ATTESTATION_ROUTES,
   ...REGULATORY_CALENDAR_ROUTES,
+  ...VENDOR_ROUTES,
+  ...ASSET_ROUTES,
   ...BUDGET_ROUTES,
   ...PROCUREMENT_ROUTES,
   ...FX_DEAL_ROUTES,
