@@ -130,3 +130,7 @@ risk_screening 6
 sanctions_hold 7
 fraud_ops 8
 lbpue 8
+gl_reval 8
+gl_period_close 7
+gl_reval 8
+gl_period_close 7
