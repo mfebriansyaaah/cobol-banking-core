@@ -119,3 +119,5 @@ policy_attestation 7
 regulatory_calendar 7
 budget 6
 procurement 8
+vendor 6
+asset 6
