@@ -5,20 +5,12 @@
 set -e
 
 COBOL_BIN="cobol/bin/main_logic"
-REF_OBJ="cobol/bin/ref_core.o"
 
 echo "=========================================="
 echo "  Building COBOL MySQL Backend (SIM)"
 echo "=========================================="
 
 mkdir -p cobol/bin
-
-# The generated reference module is a ~54k-line lab artifact. Compiling it at
-# -O2 exhausts the code generator's memory, so it is compiled separately at
-# -O0 and linked into the optimized binary. Phase 0/1 splits the module into
-# smaller curated modules; see docs/PRODUCTION_GRADE_PLAN.md.
-cobc -free -c -O0 -Wall -Wextra -o "$REF_OBJ" \
-    cobol/src/generated/ref_core.cob
 
 # Compile and link the curated modules and the C bridge.
 cobc -free -x -O2 -o "$COBOL_BIN" \
@@ -97,15 +89,12 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/pipeline_alert_core.cob \
     cobol/src/incident_core.cob \
     cobol/src/change_control_core.cob \
-    "$REF_OBJ" \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \
     cobol/c_lib/settings_lib.c \
     cobol/c_lib/random_lib.c \
     -L/usr/lib/x86_64-linux-gnu -lmysqlclient -Wall -Wextra
-
-rm -f "$REF_OBJ"
 
 if [ -f "$COBOL_BIN" ]; then
     echo "SUCCESS: Binary created at $COBOL_BIN"

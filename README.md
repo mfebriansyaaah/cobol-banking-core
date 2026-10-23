@@ -68,9 +68,9 @@ adapters and capabilities COBOL cannot provide directly.
   - `pipeline_alert_core.cob` - idempotent pipeline failure alerts.
   - `incident_core.cob` - incident lifecycle, assignment, and resolution.
   - `change_control_core.cob` - change requests, approval, deploy, rollback.
-- `cobol/src/generated/ref_core.cob` - frozen generated reference module:
-  206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
-  production coverage target, and must not grow.
+- Generated reference module (cobol/src/generated/ref_core.cob) - **removed**
+  in the cut-over; all 206 entities now live in the generic reference engine
+  (`ref_engine.cob` / `ref_ext_core.cob`). No generated code remains.
 - MySQL database `cobol_db`.
 
 ## Current state and target
@@ -79,8 +79,8 @@ Measured 2026-10-23:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **110.407** |
-| Curated COBOL net | **56.831** (51,4%) |
+| Non-generated net | **118.598** |
+| Curated COBOL net | **56.831** (47,9%) |
 | Total COBOL net | **108.965** |
 | Full CI | **148 steps / 2252 assertions** |
 | Non-generated gap to 100.000 | **0** |

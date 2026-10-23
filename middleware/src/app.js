@@ -10,7 +10,6 @@ import { createRequestObserver, metricsText, recordError, recordAuthFailure } fr
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
-import { REF_ROUTES } from './routes/ref.js';
 import { REF_ENGINE_ROUTES } from './routes/ref_engine.js';
 import { GL_ROUTES } from './routes/gl.js';
 import { BATCH_ROUTES } from './routes/batch.js';
@@ -99,7 +98,6 @@ const AUTH_FAILURE_CODES = new Set([
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
 // names the field filled from the verified token, never from the request body.
 export const ROUTES = [
-  ...REF_ROUTES,
   ...REF_ENGINE_ROUTES,
   ...GL_ROUTES,
   ...BATCH_ROUTES,

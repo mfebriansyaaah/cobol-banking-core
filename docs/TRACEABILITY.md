@@ -20,11 +20,11 @@ Conventions:
 ## Out of PRD scope
 
 The generated reference entities produced by the October 2026 volume sprint
-(211 initially; 206 after the country/holiday/fee/limit/product cutover) (`cobol/src/generated/ref_core.cob`) are a frozen generated artifact. They are
-not a PRD requirement, a curated production control, or a compliance claim, and they are
-therefore not mapped as requirement rows here. Production reference data is
-governed by `docs/PRODUCTION_GRADE_PLAN.md`; no row below claims the generated
-module as an implemented control.
+(211 initially; 206 after the country/holiday/fee/limit/product cutover) have
+been migrated to the generic reference engine (`ref_engine.cob` /
+`ref_ext_core.cob`) and the generated module is removed; no generated code
+remains. They are not a PRD requirement and are not mapped as requirement rows
+here. Production reference data is governed by `docs/PRODUCTION_GRADE_PLAN.md`.
 
 Owner inputs and proposed controls are recorded in `docs/GATE0_PACKET.md`
 section 3. They do not flip a requirement to implemented; the status column

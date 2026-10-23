@@ -119,22 +119,15 @@ The routing contract is that every action dispatched by `cobol/src/main_logic.co
 is handled by its owning module; `ci.sh` verifies every routed
 action has a handler in its owning module.
 
-## 2a. Generated reference-data module (frozen volume artifact)
+## 2a. Generated reference-data module (removed in cut-over)
 
 The October 2026 volume sprint added 211 generated reference entities; after
-the cutovers, 206 entities and 1,030 actions remain in
-`cobol/src/generated/ref_core.cob`, with a uniform
-`code/label/num_val/is_active` contract. They are produced by
-`scripts/gen_entity.mjs` and exercised by 206 smoke suites (2,266 assertions)
-run through `scripts/ci-7d.sh`. The measured split is 33.612 curated
-net COBOL and 52.134 generated net COBOL (39,1% curated).
-
-This module is a **frozen generated artifact**. It is not a PRD requirement,
-not a curated production data model, and not part of the merge gate. The production-grade
-transition replaces it with a generic reference-data model; see
-`docs/PRODUCTION_GRADE_PLAN.md` and
-`docs/adr/0081-production-grade-transition.md`. Do not add another generated
-`ref_*` table or copy the generator into production scope.
+the cutovers, 206 entities and 1,030 actions were migrated to the generic
+reference engine (`ref_engine.cob` / `ref_ext_core.cob`) via the gradual
+cutover (batches 0092 and 0093). The generated module
+cobol/src/generated/ref_core.cob, the generator scripts/gen_entity.mjs,
+and the smoke runner scripts/ci-7d.sh have been removed; no generated code
+remains. The curated share is now 100%.
 
 ## 2b. Reference-data engine (Phase 1)
 
@@ -1016,7 +1009,7 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 110.407; target 100.000 per
+- Non-generated net baseline: 118.598; target 100.000 per
   `docs/DELIVERY_RULES.md`.
 
 
