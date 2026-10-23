@@ -128,3 +128,5 @@ risk_screening 6
 kyc 8
 risk_screening 6
 sanctions_hold 7
+fraud_ops 8
+lbpue 8

@@ -44,6 +44,8 @@ import { COMPLIANCE_RETENTION_ROUTES } from './routes/compliance_retention.js';
 import { REPORT_SCHEDULER_ROUTES } from './routes/report_scheduler.js';
 import { AUDIT_SNAPSHOT_ROUTES } from './routes/audit_snapshot.js';
 import { REPORT_ARCHIVE_ROUTES } from './routes/report_archive.js';
+import { FRAUD_OPS_ROUTES } from './routes/fraud_ops.js';
+import { LBPUE_ROUTES } from './routes/lbpue.js';
 import { KYC_REVIEW_ROUTES } from './routes/kyc_review.js';
 import { REGULATORY_REPORT_ROUTES } from './routes/regulatory_report.js';
 import { LOAN_ROUTES } from './routes/loan.js';
@@ -119,6 +121,8 @@ export const ROUTES = [
   ...REPORT_SCHEDULER_ROUTES,
   ...AUDIT_SNAPSHOT_ROUTES,
   ...REPORT_ARCHIVE_ROUTES,
+  ...FRAUD_OPS_ROUTES,
+  ...LBPUE_ROUTES,
   ...KYC_REVIEW_ROUTES,
   ...REGULATORY_REPORT_ROUTES,
   ...LOAN_ROUTES,
