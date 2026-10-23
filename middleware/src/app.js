@@ -54,6 +54,8 @@ import { POLICY_ATTESTATION_ROUTES } from './routes/policy_attestation.js';
 import { REGULATORY_CALENDAR_ROUTES } from './routes/regulatory_calendar.js';
 import { VENDOR_ROUTES } from './routes/vendor.js';
 import { ASSET_ROUTES } from './routes/asset.js';
+import { VENDOR_RISK_ROUTES } from './routes/vendor_risk.js';
+import { ASSET_MAINTENANCE_ROUTES } from './routes/asset_maintenance.js';
 import { BUDGET_ROUTES } from './routes/budget.js';
 import { PROCUREMENT_ROUTES } from './routes/procurement.js';
 import { FX_DEAL_ROUTES } from './routes/fx_deal.js';
@@ -124,6 +126,8 @@ export const ROUTES = [
   ...REGULATORY_CALENDAR_ROUTES,
   ...VENDOR_ROUTES,
   ...ASSET_ROUTES,
+  ...VENDOR_RISK_ROUTES,
+  ...ASSET_MAINTENANCE_ROUTES,
   ...BUDGET_ROUTES,
   ...PROCUREMENT_ROUTES,
   ...FX_DEAL_ROUTES,
