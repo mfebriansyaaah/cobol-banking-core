@@ -4710,6 +4710,50 @@ CREATE TABLE IF NOT EXISTS gl_period_lock_audit (
     INDEX idx_gl_period_lock_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 1 Sprint 1 slice 33: fee waiver and limit profiles.
+
+CREATE TABLE IF NOT EXISTS fee_waiver_request (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_email VARCHAR(100) NOT NULL,
+    fee_type VARCHAR(40) NOT NULL,
+    amount DECIMAL(18,4) NOT NULL,
+    status ENUM('PENDING','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',
+    reason VARCHAR(255) NULL,
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    decided_by VARCHAR(100) NULL,
+    decided_at DATETIME NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS fee_waiver_request_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    waiver_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS limit_profile (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_email VARCHAR(100) NOT NULL,
+    daily_limit DECIMAL(18,4) NOT NULL,
+    monthly_limit DECIMAL(18,4) NOT NULL,
+    velocity_tier VARCHAR(20) NOT NULL DEFAULT 'STANDARD',
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_limit_profile_customer (customer_email)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS limit_profile_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    profile_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -4802,7 +4846,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0084_vendor_asset_ops'),
 ('0085_kyc_risk'),
 ('0086_fraud_lbpue'),
-('0087_gl_reval_close');
+('0087_gl_reval_close'),
+('0088_fee_waiver_limits');
 
 
 -- Indexes

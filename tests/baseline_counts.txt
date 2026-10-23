@@ -134,3 +134,5 @@ gl_reval 8
 gl_period_close 7
 gl_reval 8
 gl_period_close 7
+fee_waiver 6
+limit_profile 5
