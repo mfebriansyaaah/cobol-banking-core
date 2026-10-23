@@ -149,3 +149,4 @@ secret_rotation_core 7
 disaster_recovery_core 7
 capacity_plan_core 6
 audit_retention_core 6
+compliance_audit_core 6

@@ -1455,3 +1455,13 @@ include:
 | `cobol/src/audit_retention_core.cob` | `ARE_LIST` | (auto-documented; refine description) |
 | `cobol/src/audit_retention_core.cob` | `ARE_RUN` | (auto-documented; refine description) |
 | `cobol/src/audit_retention_core.cob` | `ARE_SUMMARY` | (auto-documented; refine description) |
+
+## compliance_audit_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/compliance_audit_core.cob` | `CA_FINDING_CLOSE` | (auto-documented; refine description) |
+| `cobol/src/compliance_audit_core.cob` | `CA_FINDING_GET` | (auto-documented; refine description) |
+| `cobol/src/compliance_audit_core.cob` | `CA_FINDING_LIST` | (auto-documented; refine description) |
+| `cobol/src/compliance_audit_core.cob` | `CA_FINDING_RAISE` | (auto-documented; refine description) |
+| `cobol/src/compliance_audit_core.cob` | `CA_SUMMARY` | (auto-documented; refine description) |

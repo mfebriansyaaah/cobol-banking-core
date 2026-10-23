@@ -10497,6 +10497,29 @@ CREATE TABLE IF NOT EXISTS audit_retention_audit (
     INDEX idx_audit_retention_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 2 slice: compliance audit tracking.
+
+CREATE TABLE IF NOT EXISTS compliance_finding (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    severity ENUM('LOW','MEDIUM','HIGH','CRITICAL') NOT NULL DEFAULT 'MEDIUM',
+    status ENUM('OPEN','CLOSED') NOT NULL DEFAULT 'OPEN',
+    raised_by VARCHAR(100) NOT NULL,
+    raised_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    closed_at DATETIME NULL,
+    INDEX idx_compliance_finding_status (status, severity)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS compliance_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    finding_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_compliance_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -10600,7 +10623,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0095_secret_rotation'),
 ('0096_disaster_recovery'),
 ('0097_capacity_plan'),
-('0098_audit_retention');
+('0098_audit_retention'),
+('0099_compliance_audit');
 
 
 -- Indexes
