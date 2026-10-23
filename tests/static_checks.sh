@@ -123,6 +123,8 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "GPC_" ] && continue
     [ "$name" = "FOP_" ] && continue
     [ "$name" = "LBP_" ] && continue
+    [ "$name" = "FWV_" ] && continue
+    [ "$name" = "LPR_" ] && continue
     [ "$name" = "SHL_" ] && continue
     [ "$name" = "VND_" ] && continue
     [ "$name" = "VRK_" ] && continue
@@ -219,6 +221,8 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "RSK_" ] && continue
     [ "$name" = "BUD_" ] && continue
     [ "$name" = "PRC_" ] && continue
+    [ "$name" = "FWV_" ] && continue
+    [ "$name" = "LPR_" ] && continue
     if ! grep -rqE "(action: '$name'|invoke\('$name')" middleware/src; then
         echo "gateway: action '$name' is routed but has no endpoint or internal invoke"
         viol=1

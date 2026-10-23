@@ -65,6 +65,8 @@ cobc -free -x -O2 -o "$COBOL_BIN" \
     cobol/src/gl_period_close_core.cob \
     cobol/src/fraud_ops_core.cob \
     cobol/src/lbpue_core.cob \
+    cobol/src/fee_waiver_core.cob \
+    cobol/src/limit_profile_core.cob \
     cobol/src/sanctions_hold_core.cob \
     cobol/src/risk_screening_core.cob \
     cobol/src/vendor_core.cob \
