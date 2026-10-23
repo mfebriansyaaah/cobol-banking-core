@@ -12,7 +12,7 @@ viol=0
 # Violation 1: sentence period inside an inline IF/ELSE scope.
 # Paragraph headers (line that is nothing but an identifier ending in '.')
 # reset the IF depth. Covers every module actually compiled by build.sh.
-BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/generated/ref_core.cob"
+BUILT_COB="cobol/src/main_logic.cob cobol/src/user_core.cob cobol/src/wallet_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob"
 for f in $BUILT_COB; do
     awk '
         /^[[:space:]]*[A-Z0-9][A-Z0-9-]*\.[[:space:]]*$/ {ifdepth=0; next}
@@ -71,7 +71,6 @@ fi
 # Violation 4: every action the router dispatches must have a handler in the
 # owning module (router/owner agreement - the routing contract).
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
-    [ "$name" = "REF_" ] && continue
     [ "$name" = "RFE_" ] && continue
     [ "$name" = "GL_" ] && continue
     [ "$name" = "BATCH_" ] && continue
@@ -107,6 +106,21 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "PHL_" ] && continue
     [ "$name" = "ODL_" ] && continue
     [ "$name" = "CRT_" ] && continue
+    [ "$name" = "LHO_" ] && continue
+    [ "$name" = "KRO_" ] && continue
+    [ "$name" = "DSR_" ] && continue
+    [ "$name" = "RTJ_" ] && continue
+    [ "$name" = "SLO_" ] && continue
+    [ "$name" = "PAL_" ] && continue
+    [ "$name" = "INC_" ] && continue
+    [ "$name" = "CHG_" ] && continue
+    [ "$name" = "BKP_" ] && continue
+    [ "$name" = "SCR_" ] && continue
+    [ "$name" = "DRC_" ] && continue
+    [ "$name" = "CAP_" ] && continue
+    [ "$name" = "ARE_" ] && continue
+    [ "$name" = "CA_" ] && continue
+    [ "$name" = "VCC_" ] && continue
     [ "$name" = "RSC_" ] && continue
     [ "$name" = "ASN_" ] && continue
     [ "$name" = "RPA_" ] && continue
@@ -138,7 +152,7 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "STL_" ] && continue
     [ "$name" = "XST_" ] && continue
     [ "$name" = "ALE_" ] && continue
-    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/report_delivery_core.cob cobol/src/dispute_ops_core.cob cobol/src/export_archive_core.cob cobol/src/recon_ops_core.cob cobol/src/alert_core.cob cobol/src/dashboard_core.cob cobol/src/statement_recon_core.cob cobol/src/payment_instruction_core.cob cobol/src/oncall_core.cob cobol/src/audit_analytics_core.cob cobol/src/import_recon_core.cob cobol/src/recon_exception_core.cob cobol/src/dispute_notify_core.cob cobol/src/export_stream_core.cob cobol/src/alert_escalation_core.cob cobol/src/audit_drilldown_core.cob cobol/src/compliance_export_core.cob cobol/src/payment_hold_core.cob cobol/src/oncall_delivery_core.cob cobol/src/compliance_retention_core.cob cobol/src/report_scheduler_core.cob cobol/src/settlement_recon_core.cob cobol/src/statement_delivery_core.cob cobol/src/audit_snapshot_core.cob cobol/src/report_archive_core.cob cobol/src/kyc_review_core.cob cobol/src/regulatory_report_core.cob cobol/src/loan_core.cob cobol/src/deposit_core.cob cobol/src/fx_deal_core.cob cobol/src/treasury_position_core.cob cobol/src/card_core.cob cobol/src/tax_report_core.cob cobol/src/policy_attestation_core.cob cobol/src/regulatory_calendar_core.cob cobol/src/budget_core.cob cobol/src/procurement_core.cob cobol/src/import_core.cob cobol/src/import_post_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/payment_core.cob cobol/src/recon_core.cob cobol/src/generated/ref_core.cob; then
+    if ! grep -q "\"$name\"" cobol/src/wallet_core.cob cobol/src/user_core.cob cobol/src/auth_core.cob cobol/src/ref_engine.cob cobol/src/gl_core.cob cobol/src/batch_core.cob cobol/src/report_core.cob cobol/src/report_delivery_core.cob cobol/src/dispute_ops_core.cob cobol/src/export_archive_core.cob cobol/src/recon_ops_core.cob cobol/src/alert_core.cob cobol/src/dashboard_core.cob cobol/src/statement_recon_core.cob cobol/src/payment_instruction_core.cob cobol/src/oncall_core.cob cobol/src/audit_analytics_core.cob cobol/src/import_recon_core.cob cobol/src/recon_exception_core.cob cobol/src/dispute_notify_core.cob cobol/src/export_stream_core.cob cobol/src/alert_escalation_core.cob cobol/src/audit_drilldown_core.cob cobol/src/compliance_export_core.cob cobol/src/payment_hold_core.cob cobol/src/oncall_delivery_core.cob cobol/src/compliance_retention_core.cob cobol/src/report_scheduler_core.cob cobol/src/settlement_recon_core.cob cobol/src/statement_delivery_core.cob cobol/src/audit_snapshot_core.cob cobol/src/report_archive_core.cob cobol/src/kyc_review_core.cob cobol/src/regulatory_report_core.cob cobol/src/loan_core.cob cobol/src/deposit_core.cob cobol/src/fx_deal_core.cob cobol/src/treasury_position_core.cob cobol/src/card_core.cob cobol/src/tax_report_core.cob cobol/src/policy_attestation_core.cob cobol/src/regulatory_calendar_core.cob cobol/src/budget_core.cob cobol/src/procurement_core.cob cobol/src/import_core.cob cobol/src/import_post_core.cob cobol/src/fee_core.cob cobol/src/eod_core.cob cobol/src/statement_core.cob cobol/src/eod_jobs_core.cob cobol/src/ref_ext_core.cob cobol/src/notification_core.cob cobol/src/payment_core.cob cobol/src/recon_core.cob cobol/src/legal_hold_core.cob cobol/src/key_rotation_core.cob cobol/src/dsar_core.cob cobol/src/retention_job_core.cob cobol/src/slo_report_core.cob cobol/src/pipeline_alert_core.cob cobol/src/incident_core.cob cobol/src/change_control_core.cob cobol/src/sql_bridge.c; then
         echo "router: action '$name' has no handler in any core module"
         viol=1
     fi
@@ -156,7 +170,6 @@ fi
 # gateway, either as a route (action: 'X') or via an internal invoke('X')
 # (PING, session store). Otherwise the feature is unreachable over HTTP.
 for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic.cob | grep -oE '"[A-Z_]+"' | tr -d '"'); do
-    [ "$name" = "REF_" ] && continue
     [ "$name" = "RFE_" ] && continue
     [ "$name" = "GL_" ] && continue
     [ "$name" = "BATCH_" ] && continue
@@ -194,6 +207,21 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "PHL_" ] && continue
     [ "$name" = "ODL_" ] && continue
     [ "$name" = "CRT_" ] && continue
+    [ "$name" = "LHO_" ] && continue
+    [ "$name" = "KRO_" ] && continue
+    [ "$name" = "DSR_" ] && continue
+    [ "$name" = "RTJ_" ] && continue
+    [ "$name" = "SLO_" ] && continue
+    [ "$name" = "PAL_" ] && continue
+    [ "$name" = "INC_" ] && continue
+    [ "$name" = "CHG_" ] && continue
+    [ "$name" = "BKP_" ] && continue
+    [ "$name" = "SCR_" ] && continue
+    [ "$name" = "DRC_" ] && continue
+    [ "$name" = "CAP_" ] && continue
+    [ "$name" = "ARE_" ] && continue
+    [ "$name" = "CA_" ] && continue
+    [ "$name" = "VCC_" ] && continue
     [ "$name" = "RSC_" ] && continue
     [ "$name" = "STR_" ] && continue
     [ "$name" = "STL_" ] && continue

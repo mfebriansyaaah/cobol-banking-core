@@ -214,7 +214,7 @@ rules above.
 49. **Production gates are evidence gates.** A release candidate needs full
     `./ci.sh`, the floor and curated-share gates, coverage, security scans,
     SLO/RPO/RTO evidence, a backup/restore drill, data classification, and
-    owner approvals. `scripts/ci-7d.sh` is a volume-sprint gate and is not a
+    owner approvals. The volume-sprint gate scripts/ci-7d.sh has been removed
     production merge gate.
 50. **Reference data is governed.** New reference data uses the generic
     reference-data model with effective dating, versioning, approval,

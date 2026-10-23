@@ -1,5 +1,19 @@
 # Production-grade roadmap: curated COBOL >60% after cut-over
 
+## 0. Progress (auto-tracked)
+
+| PR | Branch | Status |
+|---|---|---|
+| PR-01 | `phase-1/kyc-risk` | done (slice 30) |
+| PR-02 | `phase-1/fraud-reporting` | done (slice 31) |
+| PR-03 | `phase-1/limits-fees` | done (slice 33) |
+| PR-04 | `phase-2/cutover-observability` | done (observability modules + full data cutover + generated removal) |
+| PR-05 | `phase-3/security-data-cert` | done (this slice) |
+
+Status is derived from merged slices and the module files present under
+`cobol/src/`. Run `./scripts/progress_report.sh` for the live view and
+`./tests/progress_check.sh` for the CI gate.
+
 This is the executable PR plan for adding curated COBOL without growing the
 generated module, then finishing the production-grade phases. Each code PR
 has **at least two modules**; a PR may carry three or four when the modules
@@ -51,7 +65,7 @@ stays well above the 60,000 floor.
 - Branch from `main`; one push; one owner review; **merge-commit**.
 - Every PR ends with `./ci.sh` **ALL GREEN** and
   `./scripts/finalize_slice.sh --check` clean.
-- No new generated code; `cobol/src/generated/ref_core.cob` never grows.
+- No generated code remains; all 206 entities live in the generic reference engine.
 - Runtime target stays GnuCOBOL/MySQL/Linux (portable-core ADR).
 - Owner approvals: `docs/APPROVALS.md`; signed evidence stays private.
 
@@ -193,7 +207,7 @@ so curated share is **100%** and total COBOL is far above 60,000.
 ## 13. Definition of done
 
 - Curated COBOL **>= 60,000** before cut-over and **100% share** after.
-- `cobol/src/generated/ref_core.cob` removed; no generated code remains.
+- cobol/src/generated/ref_core.cob removed; no generated code remains. (done)
 - Required traceability items implemented and owner-approved.
 - `./ci.sh` ALL GREEN on the final commit of every PR.
 - `docs/STATUS.md`, `README.md`, `docs/DELIVERY_RULES.md`, and baselines

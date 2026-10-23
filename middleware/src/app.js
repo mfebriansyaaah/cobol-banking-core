@@ -10,7 +10,6 @@ import { createRequestObserver, metricsText, recordError, recordAuthFailure } fr
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
-import { REF_ROUTES } from './routes/ref.js';
 import { REF_ENGINE_ROUTES } from './routes/ref_engine.js';
 import { GL_ROUTES } from './routes/gl.js';
 import { BATCH_ROUTES } from './routes/batch.js';
@@ -41,6 +40,10 @@ import { COMPLIANCE_EXPORT_ROUTES } from './routes/compliance_export.js';
 import { PAYMENT_HOLD_ROUTES } from './routes/payment_hold.js';
 import { ONCALL_DELIVERY_ROUTES } from './routes/oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './routes/compliance_retention.js';
+import { LEGAL_HOLD_ROUTES } from './routes/legal_hold.js';
+import { KEY_ROTATION_ROUTES } from './routes/key_rotation.js';
+import { DSAR_ROUTES } from './routes/dsar.js';
+import { RETENTION_JOB_ROUTES } from './routes/retention_job.js';
 import { REPORT_SCHEDULER_ROUTES } from './routes/report_scheduler.js';
 import { AUDIT_SNAPSHOT_ROUTES } from './routes/audit_snapshot.js';
 import { REPORT_ARCHIVE_ROUTES } from './routes/report_archive.js';
@@ -74,6 +77,17 @@ import { STATEMENT_DELIVERY_ROUTES } from './routes/statement_delivery.js';
 import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './routes/payment_instructions.js';
 import { ONCALL_ROUTES } from './routes/oncall.js';
+import { SLO_REPORT_ROUTES } from './routes/slo_report.js';
+import { PIPELINE_ALERT_ROUTES } from './routes/pipeline_alert.js';
+import { INCIDENT_ROUTES } from './routes/incident.js';
+import { CHANGE_CONTROL_ROUTES } from './routes/change_control.js';
+import { BACKUP_RESTORE_ROUTES } from './routes/backup_restore.js';
+import { SECRET_ROTATION_ROUTES } from './routes/secret_rotation.js';
+import { DISASTER_RECOVERY_ROUTES } from './routes/disaster_recovery.js';
+import { CAPACITY_PLAN_ROUTES } from './routes/capacity_plan.js';
+import { AUDIT_RETENTION_ROUTES } from './routes/audit_retention.js';
+import { COMPLIANCE_AUDIT_ROUTES } from './routes/compliance_audit.js';
+import { VENDOR_COMPLIANCE_ROUTES } from './routes/vendor_compliance.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -91,7 +105,6 @@ const AUTH_FAILURE_CODES = new Set([
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
 // names the field filled from the verified token, never from the request body.
 export const ROUTES = [
-  ...REF_ROUTES,
   ...REF_ENGINE_ROUTES,
   ...GL_ROUTES,
   ...BATCH_ROUTES,
@@ -122,6 +135,10 @@ export const ROUTES = [
   ...PAYMENT_HOLD_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
+  ...LEGAL_HOLD_ROUTES,
+  ...KEY_ROTATION_ROUTES,
+  ...DSAR_ROUTES,
+  ...RETENTION_JOB_ROUTES,
   ...REPORT_SCHEDULER_ROUTES,
   ...AUDIT_SNAPSHOT_ROUTES,
   ...REPORT_ARCHIVE_ROUTES,
@@ -155,6 +172,17 @@ export const ROUTES = [
   ...STATEMENT_RECON_ROUTES,
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...ONCALL_ROUTES,
+  ...SLO_REPORT_ROUTES,
+  ...PIPELINE_ALERT_ROUTES,
+  ...INCIDENT_ROUTES,
+  ...CHANGE_CONTROL_ROUTES,
+  ...BACKUP_RESTORE_ROUTES,
+  ...SECRET_ROTATION_ROUTES,
+  ...DISASTER_RECOVERY_ROUTES,
+  ...CAPACITY_PLAN_ROUTES,
+  ...AUDIT_RETENTION_ROUTES,
+  ...COMPLIANCE_AUDIT_ROUTES,
+  ...VENDOR_COMPLIANCE_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
