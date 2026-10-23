@@ -123,3 +123,8 @@ vendor 6
 asset 6
 vendor_risk 4
 asset_maintenance 4
+kyc 8
+risk_screening 6
+kyc 8
+risk_screening 6
+sanctions_hold 7
