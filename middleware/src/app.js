@@ -50,6 +50,9 @@ import { LOAN_ROUTES } from './routes/loan.js';
 import { DEPOSIT_ROUTES } from './routes/deposit.js';
 import { CARD_ROUTES } from './routes/card.js';
 import { TAX_REPORT_ROUTES } from './routes/tax_report.js';
+import { SANCTIONS_HOLD_ROUTES } from './routes/sanctions_hold.js';
+import { KYC_ROUTES } from './routes/kyc.js';
+import { RISK_SCREENING_ROUTES } from './routes/risk_screening.js';
 import { POLICY_ATTESTATION_ROUTES } from './routes/policy_attestation.js';
 import { REGULATORY_CALENDAR_ROUTES } from './routes/regulatory_calendar.js';
 import { VENDOR_ROUTES } from './routes/vendor.js';
@@ -122,6 +125,9 @@ export const ROUTES = [
   ...DEPOSIT_ROUTES,
   ...CARD_ROUTES,
   ...TAX_REPORT_ROUTES,
+  ...SANCTIONS_HOLD_ROUTES,
+  ...KYC_ROUTES,
+  ...RISK_SCREENING_ROUTES,
   ...POLICY_ATTESTATION_ROUTES,
   ...REGULATORY_CALENDAR_ROUTES,
   ...VENDOR_ROUTES,
