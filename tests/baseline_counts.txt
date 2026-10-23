@@ -142,3 +142,5 @@ dsar 9
 retention_job 9
 slo_report 7
 pipeline_alert 8
+incident 9
+change_control 8

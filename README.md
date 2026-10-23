@@ -66,6 +66,8 @@ adapters and capabilities COBOL cannot provide directly.
   - `retention_job_core.cob` - retention policies and runs honouring legal holds.
   - `slo_report_core.cob` - SLO definitions and burn-rate measurements.
   - `pipeline_alert_core.cob` - idempotent pipeline failure alerts.
+  - `incident_core.cob` - incident lifecycle, assignment, and resolution.
+  - `change_control_core.cob` - change requests, approval, deploy, rollback.
 - `cobol/src/generated/ref_core.cob` - frozen generated reference module:
   206 entities, 1,030 actions. It is a volume-sprint artifact, excluded from the
   production coverage target, and must not grow.
@@ -77,10 +79,10 @@ Measured 2026-10-23:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **107.396** |
-| Curated COBOL net | **54.884** (51,1%) |
-| Total COBOL net | **107.018** |
-| Full CI | **144 steps / 2220 assertions** |
+| Non-generated net | **108.608** |
+| Curated COBOL net | **55.797** (51,3%) |
+| Total COBOL net | **107.931** |
+| Full CI | **146 steps / 2235 assertions** |
 | Non-generated gap to 100.000 | **0** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
