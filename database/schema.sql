@@ -10692,6 +10692,28 @@ CREATE TABLE IF NOT EXISTS access_audit_entry (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+-- Phase 2 slice: backup verification tracking.
+
+CREATE TABLE IF NOT EXISTS backup_verification (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    backup_id BIGINT NOT NULL,
+    checksum VARCHAR(128) NOT NULL,
+    status ENUM('PENDING','VERIFIED','FAILED') NOT NULL DEFAULT 'PENDING',
+    verified_by VARCHAR(100) NOT NULL,
+    verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_backup_verification_status (status)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS backup_verification_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    run_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_backup_verification_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -10802,7 +10824,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0102_notification_audit'),
 ('0103_report_audit'),
 ('0104_data_retention'),
-('0105_access_audit');
+('0105_access_audit'),
+('0106_backup_verification');
 
 
 -- Indexes
