@@ -262,22 +262,18 @@ if [ "$CHECK" = "1" ]; then
     raw_pct=$((cobol_raw * 1000 / total_raw))
     echo "COBOL net share: $((pct / 10)).$((pct % 10))%"
     echo "COBOL raw share: $((raw_pct / 10)).$((raw_pct % 10))%"
-    if [ "$pct" -lt 500 ] || [ "$raw_pct" -lt 500 ]; then
-        echo "FAIL: COBOL share is below 50% (net $((pct / 10)).$((pct % 10))%, raw $((raw_pct / 10)).$((raw_pct % 10))%)"
+    if [ "$pct" -lt 600 ]; then
+        echo "FAIL: COBOL net share is below 60% (net $((pct / 10)).$((pct % 10))%)"
         exit 1
     fi
-    if [ "$pct" -lt 550 ] || [ "$raw_pct" -lt 550 ]; then
-        echo "WARN: COBOL share is below the 55% target"
-    else
-        echo "OK: COBOL share meets the 55% target"
-    fi
+    echo "OK: COBOL net share meets the 60% target"
     if [ "$FLOOR" = "1" ]; then
         compute_quality
-        if [ "$cobol_code" -lt 60000 ]; then
-            echo "FAIL: COBOL net is $cobol_code (floor 60000)"
+        if [ "$cobol_code" -lt 100000 ]; then
+            echo "FAIL: COBOL net is $cobol_code (floor 100000)"
             exit 1
         fi
-        echo "OK: COBOL net floor $cobol_code >= 60000"
+        echo "OK: COBOL net floor $cobol_code >= 100000"
         if [ -f tests/curated_share_baseline.txt ]; then
             baseline="$(awk '$1 == "curated_share_per_mille" {print $2}' tests/curated_share_baseline.txt)"
             [ -n "$baseline" ] || baseline=0

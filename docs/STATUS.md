@@ -1009,7 +1009,7 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 115.962; target 100.000 per
+- Non-generated net baseline: 116.528; target 100.000 per
   `docs/DELIVERY_RULES.md`.
 
 
@@ -1485,3 +1485,13 @@ include:
 | `cobol/src/data_quality_core.cob` | `DQC_LIST` | (auto-documented; refine description) |
 | `cobol/src/data_quality_core.cob` | `DQC_RUN` | (auto-documented; refine description) |
 | `cobol/src/data_quality_core.cob` | `DQC_SUMMARY` | (auto-documented; refine description) |
+
+## notification_audit_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/notification_audit_core.cob` | `NAU_ENQUEUE` | (auto-documented; refine description) |
+| `cobol/src/notification_audit_core.cob` | `NAU_GET` | (auto-documented; refine description) |
+| `cobol/src/notification_audit_core.cob` | `NAU_LIST` | (auto-documented; refine description) |
+| `cobol/src/notification_audit_core.cob` | `NAU_RETRY` | (auto-documented; refine description) |
+| `cobol/src/notification_audit_core.cob` | `NAU_SUMMARY` | (auto-documented; refine description) |
