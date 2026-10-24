@@ -86,6 +86,7 @@ run TRANSFER sender@test.com receiver@test.com 1.00 "" >/dev/null
 check "auto-generated refs are unique" "2" "$(q "SELECT COUNT(DISTINCT txn_ref) FROM ledger;")"
 
 # A pruned intent is archived out-of-band; reusing its key then runs as a fresh transfer.
+q "INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (999,'recon_admin@test.com','x','Recon Admin','1990-01-01','VERIFIED','SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN',status='VERIFIED';"
 q "DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM pending_transactions_archive; DELETE FROM eod_job_run WHERE job_code='PENDING_PURGE';"
 q "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status, created_at) VALUES
    ('arch-k','sender@test.com','receiver@test.com', 5.00, 'COMMITTED', DATE_SUB(NOW(), INTERVAL 40 DAY));"
