@@ -1,6 +1,6 @@
 # ADR 0083 — Modular COBOL Core (incremental split of large domains)
 
-Status: proposed
+Status: accepted
 Date: 2026-10-24
 
 ## Context
