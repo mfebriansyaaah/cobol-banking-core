@@ -1,7 +1,7 @@
 #!/bin/bash
 # Fast pull-request gate.
 #
-# The full ./ci.sh (155 steps, ~5-7 minutes) remains the release gate. This gate
+# The full ./ci.sh (156 steps, ~5-7 minutes) remains the release gate. This gate
 # runs the checks that can catch a mistake in the surface the change actually
 # touches, in well under two minutes:
 #
