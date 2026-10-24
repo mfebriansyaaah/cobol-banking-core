@@ -154,3 +154,4 @@ sla_tracking_core 6
 db-constraints 3
 load-smoke 4
 unit-helpers 3
+money-invariants 3

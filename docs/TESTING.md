@@ -34,13 +34,13 @@ backup/restore round-trip and the coverage ratchet.
 
 | Category | Suites | Share |
 |---|---:|---:|
-| Integration | 108 | 75% |
+| Integration | 115 | 78% |
 | Security | 21 | 14% |
-| Database & Data Integrity | 6 | 4% |
+| Database & Data Integrity | 7 | 5% |
 | Unit | 5 | 3% |
 | API / Endpoint | 4 | 3% |
 | Performance & Load | 2 | 1% |
-| **Total shell suites** | **146** | 100% |
+| **Total shell suites** | **151** | 100% |
 
 Plus the gateway suite (`middleware/`, 126 tests) which spans API, Security,
 Performance (rate limiting, pool), and Data Integrity.
@@ -91,6 +91,7 @@ npm --prefix middleware test
 
 | Suite | Primary category |
 |---|---|
+| `test_access_audit.sh` | Integration |
 | `test_access_reviews.sh` | Integration |
 | `test_account_lifecycle.sh` | Integration |
 | `test_account_status.sh` | Integration |
@@ -111,6 +112,7 @@ npm --prefix middleware test
 | `test_auth_login.sh` | Security |
 | `test_backup_restore_core.sh` | Database & Data Integrity |
 | `test_backup_restore.sh` | Database & Data Integrity |
+| `test_backup_verification.sh` | Database & Data Integrity |
 | `test_batch.sh` | Integration |
 | `test_bridge_txn.sh` | Integration |
 | `test_budget.sh` | Integration |
@@ -125,7 +127,8 @@ npm --prefix middleware test
 | `test_control_accounts.sh` | Integration |
 | `test_dashboard.sh` | Integration |
 | `test_data_quality.sh` | Integration |
-| `test_db_constraints.sh` | Integration |
+| `test_data_retention.sh` | Integration |
+| `test_db_constraints.sh` | Database & Data Integrity |
 | `test_deposit.sh` | Integration |
 | `test_disaster_recovery.sh` | Integration |
 | `test_dispute_notify.sh` | Integration |
@@ -164,13 +167,15 @@ npm --prefix middleware test
 | `test_ledger_integrity.sh` | Database & Data Integrity |
 | `test_legal_hold.sh` | Integration |
 | `test_limit_profile.sh` | Integration |
-| `test_load_smoke.sh` | Integration |
+| `test_load_smoke.sh` | Performance & Load |
 | `test_loan.sh` | Integration |
 | `test_login_lockout.sh` | Security |
 | `test_mfa_recovery.sh` | Security |
 | `test_mfa.sh` | Security |
 | `test_mfa_state.sh` | Security |
 | `test_migrate.sh` | Database & Data Integrity |
+| `test_money_invariants.sh` | Integration |
+| `test_notification_audit.sh` | Integration |
 | `test_notification.sh` | Integration |
 | `test_oncall_delivery.sh` | Integration |
 | `test_oncall.sh` | Integration |
@@ -198,6 +203,7 @@ npm --prefix middleware test
 | `test_regulatory_calendar.sh` | Integration |
 | `test_regulatory_report.sh` | Integration |
 | `test_report_archive.sh` | Integration |
+| `test_report_audit.sh` | Integration |
 | `test_report_delivery.sh` | Integration |
 | `test_report.sh` | Integration |
 | `test_report_scheduler.sh` | Integration |
@@ -216,6 +222,7 @@ npm --prefix middleware test
 | `test_sessions_manage.sh` | Security |
 | `test_settlement_recon.sh` | Integration |
 | `test_signup_verify.sh` | Integration |
+| `test_sla_tracking.sh` | Integration |
 | `test_slo_report.sh` | Integration |
 | `test_statement_delivery.sh` | Integration |
 | `test_statement.sh` | Integration |
@@ -230,7 +237,7 @@ npm --prefix middleware test
 | `test_transfer_reversal.sh` | Integration |
 | `test_transfer_validity.sh` | Integration |
 | `test_treasury_position.sh` | Integration |
-| `test_unit_helpers.sh` | Integration |
+| `test_unit_helpers.sh` | Unit |
 | `test_user_profile.sh` | Integration |
 | `test_vendor_compliance.sh` | Integration |
 | `test_vendor.sh` | Integration |
