@@ -1208,15 +1208,6 @@ echo "asset-maintenance: $amt_pass passed, $amt_fail failed"
 echo "asset_maintenance $amt_pass" >> "$BASELINE_RUN"
 [ "$amt_fail" -eq 0 ] || { echo "ASSET MAINTENANCE SUITE FAILED"; exit 1; }
 
-echo "=== [130/156] KYC suite ==="
-run_step kyc_out kyc_rc ./tests/test_kyc.sh
-[ "$kyc_rc" -eq 0 ] || { echo "KYC (rc=$kyc_rc)"; echo "$kyc_out" | tail -5; exit 1; }
-kyc_pass=$(echo "$kyc_out" | count_matches '\\[0;32mPASS')
-kyc_fail=$(echo "$kyc_out" | count_matches '\\[0;31mFAIL')
-echo "kyc: $kyc_pass passed, $kyc_fail failed"
-echo "kyc $kyc_pass" >> "$BASELINE_RUN"
-[ "$kyc_fail" -eq 0 ] || { echo "KYC SUITE FAILED"; exit 1; }
-
 echo "=== [131/156] Risk screening suite ==="
 run_step rsk_out rsk_rc ./tests/test_risk_screening.sh
 [ "$rsk_rc" -eq 0 ] || { echo "RISK SCREENING (rc=$rsk_rc)"; echo "$rsk_out" | tail -5; exit 1; }

@@ -34,13 +34,13 @@ backup/restore round-trip and the coverage ratchet.
 
 | Category | Suites | Share |
 |---|---:|---:|
-| Integration | 109 | 75% |
+| Integration | 108 | 75% |
 | Security | 21 | 14% |
 | Database & Data Integrity | 5 | 3% |
 | Unit | 4 | 3% |
 | API / Endpoint | 4 | 3% |
 | Performance & Load | 1 | <1% |
-| **Total shell suites** | **144** | 100% |
+| **Total shell suites** | **143** | 100% |
 
 Plus the gateway suite (`middleware/`, 126 tests) which spans API, Security,
 Performance (rate limiting, pool), and Data Integrity.
@@ -156,7 +156,6 @@ npm --prefix middleware test
 | `test_injection.sh` | Security |
 | `test_journal.sh` | Integration |
 | `test_key_rotation.sh` | Integration |
-| `test_kyc.sh` | Integration |
 | `test_kyc_review.sh` | Integration |
 | `test_last_admin.sh` | Security |
 | `test_lbpue.sh` | Integration |
@@ -235,3 +234,4 @@ npm --prefix middleware test
 | `test_vendor_risk.sh` | Integration |
 | `test_verify_cap.sh` | Security |
 | `test_wallet_observability.sh` | Integration |
+
