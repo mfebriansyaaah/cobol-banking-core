@@ -9,6 +9,19 @@ set -e
 # default, so this only affects the unrelated suites' fixture hashing.
 export PBKDF2_ITERATIONS="${PBKDF2_ITERATIONS:-10000}"
 
+# CI compiles at -O0: same source and behaviour, ~65s less compile time than
+# the production -O2 default. Set COBOL_OPT=-O2 to override.
+export COBOL_OPT="${COBOL_OPT:--O0}"
+
+# Backup/restore in the merge gate covers a representative slice of the money
+# path and every trigger-bearing table. The full 454-table round-trip takes
+# ~140s of CREATE TABLE fsync and runs in scripts/nightly.sh. Set
+# BACKUP_TABLES= (empty) to force the full round-trip here.
+if [ -z "${BACKUP_TABLES+x}" ]; then
+    BACKUP_TABLES="accounts users ledger pending_transactions dispute_cases dispute_messages reconciliation_runs audit_trail exchange_rates schema_migrations ref_account_status"
+fi
+export BACKUP_TABLES
+
 # Per-suite pass counts recorded during this run; the final step compares them
 # against tests/baseline_counts.txt so silently dropped assertions fail CI.
 BASELINE_RUN="$(mktemp)"
@@ -22,10 +35,22 @@ count_matches() { awk -v re="$1" '$0 ~ re {n++} END {print n+0}'; }
 # masking failures. Usage: run_step <out_var> <rc_var> <command...>
 run_step() {
     local __out_var="$1" __rc_var="$2"; shift 2
-    local __out __rc=0
-    if __out=$("$@" 2>/dev/null); then __rc=0; else __rc=$?; fi
+    local __err __out __rc=0 __t0
+    __t0="$(date +%s%N)"
+    __err="$(mktemp)"
+    # A hung suite must fail instead of blocking the gate forever. Keep the
+    # stderr stream: it is where the bridge and mysql put their diagnostics.
+    if __out=$(timeout "${CI_STEP_TIMEOUT:-300}" "$@" 2>"$__err"); then __rc=0; else __rc=$?; fi
+    if [ "$__rc" -ne 0 ] && [ -s "$__err" ]; then
+        __out="${__out}"$'\n'"--- stderr ---"$'\n'"$(cat "$__err")"
+    fi
+    rm -f "$__err"
     printf -v "$__out_var" "%s" "$__out"
     printf -v "$__rc_var" "%s" "$__rc"
+    # Append to a timing log so the next audit has data instead of guesses.
+    printf '%6d ms  rc=%s  %s\n' \
+        "$(( ($(date +%s%N) - __t0) / 1000000 ))" "$__rc" "$*" \
+        >> "${CI_TIMINGS:-/tmp/opencode/ci-timings.txt}"
     return 0
 }
 
@@ -121,8 +146,19 @@ echo "user-profile $profile_pass" >> "$BASELINE_RUN"
 
 echo "=== [12/155] API gateway suite ==="
 if [ -d middleware ]; then
-    npm --prefix middleware ci --silent >/dev/null 2>&1 || npm --prefix middleware install --silent >/dev/null 2>&1
-    if npm --prefix middleware test --silent >/tmp/opencode/gateway.out 2>&1; then
+    # Reinstall only when the lockfile changes. `npm ci` is reproducible but
+    # wipes node_modules; the stamp records which lockfile produced the tree.
+    # No `|| npm install` fallback: that silently accepted a different tree
+    # than package-lock.json describes.
+    mw_hash="$(sha256sum middleware/package-lock.json | awk '{print $1}')"
+    mw_stamp="middleware/node_modules/.ci-lock-${mw_hash}"
+    if [ ! -f "$mw_stamp" ]; then
+        rm -rf middleware/node_modules
+        timeout 300 npm --prefix middleware ci --silent --no-audit --no-fund || {
+            echo "GATEWAY DEPENDENCY INSTALL FAILED (npm ci)"; exit 1; }
+        touch "$mw_stamp"
+    fi
+    if timeout 300 npm --prefix middleware test --silent >/tmp/opencode/gateway.out 2>&1; then
         gw_pass=$(grep -E '^✔|^ℹ pass' /tmp/opencode/gateway.out | count_matches '^')
         echo "gateway: $(grep -E '^ℹ pass|^ℹ fail' /tmp/opencode/gateway.out | tr '\n' ' ')"
         # A skipped test reports green while covering nothing; fail loudly so

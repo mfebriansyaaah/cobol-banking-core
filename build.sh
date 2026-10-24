@@ -5,6 +5,10 @@
 set -e
 
 COBOL_BIN="cobol/bin/main_logic"
+# Optimisation level is overridable so the CI gate can build with -O0
+# (~13s) instead of -O2 (~78s). The resulting binary is behaviourally
+# identical; only compile time and generated code differ.
+COBOL_OPT="${COBOL_OPT:--O2}"
 
 echo "=========================================="
 echo "  Building COBOL MySQL Backend (SIM)"
@@ -13,7 +17,7 @@ echo "=========================================="
 mkdir -p cobol/bin
 
 # Compile and link the curated modules and the C bridge.
-cobc -free -x -O2 -o "$COBOL_BIN" \
+cobc -free -x "$COBOL_OPT" -o "$COBOL_BIN" \
     cobol/src/main_logic.cob \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \

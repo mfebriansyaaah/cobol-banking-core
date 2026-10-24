@@ -24,12 +24,22 @@ LOG="$OUT_DIR/coverage-${STAMP}.log"
 # The coverage check reuses a fresh gateway report when one is present. Run
 # the gateway suite here so the report belongs to this invocation.
 echo "nightly: running the coverage gate (log: $LOG)"
-if ./tests/coverage_check.sh --gateway-report "$OUT_DIR/gateway-${STAMP}.out" >"$LOG" 2>&1; then
-    echo "nightly: coverage gate OK"
-    tail -8 "$LOG"
-    exit 0
+if ! ./tests/coverage_check.sh --gateway-report "$OUT_DIR/gateway-${STAMP}.out" >"$LOG" 2>&1; then
+    echo "nightly: COVERAGE GATE FAILED (see $LOG)" >&2
+    tail -20 "$LOG" >&2
+    exit 1
 fi
+echo "nightly: coverage gate OK"
+tail -8 "$LOG"
 
-echo "nightly: COVERAGE GATE FAILED (see $LOG)" >&2
-tail -20 "$LOG" >&2
-exit 1
+# The merge gate restores a representative table slice (~10 tables) so it stays
+# fast; this is the full 454-table round-trip that proves completeness.
+BR_LOG="$OUT_DIR/backup-restore-${STAMP}.log"
+echo "nightly: running the full backup/restore round-trip (log: $BR_LOG)"
+if env -u BACKUP_TABLES ./tests/test_backup_restore.sh >"$BR_LOG" 2>&1; then
+    echo "nightly: full backup/restore OK"
+else
+    echo "nightly: FULL BACKUP/RESTORE FAILED (see $BR_LOG)" >&2
+    tail -20 "$BR_LOG" >&2
+    exit 1
+fi

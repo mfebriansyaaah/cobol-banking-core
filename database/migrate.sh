@@ -20,6 +20,20 @@ DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}"
 
 mysqlc() { mysql -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" "$@"; }
 
+# Load every recorded version once, then answer membership questions in shell.
+# The old loop spawned one mysql client per migration file (101 clients per
+# --check); this keeps it at one query per invocation.
+APPLIED=""
+load_applied() {
+    APPLIED="$(mysqlc -N -B -e "SELECT version FROM schema_migrations;" 2>/dev/null || true)"
+}
+is_applied() {
+    case $'\n'"$APPLIED"$'\n' in
+        *$'\n'"$1"$'\n'*) return 0 ;;
+    esac
+    return 1
+}
+
 mysqlc -e "CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(64) PRIMARY KEY,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -50,12 +64,12 @@ if [ "$1" = "--only" ]; then
 fi
 
 if [ "$1" = "--check" ]; then
+    load_applied
     pending=""
     for f in database/migrations/*.sql; do
         [ -e "$f" ] || continue
         v="$(basename "$f" .sql)"
-        c="$(mysqlc -N -B -e "SELECT COUNT(*) FROM schema_migrations WHERE version='$v';" 2>/dev/null)"
-        [ "$c" = "1" ] || pending="$pending $v"
+        is_applied "$v" || pending="$pending $v"
     done
     if [ -n "$pending" ]; then
         echo "pending migrations:$pending"
@@ -65,12 +79,12 @@ if [ "$1" = "--check" ]; then
     exit 0
 fi
 
+load_applied
 applied_any=0
 for f in database/migrations/*.sql; do
     [ -e "$f" ] || continue
     v="$(basename "$f" .sql)"
-    already="$(mysqlc -N -B -e "SELECT COUNT(*) FROM schema_migrations WHERE version='$v';" 2>/dev/null)"
-    if [ "$already" = "1" ]; then
+    if is_applied "$v"; then
         echo "already applied: $v"
     else
         echo "applying: $v"
@@ -79,6 +93,7 @@ for f in database/migrations/*.sql; do
         # success, so a retry resumes here instead of skipping silently.
         if err=$(mysqlc < "$f" 2>&1); then
             mysqlc -e "INSERT INTO schema_migrations (version) VALUES ('$v');" 2>/dev/null
+            APPLIED="$APPLIED"$'\n'"$v"
             applied_any=1
         else
             echo "migration FAILED: $v"

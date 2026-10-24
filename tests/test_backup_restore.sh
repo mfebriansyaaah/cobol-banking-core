@@ -50,6 +50,12 @@ check "dump is owner-only" "600" "$(stat -c %a "$SQL" 2>/dev/null)"
 check "manifest is owner-only" "600" "$(stat -c %a "$MANIFEST" 2>/dev/null)"
 check "manifest records git rev" "1" "$(grep -c '^git_rev: [0-9a-f]*$' "$MANIFEST")"
 DB_TABLES="$(mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_type='BASE TABLE';" 2>/dev/null)"
+# The merge gate backs up a representative subset (BACKUP_TABLES); the nightly
+# path leaves it unset and must cover every base table.
+if [ -n "${BACKUP_TABLES:-}" ]; then
+    set -- $BACKUP_TABLES
+    DB_TABLES="$#"
+fi
 check "manifest covers every base table" "$DB_TABLES" "$(grep -c '^table ' "$MANIFEST")"
 check "dump carries latest schema" "1" "$(grep -c 'CREATE TABLE .*dispute_cases' "$SQL")"
 check "dump carries triggers" "1" "$(grep -c 'trg_ledger_no_update' "$SQL")"
