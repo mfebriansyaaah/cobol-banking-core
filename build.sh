@@ -102,6 +102,7 @@ cobc -free -x "$COBOL_OPT" -o "$COBOL_BIN" \
     cobol/src/vendor_compliance_core.cob \
     cobol/src/data_quality_core.cob \
     cobol/src/notification_audit_core.cob \
+    cobol/src/report_audit_core.cob \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \

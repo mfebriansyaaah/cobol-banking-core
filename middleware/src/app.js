@@ -90,6 +90,7 @@ import { COMPLIANCE_AUDIT_ROUTES } from './routes/compliance_audit.js';
 import { VENDOR_COMPLIANCE_ROUTES } from './routes/vendor_compliance.js';
 import { DATA_QUALITY_ROUTES } from './routes/data_quality.js';
 import { NOTIFICATION_AUDIT_ROUTES } from './routes/notification_audit.js';
+import { REPORT_AUDIT_ROUTES } from './routes/report_audit.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -187,6 +188,7 @@ export const ROUTES = [
   ...VENDOR_COMPLIANCE_ROUTES,
   ...DATA_QUALITY_ROUTES,
   ...NOTIFICATION_AUDIT_ROUTES,
+  ...REPORT_AUDIT_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
