@@ -17,7 +17,7 @@ echo "=========================================="
 mkdir -p cobol/bin
 
 # Compile and link the curated modules and the C bridge.
-cobc -free -x "$COBOL_OPT" -o "$COBOL_BIN" \
+cobc -free -x -I cobol/copy "$COBOL_OPT" -o "$COBOL_BIN" \
     cobol/src/main_logic.cob \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \

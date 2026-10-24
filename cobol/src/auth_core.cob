@@ -8,6 +8,7 @@
 
         DATA DIVISION.
         WORKING-STORAGE SECTION.
+        COPY "auth_password_ws.cpy".
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
         01  WS-QUERY                PIC X(512) VALUE SPACES.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.

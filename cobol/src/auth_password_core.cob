@@ -8,6 +8,8 @@
 
         DATA DIVISION.
         WORKING-STORAGE SECTION.
+        COPY "auth_password_ws.cpy".
+
         01  WS-OUTPUT-MSG        PIC X(16384) VALUE SPACES.
 
         LINKAGE SECTION.
@@ -23,9 +25,9 @@
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
-            *> Phase 1 (ADR 0083): facade. Password actions are still implemented
-            *> in auth_core; this sub-program delegates so the router can target
-            *> the capability module. Subsequent slices will move the paragraphs
-            *> here and drop them from auth_core.
+            *> Phase A1 (ADR 0083): shared working-storage now lives in the
+            *> copybook; this sub-program still delegates to auth_core. Subsequent
+            *> slices (A2-A6) will move the paragraphs here.
+
             CALL "auth_core" USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER
             GOBACK.

@@ -1547,6 +1547,7 @@ include:
 
 | Module | Action | Behavior |
 |---|---|---|
-| `cobol/src/auth_password_core.cob` | `FORGOT_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
-| `cobol/src/auth_password_core.cob` | `RESET_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
-| `cobol/src/auth_password_core.cob` | `CHANGE_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
+| `cobol/src/auth_password_core.cob` | `FORGOT_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
+| `cobol/src/auth_password_core.cob` | `RESET_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
+| `cobol/src/auth_password_core.cob` | `CHANGE_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
+
