@@ -27,3 +27,7 @@ Status: proposed defaults, owner approval required before production.
 - Logical backups: `RETENTION_DAYS` (default 7) via `scripts/backup_retention.sh`.
 - Audit trail: archive via `ARCHIVE_AUDIT` past retention window (default 90 days).
 - Ledger: never delete; archive to `ledger_archive` for cold storage.
+
+## Alert rules
+
+Prometheus rules live in `monitoring/prometheus-alerts.yml` (5xx rate, pool saturation, worker restarts, auth failure spike, transfer p95 latency).
