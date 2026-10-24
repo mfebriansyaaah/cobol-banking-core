@@ -19,13 +19,30 @@ mysql -u "$DB_USER" -p"$DB_PASS" "$TARGET" -e "SELECT 1;" >/dev/null
 
 mysql -u "$DB_USER" -p"$DB_PASS" "$TARGET" < "$SQL"
 
+# Measure every table in two batched round-trips instead of two mysql clients
+# per table. The comparison itself is unchanged: same row count, same checksum.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+MANIFEST_TABLES="$(awk '$1 == "table" {print $2}' "$MANIFEST")"
+[ -n "$MANIFEST_TABLES" ] || { echo "manifest lists no tables: $MANIFEST" >&2; exit 1; }
+STATS="$(mktemp)"
+trap 'rm -f "$STATS"' EXIT
+printf '%s\n' "$MANIFEST_TABLES" | DB_NAME="$TARGET" DB_USER="$DB_USER" DB_PASS="$DB_PASS" \
+    "$SCRIPT_DIR/db_table_stats.sh" > "$STATS"
+
+declare -A GOT_ROWS=() GOT_SUMS=()
+while IFS=$'\t' read -r t rows sum; do
+    [ -n "$t" ] || continue
+    GOT_ROWS[$t]="$rows"
+    GOT_SUMS[$t]="$sum"
+done < "$STATS"
+
 fail=0
 while read -r _ table kv; do
     [ -n "$table" ] || continue
     want_rows="${kv%% checksum=*}"; want_rows="${want_rows#rows=}"
     want_sum="${kv##*checksum=}"
-    got_rows="$(mysql -u "$DB_USER" -p"$DB_PASS" "$TARGET" -N -B -e "SELECT COUNT(*) FROM \`$table\`;" 2>/dev/null || echo MISSING)"
-    got_sum="$(mysql -u "$DB_USER" -p"$DB_PASS" "$TARGET" -N -B -e "CHECKSUM TABLE \`$table\`;" 2>/dev/null | awk '{print $2}' || echo MISSING)"
+    got_rows="${GOT_ROWS[$table]:-MISSING}"
+    got_sum="${GOT_SUMS[$table]:-MISSING}"
     if [ "$got_rows" != "$want_rows" ] || [ "$got_sum" != "$want_sum" ]; then
         echo "MISMATCH $table: manifest rows=$want_rows checksum=$want_sum, restored rows=$got_rows checksum=$got_sum" >&2
         fail=1

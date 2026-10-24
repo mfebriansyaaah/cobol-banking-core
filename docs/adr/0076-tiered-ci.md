@@ -6,7 +6,7 @@ Phase: development workflow (not a regulatory control).
 
 ## Context
 
-The full `./ci.sh` run is 71 steps and about five minutes. Most of that time
+The full `./ci.sh` run is 156 steps and about five to seven minutes. Most of that time
 is fixed cost rather than feedback: the gateway suite (~65 s), the coverage
 gate (~50 s), backup/restore, the C memory suite, migration replay, and the
 array of small suites. Waiting five minutes after a one-line change slows
@@ -16,10 +16,14 @@ The full run must stay the merge and release evidence: it covers the money
 path, the C/COBOL boundary, backup/restore, coverage, the hooks, and the
 end-to-end HTTP flow. It is not negotiable evidence.
 
+The merge gate restores a representative table slice (`BACKUP_TABLES` in
+`ci.sh`), because importing all 454 tables costs ~140s of `CREATE TABLE`
+fsyncs. The complete round-trip runs nightly in `scripts/nightly.sh`.
+
 ## Decision
 
-1. **Two tiers, one source of truth.** `./ci.sh` remains the full 71-step
-   release gate, unchanged. `./ci-fast.sh` is a new, additive gate for the
+1. **Two tiers, one source of truth.** `./ci.sh` remains the full 156-step
+   release gate. `./ci-fast.sh` is a new, additive gate for the
    inner loop.
 2. **The fast gate is affected-surface.** It diffs the branch against its
    merge base with `origin/main` and runs:
@@ -55,7 +59,7 @@ in its header.
 
 - A docs-only change is checked in seconds; a typical COBOL change in under a
   minute; a mixed change in about two minutes (the gateway suite dominates).
-- The full run keeps its role and its 71 steps. No assertion, evidence file,
+- The full run keeps its role and its 156 steps. No assertion, evidence file,
   or coverage floor is removed by this decision.
 - `ci-fast.sh` is validated by `bash -n` in the static checks so a syntax
   error cannot hide in the tooling.

@@ -125,13 +125,9 @@ vendor_risk 4
 asset_maintenance 4
 kyc 8
 risk_screening 6
-kyc 8
-risk_screening 6
 sanctions_hold 7
 fraud_ops 8
 lbpue 8
-gl_reval 8
-gl_period_close 7
 gl_reval 8
 gl_period_close 7
 fee_waiver 6
@@ -151,3 +147,4 @@ capacity_plan_core 6
 audit_retention_core 6
 compliance_audit_core 6
 vendor_compliance_core 6
+data_quality_core 6

@@ -574,7 +574,7 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND DATE(l.created_at) = CURDATE()" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND l.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -634,7 +634,7 @@
                MOVE "ERROR|POLICY_DISABLED" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND DATE(l.created_at) = CURDATE()" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND l.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -716,7 +716,7 @@
                MOVE "SUCCESS|PAY_ENFORCE|OK|0|0|POLICY_DISABLED" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND DATE(l.created_at) = CURDATE()" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(COALESCE(SUM(l.amount), 0), '|', COUNT(*)) FROM ledger l JOIN accounts a ON a.account_id = l.account_id JOIN users u ON u.id = a.user_id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? AND l.type = 'DEBIT' AND l.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2

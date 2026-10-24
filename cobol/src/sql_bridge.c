@@ -71,6 +71,11 @@ static MYSQL *bridge_connect(int *insecure) {
         mysql_close(c);
         return NULL;
     }
+    /* Fail-closed isolation: READ COMMITTED removes the stale snapshot that
+     * a REPEATABLE-READ transaction keeps after a locking SELECT, so the
+     * post-lock re-reads (status, currency, available balance, limits) see
+     * the committed state the lock actually protects. */
+    mysql_query(c, "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED");
     G_POOL = c;
     return c;
 }
@@ -247,10 +252,15 @@ void SQL_COMMIT() {
         return;
     }
     if (mysql_query(G_CONN, "COMMIT")) {
+        /* Keep the failure attributable, then roll back the still-open
+         * transaction before releasing the connection so row locks do not
+         * leak into the next request on the pooled connection. */
         strncpy(G_RESULT, "ERROR|COMMIT_FAILED", 16383);
-    } else {
-        strncpy(G_RESULT, "SUCCESS|COMMIT", 16383);
+        mysql_query(G_CONN, "ROLLBACK");
+        G_CONN = NULL;
+        return;
     }
+    strncpy(G_RESULT, "SUCCESS|COMMIT", 16383);
     G_CONN = NULL;   /* pooled connection is kept for reuse */
 }
 

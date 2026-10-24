@@ -121,6 +121,7 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "ARE_" ] && continue
     [ "$name" = "CA_" ] && continue
     [ "$name" = "VCC_" ] && continue
+    [ "$name" = "DQC_" ] && continue
     [ "$name" = "RSC_" ] && continue
     [ "$name" = "ASN_" ] && continue
     [ "$name" = "RPA_" ] && continue
@@ -222,6 +223,7 @@ for name in $(grep -oE 'CMD-ACTION\(1:[0-9]+\) = "[A-Z_]+"' cobol/src/main_logic
     [ "$name" = "ARE_" ] && continue
     [ "$name" = "CA_" ] && continue
     [ "$name" = "VCC_" ] && continue
+    [ "$name" = "DQC_" ] && continue
     [ "$name" = "RSC_" ] && continue
     [ "$name" = "STR_" ] && continue
     [ "$name" = "STL_" ] && continue
@@ -264,6 +266,6 @@ fi
 echo "OK"
 
 # The tiered-gate scripts are shell; a syntax error there must fail here.
-for f in ci-fast.sh tests/static_checks.sh tests/serve_harness.sh tests/coverage_check.sh scripts/coverage_cobol.sh scripts/sync_main.sh scripts/finalize_slice.sh scripts/nightly.sh; do
+for f in ci.sh ci-fast.sh build.sh database/migrate.sh scripts/backup.sh scripts/restore.sh scripts/db_table_stats.sh tests/static_checks.sh tests/serve_harness.sh tests/coverage_check.sh scripts/coverage_cobol.sh scripts/sync_main.sh scripts/finalize_slice.sh scripts/nightly.sh; do
     bash -n "$f" || { echo "static: shell syntax error in $f"; exit 1; }
 done
