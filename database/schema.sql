@@ -10671,6 +10671,27 @@ CREATE TABLE IF NOT EXISTS data_retention_audit (
     INDEX idx_data_retention_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 2 slice: access audit tracking.
+
+CREATE TABLE IF NOT EXISTS access_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    event_type VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    subject_email VARCHAR(100) NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_access_audit_actor (actor_email, created_at),
+    INDEX idx_access_audit_event (event_type)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS access_audit_entry (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    audit_id BIGINT NOT NULL,
+    event VARCHAR(40) NOT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -10780,7 +10801,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0101_data_quality'),
 ('0102_notification_audit'),
 ('0103_report_audit'),
-('0104_data_retention');
+('0104_data_retention'),
+('0105_access_audit');
 
 
 -- Indexes

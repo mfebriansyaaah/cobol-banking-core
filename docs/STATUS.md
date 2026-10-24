@@ -1514,3 +1514,12 @@ include:
 | `cobol/src/data_retention_core.cob` | `DRT_LIST` | (auto-documented; refine description) |
 | `cobol/src/data_retention_core.cob` | `DRT_RUN` | (auto-documented; refine description) |
 | `cobol/src/data_retention_core.cob` | `DRT_SUMMARY` | (auto-documented; refine description) |
+
+## access_audit_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/access_audit_core.cob` | `AAU_GET` | (auto-documented; refine description) |
+| `cobol/src/access_audit_core.cob` | `AAU_LIST` | (auto-documented; refine description) |
+| `cobol/src/access_audit_core.cob` | `AAU_RECORD` | (auto-documented; refine description) |
+| `cobol/src/access_audit_core.cob` | `AAU_SUMMARY` | (auto-documented; refine description) |
