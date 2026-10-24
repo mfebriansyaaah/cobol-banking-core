@@ -94,6 +94,7 @@ import { REPORT_AUDIT_ROUTES } from './routes/report_audit.js';
 import { DATA_RETENTION_ROUTES } from './routes/data_retention.js';
 import { ACCESS_AUDIT_ROUTES } from './routes/access_audit.js';
 import { BACKUP_VERIFICATION_ROUTES } from './routes/backup_verification.js';
+import { SLA_TRACKING_ROUTES } from './routes/sla_tracking.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -195,6 +196,7 @@ export const ROUTES = [
   ...DATA_RETENTION_ROUTES,
   ...ACCESS_AUDIT_ROUTES,
   ...BACKUP_VERIFICATION_ROUTES,
+  ...SLA_TRACKING_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
