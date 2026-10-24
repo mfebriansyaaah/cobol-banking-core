@@ -1,0 +1,37 @@
+groups:
+  - name: cobol-banking-gateway
+    rules:
+      - alert: GatewayHigh5xxRate
+        expr: sum(rate(gateway_errors_total[5m])) / sum(rate(gateway_requests_total[5m])) > 0.01
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Gateway 5xx rate above 1% for 5 minutes"
+
+      - alert: GatewayPoolSaturated
+        expr: gateway_cobol_pool_queued >= gateway_cobol_pool_queue_max
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "COBOL pool queue is saturated"
+
+      - alert: GatewayPoolRestarts
+        expr: rate(gateway_cobol_pool_restarts_total[5m]) > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "COBOL worker restarting"
+
+      - alert: GatewayAuthFailureSpike
+        expr: sum(rate(gateway_auth_failures_total[5m])) > 10
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Authentication failures spiked"
+
+      - alert: GatewaySlowTransfers
+        expr: histogram_quantile(0.95, rate(gateway_request_duration_ms_bucket{route="/wallet/transfer"}[5m])) > 500
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Transfer p95 latency above 500ms"
