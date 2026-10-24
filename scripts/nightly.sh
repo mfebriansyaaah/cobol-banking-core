@@ -38,6 +38,10 @@ BR_LOG="$OUT_DIR/backup-restore-${STAMP}.log"
 echo "nightly: running the full backup/restore round-trip (log: $BR_LOG)"
 if env -u BACKUP_TABLES ./tests/test_backup_restore.sh >"$BR_LOG" 2>&1; then
     echo "nightly: full backup/restore OK"
+
+# Retain only the last RETENTION_DAYS (default 7) of logical backups.
+echo "nightly: applying backup retention"
+RETENTION_DAYS="${RETENTION_DAYS:-7}" ./scripts/backup_retention.sh
 else
     echo "nightly: FULL BACKUP/RESTORE FAILED (see $BR_LOG)" >&2
     tail -20 "$BR_LOG" >&2
