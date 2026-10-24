@@ -6,6 +6,13 @@ import { jsonLogger, startMetricsExporter } from './observability.js';
 import { resetPool } from './pool.js';
 
 assertSecureConfig();
+// Production default: use the worker pool (4 workers, 2 in-flight each) unless
+// explicitly overridden. Development and tests keep file mode (size 0) so a
+// missing COBOL_POOL_SIZE does not spawn long-lived processes there.
+if (process.env.NODE_ENV === 'production') {
+  process.env.COBOL_POOL_SIZE ??= '4';
+  process.env.COBOL_POOL_PIPELINE ??= '2';
+}
 // A malformed worker-pool setting must fail at boot, not hang the first request.
 assertPoolConfig();
 const port = process.env.PORT || 3000;
