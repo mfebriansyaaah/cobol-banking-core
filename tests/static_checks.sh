@@ -278,6 +278,6 @@ fi
 echo "OK"
 
 # The tiered-gate scripts are shell; a syntax error there must fail here.
-for f in ci.sh ci-fast.sh build.sh database/migrate.sh scripts/backup.sh scripts/restore.sh scripts/db_table_stats.sh scripts/backup_retention.sh tests/static_checks.sh tests/serve_harness.sh tests/coverage_check.sh scripts/coverage_cobol.sh scripts/sync_main.sh scripts/finalize_slice.sh scripts/nightly.sh; do
+for f in ci.sh ci-fast.sh build.sh database/migrate.sh scripts/backup.sh scripts/restore.sh scripts/db_table_stats.sh scripts/backup_retention.sh scripts/backup_physical.sh tests/static_checks.sh tests/serve_harness.sh tests/coverage_check.sh scripts/coverage_cobol.sh scripts/sync_main.sh scripts/finalize_slice.sh scripts/nightly.sh; do
     bash -n "$f" || { echo "static: shell syntax error in $f"; exit 1; }
 done

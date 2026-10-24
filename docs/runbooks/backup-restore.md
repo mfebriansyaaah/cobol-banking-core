@@ -47,3 +47,19 @@ Keep manifests with the release record (see `../release-checklist.md`).
 Purge schedules, legal holds, and off-site copies require owner
 approval; `audit_trail_archive` and `pending_transactions_archive`
 are the current long-term stores for those streams.
+
+## Physical backup (MariaBackup)
+
+For fast restore (RTO < 30 min), use `scripts/backup_physical.sh` (requires
+`mariadb-backup` package and an admin account or sudo):
+
+```bash
+# full
+sudo DB_ADMIN_USER=root scripts/backup_physical.sh
+# incremental (base = previous full or incr dir)
+sudo DB_ADMIN_USER=root scripts/backup_physical.sh --incremental backups/physical/full-<stamp>
+# retention of logical backups still handled by scripts/backup_retention.sh
+```
+
+Restore from a physical backup: stop MariaDB, replace data dir with the backup
+(prepared with `mariabackup --prepare`), start MariaDB. See MariaDB docs.
