@@ -4,97 +4,13 @@ import { randomUUID } from 'node:crypto';
 import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
+import { ALL_ROUTES } from './routes/index.js';
 import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, signStepUp, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText, recordError, recordAuthFailure } from './observability.js';
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
-import { REF_ENGINE_ROUTES } from './routes/ref_engine.js';
-import { GL_ROUTES } from './routes/gl.js';
-import { BATCH_ROUTES } from './routes/batch.js';
-import { REPORT_ROUTES } from './routes/report.js';
-import { IMPORT_ROUTES } from './routes/import.js';
-import { FEE_ROUTES } from './routes/fee.js';
-import { EOD_ROUTES } from './routes/eod.js';
-import { STATEMENT_ROUTES } from './routes/statement.js';
-import { EOD_JOB_ROUTES } from './routes/eod_jobs.js';
-import { REF_EXT_ROUTES } from './routes/ref_ext.js';
-import { NOTIFICATION_ROUTES } from './routes/notification.js';
-import { PAYMENT_ROUTES } from './routes/payment.js';
-import { RECON_ROUTES } from './routes/recon.js';
-import { REPORT_DELIVERY_ROUTES } from './routes/report_delivery.js';
-import { DISPUTE_OPS_ROUTES } from './routes/dispute_ops.js';
-import { EXPORT_ARCHIVE_ROUTES } from './routes/export_archive.js';
-import { RECON_OPS_ROUTES } from './routes/recon_ops.js';
-import { ALERT_ROUTES } from './routes/alerts.js';
-import { DASHBOARD_ROUTES } from './routes/dashboard.js';
-import { AUDIT_ANALYTICS_ROUTES } from './routes/audit_analytics.js';
-import { IMPORT_RECON_ROUTES } from './routes/import_recon.js';
-import { RECON_EXCEPTION_ROUTES } from './routes/recon_exception.js';
-import { DISPUTE_NOTIFY_ROUTES } from './routes/dispute_notify.js';
-import { EXPORT_STREAM_ROUTES } from './routes/export_stream.js';
-import { ALERT_ESCALATION_ROUTES } from './routes/alert_escalation.js';
-import { AUDIT_DRILLDOWN_ROUTES } from './routes/audit_drilldown.js';
-import { COMPLIANCE_EXPORT_ROUTES } from './routes/compliance_export.js';
-import { PAYMENT_HOLD_ROUTES } from './routes/payment_hold.js';
-import { ONCALL_DELIVERY_ROUTES } from './routes/oncall_delivery.js';
-import { COMPLIANCE_RETENTION_ROUTES } from './routes/compliance_retention.js';
-import { LEGAL_HOLD_ROUTES } from './routes/legal_hold.js';
-import { KEY_ROTATION_ROUTES } from './routes/key_rotation.js';
-import { DSAR_ROUTES } from './routes/dsar.js';
-import { RETENTION_JOB_ROUTES } from './routes/retention_job.js';
-import { REPORT_SCHEDULER_ROUTES } from './routes/report_scheduler.js';
-import { AUDIT_SNAPSHOT_ROUTES } from './routes/audit_snapshot.js';
-import { REPORT_ARCHIVE_ROUTES } from './routes/report_archive.js';
-import { FRAUD_OPS_ROUTES } from './routes/fraud_ops.js';
-import { LBPUE_ROUTES } from './routes/lbpue.js';
-import { KYC_REVIEW_ROUTES } from './routes/kyc_review.js';
-import { REGULATORY_REPORT_ROUTES } from './routes/regulatory_report.js';
-import { LOAN_ROUTES } from './routes/loan.js';
-import { DEPOSIT_ROUTES } from './routes/deposit.js';
-import { CARD_ROUTES } from './routes/card.js';
-import { TAX_REPORT_ROUTES } from './routes/tax_report.js';
-import { FEE_WAIVER_ROUTES } from './routes/fee_waiver.js';
-import { LIMIT_PROFILE_ROUTES } from './routes/limit_profile.js';
-import { GL_REVAL_ROUTES } from './routes/gl_reval.js';
-import { GL_PERIOD_CLOSE_ROUTES } from './routes/gl_period_close.js';
-import { SANCTIONS_HOLD_ROUTES } from './routes/sanctions_hold.js';
-import { KYC_ROUTES } from './routes/kyc.js';
-import { RISK_SCREENING_ROUTES } from './routes/risk_screening.js';
-import { POLICY_ATTESTATION_ROUTES } from './routes/policy_attestation.js';
-import { REGULATORY_CALENDAR_ROUTES } from './routes/regulatory_calendar.js';
-import { VENDOR_ROUTES } from './routes/vendor.js';
-import { ASSET_ROUTES } from './routes/asset.js';
-import { VENDOR_RISK_ROUTES } from './routes/vendor_risk.js';
-import { ASSET_MAINTENANCE_ROUTES } from './routes/asset_maintenance.js';
-import { BUDGET_ROUTES } from './routes/budget.js';
-import { PROCUREMENT_ROUTES } from './routes/procurement.js';
-import { FX_DEAL_ROUTES } from './routes/fx_deal.js';
-import { TREASURY_POSITION_ROUTES } from './routes/treasury_position.js';
-import { SETTLEMENT_RECON_ROUTES } from './routes/settlement_recon.js';
-import { STATEMENT_DELIVERY_ROUTES } from './routes/statement_delivery.js';
-import { STATEMENT_RECON_ROUTES } from './routes/statement_recon.js';
-import { PAYMENT_INSTRUCTION_ROUTES } from './routes/payment_instructions.js';
-import { ONCALL_ROUTES } from './routes/oncall.js';
-import { SLO_REPORT_ROUTES } from './routes/slo_report.js';
-import { PIPELINE_ALERT_ROUTES } from './routes/pipeline_alert.js';
-import { INCIDENT_ROUTES } from './routes/incident.js';
-import { CHANGE_CONTROL_ROUTES } from './routes/change_control.js';
-import { BACKUP_RESTORE_ROUTES } from './routes/backup_restore.js';
-import { SECRET_ROTATION_ROUTES } from './routes/secret_rotation.js';
-import { DISASTER_RECOVERY_ROUTES } from './routes/disaster_recovery.js';
-import { CAPACITY_PLAN_ROUTES } from './routes/capacity_plan.js';
-import { AUDIT_RETENTION_ROUTES } from './routes/audit_retention.js';
-import { COMPLIANCE_AUDIT_ROUTES } from './routes/compliance_audit.js';
-import { VENDOR_COMPLIANCE_ROUTES } from './routes/vendor_compliance.js';
-import { DATA_QUALITY_ROUTES } from './routes/data_quality.js';
-import { NOTIFICATION_AUDIT_ROUTES } from './routes/notification_audit.js';
-import { REPORT_AUDIT_ROUTES } from './routes/report_audit.js';
-import { DATA_RETENTION_ROUTES } from './routes/data_retention.js';
-import { ACCESS_AUDIT_ROUTES } from './routes/access_audit.js';
-import { BACKUP_VERIFICATION_ROUTES } from './routes/backup_verification.js';
-import { SLA_TRACKING_ROUTES } from './routes/sla_tracking.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -112,91 +28,7 @@ const AUTH_FAILURE_CODES = new Set([
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
 // names the field filled from the verified token, never from the request body.
 export const ROUTES = [
-  ...REF_ENGINE_ROUTES,
-  ...GL_ROUTES,
-  ...BATCH_ROUTES,
-  ...REPORT_ROUTES,
-  ...IMPORT_ROUTES,
-  ...FEE_ROUTES,
-  ...EOD_ROUTES,
-  ...STATEMENT_ROUTES,
-  ...EOD_JOB_ROUTES,
-  ...REF_EXT_ROUTES,
-  ...NOTIFICATION_ROUTES,
-  ...PAYMENT_ROUTES,
-  ...RECON_ROUTES,
-  ...REPORT_DELIVERY_ROUTES,
-  ...DISPUTE_OPS_ROUTES,
-  ...EXPORT_ARCHIVE_ROUTES,
-  ...RECON_OPS_ROUTES,
-  ...ALERT_ROUTES,
-  ...DASHBOARD_ROUTES,
-  ...AUDIT_ANALYTICS_ROUTES,
-  ...IMPORT_RECON_ROUTES,
-  ...RECON_EXCEPTION_ROUTES,
-  ...DISPUTE_NOTIFY_ROUTES,
-  ...EXPORT_STREAM_ROUTES,
-  ...ALERT_ESCALATION_ROUTES,
-  ...AUDIT_DRILLDOWN_ROUTES,
-  ...COMPLIANCE_EXPORT_ROUTES,
-  ...PAYMENT_HOLD_ROUTES,
-  ...ONCALL_DELIVERY_ROUTES,
-  ...COMPLIANCE_RETENTION_ROUTES,
-  ...LEGAL_HOLD_ROUTES,
-  ...KEY_ROTATION_ROUTES,
-  ...DSAR_ROUTES,
-  ...RETENTION_JOB_ROUTES,
-  ...REPORT_SCHEDULER_ROUTES,
-  ...AUDIT_SNAPSHOT_ROUTES,
-  ...REPORT_ARCHIVE_ROUTES,
-  ...FRAUD_OPS_ROUTES,
-  ...LBPUE_ROUTES,
-  ...KYC_REVIEW_ROUTES,
-  ...REGULATORY_REPORT_ROUTES,
-  ...LOAN_ROUTES,
-  ...DEPOSIT_ROUTES,
-  ...CARD_ROUTES,
-  ...TAX_REPORT_ROUTES,
-  ...FEE_WAIVER_ROUTES,
-  ...LIMIT_PROFILE_ROUTES,
-  ...GL_REVAL_ROUTES,
-  ...GL_PERIOD_CLOSE_ROUTES,
-  ...SANCTIONS_HOLD_ROUTES,
-  ...KYC_ROUTES,
-  ...RISK_SCREENING_ROUTES,
-  ...POLICY_ATTESTATION_ROUTES,
-  ...REGULATORY_CALENDAR_ROUTES,
-  ...VENDOR_ROUTES,
-  ...ASSET_ROUTES,
-  ...VENDOR_RISK_ROUTES,
-  ...ASSET_MAINTENANCE_ROUTES,
-  ...BUDGET_ROUTES,
-  ...PROCUREMENT_ROUTES,
-  ...FX_DEAL_ROUTES,
-  ...TREASURY_POSITION_ROUTES,
-  ...SETTLEMENT_RECON_ROUTES,
-  ...STATEMENT_DELIVERY_ROUTES,
-  ...STATEMENT_RECON_ROUTES,
-  ...PAYMENT_INSTRUCTION_ROUTES,
-  ...ONCALL_ROUTES,
-  ...SLO_REPORT_ROUTES,
-  ...PIPELINE_ALERT_ROUTES,
-  ...INCIDENT_ROUTES,
-  ...CHANGE_CONTROL_ROUTES,
-  ...BACKUP_RESTORE_ROUTES,
-  ...SECRET_ROTATION_ROUTES,
-  ...DISASTER_RECOVERY_ROUTES,
-  ...CAPACITY_PLAN_ROUTES,
-  ...AUDIT_RETENTION_ROUTES,
-  ...COMPLIANCE_AUDIT_ROUTES,
-  ...VENDOR_COMPLIANCE_ROUTES,
-  ...DATA_QUALITY_ROUTES,
-  ...NOTIFICATION_AUDIT_ROUTES,
-  ...REPORT_AUDIT_ROUTES,
-  ...DATA_RETENTION_ROUTES,
-  ...ACCESS_AUDIT_ROUTES,
-  ...BACKUP_VERIFICATION_ROUTES,
-  ...SLA_TRACKING_ROUTES,
+  ...ALL_ROUTES,
   { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
