@@ -16,7 +16,7 @@ Status is derived from merged slices and the module files present under
 
 This is the executable PR plan for adding curated COBOL without growing the
 generated module, then finishing the production-grade phases. Each code PR
-has **at least two modules**; a PR may carry three or four when the modules
+has **at least three modules**; a PR may carry four or more when the modules
 belong to one domain and the combined net stays reviewable.
 
 ## 1. Current baseline (2026-10-23)
@@ -51,7 +51,7 @@ belong to one domain and the combined net stays reviewable.
 | Total COBOL after cut-over | **>= 60,000** |
 | Generated COBOL after cut-over | **0** |
 | Non-generated net | **>= 100,000** |
-| Each code PR | **>= 2 modules**, combined net 5,000-9,000 |
+| Each code PR | **>= 3 modules**, combined net 5,000-9,000 |
 
 Three volume PRs of three modules each add about **18,000** curated net
 (49,832 -> ~67,832). Two later PRs add about **8,000** more. After the
