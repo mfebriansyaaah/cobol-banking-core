@@ -25,6 +25,9 @@
         01  WS-P6-LEN               PIC 9(3) VALUE 1.
         01  WS-I                   PIC 9(3).
         01  WS-J                    PIC 9(5) VALUE 0.
+        01  WS-TRIM-IDX             PIC 9     VALUE 0.
+        01  WS-TRIM-SRC             PIC X(100) VALUE SPACES.
+        01  WS-TRIM-CNT             PIC 9(3)  VALUE 0.
         01  WS-CHECK                PIC X(100) VALUE SPACES.
         01  WS-AMT-DOTS            PIC 9(2) VALUE 0.
         01  WS-AMT-DIGITS          PIC 9(2) VALUE 0.
@@ -196,120 +199,74 @@
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
         
         MAIN-LOGIC.
+            *> Initialize critical WORKING-STORAGE (for --serve mode):
+            MOVE "OK  " TO WS-TRANSFER-STATE
+            SET WS-TRANSFER-OK TO TRUE
+            MOVE "Y" TO WS-CAP-OK
+            MOVE "0" TO WS-BUSY
+            MOVE 0 TO WS-PREC-NUM
+            MOVE 0 TO WS-ALLOWED
+            MOVE "1" TO WS-STEP
+            SET STEP-OK TO TRUE
+            MOVE "0" TO WS-FX-HAS
+            MOVE 0 TO WS-BAD
+            MOVE 0 TO WS-P1-LEN
+            MOVE 0 TO WS-P2-LEN
+            MOVE 0 TO WS-P3-LEN
+            MOVE 0 TO WS-P4-LEN
+            MOVE 0 TO WS-P5-LEN
+            MOVE 0 TO WS-P6-LEN
+            MOVE 0 TO WS-CAP-LEN
+            MOVE 0 TO WS-AMT-DOTS
+            MOVE 0 TO WS-AMT-DIGITS
+            MOVE 0 TO WS-AMT-FRAC
+            MOVE "0" TO WS-AMT-SEEN-DOT
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 GOBACK
             END-IF
+            PERFORM TRIM-ALL
             EVALUATE TRUE
                 WHEN LS-CMD-ACTION(1:13) = "CHECK_BALANCE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM GET-BALANCE-LOGIC
                 WHEN LS-CMD-ACTION(1:16) = "REVERSE_TRANSFER"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
                     PERFORM REVERSE-TRANSFER-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "TX_STATUS"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM TRANSFER-STATUS-LOGIC
                 WHEN LS-CMD-ACTION(1:8) = "TRANSFER"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
-                    PERFORM TRIM-PARAM5
-                    PERFORM TRIM-PARAM6
                     PERFORM TRANSFER-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "RECONCILE"
-                    PERFORM TRIM-PARAM1
                     PERFORM RECONCILE-LOGIC
                 WHEN LS-CMD-ACTION(1:18) = "RUN_RECONCILIATION"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
                     PERFORM RUN-RECONCILIATION-LOGIC
                 WHEN LS-CMD-ACTION(1:20) = "LIST_RECONCILIATIONS"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM LIST-RECONCILIATIONS-LOGIC
                 WHEN LS-CMD-ACTION(1:15) = "LIST_EXCEPTIONS"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
                     PERFORM LIST-EXCEPTIONS-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "ACK_EXCEPTION"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
                     PERFORM ACK-EXCEPTION-LOGIC
                 WHEN LS-CMD-ACTION(1:17) = "RESOLVE_EXCEPTION"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM RESOLVE-EXCEPTION-LOGIC
                 WHEN LS-CMD-ACTION(1:10) = "PLACE_HOLD"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
-                    PERFORM TRIM-PARAM5
-                    PERFORM TRIM-PARAM6
                     PERFORM PLACE-HOLD-LOGIC
                 WHEN LS-CMD-ACTION(1:12) = "RELEASE_HOLD"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
                     PERFORM RELEASE-HOLD-LOGIC
                 WHEN LS-CMD-ACTION(1:12) = "OPEN_DISPUTE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
-                    PERFORM TRIM-PARAM5
                     PERFORM OPEN-DISPUTE-LOGIC
                 WHEN LS-CMD-ACTION(1:16) = "ADD_DISPUTE_NOTE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM ADD-DISPUTE-NOTE-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "ACK_DISPUTE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM ACK-DISPUTE-LOGIC
                 WHEN LS-CMD-ACTION(1:15) = "RESOLVE_DISPUTE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM RESOLVE-DISPUTE-LOGIC
                 WHEN LS-CMD-ACTION(1:14) = "REJECT_DISPUTE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
                     PERFORM REJECT-DISPUTE-LOGIC
                 WHEN LS-CMD-ACTION(1:13) = "LIST_DISPUTES"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
-                    PERFORM TRIM-PARAM5
                     PERFORM LIST-DISPUTES-LOGIC
                 WHEN LS-CMD-ACTION(1:11) = "GET_DISPUTE"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
                     PERFORM GET-DISPUTE-LOGIC
                 WHEN LS-CMD-ACTION(1:9) = "STATEMENT"
-                    PERFORM TRIM-PARAM1
-                    PERFORM TRIM-PARAM2
-                    PERFORM TRIM-PARAM3
-                    PERFORM TRIM-PARAM4
-                    PERFORM TRIM-PARAM5
-                    PERFORM TRIM-PARAM6
                     PERFORM STATEMENT-LOGIC
                 WHEN OTHER
                     MOVE 4 TO WS-EXIT-CODE
@@ -322,75 +279,76 @@
             MOVE 0 TO WS-BAD
             MOVE LS-PARAM1 TO WS-CHECK
             PERFORM VALIDATE-INPUT
+            IF WS-BAD > 0
+                EXIT PARAGRAPH
+            END-IF.
             MOVE LS-PARAM2 TO WS-CHECK
             PERFORM VALIDATE-INPUT
+            IF WS-BAD > 0
+                EXIT PARAGRAPH
+            END-IF.
             MOVE LS-PARAM3 TO WS-CHECK
             PERFORM VALIDATE-INPUT
+            IF WS-BAD > 0
+                EXIT PARAGRAPH
+            END-IF.
             MOVE LS-PARAM4 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            IF WS-BAD > 0
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE LS-PARAM5 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            IF WS-BAD > 0
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE LS-PARAM6 TO WS-CHECK
             PERFORM VALIDATE-INPUT.
             EXIT PARAGRAPH.
 
         VALIDATE-INPUT.
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-QUOTE
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-DQUOTE
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-BSLASH
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-SEMI
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-TICK.
+            INSPECT WS-CHECK TALLYING WS-BAD
+                FOR ALL F-QUOTE
+                WS-BAD FOR ALL F-DQUOTE
+                WS-BAD FOR ALL F-BSLASH
+                WS-BAD FOR ALL F-SEMI
+                WS-BAD FOR ALL F-TICK.
             EXIT PARAGRAPH.
 
-        TRIM-PARAM1.
-            MOVE LS-PARAM1 TO WS-PARAM1-TRIMMED.
-            MOVE 0 TO WS-P1-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P1-LEN > 0
-                IF WS-PARAM1-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P1-LEN
-                END-IF
-            END-PERFORM.
+        TRIM-ALL.
+            PERFORM TRIM-ONE VARYING WS-TRIM-IDX FROM 1 BY 1
+                    UNTIL WS-TRIM-IDX > 6.
 
-        TRIM-PARAM2.
-            MOVE LS-PARAM2 TO WS-PARAM2-TRIMMED.
-            MOVE 0 TO WS-P2-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P2-LEN > 0
-                IF WS-PARAM2-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P2-LEN
+        TRIM-ONE.
+            EVALUATE WS-TRIM-IDX
+                WHEN 1 MOVE LS-PARAM1 TO WS-TRIM-SRC
+                WHEN 2 MOVE LS-PARAM2 TO WS-TRIM-SRC
+                WHEN 3 MOVE LS-PARAM3 TO WS-TRIM-SRC
+                WHEN 4 MOVE LS-PARAM4 TO WS-TRIM-SRC
+                WHEN 5 MOVE LS-PARAM5 TO WS-TRIM-SRC
+                WHEN 6 MOVE LS-PARAM6 TO WS-TRIM-SRC
+            END-EVALUATE
+            MOVE 0 TO WS-TRIM-CNT
+            PERFORM VARYING WS-I FROM 100 BY -1
+                    UNTIL WS-I < 1 OR WS-TRIM-CNT > 0
+                IF WS-TRIM-SRC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-TRIM-CNT
                 END-IF
-            END-PERFORM.
-
-        TRIM-PARAM3.
-            MOVE LS-PARAM3 TO WS-PARAM3-TRIMMED.
-            MOVE 0 TO WS-P3-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P3-LEN > 0
-                IF WS-PARAM3-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P3-LEN
-                END-IF
-            END-PERFORM.
-
-        TRIM-PARAM4.
-            MOVE LS-PARAM4 TO WS-PARAM4-TRIMMED.
-            MOVE 0 TO WS-P4-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
-                IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P4-LEN
-                END-IF
-            END-PERFORM.
-
-        TRIM-PARAM5.
-            MOVE LS-PARAM5 TO WS-PARAM5-TRIMMED.
-            MOVE 0 TO WS-P5-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P5-LEN > 0
-                IF WS-PARAM5-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P5-LEN
-                END-IF
-            END-PERFORM.
-
-        TRIM-PARAM6.
-            MOVE LS-PARAM6 TO WS-PARAM6-TRIMMED.
-            MOVE 0 TO WS-P6-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P6-LEN > 0
-                IF WS-PARAM6-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P6-LEN
-                END-IF
-            END-PERFORM.
+            END-PERFORM
+            EVALUATE WS-TRIM-IDX
+                WHEN 1 MOVE WS-TRIM-SRC TO WS-PARAM1-TRIMMED
+                       MOVE WS-TRIM-CNT TO WS-P1-LEN
+                WHEN 2 MOVE WS-TRIM-SRC TO WS-PARAM2-TRIMMED
+                       MOVE WS-TRIM-CNT TO WS-P2-LEN
+                WHEN 3 MOVE WS-TRIM-SRC TO WS-PARAM3-TRIMMED
+                       MOVE WS-TRIM-CNT TO WS-P3-LEN
+                WHEN 4 MOVE WS-TRIM-SRC TO WS-PARAM4-TRIMMED
+                       MOVE WS-TRIM-CNT TO WS-P4-LEN
+                WHEN 5 MOVE WS-TRIM-SRC TO WS-PARAM5-TRIMMED
+                       MOVE WS-TRIM-CNT TO WS-P5-LEN
+                WHEN 6 MOVE WS-TRIM-SRC TO WS-PARAM6-TRIMMED
+                       MOVE WS-TRIM-CNT TO WS-P6-LEN
+            END-EVALUATE.
 
         ALLOW-READ.
             *> Sets WS-ALLOWED when the actor (p2) owns the target (p1) or is an admin.
@@ -435,8 +393,21 @@
             EXIT PARAGRAPH.
 
         AUDIT-DENIED.
-            *> Records a refused authorization attempt for WS-DENIED-ACTOR;
-            *> unknown actors produce no row. Best-effort.
+            *> Records a refused authorization attempt reliably, even for unknown actors.
+            *> Uses audit_authz_denied (no FK to users) for guaranteed logging,
+            *> plus audit_trail (existing) for compatibility if the actor exists.
+            *> K13 fix: audit denied best-effort → reliable.
+            MOVE "INSERT INTO audit_authz_denied (action, actor_email, target_email, target_entity_type, target_entity_id, detail, source) VALUES (?, ?, ?, 'USER', ?, ?, 'WALLET')" TO WS-PREP-SQL
+            MOVE LS-CMD-ACTION TO WS-BIND-1
+            MOVE WS-DENIED-ACTOR TO WS-BIND-2
+            MOVE WS-DENIED-TARGET TO WS-BIND-3
+            MOVE WS-DENIED-TARGET TO WS-BIND-4
+            MOVE LS-CMD-ACTION TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            *> Compatibility: also log to existing audit_trail if actor exists (best effort):
             MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT a.id, a.id, 'AUTHZ_DENIED', 'USER', ?, ?, 'FAILED' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
             MOVE LS-CMD-ACTION TO WS-BIND-1
             MOVE WS-DENIED-TARGET TO WS-BIND-2
@@ -516,8 +487,12 @@
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                IF WS-RESULT = "ERROR|NO_DATA"
-                    MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                IF WS-RESULT(1:5) = "ERROR"
+                    IF WS-RESULT = "ERROR|NO_DATA"
+                        MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                    ELSE
+                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    END-IF
                     EXIT PARAGRAPH
                 END-IF
                 UNSTRING WS-RESULT DELIMITED BY "|"
@@ -541,7 +516,14 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT NOT = "ERROR|NO_DATA"
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    CONTINUE
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            ELSE
                 MOVE "ERROR|ALREADY_REVERSED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -554,8 +536,12 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT = "ERROR|NO_DATA"
-                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
                 EXIT PARAGRAPH
             END-IF
             UNSTRING WS-RESULT DELIMITED BY "|"
@@ -568,8 +554,12 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            IF WS-RESULT = "ERROR|NO_DATA"
-                MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
                 EXIT PARAGRAPH
             END-IF
             UNSTRING WS-RESULT DELIMITED BY "|"
@@ -650,7 +640,7 @@
             *> Lock both original accounts (ordered) before touching balances.
             PERFORM LOCK-ACCOUNTS
             IF WS-TRANSFER-FAIL-DB
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -669,7 +659,7 @@
             PERFORM PARSE-MAJOR
             MOVE WS-PARSE-NUM TO WS-REV-CAMT-NUM
             IF WS-BALANCE-NUM < WS-REV-CAMT-NUM
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -900,10 +890,16 @@
                 PERFORM POST-FEE-REFUND
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT"
+                CALL "SQL_COMMIT" END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT NOT = "SUCCESS|COMMIT"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
                 MOVE "SUCCESS|TRANSFER_REVERSED" TO LS-OUTPUT-BUFFER
             ELSE
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|REVERSAL_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
@@ -1319,14 +1315,14 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT"
+                CALL "SQL_COMMIT" END-CALL
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|DISPUTE_OPENED|" DELIMITED BY SIZE
                        WS-DSP-CASE DELIMITED BY SPACE
                        INTO LS-OUTPUT-BUFFER
                 END-STRING
             ELSE
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
@@ -1473,10 +1469,10 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT"
+                CALL "SQL_COMMIT" END-CALL
                 MOVE "SUCCESS|DISPUTE_ACKNOWLEDGED" TO LS-OUTPUT-BUFFER
             ELSE
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 IF WS-RESULT = "SUCCESS|AFFECTED_0"
                     MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 ELSE
@@ -1539,10 +1535,10 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT"
+                CALL "SQL_COMMIT" END-CALL
                 MOVE "SUCCESS|DISPUTE_RESOLVED" TO LS-OUTPUT-BUFFER
             ELSE
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 IF WS-RESULT = "SUCCESS|AFFECTED_0"
                     MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 ELSE
@@ -1605,10 +1601,10 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT"
+                CALL "SQL_COMMIT" END-CALL
                 MOVE "SUCCESS|DISPUTE_REJECTED" TO LS-OUTPUT-BUFFER
             ELSE
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 IF WS-RESULT = "SUCCESS|AFFECTED_0"
                     MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 ELSE
@@ -1927,7 +1923,7 @@
             IF WS-AMT-DOTS > 1 OR WS-HOLD-FRAC > 4 OR WS-AMT-DIGITS < 1
                 SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
             END-IF.
-            IF WS-AMT-DIGITS > 15
+            IF WS-AMT-DIGITS > 18
                 SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-AMOUNT
@@ -1999,6 +1995,9 @@
                      WS-SENDER-STATUS WS-SENDER-CURACTIVE WS-SENDER-PREC
                      WS-SENDER-ISO
             END-UNSTRING
+            IF WS-SENDER-STATUS = "FROZEN"
+                SET WS-TRANSFER-FAIL-FROZEN TO TRUE
+            END-IF.
             IF WS-SENDER-STATUS = "CLOSED"
                 SET WS-TRANSFER-FAIL-CLOSED TO TRUE
             END-IF.
@@ -2073,6 +2072,7 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-DB
+                CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT CONCAT(balance, '|', COALESCE((SELECT SUM(amount) FROM account_holds WHERE account_id = a.account_id AND state = 'PLACED' AND (expires_at IS NULL OR expires_at > NOW())),0)) FROM accounts a WHERE a.account_id = ?" TO WS-PREP-SQL
@@ -2097,7 +2097,7 @@
             PERFORM PARSE-MAJOR
             MOVE WS-PARSE-NUM TO WS-HELD-NUM
             IF WS-HELD-NUM + WS-HOLD-AMOUNT-NUM > WS-HOLD-BAL-NUM
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 SET WS-TRANSFER-FAIL-INSUF TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-INSUF
@@ -2116,6 +2116,7 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-DB
+                CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
@@ -2143,9 +2144,15 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-DB
+                CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT"
+            CALL "SQL_COMMIT" END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT NOT = "SUCCESS|COMMIT"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
             EXIT PARAGRAPH.
 
         FILL-HOLD-REMAINING-BINDS.
@@ -2182,6 +2189,7 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-DB
+                CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT state FROM account_holds WHERE hold_id = ?" TO WS-PREP-SQL
@@ -2191,7 +2199,7 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "PLACED"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 SET WS-TRANSFER-FAIL-CONFLICT TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-CONFLICT
@@ -2207,6 +2215,7 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-DB
+                CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
             MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, 'RELEASE_HOLD', 'ACCOUNT', ?, 'SUCCESS' FROM account_holds h JOIN accounts ac ON ac.account_id = h.account_id JOIN users u ON u.id = ac.user_id, users a WHERE h.hold_id = ? AND a.email = ?" TO WS-PREP-SQL
@@ -2221,9 +2230,15 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-DB
+                CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT"
+            CALL "SQL_COMMIT" END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT NOT = "SUCCESS|COMMIT"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
             EXIT PARAGRAPH.
 
         VALIDATE-AMOUNT.
@@ -2257,7 +2272,7 @@
                 END-IF
             END-PERFORM
             IF WS-AMT-DOTS > 1 OR WS-AMT-FRAC > 4 OR WS-AMT-DIGITS < 1
-                OR WS-AMT-DIGITS > 15
+                OR WS-AMT-DIGITS > 18
                 SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
             END-IF.
             EXIT PARAGRAPH.
@@ -3052,7 +3067,7 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3070,7 +3085,7 @@
                 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3080,7 +3095,7 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3093,12 +3108,12 @@
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
                 IF WS-RESULT(1:5) = "ERROR"
-                    CALL "SQL_ROLLBACK"
+                    CALL "SQL_ROLLBACK" END-CALL
                     MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
                 END-IF
             END-IF.
-            CALL "SQL_COMMIT"
+            CALL "SQL_COMMIT" END-CALL
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|RUN_RECORDED|" WS-RUN-ID DELIMITED BY SPACE
                    "|" DELIMITED BY SIZE WS-RUN-COUNT DELIMITED BY SPACE
@@ -3268,7 +3283,7 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3279,7 +3294,7 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "OPEN"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3291,7 +3306,7 @@
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3303,11 +3318,11 @@
                 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-2
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT"
+            CALL "SQL_COMMIT" END-CALL
             MOVE "SUCCESS|EXCEPTION_ACKNOWLEDGED" TO LS-OUTPUT-BUFFER
             EXIT PARAGRAPH.
 
@@ -3349,7 +3364,7 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3360,7 +3375,7 @@
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT NOT = "ACKNOWLEDGED"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|UNKNOWN_TRANSACTION" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3382,7 +3397,7 @@
             END-IF.
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -3395,11 +3410,11 @@
                 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-3
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:5) = "ERROR"
-                CALL "SQL_ROLLBACK"
+                CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT"
+            CALL "SQL_COMMIT" END-CALL
             MOVE "SUCCESS|EXCEPTION_RESOLVED" TO LS-OUTPUT-BUFFER
             EXIT PARAGRAPH.
 
@@ -3486,26 +3501,9 @@
                     END-IF
                 END-IF
             END-IF
-            *> Housekeeping: bound the idempotency table. Intents older than the
-            *> retention window (default 30 days, 0 disables) are moved to the
-            *> archive, so the replay guarantee is a bounded window but history
-            *> is preserved.
-            MOVE SPACES TO WS-RET-STR
-            CALL "env_or" USING BY REFERENCE "PENDING_RETENTION_DAYS" BY REFERENCE "30" BY REFERENCE WS-RET-STR
-            IF WS-RET-STR(1:1) >= "1" AND WS-RET-STR(1:1) <= "9"
-                MOVE SPACES TO WS-PREP-SQL
-                STRING "INSERT IGNORE INTO pending_transactions_archive (id, txn_ref, from_email, to_email, amount, status, created_at, updated_at) SELECT id, txn_ref, from_email, to_email, amount, status, created_at, updated_at FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL " WS-RET-STR " DAY)" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-PREP-SQL
-                CALL "SQL_EXECUTE"
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-                MOVE SPACES TO WS-PREP-SQL
-                STRING "DELETE FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL " WS-RET-STR " DAY)" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-PREP-SQL
-                CALL "SQL_EXECUTE"
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
-            END-IF
+            *> Retention of pending_transactions is an out-of-band EOD job
+            *> (EODJOB_PENDING_PURGE). It must never run inside a money
+            *> transaction: it locks idempotency rows and bloats the undo log.
             SET WS-TRANSFER-OK TO TRUE
             MOVE "0" TO WS-FX-HAS
             MOVE SPACES TO WS-FX-CRED
@@ -3522,6 +3520,10 @@
             *> reference. Without one, mint a collision-resistant reference
             *> (date+time to hundredths, plus a secure random suffix).
             IF LS-PARAM4 NOT = SPACES
+                IF WS-P4-LEN > 50
+                    MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
                 MOVE WS-PARAM4-TRIMMED(1:WS-P4-LEN) TO WS-REF
                 MOVE WS-P4-LEN TO WS-REFLEN
             ELSE
@@ -3565,8 +3567,14 @@
                            AND WS-INTENT-TO(1:WS-P2-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
                            AND WS-INTENT-AMOUNT-NUM = WS-AMOUNT-NUM
                             IF WS-INTENT-STATUS(1:9) = "COMMITTED"
-                                CALL "SQL_COMMIT"
-                                MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+                                CALL "SQL_COMMIT" END-CALL
+                                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                                IF WS-RESULT NOT = "SUCCESS|COMMIT"
+                                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                                ELSE
+                                    MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+                                END-IF
                                 EXIT PARAGRAPH
                             ELSE
                                 SET WS-TRANSFER-FAIL-IDEMP TO TRUE
@@ -3728,6 +3736,10 @@
             IF WS-TRANSFER-OK
                 PERFORM LOCK-ACCOUNTS
             END-IF
+            *> Note: post-lock plain re-reads are not used here. Under READ
+            *> COMMITTED (set in sql_bridge.c) the locked rows are read with
+            *> SELECT ... FOR UPDATE if needed; the invariants below are also
+            *> enforced by the guarded UPDATE in the posting step.
             
             *> Expire stale holds, then read the spendable (available) balance:
             *> ledger balance minus live PLACED holds, at full precision.
@@ -3858,6 +3870,7 @@
                 PERFORM PARSE-MAJOR
                 MOVE WS-PARSE-NUM TO WS-DAILY-LIMIT-NUM
             END-IF.
+            *> Check daily limit & payment policy inside locked transaction scope:
             IF WS-TRANSFER-OK AND WS-DAILY-LIMIT-NUM > 0
                 PERFORM CHECK-DAILY-TOTAL
             END-IF.
@@ -4043,67 +4056,54 @@
             END-IF.
             *> Commit or roll back the whole movement.
             IF WS-TRANSFER-OK
-                CALL "SQL_COMMIT"
-                MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+                CALL "SQL_COMMIT" END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT NOT = "SUCCESS|COMMIT"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+                IF WS-TRANSFER-FAIL-DB
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+                END-IF
             ELSE
-                CALL "SQL_ROLLBACK"
                 IF WS-TRANSFER-FAIL-DB
                     PERFORM CHECK-TRANSIENT
-                    IF WS-BUSY = "1"
-                        MOVE "ERROR|DB_BUSY" TO LS-OUTPUT-BUFFER
-                    ELSE
-                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-                    END-IF
-                ELSE
-                    IF WS-TRANSFER-FAIL-CONFLICT
-                        MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO LS-OUTPUT-BUFFER
-                    ELSE
-                        IF WS-TRANSFER-FAIL-IDEMP
-                            MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
-                        ELSE
-                            IF WS-TRANSFER-FAIL-AMOUNT
-                                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
-                            ELSE
-                                IF WS-TRANSFER-FAIL-STALE
-                                    MOVE "ERROR|RATE_STALE" TO LS-OUTPUT-BUFFER
-                                ELSE
-                                    IF WS-TRANSFER-FAIL-CURR
-                                        MOVE "ERROR|RATE_NOT_FOUND" TO LS-OUTPUT-BUFFER
-                                    ELSE
-                                        IF WS-TRANSFER-FAIL-SENDER
-                                            MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
-                                        ELSE
-                                            IF WS-TRANSFER-FAIL-TARGET
-                                                MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
-                                            ELSE
-                                                IF WS-TRANSFER-FAIL-FROZEN
-                                                    MOVE "ERROR|ACCOUNT_FROZEN" TO LS-OUTPUT-BUFFER
-                                                ELSE
-                                                    IF WS-TRANSFER-FAIL-CLOSED
-                                                        MOVE "ERROR|ACCOUNT_CLOSED" TO LS-OUTPUT-BUFFER
-                                                    ELSE
-                                                        IF WS-TRANSFER-FAIL-CURINACT
-                                                            MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
-                                                        ELSE
-                                                            IF WS-TRANSFER-FAIL-LIMIT
-                                                                MOVE "ERROR|LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
-                                                            ELSE
-                                                                IF WS-TRANSFER-FAIL-DAILY
-                                                                    MOVE "ERROR|DAILY_LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
-                                                                ELSE
-                                                                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
-                                                                END-IF
-                                                            END-IF
-                                                        END-IF
-                                                    END-IF
-                                                END-IF
-                                            END-IF
-                                        END-IF
-                                    END-IF
-                                END-IF
-                            END-IF
-                        END-IF
-                    END-IF
                 END-IF
+                CALL "SQL_ROLLBACK" END-CALL
+                *> Decision table: flags are mutually exclusive by construction;
+                *> the first match wins. Order reflects business priority.
+                EVALUATE TRUE
+                    WHEN WS-TRANSFER-FAIL-DB AND WS-BUSY = "1"
+                        MOVE "ERROR|DB_BUSY" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-DB
+                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-CONFLICT
+                        MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-IDEMP
+                        MOVE "ERROR|TRANSFER_IN_PROGRESS" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-AMOUNT
+                        MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-STALE
+                        MOVE "ERROR|RATE_STALE" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-CURR
+                        MOVE "ERROR|RATE_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-SENDER
+                        MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-TARGET
+                        MOVE "ERROR|TARGET_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-FROZEN
+                        MOVE "ERROR|ACCOUNT_FROZEN" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-CLOSED
+                        MOVE "ERROR|ACCOUNT_CLOSED" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-CURINACT
+                        MOVE "ERROR|CURRENCY_INACTIVE" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-LIMIT
+                        MOVE "ERROR|LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+                    WHEN WS-TRANSFER-FAIL-DAILY
+                        MOVE "ERROR|DAILY_LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+                    WHEN OTHER
+                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                END-EVALUATE
             END-IF.
             EXIT PARAGRAPH.

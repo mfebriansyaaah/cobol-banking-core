@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS ledger (
     KEY idx_ledger_ref_sender (txn_ref, from_email),
     CONSTRAINT fk_ledger_acc FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE,
     CONSTRAINT fk_ledger_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id),
-    CONSTRAINT fk_ledger_journal FOREIGN KEY (journal_id) REFERENCES gl_journal(id)
+    CONSTRAINT fk_ledger_journal FOREIGN KEY (journal_id) REFERENCES journal_entries(journal_id)
 ) ENGINE=InnoDB;
 
 -- 6b. Immutable ledger archive (rows move here before an account is deleted)
@@ -3054,7 +3054,7 @@ CREATE TABLE IF NOT EXISTS statement_audit (
 CREATE TABLE IF NOT EXISTS eod_job_run (
     id INT AUTO_INCREMENT PRIMARY KEY,
     business_date DATE NOT NULL,
-    job_code ENUM('HOLD_EXPIRY','DORMANT_MARK','DORMANT_SUSPEND','RECON','STATEMENT') NOT NULL,
+    job_code ENUM('HOLD_EXPIRY','DORMANT_MARK','DORMANT_SUSPEND','RECON','STATEMENT','PENDING_PURGE') NOT NULL,
     status ENUM('RUNNING','COMPLETED','FAILED') NOT NULL DEFAULT 'RUNNING',
     processed_count BIGINT NOT NULL DEFAULT 0,
     detail VARCHAR(255) NULL,
@@ -10543,6 +10543,37 @@ CREATE TABLE IF NOT EXISTS vendor_compliance_audit (
     INDEX idx_vendor_compliance_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 2 slice: data quality tracking.
+
+CREATE TABLE IF NOT EXISTS data_quality_rule (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    rule_name VARCHAR(64) NOT NULL,
+    severity ENUM('LOW','MEDIUM','HIGH') NOT NULL DEFAULT 'MEDIUM',
+    status ENUM('ACTIVE','RETIRED') NOT NULL DEFAULT 'ACTIVE',
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_data_quality_rule (rule_name)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS data_quality_run (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    rule_id BIGINT NOT NULL,
+    findings BIGINT NOT NULL DEFAULT 0,
+    status ENUM('RUNNING','COMPLETED','FAILED') NOT NULL DEFAULT 'COMPLETED',
+    run_by VARCHAR(100) NOT NULL,
+    run_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS data_quality_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    rule_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_data_quality_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -10648,7 +10679,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0097_capacity_plan'),
 ('0098_audit_retention'),
 ('0099_compliance_audit'),
-('0100_vendor_compliance');
+('0100_vendor_compliance'),
+('0101_data_quality');
 
 
 -- Indexes

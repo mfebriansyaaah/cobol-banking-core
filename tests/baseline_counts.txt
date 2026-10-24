@@ -147,3 +147,4 @@ capacity_plan_core 6
 audit_retention_core 6
 compliance_audit_core 6
 vendor_compliance_core 6
+data_quality_core 6

@@ -38,7 +38,8 @@ echo "======================================================================"
 
 q "UPDATE accounts SET balance=1000.00,status='ACTIVE' WHERE account_id=1;
    UPDATE accounts SET balance=0.00,status='ACTIVE' WHERE account_id=2;
-   DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM pending_transactions_archive;"
+   DELETE FROM ledger; DELETE FROM pending_transactions; DELETE FROM pending_transactions_archive;
+   DELETE FROM eod_job_run WHERE job_code='PENDING_PURGE';"
 
 # --- audit context -------------------------------------------------------
 check "transfer" "SUCCESS|TRANSFER_OK" "$(run TRANSFER sender@test.com receiver@test.com 12.34 obs-1)"
@@ -51,9 +52,10 @@ check "audit is attributed to the sender" "sender@test.com" \
 q "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status, created_at) VALUES
    ('obs-old','sender@test.com','receiver@test.com', 1.00, 'COMMITTED', DATE_SUB(NOW(), INTERVAL 40 DAY));"
 check "stale intent present before" "1" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-old';")"
-run TRANSFER sender@test.com receiver@test.com 1.00 obs-2 >/dev/null
-check "stale intent pruned on the next transfer" "0" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-old';")"
+run EODJOB_PENDING_PURGE 2099-12-31 '' '' '' '' recon_admin@test.com >/dev/null
+check "stale intent pruned by the EOD job" "0" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-old';")"
 check "stale intent archived (not lost)" "1" "$(q "SELECT COUNT(*) FROM pending_transactions_archive WHERE txn_ref='obs-old';")"
+run TRANSFER sender@test.com receiver@test.com 1.00 obs-2 >/dev/null
 check "fresh intent kept" "1" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-2';")"
 
 q "UPDATE accounts SET balance=1000.00 WHERE account_id=1; UPDATE accounts SET balance=0.00 WHERE account_id=2;

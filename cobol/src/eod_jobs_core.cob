@@ -58,6 +58,8 @@
        01  WS-CODE-LEN             PIC 9(3) VALUE 0.
        01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
        01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
+       01  WS-RET-DAYS             PIC X(10) VALUE SPACES.
+       01  WS-RET-SQL              PIC X(1024) VALUE SPACES.
        01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
        01  WS-CALL-P1              PIC X(100) VALUE SPACES.
        01  WS-CALL-P2              PIC X(100) VALUE SPACES.
@@ -121,6 +123,9 @@
                WHEN LS-CMD-ACTION(1:12) = "EODJOB_LIST"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-JOB-LIST
+               WHEN LS-CMD-ACTION(1:20) = "EODJOB_PENDING_PURGE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-PENDING-PURGE
                WHEN OTHER
                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
            END-EVALUATE.
@@ -422,6 +427,109 @@
            IF STEP-OK
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|EOD_HOLD_EXPIRED|" DELIMITED BY SIZE
+                      WS-JOB-PROCESSED DELIMITED BY SPACE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           ELSE
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-PENDING-PURGE.
+           *> Archive and prune pending_transactions older than the retention
+           *> window. Runs as a bounded EOD job, never inside a money
+           *> transaction, so it cannot extend a transfer's lock/undo scope.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-P1-TRIMMED TO WS-DATE-IN
+           PERFORM VALIDATE-DATE-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "PENDING_PURGE" TO WS-JOB-CODE
+           MOVE "SELECT 1 FROM eod_job_run WHERE business_date = ? AND job_code = 'PENDING_PURGE' LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "1"
+               MOVE "ERROR|JOB_ALREADY_RUN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           *> Retention window: PENDING_RETENTION_DAYS env, default 30.
+           MOVE SPACES TO WS-RET-DAYS
+           CALL "env_or" USING BY REFERENCE "PENDING_RETENTION_DAYS"
+               BY REFERENCE "30" BY REFERENCE WS-RET-DAYS
+           END-CALL
+           MOVE WS-RET-DAYS TO WS-COUNT-IN
+           PERFORM VALIDATE-COUNT-FIELD
+           IF WS-BAD > 0
+               MOVE "ERROR|INVALID_RETENTION" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM START-JOB
+           IF STEP-OK
+               MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)" TO WS-PREP-SQL
+               MOVE WS-RET-DAYS TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-JOB-PROCESSED
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT IGNORE INTO pending_transactions_archive (id, txn_ref, from_email, to_email, amount, status, created_at, updated_at) SELECT id, txn_ref, from_email, to_email, amount, status, created_at, updated_at FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)" TO WS-PREP-SQL
+               MOVE WS-RET-DAYS TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "DELETE FROM pending_transactions WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)" TO WS-PREP-SQL
+               MOVE WS-RET-DAYS TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE WS-RESULT(1:40) TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "PENDING_PURGE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:10) TO WS-AUDIT-DATE
+               MOVE WS-JOB-ID TO WS-AUDIT-RUN
+               MOVE WS-JOB-PROCESSED TO WS-AUDIT-DETAIL
+               PERFORM AUDIT-EOD
+           END-IF.
+           PERFORM FINISH-JOB
+           IF STEP-OK
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|EOD_PENDING_PURGED|" DELIMITED BY SIZE
                       WS-JOB-PROCESSED DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
                END-STRING
