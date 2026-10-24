@@ -88,7 +88,7 @@ so curated share is **100%** and total COBOL is far above 60,000.
 - **Modules:** `kyc_core.cob`, `risk_screening_core.cob`, `sanctions_hold_core.cob`
 - **Migration:** 
 - **Routes:** , 
-- **Tests:** `test_kyc.sh`, `test_risk_screening.sh`, `test_sanctions_hold.sh`
+- **Tests:** `test_kyc_review.sh`, `test_risk_screening.sh`, `test_sanctions_hold.sh`
 - **Commits:**
   1. `feat(kyc): add case, evidence, and decision core`
   2. `feat(risk): add profile and screening core`
