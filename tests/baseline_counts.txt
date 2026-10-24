@@ -148,6 +148,8 @@ compliance_audit_core 6
 vendor_compliance_core 6
 data_quality_core 6
 data_retention_core 6
+access_audit_core 5
+backup_verification_core 5
 db-constraints 3
 load-smoke 4
 unit-helpers 3

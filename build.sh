@@ -104,6 +104,8 @@ cobc -free -x "$COBOL_OPT" -o "$COBOL_BIN" \
     cobol/src/notification_audit_core.cob \
     cobol/src/report_audit_core.cob \
     cobol/src/data_retention_core.cob \
+    cobol/src/access_audit_core.cob \
+    cobol/src/backup_verification_core.cob \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \
     cobol/c_lib/totp_lib.c \
