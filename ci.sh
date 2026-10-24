@@ -1487,8 +1487,19 @@ echo "sla-tracking-core: $sla_pass passed, $sla_fail failed"
 echo "sla_tracking_core $sla_pass" >> "$BASELINE_RUN"
 [ "$sla_fail" -eq 0 ] || { echo "SLA TRACKING CORE SUITE FAILED"; exit 1; }
 
-echo "=== [162/163] Progress check ==="
+echo "=== [162/164] Money invariants suite ==="
+run_step mi_out mi_rc ./tests/test_money_invariants.sh
+[ "$mi_rc" -eq 0 ] || { echo "MONEY INVARIANTS (rc=$mi_rc)"; echo "$mi_out" | tail -5; exit 1; }
+mi_pass=$(echo "$mi_out" | count_matches '\\[0;32mPASS')
+mi_fail=$(echo "$mi_out" | count_matches '\\[0;31mFAIL')
+echo "money-invariants: $mi_pass passed, $mi_fail failed"
+echo "money-invariants $mi_pass" >> "$BASELINE_RUN"
+[ "$mi_fail" -eq 0 ] || { echo "MONEY INVARIANTS SUITE FAILED"; exit 1; }
+
+echo "=== [163/164] Progress check ==="
 ./tests/progress_check.sh
+
+echo "=== [164/164] Assertion-count baseline ==="
 
 echo "=== [163/163] Assertion-count baseline ==="
 ./tests/baseline_check.sh "$BASELINE_RUN"
