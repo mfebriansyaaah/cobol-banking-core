@@ -116,7 +116,7 @@
                 EXIT PARAGRAPH
             END-IF
             CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
-            PERFORM COMPUTE-HASH-LEN
+            CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN
             PERFORM GET-USER-ID
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
@@ -207,7 +207,7 @@
                 EXIT PARAGRAPH
             END-IF
             CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
-            PERFORM COMPUTE-HASH-LEN
+            CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN
             PERFORM GET-USER-ID
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
