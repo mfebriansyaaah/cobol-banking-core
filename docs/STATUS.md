@@ -1532,3 +1532,13 @@ include:
 | `cobol/src/backup_verification_core.cob` | `BKV_LIST` | (auto-documented; refine description) |
 | `cobol/src/backup_verification_core.cob` | `BKV_RECORD` | (auto-documented; refine description) |
 | `cobol/src/backup_verification_core.cob` | `BKV_SUMMARY` | (auto-documented; refine description) |
+
+## sla_tracking_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/sla_tracking_core.cob` | `SLA_BREACH` | (auto-documented; refine description) |
+| `cobol/src/sla_tracking_core.cob` | `SLA_DEFINE` | (auto-documented; refine description) |
+| `cobol/src/sla_tracking_core.cob` | `SLA_GET` | (auto-documented; refine description) |
+| `cobol/src/sla_tracking_core.cob` | `SLA_LIST` | (auto-documented; refine description) |
+| `cobol/src/sla_tracking_core.cob` | `SLA_SUMMARY` | (auto-documented; refine description) |
