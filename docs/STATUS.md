@@ -971,7 +971,7 @@ details behind those rows.
 - `audit_trail` records `REQUEST_SIGNUP` (SUCCESS), `VERIFY_EMAIL` (SUCCESS, and FAILED for a bad/expired/reused code when the email belongs to a user; unattributable attempts are skipped), `AUTH_LOGIN_FAILED`, `TRANSFER`, `EMAIL_CHANGE`, `CHANGE_ROLE`, and `AUTHZ_DENIED` (a refused authorization attempt for an authenticated actor, `detail` = the attempted target). **AUTHZ_DENIED** is written by the shared guards in `auth_core`, `user_core` and `wallet_core` — including the SUPER_ADMIN-only `RECONCILE`/`REVERSE_TRANSFER` and the `CHECK_BALANCE`/`GET_DASHBOARD` self-or-admin reads. **Actor attribution**: rows have a subject `user_id` and an `actor_id` that names who performed the action; admin-on-other events (`SET_USER_STATUS`, `SESSIONS_REVOKED`, `REVOKE_USER_SESSION`, `ARCHIVE_AUDIT`) set it, while self-service rows leave it NULL (the subject acted). Refresh tokens are single-use and rotate within a `family`; presenting an already-revoked token is treated as reuse and revokes the whole family (all sessions for that login), so a stolen token cannot be replayed.
 - Expired `refresh_sessions` and `verification_logs` are pruned opportunistically (on session store and on signup). `audit_trail` is **append-only** (like `ledger`, an `UPDATE`-refusing trigger — migration 0028/`schema.sql`) and bounded: `ARCHIVE_AUDIT` moves rows past a retention window into the immutable `audit_trail_archive`; a correction is a new appended entry, never an in-place edit. Deleting a user **does not destroy their history**: a `BEFORE DELETE ON users` trigger copies the user's live `audit_trail` rows into `audit_trail_archive` before the FK cascade removes them. `audit_trail` is indexed on `action` and `actor_id` for the read path.
 - Results are written as 500-char records and reassembled by the gateway; the buffers are 16 KB, so extremely large lists still have an upper bound. Invocation defaults to **process-per-request** (file mode); serve mode + keep-alive connection + a **gateway worker pool** are implemented and enabled with COBOL_POOL_SIZE (ADR-0010 phases 1-3). Every pool setting is **validated at startup** (a non-integer or out-of-range COBOL_POOL_SIZE / COBOL_POOL_PIPELINE / COBOL_POOL_TIMEOUT_MS / COBOL_POOL_QUEUE_MAX refuses to boot instead of leaving requests queued forever), the waiting queue is **bounded** (a request arriving at a full queue is rejected with 503 POOL_SATURATED), a request that waits longer than the timeout fails with 504, and closing the pool fails whatever is still waiting rather than leaking it.
-- **Coverage cadence** (ADR 0078): the full `./ci.sh` (159 steps) no longer runs the coverage measurement; `scripts/nightly.sh` runs it on a schedule (30% floor, 1pp ratchet) and the release checklist requires a recent green run.
+- **Coverage cadence** (ADR 0078): the full `./ci.sh` (158 steps) no longer runs the coverage measurement; `scripts/nightly.sh` runs it on a schedule (30% floor, 1pp ratchet) and the release checklist requires a recent green run.
 - **Tiered CI** (ADR 0076): `./ci-fast.sh` is the affected-surface inner-loop gate (docs-only changes finish in seconds; core changes run a twelve-suite money-path smoke set; middleware changes run the full gateway suite) and checks the assertion counts of what it runs against the same baseline manifest. `./ci.sh` remains the 71-step full merge and release evidence.
 - **Test execution**: most functional shell suites run their requests through `tests/serve_harness.sh`, which keeps one `main_logic --serve` process (the same protocol the worker pool uses) instead of spawning a process per assertion. Suites that need fresh-process semantics (crash injection, per-call environment, file-mode assertions) keep the default invocation. The test-only KDF cost is 10000 iterations (`ci.sh`); the KDF suite asserts the compiled production default (600000) with explicit per-call values.
 - **Test coverage (deliberate)**: gateway tests never skip silently — a failed database seed fails the test via `requireSeed` (`middleware/test/support.js`), and `ci.sh` fails the gateway step on any reported skip. Every `result.js` error code's HTTP status is asserted against an explicit contract table, and the table and the implementation must list exactly the same codes (a new code without a status fails the test). `TRANSFER_IN_PROGRESS` and the replay-on-commit path are exercised by seeding a `PENDING`/`COMMITTED` intent. The COBOL transient detector (`DB_BUSY` on lock-wait/deadlock/lost-connection) and CURRENCY_MISMATCH (a legacy code with no current producer — cross-currency is supported, ADR 0005) are covered at the mapping level only, not end-to-end. **Fixtures keep the ledger consistent**: seeded accounts always get a matching opening ledger row (`middleware/test/support.js`), and the gateway/endpoints/profile suites delete the users they create, so a full `./ci.sh` leaves no account whose balance diverges from the ledger (a manual `RUN_RECONCILIATION` reports zero mismatches).
@@ -1009,7 +1009,7 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 116.528; target 100.000 per
+- Non-generated net baseline: 117.093; target 100.000 per
   `docs/DELIVERY_RULES.md`.
 
 
@@ -1495,3 +1495,12 @@ include:
 | `cobol/src/notification_audit_core.cob` | `NAU_LIST` | (auto-documented; refine description) |
 | `cobol/src/notification_audit_core.cob` | `NAU_RETRY` | (auto-documented; refine description) |
 | `cobol/src/notification_audit_core.cob` | `NAU_SUMMARY` | (auto-documented; refine description) |
+
+## report_audit_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/report_audit_core.cob` | `RAU_GET` | (auto-documented; refine description) |
+| `cobol/src/report_audit_core.cob` | `RAU_LIST` | (auto-documented; refine description) |
+| `cobol/src/report_audit_core.cob` | `RAU_RECORD` | (auto-documented; refine description) |
+| `cobol/src/report_audit_core.cob` | `RAU_SUMMARY` | (auto-documented; refine description) |

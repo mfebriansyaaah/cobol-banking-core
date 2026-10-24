@@ -2764,7 +2764,7 @@ CREATE TABLE IF NOT EXISTS report_run_row (
     CHECK (debit >= 0 AND credit >= 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS report_audit (
+CREATE TABLE IF NOT EXISTS report_execution_audit (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     action VARCHAR(40) NOT NULL,
     actor_email VARCHAR(100) NOT NULL,
@@ -2772,8 +2772,8 @@ CREATE TABLE IF NOT EXISTS report_audit (
     run_id INT NULL,
     detail VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_report_audit_actor (actor_email, created_at),
-    INDEX idx_report_audit_run (run_id)
+    INDEX idx_report_execution_audit_actor (actor_email, created_at),
+    INDEX idx_report_execution_audit_run (run_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS import_batch (
@@ -4121,14 +4121,14 @@ CREATE TABLE IF NOT EXISTS regulatory_report (
     decided_at DATETIME NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS regulatory_report_audit (
+CREATE TABLE IF NOT EXISTS regulatory_report_execution_audit (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     action VARCHAR(40) NOT NULL,
     actor_email VARCHAR(100) NOT NULL,
     report_code VARCHAR(40) NULL,
     detail VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_regulatory_report_audit_actor (actor_email, created_at)
+    INDEX idx_regulatory_report_execution_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
 -- Phase 1 Sprint 1 slice 23: loan lifecycle and term deposits.
@@ -4278,14 +4278,14 @@ CREATE TABLE IF NOT EXISTS tax_report (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS tax_report_audit (
+CREATE TABLE IF NOT EXISTS tax_report_execution_audit (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     action VARCHAR(40) NOT NULL,
     actor_email VARCHAR(100) NOT NULL,
     report_id BIGINT NULL,
     detail VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_tax_report_audit_actor (actor_email, created_at)
+    INDEX idx_tax_report_execution_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
 -- Phase 1 Sprint 1 slice 26: policy attestations and regulatory calendar.
@@ -4646,14 +4646,14 @@ CREATE TABLE IF NOT EXISTS lbpue_report (
     submitted_at DATETIME NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS lbpue_report_audit (
+CREATE TABLE IF NOT EXISTS lbpue_report_execution_audit (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     action VARCHAR(40) NOT NULL,
     actor_email VARCHAR(100) NOT NULL,
     report_code VARCHAR(40) NULL,
     detail VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_lbpue_report_audit_actor (actor_email, created_at)
+    INDEX idx_lbpue_report_execution_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
 -- Phase 1 Sprint 1 slice 32: GL revaluation and period close.
@@ -10618,6 +10618,28 @@ CREATE TABLE IF NOT EXISTS notification_delivery_audit (
     INDEX idx_notification_delivery_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 2 slice: report audit tracking.
+
+CREATE TABLE IF NOT EXISTS report_execution_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    report_name VARCHAR(64) NOT NULL,
+    duration_ms INT NOT NULL DEFAULT 0,
+    status ENUM('OK','FAILED') NOT NULL DEFAULT 'OK',
+    recorded_by VARCHAR(100) NOT NULL,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_report_execution_audit_status (status)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS report_execution_audit_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    run_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_report_execution_audit_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -10725,7 +10747,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0099_compliance_audit'),
 ('0100_vendor_compliance'),
 ('0101_data_quality'),
-('0102_notification_audit');
+('0102_notification_audit'),
+('0103_report_audit');
 
 
 -- Indexes
