@@ -12,7 +12,7 @@ fail=0
 expect() {
     local field="$1" min="$2"; shift 2
     for mod in "$@"; do
-        got=$(grep -E "01  $field +PIC X\(([0-9]+)\)" "cobol/src/$mod.cob" | grep -oE 'X\([0-9]+\)' | grep -oE '[0-9]+' | head -1)
+        got=$(grep -hE "01  $field +PIC X\(([0-9]+)\)" "cobol/src/$mod.cob" cobol/copy/*.cpy 2>/dev/null | grep -oE 'X\([0-9]+\)' | grep -oE '[0-9]+' | head -1)
         if [ -z "$got" ]; then
             echo "contract: $field not declared in $mod"
             fail=1
@@ -32,10 +32,10 @@ expect "WS-PREP-SQL" 1024 $CORES
 # Every declared bind/param field keeps the size its C bound assumes.
 for mod in $CORES; do
     for n in 1 2 3 4 5 6 7; do
-        grep -qE "01  WS-BIND-$n +PIC" "cobol/src/$mod.cob" && expect "WS-BIND-$n" 256 "$mod"
+        grep -hqE "01  WS-BIND-$n +PIC" "cobol/src/$mod.cob" cobol/copy/*.cpy && expect "WS-BIND-$n" 256 "$mod"
     done
     for n in 1 2 3 4 5 6; do
-        grep -qE "01  WS-PARAM$n-TRIMMED +PIC" "cobol/src/$mod.cob" && expect "WS-PARAM$n-TRIMMED" 100 "$mod"
+        grep -hqE "01  WS-PARAM$n-TRIMMED +PIC" "cobol/src/$mod.cob" cobol/copy/*.cpy && expect "WS-PARAM$n-TRIMMED" 100 "$mod"
     done
 done
 
@@ -56,8 +56,8 @@ for mod in $CORES; do
     esac
     case " $calls " in
         *"generate_random_code"*)
-            grep -q "WS-CODE" "cobol/src/$mod.cob" && expect "WS-CODE" 7 "$mod"
-            grep -q "WS-RAND" "cobol/src/$mod.cob" && expect "WS-RAND" 7 "$mod";;
+            grep -hq "WS-CODE" "cobol/src/$mod.cob" cobol/copy/*.cpy && expect "WS-CODE" 7 "$mod"
+            grep -hq "WS-RAND" "cobol/src/$mod.cob" cobol/copy/*.cpy && expect "WS-RAND" 7 "$mod";;
     esac
     case " $calls " in
         *"generate_mfa_secret"*|*"totp_verify"*) expect "WS-MFA-SECRET" 64 "$mod";;

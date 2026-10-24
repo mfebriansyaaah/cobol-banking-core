@@ -10,8 +10,6 @@
         WORKING-STORAGE SECTION.
         COPY "auth_password_ws.cpy".
 
-        01  WS-OUTPUT-MSG        PIC X(16384) VALUE SPACES.
-
         LINKAGE SECTION.
         01  LS-CMD-ACTION        PIC X(30).
         01  LS-PARAM1            PIC X(100).
