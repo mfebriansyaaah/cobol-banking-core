@@ -36,11 +36,11 @@ backup/restore round-trip and the coverage ratchet.
 |---|---:|---:|
 | Integration | 108 | 75% |
 | Security | 21 | 14% |
-| Database & Data Integrity | 5 | 3% |
-| Unit | 4 | 3% |
+| Database & Data Integrity | 6 | 4% |
+| Unit | 5 | 3% |
 | API / Endpoint | 4 | 3% |
-| Performance & Load | 1 | <1% |
-| **Total shell suites** | **143** | 100% |
+| Performance & Load | 2 | 1% |
+| **Total shell suites** | **146** | 100% |
 
 Plus the gateway suite (`middleware/`, 126 tests) which spans API, Security,
 Performance (rate limiting, pool), and Data Integrity.
@@ -125,6 +125,7 @@ npm --prefix middleware test
 | `test_control_accounts.sh` | Integration |
 | `test_dashboard.sh` | Integration |
 | `test_data_quality.sh` | Integration |
+| `test_db_constraints.sh` | Integration |
 | `test_deposit.sh` | Integration |
 | `test_disaster_recovery.sh` | Integration |
 | `test_dispute_notify.sh` | Integration |
@@ -163,6 +164,7 @@ npm --prefix middleware test
 | `test_ledger_integrity.sh` | Database & Data Integrity |
 | `test_legal_hold.sh` | Integration |
 | `test_limit_profile.sh` | Integration |
+| `test_load_smoke.sh` | Integration |
 | `test_loan.sh` | Integration |
 | `test_login_lockout.sh` | Security |
 | `test_mfa_recovery.sh` | Security |
@@ -228,6 +230,7 @@ npm --prefix middleware test
 | `test_transfer_reversal.sh` | Integration |
 | `test_transfer_validity.sh` | Integration |
 | `test_treasury_position.sh` | Integration |
+| `test_unit_helpers.sh` | Integration |
 | `test_user_profile.sh` | Integration |
 | `test_vendor_compliance.sh` | Integration |
 | `test_vendor.sh` | Integration |

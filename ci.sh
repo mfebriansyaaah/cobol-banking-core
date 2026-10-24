@@ -1424,10 +1424,37 @@ echo "data-quality-core: $dqc_pass passed, $dqc_fail failed"
 echo "data_quality_core $dqc_pass" >> "$BASELINE_RUN"
 [ "$dqc_fail" -eq 0 ] || { echo "DATA QUALITY CORE SUITE FAILED"; exit 1; }
 
-echo "=== [155/156] Progress check ==="
+echo "=== [155/159] Database constraints suite ==="
+run_step dbc_out dbc_rc ./tests/test_db_constraints.sh
+[ "$dbc_rc" -eq 0 ] || { echo "DB CONSTRAINTS (rc=$dbc_rc)"; echo "$dbc_out" | tail -5; exit 1; }
+dbc_pass=$(echo "$dbc_out" | count_matches '\\[0;32mPASS')
+dbc_fail=$(echo "$dbc_out" | count_matches '\\[0;31mFAIL')
+echo "db-constraints: $dbc_pass passed, $dbc_fail failed"
+echo "db-constraints $dbc_pass" >> "$BASELINE_RUN"
+[ "$dbc_fail" -eq 0 ] || { echo "DB CONSTRAINTS SUITE FAILED"; exit 1; }
+
+echo "=== [156/159] Load smoke suite ==="
+run_step load_out load_rc ./tests/test_load_smoke.sh
+[ "$load_rc" -eq 0 ] || { echo "LOAD SMOKE (rc=$load_rc)"; echo "$load_out" | tail -5; exit 1; }
+load_pass=$(echo "$load_out" | count_matches '\\[0;32mPASS')
+load_fail=$(echo "$load_out" | count_matches '\\[0;31mFAIL')
+echo "load-smoke: $load_pass passed, $load_fail failed"
+echo "load-smoke $load_pass" >> "$BASELINE_RUN"
+[ "$load_fail" -eq 0 ] || { echo "LOAD SMOKE SUITE FAILED"; exit 1; }
+
+echo "=== [157/159] Unit helpers suite ==="
+run_step uh_out uh_rc ./tests/test_unit_helpers.sh
+[ "$uh_rc" -eq 0 ] || { echo "UNIT HELPERS (rc=$uh_rc)"; echo "$uh_out" | tail -5; exit 1; }
+uh_pass=$(echo "$uh_out" | count_matches '\\[0;32mPASS')
+uh_fail=$(echo "$uh_out" | count_matches '\\[0;31mFAIL')
+echo "unit-helpers: $uh_pass passed, $uh_fail failed"
+echo "unit-helpers $uh_pass" >> "$BASELINE_RUN"
+[ "$uh_fail" -eq 0 ] || { echo "UNIT HELPERS SUITE FAILED"; exit 1; }
+
+echo "=== [158/159] Progress check ==="
 ./tests/progress_check.sh
 
-echo "=== [156/156] Assertion-count baseline ==="
+echo "=== [159/159] Assertion-count baseline ==="
 ./tests/baseline_check.sh "$BASELINE_RUN"
 
 echo "=== ALL GREEN ==="
