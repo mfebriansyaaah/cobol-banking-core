@@ -1,14 +1,3 @@
-        COMPUTE-HASH-LEN.            *> Length up to the NUL that the C hash function writes.
-            MOVE 1 TO WS-HLEN
-            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 256 OR WS-HLEN > 1
-                IF WS-HASH(WS-I:1) = LOW-VALUE
-                    COMPUTE WS-HLEN = WS-I - 1
-                END-IF
-            END-PERFORM
-            IF WS-HLEN < 1
-                MOVE 1 TO WS-HLEN
-            END-IF.
-
         CHECK-PASSWORD-BLOCKLIST.
             *> WS-PLAIN holds the candidate; the deny list is keyed by the
             *> SHA-256 hex of the lowercased value, so matching is

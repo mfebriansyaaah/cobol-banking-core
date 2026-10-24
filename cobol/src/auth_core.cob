@@ -406,7 +406,7 @@
                 MOVE SPACES TO WS-PLAIN
                 MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
                 CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
-                PERFORM COMPUTE-HASH-LEN
+                CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN
                 MOVE SPACES TO WS-QUERY
                 STRING "UPDATE users SET password_hash = '" WS-HASH(1:WS-HLEN) "' WHERE email = '" 
                        WS-P1-ESC(1:WS-P1-ELEN) "'" DELIMITED BY SIZE INTO WS-QUERY
@@ -501,7 +501,7 @@
             MOVE SPACES TO WS-PLAIN
             MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
             CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
-            PERFORM COMPUTE-HASH-LEN
+            CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN
             
             CALL "SQL_BEGIN"
             

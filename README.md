@@ -75,13 +75,13 @@ adapters and capabilities COBOL cannot provide directly.
 
 ## Current state and target
 
-Measured 2026-10-24:
+Measured 2026-10-25:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **118.570** |
-| Curated COBOL net | **61.613** (51,9%) |
-| Total COBOL net | **61.613** |
+| Non-generated net | **118.623** |
+| Curated COBOL net | **61.632** (51,9%) |
+| Total COBOL net | **61.632** |
 | Full CI | **164 steps / 2301 assertions** |
 | Non-generated gap to 100.000 | **0** |
 

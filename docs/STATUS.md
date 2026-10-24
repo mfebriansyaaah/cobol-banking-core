@@ -1,6 +1,6 @@
 # STATUS.md - Current state of the project
 
-Snapshot of the running system as of 2026-10-24. Every factual claim here is
+Snapshot of the running system as of 2026-10-25. Every factual claim here is
 verifiable: suite counts by running `./ci.sh`, action names by grepping
 `cobol/src/`, and the cross-references by `tests/status_check.sh` (wired into
 `ci.sh`).
@@ -1009,7 +1009,7 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 118.570; target 100.000 per
+- Non-generated net baseline: 118.623; target 100.000 per
   `docs/DELIVERY_RULES.md`.
 
 
@@ -1551,3 +1551,9 @@ include:
 | `cobol/src/auth_password_core.cob` | `RESET_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
 | `cobol/src/auth_password_core.cob` | `CHANGE_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
 
+
+## hashlen_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/hashlen_core.cob` | (helper) | Computes NUL-terminated hash length (binary split proof, ADR 0083). |
