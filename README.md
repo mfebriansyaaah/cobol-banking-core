@@ -79,10 +79,10 @@ Measured 2026-10-24:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **115.962** |
-| Curated COBOL net | **60.007** (51,7%) |
-| Total COBOL net | **60.007** |
-| Full CI | **156 steps / 2303 assertions** |
+| Non-generated net | **116.532** |
+| Curated COBOL net | **60.377** (51,8%) |
+| Total COBOL net | **60.377** |
+| Full CI | **155 steps / 2266 assertions** |
 | Non-generated gap to 100.000 | **0** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and

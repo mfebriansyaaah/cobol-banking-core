@@ -10574,6 +10574,50 @@ CREATE TABLE IF NOT EXISTS data_quality_audit (
     INDEX idx_data_quality_audit_actor (actor_email, created_at)
 ) ENGINE=InnoDB;
 
+-- Phase 2 slice: notification audit tracking.
+
+CREATE TABLE IF NOT EXISTS notification_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    channel VARCHAR(20) NOT NULL,
+    recipient VARCHAR(100) NOT NULL,
+    status ENUM('PENDING','SENDING','SENT','FAILED','DEAD') NOT NULL DEFAULT 'PENDING',
+    retry_count INT NOT NULL DEFAULT 0,
+    enqueued_by VARCHAR(100) NOT NULL,
+    enqueued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notification_audit_status (status)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS notification_audit_entry (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    audit_id BIGINT NOT NULL,
+    event VARCHAR(40) NOT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Phase 2 slice: notification audit tracking.
+
+CREATE TABLE IF NOT EXISTS notification_delivery (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    channel VARCHAR(20) NOT NULL,
+    recipient VARCHAR(100) NOT NULL,
+    status ENUM('PENDING','SENDING','SENT','FAILED','DEAD') NOT NULL DEFAULT 'PENDING',
+    retry_count INT NOT NULL DEFAULT 0,
+    enqueued_by VARCHAR(100) NOT NULL,
+    enqueued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notification_delivery_status (status)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS notification_delivery_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    entry_id BIGINT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notification_delivery_audit_actor (actor_email, created_at)
+) ENGINE=InnoDB;
+
 -- 12b. Migration baseline: fresh installs start here. Every migration
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
@@ -10680,7 +10724,8 @@ INSERT IGNORE INTO schema_migrations (version) VALUES
 ('0098_audit_retention'),
 ('0099_compliance_audit'),
 ('0100_vendor_compliance'),
-('0101_data_quality');
+('0101_data_quality'),
+('0102_notification_audit');
 
 
 -- Indexes
