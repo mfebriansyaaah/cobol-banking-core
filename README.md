@@ -94,7 +94,7 @@ not a production-readiness claim.
 
 Read `docs/DELIVERY_RULES.md` before starting work. In short:
 
-- **One PR = two modules**, target **5.000-6.500 net**.
+- **One PR = at least three modules**, target **5.000-9.000 net**.
 - **One full CI, one push** at the end.
 - **15-minute interface freeze** before code.
 - **Parallel worktrees/subagents** after the freeze.

@@ -10,9 +10,9 @@ generated code. They replace the old sprint plan, per-commit push rule, and
 
 ## 1. Mandatory slice rules
 
-1. **One PR = two modules.** A module is a curated COBOL domain with schema,
-   actions, gateway routes, and tests. A docs-only or schema-only change does
-   not count as a module. Target **5.000-6.500 net** per PR.
+1. **One PR = at least three modules.** A module is a curated COBOL domain with
+   schema, actions, gateway routes, and tests. A docs-only or schema-only change
+   does not count as a module. Target **5.000-9.000 net** per PR.
    - Below 4.000 net: record the reason in the PR.
    - Above 7.000 net: split into two PRs unless the owner approves a one-off.
 2. **One full CI, one push.** Commit atomically per module, run targeted tests
@@ -44,7 +44,7 @@ generated code. They replace the old sprint plan, per-commit push rule, and
    as the headline goals. Owners are responsible for reviewing scope.
 9. **One open PR at a time.** Merge the previous slice before starting the next.
    `./scripts/sync_main.sh` prepares the next branch.
-10. **Definition of done:** freeze note, two modules, migrations, actions,
+10. **Definition of done:** freeze note, at least three modules, migrations, actions,
     routes, table-driven tests, docs, baselines, full CI, coverage, warning
     ratchet, and a single review. A slice missing any one of these is not done.
 
