@@ -49,6 +49,7 @@ check "audit is attributed to the sender" "sender@test.com" \
     "$(q "SELECT u.email FROM audit_trail a JOIN users u ON u.id=a.user_id WHERE a.action='TRANSFER' ORDER BY a.audit_id DESC LIMIT 1;")"
 
 # --- idempotency-intent retention ---------------------------------------
+q "INSERT INTO users (id,email,password_hash,full_name,dob,status,role) VALUES (999,'recon_admin@test.com','x','Recon Admin','1990-01-01','VERIFIED','SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN',status='VERIFIED';"
 q "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status, created_at) VALUES
    ('obs-old','sender@test.com','receiver@test.com', 1.00, 'COMMITTED', DATE_SUB(NOW(), INTERVAL 40 DAY));"
 check "stale intent present before" "1" "$(q "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='obs-old';")"
