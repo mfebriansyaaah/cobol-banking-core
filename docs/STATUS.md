@@ -1009,7 +1009,7 @@ include:
   file and `docs/TRACEABILITY.md`.
 - The consolidated Gate 0 decision packet, input checklist, and proposed
   technical defaults are in `docs/GATE0_PACKET.md`.
-- Non-generated net baseline: 118.958; target 100.000 per
+- Non-generated net baseline: 118.844; target 100.000 per
   `docs/DELIVERY_RULES.md`.
 
 
@@ -1547,6 +1547,7 @@ include:
 
 | Module | Action | Behavior |
 |---|---|---|
-| `cobol/src/auth_password_core.cob` | `FORGOT_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
-| `cobol/src/auth_password_core.cob` | `RESET_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
-| `cobol/src/auth_password_core.cob` | `CHANGE_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
+| `cobol/src/auth_password_core.cob` | `FORGOT_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
+| `cobol/src/auth_password_core.cob` | `RESET_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
+| `cobol/src/auth_password_core.cob` | `CHANGE_PASSWORD` | (facade -> auth_core; ADR 0083 phase A1) |
+
