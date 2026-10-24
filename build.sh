@@ -22,6 +22,7 @@ cobc -free -x "$COBOL_OPT" -o "$COBOL_BIN" \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \
     cobol/src/auth_core.cob \
+    cobol/src/auth_password_core.cob \
     cobol/src/ref_engine.cob \
     cobol/src/gl_core.cob \
     cobol/src/batch_core.cob \

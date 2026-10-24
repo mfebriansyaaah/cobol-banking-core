@@ -1542,3 +1542,11 @@ include:
 | `cobol/src/sla_tracking_core.cob` | `SLA_GET` | (auto-documented; refine description) |
 | `cobol/src/sla_tracking_core.cob` | `SLA_LIST` | (auto-documented; refine description) |
 | `cobol/src/sla_tracking_core.cob` | `SLA_SUMMARY` | (auto-documented; refine description) |
+
+## auth_password_core.cob
+
+| Module | Action | Behavior |
+|---|---|---|
+| `cobol/src/auth_password_core.cob` | `FORGOT_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
+| `cobol/src/auth_password_core.cob` | `RESET_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
+| `cobol/src/auth_password_core.cob` | `CHANGE_PASSWORD` | (facade -> auth_core; ADR 0083 phase 1) |
