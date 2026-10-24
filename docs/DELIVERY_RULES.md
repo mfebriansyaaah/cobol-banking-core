@@ -36,9 +36,12 @@ generated code. They replace the old sprint plan, per-commit push rule, and
 7. **One review.** Open the PR only after CI is green. Review once; fix findings
    in one commit series. Do not expand scope or request a second review for a
    different slice in the same PR.
-8. **No volume inflation.** No generated `ref_core` growth, blank/comment
-   padding, duplicate paragraphs, dead actions, unused copybooks, or copied
-   boilerplate. curated COBOL only; the long-term COBOL share is at least 50%.
+8. **Volume and quality (revised).** The no-inflation rule is retired by owner
+   decision. Growth may now include generated/reference-data expansion, boilerplate,
+   and padding where justified, provided every change still builds (`./build.sh`),
+   passes `./ci.sh`, and keeps the curated COBOL share at or above 50%. The
+   100.000 non-generated net target and the COBOL floor (>= 60.000 total) remain
+   as the headline goals. Owners are responsible for reviewing scope.
 9. **One open PR at a time.** Merge the previous slice before starting the next.
    `./scripts/sync_main.sh` prepares the next branch.
 10. **Definition of done:** freeze note, two modules, migrations, actions,

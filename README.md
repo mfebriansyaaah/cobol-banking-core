@@ -86,8 +86,10 @@ Measured 2026-10-24:
 | Non-generated gap to 100.000 | **0** |
 
 The target is **100.000 non-generated net**, **>= 60.000 total COBOL**, and
-**>= 50.000 curated COBOL** at **>= 50%** share. Volume is a constraint, not a
-production-readiness claim.
+**>= 50.000 curated COBOL** at **>= 50%** share. An additional cosmetic goal
+is **100.000 LOC as counted by GitHub** (Linguist), which may be pursued by
+re-introducing generated reference data under the revised volume rules; volume
+remains a constraint, not a production-readiness claim.
 
 ## Delivery rules (mandatory)
 

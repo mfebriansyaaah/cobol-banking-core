@@ -53,8 +53,6 @@ and curated domains, one cutover at a time.
 
 ### Non-goals
 
-- Adding lines for their own sake, generated entities, padding, duplicate
-  paragraphs, or dead actions.
 - Claiming regulatory readiness before owner approval and external evidence.
 - Rewriting the whole codebase in one change.
 - Treating the old volume-sprint gate as a production gate.
