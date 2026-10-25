@@ -6,6 +6,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 
+echo "=== MANIFEST CHECK ==="
+node scripts/check_manifest.mjs "$ROOT"
+
 echo "=== BUILD ==="
 ./build.sh
 
