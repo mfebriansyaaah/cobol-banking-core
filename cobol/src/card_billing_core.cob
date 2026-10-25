@@ -1,0 +1,622 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. card_billing_core.
+      *> Skeleton module for card_billing domain.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-VAR-01           PIC X(100) VALUE SPACES.
+       01  WS-VAR-02           PIC X(100) VALUE SPACES.
+       01  WS-VAR-03           PIC X(100) VALUE SPACES.
+       01  WS-VAR-04           PIC X(100) VALUE SPACES.
+       01  WS-VAR-05           PIC X(100) VALUE SPACES.
+       01  WS-VAR-06           PIC X(100) VALUE SPACES.
+       01  WS-VAR-07           PIC X(100) VALUE SPACES.
+       01  WS-VAR-08           PIC X(100) VALUE SPACES.
+       01  WS-VAR-09           PIC X(100) VALUE SPACES.
+       01  WS-VAR-10           PIC X(100) VALUE SPACES.
+       01  WS-VAR-11           PIC X(100) VALUE SPACES.
+       01  WS-VAR-12           PIC X(100) VALUE SPACES.
+       01  WS-VAR-13           PIC X(100) VALUE SPACES.
+       01  WS-VAR-14           PIC X(100) VALUE SPACES.
+       01  WS-VAR-15           PIC X(100) VALUE SPACES.
+       01  WS-VAR-16           PIC X(100) VALUE SPACES.
+       01  WS-VAR-17           PIC X(100) VALUE SPACES.
+       01  WS-VAR-18           PIC X(100) VALUE SPACES.
+       01  WS-VAR-19           PIC X(100) VALUE SPACES.
+       01  WS-VAR-20           PIC X(100) VALUE SPACES.
+       01  WS-VAR-21           PIC X(100) VALUE SPACES.
+       01  WS-VAR-22           PIC X(100) VALUE SPACES.
+       01  WS-VAR-23           PIC X(100) VALUE SPACES.
+       01  WS-VAR-24           PIC X(100) VALUE SPACES.
+       01  WS-VAR-25           PIC X(100) VALUE SPACES.
+       01  WS-VAR-26           PIC X(100) VALUE SPACES.
+       01  WS-VAR-27           PIC X(100) VALUE SPACES.
+       01  WS-VAR-28           PIC X(100) VALUE SPACES.
+       01  WS-VAR-29           PIC X(100) VALUE SPACES.
+       01  WS-VAR-30           PIC X(100) VALUE SPACES.
+       01  WS-VAR-31           PIC X(100) VALUE SPACES.
+       01  WS-VAR-32           PIC X(100) VALUE SPACES.
+       01  WS-VAR-33           PIC X(100) VALUE SPACES.
+       01  WS-VAR-34           PIC X(100) VALUE SPACES.
+       01  WS-VAR-35           PIC X(100) VALUE SPACES.
+       01  WS-VAR-36           PIC X(100) VALUE SPACES.
+       01  WS-VAR-37           PIC X(100) VALUE SPACES.
+       01  WS-VAR-38           PIC X(100) VALUE SPACES.
+       01  WS-VAR-39           PIC X(100) VALUE SPACES.
+       01  WS-VAR-40           PIC X(100) VALUE SPACES.
+       01  WS-RESULT               PIC X(16384) VALUE SPACES.
+       01  WS-P1                   PIC X(100) VALUE SPACES.
+       01  WS-P2                   PIC X(100) VALUE SPACES.
+       01  WS-P3                   PIC X(100) VALUE SPACES.
+       01  WS-P4                   PIC X(100) VALUE SPACES.
+       01  WS-P5                   PIC X(100) VALUE SPACES.
+       01  WS-P6                   PIC X(100) VALUE SPACES.
+       01  WS-I                    PIC 9(5) VALUE 1.
+       01  WS-J                    PIC 9(5) VALUE 1.
+       01  WS-K                    PIC 9(5) VALUE 1.
+       01  WS-L                    PIC 9(5) VALUE 1.
+       01  WS-M                    PIC 9(5) VALUE 1.
+       01  WS-N                    PIC 9(5) VALUE 1.
+       01  WS-O                    PIC 9(5) VALUE 1.
+       01  WS-P                    PIC 9(5) VALUE 1.
+       01  WS-Q                    PIC 9(5) VALUE 1.
+       01  WS-R                    PIC 9(5) VALUE 1.
+       01  WS-S                    PIC 9(5) VALUE 1.
+       01  WS-T                    PIC 9(5) VALUE 1.
+       01  WS-U                    PIC 9(5) VALUE 1.
+       01  WS-V                    PIC 9(5) VALUE 1.
+       01  WS-W                    PIC 9(5) VALUE 1.
+       01  WS-X                    PIC 9(5) VALUE 1.
+       01  WS-Y                    PIC 9(5) VALUE 1.
+       01  WS-Z                    PIC 9(5) VALUE 1.
+       01  WS-STATUS               PIC X(20) VALUE SPACES.
+       01  WS-CODE                 PIC X(20) VALUE SPACES.
+       01  WS-MESSAGE              PIC X(100) VALUE SPACES.
+       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+       01  WS-ACTOR                PIC X(100) VALUE SPACES.
+       01  WS-TARGET               PIC X(100) VALUE SPACES.
+       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
+       01  WS-CURRENCY             PIC X(3) VALUE SPACES.
+       01  WS-DATE-VALUE           PIC X(10) VALUE SPACES.
+       01  WS-ID-VALUE             PIC X(20) VALUE SPACES.
+       01  WS-LIMIT-VALUE          PIC X(10) VALUE SPACES.
+       01  WS-OFFSET-VALUE         PIC X(10) VALUE SPACES.
+       01  WS-FLAG                 PIC X VALUE 'N'.
+           88  FLAG-YES             VALUE 'Y'.
+           88  FLAG-NO              VALUE 'N'.
+       01  WS-STEP                 PIC X VALUE 'Y'.
+           88  STEP-OK             VALUE 'Y'.
+           88  STEP-FAIL           VALUE 'N'.
+
+       LINKAGE SECTION.
+       01  LS-CMD-ACTION           PIC X(30).
+       01  LS-PARAM1               PIC X(100).
+       01  LS-PARAM2               PIC X(100).
+       01  LS-PARAM3               PIC X(100).
+       01  LS-PARAM4               PIC X(100).
+       01  LS-PARAM5               PIC X(100).
+       01  LS-PARAM6               PIC X(100).
+       01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+       MAIN-LOGIC.
+           MOVE SPACES TO WS-RESULT
+           MOVE LS-PARAM1 TO WS-P1
+           MOVE LS-PARAM2 TO WS-P2
+           MOVE LS-PARAM3 TO WS-P3
+           MOVE LS-PARAM4 TO WS-P4
+           MOVE LS-PARAM5 TO WS-P5
+           MOVE LS-PARAM6 TO WS-P6
+           PERFORM TRIM-ALL
+           EVALUATE TRUE
+               WHEN LS-CMD-ACTION(1:12) = "CBL_GENERATE"
+                   PERFORM ACTION-CBL_GENERATE
+               WHEN LS-CMD-ACTION(1:8) = "CBL_LIST"
+                   PERFORM ACTION-CBL_LIST
+               WHEN LS-CMD-ACTION(1:7) = "CBL_GET"
+                   PERFORM ACTION-CBL_GET
+               WHEN LS-CMD-ACTION(1:7) = "CBL_PAY"
+                   PERFORM ACTION-CBL_PAY
+               WHEN LS-CMD-ACTION(1:9) = "CBL_WAIVE"
+                   PERFORM ACTION-CBL_WAIVE
+               WHEN LS-CMD-ACTION(1:9) = "CBL_CLOSE"
+                   PERFORM ACTION-CBL_CLOSE
+               WHEN LS-CMD-ACTION(1:11) = "CBL_SUMMARY"
+                   PERFORM ACTION-CBL_SUMMARY
+               WHEN LS-CMD-ACTION(1:12) = "CBL_VALIDATE"
+                   PERFORM ACTION-CBL_VALIDATE
+               WHEN LS-CMD-ACTION(1:10) = "CBL_EXPORT"
+                   PERFORM ACTION-CBL_EXPORT
+               WHEN LS-CMD-ACTION(1:9) = "CBL_AUDIT"
+                   PERFORM ACTION-CBL_AUDIT
+               WHEN LS-CMD-ACTION(1:10) = "CBL_STATUS"
+                   PERFORM ACTION-CBL_STATUS
+               WHEN LS-CMD-ACTION(1:10) = "CBL_REOPEN"
+                   PERFORM ACTION-CBL_REOPEN
+               WHEN LS-CMD-ACTION(1:10) = "CBL_ADJUST"
+                   PERFORM ACTION-CBL_ADJUST
+               WHEN LS-CMD-ACTION(1:11) = "CBL_REVERSE"
+                   PERFORM ACTION-CBL_REVERSE
+               WHEN LS-CMD-ACTION(1:10) = "CBL_REFUND"
+                   PERFORM ACTION-CBL_REFUND
+               WHEN LS-CMD-ACTION(1:7) = "CBL_FEE"
+                   PERFORM ACTION-CBL_FEE
+               WHEN LS-CMD-ACTION(1:12) = "CBL_INTEREST"
+                   PERFORM ACTION-CBL_INTEREST
+               WHEN LS-CMD-ACTION(1:10) = "CBL_MINPAY"
+                   PERFORM ACTION-CBL_MINPAY
+               WHEN LS-CMD-ACTION(1:8) = "CBL_LATE"
+                   PERFORM ACTION-CBL_LATE
+               WHEN LS-CMD-ACTION(1:13) = "CBL_OVERLIMIT"
+                   PERFORM ACTION-CBL_OVERLIMIT
+               WHEN LS-CMD-ACTION(1:10) = "CBL_NOTIFY"
+                   PERFORM ACTION-CBL_NOTIFY
+               WHEN LS-CMD-ACTION(1:11) = "CBL_ARCHIVE"
+                   PERFORM ACTION-CBL_ARCHIVE
+               WHEN LS-CMD-ACTION(1:11) = "CBL_RESTORE"
+                   PERFORM ACTION-CBL_RESTORE
+               WHEN LS-CMD-ACTION(1:10) = "CBL_IMPORT"
+                   PERFORM ACTION-CBL_IMPORT
+               WHEN LS-CMD-ACTION(1:10) = "CBL_REPORT"
+                   PERFORM ACTION-CBL_REPORT
+               WHEN LS-CMD-ACTION(1:10) = "CBL_VERIFY"
+                   PERFORM ACTION-CBL_VERIFY
+               WHEN LS-CMD-ACTION(1:8) = "CBL_SYNC"
+                   PERFORM ACTION-CBL_SYNC
+               WHEN LS-CMD-ACTION(1:13) = "CBL_RECONCILE"
+                   PERFORM ACTION-CBL_RECONCILE
+               WHEN LS-CMD-ACTION(1:12) = "CBL_ALLOCATE"
+                   PERFORM ACTION-CBL_ALLOCATE
+               WHEN LS-CMD-ACTION(1:10) = "CBL_SETTLE"
+                   PERFORM ACTION-CBL_SETTLE
+               WHEN LS-CMD-ACTION(1:10) = "CBL_CANCEL"
+                   PERFORM ACTION-CBL_CANCEL
+               WHEN LS-CMD-ACTION(1:8) = "CBL_HOLD"
+                   PERFORM ACTION-CBL_HOLD
+               WHEN LS-CMD-ACTION(1:11) = "CBL_RELEASE"
+                   PERFORM ACTION-CBL_RELEASE
+               WHEN LS-CMD-ACTION(1:9) = "CBL_PROMO"
+                   PERFORM ACTION-CBL_PROMO
+               WHEN LS-CMD-ACTION(1:10) = "CBL_REWARD"
+                   PERFORM ACTION-CBL_REWARD
+               WHEN LS-CMD-ACTION(1:13) = "CBL_STATEMENT"
+                   PERFORM ACTION-CBL_STATEMENT
+               WHEN LS-CMD-ACTION(1:11) = "CBL_DISPUTE"
+                   PERFORM ACTION-CBL_DISPUTE
+               WHEN LS-CMD-ACTION(1:14) = "CBL_CHARGEBACK"
+                   PERFORM ACTION-CBL_CHARGEBACK
+               WHEN LS-CMD-ACTION(1:9) = "CBL_REAGE"
+                   PERFORM ACTION-CBL_REAGE
+               WHEN LS-CMD-ACTION(1:11) = "CBL_COLLECT"
+                   PERFORM ACTION-CBL_COLLECT
+               WHEN OTHER
+                   MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
+           END-EVALUATE
+           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+           GOBACK.
+
+       ACTION-CBL_GENERATE.
+           MOVE "CBL_GENERATE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_GENERATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_LIST.
+           MOVE "CBL_LIST_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_LIST" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_GET.
+           MOVE "CBL_GET_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_GET" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_PAY.
+           MOVE "CBL_PAY_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_PAY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_WAIVE.
+           MOVE "CBL_WAIVE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_WAIVE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_CLOSE.
+           MOVE "CBL_CLOSE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_CLOSE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_SUMMARY.
+           MOVE "CBL_SUMMARY_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_SUMMARY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_VALIDATE.
+           MOVE "CBL_VALIDATE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_VALIDATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_EXPORT.
+           MOVE "CBL_EXPORT_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_EXPORT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_AUDIT.
+           MOVE "CBL_AUDIT_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_AUDIT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_STATUS.
+           MOVE "CBL_STATUS_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_STATUS" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_REOPEN.
+           MOVE "CBL_REOPEN_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_REOPEN" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_ADJUST.
+           MOVE "CBL_ADJUST_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_ADJUST" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_REVERSE.
+           MOVE "CBL_REVERSE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_REVERSE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_REFUND.
+           MOVE "CBL_REFUND_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_REFUND" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_FEE.
+           MOVE "CBL_FEE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_FEE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_INTEREST.
+           MOVE "CBL_INTEREST_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_INTEREST" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_MINPAY.
+           MOVE "CBL_MINPAY_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_MINPAY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_LATE.
+           MOVE "CBL_LATE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_LATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_OVERLIMIT.
+           MOVE "CBL_OVERLIMIT_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_OVERLIMIT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_NOTIFY.
+           MOVE "CBL_NOTIFY_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_NOTIFY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_ARCHIVE.
+           MOVE "CBL_ARCHIVE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_ARCHIVE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_RESTORE.
+           MOVE "CBL_RESTORE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_RESTORE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_IMPORT.
+           MOVE "CBL_IMPORT_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_IMPORT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_REPORT.
+           MOVE "CBL_REPORT_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_REPORT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_VERIFY.
+           MOVE "CBL_VERIFY_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_VERIFY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_SYNC.
+           MOVE "CBL_SYNC_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_SYNC" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_RECONCILE.
+           MOVE "CBL_RECONCILE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_RECONCILE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_ALLOCATE.
+           MOVE "CBL_ALLOCATE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_ALLOCATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_SETTLE.
+           MOVE "CBL_SETTLE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_SETTLE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_CANCEL.
+           MOVE "CBL_CANCEL_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_CANCEL" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_HOLD.
+           MOVE "CBL_HOLD_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_HOLD" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_RELEASE.
+           MOVE "CBL_RELEASE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_RELEASE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_PROMO.
+           MOVE "CBL_PROMO_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_PROMO" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_REWARD.
+           MOVE "CBL_REWARD_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_REWARD" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_STATEMENT.
+           MOVE "CBL_STATEMENT_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_STATEMENT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_DISPUTE.
+           MOVE "CBL_DISPUTE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_DISPUTE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_CHARGEBACK.
+           MOVE "CBL_CHARGEBACK_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_CHARGEBACK" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_REAGE.
+           MOVE "CBL_REAGE_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_REAGE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-CBL_COLLECT.
+           MOVE "CBL_COLLECT_OK" TO WS-CODE
+           MOVE "SUCCESS|CBL_COLLECT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       TRIM-ALL.
+           MOVE LS-PARAM1 TO WS-P1
+           MOVE LS-PARAM2 TO WS-P2
+           MOVE LS-PARAM3 TO WS-P3
+           MOVE LS-PARAM4 TO WS-P4
+           MOVE LS-PARAM5 TO WS-P5
+           MOVE LS-PARAM6 TO WS-P6
+           EXIT PARAGRAPH.
+
+       VALIDATE-ALL.
+           MOVE 'Y' TO WS-STEP
+           EXIT PARAGRAPH.
+
+       AUDIT-ACTION.
+           MOVE LS-CMD-ACTION TO WS-AUDIT-ACTION
+           EXIT PARAGRAPH.
+

@@ -18,6 +18,22 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/wallet_core.cob \
     cobol/src/auth_core.cob \
     cobol/src/hashlen_core.cob \
+    cobol/src/loan_schedule_core.cob \
+    cobol/src/deposit_interest_core.cob \
+    cobol/src/card_billing_core.cob \
+    cobol/src/collection_core.cob \
+    cobol/src/payment_clearing_core.cob \
+    cobol/src/billpay_core.cob \
+    cobol/src/treasury_liquidity_core.cob \
+    cobol/src/fx_hedging_core.cob \
+    cobol/src/kyc_periodic_core.cob \
+    cobol/src/aml_screening_core.cob \
+    cobol/src/sanctions_list_core.cob \
+    cobol/src/fraud_case_core.cob \
+    cobol/src/gl_allocation_core.cob \
+    cobol/src/fixed_asset_core.cob \
+    cobol/src/cost_center_core.cob \
+    cobol/src/consolidation_core.cob \
     cobol/src/auth_password_core.cob \
     cobol/src/ref_engine.cob \
     cobol/src/gl_core.cob \

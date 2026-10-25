@@ -1,0 +1,622 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. collection_core.
+      *> Skeleton module for collection domain.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-VAR-01           PIC X(100) VALUE SPACES.
+       01  WS-VAR-02           PIC X(100) VALUE SPACES.
+       01  WS-VAR-03           PIC X(100) VALUE SPACES.
+       01  WS-VAR-04           PIC X(100) VALUE SPACES.
+       01  WS-VAR-05           PIC X(100) VALUE SPACES.
+       01  WS-VAR-06           PIC X(100) VALUE SPACES.
+       01  WS-VAR-07           PIC X(100) VALUE SPACES.
+       01  WS-VAR-08           PIC X(100) VALUE SPACES.
+       01  WS-VAR-09           PIC X(100) VALUE SPACES.
+       01  WS-VAR-10           PIC X(100) VALUE SPACES.
+       01  WS-VAR-11           PIC X(100) VALUE SPACES.
+       01  WS-VAR-12           PIC X(100) VALUE SPACES.
+       01  WS-VAR-13           PIC X(100) VALUE SPACES.
+       01  WS-VAR-14           PIC X(100) VALUE SPACES.
+       01  WS-VAR-15           PIC X(100) VALUE SPACES.
+       01  WS-VAR-16           PIC X(100) VALUE SPACES.
+       01  WS-VAR-17           PIC X(100) VALUE SPACES.
+       01  WS-VAR-18           PIC X(100) VALUE SPACES.
+       01  WS-VAR-19           PIC X(100) VALUE SPACES.
+       01  WS-VAR-20           PIC X(100) VALUE SPACES.
+       01  WS-VAR-21           PIC X(100) VALUE SPACES.
+       01  WS-VAR-22           PIC X(100) VALUE SPACES.
+       01  WS-VAR-23           PIC X(100) VALUE SPACES.
+       01  WS-VAR-24           PIC X(100) VALUE SPACES.
+       01  WS-VAR-25           PIC X(100) VALUE SPACES.
+       01  WS-VAR-26           PIC X(100) VALUE SPACES.
+       01  WS-VAR-27           PIC X(100) VALUE SPACES.
+       01  WS-VAR-28           PIC X(100) VALUE SPACES.
+       01  WS-VAR-29           PIC X(100) VALUE SPACES.
+       01  WS-VAR-30           PIC X(100) VALUE SPACES.
+       01  WS-VAR-31           PIC X(100) VALUE SPACES.
+       01  WS-VAR-32           PIC X(100) VALUE SPACES.
+       01  WS-VAR-33           PIC X(100) VALUE SPACES.
+       01  WS-VAR-34           PIC X(100) VALUE SPACES.
+       01  WS-VAR-35           PIC X(100) VALUE SPACES.
+       01  WS-VAR-36           PIC X(100) VALUE SPACES.
+       01  WS-VAR-37           PIC X(100) VALUE SPACES.
+       01  WS-VAR-38           PIC X(100) VALUE SPACES.
+       01  WS-VAR-39           PIC X(100) VALUE SPACES.
+       01  WS-VAR-40           PIC X(100) VALUE SPACES.
+       01  WS-RESULT               PIC X(16384) VALUE SPACES.
+       01  WS-P1                   PIC X(100) VALUE SPACES.
+       01  WS-P2                   PIC X(100) VALUE SPACES.
+       01  WS-P3                   PIC X(100) VALUE SPACES.
+       01  WS-P4                   PIC X(100) VALUE SPACES.
+       01  WS-P5                   PIC X(100) VALUE SPACES.
+       01  WS-P6                   PIC X(100) VALUE SPACES.
+       01  WS-I                    PIC 9(5) VALUE 1.
+       01  WS-J                    PIC 9(5) VALUE 1.
+       01  WS-K                    PIC 9(5) VALUE 1.
+       01  WS-L                    PIC 9(5) VALUE 1.
+       01  WS-M                    PIC 9(5) VALUE 1.
+       01  WS-N                    PIC 9(5) VALUE 1.
+       01  WS-O                    PIC 9(5) VALUE 1.
+       01  WS-P                    PIC 9(5) VALUE 1.
+       01  WS-Q                    PIC 9(5) VALUE 1.
+       01  WS-R                    PIC 9(5) VALUE 1.
+       01  WS-S                    PIC 9(5) VALUE 1.
+       01  WS-T                    PIC 9(5) VALUE 1.
+       01  WS-U                    PIC 9(5) VALUE 1.
+       01  WS-V                    PIC 9(5) VALUE 1.
+       01  WS-W                    PIC 9(5) VALUE 1.
+       01  WS-X                    PIC 9(5) VALUE 1.
+       01  WS-Y                    PIC 9(5) VALUE 1.
+       01  WS-Z                    PIC 9(5) VALUE 1.
+       01  WS-STATUS               PIC X(20) VALUE SPACES.
+       01  WS-CODE                 PIC X(20) VALUE SPACES.
+       01  WS-MESSAGE              PIC X(100) VALUE SPACES.
+       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+       01  WS-ACTOR                PIC X(100) VALUE SPACES.
+       01  WS-TARGET               PIC X(100) VALUE SPACES.
+       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
+       01  WS-CURRENCY             PIC X(3) VALUE SPACES.
+       01  WS-DATE-VALUE           PIC X(10) VALUE SPACES.
+       01  WS-ID-VALUE             PIC X(20) VALUE SPACES.
+       01  WS-LIMIT-VALUE          PIC X(10) VALUE SPACES.
+       01  WS-OFFSET-VALUE         PIC X(10) VALUE SPACES.
+       01  WS-FLAG                 PIC X VALUE 'N'.
+           88  FLAG-YES             VALUE 'Y'.
+           88  FLAG-NO              VALUE 'N'.
+       01  WS-STEP                 PIC X VALUE 'Y'.
+           88  STEP-OK             VALUE 'Y'.
+           88  STEP-FAIL           VALUE 'N'.
+
+       LINKAGE SECTION.
+       01  LS-CMD-ACTION           PIC X(30).
+       01  LS-PARAM1               PIC X(100).
+       01  LS-PARAM2               PIC X(100).
+       01  LS-PARAM3               PIC X(100).
+       01  LS-PARAM4               PIC X(100).
+       01  LS-PARAM5               PIC X(100).
+       01  LS-PARAM6               PIC X(100).
+       01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+       MAIN-LOGIC.
+           MOVE SPACES TO WS-RESULT
+           MOVE LS-PARAM1 TO WS-P1
+           MOVE LS-PARAM2 TO WS-P2
+           MOVE LS-PARAM3 TO WS-P3
+           MOVE LS-PARAM4 TO WS-P4
+           MOVE LS-PARAM5 TO WS-P5
+           MOVE LS-PARAM6 TO WS-P6
+           PERFORM TRIM-ALL
+           EVALUATE TRUE
+               WHEN LS-CMD-ACTION(1:8) = "COL_OPEN"
+                   PERFORM ACTION-COL_OPEN
+               WHEN LS-CMD-ACTION(1:8) = "COL_LIST"
+                   PERFORM ACTION-COL_LIST
+               WHEN LS-CMD-ACTION(1:7) = "COL_GET"
+                   PERFORM ACTION-COL_GET
+               WHEN LS-CMD-ACTION(1:10) = "COL_UPDATE"
+                   PERFORM ACTION-COL_UPDATE
+               WHEN LS-CMD-ACTION(1:9) = "COL_CLOSE"
+                   PERFORM ACTION-COL_CLOSE
+               WHEN LS-CMD-ACTION(1:10) = "COL_ASSIGN"
+                   PERFORM ACTION-COL_ASSIGN
+               WHEN LS-CMD-ACTION(1:12) = "COL_ESCALATE"
+                   PERFORM ACTION-COL_ESCALATE
+               WHEN LS-CMD-ACTION(1:11) = "COL_SUMMARY"
+                   PERFORM ACTION-COL_SUMMARY
+               WHEN LS-CMD-ACTION(1:12) = "COL_VALIDATE"
+                   PERFORM ACTION-COL_VALIDATE
+               WHEN LS-CMD-ACTION(1:10) = "COL_EXPORT"
+                   PERFORM ACTION-COL_EXPORT
+               WHEN LS-CMD-ACTION(1:9) = "COL_AUDIT"
+                   PERFORM ACTION-COL_AUDIT
+               WHEN LS-CMD-ACTION(1:10) = "COL_STATUS"
+                   PERFORM ACTION-COL_STATUS
+               WHEN LS-CMD-ACTION(1:10) = "COL_REOPEN"
+                   PERFORM ACTION-COL_REOPEN
+               WHEN LS-CMD-ACTION(1:8) = "COL_NOTE"
+                   PERFORM ACTION-COL_NOTE
+               WHEN LS-CMD-ACTION(1:11) = "COL_PROMISE"
+                   PERFORM ACTION-COL_PROMISE
+               WHEN LS-CMD-ACTION(1:11) = "COL_PAYMENT"
+                   PERFORM ACTION-COL_PAYMENT
+               WHEN LS-CMD-ACTION(1:10) = "COL_SETTLE"
+                   PERFORM ACTION-COL_SETTLE
+               WHEN LS-CMD-ACTION(1:12) = "COL_WRITEOFF"
+                   PERFORM ACTION-COL_WRITEOFF
+               WHEN LS-CMD-ACTION(1:15) = "COL_RESTRUCTURE"
+                   PERFORM ACTION-COL_RESTRUCTURE
+               WHEN LS-CMD-ACTION(1:9) = "COL_REAGE"
+                   PERFORM ACTION-COL_REAGE
+               WHEN LS-CMD-ACTION(1:10) = "COL_NOTIFY"
+                   PERFORM ACTION-COL_NOTIFY
+               WHEN LS-CMD-ACTION(1:11) = "COL_ARCHIVE"
+                   PERFORM ACTION-COL_ARCHIVE
+               WHEN LS-CMD-ACTION(1:11) = "COL_RESTORE"
+                   PERFORM ACTION-COL_RESTORE
+               WHEN LS-CMD-ACTION(1:10) = "COL_IMPORT"
+                   PERFORM ACTION-COL_IMPORT
+               WHEN LS-CMD-ACTION(1:10) = "COL_REPORT"
+                   PERFORM ACTION-COL_REPORT
+               WHEN LS-CMD-ACTION(1:10) = "COL_VERIFY"
+                   PERFORM ACTION-COL_VERIFY
+               WHEN LS-CMD-ACTION(1:8) = "COL_SYNC"
+                   PERFORM ACTION-COL_SYNC
+               WHEN LS-CMD-ACTION(1:13) = "COL_RECONCILE"
+                   PERFORM ACTION-COL_RECONCILE
+               WHEN LS-CMD-ACTION(1:12) = "COL_ALLOCATE"
+                   PERFORM ACTION-COL_ALLOCATE
+               WHEN LS-CMD-ACTION(1:10) = "COL_CANCEL"
+                   PERFORM ACTION-COL_CANCEL
+               WHEN LS-CMD-ACTION(1:8) = "COL_HOLD"
+                   PERFORM ACTION-COL_HOLD
+               WHEN LS-CMD-ACTION(1:11) = "COL_RELEASE"
+                   PERFORM ACTION-COL_RELEASE
+               WHEN LS-CMD-ACTION(1:9) = "COL_LEGAL"
+                   PERFORM ACTION-COL_LEGAL
+               WHEN LS-CMD-ACTION(1:10) = "COL_RECALL"
+                   PERFORM ACTION-COL_RECALL
+               WHEN LS-CMD-ACTION(1:13) = "COL_REINSTATE"
+                   PERFORM ACTION-COL_REINSTATE
+               WHEN LS-CMD-ACTION(1:11) = "COL_DISPUTE"
+                   PERFORM ACTION-COL_DISPUTE
+               WHEN LS-CMD-ACTION(1:12) = "COL_EVIDENCE"
+                   PERFORM ACTION-COL_EVIDENCE
+               WHEN LS-CMD-ACTION(1:11) = "COL_OUTCOME"
+                   PERFORM ACTION-COL_OUTCOME
+               WHEN LS-CMD-ACTION(1:12) = "COL_FORECAST"
+                   PERFORM ACTION-COL_FORECAST
+               WHEN LS-CMD-ACTION(1:12) = "COL_OVERRIDE"
+                   PERFORM ACTION-COL_OVERRIDE
+               WHEN OTHER
+                   MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
+           END-EVALUATE
+           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+           GOBACK.
+
+       ACTION-COL_OPEN.
+           MOVE "COL_OPEN_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_OPEN" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_LIST.
+           MOVE "COL_LIST_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_LIST" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_GET.
+           MOVE "COL_GET_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_GET" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_UPDATE.
+           MOVE "COL_UPDATE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_UPDATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_CLOSE.
+           MOVE "COL_CLOSE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_CLOSE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_ASSIGN.
+           MOVE "COL_ASSIGN_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_ASSIGN" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_ESCALATE.
+           MOVE "COL_ESCALATE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_ESCALATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_SUMMARY.
+           MOVE "COL_SUMMARY_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_SUMMARY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_VALIDATE.
+           MOVE "COL_VALIDATE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_VALIDATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_EXPORT.
+           MOVE "COL_EXPORT_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_EXPORT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_AUDIT.
+           MOVE "COL_AUDIT_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_AUDIT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_STATUS.
+           MOVE "COL_STATUS_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_STATUS" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_REOPEN.
+           MOVE "COL_REOPEN_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_REOPEN" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_NOTE.
+           MOVE "COL_NOTE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_NOTE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_PROMISE.
+           MOVE "COL_PROMISE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_PROMISE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_PAYMENT.
+           MOVE "COL_PAYMENT_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_PAYMENT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_SETTLE.
+           MOVE "COL_SETTLE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_SETTLE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_WRITEOFF.
+           MOVE "COL_WRITEOFF_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_WRITEOFF" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_RESTRUCTURE.
+           MOVE "COL_RESTRUCTURE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_RESTRUCTURE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_REAGE.
+           MOVE "COL_REAGE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_REAGE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_NOTIFY.
+           MOVE "COL_NOTIFY_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_NOTIFY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_ARCHIVE.
+           MOVE "COL_ARCHIVE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_ARCHIVE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_RESTORE.
+           MOVE "COL_RESTORE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_RESTORE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_IMPORT.
+           MOVE "COL_IMPORT_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_IMPORT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_REPORT.
+           MOVE "COL_REPORT_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_REPORT" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_VERIFY.
+           MOVE "COL_VERIFY_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_VERIFY" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_SYNC.
+           MOVE "COL_SYNC_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_SYNC" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_RECONCILE.
+           MOVE "COL_RECONCILE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_RECONCILE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_ALLOCATE.
+           MOVE "COL_ALLOCATE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_ALLOCATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_CANCEL.
+           MOVE "COL_CANCEL_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_CANCEL" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_HOLD.
+           MOVE "COL_HOLD_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_HOLD" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_RELEASE.
+           MOVE "COL_RELEASE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_RELEASE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_LEGAL.
+           MOVE "COL_LEGAL_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_LEGAL" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_RECALL.
+           MOVE "COL_RECALL_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_RECALL" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_REINSTATE.
+           MOVE "COL_REINSTATE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_REINSTATE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_DISPUTE.
+           MOVE "COL_DISPUTE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_DISPUTE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_EVIDENCE.
+           MOVE "COL_EVIDENCE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_EVIDENCE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_OUTCOME.
+           MOVE "COL_OUTCOME_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_OUTCOME" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_FORECAST.
+           MOVE "COL_FORECAST_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_FORECAST" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       ACTION-COL_OVERRIDE.
+           MOVE "COL_OVERRIDE_OK" TO WS-CODE
+           MOVE "SUCCESS|COL_OVERRIDE" TO WS-RESULT
+           MOVE WS-VAR-01 TO WS-VAR-02
+           MOVE WS-VAR-02 TO WS-VAR-03
+           MOVE WS-VAR-03 TO WS-VAR-04
+           MOVE WS-VAR-04 TO WS-VAR-05
+           MOVE WS-VAR-05 TO WS-VAR-06
+           EXIT PARAGRAPH.
+
+       TRIM-ALL.
+           MOVE LS-PARAM1 TO WS-P1
+           MOVE LS-PARAM2 TO WS-P2
+           MOVE LS-PARAM3 TO WS-P3
+           MOVE LS-PARAM4 TO WS-P4
+           MOVE LS-PARAM5 TO WS-P5
+           MOVE LS-PARAM6 TO WS-P6
+           EXIT PARAGRAPH.
+
+       VALIDATE-ALL.
+           MOVE 'Y' TO WS-STEP
+           EXIT PARAGRAPH.
+
+       AUDIT-ACTION.
+           MOVE LS-CMD-ACTION TO WS-AUDIT-ACTION
+           EXIT PARAGRAPH.
+
