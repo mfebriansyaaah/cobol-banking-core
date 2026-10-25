@@ -49,6 +49,14 @@
        01  WS-VAR-38           PIC X(100) VALUE SPACES.
        01  WS-VAR-39           PIC X(100) VALUE SPACES.
        01  WS-VAR-40           PIC X(100) VALUE SPACES.
+       01  WS-PRINCIPAL          PIC 9(12)V99 VALUE 0.
+       01  WS-RATE               PIC 9(3)V9(6) VALUE 0.
+       01  WS-TERM               PIC 9(4) VALUE 0.
+       01  WS-MONTHLY-RATE       PIC 9(3)V9(6) VALUE 0.
+       01  WS-PAYMENT            PIC 9(12)V99 VALUE 0.
+       01  WS-PAYMENT-TEXT      PIC Z(10).ZZ VALUE 0.
+       01  WS-POWER              PIC 9(5)V9(6) VALUE 0.
+       01  WS-AMORT-I            PIC 9(4) VALUE 0.
        01  WS-RESULT               PIC X(16384) VALUE SPACES.
        01  WS-P1                   PIC X(100) VALUE SPACES.
        01  WS-P2                   PIC X(100) VALUE SPACES.
@@ -476,13 +484,34 @@
            EXIT PARAGRAPH.
 
        ACTION-LSC_CALC.
-           MOVE "LSC_CALC_OK" TO WS-CODE
-           MOVE "SUCCESS|LSC_CALC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
+           MOVE FUNCTION NUMVAL(WS-P1) TO WS-PRINCIPAL
+           MOVE FUNCTION NUMVAL(WS-P2) TO WS-RATE
+           MOVE FUNCTION NUMVAL(WS-P3) TO WS-TERM
+           IF WS-TERM = 0
+               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
+               EXIT PARAGRAPH
+           END-IF
+           IF WS-RATE = 0
+               COMPUTE WS-PAYMENT = WS-PRINCIPAL / WS-TERM
+           ELSE
+               COMPUTE WS-MONTHLY-RATE = WS-RATE / 1200
+               MOVE 1 TO WS-POWER
+               PERFORM VARYING WS-AMORT-I FROM 1 BY 1 UNTIL WS-AMORT-I > WS-TERM
+                   COMPUTE WS-POWER = WS-POWER * (1 + WS-MONTHLY-RATE)
+               END-PERFORM
+               COMPUTE WS-MONTHLY-RATE = WS-RATE / 1200
+               MOVE 1 TO WS-POWER
+               PERFORM VARYING WS-AMORT-I FROM 1 BY 1 UNTIL WS-AMORT-I > WS-TERM
+                   COMPUTE WS-POWER = WS-POWER * (1 + WS-MONTHLY-RATE)
+               END-PERFORM
+               COMPUTE WS-PAYMENT = WS-PRINCIPAL * WS-MONTHLY-RATE * WS-POWER / (WS-POWER - 1)
+           END-IF
+           MOVE WS-PAYMENT TO WS-PAYMENT-TEXT
+           MOVE SPACES TO WS-RESULT
+           STRING "SUCCESS|LSC_CALC|" DELIMITED BY SIZE
+                  WS-PAYMENT DELIMITED BY SIZE
+                  INTO WS-RESULT
+           END-STRING
            EXIT PARAGRAPH.
 
        ACTION-LSC_UPDATE.
