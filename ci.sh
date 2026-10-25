@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Minimal full CI: build, then run the existing COBOL/C error harness (which
+# also runs the gateway endpoint suite and DB connectivity checks).
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+
+echo "=== BUILD ==="
+./build.sh
+
+echo "=== COBOL/C ERROR HARNESS ==="
+tests/check_cobol_c_errors.sh
+
+echo "=== CI GREEN ==="
