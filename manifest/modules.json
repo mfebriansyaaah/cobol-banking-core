@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T05:43:29.594Z",
+  "generatedAt": "2026-10-25T08:26:21.848Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -9,6 +9,9 @@
     },
     {
       "source": "alert_escalation_core.cob"
+    },
+    {
+      "source": "aml_screening_core.cob"
     },
     {
       "source": "asset_core.cob"
@@ -44,16 +47,25 @@
       "source": "batch_core.cob"
     },
     {
+      "source": "billpay_core.cob"
+    },
+    {
       "source": "budget_core.cob"
     },
     {
       "source": "capacity_plan_core.cob"
     },
     {
+      "source": "card_billing_core.cob"
+    },
+    {
       "source": "card_core.cob"
     },
     {
       "source": "change_control_core.cob"
+    },
+    {
+      "source": "collection_core.cob"
     },
     {
       "source": "compliance_audit_core.cob"
@@ -63,6 +75,12 @@
     },
     {
       "source": "compliance_retention_core.cob"
+    },
+    {
+      "source": "consolidation_core.cob"
+    },
+    {
+      "source": "cost_center_core.cob"
     },
     {
       "source": "dashboard_core.cob"
@@ -75,6 +93,9 @@
     },
     {
       "source": "deposit_core.cob"
+    },
+    {
+      "source": "deposit_interest_core.cob"
     },
     {
       "source": "disaster_recovery_core.cob"
@@ -107,10 +128,22 @@
       "source": "fee_waiver_core.cob"
     },
     {
+      "source": "fixed_asset_core.cob"
+    },
+    {
+      "source": "fraud_case_core.cob"
+    },
+    {
       "source": "fraud_ops_core.cob"
     },
     {
       "source": "fx_deal_core.cob"
+    },
+    {
+      "source": "fx_hedging_core.cob"
+    },
+    {
+      "source": "gl_allocation_core.cob"
     },
     {
       "source": "gl_core.cob"
@@ -140,6 +173,9 @@
       "source": "key_rotation_core.cob"
     },
     {
+      "source": "kyc_periodic_core.cob"
+    },
+    {
       "source": "kyc_review_core.cob"
     },
     {
@@ -155,6 +191,9 @@
       "source": "loan_core.cob"
     },
     {
+      "source": "loan_schedule_core.cob"
+    },
+    {
       "source": "notification_audit_core.cob"
     },
     {
@@ -165,6 +204,9 @@
     },
     {
       "source": "oncall_delivery_core.cob"
+    },
+    {
+      "source": "payment_clearing_core.cob"
     },
     {
       "source": "payment_core.cob"
@@ -230,6 +272,9 @@
       "source": "sanctions_hold_core.cob"
     },
     {
+      "source": "sanctions_list_core.cob"
+    },
+    {
       "source": "secret_rotation_core.cob"
     },
     {
@@ -252,6 +297,9 @@
     },
     {
       "source": "tax_report_core.cob"
+    },
+    {
+      "source": "treasury_liquidity_core.cob"
     },
     {
       "source": "treasury_position_core.cob"
@@ -784,6 +832,86 @@
       "prefixLen": 4,
       "prefix": "SLA_",
       "program": "sla_tracking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LSC_",
+      "program": "loan_schedule_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DPI_",
+      "program": "deposit_interest_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CBL_",
+      "program": "card_billing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "COL_",
+      "program": "collection_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PMC_",
+      "program": "payment_clearing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BLP_",
+      "program": "billpay_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRL_",
+      "program": "treasury_liquidity_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FXH_",
+      "program": "fx_hedging_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "KCP_",
+      "program": "kyc_periodic_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AML_",
+      "program": "aml_screening_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SCL_",
+      "program": "sanctions_list_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FRC_",
+      "program": "fraud_case_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GLA_",
+      "program": "gl_allocation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FAS_",
+      "program": "fixed_asset_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CSC_",
+      "program": "cost_center_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CNS_",
+      "program": "consolidation_core"
     },
     {
       "prefixLen": 13,
