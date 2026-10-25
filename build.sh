@@ -38,6 +38,10 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/incident_postmortem_core.cob \
     cobol/src/change_approval_core.cob \
     cobol/src/capacity_forecast_core.cob \
+    cobol/src/data_lineage_core.cob \
+    cobol/src/metric_definition_core.cob \
+    cobol/src/report_builder_core.cob \
+    cobol/src/analytics_snapshot_core.cob \
     cobol/src/auth_password_core.cob \
     cobol/src/ref_engine.cob \
     cobol/src/gl_core.cob \

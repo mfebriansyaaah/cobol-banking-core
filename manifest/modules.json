@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T08:42:55.038Z",
+  "generatedAt": "2026-10-25T08:50:43.314Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -12,6 +12,9 @@
     },
     {
       "source": "aml_screening_core.cob"
+    },
+    {
+      "source": "analytics_snapshot_core.cob"
     },
     {
       "source": "asset_core.cob"
@@ -93,6 +96,9 @@
     },
     {
       "source": "dashboard_core.cob"
+    },
+    {
+      "source": "data_lineage_core.cob"
     },
     {
       "source": "data_quality_core.cob"
@@ -206,6 +212,9 @@
       "source": "loan_schedule_core.cob"
     },
     {
+      "source": "metric_definition_core.cob"
+    },
+    {
       "source": "notification_audit_core.cob"
     },
     {
@@ -264,6 +273,9 @@
     },
     {
       "source": "report_audit_core.cob"
+    },
+    {
+      "source": "report_builder_core.cob"
     },
     {
       "source": "report_core.cob"
@@ -944,6 +956,26 @@
       "prefixLen": 4,
       "prefix": "CFC_",
       "program": "capacity_forecast_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DLN_",
+      "program": "data_lineage_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MDF_",
+      "program": "metric_definition_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RPB_",
+      "program": "report_builder_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ASP_",
+      "program": "analytics_snapshot_core"
     },
     {
       "prefixLen": 13,
