@@ -177,6 +177,8 @@ takes the actor from the body.
   `build.sh`, and `routes/index.js` have not drifted.
 - IPC contract tests live in `middleware/test/ipc_contract*.test.js`
   (file mode and worker-pool mode).
+- Table-driven COBOL tests live in `tests/cobol_table_tests.sh`
+  (wired into `ci.sh`; baseline count in `tests/baseline_counts.txt`).
 - Functional shell suites use `tests/serve_harness.sh` unless they need
   fresh-process semantics.
 - Stop stray servers with a bracket pattern (`pkill -f "[s]erver.js"`).
