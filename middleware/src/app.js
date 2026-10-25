@@ -11,6 +11,7 @@ import { createRequestObserver, metricsText, recordError, recordAuthFailure } fr
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { createTokenStore } from './tokenStore.js';
+import { RESPONSE_MAPPERS, sanitizeMeta, tokenVersion } from './responseMappers.js';
 
 const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
 
@@ -34,22 +35,14 @@ export const ROUTES = [
     { name: 'password', pattern: PASSWORD, required: true },
     { name: 'name', pattern: NAME, required: true },
     { name: 'dob', pattern: DATE, required: true },
-  ], onSuccess: async () => {
-    // Delivery is owned by the outbox worker (transactional enqueue in
-    // COBOL); the code is never returned to the client. A neutral response
-    // (no code) is sent when the email is already registered.
-    return { data: ['USER_CREATED'] };
-  } },
+  ],  },
   { method: 'post', path: '/auth/verify', action: 'VERIFY_EMAIL', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
   ] },
   { method: 'post', path: '/auth/forgot', action: 'FORGOT_PASSWORD', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
-  ], onSuccess: async () => {
-    // Neutral: a code is queued only when the account exists.
-    return { data: ['CODE_SENT'] };
-  } },
+  ],  },
   { method: 'post', path: '/auth/reset-password', action: 'RESET_PASSWORD', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
@@ -57,34 +50,12 @@ export const ROUTES = [
   ] },
   { method: 'post', path: '/auth/resend', action: 'RESEND_VERIFICATION', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
-  ], onSuccess: async () => {
-    // Neutral: a new code is queued only when an UNVERIFIED account exists.
-    return { data: ['CODE_SENT'] };
-  } },
+  ],  },
   { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
     { name: 'mfaCode', pattern: MFA_CODE, required: false },
-  ], onSuccess: async (body, input, { req }) => {
-    const ver = await tokenVersion(input.email);
-    const issued = signRefresh({ email: input.email });
-    const ua = sanitizeMeta(req && req.headers && req.headers['user-agent'], 120);
-    const ip = sanitizeMeta(req && req.ip, 45);
-    await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti, ua, ip]);
-    // Announce a first sign-in from this fingerprint. Best effort: the login
-    // must not fail because the notice could not be queued.
-    try { await invoke('LOGIN_NOTICE', [input.email, ua, ip]); } catch { /* best effort */ }
-    // Whether an admin without MFA must enrol next is decided by COBOL; the
-    // gateway forwards the flag without reimplementing the admin-role rule.
-    const enroll = (await invoke('MFA_ENROLL_REQUIRED', [input.email])) === 'SUCCESS|1';
-    return {
-      ...body,
-      token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }),
-      refreshToken: issued.token,
-      mfaEnrollmentRequired: enroll,
-      permissions: await listPermissions(input.email),
-    };
-  } },
+  ],  },
 
   // Step-up: re-verify the caller's own credentials and mint a short-lived
   // proof required by privileged admin actions. Bearer-authenticated.
@@ -92,50 +63,22 @@ export const ROUTES = [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
     { name: 'mfaCode', pattern: MFA_CODE, required: false },
-  ], onSuccess: async (body, input) => {
-    const ver = await tokenVersion(input.email);
-    return { data: ['STEP_UP_OK'], stepUpToken: signStepUp({ email: input.email, ver }) };
-  } },
+  ],  },
 
   { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
     { name: 'limit', pattern: LIMIT, required: false },
     { name: 'offset', pattern: INT, required: false },
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'role', pattern: ROLE, required: false },
-  ], onSuccess: async (body) => {
-    // data: ['LIST_DONE', total, 'id:email:name:role:status;...']
-    const total = Number(body.data[1]);
-    const users = String(body.data[2] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [id, email, name, role, status] = row.split(':');
-        return { id, email, name, role, status };
-      });
-    return { data: ['USERS'], total, users };
-  } },
+  ],  },
   { method: 'get', path: '/users/:email', action: 'GET_USER', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async (body) => {
-    // data: ['USER', id, email, name, status, role, createdAt]
-    const [id, email, name, status, role, createdAt] = body.data.slice(1);
-    return { data: ['USER'], user: { id, email, name, status, role, createdAt } };
-  } },
+  ],  },
   { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async (body) => {
-    // Every account, parsed from "iso:balance:available:status" rows.
-    const balances = String(body.data[1] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [currency, balance, available, status] = row.split(':');
-        return { currency, balance, available, status };
-      });
-    return { data: ['BALANCES'], balances };
-  } },
+  ],  },
   { method: 'get', path: '/statements', action: 'STATEMENT', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
@@ -143,27 +86,14 @@ export const ROUTES = [
     { name: 'range', pattern: DATERANGE, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
     { name: 'offset', pattern: INT, required: false },
-  ], onSuccess: async (body) => {
-    // One row per posting: id, posting/value dates, ref, source, side,
-    // amount, balance after the row, reversal flag, description.
-    const rows = String(body.data[5] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed, ...desc] = row.split(':');
-        return { id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed: reversed === '1', description: desc.join(':') };
-      });
-    return { data: ['STATEMENT'], opening: body.data[1], closing: body.data[2], currency: body.data[3], total: body.data[4], lines: rows };
-  } },
+  ],  },
   { method: 'post', path: '/disputes', action: 'OPEN_DISPUTE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'subject', pattern: REASON, required: true },
     { name: 'detail', pattern: REASON, required: true },
     { name: 'ref', pattern: KEY, required: false },
-  ], onSuccess: async (body) => {
-    return { data: ['DISPUTE_OPENED'], caseId: body.data[1] };
-  } },
+  ],  },
   { method: 'post', path: '/disputes/:id/notes', action: 'ADD_DISPUTE_NOTE', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
@@ -190,31 +120,11 @@ export const ROUTES = [
     { name: 'status', pattern: DISPUTE_STATUS, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
     { name: 'offset', pattern: INT, required: false },
-  ], onSuccess: async (body) => {
-    // One row per case: id, owner, subject, state, due date, overdue flag, opened date.
-    const cases = String(body.data[2] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [caseId, email, subject, state, due, overdue, created] = row.split(':');
-        return { caseId, email, subject, state, due, overdue: overdue === '1', created };
-      });
-    return { data: ['DISPUTES'], total: body.data[1], cases };
-  } },
+  ],  },
   { method: 'get', path: '/disputes/:id', action: 'GET_DISPUTE', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: INT, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async (body) => {
-    const [caseId, email, ref, subject, detail, state, assignee, due, overdue, created, resolution] = String(body.data[1] || '').split(':');
-    const messages = String(body.data[3] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [msgId, author, msgBody, sentAt] = row.split(':');
-        return { msgId, author, body: msgBody, sentAt };
-      });
-    return { data: ['DISPUTE'], case: { caseId, email, ref, subject, detail, state, assignee, due, overdue: overdue === '1', created, resolution }, total: body.data[2], messages };
-  } },
+  ],  },
   { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', stepUpPolicy: 'TRANSFER', fields: [
     { name: 'from', pattern: EMAIL, required: true },
     { name: 'to', pattern: EMAIL, required: true },
@@ -238,17 +148,7 @@ export const ROUTES = [
   { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async (body) => {
-    // data: ['DASHBOARD', email, name, status, role, dob, createdAt, accounts]
-    const [email, name, status, role, dob, createdAt, accounts = ''] = body.data.slice(1);
-    const balances = accounts
-      ? accounts.split(';').map((row) => {
-          const [currency, balance, available, status] = row.split(':');
-          return { currency, balance, available, status };
-        })
-      : [];
-    return { data: ['PROFILE'], profile: { email, name, status, role, dob, createdAt }, accounts: balances, permissions: await listPermissions(email) };
-  } },
+  ],  },
   { method: 'patch', path: '/profile', action: 'UPDATE_PROFILE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'name', pattern: NAME, required: true },
@@ -301,19 +201,13 @@ export const ROUTES = [
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
-  ], onSuccess: async () => {
-    // Neutral: a code is queued only when the new address is free.
-    return { data: ['CODE_SENT'] };
-  } },
+  ],  },
   { method: 'post', path: '/profile/email/confirm', action: 'CONFIRM_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'newEmail', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async () => {
-    // The abandoned address is notified through the outbox.
-    return { data: ['EMAIL_CHANGED'] };
-  } },
+  ],  },
   { method: 'post', path: '/profile/password', action: 'CHANGE_PASSWORD', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'currentPassword', pattern: PASSWORD, required: true },
@@ -323,9 +217,7 @@ export const ROUTES = [
   { method: 'post', path: '/mfa/backup-codes', action: 'MFA_BACKUP_CODES', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async (body) => {
-    return { data: ['BACKUP_CODES'], codes: String(body.data[1] || '').split(',').filter(Boolean) };
-  } },
+  ],  },
   { method: 'post', path: '/mfa/recover', action: 'REQUEST_MFA_RECOVERY', public: true, fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'password', pattern: PASSWORD, required: true },
@@ -351,14 +243,7 @@ export const ROUTES = [
   { method: 'post', path: '/mfa/enroll', action: 'MFA_ENROLL_BEGIN', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'actor', pattern: EMAIL, required: true },
-  ], onSuccess: async (body, input) => {
-    // The secret is shown once so the user can add it to their authenticator.
-    const secret = body.data[1];
-    const issuer = process.env.MFA_ISSUER || 'CobolBank';
-    const label = encodeURIComponent(`${issuer}:${input.email}`);
-    const otpauth = `otpauth://totp/${label}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
-    return { data: ['MFA_SECRET'], secret, otpauth };
-  } },
+  ],  },
   { method: 'post', path: '/mfa/confirm', action: 'MFA_ENROLL_CONFIRM', tokenIdentity: 'actor', fields: [
     { name: 'email', pattern: EMAIL, required: true },
     { name: 'code', pattern: CODE, required: true },
@@ -468,67 +353,27 @@ export const ROUTES = [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'periodStart', pattern: DATE, required: true },
     { name: 'periodEnd', pattern: DATE, required: true },
-  ], onSuccess: async (body) => {
-    return { data: ['REVIEW_OPENED'], reviewId: body.data[1], itemCount: Number(body.data[2]) };
-  } },
+  ],  },
   { method: 'get', path: '/admin/access-reviews', action: 'LIST_ACCESS_REVIEWS', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'state', pattern: REVIEW_STATE, required: false },
     { name: 'limit', pattern: LIMIT, required: false },
     { name: 'offset', pattern: INT, required: false },
-  ], onSuccess: async (body) => {
-    const total = Number(body.data[1]);
-    const reviews = String(body.data[2] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [id, periodStart, periodEnd, state, openedBy, itemCount, closedBy, closedAt] = row.split(':');
-        return { id, periodStart, periodEnd, state, openedBy, itemCount: Number(itemCount), closedBy, closedAt };
-      });
-    return { data: ['REVIEWS'], total, reviews };
-  } },
+  ],  },
   { method: 'get', path: '/admin/access-reviews/:id', action: 'GET_ACCESS_REVIEW', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'id', pattern: INT, required: true },
-  ], onSuccess: async (body) => {
-    const [id, periodStart, periodEnd, state, openedBy, closedBy, closedAt, itemRows] = body.data.slice(1);
-    const items = String(itemRows || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [itemId, email, role, status, mfaEnabled, decision, reviewer, lastLoginAt, note] = row.split(':');
-        return {
-          itemId,
-          email,
-          role,
-          status,
-          mfaEnabled: mfaEnabled === '1',
-          decision,
-          reviewer,
-          lastLoginAt,
-          note,
-        };
-      });
-    return {
-      data: ['REVIEW'],
-      review: { id, periodStart, periodEnd, state, openedBy, closedBy, closedAt },
-      items,
-    };
-  } },
+  ],  },
   { method: 'post', path: '/admin/access-review-items/:itemId/decide', action: 'DECIDE_ACCESS_ITEM', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'itemId', pattern: INT, required: true },
     { name: 'decision', pattern: REVIEW_DECISION, required: true },
     { name: 'note', pattern: REASON, required: false },
-  ], onSuccess: async (body) => {
-    return { data: ['ITEM_DECIDED'], itemId: body.data[1], decision: body.data[2] };
-  } },
+  ],  },
   { method: 'post', path: '/admin/access-reviews/:id/close', action: 'CLOSE_ACCESS_REVIEW', tokenIdentity: 'actor', stepUp: true, fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'id', pattern: INT, required: true },
-  ], onSuccess: async (body) => {
-    return { data: ['REVIEW_CLOSED'], reviewId: body.data[1] };
-  } },
+  ],  },
   { method: 'get', path: '/admin/audit', action: 'LIST_AUDIT', tokenIdentity: 'actor', fields: [
     { name: 'actor', pattern: EMAIL, required: true },
     { name: 'action', pattern: AUDIT_ACTION, required: false },
@@ -538,39 +383,7 @@ export const ROUTES = [
   ] },
 ];
 
-// Keep client-supplied session metadata to safe, bounded text: strip control
-// characters and the input-line/column separators (| and ;) so a user-agent
-// cannot corrupt the session-list row format, and cap the length.
-function sanitizeMeta(value, max) {
-  return String(value || '')
-    .replace(/[^\x20-\x7E]/g, '')
-    .replace(/[|;]/g, '_')
-    .slice(0, max);
-}
-
-// The permissions an account holds, for clients to render. Authorization
-// itself stays in COBOL; this is a read-only projection, never a decision.
-async function listPermissions(email) {
-  try {
-    const raw = await invoke('LIST_PERMISSIONS', [email]);
-    if (!raw.startsWith('SUCCESS|PERMISSIONS')) return [];
-    const rows = raw.split('|')[2] || '';
-    return rows ? rows.split(';').filter(Boolean) : [];
-  } catch {
-    return [];
-  }
-}
-
-async function tokenVersion(email) {
-  try {
-    const raw = await invoke('GET_TOKEN_VERSION', [email]);
-    const v = Number(String(raw).split('|')[1]);
-    return Number.isFinite(v) ? v : 1;
-  } catch {
-    return 1;
-  }
-}
-
+// Response mappers and helpers live in responseMappers.js.
 // The access token carries the user's token version and its own jti; a mismatch
 // (or a denylisted jti) means it was revoked since it was issued.
 export function buildRouter({ mailer, tokenStore } = {}) {
@@ -802,8 +615,9 @@ export function buildRouter({ mailer, tokenStore } = {}) {
           recordError(body.error);
           if (AUTH_FAILURE_CODES.has(body.error)) recordAuthFailure(body.error);
         }
-        if (status === 200 && route.onSuccess) {
-          return res.status(status).json(await route.onSuccess(body, input, { mailer, req }));
+        const mapper = status === 200 ? RESPONSE_MAPPERS[route.action] : null;
+        if (mapper) {
+          return res.status(status).json(await mapper(body, input, { mailer, req }));
         }
         return res.status(status).json(body);
       } catch (err) {
