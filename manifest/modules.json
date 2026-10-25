@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T08:26:21.848Z",
+  "generatedAt": "2026-10-25T08:42:55.038Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -38,6 +38,9 @@
       "source": "auth_password_core.cob"
     },
     {
+      "source": "backup_drill_core.cob"
+    },
+    {
       "source": "backup_restore_core.cob"
     },
     {
@@ -53,6 +56,9 @@
       "source": "budget_core.cob"
     },
     {
+      "source": "capacity_forecast_core.cob"
+    },
+    {
       "source": "capacity_plan_core.cob"
     },
     {
@@ -60,6 +66,9 @@
     },
     {
       "source": "card_core.cob"
+    },
+    {
+      "source": "change_approval_core.cob"
     },
     {
       "source": "change_control_core.cob"
@@ -168,6 +177,9 @@
     },
     {
       "source": "incident_core.cob"
+    },
+    {
+      "source": "incident_postmortem_core.cob"
     },
     {
       "source": "key_rotation_core.cob"
@@ -912,6 +924,26 @@
       "prefixLen": 4,
       "prefix": "CNS_",
       "program": "consolidation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BDR_",
+      "program": "backup_drill_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IPM_",
+      "program": "incident_postmortem_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CHA_",
+      "program": "change_approval_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CFC_",
+      "program": "capacity_forecast_core"
     },
     {
       "prefixLen": 13,
