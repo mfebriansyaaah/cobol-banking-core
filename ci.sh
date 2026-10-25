@@ -12,6 +12,9 @@ node scripts/check_manifest.mjs "$ROOT"
 echo "=== BUILD ==="
 ./build.sh
 
+echo "=== COBOL TABLE TESTS ==="
+tests/cobol_table_tests.sh "$ROOT"
+
 echo "=== COBOL/C ERROR HARNESS ==="
 tests/check_cobol_c_errors.sh
 
