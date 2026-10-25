@@ -72,6 +72,9 @@ adapters and capabilities COBOL cannot provide directly.
   in the cut-over; all 206 entities now live in the generic reference engine
   (`ref_engine.cob` / `ref_ext_core.cob`). No generated code remains.
 - MySQL database `cobol_db`.
+- `manifest/modules.json` - module registry: COBOL modules, gateway route files,
+  and COBOL dispatch entries. Regenerate with `scripts/generate_manifest.mjs`;
+  `scripts/check_manifest.mjs` fails CI on drift.
 
 ## Current state and target
 
@@ -124,7 +127,7 @@ printf 'CHECK_BALANCE|sender@test.com|sender@test.com||\n' > input.txt
 ./cobol/bin/main_logic
 cat output.txt                                # SUCCESS|BALANCES|USD:1000.00:ACTIVE
 
-# 4. Full gate
+# 4. Full gate (manifest drift check, build, COBOL/C harness, gateway tests)
 ./ci.sh                                       # must end with ALL GREEN
 ```
 
@@ -170,6 +173,10 @@ takes the actor from the body.
 - Install hooks once per clone: `./scripts/install-hooks.sh`.
 - Start a slice from merged `main`: `./scripts/sync_main.sh <branch>`.
 - Use `./ci-fast.sh` while iterating; full `./ci.sh` is the merge evidence.
+- Run `node scripts/check_manifest.mjs` to verify the module registry,
+  `build.sh`, and `routes/index.js` have not drifted.
+- IPC contract tests live in `middleware/test/ipc_contract*.test.js`
+  (file mode and worker-pool mode).
 - Functional shell suites use `tests/serve_harness.sh` unless they need
   fresh-process semantics.
 - Stop stray servers with a bracket pattern (`pkill -f "[s]erver.js"`).

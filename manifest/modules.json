@@ -1,0 +1,1149 @@
+{
+  "generatedAt": "2026-10-25T05:43:29.594Z",
+  "cobolModules": [
+    {
+      "source": "access_audit_core.cob"
+    },
+    {
+      "source": "alert_core.cob"
+    },
+    {
+      "source": "alert_escalation_core.cob"
+    },
+    {
+      "source": "asset_core.cob"
+    },
+    {
+      "source": "asset_maintenance_core.cob"
+    },
+    {
+      "source": "audit_analytics_core.cob"
+    },
+    {
+      "source": "audit_drilldown_core.cob"
+    },
+    {
+      "source": "audit_retention_core.cob"
+    },
+    {
+      "source": "audit_snapshot_core.cob"
+    },
+    {
+      "source": "auth_core.cob"
+    },
+    {
+      "source": "auth_password_core.cob"
+    },
+    {
+      "source": "backup_restore_core.cob"
+    },
+    {
+      "source": "backup_verification_core.cob"
+    },
+    {
+      "source": "batch_core.cob"
+    },
+    {
+      "source": "budget_core.cob"
+    },
+    {
+      "source": "capacity_plan_core.cob"
+    },
+    {
+      "source": "card_core.cob"
+    },
+    {
+      "source": "change_control_core.cob"
+    },
+    {
+      "source": "compliance_audit_core.cob"
+    },
+    {
+      "source": "compliance_export_core.cob"
+    },
+    {
+      "source": "compliance_retention_core.cob"
+    },
+    {
+      "source": "dashboard_core.cob"
+    },
+    {
+      "source": "data_quality_core.cob"
+    },
+    {
+      "source": "data_retention_core.cob"
+    },
+    {
+      "source": "deposit_core.cob"
+    },
+    {
+      "source": "disaster_recovery_core.cob"
+    },
+    {
+      "source": "dispute_notify_core.cob"
+    },
+    {
+      "source": "dispute_ops_core.cob"
+    },
+    {
+      "source": "dsar_core.cob"
+    },
+    {
+      "source": "eod_core.cob"
+    },
+    {
+      "source": "eod_jobs_core.cob"
+    },
+    {
+      "source": "export_archive_core.cob"
+    },
+    {
+      "source": "export_stream_core.cob"
+    },
+    {
+      "source": "fee_core.cob"
+    },
+    {
+      "source": "fee_waiver_core.cob"
+    },
+    {
+      "source": "fraud_ops_core.cob"
+    },
+    {
+      "source": "fx_deal_core.cob"
+    },
+    {
+      "source": "gl_core.cob"
+    },
+    {
+      "source": "gl_period_close_core.cob"
+    },
+    {
+      "source": "gl_reval_core.cob"
+    },
+    {
+      "source": "hashlen_core.cob"
+    },
+    {
+      "source": "import_core.cob"
+    },
+    {
+      "source": "import_post_core.cob"
+    },
+    {
+      "source": "import_recon_core.cob"
+    },
+    {
+      "source": "incident_core.cob"
+    },
+    {
+      "source": "key_rotation_core.cob"
+    },
+    {
+      "source": "kyc_review_core.cob"
+    },
+    {
+      "source": "lbpue_core.cob"
+    },
+    {
+      "source": "legal_hold_core.cob"
+    },
+    {
+      "source": "limit_profile_core.cob"
+    },
+    {
+      "source": "loan_core.cob"
+    },
+    {
+      "source": "notification_audit_core.cob"
+    },
+    {
+      "source": "notification_core.cob"
+    },
+    {
+      "source": "oncall_core.cob"
+    },
+    {
+      "source": "oncall_delivery_core.cob"
+    },
+    {
+      "source": "payment_core.cob"
+    },
+    {
+      "source": "payment_hold_core.cob"
+    },
+    {
+      "source": "payment_instruction_core.cob"
+    },
+    {
+      "source": "pipeline_alert_core.cob"
+    },
+    {
+      "source": "policy_attestation_core.cob"
+    },
+    {
+      "source": "procurement_core.cob"
+    },
+    {
+      "source": "recon_core.cob"
+    },
+    {
+      "source": "recon_exception_core.cob"
+    },
+    {
+      "source": "recon_ops_core.cob"
+    },
+    {
+      "source": "ref_engine.cob"
+    },
+    {
+      "source": "ref_ext_core.cob"
+    },
+    {
+      "source": "regulatory_calendar_core.cob"
+    },
+    {
+      "source": "regulatory_report_core.cob"
+    },
+    {
+      "source": "report_archive_core.cob"
+    },
+    {
+      "source": "report_audit_core.cob"
+    },
+    {
+      "source": "report_core.cob"
+    },
+    {
+      "source": "report_delivery_core.cob"
+    },
+    {
+      "source": "report_scheduler_core.cob"
+    },
+    {
+      "source": "retention_job_core.cob"
+    },
+    {
+      "source": "risk_screening_core.cob"
+    },
+    {
+      "source": "sanctions_hold_core.cob"
+    },
+    {
+      "source": "secret_rotation_core.cob"
+    },
+    {
+      "source": "settlement_recon_core.cob"
+    },
+    {
+      "source": "sla_tracking_core.cob"
+    },
+    {
+      "source": "slo_report_core.cob"
+    },
+    {
+      "source": "statement_core.cob"
+    },
+    {
+      "source": "statement_delivery_core.cob"
+    },
+    {
+      "source": "statement_recon_core.cob"
+    },
+    {
+      "source": "tax_report_core.cob"
+    },
+    {
+      "source": "treasury_position_core.cob"
+    },
+    {
+      "source": "user_core.cob"
+    },
+    {
+      "source": "vendor_compliance_core.cob"
+    },
+    {
+      "source": "vendor_core.cob"
+    },
+    {
+      "source": "vendor_risk_core.cob"
+    },
+    {
+      "source": "wallet_core.cob"
+    }
+  ],
+  "gatewayRoutes": [
+    "access_audit.js",
+    "alert_escalation.js",
+    "alerts.js",
+    "asset.js",
+    "asset_maintenance.js",
+    "audit_analytics.js",
+    "audit_drilldown.js",
+    "audit_retention.js",
+    "audit_snapshot.js",
+    "backup_restore.js",
+    "backup_verification.js",
+    "batch.js",
+    "budget.js",
+    "capacity_plan.js",
+    "card.js",
+    "change_control.js",
+    "compliance_audit.js",
+    "compliance_export.js",
+    "compliance_retention.js",
+    "dashboard.js",
+    "data_quality.js",
+    "data_retention.js",
+    "deposit.js",
+    "disaster_recovery.js",
+    "dispute_notify.js",
+    "dispute_ops.js",
+    "dsar.js",
+    "eod.js",
+    "eod_jobs.js",
+    "export_archive.js",
+    "export_stream.js",
+    "fee.js",
+    "fee_waiver.js",
+    "fraud_ops.js",
+    "fx_deal.js",
+    "gl.js",
+    "gl_period_close.js",
+    "gl_reval.js",
+    "import.js",
+    "import_recon.js",
+    "incident.js",
+    "key_rotation.js",
+    "kyc.js",
+    "kyc_review.js",
+    "lbpue.js",
+    "legal_hold.js",
+    "limit_profile.js",
+    "loan.js",
+    "notification.js",
+    "notification_audit.js",
+    "oncall.js",
+    "oncall_delivery.js",
+    "payment.js",
+    "payment_hold.js",
+    "payment_instructions.js",
+    "pipeline_alert.js",
+    "policy_attestation.js",
+    "procurement.js",
+    "recon.js",
+    "recon_exception.js",
+    "recon_ops.js",
+    "ref_engine.js",
+    "ref_ext.js",
+    "regulatory_calendar.js",
+    "regulatory_report.js",
+    "report.js",
+    "report_archive.js",
+    "report_audit.js",
+    "report_delivery.js",
+    "report_scheduler.js",
+    "retention_job.js",
+    "risk_screening.js",
+    "sanctions_hold.js",
+    "secret_rotation.js",
+    "settlement_recon.js",
+    "sla_tracking.js",
+    "slo_report.js",
+    "statement.js",
+    "statement_delivery.js",
+    "statement_recon.js",
+    "tax_report.js",
+    "treasury_position.js",
+    "vendor.js",
+    "vendor_compliance.js",
+    "vendor_risk.js"
+  ],
+  "dispatch": [
+    {
+      "prefixLen": 4,
+      "prefix": "RFE_",
+      "program": "ref_engine"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "RX_",
+      "program": "ref_ext_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NTF_",
+      "program": "notification_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PAY_",
+      "program": "payment_core"
+    },
+    {
+      "prefixLen": 6,
+      "prefix": "RECON_",
+      "program": "recon_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "GL_",
+      "program": "gl_core"
+    },
+    {
+      "prefixLen": 6,
+      "prefix": "BATCH_",
+      "program": "batch_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RDL_",
+      "program": "report_delivery_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DSP_",
+      "program": "dispute_ops_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EXP_",
+      "program": "export_archive_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RCP_",
+      "program": "recon_ops_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ALT_",
+      "program": "alert_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DSH_",
+      "program": "dashboard_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SRC_",
+      "program": "statement_recon_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PIC_",
+      "program": "payment_instruction_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ONC_",
+      "program": "oncall_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AAN_",
+      "program": "audit_analytics_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IRC_",
+      "program": "import_recon_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "REX_",
+      "program": "recon_exception_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DSN_",
+      "program": "dispute_notify_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "XST_",
+      "program": "export_stream_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ALE_",
+      "program": "alert_escalation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ADR_",
+      "program": "audit_drilldown_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CEX_",
+      "program": "compliance_export_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PHL_",
+      "program": "payment_hold_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ODL_",
+      "program": "oncall_delivery_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CRT_",
+      "program": "compliance_retention_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RSC_",
+      "program": "report_scheduler_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ASN_",
+      "program": "audit_snapshot_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RPA_",
+      "program": "report_archive_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "REG_",
+      "program": "regulatory_report_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "LOAN_",
+      "program": "loan_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DEP_",
+      "program": "deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FXD_",
+      "program": "fx_deal_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRP_",
+      "program": "treasury_position_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CARD_",
+      "program": "card_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TAX_",
+      "program": "tax_report_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GRL_",
+      "program": "gl_reval_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GPC_",
+      "program": "gl_period_close_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FOP_",
+      "program": "fraud_ops_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LBP_",
+      "program": "lbpue_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FWV_",
+      "program": "fee_waiver_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LPR_",
+      "program": "limit_profile_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SHL_",
+      "program": "sanctions_hold_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "KYC_",
+      "program": "kyc_review_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RSK_",
+      "program": "risk_screening_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VND_",
+      "program": "vendor_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VRK_",
+      "program": "vendor_risk_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AMT_",
+      "program": "asset_maintenance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AST_",
+      "program": "asset_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PAT_",
+      "program": "policy_attestation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RCL_",
+      "program": "regulatory_calendar_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BUD_",
+      "program": "budget_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRC_",
+      "program": "procurement_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "STR_",
+      "program": "settlement_recon_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "STL_",
+      "program": "statement_delivery_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RPT_",
+      "program": "report_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "IMPP_",
+      "program": "import_post_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IMP_",
+      "program": "import_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FEE_",
+      "program": "fee_core"
+    },
+    {
+      "prefixLen": 7,
+      "prefix": "EODJOB_",
+      "program": "eod_jobs_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EOD_",
+      "program": "eod_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "STMT_",
+      "program": "statement_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LHO_",
+      "program": "legal_hold_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "KRO_",
+      "program": "key_rotation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DSR_",
+      "program": "dsar_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RTJ_",
+      "program": "retention_job_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SLO_",
+      "program": "slo_report_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PAL_",
+      "program": "pipeline_alert_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "INC_",
+      "program": "incident_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CHG_",
+      "program": "change_control_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BKP_",
+      "program": "backup_restore_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SCR_",
+      "program": "secret_rotation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DRC_",
+      "program": "disaster_recovery_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CAP_",
+      "program": "capacity_plan_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ARE_",
+      "program": "audit_retention_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "CA_",
+      "program": "compliance_audit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VCC_",
+      "program": "vendor_compliance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DQC_",
+      "program": "data_quality_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NAU_",
+      "program": "notification_audit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RAU_",
+      "program": "report_audit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DRT_",
+      "program": "data_retention_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AAU_",
+      "program": "access_audit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BKV_",
+      "program": "backup_verification_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SLA_",
+      "program": "sla_tracking_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "CHECK_BALANCE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 16,
+      "prefix": "REVERSE_TRANSFER",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 9,
+      "prefix": "TX_STATUS",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 8,
+      "prefix": "TRANSFER",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 8,
+      "prefix": "GET_USER",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 10,
+      "prefix": "LIST_USERS",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "GET_DASHBOARD",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 16,
+      "prefix": "REQ_EMAIL_CHANGE",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 20,
+      "prefix": "CONFIRM_EMAIL_CHANGE",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 14,
+      "prefix": "UPDATE_PROFILE",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 18,
+      "prefix": "DEACTIVATE_ACCOUNT",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 15,
+      "prefix": "SET_USER_STATUS",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 11,
+      "prefix": "UNLOCK_USER",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 15,
+      "prefix": "ADMIN_RESET_MFA",
+      "program": "user_core"
+    },
+    {
+      "prefixLen": 10,
+      "prefix": "PLACE_HOLD",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 12,
+      "prefix": "RELEASE_HOLD",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 9,
+      "prefix": "STATEMENT",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 12,
+      "prefix": "OPEN_DISPUTE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 16,
+      "prefix": "ADD_DISPUTE_NOTE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 11,
+      "prefix": "ACK_DISPUTE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 15,
+      "prefix": "RESOLVE_DISPUTE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 14,
+      "prefix": "REJECT_DISPUTE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "LIST_DISPUTES",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 11,
+      "prefix": "GET_DISPUTE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 9,
+      "prefix": "RECONCILE",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 18,
+      "prefix": "RUN_RECONCILIATION",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 20,
+      "prefix": "LIST_RECONCILIATIONS",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 15,
+      "prefix": "LIST_EXCEPTIONS",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "ACK_EXCEPTION",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 17,
+      "prefix": "RESOLVE_EXCEPTION",
+      "program": "wallet_core"
+    },
+    {
+      "prefixLen": 10,
+      "prefix": "AUTH_LOGIN",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 14,
+      "prefix": "REQUEST_SIGNUP",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 12,
+      "prefix": "VERIFY_EMAIL",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "VERIFY_REAUTH",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 15,
+      "prefix": "FORGOT_PASSWORD",
+      "program": "auth_password_core"
+    },
+    {
+      "prefixLen": 14,
+      "prefix": "RESET_PASSWORD",
+      "program": "auth_password_core"
+    },
+    {
+      "prefixLen": 15,
+      "prefix": "CHANGE_PASSWORD",
+      "program": "auth_password_core"
+    },
+    {
+      "prefixLen": 19,
+      "prefix": "RESEND_VERIFICATION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 16,
+      "prefix": "MFA_ENROLL_BEGIN",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 18,
+      "prefix": "MFA_ENROLL_CONFIRM",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 11,
+      "prefix": "MFA_DISABLE",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 16,
+      "prefix": "MFA_BACKUP_CODES",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 10,
+      "prefix": "CHECK_ROLE",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 11,
+      "prefix": "CHANGE_ROLE",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "STORE_SESSION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 14,
+      "prefix": "REVOKE_SESSION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 15,
+      "prefix": "CONSUME_SESSION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 11,
+      "prefix": "CHECK_TOKEN",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 17,
+      "prefix": "GET_TOKEN_VERSION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 19,
+      "prefix": "MFA_ENROLL_REQUIRED",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 19,
+      "prefix": "REVOKE_ACCESS_TOKEN",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "LIST_SESSIONS",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 19,
+      "prefix": "REVOKE_USER_SESSION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 20,
+      "prefix": "REVOKE_ALL_SESSIONS",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 13,
+      "prefix": "ARCHIVE_AUDIT",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 10,
+      "prefix": "LIST_AUDIT",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 20,
+      "prefix": "REQUEST_MFA_RECOVERY",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 19,
+      "prefix": "VERIFY_MFA_RECOVERY",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 20,
+      "prefix": "APPROVE_MFA_RECOVERY",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 19,
+      "prefix": "REJECT_MFA_RECOVERY",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 17,
+      "prefix": "LIST_MFA_RECOVERY",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 12,
+      "prefix": "OUTBOX_CLAIM",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 11,
+      "prefix": "OUTBOX_MARK",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 12,
+      "prefix": "LIST_OUTBOX",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 17,
+      "prefix": "REQUEST_OPERATION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 16,
+      "prefix": "APPROVE_REQUEST",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 14,
+      "prefix": "REJECT_REQUEST",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 14,
+      "prefix": "LIST_REQUESTS",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PING",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 18,
+      "prefix": "OPEN_ACCESS_REVIEW",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 16,
+      "prefix": "CHECK_PERMISSION",
+      "program": "auth_core"
+    },
+    {
+      "prefixLen": 12,
+      "prefix": "MARK_DORMANT",
+      "program": "user_core"
+    }
+  ]
+}
