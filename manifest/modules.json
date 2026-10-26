@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T11:38:41.504Z",
+  "generatedAt": "2026-10-26T14:48:26.952Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -420,6 +420,7 @@
     "retention_job.js",
     "risk_screening.js",
     "sanctions_hold.js",
+    "sanctions_list.js",
     "secret_rotation.js",
     "settlement_recon.js",
     "sla_tracking.js",

@@ -51,6 +51,8 @@ run_db() {
     tests/db/report_builder_db_tests.sh
     echo "=== DB AML SCREENING TESTS ==="
     tests/db/aml_screening_db_tests.sh
+    echo "=== DB SANCTIONS LIST TESTS ==="
+    tests/db/sanctions_list_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

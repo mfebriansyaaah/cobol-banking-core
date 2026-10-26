@@ -1,0 +1,6 @@
+# Sanctions list (D12) validation cases.
+SCL_CREATE missing ref@@ERROR\|INVALID_INPUT@@SCL_CREATE||||||admin@test.com
+SCL_GET missing id@@ERROR\|INVALID_INPUT@@SCL_GET||||||admin@test.com
+SCL_SCREEN missing id@@ERROR\|INVALID_INPUT@@SCL_SCREEN||||||admin@test.com
+SCL_CLOSE missing id@@ERROR\|INVALID_INPUT@@SCL_CLOSE||||||admin@test.com
+SCL_VALIDATE ok@@SUCCESS\|SCL_VALID@@SCL_VALIDATE|100.00|USD||||admin@test.com

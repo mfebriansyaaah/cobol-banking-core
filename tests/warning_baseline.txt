@@ -14,3 +14,4 @@ gl_allocation_core.cob=0
 backup_drill_core.cob=0
 report_builder_core.cob=0
 aml_screening_core.cob=0
+sanctions_list_core.cob=0

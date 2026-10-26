@@ -81,6 +81,7 @@ Rules of the split:
 | D8 Finance | Done | `gl_allocation_core` (9 actions) |
 | D9 IT Ops | Done | `backup_drill_core` (9 actions) |
 | D11 Compliance (AML) | Done | `aml_screening_core` (9 actions) |
+| D12 Sanctions List | Done | `sanctions_list_core` (9 actions) |
 | D10 Data / Reporting | Done | `report_builder_core` (9 actions) |
 
 ## Testing workflow roadmap
@@ -112,7 +113,7 @@ Measured on this checkout:
 | Gateway route definitions | **719** on **712** unique actions |
 | COBOL dispatch prefixes | **179** |
 | Database tables (`schema.sql`) | **477** |
-| Recorded migrations | **118** (latest `0118_aml_screening`) |
+| Recorded migrations | **119** (latest `0119_sanctions_list`) |
 | Test assertions | **440** (54 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 20 payments + 18 treasury + 11 kyc + 13 glalloc + 13 backup + 13 report + 136 gateway) |
 
 ## Request contract
