@@ -27,5 +27,5 @@
             *> copybook; this sub-program still delegates to auth_core. Subsequent
             *> slices (A2-A6) will move the paragraphs here.
 
-            CALL "auth_core" USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER
+            CALL "auth_core" USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER END-CALL
             GOBACK.
