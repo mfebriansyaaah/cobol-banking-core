@@ -95,9 +95,6 @@
                 WHEN LS-CMD-ACTION(1:8) = "GLA_ALLO"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUBMIT
-                WHEN LS-CMD-ACTION(1:10) = "GLA_APPROVE"
-                    PERFORM TRIM-ALL
-                    PERFORM ACTION-APPROVE
                 WHEN LS-CMD-ACTION(1:10) = "GLA_CLOSE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE
@@ -452,75 +449,6 @@
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL
                 MOVE "SUCCESS|GLA_ALLO|1" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
-            EXIT PARAGRAPH.
-
-        ACTION-APPROVE.
-            PERFORM ALLOW-ADMIN
-            IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF LS-PARAM1 = SPACES
-                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            PERFORM LOAD-CLEARING
-            IF WS-ERR NOT = SPACES
-                MOVE WS-ERR TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:7) = "SETTLED"
-                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF WS-NUM-ALLOCATED <= WS-NUM-SETTLED
-                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF WS-P2-TRIMMED = SPACES
-                COMPUTE WS-NUM-AMOUNT = WS-NUM-ALLOCATED - WS-NUM-SETTLED END-COMPUTE
-            ELSE
-                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
-            END-IF.
-            IF WS-NUM-AMOUNT <= 0
-                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF WS-NUM-SETTLED + WS-NUM-AMOUNT > WS-NUM-ALLOCATED
-                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
-            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
-            SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE gl_allocation SET status = CASE WHEN settled_amount + ? >= allocated_amount THEN 'SETTLED' ELSE 'ALLOCATED' END, settled_at = CASE WHEN settled_amount + ? >= allocated_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ? WHERE id = ?" TO WS-PREP-SQL
-            MOVE WS-TMP-AMT TO WS-BIND-1
-            MOVE WS-TMP-AMT TO WS-BIND-2
-            MOVE WS-TMP-AMT TO WS-BIND-3
-            MOVE WS-P1-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
-            END-IF.
-            IF STEP-OK
-                MOVE "SETTLE" TO WS-AUDIT-ACTION
-                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-ALLOC
-                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
-                PERFORM AUDIT
-            END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE SPACES TO LS-OUTPUT-BUFFER
-                STRING "SUCCESS|GLA_APPROVE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER

@@ -92,10 +92,10 @@
                 WHEN LS-CMD-ACTION(1:7) = "KCP_GET"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-GET
-                WHEN LS-CMD-ACTION(1:8) = "KCP_SUBMIT"
+                WHEN LS-CMD-ACTION(1:10) = "KCP_SUBMIT"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUBMIT
-                WHEN LS-CMD-ACTION(1:10) = "KCP_APPROVE"
+                WHEN LS-CMD-ACTION(1:11) = "KCP_APPROVE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-APPROVE
                 WHEN LS-CMD-ACTION(1:10) = "KCP_CLOSE"
@@ -436,7 +436,7 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:6) NOT = "OPEN" AND WS-TMP-STATUS(1:6) NOT = "PENDING"
+            IF WS-TMP-STATUS(1:6) NOT = "OPEN" AND WS-TMP-STATUS(1:7) NOT = "PENDING"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -499,7 +499,7 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:7) = "APPROVED"
+            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:8) = "APPROVED"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.

@@ -1,15 +1,15 @@
 # Core warning ratchet. Counts are per compiler-diagnostic line in a full
 # ./build.sh log. A change may lower a number (and should), but never raise it.
 # Add each domain's modules here as they gain real logic.
-main_logic.cob=143
-loan_schedule_core.cob=40
+main_logic.cob=0
+loan_schedule_core.cob=0
 deposit_core.cob=0
 card_core.cob=0
 collection_core.cob=0
 payment_clearing_core.cob=0
 treasury_liquidity_core.cob=0
-kyc_periodic_core.cob=8
+kyc_periodic_core.cob=0
 sql_bridge.c=0
-gl_allocation_core.cob=2
+gl_allocation_core.cob=0
 backup_drill_core.cob=0
 report_builder_core.cob=0
