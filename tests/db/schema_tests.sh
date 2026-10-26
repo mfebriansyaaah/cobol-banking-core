@@ -56,6 +56,22 @@ for col in deposit_id txn_type amount currency reference; do
     assert_match "deposit_transaction.$col" "$c" "^1$"
 done
 
+# D3 (cards) schema: migration, transaction table and card lifecycle columns.
+m=$(db_query "SELECT COUNT(*) FROM schema_migrations WHERE version='0110_cards';")
+assert_match "migration 0110 applied" "$m" "^1$"
+
+c=$(db_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='card_transaction';")
+assert_match "table card_transaction exists" "$c" "^1$"
+
+for col in masked_pan expiry_date available_limit balance replaced_by; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='card_account' AND column_name='$col';")
+    assert_match "card_account.$col" "$c" "^1$"
+done
+for col in card_id auth_ref txn_type amount currency merchant status; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='card_transaction' AND column_name='$col';")
+    assert_match "card_transaction.$col" "$c" "^1$"
+done
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

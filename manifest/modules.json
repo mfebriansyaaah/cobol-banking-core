@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T03:39:46.400Z",
+  "generatedAt": "2026-10-26T04:02:48.340Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -63,9 +63,6 @@
     },
     {
       "source": "capacity_plan_core.cob"
-    },
-    {
-      "source": "card_billing_core.cob"
     },
     {
       "source": "card_core.cob"
@@ -859,11 +856,6 @@
       "prefixLen": 4,
       "prefix": "LSC_",
       "program": "loan_schedule_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "CBL_",
-      "program": "card_billing_core"
     },
     {
       "prefixLen": 4,

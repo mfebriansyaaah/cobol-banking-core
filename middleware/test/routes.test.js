@@ -375,6 +375,15 @@ const TOKEN_IDENTITY = {
   CARD_LIST: 'actor',
   CARD_GET: 'actor',
   CARD_SUMMARY: 'actor',
+  CARD_AUTHORIZE: 'actor',
+  CARD_CAPTURE: 'actor',
+  CARD_REPAY: 'actor',
+  CARD_REVERSE: 'actor',
+  CARD_STATEMENT: 'actor',
+  CARD_LIMIT_SET: 'actor',
+  CARD_REPLACE: 'actor',
+  CARD_AUDIT: 'actor',
+  CARD_VALIDATE: 'actor',
   TAX_CREATE: 'actor',
   TAX_FILE: 'actor',
   TAX_PAY: 'actor',
@@ -542,6 +551,15 @@ test('privileged admin writes require a step-up proof', () => {
     assert.ok(routes.length > 0, `${action} is exposed by a route`);
     for (const route of routes) {
       assert.equal(route.stepUp, true, `${route.method} ${route.path} (${action}) must require step-up`);
+    }
+  }
+});
+
+test('every named route field has a validation pattern', () => {
+  for (const route of ROUTES) {
+    for (const field of route.fields ?? []) {
+      if (!field.name) continue;
+      assert.ok(field.pattern instanceof RegExp, `${route.method} ${route.path} (${route.action}) field '${field.name}' must define a RegExp pattern`);
     }
   }
 });
