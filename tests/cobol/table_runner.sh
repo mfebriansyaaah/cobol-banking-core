@@ -8,6 +8,13 @@ ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # shellcheck disable=SC1091
 . "$ROOT/tests/lib/cobol.sh"
+# shellcheck disable=SC1091
+. "$ROOT/tests/lib/db.sh"
+# Some table cases need the seeded admin account. Seed when a database is
+# reachable; the pure-validation cases still run without one.
+if db_available; then
+    db_seed
+fi
 T_PASS=0; T_FAIL=0; T_TOTAL=0
 # shellcheck disable=SC1091
 . "$ROOT/tests/lib/assert.sh"
