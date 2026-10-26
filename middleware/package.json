@@ -6,7 +6,7 @@
   "description": "Robust pipe: the only HTTP interface to the COBOL banking core.",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --import ./preload.mjs --test",
+    "test": "node --import ./preload.mjs --test --test-reporter=spec",
     "test:coverage": "node --import ./preload.mjs --test --experimental-test-coverage --test-coverage-lines=30 --test-coverage-branches=30 --test-coverage-include='src/**'"
   },
   "dependencies": {

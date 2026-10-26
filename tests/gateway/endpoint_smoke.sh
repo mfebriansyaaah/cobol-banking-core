@@ -12,6 +12,14 @@ if [ ! -d middleware ]; then
     exit 0
 fi
 
+# shellcheck disable=SC1091
+. "$ROOT/tests/lib/db.sh"
+if ! db_available; then
+    echo "SKIP: DB unavailable"
+    exit 0
+fi
+db_seed
+
 echo "Running gateway endpoint suite (npm test)..."
 npm --prefix middleware test >/tmp/gateway_endpoints.log 2>&1
 rc=$?

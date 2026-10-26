@@ -6,10 +6,13 @@ in COBOL. Node/Express is only the HTTP gateway (routing, input-shape
 validation, authentication), and C provides the MySQL bridge plus the low-level
 crypto helpers COBOL cannot call directly.
 
+[![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
+
 > **Status (2026-10-26):** engineering codebase, not a production certification.
-> 91 of 112 COBOL modules carry real logic; 21 modules (D4–D10) are still
-> generated skeletons. `tests/run_all.sh full` is green. Treat the numbers below
-> as measurements of this repository, not as a readiness claim.
+> 92 of 112 COBOL modules carry real logic; 20 modules (D5–D10) are still
+> generated skeletons. `tests/run_all.sh full` is green locally and in the
+> hosted CI gate. Treat the numbers below as measurements of this repository,
+> not as a readiness claim.
 
 ## Architecture
 
@@ -53,14 +56,15 @@ Rules of the split:
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
 | `middleware/src/` | Express gateway (87 files, 86 route modules + barrel) |
-| `middleware/test/` | 16 test files, 135 tests |
-| `database/` | `schema.sql` baseline (477 tables), 110 migrations, seed, grants |
+| `middleware/test/` | 16 test files, 136 tests |
+| `database/` | `schema.sql` baseline (477 tables), 111 migrations, seed, grants |
 | `tests/` | Unified runner, table-driven COBOL cases, DB suites, harness |
 | `manifest/modules.json` | Generated registry: 112 modules, 86 route files, 179 dispatch entries |
 | `scripts/` | `generate_manifest.mjs`, `check_manifest.mjs` |
 | `monitoring/` | Prometheus alert rules for the gateway |
 | `build.sh` | Compiles dispatcher + all 112 modules + C bridge |
-| `ci.sh`, `ci-fast.sh` | Local CI entry points (no hosted CI configured) |
+| `.github/workflows/ci.yml` | Hosted CI: build + warning ratchet, then full test gate |
+| `ci.sh`, `ci-fast.sh` | Local CI entry points |
 
 ## Implementation status
 
@@ -89,8 +93,8 @@ Measured on this checkout:
 | Gateway route definitions | **719** on **712** unique actions |
 | COBOL dispatch prefixes | **179** |
 | Database tables (`schema.sql`) | **477** |
-| Recorded migrations | **110** (latest `0110_cards`) |
-| Test assertions | **277** (22 table + 52 schema + 10 loan + 26 deposit + 32 card + 135 gateway) |
+| Recorded migrations | **111** (latest `0111_collections`) |
+| Test assertions | **343** (27 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 136 gateway) |
 
 ## Request contract
 
@@ -237,7 +241,7 @@ privileged account; the running application only needs DML rights.
 
 ```sh
 tests/run_all.sh fast     # manifest + build + COBOL table cases + PING smoke
-tests/run_all.sh db       # schema + D1/D2/D3 database suites
+tests/run_all.sh db       # schema + D1-D4 database suites
 tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
 ./ci-fast.sh              # wrapper for fast
 ./ci.sh                   # wrapper for full
@@ -245,17 +249,27 @@ tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
 
 | Suite | Assertions | Location |
 |---|---:|---|
-| COBOL table cases | 22 | `tests/cobol/cases/*.cases` |
-| Schema / migrations | 52 | `tests/db/schema_tests.sh` |
-| D1 loan schedule | 10 | `tests/db/loan_schedule_db_tests.sh` |
+| COBOL table cases | 27 | `tests/cobol/cases/*.cases` |
+| Schema / migrations | 76 | `tests/db/schema_tests.sh` |
+| D1 loan schedule | 11 | `tests/db/loan_schedule_db_tests.sh` |
 | D2 deposit | 26 | `tests/db/deposit_db_tests.sh` |
 | D3 card | 32 | `tests/db/card_db_tests.sh` |
-| Gateway | 135 | `middleware/test/*.js` |
+| D4 collections | 35 | `tests/db/collection_db_tests.sh` |
+| Gateway | 136 | `middleware/test/*.js` |
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
-suites skip with `SKIP: DB unavailable` when MariaDB is not reachable, and reset
-their own tables before running. `tests/baseline_counts.txt` records the
-expected totals; update it only when a test count changes intentionally.
+suites skip with `SKIP: DB unavailable` when MariaDB is not reachable, create
+their own fixtures, and reset their tables before running. The hosted CI job
+starts an empty MariaDB service, applies every migration, then runs the same
+full gate; `SKIP_BUILD=1` reuses the binary from the build job. Locally the
+suites are repeatable against one database: `tests/run_all.sh full` must stay
+green on a second run. `tests/baseline_counts.txt` records the expected totals;
+update it only when a test count changes intentionally.
+
+Core modules have a warning ratchet: `scripts/check_warnings.sh <build.log>`
+fails when a counted file in `tests/warning_baseline.txt` gains a warning. Lower
+the baseline as warnings are fixed; add each new domain module with its current
+count (ideally zero).
 
 The error harness (`tests/check_cobol_c_errors.sh`) checks COBOL/C syntax,
 linkage, a PING run, DB connectivity, and non-empty output. The gateway suite

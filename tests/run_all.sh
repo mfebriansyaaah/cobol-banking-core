@@ -11,7 +11,11 @@ run_fast() {
     echo "=== MANIFEST CHECK ==="
     node scripts/check_manifest.mjs "$ROOT"
     echo "=== BUILD ==="
-    ./build.sh
+    if [ "${SKIP_BUILD:-0}" = "1" ]; then
+        echo "skipping build (SKIP_BUILD=1)"
+    else
+        ./build.sh
+    fi
     echo "=== COBOL TABLE TESTS ==="
     tests/cobol/table_runner.sh
     echo "=== SMOKE ==="

@@ -4,7 +4,7 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { invoke } from '../src/invoker.js';
-import { seedUser, requireSeed, runSql } from './support.js';
+import { seedUser, seedManyUsers, requireSeed, runSql } from './support.js';
 
 const ADMIN = `ipc_admin_${Date.now()}@test.com`;
 
@@ -25,7 +25,13 @@ test('IPC contract: unknown action is reported', async () => {
 
 test('IPC contract: a 500-char output record is joined back into one line', async () => {
   requireSeed(seedUser(ADMIN, 'SUPER_ADMIN'), 'seed an admin for IPC contract');
-  after(() => runSql(`DELETE FROM users WHERE email='${ADMIN}'`));
+  // The point is a response longer than one 500-char IPC record, so make the
+  // list large enough even on a freshly migrated database.
+  requireSeed(seedManyUsers('ipc_bulk_', 30), 'seed users to exceed one IPC record');
+  after(() => {
+    runSql(`DELETE FROM users WHERE email='${ADMIN}'`);
+    runSql("DELETE FROM users WHERE email LIKE 'ipc\\_bulk\\_%'");
+  });
 
   const raw = await invoke('LIST_USERS', ['100', '0', ADMIN, '']);
   assert.ok(raw.startsWith('SUCCESS|LIST_DONE|'), 'expected LIST_DONE');

@@ -1,5 +1,3 @@
-USE cobol_db;
-
 -- Development seed fixtures. Re-runnable: user/account/currency/rate rows
 -- are kept when already present (INSERT IGNORE), while the ledger seed rows
 -- are reset to exactly the two below (deleted by key, then re-inserted), so

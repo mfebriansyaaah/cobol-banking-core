@@ -486,6 +486,18 @@ CREATE TABLE IF NOT EXISTS role_permissions (
         REFERENCES permissions(name) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+INSERT IGNORE INTO permissions (name, description) VALUES
+    ('AUDIT_READ', 'Read the audit trail and the metrics endpoint'),
+    ('AUDIT_ARCHIVE', 'Archive audit rows past the retention window'),
+    ('RECONCILE_READ', 'Read reconciliation runs and exception findings'),
+    ('RECONCILE_RUN', 'Record a reconciliation run');
+
+INSERT IGNORE INTO role_permissions (role, permission) VALUES
+    ('SUPER_ADMIN', 'AUDIT_READ'),
+    ('SUPER_ADMIN', 'AUDIT_ARCHIVE'),
+    ('SUPER_ADMIN', 'RECONCILE_READ'),
+    ('SUPER_ADMIN', 'RECONCILE_RUN');
+
 -- 9i. Access review and attestation (periodic re-attestation of privileged accounts)
 -- A review snapshots every MANAGER/SUPER_ADMIN account with the state that
 -- matters to a reviewer. The items are evidence of that moment and carry no
@@ -2206,6 +2218,14 @@ CREATE TABLE IF NOT EXISTS ref_report_filter (
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS ref_report_parameter (
+    code VARCHAR(6) PRIMARY KEY,
+    label VARCHAR(64) NOT NULL,
+    num_val INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS ref_report_schedule (
     code VARCHAR(6) PRIMARY KEY,
     label VARCHAR(64) NOT NULL,
     num_val INT NOT NULL DEFAULT 0,
