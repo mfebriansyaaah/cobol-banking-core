@@ -49,6 +49,10 @@ run_db() {
     tests/db/backup_drill_db_tests.sh
     echo "=== DB REPORT BUILDER TESTS ==="
     tests/db/report_builder_db_tests.sh
+    echo "=== SKELETON SMOKE TESTS ==="
+    tests/cobol/skeleton_smoke.sh
+    echo "=== FUZZ TESTS ==="
+    tests/fuzz/fuzz_inputs.sh
 }
 
 run_gateway() {

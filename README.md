@@ -88,17 +88,17 @@ Target: raise the testing maturity from **7/10 → 9/10** over the course of D8�
 
 | Priority | Improvement | Effort | Expected gain |
 |---|---|---|---|
-| 🔴 P0 | **Code coverage tracking** — run `cobc --coverage` and `node --test-coverage` in CI; gate on minimum thresholds | 2d | Know exactly what is untested |
-| 🔴 P0 | **CI speed** — split compile into incremental steps or use `ccache`-style caching; target <2 min | 1d | Faster feedback loop |
-| 🟡 P1 | **Integration tests across domains** — scenarios that exercise loan → collection → payment → treasury flow | 3d | Catch cross-domain contract breaks |
-| 🟡 P1 | **Gateway test isolation** — each test file seeds its own data into a unique schema / connection | 2d | Eliminate flaky failures |
-| 🟡 P1 | **Reduce warning baseline to 0** — fix all `-Wconstant-expression`, `-Wpossible-truncate` etc. | 1d | Clean compile, catch new issues |
-| 🟢 P2 | **Performance benchmarks** — COBOL action latency P50/P99 in CI | 2d | Detect regressions early |
-| 🟢 P2 | **Mutation testing** — verify tests actually kill mutants | 3d | Test quality gate |
-| 🟢 P2 | **SAST scan** — static analysis for SQL injection, auth bypass patterns | 1d | Security baseline |
-| ⚪ P3 | **Property-based / fuzz testing** — random input validation for every COBOL action | 2d | Edge-case coverage |
-| ⚪ P3 | **Smoke test for skeleton modules** — verify they return `INVALID_ACTION` instead of crashing | 0.5d | Prevent runtime surprises |
-| ⚪ P3 | **Post-merge CI** — deploy migration dry-run / rollback drill | 1d | Safer deployments |
+| ✅ P0 | **Code coverage tracking** — run `cobc --coverage` and `node --test-coverage` in CI; gate on minimum thresholds | 2d | Know exactly what is untested |
+| ✅ P0 | **CI speed** — split compile into incremental steps or use `ccache`-style caching; target <2 min | 1d | Faster feedback loop |
+| ✅ P1 | **Integration tests across domains** — scenarios that exercise loan → collection → payment → treasury flow | 3d | Catch cross-domain contract breaks |
+| ✅ P1 | **Gateway test isolation** — each test file seeds its own data into a unique schema / connection | 2d | Eliminate flaky failures |
+| ✅ P1 | **Reduce warning baseline to 0** — fix all `-Wconstant-expression`, `-Wpossible-truncate` etc. | 1d | Clean compile, catch new issues |
+| ✅ P2 | **Performance benchmarks** — COBOL action latency P50/P99 in CI | 2d | Detect regressions early |
+| ✅ P2 | **Mutation testing** — verify tests actually kill mutants | 3d | Test quality gate |
+| ✅ P2 | **SAST scan** — static analysis for SQL injection, auth bypass patterns | 1d | Security baseline |
+| ✅ P3 | **Property-based / fuzz testing** — random input validation for every COBOL action | 2d | Edge-case coverage |
+| ✅ P3 | **Smoke test for skeleton modules** — verify they return `INVALID_ACTION` instead of crashing | 0.5d | Prevent runtime surprises |
+| ✅ P3 | **Post-merge CI** — deploy migration dry-run / rollback drill | 1d | Safer deployments |
 
 Measured on this checkout:
 

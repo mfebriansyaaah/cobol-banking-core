@@ -30,6 +30,9 @@ jobs:
       - name: Verify manifest
         run: node scripts/check_manifest.mjs .
 
+      - name: SAST scan
+        run: bash scripts/ci/sast.sh
+
       - name: Build core
         run: |
           set -o pipefail
@@ -123,6 +126,19 @@ jobs:
 
       - name: Run full test gate
         run: tests/run_all.sh full
+
+      - name: Integration tests
+        run: bash tests/integration/cross_domain.sh
+
+      - name: Fuzz tests
+        run: bash tests/fuzz/fuzz_inputs.sh
+
+      - name: Migration rollback drill
+        run: bash scripts/ci/migration_rollback_drill.sh
+
+      - name: Performance benchmarks
+        run: bash tests/perf/bench.sh
+
       - name: Upload gateway log on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -130,3 +146,48 @@ jobs:
           name: gateway-log
           path: /tmp/gateway_endpoints.log
           if-no-files-found: ignore
+
+  post-merge:
+    name: post-merge
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_USER: cobol_user
+      DB_PASS: cobol_pass
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gnucobol libmysqlclient-dev build-essential mariadb-client
+      - name: Load baseline schema
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
+          < database/schema.sql
+      - name: Apply migrations
+        run: ./database/migrate.sh
+      - name: Migration rollback drill
+        run: bash scripts/ci/migration_rollback_drill.sh
