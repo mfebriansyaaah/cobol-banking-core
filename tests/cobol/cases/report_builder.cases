@@ -1,0 +1,6 @@
+# Report builder (D10) validation cases.
+RPB_CREATE missing ref@@ERROR\|INVALID_INPUT@@RPB_CREATE||||||admin@test.com
+RPB_GET missing id@@ERROR\|INVALID_INPUT@@RPB_GET||||||admin@test.com
+RPB_RUN missing id@@ERROR\|INVALID_INPUT@@RPB_RUN||||||admin@test.com
+RPB_CLOSE missing id@@ERROR\|INVALID_INPUT@@RPB_CLOSE||||||admin@test.com
+RPB_VALIDATE ok@@SUCCESS\|RPB_VALID@@RPB_VALIDATE|100.00|USD||||admin@test.com

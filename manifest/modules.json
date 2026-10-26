@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T09:18:35.555Z",
+  "generatedAt": "2026-10-26T09:51:37.839Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -413,6 +413,7 @@
     "report.js",
     "report_archive.js",
     "report_audit.js",
+    "report_builder.js",
     "report_delivery.js",
     "report_scheduler.js",
     "retention_job.js",
