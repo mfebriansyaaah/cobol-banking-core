@@ -1,1 +1,4 @@
 cobol_table_tests=11
+db_schema_tests=22
+db_loan_schedule_tests=10
+gateway_tests=132
