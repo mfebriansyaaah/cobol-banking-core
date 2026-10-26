@@ -11,12 +11,13 @@ const { invoke, resetPool } = await (async () => {
   return { invoke: invoker.invoke, resetPool: (await import('../src/pool.js')).resetPool };
 })();
 
-const { seedUser, requireSeed, runSql } = await import('./support.js');
+const { seedUser, seedManyUsers, requireSeed, runSql } = await import('./support.js');
 
 const ADMIN = `ipc_pool_admin_${Date.now()}@test.com`;
 
 after(() => {
   runSql(`DELETE FROM users WHERE email='${ADMIN}'`);
+  runSql("DELETE FROM users WHERE email LIKE 'ipc\\_pool\\_bulk\\_%'");
   resetPool();
 });
 
@@ -27,6 +28,7 @@ test('IPC contract (pool): PING round-trips a single result line', async () => {
 
 test('IPC contract (pool): long output is joined back into one line', async () => {
   requireSeed(seedUser(ADMIN, 'SUPER_ADMIN'), 'seed an admin for IPC contract (pool)');
+  requireSeed(seedManyUsers('ipc_pool_bulk_', 30), 'seed users to exceed one IPC record');
   const raw = await invoke('LIST_USERS', ['100', '0', ADMIN, '']);
   assert.ok(raw.startsWith('SUCCESS|LIST_DONE|'));
   assert.ok(!raw.includes('\n'));
