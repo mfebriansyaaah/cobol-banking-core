@@ -27,6 +27,8 @@ run_db() {
     tests/db/schema_tests.sh
     echo "=== DB LOAN SCHEDULE TESTS ==="
     tests/db/loan_schedule_db_tests.sh
+    echo "=== DB DEPOSIT TESTS ==="
+    tests/db/deposit_db_tests.sh
 }
 
 run_gateway() {

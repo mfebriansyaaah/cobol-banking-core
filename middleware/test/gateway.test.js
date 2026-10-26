@@ -1230,3 +1230,61 @@ test('dispute tickets run the full lifecycle end to end', async () => {
   const late = await request(app).post(`/disputes/${caseId}/notes`).set('Authorization', `Bearer ${userToken}`).send({ body: 'Too late' });
   assert.equal(late.body.error, 'INVALID_STATUS');
 });
+
+test('deposit lifecycle over HTTP', async () => {
+  const admin = `gw_dep_${Date.now()}@test.com`;
+  const owner = `gw_dep_owner_${Date.now()}@test.com`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a deposit admin');
+  enableMfa(admin);
+  const token = await adminLoginFor(admin);
+  const auth = { Authorization: `Bearer ${token}` };
+
+  const valid = await request(app).post('/deposits/validate').set(auth).send({ principal: '10000.00', currency: 'USD', term: '12', rate: '5.00' });
+  assert.equal(valid.status, 200);
+  assert.equal(valid.body.data[0], 'DEP_VALID');
+
+  const calc = await request(app).post('/deposits/calc').set(auth).send({ principal: '10000.00', rate: '5.00', days: '365' });
+  assert.equal(calc.status, 200);
+  assert.deepEqual(calc.body.data, ['DEP_CALC', '500.0000', '10500.0000']);
+
+  const open = await request(app).post('/deposits').set(auth).send({ email: owner, principal: '10000.00', currency: 'USD', term: '12', rate: '5.00' });
+  assert.equal(open.status, 200);
+  assert.equal(open.body.data[0], 'DEP_OPEN');
+  const id = open.body.data[1];
+  assert.match(String(id), /^\d+$/);
+
+  const got = await request(app).get(`/deposits/${id}`).set(auth);
+  assert.equal(got.status, 200);
+  assert.equal(got.body.data[0], 'DEPOSIT');
+
+  const accrue = await request(app).post(`/deposits/${id}/accrue`).set(auth).send({ days: '30' });
+  assert.equal(accrue.status, 200);
+  assert.deepEqual(accrue.body.data, ['DEP_ACCRUE', '41.0959']);
+
+  const posted = await request(app).post(`/deposits/${id}/post`).set(auth).send({});
+  assert.equal(posted.status, 200);
+  assert.deepEqual(posted.body.data, ['DEP_POST', '41.0959']);
+
+  const stmt = await request(app).get(`/deposits/${id}/statement`).set(auth);
+  assert.equal(stmt.status, 200);
+  assert.equal(stmt.body.data[0], 'DEP_STATEMENT');
+  assert.match(stmt.body.data[1], /T:INTEREST_POSTED/);
+
+  const settled = await request(app).post(`/deposits/${id}/settle`).set(auth).send({});
+  assert.equal(settled.status, 200);
+  assert.deepEqual(settled.body.data, ['DEP_SETTLE', '10041.0959']);
+
+  const summary = await request(app).get('/deposits/summary').set(auth);
+  assert.equal(summary.status, 200);
+  assert.equal(summary.body.data[0], 'DEP_SUMMARY');
+
+  const trail = await request(app).get('/deposits/audit').query({ depositId: id, limit: 20 }).set(auth);
+  assert.equal(trail.status, 200);
+  assert.equal(trail.body.data[0], 'DEP_AUDIT');
+
+  const closeAgain = await request(app).post(`/deposits/${id}/close`).set(auth).send({});
+  assert.equal(closeAgain.status, 400);
+  assert.equal(closeAgain.body.error, 'INVALID_STATUS');
+
+  requireSeed(runSql(`DELETE FROM deposit_account WHERE customer_email = '${owner}'`), 'clean up the deposit');
+});
