@@ -30,6 +30,7 @@ import { PAYMENT_CLEARING_ROUTES } from './payment_clearing.js';
 import { TREASURY_LIQUIDITY_ROUTES } from './treasury_liquidity.js';
 import { KYC_PERIODIC_ROUTES } from './kyc_periodic.js';
 import { GL_ALLOCATION_ROUTES } from './gl_allocation.js';
+import { BACKUP_DRILL_ROUTES } from './backup_drill.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -123,6 +124,7 @@ export const ALL_ROUTES = [
   ...TREASURY_LIQUIDITY_ROUTES,
   ...KYC_PERIODIC_ROUTES,
   ...GL_ALLOCATION_ROUTES,
+  ...BACKUP_DRILL_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,

@@ -1,4 +1,4 @@
-cobol_table_tests=44
+cobol_table_tests=49
 db_schema_tests=76
 db_loan_schedule_tests=11
 db_deposit_tests=26
@@ -8,4 +8,5 @@ db_payment_clearing_tests=20
 db_treasury_liquidity_tests=18
 db_kyc_periodic_tests=11
 db_gl_allocation_tests=13
+db_backup_drill_tests=13
 gateway_tests=136

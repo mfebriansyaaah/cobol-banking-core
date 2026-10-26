@@ -1,0 +1,6 @@
+# Backup drill (D9) validation cases.
+BDR_CREATE missing ref@@ERROR\|INVALID_INPUT@@BDR_CREATE||||||admin@test.com
+BDR_GET missing id@@ERROR\|INVALID_INPUT@@BDR_GET||||||admin@test.com
+BDR_RUN missing id@@ERROR\|INVALID_INPUT@@BDR_RUN||||||admin@test.com
+BDR_CLOSE missing id@@ERROR\|INVALID_INPUT@@BDR_CLOSE||||||admin@test.com
+BDR_VALIDATE ok@@SUCCESS\|BDR_VALID@@BDR_VALIDATE|100.00|USD||||admin@test.com

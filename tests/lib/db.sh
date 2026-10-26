@@ -87,3 +87,8 @@ db_reset_gl_allocation() {
     db_exec "DELETE FROM gl_allocation_audit;"
     db_exec "DELETE FROM gl_allocation;"
 }
+
+db_reset_backup_drill() {
+    db_exec "DELETE FROM backup_drill_audit;"
+    db_exec "DELETE FROM backup_drill;"
+}

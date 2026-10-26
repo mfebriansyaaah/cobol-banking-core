@@ -79,7 +79,7 @@ Rules of the split:
 | D6 Treasury / FX | Done | `treasury_liquidity_core` (9 actions) |
 | D7 Compliance | Done | `kyc_periodic_core` (9 actions) |
 | D8 Finance | Done | `gl_allocation_core` (9 actions) |
-| D9 IT Ops | Skeleton | `backup_drill_core`, `incident_postmortem_core`, `change_approval_core`, `capacity_forecast_core`, `data_lineage_core`, `metric_definition_core` |
+| D9 IT Ops | Done | `backup_drill_core` (9 actions) |
 | D10 Data / Reporting | Skeleton | `report_builder_core`, `analytics_snapshot_core` |
 
 ## Testing workflow roadmap
@@ -111,8 +111,8 @@ Measured on this checkout:
 | Gateway route definitions | **719** on **712** unique actions |
 | COBOL dispatch prefixes | **179** |
 | Database tables (`schema.sql`) | **477** |
-| Recorded migrations | **115** (latest `0115_gl_allocation`) |
-| Test assertions | **414** (44 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 20 payments + 18 treasury + 11 kyc + 13 glalloc + 136 gateway) |
+| Recorded migrations | **116** (latest `0116_backup_drill`) |
+| Test assertions | **427** (49 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 20 payments + 18 treasury + 11 kyc + 13 glalloc + 13 backup + 136 gateway) |
 
 ## Request contract
 
@@ -277,6 +277,7 @@ tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
 | D6 treasury | 18 | `tests/db/treasury_liquidity_db_tests.sh` |
 | D7 kyc periodic | 11 | `tests/db/kyc_periodic_db_tests.sh` |
 | D8 gl allocation | 13 | `tests/db/gl_allocation_db_tests.sh` |
+| D9 backup drill | 13 | `tests/db/backup_drill_db_tests.sh` |
 | Gateway | 136 | `middleware/test/*.js` |
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
