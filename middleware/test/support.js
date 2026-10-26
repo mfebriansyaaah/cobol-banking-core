@@ -6,6 +6,28 @@
 import { execFileSync } from 'node:child_process';
 import { createHmac } from 'node:crypto';
 
+function dbConfig() {
+  return {
+    user: process.env.DB_USER ?? 'cobol_user',
+    pass: process.env.DB_PASS ?? 'cobol_pass',
+    name: process.env.DB_NAME ?? 'cobol_db',
+    host: process.env.DB_HOST ?? '',
+    port: process.env.DB_PORT ?? '',
+  };
+}
+
+// Build mysql client arguments. DB_HOST/DB_PORT matter in CI, where the
+// database is a service container reachable over TCP and there is no local
+// socket; without host/port the client silently connects to the wrong place.
+function mysqlArgs(sql, extra = []) {
+  const { user, pass, name, host, port } = dbConfig();
+  const args = extra.slice();
+  if (host) args.push('-h', host);
+  if (port) args.push('-P', port);
+  args.push('-u', user, `-p${pass}`, name, '-e', sql);
+  return args;
+}
+
 // Fail the test when a database prerequisite cannot be seeded. Every gateway
 // test needs the database; skipping would report green while covering nothing.
 export function requireSeed(ok, what) {
@@ -13,15 +35,12 @@ export function requireSeed(ok, what) {
 }
 
 export function seedUser(email, role = 'USER') {
-  const u = process.env.DB_USER ?? 'cobol_user';
-  const p = process.env.DB_PASS ?? 'cobol_pass';
-  const n = process.env.DB_NAME ?? 'cobol_db';
   const sql =
     'INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ' +
     `('${email}',CONCAT('SHA256_',SHA2('secret123',256)),'Test User','1990-01-01','VERIFIED','${role}') ` +
     `ON DUPLICATE KEY UPDATE role='${role}', status='VERIFIED', password_hash=VALUES(password_hash);`;
   try {
-    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
+    execFileSync('mysql', mysqlArgs(sql), { stdio: 'ignore' });
     return true;
   } catch {
     return false;
@@ -62,11 +81,9 @@ export function totp(secret) {
 // Run an arbitrary SQL statement against the test database (used to put
 // resources into states the API cannot, e.g. freeze an account). Returns false
 // when the mysql client is unavailable.
-export function runSql(sql) {  const u = process.env.DB_USER ?? 'cobol_user';
-  const p = process.env.DB_PASS ?? 'cobol_pass';
-  const n = process.env.DB_NAME ?? 'cobol_db';
+export function runSql(sql) {
   try {
-    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
+    execFileSync('mysql', mysqlArgs(sql), { stdio: 'ignore' });
     return true;
   } catch {
     return false;
@@ -76,11 +93,8 @@ export function runSql(sql) {  const u = process.env.DB_USER ?? 'cobol_user';
 // Run a SQL query and return its first cell (trimmed). Returns '' on error.
 // Used by tests that assert a database invariant (e.g. ledger consistency).
 export function queryScalar(sql) {
-  const u = process.env.DB_USER ?? 'cobol_user';
-  const p = process.env.DB_PASS ?? 'cobol_pass';
-  const n = process.env.DB_NAME ?? 'cobol_db';
   try {
-    return execFileSync('mysql', ['-u', u, `-p${p}`, n, '-N', '-B', '-e', sql],
+    return execFileSync('mysql', mysqlArgs(sql, ['-N', '-B']),
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
   } catch {
     return '';
@@ -90,13 +104,11 @@ export function queryScalar(sql) {
 // Read the latest unused verification code for an email from the database.
 // Tests use this because the gateway no longer returns the code in the response.
 export function getVerificationCode(email, purpose = 'SIGNUP') {
-  const u = process.env.DB_USER ?? 'cobol_user';
-  const p = process.env.DB_PASS ?? 'cobol_pass';
-  const n = process.env.DB_NAME ?? 'cobol_db';
   try {
-    return execFileSync('mysql', ['-u', u, `-p${p}`, n, '-N', '-B', '-e',
-      `SELECT code FROM verification_logs WHERE email='${email}' AND purpose='${purpose}' AND is_used=0 ORDER BY id DESC LIMIT 1;`],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return execFileSync('mysql', mysqlArgs(
+      `SELECT code FROM verification_logs WHERE email='${email}' AND purpose='${purpose}' AND is_used=0 ORDER BY id DESC LIMIT 1;`,
+      ['-N', '-B'],
+    ), { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
   } catch {
     return '';
   }
@@ -105,9 +117,6 @@ export function getVerificationCode(email, purpose = 'SIGNUP') {
 // Insert n users in bulk (for exercising large list responses). Returns false
 // when mysql is absent.
 export function seedManyUsers(prefix, n, role = 'USER') {
-  const u = process.env.DB_USER ?? 'cobol_user';
-  const p = process.env.DB_PASS ?? 'cobol_pass';
-  const db = process.env.DB_NAME ?? 'cobol_db';
   const values = Array.from({ length: n }, (_, i) =>
     `('${prefix}${i + 1}@test.com',CONCAT('SHA256_',SHA2('secret123',256)),'Bulk ${i + 1}','1990-01-01','VERIFIED','${role}')`,
   ).join(',');
@@ -115,7 +124,7 @@ export function seedManyUsers(prefix, n, role = 'USER') {
     'INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ' +
     `${values} ON DUPLICATE KEY UPDATE role='${role}', status='VERIFIED';`;
   try {
-    execFileSync('mysql', ['-u', u, `-p${p}`, db, '-e', sql], { stdio: 'ignore' });
+    execFileSync('mysql', mysqlArgs(sql), { stdio: 'ignore' });
     return true;
   } catch {
     return false;
@@ -129,9 +138,6 @@ export function seedManyUsers(prefix, n, role = 'USER') {
 // reconciliation mismatch (the ledger is the source of truth for balances).
 // Idempotent: only inserts when the account has no ledger rows yet.
 function seedOpeningLedger(email, currencyId) {
-  const u = process.env.DB_USER ?? 'cobol_user';
-  const p = process.env.DB_PASS ?? 'cobol_pass';
-  const n = process.env.DB_NAME ?? 'cobol_db';
   const sql =
     'INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description) ' +
     "SELECT CONCAT('SEED', a.account_id), a.account_id, a.balance, 'CREDIT', a.currency_id, 'Seed opening' " +
@@ -139,7 +145,7 @@ function seedOpeningLedger(email, currencyId) {
     `WHERE u.email='${email}' AND a.currency_id=${currencyId} ` +
     'AND NOT EXISTS (SELECT 1 FROM ledger l WHERE l.account_id = a.account_id);';
   try {
-    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
+    execFileSync('mysql', mysqlArgs(sql), { stdio: 'ignore' });
     return true;
   } catch {
     return false;
@@ -150,9 +156,6 @@ function seedOpeningLedger(email, currencyId) {
 // opening ledger row. `firstOnly` keeps the original seedAccount contract (one
 // account total); otherwise the guard is per currency (multi-currency fixtures).
 export function seedAccountCurrency(email, currencyId, balance, firstOnly = false) {
-  const u = process.env.DB_USER ?? 'cobol_user';
-  const p = process.env.DB_PASS ?? 'cobol_pass';
-  const n = process.env.DB_NAME ?? 'cobol_db';
   const guard = firstOnly
     ? 'NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id = u.id)'
     : `NOT EXISTS (SELECT 1 FROM accounts a WHERE a.user_id = u.id AND a.currency_id = ${currencyId})`;
@@ -161,7 +164,7 @@ export function seedAccountCurrency(email, currencyId, balance, firstOnly = fals
     `SELECT u.id, ${currencyId}, 'SAVINGS', ${balance}, 'ACTIVE' FROM users u ` +
     `WHERE u.email='${email}' AND ${guard};`;
   try {
-    execFileSync('mysql', ['-u', u, `-p${p}`, n, '-e', sql], { stdio: 'ignore' });
+    execFileSync('mysql', mysqlArgs(sql), { stdio: 'ignore' });
   } catch {
     return false;
   }
