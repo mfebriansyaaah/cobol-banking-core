@@ -95,9 +95,6 @@
                 WHEN LS-CMD-ACTION(1:8) = "BDR_RUN"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUBMIT
-                WHEN LS-CMD-ACTION(1:10) = "GLA_APPROVE"
-                    PERFORM TRIM-ALL
-                    PERFORM ACTION-APPROVE
                 WHEN LS-CMD-ACTION(1:10) = "BDR_CLOSE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE
@@ -473,7 +470,7 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:7) = "VERIFIED"
+            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:8) = "VERIFIED"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
