@@ -18,7 +18,7 @@ run_cobol() {
     local input="$1"
     local timeout_sec="${2:-30}"
     local workdir
-    workdir="$(mktemp -d /tmp/opencode/cobol-test.XXXXXX)"
+    workdir="$(mktemp -d "${TMPDIR:-/tmp}/cobol-test.XXXXXX")"
     printf '%s\n' "$input" > "$workdir/input.txt"
     (
         cd "$workdir" || exit 1
