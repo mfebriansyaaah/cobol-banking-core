@@ -31,6 +31,8 @@ run_db() {
     tests/db/deposit_db_tests.sh
     echo "=== DB CARD TESTS ==="
     tests/db/card_db_tests.sh
+    echo "=== DB COLLECTION TESTS ==="
+    tests/db/collection_db_tests.sh
 }
 
 run_gateway() {

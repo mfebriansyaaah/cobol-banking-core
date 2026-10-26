@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T04:02:48.340Z",
+  "generatedAt": "2026-10-26T05:40:16.189Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -355,6 +355,7 @@
     "capacity_plan.js",
     "card.js",
     "change_control.js",
+    "collection.js",
     "compliance_audit.js",
     "compliance_export.js",
     "compliance_retention.js",

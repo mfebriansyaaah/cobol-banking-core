@@ -1,0 +1,6 @@
+# Collection (D4) validation cases.
+COL_VALIDATE missing loan@@ERROR\|NOT_FOUND@@COL_VALIDATE|999999|||||admin@test.com
+COL_VALIDATE missing input@@ERROR\|INVALID_INPUT@@COL_VALIDATE||||||admin@test.com
+COL_OPEN bad priority@@ERROR\|INVALID_INPUT@@COL_OPEN|COL-X|1||GOLD||admin@test.com
+COL_LIST bad status@@ERROR\|INVALID_INPUT@@COL_LIST|UNKNOWN|||50|0|admin@test.com
+COL_PROMISE bad amount@@ERROR\|INVALID_AMOUNT@@COL_PROMISE|1|2030-01-01|0|||admin@test.com

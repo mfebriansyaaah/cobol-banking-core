@@ -1354,3 +1354,115 @@ test('card lifecycle over HTTP', async () => {
 
   requireSeed(runSql(`DELETE FROM card_account WHERE card_ref LIKE '${ref}%'`), 'clean up the cards');
 });
+
+test('collections lifecycle over HTTP', async () => {
+  const admin = `gw_col_${Date.now()}@test.com`;
+  const ref = `GWCOL${Date.now()}`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a collections admin');
+  enableMfa(admin);
+  const token = await adminLoginFor(admin);
+  const auth = { Authorization: `Bearer ${token}` };
+
+  requireSeed(runSql(`INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('${admin}', 1200, 'USD', 6, 5.0000, 'DISBURSED', '${admin}')`), 'seed a collections loan');
+  const loanId = queryScalar(`SELECT id FROM loan_application WHERE customer_email = '${admin}' ORDER BY id DESC LIMIT 1`);
+  requireSeed(/^\d+$/.test(loanId), 'read the collections loan id');
+  requireSeed(runSql(`INSERT INTO loan_schedule (loan_id, term_months, interest_rate, start_date, status, created_by) VALUES (${loanId}, 6, 5.0000, DATE_SUB(CURDATE(), INTERVAL 90 DAY), 'ACTIVE', '${admin}')`), 'seed a collections schedule');
+  const scheduleId = queryScalar(`SELECT id FROM loan_schedule WHERE loan_id = ${loanId} ORDER BY id DESC LIMIT 1`);
+  requireSeed(runSql(`INSERT INTO loan_installment (schedule_id, seq, due_date, principal_due, interest_due, total_due, status, paid_amount) VALUES (${scheduleId}, 1, DATE_SUB(CURDATE(), INTERVAL 70 DAY), 100, 10, 110, 'DUE', 0), (${scheduleId}, 2, DATE_SUB(CURDATE(), INTERVAL 40 DAY), 100, 10, 110, 'DUE', 10)`), 'seed overdue installments');
+
+  const valid = await request(app).post('/collections/validate').set(auth).send({ loanId });
+  assert.equal(valid.status, 200);
+  assert.deepEqual(valid.body.data.slice(0, 3), ['COL_VALID', '210.0000', 'USD']);
+
+  const open = await request(app).post('/collections').set(auth).send({ ref, loanId, priority: 'HIGH' });
+  assert.equal(open.status, 200);
+  assert.equal(open.body.data[0], 'COL_OPEN');
+  assert.equal(open.body.data[2], '210.0000');
+  const id = open.body.data[1];
+  assert.match(String(id), /^\d+$/);
+
+  assert.equal((await request(app).post('/collections').set(auth).send({ ref, loanId })).body.error, 'DUPLICATE');
+
+  const got = await request(app).get(`/collections/${id}`).set(auth);
+  assert.equal(got.status, 200);
+  assert.equal(got.body.data[0], 'COL_GET');
+  assert.equal(got.body.data[2], ref);
+
+  const list = await request(app).get('/collections').query({ status: 'OPEN', limit: 50 }).set(auth);
+  assert.equal(list.status, 200);
+  assert.equal(list.body.data[0], 'COL_LIST');
+  assert.match(list.body.data[1], new RegExp(ref));
+
+  const assign = await request(app).post(`/collections/${id}/assign`).set(auth).send({ officer: admin });
+  assert.equal(assign.status, 200);
+  assert.equal(assign.body.data[0], 'COL_ASSIGNED');
+
+  const contact = await request(app).post(`/collections/${id}/contact`).set(auth).send({ channel: 'CALL', note: 'Left a message' });
+  assert.equal(contact.status, 200);
+  assert.equal(contact.body.data[0], 'COL_CONTACT');
+
+  const promiseDate = queryScalar('SELECT DATE_ADD(CURDATE(), INTERVAL 3 DAY)');
+  const promise = await request(app).post(`/collections/${id}/promise`).set(auth).send({ date: promiseDate, amount: '100.00' });
+  assert.equal(promise.status, 200);
+  assert.deepEqual(promise.body.data, ['COL_PROMISE', promiseDate, '100.00']);
+
+  const past = await request(app).post(`/collections/${id}/promise`).set(auth).send({ date: '2020-01-01', amount: '10.00' });
+  assert.equal(past.status, 400);
+  assert.equal(past.body.error, 'INVALID_DATE');
+
+  const pay = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '50.00' });
+  assert.equal(pay.status, 200);
+  assert.deepEqual(pay.body.data, ['COL_PAY', '50.00', '160.0000']);
+
+  const over = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '999.00' });
+  assert.equal(over.status, 400);
+  assert.equal(over.body.error, 'INVALID_AMOUNT');
+
+  const escalate = await request(app).post(`/collections/${id}/escalate`).set(auth).send({ note: 'Second notice' });
+  assert.equal(escalate.status, 200);
+  assert.deepEqual(escalate.body.data, ['COL_ESCALATE', '1']);
+
+  const close = await request(app).post(`/collections/${id}/close`).set(auth).send({ resolution: 'SETTLED' });
+  assert.equal(close.status, 200);
+  assert.equal(close.body.data[0], 'COL_CLOSE');
+
+  const reopen = await request(app).post(`/collections/${id}/reopen`).set(auth).send({ reason: 'CUSTOMER_DISPUTE' });
+  assert.equal(reopen.status, 200);
+  assert.equal(reopen.body.data[0], 'COL_REOPEN');
+
+  const summary = await request(app).get('/collections/summary').set(auth);
+  assert.equal(summary.status, 200);
+  assert.equal(summary.body.data[0], 'COL_SUMMARY');
+
+  const aging = await request(app).get('/collections/aging').set(auth);
+  assert.equal(aging.status, 200);
+  assert.equal(aging.body.data[0], 'COL_AGING');
+
+  const history = await request(app).get(`/collections/${id}/history`).query({ limit: 50 }).set(auth);
+  assert.equal(history.status, 200);
+  assert.equal(history.body.data[0], 'COL_HISTORY');
+  assert.match(history.body.data[1], /PAYMENT/);
+  assert.match(history.body.data[1], /ESCALATION/);
+
+  const trail = await request(app).get('/collections/audit').query({ caseId: id, limit: 50 }).set(auth);
+  assert.equal(trail.status, 200);
+  assert.equal(trail.body.data[0], 'COL_AUDIT');
+  assert.match(trail.body.data[1], /REOPEN/);
+
+  requireSeed(runSql(`INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('clear_${admin}', 500, 'USD', 3, 5.0000, 'DISBURSED', '${admin}')`), 'seed a current loan');
+  const clearId = queryScalar(`SELECT id FROM loan_application WHERE customer_email = 'clear_${admin}' ORDER BY id DESC LIMIT 1`);
+  requireSeed(runSql(`INSERT INTO loan_schedule (loan_id, term_months, interest_rate, start_date, status, created_by) VALUES (${clearId}, 3, 5.0000, CURDATE(), 'ACTIVE', '${admin}')`), 'seed a current schedule');
+  const clearSchedule = queryScalar(`SELECT id FROM loan_schedule WHERE loan_id = ${clearId} ORDER BY id DESC LIMIT 1`);
+  requireSeed(runSql(`INSERT INTO loan_installment (schedule_id, seq, due_date, principal_due, interest_due, total_due, status) VALUES (${clearSchedule}, 1, DATE_ADD(CURDATE(), INTERVAL 20 DAY), 100, 5, 105, 'PENDING')`), 'seed a future installment');
+
+  const current = await request(app).post('/collections/validate').set(auth).send({ loanId: clearId });
+  assert.equal(current.status, 409);
+  assert.equal(current.body.error, 'NO_OVERDUE');
+
+  const missing = await request(app).post('/collections').set(auth).send({ ref: `${ref}X`, loanId: '999999' });
+  assert.equal(missing.status, 404);
+  assert.equal(missing.body.error, 'NOT_FOUND');
+
+  requireSeed(runSql(`DELETE FROM collection_audit WHERE actor_email = '${admin}'`), 'clean up the collections audit');
+  requireSeed(runSql(`DELETE FROM loan_application WHERE customer_email IN ('${admin}', 'clear_${admin}')`), 'clean up the collections loans');
+});

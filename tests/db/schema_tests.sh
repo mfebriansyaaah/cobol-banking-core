@@ -72,6 +72,27 @@ for col in card_id auth_ref txn_type amount currency merchant status; do
     assert_match "card_transaction.$col" "$c" "^1$"
 done
 
+# D4 (collections) schema: migration, case/activity/audit tables and columns.
+m=$(db_query "SELECT COUNT(*) FROM schema_migrations WHERE version='0111_collections';")
+assert_match "migration 0111 applied" "$m" "^1$"
+
+for t in collection_case collection_activity collection_audit; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='$t';")
+    assert_match "table $t exists" "$c" "^1$"
+done
+for col in case_ref loan_id installment_id overdue_amount recovered_amount priority status assigned_to promise_date escalation_level oldest_due_date resolution; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='collection_case' AND column_name='$col';")
+    assert_match "collection_case.$col" "$c" "^1$"
+done
+for col in case_id activity_type channel amount actor_email; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='collection_activity' AND column_name='$col';")
+    assert_match "collection_activity.$col" "$c" "^1$"
+done
+for col in case_id action actor_email; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='collection_audit' AND column_name='$col';")
+    assert_match "collection_audit.$col" "$c" "^1$"
+done
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

@@ -43,6 +43,7 @@ import { LOAN_ROUTES } from './loan.js';
 import { LOAN_SCHEDULE_ROUTES } from './loan_schedule.js';
 import { DEPOSIT_ROUTES } from './deposit.js';
 import { CARD_ROUTES } from './card.js';
+import { COLLECTION_ROUTES } from './collection.js';
 import { TAX_REPORT_ROUTES } from './tax_report.js';
 import { FEE_WAIVER_ROUTES } from './fee_waiver.js';
 import { LIMIT_PROFILE_ROUTES } from './limit_profile.js';
@@ -172,4 +173,5 @@ export const ALL_ROUTES = [
   ...ACCESS_AUDIT_ROUTES,
   ...BACKUP_VERIFICATION_ROUTES,
   ...SLA_TRACKING_ROUTES,
+  ...COLLECTION_ROUTES,
 ];

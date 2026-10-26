@@ -1,0 +1,80 @@
+import { PATTERNS } from '../validation.js';
+const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
+const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
+const ID = { name: 'id', pattern: PATTERNS.INT, required: true };
+
+// Static paths precede /collections/:id so "summary" / "aging" / "audit" /
+// "validate" are never parsed as an id.
+export const COLLECTION_ROUTES = [
+  { method: 'post', path: '/collections/validate', action: 'COL_VALIDATE', tokenIdentity: 'actor', fields: [
+    { name: 'loanId', pattern: PATTERNS.INT, required: true },
+    { name: 'installmentId', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/collections/summary', action: 'COL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/collections/aging', action: 'COL_AGING', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/collections/audit', action: 'COL_AUDIT', tokenIdentity: 'actor', fields: [
+    { name: 'caseId', pattern: PATTERNS.INT, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/collections', action: 'COL_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'status', pattern: PATTERNS.COLLECTION_STATUS, required: false },
+    { name: 'priority', pattern: PATTERNS.COLLECTION_PRIORITY, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections', action: 'COL_OPEN', tokenIdentity: 'actor', fields: [
+    { name: 'ref', pattern: PATTERNS.KEY, required: true },
+    { name: 'loanId', pattern: PATTERNS.INT, required: true },
+    { name: 'installmentId', pattern: PATTERNS.INT, required: false },
+    { name: 'priority', pattern: PATTERNS.COLLECTION_PRIORITY, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/collections/:id', action: 'COL_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/collections/:id/history', action: 'COL_HISTORY', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections/:id/assign', action: 'COL_ASSIGN', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'officer', pattern: PATTERNS.EMAIL, required: true },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections/:id/contact', action: 'COL_CONTACT', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'channel', pattern: PATTERNS.COLLECTION_CHANNEL, required: true },
+    { name: 'note', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections/:id/promise', action: 'COL_PROMISE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'date', pattern: PATTERNS.DATE, required: true },
+    { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
+    BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections/:id/pay', action: 'COL_PAY', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections/:id/escalate', action: 'COL_ESCALATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'note', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections/:id/close', action: 'COL_CLOSE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'resolution', pattern: PATTERNS.NAME, required: true },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/collections/:id/reopen', action: 'COL_REOPEN', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'reason', pattern: PATTERNS.REASON, required: true },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+];
