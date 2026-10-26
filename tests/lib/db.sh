@@ -67,3 +67,8 @@ db_reset_collection() {
     db_exec "DELETE s FROM loan_schedule s JOIN loan_application l ON l.id = s.loan_id WHERE l.customer_email LIKE 'd4%';"
     db_exec "DELETE FROM loan_application WHERE customer_email LIKE 'd4%';"
 }
+
+db_reset_payment_clearing() {
+    db_exec "DELETE FROM payment_clearing_audit;"
+    db_exec "DELETE FROM payment_clearing;"
+}

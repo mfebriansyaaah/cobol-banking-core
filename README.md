@@ -74,8 +74,8 @@ Rules of the split:
 | D1 Lending | Done | `loan_schedule_core` (28 actions), `loan_core` |
 | D2 Deposit | Done | `deposit_core` (13 actions) |
 | D3 Cards | Done | `card_core` (16 actions) |
-| D4 Collections | Skeleton | `collection_core` |
-| D5 Payments | Skeleton | `payment_clearing_core`, `billpay_core` |
+| D4 Collections | Done | `collection_core` (15 actions) |
+| D5 Payments | Done | `payment_clearing_core` (9 actions) |
 | D6 Treasury / FX | Skeleton | `treasury_liquidity_core`, `fx_hedging_core` |
 | D7 Compliance | Skeleton | `kyc_periodic_core`, `aml_screening_core`, `sanctions_list_core`, `fraud_case_core` |
 | D8 Finance | Skeleton | `gl_allocation_core`, `fixed_asset_core`, `cost_center_core`, `consolidation_core` |
@@ -93,8 +93,8 @@ Measured on this checkout:
 | Gateway route definitions | **719** on **712** unique actions |
 | COBOL dispatch prefixes | **179** |
 | Database tables (`schema.sql`) | **477** |
-| Recorded migrations | **111** (latest `0111_collections`) |
-| Test assertions | **343** (27 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 136 gateway) |
+| Recorded migrations | **112** (latest `0112_payment_clearing`) |
+| Test assertions | **365** (29 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 20 payments + 136 gateway) |
 
 ## Request contract
 
@@ -255,6 +255,7 @@ tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
 | D2 deposit | 26 | `tests/db/deposit_db_tests.sh` |
 | D3 card | 32 | `tests/db/card_db_tests.sh` |
 | D4 collections | 35 | `tests/db/collection_db_tests.sh` |
+| D5 payments | 20 | `tests/db/payment_clearing_db_tests.sh` |
 | Gateway | 136 | `middleware/test/*.js` |
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
