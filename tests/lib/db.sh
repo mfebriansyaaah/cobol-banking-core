@@ -97,3 +97,8 @@ db_reset_report_builder() {
     db_exec "DELETE FROM report_builder_audit;"
     db_exec "DELETE FROM report_builder;"
 }
+
+db_reset_aml_screening() {
+    db_exec "DELETE FROM aml_screening_audit;"
+    db_exec "DELETE FROM aml_screening;"
+}

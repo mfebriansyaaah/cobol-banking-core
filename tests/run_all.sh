@@ -49,6 +49,8 @@ run_db() {
     tests/db/backup_drill_db_tests.sh
     echo "=== DB REPORT BUILDER TESTS ==="
     tests/db/report_builder_db_tests.sh
+    echo "=== DB AML SCREENING TESTS ==="
+    tests/db/aml_screening_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="
