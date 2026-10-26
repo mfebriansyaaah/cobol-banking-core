@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T07:35:33.160Z",
+  "generatedAt": "2026-10-26T07:58:36.514Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -423,6 +423,7 @@
     "statement_delivery.js",
     "statement_recon.js",
     "tax_report.js",
+    "treasury_liquidity.js",
     "treasury_position.js",
     "vendor.js",
     "vendor_compliance.js",

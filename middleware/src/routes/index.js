@@ -27,6 +27,7 @@ import { AUDIT_DRILLDOWN_ROUTES } from './audit_drilldown.js';
 import { COMPLIANCE_EXPORT_ROUTES } from './compliance_export.js';
 import { PAYMENT_HOLD_ROUTES } from './payment_hold.js';
 import { PAYMENT_CLEARING_ROUTES } from './payment_clearing.js';
+import { TREASURY_LIQUIDITY_ROUTES } from './treasury_liquidity.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -117,6 +118,7 @@ export const ALL_ROUTES = [
   ...COMPLIANCE_EXPORT_ROUTES,
   ...PAYMENT_HOLD_ROUTES,
   ...PAYMENT_CLEARING_ROUTES,
+  ...TREASURY_LIQUIDITY_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,

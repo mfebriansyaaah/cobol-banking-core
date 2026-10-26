@@ -7,4 +7,5 @@ deposit_core.cob=0
 card_core.cob=0
 collection_core.cob=0
 payment_clearing_core.cob=0
+treasury_liquidity_core.cob=0
 sql_bridge.c=0

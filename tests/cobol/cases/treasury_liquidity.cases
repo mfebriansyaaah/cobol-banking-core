@@ -1,0 +1,7 @@
+# Treasury liquidity (D6) validation cases.
+TRL_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRL_CREATE||||||admin@test.com
+TRL_CREATE bad amount@@ERROR\|INVALID_AMOUNT@@TRL_CREATE|TRL-X|abc|USD|||admin@test.com
+TRL_GET missing id@@ERROR\|INVALID_INPUT@@TRL_GET||||||admin@test.com
+TRL_POST missing id@@ERROR\|INVALID_INPUT@@TRL_POST||||||admin@test.com
+TRL_CLOSE missing id@@ERROR\|INVALID_INPUT@@TRL_CLOSE||||||admin@test.com
+TRL_VALIDATE ok@@SUCCESS\|TRL_VALID@@TRL_VALIDATE|100.00|USD||||admin@test.com
