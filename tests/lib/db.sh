@@ -102,3 +102,8 @@ db_reset_aml_screening() {
     db_exec "DELETE FROM aml_screening_audit;"
     db_exec "DELETE FROM aml_screening;"
 }
+
+db_reset_sanctions_list() {
+    db_exec "DELETE FROM sanctions_list_audit;"
+    db_exec "DELETE FROM sanctions_list;"
+}

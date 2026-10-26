@@ -33,6 +33,7 @@ import { GL_ALLOCATION_ROUTES } from './gl_allocation.js';
 import { BACKUP_DRILL_ROUTES } from './backup_drill.js';
 import { REPORT_BUILDER_ROUTES } from './report_builder.js';
 import { AML_SCREENING_ROUTES } from './aml_screening.js';
+import { SANCTIONS_LIST_ROUTES } from './sanctions_list.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -129,6 +130,7 @@ export const ALL_ROUTES = [
   ...BACKUP_DRILL_ROUTES,
   ...REPORT_BUILDER_ROUTES,
   ...AML_SCREENING_ROUTES,
+  ...SANCTIONS_LIST_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,
