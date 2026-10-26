@@ -1,1 +1,1 @@
-cobol_table_tests=8
+cobol_table_tests=11

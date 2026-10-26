@@ -35,6 +35,9 @@ cases=(
   'SUCCESS\|LIST_DONE@@LIST_USERS|10|0|admin@test.com||'
   'SUCCESS\|USER@@GET_USER|sender@test.com|admin@test.com|||'
   'ERROR\|INVALID_CREDENTIALS@@AUTH_LOGIN|sender@test.com|wrongpass|||'
+  'SUCCESS\|LSC_CALC@@LSC_CALC|10000|12|12||||'
+  'SUCCESS\|LSC_VALIDATE@@LSC_VALIDATE|10000|12|12||||'
+  'SUCCESS\|LSC_STATUS@@LSC_STATUS|10000||||||'
 )
 
 for row in "${cases[@]}"; do
