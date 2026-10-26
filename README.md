@@ -1,186 +1,330 @@
 # Cobol Banking Core
 
-A banking core for a licensed production service where **all business logic is
-authoritative in COBOL**. C and JavaScript are restricted to infrastructure
-adapters and capabilities COBOL cannot provide directly.
+A banking backend where **COBOL is the authoritative business tier**. Every
+balance, limit, status transition, and ledger mutation is decided and executed
+in COBOL. Node/Express is only the HTTP gateway (routing, input-shape
+validation, authentication), and C provides the MySQL bridge plus the low-level
+crypto helpers COBOL cannot call directly.
 
-> **Production status:** owner approvals are recorded in `docs/APPROVALS.md`;
-> signed evidence is retained in the private evidence store and is not
-> reproduced here. This repository is the engineering artifact and does not
-> itself constitute regulatory approval. Gate 0 decisions and evidence are
-> tracked in `docs/GATE0_PACKET.md`, `docs/TRACEABILITY.md`, and
-> `docs/STATUS.md`.
+> **Status (2026-10-26):** engineering codebase, not a production certification.
+> 91 of 112 COBOL modules carry real logic; 21 modules (D4–D10) are still
+> generated skeletons. `tests/run_all.sh full` is green. Treat the numbers below
+> as measurements of this repository, not as a readiness claim.
 
 ## Architecture
 
-- `cobol/bin/main_logic` - one COBOL binary. By default it reads one
-  pipe-delimited request line from `input.txt` and writes one result line to
-  `output.txt`; with `--serve` it handles one request per stdin line (the
-  worker-pool protocol).
-- `cobol/src/sql_bridge.c` - C bridge to MySQL (prepared statements, escaping,
-  transactions). `cobol/c_lib/` holds PBKDF2, TOTP, settings, and CSPRNG
-  helpers.
-- `middleware/` - Node.js/Express API gateway, the only HTTP interface. It
-  validates input, invokes the binary, and maps result lines to HTTP.
-- Curated COBOL modules:
-  - `wallet_core.cob` - ledger, transfers, holds, reversals, statements,
-    disputes, reconciliation.
-  - `auth_core.cob` - identity, sessions, MFA, access reviews, policies.
-  - `user_core.cob` - users, profile, lifecycle.
-  - `ref_engine.cob` - generic reference data.
-  - `gl_core.cob` - chart of accounts, period control, journals, trial balance.
-  - `batch_core.cob` - jobs, steps, checkpointed runs, control totals, retry.
-  - `report_core.cob` - report templates, columns, runs, rows, and export.
-  - `import_core.cob` - staged batches, row validation, correction, posting,
-    and export.
-  - `fee_core.cob` - fee rules/tiers/waivers, duration limits, and velocity.
-  - `eod_core.cob` - EOD calendar, runs, phases, close, and fail control.
-  - `statement_core.cob` - period statement archive, lines, and export.
-  - `eod_jobs_core.cob` - hold expiry, dormant jobs, reconciliation, and
-    statement EOD execution.
-  - `ref_ext_core.cob` - translations, hierarchy, as-of lookup, clone, export.
-  - `notification_core.cob` - templates, preferences, and outbox enqueue.
-  - `payment_core.cob` - per-currency limits, user overrides, and usage checks.
-  - `recon_core.cob` - reconciliation notes, assignment, aging, and export.
-  - `import_post_core.cob` - balanced LEDGER import posting into the GL journal.
-  - `report_delivery_core.cob` - fixed-width layouts and recurring report delivery.
-  - `dispute_ops_core.cob` - dispute SLA, queue, assignment, escalation, and aging.
-  - `export_archive_core.cob` - retained report/import exports with checksum and expiry.
-  - `recon_ops_core.cob` - assignment rules, auto-assignment, and owner workload.
-  - `alert_core.cob` - operational alerts with scans, acknowledgement, and history.
-  - `dashboard_core.cob` - read-only cross-domain operational dashboards.
-  - `statement_recon_core.cob` - statement-to-ledger matching and recon runs.
-  - `payment_instruction_core.cob` - standing instructions and execution history.
-  - `oncall_core.cob` - rotations, shifts, escalation steps, and pages.
-  - `audit_analytics_core.cob` - audit summaries, trends, anomalies, retention, snapshots.
-  - `import_recon_core.cob` - import-to-GL reconciliation runs and exception items.
-  - `recon_exception_core.cob` - reconciliation exception cases, notes, SLA, and closure.
-  - `dispute_notify_core.cob` - dispute customer notification templates and delivery tracking.
-  - `export_stream_core.cob` - time-limited, counted export download tokens and chunk streaming.
-  - `alert_escalation_core.cob` - escalation policies, steps, and paged run tracking.
-  - `audit_drilldown_core.cob` - saved audit drill-down queries and ad-hoc audit pivots.
-  - `compliance_export_core.cob` - compliance export packages with seal, attest, and checksum verification.
-  - `legal_hold_core.cob` - legal holds with placement, release, and hold-blocking checks.
-  - `key_rotation_core.cob` - key rotation plans with bounded overlap and audit.
-  - `dsar_core.cob` - data subject access requests, export/erase, legal-hold blocking.
-  - `retention_job_core.cob` - retention policies and runs honouring legal holds.
-  - `slo_report_core.cob` - SLO definitions and burn-rate measurements.
-  - `pipeline_alert_core.cob` - idempotent pipeline failure alerts.
-  - `incident_core.cob` - incident lifecycle, assignment, and resolution.
-  - `change_control_core.cob` - change requests, approval, deploy, rollback.
-- Generated reference module (cobol/src/generated/ref_core.cob) - **removed**
-  in the cut-over; all 206 entities now live in the generic reference engine
-  (`ref_engine.cob` / `ref_ext_core.cob`). No generated code remains.
-- MySQL database `cobol_db`.
-- `manifest/modules.json` - module registry: COBOL modules, gateway route files,
-  and COBOL dispatch entries. Regenerate with `scripts/generate_manifest.mjs`;
-  `scripts/check_manifest.mjs` fails CI on drift.
+```
+Client
+  │  HTTPS / JSON
+  ▼
+middleware/                     Node 18+ / Express 4
+  app.js                       route table: HTTP → COBOL action
+  routes/*.js                  per-domain field order + patterns
+  validation.js                request shape, no business rules
+  auth.js                      JWT access/refresh, MFA, step-up
+  invoker.js + pool.js         file mode or warm worker pool
+  │  pipe protocol: ACTION|P1|P2|P3|P4|P5|P6
+  ▼
+cobol/bin/main_logic            GnuCOBOL, one binary
+  main_logic.cob               prefix dispatch (179 entries)
+  *_core.cob                   business logic + transactional SQL
+  │  SQL_BEGIN / SQL_PREPARE_EXEC / SQL_PREPARE_EXEC_ROWS / SQL_COMMIT
+  ▼
+cobol/src/sql_bridge.c          MySQL C API prepared statements
+  ▼
+MariaDB / MySQL — database `cobol_db`
+```
 
-## Current state and target
+Rules of the split:
 
-Measured 2026-10-25:
+- **COBOL** owns domain rules: authorization, limits, status machines,
+  idempotency, currency checks, interest, fees, and every write.
+- **JavaScript** owns transport: URL parsing, regex validation, JWT/MFA,
+  rate limits, and mapping `SUCCESS|…` / `ERROR|CODE|…` to HTTP.
+- **C** owns database connectivity (`sql_bridge.c`) and the crypto/settings
+  primitives in `cobol/c_lib/`.
+
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| `cobol/src/` | 112 domain modules + `main_logic.cob` dispatcher + `sql_bridge.c` |
+| `cobol/copy/` | Three copybooks used only by the password/auth module |
+| `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
+| `cobol/bin/` | Build output (`main_logic`), gitignored |
+| `middleware/src/` | Express gateway (87 files, 86 route modules + barrel) |
+| `middleware/test/` | 16 test files, 135 tests |
+| `database/` | `schema.sql` baseline (477 tables), 110 migrations, seed, grants |
+| `tests/` | Unified runner, table-driven COBOL cases, DB suites, harness |
+| `manifest/modules.json` | Generated registry: 112 modules, 86 route files, 179 dispatch entries |
+| `scripts/` | `generate_manifest.mjs`, `check_manifest.mjs` |
+| `monitoring/` | Prometheus alert rules for the gateway |
+| `build.sh` | Compiles dispatcher + all 112 modules + C bridge |
+| `ci.sh`, `ci-fast.sh` | Local CI entry points (no hosted CI configured) |
+
+## Implementation status
+
+| Domain | Status | Modules |
+|---|---|---|
+| Platform | Done | `auth_core`, `auth_password_core`, `user_core`, `wallet_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `batch_core`, `report_core`, `fee_core`, `eod_core`, `statement_core`, `notification_core`, `alert_core`, `dashboard_core`, plus audit/compliance/ops modules |
+| D1 Lending | Done | `loan_schedule_core` (28 actions), `loan_core` |
+| D2 Deposit | Done | `deposit_core` (13 actions) |
+| D3 Cards | Done | `card_core` (16 actions) |
+| D4 Collections | Skeleton | `collection_core` |
+| D5 Payments | Skeleton | `payment_clearing_core`, `billpay_core` |
+| D6 Treasury / FX | Skeleton | `treasury_liquidity_core`, `fx_hedging_core` |
+| D7 Compliance | Skeleton | `kyc_periodic_core`, `aml_screening_core`, `sanctions_list_core`, `fraud_case_core` |
+| D8 Finance | Skeleton | `gl_allocation_core`, `fixed_asset_core`, `cost_center_core`, `consolidation_core` |
+| D9 IT Ops | Skeleton | `backup_drill_core`, `incident_postmortem_core`, `change_approval_core`, `capacity_forecast_core`, `data_lineage_core`, `metric_definition_core` |
+| D10 Data / Reporting | Skeleton | `report_builder_core`, `analytics_snapshot_core` |
+
+Measured on this checkout:
 
 | Metric | Value |
 |---|---:|
-| Non-generated net | **118.623** |
-| Curated COBOL net | **61.632** (51,9%) |
-| Total COBOL net | **61.632** |
-| Full CI | **164 steps / 2301 assertions** |
-| Non-generated gap to 100.000 | **0** |
+| COBOL files | **113** (112 modules + dispatcher) |
+| COBOL lines | **111,079** |
+| Modules with real logic | **91** — 66,589 lines |
+| Skeleton modules | **21** — 43,785 lines, 3,171 stub actions |
+| Gateway route definitions | **719** on **712** unique actions |
+| COBOL dispatch prefixes | **179** |
+| Database tables (`schema.sql`) | **477** |
+| Recorded migrations | **110** (latest `0110_cards`) |
+| Test assertions | **277** (22 table + 52 schema + 10 loan + 26 deposit + 32 card + 135 gateway) |
 
-The target is **100.000 non-generated net**, **>= 100.000 total COBOL**, and
-**COBOL net share > 60%**. The previous 60.000 COBOL floor and 50% share
-target are superseded by the owner's revised goals. Volume remains a constraint,
-not a production-readiness claim.
+## Request contract
 
-## Delivery rules (mandatory)
+The gateway and the binary speak one line per request:
 
-Read `docs/DELIVERY_RULES.md` before starting work. In short:
+```
+ACTION|PARAM1|PARAM2|PARAM3|PARAM4|PARAM5|PARAM6
+```
 
-- **One PR = at least three modules**, target **5.000-9.000 net**.
-- **One full CI, one push** at the end.
-- **15-minute interface freeze** before code.
-- **Parallel worktrees/subagents** after the freeze.
-- **Table-driven tests** wired into `ci.sh` and `tests/baseline_counts.txt`.
-- **`./scripts/finalize_slice.sh`** before the full gate.
-- **One review per PR**; merge before starting the next slice.
-- No generated `ref_core` growth, padding, duplicate paragraphs, or dead
-  actions.
+- Request line: max **500 bytes**. `ACTION`: 20 chars. Each parameter: 100 chars.
+- Empty parameters are still separators: `BLOCK|12|||||admin@test.com`.
+- Responses start with `SUCCESS|<TAG>|…` or `ERROR|<CODE>|<detail>?`; the
+  gateway maps codes to HTTP status and `{ data: [...] }` / `{ error: … }`.
+- The SQL bridge accepts at most **6 binds** per statement. Use
+  `SQL_PREPARE_EXEC_ROWS` for multi-row results.
+- Dispatch is by action prefix in `main_logic.cob` (for example `CARD_*` →
+  `card_core`). Adding an action means: paragraph in the module, dispatch entry
+  if the prefix is new, route, tests, then regenerate the manifest.
+
+Two runtime modes:
+
+```sh
+./cobol/bin/main_logic            # file mode: input.txt → output.txt
+./cobol/bin/main_logic --serve    # one request per stdin line, one result per line
+```
 
 ## Quick start
 
-Prerequisites: GnuCOBOL (`cobc`), `gcc`, `libmysqlclient-dev`, MySQL/MariaDB,
-the `mysql` client, and Node.js 18+ with npm.
+Prerequisites: GnuCOBOL (`cobc`), `gcc`, `libmysqlclient-dev`, MariaDB/MySQL with
+the client, and Node.js 18+ with npm.
 
 ```sh
-# 1. Database: create, apply baseline schema, seed dev fixtures, migrate
-mysql -u root -e "CREATE DATABASE IF NOT EXISTS cobol_db;"
-mysql cobol_db < database/schema.sql          # fresh install only
-mysql cobol_db < database/seed_test_data.sql # dev fixtures, safe to re-run
-database/migrate.sh                          # apply recorded migrations
+# 1. Database (fresh install)
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS cobol_db CHARACTER SET utf8mb4;"
+mysql -u root cobol_db < database/schema.sql
+mysql -u root cobol_db < database/seed_test_data.sql   # dev fixtures, re-runnable
+./database/migrate.sh                                  # apply recorded migrations
 
 # 2. Build the COBOL binary
 ./build.sh
 
-# 3. Run one action
-printf 'CHECK_BALANCE|sender@test.com|sender@test.com||\n' > input.txt
+# 3. Smoke test
+printf 'PING||||||\n' > input.txt
 ./cobol/bin/main_logic
-cat output.txt                                # SUCCESS|BALANCES|USD:1000.00:ACTIVE
+cat output.txt        # SUCCESS|PONG
 
-# 4. Full gate (manifest drift check, build, COBOL/C harness, gateway tests)
-./ci.sh                                       # must end with ALL GREEN
+# 4. Gateway
+cp middleware/.env.example middleware/.env
+npm --prefix middleware install
+npm --prefix middleware start          # PORT from middleware/.env, default 3000
+
+# 5. Full local gate
+./ci.sh                                # must end with RUN_ALL (full) GREEN
 ```
 
-Test credentials default to `cobol_user`/`cobol_pass` on `cobol_db`; override
-via `tests/.dbenv` (gitignored). Production uses least-privilege accounts from
-`database/grants.sh`.
+Defaults point at `cobol_user` / `cobol_pass` / `cobol_db`. Override with
+`tests/.dbenv` (gitignored) for tests and with `middleware/.env` for the
+gateway. For production, `database/grants.sh` provisions separate DML-only
+(`cobol_app`) and migration (`cobol_migrate`) accounts.
 
-## API gateway
+The seed fixtures create `sender@test.com`, `receiver@test.com`, and
+`admin@test.com` (`SUPER_ADMIN`). Their seeded password hashes are placeholders,
+so use the signup/verify/login flow for real tokens.
+
+## HTTP gateway
+
+Authentication is bearer-token based: a short-lived JWT access token plus a
+rotating refresh token. Privileged writes also require a step-up proof issued by
+`POST /auth/step-up` and sent in `X-Step-Up`. The acting identity always comes
+from the token, never from the request body. TOTP MFA is supported.
+
+Public authentication endpoints:
+
+| Method | Path | Action |
+|---|---|---|
+| POST | `/auth/signup` | `REQUEST_SIGNUP` |
+| POST | `/auth/verify` | `VERIFY_EMAIL` |
+| POST | `/auth/login` | `AUTH_LOGIN` |
+| POST | `/auth/refresh` | refresh-token rotation (transport only) |
+| POST | `/auth/forgot` | `FORGOT_PASSWORD` |
+| POST | `/auth/reset-password` | `RESET_PASSWORD` |
+| POST | `/auth/resend` | `RESEND_VERIFICATION` |
+
+Authenticated session endpoints:
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/auth/step-up` | `VERIFY_REAUTH` → short-lived `X-Step-Up` proof |
+| POST | `/auth/logout` | revoke the presented refresh session |
+
+Operational endpoints:
+
+- `GET /health` — liveness, public.
+- `GET /ready` — dependency check (cached), public.
+- `GET /metrics` — Prometheus text; requires an `AUDIT_READ` bearer token.
+
+Route groups (86 modules) cover identity and access, wallet/ledger, payments and
+holds, lending (`/loans`, `/loan-schedules`), deposits, cards, GL and period
+close, fees, reports and delivery, imports, reconciliation, disputes, KYC and
+screening, compliance/legal holds, audit, alerts, on-call, batch/EOD, reference
+data, and backup/DR. Every route field must declare a `RegExp` pattern; a guard
+test fails the suite otherwise.
+
+### Configuration
+
+All gateway settings live in `middleware/.env` (fully documented in
+`middleware/.env.example`). The most important ones:
+
+| Variable | Purpose |
+|---|---|
+| `PORT`, `NODE_ENV` | HTTP port; production enables strict startup checks |
+| `JWT_SECRET`, `REFRESH_SECRET` | Separate secrets, ≥32 chars, must differ |
+| `COBOL_BIN` | Override the binary path |
+| `COBOL_POOL_SIZE`, `COBOL_POOL_PIPELINE`, `COBOL_POOL_TIMEOUT_MS`, `COBOL_POOL_QUEUE_MAX` | Worker pool; production defaults to 4 workers × 2 in-flight |
+| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME` | Inherited by the C bridge |
+| `REDIS_URL`, `TRUST_PROXY` | Shared rate-limit counters; trusted proxy hops |
+| `RATE_LIMIT_*`, `API_RATE_LIMIT_*`, `JSON_BODY_LIMIT` | Request protection |
+| `SMTP_*`, `OUTBOX_*` | Verification mail and outbox dispatch |
+| `METRICS_PUSH_URL`, `METRICS_PUSH_INTERVAL_MS` | Optional metrics push |
+| `TRANSFER_MAX_PER_TXN`, `TRANSFER_DAILY_LIMIT`, `PENDING_RETENTION_DAYS` | Core-enforced limits |
+
+Production startup refuses weak/default JWT secrets and default DB credentials.
+Verification codes are queued in a transactional outbox; the dispatcher is:
 
 ```sh
-npm --prefix middleware install
-npm --prefix middleware start
+node middleware/src/outbox_worker.js --once --limit 100
 ```
 
-The gateway reads `middleware/.env` (see `.env.example`). The COBOL binary
-reads `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, and `DB_NAME` from its
-environment. Set `COBOL_POOL_SIZE` to use the warm worker pool; otherwise each
-request runs in its own working directory. Responses carry `X-Cobol-Ms` and
-`X-Request-Id`; metrics are exposed at `/metrics` for a SUPER_ADMIN bearer.
+## Database
 
-Behavior is specified per module in `SPEC-wallet-core.md`,
-`SPEC-auth-identity.md`, `SPEC-user-profile.md`, and `SPEC-api-gateway.md`.
-Requests must use the bearer token as the acting identity; the gateway never
-takes the actor from the body.
+- `database/schema.sql` — baseline snapshot, fresh installs only.
+- `database/migrations/` — append-only, one file per change (`0101_…` …
+  `0110_cards.sql`), tracked in `schema_migrations`.
+- `database/migrate.sh` — idempotent runner; `--check` lists pending versions,
+  `--only <version>` applies one.
+- `database/seed_test_data.sql` — deterministic development fixtures.
+- `database/grants.sh` — least-privilege runtime account and privileged
+  migration account (`--print` to review).
 
-## Documentation
+Never edit an applied migration: add a new file. Migrations run under the
+privileged account; the running application only needs DML rights.
 
-- `docs/DELIVERY_RULES.md` - mandatory slice workflow, volume target, and
-  definition of done.
-- `docs/STATUS.md` - current modules, actions, tables, suites, and known gaps.
-- `docs/PRODUCTION_GRADE_PLAN.md` - production workstreams, gates, and risks.
-- `CODING_STANDARDS.md` - review rules.
-- `docs/APPROVALS.md`, `docs/GATE0_PACKET.md`, `docs/GATE0_DECISIONS.md`,
-  `docs/TRACEABILITY.md` - owner decisions, evidence, and requirement mapping.
-- `docs/COVERAGE.md`, `docs/BUILD_WARNINGS.md`, `docs/BUFFER_CONTRACT.md`,
-  `docs/SCHEMA_POLICY.md` - measurement and contract policies.
-- `docs/runbooks/` - incident, alert, backup/restore, deploy/rollback, and
-  secret-rotation procedures.
-- `docs/adr/` - architecture decisions.
+## Tests
 
-## Development notes
+```sh
+tests/run_all.sh fast     # manifest + build + COBOL table cases + PING smoke
+tests/run_all.sh db       # schema + D1/D2/D3 database suites
+tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
+./ci-fast.sh              # wrapper for fast
+./ci.sh                   # wrapper for full
+```
 
-- Install hooks once per clone: `./scripts/install-hooks.sh`.
-- Start a slice from merged `main`: `./scripts/sync_main.sh <branch>`.
-- Use `./ci-fast.sh` while iterating; full `./ci.sh` is the merge evidence.
-- Run `node scripts/check_manifest.mjs` to verify the module registry,
-  `build.sh`, and `routes/index.js` have not drifted.
-- IPC contract tests live in `middleware/test/ipc_contract*.test.js`
-  (file mode and worker-pool mode).
-- Table-driven COBOL tests live in `tests/cobol_table_tests.sh`
-  (wired into `ci.sh`; baseline count in `tests/baseline_counts.txt`).
-- Functional shell suites use `tests/serve_harness.sh` unless they need
-  fresh-process semantics.
-- Stop stray servers with a bracket pattern (`pkill -f "[s]erver.js"`).
+| Suite | Assertions | Location |
+|---|---:|---|
+| COBOL table cases | 22 | `tests/cobol/cases/*.cases` |
+| Schema / migrations | 52 | `tests/db/schema_tests.sh` |
+| D1 loan schedule | 10 | `tests/db/loan_schedule_db_tests.sh` |
+| D2 deposit | 26 | `tests/db/deposit_db_tests.sh` |
+| D3 card | 32 | `tests/db/card_db_tests.sh` |
+| Gateway | 135 | `middleware/test/*.js` |
 
-See `PRD_Enterprise.md` for the regulated-bank mission and release gates.
+Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
+suites skip with `SKIP: DB unavailable` when MariaDB is not reachable, and reset
+their own tables before running. `tests/baseline_counts.txt` records the
+expected totals; update it only when a test count changes intentionally.
+
+The error harness (`tests/check_cobol_c_errors.sh`) checks COBOL/C syntax,
+linkage, a PING run, DB connectivity, and non-empty output. The gateway suite
+covers auth and refresh rotation, security, validation, route coverage, IPC in
+both modes, pool config/failure handling, rate limiting, mailer, and
+observability.
+
+## Manifest
+
+`manifest/modules.json` is the single registry of COBOL modules, gateway route
+files, and dispatcher prefixes. It is generated, never hand-edited:
+
+```sh
+node scripts/generate_manifest.mjs
+node scripts/check_manifest.mjs     # fails on drift; run in CI
+```
+
+`check_manifest.mjs` verifies that every module is compiled by `build.sh`, that
+route files are exported from `routes/index.js`, and that dispatch entries match
+`main_logic.cob`.
+
+## Operations
+
+- Structured JSON logs; responses carry `X-Request-Id` and `X-Cobol-Ms`.
+- `monitoring/prometheus-alerts.yml` covers gateway 5xx rate, pool saturation,
+  pool restarts, and related signals.
+- `/metrics` exposes request, error, auth-failure, and pool gauges/counters.
+- Graceful pool shutdown and restart handling live in `middleware/src/pool.js`.
+- `backups/` is gitignored and holds local physical-backup output only.
+
+## Known gaps
+
+1. **D4–D10 are skeletons.** 21 modules × 151 stub actions; routes and tables
+   exist, business logic does not.
+2. **Copy-paste plumbing.** 585 duplicate paragraph bodies were measured
+   (`TRIM-ALL` ×104, `VALIDATE-ALL` ×102, `TRIM-RESULT-LEN` ×84). Shared
+   copybooks for trimming, validation, and audit are the main refactor target.
+3. **No hosted CI.** GitLab/GitHub Actions is not configured; `ci.sh` is the
+   only gate, so it must be run locally before every merge.
+4. **Documentation surface is thin.** Earlier references to `docs/*.md`,
+   `SPEC-*.md`, and helper scripts were removed because those files are not in
+   this repository. This README, `middleware/.env.example`, module comments, and
+   the tests are the maintained documentation.
+5. **Legacy compiler warnings** remain in some non-D1–D3 modules.
+6. **Build cost.** `./build.sh` compiles 114 units and takes roughly 2–3 minutes;
+   `tests/run_all.sh full` is the slow, authoritative gate.
+
+## Working in this repository
+
+1. Branch from `main`; keep one domain or concern per PR.
+2. Put business rules and SQL in the relevant `cobol/src/*_core.cob`, using
+   `SQL_BEGIN`/`SQL_COMMIT`/`SQL_ROLLBACK`, `GET_RESULT`, `ALLOW-ADMIN`, and
+   `AUDIT` in the established pattern.
+3. Add the schema change as a new migration; never modify `schema.sql` by hand
+   for an incremental change.
+4. Add the route with fields in the exact COBOL parameter order, static paths
+   before `/:id`, and a `PATTERNS` entry for every named field.
+5. Add table cases and a DB suite for the new behaviour.
+6. Regenerate and check the manifest, then run `./ci.sh`.
+7. Update `tests/baseline_counts.txt` only for intentional count changes.
+
+### Command cheat sheet
+
+```sh
+./build.sh                              # rebuild the COBOL binary
+tests/cobol/table_runner.sh             # all table cases
+tests/cobol/table_runner.sh tests/cobol/cases/card.cases
+tests/db/card_db_tests.sh               # one DB suite
+npm --prefix middleware test            # gateway suite
+node scripts/check_manifest.mjs         # registry drift check
+node middleware/src/outbox_worker.js --once
+```
