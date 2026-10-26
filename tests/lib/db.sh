@@ -72,3 +72,8 @@ db_reset_payment_clearing() {
     db_exec "DELETE FROM payment_clearing_audit;"
     db_exec "DELETE FROM payment_clearing;"
 }
+
+db_reset_treasury_liquidity() {
+    db_exec "DELETE FROM treasury_liquidity_audit;"
+    db_exec "DELETE FROM treasury_liquidity;"
+}

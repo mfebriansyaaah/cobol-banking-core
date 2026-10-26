@@ -39,6 +39,8 @@ run_db() {
     tests/db/collection_db_tests.sh
     echo "=== DB PAYMENT CLEARING TESTS ==="
     tests/db/payment_clearing_db_tests.sh
+    echo "=== DB TREASURY LIQUIDITY TESTS ==="
+    tests/db/treasury_liquidity_db_tests.sh
 }
 
 run_gateway() {
