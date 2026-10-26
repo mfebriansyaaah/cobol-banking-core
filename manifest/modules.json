@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T08:31:30.998Z",
+  "generatedAt": "2026-10-26T09:03:27.033Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -376,6 +376,7 @@
     "fraud_ops.js",
     "fx_deal.js",
     "gl.js",
+    "gl_allocation.js",
     "gl_period_close.js",
     "gl_reval.js",
     "import.js",

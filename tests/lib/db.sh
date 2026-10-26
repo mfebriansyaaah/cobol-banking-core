@@ -82,3 +82,8 @@ db_reset_kyc_periodic() {
     db_exec "DELETE FROM kyc_periodic_audit;"
     db_exec "DELETE FROM kyc_periodic;"
 }
+
+db_reset_gl_allocation() {
+    db_exec "DELETE FROM gl_allocation_audit;"
+    db_exec "DELETE FROM gl_allocation;"
+}

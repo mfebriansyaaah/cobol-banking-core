@@ -1,0 +1,6 @@
+# GL allocation (D8) validation cases.
+GLA_CREATE missing ref@@ERROR\|INVALID_INPUT@@GLA_CREATE||||||admin@test.com
+GLA_GET missing id@@ERROR\|INVALID_INPUT@@GLA_GET||||||admin@test.com
+GLA_ALLO missing id@@ERROR\|INVALID_INPUT@@GLA_ALLO||||||admin@test.com
+GLA_CLOSE missing id@@ERROR\|INVALID_INPUT@@GLA_CLOSE||||||admin@test.com
+GLA_VALIDATE ok@@SUCCESS\|GLA_VALID@@GLA_VALIDATE|100.00|USD||||admin@test.com
