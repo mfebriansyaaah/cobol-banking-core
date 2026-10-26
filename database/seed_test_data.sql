@@ -22,6 +22,10 @@ INSERT IGNORE INTO exchange_rates (base_currency_id, target_currency_id, exchang
 (1, 3, 15700.00), -- USD -> IDR
 (1, 4, 0.79);     -- USD -> GBP
 
+-- Keep the seeded rates fresh: the core refuses rates older than
+-- RATE_MAX_AGE_SECONDS (default 24h) with RATE_STALE.
+UPDATE exchange_rates SET updated_at = NOW();
+
 -- Seed Accounts
 INSERT IGNORE INTO accounts (account_id, user_id, currency_id, account_type, balance, status) VALUES
 (1, 1, 1, 'SAVINGS', 1000.00, 'ACTIVE'),

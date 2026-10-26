@@ -171,3 +171,10 @@ export function seedAccountCurrency(email, currencyId, balance, firstOnly = fals
 export function seedAccount(email, balance = '1000.00') {
   return seedAccountCurrency(email, 1, balance, true);
 }
+
+// Refresh exchange-rate timestamps so cross-currency transfers do not fail
+// with RATE_STALE when the seeded fixtures are older than RATE_MAX_AGE_SECONDS
+// (the core enforces rate freshness). Returns false when mysql is unavailable.
+export function refreshExchangeRates() {
+  return runSql('UPDATE exchange_rates SET updated_at = NOW();');
+}

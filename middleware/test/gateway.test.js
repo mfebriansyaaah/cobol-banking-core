@@ -13,7 +13,7 @@ import { buildApp } from '../src/app.js';
 // show up as a false reconciliation mismatch once another suite wipes the
 // ledger.
 after(() => runSql("DELETE FROM users WHERE email LIKE 'gw\\_%'"));
-import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, totp, TEST_MFA_SECRET, requireSeed } from './support.js';
+import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, totp, TEST_MFA_SECRET, requireSeed, refreshExchangeRates } from './support.js';
 
 const app = buildApp();
 const unique = `gw_${Date.now()}@test.com`;
@@ -529,7 +529,15 @@ test('a large list is not truncated at 500 bytes', async () => {
   requireSeed(seedManyUsers('gw_bulk_', 25), 'seed bulk users');
   const token = (await request(app).post('/auth/login').send({ email: 'gw_admin_bulk@test.com', password: 'secret123' })).body.token;
 
-  const res = await request(app).get('/users?limit=100').set('Authorization', `Bearer ${token}`);
+  // LIST_USERS pages by ascending id, so anchor the window at the first bulk
+  // user. Querying limit=100 from offset 0 only works while the shared test
+  // database has fewer than 100 rows; accumulated users push the fixture off
+  // the first page. Computing the offset keeps the assertion deterministic.
+  const before = Number(queryScalar("SELECT COUNT(*) FROM users WHERE id < (SELECT id FROM users WHERE email='gw_bulk_1@test.com')"));
+  requireSeed(Number.isFinite(before), 'locate the bulk users');
+  const res = await request(app)
+    .get(`/users?limit=100&offset=${before}`)
+    .set('Authorization', `Bearer ${token}`);
   assert.equal(res.status, 200);
   // The 25th bulk user sits well past 500 bytes; it survives the multi-record output.
   assert.ok(JSON.stringify(res.body.users).includes('gw_bulk_25@test.com'));
@@ -817,6 +825,7 @@ test('cross-currency transfer falls back to the inverse rate', async () => {
   // Only an IDR account: the IDR->USD pair does not exist directly, so the
   // gateway/core must use the reciprocal of USD->IDR.
   requireSeed(seedAccountCurrency(em, 3, '100000.00'), 'seed an IDR account');
+  requireSeed(refreshExchangeRates(), 'refresh exchange rates');
 
   const key = `fx-${Date.now()}`;
   const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', key).send({ to: 'receiver@test.com', amount: '15700' });
@@ -832,6 +841,7 @@ test('transfer selects the sender account by currency', async () => {
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
   requireSeed(seedAccountCurrency(em, 1, '1000.00') && seedAccountCurrency(em, 2, '1000.00'), 'seed USD and EUR accounts');
+  requireSeed(refreshExchangeRates(), 'refresh exchange rates');
 
   // 92.00 EUR -> exactly 100.00 USD at the 0.92 rate (exact postings
   // carry no residual and need no FX_PNL account).
