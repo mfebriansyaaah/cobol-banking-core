@@ -1,0 +1,5 @@
+# Card (D3) validation cases.
+CARD_VALIDATE@@SUCCESS\|CARD_VALID@@CARD_VALIDATE|admin@test.com|CREDIT|5000.00|USD||admin@test.com
+CARD_VALIDATE unknown customer@@ERROR\|NOT_FOUND@@CARD_VALIDATE|nobody@test.com|CREDIT|5000.00|USD||admin@test.com
+CARD_VALIDATE bad currency@@ERROR\|INVALID_CURRENCY@@CARD_VALIDATE|admin@test.com|CREDIT|5000.00|ZZZ||admin@test.com
+CARD_VALIDATE bad type@@ERROR\|INVALID_INPUT@@CARD_VALIDATE|admin@test.com|GOLD|5000.00|USD||admin@test.com

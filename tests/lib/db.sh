@@ -49,3 +49,10 @@ db_reset_deposit() {
     db_exec "DELETE FROM deposit_accrual;"
     db_exec "DELETE FROM deposit_account;"
 }
+
+# Reset D3 (card) rows. card_transaction cascades from card_account.
+db_reset_card() {
+    db_exec "DELETE FROM card_audit;"
+    db_exec "DELETE FROM card_transaction;"
+    db_exec "DELETE FROM card_account;"
+}

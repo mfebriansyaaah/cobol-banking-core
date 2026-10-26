@@ -1288,3 +1288,69 @@ test('deposit lifecycle over HTTP', async () => {
 
   requireSeed(runSql(`DELETE FROM deposit_account WHERE customer_email = '${owner}'`), 'clean up the deposit');
 });
+
+test('card lifecycle over HTTP', async () => {
+  const admin = `gw_card_${Date.now()}@test.com`;
+  const ref = `gw_card_${Date.now()}`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a card admin');
+  enableMfa(admin);
+  const token = await adminLoginFor(admin);
+  const auth = { Authorization: `Bearer ${token}` };
+
+  const valid = await request(app).post('/cards/validate').set(auth).send({ email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' });
+  assert.equal(valid.status, 200);
+  assert.equal(valid.body.data[0], 'CARD_VALID');
+
+  const issue = await request(app).post('/cards').set(auth).send({ ref, email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' });
+  assert.equal(issue.status, 200);
+  assert.equal(issue.body.data[0], 'CARD_ISSUE');
+  const id = issue.body.data[1];
+  assert.match(String(id), /^\d+$/);
+
+  assert.equal((await request(app).post('/cards').set(auth).send({ ref, email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' })).body.error, 'DUPLICATE');
+
+  const got = await request(app).get(`/cards/${id}`).set(auth);
+  assert.equal(got.status, 200);
+  assert.equal(got.body.data[0], 'CARD');
+
+  const authorize = await request(app).post(`/cards/${id}/authorize`).set(auth).send({ amount: '100.00', merchant: 'Shop A' });
+  assert.equal(authorize.status, 200);
+  assert.equal(authorize.body.data[0], 'CARD_AUTHORIZE');
+  assert.match(authorize.body.data[1], /^AUTH-/);
+
+  const captured = await request(app).post(`/cards/${id}/capture`).set(auth).send({ authRef: authorize.body.data[1] });
+  assert.equal(captured.status, 200);
+  assert.deepEqual(captured.body.data, ['CARD_CAPTURE', '100.0000']);
+
+  const repay = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '50.00' });
+  assert.equal(repay.status, 200);
+  assert.deepEqual(repay.body.data, ['CARD_REPAY', '50.00']);
+
+  const statement = await request(app).get(`/cards/${id}/statement`).query({ limit: 50 }).set(auth);
+  assert.equal(statement.status, 200);
+  assert.equal(statement.body.data[0], 'CARD_STATEMENT');
+  assert.equal(statement.body.data[1], '50.0000');
+  assert.match(statement.body.data[5], /REPAYMENT/);
+
+  const limit = await request(app).post(`/cards/${id}/limit`).set(auth).send({ limit: '2000.00' });
+  assert.equal(limit.status, 200);
+  assert.deepEqual(limit.body.data, ['CARD_LIMIT', '2000.00']);
+
+  assert.equal((await request(app).post(`/cards/${id}/block`).set(auth).send({})).body.data[0], 'CARD_BLOCKED');
+  assert.equal((await request(app).post(`/cards/${id}/unblock`).set(auth).send({})).body.data[0], 'CARD_UNBLOCKED');
+
+  const replace = await request(app).post(`/cards/${id}/replace`).set(auth).send({ ref: `${ref}_new` });
+  assert.equal(replace.status, 200);
+  assert.equal(replace.body.data[0], 'CARD_REPLACE');
+  assert.match(String(replace.body.data[1]), /^\d+$/);
+
+  const summary = await request(app).get('/cards/summary').set(auth);
+  assert.equal(summary.status, 200);
+  assert.equal(summary.body.data[0], 'CARD_SUMMARY');
+
+  const trail = await request(app).get('/cards/audit').query({ cardId: id, limit: 20 }).set(auth);
+  assert.equal(trail.status, 200);
+  assert.equal(trail.body.data[0], 'CARD_AUDIT');
+
+  requireSeed(runSql(`DELETE FROM card_account WHERE card_ref LIKE '${ref}%'`), 'clean up the cards');
+});
