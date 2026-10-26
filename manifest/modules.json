@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T03:03:40.613Z",
+  "generatedAt": "2026-10-26T03:39:46.400Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -108,9 +108,6 @@
     },
     {
       "source": "deposit_core.cob"
-    },
-    {
-      "source": "deposit_interest_core.cob"
     },
     {
       "source": "disaster_recovery_core.cob"
@@ -862,11 +859,6 @@
       "prefixLen": 4,
       "prefix": "LSC_",
       "program": "loan_schedule_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DPI_",
-      "program": "deposit_interest_core"
     },
     {
       "prefixLen": 4,

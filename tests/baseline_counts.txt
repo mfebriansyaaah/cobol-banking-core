@@ -1,4 +1,5 @@
-cobol_table_tests=11
-db_schema_tests=22
+cobol_table_tests=18
+db_schema_tests=38
 db_loan_schedule_tests=10
-gateway_tests=132
+db_deposit_tests=26
+gateway_tests=133

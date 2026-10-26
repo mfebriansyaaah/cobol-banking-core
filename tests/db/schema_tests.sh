@@ -34,6 +34,28 @@ for col in id schedule_id action actor_email detail; do
     assert_match "loan_schedule_audit.$col" "$c" "^1$"
 done
 
+# D2 (deposit & interest) schema: migration, tables and interest columns.
+m=$(db_query "SELECT COUNT(*) FROM schema_migrations WHERE version='0109_deposit_interest';")
+assert_match "migration 0109 applied" "$m" "^1$"
+
+for t in deposit_accrual deposit_transaction; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='$t';")
+    assert_match "table $t exists" "$c" "^1$"
+done
+
+for col in accrued_interest posted_interest last_accrual_date; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='deposit_account' AND column_name='$col';")
+    assert_match "deposit_account.$col" "$c" "^1$"
+done
+for col in deposit_id accrual_date days interest status; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='deposit_accrual' AND column_name='$col';")
+    assert_match "deposit_accrual.$col" "$c" "^1$"
+done
+for col in deposit_id txn_type amount currency reference; do
+    c=$(db_query "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='deposit_transaction' AND column_name='$col';")
+    assert_match "deposit_transaction.$col" "$c" "^1$"
+done
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

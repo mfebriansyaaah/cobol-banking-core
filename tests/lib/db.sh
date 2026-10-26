@@ -40,3 +40,12 @@ db_reset_loan_schedule() {
     db_exec "DELETE FROM loan_installment;"
     db_exec "DELETE FROM loan_schedule;"
 }
+
+# Reset D2 (deposit) rows so tests are deterministic. deposit_accrual and
+# deposit_transaction cascade from deposit_account.
+db_reset_deposit() {
+    db_exec "DELETE FROM deposit_audit;"
+    db_exec "DELETE FROM deposit_transaction;"
+    db_exec "DELETE FROM deposit_accrual;"
+    db_exec "DELETE FROM deposit_account;"
+}

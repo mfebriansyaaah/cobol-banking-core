@@ -4,8 +4,6 @@
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -48,6 +46,22 @@
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+       01  WS-TMP-STR              PIC X(100) VALUE SPACES.
+       01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
+       01  WS-TMP-DAYS             PIC X(10) VALUE SPACES.
+       01  WS-TMP-INTR             PIC X(30) VALUE SPACES.
+       01  WS-PRINCIPAL-NUM        PIC 9(15)V9(4) VALUE 0.
+       01  WS-RATE-NUM             PIC 9(5)V9(4) VALUE 0.
+       01  WS-TERM-NUM             PIC 9(5) VALUE 0.
+       01  WS-DAYS-NUM             PIC 9(5) VALUE 0.
+       01  WS-INTEREST-NUM         PIC 9(15)V9(4) VALUE 0.
+       01  WS-TOTAL-NUM            PIC 9(15)V9(4) VALUE 0.
+       01  WS-ID-TEXT              PIC X(20) VALUE SPACES.
+       01  WS-ACCRUED-TEXT         PIC X(30) VALUE SPACES.
+       01  WS-POSTED-TEXT          PIC X(30) VALUE SPACES.
+       01  WS-AFFECTED             PIC X(20) VALUE SPACES.
+       01  WS-STATUS-TEXT          PIC X(20) VALUE SPACES.
+       01  WS-COUNT-NUM            PIC 9(9) VALUE 0.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -92,6 +106,27 @@
                WHEN LS-CMD-ACTION(1:11) = "DEP_SUMMARY"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-SUMMARY
+               WHEN LS-CMD-ACTION(1:10) = "DEP_ACCRUE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-ACCRUE
+               WHEN LS-CMD-ACTION(1:8) = "DEP_POST"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-POST-INTEREST
+               WHEN LS-CMD-ACTION(1:10) = "DEP_SETTLE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-SETTLE
+               WHEN LS-CMD-ACTION(1:13) = "DEP_STATEMENT"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-STATEMENT
+               WHEN LS-CMD-ACTION(1:9) = "DEP_AUDIT"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-AUDIT
+               WHEN LS-CMD-ACTION(1:8) = "DEP_CALC"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-CALC
+               WHEN LS-CMD-ACTION(1:12) = "DEP_VALIDATE"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-VALIDATE
                WHEN OTHER
                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
            END-EVALUATE.
@@ -227,6 +262,27 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-PRINCIPAL-NUM
+           MOVE FUNCTION NUMVAL(WS-P4-TRIMMED) TO WS-TERM-NUM
+           IF WS-PRINCIPAL-NUM <= 0
+               MOVE "ERROR|INVALID_PRINCIPAL" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           IF WS-TERM-NUM < 1 OR WS-TERM-NUM > 360
+               MOVE "ERROR|INVALID_TERM" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE "SELECT iso_code FROM currencies WHERE iso_code = ? AND is_active = 1 LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P3-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
            MOVE "INSERT INTO deposit_account (customer_email, principal, currency, term_months, interest_rate, created_by) VALUES (?, ?, ?, ?, COALESCE(NULLIF(?, ''), 0), ?)" TO WS-PREP-SQL
@@ -245,14 +301,40 @@
                SET STEP-FAIL TO TRUE
            END-IF.
            IF STEP-OK
+               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-ID-TEXT
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE deposit_account SET maturity_date = DATE_ADD(CURDATE(), INTERVAL term_months MONTH) WHERE id = ?" TO WS-PREP-SQL
+               MOVE WS-ID-TEXT TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
                MOVE "OPEN" TO WS-AUDIT-ACTION
-               MOVE SPACES TO WS-AUDIT-DEPOSIT
+               MOVE WS-ID-TEXT TO WS-AUDIT-DEPOSIT
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
            IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|DEP_OPENED" TO LS-OUTPUT-BUFFER
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|DEP_OPEN|" DELIMITED BY SIZE WS-ID-TEXT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -273,7 +355,7 @@
            IF LS-PARAM3 NOT = SPACES
                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
            END-IF.
-           MOVE "SELECT CONCAT(id, ':', customer_email, ':', principal, ':', currency, ':', term_months, ':', status) FROM deposit_account WHERE (? = '' OR status = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(id, ':', customer_email, ':', principal, ':', currency, ':', term_months, ':', status, ':', accrued_interest) FROM deposit_account WHERE (? = '' OR status = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P1-TRIMMED TO WS-BIND-2
            MOVE WS-LIMIT TO WS-BIND-3
@@ -306,7 +388,7 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(id, '|', customer_email, '|', principal, '|', currency, '|', term_months, '|', interest_rate, '|', status, '|', COALESCE(maturity_date, '')) FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(id, '|', customer_email, '|', principal, '|', currency, '|', term_months, '|', interest_rate, '|', status, '|', COALESCE(maturity_date, ''), '|', accrued_interest, '|', posted_interest, '|', COALESCE(last_accrual_date, '')) FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
@@ -322,7 +404,8 @@
                EXIT PARAGRAPH
            END-IF.
            MOVE SPACES TO LS-OUTPUT-BUFFER
-           STRING "SUCCESS|DEPOSIT|" DELIMITED BY SIZE WS-RESULT(1:300) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           PERFORM TRIM-RESULT-LEN
+           STRING "SUCCESS|DEPOSIT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
            EXIT PARAGRAPH.
 
        ACTION-MATURE.
@@ -396,7 +479,7 @@
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'MATURED'), 0), '|', COALESCE(SUM(principal), 0)) FROM deposit_account" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'MATURED'), 0), '|', COALESCE(SUM(principal), 0), '|', COALESCE(SUM(accrued_interest), 0), '|', COALESCE(SUM(posted_interest), 0)) FROM deposit_account" TO WS-PREP-SQL
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
@@ -408,4 +491,424 @@
            END-IF.
            MOVE SPACES TO LS-OUTPUT-BUFFER
            STRING "SUCCESS|DEP_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+      *> Accrue interest for one deposit. Interest is computed by the
+      *> database (principal * rate * days / 36500) so the core never binds a
+      *> float; the accrual is upserted per (deposit, day).
+       ACTION-ACCRUE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE 30 TO WS-DAYS-NUM
+           IF WS-P2-TRIMMED NOT = SPACES
+               MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-DAYS-NUM
+               IF WS-DAYS-NUM = 0
+                   MOVE 30 TO WS-DAYS-NUM
+               END-IF
+           END-IF.
+           MOVE "SELECT status FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-STATUS-TEXT
+           IF WS-STATUS-TEXT(1:6) NOT = "ACTIVE"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-DAYS-NUM TO WS-TMP-DAYS
+           SET STEP-OK TO TRUE
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO deposit_accrual (deposit_id, accrual_date, days, principal, rate, interest, status) SELECT id, CURDATE(), ?, principal, interest_rate, ROUND(principal * interest_rate * ? / 36500, 4), 'ACCRUED' FROM deposit_account WHERE id = ? ON DUPLICATE KEY UPDATE days = VALUES(days), interest = VALUES(interest), status = 'ACCRUED'" TO WS-PREP-SQL
+           MOVE WS-TMP-DAYS TO WS-BIND-1
+           MOVE WS-TMP-DAYS TO WS-BIND-2
+           MOVE WS-P1-TRIMMED TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE deposit_account SET accrued_interest = (SELECT COALESCE(SUM(interest), 0) FROM deposit_accrual WHERE deposit_id = ? AND status = 'ACCRUED'), last_accrual_date = CURDATE() WHERE id = ?" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "SELECT CAST(interest AS CHAR) FROM deposit_accrual WHERE deposit_id = ? AND accrual_date = CURDATE() LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:30) TO WS-TMP-INTR
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "ACCRUE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-DEPOSIT
+               MOVE WS-TMP-INTR TO WS-AUDIT-DETAIL
+               PERFORM AUDIT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|DEP_ACCRUE|" DELIMITED BY SIZE WS-TMP-INTR DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+      *> Post every accrual that is still ACCRUED: the amount is recorded as a
+      *> deposit transaction and rolled into posted_interest.
+       ACTION-POST-INTEREST.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(CAST(COALESCE(SUM(interest), 0) AS CHAR), '|', COUNT(*)) FROM deposit_accrual WHERE deposit_id = ? AND status = 'ACCRUED'" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-TMP-AMT
+           MOVE SPACES TO WS-TMP-STR
+           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-AMT WS-TMP-STR END-UNSTRING
+           MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-COUNT-NUM
+           IF WS-COUNT-NUM = 0
+               MOVE "ERROR|NOTHING_TO_POST" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO deposit_transaction (deposit_id, txn_type, amount, currency, reference) SELECT id, 'INTEREST_POSTED', ?, currency, CONCAT('INT-', id, '-', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')) FROM deposit_account WHERE id = ?" TO WS-PREP-SQL
+           MOVE WS-TMP-AMT TO WS-BIND-1
+           MOVE WS-P1-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE deposit_accrual SET status = 'POSTED' WHERE deposit_id = ? AND status = 'ACCRUED'" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE deposit_account SET posted_interest = posted_interest + ?, accrued_interest = GREATEST(accrued_interest - ?, 0) WHERE id = ?" TO WS-PREP-SQL
+               MOVE WS-TMP-AMT TO WS-BIND-1
+               MOVE WS-TMP-AMT TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "POST_INTEREST" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-DEPOSIT
+               MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+               PERFORM AUDIT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|DEP_POST|" DELIMITED BY SIZE WS-TMP-AMT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+      *> Settle a matured (or still active) deposit: principal + posted
+      *> interest is paid out and the deposit closes.
+       ACTION-SETTLE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT(CAST(principal + posted_interest AS CHAR), '|', status) FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-TMP-AMT
+           MOVE SPACES TO WS-STATUS-TEXT
+           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-AMT WS-STATUS-TEXT END-UNSTRING
+           IF WS-STATUS-TEXT(1:6) NOT = "ACTIVE"
+               AND WS-STATUS-TEXT(1:7) NOT = "MATURED"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "INSERT INTO deposit_transaction (deposit_id, txn_type, amount, currency, reference) SELECT id, 'PRINCIPAL_PAYOUT', ?, currency, CONCAT('SETTLE-', id, '-', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')) FROM deposit_account WHERE id = ?" TO WS-PREP-SQL
+           MOVE WS-TMP-AMT TO WS-BIND-1
+           MOVE WS-P1-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE deposit_account SET status = 'CLOSED', accrued_interest = 0 WHERE id = ? AND status IN ('ACTIVE','MATURED')" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "SETTLE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-DEPOSIT
+               MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+               PERFORM AUDIT
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|DEP_SETTLE|" DELIMITED BY SIZE WS-TMP-AMT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+      *> Full movement history for a deposit: accrual rows (A:) and
+      *> transaction rows (T:), oldest first, bounded at 200 rows.
+       ACTION-STATEMENT.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT CONCAT('A:', accrual_date, ':', days, ':', interest, ':', status) FROM deposit_accrual WHERE deposit_id = ? UNION ALL SELECT CONCAT('T:', txn_type, ':', amount, ':', currency, ':', reference) FROM deposit_transaction WHERE deposit_id = ? ORDER BY 1 LIMIT 200" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P1-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|DEP_STATEMENT|" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DEP_STATEMENT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+      *> Deposit audit trail, optionally filtered by deposit id and paged.
+       ACTION-AUDIT.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "50" TO WS-LIMIT
+           MOVE "0" TO WS-OFFSET
+           IF WS-P2-TRIMMED NOT = SPACES
+               MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+           END-IF.
+           IF WS-P3-TRIMMED NOT = SPACES
+               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+           END-IF.
+           MOVE "SELECT CONCAT(action, ':', actor_email, ':', COALESCE(detail, ''), ':', created_at) FROM deposit_audit WHERE (? = '' OR deposit_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P1-TRIMMED TO WS-BIND-2
+           MOVE WS-LIMIT TO WS-BIND-3
+           MOVE WS-OFFSET TO WS-BIND-4
+           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "SUCCESS|DEP_AUDIT|" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DEP_AUDIT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+      *> Interest preview: principal * rate * days / 36500, plus the payout
+      *> total. Read-only and DB-backed so the caller gets exact decimals.
+       ACTION-CALC.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE FUNCTION NUMVAL(WS-P1-TRIMMED) TO WS-PRINCIPAL-NUM
+           MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-RATE-NUM
+           MOVE FUNCTION NUMVAL(WS-P3-TRIMMED) TO WS-DAYS-NUM
+           IF WS-PRINCIPAL-NUM <= 0 OR WS-RATE-NUM <= 0 OR WS-DAYS-NUM <= 0
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-DAYS-NUM TO WS-TMP-DAYS
+           MOVE "SELECT CAST(ROUND(p * r * d / 36500, 4) AS CHAR), CAST(p + ROUND(p * r * d / 36500, 4) AS CHAR) FROM (SELECT CAST(? AS DECIMAL(18,4)) p, CAST(? AS DECIMAL(9,4)) r, CAST(? AS DECIMAL(5,0)) d) x" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-TMP-DAYS TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DEP_CALC|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           EXIT PARAGRAPH.
+
+      *> Pre-flight validation for DEP_OPEN: checks the currency is active,
+      *> the term is in range and returns a maturity/interest preview.
+       ACTION-VALIDATE.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE FUNCTION NUMVAL(WS-P1-TRIMMED) TO WS-PRINCIPAL-NUM
+           MOVE FUNCTION NUMVAL(WS-P3-TRIMMED) TO WS-TERM-NUM
+           IF WS-PRINCIPAL-NUM <= 0
+               MOVE "ERROR|INVALID_PRINCIPAL" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           IF WS-TERM-NUM < 1 OR WS-TERM-NUM > 360
+               MOVE "ERROR|INVALID_TERM" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "0" TO WS-TMP-INTR
+           IF WS-P4-TRIMMED NOT = SPACES
+               MOVE WS-P4-TRIMMED(1:30) TO WS-TMP-INTR
+           END-IF.
+           MOVE WS-TERM-NUM TO WS-TMP-DAYS
+           MOVE "SELECT CONCAT(CAST(ROUND(CAST(? AS DECIMAL(18,4)) * CAST(? AS DECIMAL(9,4)) * CAST(? AS DECIMAL(5,0)) * 30 / 36500, 4) AS CHAR), '|', CAST(DATE_ADD(CURDATE(), INTERVAL ? MONTH) AS CHAR)) FROM currencies WHERE iso_code = ? AND is_active = 1 LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-TMP-INTR TO WS-BIND-2
+           MOVE WS-TMP-DAYS TO WS-BIND-3
+           MOVE WS-TMP-DAYS TO WS-BIND-4
+           MOVE WS-P2-TRIMMED TO WS-BIND-5
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           PERFORM TRIM-RESULT-LEN
+           MOVE SPACES TO LS-OUTPUT-BUFFER
+           STRING "SUCCESS|DEP_VALID|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
            EXIT PARAGRAPH.

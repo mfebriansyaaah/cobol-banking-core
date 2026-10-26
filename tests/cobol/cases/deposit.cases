@@ -1,0 +1,9 @@
+# Deposit & interest (D2) calculator/validation cases.
+# Interest = principal * rate * days / 36500 (SQL-side arithmetic).
+DEP_CALC@@SUCCESS\|DEP_CALC@@DEP_CALC|10000.00|5.00|365|||admin@test.com
+DEP_CALC zero principal@@ERROR\|INVALID_INPUT@@DEP_CALC|0|5.00|365|||admin@test.com
+DEP_CALC no days@@ERROR\|INVALID_INPUT@@DEP_CALC|10000.00|5.00||||admin@test.com
+DEP_VALIDATE@@SUCCESS\|DEP_VALID@@DEP_VALIDATE|10000.00|USD|12|5.00||admin@test.com
+DEP_VALIDATE bad currency@@ERROR\|INVALID_CURRENCY@@DEP_VALIDATE|10000.00|ZZZ|12|5.00||admin@test.com
+DEP_VALIDATE bad term@@ERROR\|INVALID_TERM@@DEP_VALIDATE|10000.00|USD|400|5.00||admin@test.com
+DEP_VALIDATE zero principal@@ERROR\|INVALID_PRINCIPAL@@DEP_VALIDATE|0|USD|12|5.00||admin@test.com
