@@ -84,7 +84,7 @@ Rules of the split:
 
 ## Testing workflow roadmap
 
-Target: raise the testing maturity from **7/10 → 9/10** over the course of D8–D10.
+Testing maturity: **9/10** (achieved). All 11 roadmap items complete.
 
 | Priority | Improvement | Effort | Expected gain |
 |---|---|---|---|
