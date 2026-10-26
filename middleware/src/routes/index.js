@@ -40,6 +40,7 @@ import { LBPUE_ROUTES } from './lbpue.js';
 import { KYC_REVIEW_ROUTES } from './kyc_review.js';
 import { REGULATORY_REPORT_ROUTES } from './regulatory_report.js';
 import { LOAN_ROUTES } from './loan.js';
+import { LOAN_SCHEDULE_ROUTES } from './loan_schedule.js';
 import { DEPOSIT_ROUTES } from './deposit.js';
 import { CARD_ROUTES } from './card.js';
 import { TAX_REPORT_ROUTES } from './tax_report.js';
@@ -127,6 +128,7 @@ export const ALL_ROUTES = [
   ...KYC_REVIEW_ROUTES,
   ...REGULATORY_REPORT_ROUTES,
   ...LOAN_ROUTES,
+  ...LOAN_SCHEDULE_ROUTES,
   ...DEPOSIT_ROUTES,
   ...CARD_ROUTES,
   ...TAX_REPORT_ROUTES,

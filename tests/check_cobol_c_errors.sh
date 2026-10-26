@@ -1,7 +1,8 @@
 #!/bin/bash
 # Error-check harness for COBOL + C code only.
 # Categories: compile-time, run-time, file-handling, linkage/load, logical.
-# Usage: ./check_cobol_c_errors.sh
+# Gateway smoke is run separately by tests/run_all.sh (full mode).
+# Usage: ./tests/check_cobol_c_errors.sh
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -42,7 +43,7 @@ if [ -x "$BIN" ]; then
             echo "OK: all shared libraries resolved"
         fi
     else
-        echo "SKIP: ldd unavailable"; 
+        echo "SKIP: ldd unavailable"
     fi
 else
     echo "SKIP: binary not built (run build.sh first)"
@@ -51,9 +52,9 @@ fi
 # 4. Run-time errors (basic invocation)
 step "4. Run-time (smoke invocation)"
 if [ -x "$BIN" ]; then
-    printf 'PING||||||\n' > input.txt
-    "$BIN" >/dev/null 2>&1 || true
-    out=$(cat output.txt 2>/dev/null)
+    printf 'PING||||||\n' > "$ROOT/input.txt"
+    (cd "$ROOT" && "$BIN" >/dev/null 2>&1) || true
+    out=$(cat "$ROOT/output.txt" 2>/dev/null)
     if echo "$out" | grep -qi 'ERROR|'; then
         echo "FAIL: runtime error: $out"; fail=1
     else
@@ -63,25 +64,14 @@ else
     echo "SKIP: binary not built"
 fi
 
-# Gateway endpoint smoke (all endpoints)
-if [ -x "$ROOT/tests/test_gateway_endpoints.sh" ]; then
-    if "$ROOT/tests/test_gateway_endpoints.sh"; then
-        echo "OK: gateway endpoint smoke passed"
-    else
-        echo "FAIL: gateway endpoint smoke failed"; fail=1
-    fi
-else
-    echo "SKIP: test_gateway_endpoints.sh not found"
-fi
-
 # 5. File handling errors (DB connectivity)
 step "5. File handling (DB connectivity smoke)"
 if [ "${SKIP_DB_CHECK:-0}" = "1" ]; then
     echo "SKIP: SKIP_DB_CHECK=1"
 elif [ -x "$BIN" ]; then
-    printf 'PING||||||\n' > input.txt
-    "$BIN" >/dev/null 2>&1 || true
-    out=$(cat output.txt 2>/dev/null)
+    printf 'PING||||||\n' > "$ROOT/input.txt"
+    (cd "$ROOT" && "$BIN" >/dev/null 2>&1) || true
+    out=$(cat "$ROOT/output.txt" 2>/dev/null)
     if echo "$out" | grep -qi 'DB_DOWN\|CONN_FAILED\|CONFIG_INSECURE'; then
         echo "FAIL: DB connection error: $out"; fail=1
     else
@@ -94,9 +84,9 @@ fi
 # 6. Logical errors (basic sanity)
 step "6. Logical (sanity)"
 if [ -x "$BIN" ]; then
-    printf 'CHECK_ROLE|admin@test.com|||||\n' > input.txt
-    "$BIN" >/dev/null 2>&1 || true
-    out=$(cat output.txt 2>/dev/null)
+    printf 'CHECK_ROLE|admin@test.com|||||\n' > "$ROOT/input.txt"
+    (cd "$ROOT" && "$BIN" >/dev/null 2>&1) || true
+    out=$(cat "$ROOT/output.txt" 2>/dev/null)
     if [ -z "$out" ]; then
         echo "FAIL: empty output"; fail=1
     else

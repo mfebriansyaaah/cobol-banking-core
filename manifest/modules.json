@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T23:58:52.012Z",
+  "generatedAt": "2026-10-26T03:03:40.613Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -393,6 +393,7 @@
     "legal_hold.js",
     "limit_profile.js",
     "loan.js",
+    "loan_schedule.js",
     "notification.js",
     "notification_audit.js",
     "oncall.js",
