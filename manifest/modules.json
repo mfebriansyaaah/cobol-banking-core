@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T14:48:26.952Z",
+  "generatedAt": "2026-10-26T23:05:13.214Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -375,6 +375,7 @@
     "export_stream.js",
     "fee.js",
     "fee_waiver.js",
+    "fraud_case.js",
     "fraud_ops.js",
     "fx_deal.js",
     "gl.js",

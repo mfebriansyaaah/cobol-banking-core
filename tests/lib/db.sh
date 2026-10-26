@@ -107,3 +107,8 @@ db_reset_sanctions_list() {
     db_exec "DELETE FROM sanctions_list_audit;"
     db_exec "DELETE FROM sanctions_list;"
 }
+
+db_reset_fraud_case() {
+    db_exec "DELETE FROM fraud_case_audit;"
+    db_exec "DELETE FROM fraud_case;"
+}
