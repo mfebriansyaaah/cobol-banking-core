@@ -15,11 +15,15 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 db_seed
 db_reset_loan_schedule
 
-# Create a schedule (loan_id=53 exists in seed)
-create_out="$(run_cobol "LSC_CREATE|53|12|10.0000|2026-01-01||admin@test.com")"
+# The suite owns its loan fixture: never depend on a seeded id.
+db_exec "INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('d1@test.com', 10000, 'USD', 12, 10.0000, 'DISBURSED', 'admin@test.com')"
+loan_id="$(db_query "SELECT id FROM loan_application WHERE customer_email='d1@test.com' ORDER BY id DESC LIMIT 1;")"
+assert_match "loan fixture present" "$loan_id" "^[0-9]+$"
+
+create_out="$(run_cobol "LSC_CREATE|${loan_id}|12|10.0000|2026-01-01||admin@test.com")"
 assert_match "LSC_CREATE ok" "$create_out" "SUCCESS\|LSC_CREATE"
 
-sched_id="$(db_query "SELECT id FROM loan_schedule WHERE loan_id=53 ORDER BY id DESC LIMIT 1;")"
+sched_id="$(db_query "SELECT id FROM loan_schedule WHERE loan_id=${loan_id} ORDER BY id DESC LIMIT 1;")"
 assert_match "schedule id present" "$sched_id" "^[0-9]+$"
 
 # SCHEDULED generates term_months installments

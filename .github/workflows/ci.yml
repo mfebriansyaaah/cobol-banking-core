@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gnucobol libmysqlclient-dev build-essential
+
+      - name: Verify manifest
+        run: node scripts/check_manifest.mjs .
+
+      - name: Build core
+        run: |
+          set -o pipefail
+          ./build.sh 2>&1 | tee build.log
+
+      - name: Check core warning ratchet
+        run: scripts/check_warnings.sh build.log
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobol-binary
+          path: cobol/bin/main_logic
+          if-no-files-found: error
+
+  test:
+    name: test
+    needs: build
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_USER: cobol_user
+      DB_PASS: cobol_pass
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+      SKIP_BUILD: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gnucobol libmysqlclient-dev build-essential mariadb-client
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: middleware/package-lock.json
+
+      - name: Install gateway dependencies
+        run: npm ci --prefix middleware
+
+      - name: Download core binary
+        uses: actions/download-artifact@v4
+        with:
+          name: cobol-binary
+          path: cobol/bin
+
+      - name: Make binary executable
+        run: chmod +x cobol/bin/main_logic
+
+      - name: Apply migrations
+        run: ./database/migrate.sh
+
+      - name: Run full test gate
+        run: tests/run_all.sh full

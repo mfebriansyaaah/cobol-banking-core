@@ -10,6 +10,8 @@ if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
 DB_USER="${DB_USER:-cobol_user}"
 DB_PASS="${DB_PASS:-cobol_pass}"
 DB_NAME="${DB_NAME:-cobol_db}"
+DB_HOST="${DB_HOST:-localhost}"
+DB_PORT="${DB_PORT:-3306}"
 
 # Migrations create/alter/drop schema objects, so they need DDL rights. Run
 # them under a dedicated privileged account (see database/grants.sh) instead of
@@ -18,7 +20,7 @@ DB_NAME="${DB_NAME:-cobol_db}"
 DB_MIGRATE_USER="${DB_MIGRATE_USER:-$DB_USER}"
 DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}"
 
-mysqlc() { mysql -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" "$@"; }
+mysqlc() { mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" "$@"; }
 
 # Load every recorded version once, then answer membership questions in shell.
 # The old loop spawned one mysql client per migration file (101 clients per

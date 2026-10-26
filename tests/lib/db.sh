@@ -39,6 +39,7 @@ db_reset_loan_schedule() {
     db_exec "DELETE FROM loan_schedule_audit;"
     db_exec "DELETE FROM loan_installment;"
     db_exec "DELETE FROM loan_schedule;"
+    db_exec "DELETE FROM loan_application WHERE customer_email = 'd1@test.com';"
 }
 
 # Reset D2 (deposit) rows so tests are deterministic. deposit_accrual and
