@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T09:51:37.839Z",
+  "generatedAt": "2026-10-26T11:38:41.504Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -342,6 +342,7 @@
     "access_audit.js",
     "alert_escalation.js",
     "alerts.js",
+    "aml_screening.js",
     "asset.js",
     "asset_maintenance.js",
     "audit_analytics.js",
