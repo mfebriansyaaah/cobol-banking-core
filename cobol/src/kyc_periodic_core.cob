@@ -1,2085 +1,683 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. kyc_periodic_core.
-      *> Skeleton module for kyc_periodic domain.
-
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
-
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
-       01  WS-VAR-01           PIC X(100) VALUE SPACES.
-       01  WS-VAR-02           PIC X(100) VALUE SPACES.
-       01  WS-VAR-03           PIC X(100) VALUE SPACES.
-       01  WS-VAR-04           PIC X(100) VALUE SPACES.
-       01  WS-VAR-05           PIC X(100) VALUE SPACES.
-       01  WS-VAR-06           PIC X(100) VALUE SPACES.
-       01  WS-VAR-07           PIC X(100) VALUE SPACES.
-       01  WS-VAR-08           PIC X(100) VALUE SPACES.
-       01  WS-VAR-09           PIC X(100) VALUE SPACES.
-       01  WS-VAR-10           PIC X(100) VALUE SPACES.
-       01  WS-VAR-11           PIC X(100) VALUE SPACES.
-       01  WS-VAR-12           PIC X(100) VALUE SPACES.
-       01  WS-VAR-13           PIC X(100) VALUE SPACES.
-       01  WS-VAR-14           PIC X(100) VALUE SPACES.
-       01  WS-VAR-15           PIC X(100) VALUE SPACES.
-       01  WS-VAR-16           PIC X(100) VALUE SPACES.
-       01  WS-VAR-17           PIC X(100) VALUE SPACES.
-       01  WS-VAR-18           PIC X(100) VALUE SPACES.
-       01  WS-VAR-19           PIC X(100) VALUE SPACES.
-       01  WS-VAR-20           PIC X(100) VALUE SPACES.
-       01  WS-VAR-21           PIC X(100) VALUE SPACES.
-       01  WS-VAR-22           PIC X(100) VALUE SPACES.
-       01  WS-VAR-23           PIC X(100) VALUE SPACES.
-       01  WS-VAR-24           PIC X(100) VALUE SPACES.
-       01  WS-VAR-25           PIC X(100) VALUE SPACES.
-       01  WS-VAR-26           PIC X(100) VALUE SPACES.
-       01  WS-VAR-27           PIC X(100) VALUE SPACES.
-       01  WS-VAR-28           PIC X(100) VALUE SPACES.
-       01  WS-VAR-29           PIC X(100) VALUE SPACES.
-       01  WS-VAR-30           PIC X(100) VALUE SPACES.
-       01  WS-VAR-31           PIC X(100) VALUE SPACES.
-       01  WS-VAR-32           PIC X(100) VALUE SPACES.
-       01  WS-VAR-33           PIC X(100) VALUE SPACES.
-       01  WS-VAR-34           PIC X(100) VALUE SPACES.
-       01  WS-VAR-35           PIC X(100) VALUE SPACES.
-       01  WS-VAR-36           PIC X(100) VALUE SPACES.
-       01  WS-VAR-37           PIC X(100) VALUE SPACES.
-       01  WS-VAR-38           PIC X(100) VALUE SPACES.
-       01  WS-VAR-39           PIC X(100) VALUE SPACES.
-       01  WS-VAR-40           PIC X(100) VALUE SPACES.
-       01  WS-NUM-PRINCIPAL     PIC 9(12)V99 VALUE 0.
-       01  WS-NUM-RATE          PIC 9(3)V9(6) VALUE 0.
-       01  WS-NUM-AMOUNT        PIC 9(12)V99 VALUE 0.
-       01  WS-RESULT               PIC X(16384) VALUE SPACES.
-       01  WS-P1                   PIC X(100) VALUE SPACES.
-       01  WS-P2                   PIC X(100) VALUE SPACES.
-       01  WS-P3                   PIC X(100) VALUE SPACES.
-       01  WS-P4                   PIC X(100) VALUE SPACES.
-       01  WS-P5                   PIC X(100) VALUE SPACES.
-       01  WS-P6                   PIC X(100) VALUE SPACES.
-       01  WS-I                    PIC 9(5) VALUE 1.
-       01  WS-J                    PIC 9(5) VALUE 1.
-       01  WS-K                    PIC 9(5) VALUE 1.
-       01  WS-L                    PIC 9(5) VALUE 1.
-       01  WS-M                    PIC 9(5) VALUE 1.
-       01  WS-N                    PIC 9(5) VALUE 1.
-       01  WS-O                    PIC 9(5) VALUE 1.
-       01  WS-P                    PIC 9(5) VALUE 1.
-       01  WS-Q                    PIC 9(5) VALUE 1.
-       01  WS-R                    PIC 9(5) VALUE 1.
-       01  WS-S                    PIC 9(5) VALUE 1.
-       01  WS-T                    PIC 9(5) VALUE 1.
-       01  WS-U                    PIC 9(5) VALUE 1.
-       01  WS-V                    PIC 9(5) VALUE 1.
-       01  WS-W                    PIC 9(5) VALUE 1.
-       01  WS-X                    PIC 9(5) VALUE 1.
-       01  WS-Y                    PIC 9(5) VALUE 1.
-       01  WS-Z                    PIC 9(5) VALUE 1.
-       01  WS-STATUS               PIC X(20) VALUE SPACES.
-       01  WS-CODE                 PIC X(20) VALUE SPACES.
-       01  WS-MESSAGE              PIC X(100) VALUE SPACES.
-       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
-       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
-       01  WS-ACTOR                PIC X(100) VALUE SPACES.
-       01  WS-TARGET               PIC X(100) VALUE SPACES.
-       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
-       01  WS-CURRENCY             PIC X(3) VALUE SPACES.
-       01  WS-DATE-VALUE           PIC X(10) VALUE SPACES.
-       01  WS-ID-VALUE             PIC X(20) VALUE SPACES.
-       01  WS-LIMIT-VALUE          PIC X(10) VALUE SPACES.
-       01  WS-OFFSET-VALUE         PIC X(10) VALUE SPACES.
-       01  WS-FLAG                 PIC X VALUE 'N'.
-           88  FLAG-YES             VALUE 'Y'.
-           88  FLAG-NO              VALUE 'N'.
-       01  WS-STEP                 PIC X VALUE 'Y'.
-           88  STEP-OK             VALUE 'Y'.
-           88  STEP-FAIL           VALUE 'N'.
-
-       LINKAGE SECTION.
-       01  LS-CMD-ACTION           PIC X(30).
-       01  LS-PARAM1               PIC X(100).
-       01  LS-PARAM2               PIC X(100).
-       01  LS-PARAM3               PIC X(100).
-       01  LS-PARAM4               PIC X(100).
-       01  LS-PARAM5               PIC X(100).
-       01  LS-PARAM6               PIC X(100).
-       01  LS-OUTPUT-BUFFER        PIC X(16384).
-
-       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
-           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
-
-       MAIN-LOGIC.
-           MOVE SPACES TO WS-RESULT
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           PERFORM TRIM-ALL
-           EVALUATE TRUE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_CREATE"
-                   PERFORM ACTION-KCP_CREATE
-               WHEN LS-CMD-ACTION(1:8) = "KCP_LIST"
-                   PERFORM ACTION-KCP_LIST
-               WHEN LS-CMD-ACTION(1:7) = "KCP_GET"
-                   PERFORM ACTION-KCP_GET
-               WHEN LS-CMD-ACTION(1:8) = "KCP_CALC"
-                   PERFORM ACTION-KCP_CALC
-               WHEN LS-CMD-ACTION(1:10) = "KCP_UPDATE"
-                   PERFORM ACTION-KCP_UPDATE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_DELETE"
-                   PERFORM ACTION-KCP_DELETE
-               WHEN LS-CMD-ACTION(1:11) = "KCP_SUMMARY"
-                   PERFORM ACTION-KCP_SUMMARY
-               WHEN LS-CMD-ACTION(1:12) = "KCP_VALIDATE"
-                   PERFORM ACTION-KCP_VALIDATE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_EXPORT"
-                   PERFORM ACTION-KCP_EXPORT
-               WHEN LS-CMD-ACTION(1:9) = "KCP_AUDIT"
-                   PERFORM ACTION-KCP_AUDIT
-               WHEN LS-CMD-ACTION(1:10) = "KCP_STATUS"
-                   PERFORM ACTION-KCP_STATUS
-               WHEN LS-CMD-ACTION(1:9) = "KCP_CLOSE"
-                   PERFORM ACTION-KCP_CLOSE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_REOPEN"
-                   PERFORM ACTION-KCP_REOPEN
-               WHEN LS-CMD-ACTION(1:10) = "KCP_ADJUST"
-                   PERFORM ACTION-KCP_ADJUST
-               WHEN LS-CMD-ACTION(1:11) = "KCP_REVERSE"
-                   PERFORM ACTION-KCP_REVERSE
-               WHEN LS-CMD-ACTION(1:11) = "KCP_APPROVE"
-                   PERFORM ACTION-KCP_APPROVE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_REJECT"
-                   PERFORM ACTION-KCP_REJECT
-               WHEN LS-CMD-ACTION(1:8) = "KCP_POST"
-                   PERFORM ACTION-KCP_POST
-               WHEN LS-CMD-ACTION(1:9) = "KCP_WAIVE"
-                   PERFORM ACTION-KCP_WAIVE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_CANCEL"
-                   PERFORM ACTION-KCP_CANCEL
-               WHEN LS-CMD-ACTION(1:8) = "KCP_HOLD"
-                   PERFORM ACTION-KCP_HOLD
-               WHEN LS-CMD-ACTION(1:11) = "KCP_RELEASE"
-                   PERFORM ACTION-KCP_RELEASE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_NOTIFY"
-                   PERFORM ACTION-KCP_NOTIFY
-               WHEN LS-CMD-ACTION(1:11) = "KCP_ARCHIVE"
-                   PERFORM ACTION-KCP_ARCHIVE
-               WHEN LS-CMD-ACTION(1:11) = "KCP_RESTORE"
-                   PERFORM ACTION-KCP_RESTORE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_IMPORT"
-                   PERFORM ACTION-KCP_IMPORT
-               WHEN LS-CMD-ACTION(1:10) = "KCP_REPORT"
-                   PERFORM ACTION-KCP_REPORT
-               WHEN LS-CMD-ACTION(1:10) = "KCP_VERIFY"
-                   PERFORM ACTION-KCP_VERIFY
-               WHEN LS-CMD-ACTION(1:8) = "KCP_SYNC"
-                   PERFORM ACTION-KCP_SYNC
-               WHEN LS-CMD-ACTION(1:13) = "KCP_RECONCILE"
-                   PERFORM ACTION-KCP_RECONCILE
-               WHEN LS-CMD-ACTION(1:12) = "KCP_ALLOCATE"
-                   PERFORM ACTION-KCP_ALLOCATE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_ACCRUE"
-                   PERFORM ACTION-KCP_ACCRUE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_SETTLE"
-                   PERFORM ACTION-KCP_SETTLE
-               WHEN LS-CMD-ACTION(1:12) = "KCP_FORECAST"
-                   PERFORM ACTION-KCP_FORECAST
-               WHEN LS-CMD-ACTION(1:12) = "KCP_OVERRIDE"
-                   PERFORM ACTION-KCP_OVERRIDE
-               WHEN LS-CMD-ACTION(1:10) = "KCP_DETAIL"
-                   PERFORM ACTION-KCP_DETAIL
-               WHEN LS-CMD-ACTION(1:11) = "KCP_HISTORY"
-                   PERFORM ACTION-KCP_HISTORY
-               WHEN LS-CMD-ACTION(1:10) = "KCP_SEARCH"
-                   PERFORM ACTION-KCP_SEARCH
-               WHEN LS-CMD-ACTION(1:10) = "KCP_FILTER"
-                   PERFORM ACTION-KCP_FILTER
-               WHEN LS-CMD-ACTION(1:8) = "KCP_SORT"
-                   PERFORM ACTION-KCP_SORT
-               WHEN LS-CMD-ACTION(1:9) = "KCP_PRINT"
-                   PERFORM ACTION-KCP_PRINT
-               WHEN LS-CMD-ACTION(1:9) = "KCP_DRAFT"
-                   PERFORM ACTION-KCP_DRAFT
-               WHEN LS-CMD-ACTION(1:8) = "KCP_OPEN"
-                   PERFORM ACTION-KCP_OPEN
-               WHEN LS-CMD-ACTION(1:11) = "KCP_PENDING"
-                   PERFORM ACTION-KCP_PENDING
-               WHEN LS-CMD-ACTION(1:12) = "KCP_APPROVED"
-                   PERFORM ACTION-KCP_APPROVED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_REJECTED"
-                   PERFORM ACTION-KCP_REJECTED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_ACTIVE"
-                   PERFORM ACTION-KCP_ACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "KCP_INACTIVE"
-                   PERFORM ACTION-KCP_INACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "KCP_ARCHIVED"
-                   PERFORM ACTION-KCP_ARCHIVED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_DELETED"
-                   PERFORM ACTION-KCP_DELETED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_LOCKED"
-                   PERFORM ACTION-KCP_LOCKED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_UNLOCKED"
-                   PERFORM ACTION-KCP_UNLOCKED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_SUSPENDED"
-                   PERFORM ACTION-KCP_SUSPENDED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_RESUMED"
-                   PERFORM ACTION-KCP_RESUMED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_EXPIRED"
-                   PERFORM ACTION-KCP_EXPIRED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_RENEWED"
-                   PERFORM ACTION-KCP_RENEWED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_CANCELLED"
-                   PERFORM ACTION-KCP_CANCELLED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_COMPLETED"
-                   PERFORM ACTION-KCP_COMPLETED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_FAILED"
-                   PERFORM ACTION-KCP_FAILED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_RETRIED"
-                   PERFORM ACTION-KCP_RETRIED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_ESCALATED"
-                   PERFORM ACTION-KCP_ESCALATED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_ASSIGNED"
-                   PERFORM ACTION-KCP_ASSIGNED
-               WHEN LS-CMD-ACTION(1:14) = "KCP_UNASSIGNED"
-                   PERFORM ACTION-KCP_UNASSIGNED
-               WHEN LS-CMD-ACTION(1:15) = "KCP_TRANSFERRED"
-                   PERFORM ACTION-KCP_TRANSFERRED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_MERGED"
-                   PERFORM ACTION-KCP_MERGED
-               WHEN LS-CMD-ACTION(1:9) = "KCP_SPLIT"
-                   PERFORM ACTION-KCP_SPLIT
-               WHEN LS-CMD-ACTION(1:10) = "KCP_CLONED"
-                   PERFORM ACTION-KCP_CLONED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_COPIED"
-                   PERFORM ACTION-KCP_COPIED
-               WHEN LS-CMD-ACTION(1:9) = "KCP_MOVED"
-                   PERFORM ACTION-KCP_MOVED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_LINKED"
-                   PERFORM ACTION-KCP_LINKED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_UNLINKED"
-                   PERFORM ACTION-KCP_UNLINKED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_TAGGED"
-                   PERFORM ACTION-KCP_TAGGED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_UNTAGGED"
-                   PERFORM ACTION-KCP_UNTAGGED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_FLAGGED"
-                   PERFORM ACTION-KCP_FLAGGED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_UNFLAGGED"
-                   PERFORM ACTION-KCP_UNFLAGGED
-               WHEN LS-CMD-ACTION(1:15) = "KCP_PRIORITIZED"
-                   PERFORM ACTION-KCP_PRIORITIZED
-               WHEN LS-CMD-ACTION(1:17) = "KCP_DEPRIORITIZED"
-                   PERFORM ACTION-KCP_DEPRIORITIZED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_SCHEDULED"
-                   PERFORM ACTION-KCP_SCHEDULED
-               WHEN LS-CMD-ACTION(1:15) = "KCP_UNSCHEDULED"
-                   PERFORM ACTION-KCP_UNSCHEDULED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_EXECUTED"
-                   PERFORM ACTION-KCP_EXECUTED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_SKIPPED"
-                   PERFORM ACTION-KCP_SKIPPED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_STARTED"
-                   PERFORM ACTION-KCP_STARTED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_STOPPED"
-                   PERFORM ACTION-KCP_STOPPED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_PAUSED"
-                   PERFORM ACTION-KCP_PAUSED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_RESUMED2"
-                   PERFORM ACTION-KCP_RESUMED2
-               WHEN LS-CMD-ACTION(1:10) = "KCP_QUEUED"
-                   PERFORM ACTION-KCP_QUEUED
-               WHEN LS-CMD-ACTION(1:14) = "KCP_DISPATCHED"
-                   PERFORM ACTION-KCP_DISPATCHED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_RECEIVED"
-                   PERFORM ACTION-KCP_RECEIVED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_PROCESSED"
-                   PERFORM ACTION-KCP_PROCESSED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_FINALIZED"
-                   PERFORM ACTION-KCP_FINALIZED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_ABORTED"
-                   PERFORM ACTION-KCP_ABORTED
-               WHEN LS-CMD-ACTION(1:14) = "KCP_ROLLEDBACK"
-                   PERFORM ACTION-KCP_ROLLEDBACK
-               WHEN LS-CMD-ACTION(1:13) = "KCP_COMMITTED"
-                   PERFORM ACTION-KCP_COMMITTED
-               WHEN LS-CMD-ACTION(1:14) = "KCP_VALIDATED2"
-                   PERFORM ACTION-KCP_VALIDATED2
-               WHEN LS-CMD-ACTION(1:15) = "KCP_RECONCILED2"
-                   PERFORM ACTION-KCP_RECONCILED2
-               WHEN LS-CMD-ACTION(1:14) = "KCP_ALLOCATED2"
-                   PERFORM ACTION-KCP_ALLOCATED2
-               WHEN LS-CMD-ACTION(1:12) = "KCP_ACCRUED2"
-                   PERFORM ACTION-KCP_ACCRUED2
-               WHEN LS-CMD-ACTION(1:12) = "KCP_SETTLED2"
-                   PERFORM ACTION-KCP_SETTLED2
-               WHEN LS-CMD-ACTION(1:14) = "KCP_FORECASTED"
-                   PERFORM ACTION-KCP_FORECASTED
-               WHEN LS-CMD-ACTION(1:14) = "KCP_OVERRIDDEN"
-                   PERFORM ACTION-KCP_OVERRIDDEN
-               WHEN LS-CMD-ACTION(1:12) = "KCP_DETAILED"
-                   PERFORM ACTION-KCP_DETAILED
-               WHEN LS-CMD-ACTION(1:14) = "KCP_HISTORICAL"
-                   PERFORM ACTION-KCP_HISTORICAL
-               WHEN LS-CMD-ACTION(1:12) = "KCP_SEARCHED"
-                   PERFORM ACTION-KCP_SEARCHED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_FILTERED"
-                   PERFORM ACTION-KCP_FILTERED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_SORTED"
-                   PERFORM ACTION-KCP_SORTED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_PRINTED"
-                   PERFORM ACTION-KCP_PRINTED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_CREATED2"
-                   PERFORM ACTION-KCP_CREATED2
-               WHEN LS-CMD-ACTION(1:10) = "KCP_LISTED"
-                   PERFORM ACTION-KCP_LISTED
-               WHEN LS-CMD-ACTION(1:10) = "KCP_GOTTEN"
-                   PERFORM ACTION-KCP_GOTTEN
-               WHEN LS-CMD-ACTION(1:14) = "KCP_CALCULATED"
-                   PERFORM ACTION-KCP_CALCULATED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_UPDATED"
-                   PERFORM ACTION-KCP_UPDATED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_DELETED2"
-                   PERFORM ACTION-KCP_DELETED2
-               WHEN LS-CMD-ACTION(1:14) = "KCP_SUMMARIZED"
-                   PERFORM ACTION-KCP_SUMMARIZED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_EXPORTED"
-                   PERFORM ACTION-KCP_EXPORTED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_AUDITED"
-                   PERFORM ACTION-KCP_AUDITED
-               WHEN LS-CMD-ACTION(1:11) = "KCP_STATUS2"
-                   PERFORM ACTION-KCP_STATUS2
-               WHEN LS-CMD-ACTION(1:11) = "KCP_CLOSED2"
-                   PERFORM ACTION-KCP_CLOSED2
-               WHEN LS-CMD-ACTION(1:12) = "KCP_REOPENED"
-                   PERFORM ACTION-KCP_REOPENED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_ADJUSTED"
-                   PERFORM ACTION-KCP_ADJUSTED
-               WHEN LS-CMD-ACTION(1:12) = "KCP_REVERSED"
-                   PERFORM ACTION-KCP_REVERSED
-               WHEN LS-CMD-ACTION(1:13) = "KCP_APPROVED2"
-                   PERFORM ACTION-KCP_APPROVED2
-               WHEN LS-CMD-ACTION(1:9) = "KCP_BATCH"
-                   PERFORM ACTION-KCP_BATCH
-               WHEN LS-CMD-ACTION(1:10) = "KCP_ONLINE"
-                   PERFORM ACTION-KCP_ONLINE
-               WHEN LS-CMD-ACTION(1:11) = "KCP_OFFLINE"
-                   PERFORM ACTION-KCP_OFFLINE
-               WHEN LS-CMD-ACTION(1:12) = "KCP_REALTIME"
-                   PERFORM ACTION-KCP_REALTIME
-               WHEN LS-CMD-ACTION(1:14) = "KCP_SCHEDULED2"
-                   PERFORM ACTION-KCP_SCHEDULED2
-               WHEN LS-CMD-ACTION(1:10) = "KCP_MANUAL"
-                   PERFORM ACTION-KCP_MANUAL
-               WHEN LS-CMD-ACTION(1:13) = "KCP_AUTOMATIC"
-                   PERFORM ACTION-KCP_AUTOMATIC
-               WHEN LS-CMD-ACTION(1:10) = "KCP_SYSTEM"
-                   PERFORM ACTION-KCP_SYSTEM
-               WHEN LS-CMD-ACTION(1:8) = "KCP_USER"
-                   PERFORM ACTION-KCP_USER
-               WHEN LS-CMD-ACTION(1:9) = "KCP_ADMIN"
-                   PERFORM ACTION-KCP_ADMIN
-               WHEN LS-CMD-ACTION(1:14) = "KCP_SUPERVISOR"
-                   PERFORM ACTION-KCP_SUPERVISOR
-               WHEN LS-CMD-ACTION(1:12) = "KCP_OPERATOR"
-                   PERFORM ACTION-KCP_OPERATOR
-               WHEN LS-CMD-ACTION(1:11) = "KCP_MANAGER"
-                   PERFORM ACTION-KCP_MANAGER
-               WHEN LS-CMD-ACTION(1:9) = "KCP_CLERK"
-                   PERFORM ACTION-KCP_CLERK
-               WHEN LS-CMD-ACTION(1:11) = "KCP_ANALYST"
-                   PERFORM ACTION-KCP_ANALYST
-               WHEN LS-CMD-ACTION(1:12) = "KCP_REVIEWER"
-                   PERFORM ACTION-KCP_REVIEWER
-               WHEN LS-CMD-ACTION(1:12) = "KCP_APPROVER"
-                   PERFORM ACTION-KCP_APPROVER
-               WHEN LS-CMD-ACTION(1:11) = "KCP_AUDITOR"
-                   PERFORM ACTION-KCP_AUDITOR
-               WHEN LS-CMD-ACTION(1:12) = "KCP_REPORTER"
-                   PERFORM ACTION-KCP_REPORTER
-               WHEN LS-CMD-ACTION(1:12) = "KCP_EXPORTER"
-                   PERFORM ACTION-KCP_EXPORTER
-               WHEN LS-CMD-ACTION(1:12) = "KCP_IMPORTER"
-                   PERFORM ACTION-KCP_IMPORTER
-               WHEN LS-CMD-ACTION(1:13) = "KCP_VALIDATOR"
-                   PERFORM ACTION-KCP_VALIDATOR
-               WHEN LS-CMD-ACTION(1:13) = "KCP_PROCESSOR"
-                   PERFORM ACTION-KCP_PROCESSOR
-               WHEN LS-CMD-ACTION(1:13) = "KCP_GENERATOR"
-                   PERFORM ACTION-KCP_GENERATOR
-               WHEN LS-CMD-ACTION(1:14) = "KCP_CALCULATOR"
-                   PERFORM ACTION-KCP_CALCULATOR
-               WHEN LS-CMD-ACTION(1:13) = "KCP_FORMATTER"
-                   PERFORM ACTION-KCP_FORMATTER
-               WHEN LS-CMD-ACTION(1:10) = "KCP_PARSER"
-                   PERFORM ACTION-KCP_PARSER
-               WHEN LS-CMD-ACTION(1:13) = "KCP_CONVERTER"
-                   PERFORM ACTION-KCP_CONVERTER
-               WHEN LS-CMD-ACTION(1:15) = "KCP_TRANSFORMER"
-                   PERFORM ACTION-KCP_TRANSFORMER
-               WHEN LS-CMD-ACTION(1:10) = "KCP_LOADER"
-                   PERFORM ACTION-KCP_LOADER
-               WHEN LS-CMD-ACTION(1:12) = "KCP_UNLOADER"
-                   PERFORM ACTION-KCP_UNLOADER
-               WHEN LS-CMD-ACTION(1:12) = "KCP_ARCHIVER"
-                   PERFORM ACTION-KCP_ARCHIVER
-               WHEN LS-CMD-ACTION(1:12) = "KCP_RESTORER"
-                   PERFORM ACTION-KCP_RESTORER
-               WHEN LS-CMD-ACTION(1:10) = "KCP_BACKUP"
-                   PERFORM ACTION-KCP_BACKUP
-               WHEN LS-CMD-ACTION(1:12) = "KCP_RECOVERY"
-                   PERFORM ACTION-KCP_RECOVERY
-               WHEN LS-CMD-ACTION(1:13) = "KCP_MIGRATION"
-                   PERFORM ACTION-KCP_MIGRATION
-               WHEN LS-CMD-ACTION(1:16) = "KCP_SYNCHRONIZER"
-                   PERFORM ACTION-KCP_SYNCHRONIZER
-               WHEN LS-CMD-ACTION(1:14) = "KCP_REPLICATOR"
-                   PERFORM ACTION-KCP_REPLICATOR
-               WHEN LS-CMD-ACTION(1:11) = "KCP_MONITOR"
-                   PERFORM ACTION-KCP_MONITOR
-               WHEN LS-CMD-ACTION(1:10) = "KCP_LOGGER"
-                   PERFORM ACTION-KCP_LOGGER
-               WHEN OTHER
-                   MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
-           END-EVALUATE
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
-           GOBACK.
-
-       ACTION-KCP_CREATE.
-           IF WS-P1 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|KCP_CREATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_LIST.
-           MOVE "SUCCESS|KCP_LIST|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_GET.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|KCP_GET|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CALC.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           COMPUTE WS-NUM-AMOUNT = WS-NUM-PRINCIPAL * WS-NUM-RATE / 100
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|KCP_CALC|" DELIMITED BY SIZE
-                  WS-NUM-AMOUNT DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UPDATE.
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|KCP_UPDATE|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DELETE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|KCP_DELETE|DELETED" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SUMMARY.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|KCP_SUMMARY|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE "|" DELIMITED BY SIZE
-                  WS-NUM-RATE DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_VALIDATE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE FUNCTION NUMVAL(WS-P3) TO WS-NUM-AMOUNT
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-AMOUNT = 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-RATE < 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|KCP_VALIDATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_EXPORT.
-           MOVE "KCP_EXPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_EXPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_AUDIT.
-           MOVE "KCP_AUDIT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_AUDIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_STATUS.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "SUCCESS|KCP_STATUS|CLOSED" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|KCP_STATUS|ACTIVE" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CLOSE.
-           MOVE "KCP_CLOSE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CLOSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REOPEN.
-           MOVE "KCP_REOPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REOPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ADJUST.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-AMOUNT
-           COMPUTE WS-NUM-PRINCIPAL = WS-NUM-PRINCIPAL + WS-NUM-AMOUNT
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|KCP_ADJUST|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REVERSE.
-           MOVE "KCP_REVERSE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REVERSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_APPROVE.
-           MOVE "KCP_APPROVE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_APPROVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REJECT.
-           MOVE "KCP_REJECT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REJECT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_POST.
-           MOVE "KCP_POST_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_POST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_WAIVE.
-           MOVE "KCP_WAIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_WAIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CANCEL.
-           MOVE "KCP_CANCEL_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CANCEL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_HOLD.
-           MOVE "KCP_HOLD_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_HOLD" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RELEASE.
-           MOVE "KCP_RELEASE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RELEASE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_NOTIFY.
-           MOVE "KCP_NOTIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_NOTIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ARCHIVE.
-           MOVE "KCP_ARCHIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ARCHIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RESTORE.
-           MOVE "KCP_RESTORE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RESTORE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_IMPORT.
-           MOVE "KCP_IMPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_IMPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REPORT.
-           MOVE "KCP_REPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_VERIFY.
-           MOVE "KCP_VERIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_VERIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SYNC.
-           MOVE "KCP_SYNC_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SYNC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RECONCILE.
-           MOVE "KCP_RECONCILE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RECONCILE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ALLOCATE.
-           MOVE "KCP_ALLOCATE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ALLOCATE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ACCRUE.
-           MOVE "KCP_ACCRUE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ACCRUE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SETTLE.
-           MOVE "KCP_SETTLE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SETTLE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FORECAST.
-           MOVE "KCP_FORECAST_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FORECAST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_OVERRIDE.
-           MOVE "KCP_OVERRIDE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_OVERRIDE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DETAIL.
-           MOVE "KCP_DETAIL_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_DETAIL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_HISTORY.
-           MOVE "KCP_HISTORY_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_HISTORY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SEARCH.
-           MOVE "KCP_SEARCH_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SEARCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FILTER.
-           MOVE "KCP_FILTER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FILTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SORT.
-           MOVE "KCP_SORT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PRINT.
-           MOVE "KCP_PRINT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PRINT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DRAFT.
-           MOVE "KCP_DRAFT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_DRAFT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_OPEN.
-           MOVE "KCP_OPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_OPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PENDING.
-           MOVE "KCP_PENDING_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PENDING" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_APPROVED.
-           MOVE "KCP_APPROVED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_APPROVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REJECTED.
-           MOVE "KCP_REJECTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REJECTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ACTIVE.
-           MOVE "KCP_ACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_INACTIVE.
-           MOVE "KCP_INACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_INACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ARCHIVED.
-           MOVE "KCP_ARCHIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ARCHIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DELETED.
-           MOVE "KCP_DELETED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_DELETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_LOCKED.
-           MOVE "KCP_LOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_LOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UNLOCKED.
-           MOVE "KCP_UNLOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UNLOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SUSPENDED.
-           MOVE "KCP_SUSPENDED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SUSPENDED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RESUMED.
-           MOVE "KCP_RESUMED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RESUMED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_EXPIRED.
-           MOVE "KCP_EXPIRED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_EXPIRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RENEWED.
-           MOVE "KCP_RENEWED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RENEWED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CANCELLED.
-           MOVE "KCP_CANCELLED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CANCELLED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_COMPLETED.
-           MOVE "KCP_COMPLETED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_COMPLETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FAILED.
-           MOVE "KCP_FAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RETRIED.
-           MOVE "KCP_RETRIED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RETRIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ESCALATED.
-           MOVE "KCP_ESCALATED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ESCALATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ASSIGNED.
-           MOVE "KCP_ASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UNASSIGNED.
-           MOVE "KCP_UNASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UNASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_TRANSFERRED.
-           MOVE "KCP_TRANSFERRED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_TRANSFERRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_MERGED.
-           MOVE "KCP_MERGED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_MERGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SPLIT.
-           MOVE "KCP_SPLIT_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SPLIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CLONED.
-           MOVE "KCP_CLONED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CLONED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_COPIED.
-           MOVE "KCP_COPIED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_COPIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_MOVED.
-           MOVE "KCP_MOVED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_MOVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_LINKED.
-           MOVE "KCP_LINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_LINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UNLINKED.
-           MOVE "KCP_UNLINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UNLINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_TAGGED.
-           MOVE "KCP_TAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_TAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UNTAGGED.
-           MOVE "KCP_UNTAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UNTAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FLAGGED.
-           MOVE "KCP_FLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UNFLAGGED.
-           MOVE "KCP_UNFLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UNFLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PRIORITIZED.
-           MOVE "KCP_PRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DEPRIORITIZED.
-           MOVE "KCP_DEPRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_DEPRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SCHEDULED.
-           MOVE "KCP_SCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UNSCHEDULED.
-           MOVE "KCP_UNSCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UNSCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_EXECUTED.
-           MOVE "KCP_EXECUTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_EXECUTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SKIPPED.
-           MOVE "KCP_SKIPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SKIPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_STARTED.
-           MOVE "KCP_STARTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_STARTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_STOPPED.
-           MOVE "KCP_STOPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_STOPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PAUSED.
-           MOVE "KCP_PAUSED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PAUSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RESUMED2.
-           MOVE "KCP_RESUMED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RESUMED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_QUEUED.
-           MOVE "KCP_QUEUED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_QUEUED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DISPATCHED.
-           MOVE "KCP_DISPATCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_DISPATCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RECEIVED.
-           MOVE "KCP_RECEIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RECEIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PROCESSED.
-           MOVE "KCP_PROCESSED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PROCESSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FINALIZED.
-           MOVE "KCP_FINALIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FINALIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ABORTED.
-           MOVE "KCP_ABORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ABORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ROLLEDBACK.
-           MOVE "KCP_ROLLEDBACK_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ROLLEDBACK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_COMMITTED.
-           MOVE "KCP_COMMITTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_COMMITTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_VALIDATED2.
-           MOVE "KCP_VALIDATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_VALIDATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RECONCILED2.
-           MOVE "KCP_RECONCILED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RECONCILED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ALLOCATED2.
-           MOVE "KCP_ALLOCATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ALLOCATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ACCRUED2.
-           MOVE "KCP_ACCRUED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ACCRUED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SETTLED2.
-           MOVE "KCP_SETTLED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SETTLED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FORECASTED.
-           MOVE "KCP_FORECASTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FORECASTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_OVERRIDDEN.
-           MOVE "KCP_OVERRIDDEN_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_OVERRIDDEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DETAILED.
-           MOVE "KCP_DETAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_DETAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_HISTORICAL.
-           MOVE "KCP_HISTORICAL_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_HISTORICAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SEARCHED.
-           MOVE "KCP_SEARCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SEARCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FILTERED.
-           MOVE "KCP_FILTERED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FILTERED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SORTED.
-           MOVE "KCP_SORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PRINTED.
-           MOVE "KCP_PRINTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PRINTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CREATED2.
-           MOVE "KCP_CREATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CREATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_LISTED.
-           MOVE "KCP_LISTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_LISTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_GOTTEN.
-           MOVE "KCP_GOTTEN_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_GOTTEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CALCULATED.
-           MOVE "KCP_CALCULATED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CALCULATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UPDATED.
-           MOVE "KCP_UPDATED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UPDATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_DELETED2.
-           MOVE "KCP_DELETED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_DELETED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SUMMARIZED.
-           MOVE "KCP_SUMMARIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SUMMARIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_EXPORTED.
-           MOVE "KCP_EXPORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_EXPORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_AUDITED.
-           MOVE "KCP_AUDITED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_AUDITED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_STATUS2.
-           MOVE "KCP_STATUS2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_STATUS2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CLOSED2.
-           MOVE "KCP_CLOSED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CLOSED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REOPENED.
-           MOVE "KCP_REOPENED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REOPENED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ADJUSTED.
-           MOVE "KCP_ADJUSTED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ADJUSTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REVERSED.
-           MOVE "KCP_REVERSED_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REVERSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_APPROVED2.
-           MOVE "KCP_APPROVED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_APPROVED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_BATCH.
-           MOVE "KCP_BATCH_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_BATCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ONLINE.
-           MOVE "KCP_ONLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ONLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_OFFLINE.
-           MOVE "KCP_OFFLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_OFFLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REALTIME.
-           MOVE "KCP_REALTIME_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REALTIME" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SCHEDULED2.
-           MOVE "KCP_SCHEDULED2_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SCHEDULED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_MANUAL.
-           MOVE "KCP_MANUAL_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_MANUAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_AUTOMATIC.
-           MOVE "KCP_AUTOMATIC_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_AUTOMATIC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SYSTEM.
-           MOVE "KCP_SYSTEM_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SYSTEM" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_USER.
-           MOVE "KCP_USER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_USER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ADMIN.
-           MOVE "KCP_ADMIN_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ADMIN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SUPERVISOR.
-           MOVE "KCP_SUPERVISOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SUPERVISOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_OPERATOR.
-           MOVE "KCP_OPERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_OPERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_MANAGER.
-           MOVE "KCP_MANAGER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_MANAGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CLERK.
-           MOVE "KCP_CLERK_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CLERK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ANALYST.
-           MOVE "KCP_ANALYST_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ANALYST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REVIEWER.
-           MOVE "KCP_REVIEWER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REVIEWER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_APPROVER.
-           MOVE "KCP_APPROVER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_APPROVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_AUDITOR.
-           MOVE "KCP_AUDITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_AUDITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REPORTER.
-           MOVE "KCP_REPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_EXPORTER.
-           MOVE "KCP_EXPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_EXPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_IMPORTER.
-           MOVE "KCP_IMPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_IMPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_VALIDATOR.
-           MOVE "KCP_VALIDATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_VALIDATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PROCESSOR.
-           MOVE "KCP_PROCESSOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PROCESSOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_GENERATOR.
-           MOVE "KCP_GENERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_GENERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CALCULATOR.
-           MOVE "KCP_CALCULATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CALCULATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_FORMATTER.
-           MOVE "KCP_FORMATTER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_FORMATTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_PARSER.
-           MOVE "KCP_PARSER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_PARSER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_CONVERTER.
-           MOVE "KCP_CONVERTER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_CONVERTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_TRANSFORMER.
-           MOVE "KCP_TRANSFORMER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_TRANSFORMER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_LOADER.
-           MOVE "KCP_LOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_LOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_UNLOADER.
-           MOVE "KCP_UNLOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_UNLOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_ARCHIVER.
-           MOVE "KCP_ARCHIVER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_ARCHIVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RESTORER.
-           MOVE "KCP_RESTORER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RESTORER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_BACKUP.
-           MOVE "KCP_BACKUP_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_BACKUP" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_RECOVERY.
-           MOVE "KCP_RECOVERY_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_RECOVERY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_MIGRATION.
-           MOVE "KCP_MIGRATION_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_MIGRATION" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_SYNCHRONIZER.
-           MOVE "KCP_SYNCHRONIZER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_SYNCHRONIZER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_REPLICATOR.
-           MOVE "KCP_REPLICATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_REPLICATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_MONITOR.
-           MOVE "KCP_MONITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_MONITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-KCP_LOGGER.
-           MOVE "KCP_LOGGER_OK" TO WS-CODE
-           MOVE "SUCCESS|KCP_LOGGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       TRIM-ALL.
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           EXIT PARAGRAPH.
-
-       VALIDATE-ALL.
-           MOVE 'Y' TO WS-STEP
-           EXIT PARAGRAPH.
-
-       AUDIT-ACTION.
-           MOVE LS-CMD-ACTION TO WS-AUDIT-ACTION
-           EXIT PARAGRAPH.
-
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. kyc_periodic_core.
+      *> KYC periodic review: create, submit, approve, reject, close.
+
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(2048) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
+        01  WS-BIND-6               PIC X(256) VALUE SPACES.
+        01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P1-LEN               PIC 9(3) VALUE 1.
+        01  WS-P2-LEN               PIC 9(3) VALUE 1.
+        01  WS-P3-LEN               PIC 9(3) VALUE 1.
+        01  WS-P4-LEN               PIC 9(3) VALUE 1.
+        01  WS-P5-LEN               PIC 9(3) VALUE 1.
+        01  WS-P6-LEN               PIC 9(3) VALUE 1.
+        01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+        01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+        01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+        01  WS-I                    PIC 9(3) VALUE 1.
+        01  WS-J                    PIC 9(5) VALUE 1.
+        01  WS-RLEN                 PIC 9(5) VALUE 1.
+        01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-STEP                 PIC X VALUE 'Y'.
+            88  STEP-OK             VALUE 'Y'.
+            88  STEP-FAIL           VALUE 'N'.
+        01  WS-ERR                  PIC X(40) VALUE SPACES.
+        01  WS-LIMIT                PIC X(10) VALUE SPACES.
+        01  WS-OFFSET               PIC X(10) VALUE SPACES.
+        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+        01  WS-AUDIT-REVIEW       PIC X(20) VALUE SPACES.
+        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+        01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
+        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
+        01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
+        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
+        01  WS-TMP-ID               PIC X(100) VALUE SPACES.
+        01  WS-TMP-APPROVED          PIC X(30) VALUE SPACES.
+        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-PENDING           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-APPROVED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  F-QUOTE                 PIC X VALUE "'".
+        01  F-DQUOTE                PIC X VALUE '"'.
+        01  F-BSLASH                PIC X VALUE "\".
+        01  F-TICK                  PIC X VALUE "`".
+
+        LINKAGE SECTION.
+        01  LS-CMD-ACTION           PIC X(30).
+        01  LS-PARAM1               PIC X(100).
+        01  LS-PARAM2               PIC X(100).
+        01  LS-PARAM3               PIC X(100).
+        01  LS-PARAM4               PIC X(100).
+        01  LS-PARAM5               PIC X(100).
+        01  LS-PARAM6               PIC X(100).
+        01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+        MAIN-LOGIC.
+            PERFORM VALIDATE-ALL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                GOBACK
+            END-IF
+            EVALUATE TRUE
+                WHEN LS-CMD-ACTION(1:10) = "KCP_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CREATE
+                WHEN LS-CMD-ACTION(1:8) = "KCP_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-LIST
+                WHEN LS-CMD-ACTION(1:7) = "KCP_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-GET
+                WHEN LS-CMD-ACTION(1:8) = "KCP_SUBMIT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUBMIT
+                WHEN LS-CMD-ACTION(1:10) = "KCP_APPROVE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APPROVE
+                WHEN LS-CMD-ACTION(1:10) = "KCP_CLOSE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:11) = "KCP_SUMMARY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUMMARY
+                WHEN LS-CMD-ACTION(1:9) = "KCP_AUDIT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-AUDIT
+                WHEN LS-CMD-ACTION(1:12) = "KCP_VALIDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-VALIDATE
+                WHEN OTHER
+                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+            END-EVALUATE.
+            GOBACK.
+
+        VALIDATE-ALL.
+            MOVE 0 TO WS-BAD
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT.
+            EXIT PARAGRAPH.
+
+        VALIDATE-INPUT.
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+            EXIT PARAGRAPH.
+
+        TRIM-ALL.
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P1-LEN
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P2-LEN
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P3-LEN
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P4-LEN
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P5-LEN
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P6-LEN.
+            EXIT PARAGRAPH.
+
+        TRIM-VALUE.
+            MOVE WS-TRIM-IN TO WS-TRIM-OUT
+            MOVE 0 TO WS-TRIM-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1
+                UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+                IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-TRIM-LEN
+                END-IF
+            END-PERFORM
+            IF WS-TRIM-LEN = 0
+                MOVE 1 TO WS-TRIM-LEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-ADMIN.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P6-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+                MOVE "KYC_PERIODIC_CORE" TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT.
+            MOVE "INSERT INTO kyc_periodic_audit (review_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-AUDIT-REVIEW TO WS-BIND-1
+            MOVE WS-AUDIT-ACTION TO WS-BIND-2
+            MOVE WS-P6-TRIMMED TO WS-BIND-3
+            MOVE WS-AUDIT-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-DENIED.
+            MOVE "AUTHZ_DENIED" TO WS-AUDIT-ACTION
+            MOVE SPACES TO WS-AUDIT-REVIEW
+            MOVE WS-DENIED-TARGET TO WS-AUDIT-DETAIL
+            MOVE WS-DENIED-ACTOR TO WS-P6-TRIMMED
+            PERFORM AUDIT.
+            EXIT PARAGRAPH.
+
+        TRIM-RESULT-LEN.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16384 BY -1
+                UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOAD-CLEARING.
+            MOVE SPACES TO WS-ERR
+            MOVE "SELECT CONCAT(risk_score, '|', submitted_count, '|', approved_count, '|', status, '|', COALESCE(customer_email, ''), '|', '') FROM kyc_periodic WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-TMP-AMT
+            MOVE SPACES TO WS-TMP-STR
+            MOVE SPACES TO WS-TMP-APPROVED
+            MOVE SPACES TO WS-TMP-STATUS
+            MOVE SPACES TO WS-TMP-CURR
+            MOVE SPACES TO WS-TMP-ID
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-AMT WS-TMP-STR WS-TMP-APPROVED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-PENDING
+            MOVE FUNCTION NUMVAL(WS-TMP-APPROVED) TO WS-NUM-APPROVED
+            EXIT PARAGRAPH.
+
+        ACTION-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM kyc_periodic WHERE review_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO kyc_periodic (review_ref, customer_email, risk_score, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P6-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                MOVE WS-NEW-ID TO WS-AUDIT-REVIEW
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|KCP_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
+                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+            END-IF.
+            IF WS-P3-TRIMMED = SPACES AND WS-P2-TRIMMED NOT = SPACES
+                IF WS-P2-TRIMMED(1:1) >= "0" AND WS-P2-TRIMMED(1:1) <= "9"
+                    MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+                    IF WS-P3-TRIMMED NOT = SPACES
+                        MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+                    END-IF
+                END-IF
+            END-IF
+            MOVE "SELECT CONCAT(id, ':', review_ref, ':', status, ':', submitted_count, ':', approved_count, ':', COALESCE(customer_email, '')) FROM kyc_periodic WHERE (? = '' OR status = ?) AND (? = '' OR customer_email = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            IF WS-P1-TRIMMED = "OPEN" OR WS-P1-TRIMMED = "PENDING"
+                OR WS-P1-TRIMMED = "APPROVED" OR WS-P1-TRIMMED = "CLOSED"
+                OR WS-P1-TRIMMED = SPACES
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+            ELSE
+                MOVE SPACES TO WS-BIND-1
+                MOVE SPACES TO WS-BIND-2
+            END-IF
+            IF WS-P2-LEN = 3
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                MOVE WS-P2-TRIMMED TO WS-BIND-4
+            ELSE
+                MOVE SPACES TO WS-BIND-3
+                MOVE SPACES TO WS-BIND-4
+            END-IF
+            MOVE WS-LIMIT TO WS-BIND-5
+            MOVE WS-OFFSET TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|KCP_LIST|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|KCP_LIST|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(id, '|', review_ref, '|', status, '|', submitted_count, '|', approved_count, '|', COALESCE(customer_email, ''), '|', COALESCE(risk_score, ''), '|', created_by, '|', created_at) FROM kyc_periodic WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|KCP_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-SUBMIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) NOT = "OPEN" AND WS-TMP-STATUS(1:6) NOT = "PENDING"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-TOTAL - WS-NUM-PENDING END-COMPUTE
+            ELSE
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            END-IF.
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-PENDING + WS-NUM-AMOUNT > WS-NUM-TOTAL
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE kyc_periodic SET submitted_count = submitted_count + ?, status = 'PENDING', submitted_at = COALESCE(submitted_at, NOW()) WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "POST" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-REVIEW
+                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|KCP_SUBMIT|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:7) = "APPROVED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-PENDING <= WS-NUM-APPROVED
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-PENDING - WS-NUM-APPROVED END-COMPUTE
+            ELSE
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            END-IF.
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-APPROVED + WS-NUM-AMOUNT > WS-NUM-PENDING
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE kyc_periodic SET status = CASE WHEN approved_count + ? >= submitted_count THEN 'APPROVED' ELSE 'PENDING' END, approved_at = CASE WHEN approved_count + ? >= submitted_count THEN NOW() ELSE approved_at END, approved_count = approved_count + ? WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-TMP-AMT TO WS-BIND-2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SETTLE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-REVIEW
+                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|KCP_APPROVE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CLOSE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:8) = "APPROVED" OR WS-TMP-STATUS(1:9) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE kyc_periodic SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "CANCEL" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-REVIEW
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|KCP_CLOSE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SUMMARY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'PENDING'), 0), '|', COALESCE(SUM(status = 'APPROVED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(submitted_count), 0), '|', COALESCE(SUM(approved_count), 0)) FROM kyc_periodic" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|KCP_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-AUDIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P2-TRIMMED NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CONCAT(action, ':', actor_email, ':', COALESCE(detail, ''), ':', created_at) FROM kyc_periodic_audit WHERE (? = '' OR review_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|KCP_AUDIT|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|KCP_AUDIT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-VALIDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P1-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES OR WS-P2-LEN NOT = 3
+                MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|KCP_VALID|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
+                "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.

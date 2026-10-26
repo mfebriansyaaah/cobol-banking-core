@@ -8,4 +8,5 @@ card_core.cob=0
 collection_core.cob=0
 payment_clearing_core.cob=0
 treasury_liquidity_core.cob=0
+kyc_periodic_core.cob=8
 sql_bridge.c=0
