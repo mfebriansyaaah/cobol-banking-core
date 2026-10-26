@@ -470,7 +470,7 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:7) = "RESOLVED" OR WS-TMP-STATUS(1:6) = "CLOSED"
+            IF WS-TMP-STATUS(1:8) = "RESOLVED" OR WS-TMP-STATUS(1:6) = "CLOSED"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
