@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T09:03:27.033Z",
+  "generatedAt": "2026-10-26T09:18:35.555Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -348,6 +348,7 @@
     "audit_drilldown.js",
     "audit_retention.js",
     "audit_snapshot.js",
+    "backup_drill.js",
     "backup_restore.js",
     "backup_verification.js",
     "batch.js",

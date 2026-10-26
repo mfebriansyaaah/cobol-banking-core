@@ -1,2085 +1,657 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. backup_drill_core.
-      *> Skeleton module for backup_drill domain.
-
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
-
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
-       01  WS-VAR-01           PIC X(100) VALUE SPACES.
-       01  WS-VAR-02           PIC X(100) VALUE SPACES.
-       01  WS-VAR-03           PIC X(100) VALUE SPACES.
-       01  WS-VAR-04           PIC X(100) VALUE SPACES.
-       01  WS-VAR-05           PIC X(100) VALUE SPACES.
-       01  WS-VAR-06           PIC X(100) VALUE SPACES.
-       01  WS-VAR-07           PIC X(100) VALUE SPACES.
-       01  WS-VAR-08           PIC X(100) VALUE SPACES.
-       01  WS-VAR-09           PIC X(100) VALUE SPACES.
-       01  WS-VAR-10           PIC X(100) VALUE SPACES.
-       01  WS-VAR-11           PIC X(100) VALUE SPACES.
-       01  WS-VAR-12           PIC X(100) VALUE SPACES.
-       01  WS-VAR-13           PIC X(100) VALUE SPACES.
-       01  WS-VAR-14           PIC X(100) VALUE SPACES.
-       01  WS-VAR-15           PIC X(100) VALUE SPACES.
-       01  WS-VAR-16           PIC X(100) VALUE SPACES.
-       01  WS-VAR-17           PIC X(100) VALUE SPACES.
-       01  WS-VAR-18           PIC X(100) VALUE SPACES.
-       01  WS-VAR-19           PIC X(100) VALUE SPACES.
-       01  WS-VAR-20           PIC X(100) VALUE SPACES.
-       01  WS-VAR-21           PIC X(100) VALUE SPACES.
-       01  WS-VAR-22           PIC X(100) VALUE SPACES.
-       01  WS-VAR-23           PIC X(100) VALUE SPACES.
-       01  WS-VAR-24           PIC X(100) VALUE SPACES.
-       01  WS-VAR-25           PIC X(100) VALUE SPACES.
-       01  WS-VAR-26           PIC X(100) VALUE SPACES.
-       01  WS-VAR-27           PIC X(100) VALUE SPACES.
-       01  WS-VAR-28           PIC X(100) VALUE SPACES.
-       01  WS-VAR-29           PIC X(100) VALUE SPACES.
-       01  WS-VAR-30           PIC X(100) VALUE SPACES.
-       01  WS-VAR-31           PIC X(100) VALUE SPACES.
-       01  WS-VAR-32           PIC X(100) VALUE SPACES.
-       01  WS-VAR-33           PIC X(100) VALUE SPACES.
-       01  WS-VAR-34           PIC X(100) VALUE SPACES.
-       01  WS-VAR-35           PIC X(100) VALUE SPACES.
-       01  WS-VAR-36           PIC X(100) VALUE SPACES.
-       01  WS-VAR-37           PIC X(100) VALUE SPACES.
-       01  WS-VAR-38           PIC X(100) VALUE SPACES.
-       01  WS-VAR-39           PIC X(100) VALUE SPACES.
-       01  WS-VAR-40           PIC X(100) VALUE SPACES.
-       01  WS-NUM-PRINCIPAL     PIC 9(12)V99 VALUE 0.
-       01  WS-NUM-RATE          PIC 9(3)V9(6) VALUE 0.
-       01  WS-NUM-AMOUNT        PIC 9(12)V99 VALUE 0.
-       01  WS-RESULT               PIC X(16384) VALUE SPACES.
-       01  WS-P1                   PIC X(100) VALUE SPACES.
-       01  WS-P2                   PIC X(100) VALUE SPACES.
-       01  WS-P3                   PIC X(100) VALUE SPACES.
-       01  WS-P4                   PIC X(100) VALUE SPACES.
-       01  WS-P5                   PIC X(100) VALUE SPACES.
-       01  WS-P6                   PIC X(100) VALUE SPACES.
-       01  WS-I                    PIC 9(5) VALUE 1.
-       01  WS-J                    PIC 9(5) VALUE 1.
-       01  WS-K                    PIC 9(5) VALUE 1.
-       01  WS-L                    PIC 9(5) VALUE 1.
-       01  WS-M                    PIC 9(5) VALUE 1.
-       01  WS-N                    PIC 9(5) VALUE 1.
-       01  WS-O                    PIC 9(5) VALUE 1.
-       01  WS-P                    PIC 9(5) VALUE 1.
-       01  WS-Q                    PIC 9(5) VALUE 1.
-       01  WS-R                    PIC 9(5) VALUE 1.
-       01  WS-S                    PIC 9(5) VALUE 1.
-       01  WS-T                    PIC 9(5) VALUE 1.
-       01  WS-U                    PIC 9(5) VALUE 1.
-       01  WS-V                    PIC 9(5) VALUE 1.
-       01  WS-W                    PIC 9(5) VALUE 1.
-       01  WS-X                    PIC 9(5) VALUE 1.
-       01  WS-Y                    PIC 9(5) VALUE 1.
-       01  WS-Z                    PIC 9(5) VALUE 1.
-       01  WS-STATUS               PIC X(20) VALUE SPACES.
-       01  WS-CODE                 PIC X(20) VALUE SPACES.
-       01  WS-MESSAGE              PIC X(100) VALUE SPACES.
-       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
-       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
-       01  WS-ACTOR                PIC X(100) VALUE SPACES.
-       01  WS-TARGET               PIC X(100) VALUE SPACES.
-       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
-       01  WS-CURRENCY             PIC X(3) VALUE SPACES.
-       01  WS-DATE-VALUE           PIC X(10) VALUE SPACES.
-       01  WS-ID-VALUE             PIC X(20) VALUE SPACES.
-       01  WS-LIMIT-VALUE          PIC X(10) VALUE SPACES.
-       01  WS-OFFSET-VALUE         PIC X(10) VALUE SPACES.
-       01  WS-FLAG                 PIC X VALUE 'N'.
-           88  FLAG-YES             VALUE 'Y'.
-           88  FLAG-NO              VALUE 'N'.
-       01  WS-STEP                 PIC X VALUE 'Y'.
-           88  STEP-OK             VALUE 'Y'.
-           88  STEP-FAIL           VALUE 'N'.
-
-       LINKAGE SECTION.
-       01  LS-CMD-ACTION           PIC X(30).
-       01  LS-PARAM1               PIC X(100).
-       01  LS-PARAM2               PIC X(100).
-       01  LS-PARAM3               PIC X(100).
-       01  LS-PARAM4               PIC X(100).
-       01  LS-PARAM5               PIC X(100).
-       01  LS-PARAM6               PIC X(100).
-       01  LS-OUTPUT-BUFFER        PIC X(16384).
-
-       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
-           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
-
-       MAIN-LOGIC.
-           MOVE SPACES TO WS-RESULT
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           PERFORM TRIM-ALL
-           EVALUATE TRUE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_CREATE"
-                   PERFORM ACTION-BDR_CREATE
-               WHEN LS-CMD-ACTION(1:8) = "BDR_LIST"
-                   PERFORM ACTION-BDR_LIST
-               WHEN LS-CMD-ACTION(1:7) = "BDR_GET"
-                   PERFORM ACTION-BDR_GET
-               WHEN LS-CMD-ACTION(1:8) = "BDR_CALC"
-                   PERFORM ACTION-BDR_CALC
-               WHEN LS-CMD-ACTION(1:10) = "BDR_UPDATE"
-                   PERFORM ACTION-BDR_UPDATE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_DELETE"
-                   PERFORM ACTION-BDR_DELETE
-               WHEN LS-CMD-ACTION(1:11) = "BDR_SUMMARY"
-                   PERFORM ACTION-BDR_SUMMARY
-               WHEN LS-CMD-ACTION(1:12) = "BDR_VALIDATE"
-                   PERFORM ACTION-BDR_VALIDATE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_EXPORT"
-                   PERFORM ACTION-BDR_EXPORT
-               WHEN LS-CMD-ACTION(1:9) = "BDR_AUDIT"
-                   PERFORM ACTION-BDR_AUDIT
-               WHEN LS-CMD-ACTION(1:10) = "BDR_STATUS"
-                   PERFORM ACTION-BDR_STATUS
-               WHEN LS-CMD-ACTION(1:9) = "BDR_CLOSE"
-                   PERFORM ACTION-BDR_CLOSE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_REOPEN"
-                   PERFORM ACTION-BDR_REOPEN
-               WHEN LS-CMD-ACTION(1:10) = "BDR_ADJUST"
-                   PERFORM ACTION-BDR_ADJUST
-               WHEN LS-CMD-ACTION(1:11) = "BDR_REVERSE"
-                   PERFORM ACTION-BDR_REVERSE
-               WHEN LS-CMD-ACTION(1:11) = "BDR_APPROVE"
-                   PERFORM ACTION-BDR_APPROVE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_REJECT"
-                   PERFORM ACTION-BDR_REJECT
-               WHEN LS-CMD-ACTION(1:8) = "BDR_POST"
-                   PERFORM ACTION-BDR_POST
-               WHEN LS-CMD-ACTION(1:9) = "BDR_WAIVE"
-                   PERFORM ACTION-BDR_WAIVE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_CANCEL"
-                   PERFORM ACTION-BDR_CANCEL
-               WHEN LS-CMD-ACTION(1:8) = "BDR_HOLD"
-                   PERFORM ACTION-BDR_HOLD
-               WHEN LS-CMD-ACTION(1:11) = "BDR_RELEASE"
-                   PERFORM ACTION-BDR_RELEASE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_NOTIFY"
-                   PERFORM ACTION-BDR_NOTIFY
-               WHEN LS-CMD-ACTION(1:11) = "BDR_ARCHIVE"
-                   PERFORM ACTION-BDR_ARCHIVE
-               WHEN LS-CMD-ACTION(1:11) = "BDR_RESTORE"
-                   PERFORM ACTION-BDR_RESTORE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_IMPORT"
-                   PERFORM ACTION-BDR_IMPORT
-               WHEN LS-CMD-ACTION(1:10) = "BDR_REPORT"
-                   PERFORM ACTION-BDR_REPORT
-               WHEN LS-CMD-ACTION(1:10) = "BDR_VERIFY"
-                   PERFORM ACTION-BDR_VERIFY
-               WHEN LS-CMD-ACTION(1:8) = "BDR_SYNC"
-                   PERFORM ACTION-BDR_SYNC
-               WHEN LS-CMD-ACTION(1:13) = "BDR_RECONCILE"
-                   PERFORM ACTION-BDR_RECONCILE
-               WHEN LS-CMD-ACTION(1:12) = "BDR_ALLOCATE"
-                   PERFORM ACTION-BDR_ALLOCATE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_ACCRUE"
-                   PERFORM ACTION-BDR_ACCRUE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_SETTLE"
-                   PERFORM ACTION-BDR_SETTLE
-               WHEN LS-CMD-ACTION(1:12) = "BDR_FORECAST"
-                   PERFORM ACTION-BDR_FORECAST
-               WHEN LS-CMD-ACTION(1:12) = "BDR_OVERRIDE"
-                   PERFORM ACTION-BDR_OVERRIDE
-               WHEN LS-CMD-ACTION(1:10) = "BDR_DETAIL"
-                   PERFORM ACTION-BDR_DETAIL
-               WHEN LS-CMD-ACTION(1:11) = "BDR_HISTORY"
-                   PERFORM ACTION-BDR_HISTORY
-               WHEN LS-CMD-ACTION(1:10) = "BDR_SEARCH"
-                   PERFORM ACTION-BDR_SEARCH
-               WHEN LS-CMD-ACTION(1:10) = "BDR_FILTER"
-                   PERFORM ACTION-BDR_FILTER
-               WHEN LS-CMD-ACTION(1:8) = "BDR_SORT"
-                   PERFORM ACTION-BDR_SORT
-               WHEN LS-CMD-ACTION(1:9) = "BDR_PRINT"
-                   PERFORM ACTION-BDR_PRINT
-               WHEN LS-CMD-ACTION(1:9) = "BDR_DRAFT"
-                   PERFORM ACTION-BDR_DRAFT
-               WHEN LS-CMD-ACTION(1:8) = "BDR_OPEN"
-                   PERFORM ACTION-BDR_OPEN
-               WHEN LS-CMD-ACTION(1:11) = "BDR_PENDING"
-                   PERFORM ACTION-BDR_PENDING
-               WHEN LS-CMD-ACTION(1:12) = "BDR_APPROVED"
-                   PERFORM ACTION-BDR_APPROVED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_REJECTED"
-                   PERFORM ACTION-BDR_REJECTED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_ACTIVE"
-                   PERFORM ACTION-BDR_ACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "BDR_INACTIVE"
-                   PERFORM ACTION-BDR_INACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "BDR_ARCHIVED"
-                   PERFORM ACTION-BDR_ARCHIVED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_DELETED"
-                   PERFORM ACTION-BDR_DELETED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_LOCKED"
-                   PERFORM ACTION-BDR_LOCKED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_UNLOCKED"
-                   PERFORM ACTION-BDR_UNLOCKED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_SUSPENDED"
-                   PERFORM ACTION-BDR_SUSPENDED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_RESUMED"
-                   PERFORM ACTION-BDR_RESUMED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_EXPIRED"
-                   PERFORM ACTION-BDR_EXPIRED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_RENEWED"
-                   PERFORM ACTION-BDR_RENEWED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_CANCELLED"
-                   PERFORM ACTION-BDR_CANCELLED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_COMPLETED"
-                   PERFORM ACTION-BDR_COMPLETED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_FAILED"
-                   PERFORM ACTION-BDR_FAILED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_RETRIED"
-                   PERFORM ACTION-BDR_RETRIED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_ESCALATED"
-                   PERFORM ACTION-BDR_ESCALATED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_ASSIGNED"
-                   PERFORM ACTION-BDR_ASSIGNED
-               WHEN LS-CMD-ACTION(1:14) = "BDR_UNASSIGNED"
-                   PERFORM ACTION-BDR_UNASSIGNED
-               WHEN LS-CMD-ACTION(1:15) = "BDR_TRANSFERRED"
-                   PERFORM ACTION-BDR_TRANSFERRED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_MERGED"
-                   PERFORM ACTION-BDR_MERGED
-               WHEN LS-CMD-ACTION(1:9) = "BDR_SPLIT"
-                   PERFORM ACTION-BDR_SPLIT
-               WHEN LS-CMD-ACTION(1:10) = "BDR_CLONED"
-                   PERFORM ACTION-BDR_CLONED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_COPIED"
-                   PERFORM ACTION-BDR_COPIED
-               WHEN LS-CMD-ACTION(1:9) = "BDR_MOVED"
-                   PERFORM ACTION-BDR_MOVED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_LINKED"
-                   PERFORM ACTION-BDR_LINKED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_UNLINKED"
-                   PERFORM ACTION-BDR_UNLINKED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_TAGGED"
-                   PERFORM ACTION-BDR_TAGGED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_UNTAGGED"
-                   PERFORM ACTION-BDR_UNTAGGED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_FLAGGED"
-                   PERFORM ACTION-BDR_FLAGGED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_UNFLAGGED"
-                   PERFORM ACTION-BDR_UNFLAGGED
-               WHEN LS-CMD-ACTION(1:15) = "BDR_PRIORITIZED"
-                   PERFORM ACTION-BDR_PRIORITIZED
-               WHEN LS-CMD-ACTION(1:17) = "BDR_DEPRIORITIZED"
-                   PERFORM ACTION-BDR_DEPRIORITIZED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_SCHEDULED"
-                   PERFORM ACTION-BDR_SCHEDULED
-               WHEN LS-CMD-ACTION(1:15) = "BDR_UNSCHEDULED"
-                   PERFORM ACTION-BDR_UNSCHEDULED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_EXECUTED"
-                   PERFORM ACTION-BDR_EXECUTED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_SKIPPED"
-                   PERFORM ACTION-BDR_SKIPPED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_STARTED"
-                   PERFORM ACTION-BDR_STARTED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_STOPPED"
-                   PERFORM ACTION-BDR_STOPPED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_PAUSED"
-                   PERFORM ACTION-BDR_PAUSED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_RESUMED2"
-                   PERFORM ACTION-BDR_RESUMED2
-               WHEN LS-CMD-ACTION(1:10) = "BDR_QUEUED"
-                   PERFORM ACTION-BDR_QUEUED
-               WHEN LS-CMD-ACTION(1:14) = "BDR_DISPATCHED"
-                   PERFORM ACTION-BDR_DISPATCHED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_RECEIVED"
-                   PERFORM ACTION-BDR_RECEIVED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_PROCESSED"
-                   PERFORM ACTION-BDR_PROCESSED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_FINALIZED"
-                   PERFORM ACTION-BDR_FINALIZED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_ABORTED"
-                   PERFORM ACTION-BDR_ABORTED
-               WHEN LS-CMD-ACTION(1:14) = "BDR_ROLLEDBACK"
-                   PERFORM ACTION-BDR_ROLLEDBACK
-               WHEN LS-CMD-ACTION(1:13) = "BDR_COMMITTED"
-                   PERFORM ACTION-BDR_COMMITTED
-               WHEN LS-CMD-ACTION(1:14) = "BDR_VALIDATED2"
-                   PERFORM ACTION-BDR_VALIDATED2
-               WHEN LS-CMD-ACTION(1:15) = "BDR_RECONCILED2"
-                   PERFORM ACTION-BDR_RECONCILED2
-               WHEN LS-CMD-ACTION(1:14) = "BDR_ALLOCATED2"
-                   PERFORM ACTION-BDR_ALLOCATED2
-               WHEN LS-CMD-ACTION(1:12) = "BDR_ACCRUED2"
-                   PERFORM ACTION-BDR_ACCRUED2
-               WHEN LS-CMD-ACTION(1:12) = "BDR_SETTLED2"
-                   PERFORM ACTION-BDR_SETTLED2
-               WHEN LS-CMD-ACTION(1:14) = "BDR_FORECASTED"
-                   PERFORM ACTION-BDR_FORECASTED
-               WHEN LS-CMD-ACTION(1:14) = "BDR_OVERRIDDEN"
-                   PERFORM ACTION-BDR_OVERRIDDEN
-               WHEN LS-CMD-ACTION(1:12) = "BDR_DETAILED"
-                   PERFORM ACTION-BDR_DETAILED
-               WHEN LS-CMD-ACTION(1:14) = "BDR_HISTORICAL"
-                   PERFORM ACTION-BDR_HISTORICAL
-               WHEN LS-CMD-ACTION(1:12) = "BDR_SEARCHED"
-                   PERFORM ACTION-BDR_SEARCHED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_FILTERED"
-                   PERFORM ACTION-BDR_FILTERED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_SORTED"
-                   PERFORM ACTION-BDR_SORTED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_PRINTED"
-                   PERFORM ACTION-BDR_PRINTED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_CREATED2"
-                   PERFORM ACTION-BDR_CREATED2
-               WHEN LS-CMD-ACTION(1:10) = "BDR_LISTED"
-                   PERFORM ACTION-BDR_LISTED
-               WHEN LS-CMD-ACTION(1:10) = "BDR_GOTTEN"
-                   PERFORM ACTION-BDR_GOTTEN
-               WHEN LS-CMD-ACTION(1:14) = "BDR_CALCULATED"
-                   PERFORM ACTION-BDR_CALCULATED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_UPDATED"
-                   PERFORM ACTION-BDR_UPDATED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_DELETED2"
-                   PERFORM ACTION-BDR_DELETED2
-               WHEN LS-CMD-ACTION(1:14) = "BDR_SUMMARIZED"
-                   PERFORM ACTION-BDR_SUMMARIZED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_EXPORTED"
-                   PERFORM ACTION-BDR_EXPORTED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_AUDITED"
-                   PERFORM ACTION-BDR_AUDITED
-               WHEN LS-CMD-ACTION(1:11) = "BDR_STATUS2"
-                   PERFORM ACTION-BDR_STATUS2
-               WHEN LS-CMD-ACTION(1:11) = "BDR_CLOSED2"
-                   PERFORM ACTION-BDR_CLOSED2
-               WHEN LS-CMD-ACTION(1:12) = "BDR_REOPENED"
-                   PERFORM ACTION-BDR_REOPENED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_ADJUSTED"
-                   PERFORM ACTION-BDR_ADJUSTED
-               WHEN LS-CMD-ACTION(1:12) = "BDR_REVERSED"
-                   PERFORM ACTION-BDR_REVERSED
-               WHEN LS-CMD-ACTION(1:13) = "BDR_APPROVED2"
-                   PERFORM ACTION-BDR_APPROVED2
-               WHEN LS-CMD-ACTION(1:9) = "BDR_BATCH"
-                   PERFORM ACTION-BDR_BATCH
-               WHEN LS-CMD-ACTION(1:10) = "BDR_ONLINE"
-                   PERFORM ACTION-BDR_ONLINE
-               WHEN LS-CMD-ACTION(1:11) = "BDR_OFFLINE"
-                   PERFORM ACTION-BDR_OFFLINE
-               WHEN LS-CMD-ACTION(1:12) = "BDR_REALTIME"
-                   PERFORM ACTION-BDR_REALTIME
-               WHEN LS-CMD-ACTION(1:14) = "BDR_SCHEDULED2"
-                   PERFORM ACTION-BDR_SCHEDULED2
-               WHEN LS-CMD-ACTION(1:10) = "BDR_MANUAL"
-                   PERFORM ACTION-BDR_MANUAL
-               WHEN LS-CMD-ACTION(1:13) = "BDR_AUTOMATIC"
-                   PERFORM ACTION-BDR_AUTOMATIC
-               WHEN LS-CMD-ACTION(1:10) = "BDR_SYSTEM"
-                   PERFORM ACTION-BDR_SYSTEM
-               WHEN LS-CMD-ACTION(1:8) = "BDR_USER"
-                   PERFORM ACTION-BDR_USER
-               WHEN LS-CMD-ACTION(1:9) = "BDR_ADMIN"
-                   PERFORM ACTION-BDR_ADMIN
-               WHEN LS-CMD-ACTION(1:14) = "BDR_SUPERVISOR"
-                   PERFORM ACTION-BDR_SUPERVISOR
-               WHEN LS-CMD-ACTION(1:12) = "BDR_OPERATOR"
-                   PERFORM ACTION-BDR_OPERATOR
-               WHEN LS-CMD-ACTION(1:11) = "BDR_MANAGER"
-                   PERFORM ACTION-BDR_MANAGER
-               WHEN LS-CMD-ACTION(1:9) = "BDR_CLERK"
-                   PERFORM ACTION-BDR_CLERK
-               WHEN LS-CMD-ACTION(1:11) = "BDR_ANALYST"
-                   PERFORM ACTION-BDR_ANALYST
-               WHEN LS-CMD-ACTION(1:12) = "BDR_REVIEWER"
-                   PERFORM ACTION-BDR_REVIEWER
-               WHEN LS-CMD-ACTION(1:12) = "BDR_APPROVER"
-                   PERFORM ACTION-BDR_APPROVER
-               WHEN LS-CMD-ACTION(1:11) = "BDR_AUDITOR"
-                   PERFORM ACTION-BDR_AUDITOR
-               WHEN LS-CMD-ACTION(1:12) = "BDR_REPORTER"
-                   PERFORM ACTION-BDR_REPORTER
-               WHEN LS-CMD-ACTION(1:12) = "BDR_EXPORTER"
-                   PERFORM ACTION-BDR_EXPORTER
-               WHEN LS-CMD-ACTION(1:12) = "BDR_IMPORTER"
-                   PERFORM ACTION-BDR_IMPORTER
-               WHEN LS-CMD-ACTION(1:13) = "BDR_VALIDATOR"
-                   PERFORM ACTION-BDR_VALIDATOR
-               WHEN LS-CMD-ACTION(1:13) = "BDR_PROCESSOR"
-                   PERFORM ACTION-BDR_PROCESSOR
-               WHEN LS-CMD-ACTION(1:13) = "BDR_GENERATOR"
-                   PERFORM ACTION-BDR_GENERATOR
-               WHEN LS-CMD-ACTION(1:14) = "BDR_CALCULATOR"
-                   PERFORM ACTION-BDR_CALCULATOR
-               WHEN LS-CMD-ACTION(1:13) = "BDR_FORMATTER"
-                   PERFORM ACTION-BDR_FORMATTER
-               WHEN LS-CMD-ACTION(1:10) = "BDR_PARSER"
-                   PERFORM ACTION-BDR_PARSER
-               WHEN LS-CMD-ACTION(1:13) = "BDR_CONVERTER"
-                   PERFORM ACTION-BDR_CONVERTER
-               WHEN LS-CMD-ACTION(1:15) = "BDR_TRANSFORMER"
-                   PERFORM ACTION-BDR_TRANSFORMER
-               WHEN LS-CMD-ACTION(1:10) = "BDR_LOADER"
-                   PERFORM ACTION-BDR_LOADER
-               WHEN LS-CMD-ACTION(1:12) = "BDR_UNLOADER"
-                   PERFORM ACTION-BDR_UNLOADER
-               WHEN LS-CMD-ACTION(1:12) = "BDR_ARCHIVER"
-                   PERFORM ACTION-BDR_ARCHIVER
-               WHEN LS-CMD-ACTION(1:12) = "BDR_RESTORER"
-                   PERFORM ACTION-BDR_RESTORER
-               WHEN LS-CMD-ACTION(1:10) = "BDR_BACKUP"
-                   PERFORM ACTION-BDR_BACKUP
-               WHEN LS-CMD-ACTION(1:12) = "BDR_RECOVERY"
-                   PERFORM ACTION-BDR_RECOVERY
-               WHEN LS-CMD-ACTION(1:13) = "BDR_MIGRATION"
-                   PERFORM ACTION-BDR_MIGRATION
-               WHEN LS-CMD-ACTION(1:16) = "BDR_SYNCHRONIZER"
-                   PERFORM ACTION-BDR_SYNCHRONIZER
-               WHEN LS-CMD-ACTION(1:14) = "BDR_REPLICATOR"
-                   PERFORM ACTION-BDR_REPLICATOR
-               WHEN LS-CMD-ACTION(1:11) = "BDR_MONITOR"
-                   PERFORM ACTION-BDR_MONITOR
-               WHEN LS-CMD-ACTION(1:10) = "BDR_LOGGER"
-                   PERFORM ACTION-BDR_LOGGER
-               WHEN OTHER
-                   MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
-           END-EVALUATE
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
-           GOBACK.
-
-       ACTION-BDR_CREATE.
-           IF WS-P1 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|BDR_CREATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_LIST.
-           MOVE "SUCCESS|BDR_LIST|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_GET.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|BDR_GET|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CALC.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           COMPUTE WS-NUM-AMOUNT = WS-NUM-PRINCIPAL * WS-NUM-RATE / 100
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|BDR_CALC|" DELIMITED BY SIZE
-                  WS-NUM-AMOUNT DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UPDATE.
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|BDR_UPDATE|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DELETE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|BDR_DELETE|DELETED" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SUMMARY.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|BDR_SUMMARY|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE "|" DELIMITED BY SIZE
-                  WS-NUM-RATE DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_VALIDATE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE FUNCTION NUMVAL(WS-P3) TO WS-NUM-AMOUNT
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-AMOUNT = 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-RATE < 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|BDR_VALIDATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_EXPORT.
-           MOVE "BDR_EXPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_EXPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_AUDIT.
-           MOVE "BDR_AUDIT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_AUDIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_STATUS.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "SUCCESS|BDR_STATUS|CLOSED" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|BDR_STATUS|ACTIVE" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CLOSE.
-           MOVE "BDR_CLOSE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CLOSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REOPEN.
-           MOVE "BDR_REOPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REOPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ADJUST.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-AMOUNT
-           COMPUTE WS-NUM-PRINCIPAL = WS-NUM-PRINCIPAL + WS-NUM-AMOUNT
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|BDR_ADJUST|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REVERSE.
-           MOVE "BDR_REVERSE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REVERSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_APPROVE.
-           MOVE "BDR_APPROVE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_APPROVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REJECT.
-           MOVE "BDR_REJECT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REJECT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_POST.
-           MOVE "BDR_POST_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_POST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_WAIVE.
-           MOVE "BDR_WAIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_WAIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CANCEL.
-           MOVE "BDR_CANCEL_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CANCEL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_HOLD.
-           MOVE "BDR_HOLD_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_HOLD" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RELEASE.
-           MOVE "BDR_RELEASE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RELEASE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_NOTIFY.
-           MOVE "BDR_NOTIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_NOTIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ARCHIVE.
-           MOVE "BDR_ARCHIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ARCHIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RESTORE.
-           MOVE "BDR_RESTORE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RESTORE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_IMPORT.
-           MOVE "BDR_IMPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_IMPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REPORT.
-           MOVE "BDR_REPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_VERIFY.
-           MOVE "BDR_VERIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_VERIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SYNC.
-           MOVE "BDR_SYNC_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SYNC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RECONCILE.
-           MOVE "BDR_RECONCILE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RECONCILE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ALLOCATE.
-           MOVE "BDR_ALLOCATE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ALLOCATE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ACCRUE.
-           MOVE "BDR_ACCRUE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ACCRUE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SETTLE.
-           MOVE "BDR_SETTLE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SETTLE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FORECAST.
-           MOVE "BDR_FORECAST_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FORECAST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_OVERRIDE.
-           MOVE "BDR_OVERRIDE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_OVERRIDE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DETAIL.
-           MOVE "BDR_DETAIL_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_DETAIL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_HISTORY.
-           MOVE "BDR_HISTORY_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_HISTORY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SEARCH.
-           MOVE "BDR_SEARCH_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SEARCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FILTER.
-           MOVE "BDR_FILTER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FILTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SORT.
-           MOVE "BDR_SORT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PRINT.
-           MOVE "BDR_PRINT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PRINT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DRAFT.
-           MOVE "BDR_DRAFT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_DRAFT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_OPEN.
-           MOVE "BDR_OPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_OPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PENDING.
-           MOVE "BDR_PENDING_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PENDING" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_APPROVED.
-           MOVE "BDR_APPROVED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_APPROVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REJECTED.
-           MOVE "BDR_REJECTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REJECTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ACTIVE.
-           MOVE "BDR_ACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_INACTIVE.
-           MOVE "BDR_INACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_INACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ARCHIVED.
-           MOVE "BDR_ARCHIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ARCHIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DELETED.
-           MOVE "BDR_DELETED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_DELETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_LOCKED.
-           MOVE "BDR_LOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_LOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UNLOCKED.
-           MOVE "BDR_UNLOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UNLOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SUSPENDED.
-           MOVE "BDR_SUSPENDED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SUSPENDED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RESUMED.
-           MOVE "BDR_RESUMED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RESUMED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_EXPIRED.
-           MOVE "BDR_EXPIRED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_EXPIRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RENEWED.
-           MOVE "BDR_RENEWED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RENEWED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CANCELLED.
-           MOVE "BDR_CANCELLED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CANCELLED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_COMPLETED.
-           MOVE "BDR_COMPLETED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_COMPLETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FAILED.
-           MOVE "BDR_FAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RETRIED.
-           MOVE "BDR_RETRIED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RETRIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ESCALATED.
-           MOVE "BDR_ESCALATED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ESCALATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ASSIGNED.
-           MOVE "BDR_ASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UNASSIGNED.
-           MOVE "BDR_UNASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UNASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_TRANSFERRED.
-           MOVE "BDR_TRANSFERRED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_TRANSFERRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_MERGED.
-           MOVE "BDR_MERGED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_MERGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SPLIT.
-           MOVE "BDR_SPLIT_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SPLIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CLONED.
-           MOVE "BDR_CLONED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CLONED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_COPIED.
-           MOVE "BDR_COPIED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_COPIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_MOVED.
-           MOVE "BDR_MOVED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_MOVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_LINKED.
-           MOVE "BDR_LINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_LINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UNLINKED.
-           MOVE "BDR_UNLINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UNLINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_TAGGED.
-           MOVE "BDR_TAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_TAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UNTAGGED.
-           MOVE "BDR_UNTAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UNTAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FLAGGED.
-           MOVE "BDR_FLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UNFLAGGED.
-           MOVE "BDR_UNFLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UNFLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PRIORITIZED.
-           MOVE "BDR_PRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DEPRIORITIZED.
-           MOVE "BDR_DEPRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_DEPRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SCHEDULED.
-           MOVE "BDR_SCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UNSCHEDULED.
-           MOVE "BDR_UNSCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UNSCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_EXECUTED.
-           MOVE "BDR_EXECUTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_EXECUTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SKIPPED.
-           MOVE "BDR_SKIPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SKIPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_STARTED.
-           MOVE "BDR_STARTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_STARTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_STOPPED.
-           MOVE "BDR_STOPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_STOPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PAUSED.
-           MOVE "BDR_PAUSED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PAUSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RESUMED2.
-           MOVE "BDR_RESUMED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RESUMED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_QUEUED.
-           MOVE "BDR_QUEUED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_QUEUED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DISPATCHED.
-           MOVE "BDR_DISPATCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_DISPATCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RECEIVED.
-           MOVE "BDR_RECEIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RECEIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PROCESSED.
-           MOVE "BDR_PROCESSED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PROCESSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FINALIZED.
-           MOVE "BDR_FINALIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FINALIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ABORTED.
-           MOVE "BDR_ABORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ABORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ROLLEDBACK.
-           MOVE "BDR_ROLLEDBACK_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ROLLEDBACK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_COMMITTED.
-           MOVE "BDR_COMMITTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_COMMITTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_VALIDATED2.
-           MOVE "BDR_VALIDATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_VALIDATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RECONCILED2.
-           MOVE "BDR_RECONCILED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RECONCILED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ALLOCATED2.
-           MOVE "BDR_ALLOCATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ALLOCATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ACCRUED2.
-           MOVE "BDR_ACCRUED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ACCRUED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SETTLED2.
-           MOVE "BDR_SETTLED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SETTLED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FORECASTED.
-           MOVE "BDR_FORECASTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FORECASTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_OVERRIDDEN.
-           MOVE "BDR_OVERRIDDEN_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_OVERRIDDEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DETAILED.
-           MOVE "BDR_DETAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_DETAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_HISTORICAL.
-           MOVE "BDR_HISTORICAL_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_HISTORICAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SEARCHED.
-           MOVE "BDR_SEARCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SEARCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FILTERED.
-           MOVE "BDR_FILTERED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FILTERED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SORTED.
-           MOVE "BDR_SORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PRINTED.
-           MOVE "BDR_PRINTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PRINTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CREATED2.
-           MOVE "BDR_CREATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CREATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_LISTED.
-           MOVE "BDR_LISTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_LISTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_GOTTEN.
-           MOVE "BDR_GOTTEN_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_GOTTEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CALCULATED.
-           MOVE "BDR_CALCULATED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CALCULATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UPDATED.
-           MOVE "BDR_UPDATED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UPDATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_DELETED2.
-           MOVE "BDR_DELETED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_DELETED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SUMMARIZED.
-           MOVE "BDR_SUMMARIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SUMMARIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_EXPORTED.
-           MOVE "BDR_EXPORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_EXPORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_AUDITED.
-           MOVE "BDR_AUDITED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_AUDITED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_STATUS2.
-           MOVE "BDR_STATUS2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_STATUS2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CLOSED2.
-           MOVE "BDR_CLOSED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CLOSED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REOPENED.
-           MOVE "BDR_REOPENED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REOPENED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ADJUSTED.
-           MOVE "BDR_ADJUSTED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ADJUSTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REVERSED.
-           MOVE "BDR_REVERSED_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REVERSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_APPROVED2.
-           MOVE "BDR_APPROVED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_APPROVED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_BATCH.
-           MOVE "BDR_BATCH_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_BATCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ONLINE.
-           MOVE "BDR_ONLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ONLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_OFFLINE.
-           MOVE "BDR_OFFLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_OFFLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REALTIME.
-           MOVE "BDR_REALTIME_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REALTIME" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SCHEDULED2.
-           MOVE "BDR_SCHEDULED2_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SCHEDULED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_MANUAL.
-           MOVE "BDR_MANUAL_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_MANUAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_AUTOMATIC.
-           MOVE "BDR_AUTOMATIC_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_AUTOMATIC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SYSTEM.
-           MOVE "BDR_SYSTEM_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SYSTEM" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_USER.
-           MOVE "BDR_USER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_USER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ADMIN.
-           MOVE "BDR_ADMIN_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ADMIN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SUPERVISOR.
-           MOVE "BDR_SUPERVISOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SUPERVISOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_OPERATOR.
-           MOVE "BDR_OPERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_OPERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_MANAGER.
-           MOVE "BDR_MANAGER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_MANAGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CLERK.
-           MOVE "BDR_CLERK_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CLERK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ANALYST.
-           MOVE "BDR_ANALYST_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ANALYST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REVIEWER.
-           MOVE "BDR_REVIEWER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REVIEWER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_APPROVER.
-           MOVE "BDR_APPROVER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_APPROVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_AUDITOR.
-           MOVE "BDR_AUDITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_AUDITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REPORTER.
-           MOVE "BDR_REPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_EXPORTER.
-           MOVE "BDR_EXPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_EXPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_IMPORTER.
-           MOVE "BDR_IMPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_IMPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_VALIDATOR.
-           MOVE "BDR_VALIDATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_VALIDATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PROCESSOR.
-           MOVE "BDR_PROCESSOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PROCESSOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_GENERATOR.
-           MOVE "BDR_GENERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_GENERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CALCULATOR.
-           MOVE "BDR_CALCULATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CALCULATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_FORMATTER.
-           MOVE "BDR_FORMATTER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_FORMATTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_PARSER.
-           MOVE "BDR_PARSER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_PARSER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_CONVERTER.
-           MOVE "BDR_CONVERTER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_CONVERTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_TRANSFORMER.
-           MOVE "BDR_TRANSFORMER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_TRANSFORMER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_LOADER.
-           MOVE "BDR_LOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_LOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_UNLOADER.
-           MOVE "BDR_UNLOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_UNLOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_ARCHIVER.
-           MOVE "BDR_ARCHIVER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_ARCHIVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RESTORER.
-           MOVE "BDR_RESTORER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RESTORER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_BACKUP.
-           MOVE "BDR_BACKUP_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_BACKUP" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_RECOVERY.
-           MOVE "BDR_RECOVERY_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_RECOVERY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_MIGRATION.
-           MOVE "BDR_MIGRATION_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_MIGRATION" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_SYNCHRONIZER.
-           MOVE "BDR_SYNCHRONIZER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_SYNCHRONIZER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_REPLICATOR.
-           MOVE "BDR_REPLICATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_REPLICATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_MONITOR.
-           MOVE "BDR_MONITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_MONITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-BDR_LOGGER.
-           MOVE "BDR_LOGGER_OK" TO WS-CODE
-           MOVE "SUCCESS|BDR_LOGGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       TRIM-ALL.
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           EXIT PARAGRAPH.
-
-       VALIDATE-ALL.
-           MOVE 'Y' TO WS-STEP
-           EXIT PARAGRAPH.
-
-       AUDIT-ACTION.
-           MOVE LS-CMD-ACTION TO WS-AUDIT-ACTION
-           EXIT PARAGRAPH.
-
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. backup_drill_core.
+      *> Backup drill: create, run, close.
+
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(2048) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
+        01  WS-BIND-6               PIC X(256) VALUE SPACES.
+        01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P1-LEN               PIC 9(3) VALUE 1.
+        01  WS-P2-LEN               PIC 9(3) VALUE 1.
+        01  WS-P3-LEN               PIC 9(3) VALUE 1.
+        01  WS-P4-LEN               PIC 9(3) VALUE 1.
+        01  WS-P5-LEN               PIC 9(3) VALUE 1.
+        01  WS-P6-LEN               PIC 9(3) VALUE 1.
+        01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+        01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+        01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+        01  WS-I                    PIC 9(3) VALUE 1.
+        01  WS-J                    PIC 9(5) VALUE 1.
+        01  WS-RLEN                 PIC 9(5) VALUE 1.
+        01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-STEP                 PIC X VALUE 'Y'.
+            88  STEP-OK             VALUE 'Y'.
+            88  STEP-FAIL           VALUE 'N'.
+        01  WS-ERR                  PIC X(40) VALUE SPACES.
+        01  WS-LIMIT                PIC X(10) VALUE SPACES.
+        01  WS-OFFSET               PIC X(10) VALUE SPACES.
+        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+        01  WS-AUDIT-DRILL       PIC X(20) VALUE SPACES.
+        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+        01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
+        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
+        01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
+        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
+        01  WS-TMP-ID               PIC X(100) VALUE SPACES.
+        01  WS-TMP-VERIFIED          PIC X(30) VALUE SPACES.
+        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-RUNNING           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-VERIFIED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  F-QUOTE                 PIC X VALUE "'".
+        01  F-DQUOTE                PIC X VALUE '"'.
+        01  F-BSLASH                PIC X VALUE "\".
+        01  F-TICK                  PIC X VALUE "`".
+
+        LINKAGE SECTION.
+        01  LS-CMD-ACTION           PIC X(30).
+        01  LS-PARAM1               PIC X(100).
+        01  LS-PARAM2               PIC X(100).
+        01  LS-PARAM3               PIC X(100).
+        01  LS-PARAM4               PIC X(100).
+        01  LS-PARAM5               PIC X(100).
+        01  LS-PARAM6               PIC X(100).
+        01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+        MAIN-LOGIC.
+            PERFORM VALIDATE-ALL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                GOBACK
+            END-IF
+            EVALUATE TRUE
+                WHEN LS-CMD-ACTION(1:10) = "BDR_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CREATE
+                WHEN LS-CMD-ACTION(1:8) = "BDR_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-LIST
+                WHEN LS-CMD-ACTION(1:7) = "BDR_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-GET
+                WHEN LS-CMD-ACTION(1:8) = "BDR_RUN"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUBMIT
+                WHEN LS-CMD-ACTION(1:10) = "GLA_APPROVE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APPROVE
+                WHEN LS-CMD-ACTION(1:10) = "BDR_CLOSE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:11) = "BDR_SUMMARY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUMMARY
+                WHEN LS-CMD-ACTION(1:9) = "BDR_AUDIT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-AUDIT
+                WHEN LS-CMD-ACTION(1:12) = "BDR_VALIDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-VALIDATE
+                WHEN OTHER
+                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+            END-EVALUATE.
+            GOBACK.
+
+        VALIDATE-ALL.
+            MOVE 0 TO WS-BAD
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT.
+            EXIT PARAGRAPH.
+
+        VALIDATE-INPUT.
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+            EXIT PARAGRAPH.
+
+        TRIM-ALL.
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P1-LEN
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P2-LEN
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P3-LEN
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P4-LEN
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P5-LEN
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P6-LEN.
+            EXIT PARAGRAPH.
+
+        TRIM-VALUE.
+            MOVE WS-TRIM-IN TO WS-TRIM-OUT
+            MOVE 0 TO WS-TRIM-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1
+                UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+                IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-TRIM-LEN
+                END-IF
+            END-PERFORM
+            IF WS-TRIM-LEN = 0
+                MOVE 1 TO WS-TRIM-LEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-ADMIN.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P6-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+                MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT.
+            MOVE "INSERT INTO backup_drill_audit (drill_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-AUDIT-DRILL TO WS-BIND-1
+            MOVE WS-AUDIT-ACTION TO WS-BIND-2
+            MOVE WS-P6-TRIMMED TO WS-BIND-3
+            MOVE WS-AUDIT-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-DENIED.
+            MOVE "AUTHZ_DENIED" TO WS-AUDIT-ACTION
+            MOVE SPACES TO WS-AUDIT-DRILL
+            MOVE WS-DENIED-TARGET TO WS-AUDIT-DETAIL
+            MOVE WS-DENIED-ACTOR TO WS-P6-TRIMMED
+            PERFORM AUDIT.
+            EXIT PARAGRAPH.
+
+        TRIM-RESULT-LEN.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16384 BY -1
+                UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOAD-CLEARING.
+            MOVE SPACES TO WS-ERR
+            MOVE "SELECT CONCAT(backup_type, '|', run_count, '|', verified_count, '|', status, '|', COALESCE(target_table, ''), '|', '') FROM backup_drill WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-TMP-AMT
+            MOVE SPACES TO WS-TMP-STR
+            MOVE SPACES TO WS-TMP-VERIFIED
+            MOVE SPACES TO WS-TMP-STATUS
+            MOVE SPACES TO WS-TMP-CURR
+            MOVE SPACES TO WS-TMP-ID
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-AMT WS-TMP-STR WS-TMP-VERIFIED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-RUNNING
+            MOVE FUNCTION NUMVAL(WS-TMP-VERIFIED) TO WS-NUM-VERIFIED
+            EXIT PARAGRAPH.
+
+        ACTION-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM backup_drill WHERE drill_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO backup_drill (drill_ref, target_table, backup_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P6-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                MOVE WS-NEW-ID TO WS-AUDIT-DRILL
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|BDR_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
+                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+            END-IF.
+            IF WS-P3-TRIMMED = SPACES AND WS-P2-TRIMMED NOT = SPACES
+                IF WS-P2-TRIMMED(1:1) >= "0" AND WS-P2-TRIMMED(1:1) <= "9"
+                    MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+                    IF WS-P3-TRIMMED NOT = SPACES
+                        MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+                    END-IF
+                END-IF
+            END-IF
+            MOVE "SELECT CONCAT(id, ':', drill_ref, ':', status, ':', run_count, ':', verified_count, ':', COALESCE(target_table, '')) FROM backup_drill WHERE (? = '' OR status = ?) AND (? = '' OR target_table = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            IF WS-P1-TRIMMED = "OPEN" OR WS-P1-TRIMMED = "RUNNING"
+                OR WS-P1-TRIMMED = "VERIFIED" OR WS-P1-TRIMMED = "CLOSED"
+                OR WS-P1-TRIMMED = SPACES
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+            ELSE
+                MOVE SPACES TO WS-BIND-1
+                MOVE SPACES TO WS-BIND-2
+            END-IF
+            IF WS-P2-LEN = 3
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                MOVE WS-P2-TRIMMED TO WS-BIND-4
+            ELSE
+                MOVE SPACES TO WS-BIND-3
+                MOVE SPACES TO WS-BIND-4
+            END-IF
+            MOVE WS-LIMIT TO WS-BIND-5
+            MOVE WS-OFFSET TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|BDR_LIST|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|BDR_LIST|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(id, '|', drill_ref, '|', status, '|', run_count, '|', verified_count, '|', COALESCE(target_table, ''), '|', COALESCE(backup_type, ''), '|', created_by, '|', created_at) FROM backup_drill WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|BDR_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-SUBMIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE backup_drill SET run_count = run_count + 1, status = 'RUNNING', run_at = COALESCE(run_at, NOW()) WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "ALLOCATE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-DRILL
+                MOVE "allocated" TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|BDR_RUN|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:7) = "VERIFIED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-RUNNING <= WS-NUM-VERIFIED
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-RUNNING - WS-NUM-VERIFIED END-COMPUTE
+            ELSE
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            END-IF.
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-VERIFIED + WS-NUM-AMOUNT > WS-NUM-RUNNING
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE backup_drill SET status = CASE WHEN verified_count + ? >= run_count THEN 'VERIFIED' ELSE 'RUNNING' END, verified_at = CASE WHEN verified_count + ? >= run_count THEN NOW() ELSE verified_at END, verified_count = verified_count + ? WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-TMP-AMT TO WS-BIND-2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SETTLE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-DRILL
+                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|GLA_APPROVE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CLOSE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:8) = "VERIFIED" OR WS-TMP-STATUS(1:9) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE backup_drill SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "CANCEL" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-DRILL
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|BDR_CLOSE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SUMMARY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'RUNNING'), 0), '|', COALESCE(SUM(status = 'VERIFIED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(run_count), 0), '|', COALESCE(SUM(verified_count), 0)) FROM backup_drill" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|BDR_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-AUDIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P2-TRIMMED NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CONCAT(action, ':', actor_email, ':', COALESCE(detail, ''), ':', created_at) FROM backup_drill_audit WHERE (? = '' OR drill_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|BDR_AUDIT|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|BDR_AUDIT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-VALIDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P1-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES OR WS-P2-LEN NOT = 3
+                MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|BDR_VALID|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
+                "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.

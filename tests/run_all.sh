@@ -45,6 +45,8 @@ run_db() {
     tests/db/kyc_periodic_db_tests.sh
     echo "=== DB GL ALLOCATION TESTS ==="
     tests/db/gl_allocation_db_tests.sh
+    echo "=== DB BACKUP DRILL TESTS ==="
+    tests/db/backup_drill_db_tests.sh
 }
 
 run_gateway() {
