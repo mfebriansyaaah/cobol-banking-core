@@ -43,6 +43,8 @@ run_db() {
     tests/db/treasury_liquidity_db_tests.sh
     echo "=== DB KYC PERIODIC TESTS ==="
     tests/db/kyc_periodic_db_tests.sh
+    echo "=== DB GL ALLOCATION TESTS ==="
+    tests/db/gl_allocation_db_tests.sh
 }
 
 run_gateway() {

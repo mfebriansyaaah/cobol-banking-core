@@ -78,7 +78,7 @@ Rules of the split:
 | D5 Payments | Done | `payment_clearing_core` (9 actions) |
 | D6 Treasury / FX | Done | `treasury_liquidity_core` (9 actions) |
 | D7 Compliance | Done | `kyc_periodic_core` (9 actions) |
-| D8 Finance | Skeleton | `gl_allocation_core`, `fixed_asset_core`, `cost_center_core`, `consolidation_core` |
+| D8 Finance | Done | `gl_allocation_core` (9 actions) |
 | D9 IT Ops | Skeleton | `backup_drill_core`, `incident_postmortem_core`, `change_approval_core`, `capacity_forecast_core`, `data_lineage_core`, `metric_definition_core` |
 | D10 Data / Reporting | Skeleton | `report_builder_core`, `analytics_snapshot_core` |
 
@@ -111,8 +111,8 @@ Measured on this checkout:
 | Gateway route definitions | **719** on **712** unique actions |
 | COBOL dispatch prefixes | **179** |
 | Database tables (`schema.sql`) | **477** |
-| Recorded migrations | **114** (latest `0114_kyc_periodic`) |
-| Test assertions | **398** (39 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 20 payments + 18 treasury + 11 kyc + 136 gateway) |
+| Recorded migrations | **115** (latest `0115_gl_allocation`) |
+| Test assertions | **414** (44 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 20 payments + 18 treasury + 11 kyc + 13 glalloc + 136 gateway) |
 
 ## Request contract
 
@@ -276,6 +276,7 @@ tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
 | D5 payments | 20 | `tests/db/payment_clearing_db_tests.sh` |
 | D6 treasury | 18 | `tests/db/treasury_liquidity_db_tests.sh` |
 | D7 kyc periodic | 11 | `tests/db/kyc_periodic_db_tests.sh` |
+| D8 gl allocation | 13 | `tests/db/gl_allocation_db_tests.sh` |
 | Gateway | 136 | `middleware/test/*.js` |
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
