@@ -92,3 +92,8 @@ db_reset_backup_drill() {
     db_exec "DELETE FROM backup_drill_audit;"
     db_exec "DELETE FROM backup_drill;"
 }
+
+db_reset_report_builder() {
+    db_exec "DELETE FROM report_builder_audit;"
+    db_exec "DELETE FROM report_builder;"
+}

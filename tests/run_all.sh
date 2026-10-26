@@ -47,6 +47,8 @@ run_db() {
     tests/db/gl_allocation_db_tests.sh
     echo "=== DB BACKUP DRILL TESTS ==="
     tests/db/backup_drill_db_tests.sh
+    echo "=== DB REPORT BUILDER TESTS ==="
+    tests/db/report_builder_db_tests.sh
 }
 
 run_gateway() {
