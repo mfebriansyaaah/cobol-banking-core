@@ -112,6 +112,12 @@ jobs:
       - name: Make binary executable
         run: chmod +x cobol/bin/main_logic
 
+      - name: Load baseline schema
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
+          < database/schema.sql
+
       - name: Apply migrations
         run: ./database/migrate.sh
 
