@@ -1,0 +1,3 @@
+# Payment clearing (D5) validation cases.
+PMC_CREATE missing ref@@ERROR\|INVALID_INPUT@@PMC_CREATE||||||admin@test.com
+PMC_CREATE bad amount@@ERROR\|INVALID_AMOUNT@@PMC_CREATE|CLR-X|abc|USD|||admin@test.com
