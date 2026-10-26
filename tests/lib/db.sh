@@ -77,3 +77,8 @@ db_reset_treasury_liquidity() {
     db_exec "DELETE FROM treasury_liquidity_audit;"
     db_exec "DELETE FROM treasury_liquidity;"
 }
+
+db_reset_kyc_periodic() {
+    db_exec "DELETE FROM kyc_periodic_audit;"
+    db_exec "DELETE FROM kyc_periodic;"
+}

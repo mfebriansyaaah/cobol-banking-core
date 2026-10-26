@@ -41,6 +41,8 @@ run_db() {
     tests/db/payment_clearing_db_tests.sh
     echo "=== DB TREASURY LIQUIDITY TESTS ==="
     tests/db/treasury_liquidity_db_tests.sh
+    echo "=== DB KYC PERIODIC TESTS ==="
+    tests/db/kyc_periodic_db_tests.sh
 }
 
 run_gateway() {
