@@ -40,7 +40,7 @@
         01  DISPATCH-IDX      PIC 9(3) VALUE 1.
         01  DISPATCH-FOUND    PIC X VALUE 'N'.
         01  DISPATCH-TABLE.
-            05  DISPATCH-ENTRY OCCURS 200 TIMES.
+            05  DISPATCH-ENTRY OCCURS 300 TIMES.
                 10  D-PREFIX     PIC X(20) VALUE SPACES.
                 10  D-PREFIX-LEN PIC 9(2) VALUE 0.
                 10  D-PROGRAM   PIC X(32) VALUE SPACES.
@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 200 TO DISPATCH-COUNT.
+            MOVE 201 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -709,6 +709,9 @@
             MOVE "GL_" TO D-PREFIX(200).
             MOVE 3 TO D-PREFIX-LEN(200).
             MOVE "gl_core" TO D-PROGRAM(200).
+            MOVE "MRT_" TO D-PREFIX(201).
+            MOVE 4 TO D-PREFIX-LEN(201).
+            MOVE "merchant_core" TO D-PROGRAM(201).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

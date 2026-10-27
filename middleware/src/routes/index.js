@@ -46,6 +46,7 @@ import { CAPACITY_FORECAST_ROUTES } from './capacity_forecast.js';
 import { DATA_LINEAGE_ROUTES } from './data_lineage.js';
 import { METRIC_DEFINITION_ROUTES } from './metric_definition.js';
 import { ANALYTICS_SNAPSHOT_ROUTES } from './analytics_snapshot.js';
+import { MERCHANT_ROUTES } from './merchant.js';
 import { CUSTOMER_ROUTES } from './customer.js';
 import { PRODUCT_CATALOG_ROUTES } from './product_catalog.js';
 import { INTEREST_RATE_ROUTES } from './interest_rate.js';
@@ -165,6 +166,7 @@ export const ALL_ROUTES = [
   ...DATA_LINEAGE_ROUTES,
   ...METRIC_DEFINITION_ROUTES,
   ...ANALYTICS_SNAPSHOT_ROUTES,
+  ...MERCHANT_ROUTES,
   ...CUSTOMER_ROUTES,
   ...PRODUCT_CATALOG_ROUTES,
   ...INTEREST_RATE_ROUTES,

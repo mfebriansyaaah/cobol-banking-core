@@ -1,0 +1,6 @@
+# Merchant (Wave3) validation cases.
+MRT_CREATE missing ref@@ERROR\|INVALID_INPUT@@MRT_CREATE||||||admin@test.com
+MRT_GET missing id@@ERROR\|INVALID_INPUT@@MRT_GET||||||admin@test.com
+MRT_CALC missing id@@ERROR\|INVALID_INPUT@@MRT_CALC||||||admin@test.com
+MRT_DELETE missing id@@ERROR\|INVALID_INPUT@@MRT_DELETE||||||admin@test.com
+MRT_VALIDATE ok@@SUCCESS\|MRT_VALID@@MRT_VALIDATE|100.00|USD||||admin@test.com
