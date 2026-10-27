@@ -1,0 +1,6 @@
+# Product catalog (Wave1) validation cases.
+PRD_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRD_CREATE||||||admin@test.com
+PRD_GET missing id@@ERROR\|INVALID_INPUT@@PRD_GET||||||admin@test.com
+PRD_CALC missing id@@ERROR\|INVALID_INPUT@@PRD_CALC||||||admin@test.com
+PRD_DELETE missing id@@ERROR\|INVALID_INPUT@@PRD_DELETE||||||admin@test.com
+PRD_VALIDATE ok@@SUCCESS\|PRD_VALID@@PRD_VALIDATE|100.00|USD||||admin@test.com

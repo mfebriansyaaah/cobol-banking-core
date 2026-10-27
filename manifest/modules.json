@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T03:57:30.067Z",
+  "generatedAt": "2026-10-27T04:34:38.095Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -245,6 +245,9 @@
       "source": "procurement_core.cob"
     },
     {
+      "source": "product_catalog_core.cob"
+    },
+    {
       "source": "recon_core.cob"
     },
     {
@@ -420,6 +423,7 @@
     "pipeline_alert.js",
     "policy_attestation.js",
     "procurement.js",
+    "product_catalog.js",
     "recon.js",
     "recon_exception.js",
     "recon_ops.js",
@@ -946,6 +950,11 @@
       "prefixLen": 4,
       "prefix": "CST_",
       "program": "customer_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRD_",
+      "program": "product_catalog_core"
     },
     {
       "prefixLen": 4,
