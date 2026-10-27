@@ -1,8 +1,11 @@
 {
-  "generatedAt": "2026-10-27T04:40:07.896Z",
+  "generatedAt": "2026-10-27T04:58:50.184Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
+    },
+    {
+      "source": "account_core.cob"
     },
     {
       "source": "alert_core.cob"
@@ -349,6 +352,7 @@
   ],
   "gatewayRoutes": [
     "access_audit.js",
+    "account.js",
     "alert_escalation.js",
     "alerts.js",
     "aml_screening.js",
@@ -959,6 +963,11 @@
       "prefixLen": 4,
       "prefix": "PRD_",
       "program": "product_catalog_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ACC_",
+      "program": "account_core"
     },
     {
       "prefixLen": 4,

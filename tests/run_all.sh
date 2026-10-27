@@ -83,6 +83,8 @@ run_db() {
     tests/db/product_catalog_db_tests.sh
     echo "=== DB INTEREST RATE TESTS ==="
     tests/db/interest_rate_db_tests.sh
+    echo "=== DB ACCOUNT TESTS ==="
+    tests/db/account_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="
