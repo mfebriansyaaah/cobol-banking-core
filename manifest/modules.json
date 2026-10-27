@@ -376,6 +376,7 @@
     "export_stream.js",
     "fee.js",
     "fee_waiver.js",
+    "fixed_asset.js",
     "fraud_case.js",
     "fraud_ops.js",
     "fx_deal.js",
