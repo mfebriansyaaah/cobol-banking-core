@@ -30,6 +30,7 @@ db_product_catalog_tests=13
 db_interest_rate_tests=13
 db_account_tests=13
 db_merchant_tests=13
+db_trade_finance_tests=13
 db_loan_tests=13
 db_workflow_approval_tests=13
 db_document_tests=13

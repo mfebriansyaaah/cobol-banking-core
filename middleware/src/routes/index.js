@@ -47,6 +47,7 @@ import { DATA_LINEAGE_ROUTES } from './data_lineage.js';
 import { METRIC_DEFINITION_ROUTES } from './metric_definition.js';
 import { ANALYTICS_SNAPSHOT_ROUTES } from './analytics_snapshot.js';
 import { MERCHANT_ROUTES } from './merchant.js';
+import { TRADE_FINANCE_ROUTES } from './trade_finance.js';
 import { CUSTOMER_ROUTES } from './customer.js';
 import { PRODUCT_CATALOG_ROUTES } from './product_catalog.js';
 import { INTEREST_RATE_ROUTES } from './interest_rate.js';
@@ -167,6 +168,7 @@ export const ALL_ROUTES = [
   ...METRIC_DEFINITION_ROUTES,
   ...ANALYTICS_SNAPSHOT_ROUTES,
   ...MERCHANT_ROUTES,
+  ...TRADE_FINANCE_ROUTES,
   ...CUSTOMER_ROUTES,
   ...PRODUCT_CATALOG_ROUTES,
   ...INTEREST_RATE_ROUTES,

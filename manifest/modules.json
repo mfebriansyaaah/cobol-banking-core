@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T16:42:14.626Z",
+  "generatedAt": "2026-10-27T18:56:49.082Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -347,6 +347,9 @@
       "source": "tax_report_core.cob"
     },
     {
+      "source": "trade_finance_core.cob"
+    },
+    {
       "source": "treasury_liquidity_core.cob"
     },
     {
@@ -443,6 +446,7 @@
     "limit_profile.js",
     "loan.js",
     "loan_schedule.js",
+    "merchant.js",
     "metric_definition.js",
     "notification.js",
     "notification_audit.js",
@@ -483,6 +487,7 @@
     "statement_delivery.js",
     "statement_recon.js",
     "tax_report.js",
+    "trade_finance.js",
     "treasury_liquidity.js",
     "treasury_position.js",
     "vendor.js",
