@@ -172,3 +172,8 @@ db_reset_customer() {
     db_exec "DELETE FROM customer_audit;"
     db_exec "DELETE FROM customer;"
 }
+
+db_reset_product_catalog() {
+    db_exec "DELETE FROM product_catalog_audit;"
+    db_exec "DELETE FROM product_catalog;"
+}
