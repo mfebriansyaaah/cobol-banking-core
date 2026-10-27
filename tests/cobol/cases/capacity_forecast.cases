@@ -1,0 +1,6 @@
+# Capacity forecast (D21) validation cases.
+CFC_CREATE missing ref@@ERROR\|INVALID_INPUT@@CFC_CREATE||||||admin@test.com
+CFC_GET missing id@@ERROR\|INVALID_INPUT@@CFC_GET||||||admin@test.com
+CFC_CALC missing id@@ERROR\|INVALID_INPUT@@CFC_CALC||||||admin@test.com
+CFC_DELETE missing id@@ERROR\|INVALID_INPUT@@CFC_DELETE||||||admin@test.com
+CFC_VALIDATE ok@@SUCCESS\|CFC_VALID@@CFC_VALIDATE|100.00|USD||||admin@test.com
