@@ -1,2085 +1,654 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. metric_definition_core.
-      *> Skeleton module for metric_definition domain.
-
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
-
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
-       01  WS-VAR-01           PIC X(100) VALUE SPACES.
-       01  WS-VAR-02           PIC X(100) VALUE SPACES.
-       01  WS-VAR-03           PIC X(100) VALUE SPACES.
-       01  WS-VAR-04           PIC X(100) VALUE SPACES.
-       01  WS-VAR-05           PIC X(100) VALUE SPACES.
-       01  WS-VAR-06           PIC X(100) VALUE SPACES.
-       01  WS-VAR-07           PIC X(100) VALUE SPACES.
-       01  WS-VAR-08           PIC X(100) VALUE SPACES.
-       01  WS-VAR-09           PIC X(100) VALUE SPACES.
-       01  WS-VAR-10           PIC X(100) VALUE SPACES.
-       01  WS-VAR-11           PIC X(100) VALUE SPACES.
-       01  WS-VAR-12           PIC X(100) VALUE SPACES.
-       01  WS-VAR-13           PIC X(100) VALUE SPACES.
-       01  WS-VAR-14           PIC X(100) VALUE SPACES.
-       01  WS-VAR-15           PIC X(100) VALUE SPACES.
-       01  WS-VAR-16           PIC X(100) VALUE SPACES.
-       01  WS-VAR-17           PIC X(100) VALUE SPACES.
-       01  WS-VAR-18           PIC X(100) VALUE SPACES.
-       01  WS-VAR-19           PIC X(100) VALUE SPACES.
-       01  WS-VAR-20           PIC X(100) VALUE SPACES.
-       01  WS-VAR-21           PIC X(100) VALUE SPACES.
-       01  WS-VAR-22           PIC X(100) VALUE SPACES.
-       01  WS-VAR-23           PIC X(100) VALUE SPACES.
-       01  WS-VAR-24           PIC X(100) VALUE SPACES.
-       01  WS-VAR-25           PIC X(100) VALUE SPACES.
-       01  WS-VAR-26           PIC X(100) VALUE SPACES.
-       01  WS-VAR-27           PIC X(100) VALUE SPACES.
-       01  WS-VAR-28           PIC X(100) VALUE SPACES.
-       01  WS-VAR-29           PIC X(100) VALUE SPACES.
-       01  WS-VAR-30           PIC X(100) VALUE SPACES.
-       01  WS-VAR-31           PIC X(100) VALUE SPACES.
-       01  WS-VAR-32           PIC X(100) VALUE SPACES.
-       01  WS-VAR-33           PIC X(100) VALUE SPACES.
-       01  WS-VAR-34           PIC X(100) VALUE SPACES.
-       01  WS-VAR-35           PIC X(100) VALUE SPACES.
-       01  WS-VAR-36           PIC X(100) VALUE SPACES.
-       01  WS-VAR-37           PIC X(100) VALUE SPACES.
-       01  WS-VAR-38           PIC X(100) VALUE SPACES.
-       01  WS-VAR-39           PIC X(100) VALUE SPACES.
-       01  WS-VAR-40           PIC X(100) VALUE SPACES.
-       01  WS-NUM-PRINCIPAL     PIC 9(12)V99 VALUE 0.
-       01  WS-NUM-RATE          PIC 9(3)V9(6) VALUE 0.
-       01  WS-NUM-AMOUNT        PIC 9(12)V99 VALUE 0.
-       01  WS-RESULT               PIC X(16384) VALUE SPACES.
-       01  WS-P1                   PIC X(100) VALUE SPACES.
-       01  WS-P2                   PIC X(100) VALUE SPACES.
-       01  WS-P3                   PIC X(100) VALUE SPACES.
-       01  WS-P4                   PIC X(100) VALUE SPACES.
-       01  WS-P5                   PIC X(100) VALUE SPACES.
-       01  WS-P6                   PIC X(100) VALUE SPACES.
-       01  WS-I                    PIC 9(5) VALUE 1.
-       01  WS-J                    PIC 9(5) VALUE 1.
-       01  WS-K                    PIC 9(5) VALUE 1.
-       01  WS-L                    PIC 9(5) VALUE 1.
-       01  WS-M                    PIC 9(5) VALUE 1.
-       01  WS-N                    PIC 9(5) VALUE 1.
-       01  WS-O                    PIC 9(5) VALUE 1.
-       01  WS-P                    PIC 9(5) VALUE 1.
-       01  WS-Q                    PIC 9(5) VALUE 1.
-       01  WS-R                    PIC 9(5) VALUE 1.
-       01  WS-S                    PIC 9(5) VALUE 1.
-       01  WS-T                    PIC 9(5) VALUE 1.
-       01  WS-U                    PIC 9(5) VALUE 1.
-       01  WS-V                    PIC 9(5) VALUE 1.
-       01  WS-W                    PIC 9(5) VALUE 1.
-       01  WS-X                    PIC 9(5) VALUE 1.
-       01  WS-Y                    PIC 9(5) VALUE 1.
-       01  WS-Z                    PIC 9(5) VALUE 1.
-       01  WS-STATUS               PIC X(20) VALUE SPACES.
-       01  WS-CODE                 PIC X(20) VALUE SPACES.
-       01  WS-MESSAGE              PIC X(100) VALUE SPACES.
-       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
-       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
-       01  WS-ACTOR                PIC X(100) VALUE SPACES.
-       01  WS-TARGET               PIC X(100) VALUE SPACES.
-       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
-       01  WS-CURRENCY             PIC X(3) VALUE SPACES.
-       01  WS-DATE-VALUE           PIC X(10) VALUE SPACES.
-       01  WS-ID-VALUE             PIC X(20) VALUE SPACES.
-       01  WS-LIMIT-VALUE          PIC X(10) VALUE SPACES.
-       01  WS-OFFSET-VALUE         PIC X(10) VALUE SPACES.
-       01  WS-FLAG                 PIC X VALUE 'N'.
-           88  FLAG-YES             VALUE 'Y'.
-           88  FLAG-NO              VALUE 'N'.
-       01  WS-STEP                 PIC X VALUE 'Y'.
-           88  STEP-OK             VALUE 'Y'.
-           88  STEP-FAIL           VALUE 'N'.
-
-       LINKAGE SECTION.
-       01  LS-CMD-ACTION           PIC X(30).
-       01  LS-PARAM1               PIC X(100).
-       01  LS-PARAM2               PIC X(100).
-       01  LS-PARAM3               PIC X(100).
-       01  LS-PARAM4               PIC X(100).
-       01  LS-PARAM5               PIC X(100).
-       01  LS-PARAM6               PIC X(100).
-       01  LS-OUTPUT-BUFFER        PIC X(16384).
-
-       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
-           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
-
-       MAIN-LOGIC.
-           MOVE SPACES TO WS-RESULT
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           PERFORM TRIM-ALL
-           EVALUATE TRUE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_CREATE"
-                   PERFORM ACTION-MDF_CREATE
-               WHEN LS-CMD-ACTION(1:8) = "MDF_LIST"
-                   PERFORM ACTION-MDF_LIST
-               WHEN LS-CMD-ACTION(1:7) = "MDF_GET"
-                   PERFORM ACTION-MDF_GET
-               WHEN LS-CMD-ACTION(1:8) = "MDF_CALC"
-                   PERFORM ACTION-MDF_CALC
-               WHEN LS-CMD-ACTION(1:10) = "MDF_UPDATE"
-                   PERFORM ACTION-MDF_UPDATE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_DELETE"
-                   PERFORM ACTION-MDF_DELETE
-               WHEN LS-CMD-ACTION(1:11) = "MDF_SUMMARY"
-                   PERFORM ACTION-MDF_SUMMARY
-               WHEN LS-CMD-ACTION(1:12) = "MDF_VALIDATE"
-                   PERFORM ACTION-MDF_VALIDATE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_EXPORT"
-                   PERFORM ACTION-MDF_EXPORT
-               WHEN LS-CMD-ACTION(1:9) = "MDF_AUDIT"
-                   PERFORM ACTION-MDF_AUDIT
-               WHEN LS-CMD-ACTION(1:10) = "MDF_STATUS"
-                   PERFORM ACTION-MDF_STATUS
-               WHEN LS-CMD-ACTION(1:9) = "MDF_CLOSE"
-                   PERFORM ACTION-MDF_CLOSE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_REOPEN"
-                   PERFORM ACTION-MDF_REOPEN
-               WHEN LS-CMD-ACTION(1:10) = "MDF_ADJUST"
-                   PERFORM ACTION-MDF_ADJUST
-               WHEN LS-CMD-ACTION(1:11) = "MDF_REVERSE"
-                   PERFORM ACTION-MDF_REVERSE
-               WHEN LS-CMD-ACTION(1:11) = "MDF_APPROVE"
-                   PERFORM ACTION-MDF_APPROVE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_REJECT"
-                   PERFORM ACTION-MDF_REJECT
-               WHEN LS-CMD-ACTION(1:8) = "MDF_POST"
-                   PERFORM ACTION-MDF_POST
-               WHEN LS-CMD-ACTION(1:9) = "MDF_WAIVE"
-                   PERFORM ACTION-MDF_WAIVE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_CANCEL"
-                   PERFORM ACTION-MDF_CANCEL
-               WHEN LS-CMD-ACTION(1:8) = "MDF_HOLD"
-                   PERFORM ACTION-MDF_HOLD
-               WHEN LS-CMD-ACTION(1:11) = "MDF_RELEASE"
-                   PERFORM ACTION-MDF_RELEASE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_NOTIFY"
-                   PERFORM ACTION-MDF_NOTIFY
-               WHEN LS-CMD-ACTION(1:11) = "MDF_ARCHIVE"
-                   PERFORM ACTION-MDF_ARCHIVE
-               WHEN LS-CMD-ACTION(1:11) = "MDF_RESTORE"
-                   PERFORM ACTION-MDF_RESTORE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_IMPORT"
-                   PERFORM ACTION-MDF_IMPORT
-               WHEN LS-CMD-ACTION(1:10) = "MDF_REPORT"
-                   PERFORM ACTION-MDF_REPORT
-               WHEN LS-CMD-ACTION(1:10) = "MDF_VERIFY"
-                   PERFORM ACTION-MDF_VERIFY
-               WHEN LS-CMD-ACTION(1:8) = "MDF_SYNC"
-                   PERFORM ACTION-MDF_SYNC
-               WHEN LS-CMD-ACTION(1:13) = "MDF_RECONCILE"
-                   PERFORM ACTION-MDF_RECONCILE
-               WHEN LS-CMD-ACTION(1:12) = "MDF_ALLOCATE"
-                   PERFORM ACTION-MDF_ALLOCATE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_ACCRUE"
-                   PERFORM ACTION-MDF_ACCRUE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_SETTLE"
-                   PERFORM ACTION-MDF_SETTLE
-               WHEN LS-CMD-ACTION(1:12) = "MDF_FORECAST"
-                   PERFORM ACTION-MDF_FORECAST
-               WHEN LS-CMD-ACTION(1:12) = "MDF_OVERRIDE"
-                   PERFORM ACTION-MDF_OVERRIDE
-               WHEN LS-CMD-ACTION(1:10) = "MDF_DETAIL"
-                   PERFORM ACTION-MDF_DETAIL
-               WHEN LS-CMD-ACTION(1:11) = "MDF_HISTORY"
-                   PERFORM ACTION-MDF_HISTORY
-               WHEN LS-CMD-ACTION(1:10) = "MDF_SEARCH"
-                   PERFORM ACTION-MDF_SEARCH
-               WHEN LS-CMD-ACTION(1:10) = "MDF_FILTER"
-                   PERFORM ACTION-MDF_FILTER
-               WHEN LS-CMD-ACTION(1:8) = "MDF_SORT"
-                   PERFORM ACTION-MDF_SORT
-               WHEN LS-CMD-ACTION(1:9) = "MDF_PRINT"
-                   PERFORM ACTION-MDF_PRINT
-               WHEN LS-CMD-ACTION(1:9) = "MDF_DRAFT"
-                   PERFORM ACTION-MDF_DRAFT
-               WHEN LS-CMD-ACTION(1:8) = "MDF_OPEN"
-                   PERFORM ACTION-MDF_OPEN
-               WHEN LS-CMD-ACTION(1:11) = "MDF_PENDING"
-                   PERFORM ACTION-MDF_PENDING
-               WHEN LS-CMD-ACTION(1:12) = "MDF_APPROVED"
-                   PERFORM ACTION-MDF_APPROVED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_REJECTED"
-                   PERFORM ACTION-MDF_REJECTED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_ACTIVE"
-                   PERFORM ACTION-MDF_ACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "MDF_INACTIVE"
-                   PERFORM ACTION-MDF_INACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "MDF_ARCHIVED"
-                   PERFORM ACTION-MDF_ARCHIVED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_DELETED"
-                   PERFORM ACTION-MDF_DELETED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_LOCKED"
-                   PERFORM ACTION-MDF_LOCKED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_UNLOCKED"
-                   PERFORM ACTION-MDF_UNLOCKED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_SUSPENDED"
-                   PERFORM ACTION-MDF_SUSPENDED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_RESUMED"
-                   PERFORM ACTION-MDF_RESUMED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_EXPIRED"
-                   PERFORM ACTION-MDF_EXPIRED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_RENEWED"
-                   PERFORM ACTION-MDF_RENEWED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_CANCELLED"
-                   PERFORM ACTION-MDF_CANCELLED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_COMPLETED"
-                   PERFORM ACTION-MDF_COMPLETED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_FAILED"
-                   PERFORM ACTION-MDF_FAILED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_RETRIED"
-                   PERFORM ACTION-MDF_RETRIED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_ESCALATED"
-                   PERFORM ACTION-MDF_ESCALATED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_ASSIGNED"
-                   PERFORM ACTION-MDF_ASSIGNED
-               WHEN LS-CMD-ACTION(1:14) = "MDF_UNASSIGNED"
-                   PERFORM ACTION-MDF_UNASSIGNED
-               WHEN LS-CMD-ACTION(1:15) = "MDF_TRANSFERRED"
-                   PERFORM ACTION-MDF_TRANSFERRED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_MERGED"
-                   PERFORM ACTION-MDF_MERGED
-               WHEN LS-CMD-ACTION(1:9) = "MDF_SPLIT"
-                   PERFORM ACTION-MDF_SPLIT
-               WHEN LS-CMD-ACTION(1:10) = "MDF_CLONED"
-                   PERFORM ACTION-MDF_CLONED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_COPIED"
-                   PERFORM ACTION-MDF_COPIED
-               WHEN LS-CMD-ACTION(1:9) = "MDF_MOVED"
-                   PERFORM ACTION-MDF_MOVED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_LINKED"
-                   PERFORM ACTION-MDF_LINKED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_UNLINKED"
-                   PERFORM ACTION-MDF_UNLINKED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_TAGGED"
-                   PERFORM ACTION-MDF_TAGGED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_UNTAGGED"
-                   PERFORM ACTION-MDF_UNTAGGED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_FLAGGED"
-                   PERFORM ACTION-MDF_FLAGGED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_UNFLAGGED"
-                   PERFORM ACTION-MDF_UNFLAGGED
-               WHEN LS-CMD-ACTION(1:15) = "MDF_PRIORITIZED"
-                   PERFORM ACTION-MDF_PRIORITIZED
-               WHEN LS-CMD-ACTION(1:17) = "MDF_DEPRIORITIZED"
-                   PERFORM ACTION-MDF_DEPRIORITIZED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_SCHEDULED"
-                   PERFORM ACTION-MDF_SCHEDULED
-               WHEN LS-CMD-ACTION(1:15) = "MDF_UNSCHEDULED"
-                   PERFORM ACTION-MDF_UNSCHEDULED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_EXECUTED"
-                   PERFORM ACTION-MDF_EXECUTED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_SKIPPED"
-                   PERFORM ACTION-MDF_SKIPPED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_STARTED"
-                   PERFORM ACTION-MDF_STARTED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_STOPPED"
-                   PERFORM ACTION-MDF_STOPPED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_PAUSED"
-                   PERFORM ACTION-MDF_PAUSED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_RESUMED2"
-                   PERFORM ACTION-MDF_RESUMED2
-               WHEN LS-CMD-ACTION(1:10) = "MDF_QUEUED"
-                   PERFORM ACTION-MDF_QUEUED
-               WHEN LS-CMD-ACTION(1:14) = "MDF_DISPATCHED"
-                   PERFORM ACTION-MDF_DISPATCHED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_RECEIVED"
-                   PERFORM ACTION-MDF_RECEIVED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_PROCESSED"
-                   PERFORM ACTION-MDF_PROCESSED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_FINALIZED"
-                   PERFORM ACTION-MDF_FINALIZED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_ABORTED"
-                   PERFORM ACTION-MDF_ABORTED
-               WHEN LS-CMD-ACTION(1:14) = "MDF_ROLLEDBACK"
-                   PERFORM ACTION-MDF_ROLLEDBACK
-               WHEN LS-CMD-ACTION(1:13) = "MDF_COMMITTED"
-                   PERFORM ACTION-MDF_COMMITTED
-               WHEN LS-CMD-ACTION(1:14) = "MDF_VALIDATED2"
-                   PERFORM ACTION-MDF_VALIDATED2
-               WHEN LS-CMD-ACTION(1:15) = "MDF_RECONCILED2"
-                   PERFORM ACTION-MDF_RECONCILED2
-               WHEN LS-CMD-ACTION(1:14) = "MDF_ALLOCATED2"
-                   PERFORM ACTION-MDF_ALLOCATED2
-               WHEN LS-CMD-ACTION(1:12) = "MDF_ACCRUED2"
-                   PERFORM ACTION-MDF_ACCRUED2
-               WHEN LS-CMD-ACTION(1:12) = "MDF_SETTLED2"
-                   PERFORM ACTION-MDF_SETTLED2
-               WHEN LS-CMD-ACTION(1:14) = "MDF_FORECASTED"
-                   PERFORM ACTION-MDF_FORECASTED
-               WHEN LS-CMD-ACTION(1:14) = "MDF_OVERRIDDEN"
-                   PERFORM ACTION-MDF_OVERRIDDEN
-               WHEN LS-CMD-ACTION(1:12) = "MDF_DETAILED"
-                   PERFORM ACTION-MDF_DETAILED
-               WHEN LS-CMD-ACTION(1:14) = "MDF_HISTORICAL"
-                   PERFORM ACTION-MDF_HISTORICAL
-               WHEN LS-CMD-ACTION(1:12) = "MDF_SEARCHED"
-                   PERFORM ACTION-MDF_SEARCHED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_FILTERED"
-                   PERFORM ACTION-MDF_FILTERED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_SORTED"
-                   PERFORM ACTION-MDF_SORTED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_PRINTED"
-                   PERFORM ACTION-MDF_PRINTED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_CREATED2"
-                   PERFORM ACTION-MDF_CREATED2
-               WHEN LS-CMD-ACTION(1:10) = "MDF_LISTED"
-                   PERFORM ACTION-MDF_LISTED
-               WHEN LS-CMD-ACTION(1:10) = "MDF_GOTTEN"
-                   PERFORM ACTION-MDF_GOTTEN
-               WHEN LS-CMD-ACTION(1:14) = "MDF_CALCULATED"
-                   PERFORM ACTION-MDF_CALCULATED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_UPDATED"
-                   PERFORM ACTION-MDF_UPDATED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_DELETED2"
-                   PERFORM ACTION-MDF_DELETED2
-               WHEN LS-CMD-ACTION(1:14) = "MDF_SUMMARIZED"
-                   PERFORM ACTION-MDF_SUMMARIZED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_EXPORTED"
-                   PERFORM ACTION-MDF_EXPORTED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_AUDITED"
-                   PERFORM ACTION-MDF_AUDITED
-               WHEN LS-CMD-ACTION(1:11) = "MDF_STATUS2"
-                   PERFORM ACTION-MDF_STATUS2
-               WHEN LS-CMD-ACTION(1:11) = "MDF_CLOSED2"
-                   PERFORM ACTION-MDF_CLOSED2
-               WHEN LS-CMD-ACTION(1:12) = "MDF_REOPENED"
-                   PERFORM ACTION-MDF_REOPENED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_ADJUSTED"
-                   PERFORM ACTION-MDF_ADJUSTED
-               WHEN LS-CMD-ACTION(1:12) = "MDF_REVERSED"
-                   PERFORM ACTION-MDF_REVERSED
-               WHEN LS-CMD-ACTION(1:13) = "MDF_APPROVED2"
-                   PERFORM ACTION-MDF_APPROVED2
-               WHEN LS-CMD-ACTION(1:9) = "MDF_BATCH"
-                   PERFORM ACTION-MDF_BATCH
-               WHEN LS-CMD-ACTION(1:10) = "MDF_ONLINE"
-                   PERFORM ACTION-MDF_ONLINE
-               WHEN LS-CMD-ACTION(1:11) = "MDF_OFFLINE"
-                   PERFORM ACTION-MDF_OFFLINE
-               WHEN LS-CMD-ACTION(1:12) = "MDF_REALTIME"
-                   PERFORM ACTION-MDF_REALTIME
-               WHEN LS-CMD-ACTION(1:14) = "MDF_SCHEDULED2"
-                   PERFORM ACTION-MDF_SCHEDULED2
-               WHEN LS-CMD-ACTION(1:10) = "MDF_MANUAL"
-                   PERFORM ACTION-MDF_MANUAL
-               WHEN LS-CMD-ACTION(1:13) = "MDF_AUTOMATIC"
-                   PERFORM ACTION-MDF_AUTOMATIC
-               WHEN LS-CMD-ACTION(1:10) = "MDF_SYSTEM"
-                   PERFORM ACTION-MDF_SYSTEM
-               WHEN LS-CMD-ACTION(1:8) = "MDF_USER"
-                   PERFORM ACTION-MDF_USER
-               WHEN LS-CMD-ACTION(1:9) = "MDF_ADMIN"
-                   PERFORM ACTION-MDF_ADMIN
-               WHEN LS-CMD-ACTION(1:14) = "MDF_SUPERVISOR"
-                   PERFORM ACTION-MDF_SUPERVISOR
-               WHEN LS-CMD-ACTION(1:12) = "MDF_OPERATOR"
-                   PERFORM ACTION-MDF_OPERATOR
-               WHEN LS-CMD-ACTION(1:11) = "MDF_MANAGER"
-                   PERFORM ACTION-MDF_MANAGER
-               WHEN LS-CMD-ACTION(1:9) = "MDF_CLERK"
-                   PERFORM ACTION-MDF_CLERK
-               WHEN LS-CMD-ACTION(1:11) = "MDF_ANALYST"
-                   PERFORM ACTION-MDF_ANALYST
-               WHEN LS-CMD-ACTION(1:12) = "MDF_REVIEWER"
-                   PERFORM ACTION-MDF_REVIEWER
-               WHEN LS-CMD-ACTION(1:12) = "MDF_APPROVER"
-                   PERFORM ACTION-MDF_APPROVER
-               WHEN LS-CMD-ACTION(1:11) = "MDF_AUDITOR"
-                   PERFORM ACTION-MDF_AUDITOR
-               WHEN LS-CMD-ACTION(1:12) = "MDF_REPORTER"
-                   PERFORM ACTION-MDF_REPORTER
-               WHEN LS-CMD-ACTION(1:12) = "MDF_EXPORTER"
-                   PERFORM ACTION-MDF_EXPORTER
-               WHEN LS-CMD-ACTION(1:12) = "MDF_IMPORTER"
-                   PERFORM ACTION-MDF_IMPORTER
-               WHEN LS-CMD-ACTION(1:13) = "MDF_VALIDATOR"
-                   PERFORM ACTION-MDF_VALIDATOR
-               WHEN LS-CMD-ACTION(1:13) = "MDF_PROCESSOR"
-                   PERFORM ACTION-MDF_PROCESSOR
-               WHEN LS-CMD-ACTION(1:13) = "MDF_GENERATOR"
-                   PERFORM ACTION-MDF_GENERATOR
-               WHEN LS-CMD-ACTION(1:14) = "MDF_CALCULATOR"
-                   PERFORM ACTION-MDF_CALCULATOR
-               WHEN LS-CMD-ACTION(1:13) = "MDF_FORMATTER"
-                   PERFORM ACTION-MDF_FORMATTER
-               WHEN LS-CMD-ACTION(1:10) = "MDF_PARSER"
-                   PERFORM ACTION-MDF_PARSER
-               WHEN LS-CMD-ACTION(1:13) = "MDF_CONVERTER"
-                   PERFORM ACTION-MDF_CONVERTER
-               WHEN LS-CMD-ACTION(1:15) = "MDF_TRANSFORMER"
-                   PERFORM ACTION-MDF_TRANSFORMER
-               WHEN LS-CMD-ACTION(1:10) = "MDF_LOADER"
-                   PERFORM ACTION-MDF_LOADER
-               WHEN LS-CMD-ACTION(1:12) = "MDF_UNLOADER"
-                   PERFORM ACTION-MDF_UNLOADER
-               WHEN LS-CMD-ACTION(1:12) = "MDF_ARCHIVER"
-                   PERFORM ACTION-MDF_ARCHIVER
-               WHEN LS-CMD-ACTION(1:12) = "MDF_RESTORER"
-                   PERFORM ACTION-MDF_RESTORER
-               WHEN LS-CMD-ACTION(1:10) = "MDF_BACKUP"
-                   PERFORM ACTION-MDF_BACKUP
-               WHEN LS-CMD-ACTION(1:12) = "MDF_RECOVERY"
-                   PERFORM ACTION-MDF_RECOVERY
-               WHEN LS-CMD-ACTION(1:13) = "MDF_MIGRATION"
-                   PERFORM ACTION-MDF_MIGRATION
-               WHEN LS-CMD-ACTION(1:16) = "MDF_SYNCHRONIZER"
-                   PERFORM ACTION-MDF_SYNCHRONIZER
-               WHEN LS-CMD-ACTION(1:14) = "MDF_REPLICATOR"
-                   PERFORM ACTION-MDF_REPLICATOR
-               WHEN LS-CMD-ACTION(1:11) = "MDF_MONITOR"
-                   PERFORM ACTION-MDF_MONITOR
-               WHEN LS-CMD-ACTION(1:10) = "MDF_LOGGER"
-                   PERFORM ACTION-MDF_LOGGER
-               WHEN OTHER
-                   MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
-           END-EVALUATE
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
-           GOBACK.
-
-       ACTION-MDF_CREATE.
-           IF WS-P1 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|MDF_CREATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_LIST.
-           MOVE "SUCCESS|MDF_LIST|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_GET.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|MDF_GET|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CALC.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           COMPUTE WS-NUM-AMOUNT = WS-NUM-PRINCIPAL * WS-NUM-RATE / 100
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|MDF_CALC|" DELIMITED BY SIZE
-                  WS-NUM-AMOUNT DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UPDATE.
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|MDF_UPDATE|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DELETE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|MDF_DELETE|DELETED" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SUMMARY.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|MDF_SUMMARY|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE "|" DELIMITED BY SIZE
-                  WS-NUM-RATE DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_VALIDATE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE FUNCTION NUMVAL(WS-P3) TO WS-NUM-AMOUNT
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-AMOUNT = 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-RATE < 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|MDF_VALIDATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_EXPORT.
-           MOVE "MDF_EXPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_EXPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_AUDIT.
-           MOVE "MDF_AUDIT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_AUDIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_STATUS.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "SUCCESS|MDF_STATUS|CLOSED" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|MDF_STATUS|ACTIVE" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CLOSE.
-           MOVE "MDF_CLOSE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CLOSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REOPEN.
-           MOVE "MDF_REOPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REOPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ADJUST.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-AMOUNT
-           COMPUTE WS-NUM-PRINCIPAL = WS-NUM-PRINCIPAL + WS-NUM-AMOUNT
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|MDF_ADJUST|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REVERSE.
-           MOVE "MDF_REVERSE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REVERSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_APPROVE.
-           MOVE "MDF_APPROVE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_APPROVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REJECT.
-           MOVE "MDF_REJECT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REJECT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_POST.
-           MOVE "MDF_POST_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_POST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_WAIVE.
-           MOVE "MDF_WAIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_WAIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CANCEL.
-           MOVE "MDF_CANCEL_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CANCEL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_HOLD.
-           MOVE "MDF_HOLD_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_HOLD" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RELEASE.
-           MOVE "MDF_RELEASE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RELEASE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_NOTIFY.
-           MOVE "MDF_NOTIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_NOTIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ARCHIVE.
-           MOVE "MDF_ARCHIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ARCHIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RESTORE.
-           MOVE "MDF_RESTORE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RESTORE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_IMPORT.
-           MOVE "MDF_IMPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_IMPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REPORT.
-           MOVE "MDF_REPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_VERIFY.
-           MOVE "MDF_VERIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_VERIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SYNC.
-           MOVE "MDF_SYNC_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SYNC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RECONCILE.
-           MOVE "MDF_RECONCILE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RECONCILE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ALLOCATE.
-           MOVE "MDF_ALLOCATE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ALLOCATE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ACCRUE.
-           MOVE "MDF_ACCRUE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ACCRUE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SETTLE.
-           MOVE "MDF_SETTLE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SETTLE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FORECAST.
-           MOVE "MDF_FORECAST_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FORECAST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_OVERRIDE.
-           MOVE "MDF_OVERRIDE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_OVERRIDE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DETAIL.
-           MOVE "MDF_DETAIL_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_DETAIL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_HISTORY.
-           MOVE "MDF_HISTORY_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_HISTORY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SEARCH.
-           MOVE "MDF_SEARCH_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SEARCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FILTER.
-           MOVE "MDF_FILTER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FILTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SORT.
-           MOVE "MDF_SORT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PRINT.
-           MOVE "MDF_PRINT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PRINT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DRAFT.
-           MOVE "MDF_DRAFT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_DRAFT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_OPEN.
-           MOVE "MDF_OPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_OPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PENDING.
-           MOVE "MDF_PENDING_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PENDING" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_APPROVED.
-           MOVE "MDF_APPROVED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_APPROVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REJECTED.
-           MOVE "MDF_REJECTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REJECTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ACTIVE.
-           MOVE "MDF_ACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_INACTIVE.
-           MOVE "MDF_INACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_INACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ARCHIVED.
-           MOVE "MDF_ARCHIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ARCHIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DELETED.
-           MOVE "MDF_DELETED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_DELETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_LOCKED.
-           MOVE "MDF_LOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_LOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UNLOCKED.
-           MOVE "MDF_UNLOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UNLOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SUSPENDED.
-           MOVE "MDF_SUSPENDED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SUSPENDED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RESUMED.
-           MOVE "MDF_RESUMED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RESUMED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_EXPIRED.
-           MOVE "MDF_EXPIRED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_EXPIRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RENEWED.
-           MOVE "MDF_RENEWED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RENEWED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CANCELLED.
-           MOVE "MDF_CANCELLED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CANCELLED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_COMPLETED.
-           MOVE "MDF_COMPLETED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_COMPLETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FAILED.
-           MOVE "MDF_FAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RETRIED.
-           MOVE "MDF_RETRIED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RETRIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ESCALATED.
-           MOVE "MDF_ESCALATED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ESCALATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ASSIGNED.
-           MOVE "MDF_ASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UNASSIGNED.
-           MOVE "MDF_UNASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UNASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_TRANSFERRED.
-           MOVE "MDF_TRANSFERRED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_TRANSFERRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_MERGED.
-           MOVE "MDF_MERGED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_MERGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SPLIT.
-           MOVE "MDF_SPLIT_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SPLIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CLONED.
-           MOVE "MDF_CLONED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CLONED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_COPIED.
-           MOVE "MDF_COPIED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_COPIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_MOVED.
-           MOVE "MDF_MOVED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_MOVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_LINKED.
-           MOVE "MDF_LINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_LINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UNLINKED.
-           MOVE "MDF_UNLINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UNLINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_TAGGED.
-           MOVE "MDF_TAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_TAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UNTAGGED.
-           MOVE "MDF_UNTAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UNTAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FLAGGED.
-           MOVE "MDF_FLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UNFLAGGED.
-           MOVE "MDF_UNFLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UNFLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PRIORITIZED.
-           MOVE "MDF_PRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DEPRIORITIZED.
-           MOVE "MDF_DEPRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_DEPRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SCHEDULED.
-           MOVE "MDF_SCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UNSCHEDULED.
-           MOVE "MDF_UNSCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UNSCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_EXECUTED.
-           MOVE "MDF_EXECUTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_EXECUTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SKIPPED.
-           MOVE "MDF_SKIPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SKIPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_STARTED.
-           MOVE "MDF_STARTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_STARTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_STOPPED.
-           MOVE "MDF_STOPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_STOPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PAUSED.
-           MOVE "MDF_PAUSED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PAUSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RESUMED2.
-           MOVE "MDF_RESUMED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RESUMED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_QUEUED.
-           MOVE "MDF_QUEUED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_QUEUED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DISPATCHED.
-           MOVE "MDF_DISPATCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_DISPATCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RECEIVED.
-           MOVE "MDF_RECEIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RECEIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PROCESSED.
-           MOVE "MDF_PROCESSED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PROCESSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FINALIZED.
-           MOVE "MDF_FINALIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FINALIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ABORTED.
-           MOVE "MDF_ABORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ABORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ROLLEDBACK.
-           MOVE "MDF_ROLLEDBACK_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ROLLEDBACK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_COMMITTED.
-           MOVE "MDF_COMMITTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_COMMITTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_VALIDATED2.
-           MOVE "MDF_VALIDATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_VALIDATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RECONCILED2.
-           MOVE "MDF_RECONCILED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RECONCILED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ALLOCATED2.
-           MOVE "MDF_ALLOCATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ALLOCATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ACCRUED2.
-           MOVE "MDF_ACCRUED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ACCRUED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SETTLED2.
-           MOVE "MDF_SETTLED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SETTLED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FORECASTED.
-           MOVE "MDF_FORECASTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FORECASTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_OVERRIDDEN.
-           MOVE "MDF_OVERRIDDEN_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_OVERRIDDEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DETAILED.
-           MOVE "MDF_DETAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_DETAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_HISTORICAL.
-           MOVE "MDF_HISTORICAL_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_HISTORICAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SEARCHED.
-           MOVE "MDF_SEARCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SEARCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FILTERED.
-           MOVE "MDF_FILTERED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FILTERED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SORTED.
-           MOVE "MDF_SORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PRINTED.
-           MOVE "MDF_PRINTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PRINTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CREATED2.
-           MOVE "MDF_CREATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CREATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_LISTED.
-           MOVE "MDF_LISTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_LISTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_GOTTEN.
-           MOVE "MDF_GOTTEN_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_GOTTEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CALCULATED.
-           MOVE "MDF_CALCULATED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CALCULATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UPDATED.
-           MOVE "MDF_UPDATED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UPDATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_DELETED2.
-           MOVE "MDF_DELETED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_DELETED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SUMMARIZED.
-           MOVE "MDF_SUMMARIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SUMMARIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_EXPORTED.
-           MOVE "MDF_EXPORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_EXPORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_AUDITED.
-           MOVE "MDF_AUDITED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_AUDITED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_STATUS2.
-           MOVE "MDF_STATUS2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_STATUS2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CLOSED2.
-           MOVE "MDF_CLOSED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CLOSED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REOPENED.
-           MOVE "MDF_REOPENED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REOPENED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ADJUSTED.
-           MOVE "MDF_ADJUSTED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ADJUSTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REVERSED.
-           MOVE "MDF_REVERSED_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REVERSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_APPROVED2.
-           MOVE "MDF_APPROVED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_APPROVED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_BATCH.
-           MOVE "MDF_BATCH_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_BATCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ONLINE.
-           MOVE "MDF_ONLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ONLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_OFFLINE.
-           MOVE "MDF_OFFLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_OFFLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REALTIME.
-           MOVE "MDF_REALTIME_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REALTIME" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SCHEDULED2.
-           MOVE "MDF_SCHEDULED2_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SCHEDULED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_MANUAL.
-           MOVE "MDF_MANUAL_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_MANUAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_AUTOMATIC.
-           MOVE "MDF_AUTOMATIC_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_AUTOMATIC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SYSTEM.
-           MOVE "MDF_SYSTEM_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SYSTEM" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_USER.
-           MOVE "MDF_USER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_USER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ADMIN.
-           MOVE "MDF_ADMIN_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ADMIN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SUPERVISOR.
-           MOVE "MDF_SUPERVISOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SUPERVISOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_OPERATOR.
-           MOVE "MDF_OPERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_OPERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_MANAGER.
-           MOVE "MDF_MANAGER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_MANAGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CLERK.
-           MOVE "MDF_CLERK_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CLERK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ANALYST.
-           MOVE "MDF_ANALYST_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ANALYST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REVIEWER.
-           MOVE "MDF_REVIEWER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REVIEWER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_APPROVER.
-           MOVE "MDF_APPROVER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_APPROVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_AUDITOR.
-           MOVE "MDF_AUDITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_AUDITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REPORTER.
-           MOVE "MDF_REPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_EXPORTER.
-           MOVE "MDF_EXPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_EXPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_IMPORTER.
-           MOVE "MDF_IMPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_IMPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_VALIDATOR.
-           MOVE "MDF_VALIDATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_VALIDATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PROCESSOR.
-           MOVE "MDF_PROCESSOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PROCESSOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_GENERATOR.
-           MOVE "MDF_GENERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_GENERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CALCULATOR.
-           MOVE "MDF_CALCULATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CALCULATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_FORMATTER.
-           MOVE "MDF_FORMATTER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_FORMATTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_PARSER.
-           MOVE "MDF_PARSER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_PARSER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_CONVERTER.
-           MOVE "MDF_CONVERTER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_CONVERTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_TRANSFORMER.
-           MOVE "MDF_TRANSFORMER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_TRANSFORMER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_LOADER.
-           MOVE "MDF_LOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_LOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_UNLOADER.
-           MOVE "MDF_UNLOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_UNLOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_ARCHIVER.
-           MOVE "MDF_ARCHIVER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_ARCHIVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RESTORER.
-           MOVE "MDF_RESTORER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RESTORER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_BACKUP.
-           MOVE "MDF_BACKUP_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_BACKUP" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_RECOVERY.
-           MOVE "MDF_RECOVERY_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_RECOVERY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_MIGRATION.
-           MOVE "MDF_MIGRATION_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_MIGRATION" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_SYNCHRONIZER.
-           MOVE "MDF_SYNCHRONIZER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_SYNCHRONIZER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_REPLICATOR.
-           MOVE "MDF_REPLICATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_REPLICATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_MONITOR.
-           MOVE "MDF_MONITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_MONITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-MDF_LOGGER.
-           MOVE "MDF_LOGGER_OK" TO WS-CODE
-           MOVE "SUCCESS|MDF_LOGGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       TRIM-ALL.
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           EXIT PARAGRAPH.
-
-       VALIDATE-ALL.
-           MOVE 'Y' TO WS-STEP
-           EXIT PARAGRAPH.
-
-       AUDIT-ACTION.
-           MOVE LS-CMD-ACTION TO WS-AUDIT-ACTION
-           EXIT PARAGRAPH.
-
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. metric_definition_core.
+      *> Metric definition: create, calculate, close.
+
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(2048) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
+        01  WS-BIND-6               PIC X(256) VALUE SPACES.
+        01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P1-LEN               PIC 9(3) VALUE 1.
+        01  WS-P2-LEN               PIC 9(3) VALUE 1.
+        01  WS-P3-LEN               PIC 9(3) VALUE 1.
+        01  WS-P4-LEN               PIC 9(3) VALUE 1.
+        01  WS-P5-LEN               PIC 9(3) VALUE 1.
+        01  WS-P6-LEN               PIC 9(3) VALUE 1.
+        01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+        01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+        01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+        01  WS-I                    PIC 9(3) VALUE 1.
+        01  WS-J                    PIC 9(5) VALUE 1.
+        01  WS-RLEN                 PIC 9(5) VALUE 1.
+        01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-STEP                 PIC X VALUE 'Y'.
+            88  STEP-OK             VALUE 'Y'.
+            88  STEP-FAIL           VALUE 'N'.
+        01  WS-ERR                  PIC X(40) VALUE SPACES.
+        01  WS-LIMIT                PIC X(10) VALUE SPACES.
+        01  WS-OFFSET               PIC X(10) VALUE SPACES.
+        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+        01  WS-AUDIT-MDF       PIC X(20) VALUE SPACES.
+        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+        01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
+        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
+        01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
+        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
+        01  WS-TMP-ID               PIC X(100) VALUE SPACES.
+        01  WS-TMP-ALLOCATED          PIC X(30) VALUE SPACES.
+        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-ACTIVE           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-CALCULATED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  F-QUOTE                 PIC X VALUE "'".
+        01  F-DQUOTE                PIC X VALUE '"'.
+        01  F-BSLASH                PIC X VALUE "\".
+        01  F-TICK                  PIC X VALUE "`".
+
+        LINKAGE SECTION.
+        01  LS-CMD-ACTION           PIC X(30).
+        01  LS-PARAM1               PIC X(100).
+        01  LS-PARAM2               PIC X(100).
+        01  LS-PARAM3               PIC X(100).
+        01  LS-PARAM4               PIC X(100).
+        01  LS-PARAM5               PIC X(100).
+        01  LS-PARAM6               PIC X(100).
+        01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+        MAIN-LOGIC.
+            PERFORM VALIDATE-ALL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                GOBACK
+            END-IF
+            EVALUATE TRUE
+                WHEN LS-CMD-ACTION(1:10) = "MDF_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CREATE
+                WHEN LS-CMD-ACTION(1:8) = "MDF_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-LIST
+                WHEN LS-CMD-ACTION(1:7) = "MDF_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-GET
+                WHEN LS-CMD-ACTION(1:8) = "MDF_CALC"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUBMIT
+                WHEN LS-CMD-ACTION(1:10) = "MDF_DELETE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:11) = "MDF_SUMMARY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUMMARY
+                WHEN LS-CMD-ACTION(1:9) = "MDF_AUDIT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-AUDIT
+                WHEN LS-CMD-ACTION(1:12) = "MDF_VALIDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-VALIDATE
+                WHEN OTHER
+                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+            END-EVALUATE.
+            GOBACK.
+
+        VALIDATE-ALL.
+            MOVE 0 TO WS-BAD
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT.
+            EXIT PARAGRAPH.
+
+        VALIDATE-INPUT.
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+            EXIT PARAGRAPH.
+
+        TRIM-ALL.
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P1-LEN
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P2-LEN
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P3-LEN
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P4-LEN
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P5-LEN
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P6-LEN.
+            EXIT PARAGRAPH.
+
+        TRIM-VALUE.
+            MOVE WS-TRIM-IN TO WS-TRIM-OUT
+            MOVE 0 TO WS-TRIM-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1
+                UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+                IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-TRIM-LEN
+                END-IF
+            END-PERFORM
+            IF WS-TRIM-LEN = 0
+                MOVE 1 TO WS-TRIM-LEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-ADMIN.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P6-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+                MOVE "METRIC_DEFINITION_CORE" TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT.
+            MOVE "INSERT INTO metric_definition_audit (metric_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-AUDIT-MDF TO WS-BIND-1
+            MOVE WS-AUDIT-ACTION TO WS-BIND-2
+            MOVE WS-P6-TRIMMED TO WS-BIND-3
+            MOVE WS-AUDIT-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-DENIED.
+            MOVE "AUTHZ_DENIED" TO WS-AUDIT-ACTION
+            MOVE SPACES TO WS-AUDIT-MDF
+            MOVE WS-DENIED-TARGET TO WS-AUDIT-DETAIL
+            MOVE WS-DENIED-ACTOR TO WS-P6-TRIMMED
+            PERFORM AUDIT.
+            EXIT PARAGRAPH.
+
+        TRIM-RESULT-LEN.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16384 BY -1
+                UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOAD-CLEARING.
+            MOVE SPACES TO WS-ERR
+            MOVE "SELECT CONCAT(metric_type, '|', target_value, '|', actual_value, '|', status, '|', COALESCE(metric_name, ''), '|', '') FROM metric_definition WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-TMP-AMT
+            MOVE SPACES TO WS-TMP-STR
+            MOVE SPACES TO WS-TMP-ALLOCATED
+            MOVE SPACES TO WS-TMP-STATUS
+            MOVE SPACES TO WS-TMP-CURR
+            MOVE SPACES TO WS-TMP-ID
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-CALCULATED
+            EXIT PARAGRAPH.
+
+        ACTION-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM metric_definition WHERE metric_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO metric_definition (metric_ref, metric_name, metric_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P6-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                MOVE WS-NEW-ID TO WS-AUDIT-MDF
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|MDF_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
+                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+            END-IF.
+            IF WS-P3-TRIMMED = SPACES AND WS-P2-TRIMMED NOT = SPACES
+                IF WS-P2-TRIMMED(1:1) >= "0" AND WS-P2-TRIMMED(1:1) <= "9"
+                    MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+                    IF WS-P3-TRIMMED NOT = SPACES
+                        MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+                    END-IF
+                END-IF
+            END-IF
+            MOVE "SELECT CONCAT(id, ':', metric_ref, ':', status, ':', target_value, ':', actual_value, ':', COALESCE(metric_name, '')) FROM metric_definition WHERE (? = '' OR status = ?) AND (? = '' OR metric_name = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            IF WS-P1-TRIMMED = "OPEN" OR WS-P1-TRIMMED = "CALCULATED"
+                OR WS-P1-TRIMMED = "CLOSED"
+                OR WS-P1-TRIMMED = SPACES
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+            ELSE
+                MOVE SPACES TO WS-BIND-1
+                MOVE SPACES TO WS-BIND-2
+            END-IF
+            IF WS-P2-LEN = 3
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                MOVE WS-P2-TRIMMED TO WS-BIND-4
+            ELSE
+                MOVE SPACES TO WS-BIND-3
+                MOVE SPACES TO WS-BIND-4
+            END-IF
+            MOVE WS-LIMIT TO WS-BIND-5
+            MOVE WS-OFFSET TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|MDF_LIST|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|MDF_LIST|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(id, '|', metric_ref, '|', status, '|', target_value, '|', actual_value, '|', COALESCE(metric_name, ''), '|', COALESCE(metric_type, ''), '|', created_by, '|', created_at) FROM metric_definition WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|MDF_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-SUBMIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE metric_definition SET actual_value = actual_value + 1, status = 'CALCULATED', calculated_at = COALESCE(calculated_at, NOW()) WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "CALC" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MDF
+                MOVE "allocated" TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|MDF_CALC|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-ACTIVE <= WS-NUM-CALCULATED
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-ACTIVE - WS-NUM-CALCULATED END-COMPUTE
+            ELSE
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            END-IF.
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-CALCULATED + WS-NUM-AMOUNT > WS-NUM-ACTIVE
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE metric_definition SET status = CASE WHEN actual_value + ? >= target_value THEN 'CALCULATED' ELSE 'CALCULATED' END, closed_at = CASE WHEN actual_value + ? >= target_value THEN NOW() ELSE closed_at END, actual_value = actual_value + ? WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-TMP-AMT TO WS-BIND-2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MDF
+                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|GLA_APPROVE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CLOSE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE metric_definition SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MDF
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|MDF_DELETE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SUMMARY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'CALCULATED'), 0), '|', COALESCE(SUM(status = 'CALCULATED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(target_value), 0), '|', COALESCE(SUM(actual_value), 0)) FROM metric_definition" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|MDF_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-AUDIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P2-TRIMMED NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CONCAT(action, ':', actor_email, ':', COALESCE(detail, ''), ':', created_at) FROM metric_definition_audit WHERE (? = '' OR metric_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|MDF_AUDIT|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|MDF_AUDIT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-VALIDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P1-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES OR WS-P2-LEN NOT = 3
+                MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|MDF_VALID|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
+                "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
