@@ -1,0 +1,6 @@
+# Incident postmortem (D19) validation cases.
+IPM_CREATE missing ref@@ERROR\|INVALID_INPUT@@IPM_CREATE||||||admin@test.com
+IPM_GET missing id@@ERROR\|INVALID_INPUT@@IPM_GET||||||admin@test.com
+IPM_CALC missing id@@ERROR\|INVALID_INPUT@@IPM_CALC||||||admin@test.com
+IPM_DELETE missing id@@ERROR\|INVALID_INPUT@@IPM_DELETE||||||admin@test.com
+IPM_VALIDATE ok@@SUCCESS\|IPM_VALID@@IPM_VALIDATE|100.00|USD||||admin@test.com

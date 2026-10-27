@@ -21,3 +21,4 @@ fixed_asset_core.cob=0
 consolidation_core.cob=0
 fx_hedging_core.cob=0
 billpay_core.cob=0
+incident_postmortem_core.cob=0

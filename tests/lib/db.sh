@@ -137,3 +137,8 @@ db_reset_billpay() {
     db_exec "DELETE FROM billpay_audit;"
     db_exec "DELETE FROM billpay;"
 }
+
+db_reset_incident_postmortem() {
+    db_exec "DELETE FROM incident_postmortem_audit;"
+    db_exec "DELETE FROM incident_postmortem;"
+}
