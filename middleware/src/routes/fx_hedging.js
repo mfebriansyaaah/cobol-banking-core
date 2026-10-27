@@ -30,6 +30,12 @@ export const FX_HEDGING_ROUTES = [
   ] },
   { method: 'get', path: '/treasury/fx-hedges/:id', action: 'FXH_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/treasury/fx-hedges/:id/calc', action: 'FXH_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/treasury/fx-hedges/:id/update', action: 'FXH_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'counterparty', pattern: PATTERNS.NAME, required: false },
+    { name: 'hedgeType', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/treasury/fx-hedges/:id/delete', action: 'FXH_DELETE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
