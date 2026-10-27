@@ -368,6 +368,7 @@
     "compliance_retention.js",
     "dashboard.js",
     "data_quality.js",
+    "data_lineage.js",
     "data_retention.js",
     "deposit.js",
     "disaster_recovery.js",

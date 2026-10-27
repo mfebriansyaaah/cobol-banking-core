@@ -152,3 +152,8 @@ db_reset_capacity_forecast() {
     db_exec "DELETE FROM capacity_forecast_audit;"
     db_exec "DELETE FROM capacity_forecast;"
 }
+
+db_reset_data_lineage() {
+    db_exec "DELETE FROM data_lineage_audit;"
+    db_exec "DELETE FROM data_lineage;"
+}
