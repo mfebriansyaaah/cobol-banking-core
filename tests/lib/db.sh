@@ -162,3 +162,8 @@ db_reset_metric_definition() {
     db_exec "DELETE FROM metric_definition_audit;"
     db_exec "DELETE FROM metric_definition;"
 }
+
+db_reset_analytics_snapshot() {
+    db_exec "DELETE FROM analytics_snapshot_audit;"
+    db_exec "DELETE FROM analytics_snapshot;"
+}

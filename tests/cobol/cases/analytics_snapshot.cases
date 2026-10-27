@@ -1,0 +1,6 @@
+# Analytics snapshot (D24) validation cases.
+ASP_CREATE missing ref@@ERROR\|INVALID_INPUT@@ASP_CREATE||||||admin@test.com
+ASP_GET missing id@@ERROR\|INVALID_INPUT@@ASP_GET||||||admin@test.com
+ASP_CALC missing id@@ERROR\|INVALID_INPUT@@ASP_CALC||||||admin@test.com
+ASP_DELETE missing id@@ERROR\|INVALID_INPUT@@ASP_DELETE||||||admin@test.com
+ASP_VALIDATE ok@@SUCCESS\|ASP_VALID@@ASP_VALIDATE|100.00|USD||||admin@test.com

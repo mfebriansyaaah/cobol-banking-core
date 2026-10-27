@@ -75,6 +75,8 @@ run_db() {
     tests/db/data_lineage_db_tests.sh
     echo "=== DB METRIC DEFINITION TESTS ==="
     tests/db/metric_definition_db_tests.sh
+    echo "=== DB ANALYTICS SNAPSHOT TESTS ==="
+    tests/db/analytics_snapshot_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

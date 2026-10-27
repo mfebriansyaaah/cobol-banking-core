@@ -26,3 +26,4 @@ change_approval_core.cob=0
 capacity_forecast_core.cob=0
 data_lineage_core.cob=0
 metric_definition_core.cob=0
+analytics_snapshot_core.cob=0

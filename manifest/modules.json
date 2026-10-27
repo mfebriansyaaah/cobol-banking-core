@@ -340,6 +340,7 @@
   ],
   "gatewayRoutes": [
     "access_audit.js",
+    "analytics_snapshot.js",
     "alert_escalation.js",
     "alerts.js",
     "aml_screening.js",
