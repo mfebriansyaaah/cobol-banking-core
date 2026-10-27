@@ -24,3 +24,4 @@ billpay_core.cob=0
 incident_postmortem_core.cob=0
 change_approval_core.cob=0
 capacity_forecast_core.cob=0
+data_lineage_core.cob=0

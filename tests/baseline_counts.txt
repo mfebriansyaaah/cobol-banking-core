@@ -22,3 +22,4 @@ db_billpay_tests=13
 db_incident_postmortem_tests=13
 db_change_approval_tests=13
 db_capacity_forecast_tests=13
+db_data_lineage_tests=13
