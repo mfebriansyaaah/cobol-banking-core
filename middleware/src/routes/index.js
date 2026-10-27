@@ -39,6 +39,7 @@ import { COST_CENTER_ROUTES } from './cost_center.js';
 import { FIXED_ASSET_ROUTES } from './fixed_asset.js';
 import { CONSOLIDATION_ROUTES } from './consolidation.js';
 import { FX_HEDGING_ROUTES } from './fx_hedging.js';
+import { BILLPAY_ROUTES } from './billpay.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -141,6 +142,7 @@ export const ALL_ROUTES = [
   ...FIXED_ASSET_ROUTES,
   ...CONSOLIDATION_ROUTES,
   ...FX_HEDGING_ROUTES,
+  ...BILLPAY_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,

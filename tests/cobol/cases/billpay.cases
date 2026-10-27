@@ -1,0 +1,6 @@
+# Bill pay (D18) validation cases.
+BLP_CREATE missing ref@@ERROR\|INVALID_INPUT@@BLP_CREATE||||||admin@test.com
+BLP_GET missing id@@ERROR\|INVALID_INPUT@@BLP_GET||||||admin@test.com
+BLP_CALC missing id@@ERROR\|INVALID_INPUT@@BLP_CALC||||||admin@test.com
+BLP_DELETE missing id@@ERROR\|INVALID_INPUT@@BLP_DELETE||||||admin@test.com
+BLP_VALIDATE ok@@SUCCESS\|BLP_VALID@@BLP_VALIDATE|100.00|USD||||admin@test.com

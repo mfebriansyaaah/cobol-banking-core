@@ -20,3 +20,4 @@ cost_center_core.cob=0
 fixed_asset_core.cob=0
 consolidation_core.cob=0
 fx_hedging_core.cob=0
+billpay_core.cob=0

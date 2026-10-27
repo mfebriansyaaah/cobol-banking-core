@@ -132,3 +132,8 @@ db_reset_fx_hedging() {
     db_exec "DELETE FROM fx_hedging_audit;"
     db_exec "DELETE FROM fx_hedging;"
 }
+
+db_reset_billpay() {
+    db_exec "DELETE FROM billpay_audit;"
+    db_exec "DELETE FROM billpay;"
+}
