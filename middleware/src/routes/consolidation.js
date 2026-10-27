@@ -30,6 +30,12 @@ export const CONSOLIDATION_ROUTES = [
   ] },
   { method: 'get', path: '/finance/consolidations/:id', action: 'CNS_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/finance/consolidations/:id/calc', action: 'CNS_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/finance/consolidations/:id/update', action: 'CNS_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'entityName', pattern: PATTERNS.NAME, required: false },
+    { name: 'consType', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/finance/consolidations/:id/delete', action: 'CNS_DELETE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
