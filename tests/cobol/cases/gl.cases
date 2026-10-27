@@ -1,0 +1,3 @@
+GL_ACCOUNT_CREATE missing type@@ERROR\|INVALID_TYPE@@GL_ACCOUNT_CREATE||||||admin@test.com
+GL_JOURNAL_POST missing date@@ERROR\|INVALID_DATE@@GL_JOURNAL_POST||||||admin@test.com
+GL_PERIOD_CLOSE missing period@@ERROR\|INVALID_PERIOD@@GL_PERIOD_CLOSE||||||admin@test.com

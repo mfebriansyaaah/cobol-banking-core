@@ -1,0 +1,4 @@
+RPT_TEMPLATE_CREATE missing first param@@ERROR\|INVALID_INPUT@@RPT_TEMPLATE_CREATE||||||admin@test.com
+RPT_TEMPLATE_GET missing first param@@ERROR\|INVALID_INPUT@@RPT_TEMPLATE_GET||||||admin@test.com
+RPT_COLUMN_CREATE missing first param@@ERROR\|INVALID_INPUT@@RPT_COLUMN_CREATE||||||admin@test.com
+RPT_COLUMN_DELETE missing first param@@ERROR\|INVALID_INPUT@@RPT_COLUMN_DELETE||||||admin@test.com

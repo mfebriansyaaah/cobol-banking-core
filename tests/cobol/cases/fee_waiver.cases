@@ -1,0 +1,3 @@
+FWV_WAIVER_CREATE missing first param@@ERROR\|INVALID_INPUT@@FWV_WAIVER_CREATE||||||admin@test.com
+FWV_WAIVER_APPROVE missing first param@@ERROR\|INVALID_INPUT@@FWV_WAIVER_APPROVE||||||admin@test.com
+FWV_WAIVER_REJECT missing first param@@ERROR\|INVALID_INPUT@@FWV_WAIVER_REJECT||||||admin@test.com

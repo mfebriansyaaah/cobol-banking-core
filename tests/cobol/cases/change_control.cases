@@ -1,0 +1,3 @@
+CHG_GET missing first param@@ERROR\|INVALID_INPUT@@CHG_GET||||||admin@test.com
+CHG_APPROVE missing first param@@ERROR\|INVALID_INPUT@@CHG_APPROVE||||||admin@test.com
+CHG_REJECT missing first param@@ERROR\|INVALID_INPUT@@CHG_REJECT||||||admin@test.com

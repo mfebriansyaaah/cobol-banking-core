@@ -1,0 +1,4 @@
+FEE_RULE_CREATE missing first param@@ERROR\|INVALID_INPUT@@FEE_RULE_CREATE||||||admin@test.com
+FEE_RULE_UPDATE missing first param@@ERROR\|INVALID_INPUT@@FEE_RULE_UPDATE||||||admin@test.com
+FEE_TIER_CREATE missing first param@@ERROR\|INVALID_INPUT@@FEE_TIER_CREATE||||||admin@test.com
+FEE_WAIVER_CREATE missing first param@@ERROR\|INVALID_INPUT@@FEE_WAIVER_CREATE||||||admin@test.com

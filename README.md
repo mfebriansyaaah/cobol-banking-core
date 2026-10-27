@@ -86,13 +86,11 @@ Rules of the split:
 | D13 Fraud Case | Done | `fraud_case_core` (9 actions) |
 | D10 Data / Reporting | Done | `report_builder_core` (9 actions) |
 
-### Known gaps (2026-10-27)
+### Status (2026-10-27)
 
-- `middleware/src/routes/loan.js` exposes `LOAN_APPLY`, `LOAN_APPROVE`, `LOAN_REJECT`,
-  `LOAN_DISBURSE`, and `LOAN_REPAY`, but the COBOL `loan_core` module does not implement
-  those actions yet (they return `ERROR|INVALID_ACTION`). Use `loan_schedule_core` (`LSC_*`)
-  for schedule operations until the loan application lifecycle is implemented.
-- `auth_core.cob` still carries 922 compiler warnings; `wallet_core.cob` cleanup is in progress.
+- Loan application lifecycle endpoints (`LOAN_APPLY`, `LOAN_APPROVE`, `LOAN_REJECT`,
+  `LOAN_DISBURSE`, `LOAN_REPAY`) are now implemented in `loan_core`.
+- Compiler warnings in `auth_core.cob`, `user_core.cob`, and `wallet_core.cob` are at 0.
 
 ## Testing workflow roadmap
 

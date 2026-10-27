@@ -1,0 +1,2 @@
+VCC_GET missing first param@@ERROR\|INVALID_INPUT@@VCC_GET||||||admin@test.com
+VCC_APPROVE missing first param@@ERROR\|INVALID_INPUT@@VCC_APPROVE||||||admin@test.com
