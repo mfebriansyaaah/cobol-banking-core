@@ -114,6 +114,21 @@
                 WHEN LS-CMD-ACTION(1:13) = "LOAN_VALIDATE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-VALIDATE
+                WHEN LS-CMD-ACTION(1:10) = "LOAN_APPLY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APPLY
+                WHEN LS-CMD-ACTION(1:12) = "LOAN_APPROVE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APPROVE
+                WHEN LS-CMD-ACTION(1:11) = "LOAN_REJECT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-REJECT
+                WHEN LS-CMD-ACTION(1:13) = "LOAN_DISBURSE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-DISBURSE
+                WHEN LS-CMD-ACTION(1:10) = "LOAN_REPAY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-REPAY
                 WHEN OTHER
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
@@ -671,4 +686,177 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|LOAN_VALID|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
                 "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-APPLY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES OR LS-PARAM4 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES (?, ?, ?, ?, ?, 'PENDING', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            MOVE WS-P5-TRIMMED TO WS-BIND-5
+            MOVE WS-P6-TRIMMED TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|LOAN_APPLY|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE loan_application SET status='APPROVED', interest_rate=COALESCE(NULLIF(?,''), interest_rate), decided_by=?, decided_at=NOW() WHERE id=? AND status='PENDING'" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P6-TRIMMED TO WS-BIND-2
+            MOVE WS-P1-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|LOAN_APPROVE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-REJECT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE loan_application SET status='REJECTED', detail=COALESCE(NULLIF(?,''), detail), decided_by=?, decided_at=NOW() WHERE id=? AND status='PENDING'" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P6-TRIMMED TO WS-BIND-2
+            MOVE WS-P1-TRIMMED TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|LOAN_REJECT" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-DISBURSE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE loan_application SET status='DISBURSED', disbursed_at=NOW() WHERE id=? AND status='APPROVED'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|LOAN_DISBURSE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-REPAY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO loan_repayment (loan_id, amount, status) VALUES (?, ?, 'PENDING')" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|LOAN_REPAY" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
             EXIT PARAGRAPH.

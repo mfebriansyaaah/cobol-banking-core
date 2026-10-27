@@ -1,12 +1,103 @@
 {
-  "REQUEST_SIGNUP": ["email", "password", "name", "dob"],
-  "VERIFY_EMAIL": ["email", "code"],
-  "FORGOT_PASSWORD": ["email"],
-  "RESET_PASSWORD": ["email", "code", "password"],
-  "AUTH_LOGIN": ["email", "password", "mfaCode"],
-  "VERIFY_REAUTH": ["email", "password", "mfaCode"],
-  "CHECK_BALANCE": ["email", "actor"],
-  "TRANSFER": ["from", "to", "amount", "idempotencyKey", "fromCurrency", "toCurrency"],
-  "TX_STATUS": ["ref", "actor", "sender"],
-  "REVERSE_TRANSFER": ["ref", "actor", "sender", "reason"]
+  "REQUEST_SIGNUP": [
+    "email",
+    "password",
+    "name",
+    "dob"
+  ],
+  "VERIFY_EMAIL": [
+    "email",
+    "code"
+  ],
+  "FORGOT_PASSWORD": [
+    "email"
+  ],
+  "RESET_PASSWORD": [
+    "email",
+    "code",
+    "password"
+  ],
+  "AUTH_LOGIN": [
+    "email",
+    "password",
+    "mfaCode"
+  ],
+  "VERIFY_REAUTH": [
+    "email",
+    "password",
+    "mfaCode"
+  ],
+  "CHECK_BALANCE": [
+    "email",
+    "actor"
+  ],
+  "TRANSFER": [
+    "from",
+    "to",
+    "amount",
+    "idempotencyKey",
+    "fromCurrency",
+    "toCurrency"
+  ],
+  "TX_STATUS": [
+    "ref",
+    "actor",
+    "sender"
+  ],
+  "REVERSE_TRANSFER": [
+    "ref",
+    "actor",
+    "sender",
+    "reason"
+  ],
+  "ACC_CREATE": [
+    "accountRef",
+    "holderName",
+    "accountType",
+    "",
+    "",
+    "actor"
+  ],
+  "ACC_GET": [
+    "id",
+    "",
+    "",
+    "",
+    "",
+    "actor"
+  ],
+  "ACC_LIST": [
+    "status",
+    "type",
+    "limit",
+    "offset",
+    "",
+    "actor"
+  ],
+  "ACC_CALC": [
+    "id",
+    "",
+    "",
+    "",
+    "",
+    "actor"
+  ],
+  "ACC_DELETE": [
+    "id",
+    "reason",
+    "",
+    "",
+    "",
+    "actor"
+  ],
+  "LIST_USERS": [
+    "limit",
+    "offset",
+    "actor",
+    "role"
+  ],
+  "GET_USER": [
+    "email",
+    "actor"
+  ]
 }

@@ -9,13 +9,13 @@
  * Uses explicit setter/getter to avoid stack corruption.
  */
 
-char G_QUERY[1024] = {0};
-char G_RESULT[16384] = {0};
+__thread char G_QUERY[1024] = {0};
+__thread char G_RESULT[16384] = {0};
 
 /* Persistent connection, held only for the span of an explicit transaction. */
-static MYSQL *G_CONN = NULL;
+static __thread MYSQL *G_CONN = NULL;
 /* Keep-alive connection reused across calls (pinged, reconnected if stale). */
-static MYSQL *G_POOL = NULL;
+static __thread MYSQL *G_POOL = NULL;
 
 /* Read a connection setting from the environment, falling back to the
  * development default. Keeps credentials out of the source and lets each
@@ -316,8 +316,8 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     }
 
     char *src[6] = { p1, p2, p3, p4, p5, p6 };
-    static char bufs[6][512];
-    static unsigned long lens[6];
+    char bufs[6][512];
+    unsigned long lens[6];
     MYSQL_BIND bind[6];
     memset(bind, 0, sizeof(bind));
 
@@ -356,8 +356,8 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     } else {
         unsigned int nf = mysql_num_fields(meta);
         MYSQL_FIELD *fields = mysql_fetch_fields(meta);
-        static char rbuf[32][512];
-        static unsigned long rlen[32];
+        char rbuf[32][512];
+        unsigned long rlen[32];
         MYSQL_BIND rb[32];
         memset(rb, 0, sizeof(rb));
         unsigned int cols = nf < 32 ? nf : 32;
@@ -433,8 +433,8 @@ void SQL_PREPARE_EXEC7(char *sql, int nparams,
     }
 
     char *src[7] = { p1, p2, p3, p4, p5, p6, p7 };
-    static char bufs[7][512];
-    static unsigned long lens[7];
+    char bufs[7][512];
+    unsigned long lens[7];
     MYSQL_BIND bind[7];
     memset(bind, 0, sizeof(bind));
 
@@ -470,8 +470,8 @@ void SQL_PREPARE_EXEC7(char *sql, int nparams,
         snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
     } else {
         unsigned int nf = mysql_num_fields(meta);
-        static char rbuf[32][512];
-        static unsigned long rlen[32];
+        char rbuf[32][512];
+        unsigned long rlen[32];
         MYSQL_BIND rb[32];
         memset(rb, 0, sizeof(rb));
         unsigned int cols = nf < 32 ? nf : 32;
@@ -551,8 +551,8 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     }
 
     char *src[6] = { p1, p2, p3, p4, p5, p6 };
-    static char bufs[6][512];
-    static unsigned long lens[6];
+    char bufs[6][512];
+    unsigned long lens[6];
     MYSQL_BIND bind[6];
     memset(bind, 0, sizeof(bind));
 
@@ -626,8 +626,8 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     }
 
     char *src[6] = { p1, p2, p3, p4, p5, p6 };
-    static char bufs[6][512];
-    static unsigned long lens[6];
+    char bufs[6][512];
+    unsigned long lens[6];
     MYSQL_BIND bind[6];
     memset(bind, 0, sizeof(bind));
 
@@ -665,8 +665,8 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
         snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
     } else {
         unsigned int nf = mysql_num_fields(meta);
-        static char rbuf[32][512];
-        static unsigned long rlen[32];
+        char rbuf[32][512];
+        unsigned long rlen[32];
         MYSQL_BIND rb[32];
         memset(rb, 0, sizeof(rb));
         unsigned int cols = nf < 32 ? nf : 32;

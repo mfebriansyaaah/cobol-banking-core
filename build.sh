@@ -141,7 +141,7 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/c_lib/totp_lib.c \
     cobol/c_lib/settings_lib.c \
     cobol/c_lib/random_lib.c \
-    -L/usr/lib/x86_64-linux-gnu -lmysqlclient -Wall -Wextra
+    -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -Wall -Wextra
 
 if [ -f "$COBOL_BIN" ]; then
     echo "SUCCESS: Binary created at $COBOL_BIN"
