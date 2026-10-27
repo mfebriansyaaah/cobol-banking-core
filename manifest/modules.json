@@ -358,6 +358,7 @@
     "capacity_plan.js",
     "card.js",
     "change_control.js",
+    "change_approval.js",
     "collection.js",
     "consolidation.js",
     "cost_center.js",

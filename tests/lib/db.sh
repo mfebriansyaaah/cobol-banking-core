@@ -142,3 +142,8 @@ db_reset_incident_postmortem() {
     db_exec "DELETE FROM incident_postmortem_audit;"
     db_exec "DELETE FROM incident_postmortem;"
 }
+
+db_reset_change_approval() {
+    db_exec "DELETE FROM change_approval_audit;"
+    db_exec "DELETE FROM change_approval;"
+}

@@ -22,3 +22,4 @@ consolidation_core.cob=0
 fx_hedging_core.cob=0
 billpay_core.cob=0
 incident_postmortem_core.cob=0
+change_approval_core.cob=0
