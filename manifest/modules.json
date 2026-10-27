@@ -353,6 +353,7 @@
     "backup_restore.js",
     "backup_verification.js",
     "batch.js",
+    "billpay.js",
     "budget.js",
     "capacity_plan.js",
     "card.js",
