@@ -52,6 +52,7 @@ while ((am = actionRe.exec(appSrc)) !== null) allActions.push({ file: 'app.js', 
 // prefix (the module does not implement the action verbatim). These are
 // tracked as explicit gaps rather than silent false positives.
 const KNOWN_GAPS = new Set([
+  'KCP_UPDATE',
 ]);
 const knownGaps = [];
 const missing = [];

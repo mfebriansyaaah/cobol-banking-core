@@ -52,15 +52,15 @@ Rules of the split:
 
 | Path | Contents |
 |---|---|
-| `cobol/src/` | 112 domain modules + `main_logic.cob` dispatcher + `sql_bridge.c` |
+| `cobol/src/` | 121 domain modules + `main_logic.cob` dispatcher + `sql_bridge.c` |
 | `cobol/copy/` | Three copybooks used only by the password/auth module |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
-| `middleware/src/` | Express gateway (88 files, 87 route modules + barrel) |
+| `middleware/src/` | Express gateway (124 files, 108 route modules + barrel) |
 | `middleware/test/` | 16 test files, 136 tests |
 | `database/` | `schema.sql` baseline (477 tables), 111 migrations, seed, grants |
 | `tests/` | Unified runner, table-driven COBOL cases, DB suites, harness |
-| `manifest/modules.json` | Generated registry: 112 modules, 87 route files, 188 dispatch entries |
+| `manifest/modules.json` | Generated registry: 121 modules, 108 route files, 189 dispatch entries |
 | `scripts/` | `generate_manifest.mjs`, `check_manifest.mjs` |
 | `monitoring/` | Prometheus alert rules for the gateway |
 | `build.sh` | Compiles dispatcher + all 112 modules + C bridge |
