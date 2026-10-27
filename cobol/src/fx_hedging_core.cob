@@ -1,2085 +1,654 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. fx_hedging_core.
-      *> Skeleton module for fx_hedging domain.
-
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
-
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
-       01  WS-VAR-01           PIC X(100) VALUE SPACES.
-       01  WS-VAR-02           PIC X(100) VALUE SPACES.
-       01  WS-VAR-03           PIC X(100) VALUE SPACES.
-       01  WS-VAR-04           PIC X(100) VALUE SPACES.
-       01  WS-VAR-05           PIC X(100) VALUE SPACES.
-       01  WS-VAR-06           PIC X(100) VALUE SPACES.
-       01  WS-VAR-07           PIC X(100) VALUE SPACES.
-       01  WS-VAR-08           PIC X(100) VALUE SPACES.
-       01  WS-VAR-09           PIC X(100) VALUE SPACES.
-       01  WS-VAR-10           PIC X(100) VALUE SPACES.
-       01  WS-VAR-11           PIC X(100) VALUE SPACES.
-       01  WS-VAR-12           PIC X(100) VALUE SPACES.
-       01  WS-VAR-13           PIC X(100) VALUE SPACES.
-       01  WS-VAR-14           PIC X(100) VALUE SPACES.
-       01  WS-VAR-15           PIC X(100) VALUE SPACES.
-       01  WS-VAR-16           PIC X(100) VALUE SPACES.
-       01  WS-VAR-17           PIC X(100) VALUE SPACES.
-       01  WS-VAR-18           PIC X(100) VALUE SPACES.
-       01  WS-VAR-19           PIC X(100) VALUE SPACES.
-       01  WS-VAR-20           PIC X(100) VALUE SPACES.
-       01  WS-VAR-21           PIC X(100) VALUE SPACES.
-       01  WS-VAR-22           PIC X(100) VALUE SPACES.
-       01  WS-VAR-23           PIC X(100) VALUE SPACES.
-       01  WS-VAR-24           PIC X(100) VALUE SPACES.
-       01  WS-VAR-25           PIC X(100) VALUE SPACES.
-       01  WS-VAR-26           PIC X(100) VALUE SPACES.
-       01  WS-VAR-27           PIC X(100) VALUE SPACES.
-       01  WS-VAR-28           PIC X(100) VALUE SPACES.
-       01  WS-VAR-29           PIC X(100) VALUE SPACES.
-       01  WS-VAR-30           PIC X(100) VALUE SPACES.
-       01  WS-VAR-31           PIC X(100) VALUE SPACES.
-       01  WS-VAR-32           PIC X(100) VALUE SPACES.
-       01  WS-VAR-33           PIC X(100) VALUE SPACES.
-       01  WS-VAR-34           PIC X(100) VALUE SPACES.
-       01  WS-VAR-35           PIC X(100) VALUE SPACES.
-       01  WS-VAR-36           PIC X(100) VALUE SPACES.
-       01  WS-VAR-37           PIC X(100) VALUE SPACES.
-       01  WS-VAR-38           PIC X(100) VALUE SPACES.
-       01  WS-VAR-39           PIC X(100) VALUE SPACES.
-       01  WS-VAR-40           PIC X(100) VALUE SPACES.
-       01  WS-NUM-PRINCIPAL     PIC 9(12)V99 VALUE 0.
-       01  WS-NUM-RATE          PIC 9(3)V9(6) VALUE 0.
-       01  WS-NUM-AMOUNT        PIC 9(12)V99 VALUE 0.
-       01  WS-RESULT               PIC X(16384) VALUE SPACES.
-       01  WS-P1                   PIC X(100) VALUE SPACES.
-       01  WS-P2                   PIC X(100) VALUE SPACES.
-       01  WS-P3                   PIC X(100) VALUE SPACES.
-       01  WS-P4                   PIC X(100) VALUE SPACES.
-       01  WS-P5                   PIC X(100) VALUE SPACES.
-       01  WS-P6                   PIC X(100) VALUE SPACES.
-       01  WS-I                    PIC 9(5) VALUE 1.
-       01  WS-J                    PIC 9(5) VALUE 1.
-       01  WS-K                    PIC 9(5) VALUE 1.
-       01  WS-L                    PIC 9(5) VALUE 1.
-       01  WS-M                    PIC 9(5) VALUE 1.
-       01  WS-N                    PIC 9(5) VALUE 1.
-       01  WS-O                    PIC 9(5) VALUE 1.
-       01  WS-P                    PIC 9(5) VALUE 1.
-       01  WS-Q                    PIC 9(5) VALUE 1.
-       01  WS-R                    PIC 9(5) VALUE 1.
-       01  WS-S                    PIC 9(5) VALUE 1.
-       01  WS-T                    PIC 9(5) VALUE 1.
-       01  WS-U                    PIC 9(5) VALUE 1.
-       01  WS-V                    PIC 9(5) VALUE 1.
-       01  WS-W                    PIC 9(5) VALUE 1.
-       01  WS-X                    PIC 9(5) VALUE 1.
-       01  WS-Y                    PIC 9(5) VALUE 1.
-       01  WS-Z                    PIC 9(5) VALUE 1.
-       01  WS-STATUS               PIC X(20) VALUE SPACES.
-       01  WS-CODE                 PIC X(20) VALUE SPACES.
-       01  WS-MESSAGE              PIC X(100) VALUE SPACES.
-       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
-       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
-       01  WS-ACTOR                PIC X(100) VALUE SPACES.
-       01  WS-TARGET               PIC X(100) VALUE SPACES.
-       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
-       01  WS-CURRENCY             PIC X(3) VALUE SPACES.
-       01  WS-DATE-VALUE           PIC X(10) VALUE SPACES.
-       01  WS-ID-VALUE             PIC X(20) VALUE SPACES.
-       01  WS-LIMIT-VALUE          PIC X(10) VALUE SPACES.
-       01  WS-OFFSET-VALUE         PIC X(10) VALUE SPACES.
-       01  WS-FLAG                 PIC X VALUE 'N'.
-           88  FLAG-YES             VALUE 'Y'.
-           88  FLAG-NO              VALUE 'N'.
-       01  WS-STEP                 PIC X VALUE 'Y'.
-           88  STEP-OK             VALUE 'Y'.
-           88  STEP-FAIL           VALUE 'N'.
-
-       LINKAGE SECTION.
-       01  LS-CMD-ACTION           PIC X(30).
-       01  LS-PARAM1               PIC X(100).
-       01  LS-PARAM2               PIC X(100).
-       01  LS-PARAM3               PIC X(100).
-       01  LS-PARAM4               PIC X(100).
-       01  LS-PARAM5               PIC X(100).
-       01  LS-PARAM6               PIC X(100).
-       01  LS-OUTPUT-BUFFER        PIC X(16384).
-
-       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
-           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
-
-       MAIN-LOGIC.
-           MOVE SPACES TO WS-RESULT
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           PERFORM TRIM-ALL
-           EVALUATE TRUE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_CREATE"
-                   PERFORM ACTION-FXH_CREATE
-               WHEN LS-CMD-ACTION(1:8) = "FXH_LIST"
-                   PERFORM ACTION-FXH_LIST
-               WHEN LS-CMD-ACTION(1:7) = "FXH_GET"
-                   PERFORM ACTION-FXH_GET
-               WHEN LS-CMD-ACTION(1:8) = "FXH_CALC"
-                   PERFORM ACTION-FXH_CALC
-               WHEN LS-CMD-ACTION(1:10) = "FXH_UPDATE"
-                   PERFORM ACTION-FXH_UPDATE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_DELETE"
-                   PERFORM ACTION-FXH_DELETE
-               WHEN LS-CMD-ACTION(1:11) = "FXH_SUMMARY"
-                   PERFORM ACTION-FXH_SUMMARY
-               WHEN LS-CMD-ACTION(1:12) = "FXH_VALIDATE"
-                   PERFORM ACTION-FXH_VALIDATE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_EXPORT"
-                   PERFORM ACTION-FXH_EXPORT
-               WHEN LS-CMD-ACTION(1:9) = "FXH_AUDIT"
-                   PERFORM ACTION-FXH_AUDIT
-               WHEN LS-CMD-ACTION(1:10) = "FXH_STATUS"
-                   PERFORM ACTION-FXH_STATUS
-               WHEN LS-CMD-ACTION(1:9) = "FXH_CLOSE"
-                   PERFORM ACTION-FXH_CLOSE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_REOPEN"
-                   PERFORM ACTION-FXH_REOPEN
-               WHEN LS-CMD-ACTION(1:10) = "FXH_ADJUST"
-                   PERFORM ACTION-FXH_ADJUST
-               WHEN LS-CMD-ACTION(1:11) = "FXH_REVERSE"
-                   PERFORM ACTION-FXH_REVERSE
-               WHEN LS-CMD-ACTION(1:11) = "FXH_APPROVE"
-                   PERFORM ACTION-FXH_APPROVE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_REJECT"
-                   PERFORM ACTION-FXH_REJECT
-               WHEN LS-CMD-ACTION(1:8) = "FXH_POST"
-                   PERFORM ACTION-FXH_POST
-               WHEN LS-CMD-ACTION(1:9) = "FXH_WAIVE"
-                   PERFORM ACTION-FXH_WAIVE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_CANCEL"
-                   PERFORM ACTION-FXH_CANCEL
-               WHEN LS-CMD-ACTION(1:8) = "FXH_HOLD"
-                   PERFORM ACTION-FXH_HOLD
-               WHEN LS-CMD-ACTION(1:11) = "FXH_RELEASE"
-                   PERFORM ACTION-FXH_RELEASE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_NOTIFY"
-                   PERFORM ACTION-FXH_NOTIFY
-               WHEN LS-CMD-ACTION(1:11) = "FXH_ARCHIVE"
-                   PERFORM ACTION-FXH_ARCHIVE
-               WHEN LS-CMD-ACTION(1:11) = "FXH_RESTORE"
-                   PERFORM ACTION-FXH_RESTORE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_IMPORT"
-                   PERFORM ACTION-FXH_IMPORT
-               WHEN LS-CMD-ACTION(1:10) = "FXH_REPORT"
-                   PERFORM ACTION-FXH_REPORT
-               WHEN LS-CMD-ACTION(1:10) = "FXH_VERIFY"
-                   PERFORM ACTION-FXH_VERIFY
-               WHEN LS-CMD-ACTION(1:8) = "FXH_SYNC"
-                   PERFORM ACTION-FXH_SYNC
-               WHEN LS-CMD-ACTION(1:13) = "FXH_RECONCILE"
-                   PERFORM ACTION-FXH_RECONCILE
-               WHEN LS-CMD-ACTION(1:12) = "FXH_ALLOCATE"
-                   PERFORM ACTION-FXH_ALLOCATE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_ACCRUE"
-                   PERFORM ACTION-FXH_ACCRUE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_SETTLE"
-                   PERFORM ACTION-FXH_SETTLE
-               WHEN LS-CMD-ACTION(1:12) = "FXH_FORECAST"
-                   PERFORM ACTION-FXH_FORECAST
-               WHEN LS-CMD-ACTION(1:12) = "FXH_OVERRIDE"
-                   PERFORM ACTION-FXH_OVERRIDE
-               WHEN LS-CMD-ACTION(1:10) = "FXH_DETAIL"
-                   PERFORM ACTION-FXH_DETAIL
-               WHEN LS-CMD-ACTION(1:11) = "FXH_HISTORY"
-                   PERFORM ACTION-FXH_HISTORY
-               WHEN LS-CMD-ACTION(1:10) = "FXH_SEARCH"
-                   PERFORM ACTION-FXH_SEARCH
-               WHEN LS-CMD-ACTION(1:10) = "FXH_FILTER"
-                   PERFORM ACTION-FXH_FILTER
-               WHEN LS-CMD-ACTION(1:8) = "FXH_SORT"
-                   PERFORM ACTION-FXH_SORT
-               WHEN LS-CMD-ACTION(1:9) = "FXH_PRINT"
-                   PERFORM ACTION-FXH_PRINT
-               WHEN LS-CMD-ACTION(1:9) = "FXH_DRAFT"
-                   PERFORM ACTION-FXH_DRAFT
-               WHEN LS-CMD-ACTION(1:8) = "FXH_OPEN"
-                   PERFORM ACTION-FXH_OPEN
-               WHEN LS-CMD-ACTION(1:11) = "FXH_PENDING"
-                   PERFORM ACTION-FXH_PENDING
-               WHEN LS-CMD-ACTION(1:12) = "FXH_APPROVED"
-                   PERFORM ACTION-FXH_APPROVED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_REJECTED"
-                   PERFORM ACTION-FXH_REJECTED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_ACTIVE"
-                   PERFORM ACTION-FXH_ACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "FXH_INACTIVE"
-                   PERFORM ACTION-FXH_INACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "FXH_ARCHIVED"
-                   PERFORM ACTION-FXH_ARCHIVED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_DELETED"
-                   PERFORM ACTION-FXH_DELETED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_LOCKED"
-                   PERFORM ACTION-FXH_LOCKED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_UNLOCKED"
-                   PERFORM ACTION-FXH_UNLOCKED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_SUSPENDED"
-                   PERFORM ACTION-FXH_SUSPENDED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_RESUMED"
-                   PERFORM ACTION-FXH_RESUMED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_EXPIRED"
-                   PERFORM ACTION-FXH_EXPIRED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_RENEWED"
-                   PERFORM ACTION-FXH_RENEWED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_CANCELLED"
-                   PERFORM ACTION-FXH_CANCELLED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_COMPLETED"
-                   PERFORM ACTION-FXH_COMPLETED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_FAILED"
-                   PERFORM ACTION-FXH_FAILED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_RETRIED"
-                   PERFORM ACTION-FXH_RETRIED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_ESCALATED"
-                   PERFORM ACTION-FXH_ESCALATED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_ASSIGNED"
-                   PERFORM ACTION-FXH_ASSIGNED
-               WHEN LS-CMD-ACTION(1:14) = "FXH_UNASSIGNED"
-                   PERFORM ACTION-FXH_UNASSIGNED
-               WHEN LS-CMD-ACTION(1:15) = "FXH_TRANSFERRED"
-                   PERFORM ACTION-FXH_TRANSFERRED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_MERGED"
-                   PERFORM ACTION-FXH_MERGED
-               WHEN LS-CMD-ACTION(1:9) = "FXH_SPLIT"
-                   PERFORM ACTION-FXH_SPLIT
-               WHEN LS-CMD-ACTION(1:10) = "FXH_CLONED"
-                   PERFORM ACTION-FXH_CLONED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_COPIED"
-                   PERFORM ACTION-FXH_COPIED
-               WHEN LS-CMD-ACTION(1:9) = "FXH_MOVED"
-                   PERFORM ACTION-FXH_MOVED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_LINKED"
-                   PERFORM ACTION-FXH_LINKED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_UNLINKED"
-                   PERFORM ACTION-FXH_UNLINKED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_TAGGED"
-                   PERFORM ACTION-FXH_TAGGED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_UNTAGGED"
-                   PERFORM ACTION-FXH_UNTAGGED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_FLAGGED"
-                   PERFORM ACTION-FXH_FLAGGED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_UNFLAGGED"
-                   PERFORM ACTION-FXH_UNFLAGGED
-               WHEN LS-CMD-ACTION(1:15) = "FXH_PRIORITIZED"
-                   PERFORM ACTION-FXH_PRIORITIZED
-               WHEN LS-CMD-ACTION(1:17) = "FXH_DEPRIORITIZED"
-                   PERFORM ACTION-FXH_DEPRIORITIZED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_SCHEDULED"
-                   PERFORM ACTION-FXH_SCHEDULED
-               WHEN LS-CMD-ACTION(1:15) = "FXH_UNSCHEDULED"
-                   PERFORM ACTION-FXH_UNSCHEDULED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_EXECUTED"
-                   PERFORM ACTION-FXH_EXECUTED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_SKIPPED"
-                   PERFORM ACTION-FXH_SKIPPED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_STARTED"
-                   PERFORM ACTION-FXH_STARTED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_STOPPED"
-                   PERFORM ACTION-FXH_STOPPED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_PAUSED"
-                   PERFORM ACTION-FXH_PAUSED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_RESUMED2"
-                   PERFORM ACTION-FXH_RESUMED2
-               WHEN LS-CMD-ACTION(1:10) = "FXH_QUEUED"
-                   PERFORM ACTION-FXH_QUEUED
-               WHEN LS-CMD-ACTION(1:14) = "FXH_DISPATCHED"
-                   PERFORM ACTION-FXH_DISPATCHED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_RECEIVED"
-                   PERFORM ACTION-FXH_RECEIVED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_PROCESSED"
-                   PERFORM ACTION-FXH_PROCESSED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_FINALIZED"
-                   PERFORM ACTION-FXH_FINALIZED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_ABORTED"
-                   PERFORM ACTION-FXH_ABORTED
-               WHEN LS-CMD-ACTION(1:14) = "FXH_ROLLEDBACK"
-                   PERFORM ACTION-FXH_ROLLEDBACK
-               WHEN LS-CMD-ACTION(1:13) = "FXH_COMMITTED"
-                   PERFORM ACTION-FXH_COMMITTED
-               WHEN LS-CMD-ACTION(1:14) = "FXH_VALIDATED2"
-                   PERFORM ACTION-FXH_VALIDATED2
-               WHEN LS-CMD-ACTION(1:15) = "FXH_RECONCILED2"
-                   PERFORM ACTION-FXH_RECONCILED2
-               WHEN LS-CMD-ACTION(1:14) = "FXH_ALLOCATED2"
-                   PERFORM ACTION-FXH_ALLOCATED2
-               WHEN LS-CMD-ACTION(1:12) = "FXH_ACCRUED2"
-                   PERFORM ACTION-FXH_ACCRUED2
-               WHEN LS-CMD-ACTION(1:12) = "FXH_SETTLED2"
-                   PERFORM ACTION-FXH_SETTLED2
-               WHEN LS-CMD-ACTION(1:14) = "FXH_FORECASTED"
-                   PERFORM ACTION-FXH_FORECASTED
-               WHEN LS-CMD-ACTION(1:14) = "FXH_OVERRIDDEN"
-                   PERFORM ACTION-FXH_OVERRIDDEN
-               WHEN LS-CMD-ACTION(1:12) = "FXH_DETAILED"
-                   PERFORM ACTION-FXH_DETAILED
-               WHEN LS-CMD-ACTION(1:14) = "FXH_HISTORICAL"
-                   PERFORM ACTION-FXH_HISTORICAL
-               WHEN LS-CMD-ACTION(1:12) = "FXH_SEARCHED"
-                   PERFORM ACTION-FXH_SEARCHED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_FILTERED"
-                   PERFORM ACTION-FXH_FILTERED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_SORTED"
-                   PERFORM ACTION-FXH_SORTED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_PRINTED"
-                   PERFORM ACTION-FXH_PRINTED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_CREATED2"
-                   PERFORM ACTION-FXH_CREATED2
-               WHEN LS-CMD-ACTION(1:10) = "FXH_LISTED"
-                   PERFORM ACTION-FXH_LISTED
-               WHEN LS-CMD-ACTION(1:10) = "FXH_GOTTEN"
-                   PERFORM ACTION-FXH_GOTTEN
-               WHEN LS-CMD-ACTION(1:14) = "FXH_CALCULATED"
-                   PERFORM ACTION-FXH_CALCULATED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_UPDATED"
-                   PERFORM ACTION-FXH_UPDATED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_DELETED2"
-                   PERFORM ACTION-FXH_DELETED2
-               WHEN LS-CMD-ACTION(1:14) = "FXH_SUMMARIZED"
-                   PERFORM ACTION-FXH_SUMMARIZED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_EXPORTED"
-                   PERFORM ACTION-FXH_EXPORTED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_AUDITED"
-                   PERFORM ACTION-FXH_AUDITED
-               WHEN LS-CMD-ACTION(1:11) = "FXH_STATUS2"
-                   PERFORM ACTION-FXH_STATUS2
-               WHEN LS-CMD-ACTION(1:11) = "FXH_CLOSED2"
-                   PERFORM ACTION-FXH_CLOSED2
-               WHEN LS-CMD-ACTION(1:12) = "FXH_REOPENED"
-                   PERFORM ACTION-FXH_REOPENED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_ADJUSTED"
-                   PERFORM ACTION-FXH_ADJUSTED
-               WHEN LS-CMD-ACTION(1:12) = "FXH_REVERSED"
-                   PERFORM ACTION-FXH_REVERSED
-               WHEN LS-CMD-ACTION(1:13) = "FXH_APPROVED2"
-                   PERFORM ACTION-FXH_APPROVED2
-               WHEN LS-CMD-ACTION(1:9) = "FXH_BATCH"
-                   PERFORM ACTION-FXH_BATCH
-               WHEN LS-CMD-ACTION(1:10) = "FXH_ONLINE"
-                   PERFORM ACTION-FXH_ONLINE
-               WHEN LS-CMD-ACTION(1:11) = "FXH_OFFLINE"
-                   PERFORM ACTION-FXH_OFFLINE
-               WHEN LS-CMD-ACTION(1:12) = "FXH_REALTIME"
-                   PERFORM ACTION-FXH_REALTIME
-               WHEN LS-CMD-ACTION(1:14) = "FXH_SCHEDULED2"
-                   PERFORM ACTION-FXH_SCHEDULED2
-               WHEN LS-CMD-ACTION(1:10) = "FXH_MANUAL"
-                   PERFORM ACTION-FXH_MANUAL
-               WHEN LS-CMD-ACTION(1:13) = "FXH_AUTOMATIC"
-                   PERFORM ACTION-FXH_AUTOMATIC
-               WHEN LS-CMD-ACTION(1:10) = "FXH_SYSTEM"
-                   PERFORM ACTION-FXH_SYSTEM
-               WHEN LS-CMD-ACTION(1:8) = "FXH_USER"
-                   PERFORM ACTION-FXH_USER
-               WHEN LS-CMD-ACTION(1:9) = "FXH_ADMIN"
-                   PERFORM ACTION-FXH_ADMIN
-               WHEN LS-CMD-ACTION(1:14) = "FXH_SUPERVISOR"
-                   PERFORM ACTION-FXH_SUPERVISOR
-               WHEN LS-CMD-ACTION(1:12) = "FXH_OPERATOR"
-                   PERFORM ACTION-FXH_OPERATOR
-               WHEN LS-CMD-ACTION(1:11) = "FXH_MANAGER"
-                   PERFORM ACTION-FXH_MANAGER
-               WHEN LS-CMD-ACTION(1:9) = "FXH_CLERK"
-                   PERFORM ACTION-FXH_CLERK
-               WHEN LS-CMD-ACTION(1:11) = "FXH_ANALYST"
-                   PERFORM ACTION-FXH_ANALYST
-               WHEN LS-CMD-ACTION(1:12) = "FXH_REVIEWER"
-                   PERFORM ACTION-FXH_REVIEWER
-               WHEN LS-CMD-ACTION(1:12) = "FXH_APPROVER"
-                   PERFORM ACTION-FXH_APPROVER
-               WHEN LS-CMD-ACTION(1:11) = "FXH_AUDITOR"
-                   PERFORM ACTION-FXH_AUDITOR
-               WHEN LS-CMD-ACTION(1:12) = "FXH_REPORTER"
-                   PERFORM ACTION-FXH_REPORTER
-               WHEN LS-CMD-ACTION(1:12) = "FXH_EXPORTER"
-                   PERFORM ACTION-FXH_EXPORTER
-               WHEN LS-CMD-ACTION(1:12) = "FXH_IMPORTER"
-                   PERFORM ACTION-FXH_IMPORTER
-               WHEN LS-CMD-ACTION(1:13) = "FXH_VALIDATOR"
-                   PERFORM ACTION-FXH_VALIDATOR
-               WHEN LS-CMD-ACTION(1:13) = "FXH_PROCESSOR"
-                   PERFORM ACTION-FXH_PROCESSOR
-               WHEN LS-CMD-ACTION(1:13) = "FXH_GENERATOR"
-                   PERFORM ACTION-FXH_GENERATOR
-               WHEN LS-CMD-ACTION(1:14) = "FXH_CALCULATOR"
-                   PERFORM ACTION-FXH_CALCULATOR
-               WHEN LS-CMD-ACTION(1:13) = "FXH_FORMATTER"
-                   PERFORM ACTION-FXH_FORMATTER
-               WHEN LS-CMD-ACTION(1:10) = "FXH_PARSER"
-                   PERFORM ACTION-FXH_PARSER
-               WHEN LS-CMD-ACTION(1:13) = "FXH_CONVERTER"
-                   PERFORM ACTION-FXH_CONVERTER
-               WHEN LS-CMD-ACTION(1:15) = "FXH_TRANSFORMER"
-                   PERFORM ACTION-FXH_TRANSFORMER
-               WHEN LS-CMD-ACTION(1:10) = "FXH_LOADER"
-                   PERFORM ACTION-FXH_LOADER
-               WHEN LS-CMD-ACTION(1:12) = "FXH_UNLOADER"
-                   PERFORM ACTION-FXH_UNLOADER
-               WHEN LS-CMD-ACTION(1:12) = "FXH_ARCHIVER"
-                   PERFORM ACTION-FXH_ARCHIVER
-               WHEN LS-CMD-ACTION(1:12) = "FXH_RESTORER"
-                   PERFORM ACTION-FXH_RESTORER
-               WHEN LS-CMD-ACTION(1:10) = "FXH_BACKUP"
-                   PERFORM ACTION-FXH_BACKUP
-               WHEN LS-CMD-ACTION(1:12) = "FXH_RECOVERY"
-                   PERFORM ACTION-FXH_RECOVERY
-               WHEN LS-CMD-ACTION(1:13) = "FXH_MIGRATION"
-                   PERFORM ACTION-FXH_MIGRATION
-               WHEN LS-CMD-ACTION(1:16) = "FXH_SYNCHRONIZER"
-                   PERFORM ACTION-FXH_SYNCHRONIZER
-               WHEN LS-CMD-ACTION(1:14) = "FXH_REPLICATOR"
-                   PERFORM ACTION-FXH_REPLICATOR
-               WHEN LS-CMD-ACTION(1:11) = "FXH_MONITOR"
-                   PERFORM ACTION-FXH_MONITOR
-               WHEN LS-CMD-ACTION(1:10) = "FXH_LOGGER"
-                   PERFORM ACTION-FXH_LOGGER
-               WHEN OTHER
-                   MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
-           END-EVALUATE
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
-           GOBACK.
-
-       ACTION-FXH_CREATE.
-           IF WS-P1 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|FXH_CREATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_LIST.
-           MOVE "SUCCESS|FXH_LIST|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_GET.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|FXH_GET|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CALC.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           COMPUTE WS-NUM-AMOUNT = WS-NUM-PRINCIPAL * WS-NUM-RATE / 100
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|FXH_CALC|" DELIMITED BY SIZE
-                  WS-NUM-AMOUNT DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UPDATE.
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|FXH_UPDATE|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DELETE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|FXH_DELETE|DELETED" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SUMMARY.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|FXH_SUMMARY|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE "|" DELIMITED BY SIZE
-                  WS-NUM-RATE DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_VALIDATE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE FUNCTION NUMVAL(WS-P3) TO WS-NUM-AMOUNT
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-AMOUNT = 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-RATE < 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|FXH_VALIDATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_EXPORT.
-           MOVE "FXH_EXPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_EXPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_AUDIT.
-           MOVE "FXH_AUDIT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_AUDIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_STATUS.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "SUCCESS|FXH_STATUS|CLOSED" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|FXH_STATUS|ACTIVE" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CLOSE.
-           MOVE "FXH_CLOSE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CLOSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REOPEN.
-           MOVE "FXH_REOPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REOPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ADJUST.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-AMOUNT
-           COMPUTE WS-NUM-PRINCIPAL = WS-NUM-PRINCIPAL + WS-NUM-AMOUNT
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|FXH_ADJUST|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REVERSE.
-           MOVE "FXH_REVERSE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REVERSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_APPROVE.
-           MOVE "FXH_APPROVE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_APPROVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REJECT.
-           MOVE "FXH_REJECT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REJECT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_POST.
-           MOVE "FXH_POST_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_POST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_WAIVE.
-           MOVE "FXH_WAIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_WAIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CANCEL.
-           MOVE "FXH_CANCEL_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CANCEL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_HOLD.
-           MOVE "FXH_HOLD_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_HOLD" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RELEASE.
-           MOVE "FXH_RELEASE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RELEASE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_NOTIFY.
-           MOVE "FXH_NOTIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_NOTIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ARCHIVE.
-           MOVE "FXH_ARCHIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ARCHIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RESTORE.
-           MOVE "FXH_RESTORE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RESTORE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_IMPORT.
-           MOVE "FXH_IMPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_IMPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REPORT.
-           MOVE "FXH_REPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_VERIFY.
-           MOVE "FXH_VERIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_VERIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SYNC.
-           MOVE "FXH_SYNC_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SYNC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RECONCILE.
-           MOVE "FXH_RECONCILE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RECONCILE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ALLOCATE.
-           MOVE "FXH_ALLOCATE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ALLOCATE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ACCRUE.
-           MOVE "FXH_ACCRUE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ACCRUE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SETTLE.
-           MOVE "FXH_SETTLE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SETTLE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FORECAST.
-           MOVE "FXH_FORECAST_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FORECAST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_OVERRIDE.
-           MOVE "FXH_OVERRIDE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_OVERRIDE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DETAIL.
-           MOVE "FXH_DETAIL_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_DETAIL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_HISTORY.
-           MOVE "FXH_HISTORY_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_HISTORY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SEARCH.
-           MOVE "FXH_SEARCH_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SEARCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FILTER.
-           MOVE "FXH_FILTER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FILTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SORT.
-           MOVE "FXH_SORT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PRINT.
-           MOVE "FXH_PRINT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PRINT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DRAFT.
-           MOVE "FXH_DRAFT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_DRAFT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_OPEN.
-           MOVE "FXH_OPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_OPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PENDING.
-           MOVE "FXH_PENDING_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PENDING" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_APPROVED.
-           MOVE "FXH_APPROVED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_APPROVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REJECTED.
-           MOVE "FXH_REJECTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REJECTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ACTIVE.
-           MOVE "FXH_ACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_INACTIVE.
-           MOVE "FXH_INACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_INACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ARCHIVED.
-           MOVE "FXH_ARCHIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ARCHIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DELETED.
-           MOVE "FXH_DELETED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_DELETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_LOCKED.
-           MOVE "FXH_LOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_LOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UNLOCKED.
-           MOVE "FXH_UNLOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UNLOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SUSPENDED.
-           MOVE "FXH_SUSPENDED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SUSPENDED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RESUMED.
-           MOVE "FXH_RESUMED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RESUMED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_EXPIRED.
-           MOVE "FXH_EXPIRED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_EXPIRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RENEWED.
-           MOVE "FXH_RENEWED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RENEWED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CANCELLED.
-           MOVE "FXH_CANCELLED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CANCELLED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_COMPLETED.
-           MOVE "FXH_COMPLETED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_COMPLETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FAILED.
-           MOVE "FXH_FAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RETRIED.
-           MOVE "FXH_RETRIED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RETRIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ESCALATED.
-           MOVE "FXH_ESCALATED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ESCALATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ASSIGNED.
-           MOVE "FXH_ASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UNASSIGNED.
-           MOVE "FXH_UNASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UNASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_TRANSFERRED.
-           MOVE "FXH_TRANSFERRED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_TRANSFERRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_MERGED.
-           MOVE "FXH_MERGED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_MERGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SPLIT.
-           MOVE "FXH_SPLIT_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SPLIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CLONED.
-           MOVE "FXH_CLONED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CLONED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_COPIED.
-           MOVE "FXH_COPIED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_COPIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_MOVED.
-           MOVE "FXH_MOVED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_MOVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_LINKED.
-           MOVE "FXH_LINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_LINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UNLINKED.
-           MOVE "FXH_UNLINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UNLINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_TAGGED.
-           MOVE "FXH_TAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_TAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UNTAGGED.
-           MOVE "FXH_UNTAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UNTAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FLAGGED.
-           MOVE "FXH_FLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UNFLAGGED.
-           MOVE "FXH_UNFLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UNFLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PRIORITIZED.
-           MOVE "FXH_PRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DEPRIORITIZED.
-           MOVE "FXH_DEPRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_DEPRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SCHEDULED.
-           MOVE "FXH_SCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UNSCHEDULED.
-           MOVE "FXH_UNSCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UNSCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_EXECUTED.
-           MOVE "FXH_EXECUTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_EXECUTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SKIPPED.
-           MOVE "FXH_SKIPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SKIPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_STARTED.
-           MOVE "FXH_STARTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_STARTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_STOPPED.
-           MOVE "FXH_STOPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_STOPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PAUSED.
-           MOVE "FXH_PAUSED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PAUSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RESUMED2.
-           MOVE "FXH_RESUMED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RESUMED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_QUEUED.
-           MOVE "FXH_QUEUED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_QUEUED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DISPATCHED.
-           MOVE "FXH_DISPATCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_DISPATCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RECEIVED.
-           MOVE "FXH_RECEIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RECEIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PROCESSED.
-           MOVE "FXH_PROCESSED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PROCESSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FINALIZED.
-           MOVE "FXH_FINALIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FINALIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ABORTED.
-           MOVE "FXH_ABORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ABORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ROLLEDBACK.
-           MOVE "FXH_ROLLEDBACK_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ROLLEDBACK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_COMMITTED.
-           MOVE "FXH_COMMITTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_COMMITTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_VALIDATED2.
-           MOVE "FXH_VALIDATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_VALIDATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RECONCILED2.
-           MOVE "FXH_RECONCILED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RECONCILED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ALLOCATED2.
-           MOVE "FXH_ALLOCATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ALLOCATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ACCRUED2.
-           MOVE "FXH_ACCRUED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ACCRUED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SETTLED2.
-           MOVE "FXH_SETTLED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SETTLED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FORECASTED.
-           MOVE "FXH_FORECASTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FORECASTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_OVERRIDDEN.
-           MOVE "FXH_OVERRIDDEN_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_OVERRIDDEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DETAILED.
-           MOVE "FXH_DETAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_DETAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_HISTORICAL.
-           MOVE "FXH_HISTORICAL_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_HISTORICAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SEARCHED.
-           MOVE "FXH_SEARCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SEARCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FILTERED.
-           MOVE "FXH_FILTERED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FILTERED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SORTED.
-           MOVE "FXH_SORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PRINTED.
-           MOVE "FXH_PRINTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PRINTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CREATED2.
-           MOVE "FXH_CREATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CREATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_LISTED.
-           MOVE "FXH_LISTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_LISTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_GOTTEN.
-           MOVE "FXH_GOTTEN_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_GOTTEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CALCULATED.
-           MOVE "FXH_CALCULATED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CALCULATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UPDATED.
-           MOVE "FXH_UPDATED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UPDATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_DELETED2.
-           MOVE "FXH_DELETED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_DELETED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SUMMARIZED.
-           MOVE "FXH_SUMMARIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SUMMARIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_EXPORTED.
-           MOVE "FXH_EXPORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_EXPORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_AUDITED.
-           MOVE "FXH_AUDITED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_AUDITED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_STATUS2.
-           MOVE "FXH_STATUS2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_STATUS2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CLOSED2.
-           MOVE "FXH_CLOSED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CLOSED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REOPENED.
-           MOVE "FXH_REOPENED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REOPENED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ADJUSTED.
-           MOVE "FXH_ADJUSTED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ADJUSTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REVERSED.
-           MOVE "FXH_REVERSED_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REVERSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_APPROVED2.
-           MOVE "FXH_APPROVED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_APPROVED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_BATCH.
-           MOVE "FXH_BATCH_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_BATCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ONLINE.
-           MOVE "FXH_ONLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ONLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_OFFLINE.
-           MOVE "FXH_OFFLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_OFFLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REALTIME.
-           MOVE "FXH_REALTIME_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REALTIME" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SCHEDULED2.
-           MOVE "FXH_SCHEDULED2_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SCHEDULED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_MANUAL.
-           MOVE "FXH_MANUAL_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_MANUAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_AUTOMATIC.
-           MOVE "FXH_AUTOMATIC_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_AUTOMATIC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SYSTEM.
-           MOVE "FXH_SYSTEM_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SYSTEM" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_USER.
-           MOVE "FXH_USER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_USER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ADMIN.
-           MOVE "FXH_ADMIN_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ADMIN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SUPERVISOR.
-           MOVE "FXH_SUPERVISOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SUPERVISOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_OPERATOR.
-           MOVE "FXH_OPERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_OPERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_MANAGER.
-           MOVE "FXH_MANAGER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_MANAGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CLERK.
-           MOVE "FXH_CLERK_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CLERK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ANALYST.
-           MOVE "FXH_ANALYST_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ANALYST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REVIEWER.
-           MOVE "FXH_REVIEWER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REVIEWER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_APPROVER.
-           MOVE "FXH_APPROVER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_APPROVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_AUDITOR.
-           MOVE "FXH_AUDITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_AUDITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REPORTER.
-           MOVE "FXH_REPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_EXPORTER.
-           MOVE "FXH_EXPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_EXPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_IMPORTER.
-           MOVE "FXH_IMPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_IMPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_VALIDATOR.
-           MOVE "FXH_VALIDATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_VALIDATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PROCESSOR.
-           MOVE "FXH_PROCESSOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PROCESSOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_GENERATOR.
-           MOVE "FXH_GENERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_GENERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CALCULATOR.
-           MOVE "FXH_CALCULATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CALCULATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_FORMATTER.
-           MOVE "FXH_FORMATTER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_FORMATTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_PARSER.
-           MOVE "FXH_PARSER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_PARSER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_CONVERTER.
-           MOVE "FXH_CONVERTER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_CONVERTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_TRANSFORMER.
-           MOVE "FXH_TRANSFORMER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_TRANSFORMER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_LOADER.
-           MOVE "FXH_LOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_LOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_UNLOADER.
-           MOVE "FXH_UNLOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_UNLOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_ARCHIVER.
-           MOVE "FXH_ARCHIVER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_ARCHIVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RESTORER.
-           MOVE "FXH_RESTORER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RESTORER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_BACKUP.
-           MOVE "FXH_BACKUP_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_BACKUP" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_RECOVERY.
-           MOVE "FXH_RECOVERY_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_RECOVERY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_MIGRATION.
-           MOVE "FXH_MIGRATION_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_MIGRATION" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_SYNCHRONIZER.
-           MOVE "FXH_SYNCHRONIZER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_SYNCHRONIZER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_REPLICATOR.
-           MOVE "FXH_REPLICATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_REPLICATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_MONITOR.
-           MOVE "FXH_MONITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_MONITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-FXH_LOGGER.
-           MOVE "FXH_LOGGER_OK" TO WS-CODE
-           MOVE "SUCCESS|FXH_LOGGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       TRIM-ALL.
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           EXIT PARAGRAPH.
-
-       VALIDATE-ALL.
-           MOVE 'Y' TO WS-STEP
-           EXIT PARAGRAPH.
-
-       AUDIT-ACTION.
-           MOVE LS-CMD-ACTION TO WS-AUDIT-ACTION
-           EXIT PARAGRAPH.
-
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. fx_hedging_core.
+      *> FX hedging: create, settle, close.
+
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(2048) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
+        01  WS-BIND-6               PIC X(256) VALUE SPACES.
+        01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P1-LEN               PIC 9(3) VALUE 1.
+        01  WS-P2-LEN               PIC 9(3) VALUE 1.
+        01  WS-P3-LEN               PIC 9(3) VALUE 1.
+        01  WS-P4-LEN               PIC 9(3) VALUE 1.
+        01  WS-P5-LEN               PIC 9(3) VALUE 1.
+        01  WS-P6-LEN               PIC 9(3) VALUE 1.
+        01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+        01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+        01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+        01  WS-I                    PIC 9(3) VALUE 1.
+        01  WS-J                    PIC 9(5) VALUE 1.
+        01  WS-RLEN                 PIC 9(5) VALUE 1.
+        01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-STEP                 PIC X VALUE 'Y'.
+            88  STEP-OK             VALUE 'Y'.
+            88  STEP-FAIL           VALUE 'N'.
+        01  WS-ERR                  PIC X(40) VALUE SPACES.
+        01  WS-LIMIT                PIC X(10) VALUE SPACES.
+        01  WS-OFFSET               PIC X(10) VALUE SPACES.
+        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+        01  WS-AUDIT-FXH       PIC X(20) VALUE SPACES.
+        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+        01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
+        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
+        01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
+        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
+        01  WS-TMP-ID               PIC X(100) VALUE SPACES.
+        01  WS-TMP-ALLOCATED          PIC X(30) VALUE SPACES.
+        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-ACTIVE           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-SETTLED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  F-QUOTE                 PIC X VALUE "'".
+        01  F-DQUOTE                PIC X VALUE '"'.
+        01  F-BSLASH                PIC X VALUE "\".
+        01  F-TICK                  PIC X VALUE "`".
+
+        LINKAGE SECTION.
+        01  LS-CMD-ACTION           PIC X(30).
+        01  LS-PARAM1               PIC X(100).
+        01  LS-PARAM2               PIC X(100).
+        01  LS-PARAM3               PIC X(100).
+        01  LS-PARAM4               PIC X(100).
+        01  LS-PARAM5               PIC X(100).
+        01  LS-PARAM6               PIC X(100).
+        01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+        MAIN-LOGIC.
+            PERFORM VALIDATE-ALL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                GOBACK
+            END-IF
+            EVALUATE TRUE
+                WHEN LS-CMD-ACTION(1:10) = "FXH_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CREATE
+                WHEN LS-CMD-ACTION(1:8) = "FXH_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-LIST
+                WHEN LS-CMD-ACTION(1:7) = "FXH_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-GET
+                WHEN LS-CMD-ACTION(1:8) = "FXH_CALC"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUBMIT
+                WHEN LS-CMD-ACTION(1:10) = "FXH_DELETE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:11) = "FXH_SUMMARY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUMMARY
+                WHEN LS-CMD-ACTION(1:9) = "FXH_AUDIT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-AUDIT
+                WHEN LS-CMD-ACTION(1:12) = "FXH_VALIDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-VALIDATE
+                WHEN OTHER
+                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+            END-EVALUATE.
+            GOBACK.
+
+        VALIDATE-ALL.
+            MOVE 0 TO WS-BAD
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT.
+            EXIT PARAGRAPH.
+
+        VALIDATE-INPUT.
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+            EXIT PARAGRAPH.
+
+        TRIM-ALL.
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P1-LEN
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P2-LEN
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P3-LEN
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P4-LEN
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P5-LEN
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P6-LEN.
+            EXIT PARAGRAPH.
+
+        TRIM-VALUE.
+            MOVE WS-TRIM-IN TO WS-TRIM-OUT
+            MOVE 0 TO WS-TRIM-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1
+                UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+                IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-TRIM-LEN
+                END-IF
+            END-PERFORM
+            IF WS-TRIM-LEN = 0
+                MOVE 1 TO WS-TRIM-LEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-ADMIN.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P6-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+                MOVE "FX_HEDGING_CORE" TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT.
+            MOVE "INSERT INTO fx_hedging_audit (hedge_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-AUDIT-FXH TO WS-BIND-1
+            MOVE WS-AUDIT-ACTION TO WS-BIND-2
+            MOVE WS-P6-TRIMMED TO WS-BIND-3
+            MOVE WS-AUDIT-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-DENIED.
+            MOVE "AUTHZ_DENIED" TO WS-AUDIT-ACTION
+            MOVE SPACES TO WS-AUDIT-FXH
+            MOVE WS-DENIED-TARGET TO WS-AUDIT-DETAIL
+            MOVE WS-DENIED-ACTOR TO WS-P6-TRIMMED
+            PERFORM AUDIT.
+            EXIT PARAGRAPH.
+
+        TRIM-RESULT-LEN.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16384 BY -1
+                UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOAD-CLEARING.
+            MOVE SPACES TO WS-ERR
+            MOVE "SELECT CONCAT(hedge_type, '|', notional_amount, '|', settled_amount, '|', status, '|', COALESCE(counterparty, ''), '|', '') FROM fx_hedging WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-TMP-AMT
+            MOVE SPACES TO WS-TMP-STR
+            MOVE SPACES TO WS-TMP-ALLOCATED
+            MOVE SPACES TO WS-TMP-STATUS
+            MOVE SPACES TO WS-TMP-CURR
+            MOVE SPACES TO WS-TMP-ID
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-SETTLED
+            EXIT PARAGRAPH.
+
+        ACTION-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM fx_hedging WHERE hedge_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO fx_hedging (hedge_ref, counterparty, hedge_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P6-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                MOVE WS-NEW-ID TO WS-AUDIT-FXH
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|FXH_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
+                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+            END-IF.
+            IF WS-P3-TRIMMED = SPACES AND WS-P2-TRIMMED NOT = SPACES
+                IF WS-P2-TRIMMED(1:1) >= "0" AND WS-P2-TRIMMED(1:1) <= "9"
+                    MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+                    IF WS-P3-TRIMMED NOT = SPACES
+                        MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+                    END-IF
+                END-IF
+            END-IF
+            MOVE "SELECT CONCAT(id, ':', hedge_ref, ':', status, ':', notional_amount, ':', settled_amount, ':', COALESCE(counterparty, '')) FROM fx_hedging WHERE (? = '' OR status = ?) AND (? = '' OR counterparty = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            IF WS-P1-TRIMMED = "OPEN" OR WS-P1-TRIMMED = "SETTLED"
+                OR WS-P1-TRIMMED = "CLOSED"
+                OR WS-P1-TRIMMED = SPACES
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+            ELSE
+                MOVE SPACES TO WS-BIND-1
+                MOVE SPACES TO WS-BIND-2
+            END-IF
+            IF WS-P2-LEN = 3
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                MOVE WS-P2-TRIMMED TO WS-BIND-4
+            ELSE
+                MOVE SPACES TO WS-BIND-3
+                MOVE SPACES TO WS-BIND-4
+            END-IF
+            MOVE WS-LIMIT TO WS-BIND-5
+            MOVE WS-OFFSET TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|FXH_LIST|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|FXH_LIST|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(id, '|', hedge_ref, '|', status, '|', notional_amount, '|', settled_amount, '|', COALESCE(counterparty, ''), '|', COALESCE(hedge_type, ''), '|', created_by, '|', created_at) FROM fx_hedging WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|FXH_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-SUBMIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE fx_hedging SET settled_amount = settled_amount + 1, status = 'SETTLED', settled_at = COALESCE(settled_at, NOW()) WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "CALC" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-FXH
+                MOVE "allocated" TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|FXH_CALC|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-ACTIVE <= WS-NUM-SETTLED
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-ACTIVE - WS-NUM-SETTLED END-COMPUTE
+            ELSE
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            END-IF.
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-SETTLED + WS-NUM-AMOUNT > WS-NUM-ACTIVE
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE fx_hedging SET status = CASE WHEN settled_amount + ? >= notional_amount THEN 'SETTLED' ELSE 'SETTLED' END, closed_at = CASE WHEN settled_amount + ? >= notional_amount THEN NOW() ELSE closed_at END, settled_amount = settled_amount + ? WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-TMP-AMT TO WS-BIND-2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-FXH
+                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|GLA_APPROVE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CLOSE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE fx_hedging SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-FXH
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|FXH_DELETE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SUMMARY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'SETTLED'), 0), '|', COALESCE(SUM(status = 'SETTLED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(notional_amount), 0), '|', COALESCE(SUM(settled_amount), 0)) FROM fx_hedging" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|FXH_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-AUDIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P2-TRIMMED NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CONCAT(action, ':', actor_email, ':', COALESCE(detail, ''), ':', created_at) FROM fx_hedging_audit WHERE (? = '' OR hedge_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|FXH_AUDIT|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|FXH_AUDIT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-VALIDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P1-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES OR WS-P2-LEN NOT = 3
+                MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|FXH_VALID|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
+                "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
