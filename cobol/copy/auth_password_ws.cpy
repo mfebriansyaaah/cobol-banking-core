@@ -127,6 +127,7 @@
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
         01  WS-BIND-4               PIC X(256) VALUE SPACES.
         01  WS-BIND-5               PIC X(256) VALUE SPACES.
+        01  WS-BIND-6               PIC X(256) VALUE SPACES.
         01  WS-P2-ESC               PIC X(256) VALUE SPACES.
         01  WS-P3-ESC               PIC X(256) VALUE SPACES.
         01  WS-P4-ESC               PIC X(256) VALUE SPACES.

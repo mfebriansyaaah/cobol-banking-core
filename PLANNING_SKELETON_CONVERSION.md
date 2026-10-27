@@ -1,4 +1,7 @@
-# Rencana Konversi 14 Skeleton Module → Real SQL-backed
+# Rencana Konversi Skeleton Module → Real SQL-backed (COMPLETED)
+
+> Status: semua 14 modul yang tercantum di bawah ini sudah dikonversi ke
+> real SQL-backed logic. Dokumen ini dipertahankan sebagai arsip perencanaan.
 
 ## Ringkasan
 - **14 skeleton module** tersisa (auth_password & hashlen adalah utility, bukan domain).

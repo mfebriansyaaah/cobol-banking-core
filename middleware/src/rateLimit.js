@@ -66,7 +66,7 @@ export function storeFromEnv() {
  * — is visible instead of silent. Deliberately counter-only: logging every
  * request during an outage would flood the logs.
  */
-export function createRateLimiter({ store, windowMs = 15 * 60 * 1000, max = 100 }) {
+export function createRateLimiter({ store, windowMs = 15 * 60 * 1000, max = 100, failOpen = true }) {
   return async function limit(req, res, next) {
     const now = Date.now();
     let result;
@@ -74,7 +74,8 @@ export function createRateLimiter({ store, windowMs = 15 * 60 * 1000, max = 100 
       result = await store.hit(req.ip || 'unknown', windowMs);
     } catch {
       incCounter('gateway_ratelimit_failopen_total');
-      return next();
+      if (failOpen) return next();
+      return res.status(503).json({ error: 'RATE_LIMIT_STORE_UNAVAILABLE' });
     }
     if (result.count > max) {
       res.set('Retry-After', String(Math.ceil((result.resetAt - now) / 1000)));
@@ -87,7 +88,8 @@ export function createRateLimiter({ store, windowMs = 15 * 60 * 1000, max = 100 
 export function rateLimiter(opts = {}) {
   const windowMs = Number(opts.windowMs ?? process.env.RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000);
   const max = Number(opts.max ?? process.env.RATE_LIMIT_MAX ?? 100);
-  return createRateLimiter({ store: opts.store ?? storeFromEnv(), windowMs, max });
+  const failOpen = opts.failOpen ?? (process.env.RATE_LIMIT_FAIL_OPEN !== 'false');
+  return createRateLimiter({ store: opts.store ?? storeFromEnv(), windowMs, max, failOpen });
 }
 
 // General API limiter for non-auth routes. It is deliberately more generous

@@ -10,6 +10,10 @@ MODE="${1:-full}"
 run_fast() {
     echo "=== MANIFEST CHECK ==="
     node scripts/check_manifest.mjs "$ROOT"
+    echo "=== ROUTE/DISPATCH CONTRACT CHECK ==="
+    node scripts/check_route_dispatch.mjs "$ROOT"
+    echo "=== ACTION COVERAGE CHECK ==="
+    node scripts/check_action_coverage.mjs "$ROOT"
     echo "=== BUILD ==="
     if [ "${SKIP_BUILD:-0}" = "1" ]; then
         echo "skipping build (SKIP_BUILD=1)"
@@ -27,6 +31,33 @@ run_fast() {
 }
 
 run_db() {
+    DB_NAME="${DB_NAME:-cobol_db}"
+    # Isolate the whole DB test run from the primary database so suites cannot
+    # clobber developer/production data. Opt out with ISOLATED_DB=0.
+    if [ "${ISOLATED_DB:-1}" != "0" ] && [ "$DB_NAME" = "cobol_db" ]; then
+        ISOLATED_DB_NAME="cobol_db_test_$$"
+        DB_HOST="${DB_HOST:-localhost}"
+        DB_PORT="${DB_PORT:-3306}"
+        DB_MIGRATE_USER="${DB_MIGRATE_USER:-cobol_user}"
+        DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-cobol_pass}"
+        if mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" \
+            -e "DROP DATABASE IF EXISTS \`$ISOLATED_DB_NAME\`; CREATE DATABASE \`$ISOLATED_DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null 2>&1 && \
+           mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$ISOLATED_DB_NAME" < database/schema.sql >/dev/null 2>&1; then
+            ISOLATED_OK=1
+            for f in database/migrations/*.sql; do
+                mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$ISOLATED_DB_NAME" < "$f" >/dev/null 2>&1 || { ISOLATED_OK=0; break; }
+            done
+            if [ "${ISOLATED_OK:-1}" != "0" ]; then
+                export DB_NAME="$ISOLATED_DB_NAME"
+                trap 'mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" -e "DROP DATABASE IF EXISTS \`'"$ISOLATED_DB_NAME"'\`;" >/dev/null 2>&1 || true' EXIT
+                echo "=== ISOLATED DB: $ISOLATED_DB_NAME ==="
+            else
+                echo "=== ISOLATION SKIPPED (migration failed); using $DB_NAME ==="
+            fi
+        else
+            echo "=== ISOLATION SKIPPED (no DDL rights); using $DB_NAME ==="
+        fi
+    fi
     echo "=== DB SCHEMA TESTS ==="
     tests/db/schema_tests.sh
     echo "=== DB LOAN SCHEDULE TESTS ==="

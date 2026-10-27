@@ -388,7 +388,7 @@ export const ROUTES = [
 // (or a denylisted jti) means it was revoked since it was issued.
 export function buildRouter({ mailer, tokenStore } = {}) {
   const router = express.Router();
-  const authLimiter = rateLimiter();
+  const authLimiter = rateLimiter({ failOpen: false });
   const apiLimiter = apiRateLimiter();
 
   const requireActiveToken = async (req, res, next) => {

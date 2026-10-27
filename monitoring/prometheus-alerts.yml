@@ -35,3 +35,10 @@ groups:
         labels: { severity: warning }
         annotations:
           summary: "Transfer p95 latency above 500ms"
+
+      - alert: GatewayRateLimitFailOpen
+        expr: increase(gateway_ratelimit_failopen_total[5m]) > 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Rate limiter fell open (counter store unavailable)"

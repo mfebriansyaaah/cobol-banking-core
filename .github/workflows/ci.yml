@@ -117,6 +117,12 @@ jobs:
       - name: Make binary executable
         run: chmod +x cobol/bin/main_logic
 
+      - name: Provision least-privilege app account
+        run: >
+          APP_DB_PASS="$DB_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
+          DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
+          DB_NAME="$DB_NAME" database/grants.sh
+
       - name: Load baseline schema
         run: >
           mysql -h "$DB_HOST" -P "$DB_PORT"
@@ -137,6 +143,9 @@ jobs:
 
       - name: Migration rollback drill
         run: bash scripts/ci/migration_rollback_drill.sh
+
+      - name: Restore drill
+        run: bash scripts/ci/restore_drill.sh
 
       - name: Performance benchmarks
         run: bash tests/perf/bench.sh
@@ -193,3 +202,6 @@ jobs:
         run: ./database/migrate.sh
       - name: Migration rollback drill
         run: bash scripts/ci/migration_rollback_drill.sh
+
+      - name: Restore drill
+        run: bash scripts/ci/restore_drill.sh

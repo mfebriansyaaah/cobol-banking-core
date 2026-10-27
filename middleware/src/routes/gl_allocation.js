@@ -29,7 +29,7 @@ export const GL_ALLOCATION_ROUTES = [
     BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/finance/gl-allocation/:id', action: 'GLA_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
-  { method: 'post', path: '/finance/gl-allocation/:id/allocate', action: 'GLA_ALLOCATE', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/finance/gl-allocation/:id/allocate', action: 'GLA_ALLO', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/finance/gl-allocation/:id/close', action: 'GLA_CLOSE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
