@@ -45,6 +45,7 @@ import { CHANGE_APPROVAL_ROUTES } from './change_approval.js';
 import { CAPACITY_FORECAST_ROUTES } from './capacity_forecast.js';
 import { DATA_LINEAGE_ROUTES } from './data_lineage.js';
 import { METRIC_DEFINITION_ROUTES } from './metric_definition.js';
+import { ANALYTICS_SNAPSHOT_ROUTES } from './analytics_snapshot.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -153,6 +154,7 @@ export const ALL_ROUTES = [
   ...CAPACITY_FORECAST_ROUTES,
   ...DATA_LINEAGE_ROUTES,
   ...METRIC_DEFINITION_ROUTES,
+  ...ANALYTICS_SNAPSHOT_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,
