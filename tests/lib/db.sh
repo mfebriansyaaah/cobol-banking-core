@@ -213,6 +213,11 @@ db_reset_workflow_approval() {
     db_exec "DELETE FROM workflow_approval;"
 }
 
+db_reset_loan() {
+    db_exec "DELETE FROM loan_audit;"
+    db_exec "DELETE FROM loan;"
+}
+
 
 db_reset_account() {
     db_exec "DELETE FROM account_audit;"
