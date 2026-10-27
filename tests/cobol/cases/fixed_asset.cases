@@ -1,0 +1,6 @@
+# Fixed asset (D15) validation cases.
+FAS_CREATE missing ref@@ERROR\|INVALID_INPUT@@FAS_CREATE||||||admin@test.com
+FAS_GET missing id@@ERROR\|INVALID_INPUT@@FAS_GET||||||admin@test.com
+FAS_CALC missing id@@ERROR\|INVALID_INPUT@@FAS_CALC||||||admin@test.com
+FAS_DELETE missing id@@ERROR\|INVALID_INPUT@@FAS_DELETE||||||admin@test.com
+FAS_VALIDATE ok@@SUCCESS\|FAS_VALID@@FAS_VALIDATE|100.00|USD||||admin@test.com

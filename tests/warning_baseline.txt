@@ -17,3 +17,4 @@ aml_screening_core.cob=0
 sanctions_list_core.cob=0
 fraud_case_core.cob=0
 cost_center_core.cob=0
+fixed_asset_core.cob=0

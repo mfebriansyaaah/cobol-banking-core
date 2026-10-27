@@ -117,3 +117,8 @@ db_reset_cost_center() {
     db_exec "DELETE FROM cost_center_audit;"
     db_exec "DELETE FROM cost_center;"
 }
+
+db_reset_fixed_asset() {
+    db_exec "DELETE FROM fixed_asset_audit;"
+    db_exec "DELETE FROM fixed_asset;"
+}
