@@ -49,6 +49,7 @@ import { ANALYTICS_SNAPSHOT_ROUTES } from './analytics_snapshot.js';
 import { CUSTOMER_ROUTES } from './customer.js';
 import { PRODUCT_CATALOG_ROUTES } from './product_catalog.js';
 import { INTEREST_RATE_ROUTES } from './interest_rate.js';
+import { ACCOUNT_ROUTES } from './account.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -161,6 +162,7 @@ export const ALL_ROUTES = [
   ...CUSTOMER_ROUTES,
   ...PRODUCT_CATALOG_ROUTES,
   ...INTEREST_RATE_ROUTES,
+  ...ACCOUNT_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,

@@ -28,3 +28,4 @@ db_analytics_snapshot_tests=13
 db_customer_tests=13
 db_product_catalog_tests=13
 db_interest_rate_tests=13
+db_account_tests=13

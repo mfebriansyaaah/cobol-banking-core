@@ -34,6 +34,7 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/customer_core.cob \
     cobol/src/product_catalog_core.cob \
     cobol/src/interest_rate_core.cob \
+    cobol/src/account_core.cob \
     cobol/src/consolidation_core.cob \
     cobol/src/backup_drill_core.cob \
     cobol/src/incident_postmortem_core.cob \

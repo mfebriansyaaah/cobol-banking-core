@@ -30,3 +30,4 @@ analytics_snapshot_core.cob=0
 customer_core.cob=0
 product_catalog_core.cob=0
 interest_rate_core.cob=0
+account_core.cob=0

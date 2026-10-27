@@ -182,3 +182,8 @@ db_reset_interest_rate() {
     db_exec "DELETE FROM interest_rate_audit;"
     db_exec "DELETE FROM interest_rate;"
 }
+
+db_reset_account() {
+    db_exec "DELETE FROM account_audit;"
+    db_exec "DELETE FROM account;"
+}
