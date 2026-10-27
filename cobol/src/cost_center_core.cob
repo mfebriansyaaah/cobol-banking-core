@@ -44,6 +44,8 @@
         01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
         01  WS-AUDIT-CSC       PIC X(20) VALUE SPACES.
         01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-AUDIT-OLD            PIC X(255) VALUE SPACES.
+        01  WS-AUDIT-NEW            PIC X(255) VALUE SPACES.
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
         01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
         01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
@@ -52,10 +54,12 @@
         01  WS-TMP-STR              PIC X(100) VALUE SPACES.
         01  WS-TMP-ID               PIC X(100) VALUE SPACES.
         01  WS-TMP-ALLOCATED          PIC X(30) VALUE SPACES.
+        01  WS-TMP-VERSION            PIC X(10) VALUE SPACES.
         01  WS-NEW-ID               PIC X(20) VALUE SPACES.
         01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-ACTIVE           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-ALLOCATED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
@@ -92,6 +96,9 @@
                 WHEN LS-CMD-ACTION(1:7) = "CSC_GET"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-GET
+                WHEN LS-CMD-ACTION(1:10) = "CSC_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-UPDATE
                 WHEN LS-CMD-ACTION(1:8) = "CSC_ALLO"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUBMIT
@@ -196,12 +203,14 @@
             EXIT PARAGRAPH.
 
         AUDIT.
-            MOVE "INSERT INTO cost_center_audit (cc_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE "INSERT INTO cost_center_audit (cc_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-AUDIT-CSC TO WS-BIND-1
             MOVE WS-AUDIT-ACTION TO WS-BIND-2
             MOVE WS-P6-TRIMMED TO WS-BIND-3
             MOVE WS-AUDIT-DETAIL TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+            MOVE WS-AUDIT-OLD TO WS-BIND-5
+            MOVE WS-AUDIT-NEW TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -234,7 +243,7 @@
 
         LOAD-CLEARING.
             MOVE SPACES TO WS-ERR
-            MOVE "SELECT CONCAT(cc_type, '|', budget_amount, '|', spent_amount, '|', status, '|', COALESCE(dept_name, ''), '|', '') FROM cost_center WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CONCAT(cc_type, '|', budget_amount, '|', spent_amount, '|', status, '|', COALESCE(dept_name, ''), '|', '', '|', version) FROM cost_center WHERE id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
@@ -255,12 +264,14 @@
             MOVE SPACES TO WS-TMP-STATUS
             MOVE SPACES TO WS-TMP-CURR
             MOVE SPACES TO WS-TMP-ID
+            MOVE SPACES TO WS-TMP-VERSION
             UNSTRING WS-RESULT DELIMITED BY "|" INTO
-                WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+                WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID WS-TMP-VERSION
             END-UNSTRING
             MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
             MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
             MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-ALLOCATED
+            MOVE FUNCTION NUMVAL(WS-TMP-VERSION) TO WS-NUM-VERSION
             EXIT PARAGRAPH.
 
         ACTION-CREATE.
@@ -428,11 +439,79 @@
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            IF WS-P2-TRIMMED IS NUMERIC AND WS-P2-TRIMMED > 0
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            ELSE
+                MOVE 1 TO WS-NUM-AMOUNT
+            END-IF
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE cost_center SET budget_amount = budget_amount + 1, status = 'ACTIVE', allocated_at = COALESCE(allocated_at, NOW()) WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
-            MOVE WS-P1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            MOVE "UPDATE cost_center SET budget_amount = budget_amount + ?, status = 'ACTIVE', allocated_at = COALESCE(allocated_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT = "ERROR|NO_DATA"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "ALLOCATE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CSC
+                MOVE "allocated" TO WS-AUDIT-DETAIL
+                MOVE SPACES TO WS-AUDIT-OLD
+                MOVE WS-TMP-AMT TO WS-AUDIT-NEW
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|CSC_ALLO|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE cost_center SET dept_name = COALESCE(NULLIF(?, ''), dept_name), cc_type = COALESCE(NULLIF(?, ''), cc_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P1-TRIMMED TO WS-BIND-3
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -441,14 +520,16 @@
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
-                MOVE "ALLOCATE" TO WS-AUDIT-ACTION
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CSC
-                MOVE "allocated" TO WS-AUDIT-DETAIL
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|CSC_ALLO|1" TO LS-OUTPUT-BUFFER
+                MOVE "SUCCESS|CSC_UPDATE" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -476,10 +557,11 @@
             END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE cost_center SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE "UPDATE cost_center SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -491,6 +573,8 @@
                 MOVE "CLOSE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CSC
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE "ACTIVE" TO WS-AUDIT-OLD
+                MOVE "CLOSED" TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
