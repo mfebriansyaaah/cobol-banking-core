@@ -30,6 +30,12 @@ export const COST_CENTER_ROUTES = [
   ] },
   { method: 'get', path: '/finance/cost-centers/:id', action: 'CSC_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/finance/cost-centers/:id/allocate', action: 'CSC_ALLO', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/finance/cost-centers/:id/update', action: 'CSC_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'deptName', pattern: PATTERNS.NAME, required: false },
+    { name: 'ccType', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/finance/cost-centers/:id/close', action: 'CSC_CLOSE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
