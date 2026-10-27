@@ -358,6 +358,7 @@
     "card.js",
     "change_control.js",
     "collection.js",
+    "consolidation.js",
     "cost_center.js",
     "compliance_audit.js",
     "compliance_export.js",

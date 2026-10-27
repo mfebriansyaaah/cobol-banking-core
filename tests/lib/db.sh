@@ -122,3 +122,8 @@ db_reset_fixed_asset() {
     db_exec "DELETE FROM fixed_asset_audit;"
     db_exec "DELETE FROM fixed_asset;"
 }
+
+db_reset_consolidation() {
+    db_exec "DELETE FROM consolidation_audit;"
+    db_exec "DELETE FROM consolidation;"
+}
