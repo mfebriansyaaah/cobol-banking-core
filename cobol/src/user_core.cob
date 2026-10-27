@@ -282,12 +282,7 @@
                     MOVE WS-I TO WS-ALEN
                 END-IF
             END-PERFORM
-            MOVE 0 TO WS-RLEN
-            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
-                IF WS-RESULT(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-RLEN
-                END-IF
-            END-PERFORM
+            MOVE FUNCTION LENGTH(FUNCTION TRIM(WS-RESULT TRAILING)) TO WS-RLEN
             IF WS-ELEN = 0
                 MOVE 1 TO WS-ELEN
             END-IF
@@ -497,12 +492,7 @@
 
         TRIM-DORM-RESULT.
             *> WS-RLEN = length of WS-RESULT without trailing spaces.
-            MOVE 0 TO WS-RLEN
-            PERFORM VARYING WS-I FROM 16384 BY -1 UNTIL WS-I < 1 OR WS-RLEN > 0
-                IF WS-RESULT(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-RLEN
-                END-IF
-            END-PERFORM.
+            MOVE FUNCTION LENGTH(FUNCTION TRIM(WS-RESULT TRAILING)) TO WS-RLEN.
             IF WS-RLEN = 0
                 MOVE 1 TO WS-RLEN
             END-IF.
@@ -874,7 +864,7 @@
                 END-STRING
             ELSE
                 PERFORM TRIM-OUTPUT-VALUES
-                STRING "SUCCESS|LIST_DONE|" WS-TOTAL "|RLEN=" WS-RLEN "|" WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|LIST_DONE|" WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 END-STRING
             END-IF.
             EXIT PARAGRAPH.
