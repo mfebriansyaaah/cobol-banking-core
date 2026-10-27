@@ -1,0 +1,3 @@
+DSN_TEMPLATE_GET missing first param@@ERROR\|INVALID_INPUT@@DSN_TEMPLATE_GET||||||admin@test.com
+DSN_TEMPLATE_DELETE missing first param@@ERROR\|INVALID_INPUT@@DSN_TEMPLATE_DELETE||||||admin@test.com
+DSN_GET missing first param@@ERROR\|INVALID_INPUT@@DSN_GET||||||admin@test.com

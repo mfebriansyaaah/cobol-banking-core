@@ -36,10 +36,20 @@
         01  WS-ARGS           PIC X(200) VALUE SPACES.
         01  WS-SERVE-DONE     PIC X VALUE 'N'.
         01  WS-EOF            PIC X VALUE 'N'.
+        01  DISPATCH-COUNT    PIC 9(3) VALUE 0.
+        01  DISPATCH-IDX      PIC 9(3) VALUE 1.
+        01  DISPATCH-FOUND    PIC X VALUE 'N'.
+        01  DISPATCH-TABLE.
+            05  DISPATCH-ENTRY OCCURS 200 TIMES.
+                10  D-PREFIX     PIC X(20) VALUE SPACES.
+                10  D-PREFIX-LEN PIC 9(2) VALUE 0.
+                10  D-PROGRAM   PIC X(32) VALUE SPACES.
+
         
         PROCEDURE DIVISION.
         
         MAIN-LOGIC.
+            PERFORM INIT-DISPATCH-TABLE
             ACCEPT WS-ARGS FROM COMMAND-LINE END-ACCEPT
             IF WS-ARGS(1:7) = "--serve"
                 PERFORM SERVE-MODE
@@ -97,772 +107,630 @@
             END-UNSTRING.
             EXIT PARAGRAPH.
 
+        INIT-DISPATCH-TABLE.
+            MOVE 200 TO DISPATCH-COUNT.
+            MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
+            MOVE 20 TO D-PREFIX-LEN(1).
+            MOVE "auth_core" TO D-PROGRAM(1).
+            MOVE "REVOKE_OTHER_DEVICES" TO D-PREFIX(2).
+            MOVE 20 TO D-PREFIX-LEN(2).
+            MOVE "auth_core" TO D-PROGRAM(2).
+            MOVE "LIST_RECONCILIATIONS" TO D-PREFIX(3).
+            MOVE 20 TO D-PREFIX-LEN(3).
+            MOVE "wallet_core" TO D-PROGRAM(3).
+            MOVE "APPROVE_MFA_RECOVERY" TO D-PREFIX(4).
+            MOVE 20 TO D-PREFIX-LEN(4).
+            MOVE "auth_core" TO D-PROGRAM(4).
+            MOVE "CONFIRM_EMAIL_CHANGE" TO D-PREFIX(5).
+            MOVE 20 TO D-PREFIX-LEN(5).
+            MOVE "user_core" TO D-PROGRAM(5).
+            MOVE "REVOKE_ALL_SESSIONS" TO D-PREFIX(6).
+            MOVE 20 TO D-PREFIX-LEN(6).
+            MOVE "auth_core" TO D-PROGRAM(6).
+            MOVE "VERIFY_MFA_RECOVERY" TO D-PREFIX(7).
+            MOVE 19 TO D-PREFIX-LEN(7).
+            MOVE "auth_core" TO D-PROGRAM(7).
+            MOVE "RESEND_VERIFICATION" TO D-PREFIX(8).
+            MOVE 19 TO D-PREFIX-LEN(8).
+            MOVE "auth_core" TO D-PROGRAM(8).
+            MOVE "MFA_ENROLL_REQUIRED" TO D-PREFIX(9).
+            MOVE 19 TO D-PREFIX-LEN(9).
+            MOVE "auth_core" TO D-PROGRAM(9).
+            MOVE "CLOSE_ACCESS_REVIEW" TO D-PREFIX(10).
+            MOVE 19 TO D-PREFIX-LEN(10).
+            MOVE "auth_core" TO D-PROGRAM(10).
+            MOVE "LIST_ACCESS_REVIEWS" TO D-PREFIX(11).
+            MOVE 19 TO D-PREFIX-LEN(11).
+            MOVE "auth_core" TO D-PROGRAM(11).
+            MOVE "REVOKE_USER_SESSION" TO D-PREFIX(12).
+            MOVE 19 TO D-PREFIX-LEN(12).
+            MOVE "auth_core" TO D-PROGRAM(12).
+            MOVE "REJECT_MFA_RECOVERY" TO D-PREFIX(13).
+            MOVE 19 TO D-PREFIX-LEN(13).
+            MOVE "auth_core" TO D-PROGRAM(13).
+            MOVE "REVOKE_ACCESS_TOKEN" TO D-PREFIX(14).
+            MOVE 19 TO D-PREFIX-LEN(14).
+            MOVE "auth_core" TO D-PROGRAM(14).
+            MOVE "RUN_RECONCILIATION" TO D-PREFIX(15).
+            MOVE 18 TO D-PREFIX-LEN(15).
+            MOVE "wallet_core" TO D-PROGRAM(15).
+            MOVE "REACTIVATE_DORMANT" TO D-PREFIX(16).
+            MOVE 18 TO D-PREFIX-LEN(16).
+            MOVE "user_core" TO D-PROGRAM(16).
+            MOVE "DECIDE_ACCESS_ITEM" TO D-PREFIX(17).
+            MOVE 18 TO D-PREFIX-LEN(17).
+            MOVE "auth_core" TO D-PROGRAM(17).
+            MOVE "MFA_ENROLL_CONFIRM" TO D-PREFIX(18).
+            MOVE 18 TO D-PREFIX-LEN(18).
+            MOVE "auth_core" TO D-PROGRAM(18).
+            MOVE "OPEN_ACCESS_REVIEW" TO D-PREFIX(19).
+            MOVE 18 TO D-PREFIX-LEN(19).
+            MOVE "auth_core" TO D-PROGRAM(19).
+            MOVE "DEACTIVATE_ACCOUNT" TO D-PREFIX(20).
+            MOVE 18 TO D-PREFIX-LEN(20).
+            MOVE "user_core" TO D-PROGRAM(20).
+            MOVE "REQUEST_OPERATION" TO D-PREFIX(21).
+            MOVE 17 TO D-PREFIX-LEN(21).
+            MOVE "auth_core" TO D-PROGRAM(21).
+            MOVE "LIST_MFA_RECOVERY" TO D-PREFIX(22).
+            MOVE 17 TO D-PREFIX-LEN(22).
+            MOVE "auth_core" TO D-PROGRAM(22).
+            MOVE "RESOLVE_EXCEPTION" TO D-PREFIX(23).
+            MOVE 17 TO D-PREFIX-LEN(23).
+            MOVE "wallet_core" TO D-PROGRAM(23).
+            MOVE "GET_TOKEN_VERSION" TO D-PREFIX(24).
+            MOVE 17 TO D-PREFIX-LEN(24).
+            MOVE "auth_core" TO D-PROGRAM(24).
+            MOVE "GET_ACCESS_REVIEW" TO D-PREFIX(25).
+            MOVE 17 TO D-PREFIX-LEN(25).
+            MOVE "auth_core" TO D-PROGRAM(25).
+            MOVE "APPROVE_REQUEST" TO D-PREFIX(26).
+            MOVE 16 TO D-PREFIX-LEN(26).
+            MOVE "auth_core" TO D-PROGRAM(26).
+            MOVE "LIST_PERMISSIONS" TO D-PREFIX(27).
+            MOVE 16 TO D-PREFIX-LEN(27).
+            MOVE "auth_core" TO D-PROGRAM(27).
+            MOVE "CHECK_PERMISSION" TO D-PREFIX(28).
+            MOVE 16 TO D-PREFIX-LEN(28).
+            MOVE "auth_core" TO D-PROGRAM(28).
+            MOVE "MFA_BACKUP_CODES" TO D-PREFIX(29).
+            MOVE 16 TO D-PREFIX-LEN(29).
+            MOVE "auth_core" TO D-PROGRAM(29).
+            MOVE "REVERSE_TRANSFER" TO D-PREFIX(30).
+            MOVE 16 TO D-PREFIX-LEN(30).
+            MOVE "wallet_core" TO D-PROGRAM(30).
+            MOVE "MFA_ENROLL_BEGIN" TO D-PREFIX(31).
+            MOVE 16 TO D-PREFIX-LEN(31).
+            MOVE "auth_core" TO D-PROGRAM(31).
+            MOVE "STEP_UP_REQUIRED" TO D-PREFIX(32).
+            MOVE 16 TO D-PREFIX-LEN(32).
+            MOVE "auth_core" TO D-PROGRAM(32).
+            MOVE "REQ_EMAIL_CHANGE" TO D-PREFIX(33).
+            MOVE 16 TO D-PREFIX-LEN(33).
+            MOVE "user_core" TO D-PROGRAM(33).
+            MOVE "ADD_DISPUTE_NOTE" TO D-PREFIX(34).
+            MOVE 16 TO D-PREFIX-LEN(34).
+            MOVE "wallet_core" TO D-PROGRAM(34).
+            MOVE "SUSPEND_DORMANT" TO D-PREFIX(35).
+            MOVE 15 TO D-PREFIX-LEN(35).
+            MOVE "user_core" TO D-PROGRAM(35).
+            MOVE "RESOLVE_DISPUTE" TO D-PREFIX(36).
+            MOVE 15 TO D-PREFIX-LEN(36).
+            MOVE "wallet_core" TO D-PROGRAM(36).
+            MOVE "CONSUME_SESSION" TO D-PREFIX(37).
+            MOVE 15 TO D-PREFIX-LEN(37).
+            MOVE "auth_core" TO D-PROGRAM(37).
+            MOVE "LIST_EXCEPTIONS" TO D-PREFIX(38).
+            MOVE 15 TO D-PREFIX-LEN(38).
+            MOVE "wallet_core" TO D-PROGRAM(38).
+            MOVE "ADMIN_RESET_MFA" TO D-PREFIX(39).
+            MOVE 15 TO D-PREFIX-LEN(39).
+            MOVE "user_core" TO D-PROGRAM(39).
+            MOVE "SET_USER_STATUS" TO D-PREFIX(40).
+            MOVE 15 TO D-PREFIX-LEN(40).
+            MOVE "user_core" TO D-PROGRAM(40).
+            MOVE "FORGOT_PASSWORD" TO D-PREFIX(41).
+            MOVE 15 TO D-PREFIX-LEN(41).
+            MOVE "auth_password_core" TO D-PROGRAM(41).
+            MOVE "CHANGE_PASSWORD" TO D-PREFIX(42).
+            MOVE 15 TO D-PREFIX-LEN(42).
+            MOVE "auth_password_core" TO D-PROGRAM(42).
+            MOVE "REJECT_REQUEST" TO D-PREFIX(43).
+            MOVE 14 TO D-PREFIX-LEN(43).
+            MOVE "auth_core" TO D-PROGRAM(43).
+            MOVE "LIST_REQUESTS" TO D-PREFIX(44).
+            MOVE 14 TO D-PREFIX-LEN(44).
+            MOVE "auth_core" TO D-PROGRAM(44).
+            MOVE "REJECT_DISPUTE" TO D-PREFIX(45).
+            MOVE 14 TO D-PREFIX-LEN(45).
+            MOVE "wallet_core" TO D-PROGRAM(45).
+            MOVE "REQUEST_SIGNUP" TO D-PREFIX(46).
+            MOVE 14 TO D-PREFIX-LEN(46).
+            MOVE "auth_core" TO D-PROGRAM(46).
+            MOVE "RESET_PASSWORD" TO D-PREFIX(47).
+            MOVE 14 TO D-PREFIX-LEN(47).
+            MOVE "auth_password_core" TO D-PROGRAM(47).
+            MOVE "UPDATE_PROFILE" TO D-PREFIX(48).
+            MOVE 14 TO D-PREFIX-LEN(48).
+            MOVE "user_core" TO D-PROGRAM(48).
+            MOVE "REVOKE_SESSION" TO D-PREFIX(49).
+            MOVE 14 TO D-PREFIX-LEN(49).
+            MOVE "auth_core" TO D-PROGRAM(49).
+            MOVE "GET_DASHBOARD" TO D-PREFIX(50).
+            MOVE 13 TO D-PREFIX-LEN(50).
+            MOVE "user_core" TO D-PROGRAM(50).
+            MOVE "LIST_SESSIONS" TO D-PREFIX(51).
+            MOVE 13 TO D-PREFIX-LEN(51).
+            MOVE "auth_core" TO D-PROGRAM(51).
+            MOVE "STORE_SESSION" TO D-PREFIX(52).
+            MOVE 13 TO D-PREFIX-LEN(52).
+            MOVE "auth_core" TO D-PROGRAM(52).
+            MOVE "CHECK_BALANCE" TO D-PREFIX(53).
+            MOVE 13 TO D-PREFIX-LEN(53).
+            MOVE "wallet_core" TO D-PROGRAM(53).
+            MOVE "VERIFY_REAUTH" TO D-PREFIX(54).
+            MOVE 13 TO D-PREFIX-LEN(54).
+            MOVE "auth_core" TO D-PROGRAM(54).
+            MOVE "LIST_DISPUTES" TO D-PREFIX(55).
+            MOVE 13 TO D-PREFIX-LEN(55).
+            MOVE "wallet_core" TO D-PROGRAM(55).
+            MOVE "ACK_EXCEPTION" TO D-PREFIX(56).
+            MOVE 13 TO D-PREFIX-LEN(56).
+            MOVE "wallet_core" TO D-PROGRAM(56).
+            MOVE "ARCHIVE_AUDIT" TO D-PREFIX(57).
+            MOVE 13 TO D-PREFIX-LEN(57).
+            MOVE "auth_core" TO D-PROGRAM(57).
+            MOVE "LOGIN_NOTICE" TO D-PREFIX(58).
+            MOVE 12 TO D-PREFIX-LEN(58).
+            MOVE "auth_core" TO D-PROGRAM(58).
+            MOVE "OUTBOX_CLAIM" TO D-PREFIX(59).
+            MOVE 12 TO D-PREFIX-LEN(59).
+            MOVE "auth_core" TO D-PROGRAM(59).
+            MOVE "MARK_DORMANT" TO D-PREFIX(60).
+            MOVE 12 TO D-PREFIX-LEN(60).
+            MOVE "user_core" TO D-PROGRAM(60).
+            MOVE "OPEN_DISPUTE" TO D-PREFIX(61).
+            MOVE 12 TO D-PREFIX-LEN(61).
+            MOVE "wallet_core" TO D-PROGRAM(61).
+            MOVE "LIST_OUTBOX" TO D-PREFIX(62).
+            MOVE 12 TO D-PREFIX-LEN(62).
+            MOVE "auth_core" TO D-PROGRAM(62).
+            MOVE "RELEASE_HOLD" TO D-PREFIX(63).
+            MOVE 12 TO D-PREFIX-LEN(63).
+            MOVE "wallet_core" TO D-PROGRAM(63).
+            MOVE "VERIFY_EMAIL" TO D-PREFIX(64).
+            MOVE 12 TO D-PREFIX-LEN(64).
+            MOVE "auth_core" TO D-PROGRAM(64).
+            MOVE "MFA_DISABLE" TO D-PREFIX(65).
+            MOVE 11 TO D-PREFIX-LEN(65).
+            MOVE "auth_core" TO D-PROGRAM(65).
+            MOVE "CHECK_TOKEN" TO D-PREFIX(66).
+            MOVE 11 TO D-PREFIX-LEN(66).
+            MOVE "auth_core" TO D-PROGRAM(66).
+            MOVE "ACK_DISPUTE" TO D-PREFIX(67).
+            MOVE 11 TO D-PREFIX-LEN(67).
+            MOVE "wallet_core" TO D-PROGRAM(67).
+            MOVE "CHANGE_ROLE" TO D-PREFIX(68).
+            MOVE 11 TO D-PREFIX-LEN(68).
+            MOVE "auth_core" TO D-PROGRAM(68).
+            MOVE "UNLOCK_USER" TO D-PREFIX(69).
+            MOVE 11 TO D-PREFIX-LEN(69).
+            MOVE "user_core" TO D-PROGRAM(69).
+            MOVE "GET_DISPUTE" TO D-PREFIX(70).
+            MOVE 11 TO D-PREFIX-LEN(70).
+            MOVE "wallet_core" TO D-PROGRAM(70).
+            MOVE "OUTBOX_MARK" TO D-PREFIX(71).
+            MOVE 11 TO D-PREFIX-LEN(71).
+            MOVE "auth_core" TO D-PROGRAM(71).
+            MOVE "LIST_USERS" TO D-PREFIX(72).
+            MOVE 10 TO D-PREFIX-LEN(72).
+            MOVE "user_core" TO D-PROGRAM(72).
+            MOVE "PLACE_HOLD" TO D-PREFIX(73).
+            MOVE 10 TO D-PREFIX-LEN(73).
+            MOVE "wallet_core" TO D-PROGRAM(73).
+            MOVE "CHECK_ROLE" TO D-PREFIX(74).
+            MOVE 10 TO D-PREFIX-LEN(74).
+            MOVE "auth_core" TO D-PROGRAM(74).
+            MOVE "AUTH_LOGIN" TO D-PREFIX(75).
+            MOVE 10 TO D-PREFIX-LEN(75).
+            MOVE "auth_core" TO D-PROGRAM(75).
+            MOVE "LIST_AUDIT" TO D-PREFIX(76).
+            MOVE 10 TO D-PREFIX-LEN(76).
+            MOVE "auth_core" TO D-PROGRAM(76).
+            MOVE "TX_STATUS" TO D-PREFIX(77).
+            MOVE 9 TO D-PREFIX-LEN(77).
+            MOVE "wallet_core" TO D-PROGRAM(77).
+            MOVE "RECONCILE" TO D-PREFIX(78).
+            MOVE 9 TO D-PREFIX-LEN(78).
+            MOVE "wallet_core" TO D-PROGRAM(78).
+            MOVE "STATEMENT" TO D-PREFIX(79).
+            MOVE 9 TO D-PREFIX-LEN(79).
+            MOVE "wallet_core" TO D-PROGRAM(79).
+            MOVE "GET_USER" TO D-PREFIX(80).
+            MOVE 8 TO D-PREFIX-LEN(80).
+            MOVE "user_core" TO D-PROGRAM(80).
+            MOVE "TRANSFER" TO D-PREFIX(81).
+            MOVE 8 TO D-PREFIX-LEN(81).
+            MOVE "wallet_core" TO D-PROGRAM(81).
+            MOVE "EODJOB_" TO D-PREFIX(82).
+            MOVE 7 TO D-PREFIX-LEN(82).
+            MOVE "eod_jobs_core" TO D-PROGRAM(82).
+            MOVE "BATCH_" TO D-PREFIX(83).
+            MOVE 6 TO D-PREFIX-LEN(83).
+            MOVE "batch_core" TO D-PROGRAM(83).
+            MOVE "RECON_" TO D-PREFIX(84).
+            MOVE 6 TO D-PREFIX-LEN(84).
+            MOVE "recon_core" TO D-PROGRAM(84).
+            MOVE "LOAN_" TO D-PREFIX(85).
+            MOVE 5 TO D-PREFIX-LEN(85).
+            MOVE "loan_core" TO D-PROGRAM(85).
+            MOVE "STMT_" TO D-PREFIX(86).
+            MOVE 5 TO D-PREFIX-LEN(86).
+            MOVE "statement_core" TO D-PROGRAM(86).
+            MOVE "CARD_" TO D-PREFIX(87).
+            MOVE 5 TO D-PREFIX-LEN(87).
+            MOVE "card_core" TO D-PROGRAM(87).
+            MOVE "IMPP_" TO D-PREFIX(88).
+            MOVE 5 TO D-PREFIX-LEN(88).
+            MOVE "import_post_core" TO D-PROGRAM(88).
+            MOVE "ALE_" TO D-PREFIX(89).
+            MOVE 4 TO D-PREFIX-LEN(89).
+            MOVE "alert_escalation_core" TO D-PROGRAM(89).
+            MOVE "TRL_" TO D-PREFIX(90).
+            MOVE 4 TO D-PREFIX-LEN(90).
+            MOVE "treasury_liquidity_core" TO D-PROGRAM(90).
+            MOVE "SRC_" TO D-PREFIX(91).
+            MOVE 4 TO D-PREFIX-LEN(91).
+            MOVE "statement_recon_core" TO D-PROGRAM(91).
+            MOVE "REG_" TO D-PREFIX(92).
+            MOVE 4 TO D-PREFIX-LEN(92).
+            MOVE "regulatory_report_core" TO D-PROGRAM(92).
+            MOVE "DOC_" TO D-PREFIX(93).
+            MOVE 4 TO D-PREFIX-LEN(93).
+            MOVE "document_core" TO D-PROGRAM(93).
+            MOVE "FRC_" TO D-PREFIX(94).
+            MOVE 4 TO D-PREFIX-LEN(94).
+            MOVE "fraud_case_core" TO D-PROGRAM(94).
+            MOVE "IRT_" TO D-PREFIX(95).
+            MOVE 4 TO D-PREFIX-LEN(95).
+            MOVE "interest_rate_core" TO D-PROGRAM(95).
+            MOVE "IPM_" TO D-PREFIX(96).
+            MOVE 4 TO D-PREFIX-LEN(96).
+            MOVE "incident_postmortem_core" TO D-PROGRAM(96).
+            MOVE "RPB_" TO D-PREFIX(97).
+            MOVE 4 TO D-PREFIX-LEN(97).
+            MOVE "report_builder_core" TO D-PROGRAM(97).
+            MOVE "PRD_" TO D-PREFIX(98).
+            MOVE 4 TO D-PREFIX-LEN(98).
+            MOVE "product_catalog_core" TO D-PROGRAM(98).
+            MOVE "BDR_" TO D-PREFIX(99).
+            MOVE 4 TO D-PREFIX-LEN(99).
+            MOVE "backup_drill_core" TO D-PROGRAM(99).
+            MOVE "PMC_" TO D-PREFIX(100).
+            MOVE 4 TO D-PREFIX-LEN(100).
+            MOVE "payment_clearing_core" TO D-PROGRAM(100).
+            MOVE "PAT_" TO D-PREFIX(101).
+            MOVE 4 TO D-PREFIX-LEN(101).
+            MOVE "policy_attestation_core" TO D-PROGRAM(101).
+            MOVE "ALT_" TO D-PREFIX(102).
+            MOVE 4 TO D-PREFIX-LEN(102).
+            MOVE "alert_core" TO D-PROGRAM(102).
+            MOVE "LSC_" TO D-PREFIX(103).
+            MOVE 4 TO D-PREFIX-LEN(103).
+            MOVE "loan_schedule_core" TO D-PROGRAM(103).
+            MOVE "EXP_" TO D-PREFIX(104).
+            MOVE 4 TO D-PREFIX-LEN(104).
+            MOVE "export_archive_core" TO D-PROGRAM(104).
+            MOVE "SCL_" TO D-PREFIX(105).
+            MOVE 4 TO D-PREFIX-LEN(105).
+            MOVE "sanctions_list_core" TO D-PROGRAM(105).
+            MOVE "LBP_" TO D-PREFIX(106).
+            MOVE 4 TO D-PREFIX-LEN(106).
+            MOVE "lbpue_core" TO D-PROGRAM(106).
+            MOVE "AAU_" TO D-PREFIX(107).
+            MOVE 4 TO D-PREFIX-LEN(107).
+            MOVE "access_audit_core" TO D-PROGRAM(107).
+            MOVE "FEE_" TO D-PREFIX(108).
+            MOVE 4 TO D-PREFIX-LEN(108).
+            MOVE "fee_core" TO D-PROGRAM(108).
+            MOVE "DLN_" TO D-PREFIX(109).
+            MOVE 4 TO D-PREFIX-LEN(109).
+            MOVE "data_lineage_core" TO D-PROGRAM(109).
+            MOVE "DSN_" TO D-PREFIX(110).
+            MOVE 4 TO D-PREFIX-LEN(110).
+            MOVE "dispute_notify_core" TO D-PROGRAM(110).
+            MOVE "RSC_" TO D-PREFIX(111).
+            MOVE 4 TO D-PREFIX-LEN(111).
+            MOVE "report_scheduler_core" TO D-PROGRAM(111).
+            MOVE "RAU_" TO D-PREFIX(112).
+            MOVE 4 TO D-PREFIX-LEN(112).
+            MOVE "report_audit_core" TO D-PROGRAM(112).
+            MOVE "KCP_" TO D-PREFIX(113).
+            MOVE 4 TO D-PREFIX-LEN(113).
+            MOVE "kyc_periodic_core" TO D-PROGRAM(113).
+            MOVE "RSK_" TO D-PREFIX(114).
+            MOVE 4 TO D-PREFIX-LEN(114).
+            MOVE "risk_screening_core" TO D-PROGRAM(114).
+            MOVE "STL_" TO D-PREFIX(115).
+            MOVE 4 TO D-PREFIX-LEN(115).
+            MOVE "statement_delivery_core" TO D-PROGRAM(115).
+            MOVE "BKP_" TO D-PREFIX(116).
+            MOVE 4 TO D-PREFIX-LEN(116).
+            MOVE "backup_restore_core" TO D-PROGRAM(116).
+            MOVE "GRL_" TO D-PREFIX(117).
+            MOVE 4 TO D-PREFIX-LEN(117).
+            MOVE "gl_reval_core" TO D-PROGRAM(117).
+            MOVE "RPT_" TO D-PREFIX(118).
+            MOVE 4 TO D-PREFIX-LEN(118).
+            MOVE "report_core" TO D-PROGRAM(118).
+            MOVE "PAY_" TO D-PREFIX(119).
+            MOVE 4 TO D-PREFIX-LEN(119).
+            MOVE "payment_core" TO D-PROGRAM(119).
+            MOVE "DSP_" TO D-PREFIX(120).
+            MOVE 4 TO D-PREFIX-LEN(120).
+            MOVE "dispute_ops_core" TO D-PROGRAM(120).
+            MOVE "EOD_" TO D-PREFIX(121).
+            MOVE 4 TO D-PREFIX-LEN(121).
+            MOVE "eod_core" TO D-PROGRAM(121).
+            MOVE "KYC_" TO D-PREFIX(122).
+            MOVE 4 TO D-PREFIX-LEN(122).
+            MOVE "kyc_review_core" TO D-PROGRAM(122).
+            MOVE "AMT_" TO D-PREFIX(123).
+            MOVE 4 TO D-PREFIX-LEN(123).
+            MOVE "asset_maintenance_core" TO D-PROGRAM(123).
+            MOVE "SLO_" TO D-PREFIX(124).
+            MOVE 4 TO D-PREFIX-LEN(124).
+            MOVE "slo_report_core" TO D-PROGRAM(124).
+            MOVE "TAX_" TO D-PREFIX(125).
+            MOVE 4 TO D-PREFIX-LEN(125).
+            MOVE "tax_report_core" TO D-PROGRAM(125).
+            MOVE "FXH_" TO D-PREFIX(126).
+            MOVE 4 TO D-PREFIX-LEN(126).
+            MOVE "fx_hedging_core" TO D-PROGRAM(126).
+            MOVE "ONC_" TO D-PREFIX(127).
+            MOVE 4 TO D-PREFIX-LEN(127).
+            MOVE "oncall_core" TO D-PROGRAM(127).
+            MOVE "ARE_" TO D-PREFIX(128).
+            MOVE 4 TO D-PREFIX-LEN(128).
+            MOVE "audit_retention_core" TO D-PROGRAM(128).
+            MOVE "NTF_" TO D-PREFIX(129).
+            MOVE 4 TO D-PREFIX-LEN(129).
+            MOVE "notification_core" TO D-PROGRAM(129).
+            MOVE "PIC_" TO D-PREFIX(130).
+            MOVE 4 TO D-PREFIX-LEN(130).
+            MOVE "payment_instruction_core" TO D-PROGRAM(130).
+            MOVE "PAL_" TO D-PREFIX(131).
+            MOVE 4 TO D-PREFIX-LEN(131).
+            MOVE "pipeline_alert_core" TO D-PROGRAM(131).
+            MOVE "FWV_" TO D-PREFIX(132).
+            MOVE 4 TO D-PREFIX-LEN(132).
+            MOVE "fee_waiver_core" TO D-PROGRAM(132).
+            MOVE "SCR_" TO D-PREFIX(133).
+            MOVE 4 TO D-PREFIX-LEN(133).
+            MOVE "secret_rotation_core" TO D-PROGRAM(133).
+            MOVE "PING" TO D-PREFIX(134).
+            MOVE 4 TO D-PREFIX-LEN(134).
+            MOVE "auth_core" TO D-PROGRAM(134).
+            MOVE "DSH_" TO D-PREFIX(135).
+            MOVE 4 TO D-PREFIX-LEN(135).
+            MOVE "dashboard_core" TO D-PROGRAM(135).
+            MOVE "CHA_" TO D-PREFIX(136).
+            MOVE 4 TO D-PREFIX-LEN(136).
+            MOVE "change_approval_core" TO D-PROGRAM(136).
+            MOVE "IMP_" TO D-PREFIX(137).
+            MOVE 4 TO D-PREFIX-LEN(137).
+            MOVE "import_core" TO D-PROGRAM(137).
+            MOVE "WFA_" TO D-PREFIX(138).
+            MOVE 4 TO D-PREFIX-LEN(138).
+            MOVE "workflow_approval_core" TO D-PROGRAM(138).
+            MOVE "FOP_" TO D-PREFIX(139).
+            MOVE 4 TO D-PREFIX-LEN(139).
+            MOVE "fraud_ops_core" TO D-PROGRAM(139).
+            MOVE "TRP_" TO D-PREFIX(140).
+            MOVE 4 TO D-PREFIX-LEN(140).
+            MOVE "treasury_position_core" TO D-PROGRAM(140).
+            MOVE "GPC_" TO D-PREFIX(141).
+            MOVE 4 TO D-PREFIX-LEN(141).
+            MOVE "gl_period_close_core" TO D-PROGRAM(141).
+            MOVE "SLA_" TO D-PREFIX(142).
+            MOVE 4 TO D-PREFIX-LEN(142).
+            MOVE "sla_tracking_core" TO D-PROGRAM(142).
+            MOVE "INC_" TO D-PREFIX(143).
+            MOVE 4 TO D-PREFIX-LEN(143).
+            MOVE "incident_core" TO D-PROGRAM(143).
+            MOVE "DRT_" TO D-PREFIX(144).
+            MOVE 4 TO D-PREFIX-LEN(144).
+            MOVE "data_retention_core" TO D-PROGRAM(144).
+            MOVE "XST_" TO D-PREFIX(145).
+            MOVE 4 TO D-PREFIX-LEN(145).
+            MOVE "export_stream_core" TO D-PROGRAM(145).
+            MOVE "DSR_" TO D-PREFIX(146).
+            MOVE 4 TO D-PREFIX-LEN(146).
+            MOVE "dsar_core" TO D-PROGRAM(146).
+            MOVE "VCC_" TO D-PREFIX(147).
+            MOVE 4 TO D-PREFIX-LEN(147).
+            MOVE "vendor_compliance_core" TO D-PROGRAM(147).
+            MOVE "CNS_" TO D-PREFIX(148).
+            MOVE 4 TO D-PREFIX-LEN(148).
+            MOVE "consolidation_core" TO D-PROGRAM(148).
+            MOVE "CFC_" TO D-PREFIX(149).
+            MOVE 4 TO D-PREFIX-LEN(149).
+            MOVE "capacity_forecast_core" TO D-PROGRAM(149).
+            MOVE "FAS_" TO D-PREFIX(150).
+            MOVE 4 TO D-PREFIX-LEN(150).
+            MOVE "fixed_asset_core" TO D-PROGRAM(150).
+            MOVE "LHO_" TO D-PREFIX(151).
+            MOVE 4 TO D-PREFIX-LEN(151).
+            MOVE "legal_hold_core" TO D-PROGRAM(151).
+            MOVE "BLP_" TO D-PREFIX(152).
+            MOVE 4 TO D-PREFIX-LEN(152).
+            MOVE "billpay_core" TO D-PROGRAM(152).
+            MOVE "CST_" TO D-PREFIX(153).
+            MOVE 4 TO D-PREFIX-LEN(153).
+            MOVE "customer_core" TO D-PROGRAM(153).
+            MOVE "CSC_" TO D-PREFIX(154).
+            MOVE 4 TO D-PREFIX-LEN(154).
+            MOVE "cost_center_core" TO D-PROGRAM(154).
+            MOVE "BUD_" TO D-PREFIX(155).
+            MOVE 4 TO D-PREFIX-LEN(155).
+            MOVE "budget_core" TO D-PROGRAM(155).
+            MOVE "ADR_" TO D-PREFIX(156).
+            MOVE 4 TO D-PREFIX-LEN(156).
+            MOVE "audit_drilldown_core" TO D-PROGRAM(156).
+            MOVE "IRC_" TO D-PREFIX(157).
+            MOVE 4 TO D-PREFIX-LEN(157).
+            MOVE "import_recon_core" TO D-PROGRAM(157).
+            MOVE "ACC_" TO D-PREFIX(158).
+            MOVE 4 TO D-PREFIX-LEN(158).
+            MOVE "account_core" TO D-PROGRAM(158).
+            MOVE "SHL_" TO D-PREFIX(159).
+            MOVE 4 TO D-PREFIX-LEN(159).
+            MOVE "sanctions_hold_core" TO D-PROGRAM(159).
+            MOVE "NAU_" TO D-PREFIX(160).
+            MOVE 4 TO D-PREFIX-LEN(160).
+            MOVE "notification_audit_core" TO D-PROGRAM(160).
+            MOVE "KRO_" TO D-PREFIX(161).
+            MOVE 4 TO D-PREFIX-LEN(161).
+            MOVE "key_rotation_core" TO D-PROGRAM(161).
+            MOVE "STO_" TO D-PREFIX(162).
+            MOVE 4 TO D-PREFIX-LEN(162).
+            MOVE "standing_order_core" TO D-PROGRAM(162).
+            MOVE "AST_" TO D-PREFIX(163).
+            MOVE 4 TO D-PREFIX-LEN(163).
+            MOVE "asset_core" TO D-PROGRAM(163).
+            MOVE "ODL_" TO D-PREFIX(164).
+            MOVE 4 TO D-PREFIX-LEN(164).
+            MOVE "oncall_delivery_core" TO D-PROGRAM(164).
+            MOVE "REX_" TO D-PREFIX(165).
+            MOVE 4 TO D-PREFIX-LEN(165).
+            MOVE "recon_exception_core" TO D-PROGRAM(165).
+            MOVE "VEL_" TO D-PREFIX(166).
+            MOVE 4 TO D-PREFIX-LEN(166).
+            MOVE "fee_core" TO D-PROGRAM(166).
+            MOVE "DRC_" TO D-PREFIX(167).
+            MOVE 4 TO D-PREFIX-LEN(167).
+            MOVE "disaster_recovery_core" TO D-PROGRAM(167).
+            MOVE "RPA_" TO D-PREFIX(168).
+            MOVE 4 TO D-PREFIX-LEN(168).
+            MOVE "report_archive_core" TO D-PROGRAM(168).
+            MOVE "CEX_" TO D-PREFIX(169).
+            MOVE 4 TO D-PREFIX-LEN(169).
+            MOVE "compliance_export_core" TO D-PROGRAM(169).
+            MOVE "VRK_" TO D-PREFIX(170).
+            MOVE 4 TO D-PREFIX-LEN(170).
+            MOVE "vendor_risk_core" TO D-PROGRAM(170).
+            MOVE "RMT_" TO D-PREFIX(171).
+            MOVE 4 TO D-PREFIX-LEN(171).
+            MOVE "remittance_core" TO D-PROGRAM(171).
+            MOVE "GLA_" TO D-PREFIX(172).
+            MOVE 4 TO D-PREFIX-LEN(172).
+            MOVE "gl_allocation_core" TO D-PROGRAM(172).
+            MOVE "STR_" TO D-PREFIX(173).
+            MOVE 4 TO D-PREFIX-LEN(173).
+            MOVE "settlement_recon_core" TO D-PROGRAM(173).
+            MOVE "FXD_" TO D-PREFIX(174).
+            MOVE 4 TO D-PREFIX-LEN(174).
+            MOVE "fx_deal_core" TO D-PROGRAM(174).
+            MOVE "VND_" TO D-PREFIX(175).
+            MOVE 4 TO D-PREFIX-LEN(175).
+            MOVE "vendor_core" TO D-PROGRAM(175).
+            MOVE "RCP_" TO D-PREFIX(176).
+            MOVE 4 TO D-PREFIX-LEN(176).
+            MOVE "recon_ops_core" TO D-PROGRAM(176).
+            MOVE "DEP_" TO D-PREFIX(177).
+            MOVE 4 TO D-PREFIX-LEN(177).
+            MOVE "deposit_core" TO D-PROGRAM(177).
+            MOVE "PRC_" TO D-PREFIX(178).
+            MOVE 4 TO D-PREFIX-LEN(178).
+            MOVE "procurement_core" TO D-PROGRAM(178).
+            MOVE "BKV_" TO D-PREFIX(179).
+            MOVE 4 TO D-PREFIX-LEN(179).
+            MOVE "backup_verification_core" TO D-PROGRAM(179).
+            MOVE "ASN_" TO D-PREFIX(180).
+            MOVE 4 TO D-PREFIX-LEN(180).
+            MOVE "audit_snapshot_core" TO D-PROGRAM(180).
+            MOVE "COL_" TO D-PREFIX(181).
+            MOVE 4 TO D-PREFIX-LEN(181).
+            MOVE "collection_core" TO D-PROGRAM(181).
+            MOVE "MDF_" TO D-PREFIX(182).
+            MOVE 4 TO D-PREFIX-LEN(182).
+            MOVE "metric_definition_core" TO D-PROGRAM(182).
+            MOVE "RTJ_" TO D-PREFIX(183).
+            MOVE 4 TO D-PREFIX-LEN(183).
+            MOVE "retention_job_core" TO D-PROGRAM(183).
+            MOVE "DQC_" TO D-PREFIX(184).
+            MOVE 4 TO D-PREFIX-LEN(184).
+            MOVE "data_quality_core" TO D-PROGRAM(184).
+            MOVE "AML_" TO D-PREFIX(185).
+            MOVE 4 TO D-PREFIX-LEN(185).
+            MOVE "aml_screening_core" TO D-PROGRAM(185).
+            MOVE "CAP_" TO D-PREFIX(186).
+            MOVE 4 TO D-PREFIX-LEN(186).
+            MOVE "capacity_plan_core" TO D-PROGRAM(186).
+            MOVE "RDL_" TO D-PREFIX(187).
+            MOVE 4 TO D-PREFIX-LEN(187).
+            MOVE "report_delivery_core" TO D-PROGRAM(187).
+            MOVE "CSM_" TO D-PREFIX(188).
+            MOVE 4 TO D-PREFIX-LEN(188).
+            MOVE "case_management_core" TO D-PROGRAM(188).
+            MOVE "RFE_" TO D-PREFIX(189).
+            MOVE 4 TO D-PREFIX-LEN(189).
+            MOVE "ref_engine" TO D-PROGRAM(189).
+            MOVE "CRT_" TO D-PREFIX(190).
+            MOVE 4 TO D-PREFIX-LEN(190).
+            MOVE "compliance_retention_core" TO D-PROGRAM(190).
+            MOVE "AAN_" TO D-PREFIX(191).
+            MOVE 4 TO D-PREFIX-LEN(191).
+            MOVE "audit_analytics_core" TO D-PROGRAM(191).
+            MOVE "PHL_" TO D-PREFIX(192).
+            MOVE 4 TO D-PREFIX-LEN(192).
+            MOVE "payment_hold_core" TO D-PROGRAM(192).
+            MOVE "CLT_" TO D-PREFIX(193).
+            MOVE 4 TO D-PREFIX-LEN(193).
+            MOVE "collateral_core" TO D-PROGRAM(193).
+            MOVE "ASP_" TO D-PREFIX(194).
+            MOVE 4 TO D-PREFIX-LEN(194).
+            MOVE "analytics_snapshot_core" TO D-PROGRAM(194).
+            MOVE "LPR_" TO D-PREFIX(195).
+            MOVE 4 TO D-PREFIX-LEN(195).
+            MOVE "limit_profile_core" TO D-PROGRAM(195).
+            MOVE "CHG_" TO D-PREFIX(196).
+            MOVE 4 TO D-PREFIX-LEN(196).
+            MOVE "change_control_core" TO D-PROGRAM(196).
+            MOVE "RCL_" TO D-PREFIX(197).
+            MOVE 4 TO D-PREFIX-LEN(197).
+            MOVE "regulatory_calendar_core" TO D-PROGRAM(197).
+            MOVE "RX_" TO D-PREFIX(198).
+            MOVE 3 TO D-PREFIX-LEN(198).
+            MOVE "ref_ext_core" TO D-PROGRAM(198).
+            MOVE "CA_" TO D-PREFIX(199).
+            MOVE 3 TO D-PREFIX-LEN(199).
+            MOVE "compliance_audit_core" TO D-PROGRAM(199).
+            MOVE "GL_" TO D-PREFIX(200).
+            MOVE 3 TO D-PREFIX-LEN(200).
+            MOVE "gl_core" TO D-PROGRAM(200).
+            EXIT PARAGRAPH.
+
         DISPATCH-ACTION.
-            *> Routing shared by both modes: set WS-OUTPUT-MSG for the action.
-            MOVE SPACES TO WS-OUTPUT-MSG
-            IF CMD-ACTION = SPACES
-                MOVE "ERROR|MISSING_ACTION" TO WS-OUTPUT-MSG
-                EXIT PARAGRAPH
-            END-IF.
-            IF CMD-ACTION(1:4) = "RFE_"
-                CALL "ref_engine" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:3) = "RX_"
-                CALL "ref_ext_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "NTF_"
-                CALL "notification_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PAY_"
-                CALL "payment_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:6) = "RECON_"
-                CALL "recon_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:3) = "GL_"
-                CALL "gl_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:6) = "BATCH_"
-                CALL "batch_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RDL_"
-                CALL "report_delivery_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DSP_"
-                CALL "dispute_ops_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "EXP_"
-                CALL "export_archive_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RCP_"
-                CALL "recon_ops_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ALT_"
-                CALL "alert_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DSH_"
-                CALL "dashboard_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "SRC_"
-                CALL "statement_recon_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PIC_"
-                CALL "payment_instruction_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ONC_"
-                CALL "oncall_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "AAN_"
-                CALL "audit_analytics_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "IRC_"
-                CALL "import_recon_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "REX_"
-                CALL "recon_exception_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DSN_"
-                CALL "dispute_notify_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "XST_"
-                CALL "export_stream_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ALE_"
-                CALL "alert_escalation_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ADR_"
-                CALL "audit_drilldown_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CEX_"
-                CALL "compliance_export_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PHL_"
-                CALL "payment_hold_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ODL_"
-                CALL "oncall_delivery_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CRT_"
-                CALL "compliance_retention_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RSC_"
-                CALL "report_scheduler_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ASN_"
-                CALL "audit_snapshot_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RPA_"
-                CALL "report_archive_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "REG_"
-                CALL "regulatory_report_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:5) = "LOAN_"
-                CALL "loan_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DEP_"
-                CALL "deposit_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "FXD_"
-                CALL "fx_deal_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "TRP_"
-                CALL "treasury_position_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:5) = "CARD_"
-                CALL "card_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "TAX_"
-                CALL "tax_report_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "GRL_"
-                CALL "gl_reval_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "GPC_"
-                CALL "gl_period_close_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "FOP_"
-                CALL "fraud_ops_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "LBP_"
-                CALL "lbpue_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "FWV_"
-                CALL "fee_waiver_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "LPR_"
-                CALL "limit_profile_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "SHL_"
-                CALL "sanctions_hold_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "KYC_"
-                CALL "kyc_review_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RSK_"
-                CALL "risk_screening_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "VND_"
-                CALL "vendor_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "VRK_"
-                CALL "vendor_risk_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "AMT_"
-                CALL "asset_maintenance_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "AST_"
-                CALL "asset_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PAT_"
-                CALL "policy_attestation_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RCL_"
-                CALL "regulatory_calendar_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "BUD_"
-                CALL "budget_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PRC_"
-                CALL "procurement_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "STR_"
-                CALL "settlement_recon_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "STL_"
-                CALL "statement_delivery_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RPT_"
-                CALL "report_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:5) = "IMPP_"
-                CALL "import_post_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "IMP_"
-                CALL "import_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "FEE_" OR CMD-ACTION(1:4) = "VEL_"
-                CALL "fee_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:7) = "EODJOB_"
-                CALL "eod_jobs_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "EOD_"
-                CALL "eod_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:5) = "STMT_"
-                CALL "statement_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "LHO_"
-                CALL "legal_hold_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "KRO_"
-                CALL "key_rotation_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DSR_"
-                CALL "dsar_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RTJ_"
-                CALL "retention_job_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "SLO_"
-                CALL "slo_report_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PAL_"
-                CALL "pipeline_alert_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "INC_"
-                CALL "incident_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CHG_"
-                CALL "change_control_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "BKP_"
-                CALL "backup_restore_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "SCR_"
-                CALL "secret_rotation_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DRC_"
-                CALL "disaster_recovery_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CAP_"
-                CALL "capacity_plan_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ARE_"
-                CALL "audit_retention_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:3) = "CA_"
-                CALL "compliance_audit_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "VCC_"
-                CALL "vendor_compliance_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DQC_"
-                CALL "data_quality_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "NAU_"
-                CALL "notification_audit_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RAU_"
-                CALL "report_audit_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DRT_"
-                CALL "data_retention_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "AAU_"
-                CALL "access_audit_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "BKV_"
-                CALL "backup_verification_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "SLA_"
-                CALL "sla_tracking_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "LSC_"
-                CALL "loan_schedule_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "COL_"
-                CALL "collection_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PMC_"
-                CALL "payment_clearing_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "BLP_"
-                CALL "billpay_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "TRL_"
-                CALL "treasury_liquidity_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "FXH_"
-                CALL "fx_hedging_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "KCP_"
-                CALL "kyc_periodic_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "AML_"
-                CALL "aml_screening_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "SCL_"
-                CALL "sanctions_list_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "FRC_"
-                CALL "fraud_case_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "GLA_"
-                CALL "gl_allocation_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "FAS_"
-                CALL "fixed_asset_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CSC_"
-                CALL "cost_center_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CST_"
-                CALL "customer_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PRD_"
-                CALL "product_catalog_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ACC_"
-                CALL "account_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CLT_"
-                CALL "collateral_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "STO_"
-                CALL "standing_order_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RMT_"
-                CALL "remittance_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CSM_"
-                CALL "case_management_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DOC_"
-                CALL "document_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "WFA_"
-                CALL "workflow_approval_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "IRT_"
-                CALL "interest_rate_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CNS_"
-                CALL "consolidation_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "BDR_"
-                CALL "backup_drill_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "IPM_"
-                CALL "incident_postmortem_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CHA_"
-                CALL "change_approval_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "CFC_"
-                CALL "capacity_forecast_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "DLN_"
-                CALL "data_lineage_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "MDF_"
-                CALL "metric_definition_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "RPB_"
-                CALL "report_builder_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "ASP_"
-                CALL "analytics_snapshot_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "CHECK_BALANCE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:16) = "REVERSE_TRANSFER"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:9) = "TX_STATUS"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:8) = "TRANSFER"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:8) = "GET_USER"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:10) = "LIST_USERS"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "GET_DASHBOARD"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:16) = "REQ_EMAIL_CHANGE"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:20) = "CONFIRM_EMAIL_CHANGE"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:14) = "UPDATE_PROFILE"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:18) = "DEACTIVATE_ACCOUNT"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:15) = "SET_USER_STATUS"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:11) = "UNLOCK_USER"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:15) = "ADMIN_RESET_MFA"
-                CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:10) = "PLACE_HOLD"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:12) = "RELEASE_HOLD"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:9) = "STATEMENT"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:12) = "OPEN_DISPUTE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:16) = "ADD_DISPUTE_NOTE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:11) = "ACK_DISPUTE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:15) = "RESOLVE_DISPUTE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:14) = "REJECT_DISPUTE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "LIST_DISPUTES"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:11) = "GET_DISPUTE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:9) = "RECONCILE"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:18) = "RUN_RECONCILIATION"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:20) = "LIST_RECONCILIATIONS"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:15) = "LIST_EXCEPTIONS"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "ACK_EXCEPTION"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:17) = "RESOLVE_EXCEPTION"
-                CALL "wallet_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:10) = "AUTH_LOGIN"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:14) = "REQUEST_SIGNUP"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:12) = "VERIFY_EMAIL"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "VERIFY_REAUTH"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:15) = "FORGOT_PASSWORD"
-                CALL "auth_password_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:14) = "RESET_PASSWORD"
-                CALL "auth_password_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:15) = "CHANGE_PASSWORD"
-                CALL "auth_password_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:19) = "RESEND_VERIFICATION"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:16) = "MFA_ENROLL_BEGIN"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:18) = "MFA_ENROLL_CONFIRM"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:11) = "MFA_DISABLE"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:16) = "MFA_BACKUP_CODES"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:10) = "CHECK_ROLE"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:11) = "CHANGE_ROLE"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "STORE_SESSION"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:14) = "REVOKE_SESSION"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:15) = "CONSUME_SESSION"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:11) = "CHECK_TOKEN"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:17) = "GET_TOKEN_VERSION"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:19) = "MFA_ENROLL_REQUIRED"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:19) = "REVOKE_ACCESS_TOKEN"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "LIST_SESSIONS"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:19) = "REVOKE_USER_SESSION"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:20) = "REVOKE_ALL_SESSIONS"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:13) = "ARCHIVE_AUDIT"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:10) = "LIST_AUDIT"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:20) = "REQUEST_MFA_RECOVERY"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:19) = "VERIFY_MFA_RECOVERY"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:20) = "APPROVE_MFA_RECOVERY"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:19) = "REJECT_MFA_RECOVERY"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:17) = "LIST_MFA_RECOVERY"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:12) = "OUTBOX_CLAIM"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:11) = "OUTBOX_MARK"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:12) = "LIST_OUTBOX"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:17) = "REQUEST_OPERATION"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:16) = "APPROVE_REQUEST"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:14) = "REJECT_REQUEST"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:14) = "LIST_REQUESTS"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            IF CMD-ACTION(1:4) = "PING"
-                CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                EXIT PARAGRAPH
-            END-IF
-            *> Access-review actions dispatch from here so the legacy
-            *> chain keeps its shape and every new scope is closed.
-                IF CMD-ACTION(1:18) = "OPEN_ACCESS_REVIEW" OR CMD-ACTION(1:19) = "LIST_ACCESS_REVIEWS" OR CMD-ACTION(1:17) = "GET_ACCESS_REVIEW" OR CMD-ACTION(1:18) = "DECIDE_ACCESS_ITEM" OR CMD-ACTION(1:19) = "CLOSE_ACCESS_REVIEW"
-                    CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                ELSE
-                    IF CMD-ACTION(1:16) = "CHECK_PERMISSION" OR CMD-ACTION(1:16) = "LIST_PERMISSIONS" OR CMD-ACTION(1:16) = "STEP_UP_REQUIRED" OR CMD-ACTION(1:20) = "REVOKE_OTHER_DEVICES" OR CMD-ACTION(1:12) = "LOGIN_NOTICE"
-                        CALL "auth_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG END-CALL
-                    ELSE
-                        IF CMD-ACTION(1:12) = "MARK_DORMANT" OR CMD-ACTION(1:15) = "SUSPEND_DORMANT" OR CMD-ACTION(1:18) = "REACTIVATE_DORMANT"
-                            CALL "user_core" USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG END-CALL
-                        ELSE
-                            MOVE "ERROR|INVALID_ACTION" TO WS-OUTPUT-MSG
-                        END-IF
+            *> Table-driven dispatch: longest prefix first.
+            MOVE 'N' TO DISPATCH-FOUND
+            MOVE 1 TO DISPATCH-IDX
+            PERFORM UNTIL DISPATCH-IDX > DISPATCH-COUNT OR DISPATCH-FOUND = 'Y'
+                IF D-PREFIX-LEN(DISPATCH-IDX) > 0
+                    IF CMD-ACTION(1:D-PREFIX-LEN(DISPATCH-IDX)) = D-PREFIX(DISPATCH-IDX)(1:D-PREFIX-LEN(DISPATCH-IDX))
+                        MOVE 'Y' TO DISPATCH-FOUND
+                        CALL D-PROGRAM(DISPATCH-IDX) USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG
                     END-IF
                 END-IF
+                ADD 1 TO DISPATCH-IDX
+            END-PERFORM
+            IF DISPATCH-FOUND = 'N'
+                IF CMD-ACTION = SPACES
+                    MOVE "ERROR|MISSING_ACTION" TO WS-OUTPUT-MSG
+                ELSE
+                    MOVE "ERROR|INVALID_ACTION" TO WS-OUTPUT-MSG
+                END-IF
+            END-IF.
             EXIT PARAGRAPH.
 
         WRITE-OUTPUT.

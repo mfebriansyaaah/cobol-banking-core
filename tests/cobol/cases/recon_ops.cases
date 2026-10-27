@@ -1,0 +1,2 @@
+RCP_RULE_GET missing first param@@ERROR\|INVALID_INPUT@@RCP_RULE_GET||||||admin@test.com
+RCP_RULE_DELETE missing first param@@ERROR\|INVALID_INPUT@@RCP_RULE_DELETE||||||admin@test.com

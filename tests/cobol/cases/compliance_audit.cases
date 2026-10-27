@@ -1,0 +1,2 @@
+CA_FINDING_GET missing first param@@ERROR\|INVALID_INPUT@@CA_FINDING_GET||||||admin@test.com
+CA_FINDING_CLOSE missing first param@@ERROR\|INVALID_INPUT@@CA_FINDING_CLOSE||||||admin@test.com

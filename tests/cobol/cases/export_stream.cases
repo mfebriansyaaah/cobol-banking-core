@@ -1,0 +1,2 @@
+XST_TOKEN_CREATE missing first param@@ERROR\|INVALID_INPUT@@XST_TOKEN_CREATE||||||admin@test.com
+XST_TOKEN_GET missing first param@@ERROR\|INVALID_INPUT@@XST_TOKEN_GET||||||admin@test.com

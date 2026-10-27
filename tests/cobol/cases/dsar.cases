@@ -1,0 +1,2 @@
+DSR_GET missing first param@@ERROR\|INVALID_INPUT@@DSR_GET||||||admin@test.com
+DSR_REJECT missing first param@@ERROR\|INVALID_INPUT@@DSR_REJECT||||||admin@test.com

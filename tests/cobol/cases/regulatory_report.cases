@@ -1,0 +1,4 @@
+REG_CREATE missing first param@@ERROR\|INVALID_INPUT@@REG_CREATE||||||admin@test.com
+REG_GET missing first param@@ERROR\|INVALID_INPUT@@REG_GET||||||admin@test.com
+REG_SUBMIT missing first param@@ERROR\|INVALID_INPUT@@REG_SUBMIT||||||admin@test.com
+REG_REJECT missing first param@@ERROR\|INVALID_INPUT@@REG_REJECT||||||admin@test.com

@@ -1,0 +1,2 @@
+ASN_CREATE missing first param@@ERROR\|INVALID_INPUT@@ASN_CREATE||||||admin@test.com
+ASN_GET missing first param@@ERROR\|INVALID_INPUT@@ASN_GET||||||admin@test.com
