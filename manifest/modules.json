@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T04:34:38.095Z",
+  "generatedAt": "2026-10-27T04:40:07.896Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -183,6 +183,9 @@
     },
     {
       "source": "incident_postmortem_core.cob"
+    },
+    {
+      "source": "interest_rate_core.cob"
     },
     {
       "source": "key_rotation_core.cob"
@@ -402,6 +405,7 @@
     "import_recon.js",
     "incident.js",
     "incident_postmortem.js",
+    "interest_rate.js",
     "key_rotation.js",
     "kyc.js",
     "kyc_periodic.js",
@@ -955,6 +959,11 @@
       "prefixLen": 4,
       "prefix": "PRD_",
       "program": "product_catalog_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IRT_",
+      "program": "interest_rate_core"
     },
     {
       "prefixLen": 4,

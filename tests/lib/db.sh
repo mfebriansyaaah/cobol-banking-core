@@ -177,3 +177,8 @@ db_reset_product_catalog() {
     db_exec "DELETE FROM product_catalog_audit;"
     db_exec "DELETE FROM product_catalog;"
 }
+
+db_reset_interest_rate() {
+    db_exec "DELETE FROM interest_rate_audit;"
+    db_exec "DELETE FROM interest_rate;"
+}
