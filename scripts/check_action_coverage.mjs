@@ -7,15 +7,16 @@ const ROOT = path.resolve(process.argv[2] || '.');
 const mainLogic = readFileSync(path.join(ROOT, 'cobol', 'src', 'main_logic.cob'), 'utf8');
 // Map each dispatch prefix to its target module by locating the nearest
 // CALL after the prefix test (handles OR-chained IF blocks).
-const prefixRe = /CMD-ACTION\(1:(\d+)\) = "([^"]+)"/g;
-const callRe = /CALL "([^"]+)"/g;
-const dispatch = [];
+const prefixRe = /MOVE "([^"]+)" TO D-PREFIX\((\d+)\)/g;
+const programRe = /MOVE "([^"]+)" TO D-PROGRAM\((\d+)\)/g;
+const prefixes = [];
+const programs = [];
 let pm;
-while ((pm = prefixRe.exec(mainLogic)) !== null) {
-  callRe.lastIndex = pm.index;
-  const cm = callRe.exec(mainLogic);
-  if (cm) dispatch.push({ prefix: pm[2], program: cm[1] });
-}
+while ((pm = prefixRe.exec(mainLogic)) !== null) prefixes.push({ idx: Number(pm[2]), prefix: pm[1] });
+let cm;
+while ((cm = programRe.exec(mainLogic)) !== null) programs.push({ idx: Number(cm[2]), program: cm[1] });
+const byIdx = new Map(programs.map((x) => [x.idx, x.program]));
+const dispatch = prefixes.map((x) => ({ prefix: x.prefix, program: byIdx.get(x.idx) })).filter((x) => x.program);
 // de-dup by prefix, keeping first occurrence
 const seen = new Set();
 const unique = [];

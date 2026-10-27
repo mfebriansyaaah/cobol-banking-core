@@ -30,6 +30,12 @@ export const FRAUD_CASE_ROUTES = [
   ] },
   { method: 'get', path: '/compliance/fraud/:id', action: 'FRC_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/compliance/fraud/:id/screen', action: 'FRC_SCREEN', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/compliance/fraud/:id/update', action: 'FRC_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'accountRef', pattern: PATTERNS.KEY, required: false },
+    { name: 'fraudType', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/compliance/fraud/:id/close', action: 'FRC_CLOSE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },

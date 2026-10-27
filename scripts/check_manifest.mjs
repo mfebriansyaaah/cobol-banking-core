@@ -74,9 +74,10 @@ const mainLogicPath = path.join(cobolDir, 'main_logic.cob');
 const mainLogic = readFileSync(mainLogicPath, 'utf8');
 for (const d of manifest.dispatch || []) {
   const needleIf = `CMD-ACTION(1:${d.prefixLen}) = "${d.prefix}"`;
-  const needleCall = `CALL "${d.program}"`;
-  if (!mainLogic.includes(needleIf)) fail(`dispatch entry not found in main_logic.cob: ${needleIf}`);
-  if (!mainLogic.includes(needleCall)) fail(`dispatch program not called in main_logic.cob: ${needleCall}`);
+  // Table-driven dispatch: the program is stored in D-PROGRAM, not called
+  // literally, so verify the assignment instead of a CALL statement.
+  const needleMove = `MOVE "${d.program}" TO D-PROGRAM`;
+  if (!mainLogic.includes(needleMove)) fail(`dispatch program not assigned in main_logic.cob: ${needleMove}`);
   const source = `${d.program}.cob`;
   if (!existsSync(path.join(cobolDir, source))) fail(`dispatch program has no cobol source: ${source}`);
 }
