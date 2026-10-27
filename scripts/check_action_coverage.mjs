@@ -51,11 +51,6 @@ while ((am = actionRe.exec(appSrc)) !== null) allActions.push({ file: 'app.js', 
 // prefix (the module does not implement the action verbatim). These are
 // tracked as explicit gaps rather than silent false positives.
 const KNOWN_GAPS = new Set([
-  'LOAN_APPLY',
-  'LOAN_APPROVE',
-  'LOAN_REJECT',
-  'LOAN_DISBURSE',
-  'LOAN_REPAY',
 ]);
 const knownGaps = [];
 const missing = [];

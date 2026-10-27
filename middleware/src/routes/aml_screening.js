@@ -30,6 +30,12 @@ export const AML_SCREENING_ROUTES = [
   ] },
   { method: 'get', path: '/compliance/aml/:id', action: 'AML_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/compliance/aml/:id/screen', action: 'AML_SCREEN', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/compliance/aml/:id/update', action: 'AML_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'subjectName', pattern: PATTERNS.NAME, required: false },
+    { name: 'screenType', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/compliance/aml/:id/close', action: 'AML_CLOSE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
