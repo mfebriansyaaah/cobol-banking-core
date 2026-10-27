@@ -31,6 +31,12 @@ export const KYC_PERIODIC_ROUTES = [
   { method: 'get', path: '/compliance/kyc/:id', action: 'KCP_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/compliance/kyc/:id/submit', action: 'KCP_SUBMIT', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/compliance/kyc/:id/approve', action: 'KCP_APPROVE', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/compliance/kyc/:id/update', action: 'KCP_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'customerEmail', pattern: PATTERNS.EMAIL, required: false },
+    { name: 'riskScore', pattern: PATTERNS.AMOUNT, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/compliance/kyc/:id/close', action: 'KCP_CLOSE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },

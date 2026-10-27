@@ -44,6 +44,8 @@
         01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
         01  WS-AUDIT-REVIEW       PIC X(20) VALUE SPACES.
         01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-AUDIT-OLD            PIC X(255) VALUE SPACES.
+        01  WS-AUDIT-NEW            PIC X(255) VALUE SPACES.
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
         01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
         01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
@@ -52,10 +54,12 @@
         01  WS-TMP-STR              PIC X(100) VALUE SPACES.
         01  WS-TMP-ID               PIC X(100) VALUE SPACES.
         01  WS-TMP-APPROVED          PIC X(30) VALUE SPACES.
+        01  WS-TMP-VERSION            PIC X(10) VALUE SPACES.
         01  WS-NEW-ID               PIC X(20) VALUE SPACES.
         01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-PENDING           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-APPROVED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
@@ -199,12 +203,14 @@
             EXIT PARAGRAPH.
 
         AUDIT.
-            MOVE "INSERT INTO kyc_periodic_audit (review_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE "INSERT INTO kyc_periodic_audit (review_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-AUDIT-REVIEW TO WS-BIND-1
             MOVE WS-AUDIT-ACTION TO WS-BIND-2
             MOVE WS-P6-TRIMMED TO WS-BIND-3
             MOVE WS-AUDIT-DETAIL TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+            MOVE WS-AUDIT-OLD TO WS-BIND-5
+            MOVE WS-AUDIT-NEW TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -237,7 +243,7 @@
 
         LOAD-CLEARING.
             MOVE SPACES TO WS-ERR
-            MOVE "SELECT CONCAT(risk_score, '|', submitted_count, '|', approved_count, '|', status, '|', COALESCE(customer_email, ''), '|', '') FROM kyc_periodic WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CONCAT(risk_score, '|', submitted_count, '|', approved_count, '|', status, '|', COALESCE(customer_email, ''), '|', '', '|', version) FROM kyc_periodic WHERE id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
@@ -258,12 +264,14 @@
             MOVE SPACES TO WS-TMP-STATUS
             MOVE SPACES TO WS-TMP-CURR
             MOVE SPACES TO WS-TMP-ID
+            MOVE SPACES TO WS-TMP-VERSION
             UNSTRING WS-RESULT DELIMITED BY "|" INTO
-                WS-TMP-AMT WS-TMP-STR WS-TMP-APPROVED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+                WS-TMP-AMT WS-TMP-STR WS-TMP-APPROVED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID WS-TMP-VERSION
             END-UNSTRING
             MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
             MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-PENDING
             MOVE FUNCTION NUMVAL(WS-TMP-APPROVED) TO WS-NUM-APPROVED
+            MOVE FUNCTION NUMVAL(WS-TMP-VERSION) TO WS-NUM-VERSION
             EXIT PARAGRAPH.
 
         ACTION-CREATE.
@@ -574,10 +582,11 @@
             END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE kyc_periodic SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE "UPDATE kyc_periodic SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -586,9 +595,11 @@
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
-                MOVE "CANCEL" TO WS-AUDIT-ACTION
+                MOVE "CLOSE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-REVIEW
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE "OPEN" TO WS-AUDIT-OLD
+                MOVE "CLOSED" TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
