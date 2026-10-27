@@ -1,6 +1,6 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. loan_schedule_core.
-      *> Skeleton module for loan_schedule domain.
+      *> Real SQL-backed module for loan_schedule domain.
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
