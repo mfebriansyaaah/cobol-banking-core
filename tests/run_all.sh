@@ -67,6 +67,8 @@ run_db() {
     tests/db/billpay_db_tests.sh
     echo "=== DB INCIDENT POSTMORTEM TESTS ==="
     tests/db/incident_postmortem_db_tests.sh
+    echo "=== DB CHANGE APPROVAL TESTS ==="
+    tests/db/change_approval_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

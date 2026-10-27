@@ -1,0 +1,6 @@
+# Change approval (D20) validation cases.
+CHA_CREATE missing ref@@ERROR\|INVALID_INPUT@@CHA_CREATE||||||admin@test.com
+CHA_GET missing id@@ERROR\|INVALID_INPUT@@CHA_GET||||||admin@test.com
+CHA_CALC missing id@@ERROR\|INVALID_INPUT@@CHA_CALC||||||admin@test.com
+CHA_DELETE missing id@@ERROR\|INVALID_INPUT@@CHA_DELETE||||||admin@test.com
+CHA_VALIDATE ok@@SUCCESS\|CHA_VALID@@CHA_VALIDATE|100.00|USD||||admin@test.com

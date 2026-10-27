@@ -41,6 +41,7 @@ import { CONSOLIDATION_ROUTES } from './consolidation.js';
 import { FX_HEDGING_ROUTES } from './fx_hedging.js';
 import { BILLPAY_ROUTES } from './billpay.js';
 import { INCIDENT_POSTMORTEM_ROUTES } from './incident_postmortem.js';
+import { CHANGE_APPROVAL_ROUTES } from './change_approval.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -145,6 +146,7 @@ export const ALL_ROUTES = [
   ...FX_HEDGING_ROUTES,
   ...BILLPAY_ROUTES,
   ...INCIDENT_POSTMORTEM_ROUTES,
+  ...CHANGE_APPROVAL_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,
