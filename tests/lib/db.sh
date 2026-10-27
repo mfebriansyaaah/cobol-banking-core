@@ -157,3 +157,8 @@ db_reset_data_lineage() {
     db_exec "DELETE FROM data_lineage_audit;"
     db_exec "DELETE FROM data_lineage;"
 }
+
+db_reset_metric_definition() {
+    db_exec "DELETE FROM metric_definition_audit;"
+    db_exec "DELETE FROM metric_definition;"
+}

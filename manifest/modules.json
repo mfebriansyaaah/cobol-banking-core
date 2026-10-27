@@ -369,6 +369,7 @@
     "dashboard.js",
     "data_quality.js",
     "data_lineage.js",
+    "metric_definition.js",
     "data_retention.js",
     "deposit.js",
     "disaster_recovery.js",
