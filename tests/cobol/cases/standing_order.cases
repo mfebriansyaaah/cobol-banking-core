@@ -1,0 +1,6 @@
+# standing_order (Wave1) validation cases.
+STO_CREATE missing ref@@ERROR\|INVALID_INPUT@@STO_CREATE||||||admin@test.com
+STO_GET missing id@@ERROR\|INVALID_INPUT@@STO_GET||||||admin@test.com
+STO_CALC missing id@@ERROR\|INVALID_INPUT@@STO_CALC||||||admin@test.com
+STO_DELETE missing id@@ERROR\|INVALID_INPUT@@STO_DELETE||||||admin@test.com
+STO_VALIDATE ok@@SUCCESS\|STO_VALID@@STO_VALIDATE|100.00|USD||||admin@test.com

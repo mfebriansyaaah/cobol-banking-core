@@ -85,6 +85,18 @@ run_db() {
     tests/db/interest_rate_db_tests.sh
     echo "=== DB ACCOUNT TESTS ==="
     tests/db/account_db_tests.sh
+    echo "=== DB COLLATERAL TESTS ==="
+    tests/db/collateral_db_tests.sh
+    echo "=== DB STANDING_ORDER TESTS ==="
+    tests/db/standing_order_db_tests.sh
+    echo "=== DB REMITTANCE TESTS ==="
+    tests/db/remittance_db_tests.sh
+    echo "=== DB CASE_MANAGEMENT TESTS ==="
+    tests/db/case_management_db_tests.sh
+    echo "=== DB DOCUMENT TESTS ==="
+    tests/db/document_db_tests.sh
+    echo "=== DB WORKFLOW_APPROVAL TESTS ==="
+    tests/db/workflow_approval_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

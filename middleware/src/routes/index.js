@@ -49,6 +49,12 @@ import { ANALYTICS_SNAPSHOT_ROUTES } from './analytics_snapshot.js';
 import { CUSTOMER_ROUTES } from './customer.js';
 import { PRODUCT_CATALOG_ROUTES } from './product_catalog.js';
 import { INTEREST_RATE_ROUTES } from './interest_rate.js';
+import { CLT_ROUTES } from './collateral.js';
+import { STO_ROUTES } from './standing_order.js';
+import { RMT_ROUTES } from './remittance.js';
+import { CSM_ROUTES } from './case_management.js';
+import { DOC_ROUTES } from './document.js';
+import { WFA_ROUTES } from './workflow_approval.js';
 import { ACCOUNT_ROUTES } from './account.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
@@ -163,6 +169,12 @@ export const ALL_ROUTES = [
   ...PRODUCT_CATALOG_ROUTES,
   ...INTEREST_RATE_ROUTES,
   ...ACCOUNT_ROUTES,
+  ...WFA_ROUTES,
+  ...DOC_ROUTES,
+  ...CSM_ROUTES,
+  ...RMT_ROUTES,
+  ...STO_ROUTES,
+  ...CLT_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,
