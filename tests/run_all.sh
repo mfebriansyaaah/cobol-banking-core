@@ -59,6 +59,8 @@ run_db() {
     tests/db/cost_center_db_tests.sh
     echo "=== DB FIXED ASSET TESTS ==="
     tests/db/fixed_asset_db_tests.sh
+    echo "=== DB CONSOLIDATION TESTS ==="
+    tests/db/consolidation_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

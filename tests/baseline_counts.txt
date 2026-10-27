@@ -16,3 +16,4 @@ db_fraud_case_tests=13
 gateway_tests=136
 db_cost_center_tests=13
 db_fixed_asset_tests=13
+db_consolidation_tests=13

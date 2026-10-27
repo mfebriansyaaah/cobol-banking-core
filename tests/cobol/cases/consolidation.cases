@@ -1,0 +1,6 @@
+# Consolidation (D16) validation cases.
+CNS_CREATE missing ref@@ERROR\|INVALID_INPUT@@CNS_CREATE||||||admin@test.com
+CNS_GET missing id@@ERROR\|INVALID_INPUT@@CNS_GET||||||admin@test.com
+CNS_CALC missing id@@ERROR\|INVALID_INPUT@@CNS_CALC||||||admin@test.com
+CNS_DELETE missing id@@ERROR\|INVALID_INPUT@@CNS_DELETE||||||admin@test.com
+CNS_VALIDATE ok@@SUCCESS\|CNS_VALID@@CNS_VALIDATE|100.00|USD||||admin@test.com
