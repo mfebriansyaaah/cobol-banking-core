@@ -183,6 +183,37 @@ db_reset_interest_rate() {
     db_exec "DELETE FROM interest_rate;"
 }
 
+db_reset_collateral() {
+    db_exec "DELETE FROM collateral_audit;"
+    db_exec "DELETE FROM collateral;"
+}
+
+db_reset_standing_order() {
+    db_exec "DELETE FROM standing_order_audit;"
+    db_exec "DELETE FROM standing_order;"
+}
+
+db_reset_remittance() {
+    db_exec "DELETE FROM remittance_audit;"
+    db_exec "DELETE FROM remittance;"
+}
+
+db_reset_case_management() {
+    db_exec "DELETE FROM case_management_audit;"
+    db_exec "DELETE FROM case_management;"
+}
+
+db_reset_document() {
+    db_exec "DELETE FROM document_audit;"
+    db_exec "DELETE FROM document;"
+}
+
+db_reset_workflow_approval() {
+    db_exec "DELETE FROM workflow_approval_audit;"
+    db_exec "DELETE FROM workflow_approval;"
+}
+
+
 db_reset_account() {
     db_exec "DELETE FROM account_audit;"
     db_exec "DELETE FROM account;"

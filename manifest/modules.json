@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T04:58:50.184Z",
+  "generatedAt": "2026-10-27T05:17:41.455Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -71,10 +71,16 @@
       "source": "card_core.cob"
     },
     {
+      "source": "case_management_core.cob"
+    },
+    {
       "source": "change_approval_core.cob"
     },
     {
       "source": "change_control_core.cob"
+    },
+    {
+      "source": "collateral_core.cob"
     },
     {
       "source": "collection_core.cob"
@@ -120,6 +126,9 @@
     },
     {
       "source": "dispute_ops_core.cob"
+    },
+    {
+      "source": "document_core.cob"
     },
     {
       "source": "dsar_core.cob"
@@ -275,6 +284,9 @@
       "source": "regulatory_report_core.cob"
     },
     {
+      "source": "remittance_core.cob"
+    },
+    {
       "source": "report_archive_core.cob"
     },
     {
@@ -317,6 +329,9 @@
       "source": "slo_report_core.cob"
     },
     {
+      "source": "standing_order_core.cob"
+    },
+    {
       "source": "statement_core.cob"
     },
     {
@@ -348,6 +363,9 @@
     },
     {
       "source": "wallet_core.cob"
+    },
+    {
+      "source": "workflow_approval_core.cob"
     }
   ],
   "gatewayRoutes": [
@@ -372,8 +390,10 @@
     "capacity_forecast.js",
     "capacity_plan.js",
     "card.js",
+    "case_management.js",
     "change_approval.js",
     "change_control.js",
+    "collateral.js",
     "collection.js",
     "compliance_audit.js",
     "compliance_export.js",
@@ -389,6 +409,7 @@
     "disaster_recovery.js",
     "dispute_notify.js",
     "dispute_ops.js",
+    "document.js",
     "dsar.js",
     "eod.js",
     "eod_jobs.js",
@@ -439,6 +460,7 @@
     "ref_ext.js",
     "regulatory_calendar.js",
     "regulatory_report.js",
+    "remittance.js",
     "report.js",
     "report_archive.js",
     "report_audit.js",
@@ -453,6 +475,7 @@
     "settlement_recon.js",
     "sla_tracking.js",
     "slo_report.js",
+    "standing_order.js",
     "statement.js",
     "statement_delivery.js",
     "statement_recon.js",
@@ -461,7 +484,8 @@
     "treasury_position.js",
     "vendor.js",
     "vendor_compliance.js",
-    "vendor_risk.js"
+    "vendor_risk.js",
+    "workflow_approval.js"
   ],
   "dispatch": [
     {
@@ -968,6 +992,36 @@
       "prefixLen": 4,
       "prefix": "ACC_",
       "program": "account_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CLT_",
+      "program": "collateral_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "STO_",
+      "program": "standing_order_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RMT_",
+      "program": "remittance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CSM_",
+      "program": "case_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DOC_",
+      "program": "document_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WFA_",
+      "program": "workflow_approval_core"
     },
     {
       "prefixLen": 4,

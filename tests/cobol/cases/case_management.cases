@@ -1,0 +1,6 @@
+# case_management (Wave1) validation cases.
+CSM_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSM_CREATE||||||admin@test.com
+CSM_GET missing id@@ERROR\|INVALID_INPUT@@CSM_GET||||||admin@test.com
+CSM_CALC missing id@@ERROR\|INVALID_INPUT@@CSM_CALC||||||admin@test.com
+CSM_DELETE missing id@@ERROR\|INVALID_INPUT@@CSM_DELETE||||||admin@test.com
+CSM_VALIDATE ok@@SUCCESS\|CSM_VALID@@CSM_VALIDATE|100.00|USD||||admin@test.com

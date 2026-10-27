@@ -1,0 +1,6 @@
+# workflow_approval (Wave1) validation cases.
+WFA_CREATE missing ref@@ERROR\|INVALID_INPUT@@WFA_CREATE||||||admin@test.com
+WFA_GET missing id@@ERROR\|INVALID_INPUT@@WFA_GET||||||admin@test.com
+WFA_CALC missing id@@ERROR\|INVALID_INPUT@@WFA_CALC||||||admin@test.com
+WFA_DELETE missing id@@ERROR\|INVALID_INPUT@@WFA_DELETE||||||admin@test.com
+WFA_VALIDATE ok@@SUCCESS\|WFA_VALID@@WFA_VALIDATE|100.00|USD||||admin@test.com

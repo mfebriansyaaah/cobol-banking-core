@@ -1,0 +1,6 @@
+# collateral (Wave1) validation cases.
+CLT_CREATE missing ref@@ERROR\|INVALID_INPUT@@CLT_CREATE||||||admin@test.com
+CLT_GET missing id@@ERROR\|INVALID_INPUT@@CLT_GET||||||admin@test.com
+CLT_CALC missing id@@ERROR\|INVALID_INPUT@@CLT_CALC||||||admin@test.com
+CLT_DELETE missing id@@ERROR\|INVALID_INPUT@@CLT_DELETE||||||admin@test.com
+CLT_VALIDATE ok@@SUCCESS\|CLT_VALID@@CLT_VALIDATE|100.00|USD||||admin@test.com
