@@ -1,0 +1,6 @@
+# Loan (Wave2) validation cases.
+LOAN_CREATE missing ref@@ERROR\|INVALID_INPUT@@LOAN_CREATE||||||admin@test.com
+LOAN_GET missing id@@ERROR\|INVALID_INPUT@@LOAN_GET||||||admin@test.com
+LOAN_CALC missing id@@ERROR\|INVALID_INPUT@@LOAN_CALC||||||admin@test.com
+LOAN_DELETE missing id@@ERROR\|INVALID_INPUT@@LOAN_DELETE||||||admin@test.com
+LOAN_VALIDATE ok@@SUCCESS\|LOAN_VALID@@LOAN_VALIDATE|100.00|USD||||admin@test.com

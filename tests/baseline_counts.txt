@@ -29,6 +29,7 @@ db_customer_tests=13
 db_product_catalog_tests=13
 db_interest_rate_tests=13
 db_account_tests=13
+db_loan_tests=13
 db_workflow_approval_tests=13
 db_document_tests=13
 db_case_management_tests=13
