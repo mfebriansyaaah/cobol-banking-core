@@ -5,9 +5,9 @@ const ROOT = path.resolve(process.argv[2] || '.');
 
 const mainLogic = readFileSync(path.join(ROOT, 'cobol', 'src', 'main_logic.cob'), 'utf8');
 const dispatchPrefixes = new Set();
-const re = /CMD-ACTION\(1:(\d+)\) = "([^"]+)"/g;
+const re = /MOVE "([^"]+)" TO D-PREFIX\(\d+\)/g;
 let m;
-while ((m = re.exec(mainLogic)) !== null) dispatchPrefixes.add(m[2]);
+while ((m = re.exec(mainLogic)) !== null) dispatchPrefixes.add(m[1]);
 
 const routesDir = path.join(ROOT, 'middleware', 'src', 'routes');
 const actionRe = /action:\s*'([A-Z0-9_]+)'/g;
