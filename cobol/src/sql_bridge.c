@@ -111,6 +111,7 @@ void SET_QUERY(char *query) {
 void GET_RESULT(char *result) {
     if (!result) return;
     size_t len = strlen(G_RESULT);
+    fprintf(stderr, "GET_RESULT len=%zu\n", len);
     if (len > 16383) len = 16383;
     memset(result, ' ', 16383);
     memcpy(result, G_RESULT, len);
@@ -292,7 +293,7 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
-
+    fprintf(stderr, "ROWS_QUERY: %s\n", query);
     MYSQL *conn = G_CONN;
     int own_conn = 0;
     if (conn == NULL) {
@@ -413,6 +414,7 @@ void SQL_PREPARE_EXEC7(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
+    fprintf(stderr, "ROWS_QUERY: %s\n", query);
 
     MYSQL *conn = G_CONN;
     if (conn == NULL) {
@@ -527,6 +529,7 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
+    fprintf(stderr, "ROWS_QUERY: %s\n", query);
 
     MYSQL *conn = G_CONN;
     int own_conn = 0;
@@ -602,6 +605,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
+    fprintf(stderr, "ROWS_QUERY: %s\n", query);
 
     MYSQL *conn = G_CONN;
     int own_conn = 0;
@@ -688,7 +692,9 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
         G_RESULT[0] = '\0';
         int first_row = 1;
         int rc;
+        int rowcount = 0;
         while ((rc = mysql_stmt_fetch(st)) == 0 || rc == MYSQL_DATA_TRUNCATED) {
+            rowcount++; fprintf(stderr, "FETCH rc=%d row=%d\n", rc, rowcount);
             if (!first_row) strncat(G_RESULT, ";", 16383 - strlen(G_RESULT) - 1);
             first_row = 0;
             for (unsigned int i = 0; i < cols; i++) {
@@ -702,6 +708,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
                 if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
             }
         }
+        fprintf(stderr, "TOTAL_ROWS=%d first_row=%d G_RESULT_LEN=%zu\n", rowcount, first_row, strlen(G_RESULT));
         if (first_row) {
             strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
         }
