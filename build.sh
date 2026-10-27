@@ -81,6 +81,7 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/kyc_review_core.cob \
     cobol/src/regulatory_report_core.cob \
     cobol/src/loan_core.cob \
+    cobol/src/merchant_core.cob \
     cobol/src/deposit_core.cob \
     cobol/src/fx_deal_core.cob \
     cobol/src/treasury_position_core.cob \
