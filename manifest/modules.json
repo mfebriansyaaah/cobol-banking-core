@@ -379,6 +379,7 @@
     "fee_waiver.js",
     "fixed_asset.js",
     "fraud_case.js",
+    "fx_hedging.js",
     "fraud_ops.js",
     "fx_deal.js",
     "gl.js",
