@@ -1,0 +1,6 @@
+# Interest rate (Wave1) validation cases.
+IRT_CREATE missing ref@@ERROR\|INVALID_INPUT@@IRT_CREATE||||||admin@test.com
+IRT_GET missing id@@ERROR\|INVALID_INPUT@@IRT_GET||||||admin@test.com
+IRT_CALC missing id@@ERROR\|INVALID_INPUT@@IRT_CALC||||||admin@test.com
+IRT_DELETE missing id@@ERROR\|INVALID_INPUT@@IRT_DELETE||||||admin@test.com
+IRT_VALIDATE ok@@SUCCESS\|IRT_VALID@@IRT_VALIDATE|100.00|USD||||admin@test.com
