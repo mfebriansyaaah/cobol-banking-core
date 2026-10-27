@@ -445,13 +445,9 @@
            EXIT PARAGRAPH.
 
        RUN-COUNT-ARCHIVE.
-           MOVE SPACES TO WS-QUERY
-           STRING "SELECT CAST(COUNT(*) AS CHAR) FROM audit_trail a JOIN users u ON a.user_id = u.id WHERE a.created_at < DATE_SUB(NOW(), INTERVAL " DELIMITED BY SIZE
-               WS-Q1(1:WS-Q1-LEN) DELIMITED BY SIZE
-               " DAY) AND NOT EXISTS (SELECT 1 FROM legal_hold lh WHERE lh.subject_email = u.email AND lh.status = 'ACTIVE')" DELIMITED BY SIZE
-               INTO WS-QUERY END-STRING
-           CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-           CALL "SQL_EXECUTE" END-CALL
+           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM audit_trail a JOIN users u ON a.user_id = u.id WHERE a.created_at < DATE_SUB(NOW(), INTERVAL ? DAY) AND NOT EXISTS (SELECT 1 FROM legal_hold lh WHERE lh.subject_email = u.email AND lh.status = 'ACTIVE')" TO WS-PREP-SQL
+           MOVE WS-Q1 TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE
@@ -461,13 +457,9 @@
            EXIT PARAGRAPH.
 
        RUN-COUNT-SKIP.
-           MOVE SPACES TO WS-QUERY
-           STRING "SELECT CAST(COUNT(*) AS CHAR) FROM audit_trail a JOIN users u ON a.user_id = u.id WHERE a.created_at < DATE_SUB(NOW(), INTERVAL " DELIMITED BY SIZE
-               WS-Q1(1:WS-Q1-LEN) DELIMITED BY SIZE
-               " DAY) AND EXISTS (SELECT 1 FROM legal_hold lh WHERE lh.subject_email = u.email AND lh.status = 'ACTIVE')" DELIMITED BY SIZE
-               INTO WS-QUERY END-STRING
-           CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-           CALL "SQL_EXECUTE" END-CALL
+           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM audit_trail a JOIN users u ON a.user_id = u.id WHERE a.created_at < DATE_SUB(NOW(), INTERVAL ? DAY) AND EXISTS (SELECT 1 FROM legal_hold lh WHERE lh.subject_email = u.email AND lh.status = 'ACTIVE')" TO WS-PREP-SQL
+           MOVE WS-Q1 TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE
@@ -477,13 +469,9 @@
            EXIT PARAGRAPH.
 
        RUN-ARCHIVE-AUDIT.
-           MOVE SPACES TO WS-QUERY
-           STRING "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at) SELECT a.audit_id, a.user_id, a.actor_id, a.action, a.entity_type, a.entity_id, a.detail, a.status, a.journal_id, a.created_at FROM audit_trail a JOIN users u ON a.user_id = u.id WHERE a.created_at < DATE_SUB(NOW(), INTERVAL " DELIMITED BY SIZE
-               WS-Q1(1:WS-Q1-LEN) DELIMITED BY SIZE
-               " DAY) AND NOT EXISTS (SELECT 1 FROM legal_hold lh WHERE lh.subject_email = u.email AND lh.status = 'ACTIVE')" DELIMITED BY SIZE
-               INTO WS-QUERY END-STRING
-           CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-           CALL "SQL_EXECUTE" END-CALL
+           MOVE "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at) SELECT a.audit_id, a.user_id, a.actor_id, a.action, a.entity_type, a.entity_id, a.detail, a.status, a.journal_id, a.created_at FROM audit_trail a JOIN users u ON a.user_id = u.id WHERE a.created_at < DATE_SUB(NOW(), INTERVAL ? DAY) AND NOT EXISTS (SELECT 1 FROM legal_hold lh WHERE lh.subject_email = u.email AND lh.status = 'ACTIVE')" TO WS-PREP-SQL
+           MOVE WS-Q1 TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE
@@ -491,13 +479,9 @@
            EXIT PARAGRAPH.
 
        RUN-DELETE-AUDIT.
-           MOVE SPACES TO WS-QUERY
-           STRING "DELETE FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL " DELIMITED BY SIZE
-               WS-Q1(1:WS-Q1-LEN) DELIMITED BY SIZE
-               " DAY) AND user_id NOT IN (SELECT id FROM users WHERE email IN (SELECT subject_email FROM legal_hold WHERE status = 'ACTIVE'))" DELIMITED BY SIZE
-               INTO WS-QUERY END-STRING
-           CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-           CALL "SQL_EXECUTE" END-CALL
+           MOVE "DELETE FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY) AND user_id NOT IN (SELECT id FROM users WHERE email IN (SELECT subject_email FROM legal_hold WHERE status = 'ACTIVE'))" TO WS-PREP-SQL
+           MOVE WS-Q1 TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE

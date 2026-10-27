@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "node --import ./preload.mjs --test --test-reporter=spec",
-    "test:coverage": "node --import ./preload.mjs --test --experimental-test-coverage --test-coverage-lines=30 --test-coverage-branches=30 --test-coverage-include='src/**'"
+    "test:coverage": "node --import ./preload.mjs --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=70 --test-coverage-include='src/**'"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

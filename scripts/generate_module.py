@@ -16,6 +16,7 @@ def main():
     src = open(src_path).read()
 
     # Basic renames
+    src = src.replace('CSC_', prefix)
     src = src.replace('cost_center_core', f'{domain}_core')
     src = src.replace('Cost center: create, allocate, close.', f'{domain}: create, process, close.')
     src = src.replace('CSC_CREATE', f'{prefix}CREATE')
@@ -36,10 +37,19 @@ def main():
     src = src.replace('WS-AUDIT-CSC', f'WS-AUDIT-{prefix[:3]}')
     src = src.replace('CSC_VALID', f'{prefix}VALID')
 
+    # Sanity: no leftover template prefixes.
+    leftovers = [t for t in ('CSC_', 'cost_center', 'WS-AUDIT-CSC') if t in src]
+    if leftovers:
+        print('WARNING: template tokens remain:', leftovers)
+
     out_path = os.path.join(ROOT, f'cobol/src/{domain}_core.cob')
     open(out_path, 'w').write(src)
     print(f'Generated {out_path}')
-    print('NOTE: adjust EVALUATE lengths, SQL status strings, and WS-NUM collisions manually.')
+    print('Next steps:')
+    print('  1. Review EVALUATE lengths and SQL status strings.')
+    print('  2. Add the module to build.sh.')
+    print('  3. node scripts/generate_manifest.mjs .')
+    print('  4. Add tests/cobol/cases and tests/db suite, warning baseline entry.')
 
 if __name__ == '__main__':
     main()

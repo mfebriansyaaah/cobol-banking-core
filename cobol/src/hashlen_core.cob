@@ -15,7 +15,7 @@
             MOVE 1 TO LS-HLEN
             PERFORM VARYING LS-HLEN FROM 1 BY 1 UNTIL LS-HLEN > 256
                 IF LS-HASH(LS-HLEN:1) = LOW-VALUE
-                    COMPUTE LS-HLEN = LS-HLEN - 1
+                    COMPUTE LS-HLEN = LS-HLEN - 1 END-COMPUTE
                     EXIT PERFORM
                 END-IF
             END-PERFORM

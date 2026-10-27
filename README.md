@@ -8,10 +8,11 @@ crypto helpers COBOL cannot call directly.
 
 [![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
 
-> **Status (2026-10-26):** engineering codebase, not a production certification.
-> 99 of 112 COBOL modules carry real logic; 13 modules are still
-> generated skeletons. `tests/run_all.sh full` is green locally and in the
-> hosted CI gate. Treat the numbers below as measurements of this repository,
+> **Status (2026-10-27):** engineering codebase, not a production certification.
+> All 120 domain COBOL modules carry real SQL-backed logic; only
+> `auth_password_core` and `hashlen_core` are utility modules.
+> `tests/run_all.sh full` is green locally and in the hosted CI gate.
+> Treat the numbers below as measurements of this repository,
 > not as a readiness claim.
 
 ## Architecture
@@ -85,6 +86,14 @@ Rules of the split:
 | D13 Fraud Case | Done | `fraud_case_core` (9 actions) |
 | D10 Data / Reporting | Done | `report_builder_core` (9 actions) |
 
+### Known gaps (2026-10-27)
+
+- `middleware/src/routes/loan.js` exposes `LOAN_APPLY`, `LOAN_APPROVE`, `LOAN_REJECT`,
+  `LOAN_DISBURSE`, and `LOAN_REPAY`, but the COBOL `loan_core` module does not implement
+  those actions yet (they return `ERROR|INVALID_ACTION`). Use `loan_schedule_core` (`LSC_*`)
+  for schedule operations until the loan application lifecycle is implemented.
+- `auth_core.cob` still carries 922 compiler warnings; `wallet_core.cob` cleanup is in progress.
+
 ## Testing workflow roadmap
 
 Testing maturity: **9/10** (achieved). All 11 roadmap items complete.
@@ -107,15 +116,16 @@ Measured on this checkout:
 
 | Metric | Value |
 |---|---:|
-| COBOL files | **113** (112 modules + dispatcher) |
-| COBOL lines | **111,079** |
-| Modules with real logic | **91** — 66,589 lines |
-| Skeleton modules | **21** — 43,785 lines, 3,171 stub actions |
-| Gateway route definitions | **719** on **712** unique actions |
-| COBOL dispatch prefixes | **179** |
-| Database tables (`schema.sql`) | **477** |
-| Recorded migrations | **120** (latest `0120_fraud_case`) |
-| Test assertions | **440** (54 table + 76 schema + 11 loan + 26 deposit + 32 card + 35 collections + 20 payments + 18 treasury + 11 kyc + 13 glalloc + 13 backup + 13 report + 136 gateway) |
+| COBOL files | **123** (122 modules + dispatcher) |
+| COBOL lines | **88,767** |
+| Modules with real logic | **120** domain modules (all modules except the 2 utilities below) |
+| Utility modules | **2** — `auth_password_core`, `hashlen_core` (delegate to auth_core / hash_lib) |
+| Skeleton modules | **0** — every domain module now carries real SQL-backed logic |
+| Gateway route definitions | **985** unique actions across **118** route files |
+| COBOL dispatch prefixes | **189** |
+| Database tables (`schema.sql`) | **478** |
+| Recorded migrations | **147** (latest `0147_loan_hardening`) |
+| Test assertions | **508+** (179 table + 76 schema + 253 gateway, plus 35 DB suites) |
 
 ## Request contract
 

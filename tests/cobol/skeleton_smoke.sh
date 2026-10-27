@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke test: every skeleton module returns INVALID_ACTION instead of crashing.
+# Smoke test: listed modules return INVALID_ACTION for an unknown action instead of crashing.
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # shellcheck disable=SC1091
@@ -9,7 +9,7 @@ if ! command -v "$ROOT/cobol/bin/main_logic" >/dev/null 2>&1; then
   exit 0
 fi
 
-# Prefix -> module mapping for skeleton (non-real) modules.
+# Prefix -> module mapping for modules exercised by the unknown-action smoke.
 declare -A SKEL=(
   [BLP_]=billpay [FXH_]=fx_hedging [AML_]=aml_screening
   [SCL_]=sanctions_list [FRC_]=fraud_case [FAS_]=fixed_asset

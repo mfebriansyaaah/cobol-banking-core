@@ -81,6 +81,9 @@
                     ELSE
                         PERFORM PARSE-INPUT
                         PERFORM DISPATCH-ACTION
+                        IF WS-OUTPUT-MSG = SPACES
+                            MOVE "ERROR|EMPTY_RESPONSE" TO WS-OUTPUT-MSG
+                        END-IF
                         DISPLAY FUNCTION TRIM(WS-OUTPUT-MSG) END-DISPLAY
                     END-IF
                 END-IF

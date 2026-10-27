@@ -36,6 +36,23 @@ if grep -rn "eval(\|new Function(" middleware/src/ 2>/dev/null; then
   FAIL=1
 fi
 
+echo "=== SAST: manifest & route/dispatch contract ==="
+if ! node scripts/check_manifest.mjs . >/tmp/sast_manifest.log 2>&1; then
+  cat /tmp/sast_manifest.log
+  echo "WARNING: manifest check failed"
+  FAIL=1
+fi
+if ! node scripts/check_route_dispatch.mjs . >/tmp/sast_contract.log 2>&1; then
+  cat /tmp/sast_contract.log
+  echo "WARNING: route/dispatch contract check failed"
+  FAIL=1
+fi
+if ! node scripts/check_action_coverage.mjs . >/tmp/sast_coverage.log 2>&1; then
+  cat /tmp/sast_coverage.log
+  echo "WARNING: action coverage check failed"
+  FAIL=1
+fi
+
 if [ "$FAIL" -ne 0 ]; then
   echo "SAST found issues."
   exit 1

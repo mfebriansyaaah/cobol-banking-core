@@ -20,7 +20,9 @@
 set -e
 
 DB_NAME="${DB_NAME:-cobol_db}"
-APP_USER="${APP_USER:-cobol_app}"
+DB_HOST="${DB_HOST:-localhost}"
+DB_PORT="${DB_PORT:-3306}"
+APP_USER="${APP_USER:-cobol_user}"
 APP_HOST="${APP_HOST:-localhost}"
 MIGRATE_USER="${MIGRATE_USER:-cobol_migrate}"
 MIGRATE_HOST="${MIGRATE_HOST:-localhost}"
@@ -29,6 +31,9 @@ statements() {
     cat <<SQL
 CREATE USER IF NOT EXISTS '$APP_USER'@'$APP_HOST' IDENTIFIED BY '$APP_DB_PASS';
 ALTER USER '$APP_USER'@'$APP_HOST' IDENTIFIED BY '$APP_DB_PASS';
+-- Least privilege: drop any pre-existing rights (including DDL) before
+-- granting the DML-only set, so a re-run tightens rather than widens access.
+REVOKE ALL PRIVILEGES, GRANT OPTION ON \`$DB_NAME\`.* FROM '$APP_USER'@'$APP_HOST';
 GRANT SELECT, INSERT, UPDATE, DELETE ON \`$DB_NAME\`.* TO '$APP_USER'@'$APP_HOST';
 
 CREATE USER IF NOT EXISTS '$MIGRATE_USER'@'$MIGRATE_HOST' IDENTIFIED BY '$MIGRATE_DB_PASS';
@@ -50,7 +55,7 @@ fi
 : "${APP_DB_PASS:?set APP_DB_PASS to the application account password}"
 : "${MIGRATE_DB_PASS:?set MIGRATE_DB_PASS to the migration account password}"
 
-admin=(mysql)
+admin=(mysql -h "$DB_HOST" -P "$DB_PORT")
 [ -n "$DB_ADMIN_USER" ] && admin+=("-u$DB_ADMIN_USER")
 [ -n "$DB_ADMIN_PASS" ] && admin+=("-p$DB_ADMIN_PASS")
 

@@ -1,0 +1,12 @@
+{
+  "REQUEST_SIGNUP": ["email", "password", "name", "dob"],
+  "VERIFY_EMAIL": ["email", "code"],
+  "FORGOT_PASSWORD": ["email"],
+  "RESET_PASSWORD": ["email", "code", "password"],
+  "AUTH_LOGIN": ["email", "password", "mfaCode"],
+  "VERIFY_REAUTH": ["email", "password", "mfaCode"],
+  "CHECK_BALANCE": ["email", "actor"],
+  "TRANSFER": ["from", "to", "amount", "idempotencyKey", "fromCurrency", "toCurrency"],
+  "TX_STATUS": ["ref", "actor", "sender"],
+  "REVERSE_TRANSFER": ["ref", "actor", "sender", "reason"]
+}
