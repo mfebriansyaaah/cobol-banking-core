@@ -25,3 +25,4 @@ db_capacity_forecast_tests=13
 db_data_lineage_tests=13
 db_metric_definition_tests=13
 db_analytics_snapshot_tests=13
+db_customer_tests=13
