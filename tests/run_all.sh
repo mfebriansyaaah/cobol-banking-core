@@ -65,6 +65,8 @@ run_db() {
     tests/db/fx_hedging_db_tests.sh
     echo "=== DB BILLPAY TESTS ==="
     tests/db/billpay_db_tests.sh
+    echo "=== DB INCIDENT POSTMORTEM TESTS ==="
+    tests/db/incident_postmortem_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

@@ -390,6 +390,7 @@
     "import.js",
     "import_recon.js",
     "incident.js",
+    "incident_postmortem.js",
     "key_rotation.js",
     "kyc.js",
     "kyc_periodic.js",

@@ -19,3 +19,4 @@ db_fixed_asset_tests=13
 db_consolidation_tests=13
 db_fx_hedging_tests=13
 db_billpay_tests=13
+db_incident_postmortem_tests=13
