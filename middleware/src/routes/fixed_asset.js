@@ -30,6 +30,12 @@ export const FIXED_ASSET_ROUTES = [
   ] },
   { method: 'get', path: '/finance/fixed-assets/:id', action: 'FAS_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/finance/fixed-assets/:id/depreciate', action: 'FAS_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/finance/fixed-assets/:id/update', action: 'FAS_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'assetName', pattern: PATTERNS.NAME, required: false },
+    { name: 'assetType', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/finance/fixed-assets/:id/dispose', action: 'FAS_DELETE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
