@@ -1,0 +1,6 @@
+# Cost center (D14) validation cases.
+CSC_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSC_CREATE||||||admin@test.com
+CSC_GET missing id@@ERROR\|INVALID_INPUT@@CSC_GET||||||admin@test.com
+CSC_ALLO missing id@@ERROR\|INVALID_INPUT@@CSC_ALLO||||||admin@test.com
+CSC_CLOSE missing id@@ERROR\|INVALID_INPUT@@CSC_CLOSE||||||admin@test.com
+CSC_VALIDATE ok@@SUCCESS\|CSC_VALID@@CSC_VALIDATE|100.00|USD||||admin@test.com

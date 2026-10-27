@@ -14,3 +14,4 @@ db_aml_screening_tests=13
 db_sanctions_list_tests=13
 db_fraud_case_tests=13
 gateway_tests=136
+db_cost_center_tests=13

@@ -55,6 +55,8 @@ run_db() {
     tests/db/sanctions_list_db_tests.sh
     echo "=== DB FRAUD CASE TESTS ==="
     tests/db/fraud_case_db_tests.sh
+    echo "=== DB COST CENTER TESTS ==="
+    tests/db/cost_center_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="
