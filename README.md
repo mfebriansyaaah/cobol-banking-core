@@ -9,7 +9,7 @@ crypto helpers COBOL cannot call directly.
 [![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
 
 > **Status (2026-10-26):** engineering codebase, not a production certification.
-> 92 of 112 COBOL modules carry real logic; 20 modules (D5–D10) are still
+> 99 of 112 COBOL modules carry real logic; 13 modules are still
 > generated skeletons. `tests/run_all.sh full` is green locally and in the
 > hosted CI gate. Treat the numbers below as measurements of this repository,
 > not as a readiness claim.
@@ -55,11 +55,11 @@ Rules of the split:
 | `cobol/copy/` | Three copybooks used only by the password/auth module |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
-| `middleware/src/` | Express gateway (87 files, 86 route modules + barrel) |
+| `middleware/src/` | Express gateway (88 files, 87 route modules + barrel) |
 | `middleware/test/` | 16 test files, 136 tests |
 | `database/` | `schema.sql` baseline (477 tables), 111 migrations, seed, grants |
 | `tests/` | Unified runner, table-driven COBOL cases, DB suites, harness |
-| `manifest/modules.json` | Generated registry: 112 modules, 86 route files, 179 dispatch entries |
+| `manifest/modules.json` | Generated registry: 112 modules, 87 route files, 188 dispatch entries |
 | `scripts/` | `generate_manifest.mjs`, `check_manifest.mjs` |
 | `monitoring/` | Prometheus alert rules for the gateway |
 | `build.sh` | Compiles dispatcher + all 112 modules + C bridge |

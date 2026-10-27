@@ -35,6 +35,7 @@ import { REPORT_BUILDER_ROUTES } from './report_builder.js';
 import { AML_SCREENING_ROUTES } from './aml_screening.js';
 import { SANCTIONS_LIST_ROUTES } from './sanctions_list.js';
 import { FRAUD_CASE_ROUTES } from './fraud_case.js';
+import { COST_CENTER_ROUTES } from './cost_center.js';
 import { ONCALL_DELIVERY_ROUTES } from './oncall_delivery.js';
 import { COMPLIANCE_RETENTION_ROUTES } from './compliance_retention.js';
 import { LEGAL_HOLD_ROUTES } from './legal_hold.js';
@@ -133,6 +134,7 @@ export const ALL_ROUTES = [
   ...AML_SCREENING_ROUTES,
   ...SANCTIONS_LIST_ROUTES,
   ...FRAUD_CASE_ROUTES,
+  ...COST_CENTER_ROUTES,
   ...ONCALL_DELIVERY_ROUTES,
   ...COMPLIANCE_RETENTION_ROUTES,
   ...LEGAL_HOLD_ROUTES,

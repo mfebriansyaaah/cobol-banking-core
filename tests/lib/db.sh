@@ -112,3 +112,8 @@ db_reset_fraud_case() {
     db_exec "DELETE FROM fraud_case_audit;"
     db_exec "DELETE FROM fraud_case;"
 }
+
+db_reset_cost_center() {
+    db_exec "DELETE FROM cost_center_audit;"
+    db_exec "DELETE FROM cost_center;"
+}
