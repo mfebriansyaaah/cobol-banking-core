@@ -167,3 +167,8 @@ db_reset_analytics_snapshot() {
     db_exec "DELETE FROM analytics_snapshot_audit;"
     db_exec "DELETE FROM analytics_snapshot;"
 }
+
+db_reset_customer() {
+    db_exec "DELETE FROM customer_audit;"
+    db_exec "DELETE FROM customer;"
+}

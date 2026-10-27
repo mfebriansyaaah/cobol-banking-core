@@ -77,6 +77,8 @@ run_db() {
     tests/db/metric_definition_db_tests.sh
     echo "=== DB ANALYTICS SNAPSHOT TESTS ==="
     tests/db/analytics_snapshot_db_tests.sh
+    echo "=== DB CUSTOMER TESTS ==="
+    tests/db/customer_db_tests.sh
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

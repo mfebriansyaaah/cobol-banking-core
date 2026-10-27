@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T23:05:13.214Z",
+  "generatedAt": "2026-10-27T03:57:30.067Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -90,6 +90,9 @@
     },
     {
       "source": "cost_center_core.cob"
+    },
+    {
+      "source": "customer_core.cob"
     },
     {
       "source": "dashboard_core.cob"
@@ -340,10 +343,10 @@
   ],
   "gatewayRoutes": [
     "access_audit.js",
-    "analytics_snapshot.js",
     "alert_escalation.js",
     "alerts.js",
     "aml_screening.js",
+    "analytics_snapshot.js",
     "asset.js",
     "asset_maintenance.js",
     "audit_analytics.js",
@@ -356,21 +359,21 @@
     "batch.js",
     "billpay.js",
     "budget.js",
-    "capacity_plan.js",
     "capacity_forecast.js",
+    "capacity_plan.js",
     "card.js",
-    "change_control.js",
     "change_approval.js",
+    "change_control.js",
     "collection.js",
-    "consolidation.js",
-    "cost_center.js",
     "compliance_audit.js",
     "compliance_export.js",
     "compliance_retention.js",
+    "consolidation.js",
+    "cost_center.js",
+    "customer.js",
     "dashboard.js",
-    "data_quality.js",
     "data_lineage.js",
-    "metric_definition.js",
+    "data_quality.js",
     "data_retention.js",
     "deposit.js",
     "disaster_recovery.js",
@@ -385,9 +388,9 @@
     "fee_waiver.js",
     "fixed_asset.js",
     "fraud_case.js",
-    "fx_hedging.js",
     "fraud_ops.js",
     "fx_deal.js",
+    "fx_hedging.js",
     "gl.js",
     "gl_allocation.js",
     "gl_period_close.js",
@@ -405,6 +408,7 @@
     "limit_profile.js",
     "loan.js",
     "loan_schedule.js",
+    "metric_definition.js",
     "notification.js",
     "notification_audit.js",
     "oncall.js",
@@ -937,6 +941,11 @@
       "prefixLen": 4,
       "prefix": "CSC_",
       "program": "cost_center_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CST_",
+      "program": "customer_core"
     },
     {
       "prefixLen": 4,
