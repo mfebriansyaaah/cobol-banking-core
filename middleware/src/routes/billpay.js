@@ -30,6 +30,12 @@ export const BILLPAY_ROUTES = [
   ] },
   { method: 'get', path: '/payments/bills/:id', action: 'BLP_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/payments/bills/:id/calc', action: 'BLP_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/payments/bills/:id/update', action: 'BLP_UPDATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'payee', pattern: PATTERNS.NAME, required: false },
+    { name: 'billType', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
   { method: 'post', path: '/payments/bills/:id/delete', action: 'BLP_DELETE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
