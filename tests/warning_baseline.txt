@@ -128,3 +128,4 @@ workflow_approval_core.cob=0
 aml_screening_core.cob=0
 sanctions_list_core.cob=0
 fraud_case_core.cob=0
+gl_allocation_core.cob=0
