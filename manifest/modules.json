@@ -356,6 +356,7 @@
     "billpay.js",
     "budget.js",
     "capacity_plan.js",
+    "capacity_forecast.js",
     "card.js",
     "change_control.js",
     "change_approval.js",

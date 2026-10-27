@@ -147,3 +147,8 @@ db_reset_change_approval() {
     db_exec "DELETE FROM change_approval_audit;"
     db_exec "DELETE FROM change_approval;"
 }
+
+db_reset_capacity_forecast() {
+    db_exec "DELETE FROM capacity_forecast_audit;"
+    db_exec "DELETE FROM capacity_forecast;"
+}

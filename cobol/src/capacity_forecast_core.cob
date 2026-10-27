@@ -1,2085 +1,654 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. capacity_forecast_core.
-      *> Skeleton module for capacity_forecast domain.
-
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
-
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
-       01  WS-VAR-01           PIC X(100) VALUE SPACES.
-       01  WS-VAR-02           PIC X(100) VALUE SPACES.
-       01  WS-VAR-03           PIC X(100) VALUE SPACES.
-       01  WS-VAR-04           PIC X(100) VALUE SPACES.
-       01  WS-VAR-05           PIC X(100) VALUE SPACES.
-       01  WS-VAR-06           PIC X(100) VALUE SPACES.
-       01  WS-VAR-07           PIC X(100) VALUE SPACES.
-       01  WS-VAR-08           PIC X(100) VALUE SPACES.
-       01  WS-VAR-09           PIC X(100) VALUE SPACES.
-       01  WS-VAR-10           PIC X(100) VALUE SPACES.
-       01  WS-VAR-11           PIC X(100) VALUE SPACES.
-       01  WS-VAR-12           PIC X(100) VALUE SPACES.
-       01  WS-VAR-13           PIC X(100) VALUE SPACES.
-       01  WS-VAR-14           PIC X(100) VALUE SPACES.
-       01  WS-VAR-15           PIC X(100) VALUE SPACES.
-       01  WS-VAR-16           PIC X(100) VALUE SPACES.
-       01  WS-VAR-17           PIC X(100) VALUE SPACES.
-       01  WS-VAR-18           PIC X(100) VALUE SPACES.
-       01  WS-VAR-19           PIC X(100) VALUE SPACES.
-       01  WS-VAR-20           PIC X(100) VALUE SPACES.
-       01  WS-VAR-21           PIC X(100) VALUE SPACES.
-       01  WS-VAR-22           PIC X(100) VALUE SPACES.
-       01  WS-VAR-23           PIC X(100) VALUE SPACES.
-       01  WS-VAR-24           PIC X(100) VALUE SPACES.
-       01  WS-VAR-25           PIC X(100) VALUE SPACES.
-       01  WS-VAR-26           PIC X(100) VALUE SPACES.
-       01  WS-VAR-27           PIC X(100) VALUE SPACES.
-       01  WS-VAR-28           PIC X(100) VALUE SPACES.
-       01  WS-VAR-29           PIC X(100) VALUE SPACES.
-       01  WS-VAR-30           PIC X(100) VALUE SPACES.
-       01  WS-VAR-31           PIC X(100) VALUE SPACES.
-       01  WS-VAR-32           PIC X(100) VALUE SPACES.
-       01  WS-VAR-33           PIC X(100) VALUE SPACES.
-       01  WS-VAR-34           PIC X(100) VALUE SPACES.
-       01  WS-VAR-35           PIC X(100) VALUE SPACES.
-       01  WS-VAR-36           PIC X(100) VALUE SPACES.
-       01  WS-VAR-37           PIC X(100) VALUE SPACES.
-       01  WS-VAR-38           PIC X(100) VALUE SPACES.
-       01  WS-VAR-39           PIC X(100) VALUE SPACES.
-       01  WS-VAR-40           PIC X(100) VALUE SPACES.
-       01  WS-NUM-PRINCIPAL     PIC 9(12)V99 VALUE 0.
-       01  WS-NUM-RATE          PIC 9(3)V9(6) VALUE 0.
-       01  WS-NUM-AMOUNT        PIC 9(12)V99 VALUE 0.
-       01  WS-RESULT               PIC X(16384) VALUE SPACES.
-       01  WS-P1                   PIC X(100) VALUE SPACES.
-       01  WS-P2                   PIC X(100) VALUE SPACES.
-       01  WS-P3                   PIC X(100) VALUE SPACES.
-       01  WS-P4                   PIC X(100) VALUE SPACES.
-       01  WS-P5                   PIC X(100) VALUE SPACES.
-       01  WS-P6                   PIC X(100) VALUE SPACES.
-       01  WS-I                    PIC 9(5) VALUE 1.
-       01  WS-J                    PIC 9(5) VALUE 1.
-       01  WS-K                    PIC 9(5) VALUE 1.
-       01  WS-L                    PIC 9(5) VALUE 1.
-       01  WS-M                    PIC 9(5) VALUE 1.
-       01  WS-N                    PIC 9(5) VALUE 1.
-       01  WS-O                    PIC 9(5) VALUE 1.
-       01  WS-P                    PIC 9(5) VALUE 1.
-       01  WS-Q                    PIC 9(5) VALUE 1.
-       01  WS-R                    PIC 9(5) VALUE 1.
-       01  WS-S                    PIC 9(5) VALUE 1.
-       01  WS-T                    PIC 9(5) VALUE 1.
-       01  WS-U                    PIC 9(5) VALUE 1.
-       01  WS-V                    PIC 9(5) VALUE 1.
-       01  WS-W                    PIC 9(5) VALUE 1.
-       01  WS-X                    PIC 9(5) VALUE 1.
-       01  WS-Y                    PIC 9(5) VALUE 1.
-       01  WS-Z                    PIC 9(5) VALUE 1.
-       01  WS-STATUS               PIC X(20) VALUE SPACES.
-       01  WS-CODE                 PIC X(20) VALUE SPACES.
-       01  WS-MESSAGE              PIC X(100) VALUE SPACES.
-       01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
-       01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
-       01  WS-ACTOR                PIC X(100) VALUE SPACES.
-       01  WS-TARGET               PIC X(100) VALUE SPACES.
-       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
-       01  WS-CURRENCY             PIC X(3) VALUE SPACES.
-       01  WS-DATE-VALUE           PIC X(10) VALUE SPACES.
-       01  WS-ID-VALUE             PIC X(20) VALUE SPACES.
-       01  WS-LIMIT-VALUE          PIC X(10) VALUE SPACES.
-       01  WS-OFFSET-VALUE         PIC X(10) VALUE SPACES.
-       01  WS-FLAG                 PIC X VALUE 'N'.
-           88  FLAG-YES             VALUE 'Y'.
-           88  FLAG-NO              VALUE 'N'.
-       01  WS-STEP                 PIC X VALUE 'Y'.
-           88  STEP-OK             VALUE 'Y'.
-           88  STEP-FAIL           VALUE 'N'.
-
-       LINKAGE SECTION.
-       01  LS-CMD-ACTION           PIC X(30).
-       01  LS-PARAM1               PIC X(100).
-       01  LS-PARAM2               PIC X(100).
-       01  LS-PARAM3               PIC X(100).
-       01  LS-PARAM4               PIC X(100).
-       01  LS-PARAM5               PIC X(100).
-       01  LS-PARAM6               PIC X(100).
-       01  LS-OUTPUT-BUFFER        PIC X(16384).
-
-       PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
-           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
-
-       MAIN-LOGIC.
-           MOVE SPACES TO WS-RESULT
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           PERFORM TRIM-ALL
-           EVALUATE TRUE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_CREATE"
-                   PERFORM ACTION-CFC_CREATE
-               WHEN LS-CMD-ACTION(1:8) = "CFC_LIST"
-                   PERFORM ACTION-CFC_LIST
-               WHEN LS-CMD-ACTION(1:7) = "CFC_GET"
-                   PERFORM ACTION-CFC_GET
-               WHEN LS-CMD-ACTION(1:8) = "CFC_CALC"
-                   PERFORM ACTION-CFC_CALC
-               WHEN LS-CMD-ACTION(1:10) = "CFC_UPDATE"
-                   PERFORM ACTION-CFC_UPDATE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_DELETE"
-                   PERFORM ACTION-CFC_DELETE
-               WHEN LS-CMD-ACTION(1:11) = "CFC_SUMMARY"
-                   PERFORM ACTION-CFC_SUMMARY
-               WHEN LS-CMD-ACTION(1:12) = "CFC_VALIDATE"
-                   PERFORM ACTION-CFC_VALIDATE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_EXPORT"
-                   PERFORM ACTION-CFC_EXPORT
-               WHEN LS-CMD-ACTION(1:9) = "CFC_AUDIT"
-                   PERFORM ACTION-CFC_AUDIT
-               WHEN LS-CMD-ACTION(1:10) = "CFC_STATUS"
-                   PERFORM ACTION-CFC_STATUS
-               WHEN LS-CMD-ACTION(1:9) = "CFC_CLOSE"
-                   PERFORM ACTION-CFC_CLOSE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_REOPEN"
-                   PERFORM ACTION-CFC_REOPEN
-               WHEN LS-CMD-ACTION(1:10) = "CFC_ADJUST"
-                   PERFORM ACTION-CFC_ADJUST
-               WHEN LS-CMD-ACTION(1:11) = "CFC_REVERSE"
-                   PERFORM ACTION-CFC_REVERSE
-               WHEN LS-CMD-ACTION(1:11) = "CFC_APPROVE"
-                   PERFORM ACTION-CFC_APPROVE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_REJECT"
-                   PERFORM ACTION-CFC_REJECT
-               WHEN LS-CMD-ACTION(1:8) = "CFC_POST"
-                   PERFORM ACTION-CFC_POST
-               WHEN LS-CMD-ACTION(1:9) = "CFC_WAIVE"
-                   PERFORM ACTION-CFC_WAIVE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_CANCEL"
-                   PERFORM ACTION-CFC_CANCEL
-               WHEN LS-CMD-ACTION(1:8) = "CFC_HOLD"
-                   PERFORM ACTION-CFC_HOLD
-               WHEN LS-CMD-ACTION(1:11) = "CFC_RELEASE"
-                   PERFORM ACTION-CFC_RELEASE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_NOTIFY"
-                   PERFORM ACTION-CFC_NOTIFY
-               WHEN LS-CMD-ACTION(1:11) = "CFC_ARCHIVE"
-                   PERFORM ACTION-CFC_ARCHIVE
-               WHEN LS-CMD-ACTION(1:11) = "CFC_RESTORE"
-                   PERFORM ACTION-CFC_RESTORE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_IMPORT"
-                   PERFORM ACTION-CFC_IMPORT
-               WHEN LS-CMD-ACTION(1:10) = "CFC_REPORT"
-                   PERFORM ACTION-CFC_REPORT
-               WHEN LS-CMD-ACTION(1:10) = "CFC_VERIFY"
-                   PERFORM ACTION-CFC_VERIFY
-               WHEN LS-CMD-ACTION(1:8) = "CFC_SYNC"
-                   PERFORM ACTION-CFC_SYNC
-               WHEN LS-CMD-ACTION(1:13) = "CFC_RECONCILE"
-                   PERFORM ACTION-CFC_RECONCILE
-               WHEN LS-CMD-ACTION(1:12) = "CFC_ALLOCATE"
-                   PERFORM ACTION-CFC_ALLOCATE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_ACCRUE"
-                   PERFORM ACTION-CFC_ACCRUE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_SETTLE"
-                   PERFORM ACTION-CFC_SETTLE
-               WHEN LS-CMD-ACTION(1:12) = "CFC_FORECAST"
-                   PERFORM ACTION-CFC_FORECAST
-               WHEN LS-CMD-ACTION(1:12) = "CFC_OVERRIDE"
-                   PERFORM ACTION-CFC_OVERRIDE
-               WHEN LS-CMD-ACTION(1:10) = "CFC_DETAIL"
-                   PERFORM ACTION-CFC_DETAIL
-               WHEN LS-CMD-ACTION(1:11) = "CFC_HISTORY"
-                   PERFORM ACTION-CFC_HISTORY
-               WHEN LS-CMD-ACTION(1:10) = "CFC_SEARCH"
-                   PERFORM ACTION-CFC_SEARCH
-               WHEN LS-CMD-ACTION(1:10) = "CFC_FILTER"
-                   PERFORM ACTION-CFC_FILTER
-               WHEN LS-CMD-ACTION(1:8) = "CFC_SORT"
-                   PERFORM ACTION-CFC_SORT
-               WHEN LS-CMD-ACTION(1:9) = "CFC_PRINT"
-                   PERFORM ACTION-CFC_PRINT
-               WHEN LS-CMD-ACTION(1:9) = "CFC_DRAFT"
-                   PERFORM ACTION-CFC_DRAFT
-               WHEN LS-CMD-ACTION(1:8) = "CFC_OPEN"
-                   PERFORM ACTION-CFC_OPEN
-               WHEN LS-CMD-ACTION(1:11) = "CFC_PENDING"
-                   PERFORM ACTION-CFC_PENDING
-               WHEN LS-CMD-ACTION(1:12) = "CFC_APPROVED"
-                   PERFORM ACTION-CFC_APPROVED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_REJECTED"
-                   PERFORM ACTION-CFC_REJECTED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_ACTIVE"
-                   PERFORM ACTION-CFC_ACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "CFC_INACTIVE"
-                   PERFORM ACTION-CFC_INACTIVE
-               WHEN LS-CMD-ACTION(1:12) = "CFC_ARCHIVED"
-                   PERFORM ACTION-CFC_ARCHIVED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_DELETED"
-                   PERFORM ACTION-CFC_DELETED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_LOCKED"
-                   PERFORM ACTION-CFC_LOCKED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_UNLOCKED"
-                   PERFORM ACTION-CFC_UNLOCKED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_SUSPENDED"
-                   PERFORM ACTION-CFC_SUSPENDED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_RESUMED"
-                   PERFORM ACTION-CFC_RESUMED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_EXPIRED"
-                   PERFORM ACTION-CFC_EXPIRED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_RENEWED"
-                   PERFORM ACTION-CFC_RENEWED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_CANCELLED"
-                   PERFORM ACTION-CFC_CANCELLED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_COMPLETED"
-                   PERFORM ACTION-CFC_COMPLETED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_FAILED"
-                   PERFORM ACTION-CFC_FAILED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_RETRIED"
-                   PERFORM ACTION-CFC_RETRIED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_ESCALATED"
-                   PERFORM ACTION-CFC_ESCALATED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_ASSIGNED"
-                   PERFORM ACTION-CFC_ASSIGNED
-               WHEN LS-CMD-ACTION(1:14) = "CFC_UNASSIGNED"
-                   PERFORM ACTION-CFC_UNASSIGNED
-               WHEN LS-CMD-ACTION(1:15) = "CFC_TRANSFERRED"
-                   PERFORM ACTION-CFC_TRANSFERRED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_MERGED"
-                   PERFORM ACTION-CFC_MERGED
-               WHEN LS-CMD-ACTION(1:9) = "CFC_SPLIT"
-                   PERFORM ACTION-CFC_SPLIT
-               WHEN LS-CMD-ACTION(1:10) = "CFC_CLONED"
-                   PERFORM ACTION-CFC_CLONED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_COPIED"
-                   PERFORM ACTION-CFC_COPIED
-               WHEN LS-CMD-ACTION(1:9) = "CFC_MOVED"
-                   PERFORM ACTION-CFC_MOVED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_LINKED"
-                   PERFORM ACTION-CFC_LINKED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_UNLINKED"
-                   PERFORM ACTION-CFC_UNLINKED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_TAGGED"
-                   PERFORM ACTION-CFC_TAGGED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_UNTAGGED"
-                   PERFORM ACTION-CFC_UNTAGGED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_FLAGGED"
-                   PERFORM ACTION-CFC_FLAGGED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_UNFLAGGED"
-                   PERFORM ACTION-CFC_UNFLAGGED
-               WHEN LS-CMD-ACTION(1:15) = "CFC_PRIORITIZED"
-                   PERFORM ACTION-CFC_PRIORITIZED
-               WHEN LS-CMD-ACTION(1:17) = "CFC_DEPRIORITIZED"
-                   PERFORM ACTION-CFC_DEPRIORITIZED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_SCHEDULED"
-                   PERFORM ACTION-CFC_SCHEDULED
-               WHEN LS-CMD-ACTION(1:15) = "CFC_UNSCHEDULED"
-                   PERFORM ACTION-CFC_UNSCHEDULED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_EXECUTED"
-                   PERFORM ACTION-CFC_EXECUTED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_SKIPPED"
-                   PERFORM ACTION-CFC_SKIPPED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_STARTED"
-                   PERFORM ACTION-CFC_STARTED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_STOPPED"
-                   PERFORM ACTION-CFC_STOPPED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_PAUSED"
-                   PERFORM ACTION-CFC_PAUSED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_RESUMED2"
-                   PERFORM ACTION-CFC_RESUMED2
-               WHEN LS-CMD-ACTION(1:10) = "CFC_QUEUED"
-                   PERFORM ACTION-CFC_QUEUED
-               WHEN LS-CMD-ACTION(1:14) = "CFC_DISPATCHED"
-                   PERFORM ACTION-CFC_DISPATCHED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_RECEIVED"
-                   PERFORM ACTION-CFC_RECEIVED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_PROCESSED"
-                   PERFORM ACTION-CFC_PROCESSED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_FINALIZED"
-                   PERFORM ACTION-CFC_FINALIZED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_ABORTED"
-                   PERFORM ACTION-CFC_ABORTED
-               WHEN LS-CMD-ACTION(1:14) = "CFC_ROLLEDBACK"
-                   PERFORM ACTION-CFC_ROLLEDBACK
-               WHEN LS-CMD-ACTION(1:13) = "CFC_COMMITTED"
-                   PERFORM ACTION-CFC_COMMITTED
-               WHEN LS-CMD-ACTION(1:14) = "CFC_VALIDATED2"
-                   PERFORM ACTION-CFC_VALIDATED2
-               WHEN LS-CMD-ACTION(1:15) = "CFC_RECONCILED2"
-                   PERFORM ACTION-CFC_RECONCILED2
-               WHEN LS-CMD-ACTION(1:14) = "CFC_ALLOCATED2"
-                   PERFORM ACTION-CFC_ALLOCATED2
-               WHEN LS-CMD-ACTION(1:12) = "CFC_ACCRUED2"
-                   PERFORM ACTION-CFC_ACCRUED2
-               WHEN LS-CMD-ACTION(1:12) = "CFC_SETTLED2"
-                   PERFORM ACTION-CFC_SETTLED2
-               WHEN LS-CMD-ACTION(1:14) = "CFC_FORECASTED"
-                   PERFORM ACTION-CFC_FORECASTED
-               WHEN LS-CMD-ACTION(1:14) = "CFC_OVERRIDDEN"
-                   PERFORM ACTION-CFC_OVERRIDDEN
-               WHEN LS-CMD-ACTION(1:12) = "CFC_DETAILED"
-                   PERFORM ACTION-CFC_DETAILED
-               WHEN LS-CMD-ACTION(1:14) = "CFC_HISTORICAL"
-                   PERFORM ACTION-CFC_HISTORICAL
-               WHEN LS-CMD-ACTION(1:12) = "CFC_SEARCHED"
-                   PERFORM ACTION-CFC_SEARCHED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_FILTERED"
-                   PERFORM ACTION-CFC_FILTERED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_SORTED"
-                   PERFORM ACTION-CFC_SORTED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_PRINTED"
-                   PERFORM ACTION-CFC_PRINTED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_CREATED2"
-                   PERFORM ACTION-CFC_CREATED2
-               WHEN LS-CMD-ACTION(1:10) = "CFC_LISTED"
-                   PERFORM ACTION-CFC_LISTED
-               WHEN LS-CMD-ACTION(1:10) = "CFC_GOTTEN"
-                   PERFORM ACTION-CFC_GOTTEN
-               WHEN LS-CMD-ACTION(1:14) = "CFC_CALCULATED"
-                   PERFORM ACTION-CFC_CALCULATED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_UPDATED"
-                   PERFORM ACTION-CFC_UPDATED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_DELETED2"
-                   PERFORM ACTION-CFC_DELETED2
-               WHEN LS-CMD-ACTION(1:14) = "CFC_SUMMARIZED"
-                   PERFORM ACTION-CFC_SUMMARIZED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_EXPORTED"
-                   PERFORM ACTION-CFC_EXPORTED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_AUDITED"
-                   PERFORM ACTION-CFC_AUDITED
-               WHEN LS-CMD-ACTION(1:11) = "CFC_STATUS2"
-                   PERFORM ACTION-CFC_STATUS2
-               WHEN LS-CMD-ACTION(1:11) = "CFC_CLOSED2"
-                   PERFORM ACTION-CFC_CLOSED2
-               WHEN LS-CMD-ACTION(1:12) = "CFC_REOPENED"
-                   PERFORM ACTION-CFC_REOPENED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_ADJUSTED"
-                   PERFORM ACTION-CFC_ADJUSTED
-               WHEN LS-CMD-ACTION(1:12) = "CFC_REVERSED"
-                   PERFORM ACTION-CFC_REVERSED
-               WHEN LS-CMD-ACTION(1:13) = "CFC_APPROVED2"
-                   PERFORM ACTION-CFC_APPROVED2
-               WHEN LS-CMD-ACTION(1:9) = "CFC_BATCH"
-                   PERFORM ACTION-CFC_BATCH
-               WHEN LS-CMD-ACTION(1:10) = "CFC_ONLINE"
-                   PERFORM ACTION-CFC_ONLINE
-               WHEN LS-CMD-ACTION(1:11) = "CFC_OFFLINE"
-                   PERFORM ACTION-CFC_OFFLINE
-               WHEN LS-CMD-ACTION(1:12) = "CFC_REALTIME"
-                   PERFORM ACTION-CFC_REALTIME
-               WHEN LS-CMD-ACTION(1:14) = "CFC_SCHEDULED2"
-                   PERFORM ACTION-CFC_SCHEDULED2
-               WHEN LS-CMD-ACTION(1:10) = "CFC_MANUAL"
-                   PERFORM ACTION-CFC_MANUAL
-               WHEN LS-CMD-ACTION(1:13) = "CFC_AUTOMATIC"
-                   PERFORM ACTION-CFC_AUTOMATIC
-               WHEN LS-CMD-ACTION(1:10) = "CFC_SYSTEM"
-                   PERFORM ACTION-CFC_SYSTEM
-               WHEN LS-CMD-ACTION(1:8) = "CFC_USER"
-                   PERFORM ACTION-CFC_USER
-               WHEN LS-CMD-ACTION(1:9) = "CFC_ADMIN"
-                   PERFORM ACTION-CFC_ADMIN
-               WHEN LS-CMD-ACTION(1:14) = "CFC_SUPERVISOR"
-                   PERFORM ACTION-CFC_SUPERVISOR
-               WHEN LS-CMD-ACTION(1:12) = "CFC_OPERATOR"
-                   PERFORM ACTION-CFC_OPERATOR
-               WHEN LS-CMD-ACTION(1:11) = "CFC_MANAGER"
-                   PERFORM ACTION-CFC_MANAGER
-               WHEN LS-CMD-ACTION(1:9) = "CFC_CLERK"
-                   PERFORM ACTION-CFC_CLERK
-               WHEN LS-CMD-ACTION(1:11) = "CFC_ANALYST"
-                   PERFORM ACTION-CFC_ANALYST
-               WHEN LS-CMD-ACTION(1:12) = "CFC_REVIEWER"
-                   PERFORM ACTION-CFC_REVIEWER
-               WHEN LS-CMD-ACTION(1:12) = "CFC_APPROVER"
-                   PERFORM ACTION-CFC_APPROVER
-               WHEN LS-CMD-ACTION(1:11) = "CFC_AUDITOR"
-                   PERFORM ACTION-CFC_AUDITOR
-               WHEN LS-CMD-ACTION(1:12) = "CFC_REPORTER"
-                   PERFORM ACTION-CFC_REPORTER
-               WHEN LS-CMD-ACTION(1:12) = "CFC_EXPORTER"
-                   PERFORM ACTION-CFC_EXPORTER
-               WHEN LS-CMD-ACTION(1:12) = "CFC_IMPORTER"
-                   PERFORM ACTION-CFC_IMPORTER
-               WHEN LS-CMD-ACTION(1:13) = "CFC_VALIDATOR"
-                   PERFORM ACTION-CFC_VALIDATOR
-               WHEN LS-CMD-ACTION(1:13) = "CFC_PROCESSOR"
-                   PERFORM ACTION-CFC_PROCESSOR
-               WHEN LS-CMD-ACTION(1:13) = "CFC_GENERATOR"
-                   PERFORM ACTION-CFC_GENERATOR
-               WHEN LS-CMD-ACTION(1:14) = "CFC_CALCULATOR"
-                   PERFORM ACTION-CFC_CALCULATOR
-               WHEN LS-CMD-ACTION(1:13) = "CFC_FORMATTER"
-                   PERFORM ACTION-CFC_FORMATTER
-               WHEN LS-CMD-ACTION(1:10) = "CFC_PARSER"
-                   PERFORM ACTION-CFC_PARSER
-               WHEN LS-CMD-ACTION(1:13) = "CFC_CONVERTER"
-                   PERFORM ACTION-CFC_CONVERTER
-               WHEN LS-CMD-ACTION(1:15) = "CFC_TRANSFORMER"
-                   PERFORM ACTION-CFC_TRANSFORMER
-               WHEN LS-CMD-ACTION(1:10) = "CFC_LOADER"
-                   PERFORM ACTION-CFC_LOADER
-               WHEN LS-CMD-ACTION(1:12) = "CFC_UNLOADER"
-                   PERFORM ACTION-CFC_UNLOADER
-               WHEN LS-CMD-ACTION(1:12) = "CFC_ARCHIVER"
-                   PERFORM ACTION-CFC_ARCHIVER
-               WHEN LS-CMD-ACTION(1:12) = "CFC_RESTORER"
-                   PERFORM ACTION-CFC_RESTORER
-               WHEN LS-CMD-ACTION(1:10) = "CFC_BACKUP"
-                   PERFORM ACTION-CFC_BACKUP
-               WHEN LS-CMD-ACTION(1:12) = "CFC_RECOVERY"
-                   PERFORM ACTION-CFC_RECOVERY
-               WHEN LS-CMD-ACTION(1:13) = "CFC_MIGRATION"
-                   PERFORM ACTION-CFC_MIGRATION
-               WHEN LS-CMD-ACTION(1:16) = "CFC_SYNCHRONIZER"
-                   PERFORM ACTION-CFC_SYNCHRONIZER
-               WHEN LS-CMD-ACTION(1:14) = "CFC_REPLICATOR"
-                   PERFORM ACTION-CFC_REPLICATOR
-               WHEN LS-CMD-ACTION(1:11) = "CFC_MONITOR"
-                   PERFORM ACTION-CFC_MONITOR
-               WHEN LS-CMD-ACTION(1:10) = "CFC_LOGGER"
-                   PERFORM ACTION-CFC_LOGGER
-               WHEN OTHER
-                   MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
-           END-EVALUATE
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
-           GOBACK.
-
-       ACTION-CFC_CREATE.
-           IF WS-P1 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|CFC_CREATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_LIST.
-           MOVE "SUCCESS|CFC_LIST|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_GET.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|CFC_GET|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CALC.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           COMPUTE WS-NUM-AMOUNT = WS-NUM-PRINCIPAL * WS-NUM-RATE / 100
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|CFC_CALC|" DELIMITED BY SIZE
-                  WS-NUM-AMOUNT DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UPDATE.
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|CFC_UPDATE|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DELETE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|CFC_DELETE|DELETED" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SUMMARY.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|CFC_SUMMARY|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE "|" DELIMITED BY SIZE
-                  WS-NUM-RATE DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_VALIDATE.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-RATE
-           MOVE FUNCTION NUMVAL(WS-P3) TO WS-NUM-AMOUNT
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-AMOUNT = 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           IF WS-NUM-RATE < 0
-               MOVE "ERROR|INVALID_INPUT" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|CFC_VALIDATE|OK" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_EXPORT.
-           MOVE "CFC_EXPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_EXPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_AUDIT.
-           MOVE "CFC_AUDIT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_AUDIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_STATUS.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           IF WS-NUM-PRINCIPAL <= 0
-               MOVE "SUCCESS|CFC_STATUS|CLOSED" TO WS-RESULT
-               EXIT PARAGRAPH
-           END-IF
-           MOVE "SUCCESS|CFC_STATUS|ACTIVE" TO WS-RESULT
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CLOSE.
-           MOVE "CFC_CLOSE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CLOSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REOPEN.
-           MOVE "CFC_REOPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REOPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ADJUST.
-           MOVE FUNCTION NUMVAL(WS-P1) TO WS-NUM-PRINCIPAL
-           MOVE FUNCTION NUMVAL(WS-P2) TO WS-NUM-AMOUNT
-           COMPUTE WS-NUM-PRINCIPAL = WS-NUM-PRINCIPAL + WS-NUM-AMOUNT
-           MOVE SPACES TO WS-RESULT
-           STRING "SUCCESS|CFC_ADJUST|" DELIMITED BY SIZE
-                  WS-NUM-PRINCIPAL DELIMITED BY SIZE
-                  INTO WS-RESULT
-           END-STRING
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REVERSE.
-           MOVE "CFC_REVERSE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REVERSE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_APPROVE.
-           MOVE "CFC_APPROVE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_APPROVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REJECT.
-           MOVE "CFC_REJECT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REJECT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_POST.
-           MOVE "CFC_POST_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_POST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_WAIVE.
-           MOVE "CFC_WAIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_WAIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CANCEL.
-           MOVE "CFC_CANCEL_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CANCEL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_HOLD.
-           MOVE "CFC_HOLD_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_HOLD" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RELEASE.
-           MOVE "CFC_RELEASE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RELEASE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_NOTIFY.
-           MOVE "CFC_NOTIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_NOTIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ARCHIVE.
-           MOVE "CFC_ARCHIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ARCHIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RESTORE.
-           MOVE "CFC_RESTORE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RESTORE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_IMPORT.
-           MOVE "CFC_IMPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_IMPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REPORT.
-           MOVE "CFC_REPORT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REPORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_VERIFY.
-           MOVE "CFC_VERIFY_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_VERIFY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SYNC.
-           MOVE "CFC_SYNC_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SYNC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RECONCILE.
-           MOVE "CFC_RECONCILE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RECONCILE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ALLOCATE.
-           MOVE "CFC_ALLOCATE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ALLOCATE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ACCRUE.
-           MOVE "CFC_ACCRUE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ACCRUE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SETTLE.
-           MOVE "CFC_SETTLE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SETTLE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FORECAST.
-           MOVE "CFC_FORECAST_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FORECAST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_OVERRIDE.
-           MOVE "CFC_OVERRIDE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_OVERRIDE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DETAIL.
-           MOVE "CFC_DETAIL_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_DETAIL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_HISTORY.
-           MOVE "CFC_HISTORY_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_HISTORY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SEARCH.
-           MOVE "CFC_SEARCH_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SEARCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FILTER.
-           MOVE "CFC_FILTER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FILTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SORT.
-           MOVE "CFC_SORT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SORT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PRINT.
-           MOVE "CFC_PRINT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PRINT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DRAFT.
-           MOVE "CFC_DRAFT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_DRAFT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_OPEN.
-           MOVE "CFC_OPEN_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_OPEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PENDING.
-           MOVE "CFC_PENDING_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PENDING" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_APPROVED.
-           MOVE "CFC_APPROVED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_APPROVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REJECTED.
-           MOVE "CFC_REJECTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REJECTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ACTIVE.
-           MOVE "CFC_ACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_INACTIVE.
-           MOVE "CFC_INACTIVE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_INACTIVE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ARCHIVED.
-           MOVE "CFC_ARCHIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ARCHIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DELETED.
-           MOVE "CFC_DELETED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_DELETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_LOCKED.
-           MOVE "CFC_LOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_LOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UNLOCKED.
-           MOVE "CFC_UNLOCKED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UNLOCKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SUSPENDED.
-           MOVE "CFC_SUSPENDED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SUSPENDED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RESUMED.
-           MOVE "CFC_RESUMED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RESUMED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_EXPIRED.
-           MOVE "CFC_EXPIRED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_EXPIRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RENEWED.
-           MOVE "CFC_RENEWED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RENEWED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CANCELLED.
-           MOVE "CFC_CANCELLED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CANCELLED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_COMPLETED.
-           MOVE "CFC_COMPLETED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_COMPLETED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FAILED.
-           MOVE "CFC_FAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RETRIED.
-           MOVE "CFC_RETRIED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RETRIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ESCALATED.
-           MOVE "CFC_ESCALATED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ESCALATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ASSIGNED.
-           MOVE "CFC_ASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UNASSIGNED.
-           MOVE "CFC_UNASSIGNED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UNASSIGNED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_TRANSFERRED.
-           MOVE "CFC_TRANSFERRED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_TRANSFERRED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_MERGED.
-           MOVE "CFC_MERGED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_MERGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SPLIT.
-           MOVE "CFC_SPLIT_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SPLIT" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CLONED.
-           MOVE "CFC_CLONED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CLONED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_COPIED.
-           MOVE "CFC_COPIED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_COPIED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_MOVED.
-           MOVE "CFC_MOVED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_MOVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_LINKED.
-           MOVE "CFC_LINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_LINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UNLINKED.
-           MOVE "CFC_UNLINKED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UNLINKED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_TAGGED.
-           MOVE "CFC_TAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_TAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UNTAGGED.
-           MOVE "CFC_UNTAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UNTAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FLAGGED.
-           MOVE "CFC_FLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UNFLAGGED.
-           MOVE "CFC_UNFLAGGED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UNFLAGGED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PRIORITIZED.
-           MOVE "CFC_PRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DEPRIORITIZED.
-           MOVE "CFC_DEPRIORITIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_DEPRIORITIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SCHEDULED.
-           MOVE "CFC_SCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UNSCHEDULED.
-           MOVE "CFC_UNSCHEDULED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UNSCHEDULED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_EXECUTED.
-           MOVE "CFC_EXECUTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_EXECUTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SKIPPED.
-           MOVE "CFC_SKIPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SKIPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_STARTED.
-           MOVE "CFC_STARTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_STARTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_STOPPED.
-           MOVE "CFC_STOPPED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_STOPPED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PAUSED.
-           MOVE "CFC_PAUSED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PAUSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RESUMED2.
-           MOVE "CFC_RESUMED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RESUMED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_QUEUED.
-           MOVE "CFC_QUEUED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_QUEUED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DISPATCHED.
-           MOVE "CFC_DISPATCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_DISPATCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RECEIVED.
-           MOVE "CFC_RECEIVED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RECEIVED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PROCESSED.
-           MOVE "CFC_PROCESSED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PROCESSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FINALIZED.
-           MOVE "CFC_FINALIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FINALIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ABORTED.
-           MOVE "CFC_ABORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ABORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ROLLEDBACK.
-           MOVE "CFC_ROLLEDBACK_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ROLLEDBACK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_COMMITTED.
-           MOVE "CFC_COMMITTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_COMMITTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_VALIDATED2.
-           MOVE "CFC_VALIDATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_VALIDATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RECONCILED2.
-           MOVE "CFC_RECONCILED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RECONCILED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ALLOCATED2.
-           MOVE "CFC_ALLOCATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ALLOCATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ACCRUED2.
-           MOVE "CFC_ACCRUED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ACCRUED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SETTLED2.
-           MOVE "CFC_SETTLED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SETTLED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FORECASTED.
-           MOVE "CFC_FORECASTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FORECASTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_OVERRIDDEN.
-           MOVE "CFC_OVERRIDDEN_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_OVERRIDDEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DETAILED.
-           MOVE "CFC_DETAILED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_DETAILED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_HISTORICAL.
-           MOVE "CFC_HISTORICAL_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_HISTORICAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SEARCHED.
-           MOVE "CFC_SEARCHED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SEARCHED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FILTERED.
-           MOVE "CFC_FILTERED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FILTERED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SORTED.
-           MOVE "CFC_SORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PRINTED.
-           MOVE "CFC_PRINTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PRINTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CREATED2.
-           MOVE "CFC_CREATED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CREATED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_LISTED.
-           MOVE "CFC_LISTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_LISTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_GOTTEN.
-           MOVE "CFC_GOTTEN_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_GOTTEN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CALCULATED.
-           MOVE "CFC_CALCULATED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CALCULATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UPDATED.
-           MOVE "CFC_UPDATED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UPDATED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_DELETED2.
-           MOVE "CFC_DELETED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_DELETED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SUMMARIZED.
-           MOVE "CFC_SUMMARIZED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SUMMARIZED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_EXPORTED.
-           MOVE "CFC_EXPORTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_EXPORTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_AUDITED.
-           MOVE "CFC_AUDITED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_AUDITED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_STATUS2.
-           MOVE "CFC_STATUS2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_STATUS2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CLOSED2.
-           MOVE "CFC_CLOSED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CLOSED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REOPENED.
-           MOVE "CFC_REOPENED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REOPENED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ADJUSTED.
-           MOVE "CFC_ADJUSTED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ADJUSTED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REVERSED.
-           MOVE "CFC_REVERSED_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REVERSED" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_APPROVED2.
-           MOVE "CFC_APPROVED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_APPROVED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_BATCH.
-           MOVE "CFC_BATCH_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_BATCH" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ONLINE.
-           MOVE "CFC_ONLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ONLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_OFFLINE.
-           MOVE "CFC_OFFLINE_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_OFFLINE" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REALTIME.
-           MOVE "CFC_REALTIME_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REALTIME" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SCHEDULED2.
-           MOVE "CFC_SCHEDULED2_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SCHEDULED2" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_MANUAL.
-           MOVE "CFC_MANUAL_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_MANUAL" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_AUTOMATIC.
-           MOVE "CFC_AUTOMATIC_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_AUTOMATIC" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SYSTEM.
-           MOVE "CFC_SYSTEM_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SYSTEM" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_USER.
-           MOVE "CFC_USER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_USER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ADMIN.
-           MOVE "CFC_ADMIN_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ADMIN" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SUPERVISOR.
-           MOVE "CFC_SUPERVISOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SUPERVISOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_OPERATOR.
-           MOVE "CFC_OPERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_OPERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_MANAGER.
-           MOVE "CFC_MANAGER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_MANAGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CLERK.
-           MOVE "CFC_CLERK_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CLERK" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ANALYST.
-           MOVE "CFC_ANALYST_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ANALYST" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REVIEWER.
-           MOVE "CFC_REVIEWER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REVIEWER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_APPROVER.
-           MOVE "CFC_APPROVER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_APPROVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_AUDITOR.
-           MOVE "CFC_AUDITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_AUDITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REPORTER.
-           MOVE "CFC_REPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_EXPORTER.
-           MOVE "CFC_EXPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_EXPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_IMPORTER.
-           MOVE "CFC_IMPORTER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_IMPORTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_VALIDATOR.
-           MOVE "CFC_VALIDATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_VALIDATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PROCESSOR.
-           MOVE "CFC_PROCESSOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PROCESSOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_GENERATOR.
-           MOVE "CFC_GENERATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_GENERATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CALCULATOR.
-           MOVE "CFC_CALCULATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CALCULATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_FORMATTER.
-           MOVE "CFC_FORMATTER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_FORMATTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_PARSER.
-           MOVE "CFC_PARSER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_PARSER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_CONVERTER.
-           MOVE "CFC_CONVERTER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_CONVERTER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_TRANSFORMER.
-           MOVE "CFC_TRANSFORMER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_TRANSFORMER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_LOADER.
-           MOVE "CFC_LOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_LOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_UNLOADER.
-           MOVE "CFC_UNLOADER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_UNLOADER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_ARCHIVER.
-           MOVE "CFC_ARCHIVER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_ARCHIVER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RESTORER.
-           MOVE "CFC_RESTORER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RESTORER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_BACKUP.
-           MOVE "CFC_BACKUP_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_BACKUP" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_RECOVERY.
-           MOVE "CFC_RECOVERY_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_RECOVERY" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_MIGRATION.
-           MOVE "CFC_MIGRATION_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_MIGRATION" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_SYNCHRONIZER.
-           MOVE "CFC_SYNCHRONIZER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_SYNCHRONIZER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_REPLICATOR.
-           MOVE "CFC_REPLICATOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_REPLICATOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_MONITOR.
-           MOVE "CFC_MONITOR_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_MONITOR" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       ACTION-CFC_LOGGER.
-           MOVE "CFC_LOGGER_OK" TO WS-CODE
-           MOVE "SUCCESS|CFC_LOGGER" TO WS-RESULT
-           MOVE WS-VAR-01 TO WS-VAR-02
-           MOVE WS-VAR-02 TO WS-VAR-03
-           MOVE WS-VAR-03 TO WS-VAR-04
-           MOVE WS-VAR-04 TO WS-VAR-05
-           MOVE WS-VAR-05 TO WS-VAR-06
-           EXIT PARAGRAPH.
-
-       TRIM-ALL.
-           MOVE LS-PARAM1 TO WS-P1
-           MOVE LS-PARAM2 TO WS-P2
-           MOVE LS-PARAM3 TO WS-P3
-           MOVE LS-PARAM4 TO WS-P4
-           MOVE LS-PARAM5 TO WS-P5
-           MOVE LS-PARAM6 TO WS-P6
-           EXIT PARAGRAPH.
-
-       VALIDATE-ALL.
-           MOVE 'Y' TO WS-STEP
-           EXIT PARAGRAPH.
-
-       AUDIT-ACTION.
-           MOVE LS-CMD-ACTION TO WS-AUDIT-ACTION
-           EXIT PARAGRAPH.
-
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. capacity_forecast_core.
+      *> Capacity forecast: create, project, close.
+
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(2048) VALUE SPACES.
+        01  WS-BIND-1               PIC X(256) VALUE SPACES.
+        01  WS-BIND-2               PIC X(256) VALUE SPACES.
+        01  WS-BIND-3               PIC X(256) VALUE SPACES.
+        01  WS-BIND-4               PIC X(256) VALUE SPACES.
+        01  WS-BIND-5               PIC X(256) VALUE SPACES.
+        01  WS-BIND-6               PIC X(256) VALUE SPACES.
+        01  WS-P1-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P2-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P3-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+        01  WS-P1-LEN               PIC 9(3) VALUE 1.
+        01  WS-P2-LEN               PIC 9(3) VALUE 1.
+        01  WS-P3-LEN               PIC 9(3) VALUE 1.
+        01  WS-P4-LEN               PIC 9(3) VALUE 1.
+        01  WS-P5-LEN               PIC 9(3) VALUE 1.
+        01  WS-P6-LEN               PIC 9(3) VALUE 1.
+        01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
+        01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
+        01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
+        01  WS-I                    PIC 9(3) VALUE 1.
+        01  WS-J                    PIC 9(5) VALUE 1.
+        01  WS-RLEN                 PIC 9(5) VALUE 1.
+        01  WS-BAD                  PIC 9(3) VALUE 0.
+        01  WS-ALLOWED              PIC 9 VALUE 0.
+        01  WS-STEP                 PIC X VALUE 'Y'.
+            88  STEP-OK             VALUE 'Y'.
+            88  STEP-FAIL           VALUE 'N'.
+        01  WS-ERR                  PIC X(40) VALUE SPACES.
+        01  WS-LIMIT                PIC X(10) VALUE SPACES.
+        01  WS-OFFSET               PIC X(10) VALUE SPACES.
+        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+        01  WS-AUDIT-CFC       PIC X(20) VALUE SPACES.
+        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
+        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+        01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
+        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
+        01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
+        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
+        01  WS-TMP-ID               PIC X(100) VALUE SPACES.
+        01  WS-TMP-ALLOCATED          PIC X(30) VALUE SPACES.
+        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-ACTIVE           PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-PROJECTED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  F-QUOTE                 PIC X VALUE "'".
+        01  F-DQUOTE                PIC X VALUE '"'.
+        01  F-BSLASH                PIC X VALUE "\".
+        01  F-TICK                  PIC X VALUE "`".
+
+        LINKAGE SECTION.
+        01  LS-CMD-ACTION           PIC X(30).
+        01  LS-PARAM1               PIC X(100).
+        01  LS-PARAM2               PIC X(100).
+        01  LS-PARAM3               PIC X(100).
+        01  LS-PARAM4               PIC X(100).
+        01  LS-PARAM5               PIC X(100).
+        01  LS-PARAM6               PIC X(100).
+        01  LS-OUTPUT-BUFFER        PIC X(16384).
+
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
+            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+        MAIN-LOGIC.
+            PERFORM VALIDATE-ALL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                GOBACK
+            END-IF
+            EVALUATE TRUE
+                WHEN LS-CMD-ACTION(1:10) = "CFC_CREATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CREATE
+                WHEN LS-CMD-ACTION(1:8) = "CFC_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-LIST
+                WHEN LS-CMD-ACTION(1:7) = "CFC_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-GET
+                WHEN LS-CMD-ACTION(1:8) = "CFC_CALC"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUBMIT
+                WHEN LS-CMD-ACTION(1:10) = "CFC_DELETE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:11) = "CFC_SUMMARY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUMMARY
+                WHEN LS-CMD-ACTION(1:9) = "CFC_AUDIT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-AUDIT
+                WHEN LS-CMD-ACTION(1:12) = "CFC_VALIDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-VALIDATE
+                WHEN OTHER
+                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+            END-EVALUATE.
+            GOBACK.
+
+        VALIDATE-ALL.
+            MOVE 0 TO WS-BAD
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM VALIDATE-INPUT.
+            EXIT PARAGRAPH.
+
+        VALIDATE-INPUT.
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
+            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
+            EXIT PARAGRAPH.
+
+        TRIM-ALL.
+            MOVE LS-PARAM1 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P1-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P1-LEN
+            MOVE LS-PARAM2 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P2-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P2-LEN
+            MOVE LS-PARAM3 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P3-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P3-LEN
+            MOVE LS-PARAM4 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P4-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P4-LEN
+            MOVE LS-PARAM5 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P5-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P5-LEN
+            MOVE LS-PARAM6 TO WS-TRIM-IN
+            PERFORM TRIM-VALUE
+            MOVE WS-TRIM-OUT TO WS-P6-TRIMMED
+            MOVE WS-TRIM-LEN TO WS-P6-LEN.
+            EXIT PARAGRAPH.
+
+        TRIM-VALUE.
+            MOVE WS-TRIM-IN TO WS-TRIM-OUT
+            MOVE 0 TO WS-TRIM-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1
+                UNTIL WS-I < 1 OR WS-TRIM-LEN > 0
+                IF WS-TRIM-OUT(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-TRIM-LEN
+                END-IF
+            END-PERFORM
+            IF WS-TRIM-LEN = 0
+                MOVE 1 TO WS-TRIM-LEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ALLOW-ADMIN.
+            MOVE 0 TO WS-ALLOWED
+            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P6-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
+                MOVE 1 TO WS-ALLOWED
+            END-IF
+            IF WS-ALLOWED NOT = 1
+                MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
+                MOVE "CAPACITY_FORECAST_CORE" TO WS-DENIED-TARGET
+                PERFORM AUDIT-DENIED
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT.
+            MOVE "INSERT INTO capacity_forecast_audit (forecast_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-AUDIT-CFC TO WS-BIND-1
+            MOVE WS-AUDIT-ACTION TO WS-BIND-2
+            MOVE WS-P6-TRIMMED TO WS-BIND-3
+            MOVE WS-AUDIT-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        AUDIT-DENIED.
+            MOVE "AUTHZ_DENIED" TO WS-AUDIT-ACTION
+            MOVE SPACES TO WS-AUDIT-CFC
+            MOVE WS-DENIED-TARGET TO WS-AUDIT-DETAIL
+            MOVE WS-DENIED-ACTOR TO WS-P6-TRIMMED
+            PERFORM AUDIT.
+            EXIT PARAGRAPH.
+
+        TRIM-RESULT-LEN.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16384 BY -1
+                UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        LOAD-CLEARING.
+            MOVE SPACES TO WS-ERR
+            MOVE "SELECT CONCAT(forecast_type, '|', capacity_amount, '|', projected_amount, '|', status, '|', COALESCE(resource_name, ''), '|', '') FROM capacity_forecast WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-TMP-AMT
+            MOVE SPACES TO WS-TMP-STR
+            MOVE SPACES TO WS-TMP-ALLOCATED
+            MOVE SPACES TO WS-TMP-STATUS
+            MOVE SPACES TO WS-TMP-CURR
+            MOVE SPACES TO WS-TMP-ID
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-PROJECTED
+            EXIT PARAGRAPH.
+
+        ACTION-CREATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM capacity_forecast WHERE forecast_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO capacity_forecast (forecast_ref, resource_name, forecast_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P6-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "CREATE" TO WS-AUDIT-ACTION
+                MOVE WS-NEW-ID TO WS-AUDIT-CFC
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|CFC_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
+                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+            END-IF.
+            IF WS-P3-TRIMMED = SPACES AND WS-P2-TRIMMED NOT = SPACES
+                IF WS-P2-TRIMMED(1:1) >= "0" AND WS-P2-TRIMMED(1:1) <= "9"
+                    MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+                    IF WS-P3-TRIMMED NOT = SPACES
+                        MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+                    END-IF
+                END-IF
+            END-IF
+            MOVE "SELECT CONCAT(id, ':', forecast_ref, ':', status, ':', capacity_amount, ':', projected_amount, ':', COALESCE(resource_name, '')) FROM capacity_forecast WHERE (? = '' OR status = ?) AND (? = '' OR resource_name = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            IF WS-P1-TRIMMED = "OPEN" OR WS-P1-TRIMMED = "PROJECTED"
+                OR WS-P1-TRIMMED = "CLOSED"
+                OR WS-P1-TRIMMED = SPACES
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+            ELSE
+                MOVE SPACES TO WS-BIND-1
+                MOVE SPACES TO WS-BIND-2
+            END-IF
+            IF WS-P2-LEN = 3
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                MOVE WS-P2-TRIMMED TO WS-BIND-4
+            ELSE
+                MOVE SPACES TO WS-BIND-3
+                MOVE SPACES TO WS-BIND-4
+            END-IF
+            MOVE WS-LIMIT TO WS-BIND-5
+            MOVE WS-OFFSET TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|CFC_LIST|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|CFC_LIST|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(id, '|', forecast_ref, '|', status, '|', capacity_amount, '|', projected_amount, '|', COALESCE(resource_name, ''), '|', COALESCE(forecast_type, ''), '|', created_by, '|', created_at) FROM capacity_forecast WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|CFC_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-SUBMIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE capacity_forecast SET projected_amount = projected_amount + 1, status = 'PROJECTED', projected_at = COALESCE(projected_at, NOW()) WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "CALC" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CFC
+                MOVE "allocated" TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|CFC_CALC|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-ACTIVE <= WS-NUM-PROJECTED
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-ACTIVE - WS-NUM-PROJECTED END-COMPUTE
+            ELSE
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            END-IF.
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-PROJECTED + WS-NUM-AMOUNT > WS-NUM-ACTIVE
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE capacity_forecast SET status = CASE WHEN projected_amount + ? >= capacity_amount THEN 'PROJECTED' ELSE 'PROJECTED' END, closed_at = CASE WHEN projected_amount + ? >= capacity_amount THEN NOW() ELSE closed_at END, projected_amount = projected_amount + ? WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-TMP-AMT TO WS-BIND-2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CFC
+                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|GLA_APPROVE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CLOSE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS(1:6) = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE capacity_forecast SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CFC
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|CFC_DELETE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SUMMARY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'PROJECTED'), 0), '|', COALESCE(SUM(status = 'PROJECTED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(capacity_amount), 0), '|', COALESCE(SUM(projected_amount), 0)) FROM capacity_forecast" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|CFC_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-AUDIT.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P2-TRIMMED NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CONCAT(action, ':', actor_email, ':', COALESCE(detail, ''), ':', created_at) FROM capacity_forecast_audit WHERE (? = '' OR forecast_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|CFC_AUDIT|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|CFC_AUDIT|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-VALIDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P1-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED = SPACES OR WS-P2-LEN NOT = 3
+                MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|CFC_VALID|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
+                "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
