@@ -1,0 +1,6 @@
+openapi: 3.0.3
+info:
+  title: COBOL Banking Core Gateway
+  version: 1.0.0
+paths: {}
+# Auto-generation from manifest/routes is a future enhancement.

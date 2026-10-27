@@ -27,7 +27,7 @@ echo "=== Node gateway coverage ==="
 if [ -d middleware ]; then
   cd middleware
   if [ -f package.json ]; then
-    npm test -- --coverage 2>&1 | tail -20 || true
+    npm test -- --experimental-test-coverage 2>&1 | tail -20 || true
   fi
   cd "$ROOT"
 fi
