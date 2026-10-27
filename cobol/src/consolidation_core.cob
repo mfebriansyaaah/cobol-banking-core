@@ -44,6 +44,8 @@
         01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
         01  WS-AUDIT-CNS       PIC X(20) VALUE SPACES.
         01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
+        01  WS-AUDIT-OLD            PIC X(255) VALUE SPACES.
+        01  WS-AUDIT-NEW            PIC X(255) VALUE SPACES.
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
         01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
         01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
@@ -51,11 +53,13 @@
         01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
         01  WS-TMP-STR              PIC X(100) VALUE SPACES.
         01  WS-TMP-ID               PIC X(100) VALUE SPACES.
-        01  WS-TMP-POSTED          PIC X(30) VALUE SPACES.
+        01  WS-TMP-ALLOCATED          PIC X(30) VALUE SPACES.
+        01  WS-TMP-VERSION            PIC X(10) VALUE SPACES.
         01  WS-NEW-ID               PIC X(20) VALUE SPACES.
         01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-ACTIVE           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-POSTED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
@@ -92,6 +96,9 @@
                 WHEN LS-CMD-ACTION(1:7) = "CNS_GET"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-GET
+                WHEN LS-CMD-ACTION(1:10) = "CNS_UPDATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-UPDATE
                 WHEN LS-CMD-ACTION(1:8) = "CNS_CALC"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUBMIT
@@ -196,12 +203,14 @@
             EXIT PARAGRAPH.
 
         AUDIT.
-            MOVE "INSERT INTO consolidation_audit (cons_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
+            MOVE "INSERT INTO consolidation_audit (cons_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-AUDIT-CNS TO WS-BIND-1
             MOVE WS-AUDIT-ACTION TO WS-BIND-2
             MOVE WS-P6-TRIMMED TO WS-BIND-3
             MOVE WS-AUDIT-DETAIL TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+            MOVE WS-AUDIT-OLD TO WS-BIND-5
+            MOVE WS-AUDIT-NEW TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -234,7 +243,7 @@
 
         LOAD-CLEARING.
             MOVE SPACES TO WS-ERR
-            MOVE "SELECT CONCAT(cons_type, '|', amount, '|', posted_amount, '|', status, '|', COALESCE(entity_name, ''), '|', '') FROM consolidation WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CONCAT(cons_type, '|', amount, '|', posted_amount, '|', status, '|', COALESCE(entity_name, ''), '|', '', '|', version) FROM consolidation WHERE id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
@@ -251,16 +260,18 @@
             END-IF
             MOVE SPACES TO WS-TMP-AMT
             MOVE SPACES TO WS-TMP-STR
-            MOVE SPACES TO WS-TMP-POSTED
+            MOVE SPACES TO WS-TMP-ALLOCATED
             MOVE SPACES TO WS-TMP-STATUS
             MOVE SPACES TO WS-TMP-CURR
             MOVE SPACES TO WS-TMP-ID
+            MOVE SPACES TO WS-TMP-VERSION
             UNSTRING WS-RESULT DELIMITED BY "|" INTO
-                WS-TMP-AMT WS-TMP-STR WS-TMP-POSTED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+                WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID WS-TMP-VERSION
             END-UNSTRING
             MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
             MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
-            MOVE FUNCTION NUMVAL(WS-TMP-POSTED) TO WS-NUM-POSTED
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-POSTED
+            MOVE FUNCTION NUMVAL(WS-TMP-VERSION) TO WS-NUM-VERSION
             EXIT PARAGRAPH.
 
         ACTION-CREATE.
@@ -353,7 +364,8 @@
             END-IF
             MOVE "SELECT CONCAT(id, ':', cons_ref, ':', status, ':', amount, ':', posted_amount, ':', COALESCE(entity_name, '')) FROM consolidation WHERE (? = '' OR status = ?) AND (? = '' OR entity_name = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
             IF WS-P1-TRIMMED = "OPEN" OR WS-P1-TRIMMED = "POSTED"
-                OR WS-P1-TRIMMED = "CLOSED" OR WS-P1-TRIMMED = SPACES
+                OR WS-P1-TRIMMED = "ALLOCATED" OR WS-P1-TRIMMED = "CLOSED"
+                OR WS-P1-TRIMMED = SPACES
                 MOVE WS-P1-TRIMMED TO WS-BIND-1
                 MOVE WS-P1-TRIMMED TO WS-BIND-2
             ELSE
@@ -427,11 +439,79 @@
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            IF WS-P2-TRIMMED IS NUMERIC AND WS-P2-TRIMMED > 0
+                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            ELSE
+                MOVE 1 TO WS-NUM-AMOUNT
+            END-IF
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE consolidation SET posted_amount = posted_amount + 1, status = 'POSTED', posted_at = COALESCE(posted_at, NOW()) WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
-            MOVE WS-P1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            MOVE "UPDATE consolidation SET posted_amount = posted_amount + ?, status = 'POSTED', posted_at = COALESCE(posted_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT = "ERROR|NO_DATA"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "CALC" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CNS
+                MOVE "allocated" TO WS-AUDIT-DETAIL
+                MOVE SPACES TO WS-AUDIT-OLD
+                MOVE WS-TMP-AMT TO WS-AUDIT-NEW
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|CNS_CALC|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-UPDATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE consolidation SET entity_name = COALESCE(NULLIF(?, ''), entity_name), cons_type = COALESCE(NULLIF(?, ''), cons_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P1-TRIMMED TO WS-BIND-3
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -440,14 +520,16 @@
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
-                MOVE "CALC" TO WS-AUDIT-ACTION
+                MOVE "UPDATE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CNS
-                MOVE "allocated" TO WS-AUDIT-DETAIL
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|CNS_CALC|1" TO LS-OUTPUT-BUFFER
+                MOVE "SUCCESS|CNS_UPDATE" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -469,16 +551,17 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:6) = "CLOSED"
+            IF WS-TMP-STATUS(1:9) = "ALLOCATED" OR WS-TMP-STATUS(1:6) = "CLOSED"
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE consolidation SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            MOVE "UPDATE consolidation SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -490,6 +573,8 @@
                 MOVE "DELETE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CNS
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE "POSTED" TO WS-AUDIT-OLD
+                MOVE "CLOSED" TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
@@ -507,7 +592,7 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'POSTED'), 0), '|', COALESCE(SUM(status = 'POSTED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(amount), 0), '|', COALESCE(SUM(posted_amount), 0)) FROM consolidation" TO WS-PREP-SQL
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'POSTED'), 0), '|', COALESCE(SUM(status = 'ALLOCATED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(amount), 0), '|', COALESCE(SUM(posted_amount), 0)) FROM consolidation" TO WS-PREP-SQL
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
