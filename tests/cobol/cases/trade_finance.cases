@@ -1,0 +1,6 @@
+# Trade finance (Wave3) validation cases.
+TRF_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRF_CREATE||||||admin@test.com
+TRF_GET missing id@@ERROR\|INVALID_INPUT@@TRF_GET||||||admin@test.com
+TRF_CALC missing id@@ERROR\|INVALID_INPUT@@TRF_CALC||||||admin@test.com
+TRF_DELETE missing id@@ERROR\|INVALID_INPUT@@TRF_DELETE||||||admin@test.com
+TRF_VALIDATE ok@@SUCCESS\|TRF_VALID@@TRF_VALIDATE|100.00|USD||||admin@test.com

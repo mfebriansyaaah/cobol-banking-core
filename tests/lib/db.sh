@@ -213,6 +213,11 @@ db_reset_workflow_approval() {
     db_exec "DELETE FROM workflow_approval;"
 }
 
+db_reset_trade_finance() {
+    db_exec "DELETE FROM trade_finance_audit;"
+    db_exec "DELETE FROM trade_finance;"
+}
+
 db_reset_merchant() {
     db_exec "DELETE FROM merchant_audit;"
     db_exec "DELETE FROM merchant;"

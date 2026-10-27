@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 201 TO DISPATCH-COUNT.
+            MOVE 202 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -712,6 +712,9 @@
             MOVE "MRT_" TO D-PREFIX(201).
             MOVE 4 TO D-PREFIX-LEN(201).
             MOVE "merchant_core" TO D-PROGRAM(201).
+            MOVE "TRF_" TO D-PREFIX(202).
+            MOVE 4 TO D-PREFIX-LEN(202).
+            MOVE "trade_finance_core" TO D-PROGRAM(202).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.
