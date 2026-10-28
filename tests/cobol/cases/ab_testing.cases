@@ -1,0 +1,6 @@
+# Ab Testing (Wave11) validation cases.
+ABT_CREATE missing ref@@ERROR\|INVALID_INPUT@@ABT_CREATE||||||admin@test.com
+ABT_GET missing id@@ERROR\|INVALID_INPUT@@ABT_GET||||||admin@test.com
+ABT_CALC missing id@@ERROR\|INVALID_INPUT@@ABT_CALC||||||admin@test.com
+ABT_DELETE missing id@@ERROR\|INVALID_INPUT@@ABT_DELETE||||||admin@test.com
+ABT_VALIDATE ok@@SUCCESS\|ABT_VALID@@ABT_VALIDATE|100.00|USD||||admin@test.com

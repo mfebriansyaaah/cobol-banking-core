@@ -59,6 +59,36 @@ import { VAL_ROUTES } from './valuation.js';
 import { MRG_ROUTES } from './margin.js';
 import { CON_ROUTES } from './contract.js';
 import { ADL_ROUTES } from './audit_log.js';
+import { LOG_ROUTES } from './logging.js';
+import { TMO_ROUTES } from './timeout.js';
+import { RTY_ROUTES } from './retry.js';
+import { RTL_ROUTES } from './rate_limiter.js';
+import { CBK_ROUTES } from './circuit_breaker.js';
+import { HLC_ROUTES } from './health_check.js';
+import { MTR_ROUTES } from './metrics.js';
+import { TRC_ROUTES } from './tracing.js';
+import { ALR_ROUTES } from './alerting.js';
+import { MON_ROUTES } from './monitoring.js';
+import { IDX_ROUTES } from './indexing.js';
+import { SRH_ROUTES } from './search.js';
+import { RCM_ROUTES } from './recommendation.js';
+import { PSN_ROUTES } from './personalization.js';
+import { XPR_ROUTES } from './experiment.js';
+import { ABT_ROUTES } from './ab_testing.js';
+import { FFL_ROUTES } from './feature_flag.js';
+import { CFG_ROUTES } from './config.js';
+import { SSS_ROUTES } from './session_store.js';
+import { CCH_ROUTES } from './cache.js';
+import { LDB_ROUTES } from './load_balancer.js';
+import { SVM_ROUTES } from './service_mesh.js';
+import { EVB_ROUTES } from './event_bus.js';
+import { MQQ_ROUTES } from './message_queue.js';
+import { APG_ROUTES } from './api_gateway.js';
+import { WHK_ROUTES } from './webhook.js';
+import { IAM_ROUTES } from './in_app_message.js';
+import { PSH_ROUTES } from './push_notification.js';
+import { SMS_ROUTES } from './sms.js';
+import { EML_ROUTES } from './email.js';
 import { MDM_ROUTES } from './master_data.js';
 import { DQL_ROUTES } from './dq_check.js';
 import { ETL_ROUTES } from './etl.js';
@@ -365,6 +395,36 @@ export const ALL_ROUTES = [
   ...MRG_ROUTES,
   ...CON_ROUTES,
   ...ADL_ROUTES,
+  ...LOG_ROUTES,
+  ...TMO_ROUTES,
+  ...RTY_ROUTES,
+  ...RTL_ROUTES,
+  ...CBK_ROUTES,
+  ...HLC_ROUTES,
+  ...MTR_ROUTES,
+  ...TRC_ROUTES,
+  ...ALR_ROUTES,
+  ...MON_ROUTES,
+  ...IDX_ROUTES,
+  ...SRH_ROUTES,
+  ...RCM_ROUTES,
+  ...PSN_ROUTES,
+  ...XPR_ROUTES,
+  ...ABT_ROUTES,
+  ...FFL_ROUTES,
+  ...CFG_ROUTES,
+  ...SSS_ROUTES,
+  ...CCH_ROUTES,
+  ...LDB_ROUTES,
+  ...SVM_ROUTES,
+  ...EVB_ROUTES,
+  ...MQQ_ROUTES,
+  ...APG_ROUTES,
+  ...WHK_ROUTES,
+  ...IAM_ROUTES,
+  ...PSH_ROUTES,
+  ...SMS_ROUTES,
+  ...EML_ROUTES,
   ...MDM_ROUTES,
   ...DQL_ROUTES,
   ...ETL_ROUTES,

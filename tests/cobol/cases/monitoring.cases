@@ -1,0 +1,6 @@
+# Monitoring (Wave11) validation cases.
+MON_CREATE missing ref@@ERROR\|INVALID_INPUT@@MON_CREATE||||||admin@test.com
+MON_GET missing id@@ERROR\|INVALID_INPUT@@MON_GET||||||admin@test.com
+MON_CALC missing id@@ERROR\|INVALID_INPUT@@MON_CALC||||||admin@test.com
+MON_DELETE missing id@@ERROR\|INVALID_INPUT@@MON_DELETE||||||admin@test.com
+MON_VALIDATE ok@@SUCCESS\|MON_VALID@@MON_VALIDATE|100.00|USD||||admin@test.com

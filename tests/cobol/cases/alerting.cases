@@ -1,0 +1,6 @@
+# Alerting (Wave11) validation cases.
+ALR_CREATE missing ref@@ERROR\|INVALID_INPUT@@ALR_CREATE||||||admin@test.com
+ALR_GET missing id@@ERROR\|INVALID_INPUT@@ALR_GET||||||admin@test.com
+ALR_CALC missing id@@ERROR\|INVALID_INPUT@@ALR_CALC||||||admin@test.com
+ALR_DELETE missing id@@ERROR\|INVALID_INPUT@@ALR_DELETE||||||admin@test.com
+ALR_VALIDATE ok@@SUCCESS\|ALR_VALID@@ALR_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Tracing (Wave11) validation cases.
+TRC_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRC_CREATE||||||admin@test.com
+TRC_GET missing id@@ERROR\|INVALID_INPUT@@TRC_GET||||||admin@test.com
+TRC_CALC missing id@@ERROR\|INVALID_INPUT@@TRC_CALC||||||admin@test.com
+TRC_DELETE missing id@@ERROR\|INVALID_INPUT@@TRC_DELETE||||||admin@test.com
+TRC_VALIDATE ok@@SUCCESS\|TRC_VALID@@TRC_VALIDATE|100.00|USD||||admin@test.com
