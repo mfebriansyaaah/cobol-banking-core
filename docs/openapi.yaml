@@ -4556,7 +4556,7 @@ paths:
       - document
   /dr-plans:
     get:
-      operationId: DRC_LIST
+      operationId: DCR_LIST
       parameters: []
       responses:
         '200':
@@ -4565,11 +4565,11 @@ paths:
           description: Bad request
         '403':
           description: Forbidden
-      summary: DRC_LIST
+      summary: DCR_LIST
       tags:
       - disaster_recovery
     post:
-      operationId: DRC_DEFINE
+      operationId: DCR_DEFINE
       parameters: []
       responses:
         '200':
@@ -4578,12 +4578,12 @@ paths:
           description: Bad request
         '403':
           description: Forbidden
-      summary: DRC_DEFINE
+      summary: DCR_DEFINE
       tags:
       - disaster_recovery
   /dr-plans/:id:
     get:
-      operationId: DRC_GET
+      operationId: DCR_GET
       parameters: []
       responses:
         '200':
@@ -4592,12 +4592,12 @@ paths:
           description: Bad request
         '403':
           description: Forbidden
-      summary: DRC_GET
+      summary: DCR_GET
       tags:
       - disaster_recovery
   /dr-plans/:id/complete:
     post:
-      operationId: DRC_COMPLETE
+      operationId: DCR_COMPLETE
       parameters: []
       responses:
         '200':
@@ -4606,12 +4606,12 @@ paths:
           description: Bad request
         '403':
           description: Forbidden
-      summary: DRC_COMPLETE
+      summary: DCR_COMPLETE
       tags:
       - disaster_recovery
   /dr-plans/:id/test:
     post:
-      operationId: DRC_TEST
+      operationId: DCR_TEST
       parameters: []
       responses:
         '200':
@@ -4620,12 +4620,12 @@ paths:
           description: Bad request
         '403':
           description: Forbidden
-      summary: DRC_TEST
+      summary: DCR_TEST
       tags:
       - disaster_recovery
   /dr-plans/summary:
     get:
-      operationId: DRC_SUMMARY
+      operationId: DCR_SUMMARY
       parameters: []
       responses:
         '200':
@@ -4634,7 +4634,7 @@ paths:
           description: Bad request
         '403':
           description: Forbidden
-      summary: DRC_SUMMARY
+      summary: DCR_SUMMARY
       tags:
       - disaster_recovery
   /dsar:

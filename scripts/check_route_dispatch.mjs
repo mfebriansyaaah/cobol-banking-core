@@ -33,4 +33,25 @@ if (missing.length) {
   for (const x of missing) console.error(`  ${x.file}: ${x.action}`);
   process.exit(1);
 }
-console.log(`OK: ${actions.length} gateway actions map to ${dispatchPrefixes.size} dispatch prefixes`);
+
+// The dispatch loop stops at DISPATCH-COUNT, so entries past that number are
+// unreachable even though they are present in the table. Wave7 appended three
+// domains (CRM_/VDM_/OSC_) but left the count at 327: the routes existed, the
+// manifest matched, and every action still returned ERROR|INVALID_ACTION.
+const slots = [...mainLogic.matchAll(/D-PREFIX\((\d+)\)/g)].map((x) => Number(x[1]));
+const maxSlot = slots.length ? Math.max(...slots) : 0;
+const countMatch = mainLogic.match(/MOVE\s+(\d+)\s+TO\s+DISPATCH-COUNT/);
+if (!countMatch) {
+  console.error('FAIL: main_logic.cob has no "MOVE n TO DISPATCH-COUNT"');
+  process.exit(1);
+}
+const dispatchCount = Number(countMatch[1]);
+if (dispatchCount !== maxSlot) {
+  console.error(
+    `FAIL: DISPATCH-COUNT is ${dispatchCount} but the highest D-PREFIX slot is ${maxSlot}`
+  );
+  console.error('Slots above the count are never scanned; every action for them returns INVALID_ACTION.');
+  process.exit(1);
+}
+
+console.log(`OK: ${actions.length} gateway actions map to ${dispatchPrefixes.size} dispatch prefixes (count ${dispatchCount})`);
