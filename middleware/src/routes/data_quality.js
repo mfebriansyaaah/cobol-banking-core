@@ -21,5 +21,5 @@ export const DATA_QUALITY_ROUTES = [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/data-quality/summary', action: 'DQC_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/data-quality-rules/summary', action: 'DQC_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

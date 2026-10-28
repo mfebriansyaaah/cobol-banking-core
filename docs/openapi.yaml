@@ -3652,7 +3652,7 @@ paths:
       summary: DQC_RUN
       tags:
       - data_quality
-  /data-quality/summary:
+  /data-quality-rules/summary:
     get:
       operationId: DQC_SUMMARY
       parameters: []
