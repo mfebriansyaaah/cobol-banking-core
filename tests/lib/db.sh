@@ -594,3 +594,153 @@ db_reset_syndicated_loan() {
     db_exec "DELETE FROM syndicated_loan_audit;"
     db_exec "DELETE FROM syndicated_loan;"
 }
+
+db_reset_insurance_policy() {
+    db_exec "DELETE FROM insurance_policy_audit;"
+    db_exec "DELETE FROM insurance_policy;"
+}
+
+db_reset_reinsurance_contract() {
+    db_exec "DELETE FROM reinsurance_contract_audit;"
+    db_exec "DELETE FROM reinsurance_contract;"
+}
+
+db_reset_actuarial_calc() {
+    db_exec "DELETE FROM actuarial_calc_audit;"
+    db_exec "DELETE FROM actuarial_calc;"
+}
+
+db_reset_claims_management() {
+    db_exec "DELETE FROM claims_management_audit;"
+    db_exec "DELETE FROM claims_management;"
+}
+
+db_reset_policy_administration() {
+    db_exec "DELETE FROM policy_administration_audit;"
+    db_exec "DELETE FROM policy_administration;"
+}
+
+db_reset_beneficiary_registry() {
+    db_exec "DELETE FROM beneficiary_registry_audit;"
+    db_exec "DELETE FROM beneficiary_registry;"
+}
+
+db_reset_guarantee_issuing() {
+    db_exec "DELETE FROM guarantee_issuing_audit;"
+    db_exec "DELETE FROM guarantee_issuing;"
+}
+
+db_reset_credit_bureau() {
+    db_exec "DELETE FROM credit_bureau_audit;"
+    db_exec "DELETE FROM credit_bureau;"
+}
+
+db_reset_debt_collection() {
+    db_exec "DELETE FROM debt_collection_audit;"
+    db_exec "DELETE FROM debt_collection;"
+}
+
+db_reset_debt_recovery() {
+    db_exec "DELETE FROM debt_recovery_audit;"
+    db_exec "DELETE FROM debt_recovery;"
+}
+
+db_reset_legal_case() {
+    db_exec "DELETE FROM legal_case_audit;"
+    db_exec "DELETE FROM legal_case;"
+}
+
+db_reset_collateral_repossession() {
+    db_exec "DELETE FROM collateral_repossession_audit;"
+    db_exec "DELETE FROM collateral_repossession;"
+}
+
+db_reset_foreclosure() {
+    db_exec "DELETE FROM foreclosure_audit;"
+    db_exec "DELETE FROM foreclosure;"
+}
+
+db_reset_write_off() {
+    db_exec "DELETE FROM write_off_audit;"
+    db_exec "DELETE FROM write_off;"
+}
+
+db_reset_provisioning() {
+    db_exec "DELETE FROM provisioning_audit;"
+    db_exec "DELETE FROM provisioning;"
+}
+
+db_reset_loss_reserve() {
+    db_exec "DELETE FROM loss_reserve_audit;"
+    db_exec "DELETE FROM loss_reserve;"
+}
+
+db_reset_risk_model() {
+    db_exec "DELETE FROM risk_model_audit;"
+    db_exec "DELETE FROM risk_model;"
+}
+
+db_reset_stress_test() {
+    db_exec "DELETE FROM stress_test_audit;"
+    db_exec "DELETE FROM stress_test;"
+}
+
+db_reset_regulatory_report() {
+    db_exec "DELETE FROM regulatory_report_audit;"
+    db_exec "DELETE FROM regulatory_report;"
+}
+
+db_reset_compliance_audit() {
+    db_exec "DELETE FROM compliance_audit_audit;"
+    db_exec "DELETE FROM compliance_audit;"
+}
+
+db_reset_tax_report() {
+    db_exec "DELETE FROM tax_report_audit;"
+    db_exec "DELETE FROM tax_report;"
+}
+
+db_reset_internal_audit() {
+    db_exec "DELETE FROM internal_audit_audit;"
+    db_exec "DELETE FROM internal_audit;"
+}
+
+db_reset_external_audit() {
+    db_exec "DELETE FROM external_audit_audit;"
+    db_exec "DELETE FROM external_audit;"
+}
+
+db_reset_investigation() {
+    db_exec "DELETE FROM investigation_audit;"
+    db_exec "DELETE FROM investigation;"
+}
+
+db_reset_whistleblowing() {
+    db_exec "DELETE FROM whistleblowing_audit;"
+    db_exec "DELETE FROM whistleblowing;"
+}
+
+db_reset_incident_report() {
+    db_exec "DELETE FROM incident_report_audit;"
+    db_exec "DELETE FROM incident_report;"
+}
+
+db_reset_business_continuity() {
+    db_exec "DELETE FROM business_continuity_audit;"
+    db_exec "DELETE FROM business_continuity;"
+}
+
+db_reset_crisis_management() {
+    db_exec "DELETE FROM crisis_management_audit;"
+    db_exec "DELETE FROM crisis_management;"
+}
+
+db_reset_vendor_management() {
+    db_exec "DELETE FROM vendor_management_audit;"
+    db_exec "DELETE FROM vendor_management;"
+}
+
+db_reset_outsourcing_contract() {
+    db_exec "DELETE FROM outsourcing_contract_audit;"
+    db_exec "DELETE FROM outsourcing_contract;"
+}

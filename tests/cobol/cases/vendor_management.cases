@@ -1,0 +1,6 @@
+# Vendor Management (Wave7) validation cases.
+VDM_CREATE missing ref@@ERROR\|INVALID_INPUT@@VDM_CREATE||||||admin@test.com
+VDM_GET missing id@@ERROR\|INVALID_INPUT@@VDM_GET||||||admin@test.com
+VDM_CALC missing id@@ERROR\|INVALID_INPUT@@VDM_CALC||||||admin@test.com
+VDM_DELETE missing id@@ERROR\|INVALID_INPUT@@VDM_DELETE||||||admin@test.com
+VDM_VALIDATE ok@@SUCCESS\|VDM_VALID@@VDM_VALIDATE|100.00|USD||||admin@test.com

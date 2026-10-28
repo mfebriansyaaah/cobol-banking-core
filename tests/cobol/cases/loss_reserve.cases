@@ -1,0 +1,6 @@
+# Loss Reserve (Wave7) validation cases.
+LSR_CREATE missing ref@@ERROR\|INVALID_INPUT@@LSR_CREATE||||||admin@test.com
+LSR_GET missing id@@ERROR\|INVALID_INPUT@@LSR_GET||||||admin@test.com
+LSR_CALC missing id@@ERROR\|INVALID_INPUT@@LSR_CALC||||||admin@test.com
+LSR_DELETE missing id@@ERROR\|INVALID_INPUT@@LSR_DELETE||||||admin@test.com
+LSR_VALIDATE ok@@SUCCESS\|LSR_VALID@@LSR_VALIDATE|100.00|USD||||admin@test.com

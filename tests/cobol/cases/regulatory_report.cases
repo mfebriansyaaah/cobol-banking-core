@@ -1,4 +1,6 @@
-REG_CREATE missing first param@@ERROR\|INVALID_INPUT@@REG_CREATE||||||admin@test.com
-REG_GET missing first param@@ERROR\|INVALID_INPUT@@REG_GET||||||admin@test.com
-REG_SUBMIT missing first param@@ERROR\|INVALID_INPUT@@REG_SUBMIT||||||admin@test.com
-REG_REJECT missing first param@@ERROR\|INVALID_INPUT@@REG_REJECT||||||admin@test.com
+# Regulatory Report (Wave7) validation cases.
+RGR_CREATE missing ref@@ERROR\|INVALID_INPUT@@RGR_CREATE||||||admin@test.com
+RGR_GET missing id@@ERROR\|INVALID_INPUT@@RGR_GET||||||admin@test.com
+RGR_CALC missing id@@ERROR\|INVALID_INPUT@@RGR_CALC||||||admin@test.com
+RGR_DELETE missing id@@ERROR\|INVALID_INPUT@@RGR_DELETE||||||admin@test.com
+RGR_VALIDATE ok@@SUCCESS\|RGR_VALID@@RGR_VALIDATE|100.00|USD||||admin@test.com

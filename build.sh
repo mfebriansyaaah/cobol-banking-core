@@ -91,6 +91,35 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/escrow_account_core.cob \
     cobol/src/organization_unit_core.cob \
     cobol/src/syndicated_loan_core.cob \
+    cobol/src/insurance_policy_core.cob \
+    cobol/src/reinsurance_contract_core.cob \
+    cobol/src/actuarial_calc_core.cob \
+    cobol/src/claims_management_core.cob \
+    cobol/src/policy_administration_core.cob \
+    cobol/src/beneficiary_registry_core.cob \
+    cobol/src/guarantee_issuing_core.cob \
+    cobol/src/credit_bureau_core.cob \
+    cobol/src/debt_collection_core.cob \
+    cobol/src/debt_recovery_core.cob \
+    cobol/src/legal_case_core.cob \
+    cobol/src/collateral_repossession_core.cob \
+    cobol/src/foreclosure_core.cob \
+    cobol/src/write_off_core.cob \
+    cobol/src/provisioning_core.cob \
+    cobol/src/loss_reserve_core.cob \
+    cobol/src/risk_model_core.cob \
+    cobol/src/stress_test_core.cob \
+    cobol/src/compliance_audit_core.cob \
+    cobol/src/tax_report_core.cob \
+    cobol/src/internal_audit_core.cob \
+    cobol/src/external_audit_core.cob \
+    cobol/src/investigation_core.cob \
+    cobol/src/whistleblowing_core.cob \
+    cobol/src/incident_report_core.cob \
+    cobol/src/business_continuity_core.cob \
+    cobol/src/crisis_management_core.cob \
+    cobol/src/vendor_management_core.cob \
+    cobol/src/outsourcing_contract_core.cob \
     cobol/src/structured_product_core.cob \
     cobol/src/margin_trading_core.cob \
     cobol/src/securities_lending_core.cob \
@@ -155,7 +184,6 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/fx_deal_core.cob \
     cobol/src/treasury_position_core.cob \
     cobol/src/card_core.cob \
-    cobol/src/tax_report_core.cob \
     cobol/src/gl_reval_core.cob \
     cobol/src/gl_period_close_core.cob \
     cobol/src/fraud_ops_core.cob \
@@ -197,7 +225,6 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/disaster_recovery_core.cob \
     cobol/src/capacity_plan_core.cob \
     cobol/src/audit_retention_core.cob \
-    cobol/src/compliance_audit_core.cob \
     cobol/src/vendor_compliance_core.cob \
     cobol/src/data_quality_core.cob \
     cobol/src/notification_audit_core.cob \

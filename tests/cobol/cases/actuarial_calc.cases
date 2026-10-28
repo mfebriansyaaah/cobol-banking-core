@@ -1,0 +1,6 @@
+# Actuarial Calc (Wave7) validation cases.
+ACA_CREATE missing ref@@ERROR\|INVALID_INPUT@@ACA_CREATE||||||admin@test.com
+ACA_GET missing id@@ERROR\|INVALID_INPUT@@ACA_GET||||||admin@test.com
+ACA_CALC missing id@@ERROR\|INVALID_INPUT@@ACA_CALC||||||admin@test.com
+ACA_DELETE missing id@@ERROR\|INVALID_INPUT@@ACA_DELETE||||||admin@test.com
+ACA_VALIDATE ok@@SUCCESS\|ACA_VALID@@ACA_VALIDATE|100.00|USD||||admin@test.com

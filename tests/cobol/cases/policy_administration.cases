@@ -1,0 +1,6 @@
+# Policy Administration (Wave7) validation cases.
+PAD_CREATE missing ref@@ERROR\|INVALID_INPUT@@PAD_CREATE||||||admin@test.com
+PAD_GET missing id@@ERROR\|INVALID_INPUT@@PAD_GET||||||admin@test.com
+PAD_CALC missing id@@ERROR\|INVALID_INPUT@@PAD_CALC||||||admin@test.com
+PAD_DELETE missing id@@ERROR\|INVALID_INPUT@@PAD_DELETE||||||admin@test.com
+PAD_VALIDATE ok@@SUCCESS\|PAD_VALID@@PAD_VALIDATE|100.00|USD||||admin@test.com

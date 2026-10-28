@@ -1,0 +1,6 @@
+# Beneficiary Registry (Wave7) validation cases.
+BNR_CREATE missing ref@@ERROR\|INVALID_INPUT@@BNR_CREATE||||||admin@test.com
+BNR_GET missing id@@ERROR\|INVALID_INPUT@@BNR_GET||||||admin@test.com
+BNR_CALC missing id@@ERROR\|INVALID_INPUT@@BNR_CALC||||||admin@test.com
+BNR_DELETE missing id@@ERROR\|INVALID_INPUT@@BNR_DELETE||||||admin@test.com
+BNR_VALIDATE ok@@SUCCESS\|BNR_VALID@@BNR_VALIDATE|100.00|USD||||admin@test.com

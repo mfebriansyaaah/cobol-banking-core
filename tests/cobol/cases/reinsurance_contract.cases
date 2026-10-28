@@ -1,0 +1,6 @@
+# Reinsurance Contract (Wave7) validation cases.
+RIC_CREATE missing ref@@ERROR\|INVALID_INPUT@@RIC_CREATE||||||admin@test.com
+RIC_GET missing id@@ERROR\|INVALID_INPUT@@RIC_GET||||||admin@test.com
+RIC_CALC missing id@@ERROR\|INVALID_INPUT@@RIC_CALC||||||admin@test.com
+RIC_DELETE missing id@@ERROR\|INVALID_INPUT@@RIC_DELETE||||||admin@test.com
+RIC_VALIDATE ok@@SUCCESS\|RIC_VALID@@RIC_VALIDATE|100.00|USD||||admin@test.com
