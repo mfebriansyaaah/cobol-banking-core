@@ -31,6 +31,9 @@ jobs:
       - name: Verify manifest
         run: node scripts/check_manifest.mjs .
 
+      - name: Gate detection probes
+        run: tests/probes/run_probes.sh
+
       - name: SAST scan
         run: bash scripts/ci/sast.sh
 

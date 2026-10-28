@@ -272,6 +272,7 @@ privileged account; the running application only needs DML rights.
 tests/run_all.sh fast     # manifest + build + COBOL table cases + PING smoke
 tests/run_all.sh db       # schema + D1-D4 database suites
 tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
+tests/run_all.sh probes   # break the code on purpose; require the gates to notice
 ./ci-fast.sh              # wrapper for fast
 ./ci.sh                   # wrapper for full
 ```

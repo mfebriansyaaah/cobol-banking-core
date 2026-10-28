@@ -1,0 +1,37 @@
+# Recorded detection capability of the static gate layer.
+#
+# Format: <probe>=<detected|missed>
+#
+#   detected -> at least one gate in tests/probes/run_probes.sh exits non-zero
+#   missed   -> every gate passes on deliberately broken code (recorded gap)
+#
+# These are measurements, not aspirations. When a gate is added that closes a
+# gap, the probe flips to "detected" and run_probes.sh fails until this file is
+# updated on purpose. Do not lower an expectation to make the run green.
+
+# Syntax: a route file that cannot be imported must stop the pipeline.
+p1_broken_route_syntax=detected
+
+# Two handlers for the same method+path; the second is unreachable.
+p2_duplicate_route=detected
+
+# One endpoint in a multi-route file loses tokenIdentity. The auth guard is
+# per file, so this is invisible; only a per-route check would catch it.
+p3a_one_route_without_identity=missed
+
+# Every route in a file loses tokenIdentity. The file-level guard fires.
+p3b_whole_route_file_without_identity=detected
+
+# A route action reuses an existing dispatch prefix but no COBOL module
+# implements it. route_dispatch (startsWith) accepts it; action_coverage
+# notices the module has no such action.
+p4_action_without_cobol_handler=detected
+
+# Two SQL bind slots swapped in CALL ... USING. Compiles and runs, returns the
+# wrong data. Nothing static reads parameter order; only a runtime suite would
+# notice, and this harness deliberately does not run one.
+p5_swapped_bind_slots=missed
+
+# A DB suite deleted outright. run_all.sh globs the directory, so the run
+# simply covers less and still reports green.
+p6_deleted_db_suite=missed
