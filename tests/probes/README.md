@@ -12,26 +12,31 @@ probe                                      expected   actual     caught by
 ------------------------------------------ ---------- ---------- ---------
 p1_broken_route_syntax                     detected   detected   js_syntax
 p2_duplicate_route                         detected   detected   route_conflicts
-p3a_one_route_without_identity             missed     missed     none
-p3b_whole_route_file_without_identity      detected   detected   auth_guard
+p3a_one_route_without_identity             detected   detected   route_auth
+p3b_whole_route_file_without_identity      detected   detected   auth_guard,route_auth
 p4_action_without_cobol_handler            detected   detected   action_coverage
-p5_swapped_bind_slots                      missed     missed     none
-p6_deleted_db_suite                        missed     missed     none
+p5_dead_bind_slot                          detected   detected   bind_slots
+p5b_swapped_bind_slots                     missed     missed     none
+p6_deleted_db_suite                        detected   detected   suite_coverage
 
-probes: 7 | detected: 4 | missed: 3
+probes: 8 | detected: 7 | missed: 1
 OK: every probe matched its recorded expectation
 ```
 
-## Why the "missed" rows matter
+## Why the "missed" row matters
 
 `missed` is a measurement, not a pass. It means every static gate accepted
 deliberately broken code:
 
 | Probe | What it breaks | Consequence if it ships |
 |---|---|---|
-| `p3a` | one endpoint loses `tokenIdentity` | that endpoint accepts unauthenticated callers; the file-level SAST check still passes because other routes in the file are guarded |
-| `p5` | two SQL bind slots swapped | query compiles and runs, returns another customer's data |
-| `p6` | a DB suite deleted | coverage shrinks, `run_all.sh db` still says GREEN |
+| `p5b` | two SQL bind slots swapped (both are passed) | query compiles and runs, returns another customer's data; only a runtime test that checks values can see the order is wrong |
+
+Two gaps from Fase 1 are now closed and their probes flipped to `detected`:
+`p3a` (one endpoint losing `tokenIdentity`) by `route_auth`, and `p6` (a
+deleted DB suite) by `suite_coverage`. The dead-write half of the old `p5`
+is now its own probe, `p5_dead_bind_slot`, caught by `bind_slots`; the true
+swap is what remains honestly `missed`.
 
 These are recorded in `expectations.txt` so they cannot be forgotten and
 cannot silently improve: when a new gate closes a gap, the probe flips to
@@ -51,6 +56,9 @@ The harness runs the static layer only:
 - `case_actions` — `scripts/check_case_actions.mjs`
 - `test_helpers` — `scripts/check_test_helpers.mjs`
 - `auth_guard` — the per-file `tokenIdentity` check from `scripts/ci/sast.sh`
+- `route_auth` — `scripts/check_route_auth.mjs`, per-route `tokenIdentity`
+- `bind_slots` — `scripts/check_bind_slots.mjs`, passed bind slots are 1..k
+- `suite_coverage` — `scripts/check_suite_coverage.mjs`, DB inventory match
 
 No build, no database, no gateway. A defect that only a runtime suite would
 catch is reported as `missed` here, which is the honest answer for this layer.

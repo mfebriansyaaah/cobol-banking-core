@@ -17,10 +17,11 @@
 # "detected", this script fails, and the expectation must be updated on
 # purpose. That is the ratchet.
 #
-# Scope: the static layer only (syntax + manifest + route/dispatch + action
-# coverage + case/helper checks). Runtime suites are not run here, so a probe
-# that only a DB or gateway test would catch shows up as "missed" — that is
-# accurate for the static layer and is the point.
+# Scope: the static layer only (syntax + manifest + route/dispatch + per-route
+# auth + action coverage + bind slots + DB inventory + case/helper checks).
+# Runtime suites are not run here, so a probe that only a DB or gateway test
+# would catch shows up as "missed" — that is accurate for the static layer and
+# is the point.
 #
 # Usage: tests/probes/run_probes.sh
 set -u
@@ -45,7 +46,7 @@ if [ ! -f "$EXPECT_FILE" ]; then
     exit 2
 fi
 
-GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard)
+GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard route_auth bind_slots suite_coverage)
 
 # --- gates under test -------------------------------------------------------
 # Each returns 0 when it believes the code is fine, non-zero when it refuses.
@@ -64,6 +65,9 @@ gate_route_conflicts() { node scripts/check_route_conflicts.mjs . >/dev/null 2>&
 gate_action_coverage() { node scripts/check_action_coverage.mjs . >/dev/null 2>&1; }
 gate_case_actions() { node scripts/check_case_actions.mjs . >/dev/null 2>&1; }
 gate_test_helpers() { node scripts/check_test_helpers.mjs . >/dev/null 2>&1; }
+gate_route_auth() { node scripts/check_route_auth.mjs . >/dev/null 2>&1; }
+gate_bind_slots() { node scripts/check_bind_slots.mjs . >/dev/null 2>&1; }
+gate_suite_coverage() { node scripts/check_suite_coverage.mjs . >/dev/null 2>&1; }
 
 # Same check as scripts/ci/sast.sh: one route file must mention tokenIdentity
 # somewhere. Note it is per file, not per route — probe P3 measures that.
@@ -141,17 +145,59 @@ fs.writeFileSync(p, s.replace(anchor, anchor + route));
 EOF
 }
 
-# The P0-2 bug class: two SQL bind slots swapped. Compiles, runs, returns
-# wrong rows. No static gate reads CALL ... USING.
-mut_p5_swapped_bind_slots() {
+# The real P0-2 shape: a value moved into a slot the following CALL does not
+# pass. The query is prepared with an empty parameter, so it silently matches
+# nothing. check_bind_slots computes "was this slot passed?" and catches it.
+mut_p5_dead_bind_slot() {
     node <<'EOF'
 const fs = require('fs');
-const p = 'cobol/src/auth_core.cob';
-let s = fs.readFileSync(p, 'utf8');
-const needle = 'BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2';
-if (!s.includes(needle)) throw new Error('bind-slot anchor not found');
-s = s.replace(needle, 'BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-1');
-fs.writeFileSync(p, s);
+const path = require('path');
+const dir = 'cobol/src';
+for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.cob')).sort()) {
+  const lines = fs.readFileSync(path.join(dir, file), 'utf8').split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const w = lines[i].match(/\bMOVE\s+([A-Z0-9-]+)\s+TO\s+WS-BIND-1\b/);
+    if (!w) continue;
+    // Find the next CALL and the slots it passes.
+    let j = i + 1;
+    while (j < lines.length && !/CALL\s+"SQL_PREPARE_EXEC[A-Z_]*"/.test(lines[j])) j += 1;
+    if (j >= lines.length) continue;
+    const slots = new Set();
+    let k = j;
+    do {
+      for (const m of lines[k].matchAll(/BY\s+REFERENCE\s+WS-BIND-(\d+)/g)) slots.add(Number(m[1]));
+      k += 1;
+    } while (k < lines.length && !/END-CALL/.test(lines[k - 1]) && k < j + 10);
+    if (slots.has(6)) continue; // this call would read slot 6, so pick another site
+    lines[i] = lines[i].replace('TO WS-BIND-1', 'TO WS-BIND-6');
+    fs.writeFileSync(path.join(dir, file), lines.join('\n'));
+    process.exit(0);
+  }
+}
+throw new Error('no single-slot call site found');
+EOF
+}
+
+# A true swap: the value that belonged in slot 1 goes to slot 2 and vice versa.
+# Both slots are passed, so nothing static can tell the order is wrong.
+mut_p5b_swapped_bind_slots() {
+    node <<'EOF'
+const fs = require('fs');
+const path = require('path');
+const dir = 'cobol/src';
+for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.cob')).sort()) {
+  const lines = fs.readFileSync(path.join(dir, file), 'utf8').split('\n');
+  for (let i = 0; i < lines.length - 1; i += 1) {
+    if (!/\bMOVE\s+[A-Z0-9-]+\s+TO\s+WS-BIND-1\b/.test(lines[i])) continue;
+    if (!/\bMOVE\s+[A-Z0-9-]+\s+TO\s+WS-BIND-2\b/.test(lines[i + 1])) continue;
+    lines[i] = lines[i].replace('TO WS-BIND-1', 'TO WS-BIND-TMP');
+    lines[i + 1] = lines[i + 1].replace('TO WS-BIND-2', 'TO WS-BIND-1');
+    lines[i] = lines[i].replace('TO WS-BIND-TMP', 'TO WS-BIND-2');
+    fs.writeFileSync(path.join(dir, file), lines.join('\n'));
+    process.exit(0);
+  }
+}
+throw new Error('no adjacent BIND-1/BIND-2 pair found');
 EOF
 }
 
@@ -169,7 +215,8 @@ PROBES=(
     p3a_one_route_without_identity
     p3b_whole_route_file_without_identity
     p4_action_without_cobol_handler
-    p5_swapped_bind_slots
+    p5_dead_bind_slot
+    p5b_swapped_bind_slots
     p6_deleted_db_suite
 )
 

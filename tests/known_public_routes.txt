@@ -1,0 +1,19 @@
+# Mutating routes that are intentionally unauthenticated.
+#
+# scripts/check_route_auth.mjs requires every POST/PUT/PATCH/DELETE route to
+# carry tokenIdentity. These are the exceptions: you cannot present a token
+# before you have one (signup, login, password reset) or while recovering MFA.
+#
+# Format: "<METHOD> <path>"
+# Do not add an entry to make CI green. Add tokenIdentity to the route instead.
+# The gate also fails when a line here no longer describes an unguarded route,
+# so exemptions cannot rot.
+
+POST /auth/signup
+POST /auth/verify
+POST /auth/forgot
+POST /auth/reset-password
+POST /auth/resend
+POST /auth/login
+POST /mfa/recover
+POST /mfa/recover/confirm
