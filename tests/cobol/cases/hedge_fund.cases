@@ -1,0 +1,6 @@
+# Hedge Fund (Wave12) validation cases.
+HDF_CREATE missing ref@@ERROR\|INVALID_INPUT@@HDF_CREATE||||||admin@test.com
+HDF_GET missing id@@ERROR\|INVALID_INPUT@@HDF_GET||||||admin@test.com
+HDF_CALC missing id@@ERROR\|INVALID_INPUT@@HDF_CALC||||||admin@test.com
+HDF_DELETE missing id@@ERROR\|INVALID_INPUT@@HDF_DELETE||||||admin@test.com
+HDF_VALIDATE ok@@SUCCESS\|HDF_VALID@@HDF_VALIDATE|100.00|USD||||admin@test.com

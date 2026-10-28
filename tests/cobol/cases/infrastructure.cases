@@ -1,0 +1,6 @@
+# Infrastructure (Wave12) validation cases.
+INF_CREATE missing ref@@ERROR\|INVALID_INPUT@@INF_CREATE||||||admin@test.com
+INF_GET missing id@@ERROR\|INVALID_INPUT@@INF_GET||||||admin@test.com
+INF_CALC missing id@@ERROR\|INVALID_INPUT@@INF_CALC||||||admin@test.com
+INF_DELETE missing id@@ERROR\|INVALID_INPUT@@INF_DELETE||||||admin@test.com
+INF_VALIDATE ok@@SUCCESS\|INF_VALID@@INF_VALIDATE|100.00|USD||||admin@test.com

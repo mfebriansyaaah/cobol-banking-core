@@ -1,0 +1,6 @@
+# Trust (Wave12) validation cases.
+TRT_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRT_CREATE||||||admin@test.com
+TRT_GET missing id@@ERROR\|INVALID_INPUT@@TRT_GET||||||admin@test.com
+TRT_CALC missing id@@ERROR\|INVALID_INPUT@@TRT_CALC||||||admin@test.com
+TRT_DELETE missing id@@ERROR\|INVALID_INPUT@@TRT_DELETE||||||admin@test.com
+TRT_VALIDATE ok@@SUCCESS\|TRT_VALID@@TRT_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Collateralized (Wave12) validation cases.
+CDO_CREATE missing ref@@ERROR\|INVALID_INPUT@@CDO_CREATE||||||admin@test.com
+CDO_GET missing id@@ERROR\|INVALID_INPUT@@CDO_GET||||||admin@test.com
+CDO_CALC missing id@@ERROR\|INVALID_INPUT@@CDO_CALC||||||admin@test.com
+CDO_DELETE missing id@@ERROR\|INVALID_INPUT@@CDO_DELETE||||||admin@test.com
+CDO_VALIDATE ok@@SUCCESS\|CDO_VALID@@CDO_VALIDATE|100.00|USD||||admin@test.com

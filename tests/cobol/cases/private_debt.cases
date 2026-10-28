@@ -1,0 +1,6 @@
+# Private Debt (Wave12) validation cases.
+PDB_CREATE missing ref@@ERROR\|INVALID_INPUT@@PDB_CREATE||||||admin@test.com
+PDB_GET missing id@@ERROR\|INVALID_INPUT@@PDB_GET||||||admin@test.com
+PDB_CALC missing id@@ERROR\|INVALID_INPUT@@PDB_CALC||||||admin@test.com
+PDB_DELETE missing id@@ERROR\|INVALID_INPUT@@PDB_DELETE||||||admin@test.com
+PDB_VALIDATE ok@@SUCCESS\|PDB_VALID@@PDB_VALIDATE|100.00|USD||||admin@test.com

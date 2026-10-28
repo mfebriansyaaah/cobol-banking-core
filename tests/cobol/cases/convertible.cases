@@ -1,0 +1,6 @@
+# Convertible (Wave12) validation cases.
+CNV_CREATE missing ref@@ERROR\|INVALID_INPUT@@CNV_CREATE||||||admin@test.com
+CNV_GET missing id@@ERROR\|INVALID_INPUT@@CNV_GET||||||admin@test.com
+CNV_CALC missing id@@ERROR\|INVALID_INPUT@@CNV_CALC||||||admin@test.com
+CNV_DELETE missing id@@ERROR\|INVALID_INPUT@@CNV_DELETE||||||admin@test.com
+CNV_VALIDATE ok@@SUCCESS\|CNV_VALID@@CNV_VALIDATE|100.00|USD||||admin@test.com

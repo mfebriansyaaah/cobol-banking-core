@@ -1,0 +1,6 @@
+# Structured Note (Wave12) validation cases.
+STN_CREATE missing ref@@ERROR\|INVALID_INPUT@@STN_CREATE||||||admin@test.com
+STN_GET missing id@@ERROR\|INVALID_INPUT@@STN_GET||||||admin@test.com
+STN_CALC missing id@@ERROR\|INVALID_INPUT@@STN_CALC||||||admin@test.com
+STN_DELETE missing id@@ERROR\|INVALID_INPUT@@STN_DELETE||||||admin@test.com
+STN_VALIDATE ok@@SUCCESS\|STN_VALID@@STN_VALIDATE|100.00|USD||||admin@test.com

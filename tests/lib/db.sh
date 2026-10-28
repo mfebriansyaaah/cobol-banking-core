@@ -1332,3 +1332,153 @@ db_reset_timeout() {
     db_exec "DELETE FROM timeout_audit;"
     db_exec "DELETE FROM timeout;"
 }
+
+db_reset_bond() {
+    db_exec "DELETE FROM bond_audit;"
+    db_exec "DELETE FROM bond;"
+}
+
+db_reset_equity() {
+    db_exec "DELETE FROM equity_audit;"
+    db_exec "DELETE FROM equity;"
+}
+
+db_reset_derivative() {
+    db_exec "DELETE FROM derivative_audit;"
+    db_exec "DELETE FROM derivative;"
+}
+
+db_reset_warrant() {
+    db_exec "DELETE FROM warrant_audit;"
+    db_exec "DELETE FROM warrant;"
+}
+
+db_reset_convertible() {
+    db_exec "DELETE FROM convertible_audit;"
+    db_exec "DELETE FROM convertible;"
+}
+
+db_reset_structured() {
+    db_exec "DELETE FROM structured_audit;"
+    db_exec "DELETE FROM structured;"
+}
+
+db_reset_asset_backed() {
+    db_exec "DELETE FROM asset_backed_audit;"
+    db_exec "DELETE FROM asset_backed;"
+}
+
+db_reset_mortgage_backed() {
+    db_exec "DELETE FROM mortgage_backed_audit;"
+    db_exec "DELETE FROM mortgage_backed;"
+}
+
+db_reset_collateralized() {
+    db_exec "DELETE FROM collateralized_audit;"
+    db_exec "DELETE FROM collateralized;"
+}
+
+db_reset_tranche() {
+    db_exec "DELETE FROM tranche_audit;"
+    db_exec "DELETE FROM tranche;"
+}
+
+db_reset_securitization() {
+    db_exec "DELETE FROM securitization_audit;"
+    db_exec "DELETE FROM securitization;"
+}
+
+db_reset_special_purpose() {
+    db_exec "DELETE FROM special_purpose_audit;"
+    db_exec "DELETE FROM special_purpose;"
+}
+
+db_reset_vehicle() {
+    db_exec "DELETE FROM vehicle_audit;"
+    db_exec "DELETE FROM vehicle;"
+}
+
+db_reset_trust() {
+    db_exec "DELETE FROM trust_audit;"
+    db_exec "DELETE FROM trust;"
+}
+
+db_reset_fund() {
+    db_exec "DELETE FROM fund_audit;"
+    db_exec "DELETE FROM fund;"
+}
+
+db_reset_etf() {
+    db_exec "DELETE FROM etf_audit;"
+    db_exec "DELETE FROM etf;"
+}
+
+db_reset_mutual_fund() {
+    db_exec "DELETE FROM mutual_fund_audit;"
+    db_exec "DELETE FROM mutual_fund;"
+}
+
+db_reset_hedge_fund() {
+    db_exec "DELETE FROM hedge_fund_audit;"
+    db_exec "DELETE FROM hedge_fund;"
+}
+
+db_reset_private_equity() {
+    db_exec "DELETE FROM private_equity_audit;"
+    db_exec "DELETE FROM private_equity;"
+}
+
+db_reset_venture_capital() {
+    db_exec "DELETE FROM venture_capital_audit;"
+    db_exec "DELETE FROM venture_capital;"
+}
+
+db_reset_real_estate() {
+    db_exec "DELETE FROM real_estate_audit;"
+    db_exec "DELETE FROM real_estate;"
+}
+
+db_reset_infrastructure() {
+    db_exec "DELETE FROM infrastructure_audit;"
+    db_exec "DELETE FROM infrastructure;"
+}
+
+db_reset_private_debt() {
+    db_exec "DELETE FROM private_debt_audit;"
+    db_exec "DELETE FROM private_debt;"
+}
+
+db_reset_direct_lending() {
+    db_exec "DELETE FROM direct_lending_audit;"
+    db_exec "DELETE FROM direct_lending;"
+}
+
+db_reset_mezzanine() {
+    db_exec "DELETE FROM mezzanine_audit;"
+    db_exec "DELETE FROM mezzanine;"
+}
+
+db_reset_distressed() {
+    db_exec "DELETE FROM distressed_audit;"
+    db_exec "DELETE FROM distressed;"
+}
+
+db_reset_warrant_issuing() {
+    db_exec "DELETE FROM warrant_issuing_audit;"
+    db_exec "DELETE FROM warrant_issuing;"
+}
+
+db_reset_convertible_bond() {
+    db_exec "DELETE FROM convertible_bond_audit;"
+    db_exec "DELETE FROM convertible_bond;"
+}
+
+db_reset_structured_note() {
+    db_exec "DELETE FROM structured_note_audit;"
+    db_exec "DELETE FROM structured_note;"
+}
+
+db_reset_asset_backed_security() {
+    db_exec "DELETE FROM asset_backed_security_audit;"
+    db_exec "DELETE FROM asset_backed_security;"
+}

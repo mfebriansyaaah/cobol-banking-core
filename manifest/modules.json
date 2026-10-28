@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T10:23:55.438Z",
+  "generatedAt": "2026-10-28T11:06:59.286Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -48,6 +48,12 @@
     },
     {
       "source": "api_management_core.cob"
+    },
+    {
+      "source": "asset_backed_core.cob"
+    },
+    {
+      "source": "asset_backed_security_core.cob"
     },
     {
       "source": "asset_core.cob"
@@ -128,6 +134,9 @@
       "source": "blockchain_tracker_core.cob"
     },
     {
+      "source": "bond_core.cob"
+    },
+    {
       "source": "bond_trading_core.cob"
     },
     {
@@ -194,6 +203,9 @@
       "source": "collateral_repossession_core.cob"
     },
     {
+      "source": "collateralized_core.cob"
+    },
+    {
       "source": "collection_core.cob"
     },
     {
@@ -234,6 +246,12 @@
     },
     {
       "source": "contract_core.cob"
+    },
+    {
+      "source": "convertible_bond_core.cob"
+    },
+    {
+      "source": "convertible_core.cob"
     },
     {
       "source": "cost_center_core.cob"
@@ -314,6 +332,9 @@
       "source": "deposit_core.cob"
     },
     {
+      "source": "derivative_core.cob"
+    },
+    {
       "source": "device_management_core.cob"
     },
     {
@@ -326,6 +347,9 @@
       "source": "direct_debit_core.cob"
     },
     {
+      "source": "direct_lending_core.cob"
+    },
+    {
       "source": "disaster_recovery_core.cob"
     },
     {
@@ -336,6 +360,9 @@
     },
     {
       "source": "dispute_ops_core.cob"
+    },
+    {
+      "source": "distressed_core.cob"
     },
     {
       "source": "document_core.cob"
@@ -359,10 +386,16 @@
       "source": "eod_jobs_core.cob"
     },
     {
+      "source": "equity_core.cob"
+    },
+    {
       "source": "equity_swap_core.cob"
     },
     {
       "source": "escrow_account_core.cob"
+    },
+    {
+      "source": "etf_core.cob"
     },
     {
       "source": "etl_core.cob"
@@ -413,6 +446,9 @@
       "source": "fraud_ops_core.cob"
     },
     {
+      "source": "fund_core.cob"
+    },
+    {
       "source": "future_contract_core.cob"
     },
     {
@@ -458,6 +494,9 @@
       "source": "health_check_core.cob"
     },
     {
+      "source": "hedge_fund_core.cob"
+    },
+    {
       "source": "import_core.cob"
     },
     {
@@ -480,6 +519,9 @@
     },
     {
       "source": "indexing_core.cob"
+    },
+    {
+      "source": "infrastructure_core.cob"
     },
     {
       "source": "insurance_policy_core.cob"
@@ -587,6 +629,9 @@
       "source": "metrics_core.cob"
     },
     {
+      "source": "mezzanine_core.cob"
+    },
+    {
       "source": "mfa_management_core.cob"
     },
     {
@@ -596,7 +641,13 @@
       "source": "monitoring_core.cob"
     },
     {
+      "source": "mortgage_backed_core.cob"
+    },
+    {
       "source": "multi_currency_core.cob"
+    },
+    {
+      "source": "mutual_fund_core.cob"
     },
     {
       "source": "name_screening_core.cob"
@@ -713,6 +764,12 @@
       "source": "pricing_core.cob"
     },
     {
+      "source": "private_debt_core.cob"
+    },
+    {
+      "source": "private_equity_core.cob"
+    },
+    {
       "source": "procurement_core.cob"
     },
     {
@@ -735,6 +792,9 @@
     },
     {
       "source": "rate_management_core.cob"
+    },
+    {
+      "source": "real_estate_core.cob"
     },
     {
       "source": "recommendation_core.cob"
@@ -845,6 +905,9 @@
       "source": "securities_lending_core.cob"
     },
     {
+      "source": "securitization_core.cob"
+    },
+    {
       "source": "service_mesh_core.cob"
     },
     {
@@ -875,6 +938,9 @@
       "source": "sms_core.cob"
     },
     {
+      "source": "special_purpose_core.cob"
+    },
+    {
       "source": "standing_instruction_core.cob"
     },
     {
@@ -891,6 +957,12 @@
     },
     {
       "source": "stress_test_core.cob"
+    },
+    {
+      "source": "structured_core.cob"
+    },
+    {
+      "source": "structured_note_core.cob"
     },
     {
       "source": "structured_product_core.cob"
@@ -947,6 +1019,9 @@
       "source": "training_core.cob"
     },
     {
+      "source": "tranche_core.cob"
+    },
+    {
       "source": "transaction_limit_core.cob"
     },
     {
@@ -957,6 +1032,9 @@
     },
     {
       "source": "treasury_position_core.cob"
+    },
+    {
+      "source": "trust_core.cob"
     },
     {
       "source": "user_activity_core.cob"
@@ -974,6 +1052,9 @@
       "source": "vault_management_core.cob"
     },
     {
+      "source": "vehicle_core.cob"
+    },
+    {
       "source": "velocity_check_core.cob"
     },
     {
@@ -989,6 +1070,9 @@
       "source": "vendor_risk_core.cob"
     },
     {
+      "source": "venture_capital_core.cob"
+    },
+    {
       "source": "virtual_card_core.cob"
     },
     {
@@ -996,6 +1080,12 @@
     },
     {
       "source": "wallet_core.cob"
+    },
+    {
+      "source": "warrant_core.cob"
+    },
+    {
+      "source": "warrant_issuing_core.cob"
     },
     {
       "source": "watchlist_core.cob"
@@ -1037,6 +1127,8 @@
     "api_gateway.js",
     "api_management.js",
     "asset.js",
+    "asset_backed.js",
+    "asset_backed_security.js",
     "asset_maintenance.js",
     "asset_management.js",
     "atm_management.js",
@@ -1060,6 +1152,7 @@
     "biometric_auth.js",
     "blacklist.js",
     "blockchain_tracker.js",
+    "bond.js",
     "bond_trading.js",
     "branch_management.js",
     "budget.js",
@@ -1082,6 +1175,7 @@
     "collateral.js",
     "collateral_mgmt.js",
     "collateral_repossession.js",
+    "collateralized.js",
     "collection.js",
     "commodity_swap.js",
     "commodity_trading.js",
@@ -1096,6 +1190,8 @@
     "consolidation.js",
     "contactless.js",
     "contract.js",
+    "convertible.js",
+    "convertible_bond.js",
     "cost.js",
     "cost_center.js",
     "credit_bureau.js",
@@ -1122,14 +1218,17 @@
     "debt_recovery.js",
     "department.js",
     "deposit.js",
+    "derivative.js",
     "device_management.js",
     "digital_asset.js",
     "digital_banking.js",
     "direct_debit.js",
+    "direct_lending.js",
     "disaster_recovery.js",
     "dispute_management.js",
     "dispute_notify.js",
     "dispute_ops.js",
+    "distressed.js",
     "document.js",
     "dq_check.js",
     "dsar.js",
@@ -1137,8 +1236,10 @@
     "employee.js",
     "eod.js",
     "eod_jobs.js",
+    "equity.js",
     "equity_swap.js",
     "escrow_account.js",
+    "etf.js",
     "etl.js",
     "event_bus.js",
     "experiment.js",
@@ -1155,6 +1256,7 @@
     "foreign_currency_deposit.js",
     "fraud_case.js",
     "fraud_ops.js",
+    "fund.js",
     "future_contract.js",
     "fx_deal.js",
     "fx_forward.js",
@@ -1169,6 +1271,7 @@
     "greeks.js",
     "guarantee_issuing.js",
     "health_check.js",
+    "hedge_fund.js",
     "import.js",
     "import_recon.js",
     "in_app_message.js",
@@ -1176,6 +1279,7 @@
     "incident_postmortem.js",
     "incident_report.js",
     "indexing.js",
+    "infrastructure.js",
     "insurance_policy.js",
     "interest_rate.js",
     "interest_rate_swap.js",
@@ -1212,10 +1316,13 @@
     "metric.js",
     "metric_definition.js",
     "metrics.js",
+    "mezzanine.js",
     "mfa_management.js",
     "mobile_wallet.js",
     "monitoring.js",
+    "mortgage_backed.js",
     "multi_currency.js",
+    "mutual_fund.js",
     "name_screening.js",
     "nft_management.js",
     "notice_deposit.js",
@@ -1254,6 +1361,8 @@
     "position.js",
     "prepaid_card.js",
     "pricing.js",
+    "private_debt.js",
+    "private_equity.js",
     "procurement.js",
     "product_catalog.js",
     "profit.js",
@@ -1262,6 +1371,7 @@
     "qr_payment.js",
     "rate_limiter.js",
     "rate_management.js",
+    "real_estate.js",
     "recommendation.js",
     "recon.js",
     "recon_exception.js",
@@ -1298,6 +1408,7 @@
     "search.js",
     "secret_rotation.js",
     "securities_lending.js",
+    "securitization.js",
     "service_mesh.js",
     "session_management.js",
     "session_store.js",
@@ -1308,12 +1419,15 @@
     "slo_report.js",
     "smart_contract.js",
     "sms.js",
+    "special_purpose.js",
     "standing_instruction.js",
     "standing_order.js",
     "statement.js",
     "statement_delivery.js",
     "statement_recon.js",
     "stress_test.js",
+    "structured.js",
+    "structured_note.js",
     "structured_product.js",
     "subscription.js",
     "supply_chain_finance.js",
@@ -1332,21 +1446,27 @@
     "tracing.js",
     "trade_finance.js",
     "training.js",
+    "tranche.js",
     "transaction_limit.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
     "treasury_position.js",
+    "trust.js",
     "user_activity.js",
     "valuation.js",
     "variance_swap.js",
     "vault_management.js",
+    "vehicle.js",
     "velocity_check.js",
     "vendor.js",
     "vendor_compliance.js",
     "vendor_management.js",
     "vendor_risk.js",
+    "venture_capital.js",
     "virtual_card.js",
     "volatility.js",
+    "warrant.js",
+    "warrant_issuing.js",
     "watchlist.js",
     "wealth_management.js",
     "webhook.js",
@@ -3440,6 +3560,156 @@
       "prefixLen": 4,
       "prefix": "TMO_",
       "program": "timeout_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BON_",
+      "program": "bond_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EQY_",
+      "program": "equity_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DRV_",
+      "program": "derivative_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WAR_",
+      "program": "warrant_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CNV_",
+      "program": "convertible_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "STRU_",
+      "program": "structured_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ABS_",
+      "program": "asset_backed_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MBS_",
+      "program": "mortgage_backed_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CDO_",
+      "program": "collateralized_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "TRCH_",
+      "program": "tranche_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SEC_",
+      "program": "securitization_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SPE_",
+      "program": "special_purpose_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SPV_",
+      "program": "vehicle_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRT_",
+      "program": "trust_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FND_",
+      "program": "fund_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ETF_",
+      "program": "etf_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MFD_",
+      "program": "mutual_fund_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "HDF_",
+      "program": "hedge_fund_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PEQ_",
+      "program": "private_equity_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VCP_",
+      "program": "venture_capital_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RET_",
+      "program": "real_estate_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "INF_",
+      "program": "infrastructure_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PDB_",
+      "program": "private_debt_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DLL_",
+      "program": "direct_lending_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MEZ_",
+      "program": "mezzanine_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DIS_",
+      "program": "distressed_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WRI_",
+      "program": "warrant_issuing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CVB_",
+      "program": "convertible_bond_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "STN_",
+      "program": "structured_note_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ASB_",
+      "program": "asset_backed_security_core"
     }
   ]
 }
