@@ -1,0 +1,6 @@
+# Warrant Issuing (Wave12) validation cases.
+WRI_CREATE missing ref@@ERROR\|INVALID_INPUT@@WRI_CREATE||||||admin@test.com
+WRI_GET missing id@@ERROR\|INVALID_INPUT@@WRI_GET||||||admin@test.com
+WRI_CALC missing id@@ERROR\|INVALID_INPUT@@WRI_CALC||||||admin@test.com
+WRI_DELETE missing id@@ERROR\|INVALID_INPUT@@WRI_DELETE||||||admin@test.com
+WRI_VALIDATE ok@@SUCCESS\|WRI_VALID@@WRI_VALIDATE|100.00|USD||||admin@test.com

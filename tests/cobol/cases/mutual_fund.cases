@@ -1,0 +1,6 @@
+# Mutual Fund (Wave12) validation cases.
+MFD_CREATE missing ref@@ERROR\|INVALID_INPUT@@MFD_CREATE||||||admin@test.com
+MFD_GET missing id@@ERROR\|INVALID_INPUT@@MFD_GET||||||admin@test.com
+MFD_CALC missing id@@ERROR\|INVALID_INPUT@@MFD_CALC||||||admin@test.com
+MFD_DELETE missing id@@ERROR\|INVALID_INPUT@@MFD_DELETE||||||admin@test.com
+MFD_VALIDATE ok@@SUCCESS\|MFD_VALID@@MFD_VALIDATE|100.00|USD||||admin@test.com

@@ -61,6 +61,36 @@ import { CON_ROUTES } from './contract.js';
 import { ADL_ROUTES } from './audit_log.js';
 import { LOG_ROUTES } from './logging.js';
 import { TMO_ROUTES } from './timeout.js';
+import { ASB_ROUTES } from './asset_backed_security.js';
+import { STN_ROUTES } from './structured_note.js';
+import { CVB_ROUTES } from './convertible_bond.js';
+import { WRI_ROUTES } from './warrant_issuing.js';
+import { DIS_ROUTES } from './distressed.js';
+import { MEZ_ROUTES } from './mezzanine.js';
+import { DLL_ROUTES } from './direct_lending.js';
+import { PDB_ROUTES } from './private_debt.js';
+import { INF_ROUTES } from './infrastructure.js';
+import { RET_ROUTES } from './real_estate.js';
+import { VCP_ROUTES } from './venture_capital.js';
+import { PEQ_ROUTES } from './private_equity.js';
+import { HDF_ROUTES } from './hedge_fund.js';
+import { MFD_ROUTES } from './mutual_fund.js';
+import { ETF_ROUTES } from './etf.js';
+import { FND_ROUTES } from './fund.js';
+import { TRT_ROUTES } from './trust.js';
+import { SPV_ROUTES } from './vehicle.js';
+import { SPE_ROUTES } from './special_purpose.js';
+import { SEC_ROUTES } from './securitization.js';
+import { TRCH_ROUTES } from './tranche.js';
+import { CDO_ROUTES } from './collateralized.js';
+import { MBS_ROUTES } from './mortgage_backed.js';
+import { ABS_ROUTES } from './asset_backed.js';
+import { STRU_ROUTES } from './structured.js';
+import { CNV_ROUTES } from './convertible.js';
+import { WAR_ROUTES } from './warrant.js';
+import { DRV_ROUTES } from './derivative.js';
+import { EQY_ROUTES } from './equity.js';
+import { BON_ROUTES } from './bond.js';
 import { RTY_ROUTES } from './retry.js';
 import { RTL_ROUTES } from './rate_limiter.js';
 import { CBK_ROUTES } from './circuit_breaker.js';
@@ -397,6 +427,36 @@ export const ALL_ROUTES = [
   ...ADL_ROUTES,
   ...LOG_ROUTES,
   ...TMO_ROUTES,
+  ...ASB_ROUTES,
+  ...STN_ROUTES,
+  ...CVB_ROUTES,
+  ...WRI_ROUTES,
+  ...DIS_ROUTES,
+  ...MEZ_ROUTES,
+  ...DLL_ROUTES,
+  ...PDB_ROUTES,
+  ...INF_ROUTES,
+  ...RET_ROUTES,
+  ...VCP_ROUTES,
+  ...PEQ_ROUTES,
+  ...HDF_ROUTES,
+  ...MFD_ROUTES,
+  ...ETF_ROUTES,
+  ...FND_ROUTES,
+  ...TRT_ROUTES,
+  ...SPV_ROUTES,
+  ...SPE_ROUTES,
+  ...SEC_ROUTES,
+  ...TRCH_ROUTES,
+  ...CDO_ROUTES,
+  ...MBS_ROUTES,
+  ...ABS_ROUTES,
+  ...STRU_ROUTES,
+  ...CNV_ROUTES,
+  ...WAR_ROUTES,
+  ...DRV_ROUTES,
+  ...EQY_ROUTES,
+  ...BON_ROUTES,
   ...RTY_ROUTES,
   ...RTL_ROUTES,
   ...CBK_ROUTES,

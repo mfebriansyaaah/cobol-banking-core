@@ -1,0 +1,6 @@
+# Real Estate (Wave12) validation cases.
+RET_CREATE missing ref@@ERROR\|INVALID_INPUT@@RET_CREATE||||||admin@test.com
+RET_GET missing id@@ERROR\|INVALID_INPUT@@RET_GET||||||admin@test.com
+RET_CALC missing id@@ERROR\|INVALID_INPUT@@RET_CALC||||||admin@test.com
+RET_DELETE missing id@@ERROR\|INVALID_INPUT@@RET_DELETE||||||admin@test.com
+RET_VALIDATE ok@@SUCCESS\|RET_VALID@@RET_VALIDATE|100.00|USD||||admin@test.com

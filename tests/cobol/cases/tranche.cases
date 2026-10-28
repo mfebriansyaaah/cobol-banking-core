@@ -1,0 +1,6 @@
+# Tranche (Wave12) validation cases.
+TRCH_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRCH_CREATE||||||admin@test.com
+TRCH_GET missing id@@ERROR\|INVALID_INPUT@@TRCH_GET||||||admin@test.com
+TRCH_CALC missing id@@ERROR\|INVALID_INPUT@@TRCH_CALC||||||admin@test.com
+TRCH_DELETE missing id@@ERROR\|INVALID_INPUT@@TRCH_DELETE||||||admin@test.com
+TRCH_VALIDATE ok@@SUCCESS\|TRCH_VALID@@TRCH_VALIDATE|100.00|USD||||admin@test.com

@@ -242,6 +242,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/rate_limiter_core.cob \
     cobol/src/retry_core.cob \
     cobol/src/timeout_core.cob \
+    cobol/src/bond_core.cob \
+    cobol/src/equity_core.cob \
+    cobol/src/derivative_core.cob \
+    cobol/src/warrant_core.cob \
+    cobol/src/convertible_core.cob \
+    cobol/src/structured_core.cob \
+    cobol/src/asset_backed_core.cob \
+    cobol/src/mortgage_backed_core.cob \
+    cobol/src/collateralized_core.cob \
+    cobol/src/tranche_core.cob \
+    cobol/src/securitization_core.cob \
+    cobol/src/special_purpose_core.cob \
+    cobol/src/vehicle_core.cob \
+    cobol/src/trust_core.cob \
+    cobol/src/fund_core.cob \
+    cobol/src/etf_core.cob \
+    cobol/src/mutual_fund_core.cob \
+    cobol/src/hedge_fund_core.cob \
+    cobol/src/private_equity_core.cob \
+    cobol/src/venture_capital_core.cob \
+    cobol/src/real_estate_core.cob \
+    cobol/src/infrastructure_core.cob \
+    cobol/src/private_debt_core.cob \
+    cobol/src/direct_lending_core.cob \
+    cobol/src/mezzanine_core.cob \
+    cobol/src/distressed_core.cob \
+    cobol/src/warrant_issuing_core.cob \
+    cobol/src/convertible_bond_core.cob \
+    cobol/src/structured_note_core.cob \
+    cobol/src/asset_backed_security_core.cob \
     cobol/src/securities_lending_core.cob \
     cobol/src/repo_agreement_core.cob \
     cobol/src/commodity_trading_core.cob \
