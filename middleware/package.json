@@ -2,6 +2,7 @@
   "name": "cobol-banking-api-gateway",
   "version": "1.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
   "description": "Robust pipe: the only HTTP interface to the COBOL banking core.",
   "scripts": {
