@@ -1,0 +1,6 @@
+# Tax Management (Wave5) validation cases.
+TXM_CREATE missing ref@@ERROR\|INVALID_INPUT@@TXM_CREATE||||||admin@test.com
+TXM_GET missing id@@ERROR\|INVALID_INPUT@@TXM_GET||||||admin@test.com
+TXM_CALC missing id@@ERROR\|INVALID_INPUT@@TXM_CALC||||||admin@test.com
+TXM_DELETE missing id@@ERROR\|INVALID_INPUT@@TXM_DELETE||||||admin@test.com
+TXM_VALIDATE ok@@SUCCESS\|TXM_VALID@@TXM_VALIDATE|100.00|USD||||admin@test.com

@@ -89,6 +89,26 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/direct_debit_core.cob \
     cobol/src/compliance_calendar_core.cob \
     cobol/src/escrow_account_core.cob \
+    cobol/src/organization_unit_core.cob \
+    cobol/src/permission_set_core.cob \
+    cobol/src/role_management_core.cob \
+    cobol/src/access_control_core.cob \
+    cobol/src/user_activity_core.cob \
+    cobol/src/system_config_core.cob \
+    cobol/src/backup_management_core.cob \
+    cobol/src/data_archive_core.cob \
+    cobol/src/audit_trail_core.cob \
+    cobol/src/tax_management_core.cob \
+    cobol/src/fee_management_core.cob \
+    cobol/src/rate_management_core.cob \
+    cobol/src/api_management_core.cob \
+    cobol/src/internet_banking_core.cob \
+    cobol/src/digital_banking_core.cob \
+    cobol/src/mobile_wallet_core.cob \
+    cobol/src/payment_gateway_core.cob \
+    cobol/src/merchant_settlement_core.cob \
+    cobol/src/debit_card_core.cob \
+    cobol/src/credit_card_core.cob \
     cobol/src/wealth_management_core.cob \
     cobol/src/payroll_processing_core.cob \
     cobol/src/supply_chain_finance_core.cob \

@@ -1,0 +1,6 @@
+# Rate Management (Wave5) validation cases.
+RTM_CREATE missing ref@@ERROR\|INVALID_INPUT@@RTM_CREATE||||||admin@test.com
+RTM_GET missing id@@ERROR\|INVALID_INPUT@@RTM_GET||||||admin@test.com
+RTM_CALC missing id@@ERROR\|INVALID_INPUT@@RTM_CALC||||||admin@test.com
+RTM_DELETE missing id@@ERROR\|INVALID_INPUT@@RTM_DELETE||||||admin@test.com
+RTM_VALIDATE ok@@SUCCESS\|RTM_VALID@@RTM_VALIDATE|100.00|USD||||admin@test.com
