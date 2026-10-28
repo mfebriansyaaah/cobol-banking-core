@@ -48,6 +48,10 @@ import { METRIC_DEFINITION_ROUTES } from './metric_definition.js';
 import { ANALYTICS_SNAPSHOT_ROUTES } from './analytics_snapshot.js';
 import { MERCHANT_ROUTES } from './merchant.js';
 import { TRADE_FINANCE_ROUTES } from './trade_finance.js';
+import { DDB_ROUTES } from './direct_debit.js';
+import { SIN_ROUTES } from './standing_instruction.js';
+import { CLM_ROUTES } from './collateral_mgmt.js';
+import { TSD_ROUTES } from './treasury_deal.js';
 import { CUSTOMER_ROUTES } from './customer.js';
 import { PRODUCT_CATALOG_ROUTES } from './product_catalog.js';
 import { INTEREST_RATE_ROUTES } from './interest_rate.js';
@@ -169,6 +173,10 @@ export const ALL_ROUTES = [
   ...ANALYTICS_SNAPSHOT_ROUTES,
   ...MERCHANT_ROUTES,
   ...TRADE_FINANCE_ROUTES,
+  ...DDB_ROUTES,
+  ...SIN_ROUTES,
+  ...CLM_ROUTES,
+  ...TSD_ROUTES,
   ...CUSTOMER_ROUTES,
   ...PRODUCT_CATALOG_ROUTES,
   ...INTEREST_RATE_ROUTES,

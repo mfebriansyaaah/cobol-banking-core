@@ -131,3 +131,7 @@ fraud_case_core.cob=0
 gl_allocation_core.cob=0
 merchant_core.cob=0
 trade_finance_core.cob=0
+treasury_deal_core.cob=0
+collateral_mgmt_core.cob=0
+standing_instruction_core.cob=0
+direct_debit_core.cob=0
