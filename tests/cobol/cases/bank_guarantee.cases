@@ -1,0 +1,6 @@
+# Bank Guarantee (Wave4) validation cases.
+BKG_CREATE missing ref@@ERROR\|INVALID_INPUT@@BKG_CREATE||||||admin@test.com
+BKG_GET missing id@@ERROR\|INVALID_INPUT@@BKG_GET||||||admin@test.com
+BKG_CALC missing id@@ERROR\|INVALID_INPUT@@BKG_CALC||||||admin@test.com
+BKG_DELETE missing id@@ERROR\|INVALID_INPUT@@BKG_DELETE||||||admin@test.com
+BKG_VALIDATE ok@@SUCCESS\|BKG_VALID@@BKG_VALIDATE|100.00|USD||||admin@test.com

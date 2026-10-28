@@ -265,3 +265,53 @@ db_reset_sla_tracker() {
 db_reset_compliance_calendar() {
     db_exec "DELETE FROM compliance_calendar_audit; DELETE FROM compliance_calendar;"
 }
+
+db_reset_asset_management() {
+    db_exec "DELETE FROM asset_management_audit;"
+    db_exec "DELETE FROM asset_management;"
+}
+
+db_reset_portfolio_management() {
+    db_exec "DELETE FROM portfolio_management_audit;"
+    db_exec "DELETE FROM portfolio_management;"
+}
+
+db_reset_bond_trading() {
+    db_exec "DELETE FROM bond_trading_audit;"
+    db_exec "DELETE FROM bond_trading;"
+}
+
+db_reset_letter_of_credit() {
+    db_exec "DELETE FROM letter_of_credit_audit;"
+    db_exec "DELETE FROM letter_of_credit;"
+}
+
+db_reset_bank_guarantee() {
+    db_exec "DELETE FROM bank_guarantee_audit;"
+    db_exec "DELETE FROM bank_guarantee;"
+}
+
+db_reset_invoice_financing() {
+    db_exec "DELETE FROM invoice_financing_audit;"
+    db_exec "DELETE FROM invoice_financing;"
+}
+
+db_reset_supply_chain_finance() {
+    db_exec "DELETE FROM supply_chain_finance_audit;"
+    db_exec "DELETE FROM supply_chain_finance;"
+}
+
+db_reset_payroll_processing() {
+    db_exec "DELETE FROM payroll_processing_audit;"
+    db_exec "DELETE FROM payroll_processing;"
+}
+
+db_reset_wealth_management() {
+    db_exec "DELETE FROM wealth_management_audit;"
+    db_exec "DELETE FROM wealth_management;"
+}
+
+db_reset_escrow_account() {
+    db_exec "DELETE FROM escrow_account_audit;"
+    db_exec "DELETE FROM escrow_account;"
+}

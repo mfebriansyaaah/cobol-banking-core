@@ -50,6 +50,16 @@ import { MERCHANT_ROUTES } from './merchant.js';
 import { TRADE_FINANCE_ROUTES } from './trade_finance.js';
 import { DDB_ROUTES } from './direct_debit.js';
 import { CCL_ROUTES } from './compliance_calendar.js';
+import { ESC_ROUTES } from './escrow_account.js';
+import { WLM_ROUTES } from './wealth_management.js';
+import { PRL_ROUTES } from './payroll_processing.js';
+import { SCF_ROUTES } from './supply_chain_finance.js';
+import { IVC_ROUTES } from './invoice_financing.js';
+import { BKG_ROUTES } from './bank_guarantee.js';
+import { LOC_ROUTES } from './letter_of_credit.js';
+import { BND_ROUTES } from './bond_trading.js';
+import { POM_ROUTES } from './portfolio_management.js';
+import { ASM_ROUTES } from './asset_management.js';
 import { SLT_ROUTES } from './sla_tracker.js';
 import { RPS_ROUTES } from './report_schedule.js';
 import { NTP_ROUTES } from './notification_template.js';
@@ -179,6 +189,16 @@ export const ALL_ROUTES = [
   ...TRADE_FINANCE_ROUTES,
   ...DDB_ROUTES,
   ...CCL_ROUTES,
+  ...ESC_ROUTES,
+  ...WLM_ROUTES,
+  ...PRL_ROUTES,
+  ...SCF_ROUTES,
+  ...IVC_ROUTES,
+  ...BKG_ROUTES,
+  ...LOC_ROUTES,
+  ...BND_ROUTES,
+  ...POM_ROUTES,
+  ...ASM_ROUTES,
   ...SLT_ROUTES,
   ...RPS_ROUTES,
   ...NTP_ROUTES,

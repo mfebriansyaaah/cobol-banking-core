@@ -1,0 +1,6 @@
+# Portfolio Management (Wave4) validation cases.
+POM_CREATE missing ref@@ERROR\|INVALID_INPUT@@POM_CREATE||||||admin@test.com
+POM_GET missing id@@ERROR\|INVALID_INPUT@@POM_GET||||||admin@test.com
+POM_CALC missing id@@ERROR\|INVALID_INPUT@@POM_CALC||||||admin@test.com
+POM_DELETE missing id@@ERROR\|INVALID_INPUT@@POM_DELETE||||||admin@test.com
+POM_VALIDATE ok@@SUCCESS\|POM_VALID@@POM_VALIDATE|100.00|USD||||admin@test.com

@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 210 TO DISPATCH-COUNT.
+            MOVE 220 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -739,6 +739,36 @@
             MOVE "CCL_" TO D-PREFIX(210).
             MOVE 4 TO D-PREFIX-LEN(210).
             MOVE "compliance_calendar_core" TO D-PROGRAM(210).
+            MOVE "ASM_" TO D-PREFIX(211).
+            MOVE 4 TO D-PREFIX-LEN(211).
+            MOVE "asset_management_core" TO D-PROGRAM(211).
+            MOVE "POM_" TO D-PREFIX(212).
+            MOVE 4 TO D-PREFIX-LEN(212).
+            MOVE "portfolio_management_core" TO D-PROGRAM(212).
+            MOVE "BND_" TO D-PREFIX(213).
+            MOVE 4 TO D-PREFIX-LEN(213).
+            MOVE "bond_trading_core" TO D-PROGRAM(213).
+            MOVE "LOC_" TO D-PREFIX(214).
+            MOVE 4 TO D-PREFIX-LEN(214).
+            MOVE "letter_of_credit_core" TO D-PROGRAM(214).
+            MOVE "BKG_" TO D-PREFIX(215).
+            MOVE 4 TO D-PREFIX-LEN(215).
+            MOVE "bank_guarantee_core" TO D-PROGRAM(215).
+            MOVE "IVC_" TO D-PREFIX(216).
+            MOVE 4 TO D-PREFIX-LEN(216).
+            MOVE "invoice_financing_core" TO D-PROGRAM(216).
+            MOVE "SCF_" TO D-PREFIX(217).
+            MOVE 4 TO D-PREFIX-LEN(217).
+            MOVE "supply_chain_finance_core" TO D-PROGRAM(217).
+            MOVE "PRL_" TO D-PREFIX(218).
+            MOVE 4 TO D-PREFIX-LEN(218).
+            MOVE "payroll_processing_core" TO D-PROGRAM(218).
+            MOVE "WLM_" TO D-PREFIX(219).
+            MOVE 4 TO D-PREFIX-LEN(219).
+            MOVE "wealth_management_core" TO D-PROGRAM(219).
+            MOVE "ESC_" TO D-PREFIX(220).
+            MOVE 4 TO D-PREFIX-LEN(220).
+            MOVE "escrow_account_core" TO D-PROGRAM(220).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

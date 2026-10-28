@@ -1,0 +1,6 @@
+# Wealth Management (Wave4) validation cases.
+WLM_CREATE missing ref@@ERROR\|INVALID_INPUT@@WLM_CREATE||||||admin@test.com
+WLM_GET missing id@@ERROR\|INVALID_INPUT@@WLM_GET||||||admin@test.com
+WLM_CALC missing id@@ERROR\|INVALID_INPUT@@WLM_CALC||||||admin@test.com
+WLM_DELETE missing id@@ERROR\|INVALID_INPUT@@WLM_DELETE||||||admin@test.com
+WLM_VALIDATE ok@@SUCCESS\|WLM_VALID@@WLM_VALIDATE|100.00|USD||||admin@test.com

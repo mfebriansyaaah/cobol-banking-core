@@ -1,0 +1,6 @@
+# Asset Management (Wave4) validation cases.
+ASM_CREATE missing ref@@ERROR\|INVALID_INPUT@@ASM_CREATE||||||admin@test.com
+ASM_GET missing id@@ERROR\|INVALID_INPUT@@ASM_GET||||||admin@test.com
+ASM_CALC missing id@@ERROR\|INVALID_INPUT@@ASM_CALC||||||admin@test.com
+ASM_DELETE missing id@@ERROR\|INVALID_INPUT@@ASM_DELETE||||||admin@test.com
+ASM_VALIDATE ok@@SUCCESS\|ASM_VALID@@ASM_VALIDATE|100.00|USD||||admin@test.com
