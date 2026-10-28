@@ -4187,8 +4187,11 @@ CREATE TABLE IF NOT EXISTS loan_audit (
     actor_email VARCHAR(100) NOT NULL,
     loan_id BIGINT NULL,
     detail VARCHAR(255),
+    old_value VARCHAR(255) NULL,
+    new_value VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_loan_audit_actor (actor_email, created_at)
+    INDEX idx_loan_audit_actor (actor_email, created_at),
+    INDEX idx_loan_audit_loan (loan_id, created_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS deposit_account (
