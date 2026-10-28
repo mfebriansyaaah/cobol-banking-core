@@ -1,0 +1,6 @@
+# Currency Exchange (Wave6) validation cases.
+CUX_CREATE missing ref@@ERROR\|INVALID_INPUT@@CUX_CREATE||||||admin@test.com
+CUX_GET missing id@@ERROR\|INVALID_INPUT@@CUX_GET||||||admin@test.com
+CUX_CALC missing id@@ERROR\|INVALID_INPUT@@CUX_CALC||||||admin@test.com
+CUX_DELETE missing id@@ERROR\|INVALID_INPUT@@CUX_DELETE||||||admin@test.com
+CUX_VALIDATE ok@@SUCCESS\|CUX_VALID@@CUX_VALIDATE|100.00|USD||||admin@test.com

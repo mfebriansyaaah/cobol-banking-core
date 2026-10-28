@@ -1,0 +1,6 @@
+# Margin Trading (Wave6) validation cases.
+MGT_CREATE missing ref@@ERROR\|INVALID_INPUT@@MGT_CREATE||||||admin@test.com
+MGT_GET missing id@@ERROR\|INVALID_INPUT@@MGT_GET||||||admin@test.com
+MGT_CALC missing id@@ERROR\|INVALID_INPUT@@MGT_CALC||||||admin@test.com
+MGT_DELETE missing id@@ERROR\|INVALID_INPUT@@MGT_DELETE||||||admin@test.com
+MGT_VALIDATE ok@@SUCCESS\|MGT_VALID@@MGT_VALIDATE|100.00|USD||||admin@test.com

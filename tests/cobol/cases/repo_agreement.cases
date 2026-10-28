@@ -1,0 +1,6 @@
+# Repo Agreement (Wave6) validation cases.
+RPO_CREATE missing ref@@ERROR\|INVALID_INPUT@@RPO_CREATE||||||admin@test.com
+RPO_GET missing id@@ERROR\|INVALID_INPUT@@RPO_GET||||||admin@test.com
+RPO_CALC missing id@@ERROR\|INVALID_INPUT@@RPO_CALC||||||admin@test.com
+RPO_DELETE missing id@@ERROR\|INVALID_INPUT@@RPO_DELETE||||||admin@test.com
+RPO_VALIDATE ok@@SUCCESS\|RPO_VALID@@RPO_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Dispute Management (Wave6) validation cases.
+DSM_CREATE missing ref@@ERROR\|INVALID_INPUT@@DSM_CREATE||||||admin@test.com
+DSM_GET missing id@@ERROR\|INVALID_INPUT@@DSM_GET||||||admin@test.com
+DSM_CALC missing id@@ERROR\|INVALID_INPUT@@DSM_CALC||||||admin@test.com
+DSM_DELETE missing id@@ERROR\|INVALID_INPUT@@DSM_DELETE||||||admin@test.com
+DSM_VALIDATE ok@@SUCCESS\|DSM_VALID@@DSM_VALIDATE|100.00|USD||||admin@test.com

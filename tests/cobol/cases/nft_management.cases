@@ -1,0 +1,6 @@
+# Nft Management (Wave6) validation cases.
+NFT_CREATE missing ref@@ERROR\|INVALID_INPUT@@NFT_CREATE||||||admin@test.com
+NFT_GET missing id@@ERROR\|INVALID_INPUT@@NFT_GET||||||admin@test.com
+NFT_CALC missing id@@ERROR\|INVALID_INPUT@@NFT_CALC||||||admin@test.com
+NFT_DELETE missing id@@ERROR\|INVALID_INPUT@@NFT_DELETE||||||admin@test.com
+NFT_VALIDATE ok@@SUCCESS\|NFT_VALID@@NFT_VALIDATE|100.00|USD||||admin@test.com

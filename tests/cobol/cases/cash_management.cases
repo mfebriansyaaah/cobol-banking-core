@@ -1,0 +1,6 @@
+# Cash Management (Wave6) validation cases.
+CAH_CREATE missing ref@@ERROR\|INVALID_INPUT@@CAH_CREATE||||||admin@test.com
+CAH_GET missing id@@ERROR\|INVALID_INPUT@@CAH_GET||||||admin@test.com
+CAH_CALC missing id@@ERROR\|INVALID_INPUT@@CAH_CALC||||||admin@test.com
+CAH_DELETE missing id@@ERROR\|INVALID_INPUT@@CAH_DELETE||||||admin@test.com
+CAH_VALIDATE ok@@SUCCESS\|CAH_VALID@@CAH_VALIDATE|100.00|USD||||admin@test.com

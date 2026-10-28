@@ -1,0 +1,6 @@
+# Securities Lending (Wave6) validation cases.
+SEL_CREATE missing ref@@ERROR\|INVALID_INPUT@@SEL_CREATE||||||admin@test.com
+SEL_GET missing id@@ERROR\|INVALID_INPUT@@SEL_GET||||||admin@test.com
+SEL_CALC missing id@@ERROR\|INVALID_INPUT@@SEL_CALC||||||admin@test.com
+SEL_DELETE missing id@@ERROR\|INVALID_INPUT@@SEL_DELETE||||||admin@test.com
+SEL_VALIDATE ok@@SUCCESS\|SEL_VALID@@SEL_VALIDATE|100.00|USD||||admin@test.com

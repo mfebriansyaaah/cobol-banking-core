@@ -1,0 +1,6 @@
+# Structured Product (Wave6) validation cases.
+STP_CREATE missing ref@@ERROR\|INVALID_INPUT@@STP_CREATE||||||admin@test.com
+STP_GET missing id@@ERROR\|INVALID_INPUT@@STP_GET||||||admin@test.com
+STP_CALC missing id@@ERROR\|INVALID_INPUT@@STP_CALC||||||admin@test.com
+STP_DELETE missing id@@ERROR\|INVALID_INPUT@@STP_DELETE||||||admin@test.com
+STP_VALIDATE ok@@SUCCESS\|STP_VALID@@STP_VALIDATE|100.00|USD||||admin@test.com

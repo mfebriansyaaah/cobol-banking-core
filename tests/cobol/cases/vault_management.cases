@@ -1,0 +1,6 @@
+# Vault Management (Wave6) validation cases.
+VLT_CREATE missing ref@@ERROR\|INVALID_INPUT@@VLT_CREATE||||||admin@test.com
+VLT_GET missing id@@ERROR\|INVALID_INPUT@@VLT_GET||||||admin@test.com
+VLT_CALC missing id@@ERROR\|INVALID_INPUT@@VLT_CALC||||||admin@test.com
+VLT_DELETE missing id@@ERROR\|INVALID_INPUT@@VLT_DELETE||||||admin@test.com
+VLT_VALIDATE ok@@SUCCESS\|VLT_VALID@@VLT_VALIDATE|100.00|USD||||admin@test.com

@@ -444,3 +444,153 @@ db_reset_organization_unit() {
     db_exec "DELETE FROM organization_unit_audit;"
     db_exec "DELETE FROM organization_unit;"
 }
+
+db_reset_crypto_wallet() {
+    db_exec "DELETE FROM crypto_wallet_audit;"
+    db_exec "DELETE FROM crypto_wallet;"
+}
+
+db_reset_crypto_exchange() {
+    db_exec "DELETE FROM crypto_exchange_audit;"
+    db_exec "DELETE FROM crypto_exchange;"
+}
+
+db_reset_blockchain_tracker() {
+    db_exec "DELETE FROM blockchain_tracker_audit;"
+    db_exec "DELETE FROM blockchain_tracker;"
+}
+
+db_reset_digital_asset() {
+    db_exec "DELETE FROM digital_asset_audit;"
+    db_exec "DELETE FROM digital_asset;"
+}
+
+db_reset_tokenization() {
+    db_exec "DELETE FROM tokenization_audit;"
+    db_exec "DELETE FROM tokenization;"
+}
+
+db_reset_smart_contract() {
+    db_exec "DELETE FROM smart_contract_audit;"
+    db_exec "DELETE FROM smart_contract;"
+}
+
+db_reset_nft_management() {
+    db_exec "DELETE FROM nft_management_audit;"
+    db_exec "DELETE FROM nft_management;"
+}
+
+db_reset_open_banking() {
+    db_exec "DELETE FROM open_banking_audit;"
+    db_exec "DELETE FROM open_banking;"
+}
+
+db_reset_pisp_management() {
+    db_exec "DELETE FROM pisp_management_audit;"
+    db_exec "DELETE FROM pisp_management;"
+}
+
+db_reset_consent_management() {
+    db_exec "DELETE FROM consent_management_audit;"
+    db_exec "DELETE FROM consent_management;"
+}
+
+db_reset_customer_support() {
+    db_exec "DELETE FROM customer_support_audit;"
+    db_exec "DELETE FROM customer_support;"
+}
+
+db_reset_complaint_management() {
+    db_exec "DELETE FROM complaint_management_audit;"
+    db_exec "DELETE FROM complaint_management;"
+}
+
+db_reset_dispute_management() {
+    db_exec "DELETE FROM dispute_management_audit;"
+    db_exec "DELETE FROM dispute_management;"
+}
+
+db_reset_chargeback() {
+    db_exec "DELETE FROM chargeback_audit;"
+    db_exec "DELETE FROM chargeback;"
+}
+
+db_reset_refund_processing() {
+    db_exec "DELETE FROM refund_processing_audit;"
+    db_exec "DELETE FROM refund_processing;"
+}
+
+db_reset_cash_management() {
+    db_exec "DELETE FROM cash_management_audit;"
+    db_exec "DELETE FROM cash_management;"
+}
+
+db_reset_vault_management() {
+    db_exec "DELETE FROM vault_management_audit;"
+    db_exec "DELETE FROM vault_management;"
+}
+
+db_reset_atm_management() {
+    db_exec "DELETE FROM atm_management_audit;"
+    db_exec "DELETE FROM atm_management;"
+}
+
+db_reset_branch_management() {
+    db_exec "DELETE FROM branch_management_audit;"
+    db_exec "DELETE FROM branch_management;"
+}
+
+db_reset_teller_management() {
+    db_exec "DELETE FROM teller_management_audit;"
+    db_exec "DELETE FROM teller_management;"
+}
+
+db_reset_currency_exchange() {
+    db_exec "DELETE FROM currency_exchange_audit;"
+    db_exec "DELETE FROM currency_exchange;"
+}
+
+db_reset_swap_contract() {
+    db_exec "DELETE FROM swap_contract_audit;"
+    db_exec "DELETE FROM swap_contract;"
+}
+
+db_reset_future_contract() {
+    db_exec "DELETE FROM future_contract_audit;"
+    db_exec "DELETE FROM future_contract;"
+}
+
+db_reset_option_trading() {
+    db_exec "DELETE FROM option_trading_audit;"
+    db_exec "DELETE FROM option_trading;"
+}
+
+db_reset_commodity_trading() {
+    db_exec "DELETE FROM commodity_trading_audit;"
+    db_exec "DELETE FROM commodity_trading;"
+}
+
+db_reset_repo_agreement() {
+    db_exec "DELETE FROM repo_agreement_audit;"
+    db_exec "DELETE FROM repo_agreement;"
+}
+
+db_reset_securities_lending() {
+    db_exec "DELETE FROM securities_lending_audit;"
+    db_exec "DELETE FROM securities_lending;"
+}
+
+db_reset_margin_trading() {
+    db_exec "DELETE FROM margin_trading_audit;"
+    db_exec "DELETE FROM margin_trading;"
+}
+
+db_reset_structured_product() {
+    db_exec "DELETE FROM structured_product_audit;"
+    db_exec "DELETE FROM structured_product;"
+}
+
+db_reset_syndicated_loan() {
+    db_exec "DELETE FROM syndicated_loan_audit;"
+    db_exec "DELETE FROM syndicated_loan;"
+}
