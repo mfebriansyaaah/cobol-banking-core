@@ -1,0 +1,6 @@
+# Pension (Wave10) validation cases.
+PEN_CREATE missing ref@@ERROR\|INVALID_INPUT@@PEN_CREATE||||||admin@test.com
+PEN_GET missing id@@ERROR\|INVALID_INPUT@@PEN_GET||||||admin@test.com
+PEN_CALC missing id@@ERROR\|INVALID_INPUT@@PEN_CALC||||||admin@test.com
+PEN_DELETE missing id@@ERROR\|INVALID_INPUT@@PEN_DELETE||||||admin@test.com
+PEN_VALIDATE ok@@SUCCESS\|PEN_VALID@@PEN_VALIDATE|100.00|USD||||admin@test.com

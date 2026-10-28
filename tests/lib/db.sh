@@ -1022,3 +1022,153 @@ db_reset_profit() {
     db_exec "DELETE FROM profit_audit;"
     db_exec "DELETE FROM profit;"
 }
+
+db_reset_employee() {
+    db_exec "DELETE FROM employee_audit;"
+    db_exec "DELETE FROM employee;"
+}
+
+db_reset_department() {
+    db_exec "DELETE FROM department_audit;"
+    db_exec "DELETE FROM department;"
+}
+
+db_reset_position() {
+    db_exec "DELETE FROM position_audit;"
+    db_exec "DELETE FROM position;"
+}
+
+db_reset_attendance() {
+    db_exec "DELETE FROM attendance_audit;"
+    db_exec "DELETE FROM attendance;"
+}
+
+db_reset_leave_management() {
+    db_exec "DELETE FROM leave_management_audit;"
+    db_exec "DELETE FROM leave_management;"
+}
+
+db_reset_performance() {
+    db_exec "DELETE FROM performance_audit;"
+    db_exec "DELETE FROM performance;"
+}
+
+db_reset_training() {
+    db_exec "DELETE FROM training_audit;"
+    db_exec "DELETE FROM training;"
+}
+
+db_reset_recruitment() {
+    db_exec "DELETE FROM recruitment_audit;"
+    db_exec "DELETE FROM recruitment;"
+}
+
+db_reset_onboarding() {
+    db_exec "DELETE FROM onboarding_audit;"
+    db_exec "DELETE FROM onboarding;"
+}
+
+db_reset_offboarding() {
+    db_exec "DELETE FROM offboarding_audit;"
+    db_exec "DELETE FROM offboarding;"
+}
+
+db_reset_compensation() {
+    db_exec "DELETE FROM compensation_audit;"
+    db_exec "DELETE FROM compensation;"
+}
+
+db_reset_benefits() {
+    db_exec "DELETE FROM benefits_audit;"
+    db_exec "DELETE FROM benefits;"
+}
+
+db_reset_pension() {
+    db_exec "DELETE FROM pension_audit;"
+    db_exec "DELETE FROM pension;"
+}
+
+db_reset_tax_withholding() {
+    db_exec "DELETE FROM tax_withholding_audit;"
+    db_exec "DELETE FROM tax_withholding;"
+}
+
+db_reset_billing() {
+    db_exec "DELETE FROM billing_audit;"
+    db_exec "DELETE FROM billing;"
+}
+
+db_reset_subscription() {
+    db_exec "DELETE FROM subscription_audit;"
+    db_exec "DELETE FROM subscription;"
+}
+
+db_reset_contract() {
+    db_exec "DELETE FROM contract_audit;"
+    db_exec "DELETE FROM contract;"
+}
+
+db_reset_agreement() {
+    db_exec "DELETE FROM agreement_audit;"
+    db_exec "DELETE FROM agreement;"
+}
+
+db_reset_sla_management() {
+    db_exec "DELETE FROM sla_management_audit;"
+    db_exec "DELETE FROM sla_management;"
+}
+
+db_reset_kpi() {
+    db_exec "DELETE FROM kpi_audit;"
+    db_exec "DELETE FROM kpi;"
+}
+
+db_reset_dashboard_widget() {
+    db_exec "DELETE FROM dashboard_widget_audit;"
+    db_exec "DELETE FROM dashboard_widget;"
+}
+
+db_reset_reporting() {
+    db_exec "DELETE FROM reporting_audit;"
+    db_exec "DELETE FROM reporting;"
+}
+
+db_reset_data_warehouse() {
+    db_exec "DELETE FROM data_warehouse_audit;"
+    db_exec "DELETE FROM data_warehouse;"
+}
+
+db_reset_etl() {
+    db_exec "DELETE FROM etl_audit;"
+    db_exec "DELETE FROM etl;"
+}
+
+db_reset_dq_check() {
+    db_exec "DELETE FROM dq_check_audit;"
+    db_exec "DELETE FROM dq_check;"
+}
+
+db_reset_master_data() {
+    db_exec "DELETE FROM master_data_audit;"
+    db_exec "DELETE FROM master_data;"
+}
+
+db_reset_audit_log() {
+    db_exec "DELETE FROM audit_log_audit;"
+    db_exec "DELETE FROM audit_log;"
+}
+
+db_reset_invoice() {
+    db_exec "DELETE FROM invoice_audit;"
+    db_exec "DELETE FROM invoice;"
+}
+
+db_reset_metric() {
+    db_exec "DELETE FROM metric_audit;"
+    db_exec "DELETE FROM metric;"
+}
+
+db_reset_analytics() {
+    db_exec "DELETE FROM analytics_audit;"
+    db_exec "DELETE FROM analytics;"
+}

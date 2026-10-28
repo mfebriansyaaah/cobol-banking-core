@@ -1,0 +1,6 @@
+# Agreement (Wave10) validation cases.
+AGR_CREATE missing ref@@ERROR\|INVALID_INPUT@@AGR_CREATE||||||admin@test.com
+AGR_GET missing id@@ERROR\|INVALID_INPUT@@AGR_GET||||||admin@test.com
+AGR_CALC missing id@@ERROR\|INVALID_INPUT@@AGR_CALC||||||admin@test.com
+AGR_DELETE missing id@@ERROR\|INVALID_INPUT@@AGR_DELETE||||||admin@test.com
+AGR_VALIDATE ok@@SUCCESS\|AGR_VALID@@AGR_VALIDATE|100.00|USD||||admin@test.com

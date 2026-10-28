@@ -1,0 +1,6 @@
+# Data Warehouse (Wave10) validation cases.
+DWH_CREATE missing ref@@ERROR\|INVALID_INPUT@@DWH_CREATE||||||admin@test.com
+DWH_GET missing id@@ERROR\|INVALID_INPUT@@DWH_GET||||||admin@test.com
+DWH_CALC missing id@@ERROR\|INVALID_INPUT@@DWH_CALC||||||admin@test.com
+DWH_DELETE missing id@@ERROR\|INVALID_INPUT@@DWH_DELETE||||||admin@test.com
+DWH_VALIDATE ok@@SUCCESS\|DWH_VALID@@DWH_VALIDATE|100.00|USD||||admin@test.com
