@@ -1,0 +1,6 @@
+# Payment Gateway (Wave5) validation cases.
+PWG_CREATE missing ref@@ERROR\|INVALID_INPUT@@PWG_CREATE||||||admin@test.com
+PWG_GET missing id@@ERROR\|INVALID_INPUT@@PWG_GET||||||admin@test.com
+PWG_CALC missing id@@ERROR\|INVALID_INPUT@@PWG_CALC||||||admin@test.com
+PWG_DELETE missing id@@ERROR\|INVALID_INPUT@@PWG_DELETE||||||admin@test.com
+PWG_VALIDATE ok@@SUCCESS\|PWG_VALID@@PWG_VALIDATE|100.00|USD||||admin@test.com

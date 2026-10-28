@@ -1,0 +1,6 @@
+# Credit Card (Wave5) validation cases.
+CRC_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRC_CREATE||||||admin@test.com
+CRC_GET missing id@@ERROR\|INVALID_INPUT@@CRC_GET||||||admin@test.com
+CRC_CALC missing id@@ERROR\|INVALID_INPUT@@CRC_CALC||||||admin@test.com
+CRC_DELETE missing id@@ERROR\|INVALID_INPUT@@CRC_DELETE||||||admin@test.com
+CRC_VALIDATE ok@@SUCCESS\|CRC_VALID@@CRC_VALIDATE|100.00|USD||||admin@test.com

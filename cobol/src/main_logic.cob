@@ -40,7 +40,7 @@
         01  DISPATCH-IDX      PIC 9(3) VALUE 1.
         01  DISPATCH-FOUND    PIC X VALUE 'N'.
         01  DISPATCH-TABLE.
-            05  DISPATCH-ENTRY OCCURS 300 TIMES.
+            05  DISPATCH-ENTRY OCCURS 500 TIMES.
                 10  D-PREFIX     PIC X(20) VALUE SPACES.
                 10  D-PREFIX-LEN PIC 9(2) VALUE 0.
                 10  D-PROGRAM   PIC X(32) VALUE SPACES.
@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 220 TO DISPATCH-COUNT.
+            MOVE 240 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -769,6 +769,66 @@
             MOVE "ESC_" TO D-PREFIX(220).
             MOVE 4 TO D-PREFIX-LEN(220).
             MOVE "escrow_account_core" TO D-PROGRAM(220).
+            MOVE "CRC_" TO D-PREFIX(221).
+            MOVE 4 TO D-PREFIX-LEN(221).
+            MOVE "credit_card_core" TO D-PROGRAM(221).
+            MOVE "DBC_" TO D-PREFIX(222).
+            MOVE 4 TO D-PREFIX-LEN(222).
+            MOVE "debit_card_core" TO D-PROGRAM(222).
+            MOVE "MCS_" TO D-PREFIX(223).
+            MOVE 4 TO D-PREFIX-LEN(223).
+            MOVE "merchant_settlement_core" TO D-PROGRAM(223).
+            MOVE "PWG_" TO D-PREFIX(224).
+            MOVE 4 TO D-PREFIX-LEN(224).
+            MOVE "payment_gateway_core" TO D-PROGRAM(224).
+            MOVE "MBW_" TO D-PREFIX(225).
+            MOVE 4 TO D-PREFIX-LEN(225).
+            MOVE "mobile_wallet_core" TO D-PROGRAM(225).
+            MOVE "DGB_" TO D-PREFIX(226).
+            MOVE 4 TO D-PREFIX-LEN(226).
+            MOVE "digital_banking_core" TO D-PROGRAM(226).
+            MOVE "INB_" TO D-PREFIX(227).
+            MOVE 4 TO D-PREFIX-LEN(227).
+            MOVE "internet_banking_core" TO D-PROGRAM(227).
+            MOVE "APM_" TO D-PREFIX(228).
+            MOVE 4 TO D-PREFIX-LEN(228).
+            MOVE "api_management_core" TO D-PROGRAM(228).
+            MOVE "RTM_" TO D-PREFIX(229).
+            MOVE 4 TO D-PREFIX-LEN(229).
+            MOVE "rate_management_core" TO D-PROGRAM(229).
+            MOVE "FMM_" TO D-PREFIX(230).
+            MOVE 4 TO D-PREFIX-LEN(230).
+            MOVE "fee_management_core" TO D-PROGRAM(230).
+            MOVE "TXM_" TO D-PREFIX(231).
+            MOVE 4 TO D-PREFIX-LEN(231).
+            MOVE "tax_management_core" TO D-PROGRAM(231).
+            MOVE "ADT_" TO D-PREFIX(232).
+            MOVE 4 TO D-PREFIX-LEN(232).
+            MOVE "audit_trail_core" TO D-PROGRAM(232).
+            MOVE "DTA_" TO D-PREFIX(233).
+            MOVE 4 TO D-PREFIX-LEN(233).
+            MOVE "data_archive_core" TO D-PROGRAM(233).
+            MOVE "BUM_" TO D-PREFIX(234).
+            MOVE 4 TO D-PREFIX-LEN(234).
+            MOVE "backup_management_core" TO D-PROGRAM(234).
+            MOVE "SGC_" TO D-PREFIX(235).
+            MOVE 4 TO D-PREFIX-LEN(235).
+            MOVE "system_config_core" TO D-PROGRAM(235).
+            MOVE "UAC_" TO D-PREFIX(236).
+            MOVE 4 TO D-PREFIX-LEN(236).
+            MOVE "user_activity_core" TO D-PROGRAM(236).
+            MOVE "AXC_" TO D-PREFIX(237).
+            MOVE 4 TO D-PREFIX-LEN(237).
+            MOVE "access_control_core" TO D-PROGRAM(237).
+            MOVE "RLM_" TO D-PREFIX(238).
+            MOVE 4 TO D-PREFIX-LEN(238).
+            MOVE "role_management_core" TO D-PROGRAM(238).
+            MOVE "PMS_" TO D-PREFIX(239).
+            MOVE 4 TO D-PREFIX-LEN(239).
+            MOVE "permission_set_core" TO D-PROGRAM(239).
+            MOVE "ORG_" TO D-PREFIX(240).
+            MOVE 4 TO D-PREFIX-LEN(240).
+            MOVE "organization_unit_core" TO D-PROGRAM(240).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

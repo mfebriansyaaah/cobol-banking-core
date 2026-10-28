@@ -7,11 +7,34 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 MODE="${1:-full}"
 
+# Parse every gateway/script source before anything else runs. A route file
+# that cannot be imported takes the whole gateway down, and the old pipeline
+# had no step that noticed: the auth/db suites never import the route barrel.
+check_js_syntax() {
+    local bad=0 f
+    while IFS= read -r f; do
+        if ! node --check "$f" >/dev/null 2>&1; then
+            echo "FAIL: $f"
+            node --check "$f" 2>&1 | sed -n '1,3p' | sed 's/^/    /'
+            bad=$((bad + 1))
+        fi
+    done < <(find middleware/src scripts \( -name '*.js' -o -name '*.mjs' \) -type f | sort)
+    if [ "$bad" -ne 0 ]; then
+        echo "FAIL: $bad file(s) cannot be parsed"
+        exit 1
+    fi
+    echo "OK: gateway and script sources parse"
+}
+
 run_fast() {
+    echo "=== JS SYNTAX CHECK ==="
+    check_js_syntax
     echo "=== MANIFEST CHECK ==="
     node scripts/check_manifest.mjs "$ROOT"
     echo "=== ROUTE/DISPATCH CONTRACT CHECK ==="
     node scripts/check_route_dispatch.mjs "$ROOT"
+    echo "=== ROUTE CONFLICT CHECK ==="
+    node scripts/check_route_conflicts.mjs "$ROOT"
     echo "=== ACTION COVERAGE CHECK ==="
     node scripts/check_action_coverage.mjs "$ROOT"
     echo "=== BUILD ==="
@@ -21,6 +44,7 @@ run_fast() {
         ./build.sh
     fi
     echo "=== COBOL TABLE TESTS ==="
+    node scripts/check_case_actions.mjs "$ROOT"
     tests/cobol/table_runner.sh
     echo "=== SMOKE ==="
     printf 'PING||||||\n' > input.txt
@@ -31,6 +55,8 @@ run_fast() {
 }
 
 run_db() {
+    echo "=== TEST HELPER CHECK ==="
+    node scripts/check_test_helpers.mjs "$ROOT"
     DB_NAME="${DB_NAME:-cobol_db}"
     # Isolate the whole DB test run from the primary database so suites cannot
     # clobber developer/production data. Opt out with ISOLATED_DB=0.
@@ -60,74 +86,25 @@ run_db() {
     fi
     echo "=== DB SCHEMA TESTS ==="
     tests/db/schema_tests.sh
-    echo "=== DB LOAN SCHEDULE TESTS ==="
-    tests/db/loan_schedule_db_tests.sh
-    echo "=== DB DEPOSIT TESTS ==="
-    tests/db/deposit_db_tests.sh
-    echo "=== DB CARD TESTS ==="
-    tests/db/card_db_tests.sh
-    echo "=== DB COLLECTION TESTS ==="
-    tests/db/collection_db_tests.sh
-    echo "=== DB PAYMENT CLEARING TESTS ==="
-    tests/db/payment_clearing_db_tests.sh
-    echo "=== DB TREASURY LIQUIDITY TESTS ==="
-    tests/db/treasury_liquidity_db_tests.sh
-    echo "=== DB KYC PERIODIC TESTS ==="
-    tests/db/kyc_periodic_db_tests.sh
-    echo "=== DB GL ALLOCATION TESTS ==="
-    tests/db/gl_allocation_db_tests.sh
-    echo "=== DB BACKUP DRILL TESTS ==="
-    tests/db/backup_drill_db_tests.sh
-    echo "=== DB REPORT BUILDER TESTS ==="
-    tests/db/report_builder_db_tests.sh
-    echo "=== DB AML SCREENING TESTS ==="
-    tests/db/aml_screening_db_tests.sh
-    echo "=== DB SANCTIONS LIST TESTS ==="
-    tests/db/sanctions_list_db_tests.sh
-    echo "=== DB FRAUD CASE TESTS ==="
-    tests/db/fraud_case_db_tests.sh
-    echo "=== DB COST CENTER TESTS ==="
-    tests/db/cost_center_db_tests.sh
-    echo "=== DB FIXED ASSET TESTS ==="
-    tests/db/fixed_asset_db_tests.sh
-    echo "=== DB CONSOLIDATION TESTS ==="
-    tests/db/consolidation_db_tests.sh
-    echo "=== DB FX HEDGING TESTS ==="
-    tests/db/fx_hedging_db_tests.sh
-    echo "=== DB BILLPAY TESTS ==="
-    tests/db/billpay_db_tests.sh
-    echo "=== DB INCIDENT POSTMORTEM TESTS ==="
-    tests/db/incident_postmortem_db_tests.sh
-    echo "=== DB CHANGE APPROVAL TESTS ==="
-    tests/db/change_approval_db_tests.sh
-    echo "=== DB CAPACITY FORECAST TESTS ==="
-    tests/db/capacity_forecast_db_tests.sh
-    echo "=== DB DATA LINEAGE TESTS ==="
-    tests/db/data_lineage_db_tests.sh
-    echo "=== DB METRIC DEFINITION TESTS ==="
-    tests/db/metric_definition_db_tests.sh
-    echo "=== DB ANALYTICS SNAPSHOT TESTS ==="
-    tests/db/analytics_snapshot_db_tests.sh
-    echo "=== DB CUSTOMER TESTS ==="
-    tests/db/customer_db_tests.sh
-    echo "=== DB PRODUCT CATALOG TESTS ==="
-    tests/db/product_catalog_db_tests.sh
-    echo "=== DB INTEREST RATE TESTS ==="
-    tests/db/interest_rate_db_tests.sh
-    echo "=== DB ACCOUNT TESTS ==="
-    tests/db/account_db_tests.sh
-    echo "=== DB COLLATERAL TESTS ==="
-    tests/db/collateral_db_tests.sh
-    echo "=== DB STANDING_ORDER TESTS ==="
-    tests/db/standing_order_db_tests.sh
-    echo "=== DB REMITTANCE TESTS ==="
-    tests/db/remittance_db_tests.sh
-    echo "=== DB CASE_MANAGEMENT TESTS ==="
-    tests/db/case_management_db_tests.sh
-    echo "=== DB DOCUMENT TESTS ==="
-    tests/db/document_db_tests.sh
-    echo "=== DB WORKFLOW_APPROVAL TESTS ==="
-    tests/db/workflow_approval_db_tests.sh
+    # Run every DB suite that exists instead of a hand-maintained list. The
+    # old explicit list silently dropped 11 suites (including loan) because
+    # adding a domain never touched this file.
+    db_failed=0
+    db_total=0
+    for suite in tests/db/*_db_tests.sh; do
+        [ -f "$suite" ] || continue
+        db_total=$((db_total + 1))
+        echo "=== DB SUITE: $(basename "$suite") ==="
+        if ! "$suite"; then
+            echo "FAIL: $(basename "$suite")"
+            db_failed=$((db_failed + 1))
+        fi
+    done
+    echo "=== DB SUITES: ${db_total} run, ${db_failed} failed ==="
+    if [ "$db_failed" -ne 0 ]; then
+        echo "FAIL: ${db_failed} DB suite(s) failed"
+        exit 1
+    fi
     echo "=== SKELETON SMOKE TESTS ==="
     tests/cobol/skeleton_smoke.sh
     echo "=== FUZZ TESTS ==="

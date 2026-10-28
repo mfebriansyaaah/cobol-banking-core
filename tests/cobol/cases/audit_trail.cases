@@ -1,0 +1,6 @@
+# Audit Trail (Wave5) validation cases.
+ADT_CREATE missing ref@@ERROR\|INVALID_INPUT@@ADT_CREATE||||||admin@test.com
+ADT_GET missing id@@ERROR\|INVALID_INPUT@@ADT_GET||||||admin@test.com
+ADT_CALC missing id@@ERROR\|INVALID_INPUT@@ADT_CALC||||||admin@test.com
+ADT_DELETE missing id@@ERROR\|INVALID_INPUT@@ADT_DELETE||||||admin@test.com
+ADT_VALIDATE ok@@SUCCESS\|ADT_VALID@@ADT_VALIDATE|100.00|USD||||admin@test.com

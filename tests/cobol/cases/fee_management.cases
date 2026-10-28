@@ -1,0 +1,6 @@
+# Fee Management (Wave5) validation cases.
+FMM_CREATE missing ref@@ERROR\|INVALID_INPUT@@FMM_CREATE||||||admin@test.com
+FMM_GET missing id@@ERROR\|INVALID_INPUT@@FMM_GET||||||admin@test.com
+FMM_CALC missing id@@ERROR\|INVALID_INPUT@@FMM_CALC||||||admin@test.com
+FMM_DELETE missing id@@ERROR\|INVALID_INPUT@@FMM_DELETE||||||admin@test.com
+FMM_VALIDATE ok@@SUCCESS\|FMM_VALID@@FMM_VALIDATE|100.00|USD||||admin@test.com
