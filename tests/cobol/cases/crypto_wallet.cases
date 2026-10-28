@@ -1,0 +1,6 @@
+# Crypto Wallet (Wave6) validation cases.
+CRW_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRW_CREATE||||||admin@test.com
+CRW_GET missing id@@ERROR\|INVALID_INPUT@@CRW_GET||||||admin@test.com
+CRW_CALC missing id@@ERROR\|INVALID_INPUT@@CRW_CALC||||||admin@test.com
+CRW_DELETE missing id@@ERROR\|INVALID_INPUT@@CRW_DELETE||||||admin@test.com
+CRW_VALIDATE ok@@SUCCESS\|CRW_VALID@@CRW_VALIDATE|100.00|USD||||admin@test.com

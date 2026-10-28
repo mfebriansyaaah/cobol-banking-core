@@ -1,0 +1,6 @@
+# Smart Contract (Wave6) validation cases.
+SMC_CREATE missing ref@@ERROR\|INVALID_INPUT@@SMC_CREATE||||||admin@test.com
+SMC_GET missing id@@ERROR\|INVALID_INPUT@@SMC_GET||||||admin@test.com
+SMC_CALC missing id@@ERROR\|INVALID_INPUT@@SMC_CALC||||||admin@test.com
+SMC_DELETE missing id@@ERROR\|INVALID_INPUT@@SMC_DELETE||||||admin@test.com
+SMC_VALIDATE ok@@SUCCESS\|SMC_VALID@@SMC_VALIDATE|100.00|USD||||admin@test.com

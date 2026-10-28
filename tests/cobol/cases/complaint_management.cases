@@ -1,0 +1,6 @@
+# Complaint Management (Wave6) validation cases.
+CPM_CREATE missing ref@@ERROR\|INVALID_INPUT@@CPM_CREATE||||||admin@test.com
+CPM_GET missing id@@ERROR\|INVALID_INPUT@@CPM_GET||||||admin@test.com
+CPM_CALC missing id@@ERROR\|INVALID_INPUT@@CPM_CALC||||||admin@test.com
+CPM_DELETE missing id@@ERROR\|INVALID_INPUT@@CPM_DELETE||||||admin@test.com
+CPM_VALIDATE ok@@SUCCESS\|CPM_VALID@@CPM_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Chargeback (Wave6) validation cases.
+CHB_CREATE missing ref@@ERROR\|INVALID_INPUT@@CHB_CREATE||||||admin@test.com
+CHB_GET missing id@@ERROR\|INVALID_INPUT@@CHB_GET||||||admin@test.com
+CHB_CALC missing id@@ERROR\|INVALID_INPUT@@CHB_CALC||||||admin@test.com
+CHB_DELETE missing id@@ERROR\|INVALID_INPUT@@CHB_DELETE||||||admin@test.com
+CHB_VALIDATE ok@@SUCCESS\|CHB_VALID@@CHB_VALIDATE|100.00|USD||||admin@test.com

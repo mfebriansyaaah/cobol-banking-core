@@ -1,0 +1,6 @@
+# Customer Support (Wave6) validation cases.
+CSP_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSP_CREATE||||||admin@test.com
+CSP_GET missing id@@ERROR\|INVALID_INPUT@@CSP_GET||||||admin@test.com
+CSP_CALC missing id@@ERROR\|INVALID_INPUT@@CSP_CALC||||||admin@test.com
+CSP_DELETE missing id@@ERROR\|INVALID_INPUT@@CSP_DELETE||||||admin@test.com
+CSP_VALIDATE ok@@SUCCESS\|CSP_VALID@@CSP_VALIDATE|100.00|USD||||admin@test.com

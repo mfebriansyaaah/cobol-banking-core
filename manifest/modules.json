@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T01:23:20.222Z",
+  "generatedAt": "2026-10-28T03:29:25.673Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -33,6 +33,9 @@
     },
     {
       "source": "asset_management_core.cob"
+    },
+    {
+      "source": "atm_management_core.cob"
     },
     {
       "source": "audit_analytics_core.cob"
@@ -77,7 +80,13 @@
       "source": "billpay_core.cob"
     },
     {
+      "source": "blockchain_tracker_core.cob"
+    },
+    {
       "source": "bond_trading_core.cob"
+    },
+    {
+      "source": "branch_management_core.cob"
     },
     {
       "source": "budget_core.cob"
@@ -95,10 +104,16 @@
       "source": "case_management_core.cob"
     },
     {
+      "source": "cash_management_core.cob"
+    },
+    {
       "source": "change_approval_core.cob"
     },
     {
       "source": "change_control_core.cob"
+    },
+    {
+      "source": "chargeback_core.cob"
     },
     {
       "source": "collateral_core.cob"
@@ -108,6 +123,12 @@
     },
     {
       "source": "collection_core.cob"
+    },
+    {
+      "source": "commodity_trading_core.cob"
+    },
+    {
+      "source": "complaint_management_core.cob"
     },
     {
       "source": "compliance_audit_core.cob"
@@ -122,6 +143,9 @@
       "source": "compliance_retention_core.cob"
     },
     {
+      "source": "consent_management_core.cob"
+    },
+    {
       "source": "consolidation_core.cob"
     },
     {
@@ -131,7 +155,19 @@
       "source": "credit_card_core.cob"
     },
     {
+      "source": "crypto_exchange_core.cob"
+    },
+    {
+      "source": "crypto_wallet_core.cob"
+    },
+    {
+      "source": "currency_exchange_core.cob"
+    },
+    {
       "source": "customer_core.cob"
+    },
+    {
+      "source": "customer_support_core.cob"
     },
     {
       "source": "dashboard_core.cob"
@@ -155,6 +191,9 @@
       "source": "deposit_core.cob"
     },
     {
+      "source": "digital_asset_core.cob"
+    },
+    {
       "source": "digital_banking_core.cob"
     },
     {
@@ -162,6 +201,9 @@
     },
     {
       "source": "disaster_recovery_core.cob"
+    },
+    {
+      "source": "dispute_management_core.cob"
     },
     {
       "source": "dispute_notify_core.cob"
@@ -207,6 +249,9 @@
     },
     {
       "source": "fraud_ops_core.cob"
+    },
+    {
+      "source": "future_contract_core.cob"
     },
     {
       "source": "fx_deal_core.cob"
@@ -281,6 +326,9 @@
       "source": "loan_schedule_core.cob"
     },
     {
+      "source": "margin_trading_core.cob"
+    },
+    {
       "source": "merchant_core.cob"
     },
     {
@@ -291,6 +339,9 @@
     },
     {
       "source": "mobile_wallet_core.cob"
+    },
+    {
+      "source": "nft_management_core.cob"
     },
     {
       "source": "notification_audit_core.cob"
@@ -306,6 +357,12 @@
     },
     {
       "source": "oncall_delivery_core.cob"
+    },
+    {
+      "source": "open_banking_core.cob"
+    },
+    {
+      "source": "option_trading_core.cob"
     },
     {
       "source": "organization_unit_core.cob"
@@ -333,6 +390,9 @@
     },
     {
       "source": "pipeline_alert_core.cob"
+    },
+    {
+      "source": "pisp_management_core.cob"
     },
     {
       "source": "policy_attestation_core.cob"
@@ -365,6 +425,9 @@
       "source": "ref_ext_core.cob"
     },
     {
+      "source": "refund_processing_core.cob"
+    },
+    {
       "source": "regulatory_calendar_core.cob"
     },
     {
@@ -372,6 +435,9 @@
     },
     {
       "source": "remittance_core.cob"
+    },
+    {
+      "source": "repo_agreement_core.cob"
     },
     {
       "source": "report_archive_core.cob"
@@ -413,6 +479,9 @@
       "source": "secret_rotation_core.cob"
     },
     {
+      "source": "securities_lending_core.cob"
+    },
+    {
       "source": "settlement_recon_core.cob"
     },
     {
@@ -423,6 +492,9 @@
     },
     {
       "source": "slo_report_core.cob"
+    },
+    {
+      "source": "smart_contract_core.cob"
     },
     {
       "source": "standing_instruction_core.cob"
@@ -440,7 +512,16 @@
       "source": "statement_recon_core.cob"
     },
     {
+      "source": "structured_product_core.cob"
+    },
+    {
       "source": "supply_chain_finance_core.cob"
+    },
+    {
+      "source": "swap_contract_core.cob"
+    },
+    {
+      "source": "syndicated_loan_core.cob"
     },
     {
       "source": "system_config_core.cob"
@@ -450,6 +531,12 @@
     },
     {
       "source": "tax_report_core.cob"
+    },
+    {
+      "source": "teller_management_core.cob"
+    },
+    {
+      "source": "tokenization_core.cob"
     },
     {
       "source": "trade_finance_core.cob"
@@ -468,6 +555,9 @@
     },
     {
       "source": "user_core.cob"
+    },
+    {
+      "source": "vault_management_core.cob"
     },
     {
       "source": "vendor_compliance_core.cob"
@@ -500,6 +590,7 @@
     "asset.js",
     "asset_maintenance.js",
     "asset_management.js",
+    "atm_management.js",
     "audit_analytics.js",
     "audit_drilldown.js",
     "audit_retention.js",
@@ -512,25 +603,36 @@
     "bank_guarantee.js",
     "batch.js",
     "billpay.js",
+    "blockchain_tracker.js",
     "bond_trading.js",
+    "branch_management.js",
     "budget.js",
     "capacity_forecast.js",
     "capacity_plan.js",
     "card.js",
     "case_management.js",
+    "cash_management.js",
     "change_approval.js",
     "change_control.js",
+    "chargeback.js",
     "collateral.js",
     "collateral_mgmt.js",
     "collection.js",
+    "commodity_trading.js",
+    "complaint_management.js",
     "compliance_audit.js",
     "compliance_calendar.js",
     "compliance_export.js",
     "compliance_retention.js",
+    "consent_management.js",
     "consolidation.js",
     "cost_center.js",
     "credit_card.js",
+    "crypto_exchange.js",
+    "crypto_wallet.js",
+    "currency_exchange.js",
     "customer.js",
+    "customer_support.js",
     "dashboard.js",
     "data_archive.js",
     "data_lineage.js",
@@ -538,9 +640,11 @@
     "data_retention.js",
     "debit_card.js",
     "deposit.js",
+    "digital_asset.js",
     "digital_banking.js",
     "direct_debit.js",
     "disaster_recovery.js",
+    "dispute_management.js",
     "dispute_notify.js",
     "dispute_ops.js",
     "document.js",
@@ -556,6 +660,7 @@
     "fixed_asset.js",
     "fraud_case.js",
     "fraud_ops.js",
+    "future_contract.js",
     "fx_deal.js",
     "fx_hedging.js",
     "gl.js",
@@ -579,15 +684,19 @@
     "limit_profile.js",
     "loan.js",
     "loan_schedule.js",
+    "margin_trading.js",
     "merchant.js",
     "merchant_settlement.js",
     "metric_definition.js",
     "mobile_wallet.js",
+    "nft_management.js",
     "notification.js",
     "notification_audit.js",
     "notification_template.js",
     "oncall.js",
     "oncall_delivery.js",
+    "open_banking.js",
+    "option_trading.js",
     "organization_unit.js",
     "payment.js",
     "payment_clearing.js",
@@ -597,6 +706,7 @@
     "payroll_processing.js",
     "permission_set.js",
     "pipeline_alert.js",
+    "pisp_management.js",
     "policy_attestation.js",
     "portfolio_management.js",
     "procurement.js",
@@ -607,9 +717,11 @@
     "recon_ops.js",
     "ref_engine.js",
     "ref_ext.js",
+    "refund_processing.js",
     "regulatory_calendar.js",
     "regulatory_report.js",
     "remittance.js",
+    "repo_agreement.js",
     "report.js",
     "report_archive.js",
     "report_audit.js",
@@ -623,24 +735,32 @@
     "sanctions_hold.js",
     "sanctions_list.js",
     "secret_rotation.js",
+    "securities_lending.js",
     "settlement_recon.js",
     "sla_tracker.js",
     "sla_tracking.js",
     "slo_report.js",
+    "smart_contract.js",
     "standing_instruction.js",
     "standing_order.js",
     "statement.js",
     "statement_delivery.js",
     "statement_recon.js",
+    "structured_product.js",
     "supply_chain_finance.js",
+    "swap_contract.js",
+    "syndicated_loan.js",
     "system_config.js",
     "tax_management.js",
     "tax_report.js",
+    "teller_management.js",
+    "tokenization.js",
     "trade_finance.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
     "treasury_position.js",
     "user_activity.js",
+    "vault_management.js",
     "vendor.js",
     "vendor_compliance.js",
     "vendor_risk.js",
@@ -1847,6 +1967,156 @@
       "prefixLen": 4,
       "prefix": "ORG_",
       "program": "organization_unit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CRW_",
+      "program": "crypto_wallet_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CRX_",
+      "program": "crypto_exchange_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BCT_",
+      "program": "blockchain_tracker_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DAS_",
+      "program": "digital_asset_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TKN_",
+      "program": "tokenization_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SMC_",
+      "program": "smart_contract_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NFT_",
+      "program": "nft_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "OPN_",
+      "program": "open_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PIS_",
+      "program": "pisp_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CSN_",
+      "program": "consent_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CSP_",
+      "program": "customer_support_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CPM_",
+      "program": "complaint_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DSM_",
+      "program": "dispute_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CHB_",
+      "program": "chargeback_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RFP_",
+      "program": "refund_processing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CAH_",
+      "program": "cash_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VLT_",
+      "program": "vault_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ATM_",
+      "program": "atm_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BRN_",
+      "program": "branch_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TLR_",
+      "program": "teller_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CUX_",
+      "program": "currency_exchange_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SWP_",
+      "program": "swap_contract_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FTC_",
+      "program": "future_contract_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "OPT_",
+      "program": "option_trading_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CMD_",
+      "program": "commodity_trading_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RPO_",
+      "program": "repo_agreement_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SEL_",
+      "program": "securities_lending_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MGT_",
+      "program": "margin_trading_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "STP_",
+      "program": "structured_product_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SYL_",
+      "program": "syndicated_loan_core"
     }
   ]
 }

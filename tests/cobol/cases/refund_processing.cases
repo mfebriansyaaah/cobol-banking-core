@@ -1,0 +1,6 @@
+# Refund Processing (Wave6) validation cases.
+RFP_CREATE missing ref@@ERROR\|INVALID_INPUT@@RFP_CREATE||||||admin@test.com
+RFP_GET missing id@@ERROR\|INVALID_INPUT@@RFP_GET||||||admin@test.com
+RFP_CALC missing id@@ERROR\|INVALID_INPUT@@RFP_CALC||||||admin@test.com
+RFP_DELETE missing id@@ERROR\|INVALID_INPUT@@RFP_DELETE||||||admin@test.com
+RFP_VALIDATE ok@@SUCCESS\|RFP_VALID@@RFP_VALIDATE|100.00|USD||||admin@test.com

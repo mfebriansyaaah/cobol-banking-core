@@ -90,6 +90,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/compliance_calendar_core.cob \
     cobol/src/escrow_account_core.cob \
     cobol/src/organization_unit_core.cob \
+    cobol/src/syndicated_loan_core.cob \
+    cobol/src/structured_product_core.cob \
+    cobol/src/margin_trading_core.cob \
+    cobol/src/securities_lending_core.cob \
+    cobol/src/repo_agreement_core.cob \
+    cobol/src/commodity_trading_core.cob \
+    cobol/src/option_trading_core.cob \
+    cobol/src/future_contract_core.cob \
+    cobol/src/swap_contract_core.cob \
+    cobol/src/currency_exchange_core.cob \
+    cobol/src/teller_management_core.cob \
+    cobol/src/branch_management_core.cob \
+    cobol/src/atm_management_core.cob \
+    cobol/src/vault_management_core.cob \
+    cobol/src/cash_management_core.cob \
+    cobol/src/refund_processing_core.cob \
+    cobol/src/chargeback_core.cob \
+    cobol/src/dispute_management_core.cob \
+    cobol/src/complaint_management_core.cob \
+    cobol/src/customer_support_core.cob \
+    cobol/src/consent_management_core.cob \
+    cobol/src/pisp_management_core.cob \
+    cobol/src/open_banking_core.cob \
+    cobol/src/nft_management_core.cob \
+    cobol/src/smart_contract_core.cob \
+    cobol/src/tokenization_core.cob \
+    cobol/src/digital_asset_core.cob \
+    cobol/src/blockchain_tracker_core.cob \
+    cobol/src/crypto_exchange_core.cob \
+    cobol/src/crypto_wallet_core.cob \
     cobol/src/permission_set_core.cob \
     cobol/src/role_management_core.cob \
     cobol/src/access_control_core.cob \

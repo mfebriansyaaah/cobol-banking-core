@@ -1,0 +1,6 @@
+# Pisp Management (Wave6) validation cases.
+PIS_CREATE missing ref@@ERROR\|INVALID_INPUT@@PIS_CREATE||||||admin@test.com
+PIS_GET missing id@@ERROR\|INVALID_INPUT@@PIS_GET||||||admin@test.com
+PIS_CALC missing id@@ERROR\|INVALID_INPUT@@PIS_CALC||||||admin@test.com
+PIS_DELETE missing id@@ERROR\|INVALID_INPUT@@PIS_DELETE||||||admin@test.com
+PIS_VALIDATE ok@@SUCCESS\|PIS_VALID@@PIS_VALIDATE|100.00|USD||||admin@test.com

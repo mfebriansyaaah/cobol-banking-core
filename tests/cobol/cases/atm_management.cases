@@ -1,0 +1,6 @@
+# Atm Management (Wave6) validation cases.
+ATM_CREATE missing ref@@ERROR\|INVALID_INPUT@@ATM_CREATE||||||admin@test.com
+ATM_GET missing id@@ERROR\|INVALID_INPUT@@ATM_GET||||||admin@test.com
+ATM_CALC missing id@@ERROR\|INVALID_INPUT@@ATM_CALC||||||admin@test.com
+ATM_DELETE missing id@@ERROR\|INVALID_INPUT@@ATM_DELETE||||||admin@test.com
+ATM_VALIDATE ok@@SUCCESS\|ATM_VALID@@ATM_VALIDATE|100.00|USD||||admin@test.com

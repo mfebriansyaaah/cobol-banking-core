@@ -52,6 +52,36 @@ import { DDB_ROUTES } from './direct_debit.js';
 import { CCL_ROUTES } from './compliance_calendar.js';
 import { ESC_ROUTES } from './escrow_account.js';
 import { ORG_ROUTES } from './organization_unit.js';
+import { SYL_ROUTES } from './syndicated_loan.js';
+import { STP_ROUTES } from './structured_product.js';
+import { MGT_ROUTES } from './margin_trading.js';
+import { SEL_ROUTES } from './securities_lending.js';
+import { RPO_ROUTES } from './repo_agreement.js';
+import { CMD_ROUTES } from './commodity_trading.js';
+import { OPT_ROUTES } from './option_trading.js';
+import { FTC_ROUTES } from './future_contract.js';
+import { SWP_ROUTES } from './swap_contract.js';
+import { CUX_ROUTES } from './currency_exchange.js';
+import { TLR_ROUTES } from './teller_management.js';
+import { BRN_ROUTES } from './branch_management.js';
+import { ATM_ROUTES } from './atm_management.js';
+import { VLT_ROUTES } from './vault_management.js';
+import { CAH_ROUTES } from './cash_management.js';
+import { RFP_ROUTES } from './refund_processing.js';
+import { CHB_ROUTES } from './chargeback.js';
+import { DSM_ROUTES } from './dispute_management.js';
+import { CPM_ROUTES } from './complaint_management.js';
+import { CSP_ROUTES } from './customer_support.js';
+import { CSN_ROUTES } from './consent_management.js';
+import { PIS_ROUTES } from './pisp_management.js';
+import { OPN_ROUTES } from './open_banking.js';
+import { NFT_ROUTES } from './nft_management.js';
+import { SMC_ROUTES } from './smart_contract.js';
+import { TKN_ROUTES } from './tokenization.js';
+import { DAS_ROUTES } from './digital_asset.js';
+import { BCT_ROUTES } from './blockchain_tracker.js';
+import { CRX_ROUTES } from './crypto_exchange.js';
+import { CRW_ROUTES } from './crypto_wallet.js';
 import { PMS_ROUTES } from './permission_set.js';
 import { RLM_ROUTES } from './role_management.js';
 import { AXC_ROUTES } from './access_control.js';
@@ -211,6 +241,36 @@ export const ALL_ROUTES = [
   ...CCL_ROUTES,
   ...ESC_ROUTES,
   ...ORG_ROUTES,
+  ...SYL_ROUTES,
+  ...STP_ROUTES,
+  ...MGT_ROUTES,
+  ...SEL_ROUTES,
+  ...RPO_ROUTES,
+  ...CMD_ROUTES,
+  ...OPT_ROUTES,
+  ...FTC_ROUTES,
+  ...SWP_ROUTES,
+  ...CUX_ROUTES,
+  ...TLR_ROUTES,
+  ...BRN_ROUTES,
+  ...ATM_ROUTES,
+  ...VLT_ROUTES,
+  ...CAH_ROUTES,
+  ...RFP_ROUTES,
+  ...CHB_ROUTES,
+  ...DSM_ROUTES,
+  ...CPM_ROUTES,
+  ...CSP_ROUTES,
+  ...CSN_ROUTES,
+  ...PIS_ROUTES,
+  ...OPN_ROUTES,
+  ...NFT_ROUTES,
+  ...SMC_ROUTES,
+  ...TKN_ROUTES,
+  ...DAS_ROUTES,
+  ...BCT_ROUTES,
+  ...CRX_ROUTES,
+  ...CRW_ROUTES,
   ...PMS_ROUTES,
   ...RLM_ROUTES,
   ...AXC_ROUTES,

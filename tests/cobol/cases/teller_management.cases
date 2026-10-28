@@ -1,0 +1,6 @@
+# Teller Management (Wave6) validation cases.
+TLR_CREATE missing ref@@ERROR\|INVALID_INPUT@@TLR_CREATE||||||admin@test.com
+TLR_GET missing id@@ERROR\|INVALID_INPUT@@TLR_GET||||||admin@test.com
+TLR_CALC missing id@@ERROR\|INVALID_INPUT@@TLR_CALC||||||admin@test.com
+TLR_DELETE missing id@@ERROR\|INVALID_INPUT@@TLR_DELETE||||||admin@test.com
+TLR_VALIDATE ok@@SUCCESS\|TLR_VALID@@TLR_VALIDATE|100.00|USD||||admin@test.com

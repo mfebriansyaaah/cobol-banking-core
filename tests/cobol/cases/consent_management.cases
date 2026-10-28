@@ -1,0 +1,6 @@
+# Consent Management (Wave6) validation cases.
+CSN_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSN_CREATE||||||admin@test.com
+CSN_GET missing id@@ERROR\|INVALID_INPUT@@CSN_GET||||||admin@test.com
+CSN_CALC missing id@@ERROR\|INVALID_INPUT@@CSN_CALC||||||admin@test.com
+CSN_DELETE missing id@@ERROR\|INVALID_INPUT@@CSN_DELETE||||||admin@test.com
+CSN_VALIDATE ok@@SUCCESS\|CSN_VALID@@CSN_VALIDATE|100.00|USD||||admin@test.com

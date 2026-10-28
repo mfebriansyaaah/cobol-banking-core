@@ -1,0 +1,6 @@
+# Tokenization (Wave6) validation cases.
+TKN_CREATE missing ref@@ERROR\|INVALID_INPUT@@TKN_CREATE||||||admin@test.com
+TKN_GET missing id@@ERROR\|INVALID_INPUT@@TKN_GET||||||admin@test.com
+TKN_CALC missing id@@ERROR\|INVALID_INPUT@@TKN_CALC||||||admin@test.com
+TKN_DELETE missing id@@ERROR\|INVALID_INPUT@@TKN_DELETE||||||admin@test.com
+TKN_VALIDATE ok@@SUCCESS\|TKN_VALID@@TKN_VALIDATE|100.00|USD||||admin@test.com
