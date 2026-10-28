@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 420 TO DISPATCH-COUNT.
+            MOVE 450 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1270,6 +1270,96 @@
             MOVE "ADL_" TO D-PREFIX(420).
             MOVE 4 TO D-PREFIX-LEN(420).
             MOVE "audit_log_core" TO D-PROGRAM(420).
+            MOVE "EML_" TO D-PREFIX(421).
+            MOVE 4 TO D-PREFIX-LEN(421).
+            MOVE "email_core" TO D-PROGRAM(421).
+            MOVE "SMS_" TO D-PREFIX(422).
+            MOVE 4 TO D-PREFIX-LEN(422).
+            MOVE "sms_core" TO D-PROGRAM(422).
+            MOVE "PSH_" TO D-PREFIX(423).
+            MOVE 4 TO D-PREFIX-LEN(423).
+            MOVE "push_notification_core" TO D-PROGRAM(423).
+            MOVE "IAM_" TO D-PREFIX(424).
+            MOVE 4 TO D-PREFIX-LEN(424).
+            MOVE "in_app_message_core" TO D-PROGRAM(424).
+            MOVE "WHK_" TO D-PREFIX(425).
+            MOVE 4 TO D-PREFIX-LEN(425).
+            MOVE "webhook_core" TO D-PROGRAM(425).
+            MOVE "APG_" TO D-PREFIX(426).
+            MOVE 4 TO D-PREFIX-LEN(426).
+            MOVE "api_gateway_core" TO D-PROGRAM(426).
+            MOVE "MQQ_" TO D-PREFIX(427).
+            MOVE 4 TO D-PREFIX-LEN(427).
+            MOVE "message_queue_core" TO D-PROGRAM(427).
+            MOVE "EVB_" TO D-PREFIX(428).
+            MOVE 4 TO D-PREFIX-LEN(428).
+            MOVE "event_bus_core" TO D-PROGRAM(428).
+            MOVE "SVM_" TO D-PREFIX(429).
+            MOVE 4 TO D-PREFIX-LEN(429).
+            MOVE "service_mesh_core" TO D-PROGRAM(429).
+            MOVE "LDB_" TO D-PREFIX(430).
+            MOVE 4 TO D-PREFIX-LEN(430).
+            MOVE "load_balancer_core" TO D-PROGRAM(430).
+            MOVE "CCH_" TO D-PREFIX(431).
+            MOVE 4 TO D-PREFIX-LEN(431).
+            MOVE "cache_core" TO D-PROGRAM(431).
+            MOVE "SSS_" TO D-PREFIX(432).
+            MOVE 4 TO D-PREFIX-LEN(432).
+            MOVE "session_store_core" TO D-PROGRAM(432).
+            MOVE "CFG_" TO D-PREFIX(433).
+            MOVE 4 TO D-PREFIX-LEN(433).
+            MOVE "config_core" TO D-PROGRAM(433).
+            MOVE "FFL_" TO D-PREFIX(434).
+            MOVE 4 TO D-PREFIX-LEN(434).
+            MOVE "feature_flag_core" TO D-PROGRAM(434).
+            MOVE "ABT_" TO D-PREFIX(435).
+            MOVE 4 TO D-PREFIX-LEN(435).
+            MOVE "ab_testing_core" TO D-PROGRAM(435).
+            MOVE "XPR_" TO D-PREFIX(436).
+            MOVE 4 TO D-PREFIX-LEN(436).
+            MOVE "experiment_core" TO D-PROGRAM(436).
+            MOVE "PSN_" TO D-PREFIX(437).
+            MOVE 4 TO D-PREFIX-LEN(437).
+            MOVE "personalization_core" TO D-PROGRAM(437).
+            MOVE "RCM_" TO D-PREFIX(438).
+            MOVE 4 TO D-PREFIX-LEN(438).
+            MOVE "recommendation_core" TO D-PROGRAM(438).
+            MOVE "SRH_" TO D-PREFIX(439).
+            MOVE 4 TO D-PREFIX-LEN(439).
+            MOVE "search_core" TO D-PROGRAM(439).
+            MOVE "IDX_" TO D-PREFIX(440).
+            MOVE 4 TO D-PREFIX-LEN(440).
+            MOVE "indexing_core" TO D-PROGRAM(440).
+            MOVE "LOG_" TO D-PREFIX(441).
+            MOVE 4 TO D-PREFIX-LEN(441).
+            MOVE "logging_core" TO D-PROGRAM(441).
+            MOVE "MON_" TO D-PREFIX(442).
+            MOVE 4 TO D-PREFIX-LEN(442).
+            MOVE "monitoring_core" TO D-PROGRAM(442).
+            MOVE "ALR_" TO D-PREFIX(443).
+            MOVE 4 TO D-PREFIX-LEN(443).
+            MOVE "alerting_core" TO D-PROGRAM(443).
+            MOVE "TRC_" TO D-PREFIX(444).
+            MOVE 4 TO D-PREFIX-LEN(444).
+            MOVE "tracing_core" TO D-PROGRAM(444).
+            MOVE "MTR_" TO D-PREFIX(445).
+            MOVE 4 TO D-PREFIX-LEN(445).
+            MOVE "metrics_core" TO D-PROGRAM(445).
+            MOVE "HLC_" TO D-PREFIX(446).
+            MOVE 4 TO D-PREFIX-LEN(446).
+            MOVE "health_check_core" TO D-PROGRAM(446).
+            MOVE "CBK_" TO D-PREFIX(447).
+            MOVE 4 TO D-PREFIX-LEN(447).
+            MOVE "circuit_breaker_core" TO D-PROGRAM(447).
+            MOVE "RTL_" TO D-PREFIX(448).
+            MOVE 4 TO D-PREFIX-LEN(448).
+            MOVE "rate_limiter_core" TO D-PROGRAM(448).
+            MOVE "RTY_" TO D-PREFIX(449).
+            MOVE 4 TO D-PREFIX-LEN(449).
+            MOVE "retry_core" TO D-PROGRAM(449).
+            MOVE "TMO_" TO D-PREFIX(450).
+            MOVE 4 TO D-PREFIX-LEN(450).
+            MOVE "timeout_core" TO D-PROGRAM(450).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

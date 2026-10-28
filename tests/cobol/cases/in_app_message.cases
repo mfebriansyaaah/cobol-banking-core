@@ -1,0 +1,6 @@
+# In App Message (Wave11) validation cases.
+IAM_CREATE missing ref@@ERROR\|INVALID_INPUT@@IAM_CREATE||||||admin@test.com
+IAM_GET missing id@@ERROR\|INVALID_INPUT@@IAM_GET||||||admin@test.com
+IAM_CALC missing id@@ERROR\|INVALID_INPUT@@IAM_CALC||||||admin@test.com
+IAM_DELETE missing id@@ERROR\|INVALID_INPUT@@IAM_DELETE||||||admin@test.com
+IAM_VALIDATE ok@@SUCCESS\|IAM_VALID@@IAM_VALIDATE|100.00|USD||||admin@test.com

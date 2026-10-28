@@ -1,0 +1,6 @@
+# Load Balancer (Wave11) validation cases.
+LDB_CREATE missing ref@@ERROR\|INVALID_INPUT@@LDB_CREATE||||||admin@test.com
+LDB_GET missing id@@ERROR\|INVALID_INPUT@@LDB_GET||||||admin@test.com
+LDB_CALC missing id@@ERROR\|INVALID_INPUT@@LDB_CALC||||||admin@test.com
+LDB_DELETE missing id@@ERROR\|INVALID_INPUT@@LDB_DELETE||||||admin@test.com
+LDB_VALIDATE ok@@SUCCESS\|LDB_VALID@@LDB_VALIDATE|100.00|USD||||admin@test.com

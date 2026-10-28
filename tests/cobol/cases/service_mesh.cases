@@ -1,0 +1,6 @@
+# Service Mesh (Wave11) validation cases.
+SVM_CREATE missing ref@@ERROR\|INVALID_INPUT@@SVM_CREATE||||||admin@test.com
+SVM_GET missing id@@ERROR\|INVALID_INPUT@@SVM_GET||||||admin@test.com
+SVM_CALC missing id@@ERROR\|INVALID_INPUT@@SVM_CALC||||||admin@test.com
+SVM_DELETE missing id@@ERROR\|INVALID_INPUT@@SVM_DELETE||||||admin@test.com
+SVM_VALIDATE ok@@SUCCESS\|SVM_VALID@@SVM_VALIDATE|100.00|USD||||admin@test.com

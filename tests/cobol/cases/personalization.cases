@@ -1,0 +1,6 @@
+# Personalization (Wave11) validation cases.
+PSN_CREATE missing ref@@ERROR\|INVALID_INPUT@@PSN_CREATE||||||admin@test.com
+PSN_GET missing id@@ERROR\|INVALID_INPUT@@PSN_GET||||||admin@test.com
+PSN_CALC missing id@@ERROR\|INVALID_INPUT@@PSN_CALC||||||admin@test.com
+PSN_DELETE missing id@@ERROR\|INVALID_INPUT@@PSN_DELETE||||||admin@test.com
+PSN_VALIDATE ok@@SUCCESS\|PSN_VALID@@PSN_VALIDATE|100.00|USD||||admin@test.com

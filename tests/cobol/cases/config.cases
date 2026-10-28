@@ -1,0 +1,6 @@
+# Config (Wave11) validation cases.
+CFG_CREATE missing ref@@ERROR\|INVALID_INPUT@@CFG_CREATE||||||admin@test.com
+CFG_GET missing id@@ERROR\|INVALID_INPUT@@CFG_GET||||||admin@test.com
+CFG_CALC missing id@@ERROR\|INVALID_INPUT@@CFG_CALC||||||admin@test.com
+CFG_DELETE missing id@@ERROR\|INVALID_INPUT@@CFG_DELETE||||||admin@test.com
+CFG_VALIDATE ok@@SUCCESS\|CFG_VALID@@CFG_VALIDATE|100.00|USD||||admin@test.com

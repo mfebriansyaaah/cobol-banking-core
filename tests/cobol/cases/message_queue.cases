@@ -1,0 +1,6 @@
+# Message Queue (Wave11) validation cases.
+MQQ_CREATE missing ref@@ERROR\|INVALID_INPUT@@MQQ_CREATE||||||admin@test.com
+MQQ_GET missing id@@ERROR\|INVALID_INPUT@@MQQ_GET||||||admin@test.com
+MQQ_CALC missing id@@ERROR\|INVALID_INPUT@@MQQ_CALC||||||admin@test.com
+MQQ_DELETE missing id@@ERROR\|INVALID_INPUT@@MQQ_DELETE||||||admin@test.com
+MQQ_VALIDATE ok@@SUCCESS\|MQQ_VALID@@MQQ_VALIDATE|100.00|USD||||admin@test.com
