@@ -1,0 +1,6 @@
+# Invoice Financing (Wave4) validation cases.
+IVC_CREATE missing ref@@ERROR\|INVALID_INPUT@@IVC_CREATE||||||admin@test.com
+IVC_GET missing id@@ERROR\|INVALID_INPUT@@IVC_GET||||||admin@test.com
+IVC_CALC missing id@@ERROR\|INVALID_INPUT@@IVC_CALC||||||admin@test.com
+IVC_DELETE missing id@@ERROR\|INVALID_INPUT@@IVC_DELETE||||||admin@test.com
+IVC_VALIDATE ok@@SUCCESS\|IVC_VALID@@IVC_VALIDATE|100.00|USD||||admin@test.com

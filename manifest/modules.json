@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T00:36:03.515Z",
+  "generatedAt": "2026-10-28T00:49:04.319Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -24,6 +24,9 @@
     },
     {
       "source": "asset_maintenance_core.cob"
+    },
+    {
+      "source": "asset_management_core.cob"
     },
     {
       "source": "audit_analytics_core.cob"
@@ -53,10 +56,16 @@
       "source": "backup_verification_core.cob"
     },
     {
+      "source": "bank_guarantee_core.cob"
+    },
+    {
       "source": "batch_core.cob"
     },
     {
       "source": "billpay_core.cob"
+    },
+    {
+      "source": "bond_trading_core.cob"
     },
     {
       "source": "budget_core.cob"
@@ -149,6 +158,9 @@
       "source": "eod_jobs_core.cob"
     },
     {
+      "source": "escrow_account_core.cob"
+    },
+    {
       "source": "export_archive_core.cob"
     },
     {
@@ -209,6 +221,9 @@
       "source": "interest_rate_core.cob"
     },
     {
+      "source": "invoice_financing_core.cob"
+    },
+    {
       "source": "key_rotation_core.cob"
     },
     {
@@ -222,6 +237,9 @@
     },
     {
       "source": "legal_hold_core.cob"
+    },
+    {
+      "source": "letter_of_credit_core.cob"
     },
     {
       "source": "limit_profile_core.cob"
@@ -266,10 +284,16 @@
       "source": "payment_instruction_core.cob"
     },
     {
+      "source": "payroll_processing_core.cob"
+    },
+    {
       "source": "pipeline_alert_core.cob"
     },
     {
       "source": "policy_attestation_core.cob"
+    },
+    {
+      "source": "portfolio_management_core.cob"
     },
     {
       "source": "procurement_core.cob"
@@ -365,6 +389,9 @@
       "source": "statement_recon_core.cob"
     },
     {
+      "source": "supply_chain_finance_core.cob"
+    },
+    {
       "source": "tax_report_core.cob"
     },
     {
@@ -395,6 +422,9 @@
       "source": "wallet_core.cob"
     },
     {
+      "source": "wealth_management_core.cob"
+    },
+    {
       "source": "workflow_approval_core.cob"
     }
   ],
@@ -407,6 +437,7 @@
     "analytics_snapshot.js",
     "asset.js",
     "asset_maintenance.js",
+    "asset_management.js",
     "audit_analytics.js",
     "audit_drilldown.js",
     "audit_retention.js",
@@ -414,8 +445,10 @@
     "backup_drill.js",
     "backup_restore.js",
     "backup_verification.js",
+    "bank_guarantee.js",
     "batch.js",
     "billpay.js",
+    "bond_trading.js",
     "budget.js",
     "capacity_forecast.js",
     "capacity_plan.js",
@@ -446,6 +479,7 @@
     "dsar.js",
     "eod.js",
     "eod_jobs.js",
+    "escrow_account.js",
     "export_archive.js",
     "export_stream.js",
     "fee.js",
@@ -464,12 +498,14 @@
     "incident.js",
     "incident_postmortem.js",
     "interest_rate.js",
+    "invoice_financing.js",
     "key_rotation.js",
     "kyc.js",
     "kyc_periodic.js",
     "kyc_review.js",
     "lbpue.js",
     "legal_hold.js",
+    "letter_of_credit.js",
     "limit_profile.js",
     "loan.js",
     "loan_schedule.js",
@@ -484,8 +520,10 @@
     "payment_clearing.js",
     "payment_hold.js",
     "payment_instructions.js",
+    "payroll_processing.js",
     "pipeline_alert.js",
     "policy_attestation.js",
+    "portfolio_management.js",
     "procurement.js",
     "product_catalog.js",
     "recon.js",
@@ -517,6 +555,7 @@
     "statement.js",
     "statement_delivery.js",
     "statement_recon.js",
+    "supply_chain_finance.js",
     "tax_report.js",
     "trade_finance.js",
     "treasury_deal.js",
@@ -525,6 +564,7 @@
     "vendor.js",
     "vendor_compliance.js",
     "vendor_risk.js",
+    "wealth_management.js",
     "workflow_approval.js"
   ],
   "dispatch": []

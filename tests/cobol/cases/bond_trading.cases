@@ -1,0 +1,6 @@
+# Bond Trading (Wave4) validation cases.
+BND_CREATE missing ref@@ERROR\|INVALID_INPUT@@BND_CREATE||||||admin@test.com
+BND_GET missing id@@ERROR\|INVALID_INPUT@@BND_GET||||||admin@test.com
+BND_CALC missing id@@ERROR\|INVALID_INPUT@@BND_CALC||||||admin@test.com
+BND_DELETE missing id@@ERROR\|INVALID_INPUT@@BND_DELETE||||||admin@test.com
+BND_VALIDATE ok@@SUCCESS\|BND_VALID@@BND_VALIDATE|100.00|USD||||admin@test.com

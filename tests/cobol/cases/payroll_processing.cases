@@ -1,0 +1,6 @@
+# Payroll Processing (Wave4) validation cases.
+PRL_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRL_CREATE||||||admin@test.com
+PRL_GET missing id@@ERROR\|INVALID_INPUT@@PRL_GET||||||admin@test.com
+PRL_CALC missing id@@ERROR\|INVALID_INPUT@@PRL_CALC||||||admin@test.com
+PRL_DELETE missing id@@ERROR\|INVALID_INPUT@@PRL_DELETE||||||admin@test.com
+PRL_VALIDATE ok@@SUCCESS\|PRL_VALID@@PRL_VALIDATE|100.00|USD||||admin@test.com

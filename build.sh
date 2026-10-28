@@ -88,6 +88,16 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/standing_instruction_core.cob \
     cobol/src/direct_debit_core.cob \
     cobol/src/compliance_calendar_core.cob \
+    cobol/src/escrow_account_core.cob \
+    cobol/src/wealth_management_core.cob \
+    cobol/src/payroll_processing_core.cob \
+    cobol/src/supply_chain_finance_core.cob \
+    cobol/src/invoice_financing_core.cob \
+    cobol/src/bank_guarantee_core.cob \
+    cobol/src/letter_of_credit_core.cob \
+    cobol/src/bond_trading_core.cob \
+    cobol/src/portfolio_management_core.cob \
+    cobol/src/asset_management_core.cob \
     cobol/src/sla_tracker_core.cob \
     cobol/src/report_schedule_core.cob \
     cobol/src/notification_template_core.cob \

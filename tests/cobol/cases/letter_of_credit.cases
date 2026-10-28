@@ -1,0 +1,6 @@
+# Letter Of Credit (Wave4) validation cases.
+LOC_CREATE missing ref@@ERROR\|INVALID_INPUT@@LOC_CREATE||||||admin@test.com
+LOC_GET missing id@@ERROR\|INVALID_INPUT@@LOC_GET||||||admin@test.com
+LOC_CALC missing id@@ERROR\|INVALID_INPUT@@LOC_CALC||||||admin@test.com
+LOC_DELETE missing id@@ERROR\|INVALID_INPUT@@LOC_DELETE||||||admin@test.com
+LOC_VALIDATE ok@@SUCCESS\|LOC_VALID@@LOC_VALIDATE|100.00|USD||||admin@test.com
