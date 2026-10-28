@@ -40,7 +40,7 @@
         01  DISPATCH-IDX      PIC 9(3) VALUE 1.
         01  DISPATCH-FOUND    PIC X VALUE 'N'.
         01  DISPATCH-TABLE.
-            05  DISPATCH-ENTRY OCCURS 500 TIMES.
+            05  DISPATCH-ENTRY OCCURS 1000 TIMES.
                 10  D-PREFIX     PIC X(20) VALUE SPACES.
                 10  D-PREFIX-LEN PIC 9(2) VALUE 0.
                 10  D-PROGRAM   PIC X(32) VALUE SPACES.
@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 480 TO DISPATCH-COUNT.
+            MOVE 510 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1450,6 +1450,84 @@
             MOVE "ASB_" TO D-PREFIX(480).
             MOVE 4 TO D-PREFIX-LEN(480).
             MOVE "asset_backed_security_core" TO D-PROGRAM(480).
+            MOVE "AMLC_" TO D-PREFIX(481).
+            MOVE 5 TO D-PREFIX-LEN(481).
+            MOVE "aml_check_core" TO D-PROGRAM(481).
+            MOVE "KYCC_" TO D-PREFIX(482).
+            MOVE 5 TO D-PREFIX-LEN(482).
+            MOVE "kyc_check_core" TO D-PROGRAM(482).
+            MOVE "SNCS_" TO D-PREFIX(483).
+            MOVE 5 TO D-PREFIX-LEN(483).
+            MOVE "sanctions_check_core" TO D-PROGRAM(483).
+            MOVE "FRDU_" TO D-PREFIX(484).
+            MOVE 5 TO D-PREFIX-LEN(484).
+            MOVE "fraud_check_core" TO D-PROGRAM(484).
+            MOVE "TXN_" TO D-PREFIX(485).
+            MOVE 4 TO D-PREFIX-LEN(485).
+            MOVE "transaction_core" TO D-PROGRAM(485).
+            MOVE "PAYM_" TO D-PREFIX(486).
+            MOVE 5 TO D-PREFIX-LEN(486).
+            MOVE "payment_processing_core" TO D-PROGRAM(486).
+            MOVE "TRFS_" TO D-PREFIX(487).
+            MOVE 5 TO D-PREFIX-LEN(487).
+            MOVE "transfer_core" TO D-PROGRAM(487).
+            MOVE "WDL_" TO D-PREFIX(489).
+            MOVE 4 TO D-PREFIX-LEN(489).
+            MOVE "withdrawal_core" TO D-PROGRAM(489).
+            MOVE "BAL_" TO D-PREFIX(490).
+            MOVE 4 TO D-PREFIX-LEN(490).
+            MOVE "balance_core" TO D-PROGRAM(490).
+            MOVE "STMTS_" TO D-PREFIX(491).
+            MOVE 6 TO D-PREFIX-LEN(491).
+            MOVE "account_statement_core" TO D-PROGRAM(491).
+            MOVE "RECN_" TO D-PREFIX(492).
+            MOVE 5 TO D-PREFIX-LEN(492).
+            MOVE "reconciliation_core" TO D-PROGRAM(492).
+            MOVE "CLR_" TO D-PREFIX(493).
+            MOVE 4 TO D-PREFIX-LEN(493).
+            MOVE "clearing_core" TO D-PROGRAM(493).
+            MOVE "NET_" TO D-PREFIX(495).
+            MOVE 4 TO D-PREFIX-LEN(495).
+            MOVE "netting_core" TO D-PROGRAM(495).
+            MOVE "NOS_" TO D-PREFIX(496).
+            MOVE 4 TO D-PREFIX-LEN(496).
+            MOVE "nostro_core" TO D-PROGRAM(496).
+            MOVE "VOS_" TO D-PREFIX(497).
+            MOVE 4 TO D-PREFIX-LEN(497).
+            MOVE "vostro_core" TO D-PROGRAM(497).
+            MOVE "SUS_" TO D-PREFIX(498).
+            MOVE 4 TO D-PREFIX-LEN(498).
+            MOVE "suspense_core" TO D-PROGRAM(498).
+            MOVE "GLM_" TO D-PREFIX(499).
+            MOVE 4 TO D-PREFIX-LEN(499).
+            MOVE "gl_master_core" TO D-PROGRAM(499).
+            MOVE "JRN_" TO D-PREFIX(501).
+            MOVE 4 TO D-PREFIX-LEN(501).
+            MOVE "journal_core" TO D-PROGRAM(501).
+            MOVE "TB_" TO D-PREFIX(502).
+            MOVE 3 TO D-PREFIX-LEN(502).
+            MOVE "trial_balance_core" TO D-PROGRAM(502).
+            MOVE "BS_" TO D-PREFIX(503).
+            MOVE 3 TO D-PREFIX-LEN(503).
+            MOVE "balance_sheet_core" TO D-PROGRAM(503).
+            MOVE "IS_" TO D-PREFIX(504).
+            MOVE 3 TO D-PREFIX-LEN(504).
+            MOVE "income_statement_core" TO D-PROGRAM(504).
+            MOVE "CF_" TO D-PREFIX(505).
+            MOVE 3 TO D-PREFIX-LEN(505).
+            MOVE "cash_flow_core" TO D-PROGRAM(505).
+            MOVE "EQT_" TO D-PREFIX(506).
+            MOVE 4 TO D-PREFIX-LEN(506).
+            MOVE "equity_account_core" TO D-PROGRAM(506).
+            MOVE "LIA_" TO D-PREFIX(508).
+            MOVE 4 TO D-PREFIX-LEN(508).
+            MOVE "liability_core" TO D-PROGRAM(508).
+            MOVE "CPTL_" TO D-PREFIX(509).
+            MOVE 5 TO D-PREFIX-LEN(509).
+            MOVE "capital_core" TO D-PROGRAM(509).
+            MOVE "RSV_" TO D-PREFIX(510).
+            MOVE 4 TO D-PREFIX-LEN(510).
+            MOVE "reserve_core" TO D-PROGRAM(510).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

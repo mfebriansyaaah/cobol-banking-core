@@ -1,0 +1,6 @@
+# Clearing (Wave13) validation cases.
+CLR_CREATE missing ref@@ERROR\|INVALID_INPUT@@CLR_CREATE||||||admin@test.com
+CLR_GET missing id@@ERROR\|INVALID_INPUT@@CLR_GET||||||admin@test.com
+CLR_CALC missing id@@ERROR\|INVALID_INPUT@@CLR_CALC||||||admin@test.com
+CLR_DELETE missing id@@ERROR\|INVALID_INPUT@@CLR_DELETE||||||admin@test.com
+CLR_VALIDATE ok@@SUCCESS\|CLR_VALID@@CLR_VALIDATE|100.00|USD||||admin@test.com

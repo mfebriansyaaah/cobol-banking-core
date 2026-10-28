@@ -1,0 +1,6 @@
+# Withdrawal (Wave13) validation cases.
+WDL_CREATE missing ref@@ERROR\|INVALID_INPUT@@WDL_CREATE||||||admin@test.com
+WDL_GET missing id@@ERROR\|INVALID_INPUT@@WDL_GET||||||admin@test.com
+WDL_CALC missing id@@ERROR\|INVALID_INPUT@@WDL_CALC||||||admin@test.com
+WDL_DELETE missing id@@ERROR\|INVALID_INPUT@@WDL_DELETE||||||admin@test.com
+WDL_VALIDATE ok@@SUCCESS\|WDL_VALID@@WDL_VALIDATE|100.00|USD||||admin@test.com
