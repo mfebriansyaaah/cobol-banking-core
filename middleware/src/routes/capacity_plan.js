@@ -14,6 +14,7 @@ export const CAPACITY_PLAN_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/capacity-plans/summary', action: 'CAP_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/capacity-plans/:id', action: 'CAP_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -23,5 +24,4 @@ export const CAPACITY_PLAN_ROUTES = [
     { name: 'observed', pattern: PATTERNS.BATCH_DETAIL, required: true },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/capacity-plans/summary', action: 'CAP_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

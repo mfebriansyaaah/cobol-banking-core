@@ -9,14 +9,14 @@ export const LIMIT_PROFILE_ROUTES = [
     { name: 'tier', pattern: PATTERNS.LPR_TIER, required: false },
     BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/limit-profiles/:email', action: 'LPR_GET', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: PATTERNS.EMAIL, required: true },
-    BLANK, BLANK, BLANK, BLANK, ACTOR,
-  ] },
   { method: 'get', path: '/limit-profiles', action: 'LPR_LIST', tokenIdentity: 'actor', fields: [
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/limit-profiles/summary', action: 'LPR_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/limit-profiles/:email', action: 'LPR_GET', tokenIdentity: 'actor', fields: [
+    { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
 ];

@@ -15,6 +15,14 @@ export const DISPUTE_NOTIFY_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/disputes/notifications', action: 'DSN_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'state', pattern: PATTERNS.DSN_STATE, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    { name: 'caseId', pattern: PATTERNS.INT, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/disputes/notifications/summary', action: 'DSN_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/disputes/notifications/templates/:code', action: 'DSN_TEMPLATE_GET', tokenIdentity: 'actor', fields: [
     { name: 'code', pattern: PATTERNS.RPT_CODE, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -30,13 +38,6 @@ export const DISPUTE_NOTIFY_ROUTES = [
     { name: 'template', pattern: PATTERNS.RPT_CODE, required: false },
     BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/disputes/notifications', action: 'DSN_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'state', pattern: PATTERNS.DSN_STATE, required: false },
-    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
-    { name: 'offset', pattern: PATTERNS.INT, required: false },
-    { name: 'caseId', pattern: PATTERNS.INT, required: false },
-    BLANK, ACTOR,
-  ] },
   { method: 'get', path: '/disputes/notifications/:id', action: 'DSN_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -45,5 +46,4 @@ export const DISPUTE_NOTIFY_ROUTES = [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/disputes/notifications/summary', action: 'DSN_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

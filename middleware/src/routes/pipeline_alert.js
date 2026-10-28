@@ -16,6 +16,7 @@ export const PIPELINE_ALERT_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/pipeline-alerts/summary', action: 'PAL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/pipeline-alerts/:id', action: 'PAL_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -29,5 +30,4 @@ export const PIPELINE_ALERT_ROUTES = [
     { name: 'detail', pattern: PATTERNS.BATCH_DETAIL, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/pipeline-alerts/summary', action: 'PAL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

@@ -14,6 +14,7 @@ export const DSAR_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/dsar/summary', action: 'DSR_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/dsar/:id', action: 'DSR_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -32,5 +33,4 @@ export const DSAR_ROUTES = [
     { name: 'reason', pattern: PATTERNS.BATCH_DETAIL, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/dsar/summary', action: 'DSR_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

@@ -13,11 +13,9 @@ GET /gl/periods
 GET /kyc/reviews
 GET /kyc/reviews/:id
 GET /kyc/summary
-GET /reports/schedules
 POST /gl/periods/:period/close
 POST /kyc/reviews
 POST /kyc/reviews/:id/approve
 POST /kyc/reviews/:id/escalate
 POST /kyc/reviews/:id/reject
 POST /reports/runs/:id/complete
-POST /reports/schedules

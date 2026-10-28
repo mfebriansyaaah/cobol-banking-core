@@ -10,6 +10,13 @@ export const LOAN_ROUTES = [
     { name: 'rate', pattern: PATTERNS.RATE, required: false },
     ACTOR,
   ] },
+  { method: 'get', path: '/loans', action: 'LOAN_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'status', pattern: PATTERNS.LOAN_STATUS, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/loans/summary', action: 'LOAN_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/loans/:id/approve', action: 'LOAN_APPROVE', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     { name: 'rate', pattern: PATTERNS.RATE, required: false },
@@ -25,12 +32,6 @@ export const LOAN_ROUTES = [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/loans', action: 'LOAN_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'status', pattern: PATTERNS.LOAN_STATUS, required: false },
-    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
-    { name: 'offset', pattern: PATTERNS.INT, required: false },
-    BLANK, BLANK, ACTOR,
-  ] },
   { method: 'get', path: '/loans/:id', action: 'LOAN_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -40,5 +41,4 @@ export const LOAN_ROUTES = [
     { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/loans/summary', action: 'LOAN_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

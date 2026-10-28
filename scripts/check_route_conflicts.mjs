@@ -17,7 +17,7 @@ const ROOT = path.resolve(process.argv[2] || '.');
 const routesDir = path.join(ROOT, 'middleware', 'src', 'routes');
 const baselinePath = path.join(ROOT, 'tests', 'known_shadowed_routes.txt');
 
-const ROUTE_RE = /method:\s*'(get|post|put|patch|delete)'\s*,\s*path:\s*'([^']+)'\s*,\s*action:\s*'([A-Z0-9_]+)'/g;
+const ROUTE_RE = /method:\s*'(get|post|put|patch|delete)'\s*,\s*path:\s*'([^']+)'\s*,\s*action:\s*'([A-Z0-9_]+)'/gs;
 
 function routesIn(source) {
   return [...source.matchAll(ROUTE_RE)].map((m) => ({
@@ -60,17 +60,59 @@ const appSrc = readFileSync(path.join(ROOT, 'middleware', 'src', 'app.js'), 'utf
 ordered.push({ file: 'app.js', routes: routesIn(appSrc) });
 
 const firstSeen = new Map();
-const conflicts = [];
+const exactConflicts = [];
+const shapeConflicts = [];
+const seenRoutes = [];
+
+const segments = (p) => p.split('/');
+const isParam = (s) => s.startsWith(':');
+const shape = (p) => segments(p).map((s) => (isParam(s) ? ':param' : s)).join('/');
+
+// True when the earlier (parameterized) route can match the later path.
+function matchesEarlier(prevPath, nextPath) {
+  const a = segments(prevPath);
+  const b = segments(nextPath);
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i += 1) {
+    if (isParam(a[i])) continue;
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 for (const { file, routes } of ordered) {
   for (const r of routes) {
     const key = `${r.method} ${r.path}`;
     if (firstSeen.has(key)) {
-      conflicts.push({ key, first: firstSeen.get(key), shadowed: { file, action: r.action } });
+      exactConflicts.push({ key, first: firstSeen.get(key), shadowed: { file, action: r.action } });
     } else {
       firstSeen.set(key, { file, action: r.action });
     }
+
+    for (const prev of seenRoutes) {
+      if (prev.method !== r.method) continue;
+      const sameShape = shape(prev.path) === shape(r.path);
+      if (sameShape && prev.path !== r.path) {
+        shapeConflicts.push({
+          key,
+          kind: 'same-shape',
+          first: prev,
+          shadowed: { file, action: r.action },
+        });
+      } else if (!sameShape && matchesEarlier(prev.path, r.path)) {
+        shapeConflicts.push({
+          key,
+          kind: 'param-shadows-static',
+          first: prev,
+          shadowed: { file, action: r.action },
+        });
+      }
+    }
+    seenRoutes.push({ file, ...r });
   }
 }
+
+const conflicts = [...exactConflicts, ...shapeConflicts];
 
 const baseline = new Set(
   (existsSync(baselinePath) ? readFileSync(baselinePath, 'utf8') : '')
@@ -80,15 +122,25 @@ const baseline = new Set(
 );
 
 const found = new Set(conflicts.map((c) => c.key));
-const newConflicts = conflicts.filter((c) => !baseline.has(c.key));
+const newExact = exactConflicts.filter((c) => !baseline.has(c.key));
+const newShape = shapeConflicts.filter((c) => !baseline.has(c.key));
 const staleBaseline = [...baseline].filter((k) => !found.has(k));
 
 let failed = false;
-if (newConflicts.length) {
+if (newExact.length) {
   failed = true;
   console.error('NEW DUPLICATE ROUTES (second registration is unreachable):');
-  for (const c of newConflicts) {
+  for (const c of newExact) {
     console.error(`  ${c.key}`);
+    console.error(`    registered   : ${c.first.file} -> ${c.first.action}`);
+    console.error(`    dead         : ${c.shadowed.file} -> ${c.shadowed.action}`);
+  }
+}
+if (newShape.length) {
+  failed = true;
+  console.error('NEW ROUTE SHADOWING (parameterized route registered before a static route):');
+  for (const c of newShape) {
+    console.error(`  ${c.key} is shadowed by ${c.first.method} ${c.first.path}`);
     console.error(`    registered   : ${c.first.file} -> ${c.first.action}`);
     console.error(`    dead         : ${c.shadowed.file} -> ${c.shadowed.action}`);
   }
@@ -103,4 +155,4 @@ if (failed) {
   process.exit(1);
 }
 
-console.log(`OK: ${conflicts.length} known duplicate route(s), no new ones`);
+console.log(`OK: ${exactConflicts.length} known duplicate route(s), ${shapeConflicts.length} parameterized shadow(s), no new ones`);
