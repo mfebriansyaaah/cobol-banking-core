@@ -1,0 +1,6 @@
+# Blacklist (Wave8) validation cases.
+BLK_CREATE missing ref@@ERROR\|INVALID_INPUT@@BLK_CREATE||||||admin@test.com
+BLK_GET missing id@@ERROR\|INVALID_INPUT@@BLK_GET||||||admin@test.com
+BLK_CALC missing id@@ERROR\|INVALID_INPUT@@BLK_CALC||||||admin@test.com
+BLK_DELETE missing id@@ERROR\|INVALID_INPUT@@BLK_DELETE||||||admin@test.com
+BLK_VALIDATE ok@@SUCCESS\|BLK_VALID@@BLK_VALIDATE|100.00|USD||||admin@test.com

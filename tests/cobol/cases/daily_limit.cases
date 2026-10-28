@@ -1,0 +1,6 @@
+# Daily Limit (Wave8) validation cases.
+DLY_CREATE missing ref@@ERROR\|INVALID_INPUT@@DLY_CREATE||||||admin@test.com
+DLY_GET missing id@@ERROR\|INVALID_INPUT@@DLY_GET||||||admin@test.com
+DLY_CALC missing id@@ERROR\|INVALID_INPUT@@DLY_CALC||||||admin@test.com
+DLY_DELETE missing id@@ERROR\|INVALID_INPUT@@DLY_DELETE||||||admin@test.com
+DLY_VALIDATE ok@@SUCCESS\|DLY_VALID@@DLY_VALIDATE|100.00|USD||||admin@test.com

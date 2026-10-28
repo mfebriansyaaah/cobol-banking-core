@@ -1,0 +1,6 @@
+# Rewards Management (Wave8) validation cases.
+RWD_CREATE missing ref@@ERROR\|INVALID_INPUT@@RWD_CREATE||||||admin@test.com
+RWD_GET missing id@@ERROR\|INVALID_INPUT@@RWD_GET||||||admin@test.com
+RWD_CALC missing id@@ERROR\|INVALID_INPUT@@RWD_CALC||||||admin@test.com
+RWD_DELETE missing id@@ERROR\|INVALID_INPUT@@RWD_DELETE||||||admin@test.com
+RWD_VALIDATE ok@@SUCCESS\|RWD_VALID@@RWD_VALIDATE|100.00|USD||||admin@test.com

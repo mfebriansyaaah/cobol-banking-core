@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 330 TO DISPATCH-COUNT.
+            MOVE 360 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1000,6 +1000,96 @@
             MOVE "OSC_" TO D-PREFIX(330).
             MOVE 4 TO D-PREFIX-LEN(330).
             MOVE "outsourcing_contract_core" TO D-PROGRAM(330).
+            MOVE "LYP_" TO D-PREFIX(331).
+            MOVE 4 TO D-PREFIX-LEN(331).
+            MOVE "loyalty_program_core" TO D-PROGRAM(331).
+            MOVE "RWD_" TO D-PREFIX(332).
+            MOVE 4 TO D-PREFIX-LEN(332).
+            MOVE "rewards_management_core" TO D-PROGRAM(332).
+            MOVE "CSB_" TO D-PREFIX(333).
+            MOVE 4 TO D-PREFIX-LEN(333).
+            MOVE "cashback_core" TO D-PROGRAM(333).
+            MOVE "PTR_" TO D-PREFIX(334).
+            MOVE 4 TO D-PREFIX-LEN(334).
+            MOVE "points_redemption_core" TO D-PROGRAM(334).
+            MOVE "GFC_" TO D-PREFIX(335).
+            MOVE 4 TO D-PREFIX-LEN(335).
+            MOVE "gift_card_core" TO D-PROGRAM(335).
+            MOVE "PPC_" TO D-PREFIX(336).
+            MOVE 4 TO D-PREFIX-LEN(336).
+            MOVE "prepaid_card_core" TO D-PROGRAM(336).
+            MOVE "VRC_" TO D-PREFIX(337).
+            MOVE 4 TO D-PREFIX-LEN(337).
+            MOVE "virtual_card_core" TO D-PROGRAM(337).
+            MOVE "CDT_" TO D-PREFIX(338).
+            MOVE 4 TO D-PREFIX-LEN(338).
+            MOVE "card_tokenization_core" TO D-PROGRAM(338).
+            MOVE "PML_" TO D-PREFIX(339).
+            MOVE 4 TO D-PREFIX-LEN(339).
+            MOVE "payment_link_core" TO D-PROGRAM(339).
+            MOVE "QRP_" TO D-PREFIX(340).
+            MOVE 4 TO D-PREFIX-LEN(340).
+            MOVE "qr_payment_core" TO D-PROGRAM(340).
+            MOVE "CTL_" TO D-PREFIX(341).
+            MOVE 4 TO D-PREFIX-LEN(341).
+            MOVE "contactless_core" TO D-PROGRAM(341).
+            MOVE "BMA_" TO D-PREFIX(342).
+            MOVE 4 TO D-PREFIX-LEN(342).
+            MOVE "biometric_auth_core" TO D-PROGRAM(342).
+            MOVE "DVM_" TO D-PREFIX(343).
+            MOVE 4 TO D-PREFIX-LEN(343).
+            MOVE "device_management_core" TO D-PROGRAM(343).
+            MOVE "SSM_" TO D-PREFIX(344).
+            MOVE 4 TO D-PREFIX-LEN(344).
+            MOVE "session_management_core" TO D-PROGRAM(344).
+            MOVE "TKM_" TO D-PREFIX(345).
+            MOVE 4 TO D-PREFIX-LEN(345).
+            MOVE "token_management_core" TO D-PROGRAM(345).
+            MOVE "OTP_" TO D-PREFIX(346).
+            MOVE 4 TO D-PREFIX-LEN(346).
+            MOVE "otp_management_core" TO D-PROGRAM(346).
+            MOVE "MFA_" TO D-PREFIX(347).
+            MOVE 4 TO D-PREFIX-LEN(347).
+            MOVE "mfa_management_core" TO D-PROGRAM(347).
+            MOVE "PWP_" TO D-PREFIX(348).
+            MOVE 4 TO D-PREFIX-LEN(348).
+            MOVE "password_policy_core" TO D-PROGRAM(348).
+            MOVE "LGA_" TO D-PREFIX(349).
+            MOVE 4 TO D-PREFIX-LEN(349).
+            MOVE "login_attempt_core" TO D-PROGRAM(349).
+            MOVE "ACL_" TO D-PREFIX(350).
+            MOVE 4 TO D-PREFIX-LEN(350).
+            MOVE "account_lock_core" TO D-PROGRAM(350).
+            MOVE "TXL_" TO D-PREFIX(351).
+            MOVE 4 TO D-PREFIX-LEN(351).
+            MOVE "transaction_limit_core" TO D-PROGRAM(351).
+            MOVE "DLY_" TO D-PREFIX(352).
+            MOVE 4 TO D-PREFIX-LEN(352).
+            MOVE "daily_limit_core" TO D-PROGRAM(352).
+            MOVE "VLC_" TO D-PREFIX(353).
+            MOVE 4 TO D-PREFIX-LEN(353).
+            MOVE "velocity_check_core" TO D-PROGRAM(353).
+            MOVE "RKS_" TO D-PREFIX(354).
+            MOVE 4 TO D-PREFIX-LEN(354).
+            MOVE "risk_score_core" TO D-PROGRAM(354).
+            MOVE "BLK_" TO D-PREFIX(355).
+            MOVE 4 TO D-PREFIX-LEN(355).
+            MOVE "blacklist_core" TO D-PROGRAM(355).
+            MOVE "WHT_" TO D-PREFIX(356).
+            MOVE 4 TO D-PREFIX-LEN(356).
+            MOVE "whitelist_core" TO D-PROGRAM(356).
+            MOVE "WTC_" TO D-PREFIX(357).
+            MOVE 4 TO D-PREFIX-LEN(357).
+            MOVE "watchlist_core" TO D-PROGRAM(357).
+            MOVE "PEP_" TO D-PREFIX(358).
+            MOVE 4 TO D-PREFIX-LEN(358).
+            MOVE "pep_screening_core" TO D-PROGRAM(358).
+            MOVE "ADM_" TO D-PREFIX(359).
+            MOVE 4 TO D-PREFIX-LEN(359).
+            MOVE "adverse_media_core" TO D-PROGRAM(359).
+            MOVE "NSC_" TO D-PREFIX(360).
+            MOVE 4 TO D-PREFIX-LEN(360).
+            MOVE "name_screening_core" TO D-PROGRAM(360).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

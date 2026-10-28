@@ -1,0 +1,6 @@
+# Qr Payment (Wave8) validation cases.
+QRP_CREATE missing ref@@ERROR\|INVALID_INPUT@@QRP_CREATE||||||admin@test.com
+QRP_GET missing id@@ERROR\|INVALID_INPUT@@QRP_GET||||||admin@test.com
+QRP_CALC missing id@@ERROR\|INVALID_INPUT@@QRP_CALC||||||admin@test.com
+QRP_DELETE missing id@@ERROR\|INVALID_INPUT@@QRP_DELETE||||||admin@test.com
+QRP_VALIDATE ok@@SUCCESS\|QRP_VALID@@QRP_VALIDATE|100.00|USD||||admin@test.com

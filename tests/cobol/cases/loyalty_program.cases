@@ -1,0 +1,6 @@
+# Loyalty Program (Wave8) validation cases.
+LYP_CREATE missing ref@@ERROR\|INVALID_INPUT@@LYP_CREATE||||||admin@test.com
+LYP_GET missing id@@ERROR\|INVALID_INPUT@@LYP_GET||||||admin@test.com
+LYP_CALC missing id@@ERROR\|INVALID_INPUT@@LYP_CALC||||||admin@test.com
+LYP_DELETE missing id@@ERROR\|INVALID_INPUT@@LYP_DELETE||||||admin@test.com
+LYP_VALIDATE ok@@SUCCESS\|LYP_VALID@@LYP_VALIDATE|100.00|USD||||admin@test.com

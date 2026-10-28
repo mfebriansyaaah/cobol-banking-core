@@ -1,0 +1,6 @@
+# Prepaid Card (Wave8) validation cases.
+PPC_CREATE missing ref@@ERROR\|INVALID_INPUT@@PPC_CREATE||||||admin@test.com
+PPC_GET missing id@@ERROR\|INVALID_INPUT@@PPC_GET||||||admin@test.com
+PPC_CALC missing id@@ERROR\|INVALID_INPUT@@PPC_CALC||||||admin@test.com
+PPC_DELETE missing id@@ERROR\|INVALID_INPUT@@PPC_DELETE||||||admin@test.com
+PPC_VALIDATE ok@@SUCCESS\|PPC_VALID@@PPC_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Cashback (Wave8) validation cases.
+CSB_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSB_CREATE||||||admin@test.com
+CSB_GET missing id@@ERROR\|INVALID_INPUT@@CSB_GET||||||admin@test.com
+CSB_CALC missing id@@ERROR\|INVALID_INPUT@@CSB_CALC||||||admin@test.com
+CSB_DELETE missing id@@ERROR\|INVALID_INPUT@@CSB_DELETE||||||admin@test.com
+CSB_VALIDATE ok@@SUCCESS\|CSB_VALID@@CSB_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Risk Score (Wave8) validation cases.
+RKS_CREATE missing ref@@ERROR\|INVALID_INPUT@@RKS_CREATE||||||admin@test.com
+RKS_GET missing id@@ERROR\|INVALID_INPUT@@RKS_GET||||||admin@test.com
+RKS_CALC missing id@@ERROR\|INVALID_INPUT@@RKS_CALC||||||admin@test.com
+RKS_DELETE missing id@@ERROR\|INVALID_INPUT@@RKS_DELETE||||||admin@test.com
+RKS_VALIDATE ok@@SUCCESS\|RKS_VALID@@RKS_VALIDATE|100.00|USD||||admin@test.com
