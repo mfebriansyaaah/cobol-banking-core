@@ -343,8 +343,10 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 2. **Copy-paste plumbing.** 585 duplicate paragraph bodies were measured
    (`TRIM-ALL` ×104, `VALIDATE-ALL` ×102, `TRIM-RESULT-LEN` ×84). Shared
    copybooks for trimming, validation, and audit are the main refactor target.
-3. **No hosted CI.** GitLab/GitHub Actions is not configured; `ci.sh` is the
-   only gate, so it must be run locally before every merge.
+3. **CI is hosted on GitHub Actions, but branch protection is unavailable.**
+   The private/free plan rejects branch protection and repository rulesets, so
+   merges are enforced by `scripts/ci/premerge.sh` and `docs/GOVERNANCE.md`
+   rather than by the GitHub UI.
 4. **Documentation surface is thin.** Earlier references to `docs/*.md`,
    `SPEC-*.md`, and helper scripts were removed because those files are not in
    this repository. This README, `middleware/.env.example`, module comments, and
@@ -378,3 +380,17 @@ npm --prefix middleware test            # gateway suite
 node scripts/check_manifest.mjs         # registry drift check
 node middleware/src/outbox_worker.js --once
 ```
+
+## License
+
+This repository is proprietary and confidential. Copyright (c) 2026
+Muhammad Febriansyah. All rights reserved. No license, express or implied, is
+granted to use, copy, modify, distribute, or sublicense this software without
+prior written permission. See `LICENSE`.
+
+## Governance
+
+Branch protection is unavailable on the current private/free GitHub plan. The
+approved exception and compensating controls are documented in
+`docs/GOVERNANCE.md`. Run `bash scripts/ci/premerge.sh` before opening a pull
+request.

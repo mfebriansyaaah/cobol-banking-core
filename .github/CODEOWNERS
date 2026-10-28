@@ -1,0 +1,11 @@
+# Default owner for every path.
+* @mfebriansyaaah
+
+# Domain owners. Keep these aligned with the module classification.
+/cobol/ @mfebriansyaaah
+/middleware/ @mfebriansyaaah
+/database/ @mfebriansyaaah
+/tests/ @mfebriansyaaah
+/docs/ @mfebriansyaaah
+/scripts/ @mfebriansyaaah
+/.github/ @mfebriansyaaah
