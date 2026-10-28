@@ -122,7 +122,8 @@ jobs:
 
       - name: Provision least-privilege app account
         run: >
-          APP_DB_PASS="$DB_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
+          APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
+          MIGRATE_DB_PASS="$DB_MIGRATE_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
           DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
           DB_NAME="$DB_NAME" database/grants.sh
 

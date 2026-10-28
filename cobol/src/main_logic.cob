@@ -931,12 +931,15 @@
                         MOVE 'Y' TO DISPATCH-FOUND
                         IF D-PROGRAM(DISPATCH-IDX) = "user_core"
                             CALL D-PROGRAM(DISPATCH-IDX) USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
+                                END-CALL
                         ELSE
                             CALL D-PROGRAM(DISPATCH-IDX) USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG
+                                END-CALL
                         END-IF
                     END-IF
                 END-IF
                 ADD 1 TO DISPATCH-IDX
+                END-ADD
             END-PERFORM
             IF DISPATCH-FOUND = 'N'
                 IF CMD-ACTION = SPACES
