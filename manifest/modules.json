@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T11:06:59.286Z",
+  "generatedAt": "2026-10-28T12:29:22.203Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -15,6 +15,9 @@
     },
     {
       "source": "account_lock_core.cob"
+    },
+    {
+      "source": "account_statement_core.cob"
     },
     {
       "source": "actuarial_calc_core.cob"
@@ -33,6 +36,9 @@
     },
     {
       "source": "alerting_core.cob"
+    },
+    {
+      "source": "aml_check_core.cob"
     },
     {
       "source": "aml_screening_core.cob"
@@ -107,6 +113,12 @@
       "source": "backup_verification_core.cob"
     },
     {
+      "source": "balance_core.cob"
+    },
+    {
+      "source": "balance_sheet_core.cob"
+    },
+    {
       "source": "bank_guarantee_core.cob"
     },
     {
@@ -161,6 +173,9 @@
       "source": "capacity_plan_core.cob"
     },
     {
+      "source": "capital_core.cob"
+    },
+    {
       "source": "card_core.cob"
     },
     {
@@ -168,6 +183,9 @@
     },
     {
       "source": "case_management_core.cob"
+    },
+    {
+      "source": "cash_flow_core.cob"
     },
     {
       "source": "cash_management_core.cob"
@@ -192,6 +210,9 @@
     },
     {
       "source": "claims_management_core.cob"
+    },
+    {
+      "source": "clearing_core.cob"
     },
     {
       "source": "collateral_core.cob"
@@ -386,6 +407,9 @@
       "source": "eod_jobs_core.cob"
     },
     {
+      "source": "equity_account_core.cob"
+    },
+    {
       "source": "equity_core.cob"
     },
     {
@@ -443,6 +467,9 @@
       "source": "fraud_case_core.cob"
     },
     {
+      "source": "fraud_check_core.cob"
+    },
+    {
       "source": "fraud_ops_core.cob"
     },
     {
@@ -474,6 +501,9 @@
     },
     {
       "source": "gl_core.cob"
+    },
+    {
+      "source": "gl_master_core.cob"
     },
     {
       "source": "gl_period_close_core.cob"
@@ -518,6 +548,9 @@
       "source": "incident_report_core.cob"
     },
     {
+      "source": "income_statement_core.cob"
+    },
+    {
       "source": "indexing_core.cob"
     },
     {
@@ -548,10 +581,16 @@
       "source": "invoice_financing_core.cob"
     },
     {
+      "source": "journal_core.cob"
+    },
+    {
       "source": "key_rotation_core.cob"
     },
     {
       "source": "kpi_core.cob"
+    },
+    {
+      "source": "kyc_check_core.cob"
     },
     {
       "source": "kyc_periodic_core.cob"
@@ -573,6 +612,9 @@
     },
     {
       "source": "letter_of_credit_core.cob"
+    },
+    {
+      "source": "liability_core.cob"
     },
     {
       "source": "limit_profile_core.cob"
@@ -653,7 +695,13 @@
       "source": "name_screening_core.cob"
     },
     {
+      "source": "netting_core.cob"
+    },
+    {
       "source": "nft_management_core.cob"
+    },
+    {
+      "source": "nostro_core.cob"
     },
     {
       "source": "notice_deposit_core.cob"
@@ -714,6 +762,9 @@
     },
     {
       "source": "payment_link_core.cob"
+    },
+    {
+      "source": "payment_processing_core.cob"
     },
     {
       "source": "payroll_processing_core.cob"
@@ -809,6 +860,9 @@
       "source": "recon_ops_core.cob"
     },
     {
+      "source": "reconciliation_core.cob"
+    },
+    {
       "source": "recruitment_core.cob"
     },
     {
@@ -863,6 +917,9 @@
       "source": "reporting_core.cob"
     },
     {
+      "source": "reserve_core.cob"
+    },
+    {
       "source": "retention_job_core.cob"
     },
     {
@@ -885,6 +942,9 @@
     },
     {
       "source": "role_management_core.cob"
+    },
+    {
+      "source": "sanctions_check_core.cob"
     },
     {
       "source": "sanctions_hold_core.cob"
@@ -974,6 +1034,9 @@
       "source": "supply_chain_finance_core.cob"
     },
     {
+      "source": "suspense_core.cob"
+    },
+    {
       "source": "swap_contract_core.cob"
     },
     {
@@ -1022,7 +1085,13 @@
       "source": "tranche_core.cob"
     },
     {
+      "source": "transaction_core.cob"
+    },
+    {
       "source": "transaction_limit_core.cob"
+    },
+    {
+      "source": "transfer_core.cob"
     },
     {
       "source": "treasury_deal_core.cob"
@@ -1032,6 +1101,9 @@
     },
     {
       "source": "treasury_position_core.cob"
+    },
+    {
+      "source": "trial_balance_core.cob"
     },
     {
       "source": "trust_core.cob"
@@ -1079,6 +1151,9 @@
       "source": "volatility_core.cob"
     },
     {
+      "source": "vostro_core.cob"
+    },
+    {
       "source": "wallet_core.cob"
     },
     {
@@ -1103,6 +1178,9 @@
       "source": "whitelist_core.cob"
     },
     {
+      "source": "withdrawal_core.cob"
+    },
+    {
       "source": "workflow_approval_core.cob"
     },
     {
@@ -1115,12 +1193,14 @@
     "access_control.js",
     "account.js",
     "account_lock.js",
+    "account_statement.js",
     "actuarial_calc.js",
     "adverse_media.js",
     "agreement.js",
     "alert_escalation.js",
     "alerting.js",
     "alerts.js",
+    "aml_check.js",
     "aml_screening.js",
     "analytics.js",
     "analytics_snapshot.js",
@@ -1143,6 +1223,8 @@
     "backup_management.js",
     "backup_restore.js",
     "backup_verification.js",
+    "balance.js",
+    "balance_sheet.js",
     "bank_guarantee.js",
     "batch.js",
     "beneficiary_registry.js",
@@ -1161,9 +1243,11 @@
     "call_deposit.js",
     "capacity_forecast.js",
     "capacity_plan.js",
+    "capital.js",
     "card.js",
     "card_tokenization.js",
     "case_management.js",
+    "cash_flow.js",
     "cash_management.js",
     "cashback.js",
     "certificate_deposit.js",
@@ -1172,6 +1256,7 @@
     "chargeback.js",
     "circuit_breaker.js",
     "claims_management.js",
+    "clearing.js",
     "collateral.js",
     "collateral_mgmt.js",
     "collateral_repossession.js",
@@ -1237,6 +1322,7 @@
     "eod.js",
     "eod_jobs.js",
     "equity.js",
+    "equity_account.js",
     "equity_swap.js",
     "escrow_account.js",
     "etf.js",
@@ -1255,6 +1341,7 @@
     "foreclosure.js",
     "foreign_currency_deposit.js",
     "fraud_case.js",
+    "fraud_check.js",
     "fraud_ops.js",
     "fund.js",
     "future_contract.js",
@@ -1266,6 +1353,7 @@
     "gift_card.js",
     "gl.js",
     "gl_allocation.js",
+    "gl_master.js",
     "gl_period_close.js",
     "gl_reval.js",
     "greeks.js",
@@ -1278,6 +1366,7 @@
     "incident.js",
     "incident_postmortem.js",
     "incident_report.js",
+    "income_statement.js",
     "indexing.js",
     "infrastructure.js",
     "insurance_policy.js",
@@ -1288,9 +1377,11 @@
     "investigation.js",
     "invoice.js",
     "invoice_financing.js",
+    "journal.js",
     "key_rotation.js",
     "kpi.js",
     "kyc.js",
+    "kyc_check.js",
     "kyc_periodic.js",
     "kyc_review.js",
     "lbpue.js",
@@ -1298,6 +1389,7 @@
     "legal_case.js",
     "legal_hold.js",
     "letter_of_credit.js",
+    "liability.js",
     "limit_profile.js",
     "load_balancer.js",
     "loan.js",
@@ -1324,7 +1416,9 @@
     "multi_currency.js",
     "mutual_fund.js",
     "name_screening.js",
+    "netting.js",
     "nft_management.js",
+    "nostro.js",
     "notice_deposit.js",
     "notification.js",
     "notification_audit.js",
@@ -1345,6 +1439,7 @@
     "payment_hold.js",
     "payment_instructions.js",
     "payment_link.js",
+    "payment_processing.js",
     "payroll_processing.js",
     "pension.js",
     "pep_screening.js",
@@ -1376,6 +1471,7 @@
     "recon.js",
     "recon_exception.js",
     "recon_ops.js",
+    "reconciliation.js",
     "recruitment.js",
     "recurring_deposit.js",
     "ref_engine.js",
@@ -1394,6 +1490,7 @@
     "report_schedule.js",
     "report_scheduler.js",
     "reporting.js",
+    "reserve.js",
     "retention_job.js",
     "retry.js",
     "revenue.js",
@@ -1402,6 +1499,7 @@
     "risk_score.js",
     "risk_screening.js",
     "role_management.js",
+    "sanctions_check.js",
     "sanctions_hold.js",
     "sanctions_list.js",
     "savings_account.js",
@@ -1431,6 +1529,7 @@
     "structured_product.js",
     "subscription.js",
     "supply_chain_finance.js",
+    "suspense.js",
     "swap_contract.js",
     "syndicated_loan.js",
     "system_config.js",
@@ -1447,10 +1546,13 @@
     "trade_finance.js",
     "training.js",
     "tranche.js",
+    "transaction.js",
     "transaction_limit.js",
+    "transfer.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
     "treasury_position.js",
+    "trial_balance.js",
     "trust.js",
     "user_activity.js",
     "valuation.js",
@@ -1465,6 +1567,7 @@
     "venture_capital.js",
     "virtual_card.js",
     "volatility.js",
+    "vostro.js",
     "warrant.js",
     "warrant_issuing.js",
     "watchlist.js",
@@ -1472,6 +1575,7 @@
     "webhook.js",
     "whistleblowing.js",
     "whitelist.js",
+    "withdrawal.js",
     "workflow_approval.js",
     "write_off.js"
   ],
@@ -3710,6 +3814,136 @@
       "prefixLen": 4,
       "prefix": "ASB_",
       "program": "asset_backed_security_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "AMLC_",
+      "program": "aml_check_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "KYCC_",
+      "program": "kyc_check_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "SNCS_",
+      "program": "sanctions_check_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "FRDU_",
+      "program": "fraud_check_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TXN_",
+      "program": "transaction_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PAYM_",
+      "program": "payment_processing_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "TRFS_",
+      "program": "transfer_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WDL_",
+      "program": "withdrawal_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BAL_",
+      "program": "balance_core"
+    },
+    {
+      "prefixLen": 6,
+      "prefix": "STMTS_",
+      "program": "account_statement_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "RECN_",
+      "program": "reconciliation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CLR_",
+      "program": "clearing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NET_",
+      "program": "netting_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NOS_",
+      "program": "nostro_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VOS_",
+      "program": "vostro_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SUS_",
+      "program": "suspense_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GLM_",
+      "program": "gl_master_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "JRN_",
+      "program": "journal_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "TB_",
+      "program": "trial_balance_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "BS_",
+      "program": "balance_sheet_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "IS_",
+      "program": "income_statement_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "CF_",
+      "program": "cash_flow_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EQT_",
+      "program": "equity_account_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LIA_",
+      "program": "liability_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CPTL_",
+      "program": "capital_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RSV_",
+      "program": "reserve_core"
     }
   ]
 }

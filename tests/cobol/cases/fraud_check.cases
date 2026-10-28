@@ -1,0 +1,6 @@
+# Fraud Check (Wave13) validation cases.
+FRDU_CREATE missing ref@@ERROR\|INVALID_INPUT@@FRDU_CREATE||||||admin@test.com
+FRDU_GET missing id@@ERROR\|INVALID_INPUT@@FRDU_GET||||||admin@test.com
+FRDU_CALC missing id@@ERROR\|INVALID_INPUT@@FRDU_CALC||||||admin@test.com
+FRDU_DELETE missing id@@ERROR\|INVALID_INPUT@@FRDU_DELETE||||||admin@test.com
+FRDU_VALIDATE ok@@SUCCESS\|FRDU_VALID@@FRDU_VALIDATE|100.00|USD||||admin@test.com

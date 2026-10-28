@@ -1,0 +1,6 @@
+# Cash Flow (Wave13) validation cases.
+CF_CREATE missing ref@@ERROR\|INVALID_INPUT@@CF_CREATE||||||admin@test.com
+CF_GET missing id@@ERROR\|INVALID_INPUT@@CF_GET||||||admin@test.com
+CF_CALC missing id@@ERROR\|INVALID_INPUT@@CF_CALC||||||admin@test.com
+CF_DELETE missing id@@ERROR\|INVALID_INPUT@@CF_DELETE||||||admin@test.com
+CF_VALIDATE ok@@SUCCESS\|CF_VALID@@CF_VALIDATE|100.00|USD||||admin@test.com

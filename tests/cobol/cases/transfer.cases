@@ -1,0 +1,6 @@
+# Transfer (Wave13) validation cases.
+TRFS_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRFS_CREATE||||||admin@test.com
+TRFS_GET missing id@@ERROR\|INVALID_INPUT@@TRFS_GET||||||admin@test.com
+TRFS_CALC missing id@@ERROR\|INVALID_INPUT@@TRFS_CALC||||||admin@test.com
+TRFS_DELETE missing id@@ERROR\|INVALID_INPUT@@TRFS_DELETE||||||admin@test.com
+TRFS_VALIDATE ok@@SUCCESS\|TRFS_VALID@@TRFS_VALIDATE|100.00|USD||||admin@test.com

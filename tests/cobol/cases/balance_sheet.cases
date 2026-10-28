@@ -1,0 +1,6 @@
+# Balance Sheet (Wave13) validation cases.
+BS_CREATE missing ref@@ERROR\|INVALID_INPUT@@BS_CREATE||||||admin@test.com
+BS_GET missing id@@ERROR\|INVALID_INPUT@@BS_GET||||||admin@test.com
+BS_CALC missing id@@ERROR\|INVALID_INPUT@@BS_CALC||||||admin@test.com
+BS_DELETE missing id@@ERROR\|INVALID_INPUT@@BS_DELETE||||||admin@test.com
+BS_VALIDATE ok@@SUCCESS\|BS_VALID@@BS_VALIDATE|100.00|USD||||admin@test.com
