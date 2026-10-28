@@ -1,0 +1,6 @@
+# Pricing (Wave9) validation cases.
+PRG_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRG_CREATE||||||admin@test.com
+PRG_GET missing id@@ERROR\|INVALID_INPUT@@PRG_GET||||||admin@test.com
+PRG_CALC missing id@@ERROR\|INVALID_INPUT@@PRG_CALC||||||admin@test.com
+PRG_DELETE missing id@@ERROR\|INVALID_INPUT@@PRG_DELETE||||||admin@test.com
+PRG_VALIDATE ok@@SUCCESS\|PRG_VALID@@PRG_VALIDATE|100.00|USD||||admin@test.com

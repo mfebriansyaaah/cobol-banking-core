@@ -1,0 +1,6 @@
+# Fx Swap (Wave9) validation cases.
+FXS_CREATE missing ref@@ERROR\|INVALID_INPUT@@FXS_CREATE||||||admin@test.com
+FXS_GET missing id@@ERROR\|INVALID_INPUT@@FXS_GET||||||admin@test.com
+FXS_CALC missing id@@ERROR\|INVALID_INPUT@@FXS_CALC||||||admin@test.com
+FXS_DELETE missing id@@ERROR\|INVALID_INPUT@@FXS_DELETE||||||admin@test.com
+FXS_VALIDATE ok@@SUCCESS\|FXS_VALID@@FXS_VALIDATE|100.00|USD||||admin@test.com

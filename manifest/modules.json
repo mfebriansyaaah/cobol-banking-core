@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T08:16:02.375Z",
+  "generatedAt": "2026-10-28T09:12:10.888Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -113,6 +113,9 @@
       "source": "business_continuity_core.cob"
     },
     {
+      "source": "call_deposit_core.cob"
+    },
+    {
       "source": "capacity_forecast_core.cob"
     },
     {
@@ -132,6 +135,9 @@
     },
     {
       "source": "cashback_core.cob"
+    },
+    {
+      "source": "certificate_deposit_core.cob"
     },
     {
       "source": "change_approval_core.cob"
@@ -156,6 +162,9 @@
     },
     {
       "source": "collection_core.cob"
+    },
+    {
+      "source": "commodity_swap_core.cob"
     },
     {
       "source": "commodity_trading_core.cob"
@@ -188,10 +197,16 @@
       "source": "cost_center_core.cob"
     },
     {
+      "source": "cost_core.cob"
+    },
+    {
       "source": "credit_bureau_core.cob"
     },
     {
       "source": "credit_card_core.cob"
+    },
+    {
+      "source": "credit_default_swap_core.cob"
     },
     {
       "source": "crisis_management_core.cob"
@@ -204,6 +219,12 @@
     },
     {
       "source": "currency_exchange_core.cob"
+    },
+    {
+      "source": "currency_hedging_core.cob"
+    },
+    {
+      "source": "current_account_core.cob"
     },
     {
       "source": "customer_core.cob"
@@ -278,6 +299,9 @@
       "source": "eod_jobs_core.cob"
     },
     {
+      "source": "equity_swap_core.cob"
+    },
+    {
       "source": "escrow_account_core.cob"
     },
     {
@@ -302,7 +326,13 @@
       "source": "fixed_asset_core.cob"
     },
     {
+      "source": "fixed_deposit_core.cob"
+    },
+    {
       "source": "foreclosure_core.cob"
+    },
+    {
+      "source": "foreign_currency_deposit_core.cob"
     },
     {
       "source": "fraud_case_core.cob"
@@ -317,7 +347,16 @@
       "source": "fx_deal_core.cob"
     },
     {
+      "source": "fx_forward_core.cob"
+    },
+    {
       "source": "fx_hedging_core.cob"
+    },
+    {
+      "source": "fx_option_core.cob"
+    },
+    {
+      "source": "fx_swap_core.cob"
     },
     {
       "source": "gift_card_core.cob"
@@ -333,6 +372,9 @@
     },
     {
       "source": "gl_reval_core.cob"
+    },
+    {
+      "source": "greeks_core.cob"
     },
     {
       "source": "guarantee_issuing_core.cob"
@@ -363,6 +405,9 @@
     },
     {
       "source": "interest_rate_core.cob"
+    },
+    {
+      "source": "interest_rate_swap_core.cob"
     },
     {
       "source": "internal_audit_core.cob"
@@ -416,7 +461,13 @@
       "source": "loyalty_program_core.cob"
     },
     {
+      "source": "margin_core.cob"
+    },
+    {
       "source": "margin_trading_core.cob"
+    },
+    {
+      "source": "mark_to_market_core.cob"
     },
     {
       "source": "merchant_core.cob"
@@ -434,10 +485,16 @@
       "source": "mobile_wallet_core.cob"
     },
     {
+      "source": "multi_currency_core.cob"
+    },
+    {
       "source": "name_screening_core.cob"
     },
     {
       "source": "nft_management_core.cob"
+    },
+    {
+      "source": "notice_deposit_core.cob"
     },
     {
       "source": "notification_audit_core.cob"
@@ -506,6 +563,9 @@
       "source": "pisp_management_core.cob"
     },
     {
+      "source": "pnl_core.cob"
+    },
+    {
       "source": "points_redemption_core.cob"
     },
     {
@@ -521,10 +581,16 @@
       "source": "prepaid_card_core.cob"
     },
     {
+      "source": "pricing_core.cob"
+    },
+    {
       "source": "procurement_core.cob"
     },
     {
       "source": "product_catalog_core.cob"
+    },
+    {
+      "source": "profit_core.cob"
     },
     {
       "source": "provisioning_core.cob"
@@ -543,6 +609,9 @@
     },
     {
       "source": "recon_ops_core.cob"
+    },
+    {
+      "source": "recurring_deposit_core.cob"
     },
     {
       "source": "ref_engine.cob"
@@ -593,6 +662,9 @@
       "source": "retention_job_core.cob"
     },
     {
+      "source": "revenue_core.cob"
+    },
+    {
       "source": "rewards_management_core.cob"
     },
     {
@@ -612,6 +684,9 @@
     },
     {
       "source": "sanctions_list_core.cob"
+    },
+    {
+      "source": "savings_account_core.cob"
     },
     {
       "source": "secret_rotation_core.cob"
@@ -680,10 +755,16 @@
       "source": "teller_management_core.cob"
     },
     {
+      "source": "term_deposit_core.cob"
+    },
+    {
       "source": "token_management_core.cob"
     },
     {
       "source": "tokenization_core.cob"
+    },
+    {
+      "source": "total_return_swap_core.cob"
     },
     {
       "source": "trade_finance_core.cob"
@@ -707,6 +788,12 @@
       "source": "user_core.cob"
     },
     {
+      "source": "valuation_core.cob"
+    },
+    {
+      "source": "variance_swap_core.cob"
+    },
+    {
       "source": "vault_management_core.cob"
     },
     {
@@ -726,6 +813,9 @@
     },
     {
       "source": "virtual_card_core.cob"
+    },
+    {
+      "source": "volatility_core.cob"
     },
     {
       "source": "wallet_core.cob"
@@ -785,6 +875,7 @@
     "branch_management.js",
     "budget.js",
     "business_continuity.js",
+    "call_deposit.js",
     "capacity_forecast.js",
     "capacity_plan.js",
     "card.js",
@@ -792,6 +883,7 @@
     "case_management.js",
     "cash_management.js",
     "cashback.js",
+    "certificate_deposit.js",
     "change_approval.js",
     "change_control.js",
     "chargeback.js",
@@ -800,6 +892,7 @@
     "collateral_mgmt.js",
     "collateral_repossession.js",
     "collection.js",
+    "commodity_swap.js",
     "commodity_trading.js",
     "complaint_management.js",
     "compliance_audit.js",
@@ -809,13 +902,17 @@
     "consent_management.js",
     "consolidation.js",
     "contactless.js",
+    "cost.js",
     "cost_center.js",
     "credit_bureau.js",
     "credit_card.js",
+    "credit_default_swap.js",
     "crisis_management.js",
     "crypto_exchange.js",
     "crypto_wallet.js",
     "currency_exchange.js",
+    "currency_hedging.js",
+    "current_account.js",
     "customer.js",
     "customer_support.js",
     "daily_limit.js",
@@ -840,6 +937,7 @@
     "dsar.js",
     "eod.js",
     "eod_jobs.js",
+    "equity_swap.js",
     "escrow_account.js",
     "export_archive.js",
     "export_stream.js",
@@ -848,17 +946,23 @@
     "fee_management.js",
     "fee_waiver.js",
     "fixed_asset.js",
+    "fixed_deposit.js",
     "foreclosure.js",
+    "foreign_currency_deposit.js",
     "fraud_case.js",
     "fraud_ops.js",
     "future_contract.js",
     "fx_deal.js",
+    "fx_forward.js",
     "fx_hedging.js",
+    "fx_option.js",
+    "fx_swap.js",
     "gift_card.js",
     "gl.js",
     "gl_allocation.js",
     "gl_period_close.js",
     "gl_reval.js",
+    "greeks.js",
     "guarantee_issuing.js",
     "import.js",
     "import_recon.js",
@@ -867,6 +971,7 @@
     "incident_report.js",
     "insurance_policy.js",
     "interest_rate.js",
+    "interest_rate_swap.js",
     "internal_audit.js",
     "internet_banking.js",
     "investigation.js",
@@ -885,14 +990,18 @@
     "login_attempt.js",
     "loss_reserve.js",
     "loyalty_program.js",
+    "margin.js",
     "margin_trading.js",
+    "mark_to_market.js",
     "merchant.js",
     "merchant_settlement.js",
     "metric_definition.js",
     "mfa_management.js",
     "mobile_wallet.js",
+    "multi_currency.js",
     "name_screening.js",
     "nft_management.js",
+    "notice_deposit.js",
     "notification.js",
     "notification_audit.js",
     "notification_template.js",
@@ -915,19 +1024,23 @@
     "permission_set.js",
     "pipeline_alert.js",
     "pisp_management.js",
+    "pnl.js",
     "points_redemption.js",
     "policy_administration.js",
     "policy_attestation.js",
     "portfolio_management.js",
     "prepaid_card.js",
+    "pricing.js",
     "procurement.js",
     "product_catalog.js",
+    "profit.js",
     "provisioning.js",
     "qr_payment.js",
     "rate_management.js",
     "recon.js",
     "recon_exception.js",
     "recon_ops.js",
+    "recurring_deposit.js",
     "ref_engine.js",
     "ref_ext.js",
     "refund_processing.js",
@@ -944,6 +1057,7 @@
     "report_schedule.js",
     "report_scheduler.js",
     "retention_job.js",
+    "revenue.js",
     "rewards_management.js",
     "risk_model.js",
     "risk_score.js",
@@ -951,6 +1065,7 @@
     "role_management.js",
     "sanctions_hold.js",
     "sanctions_list.js",
+    "savings_account.js",
     "secret_rotation.js",
     "securities_lending.js",
     "session_management.js",
@@ -973,14 +1088,18 @@
     "tax_management.js",
     "tax_report.js",
     "teller_management.js",
+    "term_deposit.js",
     "token_management.js",
     "tokenization.js",
+    "total_return_swap.js",
     "trade_finance.js",
     "transaction_limit.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
     "treasury_position.js",
     "user_activity.js",
+    "valuation.js",
+    "variance_swap.js",
     "vault_management.js",
     "velocity_check.js",
     "vendor.js",
@@ -988,6 +1107,7 @@
     "vendor_management.js",
     "vendor_risk.js",
     "virtual_card.js",
+    "volatility.js",
     "watchlist.js",
     "wealth_management.js",
     "whistleblowing.js",
@@ -2630,6 +2750,156 @@
       "prefixLen": 4,
       "prefix": "NSC_",
       "program": "name_screening_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SAV_",
+      "program": "savings_account_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CUR_",
+      "program": "current_account_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TDP_",
+      "program": "term_deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CDP_",
+      "program": "certificate_deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RDP_",
+      "program": "recurring_deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FDP_",
+      "program": "fixed_deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CLD_",
+      "program": "call_deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NDP_",
+      "program": "notice_deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FCD_",
+      "program": "foreign_currency_deposit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MCC_",
+      "program": "multi_currency_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CDH_",
+      "program": "currency_hedging_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FXF_",
+      "program": "fx_forward_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FXO_",
+      "program": "fx_option_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FXS_",
+      "program": "fx_swap_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IRS_",
+      "program": "interest_rate_swap_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CDS_",
+      "program": "credit_default_swap_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRS_",
+      "program": "total_return_swap_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EQS_",
+      "program": "equity_swap_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CMS_",
+      "program": "commodity_swap_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VRS_",
+      "program": "variance_swap_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VOL_",
+      "program": "volatility_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GRK_",
+      "program": "greeks_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRG_",
+      "program": "pricing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VAL_",
+      "program": "valuation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MTM_",
+      "program": "mark_to_market_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PNL_",
+      "program": "pnl_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "REV_",
+      "program": "revenue_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "COS_",
+      "program": "cost_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRF_",
+      "program": "profit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MRG_",
+      "program": "margin_core"
     }
   ]
 }

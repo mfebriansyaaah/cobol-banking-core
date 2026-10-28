@@ -1,0 +1,6 @@
+# Credit Default Swap (Wave9) validation cases.
+CDS_CREATE missing ref@@ERROR\|INVALID_INPUT@@CDS_CREATE||||||admin@test.com
+CDS_GET missing id@@ERROR\|INVALID_INPUT@@CDS_GET||||||admin@test.com
+CDS_CALC missing id@@ERROR\|INVALID_INPUT@@CDS_CALC||||||admin@test.com
+CDS_DELETE missing id@@ERROR\|INVALID_INPUT@@CDS_DELETE||||||admin@test.com
+CDS_VALIDATE ok@@SUCCESS\|CDS_VALID@@CDS_VALIDATE|100.00|USD||||admin@test.com

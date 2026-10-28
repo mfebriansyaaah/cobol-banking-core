@@ -1,0 +1,6 @@
+# Foreign Currency Deposit (Wave9) validation cases.
+FCD_CREATE missing ref@@ERROR\|INVALID_INPUT@@FCD_CREATE||||||admin@test.com
+FCD_GET missing id@@ERROR\|INVALID_INPUT@@FCD_GET||||||admin@test.com
+FCD_CALC missing id@@ERROR\|INVALID_INPUT@@FCD_CALC||||||admin@test.com
+FCD_DELETE missing id@@ERROR\|INVALID_INPUT@@FCD_DELETE||||||admin@test.com
+FCD_VALIDATE ok@@SUCCESS\|FCD_VALID@@FCD_VALIDATE|100.00|USD||||admin@test.com

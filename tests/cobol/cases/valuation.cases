@@ -1,0 +1,6 @@
+# Valuation (Wave9) validation cases.
+VAL_CREATE missing ref@@ERROR\|INVALID_INPUT@@VAL_CREATE||||||admin@test.com
+VAL_GET missing id@@ERROR\|INVALID_INPUT@@VAL_GET||||||admin@test.com
+VAL_CALC missing id@@ERROR\|INVALID_INPUT@@VAL_CALC||||||admin@test.com
+VAL_DELETE missing id@@ERROR\|INVALID_INPUT@@VAL_DELETE||||||admin@test.com
+VAL_VALIDATE ok@@SUCCESS\|VAL_VALID@@VAL_VALIDATE|100.00|USD||||admin@test.com

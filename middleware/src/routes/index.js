@@ -55,6 +55,36 @@ import { ORG_ROUTES } from './organization_unit.js';
 import { SYL_ROUTES } from './syndicated_loan.js';
 import { OSC_ROUTES } from './outsourcing_contract.js';
 import { NSC_ROUTES } from './name_screening.js';
+import { VAL_ROUTES } from './valuation.js';
+import { MRG_ROUTES } from './margin.js';
+import { PRF_ROUTES } from './profit.js';
+import { COS_ROUTES } from './cost.js';
+import { REV_ROUTES } from './revenue.js';
+import { PNL_ROUTES } from './pnl.js';
+import { MTM_ROUTES } from './mark_to_market.js';
+import { PRG_ROUTES } from './pricing.js';
+import { GRK_ROUTES } from './greeks.js';
+import { VOL_ROUTES } from './volatility.js';
+import { VRS_ROUTES } from './variance_swap.js';
+import { CMS_ROUTES } from './commodity_swap.js';
+import { EQS_ROUTES } from './equity_swap.js';
+import { TRS_ROUTES } from './total_return_swap.js';
+import { CDS_ROUTES } from './credit_default_swap.js';
+import { IRS_ROUTES } from './interest_rate_swap.js';
+import { FXS_ROUTES } from './fx_swap.js';
+import { FXO_ROUTES } from './fx_option.js';
+import { FXF_ROUTES } from './fx_forward.js';
+import { CDH_ROUTES } from './currency_hedging.js';
+import { MCC_ROUTES } from './multi_currency.js';
+import { FCD_ROUTES } from './foreign_currency_deposit.js';
+import { NDP_ROUTES } from './notice_deposit.js';
+import { CLD_ROUTES } from './call_deposit.js';
+import { FDP_ROUTES } from './fixed_deposit.js';
+import { RDP_ROUTES } from './recurring_deposit.js';
+import { CDP_ROUTES } from './certificate_deposit.js';
+import { TDP_ROUTES } from './term_deposit.js';
+import { CUR_ROUTES } from './current_account.js';
+import { SAV_ROUTES } from './savings_account.js';
 import { ADM_ROUTES } from './adverse_media.js';
 import { PEP_ROUTES } from './pep_screening.js';
 import { WTC_ROUTES } from './watchlist.js';
@@ -301,6 +331,36 @@ export const ALL_ROUTES = [
   ...SYL_ROUTES,
   ...OSC_ROUTES,
   ...NSC_ROUTES,
+  ...VAL_ROUTES,
+  ...MRG_ROUTES,
+  ...PRF_ROUTES,
+  ...COS_ROUTES,
+  ...REV_ROUTES,
+  ...PNL_ROUTES,
+  ...MTM_ROUTES,
+  ...PRG_ROUTES,
+  ...GRK_ROUTES,
+  ...VOL_ROUTES,
+  ...VRS_ROUTES,
+  ...CMS_ROUTES,
+  ...EQS_ROUTES,
+  ...TRS_ROUTES,
+  ...CDS_ROUTES,
+  ...IRS_ROUTES,
+  ...FXS_ROUTES,
+  ...FXO_ROUTES,
+  ...FXF_ROUTES,
+  ...CDH_ROUTES,
+  ...MCC_ROUTES,
+  ...FCD_ROUTES,
+  ...NDP_ROUTES,
+  ...CLD_ROUTES,
+  ...FDP_ROUTES,
+  ...RDP_ROUTES,
+  ...CDP_ROUTES,
+  ...TDP_ROUTES,
+  ...CUR_ROUTES,
+  ...SAV_ROUTES,
   ...ADM_ROUTES,
   ...PEP_ROUTES,
   ...WTC_ROUTES,

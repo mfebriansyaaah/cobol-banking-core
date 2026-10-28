@@ -150,6 +150,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/pep_screening_core.cob \
     cobol/src/adverse_media_core.cob \
     cobol/src/name_screening_core.cob \
+    cobol/src/savings_account_core.cob \
+    cobol/src/current_account_core.cob \
+    cobol/src/term_deposit_core.cob \
+    cobol/src/certificate_deposit_core.cob \
+    cobol/src/recurring_deposit_core.cob \
+    cobol/src/fixed_deposit_core.cob \
+    cobol/src/call_deposit_core.cob \
+    cobol/src/notice_deposit_core.cob \
+    cobol/src/foreign_currency_deposit_core.cob \
+    cobol/src/multi_currency_core.cob \
+    cobol/src/currency_hedging_core.cob \
+    cobol/src/fx_forward_core.cob \
+    cobol/src/fx_option_core.cob \
+    cobol/src/fx_swap_core.cob \
+    cobol/src/interest_rate_swap_core.cob \
+    cobol/src/credit_default_swap_core.cob \
+    cobol/src/total_return_swap_core.cob \
+    cobol/src/equity_swap_core.cob \
+    cobol/src/commodity_swap_core.cob \
+    cobol/src/variance_swap_core.cob \
+    cobol/src/volatility_core.cob \
+    cobol/src/greeks_core.cob \
+    cobol/src/pricing_core.cob \
+    cobol/src/valuation_core.cob \
+    cobol/src/mark_to_market_core.cob \
+    cobol/src/pnl_core.cob \
+    cobol/src/revenue_core.cob \
+    cobol/src/cost_core.cob \
+    cobol/src/profit_core.cob \
+    cobol/src/margin_core.cob \
     cobol/src/structured_product_core.cob \
     cobol/src/margin_trading_core.cob \
     cobol/src/securities_lending_core.cob \

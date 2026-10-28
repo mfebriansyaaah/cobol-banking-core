@@ -1,0 +1,6 @@
+# Multi Currency (Wave9) validation cases.
+MCC_CREATE missing ref@@ERROR\|INVALID_INPUT@@MCC_CREATE||||||admin@test.com
+MCC_GET missing id@@ERROR\|INVALID_INPUT@@MCC_GET||||||admin@test.com
+MCC_CALC missing id@@ERROR\|INVALID_INPUT@@MCC_CALC||||||admin@test.com
+MCC_DELETE missing id@@ERROR\|INVALID_INPUT@@MCC_DELETE||||||admin@test.com
+MCC_VALIDATE ok@@SUCCESS\|MCC_VALID@@MCC_VALIDATE|100.00|USD||||admin@test.com

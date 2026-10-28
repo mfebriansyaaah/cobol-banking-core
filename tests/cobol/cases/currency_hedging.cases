@@ -1,0 +1,6 @@
+# Currency Hedging (Wave9) validation cases.
+CDH_CREATE missing ref@@ERROR\|INVALID_INPUT@@CDH_CREATE||||||admin@test.com
+CDH_GET missing id@@ERROR\|INVALID_INPUT@@CDH_GET||||||admin@test.com
+CDH_CALC missing id@@ERROR\|INVALID_INPUT@@CDH_CALC||||||admin@test.com
+CDH_DELETE missing id@@ERROR\|INVALID_INPUT@@CDH_DELETE||||||admin@test.com
+CDH_VALIDATE ok@@SUCCESS\|CDH_VALID@@CDH_VALIDATE|100.00|USD||||admin@test.com
