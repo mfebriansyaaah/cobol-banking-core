@@ -1,0 +1,6 @@
+# Retry (Wave11) validation cases.
+RTY_CREATE missing ref@@ERROR\|INVALID_INPUT@@RTY_CREATE||||||admin@test.com
+RTY_GET missing id@@ERROR\|INVALID_INPUT@@RTY_GET||||||admin@test.com
+RTY_CALC missing id@@ERROR\|INVALID_INPUT@@RTY_CALC||||||admin@test.com
+RTY_DELETE missing id@@ERROR\|INVALID_INPUT@@RTY_DELETE||||||admin@test.com
+RTY_VALIDATE ok@@SUCCESS\|RTY_VALID@@RTY_VALIDATE|100.00|USD||||admin@test.com

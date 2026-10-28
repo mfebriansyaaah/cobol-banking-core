@@ -1,0 +1,6 @@
+# Event Bus (Wave11) validation cases.
+EVB_CREATE missing ref@@ERROR\|INVALID_INPUT@@EVB_CREATE||||||admin@test.com
+EVB_GET missing id@@ERROR\|INVALID_INPUT@@EVB_GET||||||admin@test.com
+EVB_CALC missing id@@ERROR\|INVALID_INPUT@@EVB_CALC||||||admin@test.com
+EVB_DELETE missing id@@ERROR\|INVALID_INPUT@@EVB_DELETE||||||admin@test.com
+EVB_VALIDATE ok@@SUCCESS\|EVB_VALID@@EVB_VALIDATE|100.00|USD||||admin@test.com

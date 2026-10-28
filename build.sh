@@ -212,6 +212,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/dq_check_core.cob \
     cobol/src/master_data_core.cob \
     cobol/src/audit_log_core.cob \
+    cobol/src/email_core.cob \
+    cobol/src/sms_core.cob \
+    cobol/src/push_notification_core.cob \
+    cobol/src/in_app_message_core.cob \
+    cobol/src/webhook_core.cob \
+    cobol/src/api_gateway_core.cob \
+    cobol/src/message_queue_core.cob \
+    cobol/src/event_bus_core.cob \
+    cobol/src/service_mesh_core.cob \
+    cobol/src/load_balancer_core.cob \
+    cobol/src/cache_core.cob \
+    cobol/src/session_store_core.cob \
+    cobol/src/config_core.cob \
+    cobol/src/feature_flag_core.cob \
+    cobol/src/ab_testing_core.cob \
+    cobol/src/experiment_core.cob \
+    cobol/src/personalization_core.cob \
+    cobol/src/recommendation_core.cob \
+    cobol/src/search_core.cob \
+    cobol/src/indexing_core.cob \
+    cobol/src/logging_core.cob \
+    cobol/src/monitoring_core.cob \
+    cobol/src/alerting_core.cob \
+    cobol/src/tracing_core.cob \
+    cobol/src/metrics_core.cob \
+    cobol/src/health_check_core.cob \
+    cobol/src/circuit_breaker_core.cob \
+    cobol/src/rate_limiter_core.cob \
+    cobol/src/retry_core.cob \
+    cobol/src/timeout_core.cob \
     cobol/src/securities_lending_core.cob \
     cobol/src/repo_agreement_core.cob \
     cobol/src/commodity_trading_core.cob \

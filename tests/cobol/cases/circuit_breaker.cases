@@ -1,0 +1,6 @@
+# Circuit Breaker (Wave11) validation cases.
+CBK_CREATE missing ref@@ERROR\|INVALID_INPUT@@CBK_CREATE||||||admin@test.com
+CBK_GET missing id@@ERROR\|INVALID_INPUT@@CBK_GET||||||admin@test.com
+CBK_CALC missing id@@ERROR\|INVALID_INPUT@@CBK_CALC||||||admin@test.com
+CBK_DELETE missing id@@ERROR\|INVALID_INPUT@@CBK_DELETE||||||admin@test.com
+CBK_VALIDATE ok@@SUCCESS\|CBK_VALID@@CBK_VALIDATE|100.00|USD||||admin@test.com

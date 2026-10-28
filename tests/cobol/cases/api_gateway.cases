@@ -1,0 +1,6 @@
+# Api Gateway (Wave11) validation cases.
+APG_CREATE missing ref@@ERROR\|INVALID_INPUT@@APG_CREATE||||||admin@test.com
+APG_GET missing id@@ERROR\|INVALID_INPUT@@APG_GET||||||admin@test.com
+APG_CALC missing id@@ERROR\|INVALID_INPUT@@APG_CALC||||||admin@test.com
+APG_DELETE missing id@@ERROR\|INVALID_INPUT@@APG_DELETE||||||admin@test.com
+APG_VALIDATE ok@@SUCCESS\|APG_VALID@@APG_VALIDATE|100.00|USD||||admin@test.com

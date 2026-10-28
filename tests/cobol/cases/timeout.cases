@@ -1,0 +1,6 @@
+# Timeout (Wave11) validation cases.
+TMO_CREATE missing ref@@ERROR\|INVALID_INPUT@@TMO_CREATE||||||admin@test.com
+TMO_GET missing id@@ERROR\|INVALID_INPUT@@TMO_GET||||||admin@test.com
+TMO_CALC missing id@@ERROR\|INVALID_INPUT@@TMO_CALC||||||admin@test.com
+TMO_DELETE missing id@@ERROR\|INVALID_INPUT@@TMO_DELETE||||||admin@test.com
+TMO_VALIDATE ok@@SUCCESS\|TMO_VALID@@TMO_VALIDATE|100.00|USD||||admin@test.com

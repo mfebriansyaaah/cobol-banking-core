@@ -1,0 +1,6 @@
+# Feature Flag (Wave11) validation cases.
+FFL_CREATE missing ref@@ERROR\|INVALID_INPUT@@FFL_CREATE||||||admin@test.com
+FFL_GET missing id@@ERROR\|INVALID_INPUT@@FFL_GET||||||admin@test.com
+FFL_CALC missing id@@ERROR\|INVALID_INPUT@@FFL_CALC||||||admin@test.com
+FFL_DELETE missing id@@ERROR\|INVALID_INPUT@@FFL_DELETE||||||admin@test.com
+FFL_VALIDATE ok@@SUCCESS\|FFL_VALID@@FFL_VALIDATE|100.00|USD||||admin@test.com

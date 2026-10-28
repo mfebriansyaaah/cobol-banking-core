@@ -1182,3 +1182,153 @@ db_reset_analytics() {
     db_exec "DELETE FROM analytics_audit;"
     db_exec "DELETE FROM analytics;"
 }
+
+db_reset_email() {
+    db_exec "DELETE FROM email_audit;"
+    db_exec "DELETE FROM email;"
+}
+
+db_reset_sms() {
+    db_exec "DELETE FROM sms_audit;"
+    db_exec "DELETE FROM sms;"
+}
+
+db_reset_push_notification() {
+    db_exec "DELETE FROM push_notification_audit;"
+    db_exec "DELETE FROM push_notification;"
+}
+
+db_reset_in_app_message() {
+    db_exec "DELETE FROM in_app_message_audit;"
+    db_exec "DELETE FROM in_app_message;"
+}
+
+db_reset_webhook() {
+    db_exec "DELETE FROM webhook_audit;"
+    db_exec "DELETE FROM webhook;"
+}
+
+db_reset_api_gateway() {
+    db_exec "DELETE FROM api_gateway_audit;"
+    db_exec "DELETE FROM api_gateway;"
+}
+
+db_reset_message_queue() {
+    db_exec "DELETE FROM message_queue_audit;"
+    db_exec "DELETE FROM message_queue;"
+}
+
+db_reset_event_bus() {
+    db_exec "DELETE FROM event_bus_audit;"
+    db_exec "DELETE FROM event_bus;"
+}
+
+db_reset_service_mesh() {
+    db_exec "DELETE FROM service_mesh_audit;"
+    db_exec "DELETE FROM service_mesh;"
+}
+
+db_reset_load_balancer() {
+    db_exec "DELETE FROM load_balancer_audit;"
+    db_exec "DELETE FROM load_balancer;"
+}
+
+db_reset_cache() {
+    db_exec "DELETE FROM cache_audit;"
+    db_exec "DELETE FROM cache;"
+}
+
+db_reset_session_store() {
+    db_exec "DELETE FROM session_store_audit;"
+    db_exec "DELETE FROM session_store;"
+}
+
+db_reset_config() {
+    db_exec "DELETE FROM config_audit;"
+    db_exec "DELETE FROM config;"
+}
+
+db_reset_feature_flag() {
+    db_exec "DELETE FROM feature_flag_audit;"
+    db_exec "DELETE FROM feature_flag;"
+}
+
+db_reset_ab_testing() {
+    db_exec "DELETE FROM ab_testing_audit;"
+    db_exec "DELETE FROM ab_testing;"
+}
+
+db_reset_experiment() {
+    db_exec "DELETE FROM experiment_audit;"
+    db_exec "DELETE FROM experiment;"
+}
+
+db_reset_personalization() {
+    db_exec "DELETE FROM personalization_audit;"
+    db_exec "DELETE FROM personalization;"
+}
+
+db_reset_recommendation() {
+    db_exec "DELETE FROM recommendation_audit;"
+    db_exec "DELETE FROM recommendation;"
+}
+
+db_reset_search() {
+    db_exec "DELETE FROM search_audit;"
+    db_exec "DELETE FROM search;"
+}
+
+db_reset_indexing() {
+    db_exec "DELETE FROM indexing_audit;"
+    db_exec "DELETE FROM indexing;"
+}
+
+db_reset_logging() {
+    db_exec "DELETE FROM logging_audit;"
+    db_exec "DELETE FROM logging;"
+}
+
+db_reset_monitoring() {
+    db_exec "DELETE FROM monitoring_audit;"
+    db_exec "DELETE FROM monitoring;"
+}
+
+db_reset_alerting() {
+    db_exec "DELETE FROM alerting_audit;"
+    db_exec "DELETE FROM alerting;"
+}
+
+db_reset_tracing() {
+    db_exec "DELETE FROM tracing_audit;"
+    db_exec "DELETE FROM tracing;"
+}
+
+db_reset_metrics() {
+    db_exec "DELETE FROM metrics_audit;"
+    db_exec "DELETE FROM metrics;"
+}
+
+db_reset_health_check() {
+    db_exec "DELETE FROM health_check_audit;"
+    db_exec "DELETE FROM health_check;"
+}
+
+db_reset_circuit_breaker() {
+    db_exec "DELETE FROM circuit_breaker_audit;"
+    db_exec "DELETE FROM circuit_breaker;"
+}
+
+db_reset_rate_limiter() {
+    db_exec "DELETE FROM rate_limiter_audit;"
+    db_exec "DELETE FROM rate_limiter;"
+}
+
+db_reset_retry() {
+    db_exec "DELETE FROM retry_audit;"
+    db_exec "DELETE FROM retry;"
+}
+
+db_reset_timeout() {
+    db_exec "DELETE FROM timeout_audit;"
+    db_exec "DELETE FROM timeout;"
+}

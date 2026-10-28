@@ -1,6 +1,9 @@
 {
-  "generatedAt": "2026-10-28T10:05:31.281Z",
+  "generatedAt": "2026-10-28T10:23:55.438Z",
   "cobolModules": [
+    {
+      "source": "ab_testing_core.cob"
+    },
     {
       "source": "access_audit_core.cob"
     },
@@ -29,6 +32,9 @@
       "source": "alert_escalation_core.cob"
     },
     {
+      "source": "alerting_core.cob"
+    },
+    {
       "source": "aml_screening_core.cob"
     },
     {
@@ -36,6 +42,9 @@
     },
     {
       "source": "analytics_snapshot_core.cob"
+    },
+    {
+      "source": "api_gateway_core.cob"
     },
     {
       "source": "api_management_core.cob"
@@ -131,6 +140,9 @@
       "source": "business_continuity_core.cob"
     },
     {
+      "source": "cache_core.cob"
+    },
+    {
       "source": "call_deposit_core.cob"
     },
     {
@@ -165,6 +177,9 @@
     },
     {
       "source": "chargeback_core.cob"
+    },
+    {
+      "source": "circuit_breaker_core.cob"
     },
     {
       "source": "claims_management_core.cob"
@@ -204,6 +219,9 @@
     },
     {
       "source": "compliance_retention_core.cob"
+    },
+    {
+      "source": "config_core.cob"
     },
     {
       "source": "consent_management_core.cob"
@@ -329,6 +347,9 @@
       "source": "dsar_core.cob"
     },
     {
+      "source": "email_core.cob"
+    },
+    {
       "source": "employee_core.cob"
     },
     {
@@ -347,6 +368,12 @@
       "source": "etl_core.cob"
     },
     {
+      "source": "event_bus_core.cob"
+    },
+    {
+      "source": "experiment_core.cob"
+    },
+    {
       "source": "export_archive_core.cob"
     },
     {
@@ -354,6 +381,9 @@
     },
     {
       "source": "external_audit_core.cob"
+    },
+    {
+      "source": "feature_flag_core.cob"
     },
     {
       "source": "fee_core.cob"
@@ -425,6 +455,9 @@
       "source": "hashlen_core.cob"
     },
     {
+      "source": "health_check_core.cob"
+    },
+    {
       "source": "import_core.cob"
     },
     {
@@ -434,6 +467,9 @@
       "source": "import_recon_core.cob"
     },
     {
+      "source": "in_app_message_core.cob"
+    },
+    {
       "source": "incident_core.cob"
     },
     {
@@ -441,6 +477,9 @@
     },
     {
       "source": "incident_report_core.cob"
+    },
+    {
+      "source": "indexing_core.cob"
     },
     {
       "source": "insurance_policy_core.cob"
@@ -497,10 +536,16 @@
       "source": "limit_profile_core.cob"
     },
     {
+      "source": "load_balancer_core.cob"
+    },
+    {
       "source": "loan_core.cob"
     },
     {
       "source": "loan_schedule_core.cob"
+    },
+    {
+      "source": "logging_core.cob"
     },
     {
       "source": "login_attempt_core.cob"
@@ -530,16 +575,25 @@
       "source": "merchant_settlement_core.cob"
     },
     {
+      "source": "message_queue_core.cob"
+    },
+    {
       "source": "metric_core.cob"
     },
     {
       "source": "metric_definition_core.cob"
     },
     {
+      "source": "metrics_core.cob"
+    },
+    {
       "source": "mfa_management_core.cob"
     },
     {
       "source": "mobile_wallet_core.cob"
+    },
+    {
+      "source": "monitoring_core.cob"
     },
     {
       "source": "multi_currency_core.cob"
@@ -626,6 +680,9 @@
       "source": "permission_set_core.cob"
     },
     {
+      "source": "personalization_core.cob"
+    },
+    {
       "source": "pipeline_alert_core.cob"
     },
     {
@@ -668,10 +725,19 @@
       "source": "provisioning_core.cob"
     },
     {
+      "source": "push_notification_core.cob"
+    },
+    {
       "source": "qr_payment_core.cob"
     },
     {
+      "source": "rate_limiter_core.cob"
+    },
+    {
       "source": "rate_management_core.cob"
+    },
+    {
+      "source": "recommendation_core.cob"
     },
     {
       "source": "recon_core.cob"
@@ -740,6 +806,9 @@
       "source": "retention_job_core.cob"
     },
     {
+      "source": "retry_core.cob"
+    },
+    {
       "source": "revenue_core.cob"
     },
     {
@@ -767,13 +836,22 @@
       "source": "savings_account_core.cob"
     },
     {
+      "source": "search_core.cob"
+    },
+    {
       "source": "secret_rotation_core.cob"
     },
     {
       "source": "securities_lending_core.cob"
     },
     {
+      "source": "service_mesh_core.cob"
+    },
+    {
       "source": "session_management_core.cob"
+    },
+    {
+      "source": "session_store_core.cob"
     },
     {
       "source": "settlement_recon_core.cob"
@@ -792,6 +870,9 @@
     },
     {
       "source": "smart_contract_core.cob"
+    },
+    {
+      "source": "sms_core.cob"
     },
     {
       "source": "standing_instruction_core.cob"
@@ -845,6 +926,9 @@
       "source": "term_deposit_core.cob"
     },
     {
+      "source": "timeout_core.cob"
+    },
+    {
       "source": "token_management_core.cob"
     },
     {
@@ -852,6 +936,9 @@
     },
     {
       "source": "total_return_swap_core.cob"
+    },
+    {
+      "source": "tracing_core.cob"
     },
     {
       "source": "trade_finance_core.cob"
@@ -917,6 +1004,9 @@
       "source": "wealth_management_core.cob"
     },
     {
+      "source": "webhook_core.cob"
+    },
+    {
       "source": "whistleblowing_core.cob"
     },
     {
@@ -930,6 +1020,7 @@
     }
   ],
   "gatewayRoutes": [
+    "ab_testing.js",
     "access_audit.js",
     "access_control.js",
     "account.js",
@@ -938,10 +1029,12 @@
     "adverse_media.js",
     "agreement.js",
     "alert_escalation.js",
+    "alerting.js",
     "alerts.js",
     "aml_screening.js",
     "analytics.js",
     "analytics_snapshot.js",
+    "api_gateway.js",
     "api_management.js",
     "asset.js",
     "asset_maintenance.js",
@@ -971,6 +1064,7 @@
     "branch_management.js",
     "budget.js",
     "business_continuity.js",
+    "cache.js",
     "call_deposit.js",
     "capacity_forecast.js",
     "capacity_plan.js",
@@ -983,6 +1077,7 @@
     "change_approval.js",
     "change_control.js",
     "chargeback.js",
+    "circuit_breaker.js",
     "claims_management.js",
     "collateral.js",
     "collateral_mgmt.js",
@@ -996,6 +1091,7 @@
     "compliance_calendar.js",
     "compliance_export.js",
     "compliance_retention.js",
+    "config.js",
     "consent_management.js",
     "consolidation.js",
     "contactless.js",
@@ -1037,15 +1133,19 @@
     "document.js",
     "dq_check.js",
     "dsar.js",
+    "email.js",
     "employee.js",
     "eod.js",
     "eod_jobs.js",
     "equity_swap.js",
     "escrow_account.js",
     "etl.js",
+    "event_bus.js",
+    "experiment.js",
     "export_archive.js",
     "export_stream.js",
     "external_audit.js",
+    "feature_flag.js",
     "fee.js",
     "fee_management.js",
     "fee_waiver.js",
@@ -1068,11 +1168,14 @@
     "gl_reval.js",
     "greeks.js",
     "guarantee_issuing.js",
+    "health_check.js",
     "import.js",
     "import_recon.js",
+    "in_app_message.js",
     "incident.js",
     "incident_postmortem.js",
     "incident_report.js",
+    "indexing.js",
     "insurance_policy.js",
     "interest_rate.js",
     "interest_rate_swap.js",
@@ -1092,8 +1195,10 @@
     "legal_hold.js",
     "letter_of_credit.js",
     "limit_profile.js",
+    "load_balancer.js",
     "loan.js",
     "loan_schedule.js",
+    "logging.js",
     "login_attempt.js",
     "loss_reserve.js",
     "loyalty_program.js",
@@ -1103,10 +1208,13 @@
     "master_data.js",
     "merchant.js",
     "merchant_settlement.js",
+    "message_queue.js",
     "metric.js",
     "metric_definition.js",
+    "metrics.js",
     "mfa_management.js",
     "mobile_wallet.js",
+    "monitoring.js",
     "multi_currency.js",
     "name_screening.js",
     "nft_management.js",
@@ -1135,6 +1243,7 @@
     "pep_screening.js",
     "performance.js",
     "permission_set.js",
+    "personalization.js",
     "pipeline_alert.js",
     "pisp_management.js",
     "pnl.js",
@@ -1149,8 +1258,11 @@
     "product_catalog.js",
     "profit.js",
     "provisioning.js",
+    "push_notification.js",
     "qr_payment.js",
+    "rate_limiter.js",
     "rate_management.js",
+    "recommendation.js",
     "recon.js",
     "recon_exception.js",
     "recon_ops.js",
@@ -1173,6 +1285,7 @@
     "report_scheduler.js",
     "reporting.js",
     "retention_job.js",
+    "retry.js",
     "revenue.js",
     "rewards_management.js",
     "risk_model.js",
@@ -1182,15 +1295,19 @@
     "sanctions_hold.js",
     "sanctions_list.js",
     "savings_account.js",
+    "search.js",
     "secret_rotation.js",
     "securities_lending.js",
+    "service_mesh.js",
     "session_management.js",
+    "session_store.js",
     "settlement_recon.js",
     "sla_management.js",
     "sla_tracker.js",
     "sla_tracking.js",
     "slo_report.js",
     "smart_contract.js",
+    "sms.js",
     "standing_instruction.js",
     "standing_order.js",
     "statement.js",
@@ -1208,9 +1325,11 @@
     "tax_withholding.js",
     "teller_management.js",
     "term_deposit.js",
+    "timeout.js",
     "token_management.js",
     "tokenization.js",
     "total_return_swap.js",
+    "tracing.js",
     "trade_finance.js",
     "training.js",
     "transaction_limit.js",
@@ -1230,6 +1349,7 @@
     "volatility.js",
     "watchlist.js",
     "wealth_management.js",
+    "webhook.js",
     "whistleblowing.js",
     "whitelist.js",
     "workflow_approval.js",
@@ -3170,6 +3290,156 @@
       "prefixLen": 4,
       "prefix": "ADL_",
       "program": "audit_log_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EML_",
+      "program": "email_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SMS_",
+      "program": "sms_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PSH_",
+      "program": "push_notification_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IAM_",
+      "program": "in_app_message_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WHK_",
+      "program": "webhook_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "APG_",
+      "program": "api_gateway_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MQQ_",
+      "program": "message_queue_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EVB_",
+      "program": "event_bus_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SVM_",
+      "program": "service_mesh_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LDB_",
+      "program": "load_balancer_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CCH_",
+      "program": "cache_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SSS_",
+      "program": "session_store_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CFG_",
+      "program": "config_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FFL_",
+      "program": "feature_flag_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ABT_",
+      "program": "ab_testing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "XPR_",
+      "program": "experiment_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PSN_",
+      "program": "personalization_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RCM_",
+      "program": "recommendation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SRH_",
+      "program": "search_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IDX_",
+      "program": "indexing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LOG_",
+      "program": "logging_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MON_",
+      "program": "monitoring_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ALR_",
+      "program": "alerting_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRC_",
+      "program": "tracing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MTR_",
+      "program": "metrics_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "HLC_",
+      "program": "health_check_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CBK_",
+      "program": "circuit_breaker_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RTL_",
+      "program": "rate_limiter_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RTY_",
+      "program": "retry_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TMO_",
+      "program": "timeout_core"
     }
   ]
 }
