@@ -15,11 +15,12 @@ p1_broken_route_syntax=detected
 # Two handlers for the same method+path; the second is unreachable.
 p2_duplicate_route=detected
 
-# One endpoint in a multi-route file loses tokenIdentity. The auth guard is
-# per file, so this is invisible; only a per-route check would catch it.
-p3a_one_route_without_identity=missed
+# One endpoint in a multi-route file loses tokenIdentity. check_route_auth
+# walks route objects, so a single unguarded mutating endpoint is enough.
+p3a_one_route_without_identity=detected
 
-# Every route in a file loses tokenIdentity. The file-level guard fires.
+# Every route in a file loses tokenIdentity. Both the file-level guard and the
+# per-route guard fire.
 p3b_whole_route_file_without_identity=detected
 
 # A route action reuses an existing dispatch prefix but no COBOL module
@@ -27,11 +28,16 @@ p3b_whole_route_file_without_identity=detected
 # notices the module has no such action.
 p4_action_without_cobol_handler=detected
 
-# Two SQL bind slots swapped in CALL ... USING. Compiles and runs, returns the
-# wrong data. Nothing static reads parameter order; only a runtime suite would
-# notice, and this harness deliberately does not run one.
-p5_swapped_bind_slots=missed
+# A value moved into a WS-BIND-n that the following SQL call does not pass.
+# This is the shipped P0-2 defect: the query is prepared with an empty
+# parameter and silently matches nothing.
+p5_dead_bind_slot=detected
 
-# A DB suite deleted outright. run_all.sh globs the directory, so the run
-# simply covers less and still reports green.
-p6_deleted_db_suite=missed
+# A true swap: the value for slot 1 goes to slot 2 and vice versa. Both slots
+# are passed, both are valid, and only the query semantics are wrong. No static
+# check can read the SQL author's intent; this needs a runtime suite.
+p5b_swapped_bind_slots=missed
+
+# A DB suite deleted outright. check_suite_coverage compares the directory
+# against tests/baseline_counts.txt, so the inventory cannot shrink silently.
+p6_deleted_db_suite=detected
