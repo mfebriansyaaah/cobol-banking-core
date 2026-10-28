@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 330 TO DISPATCH-COUNT.
+            MOVE 327 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -973,15 +973,6 @@
             MOVE "SST_" TO D-PREFIX(318).
             MOVE 4 TO D-PREFIX-LEN(318).
             MOVE "stress_test_core" TO D-PROGRAM(318).
-            MOVE "RGR_" TO D-PREFIX(319).
-            MOVE 4 TO D-PREFIX-LEN(319).
-            MOVE "regulatory_report_core" TO D-PROGRAM(319).
-            MOVE "CMA_" TO D-PREFIX(320).
-            MOVE 4 TO D-PREFIX-LEN(320).
-            MOVE "compliance_audit_core" TO D-PROGRAM(320).
-            MOVE "TXR_" TO D-PREFIX(321).
-            MOVE 4 TO D-PREFIX-LEN(321).
-            MOVE "tax_report_core" TO D-PROGRAM(321).
             MOVE "INA_" TO D-PREFIX(322).
             MOVE 4 TO D-PREFIX-LEN(322).
             MOVE "internal_audit_core" TO D-PROGRAM(322).

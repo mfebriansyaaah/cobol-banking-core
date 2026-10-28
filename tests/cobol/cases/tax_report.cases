@@ -1,6 +1,3 @@
-# Tax Report (Wave7) validation cases.
-TXR_CREATE missing ref@@ERROR\|INVALID_INPUT@@TXR_CREATE||||||admin@test.com
-TXR_GET missing id@@ERROR\|INVALID_INPUT@@TXR_GET||||||admin@test.com
-TXR_CALC missing id@@ERROR\|INVALID_INPUT@@TXR_CALC||||||admin@test.com
-TXR_DELETE missing id@@ERROR\|INVALID_INPUT@@TXR_DELETE||||||admin@test.com
-TXR_VALIDATE ok@@SUCCESS\|TXR_VALID@@TXR_VALIDATE|100.00|USD||||admin@test.com
+TAX_CREATE missing first param@@ERROR\|INVALID_INPUT@@TAX_CREATE||||||admin@test.com
+TAX_CLOSE missing first param@@ERROR\|INVALID_INPUT@@TAX_CLOSE||||||admin@test.com
+TAX_GET missing first param@@ERROR\|INVALID_INPUT@@TAX_GET||||||admin@test.com
