@@ -134,6 +134,11 @@ db_reset_cost_center() {
     db_exec "DELETE FROM cost_center;"
 }
 
+db_reset_cost() {
+    db_exec "DELETE FROM cost_audit;"
+    db_exec "DELETE FROM cost;"
+}
+
 db_reset_fixed_asset() {
     db_exec "DELETE FROM fixed_asset_audit;"
     db_exec "DELETE FROM fixed_asset;"
@@ -583,6 +588,11 @@ db_reset_securities_lending() {
 db_reset_margin_trading() {
     db_exec "DELETE FROM margin_trading_audit;"
     db_exec "DELETE FROM margin_trading;"
+}
+
+db_reset_margin() {
+    db_exec "DELETE FROM margin_audit;"
+    db_exec "DELETE FROM margin;"
 }
 
 db_reset_structured_product() {
