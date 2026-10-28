@@ -83,6 +83,10 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/loan_core.cob \
     cobol/src/merchant_core.cob \
     cobol/src/trade_finance_core.cob \
+    cobol/src/treasury_deal_core.cob \
+    cobol/src/collateral_mgmt_core.cob \
+    cobol/src/standing_instruction_core.cob \
+    cobol/src/direct_debit_core.cob \
     cobol/src/deposit_core.cob \
     cobol/src/fx_deal_core.cob \
     cobol/src/treasury_position_core.cob \

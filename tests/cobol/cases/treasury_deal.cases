@@ -1,0 +1,6 @@
+# Treasury deal (Wave3) validation cases.
+TSD_CREATE missing ref@@ERROR\|INVALID_INPUT@@TSD_CREATE||||||admin@test.com
+TSD_GET missing id@@ERROR\|INVALID_INPUT@@TSD_GET||||||admin@test.com
+TSD_CALC missing id@@ERROR\|INVALID_INPUT@@TSD_CALC||||||admin@test.com
+TSD_DELETE missing id@@ERROR\|INVALID_INPUT@@TSD_DELETE||||||admin@test.com
+TSD_VALIDATE ok@@SUCCESS\|TSD_VALID@@TSD_VALIDATE|100.00|USD||||admin@test.com

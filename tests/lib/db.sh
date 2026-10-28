@@ -233,3 +233,19 @@ db_reset_account() {
     db_exec "DELETE FROM account_audit;"
     db_exec "DELETE FROM account;"
 }
+
+db_reset_treasury_deal() {
+    db_exec "DELETE FROM treasury_deal_audit; DELETE FROM treasury_deal;"
+}
+
+db_reset_collateral_mgmt() {
+    db_exec "DELETE FROM collateral_mgmt_audit; DELETE FROM collateral_mgmt;"
+}
+
+db_reset_standing_instruction() {
+    db_exec "DELETE FROM standing_instruction_audit; DELETE FROM standing_instruction;"
+}
+
+db_reset_direct_debit() {
+    db_exec "DELETE FROM direct_debit_audit; DELETE FROM direct_debit;"
+}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-27T18:56:49.082Z",
+  "generatedAt": "2026-10-28T00:01:41.623Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -83,6 +83,9 @@
       "source": "collateral_core.cob"
     },
     {
+      "source": "collateral_mgmt_core.cob"
+    },
+    {
       "source": "collection_core.cob"
     },
     {
@@ -117,6 +120,9 @@
     },
     {
       "source": "deposit_core.cob"
+    },
+    {
+      "source": "direct_debit_core.cob"
     },
     {
       "source": "disaster_recovery_core.cob"
@@ -332,6 +338,9 @@
       "source": "slo_report_core.cob"
     },
     {
+      "source": "standing_instruction_core.cob"
+    },
+    {
       "source": "standing_order_core.cob"
     },
     {
@@ -348,6 +357,9 @@
     },
     {
       "source": "trade_finance_core.cob"
+    },
+    {
+      "source": "treasury_deal_core.cob"
     },
     {
       "source": "treasury_liquidity_core.cob"
@@ -400,6 +412,7 @@
     "change_approval.js",
     "change_control.js",
     "collateral.js",
+    "collateral_mgmt.js",
     "collection.js",
     "compliance_audit.js",
     "compliance_export.js",
@@ -412,6 +425,7 @@
     "data_quality.js",
     "data_retention.js",
     "deposit.js",
+    "direct_debit.js",
     "disaster_recovery.js",
     "dispute_notify.js",
     "dispute_ops.js",
@@ -482,12 +496,14 @@
     "settlement_recon.js",
     "sla_tracking.js",
     "slo_report.js",
+    "standing_instruction.js",
     "standing_order.js",
     "statement.js",
     "statement_delivery.js",
     "statement_recon.js",
     "tax_report.js",
     "trade_finance.js",
+    "treasury_deal.js",
     "treasury_liquidity.js",
     "treasury_position.js",
     "vendor.js",
