@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [fast|db|full]   (default: full)
+# Usage: tests/run_all.sh [fast|db|full|probes]   (default: full)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -116,6 +116,14 @@ run_gateway() {
     tests/gateway/endpoint_smoke.sh
 }
 
+# Break the code on purpose in a throwaway copy and require the gates to
+# notice. Kept out of `fast` so a normal run stays fast; run it whenever a
+# gate changes, and in CI.
+run_probes() {
+    echo "=== GATE DETECTION PROBES ==="
+    tests/probes/run_probes.sh
+}
+
 run_error_harness() {
     echo "=== COBOL/C ERROR HARNESS ==="
     tests/check_cobol_c_errors.sh
@@ -128,6 +136,9 @@ case "$MODE" in
     db)
         run_db
         ;;
+    probes)
+        run_probes
+        ;;
     full)
         run_fast
         run_db
@@ -135,7 +146,7 @@ case "$MODE" in
         run_gateway
         ;;
     *)
-        echo "unknown mode: $MODE (fast|db|full)" >&2
+        echo "unknown mode: $MODE (fast|db|full|probes)" >&2
         exit 2
         ;;
 esac
