@@ -1,6 +1,2 @@
-# Compliance Audit (Wave7) validation cases.
-CMA_CREATE missing ref@@ERROR\|INVALID_INPUT@@CMA_CREATE||||||admin@test.com
-CMA_GET missing id@@ERROR\|INVALID_INPUT@@CMA_GET||||||admin@test.com
-CMA_CALC missing id@@ERROR\|INVALID_INPUT@@CMA_CALC||||||admin@test.com
-CMA_DELETE missing id@@ERROR\|INVALID_INPUT@@CMA_DELETE||||||admin@test.com
-CMA_VALIDATE ok@@SUCCESS\|CMA_VALID@@CMA_VALIDATE|100.00|USD||||admin@test.com
+CA_FINDING_GET missing first param@@ERROR\|INVALID_INPUT@@CA_FINDING_GET||||||admin@test.com
+CA_FINDING_CLOSE missing first param@@ERROR\|INVALID_INPUT@@CA_FINDING_CLOSE||||||admin@test.com

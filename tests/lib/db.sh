@@ -685,20 +685,8 @@ db_reset_stress_test() {
     db_exec "DELETE FROM stress_test;"
 }
 
-db_reset_regulatory_report() {
-    db_exec "DELETE FROM regulatory_report_audit;"
-    db_exec "DELETE FROM regulatory_report;"
-}
 
-db_reset_compliance_audit() {
-    db_exec "DELETE FROM compliance_audit_audit;"
-    db_exec "DELETE FROM compliance_audit;"
-}
 
-db_reset_tax_report() {
-    db_exec "DELETE FROM tax_report_audit;"
-    db_exec "DELETE FROM tax_report;"
-}
 
 db_reset_internal_audit() {
     db_exec "DELETE FROM internal_audit_audit;"

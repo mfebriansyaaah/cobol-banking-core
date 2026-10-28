@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T05:14:01.058Z",
+  "generatedAt": "2026-10-28T07:16:30.190Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -2315,21 +2315,6 @@
       "prefixLen": 4,
       "prefix": "SST_",
       "program": "stress_test_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "RGR_",
-      "program": "regulatory_report_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "CMA_",
-      "program": "compliance_audit_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "TXR_",
-      "program": "tax_report_core"
     },
     {
       "prefixLen": 4,
