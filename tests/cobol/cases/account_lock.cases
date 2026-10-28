@@ -1,0 +1,6 @@
+# Account Lock (Wave8) validation cases.
+ACL_CREATE missing ref@@ERROR\|INVALID_INPUT@@ACL_CREATE||||||admin@test.com
+ACL_GET missing id@@ERROR\|INVALID_INPUT@@ACL_GET||||||admin@test.com
+ACL_CALC missing id@@ERROR\|INVALID_INPUT@@ACL_CALC||||||admin@test.com
+ACL_DELETE missing id@@ERROR\|INVALID_INPUT@@ACL_DELETE||||||admin@test.com
+ACL_VALIDATE ok@@SUCCESS\|ACL_VALID@@ACL_VALIDATE|100.00|USD||||admin@test.com

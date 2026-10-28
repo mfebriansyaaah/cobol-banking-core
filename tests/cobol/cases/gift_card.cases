@@ -1,0 +1,6 @@
+# Gift Card (Wave8) validation cases.
+GFC_CREATE missing ref@@ERROR\|INVALID_INPUT@@GFC_CREATE||||||admin@test.com
+GFC_GET missing id@@ERROR\|INVALID_INPUT@@GFC_GET||||||admin@test.com
+GFC_CALC missing id@@ERROR\|INVALID_INPUT@@GFC_CALC||||||admin@test.com
+GFC_DELETE missing id@@ERROR\|INVALID_INPUT@@GFC_DELETE||||||admin@test.com
+GFC_VALIDATE ok@@SUCCESS\|GFC_VALID@@GFC_VALIDATE|100.00|USD||||admin@test.com

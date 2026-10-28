@@ -1,0 +1,6 @@
+# Login Attempt (Wave8) validation cases.
+LGA_CREATE missing ref@@ERROR\|INVALID_INPUT@@LGA_CREATE||||||admin@test.com
+LGA_GET missing id@@ERROR\|INVALID_INPUT@@LGA_GET||||||admin@test.com
+LGA_CALC missing id@@ERROR\|INVALID_INPUT@@LGA_CALC||||||admin@test.com
+LGA_DELETE missing id@@ERROR\|INVALID_INPUT@@LGA_DELETE||||||admin@test.com
+LGA_VALIDATE ok@@SUCCESS\|LGA_VALID@@LGA_VALIDATE|100.00|USD||||admin@test.com

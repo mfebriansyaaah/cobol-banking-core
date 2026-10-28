@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T07:16:30.190Z",
+  "generatedAt": "2026-10-28T08:16:02.375Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -11,7 +11,13 @@
       "source": "account_core.cob"
     },
     {
+      "source": "account_lock_core.cob"
+    },
+    {
       "source": "actuarial_calc_core.cob"
+    },
+    {
+      "source": "adverse_media_core.cob"
     },
     {
       "source": "alert_core.cob"
@@ -86,6 +92,12 @@
       "source": "billpay_core.cob"
     },
     {
+      "source": "biometric_auth_core.cob"
+    },
+    {
+      "source": "blacklist_core.cob"
+    },
+    {
       "source": "blockchain_tracker_core.cob"
     },
     {
@@ -110,10 +122,16 @@
       "source": "card_core.cob"
     },
     {
+      "source": "card_tokenization_core.cob"
+    },
+    {
       "source": "case_management_core.cob"
     },
     {
       "source": "cash_management_core.cob"
+    },
+    {
+      "source": "cashback_core.cob"
     },
     {
       "source": "change_approval_core.cob"
@@ -164,6 +182,9 @@
       "source": "consolidation_core.cob"
     },
     {
+      "source": "contactless_core.cob"
+    },
+    {
       "source": "cost_center_core.cob"
     },
     {
@@ -191,6 +212,9 @@
       "source": "customer_support_core.cob"
     },
     {
+      "source": "daily_limit_core.cob"
+    },
+    {
       "source": "dashboard_core.cob"
     },
     {
@@ -216,6 +240,9 @@
     },
     {
       "source": "deposit_core.cob"
+    },
+    {
+      "source": "device_management_core.cob"
     },
     {
       "source": "digital_asset_core.cob"
@@ -291,6 +318,9 @@
     },
     {
       "source": "fx_hedging_core.cob"
+    },
+    {
+      "source": "gift_card_core.cob"
     },
     {
       "source": "gl_allocation_core.cob"
@@ -377,7 +407,13 @@
       "source": "loan_schedule_core.cob"
     },
     {
+      "source": "login_attempt_core.cob"
+    },
+    {
       "source": "loss_reserve_core.cob"
+    },
+    {
+      "source": "loyalty_program_core.cob"
     },
     {
       "source": "margin_trading_core.cob"
@@ -392,7 +428,13 @@
       "source": "metric_definition_core.cob"
     },
     {
+      "source": "mfa_management_core.cob"
+    },
+    {
       "source": "mobile_wallet_core.cob"
+    },
+    {
+      "source": "name_screening_core.cob"
     },
     {
       "source": "nft_management_core.cob"
@@ -422,7 +464,13 @@
       "source": "organization_unit_core.cob"
     },
     {
+      "source": "otp_management_core.cob"
+    },
+    {
       "source": "outsourcing_contract_core.cob"
+    },
+    {
+      "source": "password_policy_core.cob"
     },
     {
       "source": "payment_clearing_core.cob"
@@ -440,7 +488,13 @@
       "source": "payment_instruction_core.cob"
     },
     {
+      "source": "payment_link_core.cob"
+    },
+    {
       "source": "payroll_processing_core.cob"
+    },
+    {
+      "source": "pep_screening_core.cob"
     },
     {
       "source": "permission_set_core.cob"
@@ -452,6 +506,9 @@
       "source": "pisp_management_core.cob"
     },
     {
+      "source": "points_redemption_core.cob"
+    },
+    {
       "source": "policy_administration_core.cob"
     },
     {
@@ -461,6 +518,9 @@
       "source": "portfolio_management_core.cob"
     },
     {
+      "source": "prepaid_card_core.cob"
+    },
+    {
       "source": "procurement_core.cob"
     },
     {
@@ -468,6 +528,9 @@
     },
     {
       "source": "provisioning_core.cob"
+    },
+    {
+      "source": "qr_payment_core.cob"
     },
     {
       "source": "rate_management_core.cob"
@@ -530,7 +593,13 @@
       "source": "retention_job_core.cob"
     },
     {
+      "source": "rewards_management_core.cob"
+    },
+    {
       "source": "risk_model_core.cob"
+    },
+    {
+      "source": "risk_score_core.cob"
     },
     {
       "source": "risk_screening_core.cob"
@@ -549,6 +618,9 @@
     },
     {
       "source": "securities_lending_core.cob"
+    },
+    {
+      "source": "session_management_core.cob"
     },
     {
       "source": "settlement_recon_core.cob"
@@ -608,10 +680,16 @@
       "source": "teller_management_core.cob"
     },
     {
+      "source": "token_management_core.cob"
+    },
+    {
       "source": "tokenization_core.cob"
     },
     {
       "source": "trade_finance_core.cob"
+    },
+    {
+      "source": "transaction_limit_core.cob"
     },
     {
       "source": "treasury_deal_core.cob"
@@ -632,6 +710,9 @@
       "source": "vault_management_core.cob"
     },
     {
+      "source": "velocity_check_core.cob"
+    },
+    {
       "source": "vendor_compliance_core.cob"
     },
     {
@@ -644,13 +725,22 @@
       "source": "vendor_risk_core.cob"
     },
     {
+      "source": "virtual_card_core.cob"
+    },
+    {
       "source": "wallet_core.cob"
+    },
+    {
+      "source": "watchlist_core.cob"
     },
     {
       "source": "wealth_management_core.cob"
     },
     {
       "source": "whistleblowing_core.cob"
+    },
+    {
+      "source": "whitelist_core.cob"
     },
     {
       "source": "workflow_approval_core.cob"
@@ -663,7 +753,9 @@
     "access_audit.js",
     "access_control.js",
     "account.js",
+    "account_lock.js",
     "actuarial_calc.js",
+    "adverse_media.js",
     "alert_escalation.js",
     "alerts.js",
     "aml_screening.js",
@@ -686,6 +778,8 @@
     "batch.js",
     "beneficiary_registry.js",
     "billpay.js",
+    "biometric_auth.js",
+    "blacklist.js",
     "blockchain_tracker.js",
     "bond_trading.js",
     "branch_management.js",
@@ -694,8 +788,10 @@
     "capacity_forecast.js",
     "capacity_plan.js",
     "card.js",
+    "card_tokenization.js",
     "case_management.js",
     "cash_management.js",
+    "cashback.js",
     "change_approval.js",
     "change_control.js",
     "chargeback.js",
@@ -712,6 +808,7 @@
     "compliance_retention.js",
     "consent_management.js",
     "consolidation.js",
+    "contactless.js",
     "cost_center.js",
     "credit_bureau.js",
     "credit_card.js",
@@ -721,6 +818,7 @@
     "currency_exchange.js",
     "customer.js",
     "customer_support.js",
+    "daily_limit.js",
     "dashboard.js",
     "data_archive.js",
     "data_lineage.js",
@@ -730,6 +828,7 @@
     "debt_collection.js",
     "debt_recovery.js",
     "deposit.js",
+    "device_management.js",
     "digital_asset.js",
     "digital_banking.js",
     "direct_debit.js",
@@ -755,6 +854,7 @@
     "future_contract.js",
     "fx_deal.js",
     "fx_hedging.js",
+    "gift_card.js",
     "gl.js",
     "gl_allocation.js",
     "gl_period_close.js",
@@ -782,12 +882,16 @@
     "limit_profile.js",
     "loan.js",
     "loan_schedule.js",
+    "login_attempt.js",
     "loss_reserve.js",
+    "loyalty_program.js",
     "margin_trading.js",
     "merchant.js",
     "merchant_settlement.js",
     "metric_definition.js",
+    "mfa_management.js",
     "mobile_wallet.js",
+    "name_screening.js",
     "nft_management.js",
     "notification.js",
     "notification_audit.js",
@@ -797,22 +901,29 @@
     "open_banking.js",
     "option_trading.js",
     "organization_unit.js",
+    "otp_management.js",
     "outsourcing_contract.js",
+    "password_policy.js",
     "payment.js",
     "payment_clearing.js",
     "payment_gateway.js",
     "payment_hold.js",
     "payment_instructions.js",
+    "payment_link.js",
     "payroll_processing.js",
+    "pep_screening.js",
     "permission_set.js",
     "pipeline_alert.js",
     "pisp_management.js",
+    "points_redemption.js",
     "policy_administration.js",
     "policy_attestation.js",
     "portfolio_management.js",
+    "prepaid_card.js",
     "procurement.js",
     "product_catalog.js",
     "provisioning.js",
+    "qr_payment.js",
     "rate_management.js",
     "recon.js",
     "recon_exception.js",
@@ -833,13 +944,16 @@
     "report_schedule.js",
     "report_scheduler.js",
     "retention_job.js",
+    "rewards_management.js",
     "risk_model.js",
+    "risk_score.js",
     "risk_screening.js",
     "role_management.js",
     "sanctions_hold.js",
     "sanctions_list.js",
     "secret_rotation.js",
     "securities_lending.js",
+    "session_management.js",
     "settlement_recon.js",
     "sla_tracker.js",
     "sla_tracking.js",
@@ -859,19 +973,25 @@
     "tax_management.js",
     "tax_report.js",
     "teller_management.js",
+    "token_management.js",
     "tokenization.js",
     "trade_finance.js",
+    "transaction_limit.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
     "treasury_position.js",
     "user_activity.js",
     "vault_management.js",
+    "velocity_check.js",
     "vendor.js",
     "vendor_compliance.js",
     "vendor_management.js",
     "vendor_risk.js",
+    "virtual_card.js",
+    "watchlist.js",
     "wealth_management.js",
     "whistleblowing.js",
+    "whitelist.js",
     "workflow_approval.js",
     "write_off.js"
   ],
@@ -2360,6 +2480,156 @@
       "prefixLen": 4,
       "prefix": "OSC_",
       "program": "outsourcing_contract_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LYP_",
+      "program": "loyalty_program_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RWD_",
+      "program": "rewards_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CSB_",
+      "program": "cashback_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PTR_",
+      "program": "points_redemption_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GFC_",
+      "program": "gift_card_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PPC_",
+      "program": "prepaid_card_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VRC_",
+      "program": "virtual_card_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CDT_",
+      "program": "card_tokenization_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PML_",
+      "program": "payment_link_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "QRP_",
+      "program": "qr_payment_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CTL_",
+      "program": "contactless_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BMA_",
+      "program": "biometric_auth_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DVM_",
+      "program": "device_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SSM_",
+      "program": "session_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TKM_",
+      "program": "token_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "OTP_",
+      "program": "otp_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MFA_",
+      "program": "mfa_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PWP_",
+      "program": "password_policy_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LGA_",
+      "program": "login_attempt_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ACL_",
+      "program": "account_lock_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TXL_",
+      "program": "transaction_limit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DLY_",
+      "program": "daily_limit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VLC_",
+      "program": "velocity_check_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RKS_",
+      "program": "risk_score_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BLK_",
+      "program": "blacklist_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WHT_",
+      "program": "whitelist_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WTC_",
+      "program": "watchlist_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PEP_",
+      "program": "pep_screening_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ADM_",
+      "program": "adverse_media_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NSC_",
+      "program": "name_screening_core"
     }
   ]
 }

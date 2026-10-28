@@ -54,6 +54,36 @@ import { ESC_ROUTES } from './escrow_account.js';
 import { ORG_ROUTES } from './organization_unit.js';
 import { SYL_ROUTES } from './syndicated_loan.js';
 import { OSC_ROUTES } from './outsourcing_contract.js';
+import { NSC_ROUTES } from './name_screening.js';
+import { ADM_ROUTES } from './adverse_media.js';
+import { PEP_ROUTES } from './pep_screening.js';
+import { WTC_ROUTES } from './watchlist.js';
+import { WHT_ROUTES } from './whitelist.js';
+import { BLK_ROUTES } from './blacklist.js';
+import { RKS_ROUTES } from './risk_score.js';
+import { VLC_ROUTES } from './velocity_check.js';
+import { DLY_ROUTES } from './daily_limit.js';
+import { TXL_ROUTES } from './transaction_limit.js';
+import { ACL_ROUTES } from './account_lock.js';
+import { LGA_ROUTES } from './login_attempt.js';
+import { PWP_ROUTES } from './password_policy.js';
+import { MFA_ROUTES } from './mfa_management.js';
+import { OTP_ROUTES } from './otp_management.js';
+import { TKM_ROUTES } from './token_management.js';
+import { SSM_ROUTES } from './session_management.js';
+import { DVM_ROUTES } from './device_management.js';
+import { BMA_ROUTES } from './biometric_auth.js';
+import { CTL_ROUTES } from './contactless.js';
+import { QRP_ROUTES } from './qr_payment.js';
+import { PML_ROUTES } from './payment_link.js';
+import { CDT_ROUTES } from './card_tokenization.js';
+import { VRC_ROUTES } from './virtual_card.js';
+import { PPC_ROUTES } from './prepaid_card.js';
+import { GFC_ROUTES } from './gift_card.js';
+import { PTR_ROUTES } from './points_redemption.js';
+import { CSB_ROUTES } from './cashback.js';
+import { RWD_ROUTES } from './rewards_management.js';
+import { LYP_ROUTES } from './loyalty_program.js';
 import { VDM_ROUTES } from './vendor_management.js';
 import { CRM_ROUTES } from './crisis_management.js';
 import { BCP_ROUTES } from './business_continuity.js';
@@ -270,6 +300,36 @@ export const ALL_ROUTES = [
   ...ORG_ROUTES,
   ...SYL_ROUTES,
   ...OSC_ROUTES,
+  ...NSC_ROUTES,
+  ...ADM_ROUTES,
+  ...PEP_ROUTES,
+  ...WTC_ROUTES,
+  ...WHT_ROUTES,
+  ...BLK_ROUTES,
+  ...RKS_ROUTES,
+  ...VLC_ROUTES,
+  ...DLY_ROUTES,
+  ...TXL_ROUTES,
+  ...ACL_ROUTES,
+  ...LGA_ROUTES,
+  ...PWP_ROUTES,
+  ...MFA_ROUTES,
+  ...OTP_ROUTES,
+  ...TKM_ROUTES,
+  ...SSM_ROUTES,
+  ...DVM_ROUTES,
+  ...BMA_ROUTES,
+  ...CTL_ROUTES,
+  ...QRP_ROUTES,
+  ...PML_ROUTES,
+  ...CDT_ROUTES,
+  ...VRC_ROUTES,
+  ...PPC_ROUTES,
+  ...GFC_ROUTES,
+  ...PTR_ROUTES,
+  ...CSB_ROUTES,
+  ...RWD_ROUTES,
+  ...LYP_ROUTES,
   ...VDM_ROUTES,
   ...CRM_ROUTES,
   ...BCP_ROUTES,

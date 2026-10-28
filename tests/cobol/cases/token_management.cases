@@ -1,0 +1,6 @@
+# Token Management (Wave8) validation cases.
+TKM_CREATE missing ref@@ERROR\|INVALID_INPUT@@TKM_CREATE||||||admin@test.com
+TKM_GET missing id@@ERROR\|INVALID_INPUT@@TKM_GET||||||admin@test.com
+TKM_CALC missing id@@ERROR\|INVALID_INPUT@@TKM_CALC||||||admin@test.com
+TKM_DELETE missing id@@ERROR\|INVALID_INPUT@@TKM_DELETE||||||admin@test.com
+TKM_VALIDATE ok@@SUCCESS\|TKM_VALID@@TKM_VALIDATE|100.00|USD||||admin@test.com

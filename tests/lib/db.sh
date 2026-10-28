@@ -732,3 +732,153 @@ db_reset_outsourcing_contract() {
     db_exec "DELETE FROM outsourcing_contract_audit;"
     db_exec "DELETE FROM outsourcing_contract;"
 }
+
+db_reset_loyalty_program() {
+    db_exec "DELETE FROM loyalty_program_audit;"
+    db_exec "DELETE FROM loyalty_program;"
+}
+
+db_reset_rewards_management() {
+    db_exec "DELETE FROM rewards_management_audit;"
+    db_exec "DELETE FROM rewards_management;"
+}
+
+db_reset_cashback() {
+    db_exec "DELETE FROM cashback_audit;"
+    db_exec "DELETE FROM cashback;"
+}
+
+db_reset_points_redemption() {
+    db_exec "DELETE FROM points_redemption_audit;"
+    db_exec "DELETE FROM points_redemption;"
+}
+
+db_reset_gift_card() {
+    db_exec "DELETE FROM gift_card_audit;"
+    db_exec "DELETE FROM gift_card;"
+}
+
+db_reset_prepaid_card() {
+    db_exec "DELETE FROM prepaid_card_audit;"
+    db_exec "DELETE FROM prepaid_card;"
+}
+
+db_reset_virtual_card() {
+    db_exec "DELETE FROM virtual_card_audit;"
+    db_exec "DELETE FROM virtual_card;"
+}
+
+db_reset_card_tokenization() {
+    db_exec "DELETE FROM card_tokenization_audit;"
+    db_exec "DELETE FROM card_tokenization;"
+}
+
+db_reset_payment_link() {
+    db_exec "DELETE FROM payment_link_audit;"
+    db_exec "DELETE FROM payment_link;"
+}
+
+db_reset_qr_payment() {
+    db_exec "DELETE FROM qr_payment_audit;"
+    db_exec "DELETE FROM qr_payment;"
+}
+
+db_reset_contactless() {
+    db_exec "DELETE FROM contactless_audit;"
+    db_exec "DELETE FROM contactless;"
+}
+
+db_reset_biometric_auth() {
+    db_exec "DELETE FROM biometric_auth_audit;"
+    db_exec "DELETE FROM biometric_auth;"
+}
+
+db_reset_device_management() {
+    db_exec "DELETE FROM device_management_audit;"
+    db_exec "DELETE FROM device_management;"
+}
+
+db_reset_session_management() {
+    db_exec "DELETE FROM session_management_audit;"
+    db_exec "DELETE FROM session_management;"
+}
+
+db_reset_token_management() {
+    db_exec "DELETE FROM token_management_audit;"
+    db_exec "DELETE FROM token_management;"
+}
+
+db_reset_otp_management() {
+    db_exec "DELETE FROM otp_management_audit;"
+    db_exec "DELETE FROM otp_management;"
+}
+
+db_reset_mfa_management() {
+    db_exec "DELETE FROM mfa_management_audit;"
+    db_exec "DELETE FROM mfa_management;"
+}
+
+db_reset_password_policy() {
+    db_exec "DELETE FROM password_policy_audit;"
+    db_exec "DELETE FROM password_policy;"
+}
+
+db_reset_login_attempt() {
+    db_exec "DELETE FROM login_attempt_audit;"
+    db_exec "DELETE FROM login_attempt;"
+}
+
+db_reset_account_lock() {
+    db_exec "DELETE FROM account_lock_audit;"
+    db_exec "DELETE FROM account_lock;"
+}
+
+db_reset_transaction_limit() {
+    db_exec "DELETE FROM transaction_limit_audit;"
+    db_exec "DELETE FROM transaction_limit;"
+}
+
+db_reset_daily_limit() {
+    db_exec "DELETE FROM daily_limit_audit;"
+    db_exec "DELETE FROM daily_limit;"
+}
+
+db_reset_velocity_check() {
+    db_exec "DELETE FROM velocity_check_audit;"
+    db_exec "DELETE FROM velocity_check;"
+}
+
+db_reset_risk_score() {
+    db_exec "DELETE FROM risk_score_audit;"
+    db_exec "DELETE FROM risk_score;"
+}
+
+db_reset_blacklist() {
+    db_exec "DELETE FROM blacklist_audit;"
+    db_exec "DELETE FROM blacklist;"
+}
+
+db_reset_whitelist() {
+    db_exec "DELETE FROM whitelist_audit;"
+    db_exec "DELETE FROM whitelist;"
+}
+
+db_reset_watchlist() {
+    db_exec "DELETE FROM watchlist_audit;"
+    db_exec "DELETE FROM watchlist;"
+}
+
+db_reset_pep_screening() {
+    db_exec "DELETE FROM pep_screening_audit;"
+    db_exec "DELETE FROM pep_screening;"
+}
+
+db_reset_adverse_media() {
+    db_exec "DELETE FROM adverse_media_audit;"
+    db_exec "DELETE FROM adverse_media;"
+}
+
+db_reset_name_screening() {
+    db_exec "DELETE FROM name_screening_audit;"
+    db_exec "DELETE FROM name_screening;"
+}

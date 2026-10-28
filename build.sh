@@ -120,6 +120,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/crisis_management_core.cob \
     cobol/src/vendor_management_core.cob \
     cobol/src/outsourcing_contract_core.cob \
+    cobol/src/loyalty_program_core.cob \
+    cobol/src/rewards_management_core.cob \
+    cobol/src/cashback_core.cob \
+    cobol/src/points_redemption_core.cob \
+    cobol/src/gift_card_core.cob \
+    cobol/src/prepaid_card_core.cob \
+    cobol/src/virtual_card_core.cob \
+    cobol/src/card_tokenization_core.cob \
+    cobol/src/payment_link_core.cob \
+    cobol/src/qr_payment_core.cob \
+    cobol/src/contactless_core.cob \
+    cobol/src/biometric_auth_core.cob \
+    cobol/src/device_management_core.cob \
+    cobol/src/session_management_core.cob \
+    cobol/src/token_management_core.cob \
+    cobol/src/otp_management_core.cob \
+    cobol/src/mfa_management_core.cob \
+    cobol/src/password_policy_core.cob \
+    cobol/src/login_attempt_core.cob \
+    cobol/src/account_lock_core.cob \
+    cobol/src/transaction_limit_core.cob \
+    cobol/src/daily_limit_core.cob \
+    cobol/src/velocity_check_core.cob \
+    cobol/src/risk_score_core.cob \
+    cobol/src/blacklist_core.cob \
+    cobol/src/whitelist_core.cob \
+    cobol/src/watchlist_core.cob \
+    cobol/src/pep_screening_core.cob \
+    cobol/src/adverse_media_core.cob \
+    cobol/src/name_screening_core.cob \
     cobol/src/structured_product_core.cob \
     cobol/src/margin_trading_core.cob \
     cobol/src/securities_lending_core.cob \
