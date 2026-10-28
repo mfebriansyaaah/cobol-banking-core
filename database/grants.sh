@@ -31,9 +31,11 @@ statements() {
     cat <<SQL
 CREATE USER IF NOT EXISTS '$APP_USER'@'$APP_HOST' IDENTIFIED BY '$APP_DB_PASS';
 ALTER USER '$APP_USER'@'$APP_HOST' IDENTIFIED BY '$APP_DB_PASS';
--- Least privilege: drop any pre-existing rights (including DDL) before
--- granting the DML-only set, so a re-run tightens rather than widens access.
-REVOKE ALL PRIVILEGES, GRANT OPTION ON \`$DB_NAME\`.* FROM '$APP_USER'@'$APP_HOST';
+-- Least privilege: drop every pre-existing right (including DDL and GRANT
+-- OPTION) before granting the DML-only set, so a re-run tightens rather than
+-- widens access. MariaDB does not accept GRANT OPTION in the ON-clause form,
+-- and the account is dedicated to this database, so revoke globally.
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM '$APP_USER'@'$APP_HOST';
 GRANT SELECT, INSERT, UPDATE, DELETE ON \`$DB_NAME\`.* TO '$APP_USER'@'$APP_HOST';
 
 CREATE USER IF NOT EXISTS '$MIGRATE_USER'@'$MIGRATE_HOST' IDENTIFIED BY '$MIGRATE_DB_PASS';
