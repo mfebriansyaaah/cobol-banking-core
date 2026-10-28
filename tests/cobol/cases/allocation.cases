@@ -1,0 +1,6 @@
+# Allocation (Wave14) validation cases.
+ALC_CREATE missing ref@@ERROR\|INVALID_INPUT@@ALC_CREATE||||||admin@test.com
+ALC_GET missing id@@ERROR\|INVALID_INPUT@@ALC_GET||||||admin@test.com
+ALC_CALC missing id@@ERROR\|INVALID_INPUT@@ALC_CALC||||||admin@test.com
+ALC_DELETE missing id@@ERROR\|INVALID_INPUT@@ALC_DELETE||||||admin@test.com
+ALC_VALIDATE ok@@SUCCESS\|ALC_VALID@@ALC_VALIDATE|100.00|USD||||admin@test.com

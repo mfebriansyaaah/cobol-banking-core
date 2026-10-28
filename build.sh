@@ -242,6 +242,35 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/rate_limiter_core.cob \
     cobol/src/retry_core.cob \
     cobol/src/timeout_core.cob \
+    cobol/src/budgeting_core.cob \
+    cobol/src/forecast_core.cob \
+    cobol/src/variance_core.cob \
+    cobol/src/scenario_core.cob \
+    cobol/src/simulation_core.cob \
+    cobol/src/optimization_core.cob \
+    cobol/src/allocation_core.cob \
+    cobol/src/distribution_core.cob \
+    cobol/src/consolidation_mgmt_core.cob \
+    cobol/src/elimination_core.cob \
+    cobol/src/intercompany_core.cob \
+    cobol/src/transfer_pricing_core.cob \
+    cobol/src/cost_center_mgmt_core.cob \
+    cobol/src/profit_center_core.cob \
+    cobol/src/investment_core.cob \
+    cobol/src/portfolio_core.cob \
+    cobol/src/asset_allocation_core.cob \
+    cobol/src/rebalancing_core.cob \
+    cobol/src/benchmark_core.cob \
+    cobol/src/index_mgmt_core.cob \
+    cobol/src/market_data_core.cob \
+    cobol/src/price_feed_core.cob \
+    cobol/src/quote_core.cob \
+    cobol/src/order_mgmt_core.cob \
+    cobol/src/execution_core.cob \
+    cobol/src/fill_core.cob \
+    cobol/src/position_mgmt_core.cob \
+    cobol/src/exposure_core.cob \
+    cobol/src/hedge_core.cob \
     cobol/src/bond_core.cob \
     cobol/src/equity_core.cob \
     cobol/src/derivative_core.cob \

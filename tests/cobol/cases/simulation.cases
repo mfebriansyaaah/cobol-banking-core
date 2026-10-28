@@ -1,0 +1,6 @@
+# Simulation (Wave14) validation cases.
+SIM_CREATE missing ref@@ERROR\|INVALID_INPUT@@SIM_CREATE||||||admin@test.com
+SIM_GET missing id@@ERROR\|INVALID_INPUT@@SIM_GET||||||admin@test.com
+SIM_CALC missing id@@ERROR\|INVALID_INPUT@@SIM_CALC||||||admin@test.com
+SIM_DELETE missing id@@ERROR\|INVALID_INPUT@@SIM_DELETE||||||admin@test.com
+SIM_VALIDATE ok@@SUCCESS\|SIM_VALID@@SIM_VALIDATE|100.00|USD||||admin@test.com

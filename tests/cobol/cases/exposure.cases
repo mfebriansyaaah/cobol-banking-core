@@ -1,0 +1,6 @@
+# Exposure (Wave14) validation cases.
+EXPS_CREATE missing ref@@ERROR\|INVALID_INPUT@@EXPS_CREATE||||||admin@test.com
+EXPS_GET missing id@@ERROR\|INVALID_INPUT@@EXPS_GET||||||admin@test.com
+EXPS_CALC missing id@@ERROR\|INVALID_INPUT@@EXPS_CALC||||||admin@test.com
+EXPS_DELETE missing id@@ERROR\|INVALID_INPUT@@EXPS_DELETE||||||admin@test.com
+EXPS_VALIDATE ok@@SUCCESS\|EXPS_VALID@@EXPS_VALIDATE|100.00|USD||||admin@test.com
