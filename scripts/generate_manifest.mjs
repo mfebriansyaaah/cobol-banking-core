@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { parseDispatchTable } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 
@@ -16,22 +17,19 @@ const gatewayRoutes = readdirSync(routesDir)
   .filter((f) => f.endsWith('.js') && f !== 'index.js')
   .sort();
 
-// Dispatch entries parsed from main_logic.cob.
+// Dispatch entries parsed from the table-driven dispatcher in main_logic.cob.
+// The parser is shared with check_manifest.mjs (scripts/lib/dispatch_table.mjs)
+// so the two can never disagree about the table format again.
 const mainLogic = readFileSync(path.join(cobolDir, 'main_logic.cob'), 'utf8');
-const dispatch = [];
-const re = /IF CMD-ACTION\(1:(\d+)\) = "([^"]+)"[\s\S]*?CALL "([^"]+)"/g;
-let m;
-while ((m = re.exec(mainLogic)) !== null) {
-  dispatch.push({ prefixLen: Number(m[1]), prefix: m[2], program: m[3] });
+const { entries: uniqueDispatch, problems } = parseDispatchTable(mainLogic);
+if (problems.length > 0) {
+  for (const p of problems) console.error(`FAIL: ${p}`);
+  console.error('\nrefusing to write a manifest from an inconsistent dispatch table');
+  process.exit(1);
 }
-// Deduplicate (some prefixes map to same program; keep first occurrence).
-const seen = new Set();
-const uniqueDispatch = [];
-for (const d of dispatch) {
-  const key = `${d.prefix}|${d.program}`;
-  if (seen.has(key)) continue;
-  seen.add(key);
-  uniqueDispatch.push(d);
+if (uniqueDispatch.length === 0) {
+  console.error('FAIL: no dispatch entries found in main_logic.cob (unsupported table format)');
+  process.exit(1);
 }
 
 const manifest = {
