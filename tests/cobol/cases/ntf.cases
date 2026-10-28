@@ -1,0 +1,6 @@
+# NTF (Wave3) validation cases.
+NTF_CREATE missing ref@@ERROR\|INVALID_INPUT@@NTF_CREATE||||||admin@test.com
+NTF_GET missing id@@ERROR\|INVALID_INPUT@@NTF_GET||||||admin@test.com
+NTF_CALC missing id@@ERROR\|INVALID_INPUT@@NTF_CALC||||||admin@test.com
+NTF_DELETE missing id@@ERROR\|INVALID_INPUT@@NTF_DELETE||||||admin@test.com
+NTF_VALIDATE ok@@SUCCESS\|NTF_VALID@@NTF_VALIDATE|100.00|USD||||admin@test.com

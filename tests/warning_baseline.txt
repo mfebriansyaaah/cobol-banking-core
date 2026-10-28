@@ -135,3 +135,7 @@ treasury_deal_core.cob=0
 collateral_mgmt_core.cob=0
 standing_instruction_core.cob=0
 direct_debit_core.cob=0
+notification_template_core.cob=0
+report_schedule_core.cob=0
+sla_tracker_core.cob=0
+compliance_calendar_core.cob=0

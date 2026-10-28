@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 206 TO DISPATCH-COUNT.
+            MOVE 210 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -727,6 +727,18 @@
             MOVE "DDB_" TO D-PREFIX(206).
             MOVE 4 TO D-PREFIX-LEN(206).
             MOVE "direct_debit_core" TO D-PROGRAM(206).
+            MOVE "NTP_" TO D-PREFIX(207).
+            MOVE 4 TO D-PREFIX-LEN(207).
+            MOVE "notification_template_core" TO D-PROGRAM(207).
+            MOVE "RPS_" TO D-PREFIX(208).
+            MOVE 4 TO D-PREFIX-LEN(208).
+            MOVE "report_schedule_core" TO D-PROGRAM(208).
+            MOVE "SLT_" TO D-PREFIX(209).
+            MOVE 4 TO D-PREFIX-LEN(209).
+            MOVE "sla_tracker_core" TO D-PROGRAM(209).
+            MOVE "CCL_" TO D-PREFIX(210).
+            MOVE 4 TO D-PREFIX-LEN(210).
+            MOVE "compliance_calendar_core" TO D-PROGRAM(210).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

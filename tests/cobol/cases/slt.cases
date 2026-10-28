@@ -1,0 +1,6 @@
+# SLA tracker (Wave3) validation cases.
+SLT_CREATE missing ref@@ERROR\|INVALID_INPUT@@SLT_CREATE||||||admin@test.com
+SLT_GET missing id@@ERROR\|INVALID_INPUT@@SLT_GET||||||admin@test.com
+SLT_CALC missing id@@ERROR\|INVALID_INPUT@@SLT_CALC||||||admin@test.com
+SLT_DELETE missing id@@ERROR\|INVALID_INPUT@@SLT_DELETE||||||admin@test.com
+SLT_VALIDATE ok@@SUCCESS\|SLT_VALID@@SLT_VALIDATE|100.00|USD||||admin@test.com

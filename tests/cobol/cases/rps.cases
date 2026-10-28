@@ -1,0 +1,6 @@
+# Report schedule (Wave3) validation cases.
+RPS_CREATE missing ref@@ERROR\|INVALID_INPUT@@RPS_CREATE||||||admin@test.com
+RPS_GET missing id@@ERROR\|INVALID_INPUT@@RPS_GET||||||admin@test.com
+RPS_CALC missing id@@ERROR\|INVALID_INPUT@@RPS_CALC||||||admin@test.com
+RPS_DELETE missing id@@ERROR\|INVALID_INPUT@@RPS_DELETE||||||admin@test.com
+RPS_VALIDATE ok@@SUCCESS\|RPS_VALID@@RPS_VALIDATE|100.00|USD||||admin@test.com

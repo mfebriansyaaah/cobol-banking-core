@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T00:01:41.623Z",
+  "generatedAt": "2026-10-28T00:36:03.515Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -90,6 +90,9 @@
     },
     {
       "source": "compliance_audit_core.cob"
+    },
+    {
+      "source": "compliance_calendar_core.cob"
     },
     {
       "source": "compliance_export_core.cob"
@@ -242,6 +245,9 @@
       "source": "notification_core.cob"
     },
     {
+      "source": "notification_template_core.cob"
+    },
+    {
       "source": "oncall_core.cob"
     },
     {
@@ -311,6 +317,9 @@
       "source": "report_delivery_core.cob"
     },
     {
+      "source": "report_schedule_core.cob"
+    },
+    {
       "source": "report_scheduler_core.cob"
     },
     {
@@ -330,6 +339,9 @@
     },
     {
       "source": "settlement_recon_core.cob"
+    },
+    {
+      "source": "sla_tracker_core.cob"
     },
     {
       "source": "sla_tracking_core.cob"
@@ -415,6 +427,7 @@
     "collateral_mgmt.js",
     "collection.js",
     "compliance_audit.js",
+    "compliance_calendar.js",
     "compliance_export.js",
     "compliance_retention.js",
     "consolidation.js",
@@ -464,6 +477,7 @@
     "metric_definition.js",
     "notification.js",
     "notification_audit.js",
+    "notification_template.js",
     "oncall.js",
     "oncall_delivery.js",
     "payment.js",
@@ -487,6 +501,7 @@
     "report_audit.js",
     "report_builder.js",
     "report_delivery.js",
+    "report_schedule.js",
     "report_scheduler.js",
     "retention_job.js",
     "risk_screening.js",
@@ -494,6 +509,7 @@
     "sanctions_list.js",
     "secret_rotation.js",
     "settlement_recon.js",
+    "sla_tracker.js",
     "sla_tracking.js",
     "slo_report.js",
     "standing_instruction.js",
