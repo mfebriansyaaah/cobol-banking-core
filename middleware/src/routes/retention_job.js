@@ -13,10 +13,6 @@ export const RETENTION_JOB_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/retention-policies/:dataClass', action: 'RTJ_POLICY_GET', tokenIdentity: 'actor', fields: [
-    { name: 'dataClass', pattern: PATTERNS.RTJ_CLASS, required: true },
-    BLANK, BLANK, BLANK, BLANK, ACTOR,
-  ] },
   { method: 'post', path: '/retention-runs', action: 'RTJ_RUN', tokenIdentity: 'actor', fields: [
     { name: 'dataClass', pattern: PATTERNS.RTJ_CLASS, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -27,9 +23,13 @@ export const RETENTION_JOB_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/retention-runs/summary', action: 'RTJ_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/retention-policies/:dataClass', action: 'RTJ_POLICY_GET', tokenIdentity: 'actor', fields: [
+    { name: 'dataClass', pattern: PATTERNS.RTJ_CLASS, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
   { method: 'get', path: '/retention-runs/:id', action: 'RTJ_RUN_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/retention-runs/summary', action: 'RTJ_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

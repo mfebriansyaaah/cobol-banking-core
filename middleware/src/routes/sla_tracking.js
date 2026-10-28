@@ -13,6 +13,7 @@ export const SLA_TRACKING_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/sla/summary', action: 'SLA_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/sla/:id', action: 'SLA_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -22,5 +23,4 @@ export const SLA_TRACKING_ROUTES = [
     { name: 'observed', pattern: PATTERNS.BATCH_DETAIL, required: true },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/sla/summary', action: 'SLA_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

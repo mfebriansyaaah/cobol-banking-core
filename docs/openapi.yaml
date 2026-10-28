@@ -10712,7 +10712,7 @@ paths:
       summary: RSC_RUN_START
       tags:
       - report_scheduler
-  /reports/schedules/:id:
+  /reports/delivery/schedules/:id:
     delete:
       operationId: RDL_SCHEDULE_DELETE
       parameters: []

@@ -14,6 +14,7 @@ export const SECRET_ROTATION_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/secret-rotations/summary', action: 'SCR_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/secret-rotations/:id', action: 'SCR_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -26,5 +27,4 @@ export const SECRET_ROTATION_ROUTES = [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/secret-rotations/summary', action: 'SCR_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

@@ -13,6 +13,7 @@ export const SLO_REPORT_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/slo/summary', action: 'SLO_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/slo/:name', action: 'SLO_GET', tokenIdentity: 'actor', fields: [
     { name: 'name', pattern: PATTERNS.KEY, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -29,5 +30,4 @@ export const SLO_REPORT_ROUTES = [
     { name: 'name', pattern: PATTERNS.KEY, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/slo/summary', action: 'SLO_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

@@ -14,6 +14,11 @@ export const KEY_ROTATION_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/key-rotations/due', action: 'KRO_DUE', tokenIdentity: 'actor', fields: [
+    { name: 'date', pattern: PATTERNS.DATE, required: true },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/key-rotations/summary', action: 'KRO_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/key-rotations/:id', action: 'KRO_PLAN_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -31,9 +36,4 @@ export const KEY_ROTATION_ROUTES = [
     { name: 'reason', pattern: PATTERNS.BATCH_DETAIL, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/key-rotations/due', action: 'KRO_DUE', tokenIdentity: 'actor', fields: [
-    { name: 'date', pattern: PATTERNS.DATE, required: true },
-    BLANK, BLANK, BLANK, BLANK, ACTOR,
-  ] },
-  { method: 'get', path: '/key-rotations/summary', action: 'KRO_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

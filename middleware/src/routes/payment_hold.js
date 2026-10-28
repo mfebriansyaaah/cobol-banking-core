@@ -9,6 +9,15 @@ export const PAYMENT_HOLD_ROUTES = [
     { name: 'expires', pattern: PATTERNS.DATE, required: false },
     BLANK, ACTOR,
   ] },
+  { method: 'get', path: '/holds', action: 'PHL_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'account', pattern: PATTERNS.INT, required: false },
+    { name: 'status', pattern: PATTERNS.PHL_STATUS, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/holds/expire', action: 'PHL_EXPIRE', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/holds/stats', action: 'PHL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'post', path: '/holds/:id/capture', action: 'PHL_CAPTURE', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
@@ -17,17 +26,8 @@ export const PAYMENT_HOLD_ROUTES = [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'get', path: '/holds', action: 'PHL_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'account', pattern: PATTERNS.INT, required: false },
-    { name: 'status', pattern: PATTERNS.PHL_STATUS, required: false },
-    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
-    { name: 'offset', pattern: PATTERNS.INT, required: false },
-    BLANK, ACTOR,
-  ] },
   { method: 'get', path: '/holds/:id', action: 'PHL_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'post', path: '/holds/expire', action: 'PHL_EXPIRE', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
-  { method: 'get', path: '/holds/stats', action: 'PHL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

@@ -42,7 +42,7 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
-    method: 'post', path: '/reports/schedules', action: 'RDL_SCHEDULE_CREATE',
+    method: 'post', path: '/reports/delivery/schedules', action: 'RDL_SCHEDULE_CREATE',
     tokenIdentity: 'actor',
     fields: [
       { name: 'template', pattern: PATTERNS.RPT_CODE, required: true },
@@ -54,7 +54,7 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
-    method: 'get', path: '/reports/schedules', action: 'RDL_SCHEDULE_LIST',
+    method: 'get', path: '/reports/delivery/schedules', action: 'RDL_SCHEDULE_LIST',
     tokenIdentity: 'actor',
     fields: [
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
@@ -64,7 +64,7 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
-    method: 'get', path: '/reports/schedules/due', action: 'RDL_SCHEDULE_DUE',
+    method: 'get', path: '/reports/delivery/schedules/due', action: 'RDL_SCHEDULE_DUE',
     tokenIdentity: 'actor',
     fields: [
       { name: 'asOf', pattern: PATTERNS.DATE, required: false },
@@ -73,7 +73,7 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
-    method: 'put', path: '/reports/schedules/:id', action: 'RDL_SCHEDULE_UPDATE',
+    method: 'put', path: '/reports/delivery/schedules/:id', action: 'RDL_SCHEDULE_UPDATE',
     tokenIdentity: 'actor',
     fields: [
       { name: 'id', pattern: PATTERNS.INT, required: true },
@@ -85,7 +85,7 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
-    method: 'delete', path: '/reports/schedules/:id', action: 'RDL_SCHEDULE_DELETE',
+    method: 'delete', path: '/reports/delivery/schedules/:id', action: 'RDL_SCHEDULE_DELETE',
     tokenIdentity: 'actor',
     fields: [
       { name: 'id', pattern: PATTERNS.INT, required: true },
@@ -102,7 +102,7 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
-    method: 'get', path: '/reports/schedules/:id/history', action: 'RDL_SCHEDULE_HISTORY',
+    method: 'get', path: '/reports/delivery/schedules/:id/history', action: 'RDL_SCHEDULE_HISTORY',
     tokenIdentity: 'actor',
     fields: [
       { name: 'id', pattern: PATTERNS.INT, required: true },
@@ -112,7 +112,7 @@ export const REPORT_DELIVERY_ROUTES = [
     ],
   },
   {
-    method: 'post', path: '/reports/schedules/:id/run', action: 'RDL_SCHEDULE_RUN',
+    method: 'post', path: '/reports/delivery/schedules/:id/run', action: 'RDL_SCHEDULE_RUN',
     tokenIdentity: 'actor',
     fields: [
       { name: 'id', pattern: PATTERNS.INT, required: true },
