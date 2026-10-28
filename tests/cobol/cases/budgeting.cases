@@ -1,0 +1,6 @@
+# Budgeting (Wave14) validation cases.
+BUDG_CREATE missing ref@@ERROR\|INVALID_INPUT@@BUDG_CREATE||||||admin@test.com
+BUDG_GET missing id@@ERROR\|INVALID_INPUT@@BUDG_GET||||||admin@test.com
+BUDG_CALC missing id@@ERROR\|INVALID_INPUT@@BUDG_CALC||||||admin@test.com
+BUDG_DELETE missing id@@ERROR\|INVALID_INPUT@@BUDG_DELETE||||||admin@test.com
+BUDG_VALIDATE ok@@SUCCESS\|BUDG_VALID@@BUDG_VALIDATE|100.00|USD||||admin@test.com

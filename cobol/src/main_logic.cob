@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 510 TO DISPATCH-COUNT.
+            MOVE 539 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1528,6 +1528,93 @@
             MOVE "RSV_" TO D-PREFIX(510).
             MOVE 4 TO D-PREFIX-LEN(510).
             MOVE "reserve_core" TO D-PROGRAM(510).
+            MOVE "BUDG_" TO D-PREFIX(511).
+            MOVE 5 TO D-PREFIX-LEN(511).
+            MOVE "budgeting_core" TO D-PROGRAM(511).
+            MOVE "FRCST_" TO D-PREFIX(512).
+            MOVE 6 TO D-PREFIX-LEN(512).
+            MOVE "forecast_core" TO D-PROGRAM(512).
+            MOVE "VARA_" TO D-PREFIX(513).
+            MOVE 5 TO D-PREFIX-LEN(513).
+            MOVE "variance_core" TO D-PROGRAM(513).
+            MOVE "SCN_" TO D-PREFIX(514).
+            MOVE 4 TO D-PREFIX-LEN(514).
+            MOVE "scenario_core" TO D-PROGRAM(514).
+            MOVE "SIM_" TO D-PREFIX(515).
+            MOVE 4 TO D-PREFIX-LEN(515).
+            MOVE "simulation_core" TO D-PROGRAM(515).
+            MOVE "OPTM_" TO D-PREFIX(516).
+            MOVE 5 TO D-PREFIX-LEN(516).
+            MOVE "optimization_core" TO D-PROGRAM(516).
+            MOVE "ALC_" TO D-PREFIX(517).
+            MOVE 4 TO D-PREFIX-LEN(517).
+            MOVE "allocation_core" TO D-PROGRAM(517).
+            MOVE "DST_" TO D-PREFIX(518).
+            MOVE 4 TO D-PREFIX-LEN(518).
+            MOVE "distribution_core" TO D-PROGRAM(518).
+            MOVE "CONS_" TO D-PREFIX(519).
+            MOVE 5 TO D-PREFIX-LEN(519).
+            MOVE "consolidation_mgmt_core" TO D-PROGRAM(519).
+            MOVE "ELM_" TO D-PREFIX(520).
+            MOVE 4 TO D-PREFIX-LEN(520).
+            MOVE "elimination_core" TO D-PROGRAM(520).
+            MOVE "ICP_" TO D-PREFIX(521).
+            MOVE 4 TO D-PREFIX-LEN(521).
+            MOVE "intercompany_core" TO D-PROGRAM(521).
+            MOVE "TPR_" TO D-PREFIX(522).
+            MOVE 4 TO D-PREFIX-LEN(522).
+            MOVE "transfer_pricing_core" TO D-PROGRAM(522).
+            MOVE "CCN_" TO D-PREFIX(523).
+            MOVE 4 TO D-PREFIX-LEN(523).
+            MOVE "cost_center_mgmt_core" TO D-PROGRAM(523).
+            MOVE "PC_" TO D-PREFIX(524).
+            MOVE 3 TO D-PREFIX-LEN(524).
+            MOVE "profit_center_core" TO D-PROGRAM(524).
+            MOVE "INVS_" TO D-PREFIX(525).
+            MOVE 5 TO D-PREFIX-LEN(525).
+            MOVE "investment_core" TO D-PROGRAM(525).
+            MOVE "PTF_" TO D-PREFIX(526).
+            MOVE 4 TO D-PREFIX-LEN(526).
+            MOVE "portfolio_core" TO D-PROGRAM(526).
+            MOVE "AAL_" TO D-PREFIX(527).
+            MOVE 4 TO D-PREFIX-LEN(527).
+            MOVE "asset_allocation_core" TO D-PROGRAM(527).
+            MOVE "RBL_" TO D-PREFIX(528).
+            MOVE 4 TO D-PREFIX-LEN(528).
+            MOVE "rebalancing_core" TO D-PROGRAM(528).
+            MOVE "BNM_" TO D-PREFIX(529).
+            MOVE 4 TO D-PREFIX-LEN(529).
+            MOVE "benchmark_core" TO D-PROGRAM(529).
+            MOVE "IDXX_" TO D-PREFIX(530).
+            MOVE 5 TO D-PREFIX-LEN(530).
+            MOVE "index_mgmt_core" TO D-PROGRAM(530).
+            MOVE "MKD_" TO D-PREFIX(531).
+            MOVE 4 TO D-PREFIX-LEN(531).
+            MOVE "market_data_core" TO D-PROGRAM(531).
+            MOVE "PF_" TO D-PREFIX(532).
+            MOVE 3 TO D-PREFIX-LEN(532).
+            MOVE "price_feed_core" TO D-PROGRAM(532).
+            MOVE "QTE_" TO D-PREFIX(533).
+            MOVE 4 TO D-PREFIX-LEN(533).
+            MOVE "quote_core" TO D-PROGRAM(533).
+            MOVE "ORD_" TO D-PREFIX(534).
+            MOVE 4 TO D-PREFIX-LEN(534).
+            MOVE "order_mgmt_core" TO D-PROGRAM(534).
+            MOVE "EXE_" TO D-PREFIX(535).
+            MOVE 4 TO D-PREFIX-LEN(535).
+            MOVE "execution_core" TO D-PROGRAM(535).
+            MOVE "FIL_" TO D-PREFIX(536).
+            MOVE 4 TO D-PREFIX-LEN(536).
+            MOVE "fill_core" TO D-PROGRAM(536).
+            MOVE "PSTN_" TO D-PREFIX(537).
+            MOVE 5 TO D-PREFIX-LEN(537).
+            MOVE "position_mgmt_core" TO D-PROGRAM(537).
+            MOVE "EXPS_" TO D-PREFIX(538).
+            MOVE 5 TO D-PREFIX-LEN(538).
+            MOVE "exposure_core" TO D-PROGRAM(538).
+            MOVE "HEDG_" TO D-PREFIX(539).
+            MOVE 5 TO D-PREFIX-LEN(539).
+            MOVE "hedge_core" TO D-PROGRAM(539).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

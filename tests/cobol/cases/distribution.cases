@@ -1,0 +1,6 @@
+# Distribution (Wave14) validation cases.
+DST_CREATE missing ref@@ERROR\|INVALID_INPUT@@DST_CREATE||||||admin@test.com
+DST_GET missing id@@ERROR\|INVALID_INPUT@@DST_GET||||||admin@test.com
+DST_CALC missing id@@ERROR\|INVALID_INPUT@@DST_CALC||||||admin@test.com
+DST_DELETE missing id@@ERROR\|INVALID_INPUT@@DST_DELETE||||||admin@test.com
+DST_VALIDATE ok@@SUCCESS\|DST_VALID@@DST_VALIDATE|100.00|USD||||admin@test.com

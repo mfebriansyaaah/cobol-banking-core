@@ -1616,3 +1616,149 @@ db_reset_reserve() {
     db_exec "DELETE FROM reserve_audit;"
     db_exec "DELETE FROM reserve;"
 }
+
+db_reset_budgeting() {
+    db_exec "DELETE FROM budgeting_audit;"
+    db_exec "DELETE FROM budgeting;"
+}
+
+db_reset_forecast() {
+    db_exec "DELETE FROM forecast_audit;"
+    db_exec "DELETE FROM forecast;"
+}
+
+db_reset_variance() {
+    db_exec "DELETE FROM variance_audit;"
+    db_exec "DELETE FROM variance;"
+}
+
+db_reset_scenario() {
+    db_exec "DELETE FROM scenario_audit;"
+    db_exec "DELETE FROM scenario;"
+}
+
+db_reset_simulation() {
+    db_exec "DELETE FROM simulation_audit;"
+    db_exec "DELETE FROM simulation;"
+}
+
+db_reset_optimization() {
+    db_exec "DELETE FROM optimization_audit;"
+    db_exec "DELETE FROM optimization;"
+}
+
+db_reset_allocation() {
+    db_exec "DELETE FROM allocation_audit;"
+    db_exec "DELETE FROM allocation;"
+}
+
+db_reset_distribution() {
+    db_exec "DELETE FROM distribution_audit;"
+    db_exec "DELETE FROM distribution;"
+}
+
+db_reset_consolidation_mgmt() {
+    db_exec "DELETE FROM consolidation_mgmt_audit;"
+    db_exec "DELETE FROM consolidation_mgmt;"
+}
+
+db_reset_elimination() {
+    db_exec "DELETE FROM elimination_audit;"
+    db_exec "DELETE FROM elimination;"
+}
+
+db_reset_intercompany() {
+    db_exec "DELETE FROM intercompany_audit;"
+    db_exec "DELETE FROM intercompany;"
+}
+
+db_reset_transfer_pricing() {
+    db_exec "DELETE FROM transfer_pricing_audit;"
+    db_exec "DELETE FROM transfer_pricing;"
+}
+
+db_reset_cost_center_mgmt() {
+    db_exec "DELETE FROM cost_center_mgmt_audit;"
+    db_exec "DELETE FROM cost_center_mgmt;"
+}
+
+db_reset_profit_center() {
+    db_exec "DELETE FROM profit_center_audit;"
+    db_exec "DELETE FROM profit_center;"
+}
+
+db_reset_investment() {
+    db_exec "DELETE FROM investment_audit;"
+    db_exec "DELETE FROM investment;"
+}
+
+db_reset_portfolio() {
+    db_exec "DELETE FROM portfolio_audit;"
+    db_exec "DELETE FROM portfolio;"
+}
+
+db_reset_asset_allocation() {
+    db_exec "DELETE FROM asset_allocation_audit;"
+    db_exec "DELETE FROM asset_allocation;"
+}
+
+db_reset_rebalancing() {
+    db_exec "DELETE FROM rebalancing_audit;"
+    db_exec "DELETE FROM rebalancing;"
+}
+
+db_reset_benchmark() {
+    db_exec "DELETE FROM benchmark_audit;"
+    db_exec "DELETE FROM benchmark;"
+}
+
+db_reset_index_mgmt() {
+    db_exec "DELETE FROM index_mgmt_audit;"
+    db_exec "DELETE FROM index_mgmt;"
+}
+
+db_reset_market_data() {
+    db_exec "DELETE FROM market_data_audit;"
+    db_exec "DELETE FROM market_data;"
+}
+
+db_reset_price_feed() {
+    db_exec "DELETE FROM price_feed_audit;"
+    db_exec "DELETE FROM price_feed;"
+}
+
+db_reset_quote() {
+    db_exec "DELETE FROM quote_audit;"
+    db_exec "DELETE FROM quote;"
+}
+
+db_reset_order_mgmt() {
+    db_exec "DELETE FROM order_mgmt_audit;"
+    db_exec "DELETE FROM order_mgmt;"
+}
+
+db_reset_execution() {
+    db_exec "DELETE FROM execution_audit;"
+    db_exec "DELETE FROM execution;"
+}
+
+db_reset_fill() {
+    db_exec "DELETE FROM fill_audit;"
+    db_exec "DELETE FROM fill;"
+}
+
+db_reset_position_mgmt() {
+    db_exec "DELETE FROM position_mgmt_audit;"
+    db_exec "DELETE FROM position_mgmt;"
+}
+
+db_reset_exposure() {
+    db_exec "DELETE FROM exposure_audit;"
+    db_exec "DELETE FROM exposure;"
+}
+
+db_reset_hedge() {
+    db_exec "DELETE FROM hedge_audit;"
+    db_exec "DELETE FROM hedge;"
+}
+

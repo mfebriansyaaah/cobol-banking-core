@@ -1,0 +1,6 @@
+# Order Mgmt (Wave14) validation cases.
+ORD_CREATE missing ref@@ERROR\|INVALID_INPUT@@ORD_CREATE||||||admin@test.com
+ORD_GET missing id@@ERROR\|INVALID_INPUT@@ORD_GET||||||admin@test.com
+ORD_CALC missing id@@ERROR\|INVALID_INPUT@@ORD_CALC||||||admin@test.com
+ORD_DELETE missing id@@ERROR\|INVALID_INPUT@@ORD_DELETE||||||admin@test.com
+ORD_VALIDATE ok@@SUCCESS\|ORD_VALID@@ORD_VALIDATE|100.00|USD||||admin@test.com

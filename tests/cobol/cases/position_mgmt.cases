@@ -1,0 +1,6 @@
+# Position Mgmt (Wave14) validation cases.
+PSTN_CREATE missing ref@@ERROR\|INVALID_INPUT@@PSTN_CREATE||||||admin@test.com
+PSTN_GET missing id@@ERROR\|INVALID_INPUT@@PSTN_GET||||||admin@test.com
+PSTN_CALC missing id@@ERROR\|INVALID_INPUT@@PSTN_CALC||||||admin@test.com
+PSTN_DELETE missing id@@ERROR\|INVALID_INPUT@@PSTN_DELETE||||||admin@test.com
+PSTN_VALIDATE ok@@SUCCESS\|PSTN_VALID@@PSTN_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Investment (Wave14) validation cases.
+INVS_CREATE missing ref@@ERROR\|INVALID_INPUT@@INVS_CREATE||||||admin@test.com
+INVS_GET missing id@@ERROR\|INVALID_INPUT@@INVS_GET||||||admin@test.com
+INVS_CALC missing id@@ERROR\|INVALID_INPUT@@INVS_CALC||||||admin@test.com
+INVS_DELETE missing id@@ERROR\|INVALID_INPUT@@INVS_DELETE||||||admin@test.com
+INVS_VALIDATE ok@@SUCCESS\|INVS_VALID@@INVS_VALIDATE|100.00|USD||||admin@test.com

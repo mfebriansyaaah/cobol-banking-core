@@ -1,0 +1,6 @@
+# Execution (Wave14) validation cases.
+EXE_CREATE missing ref@@ERROR\|INVALID_INPUT@@EXE_CREATE||||||admin@test.com
+EXE_GET missing id@@ERROR\|INVALID_INPUT@@EXE_GET||||||admin@test.com
+EXE_CALC missing id@@ERROR\|INVALID_INPUT@@EXE_CALC||||||admin@test.com
+EXE_DELETE missing id@@ERROR\|INVALID_INPUT@@EXE_DELETE||||||admin@test.com
+EXE_VALIDATE ok@@SUCCESS\|EXE_VALID@@EXE_VALIDATE|100.00|USD||||admin@test.com

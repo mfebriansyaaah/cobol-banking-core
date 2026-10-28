@@ -61,8 +61,37 @@ import { CON_ROUTES } from './contract.js';
 import { ADL_ROUTES } from './audit_log.js';
 import { LOG_ROUTES } from './logging.js';
 import { TMO_ROUTES } from './timeout.js';
+import { HEDG_ROUTES } from './hedge.js';
+import { EXPS_ROUTES } from './exposure.js';
+import { PSTN_ROUTES } from './position_mgmt.js';
+import { FIL_ROUTES } from './fill.js';
+import { EXE_ROUTES } from './execution.js';
+import { ORD_ROUTES } from './order_mgmt.js';
+import { QTE_ROUTES } from './quote.js';
+import { PF_ROUTES } from './price_feed.js';
+import { MKD_ROUTES } from './market_data.js';
+import { IDXX_ROUTES } from './index_mgmt.js';
+import { BNM_ROUTES } from './benchmark.js';
+import { RBL_ROUTES } from './rebalancing.js';
+import { AAL_ROUTES } from './asset_allocation.js';
+import { PTF_ROUTES } from './portfolio.js';
+import { INVS_ROUTES } from './investment.js';
+import { CCN_ROUTES } from './cost_center_mgmt.js';
+import { TPR_ROUTES } from './transfer_pricing.js';
+import { ICP_ROUTES } from './intercompany.js';
+import { ELM_ROUTES } from './elimination.js';
+import { CONS_ROUTES } from './consolidation_mgmt.js';
+import { DST_ROUTES } from './distribution.js';
+import { ALC_ROUTES } from './allocation.js';
+import { OPTM_ROUTES } from './optimization.js';
+import { SIM_ROUTES } from './simulation.js';
+import { SCN_ROUTES } from './scenario.js';
+import { VARA_ROUTES } from './variance.js';
+import { FRCST_ROUTES } from './forecast.js';
+import { BUDG_ROUTES } from './budgeting.js';
 import { ASB_ROUTES } from './asset_backed_security.js';
 import { RSV_ROUTES } from './reserve.js';
+import { PC_ROUTES } from './profit_center.js';
 import { IS_ROUTES } from './income_statement.js';
 import { CF_ROUTES } from './cash_flow.js';
 import { BS_ROUTES } from './balance_sheet.js';
@@ -453,8 +482,37 @@ export const ALL_ROUTES = [
   ...ADL_ROUTES,
   ...LOG_ROUTES,
   ...TMO_ROUTES,
+  ...HEDG_ROUTES,
+  ...EXPS_ROUTES,
+  ...PSTN_ROUTES,
+  ...FIL_ROUTES,
+  ...EXE_ROUTES,
+  ...ORD_ROUTES,
+  ...QTE_ROUTES,
+  ...PF_ROUTES,
+  ...MKD_ROUTES,
+  ...IDXX_ROUTES,
+  ...BNM_ROUTES,
+  ...RBL_ROUTES,
+  ...AAL_ROUTES,
+  ...PTF_ROUTES,
+  ...INVS_ROUTES,
+  ...CCN_ROUTES,
+  ...TPR_ROUTES,
+  ...ICP_ROUTES,
+  ...ELM_ROUTES,
+  ...CONS_ROUTES,
+  ...DST_ROUTES,
+  ...ALC_ROUTES,
+  ...OPTM_ROUTES,
+  ...SIM_ROUTES,
+  ...SCN_ROUTES,
+  ...VARA_ROUTES,
+  ...FRCST_ROUTES,
+  ...BUDG_ROUTES,
   ...ASB_ROUTES,
   ...RSV_ROUTES,
+  ...PC_ROUTES,
   ...IS_ROUTES,
   ...CF_ROUTES,
   ...BS_ROUTES,

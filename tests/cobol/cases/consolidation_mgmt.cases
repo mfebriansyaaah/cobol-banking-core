@@ -1,0 +1,6 @@
+# Consolidation Mgmt (Wave14) validation cases.
+CONS_CREATE missing ref@@ERROR\|INVALID_INPUT@@CONS_CREATE||||||admin@test.com
+CONS_GET missing id@@ERROR\|INVALID_INPUT@@CONS_GET||||||admin@test.com
+CONS_CALC missing id@@ERROR\|INVALID_INPUT@@CONS_CALC||||||admin@test.com
+CONS_DELETE missing id@@ERROR\|INVALID_INPUT@@CONS_DELETE||||||admin@test.com
+CONS_VALIDATE ok@@SUCCESS\|CONS_VALID@@CONS_VALIDATE|100.00|USD||||admin@test.com
