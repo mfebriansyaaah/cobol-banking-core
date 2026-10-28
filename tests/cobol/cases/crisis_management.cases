@@ -1,0 +1,6 @@
+# Crisis Management (Wave7) validation cases.
+CRM_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRM_CREATE||||||admin@test.com
+CRM_GET missing id@@ERROR\|INVALID_INPUT@@CRM_GET||||||admin@test.com
+CRM_CALC missing id@@ERROR\|INVALID_INPUT@@CRM_CALC||||||admin@test.com
+CRM_DELETE missing id@@ERROR\|INVALID_INPUT@@CRM_DELETE||||||admin@test.com
+CRM_VALIDATE ok@@SUCCESS\|CRM_VALID@@CRM_VALIDATE|100.00|USD||||admin@test.com

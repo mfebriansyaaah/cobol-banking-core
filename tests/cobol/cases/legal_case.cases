@@ -1,0 +1,6 @@
+# Legal Case (Wave7) validation cases.
+LGC_CREATE missing ref@@ERROR\|INVALID_INPUT@@LGC_CREATE||||||admin@test.com
+LGC_GET missing id@@ERROR\|INVALID_INPUT@@LGC_GET||||||admin@test.com
+LGC_CALC missing id@@ERROR\|INVALID_INPUT@@LGC_CALC||||||admin@test.com
+LGC_DELETE missing id@@ERROR\|INVALID_INPUT@@LGC_DELETE||||||admin@test.com
+LGC_VALIDATE ok@@SUCCESS\|LGC_VALID@@LGC_VALIDATE|100.00|USD||||admin@test.com

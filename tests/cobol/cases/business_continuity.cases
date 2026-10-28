@@ -1,0 +1,6 @@
+# Business Continuity (Wave7) validation cases.
+BCP_CREATE missing ref@@ERROR\|INVALID_INPUT@@BCP_CREATE||||||admin@test.com
+BCP_GET missing id@@ERROR\|INVALID_INPUT@@BCP_GET||||||admin@test.com
+BCP_CALC missing id@@ERROR\|INVALID_INPUT@@BCP_CALC||||||admin@test.com
+BCP_DELETE missing id@@ERROR\|INVALID_INPUT@@BCP_DELETE||||||admin@test.com
+BCP_VALIDATE ok@@SUCCESS\|BCP_VALID@@BCP_VALIDATE|100.00|USD||||admin@test.com

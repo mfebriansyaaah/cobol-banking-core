@@ -1,0 +1,6 @@
+# Collateral Repossession (Wave7) validation cases.
+CRP_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRP_CREATE||||||admin@test.com
+CRP_GET missing id@@ERROR\|INVALID_INPUT@@CRP_GET||||||admin@test.com
+CRP_CALC missing id@@ERROR\|INVALID_INPUT@@CRP_CALC||||||admin@test.com
+CRP_DELETE missing id@@ERROR\|INVALID_INPUT@@CRP_DELETE||||||admin@test.com
+CRP_VALIDATE ok@@SUCCESS\|CRP_VALID@@CRP_VALIDATE|100.00|USD||||admin@test.com

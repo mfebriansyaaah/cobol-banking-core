@@ -53,6 +53,35 @@ import { CCL_ROUTES } from './compliance_calendar.js';
 import { ESC_ROUTES } from './escrow_account.js';
 import { ORG_ROUTES } from './organization_unit.js';
 import { SYL_ROUTES } from './syndicated_loan.js';
+import { OSC_ROUTES } from './outsourcing_contract.js';
+import { VDM_ROUTES } from './vendor_management.js';
+import { CRM_ROUTES } from './crisis_management.js';
+import { BCP_ROUTES } from './business_continuity.js';
+import { INR_ROUTES } from './incident_report.js';
+import { WHB_ROUTES } from './whistleblowing.js';
+import { INV_ROUTES } from './investigation.js';
+import { EXA_ROUTES } from './external_audit.js';
+import { INA_ROUTES } from './internal_audit.js';
+import { TXR_ROUTES } from './tax_report.js';
+import { CMA_ROUTES } from './compliance_audit.js';
+import { RGR_ROUTES } from './regulatory_report.js';
+import { SST_ROUTES } from './stress_test.js';
+import { RSM_ROUTES } from './risk_model.js';
+import { LSR_ROUTES } from './loss_reserve.js';
+import { PRV_ROUTES } from './provisioning.js';
+import { WOF_ROUTES } from './write_off.js';
+import { FCL_ROUTES } from './foreclosure.js';
+import { CRP_ROUTES } from './collateral_repossession.js';
+import { LGC_ROUTES } from './legal_case.js';
+import { DRC_ROUTES } from './debt_recovery.js';
+import { DCL_ROUTES } from './debt_collection.js';
+import { CBU_ROUTES } from './credit_bureau.js';
+import { GIN_ROUTES } from './guarantee_issuing.js';
+import { BNR_ROUTES } from './beneficiary_registry.js';
+import { PAD_ROUTES } from './policy_administration.js';
+import { ACA_ROUTES } from './actuarial_calc.js';
+import { RIC_ROUTES } from './reinsurance_contract.js';
+import { ISP_ROUTES } from './insurance_policy.js';
 import { STP_ROUTES } from './structured_product.js';
 import { MGT_ROUTES } from './margin_trading.js';
 import { SEL_ROUTES } from './securities_lending.js';
@@ -115,6 +144,7 @@ import { RPS_ROUTES } from './report_schedule.js';
 import { NTP_ROUTES } from './notification_template.js';
 import { SIN_ROUTES } from './standing_instruction.js';
 import { CLM_ROUTES } from './collateral_mgmt.js';
+import { CLM_ROUTES as CLAIMS_ROUTES } from './claims_management.js';
 import { TSD_ROUTES } from './treasury_deal.js';
 import { CUSTOMER_ROUTES } from './customer.js';
 import { PRODUCT_CATALOG_ROUTES } from './product_catalog.js';
@@ -242,6 +272,35 @@ export const ALL_ROUTES = [
   ...ESC_ROUTES,
   ...ORG_ROUTES,
   ...SYL_ROUTES,
+  ...OSC_ROUTES,
+  ...VDM_ROUTES,
+  ...CRM_ROUTES,
+  ...BCP_ROUTES,
+  ...INR_ROUTES,
+  ...WHB_ROUTES,
+  ...INV_ROUTES,
+  ...EXA_ROUTES,
+  ...INA_ROUTES,
+  ...TXR_ROUTES,
+  ...CMA_ROUTES,
+  ...RGR_ROUTES,
+  ...SST_ROUTES,
+  ...RSM_ROUTES,
+  ...LSR_ROUTES,
+  ...PRV_ROUTES,
+  ...WOF_ROUTES,
+  ...FCL_ROUTES,
+  ...CRP_ROUTES,
+  ...LGC_ROUTES,
+  ...DRC_ROUTES,
+  ...DCL_ROUTES,
+  ...CBU_ROUTES,
+  ...GIN_ROUTES,
+  ...BNR_ROUTES,
+  ...PAD_ROUTES,
+  ...ACA_ROUTES,
+  ...RIC_ROUTES,
+  ...ISP_ROUTES,
   ...STP_ROUTES,
   ...MGT_ROUTES,
   ...SEL_ROUTES,
@@ -304,6 +363,7 @@ export const ALL_ROUTES = [
   ...NTP_ROUTES,
   ...SIN_ROUTES,
   ...CLM_ROUTES,
+  ...CLAIMS_ROUTES,
   ...TSD_ROUTES,
   ...CUSTOMER_ROUTES,
   ...PRODUCT_CATALOG_ROUTES,

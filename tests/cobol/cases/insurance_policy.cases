@@ -1,0 +1,6 @@
+# Insurance Policy (Wave7) validation cases.
+ISP_CREATE missing ref@@ERROR\|INVALID_INPUT@@ISP_CREATE||||||admin@test.com
+ISP_GET missing id@@ERROR\|INVALID_INPUT@@ISP_GET||||||admin@test.com
+ISP_CALC missing id@@ERROR\|INVALID_INPUT@@ISP_CALC||||||admin@test.com
+ISP_DELETE missing id@@ERROR\|INVALID_INPUT@@ISP_DELETE||||||admin@test.com
+ISP_VALIDATE ok@@SUCCESS\|ISP_VALID@@ISP_VALIDATE|100.00|USD||||admin@test.com

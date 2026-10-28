@@ -1,0 +1,6 @@
+# Write Off (Wave7) validation cases.
+WOF_CREATE missing ref@@ERROR\|INVALID_INPUT@@WOF_CREATE||||||admin@test.com
+WOF_GET missing id@@ERROR\|INVALID_INPUT@@WOF_GET||||||admin@test.com
+WOF_CALC missing id@@ERROR\|INVALID_INPUT@@WOF_CALC||||||admin@test.com
+WOF_DELETE missing id@@ERROR\|INVALID_INPUT@@WOF_DELETE||||||admin@test.com
+WOF_VALIDATE ok@@SUCCESS\|WOF_VALID@@WOF_VALIDATE|100.00|USD||||admin@test.com

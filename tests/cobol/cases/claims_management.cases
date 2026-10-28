@@ -1,0 +1,6 @@
+# Claims Management (Wave7) validation cases.
+CLM_CREATE missing ref@@ERROR\|INVALID_INPUT@@CLM_CREATE||||||admin@test.com
+CLM_GET missing id@@ERROR\|INVALID_INPUT@@CLM_GET||||||admin@test.com
+CLM_CALC missing id@@ERROR\|INVALID_INPUT@@CLM_CALC||||||admin@test.com
+CLM_DELETE missing id@@ERROR\|INVALID_INPUT@@CLM_DELETE||||||admin@test.com
+CLM_VALIDATE ok@@SUCCESS\|CLM_VALID@@CLM_VALIDATE|100.00|USD||||admin@test.com

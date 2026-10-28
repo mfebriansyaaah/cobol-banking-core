@@ -1,0 +1,6 @@
+# Provisioning (Wave7) validation cases.
+PRV_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRV_CREATE||||||admin@test.com
+PRV_GET missing id@@ERROR\|INVALID_INPUT@@PRV_GET||||||admin@test.com
+PRV_CALC missing id@@ERROR\|INVALID_INPUT@@PRV_CALC||||||admin@test.com
+PRV_DELETE missing id@@ERROR\|INVALID_INPUT@@PRV_DELETE||||||admin@test.com
+PRV_VALIDATE ok@@SUCCESS\|PRV_VALID@@PRV_VALIDATE|100.00|USD||||admin@test.com

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T03:29:25.673Z",
+  "generatedAt": "2026-10-28T05:14:01.058Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -9,6 +9,9 @@
     },
     {
       "source": "account_core.cob"
+    },
+    {
+      "source": "actuarial_calc_core.cob"
     },
     {
       "source": "alert_core.cob"
@@ -77,6 +80,9 @@
       "source": "batch_core.cob"
     },
     {
+      "source": "beneficiary_registry_core.cob"
+    },
+    {
       "source": "billpay_core.cob"
     },
     {
@@ -90,6 +96,9 @@
     },
     {
       "source": "budget_core.cob"
+    },
+    {
+      "source": "business_continuity_core.cob"
     },
     {
       "source": "capacity_forecast_core.cob"
@@ -116,10 +125,16 @@
       "source": "chargeback_core.cob"
     },
     {
+      "source": "claims_management_core.cob"
+    },
+    {
       "source": "collateral_core.cob"
     },
     {
       "source": "collateral_mgmt_core.cob"
+    },
+    {
+      "source": "collateral_repossession_core.cob"
     },
     {
       "source": "collection_core.cob"
@@ -152,7 +167,13 @@
       "source": "cost_center_core.cob"
     },
     {
+      "source": "credit_bureau_core.cob"
+    },
+    {
       "source": "credit_card_core.cob"
+    },
+    {
+      "source": "crisis_management_core.cob"
     },
     {
       "source": "crypto_exchange_core.cob"
@@ -186,6 +207,12 @@
     },
     {
       "source": "debit_card_core.cob"
+    },
+    {
+      "source": "debt_collection_core.cob"
+    },
+    {
+      "source": "debt_recovery_core.cob"
     },
     {
       "source": "deposit_core.cob"
@@ -233,6 +260,9 @@
       "source": "export_stream_core.cob"
     },
     {
+      "source": "external_audit_core.cob"
+    },
+    {
       "source": "fee_core.cob"
     },
     {
@@ -243,6 +273,9 @@
     },
     {
       "source": "fixed_asset_core.cob"
+    },
+    {
+      "source": "foreclosure_core.cob"
     },
     {
       "source": "fraud_case_core.cob"
@@ -272,6 +305,9 @@
       "source": "gl_reval_core.cob"
     },
     {
+      "source": "guarantee_issuing_core.cob"
+    },
+    {
       "source": "hashlen_core.cob"
     },
     {
@@ -290,10 +326,22 @@
       "source": "incident_postmortem_core.cob"
     },
     {
+      "source": "incident_report_core.cob"
+    },
+    {
+      "source": "insurance_policy_core.cob"
+    },
+    {
       "source": "interest_rate_core.cob"
     },
     {
+      "source": "internal_audit_core.cob"
+    },
+    {
       "source": "internet_banking_core.cob"
+    },
+    {
+      "source": "investigation_core.cob"
     },
     {
       "source": "invoice_financing_core.cob"
@@ -311,6 +359,9 @@
       "source": "lbpue_core.cob"
     },
     {
+      "source": "legal_case_core.cob"
+    },
+    {
       "source": "legal_hold_core.cob"
     },
     {
@@ -324,6 +375,9 @@
     },
     {
       "source": "loan_schedule_core.cob"
+    },
+    {
+      "source": "loss_reserve_core.cob"
     },
     {
       "source": "margin_trading_core.cob"
@@ -368,6 +422,9 @@
       "source": "organization_unit_core.cob"
     },
     {
+      "source": "outsourcing_contract_core.cob"
+    },
+    {
       "source": "payment_clearing_core.cob"
     },
     {
@@ -395,6 +452,9 @@
       "source": "pisp_management_core.cob"
     },
     {
+      "source": "policy_administration_core.cob"
+    },
+    {
       "source": "policy_attestation_core.cob"
     },
     {
@@ -405,6 +465,9 @@
     },
     {
       "source": "product_catalog_core.cob"
+    },
+    {
+      "source": "provisioning_core.cob"
     },
     {
       "source": "rate_management_core.cob"
@@ -432,6 +495,9 @@
     },
     {
       "source": "regulatory_report_core.cob"
+    },
+    {
+      "source": "reinsurance_contract_core.cob"
     },
     {
       "source": "remittance_core.cob"
@@ -462,6 +528,9 @@
     },
     {
       "source": "retention_job_core.cob"
+    },
+    {
+      "source": "risk_model_core.cob"
     },
     {
       "source": "risk_screening_core.cob"
@@ -510,6 +579,9 @@
     },
     {
       "source": "statement_recon_core.cob"
+    },
+    {
+      "source": "stress_test_core.cob"
     },
     {
       "source": "structured_product_core.cob"
@@ -566,6 +638,9 @@
       "source": "vendor_core.cob"
     },
     {
+      "source": "vendor_management_core.cob"
+    },
+    {
       "source": "vendor_risk_core.cob"
     },
     {
@@ -575,13 +650,20 @@
       "source": "wealth_management_core.cob"
     },
     {
+      "source": "whistleblowing_core.cob"
+    },
+    {
       "source": "workflow_approval_core.cob"
+    },
+    {
+      "source": "write_off_core.cob"
     }
   ],
   "gatewayRoutes": [
     "access_audit.js",
     "access_control.js",
     "account.js",
+    "actuarial_calc.js",
     "alert_escalation.js",
     "alerts.js",
     "aml_screening.js",
@@ -602,11 +684,13 @@
     "backup_verification.js",
     "bank_guarantee.js",
     "batch.js",
+    "beneficiary_registry.js",
     "billpay.js",
     "blockchain_tracker.js",
     "bond_trading.js",
     "branch_management.js",
     "budget.js",
+    "business_continuity.js",
     "capacity_forecast.js",
     "capacity_plan.js",
     "card.js",
@@ -615,8 +699,10 @@
     "change_approval.js",
     "change_control.js",
     "chargeback.js",
+    "claims_management.js",
     "collateral.js",
     "collateral_mgmt.js",
+    "collateral_repossession.js",
     "collection.js",
     "commodity_trading.js",
     "complaint_management.js",
@@ -627,7 +713,9 @@
     "consent_management.js",
     "consolidation.js",
     "cost_center.js",
+    "credit_bureau.js",
     "credit_card.js",
+    "crisis_management.js",
     "crypto_exchange.js",
     "crypto_wallet.js",
     "currency_exchange.js",
@@ -639,6 +727,8 @@
     "data_quality.js",
     "data_retention.js",
     "debit_card.js",
+    "debt_collection.js",
+    "debt_recovery.js",
     "deposit.js",
     "digital_asset.js",
     "digital_banking.js",
@@ -654,10 +744,12 @@
     "escrow_account.js",
     "export_archive.js",
     "export_stream.js",
+    "external_audit.js",
     "fee.js",
     "fee_management.js",
     "fee_waiver.js",
     "fixed_asset.js",
+    "foreclosure.js",
     "fraud_case.js",
     "fraud_ops.js",
     "future_contract.js",
@@ -667,23 +759,30 @@
     "gl_allocation.js",
     "gl_period_close.js",
     "gl_reval.js",
+    "guarantee_issuing.js",
     "import.js",
     "import_recon.js",
     "incident.js",
     "incident_postmortem.js",
+    "incident_report.js",
+    "insurance_policy.js",
     "interest_rate.js",
+    "internal_audit.js",
     "internet_banking.js",
+    "investigation.js",
     "invoice_financing.js",
     "key_rotation.js",
     "kyc.js",
     "kyc_periodic.js",
     "kyc_review.js",
     "lbpue.js",
+    "legal_case.js",
     "legal_hold.js",
     "letter_of_credit.js",
     "limit_profile.js",
     "loan.js",
     "loan_schedule.js",
+    "loss_reserve.js",
     "margin_trading.js",
     "merchant.js",
     "merchant_settlement.js",
@@ -698,6 +797,7 @@
     "open_banking.js",
     "option_trading.js",
     "organization_unit.js",
+    "outsourcing_contract.js",
     "payment.js",
     "payment_clearing.js",
     "payment_gateway.js",
@@ -707,10 +807,12 @@
     "permission_set.js",
     "pipeline_alert.js",
     "pisp_management.js",
+    "policy_administration.js",
     "policy_attestation.js",
     "portfolio_management.js",
     "procurement.js",
     "product_catalog.js",
+    "provisioning.js",
     "rate_management.js",
     "recon.js",
     "recon_exception.js",
@@ -720,6 +822,7 @@
     "refund_processing.js",
     "regulatory_calendar.js",
     "regulatory_report.js",
+    "reinsurance_contract.js",
     "remittance.js",
     "repo_agreement.js",
     "report.js",
@@ -730,6 +833,7 @@
     "report_schedule.js",
     "report_scheduler.js",
     "retention_job.js",
+    "risk_model.js",
     "risk_screening.js",
     "role_management.js",
     "sanctions_hold.js",
@@ -746,6 +850,7 @@
     "statement.js",
     "statement_delivery.js",
     "statement_recon.js",
+    "stress_test.js",
     "structured_product.js",
     "supply_chain_finance.js",
     "swap_contract.js",
@@ -763,9 +868,12 @@
     "vault_management.js",
     "vendor.js",
     "vendor_compliance.js",
+    "vendor_management.js",
     "vendor_risk.js",
     "wealth_management.js",
-    "workflow_approval.js"
+    "whistleblowing.js",
+    "workflow_approval.js",
+    "write_off.js"
   ],
   "dispatch": [
     {
@@ -1600,7 +1708,7 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "DRC_",
+      "prefix": "DCR_",
       "program": "disaster_recovery_core"
     },
     {
@@ -1784,8 +1892,8 @@
       "program": "treasury_deal_core"
     },
     {
-      "prefixLen": 4,
-      "prefix": "CLM_",
+      "prefixLen": 5,
+      "prefix": "CREP_",
       "program": "collateral_mgmt_core"
     },
     {
@@ -2117,6 +2225,156 @@
       "prefixLen": 4,
       "prefix": "SYL_",
       "program": "syndicated_loan_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ISP_",
+      "program": "insurance_policy_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RIC_",
+      "program": "reinsurance_contract_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ACA_",
+      "program": "actuarial_calc_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CLM_",
+      "program": "claims_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PAD_",
+      "program": "policy_administration_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BNR_",
+      "program": "beneficiary_registry_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GIN_",
+      "program": "guarantee_issuing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CBU_",
+      "program": "credit_bureau_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DCL_",
+      "program": "debt_collection_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DRC_",
+      "program": "debt_recovery_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LGC_",
+      "program": "legal_case_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CRP_",
+      "program": "collateral_repossession_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FCL_",
+      "program": "foreclosure_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WOF_",
+      "program": "write_off_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRV_",
+      "program": "provisioning_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LSR_",
+      "program": "loss_reserve_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RSM_",
+      "program": "risk_model_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SST_",
+      "program": "stress_test_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RGR_",
+      "program": "regulatory_report_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CMA_",
+      "program": "compliance_audit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TXR_",
+      "program": "tax_report_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "INA_",
+      "program": "internal_audit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EXA_",
+      "program": "external_audit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "INV_",
+      "program": "investigation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WHB_",
+      "program": "whistleblowing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "INR_",
+      "program": "incident_report_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BCP_",
+      "program": "business_continuity_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CRM_",
+      "program": "crisis_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VDM_",
+      "program": "vendor_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "OSC_",
+      "program": "outsourcing_contract_core"
     }
   ]
 }
