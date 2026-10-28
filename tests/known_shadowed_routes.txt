@@ -1,0 +1,23 @@
+# Known duplicate method+path registrations.
+#
+# Express dispatches to the first registered handler, so every line below is a
+# route that exists in code but can never be reached. The gate
+# (scripts/check_route_conflicts.mjs) fails when a NEW duplicate appears and
+# also fails when a line here no longer describes a real conflict — so removing
+# a duplicate means removing its line at the same time.
+#
+# Format: "<METHOD> <path>"
+# Do not add entries to make CI green. Fix the duplicate instead.
+
+GET /gl/periods
+GET /kyc/reviews
+GET /kyc/reviews/:id
+GET /kyc/summary
+GET /reports/schedules
+POST /gl/periods/:period/close
+POST /kyc/reviews
+POST /kyc/reviews/:id/approve
+POST /kyc/reviews/:id/escalate
+POST /kyc/reviews/:id/reject
+POST /reports/runs/:id/complete
+POST /reports/schedules

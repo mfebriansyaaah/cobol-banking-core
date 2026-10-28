@@ -1,6 +1,6 @@
 # RSC (Wave3) validation cases.
-RSC_CREATE missing ref@@ERROR\|INVALID_INPUT@@RSC_CREATE||||||admin@test.com
-RSC_GET missing id@@ERROR\|INVALID_INPUT@@RSC_GET||||||admin@test.com
-RSC_CALC missing id@@ERROR\|INVALID_INPUT@@RSC_CALC||||||admin@test.com
-RSC_DELETE missing id@@ERROR\|INVALID_INPUT@@RSC_DELETE||||||admin@test.com
-RSC_VALIDATE ok@@SUCCESS\|RSC_VALID@@RSC_VALIDATE|100.00|USD||||admin@test.com
+RPS_CREATE missing ref@@ERROR\|INVALID_INPUT@@RPS_CREATE||||||admin@test.com
+RPS_GET missing id@@ERROR\|INVALID_INPUT@@RPS_GET||||||admin@test.com
+RPS_CALC missing id@@ERROR\|INVALID_INPUT@@RPS_CALC||||||admin@test.com
+RPS_DELETE missing id@@ERROR\|INVALID_INPUT@@RPS_DELETE||||||admin@test.com
+RPS_VALIDATE ok@@SUCCESS\|RPS_VALID@@RPS_VALIDATE|100.00|USD||||admin@test.com

@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { parseDispatchTable } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 let failures = 0;
@@ -70,19 +71,42 @@ if (JSON.stringify(importedRoutes) !== JSON.stringify(manifestRoutes)) {
 }
 
 // --- Dispatch entries ------------------------------------------------------
+// An empty dispatch table used to make this whole section a no-op, which is
+// how main_logic.cob's table refactor shipped with a blank manifest. The
+// manifest is now compared *exactly* against what the COBOL source declares.
 const mainLogicPath = path.join(cobolDir, 'main_logic.cob');
 const mainLogic = readFileSync(mainLogicPath, 'utf8');
-for (const d of manifest.dispatch || []) {
-  const needleIf = `CMD-ACTION(1:${d.prefixLen}) = "${d.prefix}"`;
-  // Table-driven dispatch: the program is stored in D-PROGRAM, not called
-  // literally, so verify the assignment instead of a CALL statement.
-  const needleMove = `MOVE "${d.program}" TO D-PROGRAM`;
-  if (!mainLogic.includes(needleMove)) fail(`dispatch program not assigned in main_logic.cob: ${needleMove}`);
+const { entries: actualDispatch, problems } = parseDispatchTable(mainLogic);
+for (const p of problems) fail(p);
+
+if (actualDispatch.length === 0) {
+  fail('no dispatch entries found in main_logic.cob (dispatcher format changed?)');
+} else if (!Array.isArray(manifest.dispatch) || manifest.dispatch.length === 0) {
+  fail('manifest has no dispatch entries (run scripts/generate_manifest.mjs)');
+} else {
+  const declared = manifest.dispatch.map((d) => ({
+    prefixLen: d.prefixLen,
+    prefix: d.prefix,
+    program: d.program,
+  }));
+  if (JSON.stringify(declared) !== JSON.stringify(actualDispatch)) {
+    const missing = actualDispatch.filter(
+      (d) => !declared.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen)
+    );
+    const extra = declared.filter(
+      (d) => !actualDispatch.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen)
+    );
+    if (missing.length) fail(`dispatch entries missing from manifest: ${missing.map((d) => d.prefix).join(', ')}`);
+    if (extra.length) fail(`manifest lists dispatch entries not in main_logic.cob: ${extra.map((d) => d.prefix).join(', ')}`);
+    if (!missing.length && !extra.length) fail('dispatch entries are out of order; regenerate the manifest');
+  } else {
+    ok(`${actualDispatch.length} dispatch entries match main_logic.cob`);
+  }
+}
+
+for (const d of actualDispatch) {
   const source = `${d.program}.cob`;
   if (!existsSync(path.join(cobolDir, source))) fail(`dispatch program has no cobol source: ${source}`);
-}
-if ((manifest.dispatch || []).length > 0 && failures === 0) {
-  ok(`${(manifest.dispatch || []).length} dispatch entries verified against main_logic.cob`);
 }
 
 if (failures > 0) {

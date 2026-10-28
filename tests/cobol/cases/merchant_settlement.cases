@@ -1,0 +1,6 @@
+# Merchant Settlement (Wave5) validation cases.
+MCS_CREATE missing ref@@ERROR\|INVALID_INPUT@@MCS_CREATE||||||admin@test.com
+MCS_GET missing id@@ERROR\|INVALID_INPUT@@MCS_GET||||||admin@test.com
+MCS_CALC missing id@@ERROR\|INVALID_INPUT@@MCS_CALC||||||admin@test.com
+MCS_DELETE missing id@@ERROR\|INVALID_INPUT@@MCS_DELETE||||||admin@test.com
+MCS_VALIDATE ok@@SUCCESS\|MCS_VALID@@MCS_VALIDATE|100.00|USD||||admin@test.com

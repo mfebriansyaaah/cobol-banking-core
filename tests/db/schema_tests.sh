@@ -4,7 +4,7 @@ set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # shellcheck disable=SC1091
 . "$ROOT/tests/lib/db.sh"
-if ! db_available; then echo "SKIP: DB unavailable"; exit 0; fi
+require_db
 
 T_PASS=0; T_FAIL=0; T_TOTAL=0
 # shellcheck disable=SC1091

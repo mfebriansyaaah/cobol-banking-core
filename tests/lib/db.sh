@@ -22,6 +22,22 @@ db_available() {
     mysql_app -N -B -e "SELECT 1;" >/dev/null 2>&1
 }
 
+# Fail-closed companion to db_available(). A DB-backed suite must never report
+# success when it could not run: `exit 0` on a missing database is how an
+# entire domain quietly leaves the gate while the run still prints "GREEN".
+# Local runs can opt out with ALLOW_SKIP=1; CI never sets it.
+require_db() {
+    if db_available; then
+        return 0
+    fi
+    if [ "${ALLOW_SKIP:-0}" = "1" ]; then
+        echo "SKIP: DB unavailable (ALLOW_SKIP=1, local only)"
+        exit 0
+    fi
+    echo "FAIL: DB unavailable; this suite cannot run and must not be counted as passed" >&2
+    exit 1
+}
+
 db_exec() {
     mysql_app -e "$1" >/dev/null 2>&1
 }
@@ -254,9 +270,17 @@ db_reset_notification_template() {
     db_exec "DELETE FROM ntf_template_config_audit; DELETE FROM ntf_template_config;"
 }
 
+# Aliases for suites generated against the physical table name. Two suites
+# called these names while db.sh only exported the domain name, so the reset
+# never ran and every create hit a leftover row. Neither suite was in the old
+# hand-maintained run_all.sh list, which is why nobody noticed.
+db_reset_ntf_template_config() { db_reset_notification_template; }
+
 db_reset_report_schedule() {
     db_exec "DELETE FROM rpt_schedule_config_audit; DELETE FROM rpt_schedule_config;"
 }
+
+db_reset_rpt_schedule_config() { db_reset_report_schedule; }
 
 db_reset_sla_tracker() {
     db_exec "DELETE FROM sla_tracker_audit; DELETE FROM sla_tracker;"
@@ -314,4 +338,109 @@ db_reset_wealth_management() {
 db_reset_escrow_account() {
     db_exec "DELETE FROM escrow_account_audit;"
     db_exec "DELETE FROM escrow_account;"
+}
+
+db_reset_credit_card() {
+    db_exec "DELETE FROM credit_card_audit;"
+    db_exec "DELETE FROM credit_card;"
+}
+
+db_reset_debit_card() {
+    db_exec "DELETE FROM debit_card_audit;"
+    db_exec "DELETE FROM debit_card;"
+}
+
+db_reset_merchant_settlement() {
+    db_exec "DELETE FROM merchant_settlement_audit;"
+    db_exec "DELETE FROM merchant_settlement;"
+}
+
+db_reset_payment_gateway() {
+    db_exec "DELETE FROM payment_gateway_audit;"
+    db_exec "DELETE FROM payment_gateway;"
+}
+
+db_reset_mobile_wallet() {
+    db_exec "DELETE FROM mobile_wallet_audit;"
+    db_exec "DELETE FROM mobile_wallet;"
+}
+
+db_reset_digital_banking() {
+    db_exec "DELETE FROM digital_banking_audit;"
+    db_exec "DELETE FROM digital_banking;"
+}
+
+db_reset_internet_banking() {
+    db_exec "DELETE FROM internet_banking_audit;"
+    db_exec "DELETE FROM internet_banking;"
+}
+
+db_reset_api_management() {
+    db_exec "DELETE FROM api_management_audit;"
+    db_exec "DELETE FROM api_management;"
+}
+
+db_reset_rate_management() {
+    db_exec "DELETE FROM rate_management_audit;"
+    db_exec "DELETE FROM rate_management;"
+}
+
+db_reset_fee_management() {
+    db_exec "DELETE FROM fee_management_audit;"
+    db_exec "DELETE FROM fee_management;"
+}
+
+db_reset_tax_management() {
+    db_exec "DELETE FROM tax_management_audit;"
+    db_exec "DELETE FROM tax_management;"
+}
+
+db_reset_audit_trail() {
+    db_exec "DELETE FROM audit_trail_audit;"
+    db_exec "DELETE FROM audit_trail;"
+}
+
+db_reset_adt_log() {
+    db_exec "DELETE FROM adt_log_audit;"
+    db_exec "DELETE FROM adt_log;"
+}
+
+db_reset_data_archive() {
+    db_exec "DELETE FROM data_archive_audit;"
+    db_exec "DELETE FROM data_archive;"
+}
+
+db_reset_backup_management() {
+    db_exec "DELETE FROM backup_management_audit;"
+    db_exec "DELETE FROM backup_management;"
+}
+
+db_reset_system_config() {
+    db_exec "DELETE FROM system_config_audit;"
+    db_exec "DELETE FROM system_config;"
+}
+
+db_reset_user_activity() {
+    db_exec "DELETE FROM user_activity_audit;"
+    db_exec "DELETE FROM user_activity;"
+}
+
+db_reset_access_control() {
+    db_exec "DELETE FROM access_control_audit;"
+    db_exec "DELETE FROM access_control;"
+}
+
+db_reset_role_management() {
+    db_exec "DELETE FROM role_management_audit;"
+    db_exec "DELETE FROM role_management;"
+}
+
+db_reset_permission_set() {
+    db_exec "DELETE FROM permission_set_audit;"
+    db_exec "DELETE FROM permission_set;"
+}
+
+db_reset_organization_unit() {
+    db_exec "DELETE FROM organization_unit_audit;"
+    db_exec "DELETE FROM organization_unit;"
 }

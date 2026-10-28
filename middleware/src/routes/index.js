@@ -51,6 +51,26 @@ import { TRADE_FINANCE_ROUTES } from './trade_finance.js';
 import { DDB_ROUTES } from './direct_debit.js';
 import { CCL_ROUTES } from './compliance_calendar.js';
 import { ESC_ROUTES } from './escrow_account.js';
+import { ORG_ROUTES } from './organization_unit.js';
+import { PMS_ROUTES } from './permission_set.js';
+import { RLM_ROUTES } from './role_management.js';
+import { AXC_ROUTES } from './access_control.js';
+import { UAC_ROUTES } from './user_activity.js';
+import { SGC_ROUTES } from './system_config.js';
+import { BUM_ROUTES } from './backup_management.js';
+import { DTA_ROUTES } from './data_archive.js';
+import { ADT_ROUTES } from './audit_trail.js';
+import { TXM_ROUTES } from './tax_management.js';
+import { FMM_ROUTES } from './fee_management.js';
+import { RTM_ROUTES } from './rate_management.js';
+import { APM_ROUTES } from './api_management.js';
+import { INB_ROUTES } from './internet_banking.js';
+import { DGB_ROUTES } from './digital_banking.js';
+import { MBW_ROUTES } from './mobile_wallet.js';
+import { PWG_ROUTES } from './payment_gateway.js';
+import { MCS_ROUTES } from './merchant_settlement.js';
+import { DBC_ROUTES } from './debit_card.js';
+import { CRC_ROUTES } from './credit_card.js';
 import { WLM_ROUTES } from './wealth_management.js';
 import { PRL_ROUTES } from './payroll_processing.js';
 import { SCF_ROUTES } from './supply_chain_finance.js';
@@ -190,6 +210,26 @@ export const ALL_ROUTES = [
   ...DDB_ROUTES,
   ...CCL_ROUTES,
   ...ESC_ROUTES,
+  ...ORG_ROUTES,
+  ...PMS_ROUTES,
+  ...RLM_ROUTES,
+  ...AXC_ROUTES,
+  ...UAC_ROUTES,
+  ...SGC_ROUTES,
+  ...BUM_ROUTES,
+  ...DTA_ROUTES,
+  ...ADT_ROUTES,
+  ...TXM_ROUTES,
+  ...FMM_ROUTES,
+  ...RTM_ROUTES,
+  ...APM_ROUTES,
+  ...INB_ROUTES,
+  ...DGB_ROUTES,
+  ...MBW_ROUTES,
+  ...PWG_ROUTES,
+  ...MCS_ROUTES,
+  ...DBC_ROUTES,
+  ...CRC_ROUTES,
   ...WLM_ROUTES,
   ...PRL_ROUTES,
   ...SCF_ROUTES,

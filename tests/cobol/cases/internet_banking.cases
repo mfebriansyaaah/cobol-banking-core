@@ -1,0 +1,6 @@
+# Internet Banking (Wave5) validation cases.
+INB_CREATE missing ref@@ERROR\|INVALID_INPUT@@INB_CREATE||||||admin@test.com
+INB_GET missing id@@ERROR\|INVALID_INPUT@@INB_GET||||||admin@test.com
+INB_CALC missing id@@ERROR\|INVALID_INPUT@@INB_CALC||||||admin@test.com
+INB_DELETE missing id@@ERROR\|INVALID_INPUT@@INB_DELETE||||||admin@test.com
+INB_VALIDATE ok@@SUCCESS\|INB_VALID@@INB_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Permission Set (Wave5) validation cases.
+PMS_CREATE missing ref@@ERROR\|INVALID_INPUT@@PMS_CREATE||||||admin@test.com
+PMS_GET missing id@@ERROR\|INVALID_INPUT@@PMS_GET||||||admin@test.com
+PMS_CALC missing id@@ERROR\|INVALID_INPUT@@PMS_CALC||||||admin@test.com
+PMS_DELETE missing id@@ERROR\|INVALID_INPUT@@PMS_DELETE||||||admin@test.com
+PMS_VALIDATE ok@@SUCCESS\|PMS_VALID@@PMS_VALIDATE|100.00|USD||||admin@test.com
