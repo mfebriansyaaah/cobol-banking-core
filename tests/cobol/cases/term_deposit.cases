@@ -1,0 +1,6 @@
+# Term Deposit (Wave9) validation cases.
+TDP_CREATE missing ref@@ERROR\|INVALID_INPUT@@TDP_CREATE||||||admin@test.com
+TDP_GET missing id@@ERROR\|INVALID_INPUT@@TDP_GET||||||admin@test.com
+TDP_CALC missing id@@ERROR\|INVALID_INPUT@@TDP_CALC||||||admin@test.com
+TDP_DELETE missing id@@ERROR\|INVALID_INPUT@@TDP_DELETE||||||admin@test.com
+TDP_VALIDATE ok@@SUCCESS\|TDP_VALID@@TDP_VALIDATE|100.00|USD||||admin@test.com

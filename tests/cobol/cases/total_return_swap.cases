@@ -1,0 +1,6 @@
+# Total Return Swap (Wave9) validation cases.
+TRS_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRS_CREATE||||||admin@test.com
+TRS_GET missing id@@ERROR\|INVALID_INPUT@@TRS_GET||||||admin@test.com
+TRS_CALC missing id@@ERROR\|INVALID_INPUT@@TRS_CALC||||||admin@test.com
+TRS_DELETE missing id@@ERROR\|INVALID_INPUT@@TRS_DELETE||||||admin@test.com
+TRS_VALIDATE ok@@SUCCESS\|TRS_VALID@@TRS_VALIDATE|100.00|USD||||admin@test.com

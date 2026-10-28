@@ -1,0 +1,6 @@
+# Savings Account (Wave9) validation cases.
+SAV_CREATE missing ref@@ERROR\|INVALID_INPUT@@SAV_CREATE||||||admin@test.com
+SAV_GET missing id@@ERROR\|INVALID_INPUT@@SAV_GET||||||admin@test.com
+SAV_CALC missing id@@ERROR\|INVALID_INPUT@@SAV_CALC||||||admin@test.com
+SAV_DELETE missing id@@ERROR\|INVALID_INPUT@@SAV_DELETE||||||admin@test.com
+SAV_VALIDATE ok@@SUCCESS\|SAV_VALID@@SAV_VALIDATE|100.00|USD||||admin@test.com

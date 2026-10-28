@@ -1,0 +1,6 @@
+# Equity Swap (Wave9) validation cases.
+EQS_CREATE missing ref@@ERROR\|INVALID_INPUT@@EQS_CREATE||||||admin@test.com
+EQS_GET missing id@@ERROR\|INVALID_INPUT@@EQS_GET||||||admin@test.com
+EQS_CALC missing id@@ERROR\|INVALID_INPUT@@EQS_CALC||||||admin@test.com
+EQS_DELETE missing id@@ERROR\|INVALID_INPUT@@EQS_DELETE||||||admin@test.com
+EQS_VALIDATE ok@@SUCCESS\|EQS_VALID@@EQS_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Fx Option (Wave9) validation cases.
+FXO_CREATE missing ref@@ERROR\|INVALID_INPUT@@FXO_CREATE||||||admin@test.com
+FXO_GET missing id@@ERROR\|INVALID_INPUT@@FXO_GET||||||admin@test.com
+FXO_CALC missing id@@ERROR\|INVALID_INPUT@@FXO_CALC||||||admin@test.com
+FXO_DELETE missing id@@ERROR\|INVALID_INPUT@@FXO_DELETE||||||admin@test.com
+FXO_VALIDATE ok@@SUCCESS\|FXO_VALID@@FXO_VALIDATE|100.00|USD||||admin@test.com

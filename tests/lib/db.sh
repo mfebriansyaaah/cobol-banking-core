@@ -882,3 +882,143 @@ db_reset_name_screening() {
     db_exec "DELETE FROM name_screening_audit;"
     db_exec "DELETE FROM name_screening;"
 }
+
+db_reset_savings_account() {
+    db_exec "DELETE FROM savings_account_audit;"
+    db_exec "DELETE FROM savings_account;"
+}
+
+db_reset_current_account() {
+    db_exec "DELETE FROM current_account_audit;"
+    db_exec "DELETE FROM current_account;"
+}
+
+db_reset_term_deposit() {
+    db_exec "DELETE FROM term_deposit_audit;"
+    db_exec "DELETE FROM term_deposit;"
+}
+
+db_reset_certificate_deposit() {
+    db_exec "DELETE FROM certificate_deposit_audit;"
+    db_exec "DELETE FROM certificate_deposit;"
+}
+
+db_reset_recurring_deposit() {
+    db_exec "DELETE FROM recurring_deposit_audit;"
+    db_exec "DELETE FROM recurring_deposit;"
+}
+
+db_reset_fixed_deposit() {
+    db_exec "DELETE FROM fixed_deposit_audit;"
+    db_exec "DELETE FROM fixed_deposit;"
+}
+
+db_reset_call_deposit() {
+    db_exec "DELETE FROM call_deposit_audit;"
+    db_exec "DELETE FROM call_deposit;"
+}
+
+db_reset_notice_deposit() {
+    db_exec "DELETE FROM notice_deposit_audit;"
+    db_exec "DELETE FROM notice_deposit;"
+}
+
+db_reset_foreign_currency_deposit() {
+    db_exec "DELETE FROM foreign_currency_deposit_audit;"
+    db_exec "DELETE FROM foreign_currency_deposit;"
+}
+
+db_reset_multi_currency() {
+    db_exec "DELETE FROM multi_currency_audit;"
+    db_exec "DELETE FROM multi_currency;"
+}
+
+db_reset_currency_hedging() {
+    db_exec "DELETE FROM currency_hedging_audit;"
+    db_exec "DELETE FROM currency_hedging;"
+}
+
+db_reset_fx_forward() {
+    db_exec "DELETE FROM fx_forward_audit;"
+    db_exec "DELETE FROM fx_forward;"
+}
+
+db_reset_fx_option() {
+    db_exec "DELETE FROM fx_option_audit;"
+    db_exec "DELETE FROM fx_option;"
+}
+
+db_reset_fx_swap() {
+    db_exec "DELETE FROM fx_swap_audit;"
+    db_exec "DELETE FROM fx_swap;"
+}
+
+db_reset_interest_rate_swap() {
+    db_exec "DELETE FROM interest_rate_swap_audit;"
+    db_exec "DELETE FROM interest_rate_swap;"
+}
+
+db_reset_credit_default_swap() {
+    db_exec "DELETE FROM credit_default_swap_audit;"
+    db_exec "DELETE FROM credit_default_swap;"
+}
+
+db_reset_total_return_swap() {
+    db_exec "DELETE FROM total_return_swap_audit;"
+    db_exec "DELETE FROM total_return_swap;"
+}
+
+db_reset_equity_swap() {
+    db_exec "DELETE FROM equity_swap_audit;"
+    db_exec "DELETE FROM equity_swap;"
+}
+
+db_reset_commodity_swap() {
+    db_exec "DELETE FROM commodity_swap_audit;"
+    db_exec "DELETE FROM commodity_swap;"
+}
+
+db_reset_variance_swap() {
+    db_exec "DELETE FROM variance_swap_audit;"
+    db_exec "DELETE FROM variance_swap;"
+}
+
+db_reset_volatility() {
+    db_exec "DELETE FROM volatility_audit;"
+    db_exec "DELETE FROM volatility;"
+}
+
+db_reset_greeks() {
+    db_exec "DELETE FROM greeks_audit;"
+    db_exec "DELETE FROM greeks;"
+}
+
+db_reset_pricing() {
+    db_exec "DELETE FROM pricing_audit;"
+    db_exec "DELETE FROM pricing;"
+}
+
+db_reset_valuation() {
+    db_exec "DELETE FROM valuation_audit;"
+    db_exec "DELETE FROM valuation;"
+}
+
+db_reset_mark_to_market() {
+    db_exec "DELETE FROM mark_to_market_audit;"
+    db_exec "DELETE FROM mark_to_market;"
+}
+
+db_reset_pnl() {
+    db_exec "DELETE FROM pnl_audit;"
+    db_exec "DELETE FROM pnl;"
+}
+
+db_reset_revenue() {
+    db_exec "DELETE FROM revenue_audit;"
+    db_exec "DELETE FROM revenue;"
+}
+
+db_reset_profit() {
+    db_exec "DELETE FROM profit_audit;"
+    db_exec "DELETE FROM profit;"
+}

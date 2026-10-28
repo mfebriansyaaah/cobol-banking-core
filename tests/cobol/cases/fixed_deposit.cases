@@ -1,0 +1,6 @@
+# Fixed Deposit (Wave9) validation cases.
+FDP_CREATE missing ref@@ERROR\|INVALID_INPUT@@FDP_CREATE||||||admin@test.com
+FDP_GET missing id@@ERROR\|INVALID_INPUT@@FDP_GET||||||admin@test.com
+FDP_CALC missing id@@ERROR\|INVALID_INPUT@@FDP_CALC||||||admin@test.com
+FDP_DELETE missing id@@ERROR\|INVALID_INPUT@@FDP_DELETE||||||admin@test.com
+FDP_VALIDATE ok@@SUCCESS\|FDP_VALID@@FDP_VALIDATE|100.00|USD||||admin@test.com
