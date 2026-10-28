@@ -1,0 +1,6 @@
+# Kyc Check (Wave13) validation cases.
+KYCC_CREATE missing ref@@ERROR\|INVALID_INPUT@@KYCC_CREATE||||||admin@test.com
+KYCC_GET missing id@@ERROR\|INVALID_INPUT@@KYCC_GET||||||admin@test.com
+KYCC_CALC missing id@@ERROR\|INVALID_INPUT@@KYCC_CALC||||||admin@test.com
+KYCC_DELETE missing id@@ERROR\|INVALID_INPUT@@KYCC_DELETE||||||admin@test.com
+KYCC_VALIDATE ok@@SUCCESS\|KYCC_VALID@@KYCC_VALIDATE|100.00|USD||||admin@test.com

@@ -272,6 +272,32 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/convertible_bond_core.cob \
     cobol/src/structured_note_core.cob \
     cobol/src/asset_backed_security_core.cob \
+    cobol/src/aml_check_core.cob \
+    cobol/src/kyc_check_core.cob \
+    cobol/src/sanctions_check_core.cob \
+    cobol/src/fraud_check_core.cob \
+    cobol/src/transaction_core.cob \
+    cobol/src/payment_processing_core.cob \
+    cobol/src/transfer_core.cob \
+    cobol/src/withdrawal_core.cob \
+    cobol/src/balance_core.cob \
+    cobol/src/account_statement_core.cob \
+    cobol/src/reconciliation_core.cob \
+    cobol/src/clearing_core.cob \
+    cobol/src/netting_core.cob \
+    cobol/src/nostro_core.cob \
+    cobol/src/vostro_core.cob \
+    cobol/src/suspense_core.cob \
+    cobol/src/gl_master_core.cob \
+    cobol/src/journal_core.cob \
+    cobol/src/trial_balance_core.cob \
+    cobol/src/balance_sheet_core.cob \
+    cobol/src/income_statement_core.cob \
+    cobol/src/cash_flow_core.cob \
+    cobol/src/equity_account_core.cob \
+    cobol/src/liability_core.cob \
+    cobol/src/capital_core.cob \
+    cobol/src/reserve_core.cob \
     cobol/src/securities_lending_core.cob \
     cobol/src/repo_agreement_core.cob \
     cobol/src/commodity_trading_core.cob \

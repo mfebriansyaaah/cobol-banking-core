@@ -1482,3 +1482,137 @@ db_reset_asset_backed_security() {
     db_exec "DELETE FROM asset_backed_security_audit;"
     db_exec "DELETE FROM asset_backed_security;"
 }
+
+db_reset_aml_check() {
+    db_exec "DELETE FROM aml_check_audit;"
+    db_exec "DELETE FROM aml_check;"
+}
+
+db_reset_kyc_check() {
+    db_exec "DELETE FROM kyc_check_audit;"
+    db_exec "DELETE FROM kyc_check;"
+}
+
+db_reset_sanctions_check() {
+    db_exec "DELETE FROM sanctions_check_audit;"
+    db_exec "DELETE FROM sanctions_check;"
+}
+
+db_reset_fraud_check() {
+    db_exec "DELETE FROM fraud_check_audit;"
+    db_exec "DELETE FROM fraud_check;"
+}
+
+db_reset_transaction() {
+    db_exec "DELETE FROM transaction_audit;"
+    db_exec "DELETE FROM transaction;"
+}
+
+db_reset_payment_processing() {
+    db_exec "DELETE FROM payment_processing_audit;"
+    db_exec "DELETE FROM payment_processing;"
+}
+
+db_reset_transfer() {
+    db_exec "DELETE FROM transfer_audit;"
+    db_exec "DELETE FROM transfer;"
+}
+
+
+db_reset_withdrawal() {
+    db_exec "DELETE FROM withdrawal_audit;"
+    db_exec "DELETE FROM withdrawal;"
+}
+
+db_reset_balance() {
+    db_exec "DELETE FROM balance_audit;"
+    db_exec "DELETE FROM balance;"
+}
+
+db_reset_account_statement() {
+    db_exec "DELETE FROM account_statement_audit;"
+    db_exec "DELETE FROM account_statement;"
+}
+
+db_reset_reconciliation() {
+    db_exec "DELETE FROM reconciliation_audit;"
+    db_exec "DELETE FROM reconciliation;"
+}
+
+db_reset_clearing() {
+    db_exec "DELETE FROM clearing_audit;"
+    db_exec "DELETE FROM clearing;"
+}
+
+
+db_reset_netting() {
+    db_exec "DELETE FROM netting_audit;"
+    db_exec "DELETE FROM netting;"
+}
+
+db_reset_nostro() {
+    db_exec "DELETE FROM nostro_audit;"
+    db_exec "DELETE FROM nostro;"
+}
+
+db_reset_vostro() {
+    db_exec "DELETE FROM vostro_audit;"
+    db_exec "DELETE FROM vostro;"
+}
+
+db_reset_suspense() {
+    db_exec "DELETE FROM suspense_audit;"
+    db_exec "DELETE FROM suspense;"
+}
+
+db_reset_gl_master() {
+    db_exec "DELETE FROM gl_master_audit;"
+    db_exec "DELETE FROM gl_master;"
+}
+
+
+db_reset_journal() {
+    db_exec "DELETE FROM journal_audit;"
+    db_exec "DELETE FROM journal;"
+}
+
+db_reset_trial_balance() {
+    db_exec "DELETE FROM trial_balance_audit;"
+    db_exec "DELETE FROM trial_balance;"
+}
+
+db_reset_balance_sheet() {
+    db_exec "DELETE FROM balance_sheet_audit;"
+    db_exec "DELETE FROM balance_sheet;"
+}
+
+db_reset_income_statement() {
+    db_exec "DELETE FROM income_statement_audit;"
+    db_exec "DELETE FROM income_statement;"
+}
+
+db_reset_cash_flow() {
+    db_exec "DELETE FROM cash_flow_audit;"
+    db_exec "DELETE FROM cash_flow;"
+}
+
+db_reset_equity_account() {
+    db_exec "DELETE FROM equity_account_audit;"
+    db_exec "DELETE FROM equity_account;"
+}
+
+
+db_reset_liability() {
+    db_exec "DELETE FROM liability_audit;"
+    db_exec "DELETE FROM liability;"
+}
+
+db_reset_capital() {
+    db_exec "DELETE FROM capital_audit;"
+    db_exec "DELETE FROM capital;"
+}
+
+db_reset_reserve() {
+    db_exec "DELETE FROM reserve_audit;"
+    db_exec "DELETE FROM reserve;"
+}

@@ -1,0 +1,6 @@
+# Trial Balance (Wave13) validation cases.
+TB_CREATE missing ref@@ERROR\|INVALID_INPUT@@TB_CREATE||||||admin@test.com
+TB_GET missing id@@ERROR\|INVALID_INPUT@@TB_GET||||||admin@test.com
+TB_CALC missing id@@ERROR\|INVALID_INPUT@@TB_CALC||||||admin@test.com
+TB_DELETE missing id@@ERROR\|INVALID_INPUT@@TB_DELETE||||||admin@test.com
+TB_VALIDATE ok@@SUCCESS\|TB_VALID@@TB_VALIDATE|100.00|USD||||admin@test.com

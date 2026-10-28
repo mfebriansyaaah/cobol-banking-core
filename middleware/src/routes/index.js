@@ -62,6 +62,32 @@ import { ADL_ROUTES } from './audit_log.js';
 import { LOG_ROUTES } from './logging.js';
 import { TMO_ROUTES } from './timeout.js';
 import { ASB_ROUTES } from './asset_backed_security.js';
+import { RSV_ROUTES } from './reserve.js';
+import { IS_ROUTES } from './income_statement.js';
+import { CF_ROUTES } from './cash_flow.js';
+import { BS_ROUTES } from './balance_sheet.js';
+import { CPTL_ROUTES } from './capital.js';
+import { LIA_ROUTES } from './liability.js';
+import { EQT_ROUTES } from './equity_account.js';
+import { TB_ROUTES } from './trial_balance.js';
+import { JRN_ROUTES } from './journal.js';
+import { GLM_ROUTES } from './gl_master.js';
+import { SUS_ROUTES } from './suspense.js';
+import { VOS_ROUTES } from './vostro.js';
+import { NOS_ROUTES } from './nostro.js';
+import { NET_ROUTES } from './netting.js';
+import { CLR_ROUTES } from './clearing.js';
+import { RECN_ROUTES } from './reconciliation.js';
+import { STMTS_ROUTES } from './account_statement.js';
+import { BAL_ROUTES } from './balance.js';
+import { WDL_ROUTES } from './withdrawal.js';
+import { TRFS_ROUTES } from './transfer.js';
+import { PAYM_ROUTES } from './payment_processing.js';
+import { TXN_ROUTES } from './transaction.js';
+import { FRDU_ROUTES } from './fraud_check.js';
+import { SNCS_ROUTES } from './sanctions_check.js';
+import { KYCC_ROUTES } from './kyc_check.js';
+import { AMLC_ROUTES } from './aml_check.js';
 import { STN_ROUTES } from './structured_note.js';
 import { CVB_ROUTES } from './convertible_bond.js';
 import { WRI_ROUTES } from './warrant_issuing.js';
@@ -428,6 +454,32 @@ export const ALL_ROUTES = [
   ...LOG_ROUTES,
   ...TMO_ROUTES,
   ...ASB_ROUTES,
+  ...RSV_ROUTES,
+  ...IS_ROUTES,
+  ...CF_ROUTES,
+  ...BS_ROUTES,
+  ...CPTL_ROUTES,
+  ...LIA_ROUTES,
+  ...EQT_ROUTES,
+  ...TB_ROUTES,
+  ...JRN_ROUTES,
+  ...GLM_ROUTES,
+  ...SUS_ROUTES,
+  ...VOS_ROUTES,
+  ...NOS_ROUTES,
+  ...NET_ROUTES,
+  ...CLR_ROUTES,
+  ...RECN_ROUTES,
+  ...STMTS_ROUTES,
+  ...BAL_ROUTES,
+  ...WDL_ROUTES,
+  ...TRFS_ROUTES,
+  ...PAYM_ROUTES,
+  ...TXN_ROUTES,
+  ...FRDU_ROUTES,
+  ...SNCS_ROUTES,
+  ...KYCC_ROUTES,
+  ...AMLC_ROUTES,
   ...STN_ROUTES,
   ...CVB_ROUTES,
   ...WRI_ROUTES,

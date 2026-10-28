@@ -1,0 +1,6 @@
+# Balance (Wave13) validation cases.
+BAL_CREATE missing ref@@ERROR\|INVALID_INPUT@@BAL_CREATE||||||admin@test.com
+BAL_GET missing id@@ERROR\|INVALID_INPUT@@BAL_GET||||||admin@test.com
+BAL_CALC missing id@@ERROR\|INVALID_INPUT@@BAL_CALC||||||admin@test.com
+BAL_DELETE missing id@@ERROR\|INVALID_INPUT@@BAL_DELETE||||||admin@test.com
+BAL_VALIDATE ok@@SUCCESS\|BAL_VALID@@BAL_VALIDATE|100.00|USD||||admin@test.com

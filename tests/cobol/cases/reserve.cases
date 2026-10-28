@@ -1,0 +1,6 @@
+# Reserve (Wave13) validation cases.
+RSV_CREATE missing ref@@ERROR\|INVALID_INPUT@@RSV_CREATE||||||admin@test.com
+RSV_GET missing id@@ERROR\|INVALID_INPUT@@RSV_GET||||||admin@test.com
+RSV_CALC missing id@@ERROR\|INVALID_INPUT@@RSV_CALC||||||admin@test.com
+RSV_DELETE missing id@@ERROR\|INVALID_INPUT@@RSV_DELETE||||||admin@test.com
+RSV_VALIDATE ok@@SUCCESS\|RSV_VALID@@RSV_VALIDATE|100.00|USD||||admin@test.com
