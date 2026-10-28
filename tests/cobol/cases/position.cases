@@ -1,0 +1,6 @@
+# Position (Wave10) validation cases.
+POS_CREATE missing ref@@ERROR\|INVALID_INPUT@@POS_CREATE||||||admin@test.com
+POS_GET missing id@@ERROR\|INVALID_INPUT@@POS_GET||||||admin@test.com
+POS_CALC missing id@@ERROR\|INVALID_INPUT@@POS_CALC||||||admin@test.com
+POS_DELETE missing id@@ERROR\|INVALID_INPUT@@POS_DELETE||||||admin@test.com
+POS_VALIDATE ok@@SUCCESS\|POS_VALID@@POS_VALIDATE|100.00|USD||||admin@test.com

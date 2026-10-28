@@ -1,0 +1,6 @@
+# Billing (Wave10) validation cases.
+BIL_CREATE missing ref@@ERROR\|INVALID_INPUT@@BIL_CREATE||||||admin@test.com
+BIL_GET missing id@@ERROR\|INVALID_INPUT@@BIL_GET||||||admin@test.com
+BIL_CALC missing id@@ERROR\|INVALID_INPUT@@BIL_CALC||||||admin@test.com
+BIL_DELETE missing id@@ERROR\|INVALID_INPUT@@BIL_DELETE||||||admin@test.com
+BIL_VALIDATE ok@@SUCCESS\|BIL_VALID@@BIL_VALIDATE|100.00|USD||||admin@test.com

@@ -57,6 +57,36 @@ import { OSC_ROUTES } from './outsourcing_contract.js';
 import { NSC_ROUTES } from './name_screening.js';
 import { VAL_ROUTES } from './valuation.js';
 import { MRG_ROUTES } from './margin.js';
+import { CON_ROUTES } from './contract.js';
+import { ADL_ROUTES } from './audit_log.js';
+import { MDM_ROUTES } from './master_data.js';
+import { DQL_ROUTES } from './dq_check.js';
+import { ETL_ROUTES } from './etl.js';
+import { DWH_ROUTES } from './data_warehouse.js';
+import { ANL_ROUTES } from './analytics.js';
+import { RPTG_ROUTES } from './reporting.js';
+import { DSW_ROUTES } from './dashboard_widget.js';
+import { MET_ROUTES } from './metric.js';
+import { KPI_ROUTES } from './kpi.js';
+import { SLV_ROUTES } from './sla_management.js';
+import { AGR_ROUTES } from './agreement.js';
+import { SUB_ROUTES } from './subscription.js';
+import { BIL_ROUTES } from './billing.js';
+import { INVC_ROUTES } from './invoice.js';
+import { TXW_ROUTES } from './tax_withholding.js';
+import { PEN_ROUTES } from './pension.js';
+import { BEN_ROUTES } from './benefits.js';
+import { COM_ROUTES } from './compensation.js';
+import { OFB_ROUTES } from './offboarding.js';
+import { ONB_ROUTES } from './onboarding.js';
+import { REC_ROUTES } from './recruitment.js';
+import { TRN_ROUTES } from './training.js';
+import { PER_ROUTES } from './performance.js';
+import { LEA_ROUTES } from './leave_management.js';
+import { ATT_ROUTES } from './attendance.js';
+import { POS_ROUTES } from './position.js';
+import { DPT_ROUTES } from './department.js';
+import { EMP_ROUTES } from './employee.js';
 import { PRF_ROUTES } from './profit.js';
 import { COS_ROUTES } from './cost.js';
 import { REV_ROUTES } from './revenue.js';
@@ -333,6 +363,36 @@ export const ALL_ROUTES = [
   ...NSC_ROUTES,
   ...VAL_ROUTES,
   ...MRG_ROUTES,
+  ...CON_ROUTES,
+  ...ADL_ROUTES,
+  ...MDM_ROUTES,
+  ...DQL_ROUTES,
+  ...ETL_ROUTES,
+  ...DWH_ROUTES,
+  ...ANL_ROUTES,
+  ...RPTG_ROUTES,
+  ...DSW_ROUTES,
+  ...MET_ROUTES,
+  ...KPI_ROUTES,
+  ...SLV_ROUTES,
+  ...AGR_ROUTES,
+  ...SUB_ROUTES,
+  ...BIL_ROUTES,
+  ...INVC_ROUTES,
+  ...TXW_ROUTES,
+  ...PEN_ROUTES,
+  ...BEN_ROUTES,
+  ...COM_ROUTES,
+  ...OFB_ROUTES,
+  ...ONB_ROUTES,
+  ...REC_ROUTES,
+  ...TRN_ROUTES,
+  ...PER_ROUTES,
+  ...LEA_ROUTES,
+  ...ATT_ROUTES,
+  ...POS_ROUTES,
+  ...DPT_ROUTES,
+  ...EMP_ROUTES,
   ...PRF_ROUTES,
   ...COS_ROUTES,
   ...REV_ROUTES,

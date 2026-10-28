@@ -182,6 +182,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/margin_core.cob \
     cobol/src/structured_product_core.cob \
     cobol/src/margin_trading_core.cob \
+    cobol/src/employee_core.cob \
+    cobol/src/department_core.cob \
+    cobol/src/position_core.cob \
+    cobol/src/attendance_core.cob \
+    cobol/src/leave_management_core.cob \
+    cobol/src/performance_core.cob \
+    cobol/src/training_core.cob \
+    cobol/src/recruitment_core.cob \
+    cobol/src/onboarding_core.cob \
+    cobol/src/offboarding_core.cob \
+    cobol/src/compensation_core.cob \
+    cobol/src/benefits_core.cob \
+    cobol/src/pension_core.cob \
+    cobol/src/tax_withholding_core.cob \
+    cobol/src/invoice_core.cob \
+    cobol/src/billing_core.cob \
+    cobol/src/subscription_core.cob \
+    cobol/src/contract_core.cob \
+    cobol/src/agreement_core.cob \
+    cobol/src/sla_management_core.cob \
+    cobol/src/kpi_core.cob \
+    cobol/src/metric_core.cob \
+    cobol/src/dashboard_widget_core.cob \
+    cobol/src/reporting_core.cob \
+    cobol/src/analytics_core.cob \
+    cobol/src/data_warehouse_core.cob \
+    cobol/src/etl_core.cob \
+    cobol/src/dq_check_core.cob \
+    cobol/src/master_data_core.cob \
+    cobol/src/audit_log_core.cob \
     cobol/src/securities_lending_core.cob \
     cobol/src/repo_agreement_core.cob \
     cobol/src/commodity_trading_core.cob \

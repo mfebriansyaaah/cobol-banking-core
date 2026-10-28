@@ -1,0 +1,6 @@
+# Compensation (Wave10) validation cases.
+COM_CREATE missing ref@@ERROR\|INVALID_INPUT@@COM_CREATE||||||admin@test.com
+COM_GET missing id@@ERROR\|INVALID_INPUT@@COM_GET||||||admin@test.com
+COM_CALC missing id@@ERROR\|INVALID_INPUT@@COM_CALC||||||admin@test.com
+COM_DELETE missing id@@ERROR\|INVALID_INPUT@@COM_DELETE||||||admin@test.com
+COM_VALIDATE ok@@SUCCESS\|COM_VALID@@COM_VALIDATE|100.00|USD||||admin@test.com

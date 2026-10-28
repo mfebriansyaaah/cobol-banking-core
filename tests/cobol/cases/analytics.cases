@@ -1,0 +1,6 @@
+# Analytics (Wave10) validation cases.
+ANL_CREATE missing ref@@ERROR\|INVALID_INPUT@@ANL_CREATE||||||admin@test.com
+ANL_GET missing id@@ERROR\|INVALID_INPUT@@ANL_GET||||||admin@test.com
+ANL_CALC missing id@@ERROR\|INVALID_INPUT@@ANL_CALC||||||admin@test.com
+ANL_DELETE missing id@@ERROR\|INVALID_INPUT@@ANL_DELETE||||||admin@test.com
+ANL_VALIDATE ok@@SUCCESS\|ANL_VALID@@ANL_VALIDATE|100.00|USD||||admin@test.com

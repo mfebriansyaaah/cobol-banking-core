@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T09:12:10.888Z",
+  "generatedAt": "2026-10-28T10:05:31.281Z",
   "cobolModules": [
     {
       "source": "access_audit_core.cob"
@@ -20,6 +20,9 @@
       "source": "adverse_media_core.cob"
     },
     {
+      "source": "agreement_core.cob"
+    },
+    {
       "source": "alert_core.cob"
     },
     {
@@ -27,6 +30,9 @@
     },
     {
       "source": "aml_screening_core.cob"
+    },
+    {
+      "source": "analytics_core.cob"
     },
     {
       "source": "analytics_snapshot_core.cob"
@@ -47,10 +53,16 @@
       "source": "atm_management_core.cob"
     },
     {
+      "source": "attendance_core.cob"
+    },
+    {
       "source": "audit_analytics_core.cob"
     },
     {
       "source": "audit_drilldown_core.cob"
+    },
+    {
+      "source": "audit_log_core.cob"
     },
     {
       "source": "audit_retention_core.cob"
@@ -87,6 +99,12 @@
     },
     {
       "source": "beneficiary_registry_core.cob"
+    },
+    {
+      "source": "benefits_core.cob"
+    },
+    {
+      "source": "billing_core.cob"
     },
     {
       "source": "billpay_core.cob"
@@ -170,6 +188,9 @@
       "source": "commodity_trading_core.cob"
     },
     {
+      "source": "compensation_core.cob"
+    },
+    {
       "source": "complaint_management_core.cob"
     },
     {
@@ -192,6 +213,9 @@
     },
     {
       "source": "contactless_core.cob"
+    },
+    {
+      "source": "contract_core.cob"
     },
     {
       "source": "cost_center_core.cob"
@@ -239,6 +263,9 @@
       "source": "dashboard_core.cob"
     },
     {
+      "source": "dashboard_widget_core.cob"
+    },
+    {
       "source": "data_archive_core.cob"
     },
     {
@@ -251,6 +278,9 @@
       "source": "data_retention_core.cob"
     },
     {
+      "source": "data_warehouse_core.cob"
+    },
+    {
       "source": "debit_card_core.cob"
     },
     {
@@ -258,6 +288,9 @@
     },
     {
       "source": "debt_recovery_core.cob"
+    },
+    {
+      "source": "department_core.cob"
     },
     {
       "source": "deposit_core.cob"
@@ -290,7 +323,13 @@
       "source": "document_core.cob"
     },
     {
+      "source": "dq_check_core.cob"
+    },
+    {
       "source": "dsar_core.cob"
+    },
+    {
+      "source": "employee_core.cob"
     },
     {
       "source": "eod_core.cob"
@@ -303,6 +342,9 @@
     },
     {
       "source": "escrow_account_core.cob"
+    },
+    {
+      "source": "etl_core.cob"
     },
     {
       "source": "export_archive_core.cob"
@@ -419,10 +461,16 @@
       "source": "investigation_core.cob"
     },
     {
+      "source": "invoice_core.cob"
+    },
+    {
       "source": "invoice_financing_core.cob"
     },
     {
       "source": "key_rotation_core.cob"
+    },
+    {
+      "source": "kpi_core.cob"
     },
     {
       "source": "kyc_periodic_core.cob"
@@ -432,6 +480,9 @@
     },
     {
       "source": "lbpue_core.cob"
+    },
+    {
+      "source": "leave_management_core.cob"
     },
     {
       "source": "legal_case_core.cob"
@@ -470,10 +521,16 @@
       "source": "mark_to_market_core.cob"
     },
     {
+      "source": "master_data_core.cob"
+    },
+    {
       "source": "merchant_core.cob"
     },
     {
       "source": "merchant_settlement_core.cob"
+    },
+    {
+      "source": "metric_core.cob"
     },
     {
       "source": "metric_definition_core.cob"
@@ -504,6 +561,12 @@
     },
     {
       "source": "notification_template_core.cob"
+    },
+    {
+      "source": "offboarding_core.cob"
+    },
+    {
+      "source": "onboarding_core.cob"
     },
     {
       "source": "oncall_core.cob"
@@ -551,7 +614,13 @@
       "source": "payroll_processing_core.cob"
     },
     {
+      "source": "pension_core.cob"
+    },
+    {
       "source": "pep_screening_core.cob"
+    },
+    {
+      "source": "performance_core.cob"
     },
     {
       "source": "permission_set_core.cob"
@@ -576,6 +645,9 @@
     },
     {
       "source": "portfolio_management_core.cob"
+    },
+    {
+      "source": "position_core.cob"
     },
     {
       "source": "prepaid_card_core.cob"
@@ -609,6 +681,9 @@
     },
     {
       "source": "recon_ops_core.cob"
+    },
+    {
+      "source": "recruitment_core.cob"
     },
     {
       "source": "recurring_deposit_core.cob"
@@ -659,6 +734,9 @@
       "source": "report_scheduler_core.cob"
     },
     {
+      "source": "reporting_core.cob"
+    },
+    {
       "source": "retention_job_core.cob"
     },
     {
@@ -701,6 +779,9 @@
       "source": "settlement_recon_core.cob"
     },
     {
+      "source": "sla_management_core.cob"
+    },
+    {
       "source": "sla_tracker_core.cob"
     },
     {
@@ -734,6 +815,9 @@
       "source": "structured_product_core.cob"
     },
     {
+      "source": "subscription_core.cob"
+    },
+    {
       "source": "supply_chain_finance_core.cob"
     },
     {
@@ -752,6 +836,9 @@
       "source": "tax_report_core.cob"
     },
     {
+      "source": "tax_withholding_core.cob"
+    },
+    {
       "source": "teller_management_core.cob"
     },
     {
@@ -768,6 +855,9 @@
     },
     {
       "source": "trade_finance_core.cob"
+    },
+    {
+      "source": "training_core.cob"
     },
     {
       "source": "transaction_limit_core.cob"
@@ -846,17 +936,21 @@
     "account_lock.js",
     "actuarial_calc.js",
     "adverse_media.js",
+    "agreement.js",
     "alert_escalation.js",
     "alerts.js",
     "aml_screening.js",
+    "analytics.js",
     "analytics_snapshot.js",
     "api_management.js",
     "asset.js",
     "asset_maintenance.js",
     "asset_management.js",
     "atm_management.js",
+    "attendance.js",
     "audit_analytics.js",
     "audit_drilldown.js",
+    "audit_log.js",
     "audit_retention.js",
     "audit_snapshot.js",
     "audit_trail.js",
@@ -867,6 +961,8 @@
     "bank_guarantee.js",
     "batch.js",
     "beneficiary_registry.js",
+    "benefits.js",
+    "billing.js",
     "billpay.js",
     "biometric_auth.js",
     "blacklist.js",
@@ -894,6 +990,7 @@
     "collection.js",
     "commodity_swap.js",
     "commodity_trading.js",
+    "compensation.js",
     "complaint_management.js",
     "compliance_audit.js",
     "compliance_calendar.js",
@@ -902,6 +999,7 @@
     "consent_management.js",
     "consolidation.js",
     "contactless.js",
+    "contract.js",
     "cost.js",
     "cost_center.js",
     "credit_bureau.js",
@@ -917,13 +1015,16 @@
     "customer_support.js",
     "daily_limit.js",
     "dashboard.js",
+    "dashboard_widget.js",
     "data_archive.js",
     "data_lineage.js",
     "data_quality.js",
     "data_retention.js",
+    "data_warehouse.js",
     "debit_card.js",
     "debt_collection.js",
     "debt_recovery.js",
+    "department.js",
     "deposit.js",
     "device_management.js",
     "digital_asset.js",
@@ -934,11 +1035,14 @@
     "dispute_notify.js",
     "dispute_ops.js",
     "document.js",
+    "dq_check.js",
     "dsar.js",
+    "employee.js",
     "eod.js",
     "eod_jobs.js",
     "equity_swap.js",
     "escrow_account.js",
+    "etl.js",
     "export_archive.js",
     "export_stream.js",
     "external_audit.js",
@@ -975,12 +1079,15 @@
     "internal_audit.js",
     "internet_banking.js",
     "investigation.js",
+    "invoice.js",
     "invoice_financing.js",
     "key_rotation.js",
+    "kpi.js",
     "kyc.js",
     "kyc_periodic.js",
     "kyc_review.js",
     "lbpue.js",
+    "leave_management.js",
     "legal_case.js",
     "legal_hold.js",
     "letter_of_credit.js",
@@ -993,8 +1100,10 @@
     "margin.js",
     "margin_trading.js",
     "mark_to_market.js",
+    "master_data.js",
     "merchant.js",
     "merchant_settlement.js",
+    "metric.js",
     "metric_definition.js",
     "mfa_management.js",
     "mobile_wallet.js",
@@ -1005,6 +1114,8 @@
     "notification.js",
     "notification_audit.js",
     "notification_template.js",
+    "offboarding.js",
+    "onboarding.js",
     "oncall.js",
     "oncall_delivery.js",
     "open_banking.js",
@@ -1020,7 +1131,9 @@
     "payment_instructions.js",
     "payment_link.js",
     "payroll_processing.js",
+    "pension.js",
     "pep_screening.js",
+    "performance.js",
     "permission_set.js",
     "pipeline_alert.js",
     "pisp_management.js",
@@ -1029,6 +1142,7 @@
     "policy_administration.js",
     "policy_attestation.js",
     "portfolio_management.js",
+    "position.js",
     "prepaid_card.js",
     "pricing.js",
     "procurement.js",
@@ -1040,6 +1154,7 @@
     "recon.js",
     "recon_exception.js",
     "recon_ops.js",
+    "recruitment.js",
     "recurring_deposit.js",
     "ref_engine.js",
     "ref_ext.js",
@@ -1056,6 +1171,7 @@
     "report_delivery.js",
     "report_schedule.js",
     "report_scheduler.js",
+    "reporting.js",
     "retention_job.js",
     "revenue.js",
     "rewards_management.js",
@@ -1070,6 +1186,7 @@
     "securities_lending.js",
     "session_management.js",
     "settlement_recon.js",
+    "sla_management.js",
     "sla_tracker.js",
     "sla_tracking.js",
     "slo_report.js",
@@ -1081,18 +1198,21 @@
     "statement_recon.js",
     "stress_test.js",
     "structured_product.js",
+    "subscription.js",
     "supply_chain_finance.js",
     "swap_contract.js",
     "syndicated_loan.js",
     "system_config.js",
     "tax_management.js",
     "tax_report.js",
+    "tax_withholding.js",
     "teller_management.js",
     "term_deposit.js",
     "token_management.js",
     "tokenization.js",
     "total_return_swap.js",
     "trade_finance.js",
+    "training.js",
     "transaction_limit.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
@@ -2900,6 +3020,156 @@
       "prefixLen": 4,
       "prefix": "MRG_",
       "program": "margin_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EMP_",
+      "program": "employee_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DPT_",
+      "program": "department_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "POS_",
+      "program": "position_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ATT_",
+      "program": "attendance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LEA_",
+      "program": "leave_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PER_",
+      "program": "performance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRN_",
+      "program": "training_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "REC_",
+      "program": "recruitment_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ONB_",
+      "program": "onboarding_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "OFB_",
+      "program": "offboarding_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "COM_",
+      "program": "compensation_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BEN_",
+      "program": "benefits_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PEN_",
+      "program": "pension_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TXW_",
+      "program": "tax_withholding_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "INVC_",
+      "program": "invoice_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BIL_",
+      "program": "billing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SUB_",
+      "program": "subscription_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CON_",
+      "program": "contract_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AGR_",
+      "program": "agreement_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SLV_",
+      "program": "sla_management_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "KPI_",
+      "program": "kpi_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MET_",
+      "program": "metric_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DSW_",
+      "program": "dashboard_widget_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "RPTG_",
+      "program": "reporting_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ANL_",
+      "program": "analytics_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DWH_",
+      "program": "data_warehouse_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ETL_",
+      "program": "etl_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DQL_",
+      "program": "dq_check_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MDM_",
+      "program": "master_data_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ADL_",
+      "program": "audit_log_core"
     }
   ]
 }

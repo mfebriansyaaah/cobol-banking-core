@@ -1,0 +1,6 @@
+# Onboarding (Wave10) validation cases.
+ONB_CREATE missing ref@@ERROR\|INVALID_INPUT@@ONB_CREATE||||||admin@test.com
+ONB_GET missing id@@ERROR\|INVALID_INPUT@@ONB_GET||||||admin@test.com
+ONB_CALC missing id@@ERROR\|INVALID_INPUT@@ONB_CALC||||||admin@test.com
+ONB_DELETE missing id@@ERROR\|INVALID_INPUT@@ONB_DELETE||||||admin@test.com
+ONB_VALIDATE ok@@SUCCESS\|ONB_VALID@@ONB_VALIDATE|100.00|USD||||admin@test.com

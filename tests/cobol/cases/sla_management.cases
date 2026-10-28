@@ -1,0 +1,6 @@
+# Sla Management (Wave10) validation cases.
+SLV_CREATE missing ref@@ERROR\|INVALID_INPUT@@SLV_CREATE||||||admin@test.com
+SLV_GET missing id@@ERROR\|INVALID_INPUT@@SLV_GET||||||admin@test.com
+SLV_CALC missing id@@ERROR\|INVALID_INPUT@@SLV_CALC||||||admin@test.com
+SLV_DELETE missing id@@ERROR\|INVALID_INPUT@@SLV_DELETE||||||admin@test.com
+SLV_VALIDATE ok@@SUCCESS\|SLV_VALID@@SLV_VALIDATE|100.00|USD||||admin@test.com

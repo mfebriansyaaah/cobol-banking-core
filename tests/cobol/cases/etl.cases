@@ -1,0 +1,6 @@
+# Etl (Wave10) validation cases.
+ETL_CREATE missing ref@@ERROR\|INVALID_INPUT@@ETL_CREATE||||||admin@test.com
+ETL_GET missing id@@ERROR\|INVALID_INPUT@@ETL_GET||||||admin@test.com
+ETL_CALC missing id@@ERROR\|INVALID_INPUT@@ETL_CALC||||||admin@test.com
+ETL_DELETE missing id@@ERROR\|INVALID_INPUT@@ETL_DELETE||||||admin@test.com
+ETL_VALIDATE ok@@SUCCESS\|ETL_VALID@@ETL_VALIDATE|100.00|USD||||admin@test.com
