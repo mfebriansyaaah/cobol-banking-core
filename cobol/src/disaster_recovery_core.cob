@@ -73,22 +73,22 @@
                GOBACK
            END-IF
            EVALUATE TRUE
-               WHEN LS-CMD-ACTION(1:10) = "DRC_DEFINE"
+               WHEN LS-CMD-ACTION(1:10) = "DCR_DEFINE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-DEFINE
-               WHEN LS-CMD-ACTION(1:8) = "DRC_LIST"
+               WHEN LS-CMD-ACTION(1:8) = "DCR_LIST"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-LIST
-               WHEN LS-CMD-ACTION(1:7) = "DRC_GET"
+               WHEN LS-CMD-ACTION(1:7) = "DCR_GET"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-GET
-               WHEN LS-CMD-ACTION(1:8) = "DRC_TEST"
+               WHEN LS-CMD-ACTION(1:8) = "DCR_TEST"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-TEST
-               WHEN LS-CMD-ACTION(1:12) = "DRC_COMPLETE"
+               WHEN LS-CMD-ACTION(1:12) = "DCR_COMPLETE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-COMPLETE
-               WHEN LS-CMD-ACTION(1:11) = "DRC_SUMMARY"
+               WHEN LS-CMD-ACTION(1:11) = "DCR_SUMMARY"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-SUMMARY
                WHEN OTHER
@@ -249,7 +249,7 @@
            END-IF.
            IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|DRC_DEFINED" TO LS-OUTPUT-BUFFER
+               MOVE "SUCCESS|DCR_DEFINED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -355,7 +355,7 @@
            END-IF.
            IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|DRC_TESTED" TO LS-OUTPUT-BUFFER
+               MOVE "SUCCESS|DCR_TESTED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -396,7 +396,7 @@
            END-IF.
            IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|DRC_COMPLETED" TO LS-OUTPUT-BUFFER
+               MOVE "SUCCESS|DCR_COMPLETED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                IF WS-ERR = "ERROR|INVALID_STATUS"
@@ -424,5 +424,5 @@
                EXIT PARAGRAPH
            END-IF.
            MOVE SPACES TO LS-OUTPUT-BUFFER
-           STRING "SUCCESS|DRC_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+           STRING "SUCCESS|DCR_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
            EXIT PARAGRAPH.

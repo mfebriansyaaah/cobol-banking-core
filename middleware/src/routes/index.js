@@ -62,9 +62,6 @@ import { WHB_ROUTES } from './whistleblowing.js';
 import { INV_ROUTES } from './investigation.js';
 import { EXA_ROUTES } from './external_audit.js';
 import { INA_ROUTES } from './internal_audit.js';
-import { TXR_ROUTES } from './tax_report.js';
-import { CMA_ROUTES } from './compliance_audit.js';
-import { RGR_ROUTES } from './regulatory_report.js';
 import { SST_ROUTES } from './stress_test.js';
 import { RSM_ROUTES } from './risk_model.js';
 import { LSR_ROUTES } from './loss_reserve.js';
@@ -281,9 +278,6 @@ export const ALL_ROUTES = [
   ...INV_ROUTES,
   ...EXA_ROUTES,
   ...INA_ROUTES,
-  ...TXR_ROUTES,
-  ...CMA_ROUTES,
-  ...RGR_ROUTES,
   ...SST_ROUTES,
   ...RSM_ROUTES,
   ...LSR_ROUTES,
