@@ -87,6 +87,10 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/collateral_mgmt_core.cob \
     cobol/src/standing_instruction_core.cob \
     cobol/src/direct_debit_core.cob \
+    cobol/src/compliance_calendar_core.cob \
+    cobol/src/sla_tracker_core.cob \
+    cobol/src/report_schedule_core.cob \
+    cobol/src/notification_template_core.cob \
     cobol/src/deposit_core.cob \
     cobol/src/fx_deal_core.cob \
     cobol/src/treasury_position_core.cob \

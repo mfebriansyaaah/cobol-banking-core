@@ -1,0 +1,6 @@
+# Compliance calendar (Wave3) validation cases.
+CCL_CREATE missing ref@@ERROR\|INVALID_INPUT@@CCL_CREATE||||||admin@test.com
+CCL_GET missing id@@ERROR\|INVALID_INPUT@@CCL_GET||||||admin@test.com
+CCL_CALC missing id@@ERROR\|INVALID_INPUT@@CCL_CALC||||||admin@test.com
+CCL_DELETE missing id@@ERROR\|INVALID_INPUT@@CCL_DELETE||||||admin@test.com
+CCL_VALIDATE ok@@SUCCESS\|CCL_VALID@@CCL_VALIDATE|100.00|USD||||admin@test.com

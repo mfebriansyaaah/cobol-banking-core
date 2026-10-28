@@ -249,3 +249,19 @@ db_reset_standing_instruction() {
 db_reset_direct_debit() {
     db_exec "DELETE FROM direct_debit_audit; DELETE FROM direct_debit;"
 }
+
+db_reset_notification_template() {
+    db_exec "DELETE FROM ntf_template_config_audit; DELETE FROM ntf_template_config;"
+}
+
+db_reset_report_schedule() {
+    db_exec "DELETE FROM rpt_schedule_config_audit; DELETE FROM rpt_schedule_config;"
+}
+
+db_reset_sla_tracker() {
+    db_exec "DELETE FROM sla_tracker_audit; DELETE FROM sla_tracker;"
+}
+
+db_reset_compliance_calendar() {
+    db_exec "DELETE FROM compliance_calendar_audit; DELETE FROM compliance_calendar;"
+}

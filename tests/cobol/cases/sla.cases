@@ -1,0 +1,6 @@
+# SLA (Wave3) validation cases.
+SLA_CREATE missing ref@@ERROR\|INVALID_INPUT@@SLA_CREATE||||||admin@test.com
+SLA_GET missing id@@ERROR\|INVALID_INPUT@@SLA_GET||||||admin@test.com
+SLA_CALC missing id@@ERROR\|INVALID_INPUT@@SLA_CALC||||||admin@test.com
+SLA_DELETE missing id@@ERROR\|INVALID_INPUT@@SLA_DELETE||||||admin@test.com
+SLA_VALIDATE ok@@SUCCESS\|SLA_VALID@@SLA_VALIDATE|100.00|USD||||admin@test.com

@@ -49,6 +49,10 @@ import { ANALYTICS_SNAPSHOT_ROUTES } from './analytics_snapshot.js';
 import { MERCHANT_ROUTES } from './merchant.js';
 import { TRADE_FINANCE_ROUTES } from './trade_finance.js';
 import { DDB_ROUTES } from './direct_debit.js';
+import { CCL_ROUTES } from './compliance_calendar.js';
+import { SLT_ROUTES } from './sla_tracker.js';
+import { RPS_ROUTES } from './report_schedule.js';
+import { NTP_ROUTES } from './notification_template.js';
 import { SIN_ROUTES } from './standing_instruction.js';
 import { CLM_ROUTES } from './collateral_mgmt.js';
 import { TSD_ROUTES } from './treasury_deal.js';
@@ -174,6 +178,10 @@ export const ALL_ROUTES = [
   ...MERCHANT_ROUTES,
   ...TRADE_FINANCE_ROUTES,
   ...DDB_ROUTES,
+  ...CCL_ROUTES,
+  ...SLT_ROUTES,
+  ...RPS_ROUTES,
+  ...NTP_ROUTES,
   ...SIN_ROUTES,
   ...CLM_ROUTES,
   ...TSD_ROUTES,
