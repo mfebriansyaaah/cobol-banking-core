@@ -7,7 +7,7 @@ import path from 'node:path';
 // Point the invoker at a deliberately slow stub, then import it.
 const dir = await mkdtemp(path.join(tmpdir(), 'cobol-stub-'));
 const stub = path.join(dir, 'slow-binary');
-await writeFile(stub, '#!/bin/sh\nsleep 5\n');
+await writeFile(stub, '#!/bin/sh\nexec sleep 5\n');
 await chmod(stub, 0o755);
 process.env.COBOL_BIN = stub;
 
