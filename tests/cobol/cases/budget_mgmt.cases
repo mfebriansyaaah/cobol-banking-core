@@ -1,0 +1,6 @@
+# Budget Mgmt (Wave19) validation cases.
+BUDM_CREATE missing ref@@ERROR\|INVALID_INPUT@@BUDM_CREATE||||||admin@test.com
+BUDM_GET missing id@@ERROR\|INVALID_INPUT@@BUDM_GET||||||admin@test.com
+BUDM_CALC missing id@@ERROR\|INVALID_INPUT@@BUDM_CALC||||||admin@test.com
+BUDM_DELETE missing id@@ERROR\|INVALID_INPUT@@BUDM_DELETE||||||admin@test.com
+BUDM_VALIDATE ok@@SUCCESS\|BUDM_VALID@@BUDM_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Shipping (Wave19) validation cases.
+SHP_CREATE missing ref@@ERROR\|INVALID_INPUT@@SHP_CREATE||||||admin@test.com
+SHP_GET missing id@@ERROR\|INVALID_INPUT@@SHP_GET||||||admin@test.com
+SHP_CALC missing id@@ERROR\|INVALID_INPUT@@SHP_CALC||||||admin@test.com
+SHP_DELETE missing id@@ERROR\|INVALID_INPUT@@SHP_DELETE||||||admin@test.com
+SHP_VALIDATE ok@@SUCCESS\|SHP_VALID@@SHP_VALIDATE|100.00|USD||||admin@test.com

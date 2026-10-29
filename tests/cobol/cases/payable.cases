@@ -1,0 +1,6 @@
+# Payable (Wave19) validation cases.
+PYBL_CREATE missing ref@@ERROR\|INVALID_INPUT@@PYBL_CREATE||||||admin@test.com
+PYBL_GET missing id@@ERROR\|INVALID_INPUT@@PYBL_GET||||||admin@test.com
+PYBL_CALC missing id@@ERROR\|INVALID_INPUT@@PYBL_CALC||||||admin@test.com
+PYBL_DELETE missing id@@ERROR\|INVALID_INPUT@@PYBL_DELETE||||||admin@test.com
+PYBL_VALIDATE ok@@SUCCESS\|PYBL_VALID@@PYBL_VALIDATE|100.00|USD||||admin@test.com

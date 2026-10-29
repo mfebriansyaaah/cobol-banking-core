@@ -1,0 +1,6 @@
+# Expense (Wave19) validation cases.
+EXP2_CREATE missing ref@@ERROR\|INVALID_INPUT@@EXP2_CREATE||||||admin@test.com
+EXP2_GET missing id@@ERROR\|INVALID_INPUT@@EXP2_GET||||||admin@test.com
+EXP2_CALC missing id@@ERROR\|INVALID_INPUT@@EXP2_CALC||||||admin@test.com
+EXP2_DELETE missing id@@ERROR\|INVALID_INPUT@@EXP2_DELETE||||||admin@test.com
+EXP2_VALIDATE ok@@SUCCESS\|EXP2_VALID@@EXP2_VALIDATE|100.00|USD||||admin@test.com

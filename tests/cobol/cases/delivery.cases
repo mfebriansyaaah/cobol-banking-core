@@ -1,0 +1,6 @@
+# Delivery (Wave19) validation cases.
+DLV_CREATE missing ref@@ERROR\|INVALID_INPUT@@DLV_CREATE||||||admin@test.com
+DLV_GET missing id@@ERROR\|INVALID_INPUT@@DLV_GET||||||admin@test.com
+DLV_CALC missing id@@ERROR\|INVALID_INPUT@@DLV_CALC||||||admin@test.com
+DLV_DELETE missing id@@ERROR\|INVALID_INPUT@@DLV_DELETE||||||admin@test.com
+DLV_VALIDATE ok@@SUCCESS\|DLV_VALID@@DLV_VALIDATE|100.00|USD||||admin@test.com

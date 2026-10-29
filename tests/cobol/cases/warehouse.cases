@@ -1,0 +1,6 @@
+# Warehouse (Wave19) validation cases.
+WHS_CREATE missing ref@@ERROR\|INVALID_INPUT@@WHS_CREATE||||||admin@test.com
+WHS_GET missing id@@ERROR\|INVALID_INPUT@@WHS_GET||||||admin@test.com
+WHS_CALC missing id@@ERROR\|INVALID_INPUT@@WHS_CALC||||||admin@test.com
+WHS_DELETE missing id@@ERROR\|INVALID_INPUT@@WHS_DELETE||||||admin@test.com
+WHS_VALIDATE ok@@SUCCESS\|WHS_VALID@@WHS_VALIDATE|100.00|USD||||admin@test.com
