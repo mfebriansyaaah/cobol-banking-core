@@ -1,0 +1,6 @@
+# Vendor Mgmt (Wave19) validation cases.
+VDR_CREATE missing ref@@ERROR\|INVALID_INPUT@@VDR_CREATE||||||admin@test.com
+VDR_GET missing id@@ERROR\|INVALID_INPUT@@VDR_GET||||||admin@test.com
+VDR_CALC missing id@@ERROR\|INVALID_INPUT@@VDR_CALC||||||admin@test.com
+VDR_DELETE missing id@@ERROR\|INVALID_INPUT@@VDR_DELETE||||||admin@test.com
+VDR_VALIDATE ok@@SUCCESS\|VDR_VALID@@VDR_VALIDATE|100.00|USD||||admin@test.com

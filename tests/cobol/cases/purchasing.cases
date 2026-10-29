@@ -1,0 +1,6 @@
+# Purchasing (Wave19) validation cases.
+PUR_CREATE missing ref@@ERROR\|INVALID_INPUT@@PUR_CREATE||||||admin@test.com
+PUR_GET missing id@@ERROR\|INVALID_INPUT@@PUR_GET||||||admin@test.com
+PUR_CALC missing id@@ERROR\|INVALID_INPUT@@PUR_CALC||||||admin@test.com
+PUR_DELETE missing id@@ERROR\|INVALID_INPUT@@PUR_DELETE||||||admin@test.com
+PUR_VALIDATE ok@@SUCCESS\|PUR_VALID@@PUR_VALIDATE|100.00|USD||||admin@test.com

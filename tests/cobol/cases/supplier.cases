@@ -1,0 +1,6 @@
+# Supplier (Wave19) validation cases.
+SPL_CREATE missing ref@@ERROR\|INVALID_INPUT@@SPL_CREATE||||||admin@test.com
+SPL_GET missing id@@ERROR\|INVALID_INPUT@@SPL_GET||||||admin@test.com
+SPL_CALC missing id@@ERROR\|INVALID_INPUT@@SPL_CALC||||||admin@test.com
+SPL_DELETE missing id@@ERROR\|INVALID_INPUT@@SPL_DELETE||||||admin@test.com
+SPL_VALIDATE ok@@SUCCESS\|SPL_VALID@@SPL_VALIDATE|100.00|USD||||admin@test.com

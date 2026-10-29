@@ -1,0 +1,6 @@
+# Development (Wave19) validation cases.
+DEV_CREATE missing ref@@ERROR\|INVALID_INPUT@@DEV_CREATE||||||admin@test.com
+DEV_GET missing id@@ERROR\|INVALID_INPUT@@DEV_GET||||||admin@test.com
+DEV_CALC missing id@@ERROR\|INVALID_INPUT@@DEV_CALC||||||admin@test.com
+DEV_DELETE missing id@@ERROR\|INVALID_INPUT@@DEV_DELETE||||||admin@test.com
+DEV_VALIDATE ok@@SUCCESS\|DEV_VALID@@DEV_VALIDATE|100.00|USD||||admin@test.com

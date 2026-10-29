@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T04:57:40.389Z",
+  "generatedAt": "2026-10-29T05:45:12.737Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -62,6 +62,9 @@
       "source": "aml_screening_core.cob"
     },
     {
+      "source": "analysis_core.cob"
+    },
+    {
       "source": "analytics_core.cob"
     },
     {
@@ -111,6 +114,9 @@
     },
     {
       "source": "audit_log_core.cob"
+    },
+    {
+      "source": "audit_mgmt_core.cob"
     },
     {
       "source": "audit_retention_core.cob"
@@ -182,6 +188,9 @@
       "source": "billing_core.cob"
     },
     {
+      "source": "billing_mgmt_core.cob"
+    },
+    {
       "source": "billpay_core.cob"
     },
     {
@@ -207,6 +216,9 @@
     },
     {
       "source": "budget_core.cob"
+    },
+    {
+      "source": "budget_mgmt_core.cob"
     },
     {
       "source": "budgeting_core.cob"
@@ -306,6 +318,9 @@
     },
     {
       "source": "collection_core.cob"
+    },
+    {
+      "source": "collection_mgmt_core.cob"
     },
     {
       "source": "commission_item_core.cob"
@@ -470,6 +485,9 @@
       "source": "delegation_core.cob"
     },
     {
+      "source": "delivery_core.cob"
+    },
+    {
       "source": "department_core.cob"
     },
     {
@@ -483,6 +501,9 @@
     },
     {
       "source": "derivative_core.cob"
+    },
+    {
+      "source": "development_core.cob"
     },
     {
       "source": "device_management_core.cob"
@@ -587,6 +608,9 @@
       "source": "execution_core.cob"
     },
     {
+      "source": "expense_core.cob"
+    },
+    {
       "source": "experiment_core.cob"
     },
     {
@@ -650,6 +674,9 @@
       "source": "forecast_core.cob"
     },
     {
+      "source": "forecast_mgmt_core.cob"
+    },
+    {
       "source": "foreclosure_core.cob"
     },
     {
@@ -663,6 +690,9 @@
     },
     {
       "source": "fraud_ops_core.cob"
+    },
+    {
+      "source": "fulfillment_core.cob"
     },
     {
       "source": "fund_core.cob"
@@ -797,6 +827,9 @@
       "source": "internet_banking_core.cob"
     },
     {
+      "source": "inventory_core.cob"
+    },
+    {
       "source": "investigation_core.cob"
     },
     {
@@ -810,6 +843,9 @@
     },
     {
       "source": "invoice_financing_core.cob"
+    },
+    {
+      "source": "invoice_mgmt_core.cob"
     },
     {
       "source": "journal_core.cob"
@@ -885,6 +921,9 @@
     },
     {
       "source": "login_attempt_core.cob"
+    },
+    {
+      "source": "logistics_core.cob"
     },
     {
       "source": "loss_reserve_core.cob"
@@ -1013,6 +1052,9 @@
       "source": "option_trading_core.cob"
     },
     {
+      "source": "order_mgmt2_core.cob"
+    },
+    {
       "source": "order_mgmt_core.cob"
     },
     {
@@ -1037,6 +1079,9 @@
       "source": "pawn_core.cob"
     },
     {
+      "source": "payable_core.cob"
+    },
+    {
       "source": "payment_clearing_core.cob"
     },
     {
@@ -1056,6 +1101,9 @@
     },
     {
       "source": "payment_link_core.cob"
+    },
+    {
+      "source": "payment_mgmt_core.cob"
     },
     {
       "source": "payment_processing_core.cob"
@@ -1098,6 +1146,9 @@
     },
     {
       "source": "pisp_management_core.cob"
+    },
+    {
+      "source": "planning_core.cob"
     },
     {
       "source": "pnl_core.cob"
@@ -1154,6 +1205,9 @@
       "source": "procurement_core.cob"
     },
     {
+      "source": "procurement_mgmt_core.cob"
+    },
+    {
       "source": "product_catalog_core.cob"
     },
     {
@@ -1187,10 +1241,16 @@
       "source": "public_liability_core.cob"
     },
     {
+      "source": "purchasing_core.cob"
+    },
+    {
       "source": "push_notification_core.cob"
     },
     {
       "source": "qr_payment_core.cob"
+    },
+    {
+      "source": "quality_core.cob"
     },
     {
       "source": "quote_core.cob"
@@ -1209,6 +1269,9 @@
     },
     {
       "source": "rebate_item_core.cob"
+    },
+    {
+      "source": "receivable_core.cob"
     },
     {
       "source": "recommendation_core.cob"
@@ -1295,6 +1358,9 @@
       "source": "reporting_core.cob"
     },
     {
+      "source": "research_core.cob"
+    },
+    {
       "source": "reserve_core.cob"
     },
     {
@@ -1373,6 +1439,9 @@
       "source": "settlement_recon_core.cob"
     },
     {
+      "source": "shipping_core.cob"
+    },
+    {
       "source": "simulation_core.cob"
     },
     {
@@ -1415,6 +1484,12 @@
       "source": "statement_recon_core.cob"
     },
     {
+      "source": "stock_core.cob"
+    },
+    {
+      "source": "strategy_core.cob"
+    },
+    {
       "source": "stress_test_core.cob"
     },
     {
@@ -1431,6 +1506,9 @@
     },
     {
       "source": "subscription_core.cob"
+    },
+    {
+      "source": "supplier_core.cob"
     },
     {
       "source": "supply_chain_core.cob"
@@ -1478,6 +1556,9 @@
       "source": "termination_item_core.cob"
     },
     {
+      "source": "testing_core.cob"
+    },
+    {
       "source": "theft_insurance_core.cob"
     },
     {
@@ -1494,6 +1575,9 @@
     },
     {
       "source": "tracing_core.cob"
+    },
+    {
+      "source": "tracking_core.cob"
     },
     {
       "source": "trade_credit_core.cob"
@@ -1583,6 +1667,9 @@
       "source": "vendor_management_core.cob"
     },
     {
+      "source": "vendor_mgmt_core.cob"
+    },
+    {
       "source": "vendor_risk_core.cob"
     },
     {
@@ -1599,6 +1686,9 @@
     },
     {
       "source": "wallet_core.cob"
+    },
+    {
+      "source": "warehouse_core.cob"
     },
     {
       "source": "warrant_core.cob"
@@ -1655,6 +1745,7 @@
     "allocation.js",
     "aml_check.js",
     "aml_screening.js",
+    "analysis.js",
     "analytics.js",
     "analytics_snapshot.js",
     "api_gateway.js",
@@ -1672,6 +1763,7 @@
     "audit_drilldown.js",
     "audit_finding.js",
     "audit_log.js",
+    "audit_mgmt.js",
     "audit_retention.js",
     "audit_snapshot.js",
     "audit_trail.js",
@@ -1693,6 +1785,7 @@
     "benefits.js",
     "bill_of_exchange.js",
     "billing.js",
+    "billing_mgmt.js",
     "billpay.js",
     "biometric_auth.js",
     "blacklist.js",
@@ -1702,6 +1795,7 @@
     "bond_trading.js",
     "branch_management.js",
     "budget.js",
+    "budget_mgmt.js",
     "budgeting.js",
     "business_continuity.js",
     "business_loan.js",
@@ -1735,6 +1829,7 @@
     "collateral_repossession.js",
     "collateralized.js",
     "collection.js",
+    "collection_mgmt.js",
     "commission_item.js",
     "commodity_swap.js",
     "commodity_trading.js",
@@ -1789,11 +1884,13 @@
     "debt_collection.js",
     "debt_recovery.js",
     "delegation.js",
+    "delivery.js",
     "department.js",
     "deployment.js",
     "deposit.js",
     "deposit_book.js",
     "derivative.js",
+    "development.js",
     "device_management.js",
     "digital_asset.js",
     "digital_banking.js",
@@ -1828,6 +1925,7 @@
     "etl.js",
     "event_bus.js",
     "execution.js",
+    "expense.js",
     "experiment.js",
     "export_archive.js",
     "export_finance.js",
@@ -1849,11 +1947,13 @@
     "fixed_asset.js",
     "fixed_deposit.js",
     "forecast.js",
+    "forecast_mgmt.js",
     "foreclosure.js",
     "foreign_currency_deposit.js",
     "fraud_case.js",
     "fraud_check.js",
     "fraud_ops.js",
+    "fulfillment.js",
     "fund.js",
     "future_contract.js",
     "fx_deal.js",
@@ -1896,11 +1996,13 @@
     "interest_rate_swap.js",
     "internal_audit.js",
     "internet_banking.js",
+    "inventory.js",
     "investigation.js",
     "investment.js",
     "invoice.js",
     "invoice_discounting.js",
     "invoice_financing.js",
+    "invoice_mgmt.js",
     "journal.js",
     "key_rotation.js",
     "kidnap_ransom.js",
@@ -1927,6 +2029,7 @@
     "loan_schedule.js",
     "logging.js",
     "login_attempt.js",
+    "logistics.js",
     "loss_reserve.js",
     "loyalty_program.js",
     "management_liability.js",
@@ -1970,6 +2073,7 @@
     "optimization.js",
     "option_trading.js",
     "order_mgmt.js",
+    "order_mgmt2.js",
     "organization_unit.js",
     "otp_management.js",
     "outsourcing_contract.js",
@@ -1977,6 +2081,7 @@
     "password_policy.js",
     "patch.js",
     "pawn.js",
+    "payable.js",
     "payment.js",
     "payment_clearing.js",
     "payment_gateway.js",
@@ -1984,6 +2089,7 @@
     "payment_instructions.js",
     "payment_item.js",
     "payment_link.js",
+    "payment_mgmt.js",
     "payment_processing.js",
     "payroll_processing.js",
     "peer_to_peer.js",
@@ -1998,6 +2104,7 @@
     "personalization.js",
     "pipeline_alert.js",
     "pisp_management.js",
+    "planning.js",
     "pnl.js",
     "points_redemption.js",
     "policy_administration.js",
@@ -2016,6 +2123,7 @@
     "problem.js",
     "procedure_review.js",
     "procurement.js",
+    "procurement_mgmt.js",
     "product_catalog.js",
     "product_item.js",
     "product_liability.js",
@@ -2027,14 +2135,17 @@
     "property_insurance.js",
     "provisioning.js",
     "public_liability.js",
+    "purchasing.js",
     "push_notification.js",
     "qr_payment.js",
+    "quality.js",
     "quote.js",
     "rate_limiter.js",
     "rate_management.js",
     "real_estate.js",
     "rebalancing.js",
     "rebate_item.js",
+    "receivable.js",
     "recommendation.js",
     "recon.js",
     "recon_exception.js",
@@ -2063,6 +2174,7 @@
     "report_schedule.js",
     "report_scheduler.js",
     "reporting.js",
+    "research.js",
     "reserve.js",
     "retention_job.js",
     "retention_money.js",
@@ -2089,6 +2201,7 @@
     "session_management.js",
     "session_store.js",
     "settlement_recon.js",
+    "shipping.js",
     "simulation.js",
     "sla_management.js",
     "sla_tracker.js",
@@ -2103,12 +2216,15 @@
     "statement_delivery.js",
     "statement_item.js",
     "statement_recon.js",
+    "stock.js",
+    "strategy.js",
     "stress_test.js",
     "structured.js",
     "structured_note.js",
     "structured_product.js",
     "submission.js",
     "subscription.js",
+    "supplier.js",
     "supply_chain.js",
     "supply_chain_finance.js",
     "surety.js",
@@ -2124,12 +2240,14 @@
     "teller_management.js",
     "term_deposit.js",
     "termination_item.js",
+    "testing.js",
     "theft_insurance.js",
     "timeout.js",
     "token_management.js",
     "tokenization.js",
     "total_return_swap.js",
     "tracing.js",
+    "tracking.js",
     "trade_credit.js",
     "trade_finance.js",
     "training.js",
@@ -2158,11 +2276,13 @@
     "vendor.js",
     "vendor_compliance.js",
     "vendor_management.js",
+    "vendor_mgmt.js",
     "vendor_risk.js",
     "venture_capital.js",
     "virtual_card.js",
     "volatility.js",
     "vostro.js",
+    "warehouse.js",
     "warrant.js",
     "warrant_issuing.js",
     "warranty.js",
@@ -5285,6 +5405,156 @@
       "prefixLen": 4,
       "prefix": "FID_",
       "program": "fiduciary_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "VDR_",
+      "program": "vendor_mgmt_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SPL_",
+      "program": "supplier_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PRCM_",
+      "program": "procurement_mgmt_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PUR_",
+      "program": "purchasing_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "INV2_",
+      "program": "inventory_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "STK_",
+      "program": "stock_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WHS_",
+      "program": "warehouse_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "LOG2_",
+      "program": "logistics_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SHP_",
+      "program": "shipping_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DLV_",
+      "program": "delivery_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRK_",
+      "program": "tracking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FLF_",
+      "program": "fulfillment_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "ORD2_",
+      "program": "order_mgmt2_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "INVM_",
+      "program": "invoice_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "BILM_",
+      "program": "billing_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PYM2_",
+      "program": "payment_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CLTN_",
+      "program": "collection_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "REC2_",
+      "program": "receivable_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PYBL_",
+      "program": "payable_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "EXP2_",
+      "program": "expense_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "BUDM_",
+      "program": "budget_mgmt_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FCM_",
+      "program": "forecast_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PLN2_",
+      "program": "planning_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "STG_",
+      "program": "strategy_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "ANL2_",
+      "program": "analysis_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RSH_",
+      "program": "research_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DEV_",
+      "program": "development_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TST_",
+      "program": "testing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "QLT_",
+      "program": "quality_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "ADTL_",
+      "program": "audit_mgmt_core"
     }
   ]
 }

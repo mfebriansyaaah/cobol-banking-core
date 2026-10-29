@@ -2362,3 +2362,153 @@ db_reset_fiduciary() {
     db_exec "DELETE FROM fiduciary_audit;"
     db_exec "DELETE FROM fiduciary;"
 }
+
+db_reset_vendor_mgmt() {
+    db_exec "DELETE FROM vendor_mgmt_audit;"
+    db_exec "DELETE FROM vendor_mgmt;"
+}
+
+db_reset_supplier() {
+    db_exec "DELETE FROM supplier_audit;"
+    db_exec "DELETE FROM supplier;"
+}
+
+db_reset_procurement_mgmt() {
+    db_exec "DELETE FROM procurement_mgmt_audit;"
+    db_exec "DELETE FROM procurement_mgmt;"
+}
+
+db_reset_purchasing() {
+    db_exec "DELETE FROM purchasing_audit;"
+    db_exec "DELETE FROM purchasing;"
+}
+
+db_reset_inventory() {
+    db_exec "DELETE FROM inventory_audit;"
+    db_exec "DELETE FROM inventory;"
+}
+
+db_reset_stock() {
+    db_exec "DELETE FROM stock_audit;"
+    db_exec "DELETE FROM stock;"
+}
+
+db_reset_warehouse() {
+    db_exec "DELETE FROM warehouse_audit;"
+    db_exec "DELETE FROM warehouse;"
+}
+
+db_reset_logistics() {
+    db_exec "DELETE FROM logistics_audit;"
+    db_exec "DELETE FROM logistics;"
+}
+
+db_reset_shipping() {
+    db_exec "DELETE FROM shipping_audit;"
+    db_exec "DELETE FROM shipping;"
+}
+
+db_reset_delivery() {
+    db_exec "DELETE FROM delivery_audit;"
+    db_exec "DELETE FROM delivery;"
+}
+
+db_reset_tracking() {
+    db_exec "DELETE FROM tracking_audit;"
+    db_exec "DELETE FROM tracking;"
+}
+
+db_reset_fulfillment() {
+    db_exec "DELETE FROM fulfillment_audit;"
+    db_exec "DELETE FROM fulfillment;"
+}
+
+db_reset_order_mgmt2() {
+    db_exec "DELETE FROM order_mgmt2_audit;"
+    db_exec "DELETE FROM order_mgmt2;"
+}
+
+db_reset_invoice_mgmt() {
+    db_exec "DELETE FROM invoice_mgmt_audit;"
+    db_exec "DELETE FROM invoice_mgmt;"
+}
+
+db_reset_billing_mgmt() {
+    db_exec "DELETE FROM billing_mgmt_audit;"
+    db_exec "DELETE FROM billing_mgmt;"
+}
+
+db_reset_payment_mgmt() {
+    db_exec "DELETE FROM payment_mgmt_audit;"
+    db_exec "DELETE FROM payment_mgmt;"
+}
+
+db_reset_collection_mgmt() {
+    db_exec "DELETE FROM collection_mgmt_audit;"
+    db_exec "DELETE FROM collection_mgmt;"
+}
+
+db_reset_receivable() {
+    db_exec "DELETE FROM receivable_audit;"
+    db_exec "DELETE FROM receivable;"
+}
+
+db_reset_payable() {
+    db_exec "DELETE FROM payable_audit;"
+    db_exec "DELETE FROM payable;"
+}
+
+db_reset_expense() {
+    db_exec "DELETE FROM expense_audit;"
+    db_exec "DELETE FROM expense;"
+}
+
+db_reset_budget_mgmt() {
+    db_exec "DELETE FROM budget_mgmt_audit;"
+    db_exec "DELETE FROM budget_mgmt;"
+}
+
+db_reset_forecast_mgmt() {
+    db_exec "DELETE FROM forecast_mgmt_audit;"
+    db_exec "DELETE FROM forecast_mgmt;"
+}
+
+db_reset_planning() {
+    db_exec "DELETE FROM planning_audit;"
+    db_exec "DELETE FROM planning;"
+}
+
+db_reset_strategy() {
+    db_exec "DELETE FROM strategy_audit;"
+    db_exec "DELETE FROM strategy;"
+}
+
+db_reset_analysis() {
+    db_exec "DELETE FROM analysis_audit;"
+    db_exec "DELETE FROM analysis;"
+}
+
+db_reset_research() {
+    db_exec "DELETE FROM research_audit;"
+    db_exec "DELETE FROM research;"
+}
+
+db_reset_development() {
+    db_exec "DELETE FROM development_audit;"
+    db_exec "DELETE FROM development;"
+}
+
+db_reset_testing() {
+    db_exec "DELETE FROM testing_audit;"
+    db_exec "DELETE FROM testing;"
+}
+
+db_reset_quality() {
+    db_exec "DELETE FROM quality_audit;"
+    db_exec "DELETE FROM quality;"
+}
+
+db_reset_audit_mgmt() {
+    db_exec "DELETE FROM audit_mgmt_audit;"
+    db_exec "DELETE FROM audit_mgmt;"
+}

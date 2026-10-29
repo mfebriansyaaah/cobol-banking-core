@@ -1,0 +1,6 @@
+# Inventory (Wave19) validation cases.
+INV2_CREATE missing ref@@ERROR\|INVALID_INPUT@@INV2_CREATE||||||admin@test.com
+INV2_GET missing id@@ERROR\|INVALID_INPUT@@INV2_GET||||||admin@test.com
+INV2_CALC missing id@@ERROR\|INVALID_INPUT@@INV2_CALC||||||admin@test.com
+INV2_DELETE missing id@@ERROR\|INVALID_INPUT@@INV2_DELETE||||||admin@test.com
+INV2_VALIDATE ok@@SUCCESS\|INV2_VALID@@INV2_VALIDATE|100.00|USD||||admin@test.com

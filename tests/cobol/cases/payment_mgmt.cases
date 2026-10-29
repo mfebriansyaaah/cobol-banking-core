@@ -1,0 +1,6 @@
+# Payment Mgmt (Wave19) validation cases.
+PYM2_CREATE missing ref@@ERROR\|INVALID_INPUT@@PYM2_CREATE||||||admin@test.com
+PYM2_GET missing id@@ERROR\|INVALID_INPUT@@PYM2_GET||||||admin@test.com
+PYM2_CALC missing id@@ERROR\|INVALID_INPUT@@PYM2_CALC||||||admin@test.com
+PYM2_DELETE missing id@@ERROR\|INVALID_INPUT@@PYM2_DELETE||||||admin@test.com
+PYM2_VALIDATE ok@@SUCCESS\|PYM2_VALID@@PYM2_VALIDATE|100.00|USD||||admin@test.com

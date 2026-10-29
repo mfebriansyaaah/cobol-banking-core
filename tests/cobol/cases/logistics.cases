@@ -1,0 +1,6 @@
+# Logistics (Wave19) validation cases.
+LOG2_CREATE missing ref@@ERROR\|INVALID_INPUT@@LOG2_CREATE||||||admin@test.com
+LOG2_GET missing id@@ERROR\|INVALID_INPUT@@LOG2_GET||||||admin@test.com
+LOG2_CALC missing id@@ERROR\|INVALID_INPUT@@LOG2_CALC||||||admin@test.com
+LOG2_DELETE missing id@@ERROR\|INVALID_INPUT@@LOG2_DELETE||||||admin@test.com
+LOG2_VALIDATE ok@@SUCCESS\|LOG2_VALID@@LOG2_VALIDATE|100.00|USD||||admin@test.com

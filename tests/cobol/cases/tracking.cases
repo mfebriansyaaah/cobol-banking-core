@@ -1,0 +1,6 @@
+# Tracking (Wave19) validation cases.
+TRK_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRK_CREATE||||||admin@test.com
+TRK_GET missing id@@ERROR\|INVALID_INPUT@@TRK_GET||||||admin@test.com
+TRK_CALC missing id@@ERROR\|INVALID_INPUT@@TRK_CALC||||||admin@test.com
+TRK_DELETE missing id@@ERROR\|INVALID_INPUT@@TRK_DELETE||||||admin@test.com
+TRK_VALIDATE ok@@SUCCESS\|TRK_VALID@@TRK_VALIDATE|100.00|USD||||admin@test.com

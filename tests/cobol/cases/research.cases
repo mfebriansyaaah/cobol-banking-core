@@ -1,0 +1,6 @@
+# Research (Wave19) validation cases.
+RSH_CREATE missing ref@@ERROR\|INVALID_INPUT@@RSH_CREATE||||||admin@test.com
+RSH_GET missing id@@ERROR\|INVALID_INPUT@@RSH_GET||||||admin@test.com
+RSH_CALC missing id@@ERROR\|INVALID_INPUT@@RSH_CALC||||||admin@test.com
+RSH_DELETE missing id@@ERROR\|INVALID_INPUT@@RSH_DELETE||||||admin@test.com
+RSH_VALIDATE ok@@SUCCESS\|RSH_VALID@@RSH_VALIDATE|100.00|USD||||admin@test.com

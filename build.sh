@@ -331,6 +331,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/management_liability_core.cob \
     cobol/src/employment_practices_core.cob \
     cobol/src/fiduciary_core.cob \
+    cobol/src/vendor_mgmt_core.cob \
+    cobol/src/supplier_core.cob \
+    cobol/src/procurement_mgmt_core.cob \
+    cobol/src/purchasing_core.cob \
+    cobol/src/inventory_core.cob \
+    cobol/src/stock_core.cob \
+    cobol/src/warehouse_core.cob \
+    cobol/src/logistics_core.cob \
+    cobol/src/shipping_core.cob \
+    cobol/src/delivery_core.cob \
+    cobol/src/tracking_core.cob \
+    cobol/src/fulfillment_core.cob \
+    cobol/src/order_mgmt2_core.cob \
+    cobol/src/invoice_mgmt_core.cob \
+    cobol/src/billing_mgmt_core.cob \
+    cobol/src/payment_mgmt_core.cob \
+    cobol/src/collection_mgmt_core.cob \
+    cobol/src/receivable_core.cob \
+    cobol/src/payable_core.cob \
+    cobol/src/expense_core.cob \
+    cobol/src/budget_mgmt_core.cob \
+    cobol/src/forecast_mgmt_core.cob \
+    cobol/src/planning_core.cob \
+    cobol/src/strategy_core.cob \
+    cobol/src/analysis_core.cob \
+    cobol/src/research_core.cob \
+    cobol/src/development_core.cob \
+    cobol/src/testing_core.cob \
+    cobol/src/quality_core.cob \
+    cobol/src/audit_mgmt_core.cob \
     cobol/src/mortgage_core.cob \
     cobol/src/auto_loan_core.cob \
     cobol/src/personal_loan_core.cob \

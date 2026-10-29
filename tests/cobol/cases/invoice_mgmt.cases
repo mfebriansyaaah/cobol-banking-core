@@ -1,0 +1,6 @@
+# Invoice Mgmt (Wave19) validation cases.
+INVM_CREATE missing ref@@ERROR\|INVALID_INPUT@@INVM_CREATE||||||admin@test.com
+INVM_GET missing id@@ERROR\|INVALID_INPUT@@INVM_GET||||||admin@test.com
+INVM_CALC missing id@@ERROR\|INVALID_INPUT@@INVM_CALC||||||admin@test.com
+INVM_DELETE missing id@@ERROR\|INVALID_INPUT@@INVM_DELETE||||||admin@test.com
+INVM_VALIDATE ok@@SUCCESS\|INVM_VALID@@INVM_VALIDATE|100.00|USD||||admin@test.com

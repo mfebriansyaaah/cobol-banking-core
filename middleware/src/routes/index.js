@@ -419,6 +419,36 @@ import { BACKUP_VERIFICATION_ROUTES } from './backup_verification.js';
 import { SLA_TRACKING_ROUTES } from './sla_tracking.js';
 import { REOP_ROUTES } from './reopening_item.js';
 import { MIG_ROUTES } from './migration.js';
+import { ADTL_ROUTES } from './audit_mgmt.js';
+import { QLT_ROUTES } from './quality.js';
+import { TST_ROUTES } from './testing.js';
+import { DEV_ROUTES } from './development.js';
+import { RSH_ROUTES } from './research.js';
+import { ANL2_ROUTES } from './analysis.js';
+import { STG_ROUTES } from './strategy.js';
+import { PLN2_ROUTES } from './planning.js';
+import { FCM_ROUTES } from './forecast_mgmt.js';
+import { BUDM_ROUTES } from './budget_mgmt.js';
+import { EXP2_ROUTES } from './expense.js';
+import { PYBL_ROUTES } from './payable.js';
+import { REC2_ROUTES } from './receivable.js';
+import { CLTN_ROUTES } from './collection_mgmt.js';
+import { PYM2_ROUTES } from './payment_mgmt.js';
+import { BILM_ROUTES } from './billing_mgmt.js';
+import { INVM_ROUTES } from './invoice_mgmt.js';
+import { ORD2_ROUTES } from './order_mgmt2.js';
+import { FLF_ROUTES } from './fulfillment.js';
+import { TRK_ROUTES } from './tracking.js';
+import { DLV_ROUTES } from './delivery.js';
+import { SHP_ROUTES } from './shipping.js';
+import { LOG2_ROUTES } from './logistics.js';
+import { WHS_ROUTES } from './warehouse.js';
+import { STK_ROUTES } from './stock.js';
+import { INV2_ROUTES } from './inventory.js';
+import { PUR_ROUTES } from './purchasing.js';
+import { PRCM_ROUTES } from './procurement_mgmt.js';
+import { SPL_ROUTES } from './supplier.js';
+import { VDR_ROUTES } from './vendor_mgmt.js';
 import { FID_ROUTES } from './fiduciary.js';
 import { SR_ROUTES } from './surety.js';
 import { EPL_ROUTES } from './employment_practices.js';
@@ -959,6 +989,36 @@ export const ALL_ROUTES = [
   ...SLA_TRACKING_ROUTES,
   ...REOP_ROUTES,
   ...MIG_ROUTES,
+  ...ADTL_ROUTES,
+  ...QLT_ROUTES,
+  ...TST_ROUTES,
+  ...DEV_ROUTES,
+  ...RSH_ROUTES,
+  ...ANL2_ROUTES,
+  ...STG_ROUTES,
+  ...PLN2_ROUTES,
+  ...FCM_ROUTES,
+  ...BUDM_ROUTES,
+  ...EXP2_ROUTES,
+  ...PYBL_ROUTES,
+  ...REC2_ROUTES,
+  ...CLTN_ROUTES,
+  ...PYM2_ROUTES,
+  ...BILM_ROUTES,
+  ...INVM_ROUTES,
+  ...ORD2_ROUTES,
+  ...FLF_ROUTES,
+  ...TRK_ROUTES,
+  ...DLV_ROUTES,
+  ...SHP_ROUTES,
+  ...LOG2_ROUTES,
+  ...WHS_ROUTES,
+  ...STK_ROUTES,
+  ...INV2_ROUTES,
+  ...PUR_ROUTES,
+  ...PRCM_ROUTES,
+  ...SPL_ROUTES,
+  ...VDR_ROUTES,
   ...FID_ROUTES,
   ...SR_ROUTES,
   ...EPL_ROUTES,

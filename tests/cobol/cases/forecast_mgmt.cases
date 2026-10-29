@@ -1,0 +1,6 @@
+# Forecast Mgmt (Wave19) validation cases.
+FCM_CREATE missing ref@@ERROR\|INVALID_INPUT@@FCM_CREATE||||||admin@test.com
+FCM_GET missing id@@ERROR\|INVALID_INPUT@@FCM_GET||||||admin@test.com
+FCM_CALC missing id@@ERROR\|INVALID_INPUT@@FCM_CALC||||||admin@test.com
+FCM_DELETE missing id@@ERROR\|INVALID_INPUT@@FCM_DELETE||||||admin@test.com
+FCM_VALIDATE ok@@SUCCESS\|FCM_VALID@@FCM_VALIDATE|100.00|USD||||admin@test.com
