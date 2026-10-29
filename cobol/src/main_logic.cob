@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 652 TO DISPATCH-COUNT.
+            MOVE 682 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1885,6 +1885,96 @@
             MOVE "ADTL_" TO D-PREFIX(652).
             MOVE 5 TO D-PREFIX-LEN(652).
             MOVE "audit_mgmt_core" TO D-PROGRAM(652).
+            MOVE "CBKG_" TO D-PREFIX(653).
+            MOVE 5 TO D-PREFIX-LEN(653).
+            MOVE "core_banking_core" TO D-PROGRAM(653).
+            MOVE "RTB_" TO D-PREFIX(654).
+            MOVE 4 TO D-PREFIX-LEN(654).
+            MOVE "retail_banking_core" TO D-PROGRAM(654).
+            MOVE "CPB_" TO D-PREFIX(655).
+            MOVE 4 TO D-PREFIX-LEN(655).
+            MOVE "corporate_banking_core" TO D-PROGRAM(655).
+            MOVE "IVB_" TO D-PREFIX(656).
+            MOVE 4 TO D-PREFIX-LEN(656).
+            MOVE "investment_banking_core" TO D-PROGRAM(656).
+            MOVE "PRVB_" TO D-PREFIX(657).
+            MOVE 5 TO D-PREFIX-LEN(657).
+            MOVE "private_banking_core" TO D-PROGRAM(657).
+            MOVE "WSB_" TO D-PREFIX(658).
+            MOVE 4 TO D-PREFIX-LEN(658).
+            MOVE "wholesale_banking_core" TO D-PROGRAM(658).
+            MOVE "DBNK_" TO D-PREFIX(659).
+            MOVE 5 TO D-PREFIX-LEN(659).
+            MOVE "digital_banking2_core" TO D-PROGRAM(659).
+            MOVE "MBK_" TO D-PREFIX(660).
+            MOVE 4 TO D-PREFIX-LEN(660).
+            MOVE "mobile_banking_core" TO D-PROGRAM(660).
+            MOVE "IBNK_" TO D-PREFIX(661).
+            MOVE 5 TO D-PREFIX-LEN(661).
+            MOVE "internet_banking2_core" TO D-PROGRAM(661).
+            MOVE "BRK_" TO D-PREFIX(662).
+            MOVE 4 TO D-PREFIX-LEN(662).
+            MOVE "branch_banking_core" TO D-PROGRAM(662).
+            MOVE "CNB_" TO D-PREFIX(663).
+            MOVE 4 TO D-PREFIX-LEN(663).
+            MOVE "central_banking_core" TO D-PROGRAM(663).
+            MOVE "CMB_" TO D-PREFIX(664).
+            MOVE 4 TO D-PREFIX-LEN(664).
+            MOVE "commercial_banking_core" TO D-PROGRAM(664).
+            MOVE "CMBC_" TO D-PREFIX(665).
+            MOVE 5 TO D-PREFIX-LEN(665).
+            MOVE "community_banking_core" TO D-PROGRAM(665).
+            MOVE "COB_" TO D-PREFIX(666).
+            MOVE 4 TO D-PREFIX-LEN(666).
+            MOVE "cooperative_banking_core" TO D-PROGRAM(666).
+            MOVE "SVB_" TO D-PREFIX(667).
+            MOVE 4 TO D-PREFIX-LEN(667).
+            MOVE "savings_bank_core" TO D-PROGRAM(667).
+            MOVE "CRU_" TO D-PREFIX(668).
+            MOVE 4 TO D-PREFIX-LEN(668).
+            MOVE "credit_union_core" TO D-PROGRAM(668).
+            MOVE "BLS_" TO D-PREFIX(669).
+            MOVE 4 TO D-PREFIX-LEN(669).
+            MOVE "building_society_core" TO D-PROGRAM(669).
+            MOVE "THR_" TO D-PREFIX(670).
+            MOVE 4 TO D-PREFIX-LEN(670).
+            MOVE "thrift_core" TO D-PROGRAM(670).
+            MOVE "FCO_" TO D-PREFIX(671).
+            MOVE 4 TO D-PREFIX-LEN(671).
+            MOVE "finance_company_core" TO D-PROGRAM(671).
+            MOVE "LCO_" TO D-PREFIX(672).
+            MOVE 4 TO D-PREFIX-LEN(672).
+            MOVE "leasing_company_core" TO D-PROGRAM(672).
+            MOVE "FCOM_" TO D-PREFIX(673).
+            MOVE 5 TO D-PREFIX-LEN(673).
+            MOVE "factoring_company_core" TO D-PROGRAM(673).
+            MOVE "CSF_" TO D-PREFIX(674).
+            MOVE 4 TO D-PREFIX-LEN(674).
+            MOVE "consumer_finance_core" TO D-PROGRAM(674).
+            MOVE "ATF_" TO D-PREFIX(675).
+            MOVE 4 TO D-PREFIX-LEN(675).
+            MOVE "auto_finance_core" TO D-PROGRAM(675).
+            MOVE "MTB_" TO D-PREFIX(676).
+            MOVE 4 TO D-PREFIX-LEN(676).
+            MOVE "mortgage_bank_core" TO D-PROGRAM(676).
+            MOVE "HFC_" TO D-PREFIX(677).
+            MOVE 4 TO D-PREFIX-LEN(677).
+            MOVE "housing_finance_core" TO D-PROGRAM(677).
+            MOVE "AGF_" TO D-PREFIX(678).
+            MOVE 4 TO D-PREFIX-LEN(678).
+            MOVE "agricultural_finance_core" TO D-PROGRAM(678).
+            MOVE "MCL_" TO D-PREFIX(679).
+            MOVE 4 TO D-PREFIX-LEN(679).
+            MOVE "micro_lending_core" TO D-PROGRAM(679).
+            MOVE "NCL_" TO D-PREFIX(680).
+            MOVE 4 TO D-PREFIX-LEN(680).
+            MOVE "nano_lending_core" TO D-PROGRAM(680).
+            MOVE "PDLG_" TO D-PREFIX(681).
+            MOVE 5 TO D-PREFIX-LEN(681).
+            MOVE "peer_lending_core" TO D-PROGRAM(681).
+            MOVE "CDL_" TO D-PREFIX(682).
+            MOVE 4 TO D-PREFIX-LEN(682).
+            MOVE "crowd_lending_core" TO D-PROGRAM(682).
             MOVE "MTG_" TO D-PREFIX(533).
             MOVE 4 TO D-PREFIX-LEN(533).
             MOVE "mortgage_core" TO D-PROGRAM(533).

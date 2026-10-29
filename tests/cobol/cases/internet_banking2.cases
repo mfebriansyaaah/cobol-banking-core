@@ -1,0 +1,6 @@
+# Internet Banking2 (Wave20) validation cases.
+IBNK_CREATE missing ref@@ERROR\|INVALID_INPUT@@IBNK_CREATE||||||admin@test.com
+IBNK_GET missing id@@ERROR\|INVALID_INPUT@@IBNK_GET||||||admin@test.com
+IBNK_CALC missing id@@ERROR\|INVALID_INPUT@@IBNK_CALC||||||admin@test.com
+IBNK_DELETE missing id@@ERROR\|INVALID_INPUT@@IBNK_DELETE||||||admin@test.com
+IBNK_VALIDATE ok@@SUCCESS\|IBNK_VALID@@IBNK_VALIDATE|100.00|USD||||admin@test.com

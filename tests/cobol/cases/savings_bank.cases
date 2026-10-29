@@ -1,0 +1,6 @@
+# Savings Bank (Wave20) validation cases.
+SVB_CREATE missing ref@@ERROR\|INVALID_INPUT@@SVB_CREATE||||||admin@test.com
+SVB_GET missing id@@ERROR\|INVALID_INPUT@@SVB_GET||||||admin@test.com
+SVB_CALC missing id@@ERROR\|INVALID_INPUT@@SVB_CALC||||||admin@test.com
+SVB_DELETE missing id@@ERROR\|INVALID_INPUT@@SVB_DELETE||||||admin@test.com
+SVB_VALIDATE ok@@SUCCESS\|SVB_VALID@@SVB_VALIDATE|100.00|USD||||admin@test.com

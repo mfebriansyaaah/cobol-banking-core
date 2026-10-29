@@ -1,0 +1,6 @@
+# Commercial Banking (Wave20) validation cases.
+CMB_CREATE missing ref@@ERROR\|INVALID_INPUT@@CMB_CREATE||||||admin@test.com
+CMB_GET missing id@@ERROR\|INVALID_INPUT@@CMB_GET||||||admin@test.com
+CMB_CALC missing id@@ERROR\|INVALID_INPUT@@CMB_CALC||||||admin@test.com
+CMB_DELETE missing id@@ERROR\|INVALID_INPUT@@CMB_DELETE||||||admin@test.com
+CMB_VALIDATE ok@@SUCCESS\|CMB_VALID@@CMB_VALIDATE|100.00|USD||||admin@test.com
