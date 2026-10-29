@@ -202,6 +202,17 @@ class Pool {
       try { w.child.stdin.write('QUIT\n'); } catch { /* ignore */ }
       try { w.child.kill(); } catch { /* ignore */ }
     }
+    // The GnuCOBOL runtime blocks SIGTERM and a wedged worker may never read
+    // its stdin, so neither QUIT nor SIGTERM is guaranteed to end it. SIGKILL
+    // the stragglers: without this, close() leaves the event loop alive
+    // forever (a wedged worker survived teardown and hung the gateway suite
+    // at 100% pass). Unref'd so it never holds the loop open by itself.
+    // _onGone() already handles the exit event (no replacement: closed).
+    setTimeout(() => {
+      for (const w of this.workers) {
+        try { w.child.kill('SIGKILL'); } catch { /* ignore */ }
+      }
+    }, 1000).unref();
     setGauge('gateway_cobol_pool_workers', 0);
     setGauge('gateway_cobol_pool_busy', 0);
     setGauge('gateway_cobol_pool_queued', 0);

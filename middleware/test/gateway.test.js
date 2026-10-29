@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
+import { resetPool } from '../src/pool.js';
 
 // Remove the users this suite created (their accounts, ledger rows, sessions
 // and pending intents cascade away) so the shared test database is left
@@ -13,6 +14,9 @@ import { buildApp } from '../src/app.js';
 // show up as a false reconciliation mismatch once another suite wipes the
 // ledger.
 after(() => runSql("DELETE FROM users WHERE email LIKE 'gw\\_%'"));
+// Drop pooled COBOL workers so the process can exit: spawned --serve
+// children keep the event loop alive (pool.test.js does the same).
+after(() => resetPool());
 import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, totp, TEST_MFA_SECRET, requireSeed, refreshExchangeRates } from './support.js';
 
 const app = buildApp();
@@ -770,6 +774,9 @@ test('transfer over the per-transaction limit is rejected', async () => {
 
   const prev = process.env.TRANSFER_MAX_PER_TXN;
   process.env.TRANSFER_MAX_PER_TXN = '1';
+  // Pool workers snapshot the environment at spawn; restart them so the new
+  // limit applies (file mode gets a fresh process per call). Restored below.
+  await resetPool();
   try {
     const res = await request(app)
       .post('/wallet/transfer')
@@ -781,6 +788,7 @@ test('transfer over the per-transaction limit is rejected', async () => {
   } finally {
     if (prev === undefined) delete process.env.TRANSFER_MAX_PER_TXN;
     else process.env.TRANSFER_MAX_PER_TXN = prev;
+    await resetPool();
   }
 });
 
@@ -1088,6 +1096,9 @@ test('readiness reports 503 when the database is down', async () => {
   const app = buildApp();
   const saved = process.env.DB_NAME;
   process.env.DB_NAME = 'nonexistent_db_xyz';
+  // As above: pooled workers hold pre-swap connections, so restart them to
+  // observe the bogus database (and restore afterwards).
+  await resetPool();
   try {
     const res = await request(app).get('/ready');
     assert.equal(res.status, 503);
@@ -1096,6 +1107,7 @@ test('readiness reports 503 when the database is down', async () => {
   } finally {
     if (saved === undefined) delete process.env.DB_NAME;
     else process.env.DB_NAME = saved;
+    await resetPool();
   }
 });
 
