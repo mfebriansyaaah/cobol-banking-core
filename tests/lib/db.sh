@@ -2062,3 +2062,153 @@ db_reset_credit_insurance() {
     db_exec "DELETE FROM credit_insurance_audit;"
     db_exec "DELETE FROM credit_insurance;"
 }
+
+db_reset_compliance_check() {
+    db_exec "DELETE FROM compliance_check_audit;"
+    db_exec "DELETE FROM compliance_check;"
+}
+
+db_reset_regulatory_filing() {
+    db_exec "DELETE FROM regulatory_filing_audit;"
+    db_exec "DELETE FROM regulatory_filing;"
+}
+
+db_reset_audit_finding() {
+    db_exec "DELETE FROM audit_finding_audit;"
+    db_exec "DELETE FROM audit_finding;"
+}
+
+db_reset_risk_assessment() {
+    db_exec "DELETE FROM risk_assessment_audit;"
+    db_exec "DELETE FROM risk_assessment;"
+}
+
+db_reset_control_test() {
+    db_exec "DELETE FROM control_test_audit;"
+    db_exec "DELETE FROM control_test;"
+}
+
+db_reset_policy_review() {
+    db_exec "DELETE FROM policy_review_audit;"
+    db_exec "DELETE FROM policy_review;"
+}
+
+db_reset_procedure_review() {
+    db_exec "DELETE FROM procedure_review_audit;"
+    db_exec "DELETE FROM procedure_review;"
+}
+
+db_reset_training_record() {
+    db_exec "DELETE FROM training_record_audit;"
+    db_exec "DELETE FROM training_record;"
+}
+
+db_reset_certification() {
+    db_exec "DELETE FROM certification_audit;"
+    db_exec "DELETE FROM certification;"
+}
+
+db_reset_license() {
+    db_exec "DELETE FROM license_audit;"
+    db_exec "DELETE FROM license;"
+}
+
+db_reset_permit() {
+    db_exec "DELETE FROM permit_audit;"
+    db_exec "DELETE FROM permit;"
+}
+
+db_reset_registration() {
+    db_exec "DELETE FROM registration_audit;"
+    db_exec "DELETE FROM registration;"
+}
+
+db_reset_filing() {
+    db_exec "DELETE FROM filing_audit;"
+    db_exec "DELETE FROM filing;"
+}
+
+db_reset_submission() {
+    db_exec "DELETE FROM submission_audit;"
+    db_exec "DELETE FROM submission;"
+}
+
+db_reset_approval() {
+    db_exec "DELETE FROM approval_audit;"
+    db_exec "DELETE FROM approval;"
+}
+
+db_reset_authorization() {
+    db_exec "DELETE FROM authorization_audit;"
+    db_exec "DELETE FROM authorization;"
+}
+
+db_reset_delegation() {
+    db_exec "DELETE FROM delegation_audit;"
+    db_exec "DELETE FROM delegation;"
+}
+
+db_reset_escalation() {
+    db_exec "DELETE FROM escalation_audit;"
+    db_exec "DELETE FROM escalation;"
+}
+
+db_reset_notification_mgmt() {
+    db_exec "DELETE FROM notification_mgmt_audit;"
+    db_exec "DELETE FROM notification_mgmt;"
+}
+
+db_reset_alert_mgmt() {
+    db_exec "DELETE FROM alert_mgmt_audit;"
+    db_exec "DELETE FROM alert_mgmt;"
+}
+
+db_reset_incident_mgmt() {
+    db_exec "DELETE FROM incident_mgmt_audit;"
+    db_exec "DELETE FROM incident_mgmt;"
+}
+
+db_reset_problem() {
+    db_exec "DELETE FROM problem_audit;"
+    db_exec "DELETE FROM problem;"
+}
+
+db_reset_change_mgmt() {
+    db_exec "DELETE FROM change_mgmt_audit;"
+    db_exec "DELETE FROM change_mgmt;"
+}
+
+db_reset_release_mgmt() {
+    db_exec "DELETE FROM release_mgmt_audit;"
+    db_exec "DELETE FROM release_mgmt;"
+}
+
+db_reset_deployment() {
+    db_exec "DELETE FROM deployment_audit;"
+    db_exec "DELETE FROM deployment;"
+}
+
+db_reset_rollback() {
+    db_exec "DELETE FROM rollback_audit;"
+    db_exec "DELETE FROM rollback;"
+}
+
+db_reset_hotfix() {
+    db_exec "DELETE FROM hotfix_audit;"
+    db_exec "DELETE FROM hotfix;"
+}
+
+db_reset_patch() {
+    db_exec "DELETE FROM patch_audit;"
+    db_exec "DELETE FROM patch;"
+}
+
+db_reset_upgrade() {
+    db_exec "DELETE FROM upgrade_audit;"
+    db_exec "DELETE FROM upgrade;"
+}
+
+db_reset_migration() {
+    db_exec "DELETE FROM migration_audit;"
+    db_exec "DELETE FROM migration;"
+}

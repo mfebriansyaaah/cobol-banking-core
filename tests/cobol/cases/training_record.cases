@@ -1,0 +1,6 @@
+# Training Record (Wave17) validation cases.
+TRR_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRR_CREATE||||||admin@test.com
+TRR_GET missing id@@ERROR\|INVALID_INPUT@@TRR_GET||||||admin@test.com
+TRR_CALC missing id@@ERROR\|INVALID_INPUT@@TRR_CALC||||||admin@test.com
+TRR_DELETE missing id@@ERROR\|INVALID_INPUT@@TRR_DELETE||||||admin@test.com
+TRR_VALIDATE ok@@SUCCESS\|TRR_VALID@@TRR_VALIDATE|100.00|USD||||admin@test.com

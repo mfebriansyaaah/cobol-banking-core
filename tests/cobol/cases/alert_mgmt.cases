@@ -1,0 +1,6 @@
+# Alert Mgmt (Wave17) validation cases.
+ALR2_CREATE missing ref@@ERROR\|INVALID_INPUT@@ALR2_CREATE||||||admin@test.com
+ALR2_GET missing id@@ERROR\|INVALID_INPUT@@ALR2_GET||||||admin@test.com
+ALR2_CALC missing id@@ERROR\|INVALID_INPUT@@ALR2_CALC||||||admin@test.com
+ALR2_DELETE missing id@@ERROR\|INVALID_INPUT@@ALR2_DELETE||||||admin@test.com
+ALR2_VALIDATE ok@@SUCCESS\|ALR2_VALID@@ALR2_VALIDATE|100.00|USD||||admin@test.com

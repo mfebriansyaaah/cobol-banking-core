@@ -1,0 +1,6 @@
+# Certification (Wave17) validation cases.
+CRTF_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRTF_CREATE||||||admin@test.com
+CRTF_GET missing id@@ERROR\|INVALID_INPUT@@CRTF_GET||||||admin@test.com
+CRTF_CALC missing id@@ERROR\|INVALID_INPUT@@CRTF_CALC||||||admin@test.com
+CRTF_DELETE missing id@@ERROR\|INVALID_INPUT@@CRTF_DELETE||||||admin@test.com
+CRTF_VALIDATE ok@@SUCCESS\|CRTF_VALID@@CRTF_VALIDATE|100.00|USD||||admin@test.com

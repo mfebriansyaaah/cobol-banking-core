@@ -1,0 +1,6 @@
+# Policy Review (Wave17) validation cases.
+PLR_CREATE missing ref@@ERROR\|INVALID_INPUT@@PLR_CREATE||||||admin@test.com
+PLR_GET missing id@@ERROR\|INVALID_INPUT@@PLR_GET||||||admin@test.com
+PLR_CALC missing id@@ERROR\|INVALID_INPUT@@PLR_CALC||||||admin@test.com
+PLR_DELETE missing id@@ERROR\|INVALID_INPUT@@PLR_DELETE||||||admin@test.com
+PLR_VALIDATE ok@@SUCCESS\|PLR_VALID@@PLR_VALIDATE|100.00|USD||||admin@test.com
