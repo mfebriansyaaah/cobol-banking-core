@@ -11,19 +11,7 @@ MODE="${1:-full}"
 # that cannot be imported takes the whole gateway down, and the old pipeline
 # had no step that noticed: the auth/db suites never import the route barrel.
 check_js_syntax() {
-    local bad=0 f
-    while IFS= read -r f; do
-        if ! node --check "$f" >/dev/null 2>&1; then
-            echo "FAIL: $f"
-            node --check "$f" 2>&1 | sed -n '1,3p' | sed 's/^/    /'
-            bad=$((bad + 1))
-        fi
-    done < <(find middleware/src scripts \( -name '*.js' -o -name '*.mjs' \) -type f | sort)
-    if [ "$bad" -ne 0 ]; then
-        echo "FAIL: $bad file(s) cannot be parsed"
-        exit 1
-    fi
-    echo "OK: gateway and script sources parse"
+    node --no-warnings --experimental-vm-modules scripts/check_js_syntax.mjs "$ROOT"
 }
 
 run_fast() {
