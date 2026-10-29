@@ -91,6 +91,7 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 | D12 Sanctions List | Done | `sanctions_list_core` (9 actions) |
 | D13 Fraud Case | Done | `fraud_case_core` (9 actions) |
 | D10 Data / Reporting | Done | `report_builder_core` (9 actions) |
+| Collateral Mgmt | Done (pilot) | `collateral_core` (17 actions: register/appraise/revalue/pledge/allocate/release/repossess/dispose + CRUD/audit); legacy `collateral_mgmt`, `collateral_repossession`, `collateralized` deprecated, kept for compat |
 
 ### Status details
 
