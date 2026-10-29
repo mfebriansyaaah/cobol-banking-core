@@ -1,0 +1,6 @@
+# Overdraft (Wave16) validation cases.
+ODR_CREATE missing ref@@ERROR\|INVALID_INPUT@@ODR_CREATE||||||admin@test.com
+ODR_GET missing id@@ERROR\|INVALID_INPUT@@ODR_GET||||||admin@test.com
+ODR_CALC missing id@@ERROR\|INVALID_INPUT@@ODR_CALC||||||admin@test.com
+ODR_DELETE missing id@@ERROR\|INVALID_INPUT@@ODR_DELETE||||||admin@test.com
+ODR_VALIDATE ok@@SUCCESS\|ODR_VALID@@ODR_VALIDATE|100.00|USD||||admin@test.com

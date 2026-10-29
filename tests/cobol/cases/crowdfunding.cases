@@ -1,0 +1,6 @@
+# Crowdfunding (Wave16) validation cases.
+CFD_CREATE missing ref@@ERROR\|INVALID_INPUT@@CFD_CREATE||||||admin@test.com
+CFD_GET missing id@@ERROR\|INVALID_INPUT@@CFD_GET||||||admin@test.com
+CFD_CALC missing id@@ERROR\|INVALID_INPUT@@CFD_CALC||||||admin@test.com
+CFD_DELETE missing id@@ERROR\|INVALID_INPUT@@CFD_DELETE||||||admin@test.com
+CFD_VALIDATE ok@@SUCCESS\|CFD_VALID@@CFD_VALIDATE|100.00|USD||||admin@test.com

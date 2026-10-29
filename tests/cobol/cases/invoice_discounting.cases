@@ -1,0 +1,6 @@
+# Invoice Discounting (Wave16) validation cases.
+IND_CREATE missing ref@@ERROR\|INVALID_INPUT@@IND_CREATE||||||admin@test.com
+IND_GET missing id@@ERROR\|INVALID_INPUT@@IND_GET||||||admin@test.com
+IND_CALC missing id@@ERROR\|INVALID_INPUT@@IND_CALC||||||admin@test.com
+IND_DELETE missing id@@ERROR\|INVALID_INPUT@@IND_DELETE||||||admin@test.com
+IND_VALIDATE ok@@SUCCESS\|IND_VALID@@IND_VALIDATE|100.00|USD||||admin@test.com

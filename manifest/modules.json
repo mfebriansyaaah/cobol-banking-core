@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T00:03:07.949Z",
+  "generatedAt": "2026-10-29T01:12:57.320Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -30,6 +30,9 @@
     },
     {
       "source": "adjustment_item_core.cob"
+    },
+    {
+      "source": "advance_payment_core.cob"
     },
     {
       "source": "adverse_media_core.cob"
@@ -116,6 +119,9 @@
       "source": "auth_password_core.cob"
     },
     {
+      "source": "auto_loan_core.cob"
+    },
+    {
       "source": "backup_drill_core.cob"
     },
     {
@@ -140,6 +146,9 @@
       "source": "bank_guarantee_core.cob"
     },
     {
+      "source": "bankers_acceptance_core.cob"
+    },
+    {
       "source": "batch_core.cob"
     },
     {
@@ -150,6 +159,9 @@
     },
     {
       "source": "benefits_core.cob"
+    },
+    {
+      "source": "bill_of_exchange_core.cob"
     },
     {
       "source": "billing_core.cob"
@@ -183,6 +195,9 @@
     },
     {
       "source": "business_continuity_core.cob"
+    },
+    {
+      "source": "business_loan_core.cob"
     },
     {
       "source": "cache_core.cob"
@@ -338,7 +353,16 @@
       "source": "credit_default_swap_core.cob"
     },
     {
+      "source": "credit_insurance_core.cob"
+    },
+    {
+      "source": "credit_line_core.cob"
+    },
+    {
       "source": "crisis_management_core.cob"
+    },
+    {
+      "source": "crowdfunding_core.cob"
     },
     {
       "source": "crypto_exchange_core.cob"
@@ -452,6 +476,9 @@
       "source": "document_core.cob"
     },
     {
+      "source": "documentary_credit_core.cob"
+    },
+    {
       "source": "dq_check_core.cob"
     },
     {
@@ -503,6 +530,9 @@
       "source": "export_archive_core.cob"
     },
     {
+      "source": "export_finance_core.cob"
+    },
+    {
       "source": "export_stream_core.cob"
     },
     {
@@ -510,6 +540,9 @@
     },
     {
       "source": "external_audit_core.cob"
+    },
+    {
+      "source": "factoring_core.cob"
     },
     {
       "source": "feature_flag_core.cob"
@@ -528,6 +561,9 @@
     },
     {
       "source": "fill_core.cob"
+    },
+    {
+      "source": "final_payment_core.cob"
     },
     {
       "source": "fixed_asset_core.cob"
@@ -611,7 +647,13 @@
       "source": "hedge_fund_core.cob"
     },
     {
+      "source": "hire_purchase_core.cob"
+    },
+    {
       "source": "import_core.cob"
+    },
+    {
+      "source": "import_finance_core.cob"
     },
     {
       "source": "import_post_core.cob"
@@ -674,6 +716,9 @@
       "source": "invoice_core.cob"
     },
     {
+      "source": "invoice_discounting_core.cob"
+    },
+    {
       "source": "invoice_financing_core.cob"
     },
     {
@@ -698,6 +743,9 @@
       "source": "lbpue_core.cob"
     },
     {
+      "source": "leasing_core.cob"
+    },
+    {
       "source": "leave_management_core.cob"
     },
     {
@@ -708,6 +756,9 @@
     },
     {
       "source": "letter_of_credit_core.cob"
+    },
+    {
+      "source": "letter_of_guarantee_core.cob"
     },
     {
       "source": "liability_core.cob"
@@ -779,6 +830,12 @@
       "source": "mfa_management_core.cob"
     },
     {
+      "source": "microfinance_core.cob"
+    },
+    {
+      "source": "milestone_payment_core.cob"
+    },
+    {
       "source": "mobile_wallet_core.cob"
     },
     {
@@ -786,6 +843,9 @@
     },
     {
       "source": "mortgage_backed_core.cob"
+    },
+    {
+      "source": "mortgage_core.cob"
     },
     {
       "source": "multi_currency_core.cob"
@@ -851,7 +911,13 @@
       "source": "outsourcing_contract_core.cob"
     },
     {
+      "source": "overdraft_core.cob"
+    },
+    {
       "source": "password_policy_core.cob"
+    },
+    {
+      "source": "pawn_core.cob"
     },
     {
       "source": "payment_clearing_core.cob"
@@ -881,6 +947,9 @@
       "source": "payroll_processing_core.cob"
     },
     {
+      "source": "peer_to_peer_core.cob"
+    },
+    {
       "source": "penalty_item_core.cob"
     },
     {
@@ -890,10 +959,16 @@
       "source": "pep_screening_core.cob"
     },
     {
+      "source": "performance_bond_core.cob"
+    },
+    {
       "source": "performance_core.cob"
     },
     {
       "source": "permission_set_core.cob"
+    },
+    {
+      "source": "personal_loan_core.cob"
     },
     {
       "source": "personalization_core.cob"
@@ -957,6 +1032,9 @@
     },
     {
       "source": "profit_core.cob"
+    },
+    {
+      "source": "promissory_note_core.cob"
     },
     {
       "source": "provisioning_core.cob"
@@ -1065,6 +1143,9 @@
     },
     {
       "source": "retention_job_core.cob"
+    },
+    {
+      "source": "retention_money_core.cob"
     },
     {
       "source": "retry_core.cob"
@@ -1187,6 +1268,9 @@
       "source": "subscription_core.cob"
     },
     {
+      "source": "supply_chain_core.cob"
+    },
+    {
       "source": "supply_chain_finance_core.cob"
     },
     {
@@ -1239,6 +1323,9 @@
     },
     {
       "source": "tracing_core.cob"
+    },
+    {
+      "source": "trade_credit_core.cob"
     },
     {
       "source": "trade_finance_core.cob"
@@ -1340,6 +1427,9 @@
       "source": "warrant_issuing_core.cob"
     },
     {
+      "source": "warranty_core.cob"
+    },
+    {
       "source": "watchlist_core.cob"
     },
     {
@@ -1375,6 +1465,7 @@
     "activation_item.js",
     "actuarial_calc.js",
     "adjustment_item.js",
+    "advance_payment.js",
     "adverse_media.js",
     "agreement.js",
     "alert_escalation.js",
@@ -1401,6 +1492,7 @@
     "audit_retention.js",
     "audit_snapshot.js",
     "audit_trail.js",
+    "auto_loan.js",
     "backup_drill.js",
     "backup_management.js",
     "backup_restore.js",
@@ -1409,10 +1501,12 @@
     "balance_item.js",
     "balance_sheet.js",
     "bank_guarantee.js",
+    "bankers_acceptance.js",
     "batch.js",
     "benchmark.js",
     "beneficiary_registry.js",
     "benefits.js",
+    "bill_of_exchange.js",
     "billing.js",
     "billpay.js",
     "biometric_auth.js",
@@ -1424,6 +1518,7 @@
     "budget.js",
     "budgeting.js",
     "business_continuity.js",
+    "business_loan.js",
     "cache.js",
     "call_deposit.js",
     "cancellation_item.js",
@@ -1475,7 +1570,10 @@
     "credit_bureau.js",
     "credit_card.js",
     "credit_default_swap.js",
+    "credit_insurance.js",
+    "credit_line.js",
     "crisis_management.js",
+    "crowdfunding.js",
     "crypto_exchange.js",
     "crypto_wallet.js",
     "currency_exchange.js",
@@ -1513,6 +1611,7 @@
     "distressed.js",
     "distribution.js",
     "document.js",
+    "documentary_credit.js",
     "dq_check.js",
     "dsar.js",
     "elimination.js",
@@ -1530,15 +1629,18 @@
     "execution.js",
     "experiment.js",
     "export_archive.js",
+    "export_finance.js",
     "export_stream.js",
     "exposure.js",
     "external_audit.js",
+    "factoring.js",
     "feature_flag.js",
     "fee.js",
     "fee_item.js",
     "fee_management.js",
     "fee_waiver.js",
     "fill.js",
+    "final_payment.js",
     "fixed_asset.js",
     "fixed_deposit.js",
     "forecast.js",
@@ -1565,7 +1667,9 @@
     "health_check.js",
     "hedge.js",
     "hedge_fund.js",
+    "hire_purchase.js",
     "import.js",
+    "import_finance.js",
     "import_recon.js",
     "in_app_message.js",
     "incident.js",
@@ -1585,6 +1689,7 @@
     "investigation.js",
     "investment.js",
     "invoice.js",
+    "invoice_discounting.js",
     "invoice_financing.js",
     "journal.js",
     "key_rotation.js",
@@ -1594,10 +1699,12 @@
     "kyc_periodic.js",
     "kyc_review.js",
     "lbpue.js",
+    "leasing.js",
     "leave_management.js",
     "legal_case.js",
     "legal_hold.js",
     "letter_of_credit.js",
+    "letter_of_guarantee.js",
     "liability.js",
     "limit_profile.js",
     "load_balancer.js",
@@ -1621,8 +1728,11 @@
     "metrics.js",
     "mezzanine.js",
     "mfa_management.js",
+    "microfinance.js",
+    "milestone_payment.js",
     "mobile_wallet.js",
     "monitoring.js",
+    "mortgage.js",
     "mortgage_backed.js",
     "multi_currency.js",
     "mutual_fund.js",
@@ -1645,7 +1755,9 @@
     "organization_unit.js",
     "otp_management.js",
     "outsourcing_contract.js",
+    "overdraft.js",
     "password_policy.js",
+    "pawn.js",
     "payment.js",
     "payment_clearing.js",
     "payment_gateway.js",
@@ -1655,11 +1767,14 @@
     "payment_link.js",
     "payment_processing.js",
     "payroll_processing.js",
+    "peer_to_peer.js",
     "penalty_item.js",
     "pension.js",
     "pep_screening.js",
     "performance.js",
+    "performance_bond.js",
     "permission_set.js",
+    "personal_loan.js",
     "personalization.js",
     "pipeline_alert.js",
     "pisp_management.js",
@@ -1681,6 +1796,7 @@
     "product_item.js",
     "profit.js",
     "profit_center.js",
+    "promissory_note.js",
     "provisioning.js",
     "push_notification.js",
     "qr_payment.js",
@@ -1717,6 +1833,7 @@
     "reporting.js",
     "reserve.js",
     "retention_job.js",
+    "retention_money.js",
     "retry.js",
     "revenue.js",
     "reversal_item.js",
@@ -1757,6 +1874,7 @@
     "structured_note.js",
     "structured_product.js",
     "subscription.js",
+    "supply_chain.js",
     "supply_chain_finance.js",
     "suspense.js",
     "suspension_item.js",
@@ -1775,6 +1893,7 @@
     "tokenization.js",
     "total_return_swap.js",
     "tracing.js",
+    "trade_credit.js",
     "trade_finance.js",
     "training.js",
     "tranche.js",
@@ -1806,6 +1925,7 @@
     "vostro.js",
     "warrant.js",
     "warrant_issuing.js",
+    "warranty.js",
     "watchlist.js",
     "wealth_management.js",
     "webhook.js",
@@ -4475,6 +4595,156 @@
       "prefixLen": 5,
       "prefix": "REOP_",
       "program": "reopening_item_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MTG_",
+      "program": "mortgage_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ALN_",
+      "program": "auto_loan_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PLN_",
+      "program": "personal_loan_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BLN_",
+      "program": "business_loan_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CLN_",
+      "program": "credit_line_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ODR_",
+      "program": "overdraft_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FCT_",
+      "program": "factoring_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LSG_",
+      "program": "leasing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "HPR_",
+      "program": "hire_purchase_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PWN_",
+      "program": "pawn_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MCF_",
+      "program": "microfinance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "P2P_",
+      "program": "peer_to_peer_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CFD_",
+      "program": "crowdfunding_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IND_",
+      "program": "invoice_discounting_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "SCFN_",
+      "program": "supply_chain_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TCR_",
+      "program": "trade_credit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EXF_",
+      "program": "export_finance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IMF_",
+      "program": "import_finance_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "DCRD_",
+      "program": "documentary_credit_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BAC_",
+      "program": "bankers_acceptance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PMN_",
+      "program": "promissory_note_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BOE_",
+      "program": "bill_of_exchange_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "LOGG_",
+      "program": "letter_of_guarantee_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PBD_",
+      "program": "performance_bond_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "APYM_",
+      "program": "advance_payment_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "RTMN_",
+      "program": "retention_money_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MSP_",
+      "program": "milestone_payment_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FNP_",
+      "program": "final_payment_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WRT_",
+      "program": "warranty_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CRI_",
+      "program": "credit_insurance_core"
     }
   ]
 }

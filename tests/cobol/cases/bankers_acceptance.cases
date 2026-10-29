@@ -1,0 +1,6 @@
+# Bankers Acceptance (Wave16) validation cases.
+BAC_CREATE missing ref@@ERROR\|INVALID_INPUT@@BAC_CREATE||||||admin@test.com
+BAC_GET missing id@@ERROR\|INVALID_INPUT@@BAC_GET||||||admin@test.com
+BAC_CALC missing id@@ERROR\|INVALID_INPUT@@BAC_CALC||||||admin@test.com
+BAC_DELETE missing id@@ERROR\|INVALID_INPUT@@BAC_DELETE||||||admin@test.com
+BAC_VALIDATE ok@@SUCCESS\|BAC_VALID@@BAC_VALIDATE|100.00|USD||||admin@test.com

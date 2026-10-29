@@ -1,0 +1,6 @@
+# Warranty (Wave16) validation cases.
+WRT_CREATE missing ref@@ERROR\|INVALID_INPUT@@WRT_CREATE||||||admin@test.com
+WRT_GET missing id@@ERROR\|INVALID_INPUT@@WRT_GET||||||admin@test.com
+WRT_CALC missing id@@ERROR\|INVALID_INPUT@@WRT_CALC||||||admin@test.com
+WRT_DELETE missing id@@ERROR\|INVALID_INPUT@@WRT_DELETE||||||admin@test.com
+WRT_VALIDATE ok@@SUCCESS\|WRT_VALID@@WRT_VALIDATE|100.00|USD||||admin@test.com

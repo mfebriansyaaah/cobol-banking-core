@@ -1912,3 +1912,153 @@ db_reset_reopening_item() {
     db_exec "DELETE FROM reopening_item_audit;"
     db_exec "DELETE FROM reopening_item;"
 }
+
+db_reset_mortgage() {
+    db_exec "DELETE FROM mortgage_audit;"
+    db_exec "DELETE FROM mortgage;"
+}
+
+db_reset_auto_loan() {
+    db_exec "DELETE FROM auto_loan_audit;"
+    db_exec "DELETE FROM auto_loan;"
+}
+
+db_reset_personal_loan() {
+    db_exec "DELETE FROM personal_loan_audit;"
+    db_exec "DELETE FROM personal_loan;"
+}
+
+db_reset_business_loan() {
+    db_exec "DELETE FROM business_loan_audit;"
+    db_exec "DELETE FROM business_loan;"
+}
+
+db_reset_credit_line() {
+    db_exec "DELETE FROM credit_line_audit;"
+    db_exec "DELETE FROM credit_line;"
+}
+
+db_reset_overdraft() {
+    db_exec "DELETE FROM overdraft_audit;"
+    db_exec "DELETE FROM overdraft;"
+}
+
+db_reset_factoring() {
+    db_exec "DELETE FROM factoring_audit;"
+    db_exec "DELETE FROM factoring;"
+}
+
+db_reset_leasing() {
+    db_exec "DELETE FROM leasing_audit;"
+    db_exec "DELETE FROM leasing;"
+}
+
+db_reset_hire_purchase() {
+    db_exec "DELETE FROM hire_purchase_audit;"
+    db_exec "DELETE FROM hire_purchase;"
+}
+
+db_reset_pawn() {
+    db_exec "DELETE FROM pawn_audit;"
+    db_exec "DELETE FROM pawn;"
+}
+
+db_reset_microfinance() {
+    db_exec "DELETE FROM microfinance_audit;"
+    db_exec "DELETE FROM microfinance;"
+}
+
+db_reset_peer_to_peer() {
+    db_exec "DELETE FROM peer_to_peer_audit;"
+    db_exec "DELETE FROM peer_to_peer;"
+}
+
+db_reset_crowdfunding() {
+    db_exec "DELETE FROM crowdfunding_audit;"
+    db_exec "DELETE FROM crowdfunding;"
+}
+
+db_reset_invoice_discounting() {
+    db_exec "DELETE FROM invoice_discounting_audit;"
+    db_exec "DELETE FROM invoice_discounting;"
+}
+
+db_reset_supply_chain() {
+    db_exec "DELETE FROM supply_chain_audit;"
+    db_exec "DELETE FROM supply_chain;"
+}
+
+db_reset_trade_credit() {
+    db_exec "DELETE FROM trade_credit_audit;"
+    db_exec "DELETE FROM trade_credit;"
+}
+
+db_reset_export_finance() {
+    db_exec "DELETE FROM export_finance_audit;"
+    db_exec "DELETE FROM export_finance;"
+}
+
+db_reset_import_finance() {
+    db_exec "DELETE FROM import_finance_audit;"
+    db_exec "DELETE FROM import_finance;"
+}
+
+db_reset_documentary_credit() {
+    db_exec "DELETE FROM documentary_credit_audit;"
+    db_exec "DELETE FROM documentary_credit;"
+}
+
+db_reset_bankers_acceptance() {
+    db_exec "DELETE FROM bankers_acceptance_audit;"
+    db_exec "DELETE FROM bankers_acceptance;"
+}
+
+db_reset_promissory_note() {
+    db_exec "DELETE FROM promissory_note_audit;"
+    db_exec "DELETE FROM promissory_note;"
+}
+
+db_reset_bill_of_exchange() {
+    db_exec "DELETE FROM bill_of_exchange_audit;"
+    db_exec "DELETE FROM bill_of_exchange;"
+}
+
+db_reset_letter_of_guarantee() {
+    db_exec "DELETE FROM letter_of_guarantee_audit;"
+    db_exec "DELETE FROM letter_of_guarantee;"
+}
+
+db_reset_performance_bond() {
+    db_exec "DELETE FROM performance_bond_audit;"
+    db_exec "DELETE FROM performance_bond;"
+}
+
+db_reset_advance_payment() {
+    db_exec "DELETE FROM advance_payment_audit;"
+    db_exec "DELETE FROM advance_payment;"
+}
+
+db_reset_retention_money() {
+    db_exec "DELETE FROM retention_money_audit;"
+    db_exec "DELETE FROM retention_money;"
+}
+
+db_reset_milestone_payment() {
+    db_exec "DELETE FROM milestone_payment_audit;"
+    db_exec "DELETE FROM milestone_payment;"
+}
+
+db_reset_final_payment() {
+    db_exec "DELETE FROM final_payment_audit;"
+    db_exec "DELETE FROM final_payment;"
+}
+
+db_reset_warranty() {
+    db_exec "DELETE FROM warranty_audit;"
+    db_exec "DELETE FROM warranty;"
+}
+
+db_reset_credit_insurance() {
+    db_exec "DELETE FROM credit_insurance_audit;"
+    db_exec "DELETE FROM credit_insurance;"
+}
