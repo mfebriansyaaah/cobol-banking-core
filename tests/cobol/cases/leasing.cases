@@ -1,0 +1,6 @@
+# Leasing (Wave16) validation cases.
+LSG_CREATE missing ref@@ERROR\|INVALID_INPUT@@LSG_CREATE||||||admin@test.com
+LSG_GET missing id@@ERROR\|INVALID_INPUT@@LSG_GET||||||admin@test.com
+LSG_CALC missing id@@ERROR\|INVALID_INPUT@@LSG_CALC||||||admin@test.com
+LSG_DELETE missing id@@ERROR\|INVALID_INPUT@@LSG_DELETE||||||admin@test.com
+LSG_VALIDATE ok@@SUCCESS\|LSG_VALID@@LSG_VALIDATE|100.00|USD||||admin@test.com

@@ -271,6 +271,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/position_mgmt_core.cob \
     cobol/src/exposure_core.cob \
     cobol/src/hedge_core.cob \
+    cobol/src/mortgage_core.cob \
+    cobol/src/auto_loan_core.cob \
+    cobol/src/personal_loan_core.cob \
+    cobol/src/business_loan_core.cob \
+    cobol/src/credit_line_core.cob \
+    cobol/src/overdraft_core.cob \
+    cobol/src/factoring_core.cob \
+    cobol/src/leasing_core.cob \
+    cobol/src/hire_purchase_core.cob \
+    cobol/src/pawn_core.cob \
+    cobol/src/microfinance_core.cob \
+    cobol/src/peer_to_peer_core.cob \
+    cobol/src/crowdfunding_core.cob \
+    cobol/src/invoice_discounting_core.cob \
+    cobol/src/supply_chain_core.cob \
+    cobol/src/trade_credit_core.cob \
+    cobol/src/export_finance_core.cob \
+    cobol/src/import_finance_core.cob \
+    cobol/src/documentary_credit_core.cob \
+    cobol/src/bankers_acceptance_core.cob \
+    cobol/src/promissory_note_core.cob \
+    cobol/src/bill_of_exchange_core.cob \
+    cobol/src/letter_of_guarantee_core.cob \
+    cobol/src/performance_bond_core.cob \
+    cobol/src/advance_payment_core.cob \
+    cobol/src/retention_money_core.cob \
+    cobol/src/milestone_payment_core.cob \
+    cobol/src/final_payment_core.cob \
+    cobol/src/warranty_core.cob \
+    cobol/src/credit_insurance_core.cob \
     cobol/src/customer_profile_core.cob \
     cobol/src/account_detail_core.cob \
     cobol/src/product_item_core.cob \

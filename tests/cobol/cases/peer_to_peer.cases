@@ -1,0 +1,6 @@
+# Peer To Peer (Wave16) validation cases.
+P2P_CREATE missing ref@@ERROR\|INVALID_INPUT@@P2P_CREATE||||||admin@test.com
+P2P_GET missing id@@ERROR\|INVALID_INPUT@@P2P_GET||||||admin@test.com
+P2P_CALC missing id@@ERROR\|INVALID_INPUT@@P2P_CALC||||||admin@test.com
+P2P_DELETE missing id@@ERROR\|INVALID_INPUT@@P2P_DELETE||||||admin@test.com
+P2P_VALIDATE ok@@SUCCESS\|P2P_VALID@@P2P_VALIDATE|100.00|USD||||admin@test.com

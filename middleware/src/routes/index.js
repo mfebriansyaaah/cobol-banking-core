@@ -418,6 +418,36 @@ import { ACCESS_AUDIT_ROUTES } from './access_audit.js';
 import { BACKUP_VERIFICATION_ROUTES } from './backup_verification.js';
 import { SLA_TRACKING_ROUTES } from './sla_tracking.js';
 import { REOP_ROUTES } from './reopening_item.js';
+import { CRI_ROUTES } from './credit_insurance.js';
+import { WRT_ROUTES } from './warranty.js';
+import { FNP_ROUTES } from './final_payment.js';
+import { MSP_ROUTES } from './milestone_payment.js';
+import { RTMN_ROUTES } from './retention_money.js';
+import { APYM_ROUTES } from './advance_payment.js';
+import { PBD_ROUTES } from './performance_bond.js';
+import { LOGG_ROUTES } from './letter_of_guarantee.js';
+import { BOE_ROUTES } from './bill_of_exchange.js';
+import { PMN_ROUTES } from './promissory_note.js';
+import { BAC_ROUTES } from './bankers_acceptance.js';
+import { DCRD_ROUTES } from './documentary_credit.js';
+import { IMF_ROUTES } from './import_finance.js';
+import { EXF_ROUTES } from './export_finance.js';
+import { TCR_ROUTES } from './trade_credit.js';
+import { SCFN_ROUTES } from './supply_chain.js';
+import { IND_ROUTES } from './invoice_discounting.js';
+import { CFD_ROUTES } from './crowdfunding.js';
+import { P2P_ROUTES } from './peer_to_peer.js';
+import { MCF_ROUTES } from './microfinance.js';
+import { PWN_ROUTES } from './pawn.js';
+import { HPR_ROUTES } from './hire_purchase.js';
+import { LSG_ROUTES } from './leasing.js';
+import { FCT_ROUTES } from './factoring.js';
+import { ODR_ROUTES } from './overdraft.js';
+import { CLN_ROUTES } from './credit_line.js';
+import { BLN_ROUTES } from './business_loan.js';
+import { PLN_ROUTES } from './personal_loan.js';
+import { ALN_ROUTES } from './auto_loan.js';
+import { MTG_ROUTES } from './mortgage.js';
 import { CLS_ROUTES } from './closure_item.js';
 import { DEACT_ROUTES } from './deactivation_item.js';
 import { ACT_ROUTES } from './activation_item.js';
@@ -868,6 +898,36 @@ export const ALL_ROUTES = [
   ...BACKUP_VERIFICATION_ROUTES,
   ...SLA_TRACKING_ROUTES,
   ...REOP_ROUTES,
+  ...CRI_ROUTES,
+  ...WRT_ROUTES,
+  ...FNP_ROUTES,
+  ...MSP_ROUTES,
+  ...RTMN_ROUTES,
+  ...APYM_ROUTES,
+  ...PBD_ROUTES,
+  ...LOGG_ROUTES,
+  ...BOE_ROUTES,
+  ...PMN_ROUTES,
+  ...BAC_ROUTES,
+  ...DCRD_ROUTES,
+  ...IMF_ROUTES,
+  ...EXF_ROUTES,
+  ...TCR_ROUTES,
+  ...SCFN_ROUTES,
+  ...IND_ROUTES,
+  ...CFD_ROUTES,
+  ...P2P_ROUTES,
+  ...MCF_ROUTES,
+  ...PWN_ROUTES,
+  ...HPR_ROUTES,
+  ...LSG_ROUTES,
+  ...FCT_ROUTES,
+  ...ODR_ROUTES,
+  ...CLN_ROUTES,
+  ...BLN_ROUTES,
+  ...PLN_ROUTES,
+  ...ALN_ROUTES,
+  ...MTG_ROUTES,
   ...CLS_ROUTES,
   ...DEACT_ROUTES,
   ...ACT_ROUTES,

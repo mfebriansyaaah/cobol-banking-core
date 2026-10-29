@@ -1,0 +1,6 @@
+# Retention Money (Wave16) validation cases.
+RTMN_CREATE missing ref@@ERROR\|INVALID_INPUT@@RTMN_CREATE||||||admin@test.com
+RTMN_GET missing id@@ERROR\|INVALID_INPUT@@RTMN_GET||||||admin@test.com
+RTMN_CALC missing id@@ERROR\|INVALID_INPUT@@RTMN_CALC||||||admin@test.com
+RTMN_DELETE missing id@@ERROR\|INVALID_INPUT@@RTMN_DELETE||||||admin@test.com
+RTMN_VALIDATE ok@@SUCCESS\|RTMN_VALID@@RTMN_VALIDATE|100.00|USD||||admin@test.com

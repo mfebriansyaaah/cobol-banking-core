@@ -1,0 +1,6 @@
+# Import Finance (Wave16) validation cases.
+IMF_CREATE missing ref@@ERROR\|INVALID_INPUT@@IMF_CREATE||||||admin@test.com
+IMF_GET missing id@@ERROR\|INVALID_INPUT@@IMF_GET||||||admin@test.com
+IMF_CALC missing id@@ERROR\|INVALID_INPUT@@IMF_CALC||||||admin@test.com
+IMF_DELETE missing id@@ERROR\|INVALID_INPUT@@IMF_DELETE||||||admin@test.com
+IMF_VALIDATE ok@@SUCCESS\|IMF_VALID@@IMF_VALIDATE|100.00|USD||||admin@test.com
