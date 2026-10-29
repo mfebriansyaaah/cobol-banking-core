@@ -1466,3 +1466,14 @@ test('collections lifecycle over HTTP', async () => {
   requireSeed(runSql(`DELETE FROM collection_audit WHERE actor_email = '${admin}'`), 'clean up the collections audit');
   requireSeed(runSql(`DELETE FROM loan_application WHERE customer_email IN ('${admin}', 'clear_${admin}')`), 'clean up the collections loans');
 });
+
+test('loan summary is not shadowed by /loans/:id', async () => {
+  const admin = `gw_loan_summary_${Date.now()}@test.com`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a loan summary admin');
+  enableMfa(admin);
+  const token = await adminLoginFor(admin);
+
+  const res = await request(app).get('/loans/summary').set('Authorization', `Bearer ${token}`);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.data[0], 'LOAN_SUMMARY');
+});
