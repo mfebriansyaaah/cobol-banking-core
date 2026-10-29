@@ -271,6 +271,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/position_mgmt_core.cob \
     cobol/src/exposure_core.cob \
     cobol/src/hedge_core.cob \
+    cobol/src/customer_profile_core.cob \
+    cobol/src/account_detail_core.cob \
+    cobol/src/product_item_core.cob \
+    cobol/src/loan_account_core.cob \
+    cobol/src/deposit_book_core.cob \
+    cobol/src/payment_item_core.cob \
+    cobol/src/transfer_item_core.cob \
+    cobol/src/card_item_core.cob \
+    cobol/src/transaction_item_core.cob \
+    cobol/src/balance_item_core.cob \
+    cobol/src/statement_item_core.cob \
+    cobol/src/interest_item_core.cob \
+    cobol/src/fee_item_core.cob \
+    cobol/src/charge_item_core.cob \
+    cobol/src/penalty_item_core.cob \
+    cobol/src/tax_item_core.cob \
+    cobol/src/commission_item_core.cob \
+    cobol/src/discount_item_core.cob \
+    cobol/src/rebate_item_core.cob \
+    cobol/src/refund_item_core.cob \
+    cobol/src/reversal_item_core.cob \
+    cobol/src/adjustment_item_core.cob \
+    cobol/src/correction_item_core.cob \
+    cobol/src/cancellation_item_core.cob \
+    cobol/src/suspension_item_core.cob \
+    cobol/src/termination_item_core.cob \
+    cobol/src/activation_item_core.cob \
+    cobol/src/deactivation_item_core.cob \
+    cobol/src/closure_item_core.cob \
+    cobol/src/reopening_item_core.cob \
     cobol/src/bond_core.cob \
     cobol/src/equity_core.cob \
     cobol/src/derivative_core.cob \

@@ -1,0 +1,6 @@
+# Card Item (Wave15) validation cases.
+CRDS_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRDS_CREATE||||||admin@test.com
+CRDS_GET missing id@@ERROR\|INVALID_INPUT@@CRDS_GET||||||admin@test.com
+CRDS_CALC missing id@@ERROR\|INVALID_INPUT@@CRDS_CALC||||||admin@test.com
+CRDS_DELETE missing id@@ERROR\|INVALID_INPUT@@CRDS_DELETE||||||admin@test.com
+CRDS_VALIDATE ok@@SUCCESS\|CRDS_VALID@@CRDS_VALIDATE|100.00|USD||||admin@test.com

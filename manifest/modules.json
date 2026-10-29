@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T14:21:13.616Z",
+  "generatedAt": "2026-10-29T00:03:07.949Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -14,13 +14,22 @@
       "source": "account_core.cob"
     },
     {
+      "source": "account_detail_core.cob"
+    },
+    {
       "source": "account_lock_core.cob"
     },
     {
       "source": "account_statement_core.cob"
     },
     {
+      "source": "activation_item_core.cob"
+    },
+    {
       "source": "actuarial_calc_core.cob"
+    },
+    {
+      "source": "adjustment_item_core.cob"
     },
     {
       "source": "adverse_media_core.cob"
@@ -122,6 +131,9 @@
       "source": "balance_core.cob"
     },
     {
+      "source": "balance_item_core.cob"
+    },
+    {
       "source": "balance_sheet_core.cob"
     },
     {
@@ -179,6 +191,9 @@
       "source": "call_deposit_core.cob"
     },
     {
+      "source": "cancellation_item_core.cob"
+    },
+    {
       "source": "capacity_forecast_core.cob"
     },
     {
@@ -189,6 +204,9 @@
     },
     {
       "source": "card_core.cob"
+    },
+    {
+      "source": "card_item_core.cob"
     },
     {
       "source": "card_tokenization_core.cob"
@@ -215,6 +233,9 @@
       "source": "change_control_core.cob"
     },
     {
+      "source": "charge_item_core.cob"
+    },
+    {
       "source": "chargeback_core.cob"
     },
     {
@@ -225,6 +246,9 @@
     },
     {
       "source": "clearing_core.cob"
+    },
+    {
+      "source": "closure_item_core.cob"
     },
     {
       "source": "collateral_core.cob"
@@ -240,6 +264,9 @@
     },
     {
       "source": "collection_core.cob"
+    },
+    {
+      "source": "commission_item_core.cob"
     },
     {
       "source": "commodity_swap_core.cob"
@@ -290,6 +317,9 @@
       "source": "convertible_core.cob"
     },
     {
+      "source": "correction_item_core.cob"
+    },
+    {
       "source": "cost_center_core.cob"
     },
     {
@@ -329,6 +359,9 @@
       "source": "customer_core.cob"
     },
     {
+      "source": "customer_profile_core.cob"
+    },
+    {
       "source": "customer_support_core.cob"
     },
     {
@@ -356,6 +389,9 @@
       "source": "data_warehouse_core.cob"
     },
     {
+      "source": "deactivation_item_core.cob"
+    },
+    {
       "source": "debit_card_core.cob"
     },
     {
@@ -366,6 +402,9 @@
     },
     {
       "source": "department_core.cob"
+    },
+    {
+      "source": "deposit_book_core.cob"
     },
     {
       "source": "deposit_core.cob"
@@ -390,6 +429,9 @@
     },
     {
       "source": "disaster_recovery_core.cob"
+    },
+    {
+      "source": "discount_item_core.cob"
     },
     {
       "source": "dispute_management_core.cob"
@@ -474,6 +516,9 @@
     },
     {
       "source": "fee_core.cob"
+    },
+    {
+      "source": "fee_item_core.cob"
     },
     {
       "source": "fee_management_core.cob"
@@ -605,6 +650,9 @@
       "source": "intercompany_core.cob"
     },
     {
+      "source": "interest_item_core.cob"
+    },
+    {
       "source": "interest_rate_core.cob"
     },
     {
@@ -669,6 +717,9 @@
     },
     {
       "source": "load_balancer_core.cob"
+    },
+    {
+      "source": "loan_account_core.cob"
     },
     {
       "source": "loan_core.cob"
@@ -818,6 +869,9 @@
       "source": "payment_instruction_core.cob"
     },
     {
+      "source": "payment_item_core.cob"
+    },
+    {
       "source": "payment_link_core.cob"
     },
     {
@@ -825,6 +879,9 @@
     },
     {
       "source": "payroll_processing_core.cob"
+    },
+    {
+      "source": "penalty_item_core.cob"
     },
     {
       "source": "pension_core.cob"
@@ -893,6 +950,9 @@
       "source": "product_catalog_core.cob"
     },
     {
+      "source": "product_item_core.cob"
+    },
+    {
       "source": "profit_center_core.cob"
     },
     {
@@ -923,6 +983,9 @@
       "source": "rebalancing_core.cob"
     },
     {
+      "source": "rebate_item_core.cob"
+    },
+    {
       "source": "recommendation_core.cob"
     },
     {
@@ -950,6 +1013,9 @@
       "source": "ref_ext_core.cob"
     },
     {
+      "source": "refund_item_core.cob"
+    },
+    {
       "source": "refund_processing_core.cob"
     },
     {
@@ -963,6 +1029,9 @@
     },
     {
       "source": "remittance_core.cob"
+    },
+    {
+      "source": "reopening_item_core.cob"
     },
     {
       "source": "repo_agreement_core.cob"
@@ -1002,6 +1071,9 @@
     },
     {
       "source": "revenue_core.cob"
+    },
+    {
+      "source": "reversal_item_core.cob"
     },
     {
       "source": "rewards_management_core.cob"
@@ -1094,6 +1166,9 @@
       "source": "statement_delivery_core.cob"
     },
     {
+      "source": "statement_item_core.cob"
+    },
+    {
       "source": "statement_recon_core.cob"
     },
     {
@@ -1118,6 +1193,9 @@
       "source": "suspense_core.cob"
     },
     {
+      "source": "suspension_item_core.cob"
+    },
+    {
       "source": "swap_contract_core.cob"
     },
     {
@@ -1125,6 +1203,9 @@
     },
     {
       "source": "system_config_core.cob"
+    },
+    {
+      "source": "tax_item_core.cob"
     },
     {
       "source": "tax_management_core.cob"
@@ -1140,6 +1221,9 @@
     },
     {
       "source": "term_deposit_core.cob"
+    },
+    {
+      "source": "termination_item_core.cob"
     },
     {
       "source": "timeout_core.cob"
@@ -1169,10 +1253,16 @@
       "source": "transaction_core.cob"
     },
     {
+      "source": "transaction_item_core.cob"
+    },
+    {
       "source": "transaction_limit_core.cob"
     },
     {
       "source": "transfer_core.cob"
+    },
+    {
+      "source": "transfer_item_core.cob"
     },
     {
       "source": "transfer_pricing_core.cob"
@@ -1279,9 +1369,12 @@
     "access_audit.js",
     "access_control.js",
     "account.js",
+    "account_detail.js",
     "account_lock.js",
     "account_statement.js",
+    "activation_item.js",
     "actuarial_calc.js",
+    "adjustment_item.js",
     "adverse_media.js",
     "agreement.js",
     "alert_escalation.js",
@@ -1313,6 +1406,7 @@
     "backup_restore.js",
     "backup_verification.js",
     "balance.js",
+    "balance_item.js",
     "balance_sheet.js",
     "bank_guarantee.js",
     "batch.js",
@@ -1332,10 +1426,12 @@
     "business_continuity.js",
     "cache.js",
     "call_deposit.js",
+    "cancellation_item.js",
     "capacity_forecast.js",
     "capacity_plan.js",
     "capital.js",
     "card.js",
+    "card_item.js",
     "card_tokenization.js",
     "case_management.js",
     "cash_flow.js",
@@ -1344,15 +1440,18 @@
     "certificate_deposit.js",
     "change_approval.js",
     "change_control.js",
+    "charge_item.js",
     "chargeback.js",
     "circuit_breaker.js",
     "claims_management.js",
     "clearing.js",
+    "closure_item.js",
     "collateral.js",
     "collateral_mgmt.js",
     "collateral_repossession.js",
     "collateralized.js",
     "collection.js",
+    "commission_item.js",
     "commodity_swap.js",
     "commodity_trading.js",
     "compensation.js",
@@ -1369,6 +1468,7 @@
     "contract.js",
     "convertible.js",
     "convertible_bond.js",
+    "correction_item.js",
     "cost.js",
     "cost_center.js",
     "cost_center_mgmt.js",
@@ -1382,6 +1482,7 @@
     "currency_hedging.js",
     "current_account.js",
     "customer.js",
+    "customer_profile.js",
     "customer_support.js",
     "daily_limit.js",
     "dashboard.js",
@@ -1391,11 +1492,13 @@
     "data_quality.js",
     "data_retention.js",
     "data_warehouse.js",
+    "deactivation_item.js",
     "debit_card.js",
     "debt_collection.js",
     "debt_recovery.js",
     "department.js",
     "deposit.js",
+    "deposit_book.js",
     "derivative.js",
     "device_management.js",
     "digital_asset.js",
@@ -1403,6 +1506,7 @@
     "direct_debit.js",
     "direct_lending.js",
     "disaster_recovery.js",
+    "discount_item.js",
     "dispute_management.js",
     "dispute_notify.js",
     "dispute_ops.js",
@@ -1431,6 +1535,7 @@
     "external_audit.js",
     "feature_flag.js",
     "fee.js",
+    "fee_item.js",
     "fee_management.js",
     "fee_waiver.js",
     "fill.js",
@@ -1472,6 +1577,7 @@
     "infrastructure.js",
     "insurance_policy.js",
     "intercompany.js",
+    "interest_item.js",
     "interest_rate.js",
     "interest_rate_swap.js",
     "internal_audit.js",
@@ -1496,6 +1602,7 @@
     "limit_profile.js",
     "load_balancer.js",
     "loan.js",
+    "loan_account.js",
     "loan_schedule.js",
     "logging.js",
     "login_attempt.js",
@@ -1544,9 +1651,11 @@
     "payment_gateway.js",
     "payment_hold.js",
     "payment_instructions.js",
+    "payment_item.js",
     "payment_link.js",
     "payment_processing.js",
     "payroll_processing.js",
+    "penalty_item.js",
     "pension.js",
     "pep_screening.js",
     "performance.js",
@@ -1569,6 +1678,7 @@
     "private_equity.js",
     "procurement.js",
     "product_catalog.js",
+    "product_item.js",
     "profit.js",
     "profit_center.js",
     "provisioning.js",
@@ -1579,6 +1689,7 @@
     "rate_management.js",
     "real_estate.js",
     "rebalancing.js",
+    "rebate_item.js",
     "recommendation.js",
     "recon.js",
     "recon_exception.js",
@@ -1588,11 +1699,13 @@
     "recurring_deposit.js",
     "ref_engine.js",
     "ref_ext.js",
+    "refund_item.js",
     "refund_processing.js",
     "regulatory_calendar.js",
     "regulatory_report.js",
     "reinsurance_contract.js",
     "remittance.js",
+    "reopening_item.js",
     "repo_agreement.js",
     "report.js",
     "report_archive.js",
@@ -1606,6 +1719,7 @@
     "retention_job.js",
     "retry.js",
     "revenue.js",
+    "reversal_item.js",
     "rewards_management.js",
     "risk_model.js",
     "risk_score.js",
@@ -1636,6 +1750,7 @@
     "standing_order.js",
     "statement.js",
     "statement_delivery.js",
+    "statement_item.js",
     "statement_recon.js",
     "stress_test.js",
     "structured.js",
@@ -1644,14 +1759,17 @@
     "subscription.js",
     "supply_chain_finance.js",
     "suspense.js",
+    "suspension_item.js",
     "swap_contract.js",
     "syndicated_loan.js",
     "system_config.js",
+    "tax_item.js",
     "tax_management.js",
     "tax_report.js",
     "tax_withholding.js",
     "teller_management.js",
     "term_deposit.js",
+    "termination_item.js",
     "timeout.js",
     "token_management.js",
     "tokenization.js",
@@ -1661,8 +1779,10 @@
     "training.js",
     "tranche.js",
     "transaction.js",
+    "transaction_item.js",
     "transaction_limit.js",
     "transfer.js",
+    "transfer_item.js",
     "transfer_pricing.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
@@ -4205,6 +4325,156 @@
       "prefixLen": 5,
       "prefix": "HEDG_",
       "program": "hedge_core"
+    },
+    {
+      "prefixLen": 6,
+      "prefix": "CSTMR_",
+      "program": "customer_profile_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "ACNT_",
+      "program": "account_detail_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PRDT_",
+      "program": "product_item_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "LN_",
+      "program": "loan_account_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "DEPS_",
+      "program": "deposit_book_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PYMT_",
+      "program": "payment_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "TRNF_",
+      "program": "transfer_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CRDS_",
+      "program": "card_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "TXNS_",
+      "program": "transaction_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "BALS_",
+      "program": "balance_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "ACST_",
+      "program": "statement_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "INTR_",
+      "program": "interest_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "FEES_",
+      "program": "fee_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CHGS_",
+      "program": "charge_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PENL_",
+      "program": "penalty_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "TAXS_",
+      "program": "tax_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "COMM_",
+      "program": "commission_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "DISC_",
+      "program": "discount_item_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RBT_",
+      "program": "rebate_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "RFND_",
+      "program": "refund_item_core"
+    },
+    {
+      "prefixLen": 6,
+      "prefix": "RVRSL_",
+      "program": "reversal_item_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ADJ_",
+      "program": "adjustment_item_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "COR_",
+      "program": "correction_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CNCL_",
+      "program": "cancellation_item_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SPN_",
+      "program": "suspension_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "TERM_",
+      "program": "termination_item_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ACT_",
+      "program": "activation_item_core"
+    },
+    {
+      "prefixLen": 6,
+      "prefix": "DEACT_",
+      "program": "deactivation_item_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CLS_",
+      "program": "closure_item_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "REOP_",
+      "program": "reopening_item_core"
     }
   ]
 }

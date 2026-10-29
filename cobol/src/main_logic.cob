@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 539 TO DISPATCH-COUNT.
+            MOVE 599 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1615,6 +1615,96 @@
             MOVE "HEDG_" TO D-PREFIX(539).
             MOVE 5 TO D-PREFIX-LEN(539).
             MOVE "hedge_core" TO D-PROGRAM(539).
+            MOVE "CSTMR_" TO D-PREFIX(540).
+            MOVE 6 TO D-PREFIX-LEN(540).
+            MOVE "customer_profile_core" TO D-PROGRAM(540).
+            MOVE "ACNT_" TO D-PREFIX(541).
+            MOVE 5 TO D-PREFIX-LEN(541).
+            MOVE "account_detail_core" TO D-PROGRAM(541).
+            MOVE "PRDT_" TO D-PREFIX(542).
+            MOVE 5 TO D-PREFIX-LEN(542).
+            MOVE "product_item_core" TO D-PROGRAM(542).
+            MOVE "LN_" TO D-PREFIX(543).
+            MOVE 3 TO D-PREFIX-LEN(543).
+            MOVE "loan_account_core" TO D-PROGRAM(543).
+            MOVE "DEPS_" TO D-PREFIX(544).
+            MOVE 5 TO D-PREFIX-LEN(544).
+            MOVE "deposit_book_core" TO D-PROGRAM(544).
+            MOVE "PYMT_" TO D-PREFIX(545).
+            MOVE 5 TO D-PREFIX-LEN(545).
+            MOVE "payment_item_core" TO D-PROGRAM(545).
+            MOVE "TRNF_" TO D-PREFIX(546).
+            MOVE 5 TO D-PREFIX-LEN(546).
+            MOVE "transfer_item_core" TO D-PROGRAM(546).
+            MOVE "CRDS_" TO D-PREFIX(547).
+            MOVE 5 TO D-PREFIX-LEN(547).
+            MOVE "card_item_core" TO D-PROGRAM(547).
+            MOVE "TXNS_" TO D-PREFIX(548).
+            MOVE 5 TO D-PREFIX-LEN(548).
+            MOVE "transaction_item_core" TO D-PROGRAM(548).
+            MOVE "BALS_" TO D-PREFIX(549).
+            MOVE 5 TO D-PREFIX-LEN(549).
+            MOVE "balance_item_core" TO D-PROGRAM(549).
+            MOVE "ACST_" TO D-PREFIX(550).
+            MOVE 5 TO D-PREFIX-LEN(550).
+            MOVE "statement_item_core" TO D-PROGRAM(550).
+            MOVE "INTR_" TO D-PREFIX(551).
+            MOVE 5 TO D-PREFIX-LEN(551).
+            MOVE "interest_item_core" TO D-PROGRAM(551).
+            MOVE "FEES_" TO D-PREFIX(552).
+            MOVE 5 TO D-PREFIX-LEN(552).
+            MOVE "fee_item_core" TO D-PROGRAM(552).
+            MOVE "CHGS_" TO D-PREFIX(553).
+            MOVE 5 TO D-PREFIX-LEN(553).
+            MOVE "charge_item_core" TO D-PROGRAM(553).
+            MOVE "PENL_" TO D-PREFIX(554).
+            MOVE 5 TO D-PREFIX-LEN(554).
+            MOVE "penalty_item_core" TO D-PROGRAM(554).
+            MOVE "TAXS_" TO D-PREFIX(555).
+            MOVE 5 TO D-PREFIX-LEN(555).
+            MOVE "tax_item_core" TO D-PROGRAM(555).
+            MOVE "COMM_" TO D-PREFIX(556).
+            MOVE 5 TO D-PREFIX-LEN(556).
+            MOVE "commission_item_core" TO D-PROGRAM(556).
+            MOVE "DISC_" TO D-PREFIX(557).
+            MOVE 5 TO D-PREFIX-LEN(557).
+            MOVE "discount_item_core" TO D-PROGRAM(557).
+            MOVE "RBT_" TO D-PREFIX(558).
+            MOVE 4 TO D-PREFIX-LEN(558).
+            MOVE "rebate_item_core" TO D-PROGRAM(558).
+            MOVE "RFND_" TO D-PREFIX(559).
+            MOVE 5 TO D-PREFIX-LEN(559).
+            MOVE "refund_item_core" TO D-PROGRAM(559).
+            MOVE "RVRSL_" TO D-PREFIX(560).
+            MOVE 6 TO D-PREFIX-LEN(560).
+            MOVE "reversal_item_core" TO D-PROGRAM(560).
+            MOVE "ADJ_" TO D-PREFIX(561).
+            MOVE 4 TO D-PREFIX-LEN(561).
+            MOVE "adjustment_item_core" TO D-PROGRAM(561).
+            MOVE "COR_" TO D-PREFIX(562).
+            MOVE 4 TO D-PREFIX-LEN(562).
+            MOVE "correction_item_core" TO D-PROGRAM(562).
+            MOVE "CNCL_" TO D-PREFIX(563).
+            MOVE 5 TO D-PREFIX-LEN(563).
+            MOVE "cancellation_item_core" TO D-PROGRAM(563).
+            MOVE "SPN_" TO D-PREFIX(564).
+            MOVE 4 TO D-PREFIX-LEN(564).
+            MOVE "suspension_item_core" TO D-PROGRAM(564).
+            MOVE "TERM_" TO D-PREFIX(565).
+            MOVE 5 TO D-PREFIX-LEN(565).
+            MOVE "termination_item_core" TO D-PROGRAM(565).
+            MOVE "ACT_" TO D-PREFIX(566).
+            MOVE 4 TO D-PREFIX-LEN(566).
+            MOVE "activation_item_core" TO D-PROGRAM(566).
+            MOVE "DEACT_" TO D-PREFIX(567).
+            MOVE 6 TO D-PREFIX-LEN(567).
+            MOVE "deactivation_item_core" TO D-PROGRAM(567).
+            MOVE "CLS_" TO D-PREFIX(568).
+            MOVE 4 TO D-PREFIX-LEN(568).
+            MOVE "closure_item_core" TO D-PROGRAM(568).
+            MOVE "REOP_" TO D-PREFIX(569).
+            MOVE 5 TO D-PREFIX-LEN(569).
+            MOVE "reopening_item_core" TO D-PROGRAM(569).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

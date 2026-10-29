@@ -1,0 +1,6 @@
+# Commission Item (Wave15) validation cases.
+COMM_CREATE missing ref@@ERROR\|INVALID_INPUT@@COMM_CREATE||||||admin@test.com
+COMM_GET missing id@@ERROR\|INVALID_INPUT@@COMM_GET||||||admin@test.com
+COMM_CALC missing id@@ERROR\|INVALID_INPUT@@COMM_CALC||||||admin@test.com
+COMM_DELETE missing id@@ERROR\|INVALID_INPUT@@COMM_DELETE||||||admin@test.com
+COMM_VALIDATE ok@@SUCCESS\|COMM_VALID@@COMM_VALIDATE|100.00|USD||||admin@test.com

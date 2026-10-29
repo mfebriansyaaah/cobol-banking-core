@@ -1,0 +1,6 @@
+# Penalty Item (Wave15) validation cases.
+PENL_CREATE missing ref@@ERROR\|INVALID_INPUT@@PENL_CREATE||||||admin@test.com
+PENL_GET missing id@@ERROR\|INVALID_INPUT@@PENL_GET||||||admin@test.com
+PENL_CALC missing id@@ERROR\|INVALID_INPUT@@PENL_CALC||||||admin@test.com
+PENL_DELETE missing id@@ERROR\|INVALID_INPUT@@PENL_DELETE||||||admin@test.com
+PENL_VALIDATE ok@@SUCCESS\|PENL_VALID@@PENL_VALIDATE|100.00|USD||||admin@test.com

@@ -417,6 +417,36 @@ import { DATA_RETENTION_ROUTES } from './data_retention.js';
 import { ACCESS_AUDIT_ROUTES } from './access_audit.js';
 import { BACKUP_VERIFICATION_ROUTES } from './backup_verification.js';
 import { SLA_TRACKING_ROUTES } from './sla_tracking.js';
+import { REOP_ROUTES } from './reopening_item.js';
+import { CLS_ROUTES } from './closure_item.js';
+import { DEACT_ROUTES } from './deactivation_item.js';
+import { ACT_ROUTES } from './activation_item.js';
+import { TERM_ROUTES } from './termination_item.js';
+import { SPN_ROUTES } from './suspension_item.js';
+import { CNCL_ROUTES } from './cancellation_item.js';
+import { COR_ROUTES } from './correction_item.js';
+import { ADJ_ROUTES } from './adjustment_item.js';
+import { RVRSL_ROUTES } from './reversal_item.js';
+import { RFND_ROUTES } from './refund_item.js';
+import { RBT_ROUTES } from './rebate_item.js';
+import { DISC_ROUTES } from './discount_item.js';
+import { COMM_ROUTES } from './commission_item.js';
+import { TAXS_ROUTES } from './tax_item.js';
+import { PENL_ROUTES } from './penalty_item.js';
+import { CHGS_ROUTES } from './charge_item.js';
+import { FEES_ROUTES } from './fee_item.js';
+import { INTR_ROUTES } from './interest_item.js';
+import { ACST_ROUTES } from './statement_item.js';
+import { BALS_ROUTES } from './balance_item.js';
+import { TXNS_ROUTES } from './transaction_item.js';
+import { CRDS_ROUTES } from './card_item.js';
+import { TRNF_ROUTES } from './transfer_item.js';
+import { PYMT_ROUTES } from './payment_item.js';
+import { DEPS_ROUTES } from './deposit_book.js';
+import { LN_ROUTES } from './loan_account.js';
+import { PRDT_ROUTES } from './product_item.js';
+import { ACNT_ROUTES } from './account_detail.js';
+import { CSTMR_ROUTES } from './customer_profile.js';
 
 export const ALL_ROUTES = [
   ...REF_ENGINE_ROUTES,
@@ -837,5 +867,35 @@ export const ALL_ROUTES = [
   ...ACCESS_AUDIT_ROUTES,
   ...BACKUP_VERIFICATION_ROUTES,
   ...SLA_TRACKING_ROUTES,
+  ...REOP_ROUTES,
+  ...CLS_ROUTES,
+  ...DEACT_ROUTES,
+  ...ACT_ROUTES,
+  ...TERM_ROUTES,
+  ...SPN_ROUTES,
+  ...CNCL_ROUTES,
+  ...COR_ROUTES,
+  ...ADJ_ROUTES,
+  ...RVRSL_ROUTES,
+  ...RFND_ROUTES,
+  ...RBT_ROUTES,
+  ...DISC_ROUTES,
+  ...COMM_ROUTES,
+  ...TAXS_ROUTES,
+  ...PENL_ROUTES,
+  ...CHGS_ROUTES,
+  ...FEES_ROUTES,
+  ...INTR_ROUTES,
+  ...ACST_ROUTES,
+  ...BALS_ROUTES,
+  ...TXNS_ROUTES,
+  ...CRDS_ROUTES,
+  ...TRNF_ROUTES,
+  ...PYMT_ROUTES,
+  ...DEPS_ROUTES,
+  ...LN_ROUTES,
+  ...PRDT_ROUTES,
+  ...ACNT_ROUTES,
+  ...CSTMR_ROUTES,
   ...COLLECTION_ROUTES,
 ];

@@ -1762,3 +1762,153 @@ db_reset_hedge() {
     db_exec "DELETE FROM hedge;"
 }
 
+
+db_reset_customer_profile() {
+    db_exec "DELETE FROM customer_profile_audit;"
+    db_exec "DELETE FROM customer_profile;"
+}
+
+db_reset_account_detail() {
+    db_exec "DELETE FROM account_detail_audit;"
+    db_exec "DELETE FROM account_detail;"
+}
+
+db_reset_product_item() {
+    db_exec "DELETE FROM product_item_audit;"
+    db_exec "DELETE FROM product_item;"
+}
+
+db_reset_loan_account() {
+    db_exec "DELETE FROM loan_account_audit;"
+    db_exec "DELETE FROM loan_account;"
+}
+
+db_reset_deposit_book() {
+    db_exec "DELETE FROM deposit_book_audit;"
+    db_exec "DELETE FROM deposit_book;"
+}
+
+db_reset_payment_item() {
+    db_exec "DELETE FROM payment_item_audit;"
+    db_exec "DELETE FROM payment_item;"
+}
+
+db_reset_transfer_item() {
+    db_exec "DELETE FROM transfer_item_audit;"
+    db_exec "DELETE FROM transfer_item;"
+}
+
+db_reset_card_item() {
+    db_exec "DELETE FROM card_item_audit;"
+    db_exec "DELETE FROM card_item;"
+}
+
+db_reset_transaction_item() {
+    db_exec "DELETE FROM transaction_item_audit;"
+    db_exec "DELETE FROM transaction_item;"
+}
+
+db_reset_balance_item() {
+    db_exec "DELETE FROM balance_item_audit;"
+    db_exec "DELETE FROM balance_item;"
+}
+
+db_reset_statement_item() {
+    db_exec "DELETE FROM statement_item_audit;"
+    db_exec "DELETE FROM statement_item;"
+}
+
+db_reset_interest_item() {
+    db_exec "DELETE FROM interest_item_audit;"
+    db_exec "DELETE FROM interest_item;"
+}
+
+db_reset_fee_item() {
+    db_exec "DELETE FROM fee_item_audit;"
+    db_exec "DELETE FROM fee_item;"
+}
+
+db_reset_charge_item() {
+    db_exec "DELETE FROM charge_item_audit;"
+    db_exec "DELETE FROM charge_item;"
+}
+
+db_reset_penalty_item() {
+    db_exec "DELETE FROM penalty_item_audit;"
+    db_exec "DELETE FROM penalty_item;"
+}
+
+db_reset_tax_item() {
+    db_exec "DELETE FROM tax_item_audit;"
+    db_exec "DELETE FROM tax_item;"
+}
+
+db_reset_commission_item() {
+    db_exec "DELETE FROM commission_item_audit;"
+    db_exec "DELETE FROM commission_item;"
+}
+
+db_reset_discount_item() {
+    db_exec "DELETE FROM discount_item_audit;"
+    db_exec "DELETE FROM discount_item;"
+}
+
+db_reset_rebate_item() {
+    db_exec "DELETE FROM rebate_item_audit;"
+    db_exec "DELETE FROM rebate_item;"
+}
+
+db_reset_refund_item() {
+    db_exec "DELETE FROM refund_item_audit;"
+    db_exec "DELETE FROM refund_item;"
+}
+
+db_reset_reversal_item() {
+    db_exec "DELETE FROM reversal_item_audit;"
+    db_exec "DELETE FROM reversal_item;"
+}
+
+db_reset_adjustment_item() {
+    db_exec "DELETE FROM adjustment_item_audit;"
+    db_exec "DELETE FROM adjustment_item;"
+}
+
+db_reset_correction_item() {
+    db_exec "DELETE FROM correction_item_audit;"
+    db_exec "DELETE FROM correction_item;"
+}
+
+db_reset_cancellation_item() {
+    db_exec "DELETE FROM cancellation_item_audit;"
+    db_exec "DELETE FROM cancellation_item;"
+}
+
+db_reset_suspension_item() {
+    db_exec "DELETE FROM suspension_item_audit;"
+    db_exec "DELETE FROM suspension_item;"
+}
+
+db_reset_termination_item() {
+    db_exec "DELETE FROM termination_item_audit;"
+    db_exec "DELETE FROM termination_item;"
+}
+
+db_reset_activation_item() {
+    db_exec "DELETE FROM activation_item_audit;"
+    db_exec "DELETE FROM activation_item;"
+}
+
+db_reset_deactivation_item() {
+    db_exec "DELETE FROM deactivation_item_audit;"
+    db_exec "DELETE FROM deactivation_item;"
+}
+
+db_reset_closure_item() {
+    db_exec "DELETE FROM closure_item_audit;"
+    db_exec "DELETE FROM closure_item;"
+}
+
+db_reset_reopening_item() {
+    db_exec "DELETE FROM reopening_item_audit;"
+    db_exec "DELETE FROM reopening_item;"
+}
