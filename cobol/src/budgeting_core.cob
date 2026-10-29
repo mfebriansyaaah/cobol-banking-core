@@ -86,7 +86,6 @@
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 GOBACK
             END-IF
-            DISPLAY "DEBUG budgeting action=[" LS-CMD-ACTION "]" END-DISPLAY
             EVALUATE TRUE
                 WHEN LS-CMD-ACTION(1:11) = "BUDG_CREATE"
                     PERFORM TRIM-ALL

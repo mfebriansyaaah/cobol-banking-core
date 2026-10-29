@@ -48,6 +48,13 @@ db_query() {
 
 db_seed() {
     mysql_app < "$ROOT/database/seed_test_data.sql" >/dev/null 2>&1
+    # Every DB suite calls db_seed once in its main shell, so it doubles as
+    # the hook that starts the persistent COBOL server (see tests/lib/cobol.sh).
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/cobol.sh"
+    if [ "${COBOL_TEST_SERVE:-1}" = "1" ]; then
+        start_cobol_server 2>/dev/null || true
+    fi
 }
 
 # Reset D1 (loan_schedule) rows so tests are deterministic.

@@ -15,6 +15,12 @@ ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 if db_available; then
     db_seed
 fi
+# Start the persistent COBOL server once for all cases (db_seed above only
+# runs when a database is reachable; pure-validation cases need it too).
+# start_cobol_server is idempotent, so this is a no-op if db_seed started it.
+if [ "${COBOL_TEST_SERVE:-1}" = "1" ]; then
+    start_cobol_server 2>/dev/null || true
+fi
 T_PASS=0; T_FAIL=0; T_TOTAL=0
 # shellcheck disable=SC1091
 . "$ROOT/tests/lib/assert.sh"
