@@ -22,6 +22,7 @@ export const CLT_ROUTES = [
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, ACTOR,
   ] },
+  // DEPRECATED: generic create, use POST /collateral/register (CLT_REGISTER) with customerRef + amount.
   { method: 'post', path: '/collateral', action: 'CLT_CREATE', tokenIdentity: 'actor', fields: [
     { name: 'CLTRef', pattern: PATTERNS.KEY, required: true },
     { name: 'CLTName', pattern: PATTERNS.NAME, required: true },
@@ -29,13 +30,16 @@ export const CLT_ROUTES = [
     BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/collateral/:id', action: 'CLT_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic calc (+1 appraisal), use POST /collateral/:id/appraise or /revalue with amount.
   { method: 'post', path: '/collateral/:id/calc', action: 'CLT_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic metadata update only, lifecycle via pledge/release/repossess/dispose.
   { method: 'post', path: '/collateral/:id/update', action: 'CLT_UPDATE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'CLTName', pattern: PATTERNS.NAME, required: false },
     { name: 'CLTType', pattern: PATTERNS.NAME, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  // DEPRECATED: generic close, use POST /collateral/:id/release (loan closed), /repossess, /dispose.
   { method: 'post', path: '/collateral/:id/delete', action: 'CLT_DELETE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
