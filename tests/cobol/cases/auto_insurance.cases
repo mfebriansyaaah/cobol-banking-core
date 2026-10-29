@@ -1,0 +1,6 @@
+# Auto Insurance (Wave18) validation cases.
+AUTI_CREATE missing ref@@ERROR\|INVALID_INPUT@@AUTI_CREATE||||||admin@test.com
+AUTI_GET missing id@@ERROR\|INVALID_INPUT@@AUTI_GET||||||admin@test.com
+AUTI_CALC missing id@@ERROR\|INVALID_INPUT@@AUTI_CALC||||||admin@test.com
+AUTI_DELETE missing id@@ERROR\|INVALID_INPUT@@AUTI_DELETE||||||admin@test.com
+AUTI_VALIDATE ok@@SUCCESS\|AUTI_VALID@@AUTI_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Professional Risk (Wave18) validation cases.
+PRK_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRK_CREATE||||||admin@test.com
+PRK_GET missing id@@ERROR\|INVALID_INPUT@@PRK_GET||||||admin@test.com
+PRK_CALC missing id@@ERROR\|INVALID_INPUT@@PRK_CALC||||||admin@test.com
+PRK_DELETE missing id@@ERROR\|INVALID_INPUT@@PRK_DELETE||||||admin@test.com
+PRK_VALIDATE ok@@SUCCESS\|PRK_VALID@@PRK_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Political Risk (Wave18) validation cases.
+POL_CREATE missing ref@@ERROR\|INVALID_INPUT@@POL_CREATE||||||admin@test.com
+POL_GET missing id@@ERROR\|INVALID_INPUT@@POL_GET||||||admin@test.com
+POL_CALC missing id@@ERROR\|INVALID_INPUT@@POL_CALC||||||admin@test.com
+POL_DELETE missing id@@ERROR\|INVALID_INPUT@@POL_DELETE||||||admin@test.com
+POL_VALIDATE ok@@SUCCESS\|POL_VALID@@POL_VALIDATE|100.00|USD||||admin@test.com

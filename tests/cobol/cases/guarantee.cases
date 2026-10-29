@@ -1,0 +1,6 @@
+# Guarantee (Wave18) validation cases.
+GUA_CREATE missing ref@@ERROR\|INVALID_INPUT@@GUA_CREATE||||||admin@test.com
+GUA_GET missing id@@ERROR\|INVALID_INPUT@@GUA_GET||||||admin@test.com
+GUA_CALC missing id@@ERROR\|INVALID_INPUT@@GUA_CALC||||||admin@test.com
+GUA_DELETE missing id@@ERROR\|INVALID_INPUT@@GUA_DELETE||||||admin@test.com
+GUA_VALIDATE ok@@SUCCESS\|GUA_VALID@@GUA_VALIDATE|100.00|USD||||admin@test.com

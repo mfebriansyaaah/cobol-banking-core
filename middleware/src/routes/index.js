@@ -419,6 +419,36 @@ import { BACKUP_VERIFICATION_ROUTES } from './backup_verification.js';
 import { SLA_TRACKING_ROUTES } from './sla_tracking.js';
 import { REOP_ROUTES } from './reopening_item.js';
 import { MIG_ROUTES } from './migration.js';
+import { FID_ROUTES } from './fiduciary.js';
+import { SR_ROUTES } from './surety.js';
+import { EPL_ROUTES } from './employment_practices.js';
+import { MNL_ROUTES } from './management_liability.js';
+import { PRK_ROUTES } from './professional_risk.js';
+import { EAO_ROUTES } from './errors_omissions.js';
+import { CRIM_ROUTES } from './crime.js';
+import { FDL_ROUTES } from './fidelity.js';
+import { BNI_ROUTES } from './bond_insurance.js';
+import { GUA_ROUTES } from './guarantee.js';
+import { CRIN_ROUTES } from './credit_insurance2.js';
+import { POL_ROUTES } from './political_risk.js';
+import { KNR_ROUTES } from './kidnap_ransom.js';
+import { CYB_ROUTES } from './cyber_insurance.js';
+import { EMLI_ROUTES } from './employer_liability.js';
+import { PUL_ROUTES } from './public_liability.js';
+import { PDL_ROUTES } from './product_liability.js';
+import { DOL_ROUTES } from './directors_liability.js';
+import { PIN_ROUTES } from './professional_indemnity.js';
+import { LIB_ROUTES } from './liability_insurance.js';
+import { THF_ROUTES } from './theft_insurance.js';
+import { FIR_ROUTES } from './fire_insurance.js';
+import { MRN_ROUTES } from './marine_insurance.js';
+import { TRV_ROUTES } from './travel_insurance.js';
+import { HOM_ROUTES } from './home_insurance.js';
+import { AUTI_ROUTES } from './auto_insurance.js';
+import { CSL_ROUTES } from './casualty_insurance.js';
+import { PTY_ROUTES } from './property_insurance.js';
+import { HLT_ROUTES } from './health_insurance.js';
+import { LIF_ROUTES } from './life_insurance.js';
 import { ROL_ROUTES } from './rollback.js';
 import { UPG_ROUTES } from './upgrade.js';
 import { PCH_ROUTES } from './patch.js';
@@ -929,6 +959,36 @@ export const ALL_ROUTES = [
   ...SLA_TRACKING_ROUTES,
   ...REOP_ROUTES,
   ...MIG_ROUTES,
+  ...FID_ROUTES,
+  ...SR_ROUTES,
+  ...EPL_ROUTES,
+  ...MNL_ROUTES,
+  ...PRK_ROUTES,
+  ...EAO_ROUTES,
+  ...CRIM_ROUTES,
+  ...FDL_ROUTES,
+  ...BNI_ROUTES,
+  ...GUA_ROUTES,
+  ...CRIN_ROUTES,
+  ...POL_ROUTES,
+  ...KNR_ROUTES,
+  ...CYB_ROUTES,
+  ...EMLI_ROUTES,
+  ...PUL_ROUTES,
+  ...PDL_ROUTES,
+  ...DOL_ROUTES,
+  ...PIN_ROUTES,
+  ...LIB_ROUTES,
+  ...THF_ROUTES,
+  ...FIR_ROUTES,
+  ...MRN_ROUTES,
+  ...TRV_ROUTES,
+  ...HOM_ROUTES,
+  ...AUTI_ROUTES,
+  ...CSL_ROUTES,
+  ...PTY_ROUTES,
+  ...HLT_ROUTES,
+  ...LIF_ROUTES,
   ...ROL_ROUTES,
   ...UPG_ROUTES,
   ...PCH_ROUTES,

@@ -1,0 +1,6 @@
+# Employment Practices (Wave18) validation cases.
+EPL_CREATE missing ref@@ERROR\|INVALID_INPUT@@EPL_CREATE||||||admin@test.com
+EPL_GET missing id@@ERROR\|INVALID_INPUT@@EPL_GET||||||admin@test.com
+EPL_CALC missing id@@ERROR\|INVALID_INPUT@@EPL_CALC||||||admin@test.com
+EPL_DELETE missing id@@ERROR\|INVALID_INPUT@@EPL_DELETE||||||admin@test.com
+EPL_VALIDATE ok@@SUCCESS\|EPL_VALID@@EPL_VALIDATE|100.00|USD||||admin@test.com

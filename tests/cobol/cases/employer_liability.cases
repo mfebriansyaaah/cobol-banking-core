@@ -1,0 +1,6 @@
+# Employer Liability (Wave18) validation cases.
+EMLI_CREATE missing ref@@ERROR\|INVALID_INPUT@@EMLI_CREATE||||||admin@test.com
+EMLI_GET missing id@@ERROR\|INVALID_INPUT@@EMLI_GET||||||admin@test.com
+EMLI_CALC missing id@@ERROR\|INVALID_INPUT@@EMLI_CALC||||||admin@test.com
+EMLI_DELETE missing id@@ERROR\|INVALID_INPUT@@EMLI_DELETE||||||admin@test.com
+EMLI_VALIDATE ok@@SUCCESS\|EMLI_VALID@@EMLI_VALIDATE|100.00|USD||||admin@test.com

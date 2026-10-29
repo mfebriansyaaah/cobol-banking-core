@@ -1,0 +1,6 @@
+# Cyber Insurance (Wave18) validation cases.
+CYB_CREATE missing ref@@ERROR\|INVALID_INPUT@@CYB_CREATE||||||admin@test.com
+CYB_GET missing id@@ERROR\|INVALID_INPUT@@CYB_GET||||||admin@test.com
+CYB_CALC missing id@@ERROR\|INVALID_INPUT@@CYB_CALC||||||admin@test.com
+CYB_DELETE missing id@@ERROR\|INVALID_INPUT@@CYB_DELETE||||||admin@test.com
+CYB_VALIDATE ok@@SUCCESS\|CYB_VALID@@CYB_VALIDATE|100.00|USD||||admin@test.com

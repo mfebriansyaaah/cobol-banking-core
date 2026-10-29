@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 592 TO DISPATCH-COUNT.
+            MOVE 622 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1705,6 +1705,96 @@
             MOVE "MIG_" TO D-PREFIX(592).
             MOVE 4 TO D-PREFIX-LEN(592).
             MOVE "migration_core" TO D-PROGRAM(592).
+            MOVE "LIF_" TO D-PREFIX(593).
+            MOVE 4 TO D-PREFIX-LEN(593).
+            MOVE "life_insurance_core" TO D-PROGRAM(593).
+            MOVE "HLT_" TO D-PREFIX(594).
+            MOVE 4 TO D-PREFIX-LEN(594).
+            MOVE "health_insurance_core" TO D-PROGRAM(594).
+            MOVE "PTY_" TO D-PREFIX(595).
+            MOVE 4 TO D-PREFIX-LEN(595).
+            MOVE "property_insurance_core" TO D-PROGRAM(595).
+            MOVE "CSL_" TO D-PREFIX(596).
+            MOVE 4 TO D-PREFIX-LEN(596).
+            MOVE "casualty_insurance_core" TO D-PROGRAM(596).
+            MOVE "AUTI_" TO D-PREFIX(597).
+            MOVE 5 TO D-PREFIX-LEN(597).
+            MOVE "auto_insurance_core" TO D-PROGRAM(597).
+            MOVE "HOM_" TO D-PREFIX(598).
+            MOVE 4 TO D-PREFIX-LEN(598).
+            MOVE "home_insurance_core" TO D-PROGRAM(598).
+            MOVE "TRV_" TO D-PREFIX(599).
+            MOVE 4 TO D-PREFIX-LEN(599).
+            MOVE "travel_insurance_core" TO D-PROGRAM(599).
+            MOVE "MRN_" TO D-PREFIX(600).
+            MOVE 4 TO D-PREFIX-LEN(600).
+            MOVE "marine_insurance_core" TO D-PROGRAM(600).
+            MOVE "FIR_" TO D-PREFIX(601).
+            MOVE 4 TO D-PREFIX-LEN(601).
+            MOVE "fire_insurance_core" TO D-PROGRAM(601).
+            MOVE "THF_" TO D-PREFIX(602).
+            MOVE 4 TO D-PREFIX-LEN(602).
+            MOVE "theft_insurance_core" TO D-PROGRAM(602).
+            MOVE "LIB_" TO D-PREFIX(603).
+            MOVE 4 TO D-PREFIX-LEN(603).
+            MOVE "liability_insurance_core" TO D-PROGRAM(603).
+            MOVE "PIN_" TO D-PREFIX(604).
+            MOVE 4 TO D-PREFIX-LEN(604).
+            MOVE "professional_indemnity_core" TO D-PROGRAM(604).
+            MOVE "DOL_" TO D-PREFIX(605).
+            MOVE 4 TO D-PREFIX-LEN(605).
+            MOVE "directors_liability_core" TO D-PROGRAM(605).
+            MOVE "PDL_" TO D-PREFIX(606).
+            MOVE 4 TO D-PREFIX-LEN(606).
+            MOVE "product_liability_core" TO D-PROGRAM(606).
+            MOVE "PUL_" TO D-PREFIX(607).
+            MOVE 4 TO D-PREFIX-LEN(607).
+            MOVE "public_liability_core" TO D-PROGRAM(607).
+            MOVE "EMLI_" TO D-PREFIX(608).
+            MOVE 5 TO D-PREFIX-LEN(608).
+            MOVE "employer_liability_core" TO D-PROGRAM(608).
+            MOVE "CYB_" TO D-PREFIX(609).
+            MOVE 4 TO D-PREFIX-LEN(609).
+            MOVE "cyber_insurance_core" TO D-PROGRAM(609).
+            MOVE "KNR_" TO D-PREFIX(610).
+            MOVE 4 TO D-PREFIX-LEN(610).
+            MOVE "kidnap_ransom_core" TO D-PROGRAM(610).
+            MOVE "POL_" TO D-PREFIX(611).
+            MOVE 4 TO D-PREFIX-LEN(611).
+            MOVE "political_risk_core" TO D-PROGRAM(611).
+            MOVE "CRIN_" TO D-PREFIX(612).
+            MOVE 5 TO D-PREFIX-LEN(612).
+            MOVE "credit_insurance2_core" TO D-PROGRAM(612).
+            MOVE "SR_" TO D-PREFIX(613).
+            MOVE 3 TO D-PREFIX-LEN(613).
+            MOVE "surety_core" TO D-PROGRAM(613).
+            MOVE "GUA_" TO D-PREFIX(614).
+            MOVE 4 TO D-PREFIX-LEN(614).
+            MOVE "guarantee_core" TO D-PROGRAM(614).
+            MOVE "BNI_" TO D-PREFIX(615).
+            MOVE 4 TO D-PREFIX-LEN(615).
+            MOVE "bond_insurance_core" TO D-PROGRAM(615).
+            MOVE "FDL_" TO D-PREFIX(616).
+            MOVE 4 TO D-PREFIX-LEN(616).
+            MOVE "fidelity_core" TO D-PROGRAM(616).
+            MOVE "CRIM_" TO D-PREFIX(617).
+            MOVE 5 TO D-PREFIX-LEN(617).
+            MOVE "crime_core" TO D-PROGRAM(617).
+            MOVE "EAO_" TO D-PREFIX(618).
+            MOVE 4 TO D-PREFIX-LEN(618).
+            MOVE "errors_omissions_core" TO D-PROGRAM(618).
+            MOVE "PRK_" TO D-PREFIX(619).
+            MOVE 4 TO D-PREFIX-LEN(619).
+            MOVE "professional_risk_core" TO D-PROGRAM(619).
+            MOVE "MNL_" TO D-PREFIX(620).
+            MOVE 4 TO D-PREFIX-LEN(620).
+            MOVE "management_liability_core" TO D-PROGRAM(620).
+            MOVE "EPL_" TO D-PREFIX(621).
+            MOVE 4 TO D-PREFIX-LEN(621).
+            MOVE "employment_practices_core" TO D-PROGRAM(621).
+            MOVE "FID_" TO D-PREFIX(622).
+            MOVE 4 TO D-PREFIX-LEN(622).
+            MOVE "fiduciary_core" TO D-PROGRAM(622).
             MOVE "MTG_" TO D-PREFIX(533).
             MOVE 4 TO D-PREFIX-LEN(533).
             MOVE "mortgage_core" TO D-PROGRAM(533).

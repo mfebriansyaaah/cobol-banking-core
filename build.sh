@@ -301,6 +301,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/patch_core.cob \
     cobol/src/upgrade_core.cob \
     cobol/src/migration_core.cob \
+    cobol/src/life_insurance_core.cob \
+    cobol/src/health_insurance_core.cob \
+    cobol/src/property_insurance_core.cob \
+    cobol/src/casualty_insurance_core.cob \
+    cobol/src/auto_insurance_core.cob \
+    cobol/src/home_insurance_core.cob \
+    cobol/src/travel_insurance_core.cob \
+    cobol/src/marine_insurance_core.cob \
+    cobol/src/fire_insurance_core.cob \
+    cobol/src/theft_insurance_core.cob \
+    cobol/src/liability_insurance_core.cob \
+    cobol/src/professional_indemnity_core.cob \
+    cobol/src/directors_liability_core.cob \
+    cobol/src/product_liability_core.cob \
+    cobol/src/public_liability_core.cob \
+    cobol/src/employer_liability_core.cob \
+    cobol/src/cyber_insurance_core.cob \
+    cobol/src/kidnap_ransom_core.cob \
+    cobol/src/political_risk_core.cob \
+    cobol/src/credit_insurance2_core.cob \
+    cobol/src/surety_core.cob \
+    cobol/src/guarantee_core.cob \
+    cobol/src/bond_insurance_core.cob \
+    cobol/src/fidelity_core.cob \
+    cobol/src/crime_core.cob \
+    cobol/src/errors_omissions_core.cob \
+    cobol/src/professional_risk_core.cob \
+    cobol/src/management_liability_core.cob \
+    cobol/src/employment_practices_core.cob \
+    cobol/src/fiduciary_core.cob \
     cobol/src/mortgage_core.cob \
     cobol/src/auto_loan_core.cob \
     cobol/src/personal_loan_core.cob \

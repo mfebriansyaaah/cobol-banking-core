@@ -1,0 +1,6 @@
+# Errors Omissions (Wave18) validation cases.
+EAO_CREATE missing ref@@ERROR\|INVALID_INPUT@@EAO_CREATE||||||admin@test.com
+EAO_GET missing id@@ERROR\|INVALID_INPUT@@EAO_GET||||||admin@test.com
+EAO_CALC missing id@@ERROR\|INVALID_INPUT@@EAO_CALC||||||admin@test.com
+EAO_DELETE missing id@@ERROR\|INVALID_INPUT@@EAO_DELETE||||||admin@test.com
+EAO_VALIDATE ok@@SUCCESS\|EAO_VALID@@EAO_VALIDATE|100.00|USD||||admin@test.com

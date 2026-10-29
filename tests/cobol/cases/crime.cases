@@ -1,0 +1,6 @@
+# Crime (Wave18) validation cases.
+CRIM_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRIM_CREATE||||||admin@test.com
+CRIM_GET missing id@@ERROR\|INVALID_INPUT@@CRIM_GET||||||admin@test.com
+CRIM_CALC missing id@@ERROR\|INVALID_INPUT@@CRIM_CALC||||||admin@test.com
+CRIM_DELETE missing id@@ERROR\|INVALID_INPUT@@CRIM_DELETE||||||admin@test.com
+CRIM_VALIDATE ok@@SUCCESS\|CRIM_VALID@@CRIM_VALIDATE|100.00|USD||||admin@test.com

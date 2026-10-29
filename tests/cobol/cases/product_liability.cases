@@ -1,0 +1,6 @@
+# Product Liability (Wave18) validation cases.
+PDL_CREATE missing ref@@ERROR\|INVALID_INPUT@@PDL_CREATE||||||admin@test.com
+PDL_GET missing id@@ERROR\|INVALID_INPUT@@PDL_GET||||||admin@test.com
+PDL_CALC missing id@@ERROR\|INVALID_INPUT@@PDL_CALC||||||admin@test.com
+PDL_DELETE missing id@@ERROR\|INVALID_INPUT@@PDL_DELETE||||||admin@test.com
+PDL_VALIDATE ok@@SUCCESS\|PDL_VALID@@PDL_VALIDATE|100.00|USD||||admin@test.com

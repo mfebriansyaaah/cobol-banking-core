@@ -1,0 +1,6 @@
+# Management Liability (Wave18) validation cases.
+MNL_CREATE missing ref@@ERROR\|INVALID_INPUT@@MNL_CREATE||||||admin@test.com
+MNL_GET missing id@@ERROR\|INVALID_INPUT@@MNL_GET||||||admin@test.com
+MNL_CALC missing id@@ERROR\|INVALID_INPUT@@MNL_CALC||||||admin@test.com
+MNL_DELETE missing id@@ERROR\|INVALID_INPUT@@MNL_DELETE||||||admin@test.com
+MNL_VALIDATE ok@@SUCCESS\|MNL_VALID@@MNL_VALIDATE|100.00|USD||||admin@test.com
