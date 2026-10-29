@@ -1,0 +1,6 @@
+# Leasing Company (Wave20) validation cases.
+LCO_CREATE missing ref@@ERROR\|INVALID_INPUT@@LCO_CREATE||||||admin@test.com
+LCO_GET missing id@@ERROR\|INVALID_INPUT@@LCO_GET||||||admin@test.com
+LCO_CALC missing id@@ERROR\|INVALID_INPUT@@LCO_CALC||||||admin@test.com
+LCO_DELETE missing id@@ERROR\|INVALID_INPUT@@LCO_DELETE||||||admin@test.com
+LCO_VALIDATE ok@@SUCCESS\|LCO_VALID@@LCO_VALIDATE|100.00|USD||||admin@test.com

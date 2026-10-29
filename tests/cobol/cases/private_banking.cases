@@ -1,0 +1,6 @@
+# Private Banking (Wave20) validation cases.
+PRVB_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRVB_CREATE||||||admin@test.com
+PRVB_GET missing id@@ERROR\|INVALID_INPUT@@PRVB_GET||||||admin@test.com
+PRVB_CALC missing id@@ERROR\|INVALID_INPUT@@PRVB_CALC||||||admin@test.com
+PRVB_DELETE missing id@@ERROR\|INVALID_INPUT@@PRVB_DELETE||||||admin@test.com
+PRVB_VALIDATE ok@@SUCCESS\|PRVB_VALID@@PRVB_VALIDATE|100.00|USD||||admin@test.com

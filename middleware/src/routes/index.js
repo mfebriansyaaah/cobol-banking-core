@@ -419,6 +419,36 @@ import { BACKUP_VERIFICATION_ROUTES } from './backup_verification.js';
 import { SLA_TRACKING_ROUTES } from './sla_tracking.js';
 import { REOP_ROUTES } from './reopening_item.js';
 import { MIG_ROUTES } from './migration.js';
+import { CDL_ROUTES } from './crowd_lending.js';
+import { NCL_ROUTES } from './nano_lending.js';
+import { PDLG_ROUTES } from './peer_lending.js';
+import { MCL_ROUTES } from './micro_lending.js';
+import { AGF_ROUTES } from './agricultural_finance.js';
+import { HFC_ROUTES } from './housing_finance.js';
+import { MTB_ROUTES } from './mortgage_bank.js';
+import { ATF_ROUTES } from './auto_finance.js';
+import { CSF_ROUTES } from './consumer_finance.js';
+import { FCOM_ROUTES } from './factoring_company.js';
+import { LCO_ROUTES } from './leasing_company.js';
+import { FCO_ROUTES } from './finance_company.js';
+import { THR_ROUTES } from './thrift.js';
+import { BLS_ROUTES } from './building_society.js';
+import { CRU_ROUTES } from './credit_union.js';
+import { SVB_ROUTES } from './savings_bank.js';
+import { COB_ROUTES } from './cooperative_banking.js';
+import { CMBC_ROUTES } from './community_banking.js';
+import { CMB_ROUTES } from './commercial_banking.js';
+import { CNB_ROUTES } from './central_banking.js';
+import { BRK_ROUTES } from './branch_banking.js';
+import { IBNK_ROUTES } from './internet_banking2.js';
+import { MBK_ROUTES } from './mobile_banking.js';
+import { DBNK_ROUTES } from './digital_banking2.js';
+import { WSB_ROUTES } from './wholesale_banking.js';
+import { PRVB_ROUTES } from './private_banking.js';
+import { IVB_ROUTES } from './investment_banking.js';
+import { CPB_ROUTES } from './corporate_banking.js';
+import { RTB_ROUTES } from './retail_banking.js';
+import { CBKG_ROUTES } from './core_banking.js';
 import { ADTL_ROUTES } from './audit_mgmt.js';
 import { QLT_ROUTES } from './quality.js';
 import { TST_ROUTES } from './testing.js';
@@ -989,6 +1019,36 @@ export const ALL_ROUTES = [
   ...SLA_TRACKING_ROUTES,
   ...REOP_ROUTES,
   ...MIG_ROUTES,
+  ...CDL_ROUTES,
+  ...NCL_ROUTES,
+  ...PDLG_ROUTES,
+  ...MCL_ROUTES,
+  ...AGF_ROUTES,
+  ...HFC_ROUTES,
+  ...MTB_ROUTES,
+  ...ATF_ROUTES,
+  ...CSF_ROUTES,
+  ...FCOM_ROUTES,
+  ...LCO_ROUTES,
+  ...FCO_ROUTES,
+  ...THR_ROUTES,
+  ...BLS_ROUTES,
+  ...CRU_ROUTES,
+  ...SVB_ROUTES,
+  ...COB_ROUTES,
+  ...CMBC_ROUTES,
+  ...CMB_ROUTES,
+  ...CNB_ROUTES,
+  ...BRK_ROUTES,
+  ...IBNK_ROUTES,
+  ...MBK_ROUTES,
+  ...DBNK_ROUTES,
+  ...WSB_ROUTES,
+  ...PRVB_ROUTES,
+  ...IVB_ROUTES,
+  ...CPB_ROUTES,
+  ...RTB_ROUTES,
+  ...CBKG_ROUTES,
   ...ADTL_ROUTES,
   ...QLT_ROUTES,
   ...TST_ROUTES,

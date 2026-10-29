@@ -331,6 +331,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/management_liability_core.cob \
     cobol/src/employment_practices_core.cob \
     cobol/src/fiduciary_core.cob \
+    cobol/src/core_banking_core.cob \
+    cobol/src/retail_banking_core.cob \
+    cobol/src/corporate_banking_core.cob \
+    cobol/src/investment_banking_core.cob \
+    cobol/src/private_banking_core.cob \
+    cobol/src/wholesale_banking_core.cob \
+    cobol/src/digital_banking2_core.cob \
+    cobol/src/mobile_banking_core.cob \
+    cobol/src/internet_banking2_core.cob \
+    cobol/src/branch_banking_core.cob \
+    cobol/src/central_banking_core.cob \
+    cobol/src/commercial_banking_core.cob \
+    cobol/src/community_banking_core.cob \
+    cobol/src/cooperative_banking_core.cob \
+    cobol/src/savings_bank_core.cob \
+    cobol/src/credit_union_core.cob \
+    cobol/src/building_society_core.cob \
+    cobol/src/thrift_core.cob \
+    cobol/src/finance_company_core.cob \
+    cobol/src/leasing_company_core.cob \
+    cobol/src/factoring_company_core.cob \
+    cobol/src/consumer_finance_core.cob \
+    cobol/src/auto_finance_core.cob \
+    cobol/src/mortgage_bank_core.cob \
+    cobol/src/housing_finance_core.cob \
+    cobol/src/agricultural_finance_core.cob \
+    cobol/src/micro_lending_core.cob \
+    cobol/src/nano_lending_core.cob \
+    cobol/src/peer_lending_core.cob \
+    cobol/src/crowd_lending_core.cob \
     cobol/src/vendor_mgmt_core.cob \
     cobol/src/supplier_core.cob \
     cobol/src/procurement_mgmt_core.cob \

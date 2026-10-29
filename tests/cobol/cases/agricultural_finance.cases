@@ -1,0 +1,6 @@
+# Agricultural Finance (Wave20) validation cases.
+AGF_CREATE missing ref@@ERROR\|INVALID_INPUT@@AGF_CREATE||||||admin@test.com
+AGF_GET missing id@@ERROR\|INVALID_INPUT@@AGF_GET||||||admin@test.com
+AGF_CALC missing id@@ERROR\|INVALID_INPUT@@AGF_CALC||||||admin@test.com
+AGF_DELETE missing id@@ERROR\|INVALID_INPUT@@AGF_DELETE||||||admin@test.com
+AGF_VALIDATE ok@@SUCCESS\|AGF_VALID@@AGF_VALIDATE|100.00|USD||||admin@test.com

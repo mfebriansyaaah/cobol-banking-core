@@ -2512,3 +2512,153 @@ db_reset_audit_mgmt() {
     db_exec "DELETE FROM audit_mgmt_audit;"
     db_exec "DELETE FROM audit_mgmt;"
 }
+
+db_reset_core_banking() {
+    db_exec "DELETE FROM core_banking_audit;"
+    db_exec "DELETE FROM core_banking;"
+}
+
+db_reset_retail_banking() {
+    db_exec "DELETE FROM retail_banking_audit;"
+    db_exec "DELETE FROM retail_banking;"
+}
+
+db_reset_corporate_banking() {
+    db_exec "DELETE FROM corporate_banking_audit;"
+    db_exec "DELETE FROM corporate_banking;"
+}
+
+db_reset_investment_banking() {
+    db_exec "DELETE FROM investment_banking_audit;"
+    db_exec "DELETE FROM investment_banking;"
+}
+
+db_reset_private_banking() {
+    db_exec "DELETE FROM private_banking_audit;"
+    db_exec "DELETE FROM private_banking;"
+}
+
+db_reset_wholesale_banking() {
+    db_exec "DELETE FROM wholesale_banking_audit;"
+    db_exec "DELETE FROM wholesale_banking;"
+}
+
+db_reset_digital_banking2() {
+    db_exec "DELETE FROM digital_banking2_audit;"
+    db_exec "DELETE FROM digital_banking2;"
+}
+
+db_reset_mobile_banking() {
+    db_exec "DELETE FROM mobile_banking_audit;"
+    db_exec "DELETE FROM mobile_banking;"
+}
+
+db_reset_internet_banking2() {
+    db_exec "DELETE FROM internet_banking2_audit;"
+    db_exec "DELETE FROM internet_banking2;"
+}
+
+db_reset_branch_banking() {
+    db_exec "DELETE FROM branch_banking_audit;"
+    db_exec "DELETE FROM branch_banking;"
+}
+
+db_reset_central_banking() {
+    db_exec "DELETE FROM central_banking_audit;"
+    db_exec "DELETE FROM central_banking;"
+}
+
+db_reset_commercial_banking() {
+    db_exec "DELETE FROM commercial_banking_audit;"
+    db_exec "DELETE FROM commercial_banking;"
+}
+
+db_reset_community_banking() {
+    db_exec "DELETE FROM community_banking_audit;"
+    db_exec "DELETE FROM community_banking;"
+}
+
+db_reset_cooperative_banking() {
+    db_exec "DELETE FROM cooperative_banking_audit;"
+    db_exec "DELETE FROM cooperative_banking;"
+}
+
+db_reset_savings_bank() {
+    db_exec "DELETE FROM savings_bank_audit;"
+    db_exec "DELETE FROM savings_bank;"
+}
+
+db_reset_credit_union() {
+    db_exec "DELETE FROM credit_union_audit;"
+    db_exec "DELETE FROM credit_union;"
+}
+
+db_reset_building_society() {
+    db_exec "DELETE FROM building_society_audit;"
+    db_exec "DELETE FROM building_society;"
+}
+
+db_reset_thrift() {
+    db_exec "DELETE FROM thrift_audit;"
+    db_exec "DELETE FROM thrift;"
+}
+
+db_reset_finance_company() {
+    db_exec "DELETE FROM finance_company_audit;"
+    db_exec "DELETE FROM finance_company;"
+}
+
+db_reset_leasing_company() {
+    db_exec "DELETE FROM leasing_company_audit;"
+    db_exec "DELETE FROM leasing_company;"
+}
+
+db_reset_factoring_company() {
+    db_exec "DELETE FROM factoring_company_audit;"
+    db_exec "DELETE FROM factoring_company;"
+}
+
+db_reset_consumer_finance() {
+    db_exec "DELETE FROM consumer_finance_audit;"
+    db_exec "DELETE FROM consumer_finance;"
+}
+
+db_reset_auto_finance() {
+    db_exec "DELETE FROM auto_finance_audit;"
+    db_exec "DELETE FROM auto_finance;"
+}
+
+db_reset_mortgage_bank() {
+    db_exec "DELETE FROM mortgage_bank_audit;"
+    db_exec "DELETE FROM mortgage_bank;"
+}
+
+db_reset_housing_finance() {
+    db_exec "DELETE FROM housing_finance_audit;"
+    db_exec "DELETE FROM housing_finance;"
+}
+
+db_reset_agricultural_finance() {
+    db_exec "DELETE FROM agricultural_finance_audit;"
+    db_exec "DELETE FROM agricultural_finance;"
+}
+
+db_reset_micro_lending() {
+    db_exec "DELETE FROM micro_lending_audit;"
+    db_exec "DELETE FROM micro_lending;"
+}
+
+db_reset_nano_lending() {
+    db_exec "DELETE FROM nano_lending_audit;"
+    db_exec "DELETE FROM nano_lending;"
+}
+
+db_reset_peer_lending() {
+    db_exec "DELETE FROM peer_lending_audit;"
+    db_exec "DELETE FROM peer_lending;"
+}
+
+db_reset_crowd_lending() {
+    db_exec "DELETE FROM crowd_lending_audit;"
+    db_exec "DELETE FROM crowd_lending;"
+}
