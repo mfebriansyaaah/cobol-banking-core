@@ -1,0 +1,6 @@
+# Registration (Wave17) validation cases.
+REGN_CREATE missing ref@@ERROR\|INVALID_INPUT@@REGN_CREATE||||||admin@test.com
+REGN_GET missing id@@ERROR\|INVALID_INPUT@@REGN_GET||||||admin@test.com
+REGN_CALC missing id@@ERROR\|INVALID_INPUT@@REGN_CALC||||||admin@test.com
+REGN_DELETE missing id@@ERROR\|INVALID_INPUT@@REGN_DELETE||||||admin@test.com
+REGN_VALIDATE ok@@SUCCESS\|REGN_VALID@@REGN_VALIDATE|100.00|USD||||admin@test.com

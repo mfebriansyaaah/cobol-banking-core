@@ -1,0 +1,6 @@
+# Permit (Wave17) validation cases.
+PRM_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRM_CREATE||||||admin@test.com
+PRM_GET missing id@@ERROR\|INVALID_INPUT@@PRM_GET||||||admin@test.com
+PRM_CALC missing id@@ERROR\|INVALID_INPUT@@PRM_CALC||||||admin@test.com
+PRM_DELETE missing id@@ERROR\|INVALID_INPUT@@PRM_DELETE||||||admin@test.com
+PRM_VALIDATE ok@@SUCCESS\|PRM_VALID@@PRM_VALIDATE|100.00|USD||||admin@test.com

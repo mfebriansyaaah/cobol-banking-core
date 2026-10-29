@@ -1,0 +1,6 @@
+# Regulatory Filing (Wave17) validation cases.
+RGF_CREATE missing ref@@ERROR\|INVALID_INPUT@@RGF_CREATE||||||admin@test.com
+RGF_GET missing id@@ERROR\|INVALID_INPUT@@RGF_GET||||||admin@test.com
+RGF_CALC missing id@@ERROR\|INVALID_INPUT@@RGF_CALC||||||admin@test.com
+RGF_DELETE missing id@@ERROR\|INVALID_INPUT@@RGF_DELETE||||||admin@test.com
+RGF_VALIDATE ok@@SUCCESS\|RGF_VALID@@RGF_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Problem (Wave17) validation cases.
+PRB_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRB_CREATE||||||admin@test.com
+PRB_GET missing id@@ERROR\|INVALID_INPUT@@PRB_GET||||||admin@test.com
+PRB_CALC missing id@@ERROR\|INVALID_INPUT@@PRB_CALC||||||admin@test.com
+PRB_DELETE missing id@@ERROR\|INVALID_INPUT@@PRB_DELETE||||||admin@test.com
+PRB_VALIDATE ok@@SUCCESS\|PRB_VALID@@PRB_VALIDATE|100.00|USD||||admin@test.com

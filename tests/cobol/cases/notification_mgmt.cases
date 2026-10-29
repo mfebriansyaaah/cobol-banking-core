@@ -1,0 +1,6 @@
+# Notification Mgmt (Wave17) validation cases.
+NTFC_CREATE missing ref@@ERROR\|INVALID_INPUT@@NTFC_CREATE||||||admin@test.com
+NTFC_GET missing id@@ERROR\|INVALID_INPUT@@NTFC_GET||||||admin@test.com
+NTFC_CALC missing id@@ERROR\|INVALID_INPUT@@NTFC_CALC||||||admin@test.com
+NTFC_DELETE missing id@@ERROR\|INVALID_INPUT@@NTFC_DELETE||||||admin@test.com
+NTFC_VALIDATE ok@@SUCCESS\|NTFC_VALID@@NTFC_VALIDATE|100.00|USD||||admin@test.com

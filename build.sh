@@ -271,6 +271,36 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/position_mgmt_core.cob \
     cobol/src/exposure_core.cob \
     cobol/src/hedge_core.cob \
+    cobol/src/compliance_check_core.cob \
+    cobol/src/regulatory_filing_core.cob \
+    cobol/src/audit_finding_core.cob \
+    cobol/src/risk_assessment_core.cob \
+    cobol/src/control_test_core.cob \
+    cobol/src/policy_review_core.cob \
+    cobol/src/procedure_review_core.cob \
+    cobol/src/training_record_core.cob \
+    cobol/src/certification_core.cob \
+    cobol/src/license_core.cob \
+    cobol/src/permit_core.cob \
+    cobol/src/registration_core.cob \
+    cobol/src/filing_core.cob \
+    cobol/src/submission_core.cob \
+    cobol/src/approval_core.cob \
+    cobol/src/authorization_core.cob \
+    cobol/src/delegation_core.cob \
+    cobol/src/escalation_core.cob \
+    cobol/src/notification_mgmt_core.cob \
+    cobol/src/alert_mgmt_core.cob \
+    cobol/src/incident_mgmt_core.cob \
+    cobol/src/problem_core.cob \
+    cobol/src/change_mgmt_core.cob \
+    cobol/src/release_mgmt_core.cob \
+    cobol/src/deployment_core.cob \
+    cobol/src/rollback_core.cob \
+    cobol/src/hotfix_core.cob \
+    cobol/src/patch_core.cob \
+    cobol/src/upgrade_core.cob \
+    cobol/src/migration_core.cob \
     cobol/src/mortgage_core.cob \
     cobol/src/auto_loan_core.cob \
     cobol/src/personal_loan_core.cob \

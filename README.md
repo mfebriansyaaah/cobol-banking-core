@@ -8,12 +8,14 @@ crypto helpers COBOL cannot call directly.
 
 [![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
 
-> **Status (2026-10-27):** engineering codebase, not a production certification.
-> All 120 domain COBOL modules carry real SQL-backed logic; only
-> `auth_password_core` and `hashlen_core` are utility modules.
+> **Status (2026-10-29):** engineering codebase, not a production certification.
+> 484 COBOL modules follow the 9-action contract (see
+> `docs/module_classification.md`): Tier-1 hand-reviewed core (auth, wallet,
+> lending, …) plus Tier-2 generated domain modules and Tier-3 utilities.
 > `tests/run_all.sh full` is green locally and in the hosted CI gate.
 > Treat the numbers below as measurements of this repository,
-> not as a readiness claim.
+> not as a readiness claim. `manifest/modules.json` is the source of truth
+> for module/route/dispatch counts.
 
 ## Architecture
 
@@ -52,22 +54,25 @@ Rules of the split:
 
 | Path | Contents |
 |---|---|
-| `cobol/src/` | 121 domain modules + `main_logic.cob` dispatcher + `sql_bridge.c` |
+| `cobol/src/` | 484 modules + `main_logic.cob` dispatcher + `sql_bridge.c` |
 | `cobol/copy/` | Three copybooks used only by the password/auth module |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
-| `middleware/src/` | Express gateway (124 files, 108 route modules + barrel) |
-| `middleware/test/` | 16 test files, 136 tests |
-| `database/` | `schema.sql` baseline (477 tables), 111 migrations, seed, grants |
+| `middleware/src/` | Express gateway (495 files: 479 route modules + barrel + 15 core) |
+| `middleware/test/` | 18 test files, 136 tests |
+| `database/` | `schema.sql` baseline (478 tables), 518 migrations, seed, grants |
 | `tests/` | Unified runner, table-driven COBOL cases, DB suites, harness |
-| `manifest/modules.json` | Generated registry: 121 modules, 108 route files, 189 dispatch entries |
+| `manifest/modules.json` | Generated registry: 484 modules, 479 route files, 562 dispatch entries |
 | `scripts/` | `generate_manifest.mjs`, `check_manifest.mjs` |
 | `monitoring/` | Prometheus alert rules for the gateway |
-| `build.sh` | Compiles dispatcher + all 112 modules + C bridge |
+| `build.sh` | Compiles dispatcher + all 484 modules + C bridge |
 | `.github/workflows/ci.yml` | Hosted CI: build + warning ratchet, then full test gate |
 | `ci.sh`, `ci-fast.sh` | Local CI entry points |
 
 ## Implementation status
+
+Flagship hand-reviewed domains (Tier 1). The full inventory — 484 modules,
+479 route files, 562 dispatch entries — is `manifest/modules.json`.
 
 | Domain | Status | Modules |
 |---|---|---|
@@ -114,16 +119,16 @@ Measured on this checkout:
 
 | Metric | Value |
 |---|---:|
-| COBOL files | **123** (122 modules + dispatcher) |
-| COBOL lines | **88,767** |
-| Modules with real logic | **120** domain modules (all modules except the 2 utilities below) |
-| Utility modules | **2** — `auth_password_core`, `hashlen_core` (delegate to auth_core / hash_lib) |
-| Skeleton modules | **0** — every domain module now carries real SQL-backed logic |
-| Gateway route definitions | **985** unique actions across **118** route files |
-| COBOL dispatch prefixes | **189** |
+| COBOL files | **485** (484 modules + dispatcher) |
+| COBOL lines | **331,608** |
+| Module tiers | **Tier 1** hand-reviewed core, **Tier 2** generated 9-action domains, **Tier 3** utilities — see `docs/module_classification.md` |
+| Utility modules | `auth_password_core`, `hashlen_core`, `ref_engine`, `ref_ext_core` (Tier 3) |
+| Skeleton modules | **0** — every module implements the 9-action contract; depth varies by tier |
+| Gateway route definitions | **4,254** actions across **479** route files (+ inline `app.js` routes) |
+| COBOL dispatch prefixes | **562** (contiguous slots `1..562`) |
 | Database tables (`schema.sql`) | **478** |
-| Recorded migrations | **147** (latest `0147_loan_hardening`) |
-| Test assertions | **508+** (179 table + 76 schema + 253 gateway, plus 35 DB suites) |
+| Recorded migrations | **518** (latest `0527_credit_insurance`) |
+| Test assertions | **2,124** table-case actions + **398** DB suites (see `tests/baseline_counts.txt`) + 136 gateway tests |
 
 ## Request contract
 
@@ -220,7 +225,7 @@ Operational endpoints:
 - `GET /ready` — dependency check (cached), public.
 - `GET /metrics` — Prometheus text; requires an `AUDIT_READ` bearer token.
 
-Route groups (86 modules) cover identity and access, wallet/ledger, payments and
+Route groups (479 modules) cover identity and access, wallet/ledger, payments and
 holds, lending (`/loans`, `/loan-schedules`), deposits, cards, GL and period
 close, fees, reports and delivery, imports, reconciliation, disputes, KYC and
 screening, compliance/legal holds, audit, alerts, on-call, batch/EOD, reference
@@ -338,21 +343,25 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 
 ## Known gaps
 
-1. **D4–D10 are skeletons.** 21 modules × 151 stub actions; routes and tables
-   exist, business logic does not.
-2. **Copy-paste plumbing.** 585 duplicate paragraph bodies were measured
-   (`TRIM-ALL` ×104, `VALIDATE-ALL` ×102, `TRIM-RESULT-LEN` ×84). Shared
-   copybooks for trimming, validation, and audit are the main refactor target.
+1. **Generated-domain depth varies by tier.** Every module implements the
+   9-action contract (`docs/module_authoring.md`), but Tier-2 modules follow the
+   `cost_center_core` template closely. Treat the domain table above as the
+   hand-reviewed flagship set; the full inventory is `manifest/modules.json`.
+   Tier definitions and strictness live in `docs/module_classification.md`.
+2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
+   `TRIM-RESULT-LEN`) are repeated in ~480 modules. Shared copybooks for
+   trimming, validation, and audit are the main refactor target.
 3. **CI is hosted on GitHub Actions, but branch protection is unavailable.**
    The private/free plan rejects branch protection and repository rulesets, so
    merges are enforced by `scripts/ci/premerge.sh` and `docs/GOVERNANCE.md`
    rather than by the GitHub UI.
-4. **Documentation surface is thin.** Earlier references to `docs/*.md`,
-   `SPEC-*.md`, and helper scripts were removed because those files are not in
-   this repository. This README, `middleware/.env.example`, module comments, and
-   the tests are the maintained documentation.
+4. **Documentation surface is thin but growing.** `docs/` now holds ADRs
+   (`docs/adr/`), `module_authoring.md`, `module_classification.md`,
+   `domain_overview.md`, `data_dictionary.md`, and `GOVERNANCE.md`. This README,
+   `middleware/.env.example`, module comments, and the tests are the maintained
+   documentation.
 5. **Legacy compiler warnings** remain in some non-D1–D3 modules.
-6. **Build cost.** `./build.sh` compiles 114 units and takes roughly 2–3 minutes;
+6. **Build cost.** `./build.sh` compiles 485 units and takes roughly 2–3 minutes;
    `tests/run_all.sh full` is the slow, authoritative gate.
 
 ## Working in this repository

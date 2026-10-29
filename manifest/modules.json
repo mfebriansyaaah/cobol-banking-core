@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T01:12:57.320Z",
+  "generatedAt": "2026-10-29T03:04:16.024Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -47,6 +47,9 @@
       "source": "alert_escalation_core.cob"
     },
     {
+      "source": "alert_mgmt_core.cob"
+    },
+    {
       "source": "alerting_core.cob"
     },
     {
@@ -69,6 +72,9 @@
     },
     {
       "source": "api_management_core.cob"
+    },
+    {
+      "source": "approval_core.cob"
     },
     {
       "source": "asset_allocation_core.cob"
@@ -101,6 +107,9 @@
       "source": "audit_drilldown_core.cob"
     },
     {
+      "source": "audit_finding_core.cob"
+    },
+    {
       "source": "audit_log_core.cob"
     },
     {
@@ -117,6 +126,9 @@
     },
     {
       "source": "auth_password_core.cob"
+    },
+    {
+      "source": "authorization_core.cob"
     },
     {
       "source": "auto_loan_core.cob"
@@ -242,10 +254,16 @@
       "source": "certificate_deposit_core.cob"
     },
     {
+      "source": "certification_core.cob"
+    },
+    {
       "source": "change_approval_core.cob"
     },
     {
       "source": "change_control_core.cob"
+    },
+    {
+      "source": "change_mgmt_core.cob"
     },
     {
       "source": "charge_item_core.cob"
@@ -302,6 +320,9 @@
       "source": "compliance_calendar_core.cob"
     },
     {
+      "source": "compliance_check_core.cob"
+    },
+    {
       "source": "compliance_export_core.cob"
     },
     {
@@ -324,6 +345,9 @@
     },
     {
       "source": "contract_core.cob"
+    },
+    {
+      "source": "control_test_core.cob"
     },
     {
       "source": "convertible_bond_core.cob"
@@ -425,7 +449,13 @@
       "source": "debt_recovery_core.cob"
     },
     {
+      "source": "delegation_core.cob"
+    },
+    {
       "source": "department_core.cob"
+    },
+    {
+      "source": "deployment_core.cob"
     },
     {
       "source": "deposit_book_core.cob"
@@ -509,6 +539,9 @@
       "source": "equity_swap_core.cob"
     },
     {
+      "source": "escalation_core.cob"
+    },
+    {
       "source": "escrow_account_core.cob"
     },
     {
@@ -558,6 +591,9 @@
     },
     {
       "source": "fee_waiver_core.cob"
+    },
+    {
+      "source": "filing_core.cob"
     },
     {
       "source": "fill_core.cob"
@@ -650,6 +686,9 @@
       "source": "hire_purchase_core.cob"
     },
     {
+      "source": "hotfix_core.cob"
+    },
+    {
       "source": "import_core.cob"
     },
     {
@@ -666,6 +705,9 @@
     },
     {
       "source": "incident_core.cob"
+    },
+    {
+      "source": "incident_mgmt_core.cob"
     },
     {
       "source": "incident_postmortem_core.cob"
@@ -764,6 +806,9 @@
       "source": "liability_core.cob"
     },
     {
+      "source": "license_core.cob"
+    },
+    {
       "source": "limit_profile_core.cob"
     },
     {
@@ -833,6 +878,9 @@
       "source": "microfinance_core.cob"
     },
     {
+      "source": "migration_core.cob"
+    },
+    {
       "source": "milestone_payment_core.cob"
     },
     {
@@ -875,6 +923,9 @@
       "source": "notification_core.cob"
     },
     {
+      "source": "notification_mgmt_core.cob"
+    },
+    {
       "source": "notification_template_core.cob"
     },
     {
@@ -915,6 +966,9 @@
     },
     {
       "source": "password_policy_core.cob"
+    },
+    {
+      "source": "patch_core.cob"
     },
     {
       "source": "pawn_core.cob"
@@ -968,6 +1022,9 @@
       "source": "permission_set_core.cob"
     },
     {
+      "source": "permit_core.cob"
+    },
+    {
       "source": "personal_loan_core.cob"
     },
     {
@@ -990,6 +1047,9 @@
     },
     {
       "source": "policy_attestation_core.cob"
+    },
+    {
+      "source": "policy_review_core.cob"
     },
     {
       "source": "portfolio_core.cob"
@@ -1017,6 +1077,12 @@
     },
     {
       "source": "private_equity_core.cob"
+    },
+    {
+      "source": "problem_core.cob"
+    },
+    {
+      "source": "procedure_review_core.cob"
     },
     {
       "source": "procurement_core.cob"
@@ -1097,13 +1163,22 @@
       "source": "refund_processing_core.cob"
     },
     {
+      "source": "registration_core.cob"
+    },
+    {
       "source": "regulatory_calendar_core.cob"
+    },
+    {
+      "source": "regulatory_filing_core.cob"
     },
     {
       "source": "regulatory_report_core.cob"
     },
     {
       "source": "reinsurance_contract_core.cob"
+    },
+    {
+      "source": "release_mgmt_core.cob"
     },
     {
       "source": "remittance_core.cob"
@@ -1160,6 +1235,9 @@
       "source": "rewards_management_core.cob"
     },
     {
+      "source": "risk_assessment_core.cob"
+    },
+    {
       "source": "risk_model_core.cob"
     },
     {
@@ -1170,6 +1248,9 @@
     },
     {
       "source": "role_management_core.cob"
+    },
+    {
+      "source": "rollback_core.cob"
     },
     {
       "source": "sanctions_check_core.cob"
@@ -1265,6 +1346,9 @@
       "source": "structured_product_core.cob"
     },
     {
+      "source": "submission_core.cob"
+    },
+    {
       "source": "subscription_core.cob"
     },
     {
@@ -1334,6 +1418,9 @@
       "source": "training_core.cob"
     },
     {
+      "source": "training_record_core.cob"
+    },
+    {
       "source": "tranche_core.cob"
     },
     {
@@ -1368,6 +1455,9 @@
     },
     {
       "source": "trust_core.cob"
+    },
+    {
+      "source": "upgrade_core.cob"
     },
     {
       "source": "user_activity_core.cob"
@@ -1469,6 +1559,7 @@
     "adverse_media.js",
     "agreement.js",
     "alert_escalation.js",
+    "alert_mgmt.js",
     "alerting.js",
     "alerts.js",
     "allocation.js",
@@ -1478,6 +1569,7 @@
     "analytics_snapshot.js",
     "api_gateway.js",
     "api_management.js",
+    "approval.js",
     "asset.js",
     "asset_allocation.js",
     "asset_backed.js",
@@ -1488,10 +1580,12 @@
     "attendance.js",
     "audit_analytics.js",
     "audit_drilldown.js",
+    "audit_finding.js",
     "audit_log.js",
     "audit_retention.js",
     "audit_snapshot.js",
     "audit_trail.js",
+    "authorization.js",
     "auto_loan.js",
     "backup_drill.js",
     "backup_management.js",
@@ -1533,8 +1627,10 @@
     "cash_management.js",
     "cashback.js",
     "certificate_deposit.js",
+    "certification.js",
     "change_approval.js",
     "change_control.js",
+    "change_mgmt.js",
     "charge_item.js",
     "chargeback.js",
     "circuit_breaker.js",
@@ -1553,6 +1649,7 @@
     "complaint_management.js",
     "compliance_audit.js",
     "compliance_calendar.js",
+    "compliance_check.js",
     "compliance_export.js",
     "compliance_retention.js",
     "config.js",
@@ -1561,6 +1658,7 @@
     "consolidation_mgmt.js",
     "contactless.js",
     "contract.js",
+    "control_test.js",
     "convertible.js",
     "convertible_bond.js",
     "correction_item.js",
@@ -1594,7 +1692,9 @@
     "debit_card.js",
     "debt_collection.js",
     "debt_recovery.js",
+    "delegation.js",
     "department.js",
+    "deployment.js",
     "deposit.js",
     "deposit_book.js",
     "derivative.js",
@@ -1622,6 +1722,7 @@
     "equity.js",
     "equity_account.js",
     "equity_swap.js",
+    "escalation.js",
     "escrow_account.js",
     "etf.js",
     "etl.js",
@@ -1639,6 +1740,7 @@
     "fee_item.js",
     "fee_management.js",
     "fee_waiver.js",
+    "filing.js",
     "fill.js",
     "final_payment.js",
     "fixed_asset.js",
@@ -1668,11 +1770,13 @@
     "hedge.js",
     "hedge_fund.js",
     "hire_purchase.js",
+    "hotfix.js",
     "import.js",
     "import_finance.js",
     "import_recon.js",
     "in_app_message.js",
     "incident.js",
+    "incident_mgmt.js",
     "incident_postmortem.js",
     "incident_report.js",
     "income_statement.js",
@@ -1706,6 +1810,7 @@
     "letter_of_credit.js",
     "letter_of_guarantee.js",
     "liability.js",
+    "license.js",
     "limit_profile.js",
     "load_balancer.js",
     "loan.js",
@@ -1729,6 +1834,7 @@
     "mezzanine.js",
     "mfa_management.js",
     "microfinance.js",
+    "migration.js",
     "milestone_payment.js",
     "mobile_wallet.js",
     "monitoring.js",
@@ -1743,6 +1849,7 @@
     "notice_deposit.js",
     "notification.js",
     "notification_audit.js",
+    "notification_mgmt.js",
     "notification_template.js",
     "offboarding.js",
     "onboarding.js",
@@ -1757,6 +1864,7 @@
     "outsourcing_contract.js",
     "overdraft.js",
     "password_policy.js",
+    "patch.js",
     "pawn.js",
     "payment.js",
     "payment_clearing.js",
@@ -1774,6 +1882,7 @@
     "performance.js",
     "performance_bond.js",
     "permission_set.js",
+    "permit.js",
     "personal_loan.js",
     "personalization.js",
     "pipeline_alert.js",
@@ -1782,6 +1891,7 @@
     "points_redemption.js",
     "policy_administration.js",
     "policy_attestation.js",
+    "policy_review.js",
     "portfolio.js",
     "portfolio_management.js",
     "position.js",
@@ -1791,6 +1901,8 @@
     "pricing.js",
     "private_debt.js",
     "private_equity.js",
+    "problem.js",
+    "procedure_review.js",
     "procurement.js",
     "product_catalog.js",
     "product_item.js",
@@ -1817,9 +1929,12 @@
     "ref_ext.js",
     "refund_item.js",
     "refund_processing.js",
+    "registration.js",
     "regulatory_calendar.js",
+    "regulatory_filing.js",
     "regulatory_report.js",
     "reinsurance_contract.js",
+    "release_mgmt.js",
     "remittance.js",
     "reopening_item.js",
     "repo_agreement.js",
@@ -1838,10 +1953,12 @@
     "revenue.js",
     "reversal_item.js",
     "rewards_management.js",
+    "risk_assessment.js",
     "risk_model.js",
     "risk_score.js",
     "risk_screening.js",
     "role_management.js",
+    "rollback.js",
     "sanctions_check.js",
     "sanctions_hold.js",
     "sanctions_list.js",
@@ -1873,6 +1990,7 @@
     "structured.js",
     "structured_note.js",
     "structured_product.js",
+    "submission.js",
     "subscription.js",
     "supply_chain.js",
     "supply_chain_finance.js",
@@ -1896,6 +2014,7 @@
     "trade_credit.js",
     "trade_finance.js",
     "training.js",
+    "training_record.js",
     "tranche.js",
     "transaction.js",
     "transaction_item.js",
@@ -1908,6 +2027,7 @@
     "treasury_position.js",
     "trial_balance.js",
     "trust.js",
+    "upgrade.js",
     "user_activity.js",
     "valuation.js",
     "variance.js",
@@ -4745,6 +4865,156 @@
       "prefixLen": 4,
       "prefix": "CRI_",
       "program": "credit_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CMP_",
+      "program": "compliance_check_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RGF_",
+      "program": "regulatory_filing_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AUF_",
+      "program": "audit_finding_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RSA_",
+      "program": "risk_assessment_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CTL2_",
+      "program": "control_test_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PLR_",
+      "program": "policy_review_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRR_",
+      "program": "procedure_review_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRR_",
+      "program": "training_record_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CRTF_",
+      "program": "certification_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LIC_",
+      "program": "license_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRM_",
+      "program": "permit_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "REGN_",
+      "program": "registration_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "FIL2_",
+      "program": "filing_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "SUB2_",
+      "program": "submission_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "APR_",
+      "program": "approval_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AUT_",
+      "program": "authorization_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DLG_",
+      "program": "delegation_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "ESCL_",
+      "program": "escalation_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "NTFC_",
+      "program": "notification_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "ALR2_",
+      "program": "alert_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "INCD_",
+      "program": "incident_mgmt_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRB_",
+      "program": "problem_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CHG2_",
+      "program": "change_mgmt_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "REL_",
+      "program": "release_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "DEP2_",
+      "program": "deployment_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ROL_",
+      "program": "rollback_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "HFX_",
+      "program": "hotfix_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PCH_",
+      "program": "patch_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "UPG_",
+      "program": "upgrade_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MIG_",
+      "program": "migration_core"
     }
   ]
 }
