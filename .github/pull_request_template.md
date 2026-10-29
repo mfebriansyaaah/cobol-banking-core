@@ -15,6 +15,7 @@
 - [ ] No new route conflicts
 - [ ] No secrets or real PII added
 - [ ] Docs updated if behavior or setup changed
+- [ ] `node scripts/check_docs.mjs` green after `node scripts/docs_stats.mjs --write`
 
 ## Risk and rollback
 

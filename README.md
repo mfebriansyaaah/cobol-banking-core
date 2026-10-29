@@ -9,13 +9,13 @@ crypto helpers COBOL cannot call directly.
 [![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
 
 > **Status (2026-10-29):** engineering codebase, not a production certification.
-> 484 COBOL modules follow the 9-action contract (see
+> COBOL modules follow the 9-action contract (see
 > `docs/module_classification.md`): Tier-1 hand-reviewed core (auth, wallet,
 > lending, …) plus Tier-2 generated domain modules and Tier-3 utilities.
 > `tests/run_all.sh full` is green locally and in the hosted CI gate.
-> Treat the numbers below as measurements of this repository,
-> not as a readiness claim. `manifest/modules.json` is the source of truth
-> for module/route/dispatch counts.
+> Counts in this README are generated from `manifest/modules.json` and the
+> source tree; see [docs/STATUS.md](docs/STATUS.md) and
+> [docs/MODULE_INDEX.md](docs/MODULE_INDEX.md).
 
 ## Architecture
 
@@ -32,7 +32,7 @@ middleware/                     Node 18+ / Express 4
   │  pipe protocol: ACTION|P1|P2|P3|P4|P5|P6
   ▼
 cobol/bin/main_logic            GnuCOBOL, one binary
-  main_logic.cob               prefix dispatch (179 entries)
+  main_logic.cob               prefix dispatch (count in docs/STATUS.md)
   *_core.cob                   business logic + transactional SQL
   │  SQL_BEGIN / SQL_PREPARE_EXEC / SQL_PREPARE_EXEC_ROWS / SQL_COMMIT
   ▼
@@ -54,25 +54,26 @@ Rules of the split:
 
 | Path | Contents |
 |---|---|
-| `cobol/src/` | 484 modules + `main_logic.cob` dispatcher + `sql_bridge.c` |
+| `cobol/src/` | COBOL modules + `main_logic.cob` dispatcher + `sql_bridge.c` (count in `docs/STATUS.md`) |
 | `cobol/copy/` | Three copybooks used only by the password/auth module |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
-| `middleware/src/` | Express gateway (495 files: 479 route modules + barrel + 15 core) |
-| `middleware/test/` | 18 test files, 136 tests |
-| `database/` | `schema.sql` baseline (478 tables), 518 migrations, seed, grants |
+| `middleware/src/` | Express gateway: route modules, barrel, and core helpers |
+| `middleware/test/` | Gateway test suite (run with `npm --prefix middleware test`) |
+| `database/` | `schema.sql` baseline, migrations, seed, grants (counts in `docs/STATUS.md`) |
 | `tests/` | Unified runner, table-driven COBOL cases, DB suites, harness |
-| `manifest/modules.json` | Generated registry: 484 modules, 479 route files, 562 dispatch entries |
+| `manifest/modules.json` | Generated registry of modules, routes, and dispatch entries |
 | `scripts/` | `generate_manifest.mjs`, `check_manifest.mjs` |
 | `monitoring/` | Prometheus alert rules for the gateway |
-| `build.sh` | Compiles dispatcher + all 484 modules + C bridge |
+| `build.sh` | Compiles the dispatcher, all COBOL modules, and the C bridge |
 | `.github/workflows/ci.yml` | Hosted CI: build + warning ratchet, then full test gate |
 | `ci.sh`, `ci-fast.sh` | Local CI entry points |
 
 ## Implementation status
 
-Flagship hand-reviewed domains (Tier 1). The full inventory — 484 modules,
-479 route files, 562 dispatch entries — is `manifest/modules.json`.
+Flagship hand-reviewed domains (Tier 1). The full generated inventory is
+[docs/MODULE_INDEX.md](docs/MODULE_INDEX.md); counts are in
+[docs/STATUS.md](docs/STATUS.md).
 
 | Domain | Status | Modules |
 |---|---|---|
@@ -91,44 +92,57 @@ Flagship hand-reviewed domains (Tier 1). The full inventory — 484 modules,
 | D13 Fraud Case | Done | `fraud_case_core` (9 actions) |
 | D10 Data / Reporting | Done | `report_builder_core` (9 actions) |
 
-### Status (2026-10-27)
+### Status details
 
-- Loan application lifecycle endpoints (`LOAN_APPLY`, `LOAN_APPROVE`, `LOAN_REJECT`,
-  `LOAN_DISBURSE`, `LOAN_REPAY`) are now implemented in `loan_core`.
-- Compiler warnings in `auth_core.cob`, `user_core.cob`, and `wallet_core.cob` are at 0.
+Current counts, module inventory, and route/test coverage are generated:
 
-## Testing workflow roadmap
+- [Repository status](docs/STATUS.md)
+- [Module index](docs/MODULE_INDEX.md)
+- [Coverage report and limits](docs/COVERAGE.md)
+- [Governance and merge policy](docs/GOVERNANCE.md)
 
-Testing maturity: **9/10** (achieved). All 11 roadmap items complete.
+## Testing and CI status
 
-| Priority | Improvement | Effort | Expected gain |
-|---|---|---|---|
-| ✅ P0 | **Code coverage tracking** — run `cobc --coverage` and `node --test-coverage` in CI; gate on minimum thresholds | 2d | Know exactly what is untested |
-| ✅ P0 | **CI speed** — split compile into incremental steps or use `ccache`-style caching; target <2 min | 1d | Faster feedback loop |
-| ✅ P1 | **Integration tests across domains** — scenarios that exercise loan → collection → payment → treasury flow | 3d | Catch cross-domain contract breaks |
-| ✅ P1 | **Gateway test isolation** — each test file seeds its own data into a unique schema / connection | 2d | Eliminate flaky failures |
-| ✅ P1 | **Reduce warning baseline to 0** — fix all `-Wconstant-expression`, `-Wpossible-truncate` etc. | 1d | Clean compile, catch new issues |
-| ✅ P2 | **Performance benchmarks** — COBOL action latency P50/P99 in CI | 2d | Detect regressions early |
-| ✅ P2 | **Mutation testing** — verify tests actually kill mutants | 3d | Test quality gate |
-| ✅ P2 | **SAST scan** — static analysis for SQL injection, auth bypass patterns | 1d | Security baseline |
-| ✅ P3 | **Property-based / fuzz testing** — random input validation for every COBOL action | 2d | Edge-case coverage |
-| ✅ P3 | **Smoke test for skeleton modules** — verify they return `INVALID_ACTION` instead of crashing | 0.5d | Prevent runtime surprises |
-| ✅ P3 | **Post-merge CI** — deploy migration dry-run / rollback drill | 1d | Safer deployments |
+This table reflects what is actually wired into the repository and CI. It is
+not a maturity score.
 
-Measured on this checkout:
+| Area | Status | Evidence |
+|---|---|---|
+| Table-driven COBOL cases | ✅ | `tests/cobol/cases/*.cases`, `tests/cobol/table_runner.sh` |
+| DB domain suites | ✅ | `tests/db/*_db_tests.sh`, `tests/run_all.sh db` |
+| Gateway tests | ✅ | `middleware/test/*.test.js`, `npm --prefix middleware test` |
+| Integration tests | ✅ | `tests/integration/cross_domain.sh` |
+| Fuzz tests | ✅ | `tests/fuzz/fuzz_inputs.sh` |
+| SAST | ✅ | `scripts/ci/sast.sh`, `scripts/ci/sast_extra.sh` |
+| Migration rollback + restore drills | ✅ | `scripts/ci/migration_rollback_drill.sh`, `scripts/ci/restore_drill.sh` |
+| Performance benchmarks | ✅ | `tests/perf/bench.sh` |
+| Coverage gate | ✅ | `scripts/ci/coverage.sh`, `tests/coverage_baseline.txt`; COBOL is a curated-core floor |
+| Warning ratchet | ⚠️ | `scripts/check_warnings.sh`; a few non-zero entries remain |
+| Mutation testing | ❌ | Not implemented; the probe harness tests gates, not mutants |
+| CI build under 2 minutes | ❌ | Full build/test is intentionally heavier |
 
+### Coverage scope
+
+Coverage is split into a curated COBOL core and the full gateway surface. The
+COBOL number is a floor over the modules listed in `scripts/ci/coverage.sh`,
+not a whole-tree claim. Generated domain modules are covered by their DB
+suites, table cases, and the action/suite inventory gates. See
+[docs/COVERAGE.md](docs/COVERAGE.md) for the exact scope and limits.
+
+## Measured on this checkout
+
+<!-- BEGIN GENERATED STATS -->
 | Metric | Value |
 |---|---:|
-| COBOL files | **485** (484 modules + dispatcher) |
-| COBOL lines | **331,608** |
-| Module tiers | **Tier 1** hand-reviewed core, **Tier 2** generated 9-action domains, **Tier 3** utilities — see `docs/module_classification.md` |
-| Utility modules | `auth_password_core`, `hashlen_core`, `ref_engine`, `ref_ext_core` (Tier 3) |
-| Skeleton modules | **0** — every module implements the 9-action contract; depth varies by tier |
-| Gateway route definitions | **4,254** actions across **479** route files (+ inline `app.js` routes) |
-| COBOL dispatch prefixes | **562** (contiguous slots `1..562`) |
-| Database tables (`schema.sql`) | **478** |
-| Recorded migrations | **518** (latest `0527_credit_insurance`) |
-| Test assertions | **2,124** table-case actions + **398** DB suites (see `tests/baseline_counts.txt`) + 136 gateway tests |
+| COBOL modules | **604** |
+| COBOL source files (incl. dispatcher) | **605** |
+| COBOL lines | **412,248** |
+| Gateway route files | **599** |
+| Gateway route definitions | **5,334** |
+| Dispatch entries | **682** |
+| Recorded migrations | **638** |
+| Tables in schema.sql | **478** |
+<!-- END GENERATED STATS -->
 
 ## Request contract
 
@@ -225,7 +239,7 @@ Operational endpoints:
 - `GET /ready` — dependency check (cached), public.
 - `GET /metrics` — Prometheus text; requires an `AUDIT_READ` bearer token.
 
-Route groups (479 modules) cover identity and access, wallet/ledger, payments and
+Route groups cover identity and access, wallet/ledger, payments and
 holds, lending (`/loans`, `/loan-schedules`), deposits, cards, GL and period
 close, fees, reports and delivery, imports, reconciliation, disputes, KYC and
 screening, compliance/legal holds, audit, alerts, on-call, batch/EOD, reference
@@ -349,20 +363,19 @@ route files are exported from `routes/index.js`, and that dispatch entries match
    hand-reviewed flagship set; the full inventory is `manifest/modules.json`.
    Tier definitions and strictness live in `docs/module_classification.md`.
 2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
-   `TRIM-RESULT-LEN`) are repeated in ~480 modules. Shared copybooks for
-   trimming, validation, and audit are the main refactor target.
+   `TRIM-RESULT-LEN`) are repeated across most generated modules. Shared
+   copybooks for trimming, validation, and audit are the main refactor target.
 3. **CI is hosted on GitHub Actions, but branch protection is unavailable.**
    The private/free plan rejects branch protection and repository rulesets, so
    merges are enforced by `scripts/ci/premerge.sh` and `docs/GOVERNANCE.md`
    rather than by the GitHub UI.
-4. **Documentation surface is thin but growing.** `docs/` now holds ADRs
-   (`docs/adr/`), `module_authoring.md`, `module_classification.md`,
-   `domain_overview.md`, `data_dictionary.md`, and `GOVERNANCE.md`. This README,
-   `middleware/.env.example`, module comments, and the tests are the maintained
-   documentation.
+4. **Documentation is maintained but generated in places.** `docs/STATUS.md`
+   and `docs/MODULE_INDEX.md` are generated from the manifest; ADRs, runbooks,
+   coverage, governance, the data dictionary, and the domain overview are
+   hand-maintained. Run `node scripts/check_docs.mjs` before merging.
 5. **Legacy compiler warnings** remain in some non-D1–D3 modules.
-6. **Build cost.** `./build.sh` compiles 485 units and takes roughly 2–3 minutes;
-   `tests/run_all.sh full` is the slow, authoritative gate.
+6. **Build cost.** `./build.sh` compiles the full COBOL tree and takes several
+   minutes; `tests/run_all.sh full` is the slow, authoritative gate.
 
 ## Working in this repository
 
@@ -389,6 +402,16 @@ npm --prefix middleware test            # gateway suite
 node scripts/check_manifest.mjs         # registry drift check
 node middleware/src/outbox_worker.js --once
 ```
+
+## Documentation
+
+- [Repository status](docs/STATUS.md) — generated counts.
+- [Module index](docs/MODULE_INDEX.md) — every registered module, prefix, route, cases, and DB suite.
+- [Domain overview](docs/domain_overview.md) and [data dictionary](docs/data_dictionary.md).
+- [Coverage](docs/COVERAGE.md), [governance](docs/GOVERNANCE.md), and [secret rotation runbook](docs/runbooks/secret-rotation.md).
+- [Architecture decision records](docs/adr/).
+
+Run `node scripts/check_docs.mjs` to verify generated stats and local links.
 
 ## License
 

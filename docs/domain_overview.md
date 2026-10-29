@@ -1,7 +1,8 @@
 # Domain Overview — Cobol Banking Core
 
 High-level map of the banking domains, their COBOL modules, and their database
-tables. The full column-level catalog is in `data_dictionary.md`.
+tables. The full module inventory is in [MODULE_INDEX.md](MODULE_INDEX.md); the
+column-level catalog is in [data_dictionary.md](data_dictionary.md).
 
 ## Core platform
 - `auth_core`, `auth_password_core`, `user_core`, `wallet_core`

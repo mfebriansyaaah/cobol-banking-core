@@ -31,6 +31,9 @@ jobs:
       - name: Verify manifest
         run: node scripts/check_manifest.mjs .
 
+      - name: Verify documentation
+        run: node scripts/check_docs.mjs .
+
       - name: Gate detection probes
         run: tests/probes/run_probes.sh
 

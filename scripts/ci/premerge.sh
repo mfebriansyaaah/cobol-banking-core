@@ -16,6 +16,7 @@ cd "$ROOT"
 
 STATIC_GATES=(
     check_manifest
+    check_docs
     check_route_dispatch
     check_route_conflicts
     check_route_auth
