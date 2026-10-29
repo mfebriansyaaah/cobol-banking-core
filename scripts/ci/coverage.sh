@@ -108,13 +108,15 @@ gateway_summary() {
 run_gateway_coverage() {
     local report="$COVERAGE_DIR/gateway.txt"
     echo "== gateway coverage ==" >&2
+    set +e
     ( cd middleware && node --import ./preload.mjs --test \
         --experimental-test-coverage \
         --test-coverage-include='src/**' >"$report" 2>&1 )
     local rc=$?
+    set -e
     if [ "$rc" -ne 0 ]; then
-        echo "FAIL gateway: the coverage suite did not pass (see $report)" >&2
-        tail -20 "$report" >&2
+        echo "FAIL gateway: the coverage suite did not pass (rc=$rc, see $report)" >&2
+        tail -40 "$report" >&2
         return 1
     fi
     local summary

@@ -72,8 +72,8 @@ The script writes:
 
 ## CI
 
-- **Pull requests:** the `test` job in `.github/workflows/ci.yml` runs
-  `scripts/ci/coverage.sh --gateway-only` after the full test gate and uploads
+- **Pull requests:** the `coverage` job in `.github/workflows/ci.yml` runs
+  `scripts/ci/coverage.sh --gateway-only` against a fresh database and uploads
   the `coverage` artifact.
 - **Nightly:** `.github/workflows/coverage.yml` runs the full COBOL + gateway
   measurement with a MariaDB service and uploads the report. It can also be
