@@ -1,0 +1,6 @@
+# Fiduciary (Wave18) validation cases.
+FID_CREATE missing ref@@ERROR\|INVALID_INPUT@@FID_CREATE||||||admin@test.com
+FID_GET missing id@@ERROR\|INVALID_INPUT@@FID_GET||||||admin@test.com
+FID_CALC missing id@@ERROR\|INVALID_INPUT@@FID_CALC||||||admin@test.com
+FID_DELETE missing id@@ERROR\|INVALID_INPUT@@FID_DELETE||||||admin@test.com
+FID_VALIDATE ok@@SUCCESS\|FID_VALID@@FID_VALIDATE|100.00|USD||||admin@test.com

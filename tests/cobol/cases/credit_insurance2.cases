@@ -1,0 +1,6 @@
+# Credit Insurance2 (Wave18) validation cases.
+CRIN_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRIN_CREATE||||||admin@test.com
+CRIN_GET missing id@@ERROR\|INVALID_INPUT@@CRIN_GET||||||admin@test.com
+CRIN_CALC missing id@@ERROR\|INVALID_INPUT@@CRIN_CALC||||||admin@test.com
+CRIN_DELETE missing id@@ERROR\|INVALID_INPUT@@CRIN_DELETE||||||admin@test.com
+CRIN_VALIDATE ok@@SUCCESS\|CRIN_VALID@@CRIN_VALIDATE|100.00|USD||||admin@test.com

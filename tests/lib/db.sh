@@ -2212,3 +2212,153 @@ db_reset_migration() {
     db_exec "DELETE FROM migration_audit;"
     db_exec "DELETE FROM migration;"
 }
+
+db_reset_life_insurance() {
+    db_exec "DELETE FROM life_insurance_audit;"
+    db_exec "DELETE FROM life_insurance;"
+}
+
+db_reset_health_insurance() {
+    db_exec "DELETE FROM health_insurance_audit;"
+    db_exec "DELETE FROM health_insurance;"
+}
+
+db_reset_property_insurance() {
+    db_exec "DELETE FROM property_insurance_audit;"
+    db_exec "DELETE FROM property_insurance;"
+}
+
+db_reset_casualty_insurance() {
+    db_exec "DELETE FROM casualty_insurance_audit;"
+    db_exec "DELETE FROM casualty_insurance;"
+}
+
+db_reset_auto_insurance() {
+    db_exec "DELETE FROM auto_insurance_audit;"
+    db_exec "DELETE FROM auto_insurance;"
+}
+
+db_reset_home_insurance() {
+    db_exec "DELETE FROM home_insurance_audit;"
+    db_exec "DELETE FROM home_insurance;"
+}
+
+db_reset_travel_insurance() {
+    db_exec "DELETE FROM travel_insurance_audit;"
+    db_exec "DELETE FROM travel_insurance;"
+}
+
+db_reset_marine_insurance() {
+    db_exec "DELETE FROM marine_insurance_audit;"
+    db_exec "DELETE FROM marine_insurance;"
+}
+
+db_reset_fire_insurance() {
+    db_exec "DELETE FROM fire_insurance_audit;"
+    db_exec "DELETE FROM fire_insurance;"
+}
+
+db_reset_theft_insurance() {
+    db_exec "DELETE FROM theft_insurance_audit;"
+    db_exec "DELETE FROM theft_insurance;"
+}
+
+db_reset_liability_insurance() {
+    db_exec "DELETE FROM liability_insurance_audit;"
+    db_exec "DELETE FROM liability_insurance;"
+}
+
+db_reset_professional_indemnity() {
+    db_exec "DELETE FROM professional_indemnity_audit;"
+    db_exec "DELETE FROM professional_indemnity;"
+}
+
+db_reset_directors_liability() {
+    db_exec "DELETE FROM directors_liability_audit;"
+    db_exec "DELETE FROM directors_liability;"
+}
+
+db_reset_product_liability() {
+    db_exec "DELETE FROM product_liability_audit;"
+    db_exec "DELETE FROM product_liability;"
+}
+
+db_reset_public_liability() {
+    db_exec "DELETE FROM public_liability_audit;"
+    db_exec "DELETE FROM public_liability;"
+}
+
+db_reset_employer_liability() {
+    db_exec "DELETE FROM employer_liability_audit;"
+    db_exec "DELETE FROM employer_liability;"
+}
+
+db_reset_cyber_insurance() {
+    db_exec "DELETE FROM cyber_insurance_audit;"
+    db_exec "DELETE FROM cyber_insurance;"
+}
+
+db_reset_kidnap_ransom() {
+    db_exec "DELETE FROM kidnap_ransom_audit;"
+    db_exec "DELETE FROM kidnap_ransom;"
+}
+
+db_reset_political_risk() {
+    db_exec "DELETE FROM political_risk_audit;"
+    db_exec "DELETE FROM political_risk;"
+}
+
+db_reset_credit_insurance2() {
+    db_exec "DELETE FROM credit_insurance2_audit;"
+    db_exec "DELETE FROM credit_insurance2;"
+}
+
+db_reset_surety() {
+    db_exec "DELETE FROM surety_audit;"
+    db_exec "DELETE FROM surety;"
+}
+
+db_reset_guarantee() {
+    db_exec "DELETE FROM guarantee_audit;"
+    db_exec "DELETE FROM guarantee;"
+}
+
+db_reset_bond_insurance() {
+    db_exec "DELETE FROM bond_insurance_audit;"
+    db_exec "DELETE FROM bond_insurance;"
+}
+
+db_reset_fidelity() {
+    db_exec "DELETE FROM fidelity_audit;"
+    db_exec "DELETE FROM fidelity;"
+}
+
+db_reset_crime() {
+    db_exec "DELETE FROM crime_audit;"
+    db_exec "DELETE FROM crime;"
+}
+
+db_reset_errors_omissions() {
+    db_exec "DELETE FROM errors_omissions_audit;"
+    db_exec "DELETE FROM errors_omissions;"
+}
+
+db_reset_professional_risk() {
+    db_exec "DELETE FROM professional_risk_audit;"
+    db_exec "DELETE FROM professional_risk;"
+}
+
+db_reset_management_liability() {
+    db_exec "DELETE FROM management_liability_audit;"
+    db_exec "DELETE FROM management_liability;"
+}
+
+db_reset_employment_practices() {
+    db_exec "DELETE FROM employment_practices_audit;"
+    db_exec "DELETE FROM employment_practices;"
+}
+
+db_reset_fiduciary() {
+    db_exec "DELETE FROM fiduciary_audit;"
+    db_exec "DELETE FROM fiduciary;"
+}

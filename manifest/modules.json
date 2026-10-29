@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T03:04:16.024Z",
+  "generatedAt": "2026-10-29T04:57:40.389Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -131,6 +131,9 @@
       "source": "authorization_core.cob"
     },
     {
+      "source": "auto_insurance_core.cob"
+    },
+    {
       "source": "auto_loan_core.cob"
     },
     {
@@ -194,6 +197,9 @@
       "source": "bond_core.cob"
     },
     {
+      "source": "bond_insurance_core.cob"
+    },
+    {
       "source": "bond_trading_core.cob"
     },
     {
@@ -249,6 +255,9 @@
     },
     {
       "source": "cashback_core.cob"
+    },
+    {
+      "source": "casualty_insurance_core.cob"
     },
     {
       "source": "certificate_deposit_core.cob"
@@ -377,10 +386,16 @@
       "source": "credit_default_swap_core.cob"
     },
     {
+      "source": "credit_insurance2_core.cob"
+    },
+    {
       "source": "credit_insurance_core.cob"
     },
     {
       "source": "credit_line_core.cob"
+    },
+    {
+      "source": "crime_core.cob"
     },
     {
       "source": "crisis_management_core.cob"
@@ -411,6 +426,9 @@
     },
     {
       "source": "customer_support_core.cob"
+    },
+    {
+      "source": "cyber_insurance_core.cob"
     },
     {
       "source": "daily_limit_core.cob"
@@ -482,6 +500,9 @@
       "source": "direct_lending_core.cob"
     },
     {
+      "source": "directors_liability_core.cob"
+    },
+    {
       "source": "disaster_recovery_core.cob"
     },
     {
@@ -524,6 +545,12 @@
       "source": "employee_core.cob"
     },
     {
+      "source": "employer_liability_core.cob"
+    },
+    {
+      "source": "employment_practices_core.cob"
+    },
+    {
       "source": "eod_core.cob"
     },
     {
@@ -537,6 +564,9 @@
     },
     {
       "source": "equity_swap_core.cob"
+    },
+    {
+      "source": "errors_omissions_core.cob"
     },
     {
       "source": "escalation_core.cob"
@@ -593,6 +623,12 @@
       "source": "fee_waiver_core.cob"
     },
     {
+      "source": "fidelity_core.cob"
+    },
+    {
+      "source": "fiduciary_core.cob"
+    },
+    {
       "source": "filing_core.cob"
     },
     {
@@ -600,6 +636,9 @@
     },
     {
       "source": "final_payment_core.cob"
+    },
+    {
+      "source": "fire_insurance_core.cob"
     },
     {
       "source": "fixed_asset_core.cob"
@@ -668,6 +707,9 @@
       "source": "greeks_core.cob"
     },
     {
+      "source": "guarantee_core.cob"
+    },
+    {
       "source": "guarantee_issuing_core.cob"
     },
     {
@@ -677,6 +719,9 @@
       "source": "health_check_core.cob"
     },
     {
+      "source": "health_insurance_core.cob"
+    },
+    {
       "source": "hedge_core.cob"
     },
     {
@@ -684,6 +729,9 @@
     },
     {
       "source": "hire_purchase_core.cob"
+    },
+    {
+      "source": "home_insurance_core.cob"
     },
     {
       "source": "hotfix_core.cob"
@@ -770,6 +818,9 @@
       "source": "key_rotation_core.cob"
     },
     {
+      "source": "kidnap_ransom_core.cob"
+    },
+    {
       "source": "kpi_core.cob"
     },
     {
@@ -806,7 +857,13 @@
       "source": "liability_core.cob"
     },
     {
+      "source": "liability_insurance_core.cob"
+    },
+    {
       "source": "license_core.cob"
+    },
+    {
+      "source": "life_insurance_core.cob"
     },
     {
       "source": "limit_profile_core.cob"
@@ -836,10 +893,16 @@
       "source": "loyalty_program_core.cob"
     },
     {
+      "source": "management_liability_core.cob"
+    },
+    {
       "source": "margin_core.cob"
     },
     {
       "source": "margin_trading_core.cob"
+    },
+    {
+      "source": "marine_insurance_core.cob"
     },
     {
       "source": "mark_to_market_core.cob"
@@ -1052,6 +1115,9 @@
       "source": "policy_review_core.cob"
     },
     {
+      "source": "political_risk_core.cob"
+    },
+    {
       "source": "portfolio_core.cob"
     },
     {
@@ -1094,6 +1160,15 @@
       "source": "product_item_core.cob"
     },
     {
+      "source": "product_liability_core.cob"
+    },
+    {
+      "source": "professional_indemnity_core.cob"
+    },
+    {
+      "source": "professional_risk_core.cob"
+    },
+    {
       "source": "profit_center_core.cob"
     },
     {
@@ -1103,7 +1178,13 @@
       "source": "promissory_note_core.cob"
     },
     {
+      "source": "property_insurance_core.cob"
+    },
+    {
       "source": "provisioning_core.cob"
+    },
+    {
+      "source": "public_liability_core.cob"
     },
     {
       "source": "push_notification_core.cob"
@@ -1358,6 +1439,9 @@
       "source": "supply_chain_finance_core.cob"
     },
     {
+      "source": "surety_core.cob"
+    },
+    {
       "source": "suspense_core.cob"
     },
     {
@@ -1392,6 +1476,9 @@
     },
     {
       "source": "termination_item_core.cob"
+    },
+    {
+      "source": "theft_insurance_core.cob"
     },
     {
       "source": "timeout_core.cob"
@@ -1440,6 +1527,9 @@
     },
     {
       "source": "transfer_pricing_core.cob"
+    },
+    {
+      "source": "travel_insurance_core.cob"
     },
     {
       "source": "treasury_deal_core.cob"
@@ -1586,6 +1676,7 @@
     "audit_snapshot.js",
     "audit_trail.js",
     "authorization.js",
+    "auto_insurance.js",
     "auto_loan.js",
     "backup_drill.js",
     "backup_management.js",
@@ -1607,6 +1698,7 @@
     "blacklist.js",
     "blockchain_tracker.js",
     "bond.js",
+    "bond_insurance.js",
     "bond_trading.js",
     "branch_management.js",
     "budget.js",
@@ -1626,6 +1718,7 @@
     "cash_flow.js",
     "cash_management.js",
     "cashback.js",
+    "casualty_insurance.js",
     "certificate_deposit.js",
     "certification.js",
     "change_approval.js",
@@ -1669,7 +1762,9 @@
     "credit_card.js",
     "credit_default_swap.js",
     "credit_insurance.js",
+    "credit_insurance2.js",
     "credit_line.js",
+    "crime.js",
     "crisis_management.js",
     "crowdfunding.js",
     "crypto_exchange.js",
@@ -1680,6 +1775,7 @@
     "customer.js",
     "customer_profile.js",
     "customer_support.js",
+    "cyber_insurance.js",
     "daily_limit.js",
     "dashboard.js",
     "dashboard_widget.js",
@@ -1703,6 +1799,7 @@
     "digital_banking.js",
     "direct_debit.js",
     "direct_lending.js",
+    "directors_liability.js",
     "disaster_recovery.js",
     "discount_item.js",
     "dispute_management.js",
@@ -1717,11 +1814,14 @@
     "elimination.js",
     "email.js",
     "employee.js",
+    "employer_liability.js",
+    "employment_practices.js",
     "eod.js",
     "eod_jobs.js",
     "equity.js",
     "equity_account.js",
     "equity_swap.js",
+    "errors_omissions.js",
     "escalation.js",
     "escrow_account.js",
     "etf.js",
@@ -1740,9 +1840,12 @@
     "fee_item.js",
     "fee_management.js",
     "fee_waiver.js",
+    "fidelity.js",
+    "fiduciary.js",
     "filing.js",
     "fill.js",
     "final_payment.js",
+    "fire_insurance.js",
     "fixed_asset.js",
     "fixed_deposit.js",
     "forecast.js",
@@ -1765,11 +1868,14 @@
     "gl_period_close.js",
     "gl_reval.js",
     "greeks.js",
+    "guarantee.js",
     "guarantee_issuing.js",
     "health_check.js",
+    "health_insurance.js",
     "hedge.js",
     "hedge_fund.js",
     "hire_purchase.js",
+    "home_insurance.js",
     "hotfix.js",
     "import.js",
     "import_finance.js",
@@ -1797,6 +1903,7 @@
     "invoice_financing.js",
     "journal.js",
     "key_rotation.js",
+    "kidnap_ransom.js",
     "kpi.js",
     "kyc.js",
     "kyc_check.js",
@@ -1810,7 +1917,9 @@
     "letter_of_credit.js",
     "letter_of_guarantee.js",
     "liability.js",
+    "liability_insurance.js",
     "license.js",
+    "life_insurance.js",
     "limit_profile.js",
     "load_balancer.js",
     "loan.js",
@@ -1820,8 +1929,10 @@
     "login_attempt.js",
     "loss_reserve.js",
     "loyalty_program.js",
+    "management_liability.js",
     "margin.js",
     "margin_trading.js",
+    "marine_insurance.js",
     "mark_to_market.js",
     "market_data.js",
     "master_data.js",
@@ -1892,6 +2003,7 @@
     "policy_administration.js",
     "policy_attestation.js",
     "policy_review.js",
+    "political_risk.js",
     "portfolio.js",
     "portfolio_management.js",
     "position.js",
@@ -1906,10 +2018,15 @@
     "procurement.js",
     "product_catalog.js",
     "product_item.js",
+    "product_liability.js",
+    "professional_indemnity.js",
+    "professional_risk.js",
     "profit.js",
     "profit_center.js",
     "promissory_note.js",
+    "property_insurance.js",
     "provisioning.js",
+    "public_liability.js",
     "push_notification.js",
     "qr_payment.js",
     "quote.js",
@@ -1994,6 +2111,7 @@
     "subscription.js",
     "supply_chain.js",
     "supply_chain_finance.js",
+    "surety.js",
     "suspense.js",
     "suspension_item.js",
     "swap_contract.js",
@@ -2006,6 +2124,7 @@
     "teller_management.js",
     "term_deposit.js",
     "termination_item.js",
+    "theft_insurance.js",
     "timeout.js",
     "token_management.js",
     "tokenization.js",
@@ -2022,6 +2141,7 @@
     "transfer.js",
     "transfer_item.js",
     "transfer_pricing.js",
+    "travel_insurance.js",
     "treasury_deal.js",
     "treasury_liquidity.js",
     "treasury_position.js",
@@ -5015,6 +5135,156 @@
       "prefixLen": 4,
       "prefix": "MIG_",
       "program": "migration_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LIF_",
+      "program": "life_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "HLT_",
+      "program": "health_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PTY_",
+      "program": "property_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CSL_",
+      "program": "casualty_insurance_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "AUTI_",
+      "program": "auto_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "HOM_",
+      "program": "home_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "TRV_",
+      "program": "travel_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MRN_",
+      "program": "marine_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FIR_",
+      "program": "fire_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "THF_",
+      "program": "theft_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LIB_",
+      "program": "liability_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PIN_",
+      "program": "professional_indemnity_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "DOL_",
+      "program": "directors_liability_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PDL_",
+      "program": "product_liability_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PUL_",
+      "program": "public_liability_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "EMLI_",
+      "program": "employer_liability_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CYB_",
+      "program": "cyber_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "KNR_",
+      "program": "kidnap_ransom_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "POL_",
+      "program": "political_risk_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CRIN_",
+      "program": "credit_insurance2_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "SR_",
+      "program": "surety_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "GUA_",
+      "program": "guarantee_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BNI_",
+      "program": "bond_insurance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FDL_",
+      "program": "fidelity_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CRIM_",
+      "program": "crime_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EAO_",
+      "program": "errors_omissions_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "PRK_",
+      "program": "professional_risk_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MNL_",
+      "program": "management_liability_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "EPL_",
+      "program": "employment_practices_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FID_",
+      "program": "fiduciary_core"
     }
   ]
 }

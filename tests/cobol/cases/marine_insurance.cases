@@ -1,0 +1,6 @@
+# Marine Insurance (Wave18) validation cases.
+MRN_CREATE missing ref@@ERROR\|INVALID_INPUT@@MRN_CREATE||||||admin@test.com
+MRN_GET missing id@@ERROR\|INVALID_INPUT@@MRN_GET||||||admin@test.com
+MRN_CALC missing id@@ERROR\|INVALID_INPUT@@MRN_CALC||||||admin@test.com
+MRN_DELETE missing id@@ERROR\|INVALID_INPUT@@MRN_DELETE||||||admin@test.com
+MRN_VALIDATE ok@@SUCCESS\|MRN_VALID@@MRN_VALIDATE|100.00|USD||||admin@test.com

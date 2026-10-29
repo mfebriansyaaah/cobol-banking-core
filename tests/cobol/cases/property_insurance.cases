@@ -1,0 +1,6 @@
+# Property Insurance (Wave18) validation cases.
+PTY_CREATE missing ref@@ERROR\|INVALID_INPUT@@PTY_CREATE||||||admin@test.com
+PTY_GET missing id@@ERROR\|INVALID_INPUT@@PTY_GET||||||admin@test.com
+PTY_CALC missing id@@ERROR\|INVALID_INPUT@@PTY_CALC||||||admin@test.com
+PTY_DELETE missing id@@ERROR\|INVALID_INPUT@@PTY_DELETE||||||admin@test.com
+PTY_VALIDATE ok@@SUCCESS\|PTY_VALID@@PTY_VALIDATE|100.00|USD||||admin@test.com

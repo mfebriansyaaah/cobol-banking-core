@@ -1,0 +1,6 @@
+# Professional Indemnity (Wave18) validation cases.
+PIN_CREATE missing ref@@ERROR\|INVALID_INPUT@@PIN_CREATE||||||admin@test.com
+PIN_GET missing id@@ERROR\|INVALID_INPUT@@PIN_GET||||||admin@test.com
+PIN_CALC missing id@@ERROR\|INVALID_INPUT@@PIN_CALC||||||admin@test.com
+PIN_DELETE missing id@@ERROR\|INVALID_INPUT@@PIN_DELETE||||||admin@test.com
+PIN_VALIDATE ok@@SUCCESS\|PIN_VALID@@PIN_VALIDATE|100.00|USD||||admin@test.com

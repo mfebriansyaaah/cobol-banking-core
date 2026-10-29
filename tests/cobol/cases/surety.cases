@@ -1,0 +1,6 @@
+# Surety (Wave18) validation cases.
+SR_CREATE missing ref@@ERROR\|INVALID_INPUT@@SR_CREATE||||||admin@test.com
+SR_GET missing id@@ERROR\|INVALID_INPUT@@SR_GET||||||admin@test.com
+SR_CALC missing id@@ERROR\|INVALID_INPUT@@SR_CALC||||||admin@test.com
+SR_DELETE missing id@@ERROR\|INVALID_INPUT@@SR_DELETE||||||admin@test.com
+SR_VALIDATE ok@@SUCCESS\|SR_VALID@@SR_VALIDATE|100.00|USD||||admin@test.com

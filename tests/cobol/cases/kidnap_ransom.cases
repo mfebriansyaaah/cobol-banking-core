@@ -1,0 +1,6 @@
+# Kidnap Ransom (Wave18) validation cases.
+KNR_CREATE missing ref@@ERROR\|INVALID_INPUT@@KNR_CREATE||||||admin@test.com
+KNR_GET missing id@@ERROR\|INVALID_INPUT@@KNR_GET||||||admin@test.com
+KNR_CALC missing id@@ERROR\|INVALID_INPUT@@KNR_CALC||||||admin@test.com
+KNR_DELETE missing id@@ERROR\|INVALID_INPUT@@KNR_DELETE||||||admin@test.com
+KNR_VALIDATE ok@@SUCCESS\|KNR_VALID@@KNR_VALIDATE|100.00|USD||||admin@test.com
