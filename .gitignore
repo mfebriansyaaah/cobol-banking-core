@@ -22,3 +22,6 @@ sql_debug.log
 
 # Node
 middleware/node_modules/
+
+# Coverage reports
+coverage/

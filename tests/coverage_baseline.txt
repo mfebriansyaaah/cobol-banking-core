@@ -1,0 +1,13 @@
+# Coverage floors and ratchet baseline.
+#
+# COBOL numbers come from scripts/ci/coverage.sh over the curated core module
+# set, the representative DB suite subset, the table suite, and the gateway
+# suite. Generated domain modules are covered by their own DB suites and table
+# cases; this is a curated-core floor, not a production-coverage claim.
+#
+# Gateway numbers come from Node's --experimental-test-coverage over
+# middleware/src/**. Absolute floors are 30% for COBOL, 80% gateway lines, and
+# 70% gateway branches. The ratchet tolerance is 1.0 percentage point.
+cobol_total 59.22
+gateway_lines 99.26
+gateway_branches 90.35

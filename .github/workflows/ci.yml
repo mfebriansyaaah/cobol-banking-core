@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install build dependencies
         run: |
@@ -104,7 +104,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
           cache-dependency-path: middleware/package-lock.json
 
@@ -160,6 +160,92 @@ jobs:
         with:
           name: gateway-log
           path: /tmp/gateway_endpoints.log
+          if-no-files-found: ignore
+
+  coverage:
+    name: coverage
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_USER: cobol_user
+      DB_PASS: cobol_pass
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+      SKIP_BUILD: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gnucobol libmysqlclient-dev build-essential mariadb-client
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: middleware/package-lock.json
+
+      - name: Install gateway dependencies
+        run: npm ci --prefix middleware
+
+      - name: Download core binary
+        uses: actions/download-artifact@v4
+        with:
+          name: cobol-binary
+          path: cobol/bin
+
+      - name: Make binary executable
+        run: chmod +x cobol/bin/main_logic
+
+      - name: Load baseline schema
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
+          < database/schema.sql
+
+      - name: Apply migrations
+        run: ./database/migrate.sh
+
+      - name: Seed test data
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_USER" -p"$DB_PASS" "$DB_NAME"
+          < database/seed_test_data.sql
+
+      - name: Gateway coverage
+        run: bash scripts/ci/coverage.sh --gateway-only
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
           if-no-files-found: ignore
 
   post-merge:
