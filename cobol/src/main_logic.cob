@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 562 TO DISPATCH-COUNT.
+            MOVE 622 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -1615,6 +1615,96 @@
             MOVE "HEDG_" TO D-PREFIX(502).
             MOVE 5 TO D-PREFIX-LEN(502).
             MOVE "hedge_core" TO D-PROGRAM(502).
+            MOVE "CMP_" TO D-PREFIX(563).
+            MOVE 4 TO D-PREFIX-LEN(563).
+            MOVE "compliance_check_core" TO D-PROGRAM(563).
+            MOVE "RGF_" TO D-PREFIX(564).
+            MOVE 4 TO D-PREFIX-LEN(564).
+            MOVE "regulatory_filing_core" TO D-PROGRAM(564).
+            MOVE "AUF_" TO D-PREFIX(565).
+            MOVE 4 TO D-PREFIX-LEN(565).
+            MOVE "audit_finding_core" TO D-PROGRAM(565).
+            MOVE "RSA_" TO D-PREFIX(566).
+            MOVE 4 TO D-PREFIX-LEN(566).
+            MOVE "risk_assessment_core" TO D-PROGRAM(566).
+            MOVE "CTL2_" TO D-PREFIX(567).
+            MOVE 5 TO D-PREFIX-LEN(567).
+            MOVE "control_test_core" TO D-PROGRAM(567).
+            MOVE "PLR_" TO D-PREFIX(568).
+            MOVE 4 TO D-PREFIX-LEN(568).
+            MOVE "policy_review_core" TO D-PROGRAM(568).
+            MOVE "PRR_" TO D-PREFIX(569).
+            MOVE 4 TO D-PREFIX-LEN(569).
+            MOVE "procedure_review_core" TO D-PROGRAM(569).
+            MOVE "TRR_" TO D-PREFIX(570).
+            MOVE 4 TO D-PREFIX-LEN(570).
+            MOVE "training_record_core" TO D-PROGRAM(570).
+            MOVE "CRTF_" TO D-PREFIX(571).
+            MOVE 5 TO D-PREFIX-LEN(571).
+            MOVE "certification_core" TO D-PROGRAM(571).
+            MOVE "LIC_" TO D-PREFIX(572).
+            MOVE 4 TO D-PREFIX-LEN(572).
+            MOVE "license_core" TO D-PROGRAM(572).
+            MOVE "PRM_" TO D-PREFIX(573).
+            MOVE 4 TO D-PREFIX-LEN(573).
+            MOVE "permit_core" TO D-PROGRAM(573).
+            MOVE "REGN_" TO D-PREFIX(574).
+            MOVE 5 TO D-PREFIX-LEN(574).
+            MOVE "registration_core" TO D-PROGRAM(574).
+            MOVE "FIL2_" TO D-PREFIX(575).
+            MOVE 5 TO D-PREFIX-LEN(575).
+            MOVE "filing_core" TO D-PROGRAM(575).
+            MOVE "SUB2_" TO D-PREFIX(576).
+            MOVE 5 TO D-PREFIX-LEN(576).
+            MOVE "submission_core" TO D-PROGRAM(576).
+            MOVE "APR_" TO D-PREFIX(577).
+            MOVE 4 TO D-PREFIX-LEN(577).
+            MOVE "approval_core" TO D-PROGRAM(577).
+            MOVE "AUT_" TO D-PREFIX(578).
+            MOVE 4 TO D-PREFIX-LEN(578).
+            MOVE "authorization_core" TO D-PROGRAM(578).
+            MOVE "DLG_" TO D-PREFIX(579).
+            MOVE 4 TO D-PREFIX-LEN(579).
+            MOVE "delegation_core" TO D-PROGRAM(579).
+            MOVE "ESCL_" TO D-PREFIX(580).
+            MOVE 5 TO D-PREFIX-LEN(580).
+            MOVE "escalation_core" TO D-PROGRAM(580).
+            MOVE "NTFC_" TO D-PREFIX(581).
+            MOVE 5 TO D-PREFIX-LEN(581).
+            MOVE "notification_mgmt_core" TO D-PROGRAM(581).
+            MOVE "ALR2_" TO D-PREFIX(582).
+            MOVE 5 TO D-PREFIX-LEN(582).
+            MOVE "alert_mgmt_core" TO D-PROGRAM(582).
+            MOVE "INCD_" TO D-PREFIX(583).
+            MOVE 5 TO D-PREFIX-LEN(583).
+            MOVE "incident_mgmt_core" TO D-PROGRAM(583).
+            MOVE "PRB_" TO D-PREFIX(584).
+            MOVE 4 TO D-PREFIX-LEN(584).
+            MOVE "problem_core" TO D-PROGRAM(584).
+            MOVE "CHG2_" TO D-PREFIX(585).
+            MOVE 5 TO D-PREFIX-LEN(585).
+            MOVE "change_mgmt_core" TO D-PROGRAM(585).
+            MOVE "REL_" TO D-PREFIX(586).
+            MOVE 4 TO D-PREFIX-LEN(586).
+            MOVE "release_mgmt_core" TO D-PROGRAM(586).
+            MOVE "DEP2_" TO D-PREFIX(587).
+            MOVE 5 TO D-PREFIX-LEN(587).
+            MOVE "deployment_core" TO D-PROGRAM(587).
+            MOVE "ROL_" TO D-PREFIX(588).
+            MOVE 4 TO D-PREFIX-LEN(588).
+            MOVE "rollback_core" TO D-PROGRAM(588).
+            MOVE "HFX_" TO D-PREFIX(589).
+            MOVE 4 TO D-PREFIX-LEN(589).
+            MOVE "hotfix_core" TO D-PROGRAM(589).
+            MOVE "PCH_" TO D-PREFIX(590).
+            MOVE 4 TO D-PREFIX-LEN(590).
+            MOVE "patch_core" TO D-PROGRAM(590).
+            MOVE "UPG_" TO D-PREFIX(591).
+            MOVE 4 TO D-PREFIX-LEN(591).
+            MOVE "upgrade_core" TO D-PROGRAM(591).
+            MOVE "MIG_" TO D-PREFIX(592).
+            MOVE 4 TO D-PREFIX-LEN(592).
+            MOVE "migration_core" TO D-PROGRAM(592).
             MOVE "MTG_" TO D-PREFIX(533).
             MOVE 4 TO D-PREFIX-LEN(533).
             MOVE "mortgage_core" TO D-PROGRAM(533).

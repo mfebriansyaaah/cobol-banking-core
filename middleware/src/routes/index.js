@@ -418,6 +418,36 @@ import { ACCESS_AUDIT_ROUTES } from './access_audit.js';
 import { BACKUP_VERIFICATION_ROUTES } from './backup_verification.js';
 import { SLA_TRACKING_ROUTES } from './sla_tracking.js';
 import { REOP_ROUTES } from './reopening_item.js';
+import { MIG_ROUTES } from './migration.js';
+import { ROL_ROUTES } from './rollback.js';
+import { UPG_ROUTES } from './upgrade.js';
+import { PCH_ROUTES } from './patch.js';
+import { HFX_ROUTES } from './hotfix.js';
+import { DEP2_ROUTES } from './deployment.js';
+import { REL_ROUTES } from './release_mgmt.js';
+import { CHG2_ROUTES } from './change_mgmt.js';
+import { PRB_ROUTES } from './problem.js';
+import { INCD_ROUTES } from './incident_mgmt.js';
+import { ALR2_ROUTES } from './alert_mgmt.js';
+import { NTFC_ROUTES } from './notification_mgmt.js';
+import { ESCL_ROUTES } from './escalation.js';
+import { DLG_ROUTES } from './delegation.js';
+import { AUT_ROUTES } from './authorization.js';
+import { APR_ROUTES } from './approval.js';
+import { SUB2_ROUTES } from './submission.js';
+import { FIL2_ROUTES } from './filing.js';
+import { REGN_ROUTES } from './registration.js';
+import { PRM_ROUTES } from './permit.js';
+import { LIC_ROUTES } from './license.js';
+import { CRTF_ROUTES } from './certification.js';
+import { TRR_ROUTES } from './training_record.js';
+import { PRR_ROUTES } from './procedure_review.js';
+import { PLR_ROUTES } from './policy_review.js';
+import { CTL2_ROUTES } from './control_test.js';
+import { RSA_ROUTES } from './risk_assessment.js';
+import { AUF_ROUTES } from './audit_finding.js';
+import { RGF_ROUTES } from './regulatory_filing.js';
+import { CMP_ROUTES } from './compliance_check.js';
 import { CRI_ROUTES } from './credit_insurance.js';
 import { WRT_ROUTES } from './warranty.js';
 import { FNP_ROUTES } from './final_payment.js';
@@ -898,6 +928,36 @@ export const ALL_ROUTES = [
   ...BACKUP_VERIFICATION_ROUTES,
   ...SLA_TRACKING_ROUTES,
   ...REOP_ROUTES,
+  ...MIG_ROUTES,
+  ...ROL_ROUTES,
+  ...UPG_ROUTES,
+  ...PCH_ROUTES,
+  ...HFX_ROUTES,
+  ...DEP2_ROUTES,
+  ...REL_ROUTES,
+  ...CHG2_ROUTES,
+  ...PRB_ROUTES,
+  ...INCD_ROUTES,
+  ...ALR2_ROUTES,
+  ...NTFC_ROUTES,
+  ...ESCL_ROUTES,
+  ...DLG_ROUTES,
+  ...AUT_ROUTES,
+  ...APR_ROUTES,
+  ...SUB2_ROUTES,
+  ...FIL2_ROUTES,
+  ...REGN_ROUTES,
+  ...PRM_ROUTES,
+  ...LIC_ROUTES,
+  ...CRTF_ROUTES,
+  ...TRR_ROUTES,
+  ...PRR_ROUTES,
+  ...PLR_ROUTES,
+  ...CTL2_ROUTES,
+  ...RSA_ROUTES,
+  ...AUF_ROUTES,
+  ...RGF_ROUTES,
+  ...CMP_ROUTES,
   ...CRI_ROUTES,
   ...WRT_ROUTES,
   ...FNP_ROUTES,

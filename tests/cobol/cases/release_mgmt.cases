@@ -1,0 +1,6 @@
+# Release Mgmt (Wave17) validation cases.
+REL_CREATE missing ref@@ERROR\|INVALID_INPUT@@REL_CREATE||||||admin@test.com
+REL_GET missing id@@ERROR\|INVALID_INPUT@@REL_GET||||||admin@test.com
+REL_CALC missing id@@ERROR\|INVALID_INPUT@@REL_CALC||||||admin@test.com
+REL_DELETE missing id@@ERROR\|INVALID_INPUT@@REL_DELETE||||||admin@test.com
+REL_VALIDATE ok@@SUCCESS\|REL_VALID@@REL_VALIDATE|100.00|USD||||admin@test.com

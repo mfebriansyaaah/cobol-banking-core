@@ -1,0 +1,6 @@
+# Upgrade (Wave17) validation cases.
+UPG_CREATE missing ref@@ERROR\|INVALID_INPUT@@UPG_CREATE||||||admin@test.com
+UPG_GET missing id@@ERROR\|INVALID_INPUT@@UPG_GET||||||admin@test.com
+UPG_CALC missing id@@ERROR\|INVALID_INPUT@@UPG_CALC||||||admin@test.com
+UPG_DELETE missing id@@ERROR\|INVALID_INPUT@@UPG_DELETE||||||admin@test.com
+UPG_VALIDATE ok@@SUCCESS\|UPG_VALID@@UPG_VALIDATE|100.00|USD||||admin@test.com

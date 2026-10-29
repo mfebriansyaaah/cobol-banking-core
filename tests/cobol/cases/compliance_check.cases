@@ -1,0 +1,6 @@
+# Compliance Check (Wave17) validation cases.
+CMP_CREATE missing ref@@ERROR\|INVALID_INPUT@@CMP_CREATE||||||admin@test.com
+CMP_GET missing id@@ERROR\|INVALID_INPUT@@CMP_GET||||||admin@test.com
+CMP_CALC missing id@@ERROR\|INVALID_INPUT@@CMP_CALC||||||admin@test.com
+CMP_DELETE missing id@@ERROR\|INVALID_INPUT@@CMP_DELETE||||||admin@test.com
+CMP_VALIDATE ok@@SUCCESS\|CMP_VALID@@CMP_VALIDATE|100.00|USD||||admin@test.com
