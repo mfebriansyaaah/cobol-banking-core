@@ -32,6 +32,20 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - `cost_center_core`, `fixed_asset_core`, `consolidation_core`
 - `budget_core`, `procurement_core`, `tax_report_core`
 
+## Collateral Management (canonical)
+- `collateral_core` is the canonical domain: register → appraise → revalue →
+  pledge → allocate → release, plus repossess → dispose with GL linkage
+  (`gl_journal_id`).
+- Tables: `collateral`, `collateral_valuation`, `collateral_pledge`,
+  `collateral_allocation`, `collateral_audit`.
+- GL accounts: `1510` Repossessed Collateral, `4210` Gain on Disposal,
+  `5210` Loss on Disposal. Post via `GL_JOURNAL_POST`, link via
+  `CLT_REPOSSESS`/`CLT_DISPOSE` P4 (`glJournalId`).
+- Deprecated (do not use for new flows; kept for backward compat):
+  `collateral_mgmt_core`, `collateral_repossession_core`, `collateralized_core`.
+  Their tables (`collateral_mgmt`, `collateral_repossession`,
+  `collateralized`) are legacy generic clones.
+
 ## Data, reporting & IT ops
 - `report_core`, `report_builder_core`, `report_*`, `analytics_snapshot_core`
 - `metric_definition_core`, `data_lineage_core`, `data_quality_core`, `data_retention_core`

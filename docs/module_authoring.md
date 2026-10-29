@@ -1,5 +1,13 @@
 # Module Authoring Guide
 
+> **Freeze (2026-10-29, domain-nyata program):** do not generate new modules
+> from `cost_center_core.cob` via `scripts/generate_module.py` without a domain
+> design review. New modules must have domain-specific tables (no generic
+> `ref/name/type/budget_amount/spent_amount`) and at least one integration
+> with a core module (customer, account, loan, payment, fee, GL, KYC/AML).
+> See `/home/febri/.opencode/plan/00-master-plan-domain-nyata.md` for the
+> conversion list and migration ranges (`0648+`).
+
 New SQL-backed COBOL modules should be generated from the canonical template
 rather than copied by hand, so the 9-action contract and boilerplate stay
 consistent.
