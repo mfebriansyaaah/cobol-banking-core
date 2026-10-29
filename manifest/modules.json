@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T05:45:12.737Z",
+  "generatedAt": "2026-10-29T06:42:30.170Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -39,6 +39,9 @@
     },
     {
       "source": "agreement_core.cob"
+    },
+    {
+      "source": "agricultural_finance_core.cob"
     },
     {
       "source": "alert_core.cob"
@@ -137,6 +140,9 @@
       "source": "authorization_core.cob"
     },
     {
+      "source": "auto_finance_core.cob"
+    },
+    {
       "source": "auto_insurance_core.cob"
     },
     {
@@ -212,6 +218,9 @@
       "source": "bond_trading_core.cob"
     },
     {
+      "source": "branch_banking_core.cob"
+    },
+    {
       "source": "branch_management_core.cob"
     },
     {
@@ -222,6 +231,9 @@
     },
     {
       "source": "budgeting_core.cob"
+    },
+    {
+      "source": "building_society_core.cob"
     },
     {
       "source": "business_continuity_core.cob"
@@ -270,6 +282,9 @@
     },
     {
       "source": "casualty_insurance_core.cob"
+    },
+    {
+      "source": "central_banking_core.cob"
     },
     {
       "source": "certificate_deposit_core.cob"
@@ -323,6 +338,9 @@
       "source": "collection_mgmt_core.cob"
     },
     {
+      "source": "commercial_banking_core.cob"
+    },
+    {
       "source": "commission_item_core.cob"
     },
     {
@@ -330,6 +348,9 @@
     },
     {
       "source": "commodity_trading_core.cob"
+    },
+    {
+      "source": "community_banking_core.cob"
     },
     {
       "source": "compensation_core.cob"
@@ -365,6 +386,9 @@
       "source": "consolidation_mgmt_core.cob"
     },
     {
+      "source": "consumer_finance_core.cob"
+    },
+    {
       "source": "contactless_core.cob"
     },
     {
@@ -378,6 +402,15 @@
     },
     {
       "source": "convertible_core.cob"
+    },
+    {
+      "source": "cooperative_banking_core.cob"
+    },
+    {
+      "source": "core_banking_core.cob"
+    },
+    {
+      "source": "corporate_banking_core.cob"
     },
     {
       "source": "correction_item_core.cob"
@@ -410,10 +443,16 @@
       "source": "credit_line_core.cob"
     },
     {
+      "source": "credit_union_core.cob"
+    },
+    {
       "source": "crime_core.cob"
     },
     {
       "source": "crisis_management_core.cob"
+    },
+    {
+      "source": "crowd_lending_core.cob"
     },
     {
       "source": "crowdfunding_core.cob"
@@ -510,6 +549,9 @@
     },
     {
       "source": "digital_asset_core.cob"
+    },
+    {
+      "source": "digital_banking2_core.cob"
     },
     {
       "source": "digital_banking_core.cob"
@@ -629,6 +671,9 @@
       "source": "external_audit_core.cob"
     },
     {
+      "source": "factoring_company_core.cob"
+    },
+    {
       "source": "factoring_core.cob"
     },
     {
@@ -660,6 +705,9 @@
     },
     {
       "source": "final_payment_core.cob"
+    },
+    {
+      "source": "finance_company_core.cob"
     },
     {
       "source": "fire_insurance_core.cob"
@@ -767,6 +815,9 @@
       "source": "hotfix_core.cob"
     },
     {
+      "source": "housing_finance_core.cob"
+    },
+    {
       "source": "import_core.cob"
     },
     {
@@ -824,6 +875,9 @@
       "source": "internal_audit_core.cob"
     },
     {
+      "source": "internet_banking2_core.cob"
+    },
+    {
       "source": "internet_banking_core.cob"
     },
     {
@@ -831,6 +885,9 @@
     },
     {
       "source": "investigation_core.cob"
+    },
+    {
+      "source": "investment_banking_core.cob"
     },
     {
       "source": "investment_core.cob"
@@ -870,6 +927,9 @@
     },
     {
       "source": "lbpue_core.cob"
+    },
+    {
+      "source": "leasing_company_core.cob"
     },
     {
       "source": "leasing_core.cob"
@@ -977,6 +1037,9 @@
       "source": "mfa_management_core.cob"
     },
     {
+      "source": "micro_lending_core.cob"
+    },
+    {
       "source": "microfinance_core.cob"
     },
     {
@@ -986,6 +1049,9 @@
       "source": "milestone_payment_core.cob"
     },
     {
+      "source": "mobile_banking_core.cob"
+    },
+    {
       "source": "mobile_wallet_core.cob"
     },
     {
@@ -993,6 +1059,9 @@
     },
     {
       "source": "mortgage_backed_core.cob"
+    },
+    {
+      "source": "mortgage_bank_core.cob"
     },
     {
       "source": "mortgage_core.cob"
@@ -1005,6 +1074,9 @@
     },
     {
       "source": "name_screening_core.cob"
+    },
+    {
+      "source": "nano_lending_core.cob"
     },
     {
       "source": "netting_core.cob"
@@ -1112,6 +1184,9 @@
       "source": "payroll_processing_core.cob"
     },
     {
+      "source": "peer_lending_core.cob"
+    },
+    {
       "source": "peer_to_peer_core.cob"
     },
     {
@@ -1188,6 +1263,9 @@
     },
     {
       "source": "pricing_core.cob"
+    },
+    {
+      "source": "private_banking_core.cob"
     },
     {
       "source": "private_debt_core.cob"
@@ -1364,6 +1442,9 @@
       "source": "reserve_core.cob"
     },
     {
+      "source": "retail_banking_core.cob"
+    },
+    {
       "source": "retention_job_core.cob"
     },
     {
@@ -1410,6 +1491,9 @@
     },
     {
       "source": "savings_account_core.cob"
+    },
+    {
+      "source": "savings_bank_core.cob"
     },
     {
       "source": "scenario_core.cob"
@@ -1560,6 +1644,9 @@
     },
     {
       "source": "theft_insurance_core.cob"
+    },
+    {
+      "source": "thrift_core.cob"
     },
     {
       "source": "timeout_core.cob"
@@ -1715,6 +1802,9 @@
       "source": "whitelist_core.cob"
     },
     {
+      "source": "wholesale_banking_core.cob"
+    },
+    {
       "source": "withdrawal_core.cob"
     },
     {
@@ -1738,6 +1828,7 @@
     "advance_payment.js",
     "adverse_media.js",
     "agreement.js",
+    "agricultural_finance.js",
     "alert_escalation.js",
     "alert_mgmt.js",
     "alerting.js",
@@ -1768,6 +1859,7 @@
     "audit_snapshot.js",
     "audit_trail.js",
     "authorization.js",
+    "auto_finance.js",
     "auto_insurance.js",
     "auto_loan.js",
     "backup_drill.js",
@@ -1793,10 +1885,12 @@
     "bond.js",
     "bond_insurance.js",
     "bond_trading.js",
+    "branch_banking.js",
     "branch_management.js",
     "budget.js",
     "budget_mgmt.js",
     "budgeting.js",
+    "building_society.js",
     "business_continuity.js",
     "business_loan.js",
     "cache.js",
@@ -1813,6 +1907,7 @@
     "cash_management.js",
     "cashback.js",
     "casualty_insurance.js",
+    "central_banking.js",
     "certificate_deposit.js",
     "certification.js",
     "change_approval.js",
@@ -1830,9 +1925,11 @@
     "collateralized.js",
     "collection.js",
     "collection_mgmt.js",
+    "commercial_banking.js",
     "commission_item.js",
     "commodity_swap.js",
     "commodity_trading.js",
+    "community_banking.js",
     "compensation.js",
     "complaint_management.js",
     "compliance_audit.js",
@@ -1844,11 +1941,15 @@
     "consent_management.js",
     "consolidation.js",
     "consolidation_mgmt.js",
+    "consumer_finance.js",
     "contactless.js",
     "contract.js",
     "control_test.js",
     "convertible.js",
     "convertible_bond.js",
+    "cooperative_banking.js",
+    "core_banking.js",
+    "corporate_banking.js",
     "correction_item.js",
     "cost.js",
     "cost_center.js",
@@ -1859,8 +1960,10 @@
     "credit_insurance.js",
     "credit_insurance2.js",
     "credit_line.js",
+    "credit_union.js",
     "crime.js",
     "crisis_management.js",
+    "crowd_lending.js",
     "crowdfunding.js",
     "crypto_exchange.js",
     "crypto_wallet.js",
@@ -1894,6 +1997,7 @@
     "device_management.js",
     "digital_asset.js",
     "digital_banking.js",
+    "digital_banking2.js",
     "direct_debit.js",
     "direct_lending.js",
     "directors_liability.js",
@@ -1933,6 +2037,7 @@
     "exposure.js",
     "external_audit.js",
     "factoring.js",
+    "factoring_company.js",
     "feature_flag.js",
     "fee.js",
     "fee_item.js",
@@ -1943,6 +2048,7 @@
     "filing.js",
     "fill.js",
     "final_payment.js",
+    "finance_company.js",
     "fire_insurance.js",
     "fixed_asset.js",
     "fixed_deposit.js",
@@ -1977,6 +2083,7 @@
     "hire_purchase.js",
     "home_insurance.js",
     "hotfix.js",
+    "housing_finance.js",
     "import.js",
     "import_finance.js",
     "import_recon.js",
@@ -1996,9 +2103,11 @@
     "interest_rate_swap.js",
     "internal_audit.js",
     "internet_banking.js",
+    "internet_banking2.js",
     "inventory.js",
     "investigation.js",
     "investment.js",
+    "investment_banking.js",
     "invoice.js",
     "invoice_discounting.js",
     "invoice_financing.js",
@@ -2013,6 +2122,7 @@
     "kyc_review.js",
     "lbpue.js",
     "leasing.js",
+    "leasing_company.js",
     "leave_management.js",
     "legal_case.js",
     "legal_hold.js",
@@ -2047,16 +2157,20 @@
     "metrics.js",
     "mezzanine.js",
     "mfa_management.js",
+    "micro_lending.js",
     "microfinance.js",
     "migration.js",
     "milestone_payment.js",
+    "mobile_banking.js",
     "mobile_wallet.js",
     "monitoring.js",
     "mortgage.js",
     "mortgage_backed.js",
+    "mortgage_bank.js",
     "multi_currency.js",
     "mutual_fund.js",
     "name_screening.js",
+    "nano_lending.js",
     "netting.js",
     "nft_management.js",
     "nostro.js",
@@ -2092,6 +2206,7 @@
     "payment_mgmt.js",
     "payment_processing.js",
     "payroll_processing.js",
+    "peer_lending.js",
     "peer_to_peer.js",
     "penalty_item.js",
     "pension.js",
@@ -2118,6 +2233,7 @@
     "prepaid_card.js",
     "price_feed.js",
     "pricing.js",
+    "private_banking.js",
     "private_debt.js",
     "private_equity.js",
     "problem.js",
@@ -2176,6 +2292,7 @@
     "reporting.js",
     "research.js",
     "reserve.js",
+    "retail_banking.js",
     "retention_job.js",
     "retention_money.js",
     "retry.js",
@@ -2192,6 +2309,7 @@
     "sanctions_hold.js",
     "sanctions_list.js",
     "savings_account.js",
+    "savings_bank.js",
     "scenario.js",
     "search.js",
     "secret_rotation.js",
@@ -2242,6 +2360,7 @@
     "termination_item.js",
     "testing.js",
     "theft_insurance.js",
+    "thrift.js",
     "timeout.js",
     "token_management.js",
     "tokenization.js",
@@ -2291,6 +2410,7 @@
     "webhook.js",
     "whistleblowing.js",
     "whitelist.js",
+    "wholesale_banking.js",
     "withdrawal.js",
     "workflow_approval.js",
     "write_off.js"
@@ -5555,6 +5675,156 @@
       "prefixLen": 5,
       "prefix": "ADTL_",
       "program": "audit_mgmt_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CBKG_",
+      "program": "core_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "RTB_",
+      "program": "retail_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CPB_",
+      "program": "corporate_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IVB_",
+      "program": "investment_banking_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PRVB_",
+      "program": "private_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "WSB_",
+      "program": "wholesale_banking_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "DBNK_",
+      "program": "digital_banking2_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MBK_",
+      "program": "mobile_banking_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "IBNK_",
+      "program": "internet_banking2_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BRK_",
+      "program": "branch_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CNB_",
+      "program": "central_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CMB_",
+      "program": "commercial_banking_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CMBC_",
+      "program": "community_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "COB_",
+      "program": "cooperative_banking_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SVB_",
+      "program": "savings_bank_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CRU_",
+      "program": "credit_union_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "BLS_",
+      "program": "building_society_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "THR_",
+      "program": "thrift_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "FCO_",
+      "program": "finance_company_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LCO_",
+      "program": "leasing_company_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "FCOM_",
+      "program": "factoring_company_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CSF_",
+      "program": "consumer_finance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "ATF_",
+      "program": "auto_finance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MTB_",
+      "program": "mortgage_bank_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "HFC_",
+      "program": "housing_finance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "AGF_",
+      "program": "agricultural_finance_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "MCL_",
+      "program": "micro_lending_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "NCL_",
+      "program": "nano_lending_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "PDLG_",
+      "program": "peer_lending_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "CDL_",
+      "program": "crowd_lending_core"
     }
   ]
 }

@@ -1,0 +1,6 @@
+# Branch Banking (Wave20) validation cases.
+BRK_CREATE missing ref@@ERROR\|INVALID_INPUT@@BRK_CREATE||||||admin@test.com
+BRK_GET missing id@@ERROR\|INVALID_INPUT@@BRK_GET||||||admin@test.com
+BRK_CALC missing id@@ERROR\|INVALID_INPUT@@BRK_CALC||||||admin@test.com
+BRK_DELETE missing id@@ERROR\|INVALID_INPUT@@BRK_DELETE||||||admin@test.com
+BRK_VALIDATE ok@@SUCCESS\|BRK_VALID@@BRK_VALIDATE|100.00|USD||||admin@test.com

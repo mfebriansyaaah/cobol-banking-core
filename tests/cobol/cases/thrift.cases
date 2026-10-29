@@ -1,0 +1,6 @@
+# Thrift (Wave20) validation cases.
+THR_CREATE missing ref@@ERROR\|INVALID_INPUT@@THR_CREATE||||||admin@test.com
+THR_GET missing id@@ERROR\|INVALID_INPUT@@THR_GET||||||admin@test.com
+THR_CALC missing id@@ERROR\|INVALID_INPUT@@THR_CALC||||||admin@test.com
+THR_DELETE missing id@@ERROR\|INVALID_INPUT@@THR_DELETE||||||admin@test.com
+THR_VALIDATE ok@@SUCCESS\|THR_VALID@@THR_VALIDATE|100.00|USD||||admin@test.com

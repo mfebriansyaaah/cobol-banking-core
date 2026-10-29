@@ -1,0 +1,6 @@
+# Mortgage Bank (Wave20) validation cases.
+MTB_CREATE missing ref@@ERROR\|INVALID_INPUT@@MTB_CREATE||||||admin@test.com
+MTB_GET missing id@@ERROR\|INVALID_INPUT@@MTB_GET||||||admin@test.com
+MTB_CALC missing id@@ERROR\|INVALID_INPUT@@MTB_CALC||||||admin@test.com
+MTB_DELETE missing id@@ERROR\|INVALID_INPUT@@MTB_DELETE||||||admin@test.com
+MTB_VALIDATE ok@@SUCCESS\|MTB_VALID@@MTB_VALIDATE|100.00|USD||||admin@test.com

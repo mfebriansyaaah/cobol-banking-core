@@ -1,0 +1,6 @@
+# Community Banking (Wave20) validation cases.
+CMBC_CREATE missing ref@@ERROR\|INVALID_INPUT@@CMBC_CREATE||||||admin@test.com
+CMBC_GET missing id@@ERROR\|INVALID_INPUT@@CMBC_GET||||||admin@test.com
+CMBC_CALC missing id@@ERROR\|INVALID_INPUT@@CMBC_CALC||||||admin@test.com
+CMBC_DELETE missing id@@ERROR\|INVALID_INPUT@@CMBC_DELETE||||||admin@test.com
+CMBC_VALIDATE ok@@SUCCESS\|CMBC_VALID@@CMBC_VALIDATE|100.00|USD||||admin@test.com

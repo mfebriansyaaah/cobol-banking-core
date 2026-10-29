@@ -1,0 +1,6 @@
+# Auto Finance (Wave20) validation cases.
+ATF_CREATE missing ref@@ERROR\|INVALID_INPUT@@ATF_CREATE||||||admin@test.com
+ATF_GET missing id@@ERROR\|INVALID_INPUT@@ATF_GET||||||admin@test.com
+ATF_CALC missing id@@ERROR\|INVALID_INPUT@@ATF_CALC||||||admin@test.com
+ATF_DELETE missing id@@ERROR\|INVALID_INPUT@@ATF_DELETE||||||admin@test.com
+ATF_VALIDATE ok@@SUCCESS\|ATF_VALID@@ATF_VALIDATE|100.00|USD||||admin@test.com
