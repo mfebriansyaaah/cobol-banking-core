@@ -15,6 +15,14 @@ scripts/generate_module.py vendor VND_ vendor vendor_ref vendor_name vendor_type
 The generator copies `cobol/src/cost_center_core.cob` (the canonical template)
 and applies the domain-specific renames.
 
+Shared plumbing (`TRIM-VALUE`, `TRIM-ALL`, `TRIM-RESULT-LEN`,
+`VALIDATE-INPUT`, `VALIDATE-ALL`) lives in
+`cobol/copy/common_plumbing.cpy` and is pulled into every generated module
+with a single `COPY "common_plumbing.cpy".` line — do not inline these
+paragraphs in new modules. Because the generator copies the template, new
+modules inherit the `COPY` automatically. Hand-written Tier-1 modules keep
+their own variants and are excluded from the copybook.
+
 ## Standard 9-action contract
 
 Every domain module exposes these actions (prefix + action):
