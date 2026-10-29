@@ -2,9 +2,9 @@
 -- Target: MySQL 8.0 / MariaDB 11 (InnoDB, utf8mb4)
 -- Purpose: Ensuring Financial Integrity and Strict Identity
 -- Version: baseline-0037 (fresh-install snapshot; see the baseline block by
---   schema_migrations below, and docs/SCHEMA_POLICY.md for the change process)
+--   schema_migrations below, and README.md section "Database" for the change process)
 -- Note: versioned changes live in database/migrations/NNN_*.sql; apply them
---       with database/migrate.sh. See docs/STATUS.md for schema details.
+--       with database/migrate.sh. See README.md section "Database" for details.
 --   baseline-0037 - ledger exchange rate precision
 --   baseline-0036 - dispute cases and messages
 --   baseline-0035 - MFA backup codes and recovery requests
