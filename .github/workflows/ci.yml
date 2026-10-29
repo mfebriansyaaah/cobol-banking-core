@@ -231,6 +231,12 @@ jobs:
       - name: Apply migrations
         run: ./database/migrate.sh
 
+      - name: Seed test data
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_USER" -p"$DB_PASS" "$DB_NAME"
+          < database/seed_test_data.sql
+
       - name: Gateway coverage
         run: bash scripts/ci/coverage.sh --gateway-only
 
