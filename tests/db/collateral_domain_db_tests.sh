@@ -17,11 +17,11 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 db_seed
 db_reset_collateral
 
-# Use a real disbursed loan for pledge tests.
-LOAN_ID="$(db_query "SELECT id FROM loan_application WHERE status='DISBURSED' ORDER BY id LIMIT 1;")"
-if [ -z "$LOAN_ID" ]; then
-  LOAN_ID="$(db_query "SELECT id FROM loan_application ORDER BY id LIMIT 1;")"
-fi
+# Self-contained disbursed loan (do not rely on other suites' leftovers;
+# CI runs on a fresh DB where loan_application may be empty).
+db_exec "DELETE FROM loan_application WHERE customer_email='collat@test.com';"
+db_exec "INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('collat@test.com', 1000000, 'IDR', 12, 5.0000, 'DISBURSED', 'admin@test.com');"
+LOAN_ID="$(db_query "SELECT id FROM loan_application WHERE customer_email='collat@test.com' ORDER BY id DESC LIMIT 1;")"
 
 # REGISTER happy path.
 reg_out="$(run_cobol "CLT_REGISTER|CLT-DOM-1|Rumah Jakarta|PROPERTY|500000000|CUST-001|admin@test.com")"
