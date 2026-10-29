@@ -25,6 +25,7 @@
 - `collateral_db_tests` (legacy): 13/13
 - `collateral_loan_flow`: 11/11
 - GL accounts: 1510/4210/5210; journal balanced via `GL_JOURNAL_POST`
+- Full gate 2026-10-29: `run_all.sh full` GREEN (DB 518/0, gateway 741/0, fuzz OK, error harness OK), `FULL_EXIT=0`
 
 ## Template test per domain
 
