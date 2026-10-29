@@ -78,6 +78,17 @@ run_db() {
             echo "=== ISOLATION SKIPPED (no DDL rights); using $DB_NAME ==="
         fi
     fi
+    echo "=== DB PRECHECK + SEED (once per run) ==="
+    # Check the database once and seed once; every suite inherits
+    # DB_VERIFIED=1 / DB_SEEDED=1 and skips its own precheck/seed
+    # (~110ms x 518). COBOL_TEST_SERVE=0 keeps this seed from starting
+    # a server in the runner shell (suites start their own).
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/db.sh"
+    require_db
+    export DB_VERIFIED=1
+    COBOL_TEST_SERVE=0 db_seed
+    export DB_SEEDED=1
     echo "=== DB SCHEMA TESTS ==="
     tests/db/schema_tests.sh
     # Run every DB suite that exists instead of a hand-maintained list. The
