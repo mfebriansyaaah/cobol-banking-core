@@ -1,0 +1,6 @@
+# Deposit Book (Wave15) validation cases.
+DEPS_CREATE missing ref@@ERROR\|INVALID_INPUT@@DEPS_CREATE||||||admin@test.com
+DEPS_GET missing id@@ERROR\|INVALID_INPUT@@DEPS_GET||||||admin@test.com
+DEPS_CALC missing id@@ERROR\|INVALID_INPUT@@DEPS_CALC||||||admin@test.com
+DEPS_DELETE missing id@@ERROR\|INVALID_INPUT@@DEPS_DELETE||||||admin@test.com
+DEPS_VALIDATE ok@@SUCCESS\|DEPS_VALID@@DEPS_VALIDATE|100.00|USD||||admin@test.com

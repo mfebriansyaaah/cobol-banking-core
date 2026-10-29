@@ -1,0 +1,6 @@
+# Deactivation Item (Wave15) validation cases.
+DEACT_CREATE missing ref@@ERROR\|INVALID_INPUT@@DEACT_CREATE||||||admin@test.com
+DEACT_GET missing id@@ERROR\|INVALID_INPUT@@DEACT_GET||||||admin@test.com
+DEACT_CALC missing id@@ERROR\|INVALID_INPUT@@DEACT_CALC||||||admin@test.com
+DEACT_DELETE missing id@@ERROR\|INVALID_INPUT@@DEACT_DELETE||||||admin@test.com
+DEACT_VALIDATE ok@@SUCCESS\|DEACT_VALID@@DEACT_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Statement Item (Wave15) validation cases.
+ACST_CREATE missing ref@@ERROR\|INVALID_INPUT@@ACST_CREATE||||||admin@test.com
+ACST_GET missing id@@ERROR\|INVALID_INPUT@@ACST_GET||||||admin@test.com
+ACST_CALC missing id@@ERROR\|INVALID_INPUT@@ACST_CALC||||||admin@test.com
+ACST_DELETE missing id@@ERROR\|INVALID_INPUT@@ACST_DELETE||||||admin@test.com
+ACST_VALIDATE ok@@SUCCESS\|ACST_VALID@@ACST_VALIDATE|100.00|USD||||admin@test.com

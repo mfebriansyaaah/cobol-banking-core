@@ -1,0 +1,6 @@
+# Closure Item (Wave15) validation cases.
+CLS_CREATE missing ref@@ERROR\|INVALID_INPUT@@CLS_CREATE||||||admin@test.com
+CLS_GET missing id@@ERROR\|INVALID_INPUT@@CLS_GET||||||admin@test.com
+CLS_CALC missing id@@ERROR\|INVALID_INPUT@@CLS_CALC||||||admin@test.com
+CLS_DELETE missing id@@ERROR\|INVALID_INPUT@@CLS_DELETE||||||admin@test.com
+CLS_VALIDATE ok@@SUCCESS\|CLS_VALID@@CLS_VALIDATE|100.00|USD||||admin@test.com

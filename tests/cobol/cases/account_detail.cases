@@ -1,0 +1,6 @@
+# Account Detail (Wave15) validation cases.
+ACNT_CREATE missing ref@@ERROR\|INVALID_INPUT@@ACNT_CREATE||||||admin@test.com
+ACNT_GET missing id@@ERROR\|INVALID_INPUT@@ACNT_GET||||||admin@test.com
+ACNT_CALC missing id@@ERROR\|INVALID_INPUT@@ACNT_CALC||||||admin@test.com
+ACNT_DELETE missing id@@ERROR\|INVALID_INPUT@@ACNT_DELETE||||||admin@test.com
+ACNT_VALIDATE ok@@SUCCESS\|ACNT_VALID@@ACNT_VALIDATE|100.00|USD||||admin@test.com

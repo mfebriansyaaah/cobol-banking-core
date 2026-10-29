@@ -1,0 +1,6 @@
+# Balance Item (Wave15) validation cases.
+BALS_CREATE missing ref@@ERROR\|INVALID_INPUT@@BALS_CREATE||||||admin@test.com
+BALS_GET missing id@@ERROR\|INVALID_INPUT@@BALS_GET||||||admin@test.com
+BALS_CALC missing id@@ERROR\|INVALID_INPUT@@BALS_CALC||||||admin@test.com
+BALS_DELETE missing id@@ERROR\|INVALID_INPUT@@BALS_DELETE||||||admin@test.com
+BALS_VALIDATE ok@@SUCCESS\|BALS_VALID@@BALS_VALIDATE|100.00|USD||||admin@test.com

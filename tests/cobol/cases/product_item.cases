@@ -1,0 +1,6 @@
+# Product Item (Wave15) validation cases.
+PRDT_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRDT_CREATE||||||admin@test.com
+PRDT_GET missing id@@ERROR\|INVALID_INPUT@@PRDT_GET||||||admin@test.com
+PRDT_CALC missing id@@ERROR\|INVALID_INPUT@@PRDT_CALC||||||admin@test.com
+PRDT_DELETE missing id@@ERROR\|INVALID_INPUT@@PRDT_DELETE||||||admin@test.com
+PRDT_VALIDATE ok@@SUCCESS\|PRDT_VALID@@PRDT_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Refund Item (Wave15) validation cases.
+RFND_CREATE missing ref@@ERROR\|INVALID_INPUT@@RFND_CREATE||||||admin@test.com
+RFND_GET missing id@@ERROR\|INVALID_INPUT@@RFND_GET||||||admin@test.com
+RFND_CALC missing id@@ERROR\|INVALID_INPUT@@RFND_CALC||||||admin@test.com
+RFND_DELETE missing id@@ERROR\|INVALID_INPUT@@RFND_DELETE||||||admin@test.com
+RFND_VALIDATE ok@@SUCCESS\|RFND_VALID@@RFND_VALIDATE|100.00|USD||||admin@test.com

@@ -1,0 +1,6 @@
+# Tax Item (Wave15) validation cases.
+TAXS_CREATE missing ref@@ERROR\|INVALID_INPUT@@TAXS_CREATE||||||admin@test.com
+TAXS_GET missing id@@ERROR\|INVALID_INPUT@@TAXS_GET||||||admin@test.com
+TAXS_CALC missing id@@ERROR\|INVALID_INPUT@@TAXS_CALC||||||admin@test.com
+TAXS_DELETE missing id@@ERROR\|INVALID_INPUT@@TAXS_DELETE||||||admin@test.com
+TAXS_VALIDATE ok@@SUCCESS\|TAXS_VALID@@TAXS_VALIDATE|100.00|USD||||admin@test.com

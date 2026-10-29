@@ -1,0 +1,6 @@
+# Payment Item (Wave15) validation cases.
+PYMT_CREATE missing ref@@ERROR\|INVALID_INPUT@@PYMT_CREATE||||||admin@test.com
+PYMT_GET missing id@@ERROR\|INVALID_INPUT@@PYMT_GET||||||admin@test.com
+PYMT_CALC missing id@@ERROR\|INVALID_INPUT@@PYMT_CALC||||||admin@test.com
+PYMT_DELETE missing id@@ERROR\|INVALID_INPUT@@PYMT_DELETE||||||admin@test.com
+PYMT_VALIDATE ok@@SUCCESS\|PYMT_VALID@@PYMT_VALIDATE|100.00|USD||||admin@test.com

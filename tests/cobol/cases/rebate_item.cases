@@ -1,0 +1,6 @@
+# Rebate Item (Wave15) validation cases.
+RBT_CREATE missing ref@@ERROR\|INVALID_INPUT@@RBT_CREATE||||||admin@test.com
+RBT_GET missing id@@ERROR\|INVALID_INPUT@@RBT_GET||||||admin@test.com
+RBT_CALC missing id@@ERROR\|INVALID_INPUT@@RBT_CALC||||||admin@test.com
+RBT_DELETE missing id@@ERROR\|INVALID_INPUT@@RBT_DELETE||||||admin@test.com
+RBT_VALIDATE ok@@SUCCESS\|RBT_VALID@@RBT_VALIDATE|100.00|USD||||admin@test.com
