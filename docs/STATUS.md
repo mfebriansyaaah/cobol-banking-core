@@ -9,11 +9,11 @@ Manifest generated: 2026-10-29T06:42:30.170Z
 |---|---:|
 | COBOL modules in manifest | 604 |
 | COBOL source files (including dispatcher) | 605 |
-| COBOL lines | 412,248 |
+| COBOL lines | 412,965 |
 | Gateway route files | 599 |
-| Gateway route definitions (routes + app.js) | 5,334 |
+| Gateway route definitions (routes + app.js) | 5,342 |
 | Dispatch entries | 682 |
-| Recorded migrations | 638 |
+| Recorded migrations | 640 |
 | Tables in schema.sql | 478 |
 
 ## Related documentation

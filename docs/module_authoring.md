@@ -1,5 +1,22 @@
 # Module Authoring Guide
 
+> **Freeze (2026-10-29, domain-nyata program):** do not generate new modules
+> from `cost_center_core.cob` via `scripts/generate_module.py` without a domain
+> design review. New modules must have domain-specific tables (no generic
+> `ref/name/type/budget_amount/spent_amount`) and at least one integration
+> with a core module (customer, account, loan, payment, fee, GL, KYC/AML).
+> Converting domains and migration ranges are listed below; details in
+> `docs/domain_overview.md`.
+>
+> Converting (in order): Collateral (done pilot), Trade Finance LC/BG,
+> Merchant Acquiring, Tax Withholding, Chargeback, Payroll, Fixed Asset,
+> Loyalty. All other Tier-2 clones are frozen.
+>
+> Migration ranges (do not reuse, do not alter applied versions):
+> Collateral 0648–0651, Trade Finance 0652–0657, Merchant 0658–0662,
+> Tax 0663–0666, Chargeback 0667–0671, Payroll 0672–0675,
+> Fixed Asset 0676–0679, Loyalty 0680–0683.
+
 New SQL-backed COBOL modules should be generated from the canonical template
 rather than copied by hand, so the 9-action contract and boilerplate stay
 consistent.

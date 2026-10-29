@@ -4,3 +4,11 @@ CLT_GET missing id@@ERROR\|INVALID_INPUT@@CLT_GET||||||admin@test.com
 CLT_CALC missing id@@ERROR\|INVALID_INPUT@@CLT_CALC||||||admin@test.com
 CLT_DELETE missing id@@ERROR\|INVALID_INPUT@@CLT_DELETE||||||admin@test.com
 CLT_VALIDATE ok@@SUCCESS\|CLT_VALID@@CLT_VALIDATE|100.00|USD||||admin@test.com
+CLT_REGISTER missing ref@@ERROR\|INVALID_INPUT@@CLT_REGISTER||||||admin@test.com
+CLT_APPRAISE missing id@@ERROR\|INVALID_INPUT@@CLT_APPRAISE||||||admin@test.com
+CLT_REVALUE missing id@@ERROR\|INVALID_INPUT@@CLT_REVALUE||||||admin@test.com
+CLT_PLEDGE missing params@@ERROR\|INVALID_INPUT@@CLT_PLEDGE||||||admin@test.com
+CLT_ALLOCATE missing params@@ERROR\|INVALID_INPUT@@CLT_ALLOCATE||||||admin@test.com
+CLT_RELEASE missing id@@ERROR\|INVALID_INPUT@@CLT_RELEASE||||||admin@test.com
+CLT_REPOSSESS missing id@@ERROR\|INVALID_INPUT@@CLT_REPOSSESS||||||admin@test.com
+CLT_DISPOSE missing id@@ERROR\|INVALID_INPUT@@CLT_DISPOSE||||||admin@test.com

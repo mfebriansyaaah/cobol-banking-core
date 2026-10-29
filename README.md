@@ -91,6 +91,7 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 | D12 Sanctions List | Done | `sanctions_list_core` (9 actions) |
 | D13 Fraud Case | Done | `fraud_case_core` (9 actions) |
 | D10 Data / Reporting | Done | `report_builder_core` (9 actions) |
+| Collateral Mgmt | Done (pilot) | `collateral_core` (17 actions: register/appraise/revalue/pledge/allocate/release/repossess/dispose + CRUD/audit); legacy `collateral_mgmt`, `collateral_repossession`, `collateralized` deprecated, kept for compat |
 
 ### Status details
 
@@ -136,11 +137,11 @@ suites, table cases, and the action/suite inventory gates. See
 |---|---:|
 | COBOL modules | **604** |
 | COBOL source files (incl. dispatcher) | **605** |
-| COBOL lines | **412,248** |
+| COBOL lines | **412,965** |
 | Gateway route files | **599** |
-| Gateway route definitions | **5,334** |
+| Gateway route definitions | **5,342** |
 | Dispatch entries | **682** |
-| Recorded migrations | **638** |
+| Recorded migrations | **640** |
 | Tables in schema.sql | **478** |
 <!-- END GENERATED STATS -->
 

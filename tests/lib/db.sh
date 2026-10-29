@@ -205,6 +205,9 @@ db_reset_interest_rate() {
 }
 
 db_reset_collateral() {
+    db_exec "DELETE FROM collateral_allocation;"
+    db_exec "DELETE FROM collateral_pledge;"
+    db_exec "DELETE FROM collateral_valuation;"
     db_exec "DELETE FROM collateral_audit;"
     db_exec "DELETE FROM collateral;"
 }
