@@ -76,7 +76,7 @@ db_case_management_tests=13
 db_remittance_tests=13
 db_standing_order_tests=13
 db_collateral_tests=13
-db_collateral_domain_tests=29
+db_collateral_domain_tests=30
 # Wave6 domains
 db_atm_management_tests=13
 db_blockchain_tracker_tests=13

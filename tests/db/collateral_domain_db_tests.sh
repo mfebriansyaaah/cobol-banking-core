@@ -66,9 +66,12 @@ assert_match "ALLOCATE ok" "$(run_cobol "CLT_ALLOCATE|${pid}|${LOAN_ID}|15000000
 # ALLOCATE over pledge rejected.
 assert_match "over-allocate limit" "$(run_cobol "CLT_ALLOCATE|${pid}|${LOAN_ID}|100000000|||admin@test.com")" "ERROR\|LIMIT"
 
-# RELEASE happy path.
+# RELEASE blocked while loan open, then ok after loan closed.
+assert_match "release blocked open loan" "$(run_cobol "CLT_RELEASE|${cid}|Lunas||||admin@test.com")" "ERROR\|INVALID_STATE"
+db_exec "UPDATE loan_application SET status='CLOSED' WHERE id=${LOAN_ID};"
 assert_match "RELEASE ok" "$(run_cobol "CLT_RELEASE|${cid}|Lunas||||admin@test.com")" "SUCCESS\|CLT_RELEASE"
 assert_match "released persisted" "$(db_query "SELECT status FROM collateral WHERE id=${cid};")" "^RELEASED$"
+db_exec "UPDATE loan_application SET status='DISBURSED' WHERE id=${LOAN_ID};"
 
 # Second collateral for repossess/dispose.
 reg2="$(run_cobol "CLT_REGISTER|CLT-DOM-2|Mobil Avanza|VEHICLE|200000000|CUST-002|admin@test.com")"

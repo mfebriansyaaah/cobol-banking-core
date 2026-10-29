@@ -34,8 +34,11 @@ assert_match "status pledged" "$(db_query "SELECT status FROM collateral WHERE i
 # Over-pledge must be rejected (limit = 750jt * 0.9 = 675jt, already 500jt pledged)
 assert_match "over-pledge rejected" "$(run_cobol "CLT_PLEDGE|${CID}|${LOAN_ID}|200000000|10||$ADMIN")" "ERROR\|LIMIT"
 
+assert_match "release blocked open loan" "$(run_cobol "CLT_RELEASE|${CID}|Lunas||||$ADMIN")" "ERROR\|INVALID_STATE"
+db_exec "UPDATE loan_application SET status='CLOSED' WHERE id=${LOAN_ID};"
 assert_match "release" "$(run_cobol "CLT_RELEASE|${CID}|Lunas||||$ADMIN")" "SUCCESS\|CLT_RELEASE"
 assert_match "status released" "$(db_query "SELECT status FROM collateral WHERE id=${CID};")" "^RELEASED$"
+db_exec "UPDATE loan_application SET status='DISBURSED' WHERE id=${LOAN_ID};"
 
 # GL-linked dispose path: second collateral -> repossess -> GL post -> dispose with link.
 REG2=$(run_cobol "CLT_REGISTER|CLT-INT-2|Gudang Bekasi|WAREHOUSE|300000000|$ADMIN|$ADMIN")
