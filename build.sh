@@ -1,18 +1,32 @@
 #!/bin/bash
 # Build Script for COBOL MySQL Backend (Simulated DB Executable)
-# Usage: ./build.sh
+# Usage: ./build.sh [make-target]
+#
+# Default: incremental parallel build via cobol/Makefile (see that file for
+# details). JOBS controls parallelism (default: nproc).
+# Fallback: BUILD_LEGACY=1 runs the original single-shot `cobc` compile.
+#
+# NOTE: check_manifest.mjs and scripts/ci/coverage.sh grep the explicit
+# source list in the legacy branch below; keep it in sync when
+# adding/removing modules (or run `make -f cobol/Makefile print-sources`).
 
 set -e
 
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+
 COBOL_BIN="cobol/bin/main_logic"
+JOBS="${JOBS:-$(nproc 2>/dev/null || echo 4)}"
 echo "=========================================="
 echo "  Building COBOL MySQL Backend (SIM)"
 echo "=========================================="
 
 mkdir -p cobol/bin
 
-# Compile and link the curated modules and the C bridge.
-cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
+if [ "${BUILD_LEGACY:-0}" = "1" ]; then
+    echo "--- legacy single-shot build (BUILD_LEGACY=1) ---"
+    # Compile and link the curated modules and the C bridge.
+    cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/src/main_logic.cob \
     cobol/src/user_core.cob \
     cobol/src/wallet_core.cob \
@@ -624,6 +638,9 @@ cobc -free -x -I cobol/copy -O2 -o "$COBOL_BIN" \
     cobol/c_lib/settings_lib.c \
     cobol/c_lib/random_lib.c \
     -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -Wall -Wextra
+else
+    make -f cobol/Makefile -j"$JOBS" "$@"
+fi
 
 if [ -f "$COBOL_BIN" ]; then
     echo "SUCCESS: Binary created at $COBOL_BIN"

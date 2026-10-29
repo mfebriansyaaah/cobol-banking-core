@@ -4,6 +4,7 @@
 cobol/bin/
 cobol/bin/*.o
 cobol/bin/main_logic
+cobol/build/
 
 # I/O and temporary files
 input.txt
