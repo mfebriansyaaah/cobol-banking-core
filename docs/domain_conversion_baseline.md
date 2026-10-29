@@ -38,3 +38,10 @@
 - Jangan turunkan angka di atas tanpa persetujuan + update dokumen ini.
 - Setiap PR domain update baseline bila menambah suite (tambah entry, bukan hapus).
 - `run_all.sh full` tetap DoD final sebelum merge ke main.
+
+## Known gaps (pre-existing, bukan dari collateral)
+
+- `scripts/generate_openapi.mjs` gagal dengan `Cannot access 'opMapSummary'
+  before initialization` untuk semua route file; terjadi di base `origin/main`
+  juga. OpenAPI tidak diregen di branch ini; `docs/openapi.yaml` dibiarkan
+  apa adanya sampai generator diperbaiki terpisah.
