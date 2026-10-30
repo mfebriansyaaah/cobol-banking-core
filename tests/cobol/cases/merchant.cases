@@ -4,3 +4,9 @@ MRT_GET missing id@@ERROR\|INVALID_INPUT@@MRT_GET||||||admin@test.com
 MRT_CALC missing id@@ERROR\|INVALID_INPUT@@MRT_CALC||||||admin@test.com
 MRT_DELETE missing id@@ERROR\|INVALID_INPUT@@MRT_DELETE||||||admin@test.com
 MRT_VALIDATE ok@@SUCCESS\|MRT_VALID@@MRT_VALIDATE|100.00|USD||||admin@test.com
+MRT_SUBMIT_KYC missing id@@ERROR\|INVALID_INPUT@@MRT_SUBMIT_KYC||||||admin@test.com
+MRT_APPROVE missing id@@ERROR\|INVALID_INPUT@@MRT_APPROVE||||||admin@test.com
+MRT_ACTIVATE missing id@@ERROR\|INVALID_INPUT@@MRT_ACTIVATE||||||admin@test.com
+MRT_SUSPEND missing id@@ERROR\|INVALID_INPUT@@MRT_SUSPEND||||||admin@test.com
+MRT_CLOSE missing id@@ERROR\|INVALID_INPUT@@MRT_CLOSE||||||admin@test.com
+MRT_SET_FEE missing params@@ERROR\|INVALID_INPUT@@MRT_SET_FEE||||||admin@test.com

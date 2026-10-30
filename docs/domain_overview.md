@@ -17,6 +17,18 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - `card_core` — card accounts and transactions
 - `collection_core` — collection cases and activities
 
+## Merchant Acquiring (canonical)
+- `merchant_core` — onboarding: create → submit KYC → approve (risk + fee
+  profile) → activate (account + fee guard) → suspend/close (open-settlement
+  guard). Tables: `merchant`, `merchant_fee_profile`, `merchant_audit`.
+- `merchant_settlement_core` — settlement: txn ingest (fee MDR+fixed) →
+  open → calc (aggregate CAPTURED unsettled) → post (payment clearing + GL
+  link) → settle (paid + txn SETTLED + volume) → cancel (release).
+  Tables: `merchant_transaction`, `merchant_settlement`,
+  `merchant_settlement_item`.
+- Routes: `/merchants*` lifecycle, `/merchant-settlements*` batch.
+  Legacy generic CREATE/CALC/UPDATE/DELETE kept for compat, marked deprecated.
+
 ## Payments & treasury
 - `payment_core`, `payment_clearing_core`, `payment_hold_core`, `payment_instruction_core`
 - `billpay_core`, `remittance_core`, `standing_order_core`
