@@ -60,6 +60,7 @@ db_supply_chain_finance_tests=13
 db_invoice_financing_tests=13
 db_bank_guarantee_tests=13
 db_letter_of_credit_tests=13
+db_trade_finance_schema_tests=10
 db_bond_trading_tests=13
 db_portfolio_management_tests=13
 db_asset_management_tests=13
