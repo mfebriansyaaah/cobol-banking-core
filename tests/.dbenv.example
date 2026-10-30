@@ -1,0 +1,17 @@
+# Test database credentials (example). Copy to tests/.dbenv and adjust.
+# tests/.dbenv is gitignored; this file is the committed template.
+# The test database is expected to run on port 3307 (see docker-compose.test.yml)
+# so it never collides with a developer database on 3306.
+#
+# Setup:
+#   cp tests/.dbenv.example tests/.dbenv
+#   docker compose -f docker-compose.test.yml up -d
+#   scripts/dev/setup-test-db.sh
+DB_USER="${DB_USER:-cobol_app}"
+DB_PASS="${DB_PASS:-cobol_pass}"
+DB_NAME="${DB_NAME:-cobol_db}"
+DB_HOST="${DB_HOST:-127.0.0.1}"
+DB_PORT="${DB_PORT:-3307}"
+DB_MIGRATE_USER="${DB_MIGRATE_USER:-cobol_migrate}"
+DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-cobol_migrate_pass}"
+export DB_USER DB_PASS DB_NAME DB_HOST DB_PORT DB_MIGRATE_USER DB_MIGRATE_PASS
