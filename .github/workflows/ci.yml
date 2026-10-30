@@ -160,6 +160,18 @@ jobs:
       - name: Performance benchmarks
         run: bash tests/perf/bench.sh
 
+      - name: Write test summary
+        if: always()
+        run: node scripts/ci/summary.mjs
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: artifacts/
+          if-no-files-found: warn
+
       - name: Upload gateway log on failure
         if: failure()
         uses: actions/upload-artifact@v4

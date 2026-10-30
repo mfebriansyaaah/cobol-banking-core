@@ -22,5 +22,13 @@ assert_match() {
 }
 
 print_summary() {
-    echo "# pass=$T_PASS fail=$T_FAIL total=$T_TOTAL"
+    # TAP plan first, then the machine-readable counters. Existing consumers
+    # grep for `^# pass=`; the plan line is additive. REPORT_DURATION_MS is
+    # set by tests/lib/report.sh when the suite runs under the report wrapper.
+    echo "1..$T_TOTAL"
+    if [ -n "${REPORT_DURATION_MS:-}" ]; then
+        echo "# pass=$T_PASS fail=$T_FAIL total=$T_TOTAL duration_ms=$REPORT_DURATION_MS"
+    else
+        echo "# pass=$T_PASS fail=$T_FAIL total=$T_TOTAL"
+    fi
 }

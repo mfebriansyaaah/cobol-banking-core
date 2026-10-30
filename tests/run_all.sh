@@ -1,11 +1,38 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [fast|db|full|probes|affected]   (default: full)
+# Usage: tests/run_all.sh [--json] [--no-report] [fast|db|full|probes|affected]   (default: full)
+#   --json       print the report path at the end (artifacts/run-all.json)
+#   --no-report  skip machine-readable reporting (logs only)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-MODE="${1:-full}"
+
+REPORT_ENABLED="${REPORT_ENABLED:-1}"
+PRINT_JSON=0
+MODE=""
+for _arg in "$@"; do
+    case "$_arg" in
+        --json) PRINT_JSON=1 ;;
+        --no-report) REPORT_ENABLED=0 ;;
+        --help|-h)
+            sed -n '2,5p' "$0"
+            echo "Modes: fast db full probes affected"
+            exit 0
+            ;;
+        -*) echo "unknown flag: $_arg (see --help)" >&2; exit 2 ;;
+        *)
+            if [ -z "$MODE" ]; then
+                MODE="$_arg"
+            else
+                echo "unexpected argument: $_arg (see --help)" >&2
+                exit 2
+            fi
+            ;;
+    esac
+done
+MODE="${MODE:-full}"
+export REPORT_ENABLED PRINT_JSON
 
 # Parse every gateway/script source before anything else runs. A route file
 # that cannot be imported takes the whole gateway down, and the old pipeline
@@ -54,8 +81,10 @@ db_have_ddl() {
 
 # One shard worker: runs its suites sequentially against its worker DB.
 # Runs in a background subshell; DB_NAME is exported per worker, while
-# DB_VERIFIED=1 / DB_SEEDED=1 are inherited from the runner. Full suite
-# output goes to the shard log; only one progress line per suite hits stdout.
+# DB_VERIFIED=1 / DB_SEEDED=1 are inherited from the runner. Per-suite results
+# go through report_run (progress on stdout, full log under
+# $REPORT_DIR/logs/, one TSV row each); the shard log keeps the concatenated
+# suite outputs so failure excerpts below keep working.
 # Exits non-zero if any suite failed; failed names go to $log.failed.
 run_shard_worker() {
     local idx="$1" log="$2"
@@ -64,17 +93,16 @@ run_shard_worker() {
     : >"$log" 2>/dev/null || return 1
     : >"$log.failed" 2>/dev/null || return 1
     for s in "$@"; do
-        if "$s" >"$log.part" 2>&1; then
+        if report_run "$idx" "$s"; then
             rc=0
         else
             rc=$?
         fi
-        cat "$log.part" >>"$log" 2>/dev/null || true
-        rm -f "$log.part"
-        if [ "$rc" -eq 0 ]; then
-            echo "[ok] [shard $idx] $(basename "$s")"
-        else
-            echo "[FAIL] [shard $idx] $(basename "$s")"
+        {
+            echo "=== DB SUITE: $(basename "$s") ==="
+            cat "$REPORT_DIR/logs/$(basename "$s").log" 2>/dev/null || true
+        } >>"$log" 2>/dev/null || true
+        if [ "$rc" -ne 0 ]; then
             echo "$(basename "$s")" >>"$log.failed"
             failed=$((failed + 1))
         fi
@@ -88,9 +116,7 @@ run_db_serial() {
     for suite in tests/db/*_db_tests.sh; do
         [ -f "$suite" ] || continue
         db_total=$((db_total + 1))
-        echo "=== DB SUITE: $(basename "$suite") ==="
-        if ! "$suite"; then
-            echo "FAIL: $(basename "$suite")"
+        if ! report_run "serial" "$suite"; then
             db_failed=$((db_failed + 1))
         fi
     done
@@ -272,15 +298,25 @@ run_smoke() {
     ./cobol/bin/main_logic
     out="$(cat output.txt)"
     echo "PING -> $out"
-    echo "$out" | grep -q 'SUCCESS|PONG' || { echo "FAIL: smoke failed"; exit 1; }
+    if echo "$out" | grep -q 'SUCCESS|PONG'; then
+        report_record "smoke" "pass" 1 0 1 0 "fast"
+    else
+        report_record "smoke" "fail" 0 1 1 0 "fast"
+        echo "FAIL: smoke failed"
+        exit 1
+    fi
 }
 
 run_fast() {
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/report.sh"
+    report_init
+    trap report_finalize EXIT
     run_gates
     run_build
     echo "=== COBOL TABLE TESTS ==="
     node scripts/check_case_actions.mjs "$ROOT"
-    tests/cobol/table_runner.sh
+    report_run "table" tests/cobol/table_runner.sh
     run_smoke
 }
 
@@ -310,17 +346,21 @@ run_affected() {
         exec "$0" full
     fi
     echo "=== AFFECTED: ${SELECT_REASON:-selected run} ==="
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/report.sh"
+    report_init
+    trap 'db_lock_release; report_finalize' EXIT
     run_gates
     run_build
     echo "=== COBOL TABLE TESTS (selected) ==="
     node scripts/check_case_actions.mjs "$ROOT"
+    local selected_failed=0
     if [ -n "${SELECT_CASE_FILES:-}" ]; then
         # shellcheck disable=SC2086
-        tests/cobol/table_runner.sh $SELECT_CASE_FILES
+        report_run "table" tests/cobol/table_runner.sh $SELECT_CASE_FILES || selected_failed=1
     else
         echo "(no case files selected; skipping)"
     fi
-    local selected_failed=0
     if [ -n "${SELECT_DB_SUITES:-}" ]; then
         echo "=== DB SUITES (selected) ==="
         # shellcheck disable=SC1091
@@ -329,15 +369,14 @@ run_affected() {
         . "$ROOT/tests/lib/lock.sh"
         DB_NAME="${DB_NAME:-cobol_db}"
         db_lock_acquire || exit 1
-        trap db_lock_release EXIT
+        trap 'db_lock_release; report_finalize' EXIT
         require_db
+        # shellcheck disable=SC1091
+        . "$ROOT/tests/lib/report.sh"
+        [ -n "${REPORT_TSV:-}" ] || report_init
         local s
         for s in $SELECT_DB_SUITES; do
-            echo "=== DB SUITE: $(basename "$s") ==="
-            if ! "$s"; then
-                echo "FAIL: $(basename "$s")"
-                selected_failed=1
-            fi
+            report_run "affected" "$s" || selected_failed=1
         done
     else
         echo "(no DB suites selected; skipping)"
@@ -389,6 +428,8 @@ run_db() {
     . "$ROOT/tests/lib/guard.sh"
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/lock.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/report.sh"
     DB_NAME="${DB_NAME:-cobol_db}"
     # Throwaway databases (isolated template + shard workers) are all dropped
     # by one EXIT trap; the isolation block below only records what it made.
@@ -396,8 +437,9 @@ run_db() {
     # DELETE/reset statements against the same target.
     SHARD_DBS=""
     ISOLATED_DB_CREATED=""
-    trap 'cleanup_db_resources; db_lock_release' EXIT
+    trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
     db_lock_acquire || exit 1
+    report_init
     # Isolate the whole DB test run from the primary database so suites cannot
     # clobber developer/production data. Opt out with ISOLATED_DB=0 (explicit
     # serial run against the current database) or ALLOW_DEV_DB=1 (explicit
@@ -445,7 +487,7 @@ run_db() {
     COBOL_TEST_SERVE=0 db_seed
     export DB_SEEDED=1
     echo "=== DB SCHEMA TESTS ==="
-    tests/db/schema_tests.sh
+    report_run "serial" tests/db/schema_tests.sh
     # Run every DB suite that exists instead of a hand-maintained list. The
     # old explicit list silently dropped 11 suites (including loan) because
     # adding a domain never touched this file. Sharded by default (DB_SHARDS
@@ -483,7 +525,13 @@ run_db() {
 
 run_gateway() {
     echo "=== GATEWAY ENDPOINT SMOKE ==="
-    tests/gateway/endpoint_smoke.sh
+    # Route JUnit XMLs into the shared report dir so CI uploads one artifact.
+    # endpoint_smoke.sh only uses the :junit suite variants when this is set.
+    if [ "${REPORT_ENABLED:-1}" = "1" ] && [ -n "${REPORT_DIR:-}" ]; then
+        TEST_REPORT_DIR="${TEST_REPORT_DIR:-$REPORT_DIR}" tests/gateway/endpoint_smoke.sh
+    else
+        tests/gateway/endpoint_smoke.sh
+    fi
 }
 
 # Break the code on purpose in a throwaway copy and require the gates to

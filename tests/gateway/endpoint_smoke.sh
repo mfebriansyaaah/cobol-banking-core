@@ -26,10 +26,17 @@ db_seed
 # loading a route module there was no summary line at all, so `fail` expanded
 # to 0 and the run looked clean. Require a real summary with a non-zero pass
 # count before trusting the numbers.
+#
+# When TEST_REPORT_DIR is set, the :junit variant of each suite runs instead:
+# spec still goes to the log (parsed below) and a JUnit XML lands in
+# TEST_REPORT_DIR for machine-readable reporting.
 run_part() {
     local script="$1" log="$2"
     echo "Running middleware suite ($script)..."
-    if ! npm --prefix middleware run "$script" >"$log" 2>&1; then
+    if [ -n "${TEST_REPORT_DIR:-}" ]; then
+        script="$script:junit"
+    fi
+    if ! TEST_REPORT_DIR="${TEST_REPORT_DIR:-}" npm --prefix middleware run "$script" >"$log" 2>&1; then
         echo "FAIL: middleware suite ($script) exited non-zero"
         tail -25 "$log"
         return 1
