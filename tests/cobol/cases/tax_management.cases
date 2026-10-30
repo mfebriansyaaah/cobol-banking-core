@@ -4,3 +4,9 @@ TXM_GET missing id@@ERROR\|INVALID_INPUT@@TXM_GET||||||admin@test.com
 TXM_CALC missing id@@ERROR\|INVALID_INPUT@@TXM_CALC||||||admin@test.com
 TXM_DELETE missing id@@ERROR\|INVALID_INPUT@@TXM_DELETE||||||admin@test.com
 TXM_VALIDATE ok@@SUCCESS\|TXM_VALID@@TXM_VALIDATE|100.00|USD||||admin@test.com
+TXM_RULE_CREATE missing params@@ERROR\|INVALID_INPUT@@TXM_RULE_CREATE||||||admin@test.com
+TXM_RULE_UPDATE missing id@@ERROR\|INVALID_INPUT@@TXM_RULE_UPDATE||||||admin@test.com
+TXM_RULE_LIST ok@@SUCCESS\|TXM_RULE_LIST@@TXM_RULE_LIST|||50|0||admin@test.com
+TXM_RULE_GET missing id@@ERROR\|INVALID_INPUT@@TXM_RULE_GET||||||admin@test.com
+TXM_POST missing id@@ERROR\|INVALID_INPUT@@TXM_POST||||||admin@test.com
+TXM_REVERSE missing id@@ERROR\|INVALID_INPUT@@TXM_REVERSE||||||admin@test.com
