@@ -117,6 +117,36 @@ dry-run by default.
 | `cannot list schemata` from cleanup | migrate credentials lack privileges | export `DB_MIGRATE_USER`/`DB_MIGRATE_PASS` for a DDL user |
 | port `3307` in use | another Compose project or local forward | `TEST_DB_PORT=3308 docker compose -f docker-compose.test.yml up -d`, then set `DB_PORT=3308` in `tests/.dbenv` |
 
+## Machine-readable reports
+
+Every shell suite records one TSV row in `artifacts/report.tsv`
+(`suite`, `status`, `pass`, `fail`, `total`, `duration_ms`, `shard`) via
+`tests/lib/report.sh`. Statuses: `pass`, `fail`, or `missing` (exited 0
+without a TAP summary; enforced by P0-3). At the end of a run
+`artifacts/run-all.json` is generated from the TSV, plus `--json` prints its
+path:
+
+```sh
+SKIP_BUILD=1 tests/run_all.sh --json fast
+node scripts/test-report.mjs --report-dir artifacts --json /tmp/summary.json
+node scripts/test-report.mjs --report-dir artifacts --check
+```
+
+Gateway suites write JUnit XML next to `run-all.json` when `TEST_REPORT_DIR`
+is set (`test:junit`, `test:fast:junit`, `test:gateway:junit`,
+`test:endpoints:junit`; `tests/gateway/endpoint_smoke.sh` picks the `:junit`
+variant automatically). Conversion and summaries:
+
+- `scripts/tap-to-junit.mjs` — TAP to JUnit (used for shell logs if needed).
+- `scripts/ci/summary.mjs` — totals, 10 slowest suites, and failed test names
+  to `$GITHUB_STEP_SUMMARY` (stdout locally). CI uploads `artifacts/` always.
+- `tests/run_all.sh --no-report` — logs only, no `artifacts/` (same as
+  `REPORT_ENABLED=0`).
+
+Unit tests for the converters live in `scripts/test/` and run without a
+database: `node --test scripts/test/tap-to-junit.test.mjs
+scripts/test/test-report.test.mjs`.
+
 ## Files
 
 - `docker-compose.test.yml` — MariaDB 11.8 on `TEST_DB_PORT` (default 3307).
