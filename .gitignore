@@ -29,3 +29,4 @@ coverage/
 
 # Machine-readable test reports (tests/lib/report.sh, JUnit, JSON summaries)
 artifacts/
+middleware/test-results/
