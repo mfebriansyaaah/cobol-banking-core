@@ -204,7 +204,10 @@ npm --prefix middleware start          # PORT from middleware/.env, default 3000
 
 Defaults point at `cobol_user` / `cobol_pass` / `cobol_db`. Override with
 `tests/.dbenv` (gitignored) for tests and with `middleware/.env` for the
-gateway. For production, `database/grants.sh` provisions separate DML-only
+gateway. For an isolated local test database (recommended: no risk to the
+developer database), see [docs/TESTING.md](docs/TESTING.md)
+(`docker-compose.test.yml` on port 3307 plus `scripts/dev/setup-test-db.sh`).
+For production, `database/grants.sh` provisions separate DML-only
 (`cobol_app`) and migration (`cobol_migrate`) accounts.
 
 The seed fixtures create `sender@test.com`, `receiver@test.com`, and
@@ -293,7 +296,7 @@ privileged account; the running application only needs DML rights.
 
 ```sh
 tests/run_all.sh fast     # manifest + build + COBOL table cases + PING smoke
-tests/run_all.sh db       # schema + D1-D4 database suites
+tests/run_all.sh db       # schema + all DB suites (isolated, see docs/TESTING.md)
 tests/run_all.sh full     # fast + db + COBOL/C error harness + gateway suite
 tests/run_all.sh probes   # break the code on purpose; require the gates to notice
 ./ci-fast.sh              # wrapper for fast
@@ -317,8 +320,13 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | Gateway | 136 | `middleware/test/*.js` |
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
-suites skip with `SKIP: DB unavailable` when MariaDB is not reachable, create
-their own fixtures, and reset their tables before running. The hosted CI job
+suites fail closed with `FAIL: DB unavailable` when MariaDB is not reachable
+(`ALLOW_SKIP=1` opts out locally; CI never sets it), create their own
+fixtures, and reset their tables before running. `tests/run_all.sh db` runs
+the DB fleet in an isolated throwaway database and refuses to run against
+`cobol_db` without DDL-capable migrate credentials unless `ALLOW_DEV_DB=1`
+is set; see [docs/TESTING.md](docs/TESTING.md) for the local setup
+(Docker Compose on port 3307), the safety model, and troubleshooting. The hosted CI job
 starts an empty MariaDB service, applies every migration, then runs the same
 full gate; `SKIP_BUILD=1` reuses the binary from the build job. Locally the
 suites are repeatable against one database: `tests/run_all.sh full` must stay

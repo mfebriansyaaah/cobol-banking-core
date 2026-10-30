@@ -25,7 +25,8 @@ bash scripts/ci/premerge.sh
 
 It runs the static gates, the gate-detection probes, and the fast suite. CI
 runs the full DB, integration, fuzz, rollback, restore, performance, and
-coverage jobs.
+coverage jobs. For the local test database setup, the isolation model, and
+troubleshooting, see [docs/TESTING.md](docs/TESTING.md).
 
 ## Adding or changing a domain
 
