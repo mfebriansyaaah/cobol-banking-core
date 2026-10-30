@@ -718,7 +718,7 @@
                 EXIT PARAGRAPH
             END-IF.
             CALL "SQL_BEGIN" END-CALL
-            MOVE "INSERT INTO lc_amendment (lc_id, amendment_no, amount_delta, new_expiry_date, new_terms, status, approved_by, approved_at, created_by) SELECT ?, COALESCE(MAX(amendment_no), 0) + 1, ?, NULLIF(?, ''), NULLIF(?, ''), 'APPROVED', ?, NOW(), ? FROM lc_amendment WHERE lc_id = ?" TO WS-PREP-SQL
+            MOVE "INSERT INTO lc_amendment (lc_id, amendment_no, amount_delta, new_expiry_date, new_terms, status, approved_by, approved_at, created_by) SELECT ?, COALESCE(MAX(amendment_no), 0) + 1, ?, NULLIF(?, ''), NULLIF(?, ''), 'APPROVED', NULL, NOW(), ? FROM lc_amendment WHERE lc_id = ?" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
             MOVE WS-P3-TRIMMED TO WS-BIND-3
