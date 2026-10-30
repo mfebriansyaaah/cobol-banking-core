@@ -325,6 +325,11 @@ run_affected() {
         echo "=== DB SUITES (selected) ==="
         # shellcheck disable=SC1091
         . "$ROOT/tests/lib/db.sh"
+        # shellcheck disable=SC1091
+        . "$ROOT/tests/lib/lock.sh"
+        DB_NAME="${DB_NAME:-cobol_db}"
+        db_lock_acquire || exit 1
+        trap db_lock_release EXIT
         require_db
         local s
         for s in $SELECT_DB_SUITES; do
@@ -382,12 +387,17 @@ run_db() {
     node scripts/check_test_helpers.mjs "$ROOT"
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/guard.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/lock.sh"
     DB_NAME="${DB_NAME:-cobol_db}"
     # Throwaway databases (isolated template + shard workers) are all dropped
     # by one EXIT trap; the isolation block below only records what it made.
+    # The lock is held for the whole run so two runners cannot interleave
+    # DELETE/reset statements against the same target.
     SHARD_DBS=""
     ISOLATED_DB_CREATED=""
-    trap cleanup_db_resources EXIT
+    trap 'cleanup_db_resources; db_lock_release' EXIT
+    db_lock_acquire || exit 1
     # Isolate the whole DB test run from the primary database so suites cannot
     # clobber developer/production data. Opt out with ISOLATED_DB=0 (explicit
     # serial run against the current database) or ALLOW_DEV_DB=1 (explicit
