@@ -223,6 +223,8 @@ db_reset_trade_finance() {
 }
 
 db_reset_merchant() {
+    db_exec "DELETE FROM merchant_transaction;"
+    db_exec "DELETE FROM merchant_fee_profile;"
     db_exec "DELETE FROM merchant_audit; DELETE FROM merchant;"
 }
 
@@ -324,6 +326,7 @@ db_reset_debit_card() {
 }
 
 db_reset_merchant_settlement() {
+    db_exec "DELETE FROM merchant_settlement_item;"
     db_exec "DELETE FROM merchant_settlement_audit; DELETE FROM merchant_settlement;"
 }
 
