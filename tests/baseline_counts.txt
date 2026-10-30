@@ -91,6 +91,7 @@ db_blockchain_tracker_tests=13
 db_branch_management_tests=13
 db_cash_management_tests=13
 db_chargeback_tests=13
+db_chargeback_schema_tests=8
 db_commodity_trading_tests=13
 db_complaint_management_tests=13
 db_consent_management_tests=13
