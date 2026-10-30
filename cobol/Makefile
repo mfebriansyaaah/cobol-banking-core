@@ -25,7 +25,11 @@
 COBC      ?= cobc
 CC        ?= cc
 COB_FLAGS := -free -I cobol/copy -O2
-C_FLAGS   := -O2 -I cobol/c_lib -Wall -Wextra
+# NOTE: no -Wall -Wextra here. The legacy single-shot build passed those
+# flags to cobc (COBOL diagnostics), never to the C compiler, so C objects
+# were always built warning-free by default. Adding -Wall to `cc` surfaces
+# 6 pre-existing sql_bridge.c notes and trips the warning ratchet.
+C_FLAGS   := -O2 -I cobol/c_lib
 LD_LIBS   := -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread
 
 BIN       := cobol/bin/main_logic
