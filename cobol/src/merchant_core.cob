@@ -61,6 +61,11 @@
         01  WS-NUM-ALLOCATED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-MDR              PIC S9(3)V9(2) VALUE 0.
+        01  WS-NUM-FEE              PIC S9(15)V9(4) VALUE 0.
+        01  WS-NUM-COUNT            PIC 9(9) VALUE 0.
+        01  WS-CUST-REF             PIC X(40) VALUE SPACES.
+        01  WS-KYC-STATUS           PIC X(20) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -105,6 +110,24 @@
                 WHEN LS-CMD-ACTION(1:10) = "MRT_DELETE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:14) = "MRT_SUBMIT_KYC"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUBMIT-KYC
+                WHEN LS-CMD-ACTION(1:11) = "MRT_APPROVE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APPROVE
+                WHEN LS-CMD-ACTION(1:12) = "MRT_ACTIVATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACTIVATE
+                WHEN LS-CMD-ACTION(1:11) = "MRT_SUSPEND"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUSPEND
+                WHEN LS-CMD-ACTION(1:9) = "MRT_CLOSE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLOSE-MCH
+                WHEN LS-CMD-ACTION(1:11) = "MRT_SET_FEE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SET-FEE
                 WHEN LS-CMD-ACTION(1:11) = "MRT_SUMMARY"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUMMARY
@@ -580,6 +603,441 @@
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL
                 MOVE "SUCCESS|MRT_DELETE" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SUBMIT-KYC.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS NOT = "PROSPECT" AND WS-TMP-STATUS NOT = "OPEN"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE merchant SET status = 'PENDING_KYC', version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SUBMIT_KYC" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MRT
+            MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+            MOVE "PENDING_KYC" TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|MRT_SUBMIT_KYC|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED NOT = "LOW" AND WS-P2-TRIMMED NOT = "MEDIUM"
+                AND WS-P2-TRIMMED NOT = "HIGH"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P3-TRIMMED) TO WS-NUM-MDR
+            IF WS-NUM-MDR < 0 OR WS-NUM-MDR > 100
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P4-TRIMMED) TO WS-NUM-FEE
+            IF WS-NUM-FEE < 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P5-TRIMMED = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS NOT = "PENDING_KYC"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(c.kyc_status, '|', c.customer_ref) FROM customer c JOIN merchant m ON m.customer_ref = c.customer_ref WHERE m.id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT NOT = "ERROR|NO_DATA" AND WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT NOT = "ERROR|NO_DATA"
+                MOVE SPACES TO WS-KYC-STATUS WS-CUST-REF
+                UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-KYC-STATUS WS-CUST-REF END-UNSTRING
+                IF WS-KYC-STATUS = "REJECTED" OR WS-KYC-STATUS = "FAILED"
+                    OR WS-KYC-STATUS = "BLOCKED"
+                    MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO merchant_fee_profile (merchant_id, mdr_pct, fixed_fee, currency, effective_from, created_by) VALUES (?, ?, ?, ?, CURRENT_DATE, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P3-TRIMMED TO WS-BIND-2
+            MOVE WS-P4-TRIMMED TO WS-BIND-3
+            MOVE WS-P5-TRIMMED TO WS-BIND-4
+            MOVE WS-P6-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE merchant SET risk_level = ?, fee_profile_id = ?, version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+                MOVE WS-P2-TRIMMED TO WS-BIND-1
+                MOVE FUNCTION TRIM(WS-NEW-ID) TO WS-BIND-2
+                MOVE WS-P1-TRIMMED TO WS-BIND-3
+                MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "APPROVE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MRT
+                MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-NEW
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|MRT_APPROVE|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-ACTIVATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS NOT = "PENDING_KYC"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P2-TRIMMED NOT = SPACES
+                MOVE "SELECT 1 FROM accounts WHERE account_id = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-P2-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            MOVE "SELECT COUNT(*) FROM merchant_fee_profile WHERE merchant_id = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT = "ERROR|NO_DATA" OR WS-RESULT = "0"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            IF WS-P2-TRIMMED = SPACES
+                MOVE "UPDATE merchant SET status = 'ACTIVE', activated_at = NOW(), onboarded_at = COALESCE(onboarded_at, NOW()), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+            ELSE
+                MOVE "UPDATE merchant SET status = 'ACTIVE', settlement_account_id = ?, activated_at = NOW(), onboarded_at = COALESCE(onboarded_at, NOW()), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+                MOVE WS-P2-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+                MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+            END-IF
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "ACTIVATE" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MRT
+            MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+            MOVE "ACTIVE" TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|MRT_ACTIVATE|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-SUSPEND.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS NOT = "ACTIVE"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE merchant SET status = 'SUSPENDED', version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SUSPEND" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MRT
+            MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+            MOVE "SUSPENDED" TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|MRT_SUSPEND|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-CLOSE-MCH.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS = "CLOSED"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT COUNT(*) FROM merchant_settlement WHERE merchant_id = ? AND status IN ('OPEN','SCHEDULED')" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT NOT = "ERROR|NO_DATA" AND WS-RESULT NOT = "0"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE merchant SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), version = version + 1 WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "CLOSE" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MRT
+            MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+            MOVE "CLOSED" TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|MRT_CLOSE|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-SET-FEE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-MDR
+            IF WS-NUM-MDR < 0 OR WS-NUM-MDR > 100
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P3-TRIMMED) TO WS-NUM-FEE
+            IF WS-NUM-FEE < 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P4-TRIMMED = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO merchant_fee_profile (merchant_id, mdr_pct, fixed_fee, currency, effective_from, created_by) VALUES (?, ?, ?, ?, CURRENT_DATE, ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            MOVE WS-P6-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE merchant SET fee_profile_id = ? WHERE id = ?" TO WS-PREP-SQL
+                MOVE FUNCTION TRIM(WS-NEW-ID) TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "SET_FEE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MRT
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|MRT_SET_FEE|1" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
