@@ -57,6 +57,18 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - `cost_center_core`, `fixed_asset_core`, `consolidation_core`
 - `budget_core`, `procurement_core`, `tax_report_core`
 
+## Tax Withholding (canonical)
+- `tax_management_core` — rule engine (rate/fixed/threshold/max/currency/GL/
+  effective/enabled) + withholding calc (threshold, max cap, duplicate-source
+  guard) + post (CALCULATED → POSTED + GL link) + reverse + report runs.
+  Tables: `tax_management` (extended), `tax_withholding_entry`,
+  `tax_report_run`, `tax_audit`.
+- Routes: `/tax/rules*`, `/tax/calculate`, `/tax/entries/:id/post|reverse`,
+  `/tax/reports/run`. Deposit interest and fee paths integrate by orchestration:
+  source domain posts base → `TXM_CALC` → `TXM_POST` + `GL_JOURNAL_POST`.
+- Deprecated (do not use for new flows; kept for backward compat):
+  `tax_withholding_core`, `tax_item_core` (generic template clones).
+
 ## Collateral Management (canonical)
 - `collateral_core` is the canonical domain: register → appraise → revalue →
   pledge → allocate → release, plus repossess → dispose with GL linkage
