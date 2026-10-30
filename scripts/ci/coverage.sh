@@ -141,11 +141,12 @@ if [ "$MODE" = gateway ]; then
     exit 0
 fi
 
-# Full measurement needs a normal binary to restore after the instrumented run.
-if [ ! -x "$ROOT/cobol/bin/main_logic" ]; then
-    echo "== normal binary missing; building ==" >&2
-    ./build.sh >"$COVERAGE_DIR/build-normal.log" 2>&1
-fi
+# The instrumented link reuses normal objects for every non-curated module
+# (Fase 4.5): only the curated set is compiled with --coverage, the rest come
+# from the incremental build cache. A full --coverage compile of all 605
+# modules took longer than the normal build; this takes seconds when warm.
+echo "== ensuring normal objects are fresh ==" >&2
+./build.sh >"$COVERAGE_DIR/build-normal.log" 2>&1
 
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/cobol-coverage.XXXXXX")"
 BIN="$ROOT/cobol/bin/main_logic"
@@ -159,17 +160,53 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "== building instrumented binary ==" >&2
-mapfile -t ALL_SOURCES < <(grep -oE 'cobol/src/[a-z0-9_]+\.cob' build.sh)
-COB_SOURCES=(cobol/src/main_logic.cob)
-for src in "${ALL_SOURCES[@]}"; do
-    [ "$src" = "cobol/src/main_logic.cob" ] || COB_SOURCES+=("$src")
+if [ ! -d "$ROOT/cobol/build/obj" ] || ! ls "$ROOT/cobol/build/obj"/*.o >/dev/null 2>&1; then
+    echo "FAIL cobol: no normal objects (run ./build.sh without BUILD_LEGACY=1 first)" >&2
+    exit 1
+fi
+
+echo "== building instrumented objects (curated only) ==" >&2
+COV_OBJS=()
+NORMAL_OBJS=()
+for src in "$ROOT"/cobol/src/*.cob; do
+    base="$(basename "$src" .cob)"
+    # main_logic is compiled at link time (it carries the entry point).
+    [ "$base" = "main_logic" ] && continue
+    case " ${CURATED[*]} " in
+        *" $base "*)
+            if ! cobc -free -c --coverage -I "$ROOT/cobol/copy" \
+                -o "$WORK/$base.o" "$src" >"$WORK/build-$base.log" 2>&1; then
+                echo "FAIL cobol: coverage compile failed for $base" >&2
+                tail -20 "$WORK/build-$base.log" >&2
+                exit 1
+            fi
+            COV_OBJS+=("$WORK/$base.o")
+            ;;
+        *)
+            NORMAL_OBJS+=("$ROOT/cobol/build/obj/$base.o")
+            ;;
+    esac
 done
-C_SOURCES=(cobol/src/sql_bridge.c cobol/c_lib/hash_lib.c cobol/c_lib/totp_lib.c cobol/c_lib/settings_lib.c cobol/c_lib/random_lib.c)
+C_OBJS=(
+    "$ROOT/cobol/build/cobj/sql_bridge.o"
+    "$ROOT/cobol/build/cobj/hash_lib.o"
+    "$ROOT/cobol/build/cobj/totp_lib.o"
+    "$ROOT/cobol/build/cobj/settings_lib.o"
+    "$ROOT/cobol/build/cobj/random_lib.o"
+)
+for o in "${NORMAL_OBJS[@]}" "${C_OBJS[@]}"; do
+    if [ ! -f "$o" ]; then
+        echo "FAIL cobol: missing object $o (stale build cache?)" >&2
+        exit 1
+    fi
+done
+
+echo "== linking instrumented binary ==" >&2
 ( cd "$WORK" && cobc -free -x --coverage -I "$ROOT/cobol/copy" -o main_cov \
-    "${COB_SOURCES[@]/#/$ROOT/}" "${C_SOURCES[@]/#/$ROOT/}" \
+    "$ROOT/cobol/src/main_logic.cob" \
+    "${COV_OBJS[@]}" "${NORMAL_OBJS[@]}" "${C_OBJS[@]}" \
     -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread >build.log 2>&1 ) \
-    || { echo "FAIL cobol: instrumented build failed" >&2; tail -20 "$WORK/build.log" >&2; exit 1; }
+    || { echo "FAIL cobol: instrumented link failed" >&2; tail -20 "$WORK/build.log" >&2; exit 1; }
 
 echo "== generating C sources for ${#CURATED[@]} modules ==" >&2
 for m in "${CURATED[@]}"; do

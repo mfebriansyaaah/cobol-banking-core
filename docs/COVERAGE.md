@@ -12,7 +12,9 @@ percentage.
 | COBOL curated core | statement (line) coverage mapped back to `.cob` lines | `scripts/ci/coverage.sh` |
 | Gateway | line, branch, and function coverage over `middleware/src/**` | Node `--experimental-test-coverage` |
 
-GnuCOBOL translates COBOL to C. The coverage build uses `cobc --coverage`, runs
+GnuCOBOL translates COBOL to C. The coverage build compiles only the curated
+modules with `cobc --coverage` and reuses normal objects from the incremental
+build cache (`cobol/build/`) for everything else, then runs
 the representative DB suites, the table suite, and the gateway suite, then maps
 gcov counts from the generated C back to COBOL lines using the translator's
 `/* Line: N : ... */` markers. A COBOL line is executable when at least one
