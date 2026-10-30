@@ -95,6 +95,7 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 | Trade Finance | Done (pilot) | `letter_of_credit_core` (LC lifecycle + GL link), `bank_guarantee_core` (BG lifecycle + claim); legacy `trade_finance`, `documentary_credit`, `bankers_acceptance`, `export_finance`, `import_finance`, `factoring` deprecated |
 | Merchant Acquiring | Done (pilot) | `merchant_core` (onboarding + fee profile), `merchant_settlement_core` (txn/fee/settle/payout + GL link); legacy generic CREATE/CALC/UPDATE/DELETE deprecated |
 | Tax Withholding | Done (pilot) | `tax_management_core` (rule engine + calc/post/reverse/report); legacy `tax_withholding`, `tax_item` deprecated |
+| Chargeback | Done (pilot) | `chargeback_core` (open/assign/evidence/represent/accept/reject/arbitrate/close + hold/release/debit ledger); generic `chargeback` write paths + `dispute_management` deprecated |
 
 ### Status details
 
@@ -140,11 +141,11 @@ suites, table cases, and the action/suite inventory gates. See
 |---|---:|
 | COBOL modules | **604** |
 | COBOL source files (incl. dispatcher) | **605** |
-| COBOL lines | **416,044** |
+| COBOL lines | **416,871** |
 | Gateway route files | **599** |
-| Gateway route definitions | **5,385** |
+| Gateway route definitions | **5,396** |
 | Dispatch entries | **682** |
-| Recorded migrations | **646** |
+| Recorded migrations | **649** |
 | Tables in schema.sql | **478** |
 <!-- END GENERATED STATS -->
 
