@@ -1,11 +1,38 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [fast|db|full|probes|affected]   (default: full)
+# Usage: tests/run_all.sh [--json] [--no-report] [fast|db|full|probes|affected]   (default: full)
+#   --json       print the report path at the end (artifacts/run-all.json)
+#   --no-report  skip machine-readable reporting (logs only)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-MODE="${1:-full}"
+
+REPORT_ENABLED="${REPORT_ENABLED:-1}"
+PRINT_JSON=0
+MODE=""
+for _arg in "$@"; do
+    case "$_arg" in
+        --json) PRINT_JSON=1 ;;
+        --no-report) REPORT_ENABLED=0 ;;
+        --help|-h)
+            sed -n '2,5p' "$0"
+            echo "Modes: fast db full probes affected"
+            exit 0
+            ;;
+        -*) echo "unknown flag: $_arg (see --help)" >&2; exit 2 ;;
+        *)
+            if [ -z "$MODE" ]; then
+                MODE="$_arg"
+            else
+                echo "unexpected argument: $_arg (see --help)" >&2
+                exit 2
+            fi
+            ;;
+    esac
+done
+MODE="${MODE:-full}"
+export REPORT_ENABLED PRINT_JSON
 
 # Parse every gateway/script source before anything else runs. A route file
 # that cannot be imported takes the whole gateway down, and the old pipeline
@@ -284,6 +311,7 @@ run_fast() {
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/report.sh"
     report_init
+    trap report_finalize EXIT
     run_gates
     run_build
     echo "=== COBOL TABLE TESTS ==="
@@ -321,6 +349,7 @@ run_affected() {
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/report.sh"
     report_init
+    trap 'db_lock_release; report_finalize' EXIT
     run_gates
     run_build
     echo "=== COBOL TABLE TESTS (selected) ==="
@@ -340,7 +369,7 @@ run_affected() {
         . "$ROOT/tests/lib/lock.sh"
         DB_NAME="${DB_NAME:-cobol_db}"
         db_lock_acquire || exit 1
-        trap db_lock_release EXIT
+        trap 'db_lock_release; report_finalize' EXIT
         require_db
         # shellcheck disable=SC1091
         . "$ROOT/tests/lib/report.sh"
@@ -399,6 +428,8 @@ run_db() {
     . "$ROOT/tests/lib/guard.sh"
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/lock.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/report.sh"
     DB_NAME="${DB_NAME:-cobol_db}"
     # Throwaway databases (isolated template + shard workers) are all dropped
     # by one EXIT trap; the isolation block below only records what it made.
@@ -406,10 +437,8 @@ run_db() {
     # DELETE/reset statements against the same target.
     SHARD_DBS=""
     ISOLATED_DB_CREATED=""
-    trap 'cleanup_db_resources; db_lock_release' EXIT
+    trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
     db_lock_acquire || exit 1
-    # shellcheck disable=SC1091
-    . "$ROOT/tests/lib/report.sh"
     report_init
     # Isolate the whole DB test run from the primary database so suites cannot
     # clobber developer/production data. Opt out with ISOLATED_DB=0 (explicit
@@ -496,7 +525,13 @@ run_db() {
 
 run_gateway() {
     echo "=== GATEWAY ENDPOINT SMOKE ==="
-    tests/gateway/endpoint_smoke.sh
+    # Route JUnit XMLs into the shared report dir so CI uploads one artifact.
+    # endpoint_smoke.sh only uses the :junit suite variants when this is set.
+    if [ "${REPORT_ENABLED:-1}" = "1" ] && [ -n "${REPORT_DIR:-}" ]; then
+        TEST_REPORT_DIR="${TEST_REPORT_DIR:-$REPORT_DIR}" tests/gateway/endpoint_smoke.sh
+    else
+        tests/gateway/endpoint_smoke.sh
+    fi
 }
 
 # Break the code on purpose in a throwaway copy and require the gates to

@@ -17,6 +17,12 @@ REPORT_DIR="${REPORT_DIR:-}"
 REPORT_TSV=""
 
 report_init() {
+    if [ "${REPORT_ENABLED:-1}" != "1" ]; then
+        REPORT_DIR=""
+        REPORT_TSV=""
+        export REPORT_DIR REPORT_TSV
+        return 0
+    fi
     local root="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
     REPORT_DIR="${1:-${REPORT_DIR:-$root/artifacts}}"
     mkdir -p "$REPORT_DIR" || return 1
@@ -49,7 +55,24 @@ report_record() {
     return 0
 }
 
-# Now in milliseconds. date +%s%N is Linux-only; fall back to seconds.
+# Write artifacts/run-all.json from the TSV (best effort, never fails the run).
+# Called from an EXIT trap so failure runs also produce a report.
+report_finalize() {
+    [ "${REPORT_ENABLED:-1}" = "1" ] || return 0
+    [ -n "${REPORT_TSV:-}" ] || return 0
+    [ -f "$REPORT_TSV" ] || return 0
+    command -v node >/dev/null 2>&1 || return 0
+    local root="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+    node "$root/scripts/test-report.mjs" --report-dir "$REPORT_DIR" \
+        --json "$REPORT_DIR/run-all.json" >/dev/null 2>&1 || true
+    rm -f "$REPORT_TSV.lock" 2>/dev/null || true
+    if [ "${PRINT_JSON:-0}" = "1" ] && [ -f "$REPORT_DIR/run-all.json" ]; then
+        echo "=== REPORT: $REPORT_DIR/run-all.json ==="
+    fi
+    return 0
+}
+
+# Now in milliseconds. Date +%s%N is Linux-only; fall back to seconds.
 _now_ms() {
     local ns
     ns="$(date +%s%N 2>/dev/null || echo "")"
@@ -66,6 +89,11 @@ report_run() {
     local shard="$1"
     shift
     local suite="$1"
+    # Reporting disabled: run the suite directly with no recording.
+    if [ "${REPORT_ENABLED:-1}" != "1" ] || [ -z "${REPORT_TSV:-}" ]; then
+        "$@"
+        return $?
+    fi
     local name
     name="$(basename "$suite")"
     local log="$REPORT_DIR/logs/$name.log"
