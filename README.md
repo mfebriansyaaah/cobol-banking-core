@@ -94,6 +94,7 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 | Collateral Mgmt | Done (pilot) | `collateral_core` (17 actions: register/appraise/revalue/pledge/allocate/release/repossess/dispose + CRUD/audit); legacy `collateral_mgmt`, `collateral_repossession`, `collateralized` deprecated, kept for compat |
 | Trade Finance | Done (pilot) | `letter_of_credit_core` (LC lifecycle + GL link), `bank_guarantee_core` (BG lifecycle + claim); legacy `trade_finance`, `documentary_credit`, `bankers_acceptance`, `export_finance`, `import_finance`, `factoring` deprecated |
 | Merchant Acquiring | Done (pilot) | `merchant_core` (onboarding + fee profile), `merchant_settlement_core` (txn/fee/settle/payout + GL link); legacy generic CREATE/CALC/UPDATE/DELETE deprecated |
+| Tax Withholding | Done (pilot) | `tax_management_core` (rule engine + calc/post/reverse/report); legacy `tax_withholding`, `tax_item` deprecated |
 
 ### Status details
 
@@ -139,11 +140,11 @@ suites, table cases, and the action/suite inventory gates. See
 |---|---:|
 | COBOL modules | **604** |
 | COBOL source files (incl. dispatcher) | **605** |
-| COBOL lines | **415,325** |
+| COBOL lines | **416,044** |
 | Gateway route files | **599** |
-| Gateway route definitions | **5,377** |
+| Gateway route definitions | **5,385** |
 | Dispatch entries | **682** |
-| Recorded migrations | **644** |
+| Recorded migrations | **646** |
 | Tables in schema.sql | **478** |
 <!-- END GENERATED STATS -->
 
