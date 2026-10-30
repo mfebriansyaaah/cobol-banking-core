@@ -4,3 +4,8 @@ MCS_GET missing id@@ERROR\|INVALID_INPUT@@MCS_GET||||||admin@test.com
 MCS_CALC missing id@@ERROR\|INVALID_INPUT@@MCS_CALC||||||admin@test.com
 MCS_DELETE missing id@@ERROR\|INVALID_INPUT@@MCS_DELETE||||||admin@test.com
 MCS_VALIDATE ok@@SUCCESS\|MCS_VALID@@MCS_VALIDATE|100.00|USD||||admin@test.com
+MCS_TXN missing params@@ERROR\|INVALID_INPUT@@MCS_TXN||||||admin@test.com
+MCS_OPEN missing params@@ERROR\|INVALID_INPUT@@MCS_OPEN||||||admin@test.com
+MCS_POST missing id@@ERROR\|INVALID_INPUT@@MCS_POST||||||admin@test.com
+MCS_SETTLE missing id@@ERROR\|INVALID_INPUT@@MCS_SETTLE||||||admin@test.com
+MCS_CANCEL missing id@@ERROR\|INVALID_INPUT@@MCS_CANCEL||||||admin@test.com

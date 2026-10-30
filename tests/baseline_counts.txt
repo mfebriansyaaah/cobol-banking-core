@@ -54,6 +54,7 @@ db_digital_banking_tests=13
 db_mobile_wallet_tests=13
 db_payment_gateway_tests=13
 db_merchant_settlement_tests=13
+db_merchant_settlement_domain_tests=29
 db_debit_card_tests=13
 db_credit_card_tests=13
 db_wealth_management_tests=13
