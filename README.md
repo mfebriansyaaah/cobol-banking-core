@@ -8,8 +8,7 @@ crypto helpers COBOL cannot call directly.
 
 [![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
 
-> **Status (2026-10-29):** engineering codebase, not a production certification.
-> COBOL modules follow the 9-action contract (see
+> **Status (2026-10-29):** COBOL modules follow the 9-action contract (see
 > `docs/module_classification.md`): Tier-1 hand-reviewed core (auth, wallet,
 > lending, …) plus Tier-2 generated domain modules and Tier-3 utilities.
 > `tests/run_all.sh full` is green locally and in the hosted CI gate.
