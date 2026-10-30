@@ -52,11 +52,7 @@ GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_ac
 # Each returns 0 when it believes the code is fine, non-zero when it refuses.
 
 gate_js_syntax() {
-    local bad=0 f
-    while IFS= read -r f; do
-        node --check "$f" >/dev/null 2>&1 || bad=1
-    done < <(find middleware/src scripts \( -name '*.js' -o -name '*.mjs' \) -type f | sort)
-    return "$bad"
+    node --no-warnings --experimental-vm-modules scripts/check_js_syntax.mjs . >/dev/null 2>&1
 }
 
 gate_manifest() { node scripts/check_manifest.mjs . >/dev/null 2>&1; }

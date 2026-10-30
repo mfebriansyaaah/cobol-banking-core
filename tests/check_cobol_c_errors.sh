@@ -14,14 +14,17 @@ fail=0
 step() { echo; echo "=== $1 ==="; }
 
 # 1. Compile-time errors (COBOL)
+# One cobc invocation checks all modules (~3s) instead of one process per
+# module (~19s). Errors still name the offending file.
 step "1. Compile-time (COBOL syntax)"
-cobol_err=0
-for f in "$COBOL_DIR"/src/*.cob; do
-    if ! cobc -fsyntax-only -free -I "$COBOL_DIR/copy" "$f" >/tmp/cobol_syntax.log 2>&1; then
-        echo "FAIL: $f"; cat /tmp/cobol_syntax.log | head -5; cobol_err=1
-    fi
-done
-[ "$cobol_err" -eq 0 ] && echo "OK: all COBOL files parse" || fail=1
+if cobc -fsyntax-only -free -I "$COBOL_DIR/copy" "$COBOL_DIR"/src/*.cob >/tmp/cobol_syntax.log 2>&1; then
+    echo "OK: all COBOL files parse"
+else
+    grep -Eo '[^ :]*\.(cob|cpy):[0-9]+: error' /tmp/cobol_syntax.log \
+        | sed 's/:[0-9]*: error$//' | sort -u | sed 's/^/FAIL: /' || true
+    head -20 /tmp/cobol_syntax.log
+    fail=1
+fi
 
 # 2. Compile-time errors (C)
 step "2. Compile-time (C)"

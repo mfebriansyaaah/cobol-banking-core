@@ -4,10 +4,13 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
+import { resetPool } from '../src/pool.js';
 
 // Remove the users this suite created so the shared test database stays
 // consistent for the suites that run after it (see gateway.test.js).
 after(() => runSql("DELETE FROM users WHERE email LIKE 'ep\\_%'"));
+// Drop pooled COBOL workers so the process can exit (see gateway.test.js).
+after(() => resetPool());
 import { seedUser, seedAccount, getVerificationCode, requireSeed, runSql, enableMfa, totp, TEST_MFA_SECRET } from './support.js';
 
 const app = buildApp();

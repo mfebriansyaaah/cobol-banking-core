@@ -23,6 +23,16 @@ db_exec "DELETE FROM loan_application WHERE customer_email='collat@test.com';"
 db_exec "INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('collat@test.com', 1000000, 'IDR', 12, 5.0000, 'DISBURSED', 'admin@test.com');"
 LOAN_ID="$(db_query "SELECT id FROM loan_application WHERE customer_email='collat@test.com' ORDER BY id DESC LIMIT 1;")"
 
+# Hermetic: the dispose flow below posts a GL journal dated 2026-10-29, so
+# period 2026-10 must be open and accounts 1000/4210 must exist in THIS
+# database. Serial runs inherited both from developer data; sharded workers
+# and fresh DBs start without them. GL_PERIOD_OPEN is idempotent
+# (re-opening an open period succeeds); duplicate account creates fail but
+# their output is discarded since existence is all the journal needs.
+run_cobol "GL_PERIOD_OPEN|2026-10|||||admin@test.com" >/dev/null
+run_cobol "GL_ACCOUNT_CREATE|1000|Cash|ASSET|DEBIT||admin@test.com" >/dev/null
+run_cobol "GL_ACCOUNT_CREATE|4210|Disposal proceeds|REVENUE|CREDIT||admin@test.com" >/dev/null
+
 # REGISTER happy path.
 reg_out="$(run_cobol "CLT_REGISTER|CLT-DOM-1|Rumah Jakarta|PROPERTY|500000000|CUST-001|admin@test.com")"
 assert_match "REGISTER ok" "$reg_out" "SUCCESS\|CLT_REGISTER\|[0-9]+"

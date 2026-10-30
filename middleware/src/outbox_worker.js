@@ -20,6 +20,7 @@
 
 import { appendFile } from 'node:fs/promises';
 import { invoke } from './invoker.js';
+import { resetPool } from './pool.js';
 import { toHttp } from './result.js';
 import { createMailer, mailerFrom, verificationSubject } from './mailer.js';
 
@@ -122,4 +123,9 @@ try {
 } catch (err) {
   console.error(JSON.stringify({ ts: new Date().toISOString(), event: 'outbox_worker_error', error: String((err && err.message) || err).slice(0, 200) }));
   process.exit(1);
+} finally {
+  // Drop pooled COBOL workers so --once actually terminates. In file mode
+  // there is nothing to close; in pool mode the spawned --serve processes
+  // would otherwise keep the event loop alive forever.
+  await resetPool();
 }

@@ -13,32 +13,42 @@ const segments = (path) => path.split('/');
 const isParam = (segment) => segment.startsWith(':');
 const shape = (path) => segments(path).map((s) => (isParam(s) ? ':param' : s)).join('/');
 
-function matchesEarlier(earlierPath, laterPath) {
-  const a = segments(earlierPath);
-  const b = segments(laterPath);
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i += 1) {
-    if (isParam(a[i])) continue;
-    if (a[i] !== b[i]) return false;
+function matchesEarlier(aSegs, bSegs) {
+  if (aSegs.length !== bSegs.length) return false;
+  for (let i = 0; i < aSegs.length; i += 1) {
+    if (isParam(aSegs[i])) continue;
+    if (aSegs[i] !== bSegs[i]) return false;
   }
   return true;
 }
 
 test('static routes are not shadowed by earlier parameterized routes', () => {
-  const seen = [];
   const failures = [];
-
-  for (const route of ROUTES) {
-    for (const earlier of seen) {
-      if (earlier.method !== route.method) continue;
-      const sameShape = shape(earlier.path) === shape(route.path);
-      if (sameShape && earlier.path !== route.path) {
-        failures.push(`${route.method.toUpperCase()} ${route.path} shares a shape with earlier ${earlier.path}`);
-      } else if (!sameShape && matchesEarlier(earlier.path, route.path)) {
-        failures.push(`${route.method.toUpperCase()} ${route.path} is shadowed by earlier ${earlier.path}`);
+  // Precompute segments/shape once. The old version recomputed split/map/join
+  // per pair: O(n^2) string work over 5342 routes = 14.3M pairs, ~9s CPU.
+  const prepared = ROUTES.map((r) => ({
+    method: r.method,
+    path: r.path,
+    segs: segments(r.path),
+    shape: shape(r.path),
+  }));
+  // Shadowing needs the same method AND segment count, so only pairs inside
+  // one group can match. Same failure messages, same order, ~2 orders of
+  // magnitude fewer comparisons.
+  const groups = new Map();
+  for (const route of prepared) {
+    const key = `${route.method}|${route.segs.length}`;
+    const earlier = groups.get(key) || [];
+    for (const e of earlier) {
+      const sameShape = e.shape === route.shape;
+      if (sameShape && e.path !== route.path) {
+        failures.push(`${route.method.toUpperCase()} ${route.path} shares a shape with earlier ${e.path}`);
+      } else if (!sameShape && matchesEarlier(e.segs, route.segs)) {
+        failures.push(`${route.method.toUpperCase()} ${route.path} is shadowed by earlier ${e.path}`);
       }
     }
-    seen.push(route);
+    earlier.push(route);
+    groups.set(key, earlier);
   }
 
   assert.deepEqual(failures, [], `route shadowing detected:\n${failures.join('\n')}`);
