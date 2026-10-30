@@ -380,6 +380,8 @@ run_node_selected() {
 run_db() {
     echo "=== TEST HELPER CHECK ==="
     node scripts/check_test_helpers.mjs "$ROOT"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/guard.sh"
     DB_NAME="${DB_NAME:-cobol_db}"
     # Throwaway databases (isolated template + shard workers) are all dropped
     # by one EXIT trap; the isolation block below only records what it made.
@@ -387,7 +389,10 @@ run_db() {
     ISOLATED_DB_CREATED=""
     trap cleanup_db_resources EXIT
     # Isolate the whole DB test run from the primary database so suites cannot
-    # clobber developer/production data. Opt out with ISOLATED_DB=0.
+    # clobber developer/production data. Opt out with ISOLATED_DB=0 (explicit
+    # serial run against the current database) or ALLOW_DEV_DB=1 (explicit
+    # acknowledgement that the developer database may be modified).
+    # Without isolation and without ALLOW_DEV_DB=1 the run fails closed.
     if [ "${ISOLATED_DB:-1}" != "0" ] && [ "$DB_NAME" = "cobol_db" ]; then
         ISOLATED_DB_NAME="cobol_db_test_$$"
         DB_HOST="${DB_HOST:-localhost}"
@@ -412,10 +417,10 @@ run_db() {
                 ISOLATED_DB_CREATED="$ISOLATED_DB_NAME"
                 echo "=== ISOLATED DB: $ISOLATED_DB_NAME ==="
             else
-                echo "=== ISOLATION SKIPPED (migration failed); using $DB_NAME ==="
+                db_require_allow_dev_db "isolation failed (migration error)" || exit 1
             fi
         else
-            echo "=== ISOLATION SKIPPED (no DDL rights); using $DB_NAME ==="
+            db_require_allow_dev_db "no DDL rights for isolation" || exit 1
         fi
     fi
     echo "=== DB PRECHECK + SEED (once per run) ==="
