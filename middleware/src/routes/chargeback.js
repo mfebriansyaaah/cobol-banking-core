@@ -8,8 +8,63 @@ export const CHB_ROUTES = [
   { method: 'get', path: '/chargebacks/audit', action: 'CHB_AUDIT', tokenIdentity: 'actor', fields: [ { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/chargebacks', action: 'CHB_LIST', tokenIdentity: 'actor', fields: [ { name: 'status', pattern: PATTERNS.CODE, required: false }, { name: 'cbType', pattern: PATTERNS.NAME, required: false }, { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, ACTOR ] },
   { method: 'post', path: '/chargebacks', action: 'CHB_CREATE', tokenIdentity: 'actor', fields: [ { name: 'cbRef', pattern: PATTERNS.KEY, required: true }, { name: 'cardholderName', pattern: PATTERNS.NAME, required: true }, { name: 'cbType', pattern: PATTERNS.NAME, required: true }, BLANK, BLANK, ACTOR ] },
+  { method: 'get', path: '/chargebacks/cases', action: 'CHB_CASE_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'merchantId', pattern: PATTERNS.INT, required: false },
+    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/chargebacks/cases/summary', action: 'CHB_CASE_SUMMARY', tokenIdentity: 'actor', fields: [
+    { name: 'merchantId', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/chargebacks/cases/:id', action: 'CHB_CASE_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/chargebacks/:id', action: 'CHB_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic +1 calc; use /chargebacks/open + evidence/represent/accept lifecycle.
   { method: 'post', path: '/chargebacks/:id/calc', action: 'CHB_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic metadata update; use assign/evidence/represent/accept/reject/arbitrate/close.
   { method: 'post', path: '/chargebacks/:id/update', action: 'CHB_UPDATE', tokenIdentity: 'actor', fields: [ ID, { name: 'cardholderName', pattern: PATTERNS.NAME, required: false }, { name: 'cbType', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, ACTOR ] },
+  // DEPRECATED: generic close; use /chargebacks/:id/close (CHB_CLOSE) with terminal-state guard.
   { method: 'post', path: '/chargebacks/:id/delete', action: 'CHB_DELETE', tokenIdentity: 'actor', fields: [ ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR ] },
+  // Domain chargeback lifecycle (CHB_OPEN/ASSIGN/EVIDENCE/REPRESENT/ACCEPT/REJECT/ARBITRATE/CLOSE).
+  // Uses chargeback_case + evidence/event/ledger. Legacy CREATE/CALC/UPDATE/DELETE above target the generic table.
+  { method: 'post', path: '/chargebacks/open', action: 'CHB_OPEN', tokenIdentity: 'actor', fields: [
+    { name: 'caseRef', pattern: PATTERNS.KEY, required: true },
+    { name: 'cardTransactionId', pattern: PATTERNS.INT, required: true },
+    { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
+    { name: 'reasonCode', pattern: PATTERNS.NAME, required: true },
+    { name: 'merchantId', pattern: PATTERNS.INT, required: false },
+    ACTOR,
+  ] },
+  { method: 'post', path: '/chargebacks/:id/assign', action: 'CHB_ASSIGN', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'assignee', pattern: PATTERNS.EMAIL, required: true },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/chargebacks/:id/evidence', action: 'CHB_EVIDENCE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'docType', pattern: PATTERNS.NAME, required: true },
+    { name: 'docRef', pattern: PATTERNS.KEY, required: true },
+    { name: 'note', pattern: PATTERNS.NAME, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/chargebacks/:id/represent', action: 'CHB_REPRESENT', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/chargebacks/:id/accept', action: 'CHB_ACCEPT', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'glJournalId', pattern: PATTERNS.INT, required: false },
+    { name: 'paymentClearingRef', pattern: PATTERNS.KEY, required: false },
+    BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/chargebacks/:id/reject', action: 'CHB_REJECT', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'reason', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/chargebacks/:id/arbitrate', action: 'CHB_ARBITRATE', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/chargebacks/:id/close', action: 'CHB_CLOSE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'resolution', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
 ];

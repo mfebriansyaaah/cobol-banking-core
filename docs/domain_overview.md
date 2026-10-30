@@ -29,6 +29,21 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - Routes: `/merchants*` lifecycle, `/merchant-settlements*` batch.
   Legacy generic CREATE/CALC/UPDATE/DELETE kept for compat, marked deprecated.
 
+## Chargeback / Dispute Ops (canonical)
+- `chargeback_core` — lifecycle: open (card CAPTURED check, amount cap,
+  duplicate guard, 30-day deadline, HOLD ledger) → assign → evidence →
+  represent (evidence + deadline guards) → accept (DEBIT + GL/PMC link) /
+  reject (RELEASE) → arbitrate → close (terminal-state guard).
+  Tables: `chargeback_case`, `chargeback_evidence`, `chargeback_event`,
+  `chargeback_ledger`, `chargeback_audit` (shared with legacy via
+  `chargeback_id` = case id).
+- Routes: `/chargebacks/open`, `/:id/{assign,evidence,represent,accept,reject,arbitrate,close}`,
+  `/chargebacks/cases*` list/get/summary.
+- Deprecated (kept for backward compat): generic `chargeback_core` write
+  paths (`CHB_CREATE/CALC/UPDATE/DELETE` on the generic table),
+  `dispute_management_core` (card disputes belong here; ledger disputes stay
+  in `wallet_core`).
+
 ## Payments & treasury
 - `payment_core`, `payment_clearing_core`, `payment_hold_core`, `payment_instruction_core`
 - `billpay_core`, `remittance_core`, `standing_order_core`
