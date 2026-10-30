@@ -12,3 +12,6 @@ CHB_ACCEPT missing id@@ERROR\|INVALID_INPUT@@CHB_ACCEPT||||||admin@test.com
 CHB_REJECT missing id@@ERROR\|INVALID_INPUT@@CHB_REJECT||||||admin@test.com
 CHB_ARBITRATE missing id@@ERROR\|INVALID_INPUT@@CHB_ARBITRATE||||||admin@test.com
 CHB_CLOSE missing id@@ERROR\|INVALID_INPUT@@CHB_CLOSE||||||admin@test.com
+CHB_CASE_LIST ok@@SUCCESS\|CHB_CASE_LIST@@CHB_CASE_LIST|||50|0||admin@test.com
+CHB_CASE_GET missing id@@ERROR\|INVALID_INPUT@@CHB_CASE_GET||||||admin@test.com
+CHB_CASE_SUMMARY ok@@SUCCESS\|CHB_CASE_SUMMARY@@CHB_CASE_SUMMARY||||||admin@test.com

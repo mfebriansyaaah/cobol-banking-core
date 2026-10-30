@@ -137,6 +137,15 @@
                 WHEN LS-CMD-ACTION(1:9) = "CHB_CLOSE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE-CB
+                WHEN LS-CMD-ACTION(1:13) = "CHB_CASE_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CASE-LIST
+                WHEN LS-CMD-ACTION(1:12) = "CHB_CASE_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CASE-GET
+                WHEN LS-CMD-ACTION(1:16) = "CHB_CASE_SUMMARY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CASE-SUMMARY
                 WHEN LS-CMD-ACTION(1:11) = "CHB_SUMMARY"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUMMARY
@@ -1092,9 +1101,27 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
+            IF STEP-OK AND WS-P3-TRIMMED NOT = SPACES
+                MOVE "UPDATE chargeback_case SET payment_clearing_ref = ? WHERE case_id = ?" TO WS-PREP-SQL
+                MOVE WS-P3-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
             IF STEP-OK
                 MOVE "ACCEPTED" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                IF WS-P3-TRIMMED NOT = SPACES
+                    STRING FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
+                        ":" DELIMITED BY SIZE WS-P3-TRIMMED DELIMITED BY SIZE
+                        INTO WS-AUDIT-DETAIL END-STRING
+                END-IF
                 PERFORM EVENT-ADD
             END-IF.
             IF STEP-OK
@@ -1279,6 +1306,111 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CASE-LIST.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                MOVE WS-P4-TRIMMED(1:WS-P4-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CONCAT(case_id, ':', case_ref, ':', status, ':', amount, ':', COALESCE(CAST(merchant_id AS CHAR), '')) FROM chargeback_case WHERE (? = '' OR merchant_id = ?) AND (? = '' OR status = ?) ORDER BY case_id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE WS-P2-TRIMMED TO WS-BIND-3
+            MOVE WS-P2-TRIMMED TO WS-BIND-4
+            MOVE WS-LIMIT TO WS-BIND-5
+            MOVE WS-OFFSET TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|CHB_CASE_LIST|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|CHB_CASE_LIST|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CASE-GET.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-PREP-SQL
+            STRING "SELECT CONCAT(c.case_id, '|', c.case_ref, '|', c.status, '|', c.amount, '|', " DELIMITED BY SIZE
+                   "c.currency, '|', c.reason_code, '|', COALESCE(CAST(c.deadline AS CHAR), ''), '|', " DELIMITED BY SIZE
+                   "COALESCE(c.assigned_to, ''), '|', COALESCE(c.resolution, ''), '|', " DELIMITED BY SIZE
+                   "COALESCE(CAST(c.merchant_id AS CHAR), ''), '|', " DELIMITED BY SIZE
+                   "COALESCE(CAST(c.card_transaction_id AS CHAR), ''), '|', " DELIMITED BY SIZE
+                   "COALESCE(CAST(c.payment_clearing_ref AS CHAR), ''), '|', " DELIMITED BY SIZE
+                   "(SELECT COUNT(*) FROM chargeback_evidence e WHERE e.case_id = c.case_id), '|', " DELIMITED BY SIZE
+                   "COALESCE((SELECT SUM(l.amount) FROM chargeback_ledger l WHERE l.case_id = c.case_id " DELIMITED BY SIZE
+                   "AND l.entry_type = 'HOLD'), 0), '|', " DELIMITED BY SIZE
+                   "COALESCE((SELECT SUM(l.amount) FROM chargeback_ledger l WHERE l.case_id = c.case_id " DELIMITED BY SIZE
+                   "AND l.entry_type IN ('DEBIT', 'RELEASE')), 0)) " DELIMITED BY SIZE
+                   "FROM chargeback_case c WHERE c.case_id = ? LIMIT 1" DELIMITED BY SIZE
+                   INTO WS-PREP-SQL END-STRING
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|CHB_CASE_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-CASE-SUMMARY.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'EVIDENCE_REQUIRED'), 0), '|', COALESCE(SUM(status = 'REPRESENTED'), 0), '|', COALESCE(SUM(status = 'ACCEPTED'), 0), '|', COALESCE(SUM(status = 'REJECTED'), 0), '|', COALESCE(SUM(status = 'ARBITRATION'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(amount), 0)) FROM chargeback_case WHERE (? = '' OR merchant_id = ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|CHB_CASE_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
             EXIT PARAGRAPH.
 
         ACTION-SUMMARY.
