@@ -94,6 +94,12 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
+      # The service database is already provisioned (schema + migrations) by
+      # the steps below, so run_all.sh db uses it directly instead of
+      # building a second isolated copy (Fase 4.2). Fuzz runs inside
+      # run_all.sh full; no separate step needed (Fase 4.1).
+      ISOLATED_DB: '0'
+      DB_SHARDS: '4'
 
     steps:
       - uses: actions/checkout@v4
@@ -144,9 +150,6 @@ jobs:
 
       - name: Integration tests
         run: bash tests/integration/cross_domain.sh
-
-      - name: Fuzz tests
-        run: bash tests/fuzz/fuzz_inputs.sh
 
       - name: Migration rollback drill
         run: bash scripts/ci/migration_rollback_drill.sh

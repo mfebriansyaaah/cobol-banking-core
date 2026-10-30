@@ -225,20 +225,36 @@ EOF
 run_fast() {
     echo "=== JS SYNTAX CHECK ==="
     check_js_syntax
-    echo "=== MANIFEST CHECK ==="
-    node scripts/check_manifest.mjs "$ROOT"
-    echo "=== ROUTE/DISPATCH CONTRACT CHECK ==="
-    node scripts/check_route_dispatch.mjs "$ROOT"
-    echo "=== ROUTE CONFLICT CHECK ==="
-    node scripts/check_route_conflicts.mjs "$ROOT"
-    echo "=== ROUTE AUTH CHECK ==="
-    node scripts/check_route_auth.mjs "$ROOT"
-    echo "=== ACTION COVERAGE CHECK ==="
-    node scripts/check_action_coverage.mjs "$ROOT"
-    echo "=== BIND SLOT CHECK ==="
-    node scripts/check_bind_slots.mjs "$ROOT"
-    echo "=== DB SUITE INVENTORY CHECK ==="
-    node scripts/check_suite_coverage.mjs "$ROOT"
+    # The static gates are independent (each reads the tree, none writes),
+    # so run them in parallel and print the logs in stable order. Failures
+    # still fail the run; the per-gate log names which gate broke.
+    echo "=== STATIC GATES (7 parallel) ==="
+    gate_pids=""
+    gate_failed=0
+    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage; do
+        node "scripts/$g.mjs" "$ROOT" >"/tmp/runall-gate-$g-$$.log" 2>&1 &
+        gate_pids="$gate_pids $!"
+    done
+    for pid in $gate_pids; do
+        wait "$pid" || gate_failed=1
+    done
+    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage; do
+        case "$g" in
+            check_manifest) echo "=== MANIFEST CHECK ===";;
+            check_route_dispatch) echo "=== ROUTE/DISPATCH CONTRACT CHECK ===";;
+            check_route_conflicts) echo "=== ROUTE CONFLICT CHECK ===";;
+            check_route_auth) echo "=== ROUTE AUTH CHECK ===";;
+            check_action_coverage) echo "=== ACTION COVERAGE CHECK ===";;
+            check_bind_slots) echo "=== BIND SLOT CHECK ===";;
+            check_suite_coverage) echo "=== DB SUITE INVENTORY CHECK ===";;
+        esac
+        cat "/tmp/runall-gate-$g-$$.log"
+        rm -f "/tmp/runall-gate-$g-$$.log"
+    done
+    if [ "$gate_failed" -ne 0 ]; then
+        echo "FAIL: one or more static gates failed"
+        exit 1
+    fi
     echo "=== BUILD ==="
     if [ "${SKIP_BUILD:-0}" = "1" ]; then
         echo "skipping build (SKIP_BUILD=1)"
