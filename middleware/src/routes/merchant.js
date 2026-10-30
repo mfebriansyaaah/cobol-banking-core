@@ -28,14 +28,44 @@ export const MERCHANT_ROUTES = [
     { name: 'merchantType', pattern: PATTERNS.NAME, required: true },
     BLANK, BLANK, ACTOR,
   ] },
+  { method: 'post', path: '/merchants/:id/submit-kyc', action: 'MRT_SUBMIT_KYC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/merchants/:id/approve', action: 'MRT_APPROVE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'riskLevel', pattern: PATTERNS.NAME, required: true },
+    { name: 'mdrPct', pattern: PATTERNS.AMOUNT, required: true },
+    { name: 'fixedFee', pattern: PATTERNS.AMOUNT, required: true },
+    { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+    ACTOR,
+  ] },
+  { method: 'post', path: '/merchants/:id/activate', action: 'MRT_ACTIVATE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'settlementAccountId', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/merchants/:id/suspend', action: 'MRT_SUSPEND', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/merchants/:id/close', action: 'MRT_CLOSE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'reason', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/merchants/:id/fee', action: 'MRT_SET_FEE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'mdrPct', pattern: PATTERNS.AMOUNT, required: true },
+    { name: 'fixedFee', pattern: PATTERNS.AMOUNT, required: true },
+    { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+    BLANK, ACTOR,
+  ] },
   { method: 'get', path: '/merchants/:id', action: 'MRT_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic calc; use submit-kyc/approve/activate lifecycle.
   { method: 'post', path: '/merchants/:id/calc', action: 'MRT_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic metadata update; lifecycle via submit/approve/activate/suspend/close.
   { method: 'post', path: '/merchants/:id/update', action: 'MRT_UPDATE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'merchantName', pattern: PATTERNS.NAME, required: false },
     { name: 'merchantType', pattern: PATTERNS.NAME, required: false },
     BLANK, BLANK, ACTOR,
   ] },
+  // DEPRECATED: generic close; use /merchants/:id/close (MRT_CLOSE) with open-settlement guard.
   { method: 'post', path: '/merchants/:id/delete', action: 'MRT_DELETE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'reason', pattern: PATTERNS.NAME, required: false },
