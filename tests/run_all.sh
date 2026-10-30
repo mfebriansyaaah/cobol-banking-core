@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [fast|db|full|probes]   (default: full)
+# Usage: tests/run_all.sh [fast|db|full|probes|affected]   (default: full)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -222,7 +222,7 @@ EOF
     return 0
 }
 
-run_fast() {
+run_gates() {
     echo "=== JS SYNTAX CHECK ==="
     check_js_syntax
     # The static gates are independent (each reads the tree, none writes),
@@ -255,21 +255,126 @@ run_fast() {
         echo "FAIL: one or more static gates failed"
         exit 1
     fi
+}
+
+run_build() {
     echo "=== BUILD ==="
     if [ "${SKIP_BUILD:-0}" = "1" ]; then
         echo "skipping build (SKIP_BUILD=1)"
     else
         ./build.sh
     fi
-    echo "=== COBOL TABLE TESTS ==="
-    node scripts/check_case_actions.mjs "$ROOT"
-    tests/cobol/table_runner.sh
+}
+
+run_smoke() {
     echo "=== SMOKE ==="
     printf 'PING||||||\n' > input.txt
     ./cobol/bin/main_logic
     out="$(cat output.txt)"
     echo "PING -> $out"
     echo "$out" | grep -q 'SUCCESS|PONG' || { echo "FAIL: smoke failed"; exit 1; }
+}
+
+run_fast() {
+    run_gates
+    run_build
+    echo "=== COBOL TABLE TESTS ==="
+    node scripts/check_case_actions.mjs "$ROOT"
+    tests/cobol/table_runner.sh
+    run_smoke
+}
+
+# Impact-selected run (Fase 5): static gates + build always run; DB suites,
+# table cases and node suites are limited to what scripts/select_tests.mjs
+# maps from the change set. Anything unrecognized escalates to a full run.
+# DB suites run without isolation against the current database (like local
+# serial runs); suites reset their own tables and seed idempotently.
+# Usage: run_all.sh affected  (SELECT_BASE env selects the base ref,
+# SELECT_FILES env bypasses git and passes explicit paths to the planner).
+run_affected() {
+    echo "=== TEST SELECTION ==="
+    local plan base_arg="${SELECT_BASE:-}"
+    local files_arg="${SELECT_FILES:-}"
+    if [ -n "$files_arg" ]; then
+        # shellcheck disable=SC2086
+        plan="$(node scripts/select_tests.mjs --files $files_arg)"
+    elif [ -n "$base_arg" ]; then
+        plan="$(node scripts/select_tests.mjs "$base_arg")"
+    else
+        plan="$(node scripts/select_tests.mjs)"
+    fi
+    echo "$plan" | sed 's/^/  /'
+    eval "$plan"
+    if [ "${SELECT_MODE:-full}" != "selected" ]; then
+        echo "=== AFFECTED: full run required (${SELECT_REASON:-unknown}) ==="
+        exec "$0" full
+    fi
+    echo "=== AFFECTED: ${SELECT_REASON:-selected run} ==="
+    run_gates
+    run_build
+    echo "=== COBOL TABLE TESTS (selected) ==="
+    node scripts/check_case_actions.mjs "$ROOT"
+    if [ -n "${SELECT_CASE_FILES:-}" ]; then
+        # shellcheck disable=SC2086
+        tests/cobol/table_runner.sh $SELECT_CASE_FILES
+    else
+        echo "(no case files selected; skipping)"
+    fi
+    local selected_failed=0
+    if [ -n "${SELECT_DB_SUITES:-}" ]; then
+        echo "=== DB SUITES (selected) ==="
+        # shellcheck disable=SC1091
+        . "$ROOT/tests/lib/db.sh"
+        require_db
+        local s
+        for s in $SELECT_DB_SUITES; do
+            echo "=== DB SUITE: $(basename "$s") ==="
+            if ! "$s"; then
+                echo "FAIL: $(basename "$s")"
+                selected_failed=1
+            fi
+        done
+    else
+        echo "(no DB suites selected; skipping)"
+    fi
+    run_node_selected || selected_failed=1
+    run_smoke
+    if [ "$selected_failed" -ne 0 ]; then
+        echo "=== AFFECTED FAILED ==="
+        exit 1
+    fi
+}
+
+# Node part of an affected run. SELECT_NODE_SUITE is a suite script;
+# SELECT_NODE_FILES are exact test files (deduplicated against the suite).
+run_node_selected() {
+    local suite="${SELECT_NODE_SUITE:-none}" f
+    local node_failed=0
+    case "$suite" in
+        full) ( cd middleware && npm test ) || node_failed=1;;
+        gateway) ( cd middleware && npm run test:gateway ) || node_failed=1;;
+        fast) ( cd middleware && npm run test:fast ) || node_failed=1;;
+        endpoints) ( cd middleware && npm run test:endpoints ) || node_failed=1;;
+        none) :;;
+        *) echo "FAIL: unknown node suite: $suite" >&2; return 1;;
+    esac
+    for f in ${SELECT_NODE_FILES:-}; do
+        case "$suite:$f" in
+            full:*) continue;;
+            gateway:middleware/test/gateway.test.js|gateway:middleware/test/endpoints.test.js) continue;;
+            fast:middleware/test/gateway.test.js|fast:middleware/test/endpoints.test.js) :;;
+            fast:*) continue;;
+            endpoints:middleware/test/endpoints.test.js) continue;;
+        esac
+        local preload="preload.mjs" rel="${f#middleware/}"
+        case "$f" in
+            middleware/test/gateway.test.js|middleware/test/endpoints.test.js)
+                preload="preload.gateway.mjs";;
+        esac
+        echo "=== NODE TEST: $rel ==="
+        ( cd middleware && node --import "./$preload" --test --test-reporter=spec "$rel" ) || node_failed=1
+    done
+    return "$node_failed"
 }
 
 run_db() {
@@ -395,8 +500,13 @@ case "$MODE" in
         run_error_harness
         run_gateway
         ;;
+    affected)
+        # Base ref via SELECT_BASE env or `run_all.sh affected` auto-detect;
+        # SELECT_FILES env bypasses git with an explicit path list.
+        run_affected
+        ;;
     *)
-        echo "unknown mode: $MODE (fast|db|full|probes)" >&2
+        echo "unknown mode: $MODE (fast|db|full|probes|affected)" >&2
         exit 2
         ;;
 esac
