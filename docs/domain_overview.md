@@ -22,6 +22,19 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - `billpay_core`, `remittance_core`, `standing_order_core`
 - `treasury_liquidity_core`, `treasury_position_core`, `fx_deal_core`, `fx_hedging_core`
 
+## Trade Finance (canonical)
+- `letter_of_credit_core` — LC lifecycle: draft → submit → approve (credit limit)
+  → issue (GL link) → amend → document → draw (accepted doc, amount cap) →
+  settle (drawing + LC, GL link) → close.
+  Tables: `letter_of_credit`, `lc_amendment`, `lc_document`, `lc_drawing`,
+  `lc_settlement`.
+- `bank_guarantee_core` — BG lifecycle: draft → submit → approve → issue →
+  claim → settle → close. Tables: `bank_guarantee`, `bg_claim`.
+- Routes: `/trade-finance/lc*`, `/trade-finance/bg*`.
+- Deprecated generic clones (kept for compat, do not extend):
+  `trade_finance_core` (TRF_), `documentary_credit`, `bankers_acceptance`,
+  `export_finance`, `import_finance`, `factoring`.
+
 ## Compliance & risk
 - `kyc_periodic_core`, `kyc_review_core`, `aml_screening_core`
 - `sanctions_list_core`, `sanctions_hold_core`, `fraud_case_core`, `fraud_ops_core`

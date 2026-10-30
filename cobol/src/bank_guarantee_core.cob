@@ -61,6 +61,16 @@
         01  WS-NUM-ALLOCATED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-LIMIT            PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-USED             PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-CLAIMED          PIC 9(15)V9(4) VALUE 0.
+        01  WS-COLON                PIC 9(3) VALUE 0.
+        01  WS-TMP-DATE             PIC X(20) VALUE SPACES.
+        01  WS-TMP-EXPIRY           PIC X(20) VALUE SPACES.
+        01  WS-TMP-STATUS2          PIC X(20) VALUE SPACES.
+        01  WS-CLAIM-ID             PIC X(20) VALUE SPACES.
+        01  WS-CLAIM-STATUS         PIC X(20) VALUE SPACES.
+        01  WS-CLAIM-AMOUNT         PIC X(30) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -105,6 +115,24 @@
                 WHEN LS-CMD-ACTION(1:10) = "BKG_DELETE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:10) = "BKG_SUBMIT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SUBMIT-BG
+                WHEN LS-CMD-ACTION(1:11) = "BKG_APPROVE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APPROVE-BG
+                WHEN LS-CMD-ACTION(1:9) = "BKG_ISSUE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ISSUE-BG
+                WHEN LS-CMD-ACTION(1:9) = "BKG_CLAIM"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLAIM-BG
+                WHEN LS-CMD-ACTION(1:10) = "BKG_SETTLE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SETTLE-BG
+                WHEN LS-CMD-ACTION(1:9) = "BKG_CLOSE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CLOSE-BG
                 WHEN LS-CMD-ACTION(1:11) = "BKG_SUMMARY"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUMMARY
@@ -280,6 +308,12 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            MOVE 0 TO WS-COLON
+            INSPECT WS-P5-TRIMMED TALLYING WS-COLON FOR ALL ":"
+            IF WS-COLON > 0
+                PERFORM ACTION-DRAFT-BG
+                EXIT PARAGRAPH
+            END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -338,6 +372,511 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-DRAFT-BG.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P4-TRIMMED = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-CURR WS-TMP-AMT WS-TMP-DATE
+            UNSTRING WS-P5-TRIMMED DELIMITED BY ":" INTO
+                WS-TMP-CURR WS-TMP-AMT WS-TMP-DATE
+            END-UNSTRING
+            IF WS-TMP-CURR = SPACES OR WS-TMP-AMT = SPACES OR WS-TMP-DATE = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM bank_guarantee WHERE guarantee_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(full_name, '|', credit_limit, '|', used_credit, '|', status) FROM customer WHERE customer_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-STR WS-TMP-AMT WS-TMP-ALLOCATED WS-TMP-STATUS
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-STR WS-TMP-AMT WS-TMP-ALLOCATED WS-TMP-STATUS
+            END-UNSTRING
+            IF WS-TMP-STATUS = "CLOSED" OR WS-TMP-STATUS = "DELETED"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO bank_guarantee (guarantee_ref, applicant_customer_ref, beneficiary_name, guarantee_type, status, created_by) VALUES (?, ?, ?, ?, 'DRAFT', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            MOVE WS-P6-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+                MOVE "UPDATE bank_guarantee SET currency = ?, guarantee_amount = ?, expiry_date = ? WHERE id = ?" TO WS-PREP-SQL
+                MOVE WS-TMP-CURR TO WS-BIND-1
+                MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-BIND-2
+                MOVE WS-TMP-DATE TO WS-BIND-3
+                MOVE WS-NEW-ID TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "DRAFT" TO WS-AUDIT-ACTION
+                MOVE WS-NEW-ID TO WS-AUDIT-BKG
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|BKG_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
+                    INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SUBMIT-BG.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT status FROM bank_guarantee WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-TMP-STATUS.
+            IF WS-TMP-STATUS NOT = "DRAFT"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE bank_guarantee SET status = 'SUBMITTED', version = version + 1 WHERE id = ? AND status = 'DRAFT'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SUBMIT" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-BKG
+            MOVE "DRAFT" TO WS-AUDIT-OLD
+            MOVE "SUBMITTED" TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|BKG_SUBMIT|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-APPROVE-BG.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(status, '|', applicant_customer_ref, '|', guarantee_amount) FROM bank_guarantee WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-STATUS WS-TMP-STR WS-TMP-AMT
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-STATUS WS-TMP-STR WS-TMP-AMT
+            END-UNSTRING
+            IF WS-TMP-STATUS NOT = "SUBMITTED"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-AMOUNT
+            MOVE "SELECT CONCAT(credit_limit, '|', used_credit) FROM customer WHERE customer_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-TMP-STR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-AMT WS-TMP-ALLOCATED
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-AMT WS-TMP-ALLOCATED
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-LIMIT
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-USED
+            IF WS-NUM-AMOUNT > WS-NUM-LIMIT - WS-NUM-USED
+                MOVE "ERROR|LIMIT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE bank_guarantee SET status = 'APPROVED', version = version + 1 WHERE id = ? AND status = 'SUBMITTED'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "APPROVE" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-BKG
+            MOVE "SUBMITTED" TO WS-AUDIT-OLD
+            MOVE "APPROVED" TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|BKG_APPROVE|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-ISSUE-BG.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT status FROM bank_guarantee WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-TMP-STATUS.
+            IF WS-TMP-STATUS NOT = "APPROVED"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            IF WS-P2-TRIMMED = SPACES
+                MOVE "UPDATE bank_guarantee SET status = 'ISSUED', issued_at = NOW(), version = version + 1 WHERE id = ? AND status = 'APPROVED'" TO WS-PREP-SQL
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+            ELSE
+                MOVE "UPDATE bank_guarantee SET status = 'ISSUED', issued_at = NOW(), gl_journal_id = ?, version = version + 1 WHERE id = ? AND status = 'APPROVED'" TO WS-PREP-SQL
+                MOVE WS-P2-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+            END-IF
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "ISSUE" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-BKG
+            MOVE "APPROVED" TO WS-AUDIT-OLD
+            MOVE "ISSUED" TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|BKG_ISSUE|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-CLAIM-BG.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P3-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(status, '|', guarantee_amount, '|', claimed_amount) FROM bank_guarantee WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-STATUS WS-TMP-AMT WS-TMP-ALLOCATED
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-STATUS WS-TMP-AMT WS-TMP-ALLOCATED
+            END-UNSTRING
+            IF WS-TMP-STATUS NOT = "ISSUED" AND WS-TMP-STATUS NOT = "CLAIMED"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-LIMIT
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-CLAIMED
+            IF WS-NUM-CLAIMED + WS-NUM-AMOUNT > WS-NUM-LIMIT
+                MOVE "ERROR|LIMIT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO bg_claim (guarantee_id, claim_ref, amount, status, created_by) VALUES (?, ?, ?, 'RECEIVED', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P6-TRIMMED TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-CLAIM-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE bank_guarantee SET status = 'CLAIMED', version = version + 1 WHERE id = ?" TO WS-PREP-SQL
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "CLAIM" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-BKG
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|BKG_CLAIM|" DELIMITED BY SIZE FUNCTION TRIM(WS-CLAIM-ID) DELIMITED BY SIZE
+                    INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SETTLE-BG.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(guarantee_id, '|', amount, '|', status) FROM bg_claim WHERE claim_id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-ID WS-TMP-AMT WS-CLAIM-STATUS
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-ID WS-TMP-AMT WS-CLAIM-STATUS
+            END-UNSTRING
+            IF WS-CLAIM-STATUS NOT = "RECEIVED" AND WS-CLAIM-STATUS NOT = "APPROVED"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-LIMIT
+            IF WS-NUM-AMOUNT > WS-NUM-LIMIT
+                MOVE "ERROR|LIMIT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE bg_claim SET status = 'SETTLED', settled_at = NOW(), gl_journal_id = NULLIF(?, '') WHERE claim_id = ?" TO WS-PREP-SQL
+            MOVE WS-P3-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "UPDATE bank_guarantee SET status = 'SETTLED', claimed_amount = claimed_amount + ?, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-TMP-ID TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SETTLE" TO WS-AUDIT-ACTION
+            MOVE WS-TMP-ID TO WS-AUDIT-BKG
+            MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|BKG_SETTLE|1" TO LS-OUTPUT-BUFFER.
+            EXIT PARAGRAPH.
+
+        ACTION-CLOSE-BG.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT COUNT(*) FROM bg_claim WHERE guarantee_id = ? AND status IN ('RECEIVED','APPROVED')" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT NOT = "ERROR|NO_DATA" AND WS-RESULT NOT = "0"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE bank_guarantee SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), version = version + 1 WHERE id = ?" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "CLOSE" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-BKG
+            MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+            PERFORM AUDIT
+            CALL "SQL_COMMIT" END-CALL
+            MOVE "SUCCESS|BKG_CLOSE|1" TO LS-OUTPUT-BUFFER.
             EXIT PARAGRAPH.
 
         ACTION-LIST.

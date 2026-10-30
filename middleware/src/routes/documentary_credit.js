@@ -1,4 +1,5 @@
 import { PATTERNS } from '../validation.js';
+// DEPRECATED: generic clone; use /trade-finance/lc. Do not extend.
 const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
 const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 const ID = { name: 'id', pattern: PATTERNS.INT, required: true };

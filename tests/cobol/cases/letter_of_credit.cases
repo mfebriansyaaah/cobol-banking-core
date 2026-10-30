@@ -4,3 +4,11 @@ LOC_GET missing id@@ERROR\|INVALID_INPUT@@LOC_GET||||||admin@test.com
 LOC_CALC missing id@@ERROR\|INVALID_INPUT@@LOC_CALC||||||admin@test.com
 LOC_DELETE missing id@@ERROR\|INVALID_INPUT@@LOC_DELETE||||||admin@test.com
 LOC_VALIDATE ok@@SUCCESS\|LOC_VALID@@LOC_VALIDATE|100.00|USD||||admin@test.com
+LOC_SUBMIT missing id@@ERROR\|INVALID_INPUT@@LOC_SUBMIT||||||admin@test.com
+LOC_APPROVE missing id@@ERROR\|INVALID_INPUT@@LOC_APPROVE||||||admin@test.com
+LOC_ISSUE missing id@@ERROR\|INVALID_INPUT@@LOC_ISSUE||||||admin@test.com
+LOC_AMEND missing id@@ERROR\|INVALID_INPUT@@LOC_AMEND||||||admin@test.com
+LOC_DOCUMENT missing params@@ERROR\|INVALID_INPUT@@LOC_DOCUMENT||||||admin@test.com
+LOC_DRAW missing params@@ERROR\|INVALID_INPUT@@LOC_DRAW||||||admin@test.com
+LOC_SETTLE missing params@@ERROR\|INVALID_INPUT@@LOC_SETTLE||||||admin@test.com
+LOC_CLOSE missing id@@ERROR\|INVALID_INPUT@@LOC_CLOSE||||||admin@test.com

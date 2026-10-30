@@ -4,3 +4,9 @@ BKG_GET missing id@@ERROR\|INVALID_INPUT@@BKG_GET||||||admin@test.com
 BKG_CALC missing id@@ERROR\|INVALID_INPUT@@BKG_CALC||||||admin@test.com
 BKG_DELETE missing id@@ERROR\|INVALID_INPUT@@BKG_DELETE||||||admin@test.com
 BKG_VALIDATE ok@@SUCCESS\|BKG_VALID@@BKG_VALIDATE|100.00|USD||||admin@test.com
+BKG_SUBMIT missing id@@ERROR\|INVALID_INPUT@@BKG_SUBMIT||||||admin@test.com
+BKG_APPROVE missing id@@ERROR\|INVALID_INPUT@@BKG_APPROVE||||||admin@test.com
+BKG_ISSUE missing id@@ERROR\|INVALID_INPUT@@BKG_ISSUE||||||admin@test.com
+BKG_CLAIM missing params@@ERROR\|INVALID_INPUT@@BKG_CLAIM||||||admin@test.com
+BKG_SETTLE missing params@@ERROR\|INVALID_INPUT@@BKG_SETTLE||||||admin@test.com
+BKG_CLOSE missing id@@ERROR\|INVALID_INPUT@@BKG_CLOSE||||||admin@test.com
