@@ -4,3 +4,11 @@ CHB_GET missing id@@ERROR\|INVALID_INPUT@@CHB_GET||||||admin@test.com
 CHB_CALC missing id@@ERROR\|INVALID_INPUT@@CHB_CALC||||||admin@test.com
 CHB_DELETE missing id@@ERROR\|INVALID_INPUT@@CHB_DELETE||||||admin@test.com
 CHB_VALIDATE ok@@SUCCESS\|CHB_VALID@@CHB_VALIDATE|100.00|USD||||admin@test.com
+CHB_OPEN missing params@@ERROR\|INVALID_INPUT@@CHB_OPEN||||||admin@test.com
+CHB_ASSIGN missing id@@ERROR\|INVALID_INPUT@@CHB_ASSIGN||||||admin@test.com
+CHB_EVIDENCE missing params@@ERROR\|INVALID_INPUT@@CHB_EVIDENCE||||||admin@test.com
+CHB_REPRESENT missing id@@ERROR\|INVALID_INPUT@@CHB_REPRESENT||||||admin@test.com
+CHB_ACCEPT missing id@@ERROR\|INVALID_INPUT@@CHB_ACCEPT||||||admin@test.com
+CHB_REJECT missing id@@ERROR\|INVALID_INPUT@@CHB_REJECT||||||admin@test.com
+CHB_ARBITRATE missing id@@ERROR\|INVALID_INPUT@@CHB_ARBITRATE||||||admin@test.com
+CHB_CLOSE missing id@@ERROR\|INVALID_INPUT@@CHB_CLOSE||||||admin@test.com
