@@ -46,6 +46,7 @@ db_backup_management_tests=13
 db_data_archive_tests=13
 db_audit_trail_tests=13
 db_tax_management_tests=13
+db_tax_schema_tests=8
 db_fee_management_tests=13
 db_rate_management_tests=13
 db_api_management_tests=13

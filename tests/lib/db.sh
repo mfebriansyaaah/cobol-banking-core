@@ -359,6 +359,9 @@ db_reset_fee_management() {
 }
 
 db_reset_tax_management() {
+    db_exec "DELETE FROM tax_audit;"
+    db_exec "DELETE FROM tax_withholding_entry;"
+    db_exec "DELETE FROM tax_report_run;"
     db_exec "DELETE FROM tax_management_audit; DELETE FROM tax_management;"
 }
 
