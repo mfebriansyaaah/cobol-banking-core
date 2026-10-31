@@ -61,6 +61,7 @@ db_debit_card_tests=13
 db_credit_card_tests=13
 db_wealth_management_tests=13
 db_payroll_processing_tests=13
+db_payroll_schema_tests=7
 db_supply_chain_finance_tests=13
 db_invoice_financing_tests=13
 db_bank_guarantee_tests=13

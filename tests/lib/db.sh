@@ -306,6 +306,10 @@ db_reset_supply_chain_finance() {
 }
 
 db_reset_payroll_processing() {
+    db_exec "DELETE FROM payroll_payment;"
+    db_exec "DELETE FROM payroll_item;"
+    db_exec "DELETE FROM payroll_employee;"
+    db_exec "DELETE FROM payroll_audit;"
     db_exec "DELETE FROM payroll_processing_audit; DELETE FROM payroll_processing;"
 }
 
