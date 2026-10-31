@@ -158,8 +158,8 @@ def main(argv=None):
     overall = round(100.0 * total_hit / total_exec, 2) if total_exec else 0.0
     print('COBOL curated line coverage (mapped from generated C):')
     for r in sorted(rows, key=lambda x: (-x['percent'], x['module'])):
-        print("  {r[module]:<28} {r[covered]:>6}/{r[executable]:<6} {r[percent]:>6.2f}%".format(r=r))
-    print("  {'TOTAL':<28} {:>6}/{:<6} {:>6.2f}%".format(total_hit, total_exec, overall))
+        print(f"  {r['module']:<28} {r['covered']:>6}/{r['executable']:<6} {r['percent']:>6.2f}%")
+    print(f"  {'TOTAL':<28} {total_hit:>6}/{total_exec:<6} {overall:>6.2f}%")
     # cobol.json keeps the historical schema (no per-line detail); the
     # per-line mapping lives in the Cobertura report when requested.
     slim = [{k: r[k] for k in ('module', 'executable', 'covered', 'percent')} for r in rows]

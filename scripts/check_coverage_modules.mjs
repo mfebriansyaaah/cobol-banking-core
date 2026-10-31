@@ -101,12 +101,8 @@ if (drifts.length) {
 }
 
 if (write) {
-  if (failed && (unlisted.length || missing.length) && order.length > 0) {
-    fail('refusing --write with unlisted/missing modules (fix the inventory first)');
-  }
-  if (order.length === 0 && unlisted.length) {
-    console.log(`note: bootstrapping empty baseline with ${unlisted.length} module(s)`);
-  }
+  // New keys are added deliberately here (the diff is reviewed); the
+  // non-write mode is what fails on unlisted modules. Missing keys are kept.
   const updates = new Map();
   for (const [k, v] of actual) {
     if (!baseline.has(k) || baseline.get(k) !== v) updates.set(k, v);
