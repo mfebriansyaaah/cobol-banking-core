@@ -151,6 +151,7 @@ db_crisis_management_tests=13
 db_vendor_management_tests=13
 db_outsourcing_contract_tests=13
 db_loyalty_program_tests=13
+db_loyalty_schema_tests=11
 db_rewards_management_tests=13
 db_cashback_tests=13
 db_points_redemption_tests=13
