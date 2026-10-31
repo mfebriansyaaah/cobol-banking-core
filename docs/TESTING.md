@@ -147,6 +147,51 @@ Unit tests for the converters live in `scripts/test/` and run without a
 database: `node --test scripts/test/tap-to-junit.test.mjs
 scripts/test/test-report.test.mjs`.
 
+## Baseline counts are load-bearing
+
+`tests/baseline_counts.txt` records the expected assertion total for every
+suite plus the gateway total. `scripts/check_test_counts.mjs` compares the
+actual run (`artifacts/report.tsv` + gateway JUnit) against it, and CI runs it
+with `--strict` after the full gate. Deleting an assertion — or a whole
+suite's assertions — without updating the baseline fails the run instead of
+shrinking coverage silently (probe `p7_missing_assertion` in
+`tests/probes/` proves the gate fires).
+
+Update the baseline only for an intentional count change, and only with
+`--write` (never hand-edit numbers):
+
+```sh
+# After running the affected suites (full run for DB changes):
+node scripts/check_test_counts.mjs --report-dir artifacts --write
+git diff -- tests/baseline_counts.txt   # review every hunk
+```
+
+```sh
+# Table-case-only change (no DB run needed):
+node scripts/check_test_counts.mjs --static . --write
+```
+
+Rules:
+
+- One line per intentional change, with reason. PR description must carry:
+  `Alasan:`, `Sebelum:` (old total), `Sesudah:` (new total), `Verifikasi:`
+  (command + result).
+- Never lower a number to make CI green. If the count dropped, the test was
+  lost — restore it.
+- The gate fails in both directions: a suite/count with no baseline entry
+  (`unlisted`) and a baseline entry with no data (`missing`, strict mode) both
+  fail. Removing a suite requires removing its line in the same PR.
+- Exceptions, all documented in `scripts/check_test_counts.mjs`:
+  - `db_schema_tests` is loop-generated (19 `assert_match` lines execute 76
+    assertions). Static mode checks only presence; the exact total is
+    enforced at runtime and `--write --static` never touches it.
+  - `gateway_tests` has no static count (tests are generated dynamically);
+    it is enforced at runtime from JUnit XML.
+  - `smoke` is recorded but not count-gated (1-assertion liveness check;
+    its failure already fails the run).
+- A count change without a suite/test change is suspicious — the gate treats
+  it as drift until `--write` is run and the diff is reviewed.
+
 ## Files
 
 - `docker-compose.test.yml` — MariaDB 11.8 on `TEST_DB_PORT` (default 3307).

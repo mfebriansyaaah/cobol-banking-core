@@ -7,7 +7,7 @@
   "description": "Robust pipe: the only HTTP interface to the COBOL banking core.",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --import ./preload.mjs --test --test-reporter=spec",
+    "test": "node --import ./preload.mjs --test --test-reporter=spec test/auth-session.test.js test/contract.test.js test/field_order.test.js test/invoker.timeout.test.js test/ipc_contract.test.js test/ipc_contract_pool.test.js test/mailer.test.js test/observability.test.js test/pool.test.js test/pool-config.test.js test/ratelimit.test.js test/result.test.js test/route-order.test.js test/routes.test.js test/security.test.js test/validation.test.js test/gateway.test.js test/endpoints.test.js",
     "test:fast": "node --import ./preload.mjs --test --test-reporter=spec test/auth-session.test.js test/contract.test.js test/field_order.test.js test/invoker.timeout.test.js test/ipc_contract.test.js test/ipc_contract_pool.test.js test/mailer.test.js test/observability.test.js test/pool.test.js test/pool-config.test.js test/ratelimit.test.js test/result.test.js test/route-order.test.js test/routes.test.js test/security.test.js test/validation.test.js",
     "test:endpoints": "node --import ./preload.gateway.mjs --test --test-reporter=spec test/endpoints.test.js",
     "test:gateway": "node --import ./preload.gateway.mjs --test --test-reporter=spec test/gateway.test.js test/endpoints.test.js",

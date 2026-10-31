@@ -46,7 +46,7 @@ if [ ! -f "$EXPECT_FILE" ]; then
     exit 2
 fi
 
-GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard route_auth bind_slots suite_coverage)
+GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard route_auth bind_slots suite_coverage test_counts)
 
 # --- gates under test -------------------------------------------------------
 # Each returns 0 when it believes the code is fine, non-zero when it refuses.
@@ -64,6 +64,7 @@ gate_test_helpers() { node scripts/check_test_helpers.mjs . >/dev/null 2>&1; }
 gate_route_auth() { node scripts/check_route_auth.mjs . >/dev/null 2>&1; }
 gate_bind_slots() { node scripts/check_bind_slots.mjs . >/dev/null 2>&1; }
 gate_suite_coverage() { node scripts/check_suite_coverage.mjs . >/dev/null 2>&1; }
+gate_test_counts() { node scripts/check_test_counts.mjs --static . >/dev/null 2>&1; }
 
 # Same check as scripts/ci/sast.sh: one route file must mention tokenIdentity
 # somewhere. Note it is per file, not per route — probe P3 measures that.
@@ -203,6 +204,14 @@ mut_p6_deleted_db_suite() {
     rm -f tests/db/account_db_tests.sh
 }
 
+# Five assertions vanish from a suite (13 -> 8). The suite still exits 0 and
+# still prints a TAP summary, so the runner looks green; only the count gate
+# notices the denominator shrank.
+mut_p7_missing_assertion() {
+    sed -i -e '/ACC_LIST ok/d' -e '/ACC_CALC ok/d' -e '/used credit persisted/d' \
+        -e '/ACC_SUMMARY ok/d' -e '/ACC_AUDIT ok/d' tests/db/account_db_tests.sh
+}
+
 # --- runner -----------------------------------------------------------------
 
 PROBES=(
@@ -214,6 +223,7 @@ PROBES=(
     p5_dead_bind_slot
     p5b_swapped_bind_slots
     p6_deleted_db_suite
+    p7_missing_assertion
 )
 
 declare -A EXPECTED=()

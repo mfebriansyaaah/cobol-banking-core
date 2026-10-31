@@ -119,8 +119,13 @@ report_run() {
         fail="$(printf '%s' "$summary" | sed -n 's/.*fail=\([0-9][0-9]*\).*/\1/p')"
         total="$(printf '%s' "$summary" | sed -n 's/.*total=\([0-9][0-9]*\).*/\1/p')"
         : "${pass:=0}" "${fail:=0}" "${total:=0}"
-        if [ "$rc" -eq 0 ] && [ "$fail" = "0" ]; then
+        if [ "$rc" -eq 0 ] && [ "$fail" = "0" ] && [ "$total" != "0" ]; then
             status="pass"
+        elif [ "$total" = "0" ]; then
+            # A suite that ran zero assertions proves nothing: treat it like
+            # a missing summary so the run fails instead of looking green.
+            status="missing"
+            rc=1
         else
             status="fail"
             rc=1

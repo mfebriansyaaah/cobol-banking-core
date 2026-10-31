@@ -1,4 +1,4 @@
-cobol_table_tests=69
+cobol_table_tests=2791
 db_schema_tests=76
 db_loan_schedule_tests=11
 db_deposit_tests=26
@@ -13,7 +13,7 @@ db_report_builder_tests=13
 db_aml_screening_tests=13
 db_sanctions_list_tests=13
 db_fraud_case_tests=13
-gateway_tests=136
+gateway_tests=739
 db_cost_center_tests=13
 db_fixed_asset_tests=13
 db_fixed_asset_schema_tests=8
