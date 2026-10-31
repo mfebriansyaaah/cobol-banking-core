@@ -53,16 +53,18 @@ Run before opening or updating a pull request:
 bash scripts/ci/premerge.sh
 ```
 
-The script runs the static gates, the gate-detection probes, and the fast
-suite. CI additionally runs the DB, integration, fuzz, rollback, restore, and
-performance suites through `tests/run_all.sh full`.
+The script runs the static gates and the fast suite by default; probes, the
+docs gate, and the full suite are opt-in (`--probes`, `--docs`, `--full`).
+CI additionally runs the DB, integration, fuzz, migration-apply,
+schema-rebuild, and performance suites through `tests/run_all.sh full`.
 
 ## CI enforcement
 
 `.github/workflows/ci.yml` runs on every pull request and on pushes to `main`.
 The `build` job runs the manifest check, probes, SAST, build, and warning
-ratchet. The `test` job runs the full test gate, integration tests, fuzz tests,
-migration rollback drill, restore drill, and performance benchmarks.
+ratchet. The `test` job runs the full test gate (fast + DB + integration +
+error harness + gateway suites), the assertion count gate, migration
+apply + idempotency drill, schema rebuild drill, and performance benchmarks.
 
 A pull request is not mergeable under this policy unless both jobs are green.
 The GitHub UI cannot enforce that on the current plan; reviewers must verify it.

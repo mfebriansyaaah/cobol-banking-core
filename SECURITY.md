@@ -49,7 +49,7 @@ Out of scope:
 - `tests/probes/run_probes.sh` verifies that the gates detect deliberately
   broken routes, bind slots, and DB inventory.
 - `tests/run_all.sh full` covers table cases, DB suites, gateway tests,
-  integration, fuzz, rollback drill, restore drill, and performance.
+  integration, fuzz, migration-apply and schema-rebuild drills, and performance.
 - `scripts/ci/coverage.sh` measures gateway coverage and a curated COBOL core
   floor; see [docs/COVERAGE.md](docs/COVERAGE.md).
 - Production configuration refuses development secrets and development
