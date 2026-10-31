@@ -248,7 +248,8 @@ fi
 
 echo "== mapping COBOL coverage ==" >&2
 COBOL_JSON="$COVERAGE_DIR/cobol.json"
-python3 "$ROOT/scripts/coverage/map_cobol.py" "$WORK" "$COVERAGE_DIR" "${CURATED[@]}" >"$COVERAGE_DIR/cobol.txt"
+python3 "$ROOT/scripts/coverage/map_cobol.py" "$WORK" "$COVERAGE_DIR" "${CURATED[@]}" \
+    --cobertura "$COVERAGE_DIR/cobol-cobertura.xml" >"$COVERAGE_DIR/cobol.txt"
 COBOL_JSON_FILE="$COVERAGE_DIR/cobol.json"
 COBOL_TOTAL=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["percent"])' "$COBOL_JSON_FILE")
 
