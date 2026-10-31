@@ -15,6 +15,22 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 db_seed
 echo "=== Cross-domain integration: loan -> collection -> payment ==="
 
+# Fixed refs (INTCOL1/INTPAY1/INTTRL1) and the INTTEST loan rows must not fail
+# a re-run: clean previous-run leftovers upfront and again at the end.
+cleanup_int_refs() {
+    db_exec "DELETE FROM collection_audit WHERE case_id IN (SELECT id FROM collection_case WHERE case_ref='INTCOL1');"
+    db_exec "DELETE FROM collection_activity WHERE case_id IN (SELECT id FROM collection_case WHERE case_ref='INTCOL1');"
+    db_exec "DELETE FROM collection_case WHERE case_ref='INTCOL1';"
+    db_exec "DELETE FROM payment_clearing_audit WHERE clearing_id IN (SELECT id FROM payment_clearing WHERE clearing_ref='INTPAY1');"
+    db_exec "DELETE FROM payment_clearing WHERE clearing_ref='INTPAY1';"
+    db_exec "DELETE FROM treasury_liquidity_audit WHERE liq_id IN (SELECT id FROM treasury_liquidity WHERE liq_ref='INTTRL1');"
+    db_exec "DELETE FROM treasury_liquidity WHERE liq_ref='INTTRL1';"
+    db_exec "DELETE i FROM loan_installment i JOIN loan_schedule s ON s.id=i.schedule_id JOIN loan_application l ON l.id=s.loan_id WHERE l.customer_email='inttest@test.com';"
+    db_exec "DELETE s FROM loan_schedule s JOIN loan_application l ON l.id=s.loan_id WHERE l.customer_email='inttest@test.com';"
+    db_exec "DELETE FROM loan_application WHERE customer_email='inttest@test.com';"
+}
+cleanup_int_refs
+
 # Create a loan schedule (via SQL seed)
 ADMIN="inttest@test.com"
 db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('$ADMIN', CONCAT('SHA256_',SHA2('secret123',256)), 'IntTest', '1990-01-01', 'VERIFIED', 'SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';"
@@ -35,6 +51,8 @@ assert_match "payment create" "$PAY_OUT" "SUCCESS\|PMC_CREATE"
 # Treasury: create allocation
 TRL_OUT=$(run_cobol "TRL_CREATE|INTTRL1|1000.00|USD|||$ADMIN")
 assert_match "treasury create" "$TRL_OUT" "SUCCESS\|TRL_CREATE"
+
+cleanup_int_refs
 
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
