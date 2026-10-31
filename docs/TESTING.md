@@ -192,6 +192,40 @@ Rules:
 - A count change without a suite/test change is suspicious — the gate treats
   it as drift until `--write` is run and the diff is reviewed.
 
+## Cross-layer contract: route reachability + field order
+
+DB suites invoke the COBOL binary directly, so two cross-layer failure modes
+were invisible: a route that is defined but never mounted (404 at runtime),
+and a route whose `fields` order drifts from the COBOL `LS-PARAM` order
+(executes with swapped parameters). Two mechanisms close this:
+
+**Reachability** (`middleware/test/route-reachability.test.js`, part of
+`test:fast`). Iterates all 5427 `ROUTES`: guarded routes are hit without a
+token (must 401/403 before any COBOL runs — a 200/400 would mean auth was
+skipped), public routes are hit with `{}` (must fail validation — a 401/403
+would mean auth was wrongly added). No request in this suite can write:
+nothing carries a token or passes validation. `/health` and `/ready` are
+covered explicitly (they are not in `ROUTES`).
+
+**Field order** (`scripts/check_field_order.mjs` in the static gates,
+`scripts/generate_field_order.mjs` for regeneration,
+`tests/contracts/route_field_order.json` as the reviewed snapshot).
+Every route is keyed `file :: METHOD path` with its action and positional
+field tokens; shared constants (`DATE_RANGE`) are expanded so drift inside
+them is visible; the 65 `app.js` routes that declare fewer than 6 fields are
+recorded as-is (trailing blanks implied, tolerated by COBOL). Any
+added/removed/changed route or field order fails the gate until the snapshot
+is regenerated **and the diff is reviewed** — the snapshot prevents drift, it
+does not prove the order is semantically right. The hand-reviewed 17-action
+golden contract in `middleware/test/fixtures/field_order_contract.json`
+remains the semantic core. Probe `p8_field_order_drift` proves the gate fires.
+
+When adding or changing a route: implement, run
+`node scripts/generate_field_order.mjs --write .`, review every hunk of the
+snapshot diff, and explain it in the PR. Never regenerate blindly to make CI
+green. If the order change is a behavior change (not just naming), update the
+domain's DB suite to assert the new mapping.
+
 ## Files
 
 - `docker-compose.test.yml` — MariaDB 11.8 on `TEST_DB_PORT` (default 3307).

@@ -46,3 +46,8 @@ p6_deleted_db_suite=detected
 # compares static assertion counts against the baseline, so a shrinking
 # denominator is detected even though the runner stays green.
 p7_missing_assertion=detected
+
+# Two field names swapped in one route. Registration, auth, validation, and
+# the COBOL handler all still exist; only the positional gateway->COBOL
+# mapping shifts. check_field_order notices.
+p8_field_order_drift=detected
