@@ -4,3 +4,8 @@ PRL_GET missing id@@ERROR\|INVALID_INPUT@@PRL_GET||||||admin@test.com
 PRL_CALC missing id@@ERROR\|INVALID_INPUT@@PRL_CALC||||||admin@test.com
 PRL_DELETE missing id@@ERROR\|INVALID_INPUT@@PRL_DELETE||||||admin@test.com
 PRL_VALIDATE ok@@SUCCESS\|PRL_VALID@@PRL_VALIDATE|100.00|USD||||admin@test.com
+PRL_ADD_ITEM missing params@@ERROR\|INVALID_INPUT@@PRL_ADD_ITEM||||||admin@test.com
+PRL_APPROVE missing id@@ERROR\|INVALID_INPUT@@PRL_APPROVE||||||admin@test.com
+PRL_PROCESS missing id@@ERROR\|INVALID_INPUT@@PRL_PROCESS||||||admin@test.com
+PRL_PAY missing id@@ERROR\|INVALID_INPUT@@PRL_PAY||||||admin@test.com
+PRL_CLOSE missing id@@ERROR\|INVALID_INPUT@@PRL_CLOSE||||||admin@test.com

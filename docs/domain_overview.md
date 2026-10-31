@@ -29,6 +29,15 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - Routes: `/merchants*` lifecycle, `/merchant-settlements*` batch.
   Legacy generic CREATE/CALC/UPDATE/DELETE kept for compat, marked deprecated.
 
+## Payroll Processing (canonical)
+- `payroll_processing_core` — batch lifecycle: create (company/account link)
+  → add item → validate (totals/accounts) → approve → process (tax rule rate,
+  balance check, payments) → pay (POSTED → PAID + clearing link) → close.
+  Tables: `payroll_processing`, `payroll_employee`, `payroll_item`,
+  `payroll_payment`, `payroll_audit`.
+- Routes: `/payrolls` + `/payrolls/:id/*` lifecycle; legacy generic
+  CREATE/CALC/UPDATE/DELETE/VALIDATE kept for backward compat.
+
 ## Chargeback / Dispute Ops (canonical)
 - `chargeback_core` — lifecycle: open (card CAPTURED check, amount cap,
   duplicate guard, 30-day deadline, HOLD ledger) → assign → evidence →

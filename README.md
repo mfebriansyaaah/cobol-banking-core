@@ -95,6 +95,7 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 | Merchant Acquiring | Done (pilot) | `merchant_core` (onboarding + fee profile), `merchant_settlement_core` (txn/fee/settle/payout + GL link); legacy generic CREATE/CALC/UPDATE/DELETE deprecated |
 | Tax Withholding | Done (pilot) | `tax_management_core` (rule engine + calc/post/reverse/report); legacy `tax_withholding`, `tax_item` deprecated |
 | Chargeback | Done (pilot) | `chargeback_core` (open/assign/evidence/represent/accept/reject/arbitrate/close + hold/release/debit ledger); generic `chargeback` write paths + `dispute_management` deprecated |
+| Payroll | Done (pilot) | `payroll_processing_core` (validate/approve/process/pay/close + tax rule + balance + GL/payment links); generic CREATE/CALC/UPDATE/DELETE kept for compat |
 
 ### Status details
 
@@ -140,11 +141,11 @@ suites, table cases, and the action/suite inventory gates. See
 |---|---:|
 | COBOL modules | **604** |
 | COBOL source files (incl. dispatcher) | **605** |
-| COBOL lines | **416,871** |
+| COBOL lines | **417,557** |
 | Gateway route files | **599** |
-| Gateway route definitions | **5,396** |
+| Gateway route definitions | **5,407** |
 | Dispatch entries | **682** |
-| Recorded migrations | **649** |
+| Recorded migrations | **651** |
 | Tables in schema.sql | **478** |
 <!-- END GENERATED STATS -->
 
