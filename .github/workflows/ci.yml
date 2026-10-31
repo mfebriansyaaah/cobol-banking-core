@@ -154,7 +154,7 @@ jobs:
       - name: Migration apply + idempotency drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
-      - name: Restore drill
+      - name: Schema rebuild drill
         run: bash scripts/ci/restore_drill.sh
 
       - name: Performance benchmarks
@@ -311,5 +311,5 @@ jobs:
       - name: Migration apply + idempotency drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
-      - name: Restore drill
+      - name: Schema rebuild drill
         run: bash scripts/ci/restore_drill.sh

@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# Restore / disaster-recovery drill: rebuild a database from schema.sql +
-# migrations into an isolated schema and verify it is usable. Never touches
-# the primary database.
+# Schema rebuild drill: rebuild a database from schema.sql + migrations into
+# an isolated schema and verify it is usable. Never touches the primary
+# database.
+#
+# NOTE: this is NOT a backup restore: no backup file is involved. A real
+# backup/restore drill (dump -> restore -> data verification) is P1-4
+# (migration & backup tooling).
 #
 # The drill target comes ONLY from RESTORE_DRILL_DB (default
 # cobol_db_restore_drill). DB_NAME is deliberately ignored: an earlier version
@@ -26,7 +30,7 @@ DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-cobol_pass}"
 
 mysqlc() { mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$@"; }
 
-echo "=== RESTORE DRILL: target $RESTORE_DRILL_DB (DB_NAME is ignored) ==="
+echo "=== SCHEMA REBUILD DRILL: target $RESTORE_DRILL_DB (DB_NAME is ignored) ==="
 mysqlc -e "DROP DATABASE IF EXISTS \`$RESTORE_DRILL_DB\`;" 2>/dev/null || true
 mysqlc -e "CREATE DATABASE \`$RESTORE_DRILL_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
@@ -44,4 +48,4 @@ tables="$(mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE
 echo "tables: $tables"
 [ "$tables" -ge 400 ] || { echo "FAIL: too few tables ($tables)" >&2; exit 1; }
 
-echo "=== RESTORE DRILL GREEN (target: $RESTORE_DRILL_DB) ==="
+echo "=== SCHEMA REBUILD DRILL GREEN (target: $RESTORE_DRILL_DB) ==="
