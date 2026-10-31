@@ -150,9 +150,9 @@ SUITES=(
     sanctions_list_db_tests fraud_case_db_tests gl_allocation_db_tests
     gl_master_db_tests fee_management_db_tests account_db_tests
     customer_db_tests cost_center_db_tests fixed_asset_db_tests
-    interest_rate_db_tests product_catalog_db_tests report_builder_db_tests
-    reporting_db_tests notification_template_db_tests statement_item_db_tests
-    account_statement_db_tests
+    fixed_asset_domain_db_tests interest_rate_db_tests product_catalog_db_tests
+    report_builder_db_tests reporting_db_tests notification_template_db_tests
+    statement_item_db_tests account_statement_db_tests
 )
 
 baseline() {
