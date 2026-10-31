@@ -3,13 +3,64 @@ const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
 const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 const ID = { name: 'id', pattern: PATTERNS.INT, required: true };
 export const PRL_ROUTES = [
+  // DEPRECATED: stateless amount check; batch validation is POST /payrolls/:id/validate.
   { method: 'post', path: '/payroll-processing/validate', action: 'PRL_VALIDATE', tokenIdentity: 'actor', fields: [ { name: 'amount', pattern: PATTERNS.AMOUNT, required: true }, { name: 'currency', pattern: PATTERNS.CURRENCY, required: true }, BLANK, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/payroll-processing/summary', action: 'PRL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/payroll-processing/audit', action: 'PRL_AUDIT', tokenIdentity: 'actor', fields: [ { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/payroll-processing', action: 'PRL_LIST', tokenIdentity: 'actor', fields: [ { name: 'status', pattern: PATTERNS.CODE, required: false }, { name: 'payrollType', pattern: PATTERNS.NAME, required: false }, { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, ACTOR ] },
   { method: 'post', path: '/payroll-processing', action: 'PRL_CREATE', tokenIdentity: 'actor', fields: [ { name: 'payrollRef', pattern: PATTERNS.KEY, required: true }, { name: 'batchName', pattern: PATTERNS.NAME, required: true }, { name: 'payrollType', pattern: PATTERNS.NAME, required: true }, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/payroll-processing/:id', action: 'PRL_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic +1 calc; payroll lifecycle uses validate/approve/process/pay/close.
   { method: 'post', path: '/payroll-processing/:id/calc', action: 'PRL_CALC', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  // DEPRECATED: generic metadata update; use /payrolls/:id/* lifecycle endpoints.
   { method: 'post', path: '/payroll-processing/:id/update', action: 'PRL_UPDATE', tokenIdentity: 'actor', fields: [ ID, { name: 'batchName', pattern: PATTERNS.NAME, required: false }, { name: 'payrollType', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, ACTOR ] },
+  // DEPRECATED: generic close; use /payrolls/:id/close (terminal-state guarded).
   { method: 'post', path: '/payroll-processing/:id/delete', action: 'PRL_DELETE', tokenIdentity: 'actor', fields: [ ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR ] },
+  { method: 'post', path: '/payrolls', action: 'PRL_CREATE', tokenIdentity: 'actor', fields: [
+    { name: 'payrollRef', pattern: PATTERNS.KEY, required: true },
+    { name: 'batchName', pattern: PATTERNS.NAME, required: true },
+    { name: 'payrollType', pattern: PATTERNS.NAME, required: true },
+    { name: 'companyRef', pattern: PATTERNS.KEY, required: false },
+    { name: 'sourceAccountId', pattern: PATTERNS.INT, required: false },
+    ACTOR,
+  ] },
+  { method: 'post', path: '/payrolls/:id/items', action: 'PRL_ADD_ITEM', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'employeeRef', pattern: PATTERNS.KEY, required: true },
+    { name: 'employeeName', pattern: PATTERNS.NAME, required: true },
+    { name: 'grossAmount', pattern: PATTERNS.AMOUNT, required: true },
+    { name: 'accountId', pattern: PATTERNS.INT, required: false },
+    ACTOR,
+  ] },
+  { method: 'post', path: '/payrolls/:id/validate', action: 'PRL_VALIDATE', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/payrolls/:id/approve', action: 'PRL_APPROVE', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/payrolls/:id/process', action: 'PRL_PROCESS', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'taxRuleId', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/payrolls/:id/pay', action: 'PRL_PAY', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'paymentClearingRef', pattern: PATTERNS.KEY, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'post', path: '/payrolls/:id/close', action: 'PRL_CLOSE', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'reason', pattern: PATTERNS.NAME, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/payrolls/summary', action: 'PRL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'get', path: '/payrolls/audit', action: 'PRL_AUDIT', tokenIdentity: 'actor', fields: [
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/payrolls', action: 'PRL_LIST', tokenIdentity: 'actor', fields: [
+    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'payrollType', pattern: PATTERNS.NAME, required: false },
+    { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+    { name: 'offset', pattern: PATTERNS.INT, required: false },
+    BLANK, ACTOR,
+  ] },
+  { method: 'get', path: '/payrolls/:id', action: 'PRL_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
 ];

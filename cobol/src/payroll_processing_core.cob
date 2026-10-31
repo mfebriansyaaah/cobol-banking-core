@@ -317,14 +317,50 @@
                 MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                MOVE "SELECT 1 FROM customer WHERE customer_ref = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-P4-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            IF WS-P5-TRIMMED NOT = SPACES
+                MOVE "SELECT 1 FROM accounts WHERE account_id = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-P5-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "INSERT INTO payroll_processing (payroll_ref, batch_name, payroll_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
+            MOVE "INSERT INTO payroll_processing (payroll_ref, batch_name, payroll_type, company_customer_ref, source_account_id, status, created_by) VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
             MOVE WS-P3-TRIMMED TO WS-BIND-3
-            MOVE WS-P6-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            MOVE WS-P5-TRIMMED TO WS-BIND-5
+            MOVE WS-P6-TRIMMED TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
