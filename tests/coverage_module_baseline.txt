@@ -1,0 +1,39 @@
+# Per-module COBOL coverage baseline (curated core only).
+#
+# Enforced by scripts/check_coverage_modules.mjs: every curated module must
+# stay within 1.0pp of its recorded value. A module may not quietly collapse
+# while the total still looks fine. Update only with --write after a reviewed
+# change, and record the reason in the PR (never lower to make CI green).
+#
+# Values come from scripts/ci/coverage.sh over the curated module set.
+
+main_logic 92
+user_core 63.34
+wallet_core 67.6
+auth_core 80.51
+ref_engine 0
+gl_core 32.13
+batch_core 11.19
+report_core 12.97
+fee_core 20.24
+eod_core 17.27
+statement_core 24.86
+notification_core 33.59
+loan_core 76.1
+loan_schedule_core 31.76
+deposit_core 74.3
+card_core 74.87
+collection_core 87.22
+payment_clearing_core 88.26
+treasury_liquidity_core 89.6
+kyc_periodic_core 80.14
+aml_screening_core 88.53
+sanctions_list_core 88.3
+fraud_case_core 88.43
+gl_allocation_core 88.97
+cost_center_core 89.42
+fixed_asset_core 88.53
+interest_rate_core 89.42
+account_core 89.42
+customer_core 88.53
+product_catalog_core 89.42
