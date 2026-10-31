@@ -151,7 +151,7 @@ jobs:
       - name: Assertion count gate
         run: node scripts/check_test_counts.mjs --report-dir artifacts --strict
 
-      - name: Migration rollback drill
+      - name: Migration apply + idempotency drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
       - name: Restore drill
@@ -308,7 +308,7 @@ jobs:
           < database/schema.sql
       - name: Apply migrations
         run: ./database/migrate.sh
-      - name: Migration rollback drill
+      - name: Migration apply + idempotency drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
       - name: Restore drill
