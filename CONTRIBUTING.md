@@ -41,7 +41,10 @@ troubleshooting, see [docs/TESTING.md](docs/TESTING.md).
    before `/:id`, and a `PATTERNS` entry for every named field.
 5. Add table cases under `tests/cobol/cases/` and a DB suite under `tests/db/`.
 6. Register the suite and expected counts in `tests/baseline_counts.txt` and
-   `tests/warning_baseline.txt`.
+   `tests/warning_baseline.txt`. Counts are load-bearing: regenerate with
+   `node scripts/check_test_counts.mjs --report-dir artifacts --write`
+   (never hand-edit), review the diff, and document reason/before/after in
+   the PR — see the baseline section in [docs/TESTING.md](docs/TESTING.md).
 7. Add the module to `build.sh`.
 8. Regenerate and check the manifest:
 
