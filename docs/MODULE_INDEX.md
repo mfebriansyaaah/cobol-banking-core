@@ -340,7 +340,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `login_attempt_core` | `LGA_` | [login_attempt.js](../middleware/src/routes/login_attempt.js) | [login_attempt.cases](../tests/cobol/cases/login_attempt.cases) | [login_attempt_db_tests.sh](../tests/db/login_attempt_db_tests.sh) |
 | `logistics_core` | `LOG2_` | [logistics.js](../middleware/src/routes/logistics.js) | [logistics.cases](../tests/cobol/cases/logistics.cases) | [logistics_db_tests.sh](../tests/db/logistics_db_tests.sh) |
 | `loss_reserve_core` | `LSR_` | [loss_reserve.js](../middleware/src/routes/loss_reserve.js) | [loss_reserve.cases](../tests/cobol/cases/loss_reserve.cases) | [loss_reserve_db_tests.sh](../tests/db/loss_reserve_db_tests.sh) |
-| `loyalty_core` | `LOY_` | — | [loyalty.cases](../tests/cobol/cases/loyalty.cases) | — |
+| `loyalty_core` | `LOY_` | [loyalty.js](../middleware/src/routes/loyalty.js) | [loyalty.cases](../tests/cobol/cases/loyalty.cases) | — |
 | `loyalty_program_core` | `LYP_` | [loyalty_program.js](../middleware/src/routes/loyalty_program.js) | [loyalty_program.cases](../tests/cobol/cases/loyalty_program.cases) | [loyalty_program_db_tests.sh](../tests/db/loyalty_program_db_tests.sh) |
 | `management_liability_core` | `MNL_` | [management_liability.js](../middleware/src/routes/management_liability.js) | [management_liability.cases](../tests/cobol/cases/management_liability.cases) | [management_liability_db_tests.sh](../tests/db/management_liability_db_tests.sh) |
 | `margin_core` | `MRG_` | [margin.js](../middleware/src/routes/margin.js) | [margin.cases](../tests/cobol/cases/margin.cases) | [margin_db_tests.sh](../tests/db/margin_db_tests.sh) |

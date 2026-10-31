@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-31T07:54:14.615Z",
+  "generatedAt": "2026-10-31T08:00:11.742Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -2144,6 +2144,7 @@
     "login_attempt.js",
     "logistics.js",
     "loss_reserve.js",
+    "loyalty.js",
     "loyalty_program.js",
     "management_liability.js",
     "margin.js",
