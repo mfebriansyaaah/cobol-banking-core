@@ -46,8 +46,15 @@ whole-codebase coverage.
 - Ratchet: `tests/coverage_baseline.txt` values may not drop by more than
   **1.0 percentage point**. Lower a baseline only for a deliberate change that
   removes exercised code, never to accept a regression.
+- Per-module ratchet: `tests/coverage_module_baseline.txt` pins every curated
+  module (±1.0pp, see above). A total that still looks fine never hides a
+  collapsing module.
 - Update the baseline deliberately after a reviewed change. The script prints
   the measured values; commit them with the reason in the PR.
+- The C-to-COBOL mapper lives in `scripts/coverage/map_cobol.py` (unit-tested
+  in `scripts/coverage/test_map_cobol.py`); the module gate in
+  `scripts/check_coverage_modules.mjs` (unit-tested in
+  `scripts/test/check_coverage_modules.test.mjs`).
 
 ## Running it
 
@@ -69,14 +76,44 @@ The script writes:
 
 - `coverage/cobol.txt` — per-module COBOL line coverage.
 - `coverage/cobol.json` — machine-readable COBOL totals.
+- `coverage/cobol-cobertura.xml` — same data as Cobertura XML (one `<class>`
+  per module, one `<line>` per executable COBOL line).
 - `coverage/gateway.txt` — full gateway coverage report.
 - `coverage/summary.json` — combined totals when `--json` is used.
+
+## Per-module ratchet
+
+The total (30% floor + ratchet) cannot see one module collapsing while another
+rises. `tests/coverage_module_baseline.txt` pins all 30 curated modules:
+`scripts/check_coverage_modules.mjs --json coverage/cobol.json` fails any
+module that drops more than 1.0pp below its recorded value. `coverage.sh`
+runs this gate automatically after the COBOL measurement.
+
+Update only for a deliberate, reviewed change — never to make CI green:
+
+```sh
+node scripts/check_coverage_modules.mjs --json coverage/cobol.json --write
+git diff -- tests/coverage_module_baseline.txt   # review every hunk
+```
+
+A single-line refactor that moves code between modules legitimately lowers one
+module and raises another; record the reason in the PR. `ref_engine` sits at
+0% (not yet exercised by the representative suites): the ratchet keeps it
+from going unnoticed, raising it is separate work.
 
 ## CI
 
 - **Pull requests:** the `coverage` job in `.github/workflows/ci.yml` runs
   `scripts/ci/coverage.sh --gateway-only` against a fresh database and uploads
   the `coverage` artifact.
+- **Pull requests (curated COBOL, impact-selected):** the `coverage-pr` job
+  runs `scripts/ci/coverage.sh --cobol-only --changed origin/main --json`.
+  When the change set touches no curated inputs (docs, gateway-only changes,
+  other domains), the instrumented build is skipped in seconds. Otherwise the
+  full curated measurement runs and a bot comment posts totals vs baselines
+  plus any module below its baseline (one comment per PR, updated in place).
+  The comment step is best-effort (`continue-on-error`); the measurement
+  gates the job.
 - **Nightly:** `.github/workflows/coverage.yml` runs the full COBOL + gateway
   measurement with a MariaDB service and uploads the report. It can also be
   started manually with `workflow_dispatch`.
