@@ -650,6 +650,15 @@ db_reset_loyalty_program() {
     db_exec "DELETE FROM loyalty_program_audit; DELETE FROM loyalty_program;"
 }
 
+db_reset_loyalty_domain() {
+    db_exec "DELETE FROM loyalty_audit;"
+    db_exec "DELETE FROM loyalty_redemption;"
+    db_exec "DELETE FROM loyalty_points_ledger;"
+    db_exec "DELETE FROM loyalty_member;"
+    db_exec "DELETE FROM loyalty_campaign;"
+    db_exec "DELETE FROM loyalty_program_audit; DELETE FROM loyalty_program;"
+}
+
 db_reset_rewards_management() {
     db_exec "DELETE FROM rewards_management_audit; DELETE FROM rewards_management;"
 }

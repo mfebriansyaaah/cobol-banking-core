@@ -259,6 +259,7 @@ import { PTR_ROUTES } from './points_redemption.js';
 import { CSB_ROUTES } from './cashback.js';
 import { RWD_ROUTES } from './rewards_management.js';
 import { LYP_ROUTES } from './loyalty_program.js';
+import { LOY_ROUTES } from './loyalty.js';
 import { VDM_ROUTES } from './vendor_management.js';
 import { CRM_ROUTES } from './crisis_management.js';
 import { BCP_ROUTES } from './business_continuity.js';
@@ -860,6 +861,7 @@ export const ALL_ROUTES = [
   ...CSB_ROUTES,
   ...RWD_ROUTES,
   ...LYP_ROUTES,
+  ...LOY_ROUTES,
   ...VDM_ROUTES,
   ...CRM_ROUTES,
   ...BCP_ROUTES,

@@ -48,6 +48,19 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
   legacy generic CREATE/CALC/UPDATE/DELETE kept for compat, `asset_management`
   deprecated.
 
+## Loyalty / Rewards (canonical)
+- `loyalty_core` — lifecycle: create (rate/currency guards) → activate
+  (DRAFT guard) → enroll (program ACTIVE + customer check) → earn
+  (idempotent source, amount × earn_rate) → redeem (balance guard, GL link)
+  → expire (as-of job, reverses earn rows) → adjust (signed delta, LIMIT).
+  Tables: `loyalty_program` (extended), `loyalty_member`,
+  `loyalty_points_ledger`, `loyalty_redemption`, `loyalty_campaign`,
+  `loyalty_audit`.
+- Routes: `/loyalty/programs`, `/loyalty/members`, `/loyalty/{earn,redeem,expire,adjust,validate}`, `/loyalty/{summary,audit}`.
+- Deprecated (kept for backward compat): generic `loyalty_program`,
+  `rewards_management`, `points_redemption`, `cashback` write paths
+  (CALC/UPDATE/DELETE + stateless VALIDATE).
+
 ## Chargeback / Dispute Ops (canonical)
 - `chargeback_core` — lifecycle: open (card CAPTURED check, amount cap,
   duplicate guard, 30-day deadline, HOLD ledger) → assign → evidence →

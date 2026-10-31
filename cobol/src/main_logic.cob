@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 682 TO DISPATCH-COUNT.
+            MOVE 683 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -2155,6 +2155,9 @@
             MOVE "REOP_" TO D-PREFIX(532).
             MOVE 5 TO D-PREFIX-LEN(532).
             MOVE "reopening_item_core" TO D-PROGRAM(532).
+            MOVE "LOY_" TO D-PREFIX(683).
+            MOVE 4 TO D-PREFIX-LEN(683).
+            MOVE "loyalty_core" TO D-PROGRAM(683).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

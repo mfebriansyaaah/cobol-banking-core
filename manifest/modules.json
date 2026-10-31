@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-31T07:25:26.915Z",
+  "generatedAt": "2026-10-31T08:00:11.742Z",
   "cobolModules": [
     {
       "source": "ab_testing_core.cob"
@@ -987,6 +987,9 @@
     },
     {
       "source": "loss_reserve_core.cob"
+    },
+    {
+      "source": "loyalty_core.cob"
     },
     {
       "source": "loyalty_program_core.cob"
@@ -2141,6 +2144,7 @@
     "login_attempt.js",
     "logistics.js",
     "loss_reserve.js",
+    "loyalty.js",
     "loyalty_program.js",
     "management_liability.js",
     "margin.js",
@@ -5825,6 +5829,11 @@
       "prefixLen": 4,
       "prefix": "CDL_",
       "program": "crowd_lending_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "LOY_",
+      "program": "loyalty_core"
     }
   ]
 }

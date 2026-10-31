@@ -135,6 +135,7 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/vendor_management_core.cob \
     cobol/src/outsourcing_contract_core.cob \
     cobol/src/loyalty_program_core.cob \
+    cobol/src/loyalty_core.cob \
     cobol/src/rewards_management_core.cob \
     cobol/src/cashback_core.cob \
     cobol/src/points_redemption_core.cob \
