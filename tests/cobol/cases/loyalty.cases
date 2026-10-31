@@ -1,0 +1,8 @@
+# Loyalty domain (PR-802) validation cases.
+LOY_CREATE missing params@@ERROR\|INVALID_INPUT@@LOY_CREATE||||||admin@test.com
+LOY_ACTIVATE missing id@@ERROR\|INVALID_INPUT@@LOY_ACTIVATE||||||admin@test.com
+LOY_ENROLL missing id@@ERROR\|INVALID_INPUT@@LOY_ENROLL||||||admin@test.com
+LOY_EARN missing id@@ERROR\|INVALID_INPUT@@LOY_EARN||||||admin@test.com
+LOY_REDEEM missing id@@ERROR\|INVALID_INPUT@@LOY_REDEEM||||||admin@test.com
+LOY_EXPIRE missing id@@ERROR\|INVALID_INPUT@@LOY_EXPIRE||||||admin@test.com
+LOY_ADJUST missing id@@ERROR\|INVALID_INPUT@@LOY_ADJUST||||||admin@test.com
