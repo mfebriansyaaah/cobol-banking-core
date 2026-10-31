@@ -19,6 +19,10 @@
 #   scripts/ci/coverage.sh --cobol-only    # COBOL only (still runs the gateway
 #                                          # suite to exercise core actions)
 #   scripts/ci/coverage.sh --json          # write coverage/summary.json
+#   scripts/ci/coverage.sh --cobol-only --changed [BASE]
+#                                          # measure only when the change set
+#                                          # touches curated COBOL inputs
+#                                          # (default base: origin/main)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -26,13 +30,73 @@ cd "$ROOT"
 
 MODE=both
 JSON=0
-for arg in "$@"; do
+CHANGED=""
+
+# Resolve the diff base for --changed: explicit ref, origin/main, or HEAD~1.
+resolve_changed_base() {
+    local explicit="$1"
+    if [ -n "$explicit" ]; then
+        git -C "$ROOT" rev-parse --verify --quiet "$explicit" >/dev/null 2>&1 || {
+            echo "FAIL coverage: unknown base ref: $explicit" >&2
+            exit 2
+        }
+        printf '%s' "$explicit"
+        return 0
+    fi
+    if git -C "$ROOT" rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+        printf 'origin/main'
+    elif git -C "$ROOT" rev-parse --verify --quiet HEAD~1 >/dev/null 2>&1; then
+        printf 'HEAD~1'
+    else
+        printf ''
+    fi
+}
+
+# True when the change set touches anything the curated COBOL measurement
+# depends on: curated modules, shared COBOL inputs, the build, the database
+# surface, the exercised suites/cases, or the measurement scripts themselves.
+# Gateway-only changes are deliberately excluded: they cannot lower COBOL
+# line counts (the same suites run against the same binary), so the cheap
+# gateway-only gate stays sufficient for them.
+# Anything else (docs, other domains) likewise skips the instrumented build.
+coverage_triggered() {
+    local base="$1" f
+    local changed
+    changed="$(git -C "$ROOT" diff --name-only "$base"...HEAD 2>/dev/null)" || return 0
+    changed="$changed
+$(git -C "$ROOT" ls-files --others --exclude-standard 2>/dev/null)"
+    [ -n "$(printf '%s' "$changed" | tr -d '[:space:]')" ] || return 1
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        case "$f" in
+            cobol/src/*_core.cob|cobol/copy/*|cobol/c_lib/*|cobol/src/*.[ch]|build.sh|cobol/Makefile|database/*|tests/cobol/cases/*|tests/cobol/table_runner.sh|tests/db/*|scripts/ci/coverage.sh|scripts/coverage/*|tests/coverage_*)
+                return 0
+                ;;
+        esac
+    done <<EOF
+$changed
+EOF
+    return 1
+}
+
+while [ $# -gt 0 ]; do
+    arg="$1"
+    shift
     case "$arg" in
         --gateway-only) MODE=gateway ;;
         --cobol-only) MODE=cobol ;;
         --json) JSON=1 ;;
+        --changed)
+            # Optional explicit base as the next word (--changed origin/main);
+            # bare --changed resolves the base automatically.
+            case "${1:-}" in
+                --*|'') CHANGED="auto" ;;
+                *) CHANGED="$1"; shift ;;
+            esac
+            ;;
+        --changed=*) CHANGED="${arg#--changed=}" ;;
         -h|--help)
-            sed -n '2,28p' "$0"
+            sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d'
             exit 0
             ;;
         *)
@@ -47,6 +111,24 @@ BASELINE="$ROOT/tests/coverage_baseline.txt"
 FLOOR=30
 TOLERANCE=1.0
 mkdir -p "$COVERAGE_DIR"
+
+# Impact-selected measurement (Fase 5 follow-up): with --changed, skip the
+# instrumented build entirely unless the change set touches curated inputs.
+if [ -n "$CHANGED" ]; then
+    if [ "$CHANGED" = "auto" ]; then
+        CHANGED="$(resolve_changed_base '')"
+    else
+        CHANGED="$(resolve_changed_base "$CHANGED")"
+    fi
+    if [ -z "$CHANGED" ]; then
+        echo "=== COBOL COVERAGE: no git base available; measuring (cannot tell what changed) ===" >&2
+    elif coverage_triggered "$CHANGED"; then
+        echo "=== COBOL COVERAGE: change set touches curated inputs ($CHANGED...HEAD); measuring ===" >&2
+    else
+        echo "=== COBOL COVERAGE SKIPPED: no curated inputs changed ($CHANGED...HEAD) ===" >&2
+        exit 0
+    fi
+fi
 
 # Curated money-path/core modules measured for COBOL line coverage.
 CURATED=(
