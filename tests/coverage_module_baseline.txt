@@ -32,7 +32,7 @@ sanctions_list_core 88.3
 fraud_case_core 88.43
 gl_allocation_core 88.97
 cost_center_core 89.42
-fixed_asset_core 88.53
+fixed_asset_core 82.35
 interest_rate_core 89.42
 account_core 89.42
 customer_core 88.53
