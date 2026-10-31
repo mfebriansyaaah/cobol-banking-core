@@ -38,6 +38,16 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - Routes: `/payrolls` + `/payrolls/:id/*` lifecycle; legacy generic
   CREATE/CALC/UPDATE/DELETE/VALIDATE kept for backward compat.
 
+## Fixed Asset (canonical)
+- `fixed_asset_core` — lifecycle: capitalize (cost/residual/life guards) →
+  depreciate (straight-line, one row per period) → revalue/impair (NBV +
+  accumulated adjustment, GL link) → dispose (gain/loss = proceeds − NBV,
+  GL link). Tables: `fixed_asset`, `fixed_asset_depreciation`,
+  `fixed_asset_disposal`, `fixed_asset_audit`.
+- Routes: `/fixed-assets` + `/fixed-assets/:id/{depreciate,revalue,dispose}`;
+  legacy generic CREATE/CALC/UPDATE/DELETE kept for compat, `asset_management`
+  deprecated.
+
 ## Chargeback / Dispute Ops (canonical)
 - `chargeback_core` — lifecycle: open (card CAPTURED check, amount cap,
   duplicate guard, 30-day deadline, HOLD ledger) → assign → evidence →
