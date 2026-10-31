@@ -61,6 +61,15 @@
         01  WS-NUM-ALLOCATED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-COST             PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-NBV              PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-RESID            PIC 9(15)V9(4) VALUE 0.
+        01  WS-NUM-LIFE             PIC 9(9) VALUE 0.
+        01  WS-NUM-ACTIVE           PIC S9(15)V9(4) VALUE 0.
+        01  WS-NUM-MONTHLY          PIC 9(15)V9(4) VALUE 0.
+        01  WS-ASSET-STATUS         PIC X(20) VALUE SPACES.
+        01  WS-ASSET-METHOD         PIC X(20) VALUE SPACES.
+        01  WS-ASSET-CURR           PIC X(10) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -105,6 +114,18 @@
                 WHEN LS-CMD-ACTION(1:10) = "FAS_DELETE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE
+                WHEN LS-CMD-ACTION(1:14) = "FAS_CAPITALIZE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CAPITALIZE
+                WHEN LS-CMD-ACTION(1:14) = "FAS_DEPRECIATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-DEPRECIATE
+                WHEN LS-CMD-ACTION(1:11) = "FAS_REVALUE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-REVALUE
+                WHEN LS-CMD-ACTION(1:11) = "FAS_DISPOSE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-DISPOSE
                 WHEN LS-CMD-ACTION(1:11) = "FAS_SUMMARY"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUMMARY
@@ -585,6 +606,461 @@
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CAPITALIZE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P4-TRIMMED = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-ID
+            UNSTRING WS-P4-TRIMMED DELIMITED BY ":" INTO
+                WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-ID
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-COST
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-RESID
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-LIFE
+            IF WS-NUM-COST <= 0 OR WS-NUM-RESID < 0 OR WS-NUM-LIFE <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-RESID >= WS-NUM-COST
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT 1 FROM fixed_asset WHERE asset_ref = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-STR WS-TMP-CURR WS-TMP-ID WS-ASSET-CURR WS-TMP-ALLOCATED
+            UNSTRING WS-P5-TRIMMED DELIMITED BY ":" INTO
+                WS-TMP-STR WS-TMP-CURR WS-TMP-ID WS-ASSET-CURR WS-TMP-ALLOCATED
+            END-UNSTRING
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO fixed_asset (asset_ref, asset_name, asset_type, acquisition_date, acquisition_cost, status, created_by) VALUES (?, ?, ?, NULLIF(?, ''), ?, 'ACTIVE', ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-TMP-STR TO WS-BIND-4
+            MOVE WS-TMP-AMT TO WS-BIND-5
+            MOVE WS-P6-TRIMMED TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE WS-NUM-RESID TO WS-AMT-EDIT
+                MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+                MOVE WS-NUM-LIFE TO WS-AMT-EDIT
+                MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
+                MOVE "UPDATE fixed_asset SET asset_category = ?, residual_value = ?, useful_life_months = ?, net_book_value = acquisition_cost WHERE id = ?" TO WS-PREP-SQL
+                MOVE WS-P3-TRIMMED TO WS-BIND-1
+                MOVE WS-TMP-AMT TO WS-BIND-2
+                MOVE WS-TMP-STR TO WS-BIND-3
+                MOVE FUNCTION TRIM(WS-NEW-ID) TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE fixed_asset SET cost_center = NULLIF(?, ''), gl_asset_account = NULLIF(?, ''), gl_depreciation_account = NULLIF(?, ''), gl_gain_loss_account = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+                MOVE WS-TMP-CURR TO WS-BIND-1
+                MOVE WS-TMP-ID TO WS-BIND-2
+                MOVE WS-ASSET-CURR TO WS-BIND-3
+                MOVE WS-TMP-ALLOCATED TO WS-BIND-4
+                MOVE FUNCTION TRIM(WS-NEW-ID) TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "CAPITALIZE" TO WS-AUDIT-ACTION
+                MOVE FUNCTION TRIM(WS-NEW-ID) TO WS-AUDIT-FAS
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|FAS_CAPITALIZE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
+                    INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF LS-OUTPUT-BUFFER = SPACES
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+        LOAD-ASSET.
+            MOVE SPACES TO WS-ERR
+            MOVE SPACES TO WS-ASSET-STATUS WS-ASSET-METHOD WS-ASSET-CURR
+            MOVE SPACES TO WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-ID WS-TMP-VERSION
+            MOVE 0 TO WS-NUM-COST WS-NUM-NBV WS-NUM-RESID WS-NUM-LIFE WS-NUM-VERSION
+            MOVE "SELECT CONCAT(status, '|', acquisition_cost, '|', accumulated_depreciation, '|', net_book_value, '|', residual_value, '|', useful_life_months, '|', depreciation_method, '|', version) FROM fixed_asset WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-ASSET-STATUS WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-ID WS-TMP-CURR WS-ASSET-METHOD WS-TMP-VERSION
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-COST
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-DEPRECIATED
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-NBV
+            MOVE FUNCTION NUMVAL(WS-TMP-ID) TO WS-NUM-RESID
+            MOVE FUNCTION NUMVAL(WS-TMP-CURR) TO WS-NUM-LIFE
+            MOVE FUNCTION NUMVAL(WS-TMP-VERSION) TO WS-NUM-VERSION
+            EXIT PARAGRAPH.
+
+        ACTION-DEPRECIATE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-ASSET
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-ASSET-STATUS NOT = "ACTIVE"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-ASSET-METHOD NOT = "STRAIGHT_LINE"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-LIFE <= 0
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-NUM-NBV <= 0
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-TMP-ALLOCATED TO WS-AUDIT-OLD
+            MOVE "SELECT 1 FROM fixed_asset_depreciation WHERE asset_id = ? AND period = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            COMPUTE WS-NUM-TOTAL = (WS-NUM-COST - WS-NUM-RESID) / WS-NUM-LIFE END-COMPUTE
+            IF WS-NUM-TOTAL > WS-NUM-NBV
+                MOVE WS-NUM-NBV TO WS-NUM-TOTAL
+            END-IF.
+            IF WS-NUM-TOTAL <= 0
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-TOTAL TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            COMPUTE WS-NUM-ACTIVE = WS-NUM-COST - WS-NUM-NBV + WS-NUM-TOTAL END-COMPUTE
+            MOVE WS-NUM-ACTIVE TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO fixed_asset_depreciation (asset_id, period, depreciation_amount, accumulated_after, gl_journal_id, created_by) VALUES (?, ?, ?, ?, NULLIF(?, ''), ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            MOVE WS-TMP-STR TO WS-BIND-4
+            MOVE WS-P3-TRIMMED TO WS-BIND-5
+            MOVE WS-P6-TRIMMED TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                COMPUTE WS-NUM-NBV = WS-NUM-NBV - WS-NUM-TOTAL END-COMPUTE
+                MOVE WS-NUM-NBV TO WS-AMT-EDIT
+                MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-ALLOCATED
+                MOVE "UPDATE fixed_asset SET accumulated_depreciation = ?, net_book_value = ?, depreciated_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+                MOVE WS-TMP-STR TO WS-BIND-1
+                MOVE WS-TMP-ALLOCATED TO WS-BIND-2
+                MOVE WS-P1-TRIMMED TO WS-BIND-3
+                MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "DEPRECIATE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-FAS
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE WS-TMP-ALLOCATED TO WS-AUDIT-NEW
+                PERFORM AUDIT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|FAS_DEPRECIATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE
+                    INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF LS-OUTPUT-BUFFER = SPACES
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-REVALUE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-TOTAL
+            IF WS-NUM-TOTAL < 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-ASSET
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-ASSET-STATUS NOT = "ACTIVE"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-NUM-NBV TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-ALLOCATED
+            IF WS-NUM-TOTAL > WS-NUM-COST
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            COMPUTE WS-NUM-ACTIVE = WS-NUM-COST - WS-NUM-TOTAL END-COMPUTE
+            MOVE WS-NUM-ACTIVE TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            IF WS-NUM-TOTAL < WS-NUM-NBV
+                MOVE "UPDATE fixed_asset SET status = 'IMPAIRED', accumulated_depreciation = ?, net_book_value = ?, gl_journal_id = NULLIF(?, ''), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+                MOVE WS-TMP-STR TO WS-BIND-1
+                MOVE WS-P2-TRIMMED TO WS-BIND-2
+                MOVE WS-P3-TRIMMED TO WS-BIND-3
+                MOVE WS-P1-TRIMMED TO WS-BIND-4
+                MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            ELSE
+                MOVE "UPDATE fixed_asset SET accumulated_depreciation = ?, net_book_value = ?, gl_journal_id = NULLIF(?, ''), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+                MOVE WS-TMP-STR TO WS-BIND-1
+                MOVE WS-P2-TRIMMED TO WS-BIND-2
+                MOVE WS-P3-TRIMMED TO WS-BIND-3
+                MOVE WS-P1-TRIMMED TO WS-BIND-4
+                MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-5
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "REVALUE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-FAS
+                MOVE WS-TMP-ALLOCATED TO WS-AUDIT-OLD
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-NEW
+                PERFORM AUDIT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|FAS_REVALUE|1" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF LS-OUTPUT-BUFFER = SPACES
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-DISPOSE.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-TOTAL
+            IF WS-NUM-TOTAL < 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-ASSET
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-ASSET-STATUS NOT = "ACTIVE" AND WS-ASSET-STATUS NOT = "IMPAIRED"
+                MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            COMPUTE WS-NUM-ACTIVE = WS-NUM-TOTAL - WS-NUM-NBV END-COMPUTE
+            IF WS-NUM-ACTIVE < 0
+                COMPUTE WS-NUM-MONTHLY = 0 - WS-NUM-ACTIVE END-COMPUTE
+                MOVE WS-NUM-MONTHLY TO WS-AMT-EDIT
+                MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
+                MOVE SPACES TO WS-TMP-ID
+                STRING "-" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE
+                    INTO WS-TMP-ID END-STRING
+                MOVE FUNCTION TRIM(WS-TMP-ID) TO WS-TMP-STR
+            ELSE
+                MOVE WS-NUM-ACTIVE TO WS-AMT-EDIT
+                MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO fixed_asset_disposal (asset_id, disposal_date, proceeds_amount, gain_loss_amount, reason, gl_journal_id, created_by) VALUES (?, CURDATE(), ?, ?, NULLIF(?, ''), NULLIF(?, ''), ?)" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P2-TRIMMED TO WS-BIND-2
+            MOVE WS-TMP-STR TO WS-BIND-3
+            MOVE WS-P3-TRIMMED TO WS-BIND-4
+            MOVE WS-P4-TRIMMED TO WS-BIND-5
+            MOVE WS-P6-TRIMMED TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE fixed_asset SET status = 'DISPOSED', disposed_at = NOW(), disposal_reason = NULLIF(?, ''), gl_journal_id = NULLIF(?, ''), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+                MOVE WS-P3-TRIMMED TO WS-BIND-1
+                MOVE WS-P4-TRIMMED TO WS-BIND-2
+                MOVE WS-P1-TRIMMED TO WS-BIND-3
+                MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-4
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "DISPOSE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-FAS
+                MOVE WS-ASSET-STATUS TO WS-AUDIT-OLD
+                MOVE "DISPOSED" TO WS-AUDIT-NEW
+                PERFORM AUDIT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|FAS_DISPOSE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE
+                    INTO LS-OUTPUT-BUFFER END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF LS-OUTPUT-BUFFER = SPACES
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
