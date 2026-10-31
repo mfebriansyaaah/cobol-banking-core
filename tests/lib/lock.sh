@@ -26,8 +26,13 @@ db_lock_key() {
 }
 
 # Acquire an exclusive, non-blocking lock for the current DB target.
-# Returns 1 when another run holds the lock.
+# Returns 1 when another run holds the lock. Idempotent: a process that
+# already holds the lock (e.g. run_integration after run_db in one `full`
+# run) keeps it without reopening the lock file.
 db_lock_acquire() {
+    if [ "${DB_LOCK_HELD:-0}" = "1" ]; then
+        return 0
+    fi
     if ! command -v flock >/dev/null 2>&1; then
         echo "WARN: flock not available; skipping DB run lock (concurrent runs may interfere)" >&2
         return 0
