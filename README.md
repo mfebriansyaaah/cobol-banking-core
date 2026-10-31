@@ -118,10 +118,10 @@ not a maturity score.
 | Table-driven COBOL cases | ✅ | `tests/cobol/cases/*.cases`, `tests/cobol/table_runner.sh` |
 | DB domain suites | ✅ | `tests/db/*_db_tests.sh`, `tests/run_all.sh db` |
 | Gateway tests | ✅ | `middleware/test/*.test.js`, `npm --prefix middleware test` |
-| Integration tests | ✅ | `tests/integration/cross_domain.sh` |
+| Integration tests | ✅ | `tests/integration/*.sh` (all flows, via `tests/run_all.sh full` / `integration`) |
 | Fuzz tests | ✅ | `tests/fuzz/fuzz_inputs.sh` |
 | SAST | ✅ | `scripts/ci/sast.sh`, `scripts/ci/sast_extra.sh` |
-| Migration rollback + restore drills | ✅ | `scripts/ci/migration_rollback_drill.sh`, `scripts/ci/restore_drill.sh` |
+| Migration apply + schema rebuild drills | ✅ | `scripts/ci/migration_rollback_drill.sh`, `scripts/ci/restore_drill.sh` |
 | Performance benchmarks | ✅ | `tests/perf/bench.sh` |
 | Coverage gate | ✅ | `scripts/ci/coverage.sh`, `tests/coverage_baseline.txt`; COBOL is a curated-core floor |
 | Warning ratchet | ⚠️ | `scripts/check_warnings.sh`; a few non-zero entries remain |

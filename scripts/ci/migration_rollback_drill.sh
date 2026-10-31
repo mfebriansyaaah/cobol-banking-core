@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
-# Post-merge CI: migration dry-run / rollback drill.
+# Post-merge CI: migration apply + idempotency drill.
+# NOTE: this is NOT a rollback: it verifies every migration applies cleanly
+# (twice: migrate.sh is idempotent, so re-applying must be a no-op) and the
+# schema is intact. A true down-migration rollback drill is P1-4
+# (backup/restore + migration rollback tooling).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
-echo "=== Migration Rollback Drill ==="
+echo "=== Migration Apply + Idempotency Drill ==="
 
 # 1. Check all migrations apply cleanly
 echo "Step 1: Apply all migrations"
+./database/migrate.sh 2>&1 | tail -5
+
+# 1b. Re-apply: migrate.sh is idempotent, so the second run must report
+# no pending work and change nothing.
+echo "Step 1b: Re-apply (idempotency check)"
 ./database/migrate.sh 2>&1 | tail -5
 
 # 2. Verify schema integrity
@@ -34,4 +43,4 @@ else
   echo "Skipped: binary not available in this context"
 fi
 
-echo "Migration rollback drill passed."
+echo "Migration apply + idempotency drill passed."

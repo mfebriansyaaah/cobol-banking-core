@@ -78,10 +78,12 @@ statements. The lock is a kernel lock: it releases when the holder exits, so a
 crashed run cannot leave it stale. `flock` is Linux-only; without it the runner
 warns and continues (same as before).
 
-## Restore drill
+## Schema rebuild drill (and migration idempotency)
 
 `scripts/ci/restore_drill.sh` rebuilds `schema.sql` + migrations into an
-isolated schema and checks the table count. Safety properties (P0-1):
+isolated schema and checks the table count. It is deliberately called a
+*schema rebuild* drill, not a restore: no backup file is involved (a real
+backup/restore drill is P1-4). Safety properties (P0-1):
 
 - The target comes **only** from `RESTORE_DRILL_DB` (default
   `cobol_db_restore_drill`). `DB_NAME` is ignored, so exporting
@@ -91,6 +93,11 @@ isolated schema and checks the table count. Safety properties (P0-1):
 
 Covered by `tests/scripts/test_restore_guard.sh`, which runs the drill offline
 against a fake `mysql` and asserts no `DROP` targets `cobol_db`.
+
+`scripts/ci/migration_rollback_drill.sh` is likewise named for what it does:
+a *migration apply + idempotency* drill (applies every migration, re-applies
+to prove idempotency, verifies the table count, smoke-tests the binary). It
+never rolls anything back; a true down-migration rollback drill is P1-4.
 
 ## Orphan cleanup
 

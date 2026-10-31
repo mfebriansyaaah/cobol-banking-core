@@ -151,13 +151,10 @@ jobs:
       - name: Assertion count gate
         run: node scripts/check_test_counts.mjs --report-dir artifacts --strict
 
-      - name: Integration tests
-        run: bash tests/integration/cross_domain.sh
-
-      - name: Migration rollback drill
+      - name: Migration apply + idempotency drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
-      - name: Restore drill
+      - name: Schema rebuild drill
         run: bash scripts/ci/restore_drill.sh
 
       - name: Performance benchmarks
@@ -311,8 +308,8 @@ jobs:
           < database/schema.sql
       - name: Apply migrations
         run: ./database/migrate.sh
-      - name: Migration rollback drill
+      - name: Migration apply + idempotency drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
-      - name: Restore drill
+      - name: Schema rebuild drill
         run: bash scripts/ci/restore_drill.sh

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [--json] [--no-report] [fast|db|full|probes|affected]   (default: full)
+# Usage: tests/run_all.sh [--json] [--no-report] [fast|db|full|probes|affected|integration]   (default: full)
 #   --json       print the report path at the end (artifacts/run-all.json)
 #   --no-report  skip machine-readable reporting (logs only)
 set -euo pipefail
@@ -17,7 +17,7 @@ for _arg in "$@"; do
         --no-report) REPORT_ENABLED=0 ;;
         --help|-h)
             sed -n '2,5p' "$0"
-            echo "Modes: fast db full probes affected"
+            echo "Modes: fast db full probes affected integration"
             exit 0
             ;;
         -*) echo "unknown flag: $_arg (see --help)" >&2; exit 2 ;;
@@ -422,6 +422,49 @@ run_node_selected() {
     return "$node_failed"
 }
 
+# Isolate the DB-backed part of a run from the primary database so suites
+# cannot clobber developer/production data. Opt out with ISOLATED_DB=0
+# (explicit serial run against the current database) or ALLOW_DEV_DB=1
+# (explicit acknowledgement that the developer database may be modified).
+# Without isolation and without ALLOW_DEV_DB=1 the run fails closed.
+# On success exports DB_NAME pointing at the throwaway database and records
+# it in ISOLATED_DB_CREATED for the EXIT trap. Shared by run_db and
+# run_integration (a `full` run isolates once; the second call is a no-op
+# because DB_NAME no longer equals cobol_db). Requires guard.sh sourced.
+ensure_isolated_db() {
+    if [ "${ISOLATED_DB:-1}" = "0" ] || [ "$DB_NAME" != "cobol_db" ]; then
+        return 0
+    fi
+    ISOLATED_DB_NAME="cobol_db_test_$$"
+    DB_HOST="${DB_HOST:-localhost}"
+    DB_PORT="${DB_PORT:-3306}"
+    DB_MIGRATE_USER="${DB_MIGRATE_USER:-cobol_user}"
+    DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-cobol_pass}"
+    if mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" \
+        -e "DROP DATABASE IF EXISTS \`$ISOLATED_DB_NAME\`; CREATE DATABASE \`$ISOLATED_DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null 2>&1 && \
+       mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$ISOLATED_DB_NAME" < database/schema.sql >/dev/null 2>&1; then
+        ISOLATED_OK=1
+        # Apply migrations through migrate.sh, not by replaying every file:
+        # the snapshot already contains the effects of older migrations
+        # (e.g. 0015 cannot be replayed on top of it), and migrate.sh
+        # skips recorded versions and records what it applies.
+        if DB_NAME="$ISOLATED_DB_NAME" database/migrate.sh >/dev/null 2>&1; then
+            :
+        else
+            ISOLATED_OK=0
+        fi
+        if [ "${ISOLATED_OK:-1}" != "0" ]; then
+            export DB_NAME="$ISOLATED_DB_NAME"
+            ISOLATED_DB_CREATED="$ISOLATED_DB_NAME"
+            echo "=== ISOLATED DB: $ISOLATED_DB_NAME ==="
+        else
+            db_require_allow_dev_db "isolation failed (migration error)" || exit 1
+        fi
+    else
+        db_require_allow_dev_db "no DDL rights for isolation" || exit 1
+    fi
+}
+
 run_db() {
     echo "=== TEST HELPER CHECK ==="
     node scripts/check_test_helpers.mjs "$ROOT"
@@ -441,41 +484,7 @@ run_db() {
     trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
     db_lock_acquire || exit 1
     report_init
-    # Isolate the whole DB test run from the primary database so suites cannot
-    # clobber developer/production data. Opt out with ISOLATED_DB=0 (explicit
-    # serial run against the current database) or ALLOW_DEV_DB=1 (explicit
-    # acknowledgement that the developer database may be modified).
-    # Without isolation and without ALLOW_DEV_DB=1 the run fails closed.
-    if [ "${ISOLATED_DB:-1}" != "0" ] && [ "$DB_NAME" = "cobol_db" ]; then
-        ISOLATED_DB_NAME="cobol_db_test_$$"
-        DB_HOST="${DB_HOST:-localhost}"
-        DB_PORT="${DB_PORT:-3306}"
-        DB_MIGRATE_USER="${DB_MIGRATE_USER:-cobol_user}"
-        DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-cobol_pass}"
-        if mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" \
-            -e "DROP DATABASE IF EXISTS \`$ISOLATED_DB_NAME\`; CREATE DATABASE \`$ISOLATED_DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null 2>&1 && \
-           mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$ISOLATED_DB_NAME" < database/schema.sql >/dev/null 2>&1; then
-            ISOLATED_OK=1
-            # Apply migrations through migrate.sh, not by replaying every file:
-            # the snapshot already contains the effects of older migrations
-            # (e.g. 0015 cannot be replayed on top of it), and migrate.sh
-            # skips recorded versions and records what it applies.
-            if DB_NAME="$ISOLATED_DB_NAME" database/migrate.sh >/dev/null 2>&1; then
-                :
-            else
-                ISOLATED_OK=0
-            fi
-            if [ "${ISOLATED_OK:-1}" != "0" ]; then
-                export DB_NAME="$ISOLATED_DB_NAME"
-                ISOLATED_DB_CREATED="$ISOLATED_DB_NAME"
-                echo "=== ISOLATED DB: $ISOLATED_DB_NAME ==="
-            else
-                db_require_allow_dev_db "isolation failed (migration error)" || exit 1
-            fi
-        else
-            db_require_allow_dev_db "no DDL rights for isolation" || exit 1
-        fi
-    fi
+    ensure_isolated_db
     echo "=== DB PRECHECK + SEED (once per run) ==="
     # Check the database once and seed once; every suite inherits
     # DB_VERIFIED=1 / DB_SEEDED=1 and skips its own precheck/seed
@@ -524,6 +533,48 @@ run_db() {
     tests/fuzz/fuzz_inputs.sh
 }
 
+# Cross-domain integration flows (loan -> collection -> payment -> GL ...).
+# Every tests/integration/*.sh runs; a failing flow fails the run. In `full`
+# mode the database is already isolated by run_db and the lock is already
+# held (db_lock_acquire is idempotent); standalone use isolates and locks the
+# same way run_db does.
+run_integration() {
+    echo "=== INTEGRATION FLOWS ==="
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/guard.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/lock.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/report.sh"
+    DB_NAME="${DB_NAME:-cobol_db}"
+    SHARD_DBS=""
+    ISOLATED_DB_CREATED=""
+    trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
+    db_lock_acquire || exit 1
+    report_init
+    ensure_isolated_db
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/db.sh"
+    require_db
+    export DB_VERIFIED=1
+    COBOL_TEST_SERVE=0 db_seed
+    export DB_SEEDED=1
+    local int_failed=0 f
+    for f in tests/integration/*.sh; do
+        [ -f "$f" ] || continue
+        echo "=== INTEGRATION: $(basename "$f") ==="
+        if ! "$f"; then
+            echo "FAIL: $(basename "$f")"
+            int_failed=1
+        fi
+    done
+    if [ "$int_failed" -ne 0 ]; then
+        echo "FAIL: integration flow(s) failed"
+        return 1
+    fi
+    echo "=== INTEGRATION GREEN ==="
+}
+
 run_gateway() {
     echo "=== GATEWAY ENDPOINT SMOKE ==="
     # Route JUnit XMLs into the shared report dir so CI uploads one artifact.
@@ -561,8 +612,12 @@ case "$MODE" in
     full)
         run_fast
         run_db
+        run_integration
         run_error_harness
         run_gateway
+        ;;
+    integration)
+        run_integration
         ;;
     affected)
         # Base ref via SELECT_BASE env or `run_all.sh affected` auto-detect;
@@ -570,7 +625,7 @@ case "$MODE" in
         run_affected
         ;;
     *)
-        echo "unknown mode: $MODE (fast|db|full|probes|affected)" >&2
+        echo "unknown mode: $MODE (fast|db|full|probes|affected|integration)" >&2
         exit 2
         ;;
 esac

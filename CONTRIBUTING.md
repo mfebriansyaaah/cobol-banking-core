@@ -23,10 +23,12 @@ Run the local pre-merge gate before opening or updating a PR:
 bash scripts/ci/premerge.sh
 ```
 
-It runs the static gates, the gate-detection probes, and the fast suite. CI
-runs the full DB, integration, fuzz, rollback, restore, performance, and
-coverage jobs. For the local test database setup, the isolation model, and
-troubleshooting, see [docs/TESTING.md](docs/TESTING.md).
+It runs the static gates and the fast suite by default (probes, docs, and
+the full DB/gateway suite are opt-in via `--probes`, `--docs`, `--full`;
+run with `--help` for details). CI runs the full DB, integration, fuzz,
+migration-apply, schema-rebuild, performance, and coverage jobs. For the local
+test database setup, the isolation model, and troubleshooting, see
+[docs/TESTING.md](docs/TESTING.md).
 
 ## Adding or changing a domain
 
