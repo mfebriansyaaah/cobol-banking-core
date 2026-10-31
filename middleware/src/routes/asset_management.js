@@ -1,4 +1,5 @@
 import { PATTERNS } from '../validation.js';
+// DEPRECATED: IT asset register clone; fixed-asset accounting lives in /fixed-assets/* (fixed_asset_core). Kept for backward compat.
 const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
 const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 const ID = { name: 'id', pattern: PATTERNS.INT, required: true };

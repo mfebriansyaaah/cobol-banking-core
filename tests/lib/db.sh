@@ -143,6 +143,8 @@ db_reset_cost() {
 }
 
 db_reset_fixed_asset() {
+    db_exec "DELETE FROM fixed_asset_disposal;"
+    db_exec "DELETE FROM fixed_asset_depreciation;"
     db_exec "DELETE FROM fixed_asset_audit; DELETE FROM fixed_asset;"
 }
 

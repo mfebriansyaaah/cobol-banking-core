@@ -96,6 +96,7 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 | Tax Withholding | Done (pilot) | `tax_management_core` (rule engine + calc/post/reverse/report); legacy `tax_withholding`, `tax_item` deprecated |
 | Chargeback | Done (pilot) | `chargeback_core` (open/assign/evidence/represent/accept/reject/arbitrate/close + hold/release/debit ledger); generic `chargeback` write paths + `dispute_management` deprecated |
 | Payroll | Done (pilot) | `payroll_processing_core` (validate/approve/process/pay/close + tax rule + balance + GL/payment links); generic CREATE/CALC/UPDATE/DELETE kept for compat |
+| Fixed Asset | Done (pilot) | `fixed_asset_core` (capitalize/depreciate/revalue/dispose + GL link + audit); generic CREATE/CALC/UPDATE/DELETE kept for compat, `asset_management` deprecated |
 
 ### Status details
 
@@ -141,11 +142,11 @@ suites, table cases, and the action/suite inventory gates. See
 |---|---:|
 | COBOL modules | **604** |
 | COBOL source files (incl. dispatcher) | **605** |
-| COBOL lines | **417,557** |
+| COBOL lines | **418,033** |
 | Gateway route files | **599** |
-| Gateway route definitions | **5,407** |
+| Gateway route definitions | **5,415** |
 | Dispatch entries | **682** |
-| Recorded migrations | **651** |
+| Recorded migrations | **654** |
 | Tables in schema.sql | **478** |
 <!-- END GENERATED STATS -->
 
