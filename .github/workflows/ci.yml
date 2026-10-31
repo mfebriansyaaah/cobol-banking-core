@@ -148,6 +148,9 @@ jobs:
       - name: Run full test gate
         run: tests/run_all.sh full
 
+      - name: Assertion count gate
+        run: node scripts/check_test_counts.mjs --report-dir artifacts --strict
+
       - name: Integration tests
         run: bash tests/integration/cross_domain.sh
 
