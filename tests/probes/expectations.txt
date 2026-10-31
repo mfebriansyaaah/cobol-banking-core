@@ -41,3 +41,8 @@ p5b_swapped_bind_slots=missed
 # A DB suite deleted outright. check_suite_coverage compares the directory
 # against tests/baseline_counts.txt, so the inventory cannot shrink silently.
 p6_deleted_db_suite=detected
+
+# Five assertions removed from a suite that still exits 0. check_test_counts
+# compares static assertion counts against the baseline, so a shrinking
+# denominator is detected even though the runner stays green.
+p7_missing_assertion=detected

@@ -18,8 +18,9 @@ p4_action_without_cobol_handler            detected   detected   action_coverage
 p5_dead_bind_slot                          detected   detected   bind_slots
 p5b_swapped_bind_slots                     missed     missed     none
 p6_deleted_db_suite                        detected   detected   suite_coverage
+p7_missing_assertion                       detected   detected   test_counts
 
-probes: 8 | detected: 7 | missed: 1
+probes: 9 | detected: 8 | missed: 1
 OK: every probe matched its recorded expectation
 ```
 
@@ -59,6 +60,7 @@ The harness runs the static layer only:
 - `route_auth` — `scripts/check_route_auth.mjs`, per-route `tokenIdentity`
 - `bind_slots` — `scripts/check_bind_slots.mjs`, passed bind slots are 1..k
 - `suite_coverage` — `scripts/check_suite_coverage.mjs`, DB inventory match
+- `test_counts` — `scripts/check_test_counts.mjs --static`, assertion counts match the baseline
 
 No build, no database, no gateway. A defect that only a runtime suite would
 catch is reported as `missed` here, which is the honest answer for this layer.
