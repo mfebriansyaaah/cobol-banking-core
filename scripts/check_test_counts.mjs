@@ -96,29 +96,33 @@ function keyForDbFile(file) {
 function loadRuntime() {
   const tsvPath = path.join(reportDir, 'report.tsv');
   const rows = new Map(); // key -> totals[]
-  if (!existsSync(tsvPath)) return { rows, gateway: null, missing: `missing ${tsvPath}` };
-  const lines = readFileSync(tsvPath, 'utf8').split('\n').filter((l) => l.trim() !== '');
-  if (!lines.length || lines[0].split('\t').join(',') !== 'suite,status,pass,fail,total,duration_ms,shard') {
-    return { rows, gateway: null, missing: `${tsvPath} has an unexpected header` };
-  }
-  for (const line of lines.slice(1)) {
-    const cols = line.split('\t');
-    if (cols.length !== 7) return { rows, gateway: null, missing: `malformed row: ${line}` };
-    const [suite, status, pass, fail, total] = cols;
-    const nums = [pass, fail, total].map((v) => Number.parseInt(v, 10));
-    if (nums.some((n) => !Number.isFinite(n) || n < 0)) {
-      return { rows, gateway: null, missing: `non-numeric counters in row: ${line}` };
+  let missing = null;
+  if (!existsSync(tsvPath)) {
+    missing = `missing ${tsvPath}`;
+  } else {
+    const lines = readFileSync(tsvPath, 'utf8').split('\n').filter((l) => l.trim() !== '');
+    if (!lines.length || lines[0].split('\t').join(',') !== 'suite,status,pass,fail,total,duration_ms,shard') {
+      return { rows, gateway: null, missing: `${tsvPath} has an unexpected header` };
     }
-    let key = null;
-    if (suite === 'table_runner.sh') key = 'cobol_table_tests';
-    else if (suite === 'smoke' || KNOWN_UNTRACKED.has(suite)) continue;
-    else if (suite === 'schema_tests.sh') key = 'db_schema_tests';
-    else {
-      const m = suite.match(/^(.+)_db_tests\.sh$/);
-      key = m ? `db_${m[1]}_tests` : suite;
+    for (const line of lines.slice(1)) {
+      const cols = line.split('\t');
+      if (cols.length !== 7) return { rows, gateway: null, missing: `malformed row: ${line}` };
+      const [suite, status, pass, fail, total] = cols;
+      const nums = [pass, fail, total].map((v) => Number.parseInt(v, 10));
+      if (nums.some((n) => !Number.isFinite(n) || n < 0)) {
+        return { rows, gateway: null, missing: `non-numeric counters in row: ${line}` };
+      }
+      let key = null;
+      if (suite === 'table_runner.sh') key = 'cobol_table_tests';
+      else if (suite === 'smoke' || KNOWN_UNTRACKED.has(suite)) continue;
+      else if (suite === 'schema_tests.sh') key = 'db_schema_tests';
+      else {
+        const m = suite.match(/^(.+)_db_tests\.sh$/);
+        key = m ? `db_${m[1]}_tests` : suite;
+      }
+      if (!rows.has(key)) rows.set(key, []);
+      rows.get(key).push({ total: nums[2], status, file: suite });
     }
-    if (!rows.has(key)) rows.set(key, []);
-    rows.get(key).push({ total: nums[2], status, file: suite });
   }
   // gateway_tests from JUnit XMLs (Node junit: bare testcases; tap converter: testsuite attrs).
   let gateway = null;
@@ -146,7 +150,7 @@ function loadRuntime() {
     }
     if (files > 0) gateway = tests;
   }
-  return { rows, gateway, missing: null };
+  return { rows, gateway, missing };
 }
 
 // ---- static data (file contents, no execution) ----

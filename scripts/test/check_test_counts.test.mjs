@@ -127,6 +127,26 @@ test('--write updates drifted values and adds new keys', () => {
   run(d, ['--strict']);
 });
 
+test('gateway without JUnit passes without --strict, fails with it', () => {
+  const d = makeRoot({ baseline: BASE, tsvRows: TSV, junit: null });
+  const out = run(d, []);
+  assert.match(out, /OK: 3 suite key/);
+  assert.match(runFail(d, ['--strict']), /gateway_tests \(baseline 4/);
+});
+
+test('missing report.tsv fails closed', () => {
+  const d = makeRoot({ baseline: BASE, tsvRows: null, junit: null });
+  assert.match(runFail(d, []), /missing .*report\.tsv/);
+});
+
+test('--write updates gateway_tests from JUnit alone', () => {
+  const gd = makeRoot({ baseline: BASE, tsvRows: null, junit: JUNIT });
+  run(gd, ['--write']);
+  const content = readFileSync(path.join(gd, 'tests', 'baseline_counts.txt'), 'utf8');
+  assert.match(content, /^gateway_tests=4$/m);
+  assert.match(content, /^db_account_tests=13$/m);
+});
+
 test('--write keeps keys missing from this run', () => {
   const short = TSV.filter((r) => !r.startsWith('schema_tests'));
   const d = makeRoot({ baseline: BASE, tsvRows: short, junit: JUNIT });
