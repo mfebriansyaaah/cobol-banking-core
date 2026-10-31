@@ -46,7 +46,7 @@ if [ ! -f "$EXPECT_FILE" ]; then
     exit 2
 fi
 
-GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard route_auth bind_slots suite_coverage test_counts)
+GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard route_auth bind_slots suite_coverage test_counts field_order)
 
 # --- gates under test -------------------------------------------------------
 # Each returns 0 when it believes the code is fine, non-zero when it refuses.
@@ -64,6 +64,7 @@ gate_test_helpers() { node scripts/check_test_helpers.mjs . >/dev/null 2>&1; }
 gate_route_auth() { node scripts/check_route_auth.mjs . >/dev/null 2>&1; }
 gate_bind_slots() { node scripts/check_bind_slots.mjs . >/dev/null 2>&1; }
 gate_suite_coverage() { node scripts/check_suite_coverage.mjs . >/dev/null 2>&1; }
+gate_field_order() { node scripts/check_field_order.mjs . >/dev/null 2>&1; }
 gate_test_counts() { node scripts/check_test_counts.mjs --static . >/dev/null 2>&1; }
 
 # Same check as scripts/ci/sast.sh: one route file must mention tokenIdentity
@@ -212,6 +213,22 @@ mut_p7_missing_assertion() {
         -e '/ACC_SUMMARY ok/d' -e '/ACC_AUDIT ok/d' tests/db/account_db_tests.sh
 }
 
+# Two field names swap order in one route (status <-> type). The route still
+# registers, still authorizes, still validates; only the positional mapping to
+# COBOL shifts, so only the field-order gate notices.
+mut_p8_field_order_drift() {
+    node <<'EOF'
+const fs = require('fs');
+const p = 'middleware/src/routes/account.js';
+let s = fs.readFileSync(p, 'utf8');
+const a = "{ name: 'status', pattern: PATTERNS.CODE";
+const b = "{ name: 'type', pattern: PATTERNS.NAME";
+if (!s.includes(a) || !s.includes(b)) throw new Error('anchors not found');
+s = s.replace(a, '__TMP__').replace(b, a).replace('__TMP__', b);
+fs.writeFileSync(p, s);
+EOF
+}
+
 # --- runner -----------------------------------------------------------------
 
 PROBES=(
@@ -224,6 +241,7 @@ PROBES=(
     p5b_swapped_bind_slots
     p6_deleted_db_suite
     p7_missing_assertion
+    p8_field_order_drift
 )
 
 declare -A EXPECTED=()
