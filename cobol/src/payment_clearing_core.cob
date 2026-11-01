@@ -57,6 +57,9 @@
         01  WS-NUM-POSTED           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-SETTLED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
+        01  WS-IDEM-AMOUNT          PIC 9(15)V9(4) VALUE 0.
+        01  WS-IDEM-CLEARING        PIC X(20) VALUE SPACES.
+        01  WS-IDEM-ACTION          PIC X(20) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -299,6 +302,59 @@
             MOVE FUNCTION NUMVAL(WS-TMP-SETTLED) TO WS-NUM-SETTLED
             EXIT PARAGRAPH.
 
+        CHECK-IDEMPOTENCY.
+            *> Caller sets WS-IDEM-ACTION and WS-TMP-AMT. A successful insert
+            *> reserves the key inside the transaction; a duplicate re-reads
+            *> the original effect. WS-ERR = "REPLAY" means return success
+            *> without applying the operation again.
+            MOVE SPACES TO WS-ERR
+            IF WS-P3-TRIMMED = SPACES
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-P6-TRIMMED TO WS-BIND-1
+            MOVE WS-IDEM-ACTION TO WS-BIND-2
+            MOVE WS-P3-TRIMMED TO WS-BIND-3
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            MOVE WS-TMP-AMT TO WS-BIND-5
+            MOVE "INSERT INTO payment_clearing_idempotency (actor_email, action, idem_key, clearing_id, amount) VALUES (?, ?, ?, ?, ?)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:22) = "ERROR|EXEC_FAILED|1062"
+                MOVE "SELECT CAST(clearing_id AS CHAR), CAST(amount AS CHAR) FROM payment_clearing_idempotency WHERE actor_email = ? AND action = ? AND idem_key = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-P6-TRIMMED TO WS-BIND-1
+                MOVE WS-IDEM-ACTION TO WS-BIND-2
+                MOVE WS-P3-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO WS-ERR
+                ELSE
+                    MOVE SPACES TO WS-IDEM-CLEARING
+                    MOVE SPACES TO WS-TMP-STR
+                    UNSTRING WS-RESULT DELIMITED BY "|"
+                        INTO WS-IDEM-CLEARING WS-TMP-STR
+                    END-UNSTRING
+                    MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-IDEM-AMOUNT
+                    IF WS-IDEM-CLEARING = WS-P1-TRIMMED(1:20)
+                       AND WS-IDEM-AMOUNT = WS-NUM-AMOUNT
+                        MOVE "REPLAY" TO WS-ERR
+                    ELSE
+                        MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                    END-IF
+                END-IF
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO WS-ERR
+                END-IF
+            END-IF
+            EXIT PARAGRAPH.
+
         ACTION-CREATE.
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
@@ -475,10 +531,6 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:6) NOT = "OPEN" AND WS-TMP-STATUS(1:6) NOT = "POSTED"
-                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
             IF WS-P2-TRIMMED = SPACES
                 COMPUTE WS-NUM-AMOUNT = WS-NUM-TOTAL - WS-NUM-POSTED END-COMPUTE
             ELSE
@@ -488,12 +540,6 @@
                 MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-NUM-POSTED + WS-NUM-AMOUNT > WS-NUM-TOTAL
-                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
-            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
             PERFORM LOCK-CLEARING
@@ -502,8 +548,27 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-TOTAL - WS-NUM-POSTED END-COMPUTE
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            MOVE "POST" TO WS-IDEM-ACTION
+            PERFORM CHECK-IDEMPOTENCY
+            IF WS-ERR = "REPLAY"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|PMC_POST|" DELIMITED BY SIZE
+                       FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-ERR NOT = SPACES
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             IF WS-TMP-STATUS(1:6) NOT = "OPEN" AND WS-TMP-STATUS(1:6) NOT = "POSTED"
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
@@ -557,14 +622,6 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:9) = "CANCELLED" OR WS-TMP-STATUS(1:7) = "SETTLED"
-                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF WS-NUM-POSTED <= WS-NUM-SETTLED
-                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
             IF WS-P2-TRIMMED = SPACES
                 COMPUTE WS-NUM-AMOUNT = WS-NUM-POSTED - WS-NUM-SETTLED END-COMPUTE
             ELSE
@@ -574,12 +631,6 @@
                 MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-NUM-SETTLED + WS-NUM-AMOUNT > WS-NUM-POSTED
-                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
-            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
             PERFORM LOCK-CLEARING
@@ -588,8 +639,27 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            IF WS-P2-TRIMMED = SPACES
+                COMPUTE WS-NUM-AMOUNT = WS-NUM-POSTED - WS-NUM-SETTLED END-COMPUTE
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            MOVE "SETTLE" TO WS-IDEM-ACTION
+            PERFORM CHECK-IDEMPOTENCY
+            IF WS-ERR = "REPLAY"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|PMC_SETTLE|" DELIMITED BY SIZE
+                       FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-ERR NOT = SPACES
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
             IF WS-TMP-STATUS(1:7) = "SETTLED" OR WS-TMP-STATUS(1:9) = "CANCELLED"
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
