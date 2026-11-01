@@ -37634,7 +37634,7 @@
     "stepUp": false
   },
   "loan.js :: GET /loans": {
-    "action": "LOAN_LIST",
+    "action": "LOAN_APP_LIST",
     "fields": [
       "status",
       "limit",
@@ -37647,7 +37647,7 @@
     "stepUp": false
   },
   "loan.js :: GET /loans/:id": {
-    "action": "LOAN_GET",
+    "action": "LOAN_APP_GET",
     "fields": [
       "id",
       "BLANK",
@@ -37660,7 +37660,7 @@
     "stepUp": false
   },
   "loan.js :: GET /loans/summary": {
-    "action": "LOAN_SUMMARY",
+    "action": "LOAN_APP_SUMMARY",
     "fields": [
       "BLANK",
       "BLANK",
