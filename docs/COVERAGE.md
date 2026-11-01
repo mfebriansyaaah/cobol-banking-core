@@ -118,6 +118,16 @@ from going unnoticed, raising it is separate work.
   measurement with a MariaDB service and uploads the report. It can also be
   started manually with `workflow_dispatch`.
 
+### Toolchain
+
+Ubuntu 24.04's apt `gnucobol` (3.1.2) does not know `cobc --coverage`, which
+the curated measurement requires (both coverage jobs failed on it before).
+Both jobs therefore build GnuCOBOL 3.2 from the official tarball via
+`scripts/ci/install_gnucobol.sh` (pinned SHA-256, CFLAGS for modern GCC,
+idempotent) and cache `~/.local/gnucobol` between runs. The normal build, the
+instrumented build, and the measured binary all use that toolchain; other
+jobs keep using apt.
+
 ## Limits
 
 - The COBOL number is a **curated-core subset**, not the whole tree.
