@@ -593,6 +593,7 @@ test('password reset and change over HTTP', async () => {
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const first = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const oldToken = first.body.token;
+  const oldRefresh = first.body.refreshToken;
 
   const forgot = await request(app).post('/auth/forgot').send({ email: em });
   assert.equal(forgot.status, 200);
@@ -604,18 +605,22 @@ test('password reset and change over HTTP', async () => {
   assert.equal(reset.status, 200);
   assert.deepEqual(reset.body.data, ['PASSWORD_RESET']);
 
-  // Reset revoked the sessions: the old access token no longer works.
+  // Reset revoked the sessions: the old access token and refresh token no
+  // longer work.
   assert.equal((await request(app).get(`/users/${em}`).set('Authorization', `Bearer ${oldToken}`)).status, 401);
+  assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: oldRefresh })).status, 401);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 401);
 
   const second = await request(app).post('/auth/login').send({ email: em, password: 'reset1234' });
   assert.equal(second.status, 200);
+  const secondRefresh = second.body.refreshToken;
   const changed = await request(app)
     .post('/profile/password')
     .set('Authorization', `Bearer ${second.body.token}`)
     .send({ email: em, currentPassword: 'reset1234', newPassword: 'final1234' });
   assert.equal(changed.status, 200);
   assert.deepEqual(changed.body.data, ['PASSWORD_CHANGED']);
+  assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: secondRefresh })).status, 401);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'final1234' })).status, 200);
 });
 
