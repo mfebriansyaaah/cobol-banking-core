@@ -26,7 +26,12 @@ middleware/node_modules/
 
 # Coverage reports
 coverage/
+# ...but not the coverage tooling itself
+!scripts/coverage/
 
 # Machine-readable test reports (tests/lib/report.sh, JUnit, JSON summaries)
 artifacts/
 middleware/test-results/
+
+# Python bytecode caches
+__pycache__/

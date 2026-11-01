@@ -313,3 +313,149 @@ jobs:
 
       - name: Schema rebuild drill
         run: bash scripts/ci/restore_drill.sh
+  coverage-pr:
+    name: coverage-pr
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_USER: cobol_user
+      DB_PASS: cobol_pass
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+      SKIP_BUILD: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # --changed diffs against origin/main; a shallow checkout has no base.
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+
+      - name: Restore GnuCOBOL toolchain
+        id: gnucobol-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/gnucobol
+          # Bump the trailing v1 when scripts/ci/install_gnucobol.sh changes
+          # its configure flags (a different build must not reuse this cache).
+          key: gnucobol-3.2-${{ runner.os }}-v1
+
+      - name: Install GnuCOBOL 3.2 (with --coverage)
+        # Idempotent: exits in seconds when the cache hit. The apt gnucobol
+        # (3.1.2) cannot do --coverage, so the coverage jobs must not use it.
+        run: bash scripts/ci/install_gnucobol.sh
+
+      - name: Expose GnuCOBOL toolchain
+        run: |
+          echo "$HOME/.local/gnucobol/bin" >> "$GITHUB_PATH"
+          echo "LD_LIBRARY_PATH=$HOME/.local/gnucobol/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: middleware/package-lock.json
+
+      - name: Install gateway dependencies
+        run: npm ci --prefix middleware
+
+      - name: Load baseline schema
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
+          < database/schema.sql
+
+      - name: Apply migrations
+        run: ./database/migrate.sh
+
+      - name: Seed test data
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_USER" -p"$DB_PASS" "$DB_NAME"
+          < database/seed_test_data.sql
+
+      - name: Curated COBOL coverage (impact-selected)
+        run: bash scripts/ci/coverage.sh --cobol-only --changed origin/main --json
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ ! -f coverage/summary.json ]; then
+            echo "no coverage/summary.json (measurement skipped or failed early)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node -e '
+            const fs = require("fs");
+            const summary = JSON.parse(fs.readFileSync("coverage/summary.json", "utf8"));
+            const base = {};
+            for (const line of fs.readFileSync("tests/coverage_baseline.txt", "utf8").split("\n")) {
+              const t = line.trim();
+              if (!t || t.startsWith("#")) continue;
+              const [k, v] = t.split(/\s+/);
+              base[k] = Number(v);
+            }
+            const rows = JSON.parse(fs.readFileSync("coverage/cobol.json", "utf8")).modules;
+            const modBase = new Map();
+            for (const line of fs.readFileSync("tests/coverage_module_baseline.txt", "utf8").split("\n")) {
+              const t = line.trim();
+              if (!t || t.startsWith("#")) continue;
+              const [m, v] = t.split(/\s+/);
+              modBase.set(m, Number(v));
+            }
+            const dropped = rows
+              .filter((r) => modBase.has(r.module) && r.percent < modBase.get(r.module) - 1.0)
+              .sort((a, b) => (a.percent - modBase.get(a.module)) - (b.percent - modBase.get(b.module)));
+            const d = (v, b) => `${v.toFixed(2)}% (baseline ${b.toFixed(2)}%, ${v - b >= 0 ? "+" : ""}${(v - b).toFixed(2)}pp)`;
+            const out = ["## Coverage (curated COBOL + gateway)", "",
+              "| Suite | Measured | Baseline |", "|---|---|---|",
+              `| COBOL curated | ${summary.cobol.percent.toFixed(2)}% covered of ${summary.cobol.executable} lines | ${d(summary.cobol.percent, base.cobol_total)} / floor 30% |`,
+              `| gateway lines | ${summary.gateway.lines.toFixed(2)}% | floor 80%, baseline ${base.gateway_lines}% |`,
+              `| gateway branches | ${summary.gateway.branches.toFixed(2)}% | floor 70%, baseline ${base.gateway_branches}% |`, ""];
+            if (dropped.length) {
+              out.push("Modules below baseline (>1pp):");
+              for (const r of dropped) out.push(`- ${r.module}: ${r.percent}% vs ${modBase.get(r.module)}%`);
+              out.push("");
+            } else {
+              out.push("No curated module dropped below its baseline.", "");
+            }
+            out.push("Full report: see the `coverage-pr` artifact on this run.");
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out.join("\n") + "\n");
+          '
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-pr
+          path: coverage/
+          if-no-files-found: warn

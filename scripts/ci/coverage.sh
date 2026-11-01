@@ -19,6 +19,10 @@
 #   scripts/ci/coverage.sh --cobol-only    # COBOL only (still runs the gateway
 #                                          # suite to exercise core actions)
 #   scripts/ci/coverage.sh --json          # write coverage/summary.json
+#   scripts/ci/coverage.sh --cobol-only --changed [BASE]
+#                                          # measure only when the change set
+#                                          # touches curated COBOL inputs
+#                                          # (default base: origin/main)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -26,13 +30,73 @@ cd "$ROOT"
 
 MODE=both
 JSON=0
-for arg in "$@"; do
+CHANGED=""
+
+# Resolve the diff base for --changed: explicit ref, origin/main, or HEAD~1.
+resolve_changed_base() {
+    local explicit="$1"
+    if [ -n "$explicit" ]; then
+        git -C "$ROOT" rev-parse --verify --quiet "$explicit" >/dev/null 2>&1 || {
+            echo "FAIL coverage: unknown base ref: $explicit" >&2
+            exit 2
+        }
+        printf '%s' "$explicit"
+        return 0
+    fi
+    if git -C "$ROOT" rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
+        printf 'origin/main'
+    elif git -C "$ROOT" rev-parse --verify --quiet HEAD~1 >/dev/null 2>&1; then
+        printf 'HEAD~1'
+    else
+        printf ''
+    fi
+}
+
+# True when the change set touches anything the curated COBOL measurement
+# depends on: curated modules, shared COBOL inputs, the build, the database
+# surface, the exercised suites/cases, or the measurement scripts themselves.
+# Gateway-only changes are deliberately excluded: they cannot lower COBOL
+# line counts (the same suites run against the same binary), so the cheap
+# gateway-only gate stays sufficient for them.
+# Anything else (docs, other domains) likewise skips the instrumented build.
+coverage_triggered() {
+    local base="$1" f
+    local changed
+    changed="$(git -C "$ROOT" diff --name-only "$base"...HEAD 2>/dev/null)" || return 0
+    changed="$changed
+$(git -C "$ROOT" ls-files --others --exclude-standard 2>/dev/null)"
+    [ -n "$(printf '%s' "$changed" | tr -d '[:space:]')" ] || return 1
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        case "$f" in
+            cobol/src/*_core.cob|cobol/copy/*|cobol/c_lib/*|cobol/src/*.[ch]|build.sh|cobol/Makefile|database/*|tests/cobol/cases/*|tests/cobol/table_runner.sh|tests/db/*|scripts/ci/coverage.sh|scripts/coverage/*|tests/coverage_*)
+                return 0
+                ;;
+        esac
+    done <<EOF
+$changed
+EOF
+    return 1
+}
+
+while [ $# -gt 0 ]; do
+    arg="$1"
+    shift
     case "$arg" in
         --gateway-only) MODE=gateway ;;
         --cobol-only) MODE=cobol ;;
         --json) JSON=1 ;;
+        --changed)
+            # Optional explicit base as the next word (--changed origin/main);
+            # bare --changed resolves the base automatically.
+            case "${1:-}" in
+                --*|'') CHANGED="auto" ;;
+                *) CHANGED="$1"; shift ;;
+            esac
+            ;;
+        --changed=*) CHANGED="${arg#--changed=}" ;;
         -h|--help)
-            sed -n '2,28p' "$0"
+            sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d'
             exit 0
             ;;
         *)
@@ -47,6 +111,24 @@ BASELINE="$ROOT/tests/coverage_baseline.txt"
 FLOOR=30
 TOLERANCE=1.0
 mkdir -p "$COVERAGE_DIR"
+
+# Impact-selected measurement (Fase 5 follow-up): with --changed, skip the
+# instrumented build entirely unless the change set touches curated inputs.
+if [ -n "$CHANGED" ]; then
+    if [ "$CHANGED" = "auto" ]; then
+        CHANGED="$(resolve_changed_base '')"
+    else
+        CHANGED="$(resolve_changed_base "$CHANGED")"
+    fi
+    if [ -z "$CHANGED" ]; then
+        echo "=== COBOL COVERAGE: no git base available; measuring (cannot tell what changed) ===" >&2
+    elif coverage_triggered "$CHANGED"; then
+        echo "=== COBOL COVERAGE: change set touches curated inputs ($CHANGED...HEAD); measuring ===" >&2
+    else
+        echo "=== COBOL COVERAGE SKIPPED: no curated inputs changed ($CHANGED...HEAD) ===" >&2
+        exit 0
+    fi
+fi
 
 # Curated money-path/core modules measured for COBOL line coverage.
 CURATED=(
@@ -68,9 +150,9 @@ SUITES=(
     sanctions_list_db_tests fraud_case_db_tests gl_allocation_db_tests
     gl_master_db_tests fee_management_db_tests account_db_tests
     customer_db_tests cost_center_db_tests fixed_asset_db_tests
-    interest_rate_db_tests product_catalog_db_tests report_builder_db_tests
-    reporting_db_tests notification_template_db_tests statement_item_db_tests
-    account_statement_db_tests
+    fixed_asset_domain_db_tests interest_rate_db_tests product_catalog_db_tests
+    report_builder_db_tests reporting_db_tests notification_template_db_tests
+    statement_item_db_tests account_statement_db_tests
 )
 
 baseline() {
@@ -248,87 +330,15 @@ fi
 
 echo "== mapping COBOL coverage ==" >&2
 COBOL_JSON="$COVERAGE_DIR/cobol.json"
-python3 - "$WORK" "$COVERAGE_DIR" "${CURATED[@]}" >"$COVERAGE_DIR/cobol.txt" <<'PY'
-import json, os, re, subprocess, sys
-work = sys.argv[1]
-coverage_dir = sys.argv[2]
-modules = sys.argv[3:]
-MARKER = re.compile(r'/\* Line:\s*(\d+)\s*:')
-COUNT = re.compile(r'^\s*([0-9]+|#####|=====|-):\s*(\d+):')
-
-def recorded_source(gcno):
-    out = subprocess.run(['strings', gcno], capture_output=True, text=True).stdout
-    for line in out.splitlines():
-        if line.startswith('/tmp/') and line.endswith('.c'):
-            return line
-    return None
-
-def load_counts(path):
-    counts = {}
-    with open(path, errors='replace') as f:
-        for line in f:
-            m = COUNT.match(line)
-            if not m:
-                continue
-            tag, lineno = m.group(1), int(m.group(2))
-            if tag == '-':
-                continue
-            counts[lineno] = 0 if tag in ('#####', '=====') else int(tag)
-    return counts
-
-total_exec = total_hit = 0
-rows = []
-for module in modules:
-    csrc = os.path.join(work, module + '.c')
-    gcno = os.path.join(work, module + '.gcno')
-    if not (os.path.exists(csrc) and os.path.exists(gcno)):
-        rows.append({'module': module, 'executable': 0, 'covered': 0, 'percent': 0.0})
-        continue
-    src_path = recorded_source(gcno)
-    if not src_path:
-        rows.append({'module': module, 'executable': 0, 'covered': 0, 'percent': 0.0})
-        continue
-    subprocess.run(['cp', csrc, src_path], check=False)
-    gcov_file = os.path.join(work, os.path.basename(src_path) + '.gcov')
-    if os.path.exists(gcov_file):
-        os.remove(gcov_file)
-    subprocess.run(['gcov', module + '.gcno'], cwd=work, capture_output=True, text=True)
-    if not os.path.exists(gcov_file):
-        rows.append({'module': module, 'executable': 0, 'covered': 0, 'percent': 0.0})
-        continue
-    counts = load_counts(gcov_file)
-    lines = open(csrc, errors='replace').readlines()
-    current = None
-    exec_lines = set()
-    hit_lines = set()
-    for i, line in enumerate(lines, start=1):
-        m = MARKER.search(line)
-        if m:
-            current = int(m.group(1))
-            continue
-        if current is None or i not in counts:
-            continue
-        exec_lines.add(current)
-        if counts[i] > 0:
-            hit_lines.add(current)
-    e = len(exec_lines)
-    h = len(hit_lines)
-    total_exec += e
-    total_hit += h
-    rows.append({'module': module, 'executable': e, 'covered': h, 'percent': round(100.0 * h / e, 2) if e else 0.0})
-
-overall = round(100.0 * total_hit / total_exec, 2) if total_exec else 0.0
-print('COBOL curated line coverage (mapped from generated C):')
-for r in sorted(rows, key=lambda x: (-x['percent'], x['module'])):
-    print(f"  {r['module']:<28} {r['covered']:>6}/{r['executable']:<6} {r['percent']:>6.2f}%")
-print(f"  {'TOTAL':<28} {total_hit:>6}/{total_exec:<6} {overall:>6.2f}%")
-with open(os.path.join(coverage_dir, 'cobol.json'), 'w') as f:
-    json.dump({'modules': rows, 'executable': total_exec, 'covered': total_hit, 'percent': overall}, f)
-PY
+python3 "$ROOT/scripts/coverage/map_cobol.py" "$WORK" "$COVERAGE_DIR" "${CURATED[@]}" \
+    --cobertura "$COVERAGE_DIR/cobol-cobertura.xml" >"$COVERAGE_DIR/cobol.txt"
 COBOL_JSON_FILE="$COVERAGE_DIR/cobol.json"
 COBOL_TOTAL=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["percent"])' "$COBOL_JSON_FILE")
 
 check_value cobol-total "$COBOL_TOTAL" "$FLOOR" "$(baseline cobol_total)" || SUITE_FAILED=1
+# Per-module ratchet: no curated module may quietly collapse while the total
+# still looks fine. Baseline lives in tests/coverage_module_baseline.txt.
+node "$ROOT/scripts/check_coverage_modules.mjs" --json "$COBOL_JSON_FILE" || SUITE_FAILED=1
 if [ "$GW_RC" -eq 0 ]; then
     check_value gateway-lines "$GATEWAY_LINES" 80 "$(baseline gateway_lines)" || SUITE_FAILED=1
     check_value gateway-branches "$GATEWAY_BRANCHES" 70 "$(baseline gateway_branches)" || SUITE_FAILED=1

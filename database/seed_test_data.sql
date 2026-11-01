@@ -14,6 +14,12 @@ INSERT IGNORE INTO users (id, email, password_hash, full_name, dob, status, role
 INSERT IGNORE INTO currencies (currency_id, iso_code, symbol, prec_val) VALUES 
 (1, 'USD', '$', 2);
 
+-- Seed the current GL period OPEN (schema.sql only seeds the month the
+-- database was created in; without this, posting into the current month
+-- fails with PERIOD_NOT_OPEN on databases created in a previous month).
+INSERT IGNORE INTO gl_period (period_code, status)
+VALUES (DATE_FORMAT(CURDATE(), '%Y-%m'), 'OPEN');
+
 -- Seed Exchange Rates (base -> target), for cross-currency transfers
 INSERT IGNORE INTO exchange_rates (base_currency_id, target_currency_id, exchange_rate) VALUES
 (1, 2, 0.92),     -- USD -> EUR

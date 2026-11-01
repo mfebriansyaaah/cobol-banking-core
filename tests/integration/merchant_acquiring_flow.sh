@@ -21,6 +21,13 @@ ADMIN="mchint@test.com"
 db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('$ADMIN', CONCAT('SHA256_',SHA2('secret123',256)), 'Mch Int', '1990-01-01', 'VERIFIED', 'SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';"
 
 echo "=== Merchant acquiring integration ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
+
+# Settlement period must contain TODAY (see the same comment in
+# tests/db/merchant_settlement_domain_db_tests.sh): txns capture NOW().
+PERIOD_START="$(date +%Y-%m-01)"
+PERIOD_END="$(date -d "$PERIOD_START +1 month -1 day" +%F)"
 
 OUT=$(run_cobol "MRT_CREATE|MCH-INT-1|Toko Int|RETAIL|||$ADMIN")
 assert_match "create" "$OUT" "SUCCESS\|MRT_CREATE"
@@ -35,14 +42,14 @@ assert_match "activate" "$(run_cobol "MRT_ACTIVATE|${MID}|${ACC}||||$ADMIN")" "S
 assert_match "txn1" "$(run_cobol "MCS_TXN|${MID}|TXN-INT-1|100000|IDR|PMC-I1|$ADMIN")" "SUCCESS\|MCS_TXN"
 assert_match "txn2" "$(run_cobol "MCS_TXN|${MID}|TXN-INT-2|200000|IDR||$ADMIN")" "SUCCESS\|MCS_TXN"
 
-OP=$(run_cobol "MCS_OPEN|${MID}|STL-INT-1|2026-10-01|2026-10-31|IDR|$ADMIN")
+OP=$(run_cobol "MCS_OPEN|${MID}|STL-INT-1|${PERIOD_START}|${PERIOD_END}|IDR|$ADMIN")
 assert_match "open" "$OP" "SUCCESS\|MCS_OPEN"
 SID=$(printf '%s' "$OP" | awk -F'|' '{print $3}')
 assert_match "calc" "$(run_cobol "MCS_CALC|${SID}|||||$ADMIN")" "SUCCESS\|MCS_CALC"
 
 # GL: net = (100000-2500) + (200000-4500) = 293000.
 # debit settlement clearing (5000 expense), credit merchant payable (1100).
-GL_OUT=$(run_cobol "GL_JOURNAL_POST|2026-10-30|Merchant STL-INT-1|5000|1100|IDR:293000|$ADMIN")
+GL_OUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Merchant STL-INT-1|5000|1100|IDR:293000|$ADMIN")
 assert_match "gl posted" "$GL_OUT" "SUCCESS\|GL_POSTED"
 GJID=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "gl balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount) AND SUM(debit_amount)>0,'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=${GJID};")" "^BALANCED$"
