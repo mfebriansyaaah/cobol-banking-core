@@ -53,6 +53,10 @@ Every domain module exposes these actions (prefix + action):
 - Admin-only actions call `ALLOW-ADMIN` / `ALLOW-SUPER-ADMIN`.
 - Keep `WS-PREP-SQL` ≤ 1024 chars (bridge buffer limit) and params ≤ 6 (7 for EXEC7).
 - Add the module to `build.sh`, regenerate the manifest, and add tests + warning baseline entry.
+- Every new gateway action must be invoked by at least one shell-level test
+  (`run_cobol` in a DB suite or `@@ACTION` in a table case), or recorded in
+  `tests/action_test_coverage_baseline.txt` with a reason — see the action
+  coverage ratchet in [TESTING.md](TESTING.md).
 - Route fields must stay in the exact COBOL `LS-PARAM` order (6 positional
   slots). After adding or changing a route, run
   `node scripts/generate_field_order.mjs --write .`, review the snapshot

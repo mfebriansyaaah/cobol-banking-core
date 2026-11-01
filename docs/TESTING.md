@@ -233,6 +233,42 @@ snapshot diff, and explain it in the PR. Never regenerate blindly to make CI
 green. If the order change is a behavior change (not just naming), update the
 domain's DB suite to assert the new mapping.
 
+## Action coverage ratchet: every routed action must be shell-executed
+
+`scripts/check_action_test_coverage.mjs` (static gates, probes) parses every
+gateway action from `middleware/src/routes/*.js` + `app.js` and requires
+each to be *invoked* by a shell-level test: a literal
+`run_cobol "ACTION|..."` in `tests/db/*.sh` or `tests/integration/*.sh`, or a
+`name@@expected@@ACTION|...` line in `tests/cobol/cases/*.cases`. Dynamic
+invocations don't count. Actions with no shell coverage must be recorded in
+`tests/action_test_coverage_baseline.txt`, or the gate fails. The gate also
+fails on *stale* entries (a test was added but the entry left behind) and
+*dead* entries (the route is gone).
+
+HTTP tests do **not** count: hitting a route over HTTP is not executing its
+COBOL action (a guarded route 401s before the binary runs; an invalid payload
+400s before it runs). The current picture (generated 2026-11-01, 5399 route
+actions): 4338 shell-covered (80.3%), 1061 baselined in four verified groups
+— 502 template `*_UPDATE` (no template suite invokes UPDATE, so
+optimistic-locking paths are unproven), 63 inline `app.js` routes
+(HTTP-exercised, no shell invocation), 479 in route files with no DB suite,
+17 richer-surface actions whose suites don't invoke them.
+
+Workflow: add the shell test first (then the baseline entry becomes stale and
+the gate tells you to remove it), or run with `--write` and move the new
+actions under a category header with a documented reason:
+
+```sh
+node scripts/check_action_test_coverage.mjs --write
+git diff -- tests/action_test_coverage_baseline.txt   # categorize + justify
+```
+
+Rules: never add an entry to make CI green without a reason; never remove an
+entry for an action that is still untested. Probe `p9_action_without_test`
+(a `run_cobol` call replaced by a canned SUCCESS string, suite still green)
+proves only this gate notices. Unit tests live in
+`scripts/test/check_action_test_coverage.test.mjs` (fixture trees, no DB).
+
 ## Files
 
 - `docker-compose.test.yml` — MariaDB 11.8 on `TEST_DB_PORT` (default 3307).
