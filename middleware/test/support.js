@@ -182,18 +182,23 @@ export function refreshExchangeRates() {
   return runSql('UPDATE exchange_rates SET updated_at = NOW();');
 }
 
-// Per-run fixture namespace, e.g. `gw-lxyzab12cd34`. Dashes need no LIKE
-// escaping (unlike the old `_` wildcards that forced 'ep\_%' quoting).
-// Unique across processes, files, and reruns: the pid separates parallel
-// test files, timestamp+rand separates serial reruns and same-ms spawns.
+// Per-file fixture namespace, e.g. `gw-abc123-pid9x-4f2`. Dashes delimit every
+// segment and need no LIKE escaping (unlike the old `_` wildcards that forced
+// 'ep\_%' quoting). Unique across processes, files, and reruns. When
+// TEST_RUN_ID is set (test:db, CI), it becomes the shared stamp so one
+// residue check covers the whole run; otherwise each process mints its own
+// stamp. The pid separates parallel test files, timestamp+rand separates
+// serial reruns.
 // Every test-created user must go through uniqueEmail() so cleanupNamespace()
 // and the residue check (scripts/check_test_residue.sh) find it.
 export function testNamespace(tag) {
   const clean = String(tag).replace(/[^a-z0-9-]/gi, '').toLowerCase().slice(0, 12) || 't';
-  const stamp = Date.now().toString(36);
-  const pid = (process.pid >>> 0).toString(36);
+  const shared = String(process.env.TEST_RUN_ID || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+  const stamp = shared || `${Date.now().toString(36)}${(process.pid >>> 0).toString(36)}`;
   const rand = Math.floor(Math.random() * 46656).toString(36).padStart(3, '0');
-  return `${clean}-${stamp}${pid}${rand}`;
+  // Dashes delimit every segment so scripts/check_test_residue.sh can match
+  // one run (`%-<stamp>-%`) without touching other runs' fixtures.
+  return `${clean}-${stamp}-${rand}`;
 }
 
 export function uniqueEmail(ns, name = 'u') {
