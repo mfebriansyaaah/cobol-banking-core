@@ -1,10 +1,15 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { resetMetrics, recordRequest, recordError, incCounter, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
-import { getVerificationCode, seedUser, requireSeed } from './support.js';
+import { getVerificationCode, seedUser, requireSeed, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
+
+// Per-file fixture namespace with cleanup (see gateway.test.js).
+const NS = testNamespace('obs');
+const U = (tag) => uniqueEmail(NS, tag);
+after(() => { cleanupNamespace(NS); });
 
 test('metricsText renders recorded counters', () => {
   resetMetrics();
@@ -63,7 +68,7 @@ test('/metrics requires a token', async () => {
 test('/metrics is admin-only', async () => {
   resetMetrics();
   const app = buildApp();
-  const em = `obs_${Date.now()}@test.com`;
+  const em = U('obs');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Obs User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -73,7 +78,7 @@ test('/metrics is admin-only', async () => {
   assert.equal((await request(app).get('/metrics').set('Authorization', `Bearer ${login.body.token}`)).status, 403);
 
   // A SUPER_ADMIN sees the counters.
-  const admin = `obs_admin_${Date.now()}@test.com`;
+  const admin = U('obs-admin');
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
   const m = await request(app).get('/metrics').set('Authorization', `Bearer ${adminToken}`);

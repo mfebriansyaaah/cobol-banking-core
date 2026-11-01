@@ -7,10 +7,26 @@
 # test:fast (unit/contract tests, file mode) and test:gateway (HTTP
 # integration through the persistent COBOL worker pool). Splitting keeps
 # local iteration fast without dropping anything from the full gate.
+#
+# Both parts share one TEST_RUN_ID so scripts/check_test_residue.sh can verify
+# the whole run left no user fixtures behind (per-file namespaces embed the
+# id; see middleware/test/support.js testNamespace). Bring your own id to
+# check a single run among many on a shared database:
+#   TEST_RUN_ID=t$(date +%s%N) tests/gateway/endpoint_smoke.sh
 set -u
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
+
+# One id for the whole run: namespaces from both parts match one residue
+# pattern, and a rerun never matches an older run's fixtures.
+TEST_RUN_ID="${TEST_RUN_ID:-t$(date +%s%N)$$}"
+export TEST_RUN_ID
+# A follow-up CI step re-runs the residue check; hand it the id through the
+# step-summary env file when running under GitHub Actions (no-op locally).
+if [ -n "${GITHUB_ENV:-}" ]; then
+    echo "TEST_RUN_ID=$TEST_RUN_ID" >> "$GITHUB_ENV"
+fi
 
 if [ ! -d middleware ]; then
     echo "SKIP: middleware/ absent"
@@ -63,7 +79,21 @@ failed=0
 run_part "test:fast" /tmp/gateway_fast.log || failed=1
 run_part "test:gateway" /tmp/gateway_endpoints.log || failed=1
 
-if [ "$failed" -ne 0 ]; then
+# Every gateway test user lives in a per-file namespace embedding TEST_RUN_ID;
+# each suite cleans only its own namespace, so this one query verifies the
+# whole run. Kept outside the suites (instead of a third suite) so a crash
+# that skips cleanup is still caught, and so CI can re-run the same check as
+# its own step with the id from $GITHUB_ENV.
+residue_failed=0
+if ! TEST_RUN_ID="$TEST_RUN_ID" bash "$ROOT/scripts/check_test_residue.sh" > /tmp/gateway_residue.log 2>&1; then
+    echo "FAIL: test run left user fixtures behind"
+    cat /tmp/gateway_residue.log
+    residue_failed=1
+else
+    cat /tmp/gateway_residue.log
+fi
+
+if [ "$failed" -ne 0 ] || [ "$residue_failed" -ne 0 ]; then
     echo "FAIL: gateway endpoint check failed"
     exit 1
 fi

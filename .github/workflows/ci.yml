@@ -148,6 +148,16 @@ jobs:
       - name: Run full test gate
         run: tests/run_all.sh full
 
+      - name: Gateway residue check
+        if: always()
+        run: |
+          set -o pipefail
+          if [ -z "${TEST_RUN_ID:-}" ]; then
+            echo "no TEST_RUN_ID (gateway smoke did not run?); skipping residue check"
+            exit 0
+          fi
+          TEST_RUN_ID="$TEST_RUN_ID" bash scripts/check_test_residue.sh | tee /tmp/gateway_residue.log
+
       - name: Assertion count gate
         run: node scripts/check_test_counts.mjs --report-dir artifacts --strict
 
@@ -178,6 +188,14 @@ jobs:
         with:
           name: gateway-log
           path: /tmp/gateway_endpoints.log
+          if-no-files-found: ignore
+
+      - name: Upload residue log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-residue-log
+          path: /tmp/gateway_residue.log
           if-no-files-found: ignore
 
   coverage:

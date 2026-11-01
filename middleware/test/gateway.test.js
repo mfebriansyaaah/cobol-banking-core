@@ -13,14 +13,18 @@ import { resetPool } from '../src/pool.js';
 // consistent: a lingering seeded account with no ledger row would otherwise
 // show up as a false reconciliation mismatch once another suite wipes the
 // ledger.
-after(() => runSql("DELETE FROM users WHERE email LIKE 'gw\\_%'"));
+after(() => { cleanupNamespace(NS); });
 // Drop pooled COBOL workers so the process can exit: spawned --serve
 // children keep the event loop alive (pool.test.js does the same).
 after(() => resetPool());
-import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, totp, TEST_MFA_SECRET, requireSeed, refreshExchangeRates } from './support.js';
+import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, totp, TEST_MFA_SECRET, requireSeed, refreshExchangeRates, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
 
 const app = buildApp();
-const unique = `gw_${Date.now()}@test.com`;
+
+// Per-file fixture namespace: every user created below lives under it
+// and only it is cleaned up, so parallel suites cannot delete each other.
+const NS = testNamespace('gw');
+const U = (tag) => uniqueEmail(NS, tag);
 
 // Obtain a step-up proof (header value) for a bearer token; required by the
 // privileged admin writes.
@@ -60,19 +64,19 @@ test('protected route requires a token', async () => {
 test('signup -> verify -> login -> authorized call', async () => {
   const signup = await request(app)
     .post('/auth/signup')
-    .send({ email: unique, password: 'secret123', name: 'Gateway User', dob: '1990-01-01' });
+    .send({ email: U('user'), password: 'secret123', name: 'Gateway User', dob: '1990-01-01' });
   assert.equal(signup.status, 200);
   // The code is delivered out of band, not returned.
   assert.deepEqual(signup.body.data, ['USER_CREATED']);
-  const code = getVerificationCode(unique);
+  const code = getVerificationCode(U('user'));
   assert.match(code, /^\d{6}$/);
 
-  const verify = await request(app).post('/auth/verify').send({ email: unique, code });
+  const verify = await request(app).post('/auth/verify').send({ email: U('user'), code });
   assert.equal(verify.status, 200);
 
   const login = await request(app)
     .post('/auth/login')
-    .send({ email: unique, password: 'secret123' });
+    .send({ email: U('user'), password: 'secret123' });
   assert.equal(login.status, 200);
   assert.ok(login.body.token);
 
@@ -81,8 +85,8 @@ test('signup -> verify -> login -> authorized call', async () => {
   assert.equal(denied.status, 403);
   assert.equal(denied.body.error, 'FORBIDDEN');
 
-  requireSeed(seedUser('gw_admin_list@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_list@test.com', password: 'secret123' })).body.token;
+  requireSeed(seedUser(U('admin-list'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
+  const adminToken = (await request(app).post('/auth/login').send({ email: U('admin-list'), password: 'secret123' })).body.token;
 
   const users = await request(app)
     .get('/users')
@@ -100,13 +104,13 @@ test('signup -> verify -> login -> authorized call', async () => {
 test('wrong password maps to 401', async () => {
   const res = await request(app)
     .post('/auth/login')
-    .send({ email: unique, password: 'nope-nope' });
+    .send({ email: U('user'), password: 'nope-nope' });
   assert.equal(res.status, 401);
   assert.equal(res.body.error, 'INVALID_CREDENTIALS');
 });
 
 test('bare-value endpoints return 200 with data', async () => {
-  const em = `gw_bare_${Date.now()}@test.com`;
+  const em = U('bare');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body;
@@ -116,8 +120,8 @@ test('bare-value endpoints return 200 with data', async () => {
   assert.equal((await request(app).get('/users/sender@test.com').set(auth)).status, 403);
   assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(auth)).status, 403);
 
-  requireSeed(seedUser('gw_admin_bare@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  const adminToken = (await request(app).post('/auth/login').send({ email: 'gw_admin_bare@test.com', password: 'secret123' })).body.token;
+  requireSeed(seedUser(U('admin-bare'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
+  const adminToken = (await request(app).post('/auth/login').send({ email: U('admin-bare'), password: 'secret123' })).body.token;
   const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
   const user = await request(app).get('/users/sender@test.com').set(adminAuth);
@@ -132,8 +136,8 @@ test('bare-value endpoints return 200 with data', async () => {
 });
 
 test('email change works for a logged-in user (related rows exist)', async () => {
-  const em = `gw_conf_${Date.now()}@test.com`;
-  const ne = `gw_confn_${Date.now()}@test.com`;
+  const em = U('conf');
+  const ne = U('confn');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Conf User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -147,7 +151,7 @@ test('email change works for a logged-in user (related rows exist)', async () =>
 });
 
 test('refresh token yields a new access token', async () => {
-  const em = `gw_refresh_${Date.now()}@test.com`;
+  const em = U('refresh');
   const signup = await request(app)
     .post('/auth/signup')
     .send({ email: em, password: 'secret123', name: 'Refresh User', dob: '1990-01-01' });
@@ -169,7 +173,7 @@ test('refresh token yields a new access token', async () => {
 });
 
 test('replaying a rotated refresh token revokes the whole family', async () => {
-  const em = `gw_reuse_${Date.now()}@test.com`;
+  const em = U('reuse');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Reuse User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -191,9 +195,9 @@ test('replaying a rotated refresh token revokes the whole family', async () => {
 });
 
 test('role change authorizes by the token actor, ignoring the body', async () => {
-  const admin = `gw_admin_${Date.now()}@test.com`;
-  const target = `gw_target_${Date.now()}@test.com`;
-  const plainUser = `gw_plain_${Date.now()}@test.com`;
+  const admin = U('admin');
+  const target = U('target');
+  const plainUser = U('plain');
   requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER') && seedUser(plainUser, 'USER'), 'seed role-change users');
   enableMfa(admin);
 
@@ -224,8 +228,8 @@ test('role change authorizes by the token actor, ignoring the body', async () =>
 });
 
 test('admin audit trail is readable by a SUPER_ADMIN only', async () => {
-  const admin = `gw_audit_${Date.now()}@test.com`;
-  const target = `gw_audit_t_${Date.now()}@test.com`;
+  const admin = U('audit');
+  const target = U('audit_t_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed audit-trail users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -251,8 +255,8 @@ test('admin audit trail is readable by a SUPER_ADMIN only', async () => {
 });
 
 test('admin recovery endpoints are admin-only', async () => {
-  const admin = `gw_rec_${Date.now()}@test.com`;
-  const target = `gw_rec_t_${Date.now()}@test.com`;
+  const admin = U('rec');
+  const target = U('rec_t_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed recovery users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -266,8 +270,8 @@ test('admin recovery endpoints are admin-only', async () => {
 });
 
 test('admin hold lifecycle is admin-only', async () => {
-  const admin = `gw_hold_${Date.now()}@test.com`;
-  const target = `gw_hold_t_${Date.now()}@test.com`;
+  const admin = U('hold');
+  const target = U('hold_t_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed hold users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -299,7 +303,7 @@ test('admin hold lifecycle is admin-only', async () => {
 });
 
 test('seeded accounts reconcile against the ledger', async () => {
-  const em = `gw_seedrec_${Date.now()}@test.com`;
+  const em = U('seedrec');
   requireSeed(seedUser(em, 'USER') && seedAccount(em, '1000.00'), 'seed an account');
   const net = `(SELECT COALESCE(SUM(CASE WHEN type='CREDIT' THEN amount ELSE -amount END),0) FROM ledger l JOIN accounts a ON a.account_id=l.account_id JOIN users u ON u.id=a.user_id WHERE u.email='${em}')`;
   const balance = `(SELECT balance FROM accounts a JOIN users u ON u.id=a.user_id WHERE u.email='${em}')`;
@@ -307,8 +311,8 @@ test('seeded accounts reconcile against the ledger', async () => {
 });
 
 test('reconciliation runs record results and resolve exceptions', async () => {
-  const admin = `gw_rec_${Date.now()}@test.com`;
-  const target = `gw_rect_${Date.now()}@test.com`;
+  const admin = U('rec2');
+  const target = U('rect');
   requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed reconcile users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -358,8 +362,8 @@ test('reconciliation runs record results and resolve exceptions', async () => {
 });
 
 test('privileged admin writes require a fresh step-up', async () => {
-  const admin = `gw_su_${Date.now()}@test.com`;
-  const target = `gw_su_t_${Date.now()}@test.com`;
+  const admin = U('su');
+  const target = U('su_t_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed step-up users');
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -384,7 +388,7 @@ test('privileged admin writes require a fresh step-up', async () => {
 });
 
 test('an admin without MFA is prompted to enrol at login', async () => {
-  const admin = `gw_enr_${Date.now()}@test.com`;
+  const admin = U('enr');
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
 
   const login = await request(app).post('/auth/login').send({ email: admin, password: 'secret123' });
@@ -405,7 +409,7 @@ test('an admin without MFA is prompted to enrol at login', async () => {
 });
 
 test('reusing an idempotency key with different details is a conflict', async () => {
-  const em = `gw_idem_${Date.now()}@test.com`;
+  const em = U('idem');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -436,7 +440,7 @@ test('reusing an idempotency key with different details is a conflict', async ()
 });
 
 test('an in-progress intent blocks a same-key transfer, then replays once committed', async () => {
-  const em = `gw_inprog_${Date.now()}@test.com`;
+  const em = U('inprog');
   const to = 'receiver@test.com';
   const amount = '1.00';
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'InProg User', dob: '1990-01-01' });
@@ -469,7 +473,7 @@ test('an in-progress intent blocks a same-key transfer, then replays once commit
 });
 
 test('transfer amount is decided by COBOL, not the gateway shape', async () => {
-  const em = `gw_amt_${Date.now()}@test.com`;
+  const em = U('amt');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -513,8 +517,8 @@ test('transfer amount is decided by COBOL, not the gateway shape', async () => {
 });
 
 test('the list page size is bounded', async () => {
-  requireSeed(seedUser('gw_admin_limit@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  const token = (await request(app).post('/auth/login').send({ email: 'gw_admin_limit@test.com', password: 'secret123' })).body.token;
+  requireSeed(seedUser(U('admin-limit'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
+  const token = (await request(app).post('/auth/login').send({ email: U('admin-limit'), password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
 
   assert.equal((await request(app).get('/users?limit=100').set(auth)).status, 200);
@@ -529,26 +533,26 @@ test('the list page size is bounded', async () => {
 });
 
 test('a large list is not truncated at 500 bytes', async () => {
-  requireSeed(seedUser('gw_admin_bulk@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  requireSeed(seedManyUsers('gw_bulk_', 25), 'seed bulk users');
-  const token = (await request(app).post('/auth/login').send({ email: 'gw_admin_bulk@test.com', password: 'secret123' })).body.token;
+  requireSeed(seedUser(U('admin-bulk'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
+  requireSeed(seedManyUsers(`${NS}-bulk-`, 25), 'seed bulk users');
+  const token = (await request(app).post('/auth/login').send({ email: U('admin-bulk'), password: 'secret123' })).body.token;
 
   // LIST_USERS pages by ascending id, so anchor the window at the first bulk
   // user. Querying limit=100 from offset 0 only works while the shared test
   // database has fewer than 100 rows; accumulated users push the fixture off
   // the first page. Computing the offset keeps the assertion deterministic.
-  const before = Number(queryScalar("SELECT COUNT(*) FROM users WHERE id < (SELECT id FROM users WHERE email='gw_bulk_1@test.com')"));
+  const before = Number(queryScalar(`SELECT COUNT(*) FROM users WHERE id < (SELECT id FROM users WHERE email='${U('bulk-1')}')`));
   requireSeed(Number.isFinite(before), 'locate the bulk users');
   const res = await request(app)
     .get(`/users?limit=100&offset=${before}`)
     .set('Authorization', `Bearer ${token}`);
   assert.equal(res.status, 200);
   // The 25th bulk user sits well past 500 bytes; it survives the multi-record output.
-  assert.ok(JSON.stringify(res.body.users).includes('gw_bulk_25@test.com'));
+  assert.ok(JSON.stringify(res.body.users).includes(U('bulk-25')));
 });
 
 test('one access token can be revoked without affecting another session', async () => {
-  const em = `gw_deny_${Date.now()}@test.com`;
+  const em = U('deny');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Deny User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
 
@@ -567,11 +571,11 @@ test('one access token can be revoked without affecting another session', async 
 });
 
 test('audit archiving is admin-only', async () => {
-  requireSeed(seedUser('gw_admin_archive@test.com', 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  enableMfa('gw_admin_archive@test.com');
-  const adminToken = await adminLoginFor('gw_admin_archive@test.com');
+  requireSeed(seedUser(U('admin-archive'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
+  enableMfa(U('admin-archive'));
+  const adminToken = await adminLoginFor(U('admin-archive'));
 
-  const em = `gw_arch_${Date.now()}@test.com`;
+  const em = U('arch');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Arch User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const userToken = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -588,7 +592,7 @@ test('audit archiving is admin-only', async () => {
 });
 
 test('password reset and change over HTTP', async () => {
-  const em = `gw_pw_${Date.now()}@test.com`;
+  const em = U('pw');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'PW User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const first = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -625,7 +629,7 @@ test('password reset and change over HTTP', async () => {
 });
 
 test('resend verification reuses the pending code inside the cooldown', async () => {
-  const em = `gw_resend_${Date.now()}@test.com`;
+  const em = U('resend');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Resend', dob: '1990-01-01' });
   assert.equal(s.status, 200);
   // Login before verification is rejected.
@@ -642,7 +646,7 @@ test('resend verification reuses the pending code inside the cooldown', async ()
 });
 
 test('login and signup do not enumerate accounts', async () => {
-  const em = `gw_enum_${Date.now()}@test.com`;
+  const em = U('enum');
   // Signing up twice yields the same neutral response.
   const a = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
   const b = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
@@ -659,7 +663,7 @@ test('login and signup do not enumerate accounts', async () => {
 });
 
 test('verification code guessing is capped', async () => {
-  const em = `gw_cap_${Date.now()}@test.com`;
+  const em = U('cap');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Cap', dob: '1990-01-01' });
   const code = getVerificationCode(em, 'SIGNUP');
   for (let i = 0; i < 5; i++) {
@@ -674,7 +678,7 @@ test('verification code guessing is capped', async () => {
 });
 
 test('locked account does not leak through wrong guesses', async () => {
-  const em = `gw_lock_${Date.now()}@test.com`;
+  const em = U('lock');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Lock', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   for (let i = 0; i < 3; i++) {
@@ -687,7 +691,7 @@ test('locked account does not leak through wrong guesses', async () => {
 });
 
 test('MFA enrol, enforce at login, disable over HTTP', async () => {
-  const em = `gw_mfa_${Date.now()}@test.com`;
+  const em = U('mfa');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Mfa', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -710,7 +714,7 @@ test('MFA enrol, enforce at login, disable over HTTP', async () => {
 });
 
 test('session listing and revoke-all over HTTP', async () => {
-  const em = `gw_sess_${Date.now()}@test.com`;
+  const em = U('sess');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Sess', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').set('User-Agent', 'gw-test-agent/1.0').send({ email: em, password: 'secret123' });
@@ -729,7 +733,7 @@ test('session listing and revoke-all over HTTP', async () => {
 });
 
 test('transfers from a frozen account are rejected (409)', async () => {
-  const em = `gw_frozen_${Date.now()}@test.com`;
+  const em = U('frozen');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Frozen', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -756,7 +760,7 @@ test('transfers from a frozen account are rejected (409)', async () => {
 });
 
 test('transfer without an idempotency key is rejected', async () => {
-  const em = `gw_nokey_${Date.now()}@test.com`;
+  const em = U('nokey');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'NoKey', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -771,7 +775,7 @@ test('transfer without an idempotency key is rejected', async () => {
 });
 
 test('transfer over the per-transaction limit is rejected', async () => {
-  const em = `gw_limit_${Date.now()}@test.com`;
+  const em = U('limit');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Limit', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -798,7 +802,7 @@ test('transfer over the per-transaction limit is rejected', async () => {
 });
 
 test('transfer status and reversal over HTTP', async () => {
-  const em = `gw_rev_${Date.now()}@test.com`;
+  const em = U('rev');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Rev', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -813,7 +817,7 @@ test('transfer status and reversal over HTTP', async () => {
   assert.equal(status.body.data[0], 'TRANSFER');
   assert.equal(status.body.data[1], 'COMMITTED');
 
-  const admin = `gw_revadm_${Date.now()}@test.com`;
+  const admin = U('revadm');
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -830,7 +834,7 @@ test('transfer status and reversal over HTTP', async () => {
 });
 
 test('cross-currency transfer falls back to the inverse rate', async () => {
-  const em = `gw_fx_${Date.now()}@test.com`;
+  const em = U('fx');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Fx', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -848,7 +852,7 @@ test('cross-currency transfer falls back to the inverse rate', async () => {
 });
 
 test('transfer selects the sender account by currency', async () => {
-  const em = `gw_mc_${Date.now()}@test.com`;
+  const em = U('mc');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Mc', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -866,7 +870,7 @@ test('transfer selects the sender account by currency', async () => {
 });
 
 test('profile is structured and works without accounts', async () => {
-  const em = `gw_prof_${Date.now()}@test.com`;
+  const em = U('prof');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Prof', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -886,19 +890,19 @@ test('profile is structured and works without accounts', async () => {
 });
 
 test('email-change request is neutral for a taken address', async () => {
-  const em = `gw_enum_${Date.now()}@test.com`;
+  const em = U('enum2');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
 
-  const taken = `gw_taken_${Date.now()}@test.com`;
+  const taken = U('taken');
   await request(app).post('/auth/signup').send({ email: taken, password: 'secret123', name: 'Taken', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: taken, code: getVerificationCode(taken) });
 
   const neutralStep = await stepUpFor(token);
   const a = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', neutralStep).send({ email: em, newEmail: taken, password: 'secret123' });
-  const b = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', neutralStep).send({ email: em, newEmail: `gw_free_${Date.now()}@test.com`, password: 'secret123' });
+  const b = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', neutralStep).send({ email: em, newEmail: U('free'), password: 'secret123' });
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
   assert.deepEqual(a.body, b.body); // identical neutral response
@@ -906,7 +910,7 @@ test('email-change request is neutral for a taken address', async () => {
 });
 
 test('PATCH /profile updates the name', async () => {
-  const em = `gw_up_${Date.now()}@test.com`;
+  const em = U('up');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Before', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -919,7 +923,7 @@ test('PATCH /profile updates the name', async () => {
 });
 
 test('account lifecycle over HTTP', async () => {
-  const em = `gw_lc_${Date.now()}@test.com`;
+  const em = U('lc');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Life', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -928,7 +932,7 @@ test('account lifecycle over HTTP', async () => {
   assert.deepEqual((await request(app).post('/profile/deactivate').set(auth).send({ email: em })).body.data, ['ACCOUNT_DEACTIVATED']);
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.error, 'USER_CLOSED');
 
-  const admin = `gw_lca_${Date.now()}@test.com`;
+  const admin = U('lca');
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -940,7 +944,7 @@ test('account lifecycle over HTTP', async () => {
 });
 
 test('user listing and record are structured', async () => {
-  const admin = `gw_listadm_${Date.now()}@test.com`;
+  const admin = U('listadm');
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
@@ -960,12 +964,12 @@ test('user listing and record are structured', async () => {
 });
 
 test('email-change confirm reports a taken address (race)', async () => {
-  const em = `gw_race_${Date.now()}@test.com`;
+  const em = U('race');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Race', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
-  const ne = `gw_racenew_${Date.now()}@test.com`;
+  const ne = U('racenew');
 
   const raceStep = await stepUpFor(token);
   assert.equal((await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', raceStep).send({ email: em, newEmail: ne, password: 'secret123' })).status, 200);
@@ -979,7 +983,7 @@ test('email-change confirm reports a taken address (race)', async () => {
 });
 
 test('refresh rotates and a replay is rejected', async () => {
-  const em = `gw_rot_${Date.now()}@test.com`;
+  const em = U('rot');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Rot', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -1008,9 +1012,9 @@ test('liveness and readiness probes', async () => {
 });
 
 test('dual control gates designated operations', async () => {
-  const maker = `gw_dc_mkr_${Date.now()}@test.com`;
-  const checker = `gw_dc_chk_${Date.now()}@test.com`;
-  const target = `gw_dc_tgt_${Date.now()}@test.com`;
+  const maker = U('dc_mkr_');
+  const checker = U('dc_chk_');
+  const target = U('dc_tgt_');
   requireSeed(seedUser(maker, 'SUPER_ADMIN') && seedUser(checker, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed dual-control users');
   enableMfa(maker);
   enableMfa(checker);
@@ -1049,8 +1053,8 @@ test('dual control gates designated operations', async () => {
 });
 
 test('verification codes flow through the outbox', async () => {
-  const em = `gw_ob_${Date.now()}@test.com`;
-  const admin = `gw_ob_adm_${Date.now()}@test.com`;
+  const em = U('ob');
+  const admin = U('ob_adm_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed outbox admin');
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
 
@@ -1117,8 +1121,8 @@ test('readiness reports 503 when the database is down', async () => {
 });
 
 test('mfa backup codes and assisted recovery work end to end', async () => {
-  const user = `gw_mfarec_${Date.now()}@test.com`;
-  const admin = `gw_mfarec_adm_${Date.now()}@test.com`;
+  const user = U('mfarec');
+  const admin = U('mfarec_adm_');
   requireSeed(seedUser(user, 'USER') && seedUser(admin, 'SUPER_ADMIN'), 'seed recovery users');
   enableMfa(user);
   enableMfa(admin);
@@ -1166,8 +1170,8 @@ test('mfa backup codes and assisted recovery work end to end', async () => {
 });
 
 test('account statements show postings with opening and closing balances', async () => {
-  const user = `gw_stmt_${Date.now()}@test.com`;
-  const other = `gw_stmt_o_${Date.now()}@test.com`;
+  const user = U('stmt');
+  const other = U('stmt_o_');
   requireSeed(seedUser(user, 'USER') && seedUser(other, 'USER'), 'seed statement users');
   requireSeed(seedAccount(user, '1000.00') && seedAccount(other, '1000.00'), 'seed statement accounts');
   const userToken = (await request(app).post('/auth/login').send({ email: user, password: 'secret123' })).body.token;
@@ -1204,8 +1208,8 @@ test('account statements show postings with opening and closing balances', async
 });
 
 test('dispute tickets run the full lifecycle end to end', async () => {
-  const user = `gw_dsp_${Date.now()}@test.com`;
-  const admin = `gw_dsp_adm_${Date.now()}@test.com`;
+  const user = U('dsp');
+  const admin = U('dsp_adm_');
   requireSeed(seedUser(user, 'USER') && seedUser(admin, 'SUPER_ADMIN'), 'seed dispute users');
   enableMfa(admin);
   const userToken = (await request(app).post('/auth/login').send({ email: user, password: 'secret123' })).body.token;
@@ -1219,7 +1223,7 @@ test('dispute tickets run the full lifecycle end to end', async () => {
   assert.ok(caseId);
 
   // Notes accumulate; a stranger cannot read or write the case.
-  const stranger = `gw_dsp_x_${Date.now()}@test.com`;
+  const stranger = U('dsp_x_');
   requireSeed(seedUser(stranger, 'USER'), 'seed stranger');
   const strangerToken = (await request(app).post('/auth/login').send({ email: stranger, password: 'secret123' })).body.token;
   assert.equal((await request(app).get(`/disputes/${caseId}`).set('Authorization', `Bearer ${strangerToken}`).query({})).status, 403);
@@ -1249,8 +1253,8 @@ test('dispute tickets run the full lifecycle end to end', async () => {
 });
 
 test('deposit lifecycle over HTTP', async () => {
-  const admin = `gw_dep_${Date.now()}@test.com`;
-  const owner = `gw_dep_owner_${Date.now()}@test.com`;
+  const admin = U('dep');
+  const owner = U('dep_owner_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a deposit admin');
   enableMfa(admin);
   const token = await adminLoginFor(admin);
@@ -1307,7 +1311,7 @@ test('deposit lifecycle over HTTP', async () => {
 });
 
 test('card lifecycle over HTTP', async () => {
-  const admin = `gw_card_${Date.now()}@test.com`;
+  const admin = U('card');
   const ref = `gw_card_${Date.now()}`;
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a card admin');
   enableMfa(admin);
@@ -1373,7 +1377,7 @@ test('card lifecycle over HTTP', async () => {
 });
 
 test('collections lifecycle over HTTP', async () => {
-  const admin = `gw_col_${Date.now()}@test.com`;
+  const admin = U('col');
   const ref = `GWCOL${Date.now()}`;
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a collections admin');
   enableMfa(admin);
@@ -1485,7 +1489,7 @@ test('collections lifecycle over HTTP', async () => {
 });
 
 test('loan summary is not shadowed by /loans/:id', async () => {
-  const admin = `gw_loan_summary_${Date.now()}@test.com`;
+  const admin = U('loan_summary_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a loan summary admin');
   enableMfa(admin);
   const token = await adminLoginFor(admin);
