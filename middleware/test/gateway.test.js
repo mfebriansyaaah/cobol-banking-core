@@ -14,6 +14,7 @@ import { resetPool } from '../src/pool.js';
 // show up as a false reconciliation mismatch once another suite wipes the
 // ledger.
 after(() => runSql("DELETE FROM users WHERE email LIKE 'gw\\_%'"));
+after(() => runSql("DELETE FROM payment_clearing WHERE clearing_ref LIKE 'gw\\_pci\\_%'"));
 // Drop pooled COBOL workers so the process can exit: spawned --serve
 // children keep the event loop alive (pool.test.js does the same).
 after(() => resetPool());
@@ -1488,4 +1489,31 @@ test('loan summary is not shadowed by /loans/:id', async () => {
   const res = await request(app).get('/loans/summary').set('Authorization', `Bearer ${token}`);
   assert.equal(res.status, 200);
   assert.equal(res.body.data[0], 'LOAN_SUMMARY');
+});
+test('payment clearing idempotency key replays a post without double-applying', async () => {
+  const admin = `gw_pci_${Date.now()}@test.com`;
+  const ref = `gw_pci_${Date.now()}`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a payment clearing admin');
+  enableMfa(admin);
+  const token = await adminLoginFor(admin);
+  const auth = { Authorization: `Bearer ${token}` };
+
+  const created = await request(app).post('/payments/clearing').set(auth).send({ clearingRef: ref, amount: '100.00', currency: 'USD' });
+  assert.equal(created.status, 200);
+  assert.equal(created.body.data[0], 'PMC_CREATE');
+  const id = created.body.data[1];
+
+  const key = `pci-${Date.now()}`;
+  const first = await request(app).post(`/payments/clearing/${id}/post`).set(auth).send({ amount: '40.00', idempotencyKey: key });
+  assert.equal(first.status, 200);
+  assert.deepEqual(first.body.data, ['PMC_POST', '40.0000']);
+
+  const replay = await request(app).post(`/payments/clearing/${id}/post`).set(auth).send({ amount: '40.00', idempotencyKey: key });
+  assert.equal(replay.status, 200);
+  assert.deepEqual(replay.body.data, ['PMC_POST', '40.0000']);
+  assert.equal(queryScalar(`SELECT posted_amount FROM payment_clearing WHERE id=${id}`), '40.0000');
+
+  const conflict = await request(app).post(`/payments/clearing/${id}/post`).set(auth).send({ amount: '50.00', idempotencyKey: key });
+  assert.equal(conflict.status, 409);
+  assert.equal(conflict.body.error, 'IDEMPOTENCY_CONFLICT');
 });

@@ -75,6 +75,18 @@ assert_match "one concurrent post wins" "$( { cat "$conc_dir/a"; echo; cat "$con
 assert_match "concurrent post amount once" "$(db_query "SELECT posted_amount FROM payment_clearing WHERE id=${conc_id};")" "^60.0000$"
 rm -rf "$conc_dir"
 
+# Idempotency: a replay with the same actor/key/amount returns success without
+# applying the effect twice; the same key with another amount is a conflict.
+idem_create="$(run_cobol "PMC_CREATE|CLR-D5-IDEM|100.00|USD|||admin@test.com")"
+idem_id="$(printf '%s' "$idem_create" | awk -F'|' '{print $3}')"
+assert_match "idem post first" "$(run_cobol "PMC_POST|${idem_id}|40.00|idem-post-1|||admin@test.com")" "SUCCESS\|PMC_POST\|40.00"
+assert_match "idem post replay" "$(run_cobol "PMC_POST|${idem_id}|40.00|idem-post-1|||admin@test.com")" "SUCCESS\|PMC_POST\|40.00"
+assert_match "idem post applied once" "$(db_query "SELECT posted_amount FROM payment_clearing WHERE id=${idem_id};")" "^40.0000$"
+assert_match "idem post conflict" "$(run_cobol "PMC_POST|${idem_id}|50.00|idem-post-1|||admin@test.com")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "idem settle first" "$(run_cobol "PMC_SETTLE|${idem_id}|40.00|idem-settle-1|||admin@test.com")" "SUCCESS\|PMC_SETTLE\|40.00"
+assert_match "idem settle replay" "$(run_cobol "PMC_SETTLE|${idem_id}|40.00|idem-settle-1|||admin@test.com")" "SUCCESS\|PMC_SETTLE\|40.00"
+assert_match "idem settle applied once" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${idem_id};")" "^40.0000$"
+
 # Summary and audit.
 assert_match "PMC_SUMMARY ok" "$(run_cobol "PMC_SUMMARY||||||admin@test.com")" "SUCCESS\|PMC_SUMMARY"
 assert_match "PMC_AUDIT ok" "$(run_cobol "PMC_AUDIT|50|0||||admin@test.com")" "SUCCESS\|PMC_AUDIT"
