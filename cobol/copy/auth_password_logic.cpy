@@ -129,6 +129,15 @@
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF
+            IF STEP-OK
                 MOVE "UPDATE verification_logs SET is_used = 1 WHERE email = ? AND code = ? AND purpose = 'PASSWORD_RESET'" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
@@ -218,6 +227,15 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
             IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                 SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF
             IF STEP-OK
                 PERFORM RECORD-PASSWORD-HISTORY
