@@ -359,7 +359,26 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client
+            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+
+      - name: Restore GnuCOBOL toolchain
+        id: gnucobol-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/gnucobol
+          # Bump the trailing v1 when scripts/ci/install_gnucobol.sh changes
+          # its configure flags (a different build must not reuse this cache).
+          key: gnucobol-3.2-${{ runner.os }}-v1
+
+      - name: Install GnuCOBOL 3.2 (with --coverage)
+        # Idempotent: exits in seconds when the cache hit. The apt gnucobol
+        # (3.1.2) cannot do --coverage, so the coverage jobs must not use it.
+        run: bash scripts/ci/install_gnucobol.sh
+
+      - name: Expose GnuCOBOL toolchain
+        run: |
+          echo "$HOME/.local/gnucobol/bin" >> "$GITHUB_PATH"
+          echo "LD_LIBRARY_PATH=$HOME/.local/gnucobol/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
 
       - name: Set up Node
         uses: actions/setup-node@v4
