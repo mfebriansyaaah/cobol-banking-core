@@ -77,13 +77,18 @@ assert_match "reopened persisted" "$(db_query "SELECT CONCAT(status, '|', COALES
 assert_match "COL_PAY in full" "$(run_cobol "COL_PAY|${case_id}|160.00||||admin@test.com")" "SUCCESS\|COL_PAY\|160.00\|0.0000"
 assert_match "paid in full closed" "$(db_query "SELECT CONCAT(status, '|', resolution) FROM collection_case WHERE id=${case_id};")" "^CLOSED\|PAID_IN_FULL$"
 
-# A case can target a single installment instead of all overdue rows.
+# Recovery allocates to the installments, so a fully paid debt cannot be
+# opened again for collection.
+inst_status="$(db_query "SELECT CONCAT(status, '|', paid_amount) FROM loan_installment WHERE id=${inst1};")"
+assert_match "installment marked paid" "$inst_status" "^PAID\|110.0000$"
 inst_out="$(run_cobol "COL_OPEN|COL-D4-2|${loan_id}|${inst1}|||admin@test.com")"
-assert_match "installment case overdue" "$inst_out" "SUCCESS\|COL_OPEN\|[0-9]+\|110.0000"
+assert_match "paid installment cannot be re-collected" "$inst_out" "ERROR\|(NO_OVERDUE|NOT_FOUND)"
+repay_total="$(db_query "SELECT CONCAT(COUNT(*), '|', SUM(amount)) FROM loan_repayment WHERE loan_id=${loan_id};")"
+assert_match "repayment rows recorded" "$repay_total" "^2\|210.0000$"
 
 # Summary, aging, history and audit.
 sum="$(run_cobol "COL_SUMMARY||||||admin@test.com")"
-assert_match "COL_SUMMARY ok" "$sum" "SUCCESS\|COL_SUMMARY\|2\|1\|0\|0\|1\|"
+assert_match "COL_SUMMARY ok" "$sum" "SUCCESS\|COL_SUMMARY\|1\|0\|0\|0\|1\|210\.0000\|210\.0000\|0"
 aging="$(run_cobol "COL_AGING||||||admin@test.com")"
 assert_match "COL_AGING buckets" "$aging" "SUCCESS\|COL_AGING\|[0-9]+:[0-9.]+;.*;.*;.*;"
 hist="$(run_cobol "COL_HISTORY|${case_id}|50|0|||admin@test.com")"
