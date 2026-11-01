@@ -78,6 +78,41 @@ statements. The lock is a kernel lock: it releases when the holder exits, so a
 crashed run cannot leave it stale. `flock` is Linux-only; without it the runner
 warns and continues (same as before).
 
+## Gateway fixture isolation
+
+Gateway tests share one database, so fixtures are namespaced per file. The
+old global cleanups (`DELETE ... LIKE 'gw\_%'`) deleted other suites' users
+mid-run, and suites with no cleanup at all (`auth-session`, `observability`)
+leaked `obs_*` orphans. Rules:
+
+- Every test-created user goes through
+  `uniqueEmail(testNamespace(tag), name)` (`middleware/test/support.js`).
+  Namespaces are dash-delimited `<tag>-<stamp>-<rand>` (no `LIKE` escaping
+  needed); the stamp is unique per process, file, and rerun — or the shared
+  `TEST_RUN_ID` when set (capped so emails fit `users.email(100)`).
+- Every file cleans **only** its own namespace in `after()` via
+  `cleanupNamespace(NS)`. Never add a global or prefix-wide cleanup that can
+  match another file's fixtures. Seed users
+  (`sender`/`receiver`/`admin@test.com`) are shared fixtures — never delete
+  them.
+- `TEST_RUN_ID="t$(date +%s%N)"` gives one run one residue pattern:
+  `npm --prefix middleware run test:db`, then
+  `TEST_RUN_ID="$TEST_RUN_ID" bash scripts/check_test_residue.sh`.
+  `tests/gateway/endpoint_smoke.sh` mints the id for both its parts
+  (`test:fast` + `test:gateway`) and fails the run on residue; CI re-runs the
+  same check after the full gate and uploads the residue log on failure.
+- Split: `test:unit` (pure files, no database) vs `test:db` (DB-backed files,
+  serial via `--test-concurrency=1`, file-mode preload; pool-mode coverage
+  stays in `test:gateway`). `test`/`test:fast` keep their explicit file lists
+  so CI semantics do not change.
+- Unit tests: `middleware/test/namespace.test.js` covers the helpers;
+  `tests/scripts/test_gateway_residue.sh` covers the gate (fake-`mysql`
+  cases plus a live sentinel round-trip that skips offline; runs via
+  `bash tests/scripts/run.sh`).
+- Troubleshooting: residue on a shared developer database may be from older
+  runs — verify against a fresh database (CI does) or delete that run's
+  pattern once; never widen a cleanup pattern to make the check pass.
+
 ## Schema rebuild drill (and migration idempotency)
 
 `scripts/ci/restore_drill.sh` rebuilds `schema.sql` + migrations into an
@@ -276,5 +311,6 @@ proves only this gate notices. Unit tests live in
 - `tests/.dbenv.example` — copy to `tests/.dbenv` (gitignored).
 - `tests/lib/guard.sh`, `tests/lib/lock.sh` — safety primitives.
 - `tests/scripts/` — offline safety tests + `run.sh` harness.
+- `scripts/check_test_residue.sh` — fails a gateway run that leaves user fixtures behind.
 - `scripts/cleanup-test-dbs.sh` — orphan cleanup.
 - `scripts/ci/restore_drill.sh` — guarded drill.
