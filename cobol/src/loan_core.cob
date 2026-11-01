@@ -114,6 +114,15 @@
                 WHEN LS-CMD-ACTION(1:13) = "LOAN_VALIDATE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-VALIDATE
+                WHEN LS-CMD-ACTION(1:12) = "LOAN_APP_GET"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APP-GET
+                WHEN LS-CMD-ACTION(1:13) = "LOAN_APP_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APP-LIST
+                WHEN LS-CMD-ACTION(1:16) = "LOAN_APP_SUMMARY"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-APP-SUMMARY
                 WHEN LS-CMD-ACTION(1:10) = "LOAN_APPLY"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-APPLY
@@ -444,6 +453,106 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             PERFORM TRIM-RESULT-LEN
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|LOAN_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-APP-GET.
+            *> p1 = loan_application id, p6 = actor. The application lifecycle
+            *> (apply/approve/disburse/repay) uses loan_application, so reads
+            *> must use the same model.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P1-TRIMMED = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(id, '|', customer_email, '|', principal, '|', currency, '|', term_months, '|', interest_rate, '|', status, '|', created_by, '|', created_at) FROM loan_application WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|LOAN_GET|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-APP-LIST.
+            *> p1 = status filter, p2 = limit, p3 = offset, p6 = actor.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "50" TO WS-LIMIT
+            MOVE "0" TO WS-OFFSET
+            IF WS-P2-TRIMMED NOT = SPACES
+                MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
+            END-IF.
+            IF WS-P3-TRIMMED NOT = SPACES
+                MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
+            END-IF.
+            MOVE "SELECT CONCAT(id, ':', customer_email, ':', principal, ':', currency, ':', term_months, ':', interest_rate, ':', status) FROM loan_application WHERE (? = '' OR status = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE WS-P1-TRIMMED TO WS-BIND-2
+            MOVE WS-LIMIT TO WS-BIND-3
+            MOVE WS-OFFSET TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|LOAN_LIST|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                PERFORM TRIM-RESULT-LEN
+                STRING "SUCCESS|LOAN_LIST|" DELIMITED BY SIZE
+                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                       INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-APP-SUMMARY.
+            *> p6 = actor. Counts and totals across the application model.
+            PERFORM ALLOW-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'PENDING'), 0), '|', COALESCE(SUM(status = 'APPROVED'), 0), '|', COALESCE(SUM(status = 'REJECTED'), 0), '|', COALESCE(SUM(status = 'DISBURSED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(principal), 0), '|', COALESCE(SUM(CASE WHEN status IN ('DISBURSED','CLOSED') THEN principal ELSE 0 END), 0)) FROM loan_application" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM TRIM-RESULT-LEN
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|LOAN_SUMMARY|" DELIMITED BY SIZE
+                   WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER END-STRING.
             EXIT PARAGRAPH.
 
         ACTION-SUBMIT.
