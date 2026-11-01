@@ -39,17 +39,41 @@ assert_match "status posted" "$(db_query "SELECT status FROM payment_clearing WH
 assert_match "PMC_SETTLE ok" "$(run_cobol "PMC_SETTLE|${id}|40.00||||admin@test.com")" "SUCCESS\|PMC_SETTLE\|40.00"
 assert_match "settled persisted" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${id};")" "^40.0000$"
 
+# A fully settled entry is terminal.
+assert_match "settled status" "$(db_query "SELECT status FROM payment_clearing WHERE id=${id};")" "^SETTLED$"
+assert_match "duplicate settle rejected" "$(run_cobol "PMC_SETTLE|${id}|1.00||||admin@test.com")" "ERROR\|INVALID_STATUS"
+
 # Over-post rejected.
 assert_match "over-post rejected" "$(run_cobol "PMC_POST|${id}|999.00||||admin@test.com")" "ERROR\|INVALID_STATUS"
 
 # Cancel requires open/posted without posted? cancel on settled rejected.
 assert_match "cancel settled rejected" "$(run_cobol "PMC_CANCEL|${id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
 
-# A second entry stays open and can be cancelled.
+# A second entry stays open and can be cancelled with a reason.
 create2="$(run_cobol "PMC_CREATE|CLR-D5-2|50.00|EUR|||admin@test.com")"
 id2="$(printf '%s' "$create2" | awk -F'|' '{print $3}')"
-assert_match "PMC_CANCEL ok" "$(run_cobol "PMC_CANCEL|${id2}|||||admin@test.com")" "SUCCESS\|PMC_CANCEL"
-assert_match "cancelled persisted" "$(db_query "SELECT status FROM payment_clearing WHERE id=${id2};")" "^CANCELLED$"
+assert_match "PMC_CANCEL ok" "$(run_cobol "PMC_CANCEL|${id2}|duplicate request||||admin@test.com")" "SUCCESS\|PMC_CANCEL"
+assert_match "cancelled persisted" "$(db_query "SELECT CONCAT(status, '|', COALESCE(cancellation_reason, '')) FROM payment_clearing WHERE id=${id2};")" "^CANCELLED\|duplicate request$"
+
+# An entry with posted funds is not cancellable until it is settled.
+create3="$(run_cobol "PMC_CREATE|CLR-D5-3|20.00|USD|||admin@test.com")"
+id3="$(printf '%s' "$create3" | awk -F'|' '{print $3}')"
+assert_match "post before cancel" "$(run_cobol "PMC_POST|${id3}|5.00||||admin@test.com")" "SUCCESS\|PMC_POST\|5.00"
+assert_match "cancel posted rejected" "$(run_cobol "PMC_CANCEL|${id3}|too late||||admin@test.com")" "ERROR\|INVALID_STATUS"
+
+# Two concurrent posts must serialize on the clearing row: one wins, one is
+# rejected by the locked re-check, and the total never exceeds the amount.
+conc_create="$(run_cobol "PMC_CREATE|CLR-D5-CONC|100.00|USD|||admin@test.com")"
+conc_id="$(printf '%s' "$conc_create" | awk -F'|' '{print $3}')"
+conc_dir="$(mktemp -d "${TMPDIR:-/tmp}/pmc-conc.XXXXXX")"
+( COBOL_TEST_SERVE=0; run_cobol "PMC_POST|${conc_id}|60.00||||admin@test.com" ) >"$conc_dir/a" &
+conc_a=$!
+( COBOL_TEST_SERVE=0; run_cobol "PMC_POST|${conc_id}|60.00||||admin@test.com" ) >"$conc_dir/b" &
+conc_b=$!
+wait "$conc_a" "$conc_b" || true
+assert_match "one concurrent post wins" "$( { cat "$conc_dir/a"; echo; cat "$conc_dir/b"; } | grep -c '^SUCCESS')" "^1$"
+assert_match "concurrent post amount once" "$(db_query "SELECT posted_amount FROM payment_clearing WHERE id=${conc_id};")" "^60.0000$"
+rm -rf "$conc_dir"
 
 # Summary and audit.
 assert_match "PMC_SUMMARY ok" "$(run_cobol "PMC_SUMMARY||||||admin@test.com")" "SUCCESS\|PMC_SUMMARY"
