@@ -36,5 +36,9 @@ export const PAYMENT_CLEARING_ROUTES = [
     { name: 'amount', pattern: PATTERNS.AMOUNT, required: false },
     BLANK, BLANK, BLANK, ACTOR,
   ] },
-  { method: 'post', path: '/payments/clearing/:id/cancel', action: 'PMC_CANCEL', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
+  { method: 'post', path: '/payments/clearing/:id/cancel', action: 'PMC_CANCEL', tokenIdentity: 'actor', fields: [
+    ID,
+    { name: 'reason', pattern: PATTERNS.REASON, required: false },
+    BLANK, BLANK, BLANK, ACTOR,
+  ] },
 ];
