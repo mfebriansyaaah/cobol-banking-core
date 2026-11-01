@@ -6,17 +6,24 @@ import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { resetPool } from '../src/pool.js';
 
-// Remove the users this suite created so the shared test database stays
-// consistent for the suites that run after it (see gateway.test.js).
-after(() => runSql("DELETE FROM users WHERE email LIKE 'ep\\_%'"));
+// Remove only this namespace so the shared test database stays consistent
+// for the suites that run after it (see gateway.test.js).
+after(() => { cleanupNamespace(NS); });
 // Drop pooled COBOL workers so the process can exit (see gateway.test.js).
 after(() => resetPool());
-import { seedUser, seedAccount, getVerificationCode, requireSeed, runSql, enableMfa, totp, TEST_MFA_SECRET } from './support.js';
+import { seedUser, seedAccount, getVerificationCode, requireSeed, runSql, enableMfa, totp, TEST_MFA_SECRET, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
 
 const app = buildApp();
 
+// Per-file fixture namespace: only this namespace is cleaned up, so parallel
+// suites cannot delete each other (see gateway.test.js).
+const NS = testNamespace('ep');
+const U = (tag) => uniqueEmail(NS, tag);
+let freshN = 0;
+
 async function freshUser() {
-  const email = `ep_${Date.now()}_${Math.floor(Math.random() * 1e6)}@test.com`;
+  freshN += 1;
+  const email = U(`user-${freshN}`);
   const s = await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'EP User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
@@ -36,7 +43,7 @@ async function adminStepUpFor(token, password = 'secret123') {
 
 test('every public endpoint responds', async () => {
   assert.equal((await request(app).get('/health')).status, 200);
-  const email = `ep_pub_${Date.now()}@test.com`;
+  const email = U('pub');
   const s = await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Pub User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
   // The verification code is not returned; it is delivered out of band.
@@ -57,7 +64,7 @@ test('every bearer endpoint responds', async () => {
   const other = await freshUser();
   requireSeed(seedAccount(other.email, '100.00'), 'seed an account');
 
-  const admin = `ep_admin_${Date.now()}@test.com`;
+  const admin = U('admin');
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   // An admin needs MFA to obtain a step-up proof, so the privileged writes
   // below can be exercised end to end.
@@ -180,11 +187,11 @@ test('every bearer endpoint responds', async () => {
     .post('/profile/email/request')
     .set(auth)
     .set('X-Step-Up', userStep)
-    .send({ email: other.email, newEmail: `ep_spoof_${Date.now()}@test.com`, actor: other.email, password: 'secret123' });
+    .send({ email: other.email, newEmail: U('spoof'), actor: other.email, password: 'secret123' });
   assert.equal(spoof.status, 403);
   assert.equal(spoof.body.error, 'FORBIDDEN');
 
-  const ne = `ep_new_${Date.now()}@test.com`;
+  const ne = U('new');
   const reqc = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', userStep).send({ email, newEmail: ne, password: 'secret123' });
   assert.equal(reqc.status, 200);
   assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') })).status, 200);

@@ -1,13 +1,20 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { getVerificationCode } from './support.js';
+import { getVerificationCode, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
 
 const app = buildApp();
 
+// Per-file fixture namespace with cleanup: without this, users leak
+// (no other suite cleans the sess_* pattern) and gateway.test.js's
+// broad gw_% cleanup deletes these users mid-run.
+const NS = testNamespace('sess');
+const U = (tag) => uniqueEmail(NS, tag);
+after(() => { cleanupNamespace(NS); });
+
 async function loginNewUser() {
-  const email = `gw_sess_${Date.now()}_${Math.floor(Math.random() * 1e6)}@test.com`;
+  const email = U('sess');
   await request(app)
     .post('/auth/signup')
     .send({ email, password: 'secret123', name: 'Session User', dob: '1990-01-01' });
@@ -39,7 +46,7 @@ test('logout revokes the refresh token', async () => {
 });
 
 test('logout revokes the access token too', async () => {
-  const email = `gw_rev_${Date.now()}_${Math.floor(Math.random() * 1e6)}@test.com`;
+  const email = U('rev');
   await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Revoke User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
@@ -57,7 +64,7 @@ test('logout revokes the access token too', async () => {
 });
 
 test('logout is per-device and leaves other sessions alone', async () => {
-  const email = `gw_dev_${Date.now()}_${Math.floor(Math.random() * 1e6)}@test.com`;
+  const email = U('dev');
   await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Device User', dob: '1990-01-01' });
   await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
   const a = await request(app).post('/auth/login').send({ email, password: 'secret123' });
