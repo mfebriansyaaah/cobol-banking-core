@@ -18,6 +18,13 @@ db_reset_merchant_settlement
 db_exec "DELETE FROM customer WHERE customer_ref='CUST-MCHS';"
 db_exec "INSERT INTO customer (customer_ref, full_name, customer_type, credit_limit, used_credit, status, kyc_status, created_by) VALUES ('CUST-MCHS','PT S','CORPORATE',1000000,0,'ONBOARDED','APPROVED','admin@test.com');"
 
+# Settlement period must contain TODAY: txns are captured with captured_at=NOW()
+# while the batch filters DATE(captured_at) BETWEEN period_start..period_end.
+# A hardcoded month breaks every month-boundary (e.g. November txns in an
+# October window select 0 rows and CALC fails with INVALID_STATE).
+PERIOD_START="$(date +%Y-%m-01)"
+PERIOD_END="$(date -d "$PERIOD_START +1 month -1 day" +%F)"
+
 # Onboard an ACTIVE merchant with fee profile.
 out="$(run_cobol "MRT_CREATE|MCH-S1|Toko S|RETAIL|||admin@test.com")"
 mid="$(printf '%s' "$out" | awk -F'|' '{print $3}')"
@@ -39,11 +46,11 @@ assert_match "txn while suspended" "$(run_cobol "MCS_TXN|${mid}|TXN-MS3|50000|ID
 db_exec "UPDATE merchant SET status='ACTIVE', version=version+1 WHERE id=${mid};"
 
 # Settlement batch OPEN -> CALC -> POST -> SETTLE.
-op="$(run_cobol "MCS_OPEN|${mid}|STL-MS1|2026-10-01|2026-10-31|IDR|admin@test.com")"
+op="$(run_cobol "MCS_OPEN|${mid}|STL-MS1|${PERIOD_START}|${PERIOD_END}|IDR|admin@test.com")"
 assert_match "open" "$op" "SUCCESS\|MCS_OPEN\|[0-9]+"
 sid="$(printf '%s' "$op" | awk -F'|' '{print $3}')"
 assert_match "open persisted" "$(db_query "SELECT status FROM merchant_settlement WHERE id=${sid};")" "^OPEN$"
-assert_match "duplicate ref" "$(run_cobol "MCS_OPEN|${mid}|STL-MS1|2026-10-01|2026-10-31|IDR|admin@test.com")" "ERROR\|DUPLICATE"
+assert_match "duplicate ref" "$(run_cobol "MCS_OPEN|${mid}|STL-MS1|${PERIOD_START}|${PERIOD_END}|IDR|admin@test.com")" "ERROR\|DUPLICATE"
 assert_match "calc" "$(run_cobol "MCS_CALC|${sid}|||||admin@test.com")" "SUCCESS\|MCS_CALC\|2"
 assert_match "gross" "$(db_query "SELECT gross_amount FROM merchant_settlement WHERE id=${sid};")" "^300000"
 assert_match "fee" "$(db_query "SELECT fee_amount FROM merchant_settlement WHERE id=${sid};")" "^9500"
@@ -59,7 +66,7 @@ assert_match "txn settled" "$(db_query "SELECT COUNT(*) FROM merchant_transactio
 assert_match "volume" "$(db_query "SELECT settled_volume FROM merchant WHERE id=${mid};")" "^290500"
 
 # CANCEL path: new batch, calc, cancel releases txns.
-op2="$(run_cobol "MCS_OPEN|${mid}|STL-MS2|2026-10-01|2026-10-31|IDR|admin@test.com")"
+op2="$(run_cobol "MCS_OPEN|${mid}|STL-MS2|${PERIOD_START}|${PERIOD_END}|IDR|admin@test.com")"
 sid2="$(printf '%s' "$op2" | awk -F'|' '{print $3}')"
 run_cobol "MCS_TXN|${mid}|TXN-MS3|50000|IDR||admin@test.com" >/dev/null
 run_cobol "MCS_CALC|${sid2}|||||admin@test.com" >/dev/null

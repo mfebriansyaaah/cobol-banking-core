@@ -22,6 +22,11 @@ db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) 
 
 echo "=== Merchant acquiring integration ==="
 
+# Settlement period must contain TODAY (see the same comment in
+# tests/db/merchant_settlement_domain_db_tests.sh): txns capture NOW().
+PERIOD_START="$(date +%Y-%m-01)"
+PERIOD_END="$(date -d "$PERIOD_START +1 month -1 day" +%F)"
+
 OUT=$(run_cobol "MRT_CREATE|MCH-INT-1|Toko Int|RETAIL|||$ADMIN")
 assert_match "create" "$OUT" "SUCCESS\|MRT_CREATE"
 MID=$(printf '%s' "$OUT" | awk -F'|' '{print $3}')
@@ -35,7 +40,7 @@ assert_match "activate" "$(run_cobol "MRT_ACTIVATE|${MID}|${ACC}||||$ADMIN")" "S
 assert_match "txn1" "$(run_cobol "MCS_TXN|${MID}|TXN-INT-1|100000|IDR|PMC-I1|$ADMIN")" "SUCCESS\|MCS_TXN"
 assert_match "txn2" "$(run_cobol "MCS_TXN|${MID}|TXN-INT-2|200000|IDR||$ADMIN")" "SUCCESS\|MCS_TXN"
 
-OP=$(run_cobol "MCS_OPEN|${MID}|STL-INT-1|2026-10-01|2026-10-31|IDR|$ADMIN")
+OP=$(run_cobol "MCS_OPEN|${MID}|STL-INT-1|${PERIOD_START}|${PERIOD_END}|IDR|$ADMIN")
 assert_match "open" "$OP" "SUCCESS\|MCS_OPEN"
 SID=$(printf '%s' "$OP" | awk -F'|' '{print $3}')
 assert_match "calc" "$(run_cobol "MCS_CALC|${SID}|||||$ADMIN")" "SUCCESS\|MCS_CALC"
