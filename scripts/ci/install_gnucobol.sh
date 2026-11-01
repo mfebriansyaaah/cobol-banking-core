@@ -61,12 +61,23 @@ fi
 echo "=== building (this takes a few minutes) ==="
 tar -xf "$WORK/gnucobol.tar.xz" -C "$WORK"
 cd "$WORK"/gnucobol-*
-# Modern GCC (14+) promotes old-C idioms to hard errors and defaults to a
+# Modern GCC (14+) turns old-C idioms into hard errors and defaults to a
 # newer C standard where K&R-style `int (*)()` prototypes reject arguments;
-# GnuCOBOL 3.2 predates both. Downgrade the new warnings and pin C17
-# semantics: the code is unchanged upstream and builds clean on the GCC
-# versions CI ships.
-export CFLAGS="${CFLAGS:--O2} -std=gnu17 -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=return-mismatch"
+# GnuCOBOL 3.2 predates both. Probe which downgrades/standards the local
+# compiler accepts: a -Wno-error=* name unknown to the compiler is itself a
+# hard error (e.g. gcc 13 has no -Wreturn-mismatch), which would break
+# configure's own compiler test.
+EXTRA_CFLAGS=""
+for _flag in -std=gnu17 \
+    -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration \
+    -Wno-error=implicit-int -Wno-error=return-mismatch; do
+    if printf 'int main(void){return 0;}\n' | gcc "$_flag" -x c -o /dev/null -c - >/dev/null 2>&1; then
+        EXTRA_CFLAGS="$EXTRA_CFLAGS $_flag"
+    else
+        echo "note: compiler does not accept $_flag; skipping" >&2
+    fi
+done
+export CFLAGS="${CFLAGS:--O2}${EXTRA_CFLAGS}"
 ./configure --prefix="$PREFIX" --without-db --without-curses >/tmp/gnucobol-configure.log 2>&1 || {
     tail -30 /tmp/gnucobol-configure.log >&2
     exit 1
