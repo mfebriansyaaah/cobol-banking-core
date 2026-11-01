@@ -254,17 +254,17 @@ run_gates() {
     # The static gates are independent (each reads the tree, none writes),
     # so run them in parallel and print the logs in stable order. Failures
     # still fail the run; the per-gate log names which gate broke.
-    echo "=== STATIC GATES (8 parallel) ==="
+    echo "=== STATIC GATES (9 parallel) ==="
     gate_pids=""
     gate_failed=0
-    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order; do
+    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order check_action_test_coverage; do
         node "scripts/$g.mjs" "$ROOT" >"/tmp/runall-gate-$g-$$.log" 2>&1 &
         gate_pids="$gate_pids $!"
     done
     for pid in $gate_pids; do
         wait "$pid" || gate_failed=1
     done
-    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order; do
+    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order check_action_test_coverage; do
         case "$g" in
             check_manifest) echo "=== MANIFEST CHECK ===";;
             check_route_dispatch) echo "=== ROUTE/DISPATCH CONTRACT CHECK ===";;
@@ -274,6 +274,7 @@ run_gates() {
             check_bind_slots) echo "=== BIND SLOT CHECK ===";;
             check_suite_coverage) echo "=== DB SUITE INVENTORY CHECK ===";;
             check_field_order) echo "=== FIELD ORDER CHECK ===";;
+            check_action_test_coverage) echo "=== ACTION TEST COVERAGE CHECK ===";;
         esac
         cat "/tmp/runall-gate-$g-$$.log"
         rm -f "/tmp/runall-gate-$g-$$.log"

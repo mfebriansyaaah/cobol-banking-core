@@ -8,7 +8,7 @@
 #   bash scripts/ci/premerge.sh [--full] [--probes] [--docs] [--all]
 #
 #   --full    also run the slow DB/gateway/full suite locally (CI always does)
-#   --probes  also run the gate-detection probes (10 mutations x 13 gates;
+#   --probes  also run the gate-detection probes (11 mutations x 14 gates;
 #             CI runs them in its build job)
 #   --docs    also run the docs gate (CI runs it in its build job)
 #   --all     --full --probes --docs together
