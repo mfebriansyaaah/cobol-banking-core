@@ -266,6 +266,39 @@
             MOVE FUNCTION NUMVAL(WS-TMP-SETTLED) TO WS-NUM-SETTLED
             EXIT PARAGRAPH.
 
+        LOCK-CLEARING.
+            *> Same projection as LOAD-CLEARING, but inside the caller's
+            *> transaction and holding the row lock while it re-validates.
+            MOVE SPACES TO WS-ERR
+            MOVE "SELECT CONCAT(amount, '|', posted_amount, '|', settled_amount, '|', status, '|', currency, '|', COALESCE(payment_ref, '')) FROM payment_clearing WHERE id = ? FOR UPDATE" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-TMP-AMT
+            MOVE SPACES TO WS-TMP-STR
+            MOVE SPACES TO WS-TMP-SETTLED
+            MOVE SPACES TO WS-TMP-STATUS
+            MOVE SPACES TO WS-TMP-CURR
+            MOVE SPACES TO WS-TMP-ID
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-AMT WS-TMP-STR WS-TMP-SETTLED WS-TMP-STATUS WS-TMP-CURR WS-TMP-ID
+            END-UNSTRING
+            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-TOTAL
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-POSTED
+            MOVE FUNCTION NUMVAL(WS-TMP-SETTLED) TO WS-NUM-SETTLED
+            EXIT PARAGRAPH.
+
         ACTION-CREATE.
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
@@ -463,15 +496,34 @@
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE payment_clearing SET posted_amount = posted_amount + ?, status = 'POSTED', posted_at = COALESCE(posted_at, NOW()) WHERE id = ?" TO WS-PREP-SQL
+            PERFORM LOCK-CLEARING
+            IF WS-ERR NOT = SPACES
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            IF WS-TMP-STATUS(1:6) NOT = "OPEN" AND WS-TMP-STATUS(1:6) NOT = "POSTED"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-NUM-POSTED + WS-NUM-AMOUNT > WS-NUM-TOTAL
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE payment_clearing SET posted_amount = posted_amount + ?, status = 'POSTED', posted_at = COALESCE(posted_at, NOW()) WHERE id = ? AND status IN ('OPEN','POSTED') AND posted_amount + ? <= amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
@@ -530,17 +582,41 @@
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE payment_clearing SET status = CASE WHEN settled_amount + ? >= posted_amount THEN 'SETTLED' ELSE 'POSTED' END, settled_at = CASE WHEN settled_amount + ? >= posted_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ? WHERE id = ?" TO WS-PREP-SQL
+            PERFORM LOCK-CLEARING
+            IF WS-ERR NOT = SPACES
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            IF WS-TMP-STATUS(1:7) = "SETTLED" OR WS-TMP-STATUS(1:9) = "CANCELLED"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-NUM-POSTED <= WS-NUM-SETTLED
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-NUM-SETTLED + WS-NUM-AMOUNT > WS-NUM-POSTED
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE payment_clearing SET status = CASE WHEN settled_amount + ? >= posted_amount THEN 'SETTLED' ELSE 'POSTED' END, settled_at = CASE WHEN settled_amount + ? >= posted_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ? WHERE id = ? AND status IN ('OPEN','POSTED') AND settled_amount + ? <= posted_amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-TMP-AMT TO WS-BIND-2
             MOVE WS-TMP-AMT TO WS-BIND-3
             MOVE WS-P1-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+            MOVE WS-TMP-AMT TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
@@ -580,7 +656,23 @@
             END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE payment_clearing SET status = 'CANCELLED', cancelled_at = NOW(), cancellation_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
+            PERFORM LOCK-CLEARING
+            IF WS-ERR NOT = SPACES
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-TMP-STATUS(1:7) = "SETTLED" OR WS-TMP-STATUS(1:9) = "CANCELLED"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-NUM-POSTED > 0
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE payment_clearing SET status = 'CANCELLED', cancelled_at = NOW(), cancellation_reason = NULLIF(?, '') WHERE id = ? AND status IN ('OPEN','POSTED') AND posted_amount = 0" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -588,7 +680,7 @@
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
