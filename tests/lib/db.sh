@@ -102,6 +102,10 @@ db_reset_payment_clearing() {
     db_exec "DELETE FROM payment_clearing_audit; DELETE FROM payment_clearing;"
 }
 
+db_reset_fee_velocity() {
+    db_exec "DELETE FROM velocity_counter; DELETE FROM velocity_profile;"
+}
+
 db_reset_treasury_liquidity() {
     db_exec "DELETE FROM treasury_liquidity_audit; DELETE FROM treasury_liquidity;"
 }

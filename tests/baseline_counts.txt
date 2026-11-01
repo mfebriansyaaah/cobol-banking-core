@@ -537,3 +537,5 @@ db_micro_lending_tests=13
 db_nano_lending_tests=13
 db_peer_lending_tests=13
 db_crowd_lending_tests=13
+
+db_fee_velocity_tests=7
