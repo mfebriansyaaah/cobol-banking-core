@@ -87,6 +87,20 @@ assert_match "idem settle first" "$(run_cobol "PMC_SETTLE|${idem_id}|40.00|idem-
 assert_match "idem settle replay" "$(run_cobol "PMC_SETTLE|${idem_id}|40.00|idem-settle-1|||admin@test.com")" "SUCCESS\|PMC_SETTLE\|40.00"
 assert_match "idem settle applied once" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${idem_id};")" "^40.0000$"
 
+# The same idempotency key under concurrency must apply once; the loser waits
+# on the unique key and replays the committed success.
+idem_conc_create="$(run_cobol "PMC_CREATE|CLR-D5-IDEMC|100.00|USD|||admin@test.com")"
+idem_conc_id="$(printf '%s' "$idem_conc_create" | awk -F'|' '{print $3}')"
+conc_dir2="$(mktemp -d "${TMPDIR:-/tmp}/pmc-idem.XXXXXX")"
+( COBOL_TEST_SERVE=0; run_cobol "PMC_POST|${idem_conc_id}|40.00|idem-conc-1|||admin@test.com" ) >"$conc_dir2/a" &
+idem_a=$!
+( COBOL_TEST_SERVE=0; run_cobol "PMC_POST|${idem_conc_id}|40.00|idem-conc-1|||admin@test.com" ) >"$conc_dir2/b" &
+idem_b=$!
+wait "$idem_a" "$idem_b" || true
+assert_match "same-key concurrent posts both succeed" "$( { cat "$conc_dir2/a"; echo; cat "$conc_dir2/b"; } | grep -c '^SUCCESS')" "^2$"
+assert_match "same-key concurrent post applied once" "$(db_query "SELECT posted_amount FROM payment_clearing WHERE id=${idem_conc_id};")" "^40.0000$"
+rm -rf "$conc_dir2"
+
 # Summary and audit.
 assert_match "PMC_SUMMARY ok" "$(run_cobol "PMC_SUMMARY||||||admin@test.com")" "SUCCESS\|PMC_SUMMARY"
 assert_match "PMC_AUDIT ok" "$(run_cobol "PMC_AUDIT|50|0||||admin@test.com")" "SUCCESS\|PMC_AUDIT"
