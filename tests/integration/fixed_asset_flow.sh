@@ -18,6 +18,8 @@ ADMIN="faint@test.com"
 db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('$ADMIN', CONCAT('SHA256_',SHA2('secret123',256)), 'Fa Int', '1990-01-01', 'VERIFIED', 'SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';"
 
 echo "=== Fixed asset integration (capitalize -> depreciate -> revalue -> dispose) ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
 
 OUT=$(run_cobol "FAS_CAPITALIZE|FA-INT-1|Gedung|BUILDING|1200000:200000:120|2026-01-15:CC-01:1500:5000:4200|$ADMIN")
 assert_match "capitalize" "$OUT" "SUCCESS\|FAS_CAPITALIZE"
@@ -27,7 +29,7 @@ assert_match "active" "$(db_query "SELECT status FROM fixed_asset WHERE id=${AID
 assert_match "depreciate" "$(run_cobol "FAS_DEPRECIATE|${AID}|2026-10||||$ADMIN")" "SUCCESS\|FAS_DEPRECIATE\|8333"
 assert_match "duplicate period" "$(run_cobol "FAS_DEPRECIATE|${AID}|2026-10||||$ADMIN")" "ERROR\|DUPLICATE"
 
-GOUT=$(run_cobol "GL_JOURNAL_POST|2026-10-30|Fixed asset FA-INT-1 depr|5000|1100|IDR:8333.3333|$ADMIN")
+GOUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Fixed asset FA-INT-1 depr|5000|1100|IDR:8333.3333|$ADMIN")
 assert_match "gl posted" "$GOUT" "SUCCESS\|GL_POSTED"
 GJ=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "gl balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount) AND SUM(debit_amount)>0,'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=${GJ};")" "^BALANCED$"

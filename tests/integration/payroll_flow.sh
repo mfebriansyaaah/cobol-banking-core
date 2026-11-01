@@ -31,6 +31,8 @@ db_exec "INSERT INTO tax_management (tax_ref, rule_code, tax_name, tax_type, max
 RID="$(db_query "SELECT id FROM tax_management WHERE tax_ref='TXR-PINT';")"
 
 echo "=== Payroll integration (batch -> tax -> GL -> pay) ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
 
 OUT=$(run_cobol "PRL_CREATE|PAY-INT-1|Gaji Jan|MONTHLY|CUST-PAYI|${ACC}|$ADMIN")
 assert_match "create with company+account" "$OUT" "SUCCESS\|PRL_CREATE"
@@ -47,7 +49,7 @@ assert_match "net total" "$(db_query "SELECT total_net FROM payroll_processing W
 
 # GL: salary expense 570k + tax payable via tax entry is separate domain;
 # here post net payout (debit salary expense 5000, credit cash 1000).
-GOUT=$(run_cobol "GL_JOURNAL_POST|2026-10-30|Payroll PAY-INT-1|5000|1000|IDR:57000|$ADMIN")
+GOUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Payroll PAY-INT-1|5000|1000|IDR:57000|$ADMIN")
 assert_match "gl posted" "$GOUT" "SUCCESS\|GL_POSTED"
 GJ=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "gl balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount) AND SUM(debit_amount)>0,'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=${GJ};")" "^BALANCED$"
