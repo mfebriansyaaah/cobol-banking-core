@@ -22,6 +22,8 @@ db_exec "INSERT INTO loan_application (customer_email, principal, currency, term
 LOAN_ID=$(db_query "SELECT id FROM loan_application WHERE customer_email='$ADMIN' ORDER BY id DESC LIMIT 1;")
 
 echo "=== Collateral <-> Loan integration (loan $LOAN_ID) ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
 
 REG=$(run_cobol "CLT_REGISTER|CLT-INT-1|Ruko Sudirman|PROPERTY|800000000|$ADMIN|$ADMIN")
 assert_match "register" "$REG" "SUCCESS\|CLT_REGISTER"
@@ -46,7 +48,7 @@ CID2=$(printf '%s' "$REG2" | awk -F'|' '{print $3}')
 run_cobol "CLT_APPRAISE|${CID2}|280000000|KJPP|MARKET|Awal|$ADMIN" >/dev/null
 run_cobol "CLT_PLEDGE|${CID2}|${LOAN_ID}|100000000|10||$ADMIN" >/dev/null
 run_cobol "CLT_REPOSSESS|${CID2}|${LOAN_ID}|Default|||$ADMIN" >/dev/null
-GL_OUT=$(run_cobol "GL_JOURNAL_POST|2026-10-29|Disposal ${CID2}|1000|4210|IDR:120000000|$ADMIN")
+GL_OUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Disposal ${CID2}|1000|4210|IDR:120000000|$ADMIN")
 assert_match "gl posted" "$GL_OUT" "SUCCESS\|GL_POSTED"
 JID=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "dispose with gl" "$(run_cobol "CLT_DISPOSE|${CID2}|120000000|Lelang|${JID}||$ADMIN")" "SUCCESS\|CLT_DISPOSE"

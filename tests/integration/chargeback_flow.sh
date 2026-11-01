@@ -25,6 +25,8 @@ T1=$(db_query "SELECT id FROM card_transaction WHERE auth_ref='CHB-I1';")
 T2=$(db_query "SELECT id FROM card_transaction WHERE auth_ref='CHB-I2';")
 
 echo "=== Chargeback integration (card -> hold -> accept -> GL) ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
 
 # Merchant for reporting linkage.
 MOUT=$(run_cobol "MRT_CREATE|CHB-INT-M|Toko Int|RETAIL|||admin@test.com")
@@ -39,7 +41,7 @@ assert_match "represent" "$(run_cobol "CHB_REPRESENT|${CB}|||||$ADMIN")" "SUCCES
 
 # Payment clearing stub + GL for the accept leg.
 run_cobol "PMC_CREATE|PMC-CHB-1|500000|IDR|||admin@test.com" >/dev/null
-GOUT=$(run_cobol "GL_JOURNAL_POST|2026-10-30|Chargeback CHB-INT-1|5000|1100|IDR:500000|admin@test.com")
+GOUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Chargeback CHB-INT-1|5000|1100|IDR:500000|admin@test.com")
 assert_match "gl posted" "$GOUT" "SUCCESS\|GL_POSTED"
 GJ=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "accept" "$(run_cobol "CHB_ACCEPT|${CB}|${GJ}|PMC-CHB-1|||$ADMIN")" "SUCCESS\|CHB_ACCEPT"

@@ -21,6 +21,8 @@ ADMIN="mchint@test.com"
 db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('$ADMIN', CONCAT('SHA256_',SHA2('secret123',256)), 'Mch Int', '1990-01-01', 'VERIFIED', 'SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';"
 
 echo "=== Merchant acquiring integration ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
 
 # Settlement period must contain TODAY (see the same comment in
 # tests/db/merchant_settlement_domain_db_tests.sh): txns capture NOW().
@@ -47,7 +49,7 @@ assert_match "calc" "$(run_cobol "MCS_CALC|${SID}|||||$ADMIN")" "SUCCESS\|MCS_CA
 
 # GL: net = (100000-2500) + (200000-4500) = 293000.
 # debit settlement clearing (5000 expense), credit merchant payable (1100).
-GL_OUT=$(run_cobol "GL_JOURNAL_POST|2026-10-30|Merchant STL-INT-1|5000|1100|IDR:293000|$ADMIN")
+GL_OUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Merchant STL-INT-1|5000|1100|IDR:293000|$ADMIN")
 assert_match "gl posted" "$GL_OUT" "SUCCESS\|GL_POSTED"
 GJID=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "gl balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount) AND SUM(debit_amount)>0,'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=${GJID};")" "^BALANCED$"

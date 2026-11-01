@@ -21,6 +21,8 @@ db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) 
 PERIOD="$(db_query "SELECT DATE_FORMAT(NOW(),'%Y-%m');")"
 
 echo "=== Tax withholding integration (deposit + fee) ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
 
 # Rule: 10% no threshold, gl 5000.
 ROUT=$(run_cobol "TXM_RULE_CREATE|TXR-INT|PPh 21|WITHHOLDING|10:0:0:0|IDR:5000:2026-01-01:|admin@test.com")
@@ -39,7 +41,7 @@ COUT=$(run_cobol "TXM_CALC|${RID}|DEPOSIT_INTEREST|DEPINT-${DID}|${INTEREST}|IDR
 assert_match "calc deposit tax" "$COUT" "SUCCESS\|TXM_CALC"
 DEID=$(printf '%s' "$COUT" | awk -F'|' '{print $3}')
 TAX1=$(printf '%s' "$COUT" | awk -F'|' '{print $4}')
-GOUT=$(run_cobol "GL_JOURNAL_POST|2026-10-30|Tax deposit ${DID}|5000|1100|IDR:${TAX1}|admin@test.com")
+GOUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Tax deposit ${DID}|5000|1100|IDR:${TAX1}|admin@test.com")
 assert_match "gl posted" "$GOUT" "SUCCESS\|GL_POSTED"
 GJ1=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "post deposit tax" "$(run_cobol "TXM_POST|${DEID}|${GJ1}||||admin@test.com")" "SUCCESS\|TXM_POST"
@@ -53,7 +55,7 @@ FOUT2=$(run_cobol "TXM_CALC|${RID}|FEE|FEE-TAXI-1|${FEEAMT}|IDR|admin@test.com")
 assert_match "calc fee tax" "$FOUT2" "SUCCESS\|TXM_CALC"
 FEID=$(printf '%s' "$FOUT2" | awk -F'|' '{print $3}')
 TAX2=$(printf '%s' "$FOUT2" | awk -F'|' '{print $4}')
-GOUT2=$(run_cobol "GL_JOURNAL_POST|2026-10-30|Tax fee|5000|1100|IDR:${TAX2}|admin@test.com")
+GOUT2=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|Tax fee|5000|1100|IDR:${TAX2}|admin@test.com")
 assert_match "gl posted fee" "$GOUT2" "SUCCESS\|GL_POSTED"
 GJ2=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "post fee tax" "$(run_cobol "TXM_POST|${FEID}|${GJ2}||||admin@test.com")" "SUCCESS\|TXM_POST"

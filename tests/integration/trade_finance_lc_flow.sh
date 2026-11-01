@@ -20,6 +20,8 @@ ADMIN="lcint@test.com"
 db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('$ADMIN', CONCAT('SHA256_',SHA2('secret123',256)), 'LC Int', '1990-01-01', 'VERIFIED', 'SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';"
 
 echo "=== Trade Finance LC integration ==="
+# GL posting date must fall in an OPEN period (gl_period holds the current month).
+GL_DATE="$(date +%F)"
 
 OUT=$(run_cobol "LOC_CREATE|LC-INT-1|CUST-LCINT|PT Buyer|SIGHT|IDR:1000000:2026-12-31|$ADMIN")
 assert_match "create draft" "$OUT" "SUCCESS\|LOC_CREATE"
@@ -39,7 +41,7 @@ assert_match "draw" "$(run_cobol "LOC_DRAW|${LC_ID}|1|300000|IDR|2027-01-15|$ADM
 DID=$(db_query "SELECT drawing_id FROM lc_drawing WHERE lc_id=${LC_ID} ORDER BY drawing_id DESC LIMIT 1;")
 
 # GL: settle 300k (debit customer deposits 1100, credit cash 1000).
-GL_OUT=$(run_cobol "GL_JOURNAL_POST|2026-10-30|LC settlement ${LC_ID}|1100|1000|IDR:300000|$ADMIN")
+GL_OUT=$(run_cobol "GL_JOURNAL_POST|${GL_DATE}|LC settlement ${LC_ID}|1100|1000|IDR:300000|$ADMIN")
 assert_match "gl posted" "$GL_OUT" "SUCCESS\|GL_POSTED"
 GJID=$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")
 assert_match "gl balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount) AND SUM(debit_amount)>0,'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=${GJID};")" "^BALANCED$"
