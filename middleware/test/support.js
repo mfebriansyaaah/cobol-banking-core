@@ -193,7 +193,7 @@ export function refreshExchangeRates() {
 // and the residue check (scripts/check_test_residue.sh) find it.
 export function testNamespace(tag) {
   const clean = String(tag).replace(/[^a-z0-9-]/gi, '').toLowerCase().slice(0, 12) || 't';
-  const shared = String(process.env.TEST_RUN_ID || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+  const shared = String(process.env.TEST_RUN_ID || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 24);
   const stamp = shared || `${Date.now().toString(36)}${(process.pid >>> 0).toString(36)}`;
   const rand = Math.floor(Math.random() * 46656).toString(36).padStart(3, '0');
   // Dashes delimit every segment so scripts/check_test_residue.sh can match
