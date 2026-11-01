@@ -321,7 +321,6 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: read
-      issues: write
 
     services:
       mariadb:
@@ -408,70 +407,50 @@ jobs:
       - name: Curated COBOL coverage (impact-selected)
         run: bash scripts/ci/coverage.sh --cobol-only --changed origin/main --json
 
-      - name: Post coverage comment
+      - name: Coverage summary
         if: always()
-        continue-on-error: true
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const marker = '<!-- cobol-coverage -->';
-            if (!fs.existsSync('coverage/summary.json')) {
-              core.info('no coverage/summary.json (measurement skipped or failed early); not commenting');
-              return;
-            }
-            const summary = JSON.parse(fs.readFileSync('coverage/summary.json', 'utf8'));
+        run: |
+          if [ ! -f coverage/summary.json ]; then
+            echo "no coverage/summary.json (measurement skipped or failed early)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node -e '
+            const fs = require("fs");
+            const summary = JSON.parse(fs.readFileSync("coverage/summary.json", "utf8"));
             const base = {};
-            for (const line of fs.readFileSync('tests/coverage_baseline.txt', 'utf8').split('\n')) {
+            for (const line of fs.readFileSync("tests/coverage_baseline.txt", "utf8").split("\n")) {
               const t = line.trim();
-              if (!t || t.startsWith('#')) continue;
+              if (!t || t.startsWith("#")) continue;
               const [k, v] = t.split(/\s+/);
               base[k] = Number(v);
             }
-            const rows = JSON.parse(fs.readFileSync('coverage/cobol.json', 'utf8')).modules;
+            const rows = JSON.parse(fs.readFileSync("coverage/cobol.json", "utf8")).modules;
             const modBase = new Map();
-            for (const line of fs.readFileSync('tests/coverage_module_baseline.txt', 'utf8').split('\n')) {
+            for (const line of fs.readFileSync("tests/coverage_module_baseline.txt", "utf8").split("\n")) {
               const t = line.trim();
-              if (!t || t.startsWith('#')) continue;
+              if (!t || t.startsWith("#")) continue;
               const [m, v] = t.split(/\s+/);
               modBase.set(m, Number(v));
             }
             const dropped = rows
               .filter((r) => modBase.has(r.module) && r.percent < modBase.get(r.module) - 1.0)
               .sort((a, b) => (a.percent - modBase.get(a.module)) - (b.percent - modBase.get(b.module)));
-            const d = (v, b) => `${v.toFixed(2)}% (baseline ${b.toFixed(2)}%, ${v - b >= 0 ? '+' : ''}${(v - b).toFixed(2)}pp)`;
-            const lines = [
-              marker,
-              '## Coverage (curated COBOL + gateway)',
-              '',
-              `| Suite | Measured | Baseline |`,
-              `|---|---|---|`,
+            const d = (v, b) => `${v.toFixed(2)}% (baseline ${b.toFixed(2)}%, ${v - b >= 0 ? "+" : ""}${(v - b).toFixed(2)}pp)`;
+            const out = ["## Coverage (curated COBOL + gateway)", "",
+              "| Suite | Measured | Baseline |", "|---|---|---|",
               `| COBOL curated | ${summary.cobol.percent.toFixed(2)}% covered of ${summary.cobol.executable} lines | ${d(summary.cobol.percent, base.cobol_total)} / floor 30% |`,
               `| gateway lines | ${summary.gateway.lines.toFixed(2)}% | floor 80%, baseline ${base.gateway_lines}% |`,
-              `| gateway branches | ${summary.gateway.branches.toFixed(2)}% | floor 70%, baseline ${base.gateway_branches}% |`,
-              '',
-            ];
+              `| gateway branches | ${summary.gateway.branches.toFixed(2)}% | floor 70%, baseline ${base.gateway_branches}% |`, ""];
             if (dropped.length) {
-              lines.push(`Modules below baseline (>1pp):`);
-              for (const r of dropped) lines.push(`- ${r.module}: ${r.percent}% vs ${modBase.get(r.module)}%`);
-              lines.push('');
+              out.push("Modules below baseline (>1pp):");
+              for (const r of dropped) out.push(`- ${r.module}: ${r.percent}% vs ${modBase.get(r.module)}%`);
+              out.push("");
             } else {
-              lines.push('No curated module dropped below its baseline.');
-              lines.push('');
+              out.push("No curated module dropped below its baseline.", "");
             }
-            lines.push(`Full report: see the \`coverage-pr\` artifact on this run.`);
-            const body = lines.join('\n');
-            const { data: comments } = await github.rest.issues.listComments({
-              ...context.repo, issue_number: context.issue.number, per_page: 100,
-            });
-            const mine = comments.find((c) => c.user.type === 'Bot' && c.body.includes(marker));
-            if (mine) {
-              await github.rest.issues.updateComment({ ...context.repo, comment_id: mine.id, body });
-              core.info(`updated comment ${mine.id}`);
-            } else {
-              await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
-              core.info('created comment');
-            }
+            out.push("Full report: see the `coverage-pr` artifact on this run.");
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out.join("\n") + "\n");
+          '
 
       - name: Upload coverage
         if: always()

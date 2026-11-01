@@ -110,10 +110,11 @@ from going unnoticed, raising it is separate work.
   runs `scripts/ci/coverage.sh --cobol-only --changed origin/main --json`.
   When the change set touches no curated inputs (docs, gateway-only changes,
   other domains), the instrumented build is skipped in seconds. Otherwise the
-  full curated measurement runs and a bot comment posts totals vs baselines
-  plus any module below its baseline (one comment per PR, updated in place).
-  The comment step is best-effort (`continue-on-error`); the measurement
-  gates the job.
+  full curated measurement runs and a Markdown summary (totals vs baselines,
+  any module below its baseline) is appended to the run summary, with the
+  full report in the `coverage-pr` artifact. (A PR comment is not used: this
+  repository's token permissions are read-only, so `issues: write` calls
+  fail; the run summary needs no extra permission.)
 - **Nightly:** `.github/workflows/coverage.yml` runs the full COBOL + gateway
   measurement with a MariaDB service and uploads the report. It can also be
   started manually with `workflow_dispatch`.
