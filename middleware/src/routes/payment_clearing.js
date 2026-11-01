@@ -29,12 +29,14 @@ export const PAYMENT_CLEARING_ROUTES = [
   { method: 'post', path: '/payments/clearing/:id/post', action: 'PMC_POST', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'amount', pattern: PATTERNS.AMOUNT, required: false },
-    BLANK, BLANK, BLANK, ACTOR,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    BLANK, BLANK, ACTOR,
   ] },
   { method: 'post', path: '/payments/clearing/:id/settle', action: 'PMC_SETTLE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'amount', pattern: PATTERNS.AMOUNT, required: false },
-    BLANK, BLANK, BLANK, ACTOR,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    BLANK, BLANK, ACTOR,
   ] },
   { method: 'post', path: '/payments/clearing/:id/cancel', action: 'PMC_CANCEL', tokenIdentity: 'actor', fields: [
     ID,

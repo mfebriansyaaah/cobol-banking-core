@@ -45282,7 +45282,7 @@
     "fields": [
       "ID",
       "amount",
-      "BLANK",
+      "idempotencyKey",
       "BLANK",
       "BLANK",
       "ACTOR"
@@ -45295,7 +45295,7 @@
     "fields": [
       "ID",
       "amount",
-      "BLANK",
+      "idempotencyKey",
       "BLANK",
       "BLANK",
       "ACTOR"
