@@ -181,3 +181,29 @@ export function seedAccount(email, balance = '1000.00') {
 export function refreshExchangeRates() {
   return runSql('UPDATE exchange_rates SET updated_at = NOW();');
 }
+
+// Per-run fixture namespace, e.g. `gw-lxyzab12cd34`. Dashes need no LIKE
+// escaping (unlike the old `_` wildcards that forced 'ep\_%' quoting).
+// Unique across processes, files, and reruns: the pid separates parallel
+// test files, timestamp+rand separates serial reruns and same-ms spawns.
+// Every test-created user must go through uniqueEmail() so cleanupNamespace()
+// and the residue check (scripts/check_test_residue.sh) find it.
+export function testNamespace(tag) {
+  const clean = String(tag).replace(/[^a-z0-9-]/gi, '').toLowerCase().slice(0, 12) || 't';
+  const stamp = Date.now().toString(36);
+  const pid = (process.pid >>> 0).toString(36);
+  const rand = Math.floor(Math.random() * 46656).toString(36).padStart(3, '0');
+  return `${clean}-${stamp}${pid}${rand}`;
+}
+
+export function uniqueEmail(ns, name = 'u') {
+  const tag = String(name).replace(/[^a-z0-9-]/gi, '').toLowerCase().slice(0, 24) || 'u';
+  return `${ns}-${tag}@test.com`;
+}
+
+// Delete every user in a namespace. Accounts, ledger rows, sessions and
+// pending intents cascade away (see gateway.test.js). Returns false when the
+// mysql client is unavailable.
+export function cleanupNamespace(ns) {
+  return runSql(`DELETE FROM users WHERE email LIKE '${ns}-%'`);
+}
