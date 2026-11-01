@@ -14,6 +14,7 @@ import { resetPool } from '../src/pool.js';
 // show up as a false reconciliation mismatch once another suite wipes the
 // ledger.
 after(() => runSql("DELETE FROM users WHERE email LIKE 'gw\\_%'"));
+after(() => runSql("DELETE FROM loan_application WHERE customer_email LIKE 'gw\\_%'"));
 // Drop pooled COBOL workers so the process can exit: spawned --serve
 // children keep the event loop alive (pool.test.js does the same).
 after(() => resetPool());
@@ -1488,4 +1489,52 @@ test('loan summary is not shadowed by /loans/:id', async () => {
   const res = await request(app).get('/loans/summary').set('Authorization', `Bearer ${token}`);
   assert.equal(res.status, 200);
   assert.equal(res.body.data[0], 'LOAN_SUMMARY');
+});
+
+test('loan apply/list/get/approve/disburse stay on the application model', async () => {
+  const admin = `gw_loan_lifecycle_${Date.now()}@test.com`;
+  const customer = `gw_loan_customer_${Date.now()}@test.com`;
+  requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a loan lifecycle admin');
+  enableMfa(admin);
+  const token = await adminLoginFor(admin);
+  const auth = { Authorization: `Bearer ${token}` };
+
+  const apply = await request(app).post('/loans').set(auth).send({
+    email: customer,
+    principal: '1000.00',
+    currency: 'USD',
+    term: '12',
+    rate: '10.00',
+  });
+  assert.equal(apply.status, 200);
+  assert.equal(apply.body.data[0], 'LOAN_APPLY');
+  const id = apply.body.data[1];
+  assert.match(id, /^\d+$/);
+
+  const get = await request(app).get(`/loans/${id}`).set(auth);
+  assert.equal(get.status, 200);
+  assert.equal(get.body.data[0], 'LOAN_GET');
+  assert.equal(get.body.data[1], id);
+  assert.equal(get.body.data[2], customer);
+  assert.equal(get.body.data[7], 'PENDING');
+
+  const list = await request(app).get('/loans').set(auth).query({ status: 'PENDING' });
+  assert.equal(list.status, 200);
+  assert.equal(list.body.data[0], 'LOAN_LIST');
+  assert.ok(String(list.body.data[1]).split(';').some((row) => row.startsWith(`${id}:${customer}:`)));
+  const page = await request(app).get('/loans').set(auth).query({ status: 'PENDING', limit: '1', offset: '0' });
+  assert.equal(page.status, 200);
+  assert.equal(String(page.body.data[1]).split(';').length, 1);
+
+  const approve = await request(app).post(`/loans/${id}/approve`).set(auth).send({ rate: '10.00', note: 'ok' });
+  assert.equal(approve.status, 200);
+  assert.equal(approve.body.data[0], 'LOAN_APPROVE');
+  const approved = await request(app).get(`/loans/${id}`).set(auth);
+  assert.equal(approved.body.data[7], 'APPROVED');
+
+  const disburse = await request(app).post(`/loans/${id}/disburse`).set(auth).send({});
+  assert.equal(disburse.status, 200);
+  assert.equal(disburse.body.data[0], 'LOAN_DISBURSE');
+  const disbursed = await request(app).get(`/loans/${id}`).set(auth);
+  assert.equal(disbursed.body.data[7], 'DISBURSED');
 });
