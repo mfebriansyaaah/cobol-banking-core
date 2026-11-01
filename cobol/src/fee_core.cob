@@ -4,8 +4,6 @@
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -1338,6 +1336,16 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           *> Enforce the limit here as well: recording directly must not
+           *> bypass the /velocity/check endpoint.
+           PERFORM ACTION-VEL-CHECK
+           IF LS-OUTPUT-BUFFER(1:5) = "ERROR"
+               EXIT PARAGRAPH
+           END-IF
+           IF LS-OUTPUT-BUFFER(1:24) = "SUCCESS|VELOCITY|BLOCKED"
+               MOVE "ERROR|VELOCITY_EXCEEDED" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
            CALL "SQL_BEGIN" END-CALL
