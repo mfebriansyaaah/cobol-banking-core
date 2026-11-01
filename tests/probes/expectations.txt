@@ -51,3 +51,9 @@ p7_missing_assertion=detected
 # the COBOL handler all still exist; only the positional gateway->COBOL
 # mapping shifts. check_field_order notices.
 p8_field_order_drift=detected
+
+# One run_cobol invocation replaced by a canned SUCCESS string. The suite
+# still exits 0 with all assertions green and the counts unchanged, so neither
+# the runner nor the count gate notices — but the action is never executed,
+# which only check_action_test_coverage sees.
+p9_action_without_test=detected
