@@ -143,7 +143,7 @@ suites, table cases, and the action/suite inventory gates. See
 |---|---:|
 | COBOL modules | **605** |
 | COBOL source files (incl. dispatcher) | **606** |
-| COBOL lines | **419,328** |
+| COBOL lines | **419,441** |
 | Gateway route files | **600** |
 | Gateway route definitions | **5,427** |
 | Dispatch entries | **683** |

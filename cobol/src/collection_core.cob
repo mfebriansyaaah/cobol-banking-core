@@ -71,6 +71,15 @@
        01  WS-ACT-AMOUNT           PIC X(100) VALUE SPACES.
        01  WS-TMP-ASSIGNED         PIC X(100) VALUE SPACES.
        01  WS-TMP-ID               PIC X(100) VALUE SPACES.
+       01  WS-TMP-LOAN-ID          PIC X(20) VALUE SPACES.
+       01  WS-TMP-INST-ID          PIC X(20) VALUE SPACES.
+       01  WS-REMAIN-ALLOC         PIC 9(15)V9(4) VALUE 0.
+       01  WS-INST-DUE-NUM         PIC 9(15)V9(4) VALUE 0.
+       01  WS-INST-ALLOC-NUM       PIC 9(15)V9(4) VALUE 0.
+       01  WS-INST-ID              PIC X(20) VALUE SPACES.
+       01  WS-ALLOC-DONE           PIC X VALUE 'N'.
+           88  ALLOC-DONE          VALUE 'Y'.
+       01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
        01  WS-AGE-WHERE            PIC X(120) VALUE SPACES.
        01  WS-AGE-1                PIC X(100) VALUE SPACES.
        01  WS-AGE-2                PIC X(100) VALUE SPACES.
@@ -358,7 +367,7 @@
        LOAD-CASE.
            MOVE 'N' TO WS-CASE-OK
            MOVE SPACES TO WS-ERR
-           MOVE "SELECT CONCAT(id, '|', customer_email, '|', currency, '|', overdue_amount, '|', recovered_amount, '|', status, '|', COALESCE(assigned_to, ''), '|', COALESCE(promise_date, ''), '|', promise_amount, '|', escalation_level) FROM collection_case WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(id, '|', customer_email, '|', currency, '|', overdue_amount, '|', recovered_amount, '|', status, '|', COALESCE(assigned_to, ''), '|', COALESCE(promise_date, ''), '|', promise_amount, '|', escalation_level, '|', loan_id, '|', COALESCE(installment_id, '')) FROM collection_case WHERE id = ? LIMIT 1" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
@@ -383,9 +392,12 @@
            MOVE SPACES TO WS-TMP-DATE
            MOVE SPACES TO WS-TMP-NOTE
            MOVE SPACES TO WS-TMP-LEVEL
+           MOVE SPACES TO WS-TMP-LOAN-ID
+           MOVE SPACES TO WS-TMP-INST-ID
            UNSTRING WS-RESULT DELIMITED BY "|" INTO
                WS-TMP-ID WS-TMP-EMAIL WS-TMP-CURR WS-TMP-AMT WS-TMP-STR
-               WS-TMP-STATUS WS-TMP-ASSIGNED WS-TMP-DATE WS-TMP-NOTE WS-TMP-LEVEL
+               WS-TMP-STATUS WS-TMP-ASSIGNED WS-TMP-DATE WS-TMP-NOTE
+               WS-TMP-LEVEL WS-TMP-LOAN-ID WS-TMP-INST-ID
            END-UNSTRING
            MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-OVERDUE
            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-RECOVERED
@@ -440,6 +452,23 @@
            PERFORM CALC-OVERDUE
            IF NOT OVERDUE-READY
                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT 1 FROM collection_case WHERE loan_id = ? AND status NOT IN ('CLOSED','CANCELLED') LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P2-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               CONTINUE
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
+               END-IF
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT 1 FROM collection_case WHERE case_ref = ? LIMIT 1" TO WS-PREP-SQL
@@ -870,19 +899,39 @@
            END-IF.
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
-           MOVE "UPDATE collection_case SET recovered_amount = recovered_amount + ?, status = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'CLOSED' ELSE 'OPEN' END, closed_at = CASE WHEN recovered_amount + ? >= overdue_amount THEN NOW() ELSE closed_at END, resolution = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'PAID_IN_FULL' ELSE resolution END WHERE id = ?" TO WS-PREP-SQL
-           MOVE WS-P2-TRIMMED TO WS-BIND-1
-           MOVE WS-P2-TRIMMED TO WS-BIND-2
-           MOVE WS-P2-TRIMMED TO WS-BIND-3
-           MOVE WS-P2-TRIMMED TO WS-BIND-4
-           MOVE WS-P1-TRIMMED TO WS-BIND-5
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
+           PERFORM ALLOCATE-PAYMENT
+           IF STEP-OK AND WS-REMAIN-ALLOC > 0
                SET STEP-FAIL TO TRUE
+           END-IF
+           IF STEP-OK
+               MOVE "INSERT INTO loan_repayment (loan_id, amount, status, paid_at) VALUES (?, ?, 'PAID', NOW())" TO WS-PREP-SQL
+               MOVE WS-TMP-LOAN-ID TO WS-BIND-1
+               MOVE WS-P2-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF
+           IF STEP-OK
+               MOVE "UPDATE collection_case SET recovered_amount = recovered_amount + ?, status = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'CLOSED' ELSE 'OPEN' END, closed_at = CASE WHEN recovered_amount + ? >= overdue_amount THEN NOW() ELSE closed_at END, resolution = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'PAID_IN_FULL' ELSE resolution END WHERE id = ? AND status NOT IN ('CLOSED','CANCELLED') AND recovered_amount + ? <= overdue_amount" TO WS-PREP-SQL
+               MOVE WS-P2-TRIMMED TO WS-BIND-1
+               MOVE WS-P2-TRIMMED TO WS-BIND-2
+               MOVE WS-P2-TRIMMED TO WS-BIND-3
+               MOVE WS-P2-TRIMMED TO WS-BIND-4
+               MOVE WS-P1-TRIMMED TO WS-BIND-5
+               MOVE WS-P2-TRIMMED TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
            END-IF.
            IF STEP-OK
                MOVE "PAYMENT" TO WS-ACT-TYPE
@@ -921,6 +970,70 @@
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
            END-IF.
+           EXIT PARAGRAPH.
+
+      *> Allocate WS-NUM-AMOUNT across the case's installment(s), oldest
+      *> first for whole-loan cases. Runs inside the ACTION-PAY transaction.
+       ALLOCATE-PAYMENT.
+           MOVE WS-NUM-AMOUNT TO WS-REMAIN-ALLOC
+           MOVE 'N' TO WS-ALLOC-DONE
+           PERFORM UNTIL WS-REMAIN-ALLOC <= 0 OR ALLOC-DONE OR STEP-FAIL
+               IF WS-TMP-INST-ID NOT = SPACES
+                   MOVE "SELECT CAST(i.id AS CHAR), CAST(i.total_due - i.paid_amount AS CHAR) FROM loan_installment i WHERE i.id = ? AND i.paid_amount < i.total_due FOR UPDATE" TO WS-PREP-SQL
+                   MOVE WS-TMP-INST-ID TO WS-BIND-1
+                   CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                       BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                       BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                   END-CALL
+               ELSE
+                   MOVE "SELECT CAST(i.id AS CHAR), CAST(i.total_due - i.paid_amount AS CHAR) FROM loan_installment i JOIN loan_schedule s ON s.id = i.schedule_id WHERE s.loan_id = ? AND i.status IN ('PENDING','DUE','PARTIAL') AND i.due_date < CURDATE() AND i.paid_amount < i.total_due ORDER BY i.due_date, i.id LIMIT 1 FOR UPDATE" TO WS-PREP-SQL
+                   MOVE WS-TMP-LOAN-ID TO WS-BIND-1
+                   CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                       BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                       BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                   END-CALL
+               END-IF
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT = "ERROR|NO_DATA"
+                   MOVE 'Y' TO WS-ALLOC-DONE
+               ELSE
+                   IF WS-RESULT(1:5) = "ERROR"
+                       SET STEP-FAIL TO TRUE
+                   ELSE
+                       MOVE SPACES TO WS-INST-ID
+                       MOVE SPACES TO WS-TMP-STR
+                       UNSTRING WS-RESULT DELIMITED BY "|"
+                           INTO WS-INST-ID WS-TMP-STR
+                       END-UNSTRING
+                       MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-INST-DUE-NUM
+                       IF WS-INST-DUE-NUM <= 0
+                           MOVE 'Y' TO WS-ALLOC-DONE
+                       ELSE
+                           IF WS-REMAIN-ALLOC < WS-INST-DUE-NUM
+                               MOVE WS-REMAIN-ALLOC TO WS-INST-ALLOC-NUM
+                           ELSE
+                               MOVE WS-INST-DUE-NUM TO WS-INST-ALLOC-NUM
+                           END-IF
+                           MOVE WS-INST-ALLOC-NUM TO WS-AMT-EDIT
+                           MOVE "UPDATE loan_installment SET paid_amount = paid_amount + ?, status = CASE WHEN paid_amount + ? >= total_due THEN 'PAID' ELSE 'PARTIAL' END, paid_at = CASE WHEN paid_amount + ? >= total_due THEN NOW() ELSE paid_at END WHERE id = ?" TO WS-PREP-SQL
+                           MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-BIND-1
+                           MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-BIND-2
+                           MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-BIND-3
+                           MOVE WS-INST-ID TO WS-BIND-4
+                           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                           END-CALL
+                           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                           IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                               SET STEP-FAIL TO TRUE
+                           ELSE
+                               SUBTRACT WS-INST-ALLOC-NUM FROM WS-REMAIN-ALLOC
+                           END-IF
+                       END-IF
+                   END-IF
+               END-IF
+           END-PERFORM.
            EXIT PARAGRAPH.
 
        ACTION-ESCALATE.
