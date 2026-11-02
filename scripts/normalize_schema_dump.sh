@@ -13,9 +13,11 @@ if [ -n "$DB_NAME" ]; then
     sed -e 's/DEFINER=`[^`]*`@`[^`]*`//g' -e 's/ AUTO_INCREMENT=[0-9]*//g' \
         -e "s/${DB_NAME}/SNAPSHOT_DB/g" \
         -e '/^-- MariaDB dump/d' -e '/^-- Host:/d' -e '/^-- Server version/d' \
-        -e '/NOTE_VERBOSITY/d' -e '/SQL_NOTES/d'
+        -e '/NOTE_VERBOSITY/d' -e '/SQL_NOTES/d' \
+        -e '/^END $/{N;s/END \n\*\/;;/END *\/;;/}'
 else
     sed -e 's/DEFINER=`[^`]*`@`[^`]*`//g' -e 's/ AUTO_INCREMENT=[0-9]*//g' \
         -e '/^-- MariaDB dump/d' -e '/^-- Host:/d' -e '/^-- Server version/d' \
-        -e '/NOTE_VERBOSITY/d' -e '/SQL_NOTES/d'
+        -e '/NOTE_VERBOSITY/d' -e '/SQL_NOTES/d' \
+        -e '/^END $/{N;s/END \n\*\/;;/END *\/;;/}'
 fi

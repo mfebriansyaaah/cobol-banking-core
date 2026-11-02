@@ -94,6 +94,17 @@ else
     not_ok "old-client dump keeps schema content"
 fi
 
+# A newer client splits trigger endings across two lines (END <newline>
+# */;;) while older clients keep them on one line; both must converge.
+SPLIT_END="$(printf '/*!50003 TRIGGER `t` FOR EACH ROW BEGIN\nSELECT 1;\nEND \n*/;;')"
+if [ "$(printf '%s' "$SPLIT_END" | bash "$ROOT/scripts/normalize_schema_dump.sh")" = '/*!50003 TRIGGER `t` FOR EACH ROW BEGIN
+SELECT 1;
+END */;;' ]; then
+    ok "split trigger endings join to the single-line form"
+else
+    not_ok "split trigger endings join to the single-line form"
+fi
+
 again="$(printf '%s' "$got" | bash "$ROOT/scripts/normalize_schema_dump.sh" cobol_db_test_snapshot_4242)"
 if [ "$again" = "$got" ]; then
     ok "normalization is idempotent"
