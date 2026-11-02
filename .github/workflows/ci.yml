@@ -63,8 +63,14 @@ jobs:
       - name: Install JS lint tools
         run: npm ci
 
+      - name: Install C lint tool
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends cppcheck
+
       - name: Shell lint
         run: bash scripts/ci/lint.sh
+
+      - name: Strict C and cppcheck
+        run: bash scripts/ci/c_strict.sh
 
       - name: ESLint
         run: npm run lint
