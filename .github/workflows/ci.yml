@@ -317,6 +317,18 @@ jobs:
           path: /tmp/gateway_residue.log
           if-no-files-found: ignore
 
+      - name: Collect failure diagnostics
+        if: failure()
+        run: bash scripts/ci/collect_diagnostics.sh /tmp/ci-diagnostics
+
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: diagnostics
+          path: /tmp/ci-diagnostics
+          if-no-files-found: warn
+
   db-shards:
     name: db shard ${{ matrix.shard }}
     needs: build

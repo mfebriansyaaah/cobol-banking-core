@@ -124,6 +124,10 @@ jobs:
       - name: Gateway coverage
         run: bash scripts/ci/coverage.sh --gateway-only --json
 
+      - name: Collect failure diagnostics
+        if: failure()
+        run: bash scripts/ci/collect_diagnostics.sh /tmp/ci-diagnostics
+
       - name: Upload nightly reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
@@ -133,4 +137,12 @@ jobs:
             artifacts/
             nightly/
             coverage/
+          if-no-files-found: warn
+
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: nightly-diagnostics
+          path: /tmp/ci-diagnostics
           if-no-files-found: warn
