@@ -67,7 +67,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$HOME/.local/gnucobol/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
