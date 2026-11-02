@@ -1,0 +1,57 @@
+name: CodeQL
+
+# Security scan of the JavaScript gateway and the C crypto helpers (P1-6).
+# COBOL itself is out of scope (no CodeQL extractor exists); the C bridge is
+# limited to cobol/c_lib (self-contained: libc only, no mysql headers needed),
+# traced with the same gcc the build uses.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript, cpp]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - if: matrix.language == 'cpp'
+        name: Trace C bridge build
+        run: |
+          mkdir -p /tmp/codeql-c
+          gcc -c -I cobol/c_lib -o /tmp/codeql-c/hash_lib.o cobol/c_lib/hash_lib.c
+          gcc -c -I cobol/c_lib -o /tmp/codeql-c/totp_lib.o cobol/c_lib/totp_lib.c
+          gcc -c -I cobol/c_lib -o /tmp/codeql-c/settings_lib.o cobol/c_lib/settings_lib.c
+          gcc -c -I cobol/c_lib -o /tmp/codeql-c/random_lib.o cobol/c_lib/random_lib.c
+
+      - if: matrix.language != 'cpp'
+        name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}'
