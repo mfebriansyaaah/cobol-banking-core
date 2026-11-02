@@ -53,8 +53,7 @@ tmp="$(mktemp "${TMPDIR:-/tmp}/schema-snapshot.XXXXXX.sql")"
 mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" \
     --no-data --routines --triggers --single-transaction --skip-dump-date \
     "$SNAP_DB" 2>/dev/null \
-    | sed -e 's/DEFINER=`[^`]*`@`[^`]*`//g' -e 's/ AUTO_INCREMENT=[0-9]*//g' \
-        -e "s/${SNAP_DB}/SNAPSHOT_DB/g" \
+    | SNAP_DB="$SNAP_DB" bash "$ROOT/scripts/normalize_schema_dump.sh" \
     > "$tmp"
 
 {
