@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege: every job gets a read-only token unless it declares more
+# (the CodeQL analyze job adds security-events: write for its own scope).
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -15,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
           cache: npm
@@ -75,7 +80,7 @@ jobs:
 
       - name: YAML lint
         run: >
-          yamllint -c .yamllint .github/workflows/
+          yamllint --strict -c .yamllint .github/workflows/
           docker-compose.test.yml monitoring/prometheus-alerts.yml
           .github/ISSUE_TEMPLATE/config.yml
 
@@ -101,10 +106,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
 
@@ -126,6 +131,9 @@ jobs:
       - name: SAST scan
         run: bash scripts/ci/sast.sh
 
+      - name: SAST extra scan
+        run: bash scripts/ci/sast_extra.sh
+
       - name: Build core
         run: |
           set -o pipefail
@@ -136,14 +144,14 @@ jobs:
 
       - name: Upload build log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: build-log
           path: build.log
           if-no-files-found: ignore
 
       - name: Upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: cobol-binary
           path: cobol/bin/main_logic
@@ -188,7 +196,7 @@ jobs:
       DB_SHARDS: '4'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Install runtime dependencies
         run: |
@@ -197,7 +205,7 @@ jobs:
             gnucobol libmysqlclient-dev build-essential mariadb-client
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
           cache: npm
@@ -207,7 +215,7 @@ jobs:
         run: npm ci --prefix middleware
 
       - name: Download core binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
         with:
           name: cobol-binary
           path: cobol/bin
@@ -273,7 +281,7 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: test-reports
           path: artifacts/
@@ -281,7 +289,7 @@ jobs:
 
       - name: Upload gateway log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: gateway-log
           path: /tmp/gateway_endpoints.log
@@ -289,7 +297,7 @@ jobs:
 
       - name: Upload drill logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: drill-logs
           path: |
@@ -299,7 +307,7 @@ jobs:
 
       - name: Upload residue log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: gateway-residue-log
           path: /tmp/gateway_residue.log
@@ -338,7 +346,7 @@ jobs:
       SKIP_BUILD: '1'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Install runtime dependencies
         run: |
@@ -347,7 +355,7 @@ jobs:
             gnucobol libmysqlclient-dev build-essential mariadb-client
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
           cache: npm
@@ -357,7 +365,7 @@ jobs:
         run: npm ci --prefix middleware
 
       - name: Download core binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
         with:
           name: cobol-binary
           path: cobol/bin
@@ -385,7 +393,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: coverage
           path: coverage/
@@ -420,7 +428,7 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
       - name: Install runtime dependencies
         run: |
           sudo apt-get update
@@ -477,7 +485,7 @@ jobs:
       SKIP_BUILD: '1'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
         with:
           # --changed diffs against origin/main; a shallow checkout has no base.
           fetch-depth: 0
@@ -490,7 +498,7 @@ jobs:
 
       - name: Restore GnuCOBOL toolchain
         id: gnucobol-cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: ~/.local/gnucobol
           # Bump the trailing v1 when scripts/ci/install_gnucobol.sh changes
@@ -508,7 +516,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$HOME/.local/gnucobol/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
           cache: npm
@@ -541,7 +549,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: coverage-pr
           path: coverage/

@@ -1,0 +1,17 @@
+# Dependabot (P1-6): weekly bumps for the gateway runtime, the root lint
+# toolchain, and pinned GitHub Actions (SHA pins with `# vX` comments, which
+# Dependabot understands and updates in place).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /middleware
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
