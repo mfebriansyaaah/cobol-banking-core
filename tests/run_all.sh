@@ -17,7 +17,7 @@ for _arg in "$@"; do
         --no-report) REPORT_ENABLED=0 ;;
         --help|-h)
             sed -n '2,5p' "$0"
-            echo "Modes: fast db full probes affected integration"
+            echo "Modes: fast db db-shard full probes affected integration"
             exit 0
             ;;
         -*) echo "unknown flag: $_arg (see --help)" >&2; exit 2 ;;
@@ -128,13 +128,17 @@ run_db_serial() {
     return 0
 }
 
-run_db_sharded() {
-    local shards="$1"
-    local template="$DB_NAME"
-    echo "=== DB SHARDING: $shards workers (template: $template) ==="
+# Dump the template schema plus the migration ledger (which schema_tests
+# asserts on) for worker DB creation. Prints ONLY the dump path on stdout
+# (progress goes to stderr: callers capture stdout). Returns 1 with a
+# message when the template cannot be dumped.
+dump_template_schema() {
+    local template="$1"
     if [ -z "${ISOLATED_DB_CREATED:-}" ]; then
-        echo "--- template migration check ---"
-        if ! DB_NAME="$template" database/migrate.sh --check >/dev/null 2>&1; then
+        echo "--- template migration check ---" >&2
+        # env (not VAR=x prefix): this runs inside $() at call sites, and a
+        # prefix assignment there trips SC2031's lost-modification heuristic.
+        if ! env "DB_NAME=$template" database/migrate.sh --check >/dev/null 2>&1; then
             echo "FAIL: template $template has pending migrations; run database/migrate.sh first"
             return 1
         fi
@@ -146,7 +150,7 @@ run_db_sharded() {
         -u "${DB_MIGRATE_USER:-cobol_user}" -p"${DB_MIGRATE_PASS:-cobol_pass}" \
         --no-data --routines --triggers --single-transaction \
         "$template" >"$schema_dump" 2>/dev/null; then
-        echo "FAIL: cannot dump template schema from $template"
+        echo "FAIL: cannot dump template schema from $template" >&2
         rm -f "$schema_dump"
         return 1
     fi
@@ -156,44 +160,77 @@ run_db_sharded() {
         if ! mysqldump -h "${DB_HOST:-localhost}" -P "${DB_PORT:-3306}" \
             -u "${DB_MIGRATE_USER:-cobol_user}" -p"${DB_MIGRATE_PASS:-cobol_pass}" \
             --no-create-info --skip-triggers "$template" schema_migrations >>"$schema_dump" 2>/dev/null; then
-            echo "FAIL: cannot dump migration ledger from $template"
+            echo "FAIL: cannot dump migration ledger from $template" >&2
             rm -f "$schema_dump"
             return 1
         fi
+    fi
+    printf '%s' "$schema_dump"
+}
+
+# Discover the hosts the app account exists on, for worker DB grants. Prints
+# the host list. Returns 2 when undiscoverable: callers fall back to serial
+# or fail closed instead of guessing hosts.
+shard_app_hosts() {
+    local app_hosts
+    app_hosts="$(mysql_admin -N -B -e "SELECT DISTINCT host FROM mysql.user WHERE user='${DB_USER:-cobol_user}';" 2>/dev/null)" || app_hosts=""
+    if [ -z "$app_hosts" ]; then
+        echo "WARN: cannot enumerate app-account hosts; sharding needs GRANT-capable migrate credentials" >&2
+        return 2
+    fi
+    printf '%s' "$app_hosts"
+}
+
+# Create one worker database from a template dump and seed it, then point
+# DB_NAME at it. Appends to SHARD_DBS (dropped by cleanup_db_resources via
+# the EXIT trap). Returns 1 with a message on failure. Sets DB_NAME as a
+# side effect (instead of printing it) so callers need no $(...) capture,
+# which keeps shellcheck's subshell analysis precise.
+make_worker_db() {
+    local dump="$1" idx="$2" app_hosts="$3"
+    local w="cobol_db_shard_${idx}_$$" h
+    if ! mysql_admin -e "CREATE DATABASE \`$w\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null 2>&1; then
+        echo "FAIL: cannot create worker DB $w"
+        return 1
+    fi
+    SHARD_DBS="${SHARD_DBS:-} $w"
+    # Least privilege: suites keep running as the app account, so the worker
+    # DB needs DML grants for exactly the hosts the app account already has.
+    for h in $app_hosts; do
+        mysql_admin -e "GRANT SELECT, INSERT, UPDATE, DELETE ON \`$w\`.* TO '${DB_USER:-cobol_user}'@'$h';" >/dev/null 2>&1 || true
+    done
+    if ! mysql_admin "$w" <"$dump" >/dev/null 2>&1; then
+        echo "FAIL: cannot load schema into $w"
+        return 1
+    fi
+    if ! DB_NAME="$w" mysql_app <"$ROOT/database/seed_test_data.sql" >/dev/null 2>&1; then
+        echo "FAIL: cannot seed $w"
+        return 1
+    fi
+    export DB_NAME="$w"
+}
+
+run_db_sharded() {
+    local shards="$1"
+    local template="$DB_NAME"
+    echo "=== DB SHARDING: $shards workers (template: $template) ==="
+    local schema_dump
+    if ! schema_dump="$(dump_template_schema "$template")"; then
+        return 1
     fi
     # Least privilege: suites keep running as the app account, so the worker
     # DBs need DML grants for exactly the hosts the app account already has.
     # Discovery needs read access to mysql.user (root in CI has it); without
     # it we fall back to serial instead of guessing hosts.
     local app_hosts
-    app_hosts="$(mysql_admin -N -B -e "SELECT DISTINCT host FROM mysql.user WHERE user='${DB_USER:-cobol_user}';" 2>/dev/null)" || app_hosts=""
-    if [ -z "$app_hosts" ]; then
-        echo "WARN: cannot enumerate app-account hosts; sharding needs GRANT-capable migrate credentials, falling back to serial"
+    if ! app_hosts="$(shard_app_hosts)"; then
+        echo "WARN: falling back to serial"
         rm -f "$schema_dump"
         return 2
     fi
-    local i w h
+    local i
     for i in $(seq 0 $((shards - 1))); do
-        w="cobol_db_shard_${i}_$$"
-        if ! mysql_admin -e "CREATE DATABASE \`$w\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null 2>&1; then
-            echo "FAIL: cannot create worker DB $w"
-            rm -f "$schema_dump"
-            return 1
-        fi
-        SHARD_DBS="${SHARD_DBS:-} $w"
-        for h in $app_hosts; do
-            mysql_admin -e "GRANT SELECT, INSERT, UPDATE, DELETE ON \`$w\`.* TO '${DB_USER:-cobol_user}'@'$h';" >/dev/null 2>&1 || true
-        done
-        if ! mysql_admin "$w" <"$schema_dump" >/dev/null 2>&1; then
-            echo "FAIL: cannot load schema into $w"
-            rm -f "$schema_dump"
-            return 1
-        fi
-        if ! DB_NAME="$w" mysql_app <"$ROOT/database/seed_test_data.sql" >/dev/null 2>&1; then
-            echo "FAIL: cannot seed $w"
-            rm -f "$schema_dump"
-            return 1
-        fi
+        make_worker_db "$schema_dump" "$i" "$app_hosts" || { rm -f "$schema_dump"; return 1; }
     done
     rm -f "$schema_dump"
     # Weighted assignment (LPT): heavy suites spread across shards.
@@ -246,6 +283,67 @@ EOF
         return 1
     fi
     rm -rf "$logdir"
+    return 0
+}
+
+# Run exactly one shard of the DB fleet (CI matrix worker). The assignment is
+# computed by the same planner (scripts/shard_suites.mjs) that in-job
+# sharding uses, so shards 0..N-1 partition every suite exactly once.
+# Usage: DB_SHARD_INDEX=0 DB_SHARD_COUNT=4 tests/run_all.sh db-shard
+run_db_shard_one() {
+    local total="$1" index="$2"
+    # False positive: make_worker_db below exports DB_NAME in-process, but the
+    # $(...) captures in this function make shellcheck assume it runs in a
+    # subshell where that export would be lost. It does not: every call here
+    # runs in the main shell.
+    # shellcheck disable=SC2031
+    local template="$DB_NAME"
+    echo "=== DB SHARD: $index of $total (template: $template) ==="
+    local schema_dump
+    if ! schema_dump="$(dump_template_schema "$template")"; then
+        return 1
+    fi
+    local app_hosts
+    if ! app_hosts="$(shard_app_hosts)"; then
+        echo "FAIL: cannot create an isolated worker DB without GRANT-capable migrate credentials"
+        rm -f "$schema_dump"
+        return 1
+    fi
+    make_worker_db "$schema_dump" "$index" "$app_hosts" || { rm -f "$schema_dump"; return 1; }
+    rm -f "$schema_dump"
+    # Same planner, one slice. Worker 0 also runs the read-only schema tests,
+    # mirroring in-job sharding.
+    local shard_suites=""
+    if [ "$index" = "0" ]; then
+        shard_suites="tests/db/schema_tests.sh"
+    fi
+    local assign
+    assign="$(node scripts/shard_suites.mjs "$total" "$ROOT")"
+    while IFS= read -r line; do
+        case "$line" in
+            "$index "*) shard_suites="$shard_suites ${line#* }" ;;
+        esac
+    done <<EOF
+$assign
+EOF
+    # The worker was seeded at creation; suites inherit the flags and skip
+    # their own precheck/seed, exactly like in-job shard workers.
+    # (DB_NAME already points at the worker via make_worker_db.)
+    export DB_VERIFIED=1
+    export DB_SEEDED=1
+    # No run lock: shard workers target private databases (matrix jobs run on
+    # separate runners). Concurrent local runs must use distinct REPORT_DIRs.
+    local db_failed=0 s
+    for s in $shard_suites; do
+        if ! report_run "$index" "$s"; then
+            db_failed=$((db_failed + 1))
+        fi
+    done
+    echo "=== DB SHARD $index: $db_failed failed ==="
+    if [ "$db_failed" -ne 0 ]; then
+        echo "FAIL: shard $index has failing suite(s)"
+        return 1
+    fi
     return 0
 }
 
@@ -618,6 +716,35 @@ case "$MODE" in
     db)
         run_db
         ;;
+    db-shard)
+        # One CI-matrix worker: DB_SHARD_INDEX=0 DB_SHARD_COUNT=4 run_all.sh db-shard.
+        # The template database ($DB_NAME) must already be migrated; the worker
+        # is created from it, so this mode never touches the template's data.
+        case "${DB_SHARD_COUNT:-}" in ''|*[!0-9]*) echo "usage: DB_SHARD_INDEX=<i> DB_SHARD_COUNT=<n> $0 db-shard" >&2; exit 2;; esac
+        case "${DB_SHARD_INDEX:-}" in ''|*[!0-9]*) echo "usage: DB_SHARD_INDEX=<i> DB_SHARD_COUNT=<n> $0 db-shard" >&2; exit 2;; esac
+        if [ "$DB_SHARD_INDEX" -ge "$DB_SHARD_COUNT" ]; then
+            echo "FAIL: DB_SHARD_INDEX ($DB_SHARD_INDEX) >= DB_SHARD_COUNT ($DB_SHARD_COUNT)" >&2
+            exit 2
+        fi
+        # shellcheck disable=SC1091
+        . "$ROOT/tests/lib/guard.sh"
+        # shellcheck disable=SC1091
+        . "$ROOT/tests/lib/lock.sh"
+        # shellcheck disable=SC1091
+        . "$ROOT/tests/lib/report.sh"
+        DB_NAME="${DB_NAME:-cobol_db}"
+        SHARD_DBS=""
+        ISOLATED_DB_CREATED=""
+        trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
+        # report_init is env-driven (REPORT_DIR); script args are mode selectors, not its input.
+        # shellcheck disable=SC2119
+        report_init
+        ensure_isolated_db
+        # shellcheck disable=SC1091
+        . "$ROOT/tests/lib/db.sh"
+        require_db
+        run_db_shard_one "$DB_SHARD_COUNT" "$DB_SHARD_INDEX"
+        ;;
     probes)
         run_probes
         ;;
@@ -637,7 +764,7 @@ case "$MODE" in
         run_affected
         ;;
     *)
-        echo "unknown mode: $MODE (fast|db|full|probes|affected|integration)" >&2
+        echo "unknown mode: $MODE (fast|db|db-shard|full|probes|affected|integration)" >&2
         exit 2
         ;;
 esac
