@@ -750,7 +750,14 @@ case "$MODE" in
         ;;
     full)
         run_fast
-        run_db
+        # CI runs the DB fleet as a matrix of db-shard jobs instead (better
+        # isolation: one database per runner). SKIP_DB=1 is CI-only plumbing,
+        # not a general flag; local `full` always includes run_db.
+        if [ "${SKIP_DB:-0}" = "1" ]; then
+            echo "=== DB SKIPPED (covered by the db-shards matrix) ==="
+        else
+            run_db
+        fi
         run_integration
         run_error_harness
         run_gateway
