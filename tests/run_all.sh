@@ -373,6 +373,10 @@ run_affected() {
         . "$ROOT/tests/lib/db.sh"
         # shellcheck disable=SC1091
         . "$ROOT/tests/lib/lock.sh"
+        # Default the run target (without .dbenv the analyzer cannot see
+        # DB_NAME preset, so it suspects a lost subshell modification; the
+        # assignment is intentional).
+        # shellcheck disable=SC2031
         DB_NAME="${DB_NAME:-cobol_db}"
         db_lock_acquire || exit 1
         trap 'db_lock_release; report_finalize' EXIT
