@@ -14,7 +14,7 @@ import path from 'node:path';
 const args = process.argv.slice(2);
 let reportDir = 'artifacts';
 for (let i = 0; i < args.length; i += 1) {
-  if (args[i] === '--report-dir') reportDir = args[i + 1] ?? reportDir, i += 1;
+  if (args[i] === '--report-dir') ((reportDir = args[i + 1] ?? reportDir), (i += 1));
   else if (args[i] === '--help' || args[i] === '-h') {
     console.log('usage: summary.mjs [--report-dir DIR]');
     process.exit(0);
@@ -113,7 +113,9 @@ if (shell) {
 }
 if (junit.files) {
   out.push('');
-  out.push(`gateway JUnit: ${junit.files} file(s), ${junit.tests} tests, ${junit.failures} failures, ${junit.errors} errors`);
+  out.push(
+    `gateway JUnit: ${junit.files} file(s), ${junit.tests} tests, ${junit.failures} failures, ${junit.errors} errors`,
+  );
   if (junit.failed.length) {
     out.push('');
     out.push(`failed gateway tests (first ${junit.failed.length}):`);

@@ -55,6 +55,7 @@ function textFor({ purpose, code, detail }) {
 
 function logLine(event, fields = {}) {
   // Redacted by construction: callers pass id/to/purpose only, never code.
+  // eslint-disable-next-line no-console -- 12-factor JSON log line to stdout by design
   console.log(JSON.stringify({ ts: new Date().toISOString(), event, ...fields }));
 }
 
@@ -65,6 +66,7 @@ async function main() {
   const logFile = process.env.OUTBOX_LOG_FILE;
 
   if (transport === 'log' && !logFile) {
+    // eslint-disable-next-line no-console -- startup usage error goes to stderr by convention
     console.error('OUTBOX_LOG_FILE is required with OUTBOX_TRANSPORT=log');
     process.exit(1);
   }
@@ -121,6 +123,7 @@ async function main() {
 try {
   await main();
 } catch (err) {
+  // eslint-disable-next-line no-console -- last-resort crash report; the process is exiting
   console.error(JSON.stringify({ ts: new Date().toISOString(), event: 'outbox_worker_error', error: String((err && err.message) || err).slice(0, 200) }));
   process.exit(1);
 } finally {

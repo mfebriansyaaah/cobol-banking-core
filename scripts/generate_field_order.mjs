@@ -14,11 +14,11 @@ import path from 'node:path';
 import { collectRoutes } from './lib/route_fields.mjs';
 
 const args = process.argv.slice(2);
-let check = false;
 let write = false;
 let root = '.';
 for (const a of args) {
-  if (a === '--check') check = true;
+  if (a === '--check')
+    continue; // default mode already compares; flag accepted for explicitness
   else if (a === '--write') write = true;
   else if (a === '--help' || a === '-h') {
     console.log('usage: generate_field_order.mjs [--check] [--write] [root]');

@@ -65,7 +65,10 @@ const shapeConflicts = [];
 
 const segments = (p) => p.split('/');
 const isParam = (s) => s.startsWith(':');
-const shape = (p) => segments(p).map((s) => (isParam(s) ? ':param' : s)).join('/');
+const shape = (p) =>
+  segments(p)
+    .map((s) => (isParam(s) ? ':param' : s))
+    .join('/');
 
 // True when the earlier (parameterized) route can match the later path.
 // Takes precomputed segment arrays (same length by construction).
@@ -128,7 +131,7 @@ const baseline = new Set(
   (existsSync(baselinePath) ? readFileSync(baselinePath, 'utf8') : '')
     .split('\n')
     .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith('#'))
+    .filter((l) => l && !l.startsWith('#')),
 );
 
 const found = new Set(conflicts.map((c) => c.key));
@@ -165,4 +168,6 @@ if (failed) {
   process.exit(1);
 }
 
-console.log(`OK: ${exactConflicts.length} known duplicate route(s), ${shapeConflicts.length} parameterized shadow(s), no new ones`);
+console.log(
+  `OK: ${exactConflicts.length} known duplicate route(s), ${shapeConflicts.length} parameterized shadow(s), no new ones`,
+);

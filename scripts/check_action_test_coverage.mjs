@@ -174,7 +174,8 @@ if (write) {
   const added = [...want].filter((k) => !recorded.includes(k));
   const removed = recorded.filter((k) => !want.has(k));
   console.log(`wrote ${baselinePath}: +${added.length} -${removed.length} (total ${want.size})`);
-  if (added.length) console.log(`  added (categorize under a header + document the reason):\n    ${added.sort().join(', ')}`);
+  if (added.length)
+    console.log(`  added (categorize under a header + document the reason):\n    ${added.sort().join(', ')}`);
   if (removed.length) console.log(`  removed (now covered or unrouted): ${removed.sort().join(', ')}`);
   process.exit(0);
 }
@@ -184,5 +185,7 @@ if (failed) {
   process.exit(1);
 }
 const covered = [...routes.keys()].filter((a) => shell.has(a)).length;
-const pct = (100 * covered / routes.size).toFixed(1);
-console.log(`OK: ${covered} of ${routes.size} route actions shell-covered (${pct}%); baseline holds ${recorded.length} untested`);
+const pct = ((100 * covered) / routes.size).toFixed(1);
+console.log(
+  `OK: ${covered} of ${routes.size} route actions shell-covered (${pct}%); baseline holds ${recorded.length} untested`,
+);

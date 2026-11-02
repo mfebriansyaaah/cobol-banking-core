@@ -24,9 +24,11 @@ function makeRoot({ baseline, modules }) {
 }
 
 function run(root, args) {
-  return execFileSync(process.execPath, [GATE, '--json', path.join(root, 'cobol.json'),
-    '--baseline', path.join(root, 'baseline.txt'), ...args],
-  { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  return execFileSync(
+    process.execPath,
+    [GATE, '--json', path.join(root, 'cobol.json'), '--baseline', path.join(root, 'baseline.txt'), ...args],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+  );
 }
 
 function runFail(root, args) {
@@ -39,8 +41,7 @@ function runFail(root, args) {
   return '';
 }
 
-const row = (module, percent, executable = 100, covered = 50) =>
-  ({ module, executable, covered, percent });
+const row = (module, percent, executable = 100, covered = 50) => ({ module, executable, covered, percent });
 
 test('matching baseline passes', () => {
   const d = makeRoot({
@@ -104,7 +105,10 @@ test('--write updates drifted values and adds new keys', () => {
 });
 
 test('--write adds new keys to a non-empty baseline (review the diff)', () => {
-  const d = makeRoot({ baseline: '# keep\nwallet_core 67.60\n', modules: [row('wallet_core', 67.6), row('new_core', 10.0)] });
+  const d = makeRoot({
+    baseline: '# keep\nwallet_core 67.60\n',
+    modules: [row('wallet_core', 67.6), row('new_core', 10.0)],
+  });
   run(d, ['--write']);
   const after = readFileSync(path.join(d, 'baseline.txt'), 'utf8');
   assert.match(after, /^new_core 10$/m);

@@ -64,7 +64,8 @@ const TSV = [
   'account_db_tests.sh\tpass\t13\t0\t13\t20\tserial',
   'schema_tests.sh\tpass\t76\t0\t76\t30\tserial',
 ];
-const JUNIT = '<?xml version="1.0"?><testsuites><testcase name="a"/><testcase name="b"/><testcase name="c"/><testcase name="d"/></testsuites>';
+const JUNIT =
+  '<?xml version="1.0"?><testsuites><testcase name="a"/><testcase name="b"/><testcase name="c"/><testcase name="d"/></testsuites>';
 
 test('matching runtime report passes', () => {
   const d = makeRoot({ baseline: BASE, tsvRows: TSV, junit: JUNIT });

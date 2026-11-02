@@ -22,9 +22,9 @@ let tolerance = 1.0;
 let write = false;
 for (let i = 0; i < args.length; i += 1) {
   const a = args[i];
-  if (a === '--json') jsonPath = args[i + 1] ?? jsonPath, i += 1;
-  else if (a === '--baseline') baselinePath = path.resolve(args[i + 1] ?? baselinePath), i += 1;
-  else if (a === '--tolerance') tolerance = Number(args[i + 1] ?? tolerance), i += 1;
+  if (a === '--json') ((jsonPath = args[i + 1] ?? jsonPath), (i += 1));
+  else if (a === '--baseline') ((baselinePath = path.resolve(args[i + 1] ?? baselinePath)), (i += 1));
+  else if (a === '--tolerance') ((tolerance = Number(args[i + 1] ?? tolerance)), (i += 1));
   else if (a === '--write') write = true;
   else if (a === '--help' || a === '-h') {
     console.log('usage: check_coverage_modules.mjs --json FILE [--baseline FILE] [--tolerance PP] [--write]');
@@ -137,4 +137,6 @@ if (failed) {
   process.exit(1);
 }
 const improved = order.filter((k) => actual.has(k) && actual.get(k) - baseline.get(k) > 0);
-console.log(`OK: ${order.length} module(s) at or above baseline (tolerance ${tolerance}pp${improved.length ? `, ${improved.length} improved` : ''})`);
+console.log(
+  `OK: ${order.length} module(s) at or above baseline (tolerance ${tolerance}pp${improved.length ? `, ${improved.length} improved` : ''})`,
+);

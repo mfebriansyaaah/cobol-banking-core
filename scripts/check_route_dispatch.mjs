@@ -47,11 +47,11 @@ if (!countMatch) {
 }
 const dispatchCount = Number(countMatch[1]);
 if (dispatchCount !== maxSlot) {
-  console.error(
-    `FAIL: DISPATCH-COUNT is ${dispatchCount} but the highest D-PREFIX slot is ${maxSlot}`
-  );
+  console.error(`FAIL: DISPATCH-COUNT is ${dispatchCount} but the highest D-PREFIX slot is ${maxSlot}`);
   console.error('Slots above the count are never scanned; every action for them returns INVALID_ACTION.');
   process.exit(1);
 }
 
-console.log(`OK: ${actions.length} gateway actions map to ${dispatchPrefixes.size} dispatch prefixes (count ${dispatchCount})`);
+console.log(
+  `OK: ${actions.length} gateway actions map to ${dispatchPrefixes.size} dispatch prefixes (count ${dispatchCount})`,
+);

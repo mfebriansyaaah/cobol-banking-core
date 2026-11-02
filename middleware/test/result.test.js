@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parse, toHttp, ERROR_STATUS } from '../src/result.js';
+import { toHttp, ERROR_STATUS } from '../src/result.js';
 
 // The HTTP contract, written out independently of ERROR_STATUS so an
 // accidental edit — or a new code added without a status — fails this test.

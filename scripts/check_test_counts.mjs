@@ -29,8 +29,8 @@ let write = false;
 let strict = false;
 for (let i = 0; i < args.length; i += 1) {
   const a = args[i];
-  if (a === '--report-dir') reportDir = args[i + 1] ?? reportDir, i += 1;
-  else if (a === '--root') root = args[i + 1] ?? root, i += 1;
+  if (a === '--report-dir') ((reportDir = args[i + 1] ?? reportDir), (i += 1));
+  else if (a === '--root') ((root = args[i + 1] ?? root), (i += 1));
   else if (a === '--static') staticMode = true;
   else if (a === '--write') write = true;
   else if (a === '--strict') strict = true;
@@ -100,7 +100,9 @@ function loadRuntime() {
   if (!existsSync(tsvPath)) {
     missing = `missing ${tsvPath}`;
   } else {
-    const lines = readFileSync(tsvPath, 'utf8').split('\n').filter((l) => l.trim() !== '');
+    const lines = readFileSync(tsvPath, 'utf8')
+      .split('\n')
+      .filter((l) => l.trim() !== '');
     if (!lines.length || lines[0].split('\t').join(',') !== 'suite,status,pass,fail,total,duration_ms,shard') {
       return { rows, gateway: null, missing: `${tsvPath} has an unexpected header` };
     }
@@ -158,7 +160,9 @@ function loadStatic() {
   const rows = new Map();
   const dbDir = path.join(root, 'tests', 'db');
   if (!existsSync(dbDir)) return { rows, gateway: 'skip', missing: `missing ${dbDir}` };
-  for (const f of readdirSync(dbDir).filter((x) => x.endsWith('.sh')).sort()) {
+  for (const f of readdirSync(dbDir)
+    .filter((x) => x.endsWith('.sh'))
+    .sort()) {
     const key = keyForDbFile(f);
     if (!key) continue;
     const src = readFileSync(path.join(dbDir, f), 'utf8');
@@ -178,7 +182,9 @@ function loadStatic() {
       }
     }
   }
-  rows.set('cobol_table_tests', [{ total: cases, status: cases > 0 ? 'pass' : 'missing', file: 'tests/cobol/cases/*.cases' }]);
+  rows.set('cobol_table_tests', [
+    { total: cases, status: cases > 0 ? 'pass' : 'missing', file: 'tests/cobol/cases/*.cases' },
+  ]);
   // Gateway tests are generated dynamically (contract.test.js emits one test
   // per route file); no static count exists. Runtime mode covers them.
   return { rows, gateway: 'skip', missing: null };
@@ -329,7 +335,12 @@ if (write) {
     }
     if (distinct[0] !== baseline.get(key)) updates.set(key, { value: distinct[0], isNew: false });
   }
-  if (data.gateway !== null && data.gateway !== 'skip' && baseline.has('gateway_tests') && data.gateway !== baseline.get('gateway_tests')) {
+  if (
+    data.gateway !== null &&
+    data.gateway !== 'skip' &&
+    baseline.has('gateway_tests') &&
+    data.gateway !== baseline.get('gateway_tests')
+  ) {
     updates.set('gateway_tests', { value: data.gateway, isNew: false });
   }
   if (!updates.size) {

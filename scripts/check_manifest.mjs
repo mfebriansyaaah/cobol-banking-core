@@ -4,7 +4,10 @@ import { parseDispatchTable } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 let failures = 0;
-const fail = (msg) => { console.error(`FAIL: ${msg}`); failures += 1; };
+const fail = (msg) => {
+  console.error(`FAIL: ${msg}`);
+  failures += 1;
+};
 const ok = (msg) => console.log(`OK: ${msg}`);
 
 const manifestPath = path.join(ROOT, 'manifest', 'modules.json');
@@ -91,13 +94,15 @@ if (actualDispatch.length === 0) {
   }));
   if (JSON.stringify(declared) !== JSON.stringify(actualDispatch)) {
     const missing = actualDispatch.filter(
-      (d) => !declared.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen)
+      (d) => !declared.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
     );
     const extra = declared.filter(
-      (d) => !actualDispatch.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen)
+      (d) =>
+        !actualDispatch.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
     );
     if (missing.length) fail(`dispatch entries missing from manifest: ${missing.map((d) => d.prefix).join(', ')}`);
-    if (extra.length) fail(`manifest lists dispatch entries not in main_logic.cob: ${extra.map((d) => d.prefix).join(', ')}`);
+    if (extra.length)
+      fail(`manifest lists dispatch entries not in main_logic.cob: ${extra.map((d) => d.prefix).join(', ')}`);
     if (!missing.length && !extra.length) fail('dispatch entries are out of order; regenerate the manifest');
   } else {
     ok(`${actualDispatch.length} dispatch entries match main_logic.cob`);

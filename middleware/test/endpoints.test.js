@@ -25,6 +25,7 @@ async function freshUser() {
   freshN += 1;
   const email = U(`user-${freshN}`);
   const s = await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'EP User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   return { email, token: login.body.token, refreshToken: login.body.refreshToken };

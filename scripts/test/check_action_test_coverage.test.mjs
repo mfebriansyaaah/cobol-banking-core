@@ -23,43 +23,50 @@ function makeRoot({ baselineExtra = [], suiteCalls = ['COVERED'], caseActions = 
   dirs.push(d);
   const routes = path.join(d, 'middleware', 'src', 'routes');
   mkdirSync(routes, { recursive: true });
-  writeFileSync(path.join(routes, 'demo.js'), [
-    "export const DEMO_ROUTES = [",
-    "  { method: 'get', path: '/demo', action: 'COVERED', fields: [] },",
-    "  { method: 'post', path: '/demo', action: 'MISSING', fields: [] },",
-    "  { method: 'get', path: '/demo/:id', action: 'TABLED', fields: [] },",
-    "];",
-    '',
-  ].join('\n'));
+  writeFileSync(
+    path.join(routes, 'demo.js'),
+    [
+      'export const DEMO_ROUTES = [',
+      "  { method: 'get', path: '/demo', action: 'COVERED', fields: [] },",
+      "  { method: 'post', path: '/demo', action: 'MISSING', fields: [] },",
+      "  { method: 'get', path: '/demo/:id', action: 'TABLED', fields: [] },",
+      '];',
+      '',
+    ].join('\n'),
+  );
   writeFileSync(path.join(routes, 'index.js'), 'export const ALL_ROUTES = [];\n');
-  writeFileSync(path.join(d, 'middleware', 'src', 'app.js'), [
-    "export const ROUTES = [",
-    "  { method: 'post', path: '/app', action: 'APP_ONLY', fields: [] },",
-    "];",
-    '',
-  ].join('\n'));
+  writeFileSync(
+    path.join(d, 'middleware', 'src', 'app.js'),
+    ['export const ROUTES = [', "  { method: 'post', path: '/app', action: 'APP_ONLY', fields: [] },", '];', ''].join(
+      '\n',
+    ),
+  );
   const db = path.join(d, 'tests', 'db');
   mkdirSync(db, { recursive: true });
-  writeFileSync(path.join(db, 'demo_db_tests.sh'), [
-    '#!/usr/bin/env bash',
-    ...suiteCalls.map((a) => `run_cobol "${a}|x|||||admin@test.com"`),
-    'run_cobol "$DYNAMIC"',
-    '',
-  ].join('\n'));
+  writeFileSync(
+    path.join(db, 'demo_db_tests.sh'),
+    [
+      '#!/usr/bin/env bash',
+      ...suiteCalls.map((a) => `run_cobol "${a}|x|||||admin@test.com"`),
+      'run_cobol "$DYNAMIC"',
+      '',
+    ].join('\n'),
+  );
   const cases = path.join(d, 'tests', 'cobol', 'cases');
   mkdirSync(cases, { recursive: true });
-  writeFileSync(path.join(cases, 'demo.cases'), [
-    ...caseActions.map((a) => `name@@SUCCESS\\\\|ok@@${a}|x|||||admin@test.com`),
-    '',
-  ].join('\n'));
-  writeFileSync(path.join(d, 'tests', 'action_test_coverage_baseline.txt'),
-    [...baselineExtra].join('\n') + '\n');
+  writeFileSync(
+    path.join(cases, 'demo.cases'),
+    [...caseActions.map((a) => `name@@SUCCESS\\\\|ok@@${a}|x|||||admin@test.com`), ''].join('\n'),
+  );
+  writeFileSync(path.join(d, 'tests', 'action_test_coverage_baseline.txt'), [...baselineExtra].join('\n') + '\n');
   return d;
 }
 
 function run(root, extra = []) {
-  return execFileSync(process.execPath, [GATE, '--root', root, ...extra],
-    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  return execFileSync(process.execPath, [GATE, '--root', root, ...extra], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
 }
 
 function runFail(root, extra = []) {

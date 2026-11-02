@@ -36,8 +36,9 @@ function moduleFile(action) {
 }
 
 const actionRe = /action:\s*'([A-Z0-9_]+)'/g;
-const routeFiles = readdirSync(path.join(ROOT, 'middleware', 'src', 'routes'))
-  .filter((f) => f.endsWith('.js') && f !== 'index.js');
+const routeFiles = readdirSync(path.join(ROOT, 'middleware', 'src', 'routes')).filter(
+  (f) => f.endsWith('.js') && f !== 'index.js',
+);
 let allActions = [];
 for (const f of routeFiles) {
   const src = readFileSync(path.join(ROOT, 'middleware', 'src', 'routes', f), 'utf8');
@@ -51,15 +52,19 @@ while ((am = actionRe.exec(appSrc)) !== null) allActions.push({ file: 'app.js', 
 // Endpoint actions that are known to be wired to a COBOL module only by
 // prefix (the module does not implement the action verbatim). These are
 // tracked as explicit gaps rather than silent false positives.
-const KNOWN_GAPS = new Set([
-  'KCP_UPDATE',
-]);
+const KNOWN_GAPS = new Set(['KCP_UPDATE']);
 const knownGaps = [];
 const missing = [];
 for (const { file, action } of allActions) {
-  if (KNOWN_GAPS.has(action)) { knownGaps.push({ file, action }); continue; }
+  if (KNOWN_GAPS.has(action)) {
+    knownGaps.push({ file, action });
+    continue;
+  }
   const mod = moduleFile(action);
-  if (!mod) { missing.push({ file, action, reason: 'no dispatch module' }); continue; }
+  if (!mod) {
+    missing.push({ file, action, reason: 'no dispatch module' });
+    continue;
+  }
   const src = readFileSync(path.join(ROOT, 'cobol', 'src', mod), 'utf8');
   if (!src.includes(`"${action}`) && !src.includes(action)) {
     missing.push({ file, action, reason: `not found in ${mod}` });
@@ -75,4 +80,6 @@ if (knownGaps.length) {
   console.warn('KNOWN COVERAGE GAPS (endpoint actions without a verbatim COBOL action):');
   for (const x of knownGaps) console.warn(`  ${x.file}: ${x.action}`);
 }
-console.log(`OK: ${allActions.length - knownGaps.length} gateway actions have exact COBOL coverage (${knownGaps.length} known gaps)`);
+console.log(
+  `OK: ${allActions.length - knownGaps.length} gateway actions have exact COBOL coverage (${knownGaps.length} known gaps)`,
+);
