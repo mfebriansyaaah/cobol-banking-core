@@ -1,0 +1,11 @@
+-- P1-4: tamper-evident migrations.
+-- Records a SHA-256 of every applied migration file in
+-- schema_migrations.checksum. database/migrate.sh --check fails when an
+-- applied file no longer matches its recorded hash, so an applied migration
+-- cannot be edited silently. Fresh installs already have the column (it is
+-- part of the schema.sql baseline, whose seeded ledger rows carry their
+-- hashes); IF NOT EXISTS keeps this a no-op there. Pre-0666 rows on old
+-- databases stay NULL until database/migrate.sh --backfill-checksums runs
+-- (explicit operator acknowledgement); versions applied by a single
+-- migrate.sh run are backfilled automatically.
+ALTER TABLE schema_migrations ADD COLUMN IF NOT EXISTS checksum CHAR(64) NULL;
