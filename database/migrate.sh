@@ -5,7 +5,7 @@
 # its file in schema_migrations.checksum (added by 0666). --check fails when
 # an applied file no longer matches its hash; --backfill-checksums fills
 # hashes for rows that predate 0666 (explicit operator acknowledgement).
-# Usage: database/migrate.sh [--check | --only <version> | --backfill-checksums]
+# Usage: database/migrate.sh [--check | --only <version> | --up-to <version> | --backfill-checksums]
 
 set -e
 cd "$(dirname "$0")/.."
@@ -161,6 +161,15 @@ if [ "$1" = "--backfill-checksums" ]; then
     exit 0
 fi
 
+# Apply pending migrations only up to and including the named version; later
+# files stay pending. Used by the snapshot-based rollback drill.
+UPTO=""
+if [ "$1" = "--up-to" ]; then
+    UPTO="${2:-}"
+    [ -n "$UPTO" ] || { echo "usage: migrate.sh --up-to <version>" >&2; exit 2; }
+    [ -f "database/migrations/$UPTO.sql" ] || { echo "unknown migration: $UPTO" >&2; exit 2; }
+fi
+
 load_applied
 applied_any=0
 applied_this_run=""
@@ -184,6 +193,12 @@ for f in database/migrations/*.sql; do
             echo "$err" | head -5
             exit 1
         fi
+    fi
+    # --up-to stops after the named version (applied or already present):
+    # later files stay pending. Used by the snapshot-based rollback drill.
+    if [ -n "${UPTO:-}" ] && [ "$v" = "$UPTO" ]; then
+        echo "stopping at: $UPTO"
+        break
     fi
 done
 
