@@ -4,12 +4,15 @@ name: CodeQL
 # COBOL itself is out of scope (no CodeQL extractor exists); the C bridge is
 # limited to cobol/c_lib (self-contained: libc only, no mysql headers needed),
 # traced with the same gcc the build uses.
+# NOTE: PR/push triggers are intentionally absent. This is a private repo
+# without GitHub Advanced Security, so the analyze step cannot upload results
+# (code scanning is not enabled) and would fail every run. The workflow runs
+# on schedule so the configuration stays exercised; restore pull_request +
+# push triggers once GHAS/code scanning is enabled in repo settings.
 on:
-  push:
-    branches: [main]
-  pull_request:
   schedule:
     - cron: '0 3 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
