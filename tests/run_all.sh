@@ -103,7 +103,7 @@ run_shard_worker() {
             cat "$REPORT_DIR/logs/$(basename "$s").log" 2>/dev/null || true
         } >>"$log" 2>/dev/null || true
         if [ "$rc" -ne 0 ]; then
-            echo "$(basename "$s")" >>"$log.failed"
+            basename "$s" >>"$log.failed"
             failed=$((failed + 1))
         fi
     done
@@ -218,6 +218,7 @@ run_db_sharded() {
 $assign
 EOF
         # shellcheck disable=SC2086
+        # shellcheck disable=SC2030
         ( export DB_NAME="cobol_db_shard_${i}_$$"
           run_shard_worker "$i" "$logdir/shard-$i.log" $shard_suites ) &
         pids="$pids $!"
@@ -312,6 +313,7 @@ run_smoke() {
 run_fast() {
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/report.sh"
+    # shellcheck disable=SC2119
     report_init
     trap report_finalize EXIT
     run_gates
@@ -341,7 +343,8 @@ run_affected() {
     else
         plan="$(node scripts/select_tests.mjs)"
     fi
-    echo "$plan" | sed 's/^/  /'
+    # shellcheck disable=SC2001
+    sed 's/^/  /' <<< "$plan"
     eval "$plan"
     if [ "${SELECT_MODE:-full}" != "selected" ]; then
         echo "=== AFFECTED: full run required (${SELECT_REASON:-unknown}) ==="
@@ -350,6 +353,7 @@ run_affected() {
     echo "=== AFFECTED: ${SELECT_REASON:-selected run} ==="
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/report.sh"
+    # shellcheck disable=SC2119
     report_init
     trap 'db_lock_release; report_finalize' EXIT
     run_gates
@@ -375,6 +379,7 @@ run_affected() {
         require_db
         # shellcheck disable=SC1091
         . "$ROOT/tests/lib/report.sh"
+        # shellcheck disable=SC2119
         [ -n "${REPORT_TSV:-}" ] || report_init
         local s
         for s in $SELECT_DB_SUITES; do
@@ -484,6 +489,7 @@ run_db() {
     ISOLATED_DB_CREATED=""
     trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
     db_lock_acquire || exit 1
+    # shellcheck disable=SC2119
     report_init
     ensure_isolated_db
     echo "=== DB PRECHECK + SEED (once per run) ==="
@@ -552,6 +558,7 @@ run_integration() {
     ISOLATED_DB_CREATED=""
     trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
     db_lock_acquire || exit 1
+    # shellcheck disable=SC2119
     report_init
     ensure_isolated_db
     # shellcheck disable=SC1091

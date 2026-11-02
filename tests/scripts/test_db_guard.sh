@@ -57,9 +57,14 @@ check "require accepts throwaway" db_require_safe_target "cobol_db_test_1"
 # db_require_allow_dev_db fails closed without ALLOW_DEV_DB=1.
 # NOTE: the helper is a shell function, so it must run in a subshell --
 # `env VAR=1 helper` cannot work because env only executes external programs.
+# The bash -c bodies below are intentionally single-quoted: $GUARD_LIB must
+# expand in the INNER shell, not here (SC2016 does not apply).
 export GUARD_LIB="$ROOT/tests/lib/guard.sh"
+# shellcheck disable=SC2016
 check_not "allow_dev_db fails closed by default" bash -c 'unset ALLOW_DEV_DB; . "$GUARD_LIB"; db_require_allow_dev_db "no DDL"'
+# shellcheck disable=SC2016
 check_not "allow_dev_db fails closed when 0" bash -c 'ALLOW_DEV_DB=0; . "$GUARD_LIB"; db_require_allow_dev_db "no DDL"'
+# shellcheck disable=SC2016
 check "allow_dev_db passes when 1" bash -c 'ALLOW_DEV_DB=1; . "$GUARD_LIB"; db_require_allow_dev_db "no DDL"'
 
 echo "# pass=$PASS fail=$FAIL total=$((PASS + FAIL))"

@@ -16,7 +16,7 @@
 set -u
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT"
+cd "$ROOT" || exit 1
 
 # One id for the whole run: namespaces from both parts match one residue
 # pattern, and a rerun never matches an older run's fixtures.

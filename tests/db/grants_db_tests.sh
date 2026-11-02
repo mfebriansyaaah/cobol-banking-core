@@ -24,6 +24,8 @@ mysql_as_app() {
         "${DB_NAME:-cobol_db}" "$@" >/dev/null 2>&1
 }
 
+# Invoked only via `trap ... EXIT`, which shellcheck cannot trace.
+# shellcheck disable=SC2317
 cleanup() {
     mysql_migrate -e "DROP TABLE IF EXISTS \`$PROBE\`; DROP TABLE IF EXISTS \`${PROBE}_app\`;" >/dev/null 2>&1 || true
 }

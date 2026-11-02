@@ -1,0 +1,4 @@
+# ShellCheck configuration for this repo.
+# Follow `source`d library files (tests/lib/*.sh) so cross-file analysis
+# applies; dynamic source paths keep their per-site SC1091 disables.
+external-sources=true

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Shared helpers for COBOL test runners.
 # Sourced by other test scripts; do not execute directly.
 

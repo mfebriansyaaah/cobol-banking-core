@@ -31,7 +31,7 @@ step "2. Compile-time (C)"
 c_err=0
 for f in "$C_LIB"/*.c; do
     if ! gcc -fsyntax-only -I "$C_LIB" "$f" >/tmp/c_syntax.log 2>&1; then
-        echo "FAIL: $f"; cat /tmp/c_syntax.log | head -5; c_err=1
+        echo "FAIL: $f"; head -5 /tmp/c_syntax.log; c_err=1
     fi
 done
 [ "$c_err" -eq 0 ] && echo "OK: all C files parse" || fail=1

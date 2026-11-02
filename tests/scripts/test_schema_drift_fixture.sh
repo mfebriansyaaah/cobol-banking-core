@@ -80,7 +80,6 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 EOF
 old_norm="$(bash "$ROOT/scripts/normalize_schema_dump.sh" cobol_db_test_snapshot_4242 < "$OLD_CLIENT")"
-new_norm="$(printf '%s\n' "$old_norm" | head -8)"
 # The old-client header block normalizes to nothing but the blank/comment
 # lines both clients share; the table body is untouched.
 if printf '%s' "$old_norm" | grep -qE "MariaDB dump|Server version|SQL_NOTES|NOTE_VERBOSITY|cobol_db_test_snapshot_4242"; then
@@ -96,7 +95,11 @@ fi
 
 # A newer client splits trigger endings across two lines (END <newline>
 # */;;) while older clients keep them on one line; both must converge.
+# Backticks are literal here: the compared dump text contains trigger
+# definitions with `t` in backticks (SC2016 does not apply).
+# shellcheck disable=SC2016
 SPLIT_END="$(printf '/*!50003 TRIGGER `t` FOR EACH ROW BEGIN\nSELECT 1;\nEND \n*/;;')"
+# shellcheck disable=SC2016
 if [ "$(printf '%s' "$SPLIT_END" | bash "$ROOT/scripts/normalize_schema_dump.sh")" = '/*!50003 TRIGGER `t` FOR EACH ROW BEGIN
 SELECT 1;
 END */;;' ]; then

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # DB helpers for tests. Sourced by runners.
 ROOT="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 if [ -f "$ROOT/tests/.dbenv" ]; then

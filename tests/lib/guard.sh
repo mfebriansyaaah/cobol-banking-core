@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Database safety guards for tests and drills. Sourced by runners, never executed directly.
 #
 # The test fleet creates and drops throwaway databases (cobol_db_test_*,

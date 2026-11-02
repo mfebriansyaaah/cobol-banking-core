@@ -84,9 +84,14 @@ done
 echo "checksums match ($KEY_TABLES)"
 
 echo "=== VERIFY: migration ledger ==="
-DB_NAME="$RESTORE_DRILL_DB" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT" \
-    DB_MIGRATE_USER="$DB_MIGRATE_USER" DB_MIGRATE_PASS="$DB_MIGRATE_PASS" \
-    DB_USER="$DB_MIGRATE_USER" DB_PASS="$DB_MIGRATE_PASS" \
+# env (not VAR=x prefix): forwarding outer values self-referentially trips SC2097.
+env "DB_NAME=$RESTORE_DRILL_DB" "DB_HOST=$DB_HOST" "DB_PORT=$DB_PORT" \
+    "DB_MIGRATE_USER=$DB_MIGRATE_USER" "DB_MIGRATE_PASS=$DB_MIGRATE_PASS" \
+    "DB_USER=$DB_MIGRATE_USER" "DB_PASS=$DB_MIGRATE_PASS" \
     ./database/migrate.sh --check
 
+# One-shot environment for the child script: the parent keeps its own
+# values (e.g. $DB_NAME still names the source below), so the subshell
+# export is intentional, not a lost modification.
+# shellcheck disable=SC2030,SC2031
 echo "=== BACKUP/RESTORE DRILL GREEN (source: $DB_NAME, restored: $RESTORE_DRILL_DB) ==="
