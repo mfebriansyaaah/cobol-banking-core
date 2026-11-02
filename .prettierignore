@@ -1,0 +1,8 @@
+# Prettier never touches these, even under an explicit directory scan.
+package-lock.json
+coverage/
+artifacts/
+test-results/
+middleware/test-results/
+reports/
+tmp/

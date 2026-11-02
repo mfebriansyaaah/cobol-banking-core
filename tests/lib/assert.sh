@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # TAP-style assertion helpers. Sourced by runners.
 # Counters are maintained in the sourcing script's globals: T_PASS, T_FAIL, T_TOTAL.
 T_PASS="${T_PASS:-0}"

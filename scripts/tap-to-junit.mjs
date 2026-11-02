@@ -15,8 +15,8 @@ let suite = 'suite';
 let output = null;
 let input = null;
 for (let i = 0; i < args.length; i += 1) {
-  if (args[i] === '--suite') suite = args[i + 1] ?? suite, i += 1;
-  else if (args[i] === '--output') output = args[i + 1] ?? output, i += 1;
+  if (args[i] === '--suite') ((suite = args[i + 1] ?? suite), (i += 1));
+  else if (args[i] === '--output') ((output = args[i + 1] ?? output), (i += 1));
   else if (args[i] === '--help' || args[i] === '-h') {
     console.log('usage: tap-to-junit.mjs [--suite NAME] [--output FILE] [INPUT|-]');
     process.exit(0);
@@ -34,12 +34,8 @@ if (!input || input === '-') {
   text = readFileSync(input, 'utf8');
 }
 
-const esc = (s) => s
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;')
-  .replace(/'/g, '&apos;');
+const esc = (s) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
 const tests = [];
 let current = null;

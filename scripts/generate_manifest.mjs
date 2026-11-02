@@ -40,4 +40,6 @@ const manifest = {
 };
 
 writeFileSync(path.join(ROOT, 'manifest', 'modules.json'), JSON.stringify(manifest, null, 2) + '\n');
-console.log(`wrote manifest/modules.json: ${cobolModules.length} cobol modules, ${gatewayRoutes.length} route files, ${uniqueDispatch.length} dispatch entries`);
+console.log(
+  `wrote manifest/modules.json: ${cobolModules.length} cobol modules, ${gatewayRoutes.length} route files, ${uniqueDispatch.length} dispatch entries`,
+);

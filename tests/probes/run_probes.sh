@@ -24,6 +24,10 @@
 # is the point.
 #
 # Usage: tests/probes/run_probes.sh
+# Every gate_* and mut_* function below is invoked indirectly by constructed
+# name ("gate_${gate}", "mut_${probe}"), which shellcheck cannot trace, so
+# reachability notes for them are false positives by design.
+# shellcheck disable=SC2317
 set -u
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

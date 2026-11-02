@@ -35,7 +35,9 @@ const failures = [];
 const listFailures = [];
 let callsChecked = 0;
 
-for (const file of readdirSync(cobolDir).filter((f) => f.endsWith('.cob')).sort()) {
+for (const file of readdirSync(cobolDir)
+  .filter((f) => f.endsWith('.cob'))
+  .sort()) {
   const lines = readFileSync(path.join(cobolDir, file), 'utf8').split('\n');
   let pendingBinds = [];
 
@@ -99,11 +101,9 @@ if (failures.length) {
   failed = true;
   console.error('BIND VALUES THAT NEVER REACH THE QUERY:');
   for (const f of failures) {
+    console.error(`  cobol/src/${f.file}:${f.line}  ${f.source} -> WS-BIND-${f.slot}`);
     console.error(
-      `  cobol/src/${f.file}:${f.line}  ${f.source} -> WS-BIND-${f.slot}`
-    );
-    console.error(
-      `    ${f.call} at line ${f.callLine} passes only [${f.passed.join(', ')}]; slot ${f.slot} is never read`
+      `    ${f.call} at line ${f.callLine} passes only [${f.passed.join(', ')}]; slot ${f.slot} is never read`,
     );
   }
   console.error(`\n${failures.length} dead bind write(s) across ${callsChecked} SQL call(s)`);

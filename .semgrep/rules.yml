@@ -1,0 +1,28 @@
+# Semgrep rules (P1-6): dynamic-code-execution sinks in the gateway and
+# tooling. These are what grep cannot express precisely (call shapes, not
+# substrings). Keep this list short and high-signal; the exhaustive auth/SQL
+# pattern checks live in scripts/ci/sast.sh. Run: semgrep --config .semgrep .
+rules:
+  - id: no-eval
+    message: "eval() executes a string as code; the gateway must never do this with request data"
+    severity: ERROR
+    languages: [javascript]
+    pattern: eval(...)
+    paths:
+      include: ['middleware/**', 'scripts/**']
+
+  - id: no-new-function
+    message: "new Function() compiles a string as code; same risk class as eval"
+    severity: ERROR
+    languages: [javascript]
+    pattern: new Function(...)
+    paths:
+      include: ['middleware/**', 'scripts/**']
+
+  - id: no-child-process-shell-true
+    message: "spawning a shell (shell: true) hands parsing to /bin/sh; prefer execFile with an argv array"
+    severity: ERROR
+    languages: [javascript]
+    pattern: "$X(..., {..., shell: true, ...})"
+    paths:
+      include: ['middleware/src/**']

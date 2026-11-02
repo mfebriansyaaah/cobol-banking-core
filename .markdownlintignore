@@ -1,0 +1,6 @@
+# markdownlint ignores (P1-6). Generated output and immutable history are
+# not style-gated; everything else must pass .markdownlint.json.
+node_modules/
+docs/data_dictionary.md
+docs/MODULE_INDEX.md
+docs/adr/

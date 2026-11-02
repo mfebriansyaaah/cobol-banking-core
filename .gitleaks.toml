@@ -1,0 +1,9 @@
+# gitleaks configuration (P1-6). Gate: no secrets in the worktree.
+# (`gitleaks detect --source . --no-git --config .gitleaks.toml`.)
+[extend]
+useDefault = true
+
+[allowlist]
+description = "P1-4 migration checksums: SHA-256 of public migration files seeded into schema.sql, not secrets"
+paths = ['database/schema\.sql']
+regexes = ['''^\('[0-9a-z_]+', '[0-9a-f]{64}'\)[,;]$''']

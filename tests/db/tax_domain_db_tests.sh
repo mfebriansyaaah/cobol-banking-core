@@ -53,7 +53,6 @@ out4="$(run_cobol "TXM_RULE_CREATE|TXR-DCAP|Cap|WITHHOLDING|50:0:0:100|IDR:5000:
 rid2="$(printf '%s' "$out4" | awk -F'|' '{print $3}')"
 out5="$(run_cobol "TXM_CALC|${rid2}|FEE|FEE-CAP|1000000|IDR|admin@test.com")"
 assert_match "max cap" "$out5" "SUCCESS\|TXM_CALC\|[0-9]+\|100"
-eidc="$(printf '%s' "$out5" | awk -F'|' '{print $3}')"
 
 # POST + double post + REVERSE + double reverse.
 assert_match "post" "$(run_cobol "TXM_POST|${eid}|777||||admin@test.com")" "SUCCESS\|TXM_POST"

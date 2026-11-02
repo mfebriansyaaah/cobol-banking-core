@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Exclusive lock for DB test runs. Sourced by runners, never executed directly.
 #
 # Two `run_all.sh db` processes against the same database would interleave

@@ -4,7 +4,8 @@
 
 setup_isolated_schema() {
   local prefix="$1"
-  local schema="test_${prefix}_$(date +%s%N)"
+  local schema
+  schema="test_${prefix}_$(date +%s%N)"
   echo "$schema"
 }
 

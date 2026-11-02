@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Machine-readable test report collector. Sourced by runners, never executed
 # directly. Every DB/table suite record becomes one TSV row:
 #   suite<TAB>status<TAB>pass<TAB>fail<TAB>total<TAB>duration_ms<TAB>shard

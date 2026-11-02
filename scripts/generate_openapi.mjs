@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const ROOT = process.argv[2] || '.';
@@ -14,7 +14,8 @@ let spec = {
   info: {
     title: 'COBOL Banking Core Gateway',
     version: '1.0.0',
-    description: 'REST API gateway for COBOL banking core. Each endpoint maps to a COBOL action via a pipe-delimited IPC bridge.',
+    description:
+      'REST API gateway for COBOL banking core. Each endpoint maps to a COBOL action via a pipe-delimited IPC bridge.',
   },
   servers: [{ url: 'http://localhost:3000', description: 'Local development' }],
   paths: {},
@@ -37,28 +38,31 @@ let spec = {
       type: { name: 'type', in: 'query', schema: { type: 'string' } },
       limit: { name: 'limit', in: 'query', schema: { $ref: '#/components/schemas/Limit' } },
       offset: { name: 'offset', in: 'query', schema: { $ref: '#/components/schemas/Offset' } },
-      actor: { name: 'actor', in: 'query', schema: { $ref: '#/components/schemas/Actor' }, description: 'Actor email (overrides JWT for testing)' },
+      actor: {
+        name: 'actor',
+        in: 'query',
+        schema: { $ref: '#/components/schemas/Actor' },
+        description: 'Actor email (overrides JWT for testing)',
+      },
     },
   },
 };
 
-const methodMap = {
-  list: { method: 'get', summary: 'List entities', params: ['status', 'type', 'limit', 'offset', 'actor'] },
-  create: { method: 'post', summary: 'Create entity', params: ['body', 'actor'] },
-  get: { method: 'get', summary: 'Get entity by ID', params: ['id', 'actor'] },
-  update: { method: 'post', summary: 'Update entity', params: ['id', 'body', 'actor'] },
-  delete: { method: 'post', summary: 'Delete/close entity', params: ['id', 'body', 'actor'] },
-  calc: { method: 'post', summary: 'Execute action (calc/approve/screen)', params: ['id', 'actor'] },
-  summary: { method: 'get', summary: 'Get summary statistics', params: ['actor'] },
-  audit: { method: 'get', summary: 'List audit trail', params: ['limit', 'offset', 'actor'] },
-  validate: { method: 'post', summary: 'Validate input', params: ['body', 'actor'] },
-};
-
 const actionToOp = {
-  LIST: 'list', CREATE: 'create', GET: 'get', UPDATE: 'update',
-  DELETE: 'delete', CLOSE: 'delete', CALC: 'calc', ALLO: 'calc',
-  SCREEN: 'calc', APPROVE: 'calc', SUBMIT: 'calc',
-  SUMMARY: 'summary', AUDIT: 'audit', VALIDATE: 'validate',
+  LIST: 'list',
+  CREATE: 'create',
+  GET: 'get',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  CLOSE: 'delete',
+  CALC: 'calc',
+  ALLO: 'calc',
+  SCREEN: 'calc',
+  APPROVE: 'calc',
+  SUBMIT: 'calc',
+  SUMMARY: 'summary',
+  AUDIT: 'audit',
+  VALIDATE: 'validate',
 };
 
 for (const file of routeFiles) {
@@ -72,7 +76,7 @@ for (const file of routeFiles) {
       const m = r.match(/{ method: '(\w+)', path: '([^']+)', action: '(\w+)'.*?fields: \[(.*?)\]/s);
       if (!m) continue;
       const [, method, path, action] = m;
-      const opKey = Object.keys(actionToOp).find(k => action.endsWith(k));
+      const opKey = Object.keys(actionToOp).find((k) => action.endsWith(k));
       const op = opKey ? actionToOp[opKey] : 'list';
       const summary = `${action} — ${opMapSummary[op] || 'Execute action'}`;
       if (!spec.paths[path]) spec.paths[path] = {};
@@ -80,22 +84,42 @@ for (const file of routeFiles) {
       const idMatch = path.match(/:id/);
       if (idMatch) params.push({ $ref: '#/components/parameters/id' });
       if (method === 'get' && (op === 'list' || op === 'audit')) {
-        if (op === 'list') { params.push({ $ref: '#/components/parameters/status' }, { $ref: '#/components/parameters/type' }); }
+        if (op === 'list') {
+          params.push({ $ref: '#/components/parameters/status' }, { $ref: '#/components/parameters/type' });
+        }
         params.push({ $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/offset' });
       }
       params.push({ $ref: '#/components/parameters/actor' });
       spec.paths[path][method] = {
         summary,
         tags: [file.replace('.js', '')],
-        parameters: params.filter(p => p.$ref !== '#/components/parameters/body'),
-        requestBody: method === 'post' ? {
-          required: true,
-          content: { 'application/json': { schema: { type: 'object', properties: { /* TODO */ } } } },
-        } : undefined,
+        parameters: params.filter((p) => p.$ref !== '#/components/parameters/body'),
+        requestBody:
+          method === 'post'
+            ? {
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        /* TODO */
+                      },
+                    },
+                  },
+                },
+              }
+            : undefined,
         responses: {
-          '200': { description: 'Success', content: { 'text/plain': { schema: { type: 'string' } } } },
-          '403': { description: 'Forbidden', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
-          '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+          200: { description: 'Success', content: { 'text/plain': { schema: { type: 'string' } } } },
+          403: {
+            description: 'Forbidden',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+          },
+          400: {
+            description: 'Bad request',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+          },
         },
       };
     }
@@ -105,9 +129,15 @@ for (const file of routeFiles) {
 }
 
 const opMapSummary = {
-  list: 'List entities', create: 'Create entity', get: 'Get entity by ID',
-  update: 'Update entity', delete: 'Delete/close entity', calc: 'Execute action',
-  summary: 'Get summary statistics', audit: 'List audit trail', validate: 'Validate input',
+  list: 'List entities',
+  create: 'Create entity',
+  get: 'Get entity by ID',
+  update: 'Update entity',
+  delete: 'Delete/close entity',
+  calc: 'Execute action',
+  summary: 'Get summary statistics',
+  audit: 'List audit trail',
+  validate: 'Validate input',
 };
 
 writeFileSync(outputPath, require('yaml').stringify(spec));

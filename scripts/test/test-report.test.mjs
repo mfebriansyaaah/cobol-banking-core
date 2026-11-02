@@ -44,10 +44,7 @@ function runFail(args, reportDir) {
 }
 
 test('valid TSV aggregates totals and slowest suites', () => {
-  const d = dirWithTsv([
-    'a.sh\tpass\t10\t0\t10\t100\tserial',
-    'b.sh\tfail\t3\t2\t5\t900\tshard-0',
-  ]);
+  const d = dirWithTsv(['a.sh\tpass\t10\t0\t10\t100\tserial', 'b.sh\tfail\t3\t2\t5\t900\tshard-0']);
   const out = run([], d);
   assert.match(out, /suites=2 passed=1 failed=1 missing=0/);
   assert.match(out, /assertions: pass=13 fail=2 total=15 \(1000ms\)/);

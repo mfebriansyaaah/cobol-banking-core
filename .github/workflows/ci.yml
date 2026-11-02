@@ -5,20 +5,117 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege: every job gets a read-only token unless it declares more
+# (the CodeQL analyze job adds security-events: write for its own scope).
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # Pinned to the versions verified locally (see scripts/ci/lint.sh):
+      # apt versions drift between runners and change findings.
+      - name: Install lint tools
+        run: |
+          SC_VER=0.10.0
+          SHFMT_VER=3.11.0
+          ACTIONLINT_VER=1.7.7
+          PROMTOOL_VER=3.3.1
+          SC_BASE=https://github.com/koalaman/shellcheck/releases/download
+          SHFMT_BASE=https://github.com/mvdan/sh/releases/download
+          ACTIONLINT_BASE=https://github.com/rhysd/actionlint/releases/download
+          ACTIONLINT_TGZ="actionlint_${ACTIONLINT_VER}_linux_amd64.tar.gz"
+          PROM_BASE=https://github.com/prometheus/prometheus/releases/download
+          GITLEAKS_VER=8.28.0
+          GITLEAKS_BASE=https://github.com/gitleaks/gitleaks/releases/download
+          mkdir -p "$HOME/.local/bin"
+          curl -sL -o /tmp/sc.tar.xz "${SC_BASE}/v${SC_VER}/shellcheck-v${SC_VER}.linux.x86_64.tar.xz"
+          tar -xf /tmp/sc.tar.xz -C /tmp
+          cp "/tmp/shellcheck-v${SC_VER}/shellcheck" "$HOME/.local/bin/"
+          curl -sL -o "$HOME/.local/bin/shfmt" "${SHFMT_BASE}/v${SHFMT_VER}/shfmt_v${SHFMT_VER}_linux_amd64"
+          chmod +x "$HOME/.local/bin/shfmt"
+          curl -sL -o /tmp/actionlint.tar.gz "${ACTIONLINT_BASE}/v${ACTIONLINT_VER}/${ACTIONLINT_TGZ}"
+          tar -xzf /tmp/actionlint.tar.gz -C "$HOME/.local/bin" actionlint
+          curl -sL -o /tmp/prom.tar.gz "${PROM_BASE}/v${PROMTOOL_VER}/prometheus-${PROMTOOL_VER}.linux-amd64.tar.gz"
+          tar -xzf /tmp/prom.tar.gz -C /tmp "prometheus-${PROMTOOL_VER}.linux-amd64/promtool"
+          cp "/tmp/prometheus-${PROMTOOL_VER}.linux-amd64/promtool" "$HOME/.local/bin/"
+          curl -sL -o /tmp/gitleaks.tar.gz "${GITLEAKS_BASE}/v${GITLEAKS_VER}/gitleaks_${GITLEAKS_VER}_linux_x64.tar.gz"
+          tar -xzf /tmp/gitleaks.tar.gz -C "$HOME/.local/bin" gitleaks
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          pip install --break-system-packages "yamllint==1.38.0" "semgrep==1.136.0"
+
+      - name: Install JS lint tools
+        run: npm ci
+
+      - name: Install C lint tool
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends cppcheck
+
+      - name: Shell lint
+        run: bash scripts/ci/lint.sh
+
+      - name: Strict C and cppcheck
+        run: bash scripts/ci/c_strict.sh
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier check
+        run: npm run format:check
+
+      - name: Markdown lint
+        run: npm run lint:md
+
+      - name: Workflow lint
+        run: actionlint
+
+      - name: YAML lint
+        run: >
+          yamllint --strict -c .yamllint .github/workflows/
+          docker-compose.test.yml monitoring/prometheus-alerts.yml
+          .github/ISSUE_TEMPLATE/config.yml
+
+      - name: Validate alert rules
+        run: promtool check rules monitoring/prometheus-alerts.yml
+
+      - name: Semgrep scan
+        run: >
+          semgrep --config .semgrep/rules.yml --exclude node_modules
+          --exclude package-lock.json --error middleware scripts
+
+      - name: Secret scan
+        run: gitleaks detect --source . --no-git --config .gitleaks.toml
+
+      - name: Dependency audit (root)
+        run: npm audit --omit=dev
+
+      - name: Dependency audit (gateway)
+        run: npm --prefix middleware audit --omit=dev
+
   build:
     name: build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
 
@@ -40,6 +137,9 @@ jobs:
       - name: SAST scan
         run: bash scripts/ci/sast.sh
 
+      - name: SAST extra scan
+        run: bash scripts/ci/sast_extra.sh
+
       - name: Build core
         run: |
           set -o pipefail
@@ -50,14 +150,14 @@ jobs:
 
       - name: Upload build log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: build-log
           path: build.log
           if-no-files-found: ignore
 
       - name: Upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: cobol-binary
           path: cobol/bin/main_logic
@@ -102,7 +202,7 @@ jobs:
       DB_SHARDS: '4'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Install runtime dependencies
         run: |
@@ -111,7 +211,7 @@ jobs:
             gnucobol libmysqlclient-dev build-essential mariadb-client
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
           cache: npm
@@ -121,7 +221,7 @@ jobs:
         run: npm ci --prefix middleware
 
       - name: Download core binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
         with:
           name: cobol-binary
           path: cobol/bin
@@ -187,7 +287,7 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: test-reports
           path: artifacts/
@@ -195,7 +295,7 @@ jobs:
 
       - name: Upload gateway log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: gateway-log
           path: /tmp/gateway_endpoints.log
@@ -203,7 +303,7 @@ jobs:
 
       - name: Upload drill logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: drill-logs
           path: |
@@ -213,7 +313,7 @@ jobs:
 
       - name: Upload residue log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: gateway-residue-log
           path: /tmp/gateway_residue.log
@@ -252,7 +352,7 @@ jobs:
       SKIP_BUILD: '1'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       - name: Install runtime dependencies
         run: |
@@ -261,7 +361,7 @@ jobs:
             gnucobol libmysqlclient-dev build-essential mariadb-client
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
           cache: npm
@@ -271,7 +371,7 @@ jobs:
         run: npm ci --prefix middleware
 
       - name: Download core binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
         with:
           name: cobol-binary
           path: cobol/bin
@@ -299,7 +399,7 @@ jobs:
 
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: coverage
           path: coverage/
@@ -334,7 +434,7 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
       - name: Install runtime dependencies
         run: |
           sudo apt-get update
@@ -391,7 +491,7 @@ jobs:
       SKIP_BUILD: '1'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
         with:
           # --changed diffs against origin/main; a shallow checkout has no base.
           fetch-depth: 0
@@ -404,7 +504,7 @@ jobs:
 
       - name: Restore GnuCOBOL toolchain
         id: gnucobol-cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: ~/.local/gnucobol
           # Bump the trailing v1 when scripts/ci/install_gnucobol.sh changes
@@ -422,7 +522,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$HOME/.local/gnucobol/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: '24'
           cache: npm
@@ -451,52 +551,11 @@ jobs:
 
       - name: Coverage summary
         if: always()
-        run: |
-          if [ ! -f coverage/summary.json ]; then
-            echo "no coverage/summary.json (measurement skipped or failed early)" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          node -e '
-            const fs = require("fs");
-            const summary = JSON.parse(fs.readFileSync("coverage/summary.json", "utf8"));
-            const base = {};
-            for (const line of fs.readFileSync("tests/coverage_baseline.txt", "utf8").split("\n")) {
-              const t = line.trim();
-              if (!t || t.startsWith("#")) continue;
-              const [k, v] = t.split(/\s+/);
-              base[k] = Number(v);
-            }
-            const rows = JSON.parse(fs.readFileSync("coverage/cobol.json", "utf8")).modules;
-            const modBase = new Map();
-            for (const line of fs.readFileSync("tests/coverage_module_baseline.txt", "utf8").split("\n")) {
-              const t = line.trim();
-              if (!t || t.startsWith("#")) continue;
-              const [m, v] = t.split(/\s+/);
-              modBase.set(m, Number(v));
-            }
-            const dropped = rows
-              .filter((r) => modBase.has(r.module) && r.percent < modBase.get(r.module) - 1.0)
-              .sort((a, b) => (a.percent - modBase.get(a.module)) - (b.percent - modBase.get(b.module)));
-            const d = (v, b) => `${v.toFixed(2)}% (baseline ${b.toFixed(2)}%, ${v - b >= 0 ? "+" : ""}${(v - b).toFixed(2)}pp)`;
-            const out = ["## Coverage (curated COBOL + gateway)", "",
-              "| Suite | Measured | Baseline |", "|---|---|---|",
-              `| COBOL curated | ${summary.cobol.percent.toFixed(2)}% covered of ${summary.cobol.executable} lines | ${d(summary.cobol.percent, base.cobol_total)} / floor 30% |`,
-              `| gateway lines | ${summary.gateway.lines.toFixed(2)}% | floor 80%, baseline ${base.gateway_lines}% |`,
-              `| gateway branches | ${summary.gateway.branches.toFixed(2)}% | floor 70%, baseline ${base.gateway_branches}% |`, ""];
-            if (dropped.length) {
-              out.push("Modules below baseline (>1pp):");
-              for (const r of dropped) out.push(`- ${r.module}: ${r.percent}% vs ${modBase.get(r.module)}%`);
-              out.push("");
-            } else {
-              out.push("No curated module dropped below its baseline.", "");
-            }
-            out.push("Full report: see the `coverage-pr` artifact on this run.");
-            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out.join("\n") + "\n");
-          '
+        run: node scripts/ci/coverage_summary.mjs
 
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: coverage-pr
           path: coverage/

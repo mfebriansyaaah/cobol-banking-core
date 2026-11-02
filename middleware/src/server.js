@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'production' && proxyWarning) {
 }
 
 const server = buildApp({ logger: jsonLogger }).listen(port, () => {
-  // eslint-disable-next-line no-console
+  // eslint-disable-next-line no-console -- startup banner to stdout by design
   console.log(`api-gateway listening on :${port}`);
 });
 
@@ -72,7 +72,7 @@ function shutdown(signal) {
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(0), 5000).unref();
   if (signal) {
-    // eslint-disable-next-line no-console
+    // eslint-disable-next-line no-console -- shutdown notice to stdout by design
     console.log(`received ${signal}, shutting down`);
   }
 }

@@ -1,0 +1,34 @@
+// ESLint flat config for the gateway and scripts trees (P1-6).
+// - middleware/**/*.js: the Express gateway (src) and its node:test suites.
+// - scripts/**/*.mjs plus this file: ESM tooling, gates, and unit tests.
+// - Node globals only; no browser/DOM. `eslint.configs.recommended` is the
+//   base; rules below are relaxed only where the codebase has an established,
+//   reviewed pattern (each with a reason).
+import globals from 'globals';
+import eslint from '@eslint/js';
+
+export default [
+  {
+    ignores: ['**/node_modules/**', 'middleware/test-results/**', 'test-results/**', 'coverage/**', 'artifacts/**'],
+  },
+  {
+    files: ['middleware/**/*.js', 'scripts/**/*.mjs', 'eslint.config.mjs'],
+    languageOptions: {
+      ecmaVersion: 2024,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+      },
+    },
+    ...eslint.configs.recommended,
+  },
+  {
+    // Gateway source must log through the injected logger, not stdout:
+    // stray console output corrupts the pipe protocol responses. The few
+    // remaining sites carry per-line disables with reasons.
+    files: ['middleware/src/**/*.js'],
+    rules: {
+      'no-console': 'error',
+    },
+  },
+];

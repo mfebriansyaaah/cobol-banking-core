@@ -47,6 +47,7 @@ Every domain module exposes these actions (prefix + action):
 9. `<PFX>_VALIDATE` — input validation without writes.
 
 ## Rules
+
 - All SQL must use `SQL_PREPARE_EXEC*` with `?` placeholders (no `SET_QUERY` + `SQL_EXECUTE`).
 - Every write path wraps in `SQL_BEGIN` / `SQL_COMMIT` / `SQL_ROLLBACK`.
 - Audit rows go to `<table>_audit`.

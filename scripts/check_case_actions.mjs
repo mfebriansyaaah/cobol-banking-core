@@ -22,7 +22,9 @@ function matches(prefix, len, action) {
 
 const missing = [];
 let checked = 0;
-for (const file of readdirSync(casesDir).filter((f) => f.endsWith('.cases')).sort()) {
+for (const file of readdirSync(casesDir)
+  .filter((f) => f.endsWith('.cases'))
+  .sort()) {
   const lines = readFileSync(path.join(casesDir, file), 'utf8').split('\n');
   lines.forEach((line, idx) => {
     const trimmed = line.trim();

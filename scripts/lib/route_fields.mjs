@@ -156,14 +156,22 @@ export function parseRoute(body, constArrays = new Map()) {
   // empty slot (BLANK is the explicit empty marker), so drop empties.
   let fields;
   if (inner !== null) {
-    fields = splitTopLevel(inner).filter((p) => p.trim() !== '').map(slotToken);
+    fields = splitTopLevel(inner)
+      .filter((p) => p.trim() !== '')
+      .map(slotToken);
   } else {
     // Shared constant: `fields: DATE_RANGE`. Expand the file-local definition
     // so drift inside the constant is visible; fall back to the identifier.
     const ident = (body.match(/fields\s*:\s*([A-Za-z_$][A-Za-z0-9_$]*)/) || [])[1] || null;
     const shared = ident ? constArrays.get(ident) : undefined;
-    fields = shared === undefined ? (ident ? [ident] : null)
-      : splitTopLevel(shared).filter((p) => p.trim() !== '').map(slotToken);
+    fields =
+      shared === undefined
+        ? ident
+          ? [ident]
+          : null
+        : splitTopLevel(shared)
+            .filter((p) => p.trim() !== '')
+            .map(slotToken);
   }
   return { method, path: routePath, action, tokenIdentity, stepUp, fields };
 }
@@ -185,7 +193,9 @@ export function collectRoutes(rootDir) {
       out.set(key, entry);
     }
   };
-  for (const f of readdirSync(routesDir).filter((x) => x.endsWith('.js') && x !== 'index.js').sort()) {
+  for (const f of readdirSync(routesDir)
+    .filter((x) => x.endsWith('.js') && x !== 'index.js')
+    .sort()) {
     const src = readFileSync(path.join(routesDir, f), 'utf8');
     const consts = fileConstArrays(src);
     for (const { body } of routeObjects(src)) add(f, body, consts);

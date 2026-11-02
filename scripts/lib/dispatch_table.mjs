@@ -56,18 +56,16 @@ export function parseDispatchTable(source) {
 
   for (const e of entries) {
     if (e.prefix.length > prefixWidth) {
-      problems.push(
-        `slot prefix "${e.prefix}" is ${e.prefix.length} characters but D-PREFIX is PIC X(${prefixWidth})`
-      );
+      problems.push(`slot prefix "${e.prefix}" is ${e.prefix.length} characters but D-PREFIX is PIC X(${prefixWidth})`);
     }
     if (e.prefixLen < e.prefix.length) {
       problems.push(
-        `slot prefix "${e.prefix}" declares length ${e.prefixLen}, shorter than the literal (${e.prefix.length}); the match is under-specified`
+        `slot prefix "${e.prefix}" declares length ${e.prefixLen}, shorter than the literal (${e.prefix.length}); the match is under-specified`,
       );
     }
     if (e.prefixLen > prefixWidth) {
       problems.push(
-        `slot prefix "${e.prefix}" declares length ${e.prefixLen}, past the D-PREFIX field width (${prefixWidth})`
+        `slot prefix "${e.prefix}" declares length ${e.prefixLen}, past the D-PREFIX field width (${prefixWidth})`,
       );
     }
   }

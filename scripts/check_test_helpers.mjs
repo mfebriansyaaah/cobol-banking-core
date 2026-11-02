@@ -15,15 +15,15 @@ const defined = new Set([...lib.matchAll(/^(\w+)\(\)\s*\{/gm)].map((m) => m[1]))
 
 const suitesDir = path.join(ROOT, 'tests', 'db');
 const missing = [];
-let checked = 0;
 
-for (const file of readdirSync(suitesDir).filter((f) => f.endsWith('.sh')).sort()) {
+for (const file of readdirSync(suitesDir)
+  .filter((f) => f.endsWith('.sh'))
+  .sort()) {
   const lines = readFileSync(path.join(suitesDir, file), 'utf8').split('\n');
   lines.forEach((line, idx) => {
     // A helper invocation is a standalone command, optionally with arguments.
     const m = line.match(/^\s*(db_[a-z0-9_]+)(?:\s|$)/);
     if (!m) return;
-    checked += 1;
     if (!defined.has(m[1])) {
       missing.push({ file, line: idx + 1, fn: m[1] });
     }

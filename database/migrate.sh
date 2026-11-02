@@ -10,6 +10,8 @@
 set -e
 cd "$(dirname "$0")/.."
 
+# Optional developer env file (tests/.dbenv.example copy); absent in CI.
+# shellcheck disable=SC1091
 if [ -f ./tests/.dbenv ]; then . ./tests/.dbenv; fi
 DB_USER="${DB_USER:-cobol_user}"
 DB_PASS="${DB_PASS:-cobol_pass}"

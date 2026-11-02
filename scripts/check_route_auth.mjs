@@ -81,7 +81,7 @@ const baseline = new Set(
   (existsSync(baselinePath) ? readFileSync(baselinePath, 'utf8') : '')
     .split('\n')
     .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith('#'))
+    .filter((l) => l && !l.startsWith('#')),
 );
 
 const key = (r) => `${r.method.toUpperCase()} ${r.path}`;
@@ -110,6 +110,4 @@ if (failed) {
 }
 
 const mutating = routes.filter((r) => MUTATING.has(r.method)).length;
-console.log(
-  `OK: ${mutating} mutating route(s) are guarded, ${unguarded.length} known public exemption(s)`
-);
+console.log(`OK: ${mutating} mutating route(s) are guarded, ${unguarded.length} known public exemption(s)`);

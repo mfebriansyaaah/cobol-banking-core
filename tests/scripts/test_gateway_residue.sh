@@ -32,19 +32,21 @@ EOF
 }
 
 # --- case 1: no TEST_RUN_ID and no namespaces is a usage error ---
-if env -u TEST_RUN_ID bash "$SCRIPT" >/dev/null 2>&1; then
-    not_ok "missing TEST_RUN_ID exits non-zero"
+rc=0
+env -u TEST_RUN_ID bash "$SCRIPT" >/dev/null 2>&1 || rc=$?
+if [ "$rc" = "2" ]; then
+    ok "missing TEST_RUN_ID is a usage error (exit 2)"
 else
-    [ "$?" = "2" ] && ok "missing TEST_RUN_ID is a usage error (exit 2)" \
-        || not_ok "missing TEST_RUN_ID exits 2 (got $?)"
+    not_ok "missing TEST_RUN_ID exits 2 (got $rc)"
 fi
 
 # --- case 2: TEST_RUN_ID with no alphanumeric characters is rejected ---
-if TEST_RUN_ID="!!!" bash "$SCRIPT" >/dev/null 2>&1; then
-    not_ok "non-alphanumeric TEST_RUN_ID exits non-zero"
+rc=0
+TEST_RUN_ID="!!!" bash "$SCRIPT" >/dev/null 2>&1 || rc=$?
+if [ "$rc" = "2" ]; then
+    ok "non-alphanumeric TEST_RUN_ID is rejected (exit 2)"
 else
-    [ "$?" = "2" ] && ok "non-alphanumeric TEST_RUN_ID is rejected (exit 2)" \
-        || not_ok "non-alphanumeric TEST_RUN_ID exits 2 (got $?)"
+    not_ok "non-alphanumeric TEST_RUN_ID exits 2 (got $rc)"
 fi
 
 # --- case 3: explicit namespaces with LIKE metacharacters are rejected ---
@@ -52,11 +54,12 @@ FAKE3="$(mktemp -d "${TMPDIR:-/tmp}/residue-guard.XXXXXX")"
 make_fake_mysql "$FAKE3"
 export FAKE_LOG="$FAKE3/calls.log"
 : > "$FAKE_LOG"
-if PATH="$FAKE3:$PATH" bash "$SCRIPT" 'foo%bar' >/dev/null 2>&1; then
-    not_ok "namespace with LIKE metacharacters exits non-zero"
+rc=0
+PATH="$FAKE3:$PATH" bash "$SCRIPT" 'foo%bar' >/dev/null 2>&1 || rc=$?
+if [ "$rc" = "2" ]; then
+    ok "namespace with LIKE metacharacters is rejected (exit 2)"
 else
-    [ "$?" = "2" ] && ok "namespace with LIKE metacharacters is rejected (exit 2)" \
-        || not_ok "LIKE-metachar namespace exits 2 (got $?)"
+    not_ok "LIKE-metachar namespace exits 2 (got $rc)"
 fi
 rm -rf "$FAKE3"
 
@@ -118,11 +121,12 @@ if mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "S
     rid="liveres$(date +%s%N)"
     mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" \
         -e "INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ('zz-${rid}-leak@test.com','h','L','1990-01-01','VERIFIED','USER');" >/dev/null 2>&1
-    if TEST_RUN_ID="$rid" bash "$SCRIPT" >/dev/null 2>&1; then
-        not_ok "live sentinel row is detected"
+    rc=0
+    TEST_RUN_ID="$rid" bash "$SCRIPT" >/dev/null 2>&1 || rc=$?
+    if [ "$rc" = "1" ]; then
+        ok "live sentinel row is detected (exit 1)"
     else
-        [ "$?" = "1" ] && ok "live sentinel row is detected (exit 1)" \
-            || not_ok "live sentinel exits 1 (got $?)"
+        not_ok "live sentinel exits 1 (got $rc)"
     fi
     mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" \
         -e "DELETE FROM users WHERE email LIKE '%-${rid}-%';" >/dev/null 2>&1

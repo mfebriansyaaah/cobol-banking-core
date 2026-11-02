@@ -54,7 +54,14 @@ function changedFiles(base) {
   const out = git(['diff', '--name-only', `${base}...HEAD`]);
   if (out === null) return null;
   const untracked = git(['ls-files', '--others', '--exclude-standard']) || '';
-  return [...new Set((out + '\n' + untracked).split('\n').map((s) => s.trim()).filter(Boolean))].sort();
+  return [
+    ...new Set(
+      (out + '\n' + untracked)
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    ),
+  ].sort();
 }
 
 const KNOWN_GATE_DATA = new Set([
@@ -64,7 +71,14 @@ const KNOWN_GATE_DATA = new Set([
   'tests/coverage_baseline.txt',
   'tests/probes/expectations.txt',
 ]);
-const KNOWN_DOCS = new Set(['README.md', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md', 'PLANNING_SKELETON_CONVERSION.md', 'LICENSE']);
+const KNOWN_DOCS = new Set([
+  'README.md',
+  'CONTRIBUTING.md',
+  'SECURITY.md',
+  'CHANGELOG.md',
+  'PLANNING_SKELETON_CONVERSION.md',
+  'LICENSE',
+]);
 
 const plan = {
   mode: 'selected',

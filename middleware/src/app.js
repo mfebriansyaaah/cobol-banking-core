@@ -5,7 +5,7 @@ import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from './inv
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { ALL_ROUTES } from './routes/index.js';
-import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, signStepUp, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
+import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText, recordError, recordAuthFailure } from './observability.js';
 import { getPool } from './pool.js';

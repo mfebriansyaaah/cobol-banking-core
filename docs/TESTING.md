@@ -320,6 +320,49 @@ entry for an action that is still untested. Probe `p9_action_without_test`
 proves only this gate notices. Unit tests live in
 `scripts/test/check_action_test_coverage.test.mjs` (fixture trees, no DB).
 
+## Local lint and security gates
+
+CI runs a `lint` job with no services; run the same commands locally before
+pushing. Tool versions are pinned (install commands in the job) because linter
+output drifts between releases.
+
+```sh
+bash scripts/ci/lint.sh        # shellcheck -x (all shell) + shfmt -i 4 (allowlist)
+npm run lint                   # eslint: gateway + scripts
+npm run format:check           # prettier: scripts + root configs only
+npm run lint:md                # markdownlint (docs; see ignores below)
+actionlint                     # workflow correctness (also runs shellcheck inside run: blocks)
+yamllint --strict -c .yamllint .github/workflows/ docker-compose.test.yml monitoring/prometheus-alerts.yml .github/ISSUE_TEMPLATE/config.yml
+promtool check rules monitoring/prometheus-alerts.yml
+semgrep --config .semgrep/rules.yml --exclude node_modules --exclude package-lock.json --error middleware scripts
+gitleaks detect --source . --no-git --config .gitleaks.toml
+bash scripts/ci/c_strict.sh    # gcc -Werror syntax check + cppcheck over cobol/c_lib
+npm audit --omit=dev && npm --prefix middleware audit --omit=dev
+```
+
+Rules of the road:
+
+- Fix real findings; suppress only false positives, always with a reason
+  comment (`# shellcheck disable=SC...` with why, `// eslint-disable-next-line`
+  with why). A bare disable without a reason fails review.
+- `shfmt` and `prettier` enforce an allowlist, not the whole tree: the
+  `scripts/` toolchain is formatted, historical domain suites and gateway
+  sources are grandfathered (formatting 500+ files is churn without safety
+  value; ESLint already gates the real issues there). New toolchain files go
+  on the allowlist formatted; `scripts/ci/lint.sh` documents the split.
+- `markdownlint` ignores generated output (`docs/data_dictionary.md`,
+  `docs/MODULE_INDEX.md`) and immutable history (`docs/adr/`, see
+  `.markdownlintignore`); line length is 120 to match `.prettierrc`, tables
+  and code blocks are exempt.
+- `semgrep` only scans git-tracked files: `git add` new files before
+  trusting a local run; CI always scans the committed tree.
+- `gitleaks` scans the worktree (`--no-git`): allowlist entries in
+  `.gitleaks.toml` are narrow path+pattern pairs with a justification (e.g.
+  the seeded migration checksums, which are hashes of public files).
+- `npm audit` fails the gate on any reported severity; fix via lockfile bump
+  (`npm audit fix` in the owning package, then re-run its tests — run
+  `npm ci`, never `--omit=dev` installs, or dev dependencies get pruned).
+
 ## Files
 
 - `docker-compose.test.yml` — MariaDB 11.8 on `TEST_DB_PORT` (default 3307).

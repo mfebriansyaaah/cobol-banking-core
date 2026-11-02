@@ -49,7 +49,9 @@ for (const key of entries) {
   expected.set(file, key);
 }
 
-const actual = readdirSync(suitesDir).filter((f) => f.endsWith('.sh')).sort();
+const actual = readdirSync(suitesDir)
+  .filter((f) => f.endsWith('.sh'))
+  .sort();
 
 const missing = [...expected.keys()].filter((f) => !existsSync(path.join(suitesDir, f))).sort();
 const unlisted = actual.filter((f) => !expected.has(f));

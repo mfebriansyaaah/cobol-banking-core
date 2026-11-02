@@ -17,12 +17,15 @@ function convert(tap, args = []) {
 }
 
 test('passing and failing tests map to testcase/failure', () => {
-  const xml = convert('ok 1 - first\nnot ok 2 - second\n  # expected /X/\n  # got:      Y\n1..2\n# pass=1 fail=1 total=2\n', ['--suite', 'demo']);
+  const xml = convert(
+    'ok 1 - first\nnot ok 2 - second\n  # expected /X/\n  # got:      Y\n1..2\n# pass=1 fail=1 total=2\n',
+    ['--suite', 'demo'],
+  );
   assert.match(xml, /<testsuite name="demo" tests="2" failures="1"/);
   assert.match(xml, /<testcase classname="demo" name="first"/);
   assert.match(xml, /<testcase classname="demo" name="second"/);
   assert.match(xml, /<failure message="# expected \/X\//);
-  assert.match(xml, /# got:      Y/);
+  assert.match(xml, /# got: {6}Y/);
 });
 
 test('TAP plan and summary become testsuite attributes', () => {

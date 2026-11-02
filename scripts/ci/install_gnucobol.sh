@@ -102,5 +102,9 @@ if [ "$("$PREFIX/bin/cobc" --help 2>&1 | grep -c -- '--coverage')" -eq 0 ]; then
 fi
 echo "GnuCOBOL $VERSION ready at $PREFIX (with --coverage support)"
 echo 'expose with:'
+# Intentionally single-quoted: these are instructions for the operator to
+# echo, not expansions for this script (SC2016 does not apply).
+# shellcheck disable=SC2016
 echo '  echo "$HOME/.local/gnucobol/bin" >> "$GITHUB_PATH"'
+# shellcheck disable=SC2016
 echo '  echo "LD_LIBRARY_PATH=$HOME/.local/gnucobol/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"'

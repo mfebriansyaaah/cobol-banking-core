@@ -12,68 +12,65 @@ export const ROOT = path.resolve(process.argv[2] && !process.argv[2].startsWith(
 const MANIFEST = path.join(ROOT, 'manifest', 'modules.json');
 
 const countLines = (file) => {
-    const text = readFileSync(file, 'utf8');
-    return text.split('\n').length - (text.endsWith('\n') ? 1 : 0);
+  const text = readFileSync(file, 'utf8');
+  return text.split('\n').length - (text.endsWith('\n') ? 1 : 0);
 };
 
 const list = (dir, suffix) =>
-    existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(suffix)).sort() : [];
+  existsSync(dir)
+    ? readdirSync(dir)
+        .filter((f) => f.endsWith(suffix))
+        .sort()
+    : [];
 
 export function collect() {
-    const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
-    const cobolDir = path.join(ROOT, 'cobol', 'src');
-    const cobolFiles = list(cobolDir, '.cob');
-    const cobolLoc = cobolFiles.reduce((sum, f) => sum + countLines(path.join(cobolDir, f)), 0);
-    const routeFiles = list(path.join(ROOT, 'middleware', 'src', 'routes'), '.js')
-        .filter((f) => f !== 'index.js');
-    const appSource = readFileSync(path.join(ROOT, 'middleware', 'src', 'app.js'), 'utf8');
-    const routeSources = routeFiles.map((f) =>
-        readFileSync(path.join(ROOT, 'middleware', 'src', 'routes', f), 'utf8'));
-    const actionRe = /action:\s*'[A-Z0-9_]+'/g;
-    const actions =
-        routeSources.reduce((sum, src) => sum + (src.match(actionRe) || []).length, 0) +
-        (appSource.match(actionRe) || []).length;
-    const migrations = list(path.join(ROOT, 'database', 'migrations'), '.sql').length;
-    const schema = readFileSync(path.join(ROOT, 'database', 'schema.sql'), 'utf8');
-    const tables = (schema.match(/^CREATE TABLE/gm) || []).length;
+  const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+  const cobolDir = path.join(ROOT, 'cobol', 'src');
+  const cobolFiles = list(cobolDir, '.cob');
+  const cobolLoc = cobolFiles.reduce((sum, f) => sum + countLines(path.join(cobolDir, f)), 0);
+  const routeFiles = list(path.join(ROOT, 'middleware', 'src', 'routes'), '.js').filter((f) => f !== 'index.js');
+  const appSource = readFileSync(path.join(ROOT, 'middleware', 'src', 'app.js'), 'utf8');
+  const routeSources = routeFiles.map((f) => readFileSync(path.join(ROOT, 'middleware', 'src', 'routes', f), 'utf8'));
+  const actionRe = /action:\s*'[A-Z0-9_]+'/g;
+  const actions =
+    routeSources.reduce((sum, src) => sum + (src.match(actionRe) || []).length, 0) +
+    (appSource.match(actionRe) || []).length;
+  const migrations = list(path.join(ROOT, 'database', 'migrations'), '.sql').length;
+  const schema = readFileSync(path.join(ROOT, 'database', 'schema.sql'), 'utf8');
+  const tables = (schema.match(/^CREATE TABLE/gm) || []).length;
 
-    const modules = (manifest.cobolModules || []).map((m) => m.source);
-    const dispatch = manifest.dispatch || [];
-    const moduleRows = modules.map((source) => {
-        const module = source.replace(/\.cob$/, '');
-        const base = module.replace(/_core$/, '');
-        const prefixes = [...new Set(dispatch
-            .filter((d) => d.program === module)
-            .map((d) => d.prefix))];
-        return {
-            module,
-            source,
-            prefixes,
-            route: existsSync(path.join(ROOT, 'middleware', 'src', 'routes', `${base}.js`))
-                ? `${base}.js` : null,
-            cases: existsSync(path.join(ROOT, 'tests', 'cobol', 'cases', `${base}.cases`))
-                ? `${base}.cases` : null,
-            db: existsSync(path.join(ROOT, 'tests', 'db', `${base}_db_tests.sh`))
-                ? `${base}_db_tests.sh` : null,
-        };
-    });
-
+  const modules = (manifest.cobolModules || []).map((m) => m.source);
+  const dispatch = manifest.dispatch || [];
+  const moduleRows = modules.map((source) => {
+    const module = source.replace(/\.cob$/, '');
+    const base = module.replace(/_core$/, '');
+    const prefixes = [...new Set(dispatch.filter((d) => d.program === module).map((d) => d.prefix))];
     return {
-        generatedAt: manifest.generatedAt || null,
-        cobolModules: modules.length,
-        cobolFiles: cobolFiles.length,
-        cobolLoc,
-        routeFiles: routeFiles.length,
-        actions,
-        dispatchEntries: dispatch.length,
-        migrations,
-        tables,
-        modules: moduleRows,
+      module,
+      source,
+      prefixes,
+      route: existsSync(path.join(ROOT, 'middleware', 'src', 'routes', `${base}.js`)) ? `${base}.js` : null,
+      cases: existsSync(path.join(ROOT, 'tests', 'cobol', 'cases', `${base}.cases`)) ? `${base}.cases` : null,
+      db: existsSync(path.join(ROOT, 'tests', 'db', `${base}_db_tests.sh`)) ? `${base}_db_tests.sh` : null,
     };
+  });
+
+  return {
+    generatedAt: manifest.generatedAt || null,
+    cobolModules: modules.length,
+    cobolFiles: cobolFiles.length,
+    cobolLoc,
+    routeFiles: routeFiles.length,
+    actions,
+    dispatchEntries: dispatch.length,
+    migrations,
+    tables,
+    modules: moduleRows,
+  };
 }
 
 export function renderStatus(stats) {
-    return `# Repository Status
+  return `# Repository Status
 
 > Generated by \`scripts/docs_stats.mjs\`. Do not edit by hand; run
 > \`node scripts/docs_stats.mjs --write\` after a reviewed change.
@@ -102,7 +99,7 @@ Manifest generated: ${stats.generatedAt || 'unknown'}
 }
 
 export function renderReadmeBlock(stats) {
-    return `<!-- BEGIN GENERATED STATS -->
+  return `<!-- BEGIN GENERATED STATS -->
 | Metric | Value |
 |---|---:|
 | COBOL modules | **${stats.cobolModules}** |
@@ -117,14 +114,14 @@ export function renderReadmeBlock(stats) {
 }
 
 export function renderModuleIndex(stats) {
-    const rows = stats.modules.map((m) => {
-        const prefix = m.prefixes.length ? m.prefixes.map((p) => `\`${p}\``).join(', ') : '—';
-        const route = m.route ? `[${m.route}](../middleware/src/routes/${m.route})` : '—';
-        const cases = m.cases ? `[${m.cases}](../tests/cobol/cases/${m.cases})` : '—';
-        const db = m.db ? `[${m.db}](../tests/db/${m.db})` : '—';
-        return `| \`${m.module}\` | ${prefix} | ${route} | ${cases} | ${db} |`;
-    });
-    return `# Module Index
+  const rows = stats.modules.map((m) => {
+    const prefix = m.prefixes.length ? m.prefixes.map((p) => `\`${p}\``).join(', ') : '—';
+    const route = m.route ? `[${m.route}](../middleware/src/routes/${m.route})` : '—';
+    const cases = m.cases ? `[${m.cases}](../tests/cobol/cases/${m.cases})` : '—';
+    const db = m.db ? `[${m.db}](../tests/db/${m.db})` : '—';
+    return `| \`${m.module}\` | ${prefix} | ${route} | ${cases} | ${db} |`;
+  });
+  return `# Module Index
 
 > Generated by \`scripts/docs_stats.mjs\` from \`manifest/modules.json\`. Do not
 > edit by hand; run \`node scripts/docs_stats.mjs --write\` after a reviewed
@@ -142,30 +139,30 @@ ${rows.join('\n')}
 }
 
 export function updateReadme(readme, block) {
-    const begin = '<!-- BEGIN GENERATED STATS -->';
-    const end = '<!-- END GENERATED STATS -->';
-    const start = readme.indexOf(begin);
-    const stop = readme.indexOf(end);
-    if (start < 0 || stop < 0 || stop < start) {
-        throw new Error('README.md is missing the generated stats markers');
-    }
-    return `${readme.slice(0, start)}${block}${readme.slice(stop + end.length)}`;
+  const begin = '<!-- BEGIN GENERATED STATS -->';
+  const end = '<!-- END GENERATED STATS -->';
+  const start = readme.indexOf(begin);
+  const stop = readme.indexOf(end);
+  if (start < 0 || stop < 0 || stop < start) {
+    throw new Error('README.md is missing the generated stats markers');
+  }
+  return `${readme.slice(0, start)}${block}${readme.slice(stop + end.length)}`;
 }
 
 export function writeGenerated(stats) {
-    writeFileSync(path.join(ROOT, 'docs', 'STATUS.md'), renderStatus(stats));
-    writeFileSync(path.join(ROOT, 'docs', 'MODULE_INDEX.md'), renderModuleIndex(stats));
-    const readmePath = path.join(ROOT, 'README.md');
-    const readme = updateReadme(readFileSync(readmePath, 'utf8'), renderReadmeBlock(stats));
-    writeFileSync(readmePath, readme);
+  writeFileSync(path.join(ROOT, 'docs', 'STATUS.md'), renderStatus(stats));
+  writeFileSync(path.join(ROOT, 'docs', 'MODULE_INDEX.md'), renderModuleIndex(stats));
+  const readmePath = path.join(ROOT, 'README.md');
+  const readme = updateReadme(readFileSync(readmePath, 'utf8'), renderReadmeBlock(stats));
+  writeFileSync(readmePath, readme);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-    const stats = collect();
-    if (process.argv.includes('--write')) {
-        writeGenerated(stats);
-        console.log(`Wrote docs/STATUS.md, docs/MODULE_INDEX.md, README stats (${stats.cobolModules} modules)`);
-    } else {
-        console.log(JSON.stringify(stats, null, 2));
-    }
+  const stats = collect();
+  if (process.argv.includes('--write')) {
+    writeGenerated(stats);
+    console.log(`Wrote docs/STATUS.md, docs/MODULE_INDEX.md, README stats (${stats.cobolModules} modules)`);
+  } else {
+    console.log(JSON.stringify(stats, null, 2));
+  }
 }

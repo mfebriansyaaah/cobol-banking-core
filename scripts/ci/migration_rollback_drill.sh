@@ -25,16 +25,20 @@ DB_PORT="${DB_PORT:-3306}"
 DB_MIGRATE_USER="${DB_MIGRATE_USER:-cobol_user}"
 DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-cobol_pass}"
 
-versions="$(cd database/migrations && ls *.sql | sed 's/\.sql$//' | sort)"
+versions="$(cd database/migrations && printf '%s\n' *.sql | sed 's/\.sql$//' | sort)"
 N="$(echo "$versions" | tail -1)"
 PREV="$(echo "$versions" | tail -2 | head -1)"
-[ -n "$N" ] && [ -n "$PREV" ] && [ "$N" != "$PREV" ] || { echo "FAIL: need at least two migrations" >&2; exit 2; }
+if [ -z "$N" ] || [ -z "$PREV" ] || [ "$N" = "$PREV" ]; then
+    echo "FAIL: need at least two migrations" >&2
+    exit 2
+fi
 echo "=== ROLLBACK DRILL: $PREV <- $N (target: $ROLLBACK_DRILL_DB) ==="
 
 migrate_here() {
-    DB_NAME="$ROLLBACK_DRILL_DB" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT" \
-        DB_MIGRATE_USER="$DB_MIGRATE_USER" DB_MIGRATE_PASS="$DB_MIGRATE_PASS" \
-        DB_USER="$DB_MIGRATE_USER" DB_PASS="$DB_MIGRATE_PASS" \
+    # env (not VAR=x prefix): forwarding outer values self-referentially trips SC2097.
+    env "DB_NAME=$ROLLBACK_DRILL_DB" "DB_HOST=$DB_HOST" "DB_PORT=$DB_PORT" \
+        "DB_MIGRATE_USER=$DB_MIGRATE_USER" "DB_MIGRATE_PASS=$DB_MIGRATE_PASS" \
+        "DB_USER=$DB_MIGRATE_USER" "DB_PASS=$DB_MIGRATE_PASS" \
         ./database/migrate.sh "$@"
 }
 drill() { mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$ROLLBACK_DRILL_DB" "$@"; }

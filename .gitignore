@@ -22,6 +22,7 @@ Thumbs.db
 sql_debug.log
 
 # Node
+node_modules/
 middleware/node_modules/
 
 # Coverage reports

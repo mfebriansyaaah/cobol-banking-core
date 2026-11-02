@@ -18,8 +18,8 @@ let reportDir = path.resolve('artifacts');
 let jsonOut = null;
 let check = false;
 for (let i = 0; i < args.length; i += 1) {
-  if (args[i] === '--report-dir') reportDir = path.resolve(args[i + 1] ?? reportDir), i += 1;
-  else if (args[i] === '--json') jsonOut = args[i + 1] ?? jsonOut, i += 1;
+  if (args[i] === '--report-dir') ((reportDir = path.resolve(args[i + 1] ?? reportDir)), (i += 1));
+  else if (args[i] === '--json') ((jsonOut = args[i + 1] ?? jsonOut), (i += 1));
   else if (args[i] === '--check') check = true;
   else if (args[i] === '--help' || args[i] === '-h') {
     console.log('usage: test-report.mjs [--report-dir DIR] [--json OUT] [--check]');
@@ -39,7 +39,9 @@ function fail(msg) {
 
 if (!existsSync(tsvPath)) fail(`missing ${tsvPath} (run a test mode with reporting first)`);
 
-const lines = readFileSync(tsvPath, 'utf8').split('\n').filter((l) => l.trim() !== '');
+const lines = readFileSync(tsvPath, 'utf8')
+  .split('\n')
+  .filter((l) => l.trim() !== '');
 if (lines.length < 1) fail(`${tsvPath} is empty`);
 const header = lines[0].split('\t');
 const want = ['suite', 'status', 'pass', 'fail', 'total', 'duration_ms', 'shard'];

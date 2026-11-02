@@ -18,6 +18,8 @@ PROBE_VERSION="0666_schema_migrations_checksum"
 PROBE_FILE="$ROOT/database/migrations/$PROBE_VERSION.sql"
 BACKUP="$(mktemp "${TMPDIR:-/tmp}/checksum-probe.XXXXXX.sql")"
 cp "$PROBE_FILE" "$BACKUP"
+# Invoked only via `trap ... EXIT`, which shellcheck cannot trace.
+# shellcheck disable=SC2317
 restore_probe() {
     cp "$BACKUP" "$PROBE_FILE"
     mysql_migrate -e "UPDATE schema_migrations SET checksum = '$(sha256sum "$PROBE_FILE" | awk '{print $1}')' WHERE version = '$PROBE_VERSION';" >/dev/null 2>&1 || true
@@ -26,9 +28,10 @@ restore_probe() {
 trap restore_probe EXIT
 
 migrate_here() {
-    DB_NAME="${DB_NAME:-cobol_db}" DB_HOST="${DB_HOST:-localhost}" DB_PORT="${DB_PORT:-3306}" \
-        DB_MIGRATE_USER="${DB_MIGRATE_USER:-$DB_USER}" DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}" \
-        DB_USER="${DB_USER:-cobol_user}" DB_PASS="${DB_PASS:-cobol_pass}" \
+    # env (not VAR=x prefix): forwarding outer values self-referentially trips SC2097.
+    env "DB_NAME=${DB_NAME:-cobol_db}" "DB_HOST=${DB_HOST:-localhost}" "DB_PORT=${DB_PORT:-3306}" \
+        "DB_MIGRATE_USER=${DB_MIGRATE_USER:-$DB_USER}" "DB_MIGRATE_PASS=${DB_MIGRATE_PASS:-$DB_PASS}" \
+        "DB_USER=${DB_USER:-cobol_user}" "DB_PASS=${DB_PASS:-cobol_pass}" \
         "$ROOT/database/migrate.sh" "$@"
 }
 

@@ -112,6 +112,7 @@ test('wrong password maps to 401', async () => {
 test('bare-value endpoints return 200 with data', async () => {
   const em = U('bare');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body;
   const auth = { Authorization: `Bearer ${login.token}` };
@@ -139,6 +140,7 @@ test('email change works for a logged-in user (related rows exist)', async () =>
   const em = U('conf');
   const ne = U('confn');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Conf User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
 
@@ -155,6 +157,7 @@ test('refresh token yields a new access token', async () => {
   const signup = await request(app)
     .post('/auth/signup')
     .send({ email: em, password: 'secret123', name: 'Refresh User', dob: '1990-01-01' });
+  assert.equal(signup.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
 
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
@@ -175,6 +178,7 @@ test('refresh token yields a new access token', async () => {
 test('replaying a rotated refresh token revokes the whole family', async () => {
   const em = U('reuse');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Reuse User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const r1 = login.body.refreshToken;
@@ -411,6 +415,7 @@ test('an admin without MFA is prompted to enrol at login', async () => {
 test('reusing an idempotency key with different details is a conflict', async () => {
   const em = U('idem');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   requireSeed(seedAccount(em, '500.00'), 'seed an account');
@@ -475,6 +480,7 @@ test('an in-progress intent blocks a same-key transfer, then replays once commit
 test('transfer amount is decided by COBOL, not the gateway shape', async () => {
   const em = U('amt');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   requireSeed(seedAccount(em, '100.00'), 'seed an account');
@@ -554,6 +560,7 @@ test('a large list is not truncated at 500 bytes', async () => {
 test('one access token can be revoked without affecting another session', async () => {
   const em = U('deny');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Deny User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
 
   const first = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -577,6 +584,7 @@ test('audit archiving is admin-only', async () => {
 
   const em = U('arch');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Arch User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const userToken = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const adminStep = await stepUpFor(adminToken);
@@ -594,6 +602,7 @@ test('audit archiving is admin-only', async () => {
 test('password reset and change over HTTP', async () => {
   const em = U('pw');
   const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'PW User', dob: '1990-01-01' });
+  assert.equal(s.status, 200);
   await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
   const first = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const oldToken = first.body.token;
@@ -1023,7 +1032,7 @@ test('dual control gates designated operations', async () => {
   const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
   const makerStep = await stepUpFor(makerToken);
   const checkerStep = await stepUpFor(checkerToken);
-  const userStep = await stepUpFor(userToken);
+  await stepUpFor(userToken);
   const mkAuth = { Authorization: `Bearer ${makerToken}`, 'X-Step-Up': makerStep };
   const ckAuth = { Authorization: `Bearer ${checkerToken}`, 'X-Step-Up': checkerStep };
   requireSeed(runSql(`INSERT IGNORE INTO dual_control_operations (operation) VALUES ('CHANGE_ROLE')`), 'designate role changes');
