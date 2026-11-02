@@ -34,7 +34,7 @@ DB_PASS="${DB_PASS:-cobol_pass}"
 DB_MIGRATE_USER="${DB_MIGRATE_USER:-$DB_USER}"
 DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}"
 
-mysqlc() { mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$@"; }
+mysqlc() { mysql --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$@"; }
 
 cleanup() {
     mysqlc -e "DROP DATABASE IF EXISTS \`$SNAP_DB\`;" >/dev/null 2>&1 || true
@@ -43,14 +43,14 @@ trap cleanup EXIT
 
 echo "=== snapshot source: $SNAP_DB ==="
 mysqlc -e "DROP DATABASE IF EXISTS \`$SNAP_DB\`; CREATE DATABASE \`$SNAP_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$SNAP_DB" < database/schema.sql
+mysql --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$SNAP_DB" < database/schema.sql
 DB_NAME="$SNAP_DB" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT" \
     DB_MIGRATE_USER="$DB_MIGRATE_USER" DB_MIGRATE_PASS="$DB_MIGRATE_PASS" \
     DB_USER="$DB_MIGRATE_USER" DB_PASS="$DB_MIGRATE_PASS" \
     ./database/migrate.sh > /dev/null
 
 tmp="$(mktemp "${TMPDIR:-/tmp}/schema-snapshot.XXXXXX.sql")"
-mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" \
+mysqldump --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" \
     --no-data --routines --triggers --single-transaction --skip-dump-date \
     "$SNAP_DB" 2>/dev/null \
     | SNAP_DB="$SNAP_DB" bash "$ROOT/scripts/normalize_schema_dump.sh" \

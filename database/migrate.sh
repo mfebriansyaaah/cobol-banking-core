@@ -24,7 +24,12 @@ DB_PORT="${DB_PORT:-3306}"
 DB_MIGRATE_USER="${DB_MIGRATE_USER:-$DB_USER}"
 DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}"
 
-mysqlc() { mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" "$@"; }
+# Stored objects record the session charset at CREATE time (notably
+# information_schema.TRIGGERS.CHARACTER_SET_CLIENT), so the migrate client
+# version must not leak into the built schema: without the pin, a 10.11
+# client builds utf8mb3 triggers while an 11.8 client builds utf8mb4 ones,
+# and check_schema_drift.sh fails on identical sources.
+mysqlc() { mysql --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" "$@"; }
 
 # Load every recorded version once, then answer membership questions in shell.
 # The old loop spawned one mysql client per migration file (101 clients per
