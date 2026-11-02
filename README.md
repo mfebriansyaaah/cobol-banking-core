@@ -18,7 +18,7 @@ crypto helpers COBOL cannot call directly.
 
 ## Architecture
 
-```
+```text
 Client
   │  HTTPS / JSON
   ▼
@@ -155,7 +155,7 @@ suites, table cases, and the action/suite inventory gates. See
 
 The gateway and the binary speak one line per request:
 
-```
+```text
 ACTION|PARAM1|PARAM2|PARAM3|PARAM4|PARAM5|PARAM6
 ```
 

@@ -1,0 +1,14 @@
+# yamllint configuration (P1-6). Enforced in CI on hand-written YAML.
+# Relaxed where GitHub Actions / Compose idioms conflict with the defaults:
+# - `on:` is a required Actions trigger key, not a boolean.
+# - 120 columns to match .prettierrc printWidth; long URLs and commands are
+#   not breakable and must not fail the gate.
+extends: default
+rules:
+  document-start: disable
+  truthy:
+    allowed-values: ['true', 'false', 'on']
+  line-length:
+    max: 120
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
