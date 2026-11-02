@@ -129,10 +129,26 @@ backup/restore drill is P1-4). Safety properties (P0-1):
 Covered by `tests/scripts/test_restore_guard.sh`, which runs the drill offline
 against a fake `mysql` and asserts no `DROP` targets `cobol_db`.
 
-`scripts/ci/migration_rollback_drill.sh` is likewise named for what it does:
-a *migration apply + idempotency* drill (applies every migration, re-applies
-to prove idempotency, verifies the table count, smoke-tests the binary). It
-never rolls anything back; a true down-migration rollback drill is P1-4.
+`scripts/ci/migration_rollback_drill.sh` is a true snapshot-based rollback:
+it applies migrations up to N-1 into `ROLLBACK_DRILL_DB`, snapshots it, applies
+N, restores the snapshot, and verifies the ledger and a marker row are back at
+N-1 (with `migrate.sh --check` reporting exactly N pending). The old
+apply-twice idempotency check never proved anything could go backward.
+
+`scripts/ci/backup_restore_drill.sh` is a logical backup drill with data
+verification: it dumps `DB_NAME`, restores into `RESTORE_DRILL_DB`, and
+compares every table's row count plus `CHECKSUM TABLE` on key tables, then runs
+`migrate.sh --check` on the restored copy. Both drills take their target only
+from env (`ROLLBACK_DRILL_DB` / `RESTORE_DRILL_DB`, never `DB_NAME`) and
+refuse protected names before any `DROP`.
+
+`scripts/check_schema_drift.sh` fails when `schema.sql` + migrations no longer
+reproduce the committed `database/schema_full.sql` (regenerate deliberately
+with `scripts/generate_schema_snapshot.sh` after reviewing the diff).
+
+`scripts/ci/restore_drill.sh` remains for local use: a schema-only rebuild
+(no backup file, no data verification), covered by
+`tests/scripts/test_restore_guard.sh`.
 
 ## Orphan cleanup
 

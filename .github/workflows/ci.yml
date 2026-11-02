@@ -161,11 +161,22 @@ jobs:
       - name: Assertion count gate
         run: node scripts/check_test_counts.mjs --report-dir artifacts --strict
 
-      - name: Migration apply + idempotency drill
-        run: bash scripts/ci/migration_rollback_drill.sh
+      - name: Migration rollback drill
+        run: |
+          bash scripts/ci/migration_rollback_drill.sh > /tmp/migration_rollback_drill.log 2>&1
+          rc=$?
+          tail -20 /tmp/migration_rollback_drill.log
+          exit $rc
 
-      - name: Schema rebuild drill
-        run: bash scripts/ci/restore_drill.sh
+      - name: Backup and restore drill
+        run: |
+          bash scripts/ci/backup_restore_drill.sh > /tmp/backup_restore_drill.log 2>&1
+          rc=$?
+          tail -20 /tmp/backup_restore_drill.log
+          exit $rc
+
+      - name: Schema drift check
+        run: bash scripts/check_schema_drift.sh
 
       - name: Performance benchmarks
         run: bash tests/perf/bench.sh
@@ -188,6 +199,16 @@ jobs:
         with:
           name: gateway-log
           path: /tmp/gateway_endpoints.log
+          if-no-files-found: ignore
+
+      - name: Upload drill logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drill-logs
+          path: |
+            /tmp/migration_rollback_drill.log
+            /tmp/backup_restore_drill.log
           if-no-files-found: ignore
 
       - name: Upload residue log on failure
@@ -326,11 +347,14 @@ jobs:
           < database/schema.sql
       - name: Apply migrations
         run: ./database/migrate.sh
-      - name: Migration apply + idempotency drill
+      - name: Migration rollback drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
-      - name: Schema rebuild drill
-        run: bash scripts/ci/restore_drill.sh
+      - name: Backup and restore drill
+        run: bash scripts/ci/backup_restore_drill.sh
+
+      - name: Schema drift check
+        run: bash scripts/check_schema_drift.sh
   coverage-pr:
     name: coverage-pr
     if: github.event_name == 'pull_request'

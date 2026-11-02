@@ -13,7 +13,7 @@ Manifest generated: 2026-10-31T08:00:11.742Z
 | Gateway route files | 600 |
 | Gateway route definitions (routes + app.js) | 5,427 |
 | Dispatch entries | 683 |
-| Recorded migrations | 656 |
+| Recorded migrations | 657 |
 | Tables in schema.sql | 478 |
 
 ## Related documentation
