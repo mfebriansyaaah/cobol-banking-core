@@ -121,7 +121,7 @@ not a maturity score.
 | Integration tests | ✅ | `tests/integration/*.sh` (all flows, via `tests/run_all.sh full` / `integration`) |
 | Fuzz tests | ✅ | `tests/fuzz/fuzz_inputs.sh` |
 | SAST | ✅ | `scripts/ci/sast.sh`, `scripts/ci/sast_extra.sh` |
-| Migration apply + schema rebuild drills | ✅ | `scripts/ci/migration_rollback_drill.sh`, `scripts/ci/restore_drill.sh` |
+| Migration rollback + backup/restore drills, schema drift | ✅ | `scripts/ci/migration_rollback_drill.sh`, `scripts/ci/backup_restore_drill.sh`, `scripts/check_schema_drift.sh` |
 | Performance benchmarks | ✅ | `tests/perf/bench.sh` |
 | Coverage gate | ✅ | `scripts/ci/coverage.sh`, `tests/coverage_baseline.txt`; COBOL is a curated-core floor |
 | Warning ratchet | ⚠️ | `scripts/check_warnings.sh`; a few non-zero entries remain |
@@ -147,7 +147,7 @@ suites, table cases, and the action/suite inventory gates. See
 | Gateway route files | **600** |
 | Gateway route definitions | **5,427** |
 | Dispatch entries | **683** |
-| Recorded migrations | **656** |
+| Recorded migrations | **657** |
 | Tables in schema.sql | **478** |
 <!-- END GENERATED STATS -->
 
