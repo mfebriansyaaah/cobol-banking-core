@@ -14,10 +14,27 @@ import path from 'node:path';
 
 const argv = process.argv.slice(2);
 const shards = Math.max(1, parseInt(argv[0] || '1', 10) || 1);
-const ROOT = path.resolve(argv.slice(1).find((a) => !a.startsWith('--')) || '.');
-const timingsArg = argv.indexOf('--timings');
-const timingsPath = timingsArg >= 0 ? argv[timingsArg + 1] : null;
-if (timingsArg >= 0 && !timingsPath) {
+let ROOT = '.';
+let timingsPath = null;
+for (let i = 1; i < argv.length; i += 1) {
+  const a = argv[i];
+  if (a === '--timings') {
+    timingsPath = argv[i + 1];
+    i += 1;
+  } else if (!a.startsWith('--') && ROOT === '.') {
+    ROOT = a;
+  } else if (a.startsWith('--')) {
+    console.error(`unknown flag: ${a} (usage: node scripts/shard_suites.mjs <shards> [root] [--timings run-all.json])`);
+    process.exit(2);
+  } else {
+    console.error(
+      'unexpected extra positional argument (usage: node scripts/shard_suites.mjs <shards> [root] [--timings run-all.json])',
+    );
+    process.exit(2);
+  }
+}
+ROOT = path.resolve(ROOT);
+if (timingsPath === undefined) {
   console.error('usage: node scripts/shard_suites.mjs <shards> [root] [--timings run-all.json]');
   process.exit(2);
 }
