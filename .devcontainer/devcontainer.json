@@ -1,0 +1,27 @@
+// Dev container (P1-7): Node 24, GnuCOBOL, MariaDB client, and Docker-in-
+// Docker for the Compose test database. The post-create command provisions
+// the database and runs the fast suite, so a fresh codespace is green.
+{
+  "name": "cobol-banking-core",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+    }
+  },
+  "forwardPorts": [3307],
+  "portsAttributes": {
+    "3307": {
+      "label": "MariaDB test database",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y --no-install-recommends gnucobol libmysqlclient-dev build-essential mariadb-client && npm --prefix middleware ci && bash scripts/dev/bootstrap.sh",
+  "remoteUser": "vscode"
+}
