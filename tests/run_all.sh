@@ -476,9 +476,14 @@ run_build() {
 
 run_smoke() {
     echo "=== SMOKE ==="
-    printf 'PING||||||\n' > input.txt
-    ./cobol/bin/main_logic
-    out="$(cat output.txt)"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/workdir.sh"
+    local workdir
+    workdir="$(make_workdir smoke)" || { echo "FAIL: cannot create workdir" >&2; exit 1; }
+    printf 'PING||||||\n' > "$workdir/input.txt"
+    ( cd "$workdir" && "$ROOT/cobol/bin/main_logic" ) || true
+    out="$(cat "$workdir/output.txt" 2>/dev/null || true)"
+    rm -rf "$workdir"
     echo "PING -> $out"
     if echo "$out" | grep -q 'SUCCESS|PONG'; then
         report_record "smoke" "pass" 1 0 1 0 "fast"
