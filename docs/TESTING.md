@@ -213,6 +213,37 @@ dry-run by default.
 | `cannot list schemata` from cleanup | migrate credentials lack privileges | export `DB_MIGRATE_USER`/`DB_MIGRATE_PASS` for a DDL user |
 | port `3307` in use | another Compose project or local forward | `TEST_DB_PORT=3308 docker compose -f docker-compose.test.yml up -d`, then set `DB_PORT=3308` in `tests/.dbenv` |
 
+## Test runner CLI and ergonomics
+
+`tests/run_all.sh --help` is the reference; the useful core:
+
+- `--only <substr>` runs only DB suites whose file name contains it
+  (`--only loan`). Combine with `--repeat N` to flake-hunt:
+  `run_all.sh db --only loan --repeat 5` runs each match five times and
+  counts every iteration, so one flaky pass still fails the suite.
+- `--failed` reruns exactly the suites listed in
+  `artifacts/last-failed.txt` (rewritten by every run; a green run clears
+  it). When a full run goes red overnight, `--failed` reproduces it in
+  seconds instead of rerunning 500+ suites.
+- `--keep-logs` copies per-suite logs to timestamped
+  `tests/artifacts/logs-*` (gitignored) for forensics.
+- `--mode` duplicates the positional mode; `--no-build` skips the COBOL
+  build; `--allow-dev-db` acknowledges the developer database may be
+  modified (required without DDL rights — see below).
+- `db-shard` runs one matrix shard:
+  `DB_SHARD_INDEX=0 DB_SHARD_COUNT=4 run_all.sh db-shard`.
+
+Every test that invokes the COBOL binary directly runs in a throwaway
+workdir (`tests/lib/workdir.sh`), never the repo root: the binary reads
+`./input.txt` and writes `./output.txt`, so sharing the checkout would
+interleave suites and litter `input.txt`/`output.txt` everywhere.
+
+`make` wraps the common flows (`make bootstrap`, `make db-up`,
+`make test-fast`, `make test-db`, `make test-full`, `make lint`,
+`make coverage`); `scripts/dev/bootstrap.sh` is the zero-to-green path
+(dependency check, Compose DB, provision, build, fast suite) and
+`.devcontainer/` reproduces the same toolchain in a codespace.
+
 ## Machine-readable reports
 
 Every shell suite records one TSV row in `artifacts/report.tsv`
@@ -410,6 +441,8 @@ Rules of the road:
 - `tests/scripts/` — offline safety tests + `run.sh` harness.
 - `scripts/check_test_residue.sh` — fails a gateway run that leaves user fixtures behind.
 - `scripts/ci/aggregate_shard_reports.sh` + `db-shards`/`db-aggregate` jobs — sharded DB fleet with merged verification.
+- `tests/lib/workdir.sh` + `Makefile` + `scripts/dev/bootstrap.sh` + `.devcontainer/` — runner ergonomics.
+- `tests/README.md` — fleet layout, slice recipes, and how to add a test.
 - `scripts/shard_suites.mjs` + `scripts/test/shard_suites.test.mjs` — deterministic LPT shard planner.
 - `scripts/ci/compare_runs.mjs` + `nightly.yml` — twice-run flake gate.
 - `scripts/ci/collect_diagnostics.sh` — failure forensics bundle.
