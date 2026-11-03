@@ -276,6 +276,12 @@ jobs:
           fi
           TEST_RUN_ID="$TEST_RUN_ID" bash scripts/check_test_residue.sh | tee /tmp/gateway_residue.log
 
+      # Benchmarks run before the drills: the backup drill's mysqldump competes
+      # for I/O, and the seeded service database is at its most representative
+      # right after the gateway suites.
+      - name: Performance benchmarks
+        run: bash tests/perf/bench.sh
+
       - name: Migration rollback drill
         run: |
           bash scripts/ci/migration_rollback_drill.sh > /tmp/migration_rollback_drill.log 2>&1
@@ -292,9 +298,6 @@ jobs:
 
       - name: Schema drift check
         run: bash scripts/check_schema_drift.sh
-
-      - name: Performance benchmarks
-        run: bash tests/perf/bench.sh
 
       - name: Upload test reports
         if: always()

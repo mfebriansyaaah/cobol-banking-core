@@ -69,6 +69,9 @@ jobs:
       - name: Install gateway dependencies
         run: npm ci --prefix middleware
 
+      - name: Install JS toolchain (load test runner)
+        run: npm ci
+
       - name: Provision least-privilege app account
         run: >
           APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
@@ -123,6 +126,9 @@ jobs:
 
       - name: Gateway coverage
         run: bash scripts/ci/coverage.sh --gateway-only --json
+
+      - name: Gateway load test
+        run: bash tests/perf/load_gateway.sh
 
       - name: Collect failure diagnostics
         if: failure()
