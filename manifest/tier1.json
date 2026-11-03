@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "description": "Tier-1 core definition for the linkage graph (PR-009). Hand-reviewed; changes require maintainer approval. See docs/module_classification.md and docs/TIER1_LINKAGE.md.",
+  "tier1Modules": [
+    "auth_core",
+    "auth_password_core",
+    "user_core",
+    "wallet_core",
+    "loan_core",
+    "loan_schedule_core",
+    "deposit_core",
+    "card_core",
+    "collection_core",
+    "payment_clearing_core",
+    "treasury_liquidity_core",
+    "gl_core",
+    "fee_core"
+  ],
+  "utilityModules": [
+    "hashlen_core",
+    "ref_engine",
+    "ref_ext_core"
+  ],
+  "businessTables": [
+    "accounts",
+    "ledger",
+    "journal_entries",
+    "loan_application",
+    "loan_repayment",
+    "loan_schedule",
+    "loan_installment",
+    "deposit_account",
+    "deposit_accrual",
+    "card_account",
+    "collection_case",
+    "fee_schedule",
+    "fee_rule",
+    "fee_tier",
+    "fee_waiver",
+    "gl_journal",
+    "gl_journal_line"
+  ],
+  "moneyTables": ["accounts", "ledger", "journal_entries", "gl_journal", "gl_journal_line"],
+  "moneyActions": ["TRANSFER", "REVERSE_TRANSFER", "CHECK_BALANCE", "TX_STATUS", "GL_JOURNAL_POST"],
+  "referenceTables": ["users", "currencies"]
+}

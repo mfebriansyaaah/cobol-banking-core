@@ -37,3 +37,27 @@ DELETE/CLOSE, SUMMARY, AUDIT, VALIDATE, plus a domain action) and use
 - Admin-only actions call `ALLOW-ADMIN` or `ALLOW-SUPER-ADMIN`.
 - Keep `WS-PREP-SQL` ≤ 1024 chars and params ≤ 6 (7 for EXEC7).
 - Warning baseline must be 0 for Tier 1; Tier 2 may start with a recorded baseline.
+
+## Tier-1 linkage (L0–L3)
+
+A module's tier says how strictly it is reviewed; its **linkage level** says
+whether it is actually tied to the Tier-1 core. Linkage is measured from
+evidence, not from size or template similarity, by
+`scripts/build_tier1_graph.mjs` (definition: `manifest/tier1.json`, output:
+`manifest/tier1_links.json`, human-readable: `docs/TIER1_LINKAGE.md`).
+
+| Level | Meaning |
+| --- | --- |
+| L3 | Tier-1 core, or money-table touch with depth plus a proving test |
+| L2 | Business-table reference, Tier-1 CALL, or money-action literal, plus a test |
+| L1 | Reference-only (`users`/`currencies`/`ref_*`, incl. the `ALLOW-ADMIN` role lookup) or linked code with no test |
+| L0 | Isolated: own generic tables only, or no table references at all |
+| UTILITY | Tier-3 helper (`hashlen_core`, `ref_engine`, `ref_ext_core`); never a retire candidate |
+
+Rules:
+
+- The `ALLOW-ADMIN` role lookup (`SELECT role FROM users WHERE email = ?`)
+  and audit actor fields are **not** linkage.
+- New modules/routes need L2+ linkage (or `UTILITY`/`INFRA` status); L0/L1 is rejected.
+- L0/L1 is refactored never, retired eventually (`tests/tier1_links_baseline.txt`
+  is the ratchet; `scripts/check_tier1_links.mjs` enforces it in `run_all.sh fast`).
