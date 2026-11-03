@@ -101,6 +101,21 @@ jobs:
       - name: Secret scan
         run: gitleaks detect --source . --no-git --config .gitleaks.toml
 
+      - name: Gate unit tests
+        run: >
+          mkdir -p test-results/gate &&
+          node --test --test-reporter=spec --test-reporter-destination=stdout
+          --test-reporter=junit --test-reporter-destination=test-results/gate/junit.xml
+          "scripts/test/*.test.mjs" 2>&1 | tail -5
+
+      - name: Upload gate test report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: gate-tests-junit
+          path: test-results/gate/junit.xml
+          if-no-files-found: warn
+
       - name: Dependency audit (root)
         run: npm audit --omit=dev
 
