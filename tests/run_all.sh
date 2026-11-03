@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [--json] [--no-report] [fast|db|full|probes|affected|integration]   (default: full)
-#   --json       print the report path at the end (artifacts/run-all.json)
-#   --no-report  skip machine-readable reporting (logs only)
+# Usage: tests/run_all.sh [options] [fast|db|db-shard|full|probes|affected|integration]   (default: full)
+#   --json            print the report path at the end (artifacts/run-all.json)
+#   --no-report       skip machine-readable reporting (logs only)
+#   --mode <mode>     same as the positional mode argument
+#   --only <substr>   run only DB suites whose file name contains <substr>
+#   --failed          rerun only suites listed in artifacts/last-failed.txt
+#   --repeat <n>      run every selected suite n times (flake hunting)
+#   --keep-logs       copy per-suite logs to tests/artifacts/logs-<ts>-<pid>
+#   --no-build        skip the COBOL build (same as SKIP_BUILD=1)
+#   --allow-dev-db    acknowledge the developer database may be modified
+#                     (same as ALLOW_DEV_DB=1; required without DDL rights)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,28 +19,69 @@ cd "$ROOT"
 REPORT_ENABLED="${REPORT_ENABLED:-1}"
 PRINT_JSON=0
 MODE=""
-for _arg in "$@"; do
-    case "$_arg" in
-        --json) PRINT_JSON=1 ;;
-        --no-report) REPORT_ENABLED=0 ;;
+MODE_SET=0
+ONLY_PATTERN="${ONLY_PATTERN:-}"
+FAILED_ONLY=0
+REPEAT_COUNT="${REPEAT_COUNT:-1}"
+KEEP_LOGS=0
+usage() {
+    sed -n '2,15p' "$0"
+    echo "Modes: fast db db-shard full probes affected integration"
+}
+need_arg() {
+    # $1 = flag as typed, $2 = candidate value (may be empty).
+    if [ -n "${2:-}" ]; then
+        printf '%s' "$2"
+    else
+        echo "usage: $0 $1 <value> (see --help)" >&2
+        exit 2
+    fi
+}
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --json) PRINT_JSON=1; shift ;;
+        --no-report) REPORT_ENABLED=0; shift ;;
+        --mode) MODE="$(need_arg "$1" "${2:-}")"; MODE_SET=1; shift 2 ;;
+        --mode=*) MODE="${1#--mode=}"; MODE_SET=1; shift ;;
+        --only) ONLY_PATTERN="$(need_arg "$1" "${2:-}")"; shift 2 ;;
+        --only=*) ONLY_PATTERN="${1#--only=}"; shift ;;
+        --repeat) REPEAT_COUNT="$(need_arg "$1" "${2:-}")"; shift 2 ;;
+        --repeat=*) REPEAT_COUNT="${1#--repeat=}"; shift ;;
+        --failed) FAILED_ONLY=1; shift ;;
+        --keep-logs) KEEP_LOGS=1; shift ;;
+        --no-build) SKIP_BUILD=1; shift ;;
+        --allow-dev-db) ALLOW_DEV_DB=1; shift ;;
         --help|-h)
-            sed -n '2,5p' "$0"
-            echo "Modes: fast db db-shard full probes affected integration"
+            usage
             exit 0
             ;;
-        -*) echo "unknown flag: $_arg (see --help)" >&2; exit 2 ;;
+        --*) echo "unknown flag: $1 (see --help)" >&2; exit 2 ;;
         *)
-            if [ -z "$MODE" ]; then
-                MODE="$_arg"
-            else
-                echo "unexpected argument: $_arg (see --help)" >&2
+            if [ "$MODE_SET" = "1" ] || [ -n "$MODE" ]; then
+                echo "unexpected argument: $1 (see --help)" >&2
                 exit 2
             fi
+            MODE="$1"
+            shift
             ;;
     esac
 done
 MODE="${MODE:-full}"
 export REPORT_ENABLED PRINT_JSON
+export ONLY_PATTERN FAILED_ONLY REPEAT_COUNT KEEP_LOGS
+
+case "$REPEAT_COUNT" in
+    ''|*[!0-9]*|0) echo "FAIL: --repeat needs a positive integer (got '$REPEAT_COUNT')" >&2; exit 2 ;;
+esac
+if [ "$FAILED_ONLY" = "1" ]; then
+    if [ ! -f artifacts/last-failed.txt ]; then
+        echo "FAIL: no artifacts/last-failed.txt; run the fleet once first" >&2
+        exit 2
+    fi
+    if [ -n "$ONLY_PATTERN" ]; then
+        echo "note: --failed overrides --only" >&2
+    fi
+fi
 
 # Parse every gateway/script source before anything else runs. A route file
 # that cannot be imported takes the whole gateway down, and the old pipeline
@@ -79,6 +128,35 @@ db_have_ddl() {
     return 1
 }
 
+# --only/--failed suite selection (DB suites only). Failed wins over only.
+suite_selected() {
+    local base
+    base="$(basename "$1")"
+    if [ "${FAILED_ONLY:-0}" = "1" ]; then
+        grep -qxF "$base" artifacts/last-failed.txt 2>/dev/null
+        return $?
+    fi
+    if [ -n "${ONLY_PATTERN:-}" ]; then
+        case "$base" in
+            *"$ONLY_PATTERN"*) return 0 ;;
+            *) return 1 ;;
+        esac
+    fi
+    return 0
+}
+
+# Run one suite, repeating it when --repeat N is set. Returns non-zero when
+# any iteration failed, so flaky passes still count as failures.
+run_suite_repeated() {
+    local idx="$1" suite="$2" i rc=0
+    for i in $(seq 1 "${REPEAT_COUNT:-1}"); do
+        if ! report_run "$idx" "$suite"; then
+            rc=1
+        fi
+    done
+    return "$rc"
+}
+
 # One shard worker: runs its suites sequentially against its worker DB.
 # Runs in a background subshell; DB_NAME is exported per worker, while
 # DB_VERIFIED=1 / DB_SEEDED=1 are inherited from the runner. Per-suite results
@@ -93,7 +171,8 @@ run_shard_worker() {
     : >"$log" 2>/dev/null || return 1
     : >"$log.failed" 2>/dev/null || return 1
     for s in "$@"; do
-        if report_run "$idx" "$s"; then
+        suite_selected "$s" || continue
+        if run_suite_repeated "$idx" "$s"; then
             rc=0
         else
             rc=$?
@@ -115,8 +194,9 @@ run_db_serial() {
     local db_failed=0 db_total=0 suite
     for suite in tests/db/*_db_tests.sh; do
         [ -f "$suite" ] || continue
+        suite_selected "$suite" || continue
         db_total=$((db_total + 1))
-        if ! report_run "serial" "$suite"; then
+        if ! run_suite_repeated "serial" "$suite"; then
             db_failed=$((db_failed + 1))
         fi
     done
@@ -335,7 +415,8 @@ EOF
     # separate runners). Concurrent local runs must use distinct REPORT_DIRs.
     local db_failed=0 s
     for s in $shard_suites; do
-        if ! report_run "$index" "$s"; then
+        suite_selected "$s" || continue
+        if ! run_suite_repeated "$index" "$s"; then
             db_failed=$((db_failed + 1))
         fi
     done
@@ -407,6 +488,7 @@ run_smoke() {
         exit 1
     fi
 }
+
 
 run_fast() {
     # shellcheck disable=SC1091
@@ -775,5 +857,13 @@ case "$MODE" in
         exit 2
         ;;
 esac
+
+if [ "$KEEP_LOGS" = "1" ] && [ -n "${REPORT_DIR:-}" ] && [ -d "$REPORT_DIR/logs" ]; then
+    dest="tests/artifacts/logs-$(date +%Y%m%dT%H%M%S)-$$"
+    mkdir -p tests/artifacts
+    if cp -r "$REPORT_DIR/logs" "$dest" 2>/dev/null; then
+        echo "=== LOGS KEPT: $dest ==="
+    fi
+fi
 
 echo "=== RUN_ALL ($MODE) GREEN ==="

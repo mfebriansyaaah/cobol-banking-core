@@ -25,6 +25,9 @@ sql_debug.log
 node_modules/
 middleware/node_modules/
 
+# Kept failure logs (run_all.sh --keep-logs); never commit these.
+tests/artifacts/
+
 # Coverage reports
 coverage/
 # ...but not the coverage tooling itself
