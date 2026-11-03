@@ -1,0 +1,3 @@
+# Fixture table cases (name@@expected@@input).
+ACC_CREATE ok@@SUCCESS|ACC_CREATED@@ACC_CREATE|ref-1|USD|savings
+ACC_GET ok@@SUCCESS|ACC_FOUND@@ACC_GET|1|||||

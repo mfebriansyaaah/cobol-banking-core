@@ -1,0 +1,3 @@
+cobol_table_tests=3
+db_account_tests=10
+db_loan_tests=5

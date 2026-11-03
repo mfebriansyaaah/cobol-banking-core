@@ -8,7 +8,8 @@
     "format:check": "prettier --check scripts eslint.config.mjs .prettierrc",
     "lint:md": "markdownlint 'docs/**/*.md' README.md CONTRIBUTING.md CHANGELOG.md SECURITY.md tests/README.md --ignore docs/data_dictionary.md --ignore docs/MODULE_INDEX.md --ignore docs/STATUS.md --ignore docs/COMPLEXITY_BASELINE.md --ignore 'docs/adr'",
     "audit:complexity": "node scripts/audit_complexity.mjs --json",
-    "audit:complexity:write": "node scripts/audit_complexity.mjs --write"
+    "audit:complexity:write": "node scripts/audit_complexity.mjs --write",
+    "test:scripts": "node --test \"scripts/test/*.test.mjs\""
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
