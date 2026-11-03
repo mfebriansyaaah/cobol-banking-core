@@ -245,7 +245,12 @@ jobs:
       - name: Apply migrations
         run: ./database/migrate.sh
 
-      - name: Run full test gate
+      - name: Run full test gate (DB via matrix)
+        env:
+          # The DB fleet runs as one-job-per-shard in db-shards below (better
+          # isolation: one database per runner). This keeps one invocation
+          # (and its single report.tsv) coherent; local `full` still runs db.
+          SKIP_DB: '1'
         run: tests/run_all.sh full
 
       - name: Gateway residue check
@@ -257,9 +262,6 @@ jobs:
             exit 0
           fi
           TEST_RUN_ID="$TEST_RUN_ID" bash scripts/check_test_residue.sh | tee /tmp/gateway_residue.log
-
-      - name: Assertion count gate
-        run: node scripts/check_test_counts.mjs --report-dir artifacts --strict
 
       - name: Migration rollback drill
         run: |
@@ -280,10 +282,6 @@ jobs:
 
       - name: Performance benchmarks
         run: bash tests/perf/bench.sh
-
-      - name: Write test summary
-        if: always()
-        run: node scripts/ci/summary.mjs
 
       - name: Upload test reports
         if: always()
@@ -318,6 +316,158 @@ jobs:
           name: gateway-residue-log
           path: /tmp/gateway_residue.log
           if-no-files-found: ignore
+
+      - name: Collect failure diagnostics
+        if: failure()
+        run: bash scripts/ci/collect_diagnostics.sh /tmp/ci-diagnostics
+
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: diagnostics
+          path: /tmp/ci-diagnostics
+          if-no-files-found: warn
+
+  db-shards:
+    name: db shard ${{ matrix.shard }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Keep in sync: matrix size, DB_SHARD_COUNT below, and the shard count
+    # argument of the aggregate step. Four shards split ~537 suites.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_USER: cobol_user
+      DB_PASS: cobol_pass
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+      SKIP_BUILD: '1'
+      # The template is the service database itself (already migrated below);
+      # each shard builds exactly one private worker database from it.
+      ISOLATED_DB: '0'
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gnucobol libmysqlclient-dev build-essential mariadb-client
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: middleware/package-lock.json
+
+      - name: Install gateway dependencies
+        run: npm ci --prefix middleware
+
+      - name: Download core binary
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: cobol-binary
+          path: cobol/bin
+
+      - name: Make binary executable
+        run: chmod +x cobol/bin/main_logic
+
+      - name: Provision least-privilege app account
+        run: >
+          APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
+          MIGRATE_DB_PASS="$DB_MIGRATE_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
+          DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
+          DB_NAME="$DB_NAME" database/grants.sh
+
+      - name: Load baseline schema
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
+          < database/schema.sql
+
+      - name: Apply migrations
+        run: ./database/migrate.sh
+
+      - name: Run DB shard
+        run: DB_SHARD_INDEX=${{ matrix.shard }} DB_SHARD_COUNT=4 tests/run_all.sh db-shard
+
+      - name: Upload shard reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: shard-reports-${{ matrix.shard }}
+          path: artifacts/
+          if-no-files-found: warn
+
+  db-aggregate:
+    name: db aggregate
+    needs: [test, db-shards]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
+        with:
+          node-version: '24'
+
+      - name: Download all reports
+        if: always()
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          # test-reports (test job) plus one shard-reports-N per matrix job,
+          # each kept in its own subdirectory for the merge script.
+          pattern: "*-reports*"
+          path: parts/
+
+      - name: Merge and verify shard reports
+        if: always()
+        run: bash scripts/ci/aggregate_shard_reports.sh parts merged 4
+
+      - name: Assertion count gate
+        if: always()
+        run: node scripts/check_test_counts.mjs --report-dir merged --strict
+
+      - name: Write test summary
+        if: always()
+        run: node scripts/ci/summary.mjs --report-dir merged
+
+      - name: Upload merged reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: test-reports-merged
+          path: merged/
+          if-no-files-found: warn
 
   coverage:
     name: coverage
@@ -495,6 +645,25 @@ jobs:
         with:
           # --changed diffs against origin/main; a shallow checkout has no base.
           fetch-depth: 0
+
+      # COBOL object cache (P1-5): coverage.sh always runs ./build.sh first and
+      # reuses normal objects for the instrumented link, but a fresh checkout
+      # has none. The key pins the exact toolchain (GnuCOBOL 3.2 built by
+      # install_gnucobol.sh — objects must never cross compiler versions) plus
+      # every build input; restore-keys fall back to the newest same-toolchain
+      # cache so only changed modules recompile. The build job is deliberately
+      # not cached here: it uses apt GnuCOBOL 3.1.2, and its only output (the
+      # linked binary) already travels via the cobol-binary artifact.
+      - name: Restore COBOL build cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        with:
+          path: cobol/build
+          key: >
+            cobol-build-${{ runner.os }}-gnucobol3.2-${{
+            hashFiles('cobol/src/**', 'cobol/copy/**', 'cobol/c_lib/**',
+            'build.sh', 'cobol/Makefile') }}
+          restore-keys: |
+            cobol-build-${{ runner.os }}-gnucobol3.2-
 
       - name: Install build dependencies
         run: |

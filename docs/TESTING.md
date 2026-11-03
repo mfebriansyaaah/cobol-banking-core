@@ -113,6 +113,44 @@ leaked `obs_*` orphans. Rules:
   runs — verify against a fresh database (CI does) or delete that run's
   pattern once; never widen a cleanup pattern to make the check pass.
 
+## CI scale: shard matrix, cache, nightly
+
+DB suites run two ways from the same code (`tests/run_all.sh`):
+
+- Local / single job: `run_all.sh db` shards in-job (`DB_SHARDS` workers,
+  default 4) against throwaway worker databases.
+- CI: four `db-shards` matrix jobs (`matrix.shard` 0–3) each run
+  `run_all.sh db-shard` with `DB_SHARD_INDEX`/`DB_SHARD_COUNT`, so every
+  shard gets its own runner and database. `db-aggregate` then merges the
+  per-shard `report.tsv` files, verifies each shard ran exactly its planner
+  slice (missing/duplicated/moved suites fail the gate), checks the
+  fleet-wide inventory, and only then runs the assertion-count gate and the
+  test summary — so `--strict` sees the complete picture.
+
+`tests/run_all.sh full` in CI sets `SKIP_DB=1` (the matrix covers the DB
+fleet; local `full` always runs it). This is CI-only plumbing, not a general
+flag.
+
+Planner weights (`scripts/shard_suites.mjs`, LPT scheduling) come from
+`--timings artifacts/run-all.json` (measured durations, median fallback)
+or, without it, from baseline assertion counts. Assignment is deterministic
+for identical inputs; `scripts/test/shard_suites.test.mjs` pins that.
+
+`coverage-pr` restores `cobol/build` from cache (key pins GnuCOBOL 3.2 plus
+every build input) so `./build.sh` inside coverage is a warm relink; the
+`build` job is deliberately not cached (apt GnuCOBOL 3.1.2 — objects must
+never cross compiler versions; its binary travels via artifact).
+
+Nightly (`nightly.yml`, own concurrency group so pushes never cancel it)
+runs the full gate twice and fails on any per-suite drift between the two
+reports (`scripts/ci/compare_runs.mjs` ignores durations), then runs the
+drills and gateway coverage. A red nightly means order-dependence or a flake,
+not a broken PR.
+
+On any failure, `scripts/ci/collect_diagnostics.sh` gathers tool versions,
+git state, DB/table counts, the ledger check, and log tails into one
+directory (best-effort, never prints secrets) uploaded as an artifact.
+
 ## Schema rebuild drill (and migration idempotency)
 
 `scripts/ci/restore_drill.sh` rebuilds `schema.sql` + migrations into an
@@ -371,5 +409,9 @@ Rules of the road:
 - `tests/lib/guard.sh`, `tests/lib/lock.sh` — safety primitives.
 - `tests/scripts/` — offline safety tests + `run.sh` harness.
 - `scripts/check_test_residue.sh` — fails a gateway run that leaves user fixtures behind.
+- `scripts/ci/aggregate_shard_reports.sh` + `db-shards`/`db-aggregate` jobs — sharded DB fleet with merged verification.
+- `scripts/shard_suites.mjs` + `scripts/test/shard_suites.test.mjs` — deterministic LPT shard planner.
+- `scripts/ci/compare_runs.mjs` + `nightly.yml` — twice-run flake gate.
+- `scripts/ci/collect_diagnostics.sh` — failure forensics bundle.
 - `scripts/cleanup-test-dbs.sh` — orphan cleanup.
 - `scripts/ci/restore_drill.sh` — guarded drill.
