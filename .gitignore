@@ -39,3 +39,6 @@ middleware/test-results/
 
 # Python bytecode caches
 __pycache__/
+
+# Per-run benchmark reports (regenerate with tests/perf/bench.sh).
+tests/perf/last.json

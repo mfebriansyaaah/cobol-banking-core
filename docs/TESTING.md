@@ -438,6 +438,7 @@ Rules of the road:
 - `scripts/dev/setup-test-db.sh` — provision accounts, schema, migrations, seed.
 - `tests/.dbenv.example` — copy to `tests/.dbenv` (gitignored).
 - `tests/lib/guard.sh`, `tests/lib/lock.sh` — safety primitives.
+- `tests/perf/bench.sh` + `load_gateway.sh` + `baseline.json` — latency budgets and gateway load; see `tests/perf/README.md`.
 - `tests/scripts/` — offline safety tests + `run.sh` harness.
 - `scripts/check_test_residue.sh` — fails a gateway run that leaves user fixtures behind.
 - `scripts/ci/aggregate_shard_reports.sh` + `db-shards`/`db-aggregate` jobs — sharded DB fleet with merged verification.

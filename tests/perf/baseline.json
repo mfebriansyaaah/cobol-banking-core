@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-11-03 (CI ubuntu-latest shared runner; hardware-class reference, see tests/perf/README.md)",
+  "iters": 100,
+  "actions": {
+    "UElORw==": {
+      "p50": 40,
+      "p95": 44,
+      "p99": 68,
+      "avg": 41,
+      "min": 39,
+      "max": 69,
+      "n": 100
+    },
+    "R0xBX0xJU1R8fHw1MHwwfHxhZG1pbkB0ZXN0LmNvbQ==": {
+      "p50": 41,
+      "p95": 42,
+      "p99": 43,
+      "avg": 41,
+      "min": 40,
+      "max": 57,
+      "n": 100
+    },
+    "QkRSX0xJU1R8fHw1MHwwfHxhZG1pbkB0ZXN0LmNvbQ==": {
+      "p50": 41,
+      "p95": 44,
+      "p99": 59,
+      "avg": 42,
+      "min": 40,
+      "max": 77,
+      "n": 100
+    }
+  }
+}
