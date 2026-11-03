@@ -102,9 +102,7 @@ for (const file of routeFiles) {
                   'application/json': {
                     schema: {
                       type: 'object',
-                      properties: {
-                        /* TODO */
-                      },
+                      properties: {/* TODO */},
                     },
                   },
                 },
