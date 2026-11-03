@@ -13,7 +13,12 @@ Actions are base64 keys because they contain pipes and spaces.
 The run fails when, against `tests/perf/baseline.json`:
 
 - p50 exceeds baseline by more than 20% **and** more than +10ms, or
-- p99 exceeds baseline by more than 50% **and** more than +25ms.
+- p95 exceeds baseline by more than 50% **and** more than +25ms.
+
+(p95, not p99: with n=100, p99 is the 2nd-worst sample and a single outlier
+trips it — observed 118ms against a 15–40ms distribution. p95 needs six bad
+samples to move, so it tracks the same tail phenomena without crying wolf.
+p99 is still measured and reported for humans.)
 
 The absolute floor exists because pure ratios flake on machine noise
 (measured ±4ms run-to-run locally, which alone trips a 20% gate at these

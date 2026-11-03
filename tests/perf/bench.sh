@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Performance benchmarks: COBOL action latency P50/P95/P99 with a regression
 # budget (P1-8). Runs each action ITERS times in a throwaway workdir, writes
-# the distribution to tests/perf/last.json, and fails when p50 exceeds the
-# baseline by more than 20% or p99 by more than 50%.
+# the distribution to tests/perf/last.json, and fails when p50 exceeds
+# baseline by more than 20% or p95 by more than 50% (plus an absolute noise
+# floor; p99 is measured and reported but does not gate, see below).
 # The baseline (tests/perf/baseline.json) is hardware-dependent; regenerate it
 # deliberately on the reference machine with PERF_UPDATE=1 and review the diff.
 # Usage: [ITERS=100] [PERF_UPDATE=1] tests/perf/bench.sh
@@ -70,27 +71,32 @@ for action in "PING" "GLA_LIST|||50|0||admin@test.com" "BDR_LIST|||50|0||admin@t
   echo "$action: p50=${p50}ms p95=${p95}ms p99=${p99}ms avg=${avg}ms min=${min}ms max=${max}ms"
   if [ -f "$BASELINE" ] && [ "${PERF_UPDATE:-0}" != "1" ]; then
     base_p50="$(node -e 'const b=require(process.argv[1]);const k=process.argv[2];const r=b.actions[k];console.log(r?r.p50:"")' "$BASELINE" "$key" 2>/dev/null || true)"
-    base_p99="$(node -e 'const b=require(process.argv[1]);const k=process.argv[2];const r=b.actions[k];console.log(r?r.p99:"")' "$BASELINE" "$key" 2>/dev/null || true)"
-    if [ -n "$base_p50" ] && [ -n "$base_p99" ]; then
+    base_p95="$(node -e 'const b=require(process.argv[1]);const k=process.argv[2];const r=b.actions[k];console.log(r?r.p95:"")' "$BASELINE" "$key" 2>/dev/null || true)"
+    if [ -n "$base_p50" ] && [ -n "$base_p95" ]; then
       # Integer budget check to stay in POSIX shell: fail when
-      # p50*100 > base*120 or p99*100 > base*150 (guards divide-by-zero: a
+      # p50*100 > base*120 or p95*100 > base*150 (guards divide-by-zero: a
       # zero baseline means "no reference yet", never a failure).
       # Plus an absolute noise floor: percentage gates on small latencies
       # flake with machine noise (measured +/-4ms run-to-run locally), so a
-      # breach must also exceed +10ms (p50) / +25ms (p99) to count.
+      # breach must also exceed +10ms (p50) / +25ms (p95) to count.
+      # The tail gate uses p95, not p99: with n=100, p99 is the 2nd-worst
+      # sample and a single outlier trips it (observed 118ms against a
+      # 15-40ms distribution). p95 needs six bad samples to move, so it
+      # tracks the same tail phenomena without crying wolf. p99 is still
+      # measured and reported for humans.
       if [ "$base_p50" -gt 0 ] && [ $((p50 * 100)) -gt $((base_p50 * 120)) ] && [ $((p50 - base_p50)) -gt 10 ]; then
         echo "FAIL perf budget: $action p50=${p50}ms exceeds baseline ${base_p50}ms by >20% and >10ms" >&2
         failed=1
       fi
-      if [ "$base_p99" -gt 0 ] && [ $((p99 * 100)) -gt $((base_p99 * 150)) ] && [ $((p99 - base_p99)) -gt 25 ]; then
-        echo "FAIL perf budget: $action p99=${p99}ms exceeds baseline ${base_p99}ms by >50% and >25ms" >&2
+      if [ "$base_p95" -gt 0 ] && [ $((p95 * 100)) -gt $((base_p95 * 150)) ] && [ $((p95 - base_p95)) -gt 25 ]; then
+        echo "FAIL perf budget: $action p95=${p95}ms exceeds baseline ${base_p95}ms by >50% and >25ms" >&2
         failed=1
       fi
     fi
   fi
 done
 json="$json}"
-printf '{"generatedAt":"%s","iters":%s,"actions":%s}\n' "$(date -u +%FT%TZ)" "$ITERS" "$json" > "$LAST"
+printf '%s' "$json" | node -e "let s='';process.stdin.on('data',(c)=>s+=c).on('end',()=>{const d=JSON.parse(s);d.generatedAt=new Date().toISOString();d.iters=Number(process.env.ITERS||100);require('fs').writeFileSync(process.argv[1],JSON.stringify(d,null,2)+'\n');})" "$LAST"
 
 if [ "${PERF_UPDATE:-0}" = "1" ]; then
   cp "$LAST" "$BASELINE"

@@ -1,1 +1,33 @@
-{"generatedAt":"2026-11-03T13:14:53Z","iters":50,"actions":{"UElORw==":{"p50":15,"p95":21,"p99":21,"avg":16,"min":14,"max":21,"n":50},"R0xBX0xJU1R8fHw1MHwwfHxhZG1pbkB0ZXN0LmNvbQ==":{"p50":17,"p95":26,"p99":26,"avg":17,"min":14,"max":26,"n":50},"QkRSX0xJU1R8fHw1MHwwfHxhZG1pbkB0ZXN0LmNvbQ==":{"p50":16,"p95":30,"p99":42,"avg":18,"min":14,"max":42,"n":50}}}
+{
+  "generatedAt": "2026-11-03 (CI ubuntu-latest shared runner; hardware-class reference, see tests/perf/README.md)",
+  "iters": 100,
+  "actions": {
+    "UElORw==": {
+      "p50": 40,
+      "p95": 44,
+      "p99": 68,
+      "avg": 41,
+      "min": 39,
+      "max": 69,
+      "n": 100
+    },
+    "R0xBX0xJU1R8fHw1MHwwfHxhZG1pbkB0ZXN0LmNvbQ==": {
+      "p50": 41,
+      "p95": 42,
+      "p99": 43,
+      "avg": 41,
+      "min": 40,
+      "max": 57,
+      "n": 100
+    },
+    "QkRSX0xJU1R8fHw1MHwwfHxhZG1pbkB0ZXN0LmNvbQ==": {
+      "p50": 41,
+      "p95": 44,
+      "p99": 59,
+      "avg": 42,
+      "min": 40,
+      "max": 77,
+      "n": 100
+    }
+  }
+}
