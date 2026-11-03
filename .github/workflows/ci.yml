@@ -131,6 +131,19 @@ jobs:
       - name: Verify documentation
         run: node scripts/check_docs.mjs .
 
+      - name: Complexity audit snapshot (non-gating artifact)
+        run: |
+          mkdir -p artifacts
+          node scripts/audit_complexity.mjs --json > artifacts/complexity.json
+
+      - name: Upload complexity snapshot
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: complexity-snapshot
+          path: artifacts/complexity.json
+          if-no-files-found: ignore
+
       - name: Gate detection probes
         run: tests/probes/run_probes.sh
 
