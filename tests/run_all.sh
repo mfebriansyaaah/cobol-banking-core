@@ -21,6 +21,7 @@ PRINT_JSON=0
 MODE=""
 MODE_SET=0
 ONLY_PATTERN="${ONLY_PATTERN:-}"
+ONLY_GIVEN=0
 FAILED_ONLY=0
 REPEAT_COUNT="${REPEAT_COUNT:-1}"
 KEEP_LOGS=0
@@ -43,8 +44,8 @@ while [ $# -gt 0 ]; do
         --no-report) REPORT_ENABLED=0; shift ;;
         --mode) MODE="$(need_arg "$1" "${2:-}")"; MODE_SET=1; shift 2 ;;
         --mode=*) MODE="${1#--mode=}"; MODE_SET=1; shift ;;
-        --only) ONLY_PATTERN="$(need_arg "$1" "${2:-}")"; shift 2 ;;
-        --only=*) ONLY_PATTERN="${1#--only=}"; shift ;;
+        --only) ONLY_PATTERN="$(need_arg "$1" "${2:-}")"; ONLY_GIVEN=1; shift 2 ;;
+        --only=*) ONLY_PATTERN="${1#--only=}"; ONLY_GIVEN=1; shift ;;
         --repeat) REPEAT_COUNT="$(need_arg "$1" "${2:-}")"; shift 2 ;;
         --repeat=*) REPEAT_COUNT="${1#--repeat=}"; shift ;;
         --failed) FAILED_ONLY=1; shift ;;
@@ -69,6 +70,10 @@ done
 MODE="${MODE:-full}"
 export REPORT_ENABLED PRINT_JSON
 export ONLY_PATTERN FAILED_ONLY REPEAT_COUNT KEEP_LOGS
+if [ "$ONLY_GIVEN" = "1" ] && [ -z "$ONLY_PATTERN" ]; then
+    echo "FAIL: --only needs a non-empty substring" >&2
+    exit 2
+fi
 
 case "$REPEAT_COUNT" in
     ''|*[!0-9]*|0) echo "FAIL: --repeat needs a positive integer (got '$REPEAT_COUNT')" >&2; exit 2 ;;
