@@ -67,6 +67,11 @@ report_finalize() {
     node "$root/scripts/test-report.mjs" --report-dir "$REPORT_DIR" \
         --json "$REPORT_DIR/run-all.json" >/dev/null 2>&1 || true
     rm -f "$REPORT_TSV.lock" 2>/dev/null || true
+    # Failed-suite reruns: record basenames of failing suites so a later
+    # run with --failed picks exactly these up. Always rewritten (a green run
+    # clears it); lives under artifacts/ which is gitignored, never committed.
+    awk -F'\t' 'NR>1 && $2 == "fail" {print $1}' "$REPORT_TSV" 2>/dev/null | sort -u \
+        > "$REPORT_DIR/last-failed.txt" 2>/dev/null || true
     if [ "${PRINT_JSON:-0}" = "1" ] && [ -f "$REPORT_DIR/run-all.json" ]; then
         echo "=== REPORT: $REPORT_DIR/run-all.json ==="
     fi

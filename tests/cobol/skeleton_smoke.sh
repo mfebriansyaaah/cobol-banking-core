@@ -4,6 +4,10 @@ set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # shellcheck disable=SC1091
 . "$ROOT/tests/lib/cobol.sh"
+# shellcheck disable=SC1091
+. "$ROOT/tests/lib/workdir.sh"
+WORKDIR="$(make_workdir skeleton)" || { echo "FAIL: cannot create workdir" >&2; exit 1; }
+trap 'rm -rf "$WORKDIR"' EXIT
 if ! command -v "$ROOT/cobol/bin/main_logic" >/dev/null 2>&1; then
   echo "SKIP: binary missing"
   exit 0
@@ -19,13 +23,14 @@ declare -A SKEL=(
 )
 
 fail=0
+export DB_HOST="${DB_HOST:-localhost}" DB_PORT="${DB_PORT:-3306}"
+export DB_USER="${DB_USER:-cobol_user}" DB_PASS="${DB_PASS:-cobol_pass}"
+export DB_NAME="${DB_NAME:-cobol_db}"
 for prefix in "${!SKEL[@]}"; do
   action="${prefix}NOPE"
-  printf '%s||||||admin@test.com\n' "$action" > "$ROOT/input.txt"
-  DB_HOST="${DB_HOST:-localhost}" DB_PORT="${DB_PORT:-3306}" \
-    DB_USER="${DB_USER:-cobol_user}" DB_PASS="${DB_PASS:-cobol_pass}" \
-    DB_NAME="${DB_NAME:-cobol_db}" "$ROOT/cobol/bin/main_logic" >/dev/null 2>&1
-  out="$(cat "$ROOT/output.txt" 2>/dev/null)"
+  printf '%s||||||admin@test.com\n' "$action" > "$WORKDIR/input.txt"
+  ( cd "$WORKDIR" && "$ROOT/cobol/bin/main_logic" >/dev/null 2>&1 ) || true
+  out="$(cat "$WORKDIR/output.txt" 2>/dev/null)"
   if [ "$out" != "ERROR|INVALID_ACTION" ]; then
     echo "FAIL: $action -> $out"
     fail=$((fail+1))

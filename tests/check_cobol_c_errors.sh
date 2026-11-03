@@ -6,6 +6,10 @@
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck disable=SC1091
+. "$ROOT/tests/lib/workdir.sh"
+WORKDIR="$(make_workdir c-errors)" || { echo "FAIL: cannot create workdir" >&2; exit 1; }
+trap 'rm -rf "$WORKDIR"' EXIT
 COBOL_DIR="$ROOT/cobol"
 C_LIB="$COBOL_DIR/c_lib"
 BIN="$COBOL_DIR/bin/main_logic"
@@ -55,9 +59,9 @@ fi
 # 4. Run-time errors (basic invocation)
 step "4. Run-time (smoke invocation)"
 if [ -x "$BIN" ]; then
-    printf 'PING||||||\n' > "$ROOT/input.txt"
-    (cd "$ROOT" && "$BIN" >/dev/null 2>&1) || true
-    out=$(cat "$ROOT/output.txt" 2>/dev/null)
+    printf 'PING||||||\n' > "$WORKDIR/input.txt"
+    (cd "$WORKDIR" && "$BIN" >/dev/null 2>&1) || true
+    out=$(cat "$WORKDIR/output.txt" 2>/dev/null)
     if echo "$out" | grep -qi 'ERROR|'; then
         echo "FAIL: runtime error: $out"; fail=1
     else
@@ -72,9 +76,9 @@ step "5. File handling (DB connectivity smoke)"
 if [ "${SKIP_DB_CHECK:-0}" = "1" ]; then
     echo "SKIP: SKIP_DB_CHECK=1"
 elif [ -x "$BIN" ]; then
-    printf 'PING||||||\n' > "$ROOT/input.txt"
-    (cd "$ROOT" && "$BIN" >/dev/null 2>&1) || true
-    out=$(cat "$ROOT/output.txt" 2>/dev/null)
+    printf 'PING||||||\n' > "$WORKDIR/input.txt"
+    (cd "$WORKDIR" && "$BIN" >/dev/null 2>&1) || true
+    out=$(cat "$WORKDIR/output.txt" 2>/dev/null)
     if echo "$out" | grep -qi 'DB_DOWN\|CONN_FAILED\|CONFIG_INSECURE'; then
         echo "FAIL: DB connection error: $out"; fail=1
     else
@@ -87,9 +91,9 @@ fi
 # 6. Logical errors (basic sanity)
 step "6. Logical (sanity)"
 if [ -x "$BIN" ]; then
-    printf 'CHECK_ROLE|admin@test.com|||||\n' > "$ROOT/input.txt"
-    (cd "$ROOT" && "$BIN" >/dev/null 2>&1) || true
-    out=$(cat "$ROOT/output.txt" 2>/dev/null)
+    printf 'CHECK_ROLE|admin@test.com|||||\n' > "$WORKDIR/input.txt"
+    (cd "$WORKDIR" && "$BIN" >/dev/null 2>&1) || true
+    out=$(cat "$WORKDIR/output.txt" 2>/dev/null)
     if [ -z "$out" ]; then
         echo "FAIL: empty output"; fail=1
     else

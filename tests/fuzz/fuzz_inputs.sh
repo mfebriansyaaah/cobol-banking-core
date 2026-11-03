@@ -6,6 +6,10 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 . "$ROOT/tests/lib/db.sh"
 # shellcheck disable=SC1091
 . "$ROOT/tests/lib/cobol.sh"
+# shellcheck disable=SC1091
+. "$ROOT/tests/lib/workdir.sh"
+WORKDIR="$(make_workdir fuzz)" || { echo "FAIL: cannot create workdir" >&2; exit 1; }
+trap 'rm -rf "$WORKDIR"' EXIT
 if ! db_available 2>/dev/null; then echo "SKIP: DB unavailable"; exit 0; fi
 
 FAIL=0
@@ -24,13 +28,14 @@ FUZZ_INPUTS=(
 
 ACTIONS=("GLA_CREATE" "BDR_CREATE" "RPB_CREATE" "PMC_CREATE" "COL_OPEN")
 
+export DB_HOST="${DB_HOST:-localhost}" DB_PORT="${DB_PORT:-3306}"
+export DB_USER="${DB_USER:-cobol_user}" DB_PASS="${DB_PASS:-cobol_pass}"
+export DB_NAME="${DB_NAME:-cobol_db}"
 for action in "${ACTIONS[@]}"; do
   for input in "${FUZZ_INPUTS[@]}"; do
-    printf '%s|%s|||||admin@test.com\n' "$action" "$input" > "$ROOT/input.txt"
-    DB_HOST="${DB_HOST:-localhost}" DB_PORT="${DB_PORT:-3306}" \
-      DB_USER="${DB_USER:-cobol_user}" DB_PASS="${DB_PASS:-cobol_pass}" \
-      DB_NAME="${DB_NAME:-cobol_db}" "$ROOT/cobol/bin/main_logic" >/dev/null 2>&1
-    out="$(cat "$ROOT/output.txt" 2>/dev/null)"
+    printf '%s|%s|||||admin@test.com\n' "$action" "$input" > "$WORKDIR/input.txt"
+    ( cd "$WORKDIR" && "$ROOT/cobol/bin/main_logic" >/dev/null 2>&1 ) || true
+    out="$(cat "$WORKDIR/output.txt" 2>/dev/null)"
     # Should never crash (no empty output, no segfault)
     if [ -z "$out" ]; then
       echo "FAIL: $action with '$input' -> empty output (crash?)"
