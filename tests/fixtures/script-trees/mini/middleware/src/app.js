@@ -6,6 +6,4 @@ export function buildApp() {
 }
 
 // Inline route so docs_stats counts an app.js action literal.
-export const APP_ROUTES = [
-  { method: 'get', path: '/app-ping', action: 'APP_PING', fields: [] },
-];
+export const APP_ROUTES = [{ method: 'get', path: '/app-ping', action: 'APP_PING', fields: [] }];
