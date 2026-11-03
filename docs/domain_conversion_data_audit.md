@@ -7,7 +7,7 @@
 ## Hasil (COUNT(*), test DB)
 
 | Tabel | Rows | Bentuk | Keputusan |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `collateral` | 2 | domain (valuation/pledge/allocation added 0648) | KEEP — kanonik |
 | `collateral_mgmt` | 1 | adapted (pledged_value/haircut) | KEEP compat, deprecated; drop setelah 1 siklus |
 | `collateral_repossession` | 1 | generik (`budget_amount`) | KEEP compat, deprecated; pengganti nyata = status di `collateral` + GL link |

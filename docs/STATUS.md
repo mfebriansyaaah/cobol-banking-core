@@ -6,7 +6,7 @@
 Manifest generated: 2026-10-31T08:00:11.742Z
 
 | Metric | Value |
-|---|---:|
+| --- | ---: |
 | COBOL modules in manifest | 605 |
 | COBOL source files (including dispatcher) | 606 |
 | COBOL lines | 419,381 |

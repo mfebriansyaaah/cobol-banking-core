@@ -27,7 +27,7 @@ Signing always uses the current secret.
 ## Variables
 
 | Variable | Meaning |
-|---|---|
+| --- | --- |
 | `JWT_SECRET` | Current access-token signing secret. |
 | `REFRESH_SECRET` | Current refresh-token signing secret. |
 | `JWT_SECRET_PREVIOUS` | Old access secret accepted for verification. |
