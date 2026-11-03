@@ -114,7 +114,7 @@ function loadRuntime() {
       if (nums.some((n) => !Number.isFinite(n) || n < 0)) {
         return { rows, gateway: null, missing: `non-numeric counters in row: ${line}` };
       }
-      let key = null;
+      let key;
       if (suite === 'table_runner.sh') key = 'cobol_table_tests';
       else if (suite === 'smoke' || KNOWN_UNTRACKED.has(suite)) continue;
       else if (suite === 'schema_tests.sh') key = 'db_schema_tests';

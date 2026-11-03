@@ -27,7 +27,7 @@ for (let i = 0; i < args.length; i += 1) {
   }
 }
 
-let text = '';
+let text;
 if (!input || input === '-') {
   text = readFileSync(0, 'utf8');
 } else {
