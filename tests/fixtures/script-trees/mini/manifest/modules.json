@@ -1,0 +1,1 @@
+{"generatedAt":"2026-11-04T00:00:00.000Z","cobolModules":[{"source":"account_core.cob"},{"source":"loan_core.cob"}],"dispatch":[{"program":"account_core","prefix":"ACC"},{"program":"loan_core","prefix":"LOAN"}]}

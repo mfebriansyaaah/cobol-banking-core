@@ -1,9 +1,6 @@
 name: Coverage
 
 on:
-  schedule:
-    # Nightly at 02:30 UTC.
-    - cron: '30 2 * * *'
   workflow_dispatch:
 
 jobs:

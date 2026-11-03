@@ -270,9 +270,29 @@ variant automatically). Conversion and summaries:
 - `tests/run_all.sh --no-report` — logs only, no `artifacts/` (same as
   `REPORT_ENABLED=0`).
 
-Unit tests for the converters live in `scripts/test/` and run without a
-database: `node --test scripts/test/tap-to-junit.test.mjs
-scripts/test/test-report.test.mjs`.
+Unit tests for gates and scripts live in `scripts/test/` and run without a
+database or a build: `npm run test:scripts` (equivalently
+`bash scripts/test/run.sh`; CI runs them in the lint job and uploads
+`test-results/gate/junit.xml`).
+
+Conventions for adding gate tests:
+
+- Prefer a unit test over a detection probe or a full-suite run whenever the
+  subject is deterministic without infrastructure. Probes
+  (`tests/probes/`, which fail the run) guard against gate blindness;
+  full suites guard end-to-end behaviour. Unit tests pin exact behaviour:
+  given inputs X, the gate must select/report Y.
+- Keep fixtures hermetic: build a temp repo from
+  `tests/fixtures/script-trees/mini` via `scripts/test/helpers.mjs`
+  (`makeFixtureRoot`/`cleanupFixture`) and pass the fixture root to the
+  script under test (`--root`, `--files`). Never point a gate at the real
+  repo in a unit test, and never write outside the temp dir — the shared
+  `tests/fixtures` tree is committed and must stay pristine (run.sh has no
+  network, DB, or build access by design).
+- One assertion theme per `test()` block; assert stderr/stdout text, exit
+  codes, and (for JSON outputs) parsed structure, not formatting.
+- New gate scripts ship with `scripts/test/<name>.test.js` in the same PR;
+  CI's `npm run test:scripts` picks them up automatically.
 
 ## Baseline counts are load-bearing
 

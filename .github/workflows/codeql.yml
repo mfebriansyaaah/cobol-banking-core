@@ -10,8 +10,6 @@ name: CodeQL
 # on schedule so the configuration stays exercised; restore pull_request +
 # push triggers once GHAS/code scanning is enabled in repo settings.
 on:
-  schedule:
-    - cron: '0 3 * * 1'
   workflow_dispatch:
 
 permissions:

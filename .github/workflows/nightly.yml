@@ -5,8 +5,6 @@ name: Nightly
 # is reported as a possible flake. PRs are unaffected (this never blocks
 # them); failures here mean the fleet is order-dependent or flaky.
 on:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
 
 # Own group: a push must not cancel a running nightly (or vice versa).

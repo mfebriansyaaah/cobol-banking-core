@@ -1,0 +1,2 @@
+# Fixture table cases (name@@expected@@input).
+LOAN_CREATE ok@@SUCCESS|LOAN_CREATED@@LOAN_CREATE|100|USD|||
