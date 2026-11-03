@@ -23,8 +23,14 @@ test('--write creates a snapshot with the fixture routes', () => {
   assert.equal(r.status, 0, `write failed: ${r.stderr}`);
   const snap = JSON.parse(readFileSync(snapPath(root), 'utf8'));
   const keys = Object.keys(snap);
-  assert.ok(keys.some((k) => k.startsWith('account.js :: POST /accounts')), `has ACC_CREATE route, got: ${keys}`);
-  assert.ok(keys.some((k) => k.startsWith('loan.js :: POST /loans')), `has LOAN_CREATE route, got: ${keys}`);
+  assert.ok(
+    keys.some((k) => k.startsWith('account.js :: POST /accounts')),
+    `has ACC_CREATE route, got: ${keys}`,
+  );
+  assert.ok(
+    keys.some((k) => k.startsWith('loan.js :: POST /loans')),
+    `has LOAN_CREATE route, got: ${keys}`,
+  );
 });
 
 test('--check passes on a matching snapshot', () => {
@@ -55,7 +61,6 @@ test('--check fails when the snapshot is missing', () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /missing snapshot/);
 });
-
 
 test('unknown flag exits 2 with usage', () => {
   const root = makeFixtureRoot();
