@@ -8,7 +8,7 @@ percentage.
 ## What is measured
 
 | Surface | Measure | Tool |
-|---|---|---|
+| --- | --- | --- |
 | COBOL curated core | statement (line) coverage mapped back to `.cob` lines | `scripts/ci/coverage.sh` |
 | Gateway | line, branch, and function coverage over `middleware/src/**` | Node `--experimental-test-coverage` |
 

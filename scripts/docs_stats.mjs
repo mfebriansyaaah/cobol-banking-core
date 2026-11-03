@@ -78,7 +78,7 @@ export function renderStatus(stats) {
 Manifest generated: ${stats.generatedAt || 'unknown'}
 
 | Metric | Value |
-|---|---:|
+| --- | ---: |
 | COBOL modules in manifest | ${stats.cobolModules} |
 | COBOL source files (including dispatcher) | ${stats.cobolFiles} |
 | COBOL lines | ${stats.cobolLoc.toLocaleString('en-US')} |
@@ -101,7 +101,7 @@ Manifest generated: ${stats.generatedAt || 'unknown'}
 export function renderReadmeBlock(stats) {
   return `<!-- BEGIN GENERATED STATS -->
 | Metric | Value |
-|---|---:|
+| --- | ---: |
 | COBOL modules | **${stats.cobolModules}** |
 | COBOL source files (incl. dispatcher) | **${stats.cobolFiles}** |
 | COBOL lines | **${stats.cobolLoc.toLocaleString('en-US')}** |
@@ -133,7 +133,7 @@ domain documentation ([domain overview](domain_overview.md)) and the
 column-level catalogue ([data dictionary](data_dictionary.md)).
 
 | Module | Dispatch prefix | Route | Table cases | DB suite |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 ${rows.join('\n')}
 `;
 }

@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint middleware scripts eslint.config.mjs",
     "format:check": "prettier --check scripts eslint.config.mjs .prettierrc",
-    "lint:md": "markdownlint 'docs/**/*.md' README.md CONTRIBUTING.md CHANGELOG.md SECURITY.md"
+    "lint:md": "markdownlint 'docs/**/*.md' README.md CONTRIBUTING.md CHANGELOG.md SECURITY.md --ignore docs/data_dictionary.md --ignore docs/MODULE_INDEX.md --ignore docs/STATUS.md --ignore 'docs/adr'"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

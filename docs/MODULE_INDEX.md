@@ -10,7 +10,7 @@ domain documentation ([domain overview](domain_overview.md)) and the
 column-level catalogue ([data dictionary](data_dictionary.md)).
 
 | Module | Dispatch prefix | Route | Table cases | DB suite |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `ab_testing_core` | `ABT_` | [ab_testing.js](../middleware/src/routes/ab_testing.js) | [ab_testing.cases](../tests/cobol/cases/ab_testing.cases) | [ab_testing_db_tests.sh](../tests/db/ab_testing_db_tests.sh) |
 | `access_audit_core` | `AAU_` | [access_audit.js](../middleware/src/routes/access_audit.js) | [access_audit.cases](../tests/cobol/cases/access_audit.cases) | — |
 | `access_control_core` | `AXC_` | [access_control.js](../middleware/src/routes/access_control.js) | [access_control.cases](../tests/cobol/cases/access_control.cases) | [access_control_db_tests.sh](../tests/db/access_control_db_tests.sh) |

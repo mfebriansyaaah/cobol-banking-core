@@ -52,7 +52,7 @@ Rules of the split:
 ## Repository layout
 
 | Path | Contents |
-|---|---|
+| --- | --- |
 | `cobol/src/` | COBOL modules + `main_logic.cob` dispatcher + `sql_bridge.c` (count in `docs/STATUS.md`) |
 | `cobol/copy/` | Three copybooks used only by the password/auth module |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
@@ -75,7 +75,7 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 [docs/STATUS.md](docs/STATUS.md).
 
 | Domain | Status | Modules |
-|---|---|---|
+| --- | --- | --- |
 | Platform | Done | `auth_core`, `auth_password_core`, `user_core`, `wallet_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `batch_core`, `report_core`, `fee_core`, `eod_core`, `statement_core`, `notification_core`, `alert_core`, `dashboard_core`, plus audit/compliance/ops modules |
 | D1 Lending | Done | `loan_schedule_core` (28 actions), `loan_core` |
 | D2 Deposit | Done | `deposit_core` (13 actions) |
@@ -114,7 +114,7 @@ This table reflects what is actually wired into the repository and CI. It is
 not a maturity score.
 
 | Area | Status | Evidence |
-|---|---|---|
+| --- | --- | --- |
 | Table-driven COBOL cases | ✅ | `tests/cobol/cases/*.cases`, `tests/cobol/table_runner.sh` |
 | DB domain suites | ✅ | `tests/db/*_db_tests.sh`, `tests/run_all.sh db` |
 | Gateway tests | ✅ | `middleware/test/*.test.js`, `npm --prefix middleware test` |
@@ -140,7 +140,7 @@ suites, table cases, and the action/suite inventory gates. See
 
 <!-- BEGIN GENERATED STATS -->
 | Metric | Value |
-|---|---:|
+| --- | ---: |
 | COBOL modules | **605** |
 | COBOL source files (incl. dispatcher) | **606** |
 | COBOL lines | **419,381** |
@@ -227,7 +227,7 @@ from the token, never from the request body. TOTP MFA is supported.
 Public authentication endpoints:
 
 | Method | Path | Action |
-|---|---|---|
+| --- | --- | --- |
 | POST | `/auth/signup` | `REQUEST_SIGNUP` |
 | POST | `/auth/verify` | `VERIFY_EMAIL` |
 | POST | `/auth/login` | `AUTH_LOGIN` |
@@ -239,7 +239,7 @@ Public authentication endpoints:
 Authenticated session endpoints:
 
 | Method | Path | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | POST | `/auth/step-up` | `VERIFY_REAUTH` → short-lived `X-Step-Up` proof |
 | POST | `/auth/logout` | revoke the presented refresh session |
 
@@ -262,7 +262,7 @@ All gateway settings live in `middleware/.env` (fully documented in
 `middleware/.env.example`). The most important ones:
 
 | Variable | Purpose |
-|---|---|
+| --- | --- |
 | `PORT`, `NODE_ENV` | HTTP port; production enables strict startup checks |
 | `JWT_SECRET`, `REFRESH_SECRET` | Separate secrets, ≥32 chars, must differ |
 | `COBOL_BIN` | Override the binary path |
@@ -307,7 +307,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 ```
 
 | Suite | Assertions | Location |
-|---|---:|---|
+| --- | ---: | --- |
 | COBOL table cases | 27 | `tests/cobol/cases/*.cases` |
 | Schema / migrations | 76 | `tests/db/schema_tests.sh` |
 | D1 loan schedule | 11 | `tests/db/loan_schedule_db_tests.sh` |

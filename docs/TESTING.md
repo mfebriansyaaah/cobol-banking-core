@@ -24,7 +24,7 @@ It is idempotent and refuses to continue when the app account can do DDL.
 ## Which database do the tests use?
 
 | Setup | `DB_HOST:DB_PORT` | Isolation | Behaviour |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Docker Compose + `tests/.dbenv.example` | `127.0.0.1:3307` | automatic | `run_all.sh db` creates `cobol_db_test_<pid>`, runs there, drops it |
 | CI (`DB_HOST=127.0.0.1 DB_PORT=3306`, root migrate user) | service MariaDB | `ISOLATED_DB=0` | uses the service database directly (ephemeral) |
 | Legacy local MariaDB on `3306` with `cobol_user` | `localhost:3306` | unavailable (no DDL) | **fails closed** unless `ALLOW_DEV_DB=1` |
@@ -168,7 +168,7 @@ dry-run by default.
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
-|---|---|---|
+| --- | --- | --- |
 | `no DDL rights for isolation; refusing to run` | migrate user cannot `CREATE DATABASE` | `scripts/dev/setup-test-db.sh` (Docker Compose path) |
 | `another DB test run holds the lock` | a second `run_all.sh db` targets the same DB | wait, or check `ls /tmp/cobol-db-run-*.lock` |
 | `refusing to operate on protected database` | drill/guard target is `cobol_db` or a system DB | set `RESTORE_DRILL_DB` to a throwaway name |
