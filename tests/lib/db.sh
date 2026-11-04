@@ -94,6 +94,10 @@ db_reset_card() {
     db_exec "DELETE FROM card_audit; DELETE FROM card_transaction; DELETE FROM card_account;"
 }
 
+db_reset_payment_hold() {
+    db_exec "DELETE FROM payment_hold_audit; DELETE FROM payment_hold;"
+}
+
 # Reset D4 (collections) rows plus the loan fixtures the suite creates.
 db_reset_collection() {
     db_exec "DELETE FROM collection_activity; DELETE FROM collection_audit; DELETE FROM collection_case; DELETE i FROM loan_installment i JOIN loan_schedule s ON s.id = i.schedule_id JOIN loan_application l ON l.id = s.loan_id WHERE l.customer_email LIKE 'd4%'; DELETE s FROM loan_schedule s JOIN loan_application l ON l.id = s.loan_id WHERE l.customer_email LIKE 'd4%'; DELETE FROM loan_application WHERE customer_email LIKE 'd4%';"
