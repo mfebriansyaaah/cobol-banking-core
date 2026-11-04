@@ -116,16 +116,23 @@ re-privatizing the repository.
 
 ## Enforcement
 
-Current (2026-11-04, verified): public repository; rulesets API accessible
-(`gh api .../rulesets` returns `[]`, rc=0 — not 403). No ruleset is active yet;
-active blocking plus red-PR proof is G0 (branch 02, T-004).
+ACTIVE since branch 02 (2026-11-04, verified via API): branch protection on
+`main` requires `lint`, `build`, `test`, `db-aggregate`, `coverage` (strict),
+1 approval with stale-review dismissal, CODEOWNERS review, linear history;
+force pushes, branch deletion, and admin bypass are blocked. Red-PR proof is
+recorded below.
 
-Plan (T-004 / T-054A):
+Notes:
 
-1. Preferred: GitHub Pro or public repository + ruleset for `main`.
-2. Fallback: GitHub App / merge bot that refuses to merge on red checks.
-3. Last resort: manual policy + pre-push hook + reviewer checklist (caps 9/10
-   at 8.5, with expiry).
+- Repository rulesets on this plan reject the `pull_request` and
+  `required_status_checks` rule types (verified 2026-11-04), so the classic
+  Branch Protection API is used instead. The draft
+  `.github/rulesets/main.json` is superseded and removed in branch 02.
+- Revisit rulesets if the plan upgrades.
+
+Red-PR proof (T-004, this branch): a deliberately red PR is opened below and
+shown unmergeable; it is closed unmerged afterwards. Evidence linked in the
+branch 02 PR body.
 
 Pre-push hook (`scripts/dev/install-hooks.sh`, wired via `bootstrap.sh`):
 
@@ -135,8 +142,8 @@ Pre-push hook (`scripts/dev/install-hooks.sh`, wired via `bootstrap.sh`):
 - `SKIP_PREMERGE=1` only with a recorded reason; logged to
   `artifacts/premerge-skips.log`.
 
-Required evidence before G0: ruleset screenshot or merge-bot run URL, plus a
-deliberately red PR that cannot merge.
+Required evidence for G0 (done in branch 02): protection object via API plus a
+deliberately red PR that cannot merge (closed unmerged).
 
 ## Rollout and communication (T-047)
 

@@ -1,34 +1,18 @@
 # Governance and Merge Policy
 
 > **CI status (2026-11-04):** automatic triggers restored in Phase 0 branch 01.
-> See [CI status](CI.md). Required checks block merge; no admin bypass.
+> Branch protection active on `main` since branch 02 (required checks, 1
+> approval + CODEOWNERS, linear history, no force push, no bypass).
+> See [CI status](CI.md).
 
 ## Status
 
-This repository is private and uses GitHub Free. GitHub rejects branch
-protection and repository rulesets for this plan:
+This repository is public. Branch protection on `main` is active and enforced
+by GitHub (verified 2026-11-04 via API). No exception is in effect.
 
-```text
-403 Upgrade to GitHub Pro or make this repository public to enable this feature.
-```
-
-Because server-side enforcement is unavailable, this document records the
-approved exception and the compensating controls that apply to every change.
-
-## Exception
-
-- **Exception:** `main` is not server-side protected.
-- **Reason:** private repository on GitHub Free; branch protection and rulesets
-  return HTTP 403.
-- **Decision:** keep the repository private and enforce the policy locally and
-  in CI.
-- **Owner:** `@mfebriansyaaah`.
-- **Review date:** revisit when the repository becomes public, the GitHub plan
-  is upgraded, or the repository is prepared for external distribution.
-
-The exception does not permit direct pushes or merges with red checks. It only
-means the rule is enforced by process and automation rather than by GitHub's
-merge button.
+History: the repository was private on GitHub Free, where branch protection
+and rulesets returned HTTP 403; enforcement was local-only during R0. That
+exception is closed.
 
 ## Required controls
 
@@ -69,13 +53,16 @@ ratchet. The `test` job runs the full test gate (fast + DB + integration +
 error harness + gateway suites), the assertion count gate, migration
 rollback drill, backup and restore drill, schema drift check, and performance benchmarks.
 
-A pull request is not mergeable under this policy unless both jobs are green.
-The GitHub UI cannot enforce that on the current plan; reviewers must verify it.
+A pull request is not mergeable under this policy unless the required checks
+(`lint`, `build`, `test`, `db-aggregate`, `coverage`) are green. GitHub
+enforces this on `main` via branch protection; reviewers still verify the
+evidence.
 
 ## CODEOWNERS
 
-`.github/CODEOWNERS` assigns every path to `@mfebriansyaaah`. Expand the file
-when additional maintainers join.
+`.github/CODEOWNERS` assigns every path to `@mfebriansyaaah` with
+`@get-money-first` as backup reviewer. Expand the file when additional
+maintainers join.
 
 ## Exceptions to this policy
 
@@ -88,13 +75,14 @@ Any exception must be recorded in the pull request description with:
 
 Silent exceptions are not permitted.
 
-## Upgrading to server-side enforcement
+## Enforcement notes
 
-When the repository becomes public or the GitHub plan is upgraded:
+Branch protection is configured via the classic Branch Protection API
+(equivalent to a ruleset here: repository rulesets on this plan reject the
+`pull_request` and `required_status_checks` rule types, verified 2026-11-04).
+Revisit rulesets if the plan upgrades. Current settings on `main`:
 
-1. Enable branch protection or a repository ruleset for `main`.
-2. Require `build` and `test` status checks.
-3. Require at least one approval and dismiss stale approvals.
-4. Require CODEOWNERS review.
-5. Block force pushes and deletions.
-6. Remove the exception section from this document.
+- required status checks `lint`, `build`, `test`, `db-aggregate`, `coverage`
+  (strict), enforced for admins;
+- 1 approval, dismiss stale reviews, CODEOWNERS review required;
+- linear history, force pushes and branch deletion blocked.
