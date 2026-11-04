@@ -113,6 +113,10 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   (P–R) — shell-covered 2,288 → 2,318 (83.4%), baseline 492 → 462.
   Category-1 remaining: 106.
 
+- Batch 5, branch `test/testing-p1-03-update-batch5`: 30 general domains
+  (R–S) — shell-covered 2,318 → 2,348 (84.5%), baseline 462 → 432.
+  Category-1 remaining: 76.
+
 ## Domain groups
 
 - **Critical money path** (two approvals): wallet, auth, payments, treasury,
