@@ -132,6 +132,11 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   DEP_LIST/MATURE/AUDIT, LSC_LIST/DETAIL/SEARCH/HISTORY/DELETE —
   shell-covered 2,378 → 2,393 (86.1%), baseline 402 → 387.
   (Keputusan owner: T-020 dimulai; T-019 ditutup di capaian baseline.)
+
+- Batch 3 (`test/testing-p1-04-route-batch3`): second from-scratch cat-3
+  suite — payment_hold lifecycle (reserve/capture/release/expire, 19
+  asserts) — shell-covered 2,396 → 2,402 (86.4%), baseline 384 → 378.
+  (PHL_GET already covered elsewhere.)
 - Prod fix required: `loan_schedule_core.cob` read actions returned
   unprefixed rows (dispatch epilogue clobbered `LS-OUTPUT-BUFFER`);
   1-line copy-back at each of the 4 success exits. LSC_GET/SUMMARY/
