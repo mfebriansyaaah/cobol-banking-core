@@ -42,6 +42,17 @@ assert_match "UAC_AUDIT ok" "$(run_cobol "UAC_AUDIT|50|0||||admin@test.com")" "S
 assert_match "UAC_VALIDATE ok" "$(run_cobol "UAC_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|UAC_VALID"
 assert_match "non-admin refused" "$(run_cobol "UAC_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM user_activity WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM user_activity_audit WHERE user_activity_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "UAC_UPDATE|${id}|UserA|LOGIN|||admin@test.com")"
+assert_match "UAC_UPDATE ok" "$upd_out" "SUCCESS\\|UAC_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM user_activity WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM user_activity_audit WHERE user_activity_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "UAC_UPDATE|999999|UserA|LOGIN|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "UAC_UPDATE|${id}|UserA|LOGIN|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

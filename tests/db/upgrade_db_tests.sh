@@ -42,6 +42,17 @@ assert_match "UPG_AUDIT ok" "$(run_cobol "UPG_AUDIT|50|0||||admin@test.com")" "S
 assert_match "UPG_VALIDATE ok" "$(run_cobol "UPG_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|UPG_VALID"
 assert_match "non-admin refused" "$(run_cobol "UPG_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM upgrade WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM upgrade_audit WHERE upgrade_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "UPG_UPDATE|${id}|ServiceA|MINOR|||admin@test.com")"
+assert_match "UPG_UPDATE ok" "$upd_out" "SUCCESS\\|UPG_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM upgrade WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM upgrade_audit WHERE upgrade_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "UPG_UPDATE|999999|ServiceA|MINOR|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "UPG_UPDATE|${id}|ServiceA|MINOR|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
