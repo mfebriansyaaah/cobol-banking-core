@@ -22,33 +22,14 @@
 # --- 1. Template UPDATE gap (verified: no template DB suite invokes *_UPDATE).
 #    The 9-action template exercises CREATE/GET/LIST/CALC/CLOSE/SUMMARY/AUDIT/VALIDATE
 #    but never UPDATE, so optimistic-locking/version-conflict paths are unproven.
-ACC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-ACST_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-ASM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-BAC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-BKG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CDO_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CHB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CLT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CREP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CRP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CSB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-CSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-DCRD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-DSM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 EXF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 FAS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-FCT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 IMF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-LOC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 LSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 LYP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MBK_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-MBS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MCC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MCF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-MCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MET_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MEZ_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MFA_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
@@ -57,18 +38,14 @@ MIG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invok
 MON_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MRT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MSP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-MTB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 MTR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-NCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 NET_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 NFT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 NOS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 NSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 NTFC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 NTP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-ODR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 OFB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-ONB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 OPN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 OPTM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 OPT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
@@ -83,9 +60,7 @@ PBD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invok
 PCH_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 PC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 PDB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-PDLG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 PDL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-PENL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 PEN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 PEP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 PEQ_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
@@ -133,7 +108,6 @@ REC2_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invo
 RECN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 REC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 REGN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-REL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 REOP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 RET_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 REV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
@@ -164,7 +138,6 @@ SCF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invok
 SCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 SCN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 SEC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-SEL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 SGC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 SHP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 SIM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
@@ -197,7 +170,6 @@ SVM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invok
 SWP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 TAXS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 TB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-TCR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 TERM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 THF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 THR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
