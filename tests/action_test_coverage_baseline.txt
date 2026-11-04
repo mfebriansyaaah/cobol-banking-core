@@ -396,9 +396,6 @@ TAX_FILE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=202
 TAX_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 TAX_PAY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 TAX_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-TRP_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-TRP_OPEN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-TRP_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VCC_ASSESS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VCC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VCC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
