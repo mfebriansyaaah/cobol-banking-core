@@ -42,6 +42,17 @@ assert_match "SSM_AUDIT ok" "$(run_cobol "SSM_AUDIT|50|0||||admin@test.com")" "S
 assert_match "SSM_VALIDATE ok" "$(run_cobol "SSM_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|SSM_VALID"
 assert_match "non-admin refused" "$(run_cobol "SSM_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM session_management WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM session_management_audit WHERE session_management_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "SSM_UPDATE|${id}|UserA|WEB|||admin@test.com")"
+assert_match "SSM_UPDATE ok" "$upd_out" "SUCCESS\\|SSM_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM session_management WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM session_management_audit WHERE session_management_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "SSM_UPDATE|999999|UserA|WEB|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "SSM_UPDATE|${id}|UserA|WEB|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
