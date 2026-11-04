@@ -137,6 +137,11 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   1-line copy-back at each of the 4 success exits. LSC_GET/SUMMARY/
   EXPORT/AUDIT share the pattern, still broken — follow-up.
 
+- Batch 2 (`test/testing-p1-04-route-batch2`): first cat-3 suite from
+  scratch — treasury_position (OPEN/LIST/SUMMARY/CLOSE, 12 asserts) —
+  shell-covered 2,393 → 2,396 (86.2%), baseline 387 → 384.
+  (TRP_CLOSE already covered elsewhere.)
+
 ## Domain groups
 
 - **Critical money path** (two approvals): wallet, auth, payments, treasury,
