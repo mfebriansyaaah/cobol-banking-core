@@ -112,6 +112,12 @@ jobs:
           --test-reporter=junit --test-reporter-destination=test-results/gate/junit.xml
           "scripts/test/*.test.mjs" 2>&1 | tail -5
 
+      - name: Offline safety harness (no DB, no build)
+        run: bash tests/scripts/run.sh
+
+      - name: Coverage mapper unit tests
+        run: python3 scripts/coverage/test_map_cobol.py
+
       - name: Upload gate test report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
