@@ -56,7 +56,7 @@ check_rc2 "bad mode" frobnicate
 check_rc2 "--only=empty" --only= db
 
 # --- --failed without a last-failed file fails closed ---------------------
-rm -f artifacts/last-failed.txt
+rm -f artifacts/last-failed.txt artifacts/latest/last-failed.txt
 rc=0
 $RUNALL --failed db >/dev/null 2>&1 || rc=$?
 if [ "$rc" = "2" ]; then
