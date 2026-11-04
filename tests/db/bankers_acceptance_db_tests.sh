@@ -42,6 +42,17 @@ assert_match "BAC_AUDIT ok" "$(run_cobol "BAC_AUDIT|50|0||||admin@test.com")" "S
 assert_match "BAC_VALIDATE ok" "$(run_cobol "BAC_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|BAC_VALID"
 assert_match "non-admin refused" "$(run_cobol "BAC_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM bankers_acceptance WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM bankers_acceptance_audit WHERE bankers_acceptance_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "BAC_UPDATE|${id}|DrawerA|TIME|||admin@test.com")"
+assert_match "BAC_UPDATE ok" "$upd_out" "SUCCESS\\|BAC_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM bankers_acceptance WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM bankers_acceptance_audit WHERE bankers_acceptance_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "BAC_UPDATE|999999|DrawerA|TIME|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "BAC_UPDATE|${id}|DrawerA|TIME|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
