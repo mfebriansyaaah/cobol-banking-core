@@ -14,7 +14,7 @@ Preflight artifacts: `artifacts/preflight-b6e4d7ce/`
 ## Triaged (environment, not product bugs)
 
 | Suite | Owner | Reason | Expiry |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `grants_db_tests.sh` (3/6) | @mfebriansyaaah | Local `cobol_db` never provisioned via `scripts/dev/setup-test-db.sh` (no Docker): app and migrate are both `cobol_user` with table DDL, so “app cannot DDL” assertions fail. Needs a fresh 3307 database with `cobol_app` (DML-only) + `cobol_migrate` (DDL). | 2026-12-04 |
 | `migration_checksum_db_tests.sh` (4/6) | @mfebriansyaaah | Local `cobol_db` predates migration `0666_schema_migrations_checksum` (`migrate.sh --check` reports it pending, ledger 727 rows vs 657 files). Needs a fresh provisioned database. | 2026-12-04 |
 
