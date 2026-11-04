@@ -42,6 +42,19 @@ assert_match "MCS_AUDIT ok" "$(run_cobol "MCS_AUDIT|50|0||||admin@test.com")" "S
 assert_match "MCS_VALIDATE ok" "$(run_cobol "MCS_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|MCS_VALID"
 assert_match "non-admin refused" "$(run_cobol "MCS_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM merchant_settlement WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM merchant_settlement_audit WHERE merchant_settlement_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "MCS_UPDATE|${id}|MerchantA|DAILY|||admin@test.com")"
+assert_match "MCS_UPDATE ok" "$upd_out" "SUCCESS\\|MCS_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM merchant_settlement WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM merchant_settlement_audit WHERE merchant_settlement_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "MCS_UPDATE|999999|MerchantA|DAILY|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "MCS_UPDATE|${id}|MerchantA|DAILY|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
