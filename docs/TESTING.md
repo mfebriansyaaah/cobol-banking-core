@@ -190,8 +190,11 @@ with `scripts/generate_schema_snapshot.sh` after reviewing the diff).
 
 ## Orphan cleanup
 
-Killed runs can leave `cobol_db_test_*` / `cobol_db_shard_*` databases behind.
-`scripts/cleanup-test-dbs.sh` lists them:
+A successful `tests/run_all.sh full` leaves no throwaway database behind: one
+top-level EXIT trap owns `cleanup_db_resources` for the whole run, and phase
+functions never reset the recorded lists (`tests/scripts/test_db_cleanup.sh`
+guards this). Killed runs can still leave `cobol_db_test_*` /
+`cobol_db_shard_*` databases behind. `scripts/cleanup-test-dbs.sh` lists them:
 
 ```sh
 scripts/cleanup-test-dbs.sh                  # dry-run, drops nothing
