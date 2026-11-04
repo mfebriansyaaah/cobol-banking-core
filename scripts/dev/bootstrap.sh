@@ -37,6 +37,9 @@ scripts/dev/setup-test-db.sh
 echo "=== bootstrap: build ==="
 ./build.sh
 
+echo "=== bootstrap: install git hooks ==="
+scripts/dev/install-hooks.sh || true
+
 echo "=== bootstrap: fast suite ==="
 tests/run_all.sh fast
 
