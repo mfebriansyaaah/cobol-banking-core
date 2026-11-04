@@ -293,7 +293,7 @@ export function renderMarkdown(stats) {
 `;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const stats = audit(root);
   if (write) {
     const doc = renderMarkdown(stats);

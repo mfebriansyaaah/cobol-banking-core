@@ -63,3 +63,10 @@ Every domain module exposes these actions (prefix + action):
   `node scripts/generate_field_order.mjs --write .`, review the snapshot
   diff in `tests/contracts/route_field_order.json`, and explain it in the
   PR — see the cross-layer contract section in [TESTING.md](TESTING.md).
+- Do not generate new template clones: a new module shaped like
+  `cost_center_core.cob` (canonical 9-action contract, ≥0.90 structural
+  similarity, or exactly 669 lines) with L0/L1 linkage fails
+  `scripts/check_clone_budget.mjs`. New modules need L2+ linkage
+  (a proven Tier-1 business link — see [module classification](module_classification.md))
+  or `UTILITY`/`INFRA` status. The existing clones are frozen in
+  `tests/clone_baseline.txt`, which must only shrink.
