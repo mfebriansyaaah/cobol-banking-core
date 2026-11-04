@@ -54,7 +54,7 @@ error harness + gateway suites), the assertion count gate, migration
 rollback drill, backup and restore drill, schema drift check, and performance benchmarks.
 
 A pull request is not mergeable under this policy unless the required checks
-(`lint`, `build`, `test`, `db-aggregate`, `coverage`) are green. GitHub
+(`lint`, `build`, `test`, `db aggregate`, `coverage`) are green. GitHub
 enforces this on `main` via branch protection; reviewers still verify the
 evidence.
 
@@ -82,7 +82,7 @@ Branch protection is configured via the classic Branch Protection API
 `pull_request` and `required_status_checks` rule types, verified 2026-11-04).
 Revisit rulesets if the plan upgrades. Current settings on `main`:
 
-- required status checks `lint`, `build`, `test`, `db-aggregate`, `coverage`
+- required status checks `lint`, `build`, `test`, `db aggregate`, `coverage`
   (strict), enforced for admins;
 - 1 approval, dismiss stale reviews, CODEOWNERS review required;
 - linear history, force pushes and branch deletion blocked.
