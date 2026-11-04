@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-04T16:24:31.011Z",
-  "commit": "2bf61419",
+  "generatedAt": "2026-11-04T20:28:43.648Z",
+  "commit": "15952e24",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 18,
@@ -1484,6 +1484,7 @@
       "t1Actions": [],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/payment_hold_db_tests.sh",
         "tests/cobol/cases/payment_hold.cases"
       ],
       "reason": "business link (tables accounts) + test",
