@@ -126,6 +126,17 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   T-020) — keputusan owner: perpanjang T-019 atau tutup di baseline
   dan lanjut branch 09.
 
+## T-020 progress (branch `test/testing-p1-04-route-clusters`)
+
+- Category-4 done (15/15): loan lifecycle, CARD_CLOSE/LIST,
+  DEP_LIST/MATURE/AUDIT, LSC_LIST/DETAIL/SEARCH/HISTORY/DELETE —
+  shell-covered 2,378 → 2,393 (86.1%), baseline 402 → 387.
+  (Keputusan owner: T-020 dimulai; T-019 ditutup di capaian baseline.)
+- Prod fix required: `loan_schedule_core.cob` read actions returned
+  unprefixed rows (dispatch epilogue clobbered `LS-OUTPUT-BUFFER`);
+  1-line copy-back at each of the 4 success exits. LSC_GET/SUMMARY/
+  EXPORT/AUDIT share the pattern, still broken — follow-up.
+
 ## Domain groups
 
 - **Critical money path** (two approvals): wallet, auth, payments, treasury,
