@@ -203,6 +203,12 @@ Next: close the blockers above, then re-run T-052. Do not start Phase 0.
 
 Status: done locally. Remote PR URLs: n/a (local-only dry-run; no remote branches created).
 
+## R0 sign-off (T-052, 2026-11-04) — NOT PASSED, Phase 0 blocked
+
+R0 composite remains 8.5/10. Do not start Phase 0. Re-run T-052 after billing,
+enforcement access, second owners, cost approval, second-engineer tabletop,
+and Day 0 preflight are closed.
+
 ## Known-red / preflight
 
 Day 0 preflight has not been run in R0. Before Phase 0, run the section 0.4
