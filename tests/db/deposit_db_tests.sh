@@ -92,6 +92,13 @@ assert_match "DEP_CALC one year" "$calc" "SUCCESS\|DEP_CALC\|500.0000\|10500.000
 ac="$(db_query "SELECT COUNT(*) FROM deposit_audit WHERE deposit_id=${dep_id};")"
 assert_match "audit rows recorded" "$ac" "^[4-9][0-9]*$"
 
+# LIST, MATURE and AUDIT complete the routed surface (deposit is CLOSED,
+# so MATURE only proves the sweep endpoint works).
+assert_match "DEP_LIST ok" "$(run_cobol "DEP_LIST||50|0|||admin@test.com")" "SUCCESS\|DEPOSITS\|"
+assert_match "list carries the deposit" "$(run_cobol "DEP_LIST||50|0|||admin@test.com")" "dep_test@test.com"
+assert_match "DEP_MATURE ok" "$(run_cobol "DEP_MATURE||||||admin@test.com")" "SUCCESS\|DEP_MATURED"
+assert_match "DEP_AUDIT ok" "$(run_cobol "DEP_AUDIT|${dep_id}|50|0|||admin@test.com")" "SUCCESS\|DEP_AUDIT\|"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
