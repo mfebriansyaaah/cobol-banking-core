@@ -2,6 +2,7 @@
 
 > R0 readiness branch 00A. Single owner today; second owners required for 9/10.
 > Review date: 2026-12-04 or when a second owner is named, whichever is first.
+> Exception accepted 2026-11-04, see “Formal exception” below.
 
 ## Current state (2026-11-04)
 
@@ -26,6 +27,19 @@ ownership criterion. Until they are named:
 - The exception owner is `@mfebriansyaaah`.
 - Expiry: 2026-12-04. Revisit when a second owner joins or the repository
   becomes public.
+
+## Formal exception (accepted 2026-11-04)
+
+- Reason: single maintainer; no second owner available yet.
+- Risk: bus factor 1; reviews depend on one person; money-path two-approval
+  rule cannot be satisfied by two distinct people.
+- Compensating controls: CODEOWNERS review required on every PR; pre-push hook
+  (`scripts/dev/install-hooks.sh`); weekly review of open PRs; no admin bypass;
+  money-path PRs get extra scrutiny and a recorded second pass (self-review
+  checklist in the PR body).
+- Approver: `@mfebriansyaaah`.
+- Expiry: 2026-12-04. R0 criterion 7 stays Not met; 9/10 stays capped at 8.5
+  until a second owner is named.
 
 ## Escalation
 

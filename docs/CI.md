@@ -163,7 +163,7 @@ deliberately red PR that cannot merge.
 | 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
 | 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
 | 6 | Cost approved | Partial — estimate in this file, approval pending |
-| 7 | Named owners | Not met — single owner, see `docs/OWNERSHIP.md` |
+| 7 | Named owners | Exception accepted 2026-11-04 — single owner, 9/10 capped at 8.5, expiry 2026-12-04; see `docs/OWNERSHIP.md`. R0 criterion stays Not met. |
 | 8 | Executor independence | Partial — single-engineer execution; tabletop pending second engineer |
 | 9 | Communication ready | Met — this file + rollout above |
 | 10 | Day 0 preflight | Not met — full suite not run in R0 |
