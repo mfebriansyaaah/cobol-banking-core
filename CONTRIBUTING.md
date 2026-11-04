@@ -7,13 +7,18 @@ accepted only from people authorized by the owner.
 
 - One concern per pull request. Do not mix a domain wave, a refactor, and
   documentation in one PR.
-- Branch from `main`; never push directly to `main`.
-- Prefer PRs under 500 changed lines. Split large waves.
-- No merge with a failing CI check.
+- Branch from `main`; never push directly to `main`. See
+  [Branching and merge model](docs/BRANCHING.md) for the train, merge method,
+  and final `git ls-remote --heads origin` check (only `main` remains).
+- Prefer PRs under 500 changed lines and under 5 working days. Split large waves.
+- No merge with a failing CI check. Required checks are listed in
+  [CI status](docs/CI.md).
 - Do not add secrets, real customer data, or personal email addresses to code,
   tests, fixtures, migrations, or commit metadata.
 - Money-path changes (wallet, auth, payments, treasury, GL, settlement) require
   two approvals under the policy in [docs/GOVERNANCE.md](docs/GOVERNANCE.md).
+- Ownership and review SLA live in [docs/OWNERSHIP.md](docs/OWNERSHIP.md).
+  Bus factor 1 is a known gap; second owners are required for 9/10.
 
 ## Local gate
 
@@ -22,6 +27,17 @@ Run the local pre-merge gate before opening or updating a PR:
 ```sh
 bash scripts/ci/premerge.sh
 ```
+
+For critical money-path changes, run the exact CI parity gate on a dedicated
+database (never `cobol_db`; see [docs/CI.md](docs/CI.md)):
+
+```sh
+DB_NAME=cobol_db_premerge scripts/dev/setup-test-db.sh
+DB_NAME=cobol_db_premerge bash scripts/ci/premerge.sh --ci-parity
+```
+
+`--ci-parity` does not exist yet (Phase 0, T-009). Until it lands, use
+`--all` for money paths and document the gap in the PR.
 
 It runs the static gates and the fast suite by default (probes, docs, and
 the full DB/gateway suite are opt-in via `--probes`, `--docs`, `--full`;
@@ -67,7 +83,8 @@ test database setup, the isolation model, and troubleshooting, see
 - Generated files: `docs/STATUS.md`, `docs/MODULE_INDEX.md`, and the generated
   block in `README.md`. Edit the generator, then run
   `node scripts/docs_stats.mjs --write`.
-- Hand-maintained: `docs/COVERAGE.md`, `docs/GOVERNANCE.md`, ADRs, runbooks,
+- Hand-maintained: `docs/COVERAGE.md`, `docs/GOVERNANCE.md`, `docs/BRANCHING.md`,
+  `docs/CI.md`, `docs/OWNERSHIP.md`, ADRs, runbooks,
   `docs/domain_overview.md`, and `docs/data_dictionary.md`.
 - Every local Markdown link must resolve. `node scripts/check_docs.mjs` checks
   links and generated stats.
