@@ -27,7 +27,7 @@
 #   report_emit_junit [dir]      # convert TAP logs to junit/db/*.xml (best effort)
 
 REPORT_DIR="${REPORT_DIR:-}"
-REPORT_TSV=""
+REPORT_TSV="${REPORT_TSV:-}"
 REPORT_INITIALIZED="${REPORT_INITIALIZED:-0}"
 
 # Directory this library lives in (stable even when callers override $ROOT
@@ -46,11 +46,21 @@ report_init() {
         return 0
     fi
     local root="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-    if [ $# -gt 0 ] || [ -n "${REPORT_DIR:-}" ]; then
-        # Explicit directory (CI jobs, nightly runs, --report-dir callers):
-        # use as-is with a fresh header. Callers that need isolation must
-        # pass distinct directories (concurrent local runs do).
-        REPORT_DIR="${1:-$REPORT_DIR}"
+    if [ $# -gt 0 ]; then
+        # Explicit directory switch (fresh test processes, deliberate
+        # redirects): use as-is with a fresh header.
+        REPORT_DIR="$1"
+        mkdir -p "$REPORT_DIR" || return 1
+        printf 'suite\tstatus\tpass\tfail\ttotal\tduration_ms\tshard\n' > "$REPORT_DIR/report.tsv"
+    elif [ "${REPORT_INITIALIZED:-0}" = "1" ] && [ -n "${REPORT_TSV:-}" ]; then
+        # Same process already initialized (run_fast -> run_db ->
+        # run_integration): reuse the run directory, never truncate.
+        return 0
+    elif [ -n "${REPORT_DIR:-}" ]; then
+        # First init in this process with a preset directory (CI jobs,
+        # nightly runs, --report-dir callers): use as-is, fresh header.
+        # Callers that need isolation must pass distinct directories
+        # (concurrent local runs do).
         mkdir -p "$REPORT_DIR" || return 1
         printf 'suite\tstatus\tpass\tfail\ttotal\tduration_ms\tshard\n' > "$REPORT_DIR/report.tsv"
     else

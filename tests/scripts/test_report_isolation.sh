@@ -32,15 +32,15 @@ trap 'rm -rf "$WORK"' EXIT
     report_finalize
 ' >/dev/null 2>&1)
 
-RUNS="$(ls "$WORK/artifacts/runs" 2>/dev/null | sort)"
-if [ "$(printf '%s\n' "$RUNS" | wc -l)" = "2" ]; then
+mapfile -t RUNDIRS < <(find "$WORK/artifacts/runs" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort)
+if [ "${#RUNDIRS[@]}" = "2" ]; then
     ok "two runs created two run directories"
 else
-    not_ok "two runs created two run directories (got: $RUNS)"
+    not_ok "two runs created two run directories (got: ${#RUNDIRS[@]} dirs)"
 fi
 
 BAD_ROWS=0
-for d in "$WORK"/artifacts/runs/*/; do
+for d in "${RUNDIRS[@]}"/; do
     [ -f "$d/report.tsv" ] || { BAD_ROWS=1; continue; }
     [ "$(wc -l < "$d/report.tsv")" = "2" ] || BAD_ROWS=1
 done
@@ -51,7 +51,7 @@ else
 fi
 
 LATEST="$(readlink "$WORK/artifacts/latest" 2>/dev/null || true)"
-LAST_RUN="$(printf '%s\n' "$RUNS" | tail -1)"
+LAST_RUN="$(basename "${RUNDIRS[${#RUNDIRS[@]}-1]}")"
 if [ -n "$LATEST" ] && [ -n "$LAST_RUN" ]; then
     case "$LATEST" in
         *"$LAST_RUN") ok "artifacts/latest points at the newest run" ;;
@@ -75,7 +75,6 @@ else
 fi
 
 # --- 2. report_locate_tsv: one file ok, zero/many fail ---
-TAPLOG="$WORK/artifacts/runs/$LAST_RUN/logs"
 LOCATE() { (cd "$ROOT" && ROOT="$WORK" bash -c ". tests/lib/report.sh; report_locate_tsv \"\$0\"" "$1" 2>/dev/null); }
 
 FLAT="$WORK/flat"
