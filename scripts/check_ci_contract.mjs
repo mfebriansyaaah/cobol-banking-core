@@ -55,11 +55,11 @@ for f in sys.argv[1:]:
 print(json.dumps(out))
 `;
   try {
-    const stdout = execFileSync(
-      'python3',
-      ['-c', script, ...files],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60000 },
-    );
+    const stdout = execFileSync('python3', ['-c', script, ...files], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 60000,
+    });
     return JSON.parse(stdout);
   } catch (e) {
     console.error(`FAIL: cannot parse workflows (python3+yaml required): ${e.message}`);
