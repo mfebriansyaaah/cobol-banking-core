@@ -121,8 +121,9 @@ Owner approval required for the budget (R0 criterion 6).
 
 ## Enforcement
 
-Current: private repository on GitHub Free; rulesets return HTTP 403
-(see `docs/GOVERNANCE.md`). No server-side enforcement is active.
+Current (2026-11-04, verified): public repository; rulesets API accessible
+(`gh api .../rulesets` returns `[]`, rc=0 — not 403). No ruleset is active yet;
+active blocking plus red-PR proof is G0 (branch 02, T-004).
 
 Plan (T-004 / T-054A):
 
@@ -158,7 +159,7 @@ deliberately red PR that cannot merge.
 | --- | :--- | --- |
 | 1 | Owner decisions signed | Met — signed 2026-11-04, see below |
 | 2 | Billing fixed | Met — run 41772256921 executes (build + 4 db-shards success, test in progress 2026-11-04); billing no longer aborts runs. Lint/coverage failures are pre-existing gates, not billing. |
-| 3 | Enforcement access verified | Not met — ruleset draft in `.github/rulesets/main.json`, access not verified |
+| 3 | Enforcement access verified | Met — `gh api .../rulesets` returns `[]` rc=0 2026-11-04; draft in `.github/rulesets/main.json` valid (4 rules); active blocking is G0 |
 | 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
 | 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
 | 6 | Cost approved | Partial — estimate in this file, approval pending |
@@ -196,7 +197,7 @@ Approved by `@mfebriansyaaah` (repository owner):
 
 ### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
 
-R0 does **not** pass. Met: 1, 2, 4, 5, 9, 11. Not met: 3, 7, 10. Partial: 6, 8.
+R0 does **not** pass. Met: 1, 2, 3, 4, 5, 9, 11. Not met: 7, 10. Partial: 6, 8.
 Phase 0 must not start until the blockers below are closed.
 
 Proven 2026-11-04: run
@@ -207,9 +208,6 @@ triaged as G0/Phase 0, not billing).
 
 Blockers and owners:
 
-- Enforcement access (criterion 3) — owner must verify ruleset or merge-bot
-  access; active blocking is G0. Note: `gh api .../rulesets` returns `[]`
-  (not 403), so access exists; configuration still pending.
 - Named owners (criterion 7) — owner must name second owners or accept the 8.5
   cap with expiry 2026-12-04.
 - Day 0 preflight (criterion 10) — must run full suite and triage red suites.
