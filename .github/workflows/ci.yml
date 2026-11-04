@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 # Least privilege: every job gets a read-only token unless it declares more
