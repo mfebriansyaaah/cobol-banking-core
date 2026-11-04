@@ -42,6 +42,17 @@ assert_match "STRU_AUDIT ok" "$(run_cobol "STRU_AUDIT|50|0||||admin@test.com")" 
 assert_match "STRU_VALIDATE ok" "$(run_cobol "STRU_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|STRU_VALID"
 assert_match "non-admin refused" "$(run_cobol "STRU_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM structured WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM structured_audit WHERE structured_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "STRU_UPDATE|${id}|StructA|NOTE|||admin@test.com")"
+assert_match "STRU_UPDATE ok" "$upd_out" "SUCCESS\\|STRU_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM structured WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM structured_audit WHERE structured_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "STRU_UPDATE|999999|StructA|NOTE|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "STRU_UPDATE|${id}|StructA|NOTE|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
