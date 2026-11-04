@@ -1,6 +1,0 @@
-# Device Management (Wave8) validation cases.
-DVM_CREATE missing ref@@ERROR\|INVALID_INPUT@@DVM_CREATE||||||admin@test.com
-DVM_GET missing id@@ERROR\|INVALID_INPUT@@DVM_GET||||||admin@test.com
-DVM_CALC missing id@@ERROR\|INVALID_INPUT@@DVM_CALC||||||admin@test.com
-DVM_DELETE missing id@@ERROR\|INVALID_INPUT@@DVM_DELETE||||||admin@test.com
-DVM_VALIDATE ok@@SUCCESS\|DVM_VALID@@DVM_VALIDATE|100.00|USD||||admin@test.com

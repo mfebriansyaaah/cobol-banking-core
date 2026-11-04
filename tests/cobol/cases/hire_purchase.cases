@@ -1,6 +1,0 @@
-# Hire Purchase (Wave16) validation cases.
-HPR_CREATE missing ref@@ERROR\|INVALID_INPUT@@HPR_CREATE||||||admin@test.com
-HPR_GET missing id@@ERROR\|INVALID_INPUT@@HPR_GET||||||admin@test.com
-HPR_CALC missing id@@ERROR\|INVALID_INPUT@@HPR_CALC||||||admin@test.com
-HPR_DELETE missing id@@ERROR\|INVALID_INPUT@@HPR_DELETE||||||admin@test.com
-HPR_VALIDATE ok@@SUCCESS\|HPR_VALID@@HPR_VALIDATE|100.00|USD||||admin@test.com

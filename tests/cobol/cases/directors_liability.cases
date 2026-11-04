@@ -1,6 +1,0 @@
-# Directors Liability (Wave18) validation cases.
-DOL_CREATE missing ref@@ERROR\|INVALID_INPUT@@DOL_CREATE||||||admin@test.com
-DOL_GET missing id@@ERROR\|INVALID_INPUT@@DOL_GET||||||admin@test.com
-DOL_CALC missing id@@ERROR\|INVALID_INPUT@@DOL_CALC||||||admin@test.com
-DOL_DELETE missing id@@ERROR\|INVALID_INPUT@@DOL_DELETE||||||admin@test.com
-DOL_VALIDATE ok@@SUCCESS\|DOL_VALID@@DOL_VALIDATE|100.00|USD||||admin@test.com

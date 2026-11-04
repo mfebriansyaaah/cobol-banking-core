@@ -1,6 +1,0 @@
-# Fulfillment (Wave19) validation cases.
-FLF_CREATE missing ref@@ERROR\|INVALID_INPUT@@FLF_CREATE||||||admin@test.com
-FLF_GET missing id@@ERROR\|INVALID_INPUT@@FLF_GET||||||admin@test.com
-FLF_CALC missing id@@ERROR\|INVALID_INPUT@@FLF_CALC||||||admin@test.com
-FLF_DELETE missing id@@ERROR\|INVALID_INPUT@@FLF_DELETE||||||admin@test.com
-FLF_VALIDATE ok@@SUCCESS\|FLF_VALID@@FLF_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Future Contract (Wave6) validation cases.
-FTC_CREATE missing ref@@ERROR\|INVALID_INPUT@@FTC_CREATE||||||admin@test.com
-FTC_GET missing id@@ERROR\|INVALID_INPUT@@FTC_GET||||||admin@test.com
-FTC_CALC missing id@@ERROR\|INVALID_INPUT@@FTC_CALC||||||admin@test.com
-FTC_DELETE missing id@@ERROR\|INVALID_INPUT@@FTC_DELETE||||||admin@test.com
-FTC_VALIDATE ok@@SUCCESS\|FTC_VALID@@FTC_VALIDATE|100.00|USD||||admin@test.com

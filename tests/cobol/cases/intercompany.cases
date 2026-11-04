@@ -1,6 +1,0 @@
-# Intercompany (Wave14) validation cases.
-ICP_CREATE missing ref@@ERROR\|INVALID_INPUT@@ICP_CREATE||||||admin@test.com
-ICP_GET missing id@@ERROR\|INVALID_INPUT@@ICP_GET||||||admin@test.com
-ICP_CALC missing id@@ERROR\|INVALID_INPUT@@ICP_CALC||||||admin@test.com
-ICP_DELETE missing id@@ERROR\|INVALID_INPUT@@ICP_DELETE||||||admin@test.com
-ICP_VALIDATE ok@@SUCCESS\|ICP_VALID@@ICP_VALIDATE|100.00|USD||||admin@test.com

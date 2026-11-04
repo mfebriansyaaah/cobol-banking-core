@@ -1,6 +1,0 @@
-# Liability Insurance (Wave18) validation cases.
-LIB_CREATE missing ref@@ERROR\|INVALID_INPUT@@LIB_CREATE||||||admin@test.com
-LIB_GET missing id@@ERROR\|INVALID_INPUT@@LIB_GET||||||admin@test.com
-LIB_CALC missing id@@ERROR\|INVALID_INPUT@@LIB_CALC||||||admin@test.com
-LIB_DELETE missing id@@ERROR\|INVALID_INPUT@@LIB_DELETE||||||admin@test.com
-LIB_VALIDATE ok@@SUCCESS\|LIB_VALID@@LIB_VALIDATE|100.00|USD||||admin@test.com

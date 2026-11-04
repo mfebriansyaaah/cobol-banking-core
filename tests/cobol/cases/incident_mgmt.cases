@@ -1,6 +1,0 @@
-# Incident Mgmt (Wave17) validation cases.
-INCD_CREATE missing ref@@ERROR\|INVALID_INPUT@@INCD_CREATE||||||admin@test.com
-INCD_GET missing id@@ERROR\|INVALID_INPUT@@INCD_GET||||||admin@test.com
-INCD_CALC missing id@@ERROR\|INVALID_INPUT@@INCD_CALC||||||admin@test.com
-INCD_DELETE missing id@@ERROR\|INVALID_INPUT@@INCD_DELETE||||||admin@test.com
-INCD_VALIDATE ok@@SUCCESS\|INCD_VALID@@INCD_VALIDATE|100.00|USD||||admin@test.com

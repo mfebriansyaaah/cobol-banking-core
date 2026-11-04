@@ -1,6 +1,0 @@
-# Hotfix (Wave17) validation cases.
-HFX_CREATE missing ref@@ERROR\|INVALID_INPUT@@HFX_CREATE||||||admin@test.com
-HFX_GET missing id@@ERROR\|INVALID_INPUT@@HFX_GET||||||admin@test.com
-HFX_CALC missing id@@ERROR\|INVALID_INPUT@@HFX_CALC||||||admin@test.com
-HFX_DELETE missing id@@ERROR\|INVALID_INPUT@@HFX_DELETE||||||admin@test.com
-HFX_VALIDATE ok@@SUCCESS\|HFX_VALID@@HFX_VALIDATE|100.00|USD||||admin@test.com

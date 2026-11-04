@@ -1,6 +1,0 @@
-# Filing (Wave17) validation cases.
-FIL2_CREATE missing ref@@ERROR\|INVALID_INPUT@@FIL2_CREATE||||||admin@test.com
-FIL2_GET missing id@@ERROR\|INVALID_INPUT@@FIL2_GET||||||admin@test.com
-FIL2_CALC missing id@@ERROR\|INVALID_INPUT@@FIL2_CALC||||||admin@test.com
-FIL2_DELETE missing id@@ERROR\|INVALID_INPUT@@FIL2_DELETE||||||admin@test.com
-FIL2_VALIDATE ok@@SUCCESS\|FIL2_VALID@@FIL2_VALIDATE|100.00|USD||||admin@test.com

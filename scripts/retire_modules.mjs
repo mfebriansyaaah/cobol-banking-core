@@ -25,6 +25,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { collectRoutes } from './lib/route_fields.mjs';
 
 const args = process.argv.slice(2);
 let root = '.';
@@ -221,6 +222,55 @@ export function pruneTokenIdentityMap(testText, actions) {
   return { text: kept.join('\n'), removed: lines.length - kept.length };
 }
 
+function routeActionSet(rootDir) {
+  const out = new Set();
+  const routesDir = path.join(rootDir, 'middleware', 'src', 'routes');
+  if (existsSync(routesDir)) {
+    for (const f of readdirSync(routesDir).filter((x) => x.endsWith('.js') && x !== 'index.js')) {
+      const src = readFileSync(path.join(routesDir, f), 'utf8');
+      for (const m of src.matchAll(/action:\s*'([A-Z0-9_]+)'/g)) out.add(m[1]);
+    }
+  }
+  const appPath = path.join(rootDir, 'middleware', 'src', 'app.js');
+  if (existsSync(appPath)) {
+    const src = readFileSync(appPath, 'utf8');
+    for (const m of src.matchAll(/action:\s*'([A-Z0-9_]+)'/g)) out.add(m[1]);
+  }
+  return out;
+}
+
+export function dropDeadActionEntries(rootDir, deletedActions) {
+  const abPath = path.join(rootDir, 'tests', 'action_test_coverage_baseline.txt');
+  const routed = routeActionSet(rootDir);
+  const before = readFileSync(abPath, 'utf8');
+  const after = dropBaselineLines(before, (t) => {
+    const action = t.split(/\s+/)[0];
+    return deletedActions.has(action) || !routed.has(action);
+  });
+  writeFileSync(abPath, after);
+  return before !== after;
+}
+
+export function dropStaleShadowedRoutes(rootDir) {
+  // A shadowed-route line is stale when its METHOD + path no longer exists in
+  // any kept route file. Uses the shared route parser (text only, never
+  // imports gateway code), same definition family as the conflicts gate.
+  // Conservative: drop a line only when its METHOD + path exists in NO kept
+  // route file at all. A path that still exists (even singly) keeps its line;
+  // the conflicts gate flags it as stale for deliberate manual removal.
+  // This can leave stale lines behind but can never delete a live conflict.
+  const live = new Set();
+  for (const [key] of collectRoutes(rootDir)) {
+    const parts = key.split('::');
+    live.add((parts[1] || '').trim());
+  }
+  const p = path.join(rootDir, 'tests', 'known_shadowed_routes.txt');
+  const before = readFileSync(p, 'utf8');
+  const after = dropBaselineLines(before, (t) => /^[A-Z]+\s+\//.test(t) && !live.has(t));
+  writeFileSync(p, after);
+  return before !== after;
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const wave = JSON.parse(readFileSync(path.resolve(waveFile), 'utf8'));
   const modules = [...new Set(wave.modules || [])].sort();
@@ -410,11 +460,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     wbPath,
     dropBaselineLines(readFileSync(wbPath, 'utf8'), (t) => waveSet.has(t.split('=')[0].replace('.cob', ''))),
   );
-  const abPath = path.join(root, 'tests', 'action_test_coverage_baseline.txt');
-  writeFileSync(
-    abPath,
-    dropBaselineLines(readFileSync(abPath, 'utf8'), (t) => actions.has(t.split(/\s+/)[0])),
-  );
+  // Dead action entries: deleted-module actions plus any baseline action with
+  // no remaining route (same dead definition as the coverage gate, so a
+  // renamed-but-routed action like KCP_UPDATE is caught too).
+  dropDeadActionEntries(root, actions);
+  dropStaleShadowedRoutes(root);
   console.log('baselines: dropped retired suite/warning/action entries');
 
   // Regenerators (single-source logic lives in each script).

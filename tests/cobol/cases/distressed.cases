@@ -1,6 +1,0 @@
-# Distressed (Wave12) validation cases.
-DIS_CREATE missing ref@@ERROR\|INVALID_INPUT@@DIS_CREATE||||||admin@test.com
-DIS_GET missing id@@ERROR\|INVALID_INPUT@@DIS_GET||||||admin@test.com
-DIS_CALC missing id@@ERROR\|INVALID_INPUT@@DIS_CALC||||||admin@test.com
-DIS_DELETE missing id@@ERROR\|INVALID_INPUT@@DIS_DELETE||||||admin@test.com
-DIS_VALIDATE ok@@SUCCESS\|DIS_VALID@@DIS_VALIDATE|100.00|USD||||admin@test.com

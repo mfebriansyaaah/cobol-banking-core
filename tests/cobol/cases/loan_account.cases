@@ -1,6 +1,0 @@
-# Loan Account (Wave15) validation cases.
-LN_CREATE missing ref@@ERROR\|INVALID_INPUT@@LN_CREATE||||||admin@test.com
-LN_GET missing id@@ERROR\|INVALID_INPUT@@LN_GET||||||admin@test.com
-LN_CALC missing id@@ERROR\|INVALID_INPUT@@LN_CALC||||||admin@test.com
-LN_DELETE missing id@@ERROR\|INVALID_INPUT@@LN_DELETE||||||admin@test.com
-LN_VALIDATE ok@@SUCCESS\|LN_VALID@@LN_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Foreclosure (Wave7) validation cases.
-FCL_CREATE missing ref@@ERROR\|INVALID_INPUT@@FCL_CREATE||||||admin@test.com
-FCL_GET missing id@@ERROR\|INVALID_INPUT@@FCL_GET||||||admin@test.com
-FCL_CALC missing id@@ERROR\|INVALID_INPUT@@FCL_CALC||||||admin@test.com
-FCL_DELETE missing id@@ERROR\|INVALID_INPUT@@FCL_DELETE||||||admin@test.com
-FCL_VALIDATE ok@@SUCCESS\|FCL_VALID@@FCL_VALIDATE|100.00|USD||||admin@test.com

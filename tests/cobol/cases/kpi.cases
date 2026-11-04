@@ -1,6 +1,0 @@
-# Kpi (Wave10) validation cases.
-KPI_CREATE missing ref@@ERROR\|INVALID_INPUT@@KPI_CREATE||||||admin@test.com
-KPI_GET missing id@@ERROR\|INVALID_INPUT@@KPI_GET||||||admin@test.com
-KPI_CALC missing id@@ERROR\|INVALID_INPUT@@KPI_CALC||||||admin@test.com
-KPI_DELETE missing id@@ERROR\|INVALID_INPUT@@KPI_DELETE||||||admin@test.com
-KPI_VALIDATE ok@@SUCCESS\|KPI_VALID@@KPI_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Fee Item (Wave15) validation cases.
-FEES_CREATE missing ref@@ERROR\|INVALID_INPUT@@FEES_CREATE||||||admin@test.com
-FEES_GET missing id@@ERROR\|INVALID_INPUT@@FEES_GET||||||admin@test.com
-FEES_CALC missing id@@ERROR\|INVALID_INPUT@@FEES_CALC||||||admin@test.com
-FEES_DELETE missing id@@ERROR\|INVALID_INPUT@@FEES_DELETE||||||admin@test.com
-FEES_VALIDATE ok@@SUCCESS\|FEES_VALID@@FEES_VALIDATE|100.00|USD||||admin@test.com

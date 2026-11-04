@@ -1,6 +1,0 @@
-# Etf (Wave12) validation cases.
-ETF_CREATE missing ref@@ERROR\|INVALID_INPUT@@ETF_CREATE||||||admin@test.com
-ETF_GET missing id@@ERROR\|INVALID_INPUT@@ETF_GET||||||admin@test.com
-ETF_CALC missing id@@ERROR\|INVALID_INPUT@@ETF_CALC||||||admin@test.com
-ETF_DELETE missing id@@ERROR\|INVALID_INPUT@@ETF_DELETE||||||admin@test.com
-ETF_VALIDATE ok@@SUCCESS\|ETF_VALID@@ETF_VALIDATE|100.00|USD||||admin@test.com

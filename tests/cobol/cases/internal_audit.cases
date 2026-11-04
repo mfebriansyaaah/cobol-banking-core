@@ -1,6 +1,0 @@
-# Internal Audit (Wave7) validation cases.
-INA_CREATE missing ref@@ERROR\|INVALID_INPUT@@INA_CREATE||||||admin@test.com
-INA_GET missing id@@ERROR\|INVALID_INPUT@@INA_GET||||||admin@test.com
-INA_CALC missing id@@ERROR\|INVALID_INPUT@@INA_CALC||||||admin@test.com
-INA_DELETE missing id@@ERROR\|INVALID_INPUT@@INA_DELETE||||||admin@test.com
-INA_VALIDATE ok@@SUCCESS\|INA_VALID@@INA_VALIDATE|100.00|USD||||admin@test.com

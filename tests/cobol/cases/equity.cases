@@ -1,6 +1,0 @@
-# Equity (Wave12) validation cases.
-EQY_CREATE missing ref@@ERROR\|INVALID_INPUT@@EQY_CREATE||||||admin@test.com
-EQY_GET missing id@@ERROR\|INVALID_INPUT@@EQY_GET||||||admin@test.com
-EQY_CALC missing id@@ERROR\|INVALID_INPUT@@EQY_CALC||||||admin@test.com
-EQY_DELETE missing id@@ERROR\|INVALID_INPUT@@EQY_DELETE||||||admin@test.com
-EQY_VALIDATE ok@@SUCCESS\|EQY_VALID@@EQY_VALIDATE|100.00|USD||||admin@test.com

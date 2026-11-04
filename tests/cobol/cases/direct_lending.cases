@@ -1,6 +1,0 @@
-# Direct Lending (Wave12) validation cases.
-DLL_CREATE missing ref@@ERROR\|INVALID_INPUT@@DLL_CREATE||||||admin@test.com
-DLL_GET missing id@@ERROR\|INVALID_INPUT@@DLL_GET||||||admin@test.com
-DLL_CALC missing id@@ERROR\|INVALID_INPUT@@DLL_CALC||||||admin@test.com
-DLL_DELETE missing id@@ERROR\|INVALID_INPUT@@DLL_DELETE||||||admin@test.com
-DLL_VALIDATE ok@@SUCCESS\|DLL_VALID@@DLL_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Digital Asset (Wave6) validation cases.
-DAS_CREATE missing ref@@ERROR\|INVALID_INPUT@@DAS_CREATE||||||admin@test.com
-DAS_GET missing id@@ERROR\|INVALID_INPUT@@DAS_GET||||||admin@test.com
-DAS_CALC missing id@@ERROR\|INVALID_INPUT@@DAS_CALC||||||admin@test.com
-DAS_DELETE missing id@@ERROR\|INVALID_INPUT@@DAS_DELETE||||||admin@test.com
-DAS_VALIDATE ok@@SUCCESS\|DAS_VALID@@DAS_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Direct debit (Wave3) validation cases.
-DDB_CREATE missing ref@@ERROR\|INVALID_INPUT@@DDB_CREATE||||||admin@test.com
-DDB_GET missing id@@ERROR\|INVALID_INPUT@@DDB_GET||||||admin@test.com
-DDB_CALC missing id@@ERROR\|INVALID_INPUT@@DDB_CALC||||||admin@test.com
-DDB_DELETE missing id@@ERROR\|INVALID_INPUT@@DDB_DELETE||||||admin@test.com
-DDB_VALIDATE ok@@SUCCESS\|DDB_VALID@@DDB_VALIDATE|100.00|USD||||admin@test.com

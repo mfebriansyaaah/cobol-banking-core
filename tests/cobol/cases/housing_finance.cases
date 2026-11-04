@@ -1,6 +1,0 @@
-# Housing Finance (Wave20) validation cases.
-HFC_CREATE missing ref@@ERROR\|INVALID_INPUT@@HFC_CREATE||||||admin@test.com
-HFC_GET missing id@@ERROR\|INVALID_INPUT@@HFC_GET||||||admin@test.com
-HFC_CALC missing id@@ERROR\|INVALID_INPUT@@HFC_CALC||||||admin@test.com
-HFC_DELETE missing id@@ERROR\|INVALID_INPUT@@HFC_DELETE||||||admin@test.com
-HFC_VALIDATE ok@@SUCCESS\|HFC_VALID@@HFC_VALIDATE|100.00|USD||||admin@test.com

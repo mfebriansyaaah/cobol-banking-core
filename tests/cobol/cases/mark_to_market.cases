@@ -1,6 +1,0 @@
-# Mark To Market (Wave9) validation cases.
-MTM_CREATE missing ref@@ERROR\|INVALID_INPUT@@MTM_CREATE||||||admin@test.com
-MTM_GET missing id@@ERROR\|INVALID_INPUT@@MTM_GET||||||admin@test.com
-MTM_CALC missing id@@ERROR\|INVALID_INPUT@@MTM_CALC||||||admin@test.com
-MTM_DELETE missing id@@ERROR\|INVALID_INPUT@@MTM_DELETE||||||admin@test.com
-MTM_VALIDATE ok@@SUCCESS\|MTM_VALID@@MTM_VALIDATE|100.00|USD||||admin@test.com

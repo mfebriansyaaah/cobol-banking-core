@@ -1,6 +1,0 @@
-# Leave Management (Wave10) validation cases.
-LEA_CREATE missing ref@@ERROR\|INVALID_INPUT@@LEA_CREATE||||||admin@test.com
-LEA_GET missing id@@ERROR\|INVALID_INPUT@@LEA_GET||||||admin@test.com
-LEA_CALC missing id@@ERROR\|INVALID_INPUT@@LEA_CALC||||||admin@test.com
-LEA_DELETE missing id@@ERROR\|INVALID_INPUT@@LEA_DELETE||||||admin@test.com
-LEA_VALIDATE ok@@SUCCESS\|LEA_VALID@@LEA_VALIDATE|100.00|USD||||admin@test.com

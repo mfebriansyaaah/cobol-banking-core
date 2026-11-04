@@ -108,7 +108,7 @@
             EXIT PARAGRAPH.
 
         INIT-DISPATCH-TABLE.
-            MOVE 533 TO DISPATCH-COUNT.
+            MOVE 383 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_core" TO D-PROGRAM(1).
@@ -379,1335 +379,885 @@
             MOVE "REG_" TO D-PREFIX(90).
             MOVE 4 TO D-PREFIX-LEN(90).
             MOVE "regulatory_report_core" TO D-PROGRAM(90).
-            MOVE "DOC_" TO D-PREFIX(91).
+            MOVE "RPB_" TO D-PREFIX(91).
             MOVE 4 TO D-PREFIX-LEN(91).
-            MOVE "document_core" TO D-PROGRAM(91).
-            MOVE "FRC_" TO D-PREFIX(92).
+            MOVE "report_builder_core" TO D-PROGRAM(91).
+            MOVE "PRD_" TO D-PREFIX(92).
             MOVE 4 TO D-PREFIX-LEN(92).
-            MOVE "fraud_case_core" TO D-PROGRAM(92).
-            MOVE "IRT_" TO D-PREFIX(93).
+            MOVE "product_catalog_core" TO D-PROGRAM(92).
+            MOVE "BDR_" TO D-PREFIX(93).
             MOVE 4 TO D-PREFIX-LEN(93).
-            MOVE "interest_rate_core" TO D-PROGRAM(93).
-            MOVE "IPM_" TO D-PREFIX(94).
+            MOVE "backup_drill_core" TO D-PROGRAM(93).
+            MOVE "PMC_" TO D-PREFIX(94).
             MOVE 4 TO D-PREFIX-LEN(94).
-            MOVE "incident_postmortem_core" TO D-PROGRAM(94).
-            MOVE "RPB_" TO D-PREFIX(95).
+            MOVE "payment_clearing_core" TO D-PROGRAM(94).
+            MOVE "PAT_" TO D-PREFIX(95).
             MOVE 4 TO D-PREFIX-LEN(95).
-            MOVE "report_builder_core" TO D-PROGRAM(95).
-            MOVE "PRD_" TO D-PREFIX(96).
+            MOVE "policy_attestation_core" TO D-PROGRAM(95).
+            MOVE "LSC_" TO D-PREFIX(96).
             MOVE 4 TO D-PREFIX-LEN(96).
-            MOVE "product_catalog_core" TO D-PROGRAM(96).
-            MOVE "BDR_" TO D-PREFIX(97).
+            MOVE "loan_schedule_core" TO D-PROGRAM(96).
+            MOVE "SCL_" TO D-PREFIX(97).
             MOVE 4 TO D-PREFIX-LEN(97).
-            MOVE "backup_drill_core" TO D-PROGRAM(97).
-            MOVE "PMC_" TO D-PREFIX(98).
+            MOVE "sanctions_list_core" TO D-PROGRAM(97).
+            MOVE "FEE_" TO D-PREFIX(98).
             MOVE 4 TO D-PREFIX-LEN(98).
-            MOVE "payment_clearing_core" TO D-PROGRAM(98).
-            MOVE "PAT_" TO D-PREFIX(99).
+            MOVE "fee_core" TO D-PROGRAM(98).
+            MOVE "RSC_" TO D-PREFIX(99).
             MOVE 4 TO D-PREFIX-LEN(99).
-            MOVE "policy_attestation_core" TO D-PROGRAM(99).
-            MOVE "LSC_" TO D-PREFIX(100).
+            MOVE "report_scheduler_core" TO D-PROGRAM(99).
+            MOVE "RAU_" TO D-PREFIX(100).
             MOVE 4 TO D-PREFIX-LEN(100).
-            MOVE "loan_schedule_core" TO D-PROGRAM(100).
-            MOVE "EXP_" TO D-PREFIX(101).
+            MOVE "report_audit_core" TO D-PROGRAM(100).
+            MOVE "RSK_" TO D-PREFIX(101).
             MOVE 4 TO D-PREFIX-LEN(101).
-            MOVE "export_archive_core" TO D-PROGRAM(101).
-            MOVE "SCL_" TO D-PREFIX(102).
+            MOVE "risk_screening_core" TO D-PROGRAM(101).
+            MOVE "STL_" TO D-PREFIX(102).
             MOVE 4 TO D-PREFIX-LEN(102).
-            MOVE "sanctions_list_core" TO D-PROGRAM(102).
-            MOVE "LBP_" TO D-PREFIX(103).
+            MOVE "statement_delivery_core" TO D-PROGRAM(102).
+            MOVE "RPT_" TO D-PREFIX(103).
             MOVE 4 TO D-PREFIX-LEN(103).
-            MOVE "lbpue_core" TO D-PROGRAM(103).
-            MOVE "FEE_" TO D-PREFIX(104).
+            MOVE "report_core" TO D-PROGRAM(103).
+            MOVE "PAY_" TO D-PREFIX(104).
             MOVE 4 TO D-PREFIX-LEN(104).
-            MOVE "fee_core" TO D-PROGRAM(104).
-            MOVE "DSN_" TO D-PREFIX(105).
+            MOVE "payment_core" TO D-PROGRAM(104).
+            MOVE "EOD_" TO D-PREFIX(105).
             MOVE 4 TO D-PREFIX-LEN(105).
-            MOVE "dispute_notify_core" TO D-PROGRAM(105).
-            MOVE "RSC_" TO D-PREFIX(106).
+            MOVE "eod_core" TO D-PROGRAM(105).
+            MOVE "SLO_" TO D-PREFIX(106).
             MOVE 4 TO D-PREFIX-LEN(106).
-            MOVE "report_scheduler_core" TO D-PROGRAM(106).
-            MOVE "RAU_" TO D-PREFIX(107).
+            MOVE "slo_report_core" TO D-PROGRAM(106).
+            MOVE "TAX_" TO D-PREFIX(107).
             MOVE 4 TO D-PREFIX-LEN(107).
-            MOVE "report_audit_core" TO D-PROGRAM(107).
-            MOVE "KCP_" TO D-PREFIX(108).
+            MOVE "tax_report_core" TO D-PROGRAM(107).
+            MOVE "ONC_" TO D-PREFIX(108).
             MOVE 4 TO D-PREFIX-LEN(108).
-            MOVE "kyc_periodic_core" TO D-PROGRAM(108).
-            MOVE "RSK_" TO D-PREFIX(109).
+            MOVE "oncall_core" TO D-PROGRAM(108).
+            MOVE "NTF_" TO D-PREFIX(109).
             MOVE 4 TO D-PREFIX-LEN(109).
-            MOVE "risk_screening_core" TO D-PROGRAM(109).
-            MOVE "STL_" TO D-PREFIX(110).
+            MOVE "notification_core" TO D-PROGRAM(109).
+            MOVE "PIC_" TO D-PREFIX(110).
             MOVE 4 TO D-PREFIX-LEN(110).
-            MOVE "statement_delivery_core" TO D-PROGRAM(110).
-            MOVE "GRL_" TO D-PREFIX(111).
+            MOVE "payment_instruction_core" TO D-PROGRAM(110).
+            MOVE "PAL_" TO D-PREFIX(111).
             MOVE 4 TO D-PREFIX-LEN(111).
-            MOVE "gl_reval_core" TO D-PROGRAM(111).
-            MOVE "RPT_" TO D-PREFIX(112).
+            MOVE "pipeline_alert_core" TO D-PROGRAM(111).
+            MOVE "SCR_" TO D-PREFIX(112).
             MOVE 4 TO D-PREFIX-LEN(112).
-            MOVE "report_core" TO D-PROGRAM(112).
-            MOVE "PAY_" TO D-PREFIX(113).
+            MOVE "secret_rotation_core" TO D-PROGRAM(112).
+            MOVE "PING" TO D-PREFIX(113).
             MOVE 4 TO D-PREFIX-LEN(113).
-            MOVE "payment_core" TO D-PROGRAM(113).
-            MOVE "DSP_" TO D-PREFIX(114).
+            MOVE "auth_core" TO D-PROGRAM(113).
+            MOVE "DSH_" TO D-PREFIX(114).
             MOVE 4 TO D-PREFIX-LEN(114).
-            MOVE "dispute_ops_core" TO D-PROGRAM(114).
-            MOVE "EOD_" TO D-PREFIX(115).
+            MOVE "dashboard_core" TO D-PROGRAM(114).
+            MOVE "IMP_" TO D-PREFIX(115).
             MOVE 4 TO D-PREFIX-LEN(115).
-            MOVE "eod_core" TO D-PROGRAM(115).
-            MOVE "KYC_" TO D-PREFIX(116).
+            MOVE "import_core" TO D-PROGRAM(115).
+            MOVE "WFA_" TO D-PREFIX(116).
             MOVE 4 TO D-PREFIX-LEN(116).
-            MOVE "kyc_review_core" TO D-PROGRAM(116).
-            MOVE "SLO_" TO D-PREFIX(117).
+            MOVE "workflow_approval_core" TO D-PROGRAM(116).
+            MOVE "TRP_" TO D-PREFIX(117).
             MOVE 4 TO D-PREFIX-LEN(117).
-            MOVE "slo_report_core" TO D-PROGRAM(117).
-            MOVE "TAX_" TO D-PREFIX(118).
+            MOVE "treasury_position_core" TO D-PROGRAM(117).
+            MOVE "SLA_" TO D-PREFIX(118).
             MOVE 4 TO D-PREFIX-LEN(118).
-            MOVE "tax_report_core" TO D-PROGRAM(118).
-            MOVE "FXH_" TO D-PREFIX(119).
+            MOVE "sla_tracking_core" TO D-PROGRAM(118).
+            MOVE "VCC_" TO D-PREFIX(119).
             MOVE 4 TO D-PREFIX-LEN(119).
-            MOVE "fx_hedging_core" TO D-PROGRAM(119).
-            MOVE "ONC_" TO D-PREFIX(120).
+            MOVE "vendor_compliance_core" TO D-PROGRAM(119).
+            MOVE "FAS_" TO D-PREFIX(120).
             MOVE 4 TO D-PREFIX-LEN(120).
-            MOVE "oncall_core" TO D-PROGRAM(120).
-            MOVE "NTF_" TO D-PREFIX(121).
+            MOVE "fixed_asset_core" TO D-PROGRAM(120).
+            MOVE "CSC_" TO D-PREFIX(121).
             MOVE 4 TO D-PREFIX-LEN(121).
-            MOVE "notification_core" TO D-PROGRAM(121).
-            MOVE "PIC_" TO D-PREFIX(122).
+            MOVE "cost_center_core" TO D-PROGRAM(121).
+            MOVE "IRC_" TO D-PREFIX(122).
             MOVE 4 TO D-PREFIX-LEN(122).
-            MOVE "payment_instruction_core" TO D-PROGRAM(122).
-            MOVE "PAL_" TO D-PREFIX(123).
+            MOVE "import_recon_core" TO D-PROGRAM(122).
+            MOVE "ACC_" TO D-PREFIX(123).
             MOVE 4 TO D-PREFIX-LEN(123).
-            MOVE "pipeline_alert_core" TO D-PROGRAM(123).
-            MOVE "FWV_" TO D-PREFIX(124).
+            MOVE "account_core" TO D-PROGRAM(123).
+            MOVE "SHL_" TO D-PREFIX(124).
             MOVE 4 TO D-PREFIX-LEN(124).
-            MOVE "fee_waiver_core" TO D-PROGRAM(124).
-            MOVE "SCR_" TO D-PREFIX(125).
+            MOVE "sanctions_hold_core" TO D-PROGRAM(124).
+            MOVE "NAU_" TO D-PREFIX(125).
             MOVE 4 TO D-PREFIX-LEN(125).
-            MOVE "secret_rotation_core" TO D-PROGRAM(125).
-            MOVE "PING" TO D-PREFIX(126).
+            MOVE "notification_audit_core" TO D-PROGRAM(125).
+            MOVE "STO_" TO D-PREFIX(126).
             MOVE 4 TO D-PREFIX-LEN(126).
-            MOVE "auth_core" TO D-PROGRAM(126).
-            MOVE "DSH_" TO D-PREFIX(127).
+            MOVE "standing_order_core" TO D-PROGRAM(126).
+            MOVE "ODL_" TO D-PREFIX(127).
             MOVE 4 TO D-PREFIX-LEN(127).
-            MOVE "dashboard_core" TO D-PROGRAM(127).
-            MOVE "IMP_" TO D-PREFIX(128).
+            MOVE "oncall_delivery_core" TO D-PROGRAM(127).
+            MOVE "REX_" TO D-PREFIX(128).
             MOVE 4 TO D-PREFIX-LEN(128).
-            MOVE "import_core" TO D-PROGRAM(128).
-            MOVE "WFA_" TO D-PREFIX(129).
+            MOVE "recon_exception_core" TO D-PROGRAM(128).
+            MOVE "VEL_" TO D-PREFIX(129).
             MOVE 4 TO D-PREFIX-LEN(129).
-            MOVE "workflow_approval_core" TO D-PROGRAM(129).
-            MOVE "FOP_" TO D-PREFIX(130).
+            MOVE "fee_core" TO D-PROGRAM(129).
+            MOVE "RPA_" TO D-PREFIX(130).
             MOVE 4 TO D-PREFIX-LEN(130).
-            MOVE "fraud_ops_core" TO D-PROGRAM(130).
-            MOVE "TRP_" TO D-PREFIX(131).
+            MOVE "report_archive_core" TO D-PROGRAM(130).
+            MOVE "VRK_" TO D-PREFIX(131).
             MOVE 4 TO D-PREFIX-LEN(131).
-            MOVE "treasury_position_core" TO D-PROGRAM(131).
-            MOVE "GPC_" TO D-PREFIX(132).
+            MOVE "vendor_risk_core" TO D-PROGRAM(131).
+            MOVE "RMT_" TO D-PREFIX(132).
             MOVE 4 TO D-PREFIX-LEN(132).
-            MOVE "gl_period_close_core" TO D-PROGRAM(132).
-            MOVE "SLA_" TO D-PREFIX(133).
+            MOVE "remittance_core" TO D-PROGRAM(132).
+            MOVE "GLA_" TO D-PREFIX(133).
             MOVE 4 TO D-PREFIX-LEN(133).
-            MOVE "sla_tracking_core" TO D-PROGRAM(133).
-            MOVE "INC_" TO D-PREFIX(134).
+            MOVE "gl_allocation_core" TO D-PROGRAM(133).
+            MOVE "STR_" TO D-PREFIX(134).
             MOVE 4 TO D-PREFIX-LEN(134).
-            MOVE "incident_core" TO D-PROGRAM(134).
-            MOVE "XST_" TO D-PREFIX(135).
+            MOVE "settlement_recon_core" TO D-PROGRAM(134).
+            MOVE "VND_" TO D-PREFIX(135).
             MOVE 4 TO D-PREFIX-LEN(135).
-            MOVE "export_stream_core" TO D-PROGRAM(135).
-            MOVE "DSR_" TO D-PREFIX(136).
+            MOVE "vendor_core" TO D-PROGRAM(135).
+            MOVE "RCP_" TO D-PREFIX(136).
             MOVE 4 TO D-PREFIX-LEN(136).
-            MOVE "dsar_core" TO D-PROGRAM(136).
-            MOVE "VCC_" TO D-PREFIX(137).
+            MOVE "recon_ops_core" TO D-PROGRAM(136).
+            MOVE "DEP_" TO D-PREFIX(137).
             MOVE 4 TO D-PREFIX-LEN(137).
-            MOVE "vendor_compliance_core" TO D-PROGRAM(137).
-            MOVE "FAS_" TO D-PREFIX(138).
+            MOVE "deposit_core" TO D-PROGRAM(137).
+            MOVE "PRC_" TO D-PREFIX(138).
             MOVE 4 TO D-PREFIX-LEN(138).
-            MOVE "fixed_asset_core" TO D-PROGRAM(138).
-            MOVE "LHO_" TO D-PREFIX(139).
+            MOVE "procurement_core" TO D-PROGRAM(138).
+            MOVE "COL_" TO D-PREFIX(139).
             MOVE 4 TO D-PREFIX-LEN(139).
-            MOVE "legal_hold_core" TO D-PROGRAM(139).
-            MOVE "CSC_" TO D-PREFIX(140).
+            MOVE "collection_core" TO D-PROGRAM(139).
+            MOVE "MDF_" TO D-PREFIX(140).
             MOVE 4 TO D-PREFIX-LEN(140).
-            MOVE "cost_center_core" TO D-PROGRAM(140).
-            MOVE "IRC_" TO D-PREFIX(141).
+            MOVE "metric_definition_core" TO D-PROGRAM(140).
+            MOVE "RTJ_" TO D-PREFIX(141).
             MOVE 4 TO D-PREFIX-LEN(141).
-            MOVE "import_recon_core" TO D-PROGRAM(141).
-            MOVE "ACC_" TO D-PREFIX(142).
+            MOVE "retention_job_core" TO D-PROGRAM(141).
+            MOVE "RDL_" TO D-PREFIX(142).
             MOVE 4 TO D-PREFIX-LEN(142).
-            MOVE "account_core" TO D-PROGRAM(142).
-            MOVE "SHL_" TO D-PREFIX(143).
+            MOVE "report_delivery_core" TO D-PROGRAM(142).
+            MOVE "RFE_" TO D-PREFIX(143).
             MOVE 4 TO D-PREFIX-LEN(143).
-            MOVE "sanctions_hold_core" TO D-PROGRAM(143).
-            MOVE "NAU_" TO D-PREFIX(144).
+            MOVE "ref_engine" TO D-PROGRAM(143).
+            MOVE "PHL_" TO D-PREFIX(144).
             MOVE 4 TO D-PREFIX-LEN(144).
-            MOVE "notification_audit_core" TO D-PROGRAM(144).
-            MOVE "KRO_" TO D-PREFIX(145).
+            MOVE "payment_hold_core" TO D-PROGRAM(144).
+            MOVE "CLT_" TO D-PREFIX(145).
             MOVE 4 TO D-PREFIX-LEN(145).
-            MOVE "key_rotation_core" TO D-PROGRAM(145).
-            MOVE "STO_" TO D-PREFIX(146).
+            MOVE "collateral_core" TO D-PROGRAM(145).
+            MOVE "RCL_" TO D-PREFIX(146).
             MOVE 4 TO D-PREFIX-LEN(146).
-            MOVE "standing_order_core" TO D-PROGRAM(146).
-            MOVE "ODL_" TO D-PREFIX(147).
-            MOVE 4 TO D-PREFIX-LEN(147).
-            MOVE "oncall_delivery_core" TO D-PROGRAM(147).
-            MOVE "REX_" TO D-PREFIX(148).
-            MOVE 4 TO D-PREFIX-LEN(148).
-            MOVE "recon_exception_core" TO D-PROGRAM(148).
-            MOVE "VEL_" TO D-PREFIX(149).
+            MOVE "regulatory_calendar_core" TO D-PROGRAM(146).
+            MOVE "RX_" TO D-PREFIX(147).
+            MOVE 3 TO D-PREFIX-LEN(147).
+            MOVE "ref_ext_core" TO D-PROGRAM(147).
+            MOVE "GL_" TO D-PREFIX(148).
+            MOVE 3 TO D-PREFIX-LEN(148).
+            MOVE "gl_core" TO D-PROGRAM(148).
+            MOVE "MRT_" TO D-PREFIX(149).
             MOVE 4 TO D-PREFIX-LEN(149).
-            MOVE "fee_core" TO D-PROGRAM(149).
-            MOVE "DCR_" TO D-PREFIX(150).
+            MOVE "merchant_core" TO D-PROGRAM(149).
+            MOVE "TRF_" TO D-PREFIX(150).
             MOVE 4 TO D-PREFIX-LEN(150).
-            MOVE "disaster_recovery_core" TO D-PROGRAM(150).
-            MOVE "RPA_" TO D-PREFIX(151).
+            MOVE "trade_finance_core" TO D-PROGRAM(150).
+            MOVE "TSD_" TO D-PREFIX(151).
             MOVE 4 TO D-PREFIX-LEN(151).
-            MOVE "report_archive_core" TO D-PROGRAM(151).
-            MOVE "VRK_" TO D-PREFIX(152).
-            MOVE 4 TO D-PREFIX-LEN(152).
-            MOVE "vendor_risk_core" TO D-PROGRAM(152).
-            MOVE "RMT_" TO D-PREFIX(153).
+            MOVE "treasury_deal_core" TO D-PROGRAM(151).
+            MOVE "CREP_" TO D-PREFIX(152).
+            MOVE 5 TO D-PREFIX-LEN(152).
+            MOVE "collateral_mgmt_core" TO D-PROGRAM(152).
+            MOVE "SIN_" TO D-PREFIX(153).
             MOVE 4 TO D-PREFIX-LEN(153).
-            MOVE "remittance_core" TO D-PROGRAM(153).
-            MOVE "GLA_" TO D-PREFIX(154).
+            MOVE "standing_instruction_core" TO D-PROGRAM(153).
+            MOVE "NTP_" TO D-PREFIX(154).
             MOVE 4 TO D-PREFIX-LEN(154).
-            MOVE "gl_allocation_core" TO D-PROGRAM(154).
-            MOVE "STR_" TO D-PREFIX(155).
+            MOVE "notification_template_core" TO D-PROGRAM(154).
+            MOVE "RPS_" TO D-PREFIX(155).
             MOVE 4 TO D-PREFIX-LEN(155).
-            MOVE "settlement_recon_core" TO D-PROGRAM(155).
-            MOVE "FXD_" TO D-PREFIX(156).
+            MOVE "report_schedule_core" TO D-PROGRAM(155).
+            MOVE "SLT_" TO D-PREFIX(156).
             MOVE 4 TO D-PREFIX-LEN(156).
-            MOVE "fx_deal_core" TO D-PROGRAM(156).
-            MOVE "VND_" TO D-PREFIX(157).
+            MOVE "sla_tracker_core" TO D-PROGRAM(156).
+            MOVE "CCL_" TO D-PREFIX(157).
             MOVE 4 TO D-PREFIX-LEN(157).
-            MOVE "vendor_core" TO D-PROGRAM(157).
-            MOVE "RCP_" TO D-PREFIX(158).
+            MOVE "compliance_calendar_core" TO D-PROGRAM(157).
+            MOVE "ASM_" TO D-PREFIX(158).
             MOVE 4 TO D-PREFIX-LEN(158).
-            MOVE "recon_ops_core" TO D-PROGRAM(158).
-            MOVE "DEP_" TO D-PREFIX(159).
+            MOVE "asset_management_core" TO D-PROGRAM(158).
+            MOVE "POM_" TO D-PREFIX(159).
             MOVE 4 TO D-PREFIX-LEN(159).
-            MOVE "deposit_core" TO D-PROGRAM(159).
-            MOVE "PRC_" TO D-PREFIX(160).
+            MOVE "portfolio_management_core" TO D-PROGRAM(159).
+            MOVE "LOC_" TO D-PREFIX(160).
             MOVE 4 TO D-PREFIX-LEN(160).
-            MOVE "procurement_core" TO D-PROGRAM(160).
-            MOVE "COL_" TO D-PREFIX(161).
+            MOVE "letter_of_credit_core" TO D-PROGRAM(160).
+            MOVE "BKG_" TO D-PREFIX(161).
             MOVE 4 TO D-PREFIX-LEN(161).
-            MOVE "collection_core" TO D-PROGRAM(161).
-            MOVE "MDF_" TO D-PREFIX(162).
+            MOVE "bank_guarantee_core" TO D-PROGRAM(161).
+            MOVE "SCF_" TO D-PREFIX(162).
             MOVE 4 TO D-PREFIX-LEN(162).
-            MOVE "metric_definition_core" TO D-PROGRAM(162).
-            MOVE "RTJ_" TO D-PREFIX(163).
+            MOVE "supply_chain_finance_core" TO D-PROGRAM(162).
+            MOVE "PRL_" TO D-PREFIX(163).
             MOVE 4 TO D-PREFIX-LEN(163).
-            MOVE "retention_job_core" TO D-PROGRAM(163).
-            MOVE "RDL_" TO D-PREFIX(164).
+            MOVE "payroll_processing_core" TO D-PROGRAM(163).
+            MOVE "WLM_" TO D-PREFIX(164).
             MOVE 4 TO D-PREFIX-LEN(164).
-            MOVE "report_delivery_core" TO D-PROGRAM(164).
-            MOVE "RFE_" TO D-PREFIX(165).
+            MOVE "wealth_management_core" TO D-PROGRAM(164).
+            MOVE "MCS_" TO D-PREFIX(165).
             MOVE 4 TO D-PREFIX-LEN(165).
-            MOVE "ref_engine" TO D-PROGRAM(165).
-            MOVE "PHL_" TO D-PREFIX(166).
+            MOVE "merchant_settlement_core" TO D-PROGRAM(165).
+            MOVE "PWG_" TO D-PREFIX(166).
             MOVE 4 TO D-PREFIX-LEN(166).
-            MOVE "payment_hold_core" TO D-PROGRAM(166).
-            MOVE "CLT_" TO D-PREFIX(167).
+            MOVE "payment_gateway_core" TO D-PROGRAM(166).
+            MOVE "MBW_" TO D-PREFIX(167).
             MOVE 4 TO D-PREFIX-LEN(167).
-            MOVE "collateral_core" TO D-PROGRAM(167).
-            MOVE "LPR_" TO D-PREFIX(168).
+            MOVE "mobile_wallet_core" TO D-PROGRAM(167).
+            MOVE "RTM_" TO D-PREFIX(168).
             MOVE 4 TO D-PREFIX-LEN(168).
-            MOVE "limit_profile_core" TO D-PROGRAM(168).
-            MOVE "RCL_" TO D-PREFIX(169).
+            MOVE "rate_management_core" TO D-PROGRAM(168).
+            MOVE "TXM_" TO D-PREFIX(169).
             MOVE 4 TO D-PREFIX-LEN(169).
-            MOVE "regulatory_calendar_core" TO D-PROGRAM(169).
-            MOVE "RX_" TO D-PREFIX(170).
-            MOVE 3 TO D-PREFIX-LEN(170).
-            MOVE "ref_ext_core" TO D-PROGRAM(170).
-            MOVE "GL_" TO D-PREFIX(171).
-            MOVE 3 TO D-PREFIX-LEN(171).
-            MOVE "gl_core" TO D-PROGRAM(171).
-            MOVE "MRT_" TO D-PREFIX(172).
+            MOVE "tax_management_core" TO D-PROGRAM(169).
+            MOVE "SGC_" TO D-PREFIX(170).
+            MOVE 4 TO D-PREFIX-LEN(170).
+            MOVE "system_config_core" TO D-PROGRAM(170).
+            MOVE "UAC_" TO D-PREFIX(171).
+            MOVE 4 TO D-PREFIX-LEN(171).
+            MOVE "user_activity_core" TO D-PROGRAM(171).
+            MOVE "RLM_" TO D-PREFIX(172).
             MOVE 4 TO D-PREFIX-LEN(172).
-            MOVE "merchant_core" TO D-PROGRAM(172).
-            MOVE "TRF_" TO D-PREFIX(173).
+            MOVE "role_management_core" TO D-PROGRAM(172).
+            MOVE "PMS_" TO D-PREFIX(173).
             MOVE 4 TO D-PREFIX-LEN(173).
-            MOVE "trade_finance_core" TO D-PROGRAM(173).
-            MOVE "TSD_" TO D-PREFIX(174).
+            MOVE "permission_set_core" TO D-PROGRAM(173).
+            MOVE "ORG_" TO D-PREFIX(174).
             MOVE 4 TO D-PREFIX-LEN(174).
-            MOVE "treasury_deal_core" TO D-PROGRAM(174).
-            MOVE "CREP_" TO D-PREFIX(175).
-            MOVE 5 TO D-PREFIX-LEN(175).
-            MOVE "collateral_mgmt_core" TO D-PROGRAM(175).
-            MOVE "SIN_" TO D-PREFIX(176).
+            MOVE "organization_unit_core" TO D-PROGRAM(174).
+            MOVE "TKN_" TO D-PREFIX(175).
+            MOVE 4 TO D-PREFIX-LEN(175).
+            MOVE "tokenization_core" TO D-PROGRAM(175).
+            MOVE "SMC_" TO D-PREFIX(176).
             MOVE 4 TO D-PREFIX-LEN(176).
-            MOVE "standing_instruction_core" TO D-PROGRAM(176).
-            MOVE "DDB_" TO D-PREFIX(177).
+            MOVE "smart_contract_core" TO D-PROGRAM(176).
+            MOVE "NFT_" TO D-PREFIX(177).
             MOVE 4 TO D-PREFIX-LEN(177).
-            MOVE "direct_debit_core" TO D-PROGRAM(177).
-            MOVE "NTP_" TO D-PREFIX(178).
+            MOVE "nft_management_core" TO D-PROGRAM(177).
+            MOVE "OPN_" TO D-PREFIX(178).
             MOVE 4 TO D-PREFIX-LEN(178).
-            MOVE "notification_template_core" TO D-PROGRAM(178).
-            MOVE "RPS_" TO D-PREFIX(179).
+            MOVE "open_banking_core" TO D-PROGRAM(178).
+            MOVE "PIS_" TO D-PREFIX(179).
             MOVE 4 TO D-PREFIX-LEN(179).
-            MOVE "report_schedule_core" TO D-PROGRAM(179).
-            MOVE "SLT_" TO D-PREFIX(180).
+            MOVE "pisp_management_core" TO D-PROGRAM(179).
+            MOVE "DSM_" TO D-PREFIX(180).
             MOVE 4 TO D-PREFIX-LEN(180).
-            MOVE "sla_tracker_core" TO D-PROGRAM(180).
-            MOVE "CCL_" TO D-PREFIX(181).
+            MOVE "dispute_management_core" TO D-PROGRAM(180).
+            MOVE "CHB_" TO D-PREFIX(181).
             MOVE 4 TO D-PREFIX-LEN(181).
-            MOVE "compliance_calendar_core" TO D-PROGRAM(181).
-            MOVE "ASM_" TO D-PREFIX(182).
+            MOVE "chargeback_core" TO D-PROGRAM(181).
+            MOVE "RFP_" TO D-PREFIX(182).
             MOVE 4 TO D-PREFIX-LEN(182).
-            MOVE "asset_management_core" TO D-PROGRAM(182).
-            MOVE "POM_" TO D-PREFIX(183).
+            MOVE "refund_processing_core" TO D-PROGRAM(182).
+            MOVE "VLT_" TO D-PREFIX(183).
             MOVE 4 TO D-PREFIX-LEN(183).
-            MOVE "portfolio_management_core" TO D-PROGRAM(183).
-            MOVE "LOC_" TO D-PREFIX(184).
+            MOVE "vault_management_core" TO D-PROGRAM(183).
+            MOVE "TLR_" TO D-PREFIX(184).
             MOVE 4 TO D-PREFIX-LEN(184).
-            MOVE "letter_of_credit_core" TO D-PROGRAM(184).
-            MOVE "BKG_" TO D-PREFIX(185).
+            MOVE "teller_management_core" TO D-PROGRAM(184).
+            MOVE "SWP_" TO D-PREFIX(185).
             MOVE 4 TO D-PREFIX-LEN(185).
-            MOVE "bank_guarantee_core" TO D-PROGRAM(185).
-            MOVE "IVC_" TO D-PREFIX(186).
+            MOVE "swap_contract_core" TO D-PROGRAM(185).
+            MOVE "OPT_" TO D-PREFIX(186).
             MOVE 4 TO D-PREFIX-LEN(186).
-            MOVE "invoice_financing_core" TO D-PROGRAM(186).
-            MOVE "SCF_" TO D-PREFIX(187).
+            MOVE "option_trading_core" TO D-PROGRAM(186).
+            MOVE "RPO_" TO D-PREFIX(187).
             MOVE 4 TO D-PREFIX-LEN(187).
-            MOVE "supply_chain_finance_core" TO D-PROGRAM(187).
-            MOVE "PRL_" TO D-PREFIX(188).
+            MOVE "repo_agreement_core" TO D-PROGRAM(187).
+            MOVE "SEL_" TO D-PREFIX(188).
             MOVE 4 TO D-PREFIX-LEN(188).
-            MOVE "payroll_processing_core" TO D-PROGRAM(188).
-            MOVE "WLM_" TO D-PREFIX(189).
+            MOVE "securities_lending_core" TO D-PROGRAM(188).
+            MOVE "STP_" TO D-PREFIX(189).
             MOVE 4 TO D-PREFIX-LEN(189).
-            MOVE "wealth_management_core" TO D-PROGRAM(189).
-            MOVE "ESC_" TO D-PREFIX(190).
+            MOVE "structured_product_core" TO D-PROGRAM(189).
+            MOVE "SYL_" TO D-PREFIX(190).
             MOVE 4 TO D-PREFIX-LEN(190).
-            MOVE "escrow_account_core" TO D-PROGRAM(190).
-            MOVE "DBC_" TO D-PREFIX(191).
+            MOVE "syndicated_loan_core" TO D-PROGRAM(190).
+            MOVE "RIC_" TO D-PREFIX(191).
             MOVE 4 TO D-PREFIX-LEN(191).
-            MOVE "debit_card_core" TO D-PROGRAM(191).
-            MOVE "MCS_" TO D-PREFIX(192).
+            MOVE "reinsurance_contract_core" TO D-PROGRAM(191).
+            MOVE "PAD_" TO D-PREFIX(192).
             MOVE 4 TO D-PREFIX-LEN(192).
-            MOVE "merchant_settlement_core" TO D-PROGRAM(192).
-            MOVE "PWG_" TO D-PREFIX(193).
+            MOVE "policy_administration_core" TO D-PROGRAM(192).
+            MOVE "CRP_" TO D-PREFIX(193).
             MOVE 4 TO D-PREFIX-LEN(193).
-            MOVE "payment_gateway_core" TO D-PROGRAM(193).
-            MOVE "MBW_" TO D-PREFIX(194).
+            MOVE "collateral_repossession_core" TO D-PROGRAM(193).
+            MOVE "WOF_" TO D-PREFIX(194).
             MOVE 4 TO D-PREFIX-LEN(194).
-            MOVE "mobile_wallet_core" TO D-PROGRAM(194).
-            MOVE "DGB_" TO D-PREFIX(195).
+            MOVE "write_off_core" TO D-PROGRAM(194).
+            MOVE "PRV_" TO D-PREFIX(195).
             MOVE 4 TO D-PREFIX-LEN(195).
-            MOVE "digital_banking_core" TO D-PROGRAM(195).
-            MOVE "INB_" TO D-PREFIX(196).
+            MOVE "provisioning_core" TO D-PROGRAM(195).
+            MOVE "RSM_" TO D-PREFIX(196).
             MOVE 4 TO D-PREFIX-LEN(196).
-            MOVE "internet_banking_core" TO D-PROGRAM(196).
-            MOVE "RTM_" TO D-PREFIX(197).
+            MOVE "risk_model_core" TO D-PROGRAM(196).
+            MOVE "SST_" TO D-PREFIX(197).
             MOVE 4 TO D-PREFIX-LEN(197).
-            MOVE "rate_management_core" TO D-PROGRAM(197).
-            MOVE "FMM_" TO D-PREFIX(198).
+            MOVE "stress_test_core" TO D-PROGRAM(197).
+            MOVE "WHB_" TO D-PREFIX(198).
             MOVE 4 TO D-PREFIX-LEN(198).
-            MOVE "fee_management_core" TO D-PROGRAM(198).
-            MOVE "TXM_" TO D-PREFIX(199).
+            MOVE "whistleblowing_core" TO D-PROGRAM(198).
+            MOVE "VDM_" TO D-PREFIX(199).
             MOVE 4 TO D-PREFIX-LEN(199).
-            MOVE "tax_management_core" TO D-PROGRAM(199).
-            MOVE "SGC_" TO D-PREFIX(200).
+            MOVE "vendor_management_core" TO D-PROGRAM(199).
+            MOVE "OSC_" TO D-PREFIX(200).
             MOVE 4 TO D-PREFIX-LEN(200).
-            MOVE "system_config_core" TO D-PROGRAM(200).
-            MOVE "UAC_" TO D-PREFIX(201).
+            MOVE "outsourcing_contract_core" TO D-PROGRAM(200).
+            MOVE "LYP_" TO D-PREFIX(201).
             MOVE 4 TO D-PREFIX-LEN(201).
-            MOVE "user_activity_core" TO D-PROGRAM(201).
-            MOVE "RLM_" TO D-PREFIX(202).
+            MOVE "loyalty_program_core" TO D-PROGRAM(201).
+            MOVE "RWD_" TO D-PREFIX(202).
             MOVE 4 TO D-PREFIX-LEN(202).
-            MOVE "role_management_core" TO D-PROGRAM(202).
-            MOVE "PMS_" TO D-PREFIX(203).
+            MOVE "rewards_management_core" TO D-PROGRAM(202).
+            MOVE "CSB_" TO D-PREFIX(203).
             MOVE 4 TO D-PREFIX-LEN(203).
-            MOVE "permission_set_core" TO D-PROGRAM(203).
-            MOVE "ORG_" TO D-PREFIX(204).
+            MOVE "cashback_core" TO D-PROGRAM(203).
+            MOVE "PTR_" TO D-PREFIX(204).
             MOVE 4 TO D-PREFIX-LEN(204).
-            MOVE "organization_unit_core" TO D-PROGRAM(204).
-            MOVE "DAS_" TO D-PREFIX(205).
+            MOVE "points_redemption_core" TO D-PROGRAM(204).
+            MOVE "PPC_" TO D-PREFIX(205).
             MOVE 4 TO D-PREFIX-LEN(205).
-            MOVE "digital_asset_core" TO D-PROGRAM(205).
-            MOVE "TKN_" TO D-PREFIX(206).
+            MOVE "prepaid_card_core" TO D-PROGRAM(205).
+            MOVE "VRC_" TO D-PREFIX(206).
             MOVE 4 TO D-PREFIX-LEN(206).
-            MOVE "tokenization_core" TO D-PROGRAM(206).
-            MOVE "SMC_" TO D-PREFIX(207).
+            MOVE "virtual_card_core" TO D-PROGRAM(206).
+            MOVE "PML_" TO D-PREFIX(207).
             MOVE 4 TO D-PREFIX-LEN(207).
-            MOVE "smart_contract_core" TO D-PROGRAM(207).
-            MOVE "NFT_" TO D-PREFIX(208).
+            MOVE "payment_link_core" TO D-PROGRAM(207).
+            MOVE "QRP_" TO D-PREFIX(208).
             MOVE 4 TO D-PREFIX-LEN(208).
-            MOVE "nft_management_core" TO D-PROGRAM(208).
-            MOVE "OPN_" TO D-PREFIX(209).
+            MOVE "qr_payment_core" TO D-PROGRAM(208).
+            MOVE "SSM_" TO D-PREFIX(209).
             MOVE 4 TO D-PREFIX-LEN(209).
-            MOVE "open_banking_core" TO D-PROGRAM(209).
-            MOVE "PIS_" TO D-PREFIX(210).
+            MOVE "session_management_core" TO D-PROGRAM(209).
+            MOVE "TKM_" TO D-PREFIX(210).
             MOVE 4 TO D-PREFIX-LEN(210).
-            MOVE "pisp_management_core" TO D-PROGRAM(210).
-            MOVE "DSM_" TO D-PREFIX(211).
+            MOVE "token_management_core" TO D-PROGRAM(210).
+            MOVE "OTP_" TO D-PREFIX(211).
             MOVE 4 TO D-PREFIX-LEN(211).
-            MOVE "dispute_management_core" TO D-PROGRAM(211).
-            MOVE "CHB_" TO D-PREFIX(212).
+            MOVE "otp_management_core" TO D-PROGRAM(211).
+            MOVE "MFA_" TO D-PREFIX(212).
             MOVE 4 TO D-PREFIX-LEN(212).
-            MOVE "chargeback_core" TO D-PROGRAM(212).
-            MOVE "RFP_" TO D-PREFIX(213).
+            MOVE "mfa_management_core" TO D-PROGRAM(212).
+            MOVE "PWP_" TO D-PREFIX(213).
             MOVE 4 TO D-PREFIX-LEN(213).
-            MOVE "refund_processing_core" TO D-PROGRAM(213).
-            MOVE "VLT_" TO D-PREFIX(214).
+            MOVE "password_policy_core" TO D-PROGRAM(213).
+            MOVE "TXL_" TO D-PREFIX(214).
             MOVE 4 TO D-PREFIX-LEN(214).
-            MOVE "vault_management_core" TO D-PROGRAM(214).
-            MOVE "TLR_" TO D-PREFIX(215).
+            MOVE "transaction_limit_core" TO D-PROGRAM(214).
+            MOVE "VLC_" TO D-PREFIX(215).
             MOVE 4 TO D-PREFIX-LEN(215).
-            MOVE "teller_management_core" TO D-PROGRAM(215).
-            MOVE "SWP_" TO D-PREFIX(216).
+            MOVE "velocity_check_core" TO D-PROGRAM(215).
+            MOVE "RKS_" TO D-PREFIX(216).
             MOVE 4 TO D-PREFIX-LEN(216).
-            MOVE "swap_contract_core" TO D-PROGRAM(216).
-            MOVE "FTC_" TO D-PREFIX(217).
+            MOVE "risk_score_core" TO D-PROGRAM(216).
+            MOVE "WHT_" TO D-PREFIX(217).
             MOVE 4 TO D-PREFIX-LEN(217).
-            MOVE "future_contract_core" TO D-PROGRAM(217).
-            MOVE "OPT_" TO D-PREFIX(218).
+            MOVE "whitelist_core" TO D-PROGRAM(217).
+            MOVE "WTC_" TO D-PREFIX(218).
             MOVE 4 TO D-PREFIX-LEN(218).
-            MOVE "option_trading_core" TO D-PROGRAM(218).
-            MOVE "RPO_" TO D-PREFIX(219).
+            MOVE "watchlist_core" TO D-PROGRAM(218).
+            MOVE "PEP_" TO D-PREFIX(219).
             MOVE 4 TO D-PREFIX-LEN(219).
-            MOVE "repo_agreement_core" TO D-PROGRAM(219).
-            MOVE "SEL_" TO D-PREFIX(220).
+            MOVE "pep_screening_core" TO D-PROGRAM(219).
+            MOVE "NSC_" TO D-PREFIX(220).
             MOVE 4 TO D-PREFIX-LEN(220).
-            MOVE "securities_lending_core" TO D-PROGRAM(220).
-            MOVE "MGT_" TO D-PREFIX(221).
+            MOVE "name_screening_core" TO D-PROGRAM(220).
+            MOVE "SAV_" TO D-PREFIX(221).
             MOVE 4 TO D-PREFIX-LEN(221).
-            MOVE "margin_trading_core" TO D-PROGRAM(221).
-            MOVE "STP_" TO D-PREFIX(222).
+            MOVE "savings_account_core" TO D-PROGRAM(221).
+            MOVE "TDP_" TO D-PREFIX(222).
             MOVE 4 TO D-PREFIX-LEN(222).
-            MOVE "structured_product_core" TO D-PROGRAM(222).
-            MOVE "SYL_" TO D-PREFIX(223).
+            MOVE "term_deposit_core" TO D-PROGRAM(222).
+            MOVE "RDP_" TO D-PREFIX(223).
             MOVE 4 TO D-PREFIX-LEN(223).
-            MOVE "syndicated_loan_core" TO D-PROGRAM(223).
-            MOVE "ISP_" TO D-PREFIX(224).
+            MOVE "recurring_deposit_core" TO D-PROGRAM(223).
+            MOVE "NDP_" TO D-PREFIX(224).
             MOVE 4 TO D-PREFIX-LEN(224).
-            MOVE "insurance_policy_core" TO D-PROGRAM(224).
-            MOVE "RIC_" TO D-PREFIX(225).
+            MOVE "notice_deposit_core" TO D-PROGRAM(224).
+            MOVE "MCC_" TO D-PREFIX(225).
             MOVE 4 TO D-PREFIX-LEN(225).
-            MOVE "reinsurance_contract_core" TO D-PROGRAM(225).
-            MOVE "PAD_" TO D-PREFIX(226).
+            MOVE "multi_currency_core" TO D-PROGRAM(225).
+            MOVE "TRS_" TO D-PREFIX(226).
             MOVE 4 TO D-PREFIX-LEN(226).
-            MOVE "policy_administration_core" TO D-PROGRAM(226).
-            MOVE "GIN_" TO D-PREFIX(227).
+            MOVE "total_return_swap_core" TO D-PROGRAM(226).
+            MOVE "VRS_" TO D-PREFIX(227).
             MOVE 4 TO D-PREFIX-LEN(227).
-            MOVE "guarantee_issuing_core" TO D-PROGRAM(227).
-            MOVE "DCL_" TO D-PREFIX(228).
+            MOVE "variance_swap_core" TO D-PROGRAM(227).
+            MOVE "VOL_" TO D-PREFIX(228).
             MOVE 4 TO D-PREFIX-LEN(228).
-            MOVE "debt_collection_core" TO D-PROGRAM(228).
-            MOVE "DRC_" TO D-PREFIX(229).
+            MOVE "volatility_core" TO D-PROGRAM(228).
+            MOVE "PRG_" TO D-PREFIX(229).
             MOVE 4 TO D-PREFIX-LEN(229).
-            MOVE "debt_recovery_core" TO D-PROGRAM(229).
-            MOVE "LGC_" TO D-PREFIX(230).
+            MOVE "pricing_core" TO D-PROGRAM(229).
+            MOVE "VAL_" TO D-PREFIX(230).
             MOVE 4 TO D-PREFIX-LEN(230).
-            MOVE "legal_case_core" TO D-PROGRAM(230).
-            MOVE "CRP_" TO D-PREFIX(231).
+            MOVE "valuation_core" TO D-PROGRAM(230).
+            MOVE "PNL_" TO D-PREFIX(231).
             MOVE 4 TO D-PREFIX-LEN(231).
-            MOVE "collateral_repossession_core" TO D-PROGRAM(231).
-            MOVE "FCL_" TO D-PREFIX(232).
+            MOVE "pnl_core" TO D-PROGRAM(231).
+            MOVE "REV_" TO D-PREFIX(232).
             MOVE 4 TO D-PREFIX-LEN(232).
-            MOVE "foreclosure_core" TO D-PROGRAM(232).
-            MOVE "WOF_" TO D-PREFIX(233).
+            MOVE "revenue_core" TO D-PROGRAM(232).
+            MOVE "PRF_" TO D-PREFIX(233).
             MOVE 4 TO D-PREFIX-LEN(233).
-            MOVE "write_off_core" TO D-PROGRAM(233).
-            MOVE "PRV_" TO D-PREFIX(234).
+            MOVE "profit_core" TO D-PROGRAM(233).
+            MOVE "POS_" TO D-PREFIX(234).
             MOVE 4 TO D-PREFIX-LEN(234).
-            MOVE "provisioning_core" TO D-PROGRAM(234).
-            MOVE "LSR_" TO D-PREFIX(235).
+            MOVE "position_core" TO D-PROGRAM(234).
+            MOVE "PER_" TO D-PREFIX(235).
             MOVE 4 TO D-PREFIX-LEN(235).
-            MOVE "loss_reserve_core" TO D-PROGRAM(235).
-            MOVE "RSM_" TO D-PREFIX(236).
+            MOVE "performance_core" TO D-PROGRAM(235).
+            MOVE "TRN_" TO D-PREFIX(236).
             MOVE 4 TO D-PREFIX-LEN(236).
-            MOVE "risk_model_core" TO D-PROGRAM(236).
-            MOVE "SST_" TO D-PREFIX(237).
+            MOVE "training_core" TO D-PROGRAM(236).
+            MOVE "REC_" TO D-PREFIX(237).
             MOVE 4 TO D-PREFIX-LEN(237).
-            MOVE "stress_test_core" TO D-PROGRAM(237).
-            MOVE "INA_" TO D-PREFIX(238).
+            MOVE "recruitment_core" TO D-PROGRAM(237).
+            MOVE "ONB_" TO D-PREFIX(238).
             MOVE 4 TO D-PREFIX-LEN(238).
-            MOVE "internal_audit_core" TO D-PROGRAM(238).
-            MOVE "EXA_" TO D-PREFIX(239).
+            MOVE "onboarding_core" TO D-PROGRAM(238).
+            MOVE "OFB_" TO D-PREFIX(239).
             MOVE 4 TO D-PREFIX-LEN(239).
-            MOVE "external_audit_core" TO D-PROGRAM(239).
-            MOVE "INV_" TO D-PREFIX(240).
+            MOVE "offboarding_core" TO D-PROGRAM(239).
+            MOVE "PEN_" TO D-PREFIX(240).
             MOVE 4 TO D-PREFIX-LEN(240).
-            MOVE "investigation_core" TO D-PROGRAM(240).
-            MOVE "WHB_" TO D-PREFIX(241).
+            MOVE "pension_core" TO D-PROGRAM(240).
+            MOVE "TXW_" TO D-PREFIX(241).
             MOVE 4 TO D-PREFIX-LEN(241).
-            MOVE "whistleblowing_core" TO D-PROGRAM(241).
-            MOVE "INR_" TO D-PREFIX(242).
+            MOVE "tax_withholding_core" TO D-PROGRAM(241).
+            MOVE "SUB_" TO D-PREFIX(242).
             MOVE 4 TO D-PREFIX-LEN(242).
-            MOVE "incident_report_core" TO D-PROGRAM(242).
-            MOVE "VDM_" TO D-PREFIX(243).
+            MOVE "subscription_core" TO D-PROGRAM(242).
+            MOVE "SLV_" TO D-PREFIX(243).
             MOVE 4 TO D-PREFIX-LEN(243).
-            MOVE "vendor_management_core" TO D-PROGRAM(243).
-            MOVE "OSC_" TO D-PREFIX(244).
+            MOVE "sla_management_core" TO D-PROGRAM(243).
+            MOVE "MET_" TO D-PREFIX(244).
             MOVE 4 TO D-PREFIX-LEN(244).
-            MOVE "outsourcing_contract_core" TO D-PROGRAM(244).
-            MOVE "LYP_" TO D-PREFIX(245).
-            MOVE 4 TO D-PREFIX-LEN(245).
-            MOVE "loyalty_program_core" TO D-PROGRAM(245).
-            MOVE "RWD_" TO D-PREFIX(246).
+            MOVE "metric_core" TO D-PROGRAM(244).
+            MOVE "RPTG_" TO D-PREFIX(245).
+            MOVE 5 TO D-PREFIX-LEN(245).
+            MOVE "reporting_core" TO D-PROGRAM(245).
+            MOVE "SMS_" TO D-PREFIX(246).
             MOVE 4 TO D-PREFIX-LEN(246).
-            MOVE "rewards_management_core" TO D-PROGRAM(246).
-            MOVE "CSB_" TO D-PREFIX(247).
+            MOVE "sms_core" TO D-PROGRAM(246).
+            MOVE "PSH_" TO D-PREFIX(247).
             MOVE 4 TO D-PREFIX-LEN(247).
-            MOVE "cashback_core" TO D-PROGRAM(247).
-            MOVE "PTR_" TO D-PREFIX(248).
+            MOVE "push_notification_core" TO D-PROGRAM(247).
+            MOVE "WHK_" TO D-PREFIX(248).
             MOVE 4 TO D-PREFIX-LEN(248).
-            MOVE "points_redemption_core" TO D-PROGRAM(248).
-            MOVE "GFC_" TO D-PREFIX(249).
+            MOVE "webhook_core" TO D-PROGRAM(248).
+            MOVE "SVM_" TO D-PREFIX(249).
             MOVE 4 TO D-PREFIX-LEN(249).
-            MOVE "gift_card_core" TO D-PROGRAM(249).
-            MOVE "PPC_" TO D-PREFIX(250).
+            MOVE "service_mesh_core" TO D-PROGRAM(249).
+            MOVE "SSS_" TO D-PREFIX(250).
             MOVE 4 TO D-PREFIX-LEN(250).
-            MOVE "prepaid_card_core" TO D-PROGRAM(250).
-            MOVE "VRC_" TO D-PREFIX(251).
+            MOVE "session_store_core" TO D-PROGRAM(250).
+            MOVE "PSN_" TO D-PREFIX(251).
             MOVE 4 TO D-PREFIX-LEN(251).
-            MOVE "virtual_card_core" TO D-PROGRAM(251).
-            MOVE "PML_" TO D-PREFIX(252).
+            MOVE "personalization_core" TO D-PROGRAM(251).
+            MOVE "RCM_" TO D-PREFIX(252).
             MOVE 4 TO D-PREFIX-LEN(252).
-            MOVE "payment_link_core" TO D-PROGRAM(252).
-            MOVE "QRP_" TO D-PREFIX(253).
+            MOVE "recommendation_core" TO D-PROGRAM(252).
+            MOVE "SRH_" TO D-PREFIX(253).
             MOVE 4 TO D-PREFIX-LEN(253).
-            MOVE "qr_payment_core" TO D-PROGRAM(253).
-            MOVE "DVM_" TO D-PREFIX(254).
+            MOVE "search_core" TO D-PROGRAM(253).
+            MOVE "MON_" TO D-PREFIX(254).
             MOVE 4 TO D-PREFIX-LEN(254).
-            MOVE "device_management_core" TO D-PROGRAM(254).
-            MOVE "SSM_" TO D-PREFIX(255).
+            MOVE "monitoring_core" TO D-PROGRAM(254).
+            MOVE "TRC_" TO D-PREFIX(255).
             MOVE 4 TO D-PREFIX-LEN(255).
-            MOVE "session_management_core" TO D-PROGRAM(255).
-            MOVE "TKM_" TO D-PREFIX(256).
+            MOVE "tracing_core" TO D-PROGRAM(255).
+            MOVE "MTR_" TO D-PREFIX(256).
             MOVE 4 TO D-PREFIX-LEN(256).
-            MOVE "token_management_core" TO D-PROGRAM(256).
-            MOVE "OTP_" TO D-PREFIX(257).
+            MOVE "metrics_core" TO D-PROGRAM(256).
+            MOVE "RTL_" TO D-PREFIX(257).
             MOVE 4 TO D-PREFIX-LEN(257).
-            MOVE "otp_management_core" TO D-PROGRAM(257).
-            MOVE "MFA_" TO D-PREFIX(258).
+            MOVE "rate_limiter_core" TO D-PROGRAM(257).
+            MOVE "RTY_" TO D-PREFIX(258).
             MOVE 4 TO D-PREFIX-LEN(258).
-            MOVE "mfa_management_core" TO D-PROGRAM(258).
-            MOVE "PWP_" TO D-PREFIX(259).
+            MOVE "retry_core" TO D-PROGRAM(258).
+            MOVE "TMO_" TO D-PREFIX(259).
             MOVE 4 TO D-PREFIX-LEN(259).
-            MOVE "password_policy_core" TO D-PROGRAM(259).
-            MOVE "LGA_" TO D-PREFIX(260).
+            MOVE "timeout_core" TO D-PROGRAM(259).
+            MOVE "WAR_" TO D-PREFIX(260).
             MOVE 4 TO D-PREFIX-LEN(260).
-            MOVE "login_attempt_core" TO D-PROGRAM(260).
-            MOVE "TXL_" TO D-PREFIX(261).
-            MOVE 4 TO D-PREFIX-LEN(261).
-            MOVE "transaction_limit_core" TO D-PROGRAM(261).
-            MOVE "VLC_" TO D-PREFIX(262).
+            MOVE "warrant_core" TO D-PROGRAM(260).
+            MOVE "STRU_" TO D-PREFIX(261).
+            MOVE 5 TO D-PREFIX-LEN(261).
+            MOVE "structured_core" TO D-PROGRAM(261).
+            MOVE "MBS_" TO D-PREFIX(262).
             MOVE 4 TO D-PREFIX-LEN(262).
-            MOVE "velocity_check_core" TO D-PROGRAM(262).
-            MOVE "RKS_" TO D-PREFIX(263).
+            MOVE "mortgage_backed_core" TO D-PROGRAM(262).
+            MOVE "CDO_" TO D-PREFIX(263).
             MOVE 4 TO D-PREFIX-LEN(263).
-            MOVE "risk_score_core" TO D-PROGRAM(263).
-            MOVE "WHT_" TO D-PREFIX(264).
-            MOVE 4 TO D-PREFIX-LEN(264).
-            MOVE "whitelist_core" TO D-PROGRAM(264).
-            MOVE "WTC_" TO D-PREFIX(265).
+            MOVE "collateralized_core" TO D-PROGRAM(263).
+            MOVE "TRCH_" TO D-PREFIX(264).
+            MOVE 5 TO D-PREFIX-LEN(264).
+            MOVE "tranche_core" TO D-PROGRAM(264).
+            MOVE "SEC_" TO D-PREFIX(265).
             MOVE 4 TO D-PREFIX-LEN(265).
-            MOVE "watchlist_core" TO D-PROGRAM(265).
-            MOVE "PEP_" TO D-PREFIX(266).
+            MOVE "securitization_core" TO D-PROGRAM(265).
+            MOVE "SPE_" TO D-PREFIX(266).
             MOVE 4 TO D-PREFIX-LEN(266).
-            MOVE "pep_screening_core" TO D-PROGRAM(266).
-            MOVE "NSC_" TO D-PREFIX(267).
+            MOVE "special_purpose_core" TO D-PROGRAM(266).
+            MOVE "SPV_" TO D-PREFIX(267).
             MOVE 4 TO D-PREFIX-LEN(267).
-            MOVE "name_screening_core" TO D-PROGRAM(267).
-            MOVE "SAV_" TO D-PREFIX(268).
+            MOVE "vehicle_core" TO D-PROGRAM(267).
+            MOVE "TRT_" TO D-PREFIX(268).
             MOVE 4 TO D-PREFIX-LEN(268).
-            MOVE "savings_account_core" TO D-PROGRAM(268).
-            MOVE "TDP_" TO D-PREFIX(269).
+            MOVE "trust_core" TO D-PROGRAM(268).
+            MOVE "MFD_" TO D-PREFIX(269).
             MOVE 4 TO D-PREFIX-LEN(269).
-            MOVE "term_deposit_core" TO D-PROGRAM(269).
-            MOVE "RDP_" TO D-PREFIX(270).
+            MOVE "mutual_fund_core" TO D-PROGRAM(269).
+            MOVE "PEQ_" TO D-PREFIX(270).
             MOVE 4 TO D-PREFIX-LEN(270).
-            MOVE "recurring_deposit_core" TO D-PROGRAM(270).
-            MOVE "FDP_" TO D-PREFIX(271).
+            MOVE "private_equity_core" TO D-PROGRAM(270).
+            MOVE "VCP_" TO D-PREFIX(271).
             MOVE 4 TO D-PREFIX-LEN(271).
-            MOVE "fixed_deposit_core" TO D-PROGRAM(271).
-            MOVE "NDP_" TO D-PREFIX(272).
+            MOVE "venture_capital_core" TO D-PROGRAM(271).
+            MOVE "RET_" TO D-PREFIX(272).
             MOVE 4 TO D-PREFIX-LEN(272).
-            MOVE "notice_deposit_core" TO D-PROGRAM(272).
-            MOVE "FCD_" TO D-PREFIX(273).
+            MOVE "real_estate_core" TO D-PROGRAM(272).
+            MOVE "PDB_" TO D-PREFIX(273).
             MOVE 4 TO D-PREFIX-LEN(273).
-            MOVE "foreign_currency_deposit_core" TO D-PROGRAM(273).
-            MOVE "MCC_" TO D-PREFIX(274).
+            MOVE "private_debt_core" TO D-PROGRAM(273).
+            MOVE "MEZ_" TO D-PREFIX(274).
             MOVE 4 TO D-PREFIX-LEN(274).
-            MOVE "multi_currency_core" TO D-PROGRAM(274).
-            MOVE "FXF_" TO D-PREFIX(275).
+            MOVE "mezzanine_core" TO D-PROGRAM(274).
+            MOVE "WRI_" TO D-PREFIX(275).
             MOVE 4 TO D-PREFIX-LEN(275).
-            MOVE "fx_forward_core" TO D-PROGRAM(275).
-            MOVE "FXO_" TO D-PREFIX(276).
+            MOVE "warrant_issuing_core" TO D-PROGRAM(275).
+            MOVE "STN_" TO D-PREFIX(276).
             MOVE 4 TO D-PREFIX-LEN(276).
-            MOVE "fx_option_core" TO D-PROGRAM(276).
-            MOVE "FXS_" TO D-PREFIX(277).
-            MOVE 4 TO D-PREFIX-LEN(277).
-            MOVE "fx_swap_core" TO D-PROGRAM(277).
-            MOVE "IRS_" TO D-PREFIX(278).
+            MOVE "structured_note_core" TO D-PROGRAM(276).
+            MOVE "SNCS_" TO D-PREFIX(277).
+            MOVE 5 TO D-PREFIX-LEN(277).
+            MOVE "sanctions_check_core" TO D-PROGRAM(277).
+            MOVE "TXN_" TO D-PREFIX(278).
             MOVE 4 TO D-PREFIX-LEN(278).
-            MOVE "interest_rate_swap_core" TO D-PROGRAM(278).
-            MOVE "TRS_" TO D-PREFIX(279).
-            MOVE 4 TO D-PREFIX-LEN(279).
-            MOVE "total_return_swap_core" TO D-PROGRAM(279).
-            MOVE "EQS_" TO D-PREFIX(280).
-            MOVE 4 TO D-PREFIX-LEN(280).
-            MOVE "equity_swap_core" TO D-PROGRAM(280).
-            MOVE "VRS_" TO D-PREFIX(281).
+            MOVE "transaction_core" TO D-PROGRAM(278).
+            MOVE "PAYM_" TO D-PREFIX(279).
+            MOVE 5 TO D-PREFIX-LEN(279).
+            MOVE "payment_processing_core" TO D-PROGRAM(279).
+            MOVE "TRFS_" TO D-PREFIX(280).
+            MOVE 5 TO D-PREFIX-LEN(280).
+            MOVE "transfer_core" TO D-PROGRAM(280).
+            MOVE "WDL_" TO D-PREFIX(281).
             MOVE 4 TO D-PREFIX-LEN(281).
-            MOVE "variance_swap_core" TO D-PROGRAM(281).
-            MOVE "VOL_" TO D-PREFIX(282).
-            MOVE 4 TO D-PREFIX-LEN(282).
-            MOVE "volatility_core" TO D-PROGRAM(282).
-            MOVE "GRK_" TO D-PREFIX(283).
+            MOVE "withdrawal_core" TO D-PROGRAM(281).
+            MOVE "RECN_" TO D-PREFIX(282).
+            MOVE 5 TO D-PREFIX-LEN(282).
+            MOVE "reconciliation_core" TO D-PROGRAM(282).
+            MOVE "NET_" TO D-PREFIX(283).
             MOVE 4 TO D-PREFIX-LEN(283).
-            MOVE "greeks_core" TO D-PROGRAM(283).
-            MOVE "PRG_" TO D-PREFIX(284).
+            MOVE "netting_core" TO D-PROGRAM(283).
+            MOVE "NOS_" TO D-PREFIX(284).
             MOVE 4 TO D-PREFIX-LEN(284).
-            MOVE "pricing_core" TO D-PROGRAM(284).
-            MOVE "VAL_" TO D-PREFIX(285).
+            MOVE "nostro_core" TO D-PROGRAM(284).
+            MOVE "VOS_" TO D-PREFIX(285).
             MOVE 4 TO D-PREFIX-LEN(285).
-            MOVE "valuation_core" TO D-PROGRAM(285).
-            MOVE "MTM_" TO D-PREFIX(286).
+            MOVE "vostro_core" TO D-PROGRAM(285).
+            MOVE "SUS_" TO D-PREFIX(286).
             MOVE 4 TO D-PREFIX-LEN(286).
-            MOVE "mark_to_market_core" TO D-PROGRAM(286).
-            MOVE "PNL_" TO D-PREFIX(287).
-            MOVE 4 TO D-PREFIX-LEN(287).
-            MOVE "pnl_core" TO D-PROGRAM(287).
-            MOVE "REV_" TO D-PREFIX(288).
+            MOVE "suspense_core" TO D-PROGRAM(286).
+            MOVE "TB_" TO D-PREFIX(287).
+            MOVE 3 TO D-PREFIX-LEN(287).
+            MOVE "trial_balance_core" TO D-PROGRAM(287).
+            MOVE "RSV_" TO D-PREFIX(288).
             MOVE 4 TO D-PREFIX-LEN(288).
-            MOVE "revenue_core" TO D-PROGRAM(288).
-            MOVE "PRF_" TO D-PREFIX(289).
-            MOVE 4 TO D-PREFIX-LEN(289).
-            MOVE "profit_core" TO D-PROGRAM(289).
-            MOVE "MRG_" TO D-PREFIX(290).
+            MOVE "reserve_core" TO D-PROGRAM(288).
+            MOVE "VARA_" TO D-PREFIX(289).
+            MOVE 5 TO D-PREFIX-LEN(289).
+            MOVE "variance_core" TO D-PROGRAM(289).
+            MOVE "SCN_" TO D-PREFIX(290).
             MOVE 4 TO D-PREFIX-LEN(290).
-            MOVE "margin_core" TO D-PROGRAM(290).
-            MOVE "EMP_" TO D-PREFIX(291).
+            MOVE "scenario_core" TO D-PROGRAM(290).
+            MOVE "SIM_" TO D-PREFIX(291).
             MOVE 4 TO D-PREFIX-LEN(291).
-            MOVE "employee_core" TO D-PROGRAM(291).
-            MOVE "DPT_" TO D-PREFIX(292).
-            MOVE 4 TO D-PREFIX-LEN(292).
-            MOVE "department_core" TO D-PROGRAM(292).
-            MOVE "POS_" TO D-PREFIX(293).
+            MOVE "simulation_core" TO D-PROGRAM(291).
+            MOVE "OPTM_" TO D-PREFIX(292).
+            MOVE 5 TO D-PREFIX-LEN(292).
+            MOVE "optimization_core" TO D-PROGRAM(292).
+            MOVE "TPR_" TO D-PREFIX(293).
             MOVE 4 TO D-PREFIX-LEN(293).
-            MOVE "position_core" TO D-PROGRAM(293).
-            MOVE "LEA_" TO D-PREFIX(294).
-            MOVE 4 TO D-PREFIX-LEN(294).
-            MOVE "leave_management_core" TO D-PROGRAM(294).
-            MOVE "PER_" TO D-PREFIX(295).
+            MOVE "transfer_pricing_core" TO D-PROGRAM(293).
+            MOVE "PC_" TO D-PREFIX(294).
+            MOVE 3 TO D-PREFIX-LEN(294).
+            MOVE "profit_center_core" TO D-PROGRAM(294).
+            MOVE "PTF_" TO D-PREFIX(295).
             MOVE 4 TO D-PREFIX-LEN(295).
-            MOVE "performance_core" TO D-PROGRAM(295).
-            MOVE "TRN_" TO D-PREFIX(296).
+            MOVE "portfolio_core" TO D-PROGRAM(295).
+            MOVE "RBL_" TO D-PREFIX(296).
             MOVE 4 TO D-PREFIX-LEN(296).
-            MOVE "training_core" TO D-PROGRAM(296).
-            MOVE "REC_" TO D-PREFIX(297).
-            MOVE 4 TO D-PREFIX-LEN(297).
-            MOVE "recruitment_core" TO D-PROGRAM(297).
-            MOVE "ONB_" TO D-PREFIX(298).
+            MOVE "rebalancing_core" TO D-PROGRAM(296).
+            MOVE "PF_" TO D-PREFIX(297).
+            MOVE 3 TO D-PREFIX-LEN(297).
+            MOVE "price_feed_core" TO D-PROGRAM(297).
+            MOVE "QTE_" TO D-PREFIX(298).
             MOVE 4 TO D-PREFIX-LEN(298).
-            MOVE "onboarding_core" TO D-PROGRAM(298).
-            MOVE "OFB_" TO D-PREFIX(299).
+            MOVE "quote_core" TO D-PROGRAM(298).
+            MOVE "ORD_" TO D-PREFIX(299).
             MOVE 4 TO D-PREFIX-LEN(299).
-            MOVE "offboarding_core" TO D-PROGRAM(299).
-            MOVE "PEN_" TO D-PREFIX(300).
-            MOVE 4 TO D-PREFIX-LEN(300).
-            MOVE "pension_core" TO D-PROGRAM(300).
-            MOVE "TXW_" TO D-PREFIX(301).
+            MOVE "order_mgmt_core" TO D-PROGRAM(299).
+            MOVE "PSTN_" TO D-PREFIX(300).
+            MOVE 5 TO D-PREFIX-LEN(300).
+            MOVE "position_mgmt_core" TO D-PROGRAM(300).
+            MOVE "RGF_" TO D-PREFIX(301).
             MOVE 4 TO D-PREFIX-LEN(301).
-            MOVE "tax_withholding_core" TO D-PROGRAM(301).
-            MOVE "INVC_" TO D-PREFIX(302).
-            MOVE 5 TO D-PREFIX-LEN(302).
-            MOVE "invoice_core" TO D-PROGRAM(302).
-            MOVE "SUB_" TO D-PREFIX(303).
+            MOVE "regulatory_filing_core" TO D-PROGRAM(301).
+            MOVE "RSA_" TO D-PREFIX(302).
+            MOVE 4 TO D-PREFIX-LEN(302).
+            MOVE "risk_assessment_core" TO D-PROGRAM(302).
+            MOVE "PLR_" TO D-PREFIX(303).
             MOVE 4 TO D-PREFIX-LEN(303).
-            MOVE "subscription_core" TO D-PROGRAM(303).
-            MOVE "SLV_" TO D-PREFIX(304).
+            MOVE "policy_review_core" TO D-PROGRAM(303).
+            MOVE "PRR_" TO D-PREFIX(304).
             MOVE 4 TO D-PREFIX-LEN(304).
-            MOVE "sla_management_core" TO D-PROGRAM(304).
-            MOVE "KPI_" TO D-PREFIX(305).
+            MOVE "procedure_review_core" TO D-PROGRAM(304).
+            MOVE "TRR_" TO D-PREFIX(305).
             MOVE 4 TO D-PREFIX-LEN(305).
-            MOVE "kpi_core" TO D-PROGRAM(305).
-            MOVE "MET_" TO D-PREFIX(306).
+            MOVE "training_record_core" TO D-PROGRAM(305).
+            MOVE "PRM_" TO D-PREFIX(306).
             MOVE 4 TO D-PREFIX-LEN(306).
-            MOVE "metric_core" TO D-PROGRAM(306).
-            MOVE "RPTG_" TO D-PREFIX(307).
+            MOVE "permit_core" TO D-PROGRAM(306).
+            MOVE "REGN_" TO D-PREFIX(307).
             MOVE 5 TO D-PREFIX-LEN(307).
-            MOVE "reporting_core" TO D-PROGRAM(307).
-            MOVE "DWH_" TO D-PREFIX(308).
-            MOVE 4 TO D-PREFIX-LEN(308).
-            MOVE "data_warehouse_core" TO D-PROGRAM(308).
-            MOVE "ETL_" TO D-PREFIX(309).
-            MOVE 4 TO D-PREFIX-LEN(309).
-            MOVE "etl_core" TO D-PROGRAM(309).
-            MOVE "DQL_" TO D-PREFIX(310).
+            MOVE "registration_core" TO D-PROGRAM(307).
+            MOVE "SUB2_" TO D-PREFIX(308).
+            MOVE 5 TO D-PREFIX-LEN(308).
+            MOVE "submission_core" TO D-PROGRAM(308).
+            MOVE "NTFC_" TO D-PREFIX(309).
+            MOVE 5 TO D-PREFIX-LEN(309).
+            MOVE "notification_mgmt_core" TO D-PROGRAM(309).
+            MOVE "PRB_" TO D-PREFIX(310).
             MOVE 4 TO D-PREFIX-LEN(310).
-            MOVE "dq_check_core" TO D-PROGRAM(310).
-            MOVE "MDM_" TO D-PREFIX(311).
+            MOVE "problem_core" TO D-PROGRAM(310).
+            MOVE "REL_" TO D-PREFIX(311).
             MOVE 4 TO D-PREFIX-LEN(311).
-            MOVE "master_data_core" TO D-PROGRAM(311).
-            MOVE "EML_" TO D-PREFIX(312).
+            MOVE "release_mgmt_core" TO D-PROGRAM(311).
+            MOVE "ROL_" TO D-PREFIX(312).
             MOVE 4 TO D-PREFIX-LEN(312).
-            MOVE "email_core" TO D-PROGRAM(312).
-            MOVE "SMS_" TO D-PREFIX(313).
+            MOVE "rollback_core" TO D-PROGRAM(312).
+            MOVE "PCH_" TO D-PREFIX(313).
             MOVE 4 TO D-PREFIX-LEN(313).
-            MOVE "sms_core" TO D-PROGRAM(313).
-            MOVE "PSH_" TO D-PREFIX(314).
+            MOVE "patch_core" TO D-PROGRAM(313).
+            MOVE "UPG_" TO D-PREFIX(314).
             MOVE 4 TO D-PREFIX-LEN(314).
-            MOVE "push_notification_core" TO D-PROGRAM(314).
-            MOVE "IAM_" TO D-PREFIX(315).
+            MOVE "upgrade_core" TO D-PROGRAM(314).
+            MOVE "MIG_" TO D-PREFIX(315).
             MOVE 4 TO D-PREFIX-LEN(315).
-            MOVE "in_app_message_core" TO D-PROGRAM(315).
-            MOVE "WHK_" TO D-PREFIX(316).
+            MOVE "migration_core" TO D-PROGRAM(315).
+            MOVE "PTY_" TO D-PREFIX(316).
             MOVE 4 TO D-PREFIX-LEN(316).
-            MOVE "webhook_core" TO D-PROGRAM(316).
-            MOVE "MQQ_" TO D-PREFIX(317).
+            MOVE "property_insurance_core" TO D-PROGRAM(316).
+            MOVE "TRV_" TO D-PREFIX(317).
             MOVE 4 TO D-PREFIX-LEN(317).
-            MOVE "message_queue_core" TO D-PROGRAM(317).
-            MOVE "EVB_" TO D-PREFIX(318).
+            MOVE "travel_insurance_core" TO D-PROGRAM(317).
+            MOVE "THF_" TO D-PREFIX(318).
             MOVE 4 TO D-PREFIX-LEN(318).
-            MOVE "event_bus_core" TO D-PROGRAM(318).
-            MOVE "SVM_" TO D-PREFIX(319).
+            MOVE "theft_insurance_core" TO D-PROGRAM(318).
+            MOVE "PIN_" TO D-PREFIX(319).
             MOVE 4 TO D-PREFIX-LEN(319).
-            MOVE "service_mesh_core" TO D-PROGRAM(319).
-            MOVE "LDB_" TO D-PREFIX(320).
+            MOVE "professional_indemnity_core" TO D-PROGRAM(319).
+            MOVE "PDL_" TO D-PREFIX(320).
             MOVE 4 TO D-PREFIX-LEN(320).
-            MOVE "load_balancer_core" TO D-PROGRAM(320).
-            MOVE "SSS_" TO D-PREFIX(321).
+            MOVE "product_liability_core" TO D-PROGRAM(320).
+            MOVE "PUL_" TO D-PREFIX(321).
             MOVE 4 TO D-PREFIX-LEN(321).
-            MOVE "session_store_core" TO D-PROGRAM(321).
-            MOVE "FFL_" TO D-PREFIX(322).
+            MOVE "public_liability_core" TO D-PROGRAM(321).
+            MOVE "POL_" TO D-PREFIX(322).
             MOVE 4 TO D-PREFIX-LEN(322).
-            MOVE "feature_flag_core" TO D-PROGRAM(322).
-            MOVE "XPR_" TO D-PREFIX(323).
-            MOVE 4 TO D-PREFIX-LEN(323).
-            MOVE "experiment_core" TO D-PROGRAM(323).
-            MOVE "PSN_" TO D-PREFIX(324).
+            MOVE "political_risk_core" TO D-PROGRAM(322).
+            MOVE "SR_" TO D-PREFIX(323).
+            MOVE 3 TO D-PREFIX-LEN(323).
+            MOVE "surety_core" TO D-PROGRAM(323).
+            MOVE "PRK_" TO D-PREFIX(324).
             MOVE 4 TO D-PREFIX-LEN(324).
-            MOVE "personalization_core" TO D-PROGRAM(324).
-            MOVE "RCM_" TO D-PREFIX(325).
+            MOVE "professional_risk_core" TO D-PROGRAM(324).
+            MOVE "VDR_" TO D-PREFIX(325).
             MOVE 4 TO D-PREFIX-LEN(325).
-            MOVE "recommendation_core" TO D-PROGRAM(325).
-            MOVE "SRH_" TO D-PREFIX(326).
+            MOVE "vendor_mgmt_core" TO D-PROGRAM(325).
+            MOVE "SPL_" TO D-PREFIX(326).
             MOVE 4 TO D-PREFIX-LEN(326).
-            MOVE "search_core" TO D-PROGRAM(326).
-            MOVE "IDX_" TO D-PREFIX(327).
-            MOVE 4 TO D-PREFIX-LEN(327).
-            MOVE "indexing_core" TO D-PROGRAM(327).
-            MOVE "LOG_" TO D-PREFIX(328).
+            MOVE "supplier_core" TO D-PROGRAM(326).
+            MOVE "PRCM_" TO D-PREFIX(327).
+            MOVE 5 TO D-PREFIX-LEN(327).
+            MOVE "procurement_mgmt_core" TO D-PROGRAM(327).
+            MOVE "PUR_" TO D-PREFIX(328).
             MOVE 4 TO D-PREFIX-LEN(328).
-            MOVE "logging_core" TO D-PROGRAM(328).
-            MOVE "MON_" TO D-PREFIX(329).
+            MOVE "purchasing_core" TO D-PROGRAM(328).
+            MOVE "STK_" TO D-PREFIX(329).
             MOVE 4 TO D-PREFIX-LEN(329).
-            MOVE "monitoring_core" TO D-PROGRAM(329).
-            MOVE "TRC_" TO D-PREFIX(330).
+            MOVE "stock_core" TO D-PROGRAM(329).
+            MOVE "WHS_" TO D-PREFIX(330).
             MOVE 4 TO D-PREFIX-LEN(330).
-            MOVE "tracing_core" TO D-PROGRAM(330).
-            MOVE "MTR_" TO D-PREFIX(331).
+            MOVE "warehouse_core" TO D-PROGRAM(330).
+            MOVE "SHP_" TO D-PREFIX(331).
             MOVE 4 TO D-PREFIX-LEN(331).
-            MOVE "metrics_core" TO D-PROGRAM(331).
-            MOVE "HLC_" TO D-PREFIX(332).
+            MOVE "shipping_core" TO D-PROGRAM(331).
+            MOVE "TRK_" TO D-PREFIX(332).
             MOVE 4 TO D-PREFIX-LEN(332).
-            MOVE "health_check_core" TO D-PROGRAM(332).
-            MOVE "RTL_" TO D-PREFIX(333).
-            MOVE 4 TO D-PREFIX-LEN(333).
-            MOVE "rate_limiter_core" TO D-PROGRAM(333).
-            MOVE "RTY_" TO D-PREFIX(334).
-            MOVE 4 TO D-PREFIX-LEN(334).
-            MOVE "retry_core" TO D-PROGRAM(334).
-            MOVE "TMO_" TO D-PREFIX(335).
-            MOVE 4 TO D-PREFIX-LEN(335).
-            MOVE "timeout_core" TO D-PROGRAM(335).
-            MOVE "EQY_" TO D-PREFIX(336).
-            MOVE 4 TO D-PREFIX-LEN(336).
-            MOVE "equity_core" TO D-PROGRAM(336).
-            MOVE "DRV_" TO D-PREFIX(337).
-            MOVE 4 TO D-PREFIX-LEN(337).
-            MOVE "derivative_core" TO D-PROGRAM(337).
-            MOVE "WAR_" TO D-PREFIX(338).
+            MOVE "tracking_core" TO D-PROGRAM(332).
+            MOVE "ORD2_" TO D-PREFIX(333).
+            MOVE 5 TO D-PREFIX-LEN(333).
+            MOVE "order_mgmt2_core" TO D-PROGRAM(333).
+            MOVE "PYM2_" TO D-PREFIX(334).
+            MOVE 5 TO D-PREFIX-LEN(334).
+            MOVE "payment_mgmt_core" TO D-PROGRAM(334).
+            MOVE "REC2_" TO D-PREFIX(335).
+            MOVE 5 TO D-PREFIX-LEN(335).
+            MOVE "receivable_core" TO D-PROGRAM(335).
+            MOVE "PYBL_" TO D-PREFIX(336).
+            MOVE 5 TO D-PREFIX-LEN(336).
+            MOVE "payable_core" TO D-PROGRAM(336).
+            MOVE "PLN2_" TO D-PREFIX(337).
+            MOVE 5 TO D-PREFIX-LEN(337).
+            MOVE "planning_core" TO D-PROGRAM(337).
+            MOVE "STG_" TO D-PREFIX(338).
             MOVE 4 TO D-PREFIX-LEN(338).
-            MOVE "warrant_core" TO D-PROGRAM(338).
-            MOVE "STRU_" TO D-PREFIX(339).
-            MOVE 5 TO D-PREFIX-LEN(339).
-            MOVE "structured_core" TO D-PROGRAM(339).
-            MOVE "MBS_" TO D-PREFIX(340).
+            MOVE "strategy_core" TO D-PROGRAM(338).
+            MOVE "RSH_" TO D-PREFIX(339).
+            MOVE 4 TO D-PREFIX-LEN(339).
+            MOVE "research_core" TO D-PROGRAM(339).
+            MOVE "TST_" TO D-PREFIX(340).
             MOVE 4 TO D-PREFIX-LEN(340).
-            MOVE "mortgage_backed_core" TO D-PROGRAM(340).
-            MOVE "CDO_" TO D-PREFIX(341).
+            MOVE "testing_core" TO D-PROGRAM(340).
+            MOVE "QLT_" TO D-PREFIX(341).
             MOVE 4 TO D-PREFIX-LEN(341).
-            MOVE "collateralized_core" TO D-PROGRAM(341).
-            MOVE "TRCH_" TO D-PREFIX(342).
-            MOVE 5 TO D-PREFIX-LEN(342).
-            MOVE "tranche_core" TO D-PROGRAM(342).
-            MOVE "SEC_" TO D-PREFIX(343).
-            MOVE 4 TO D-PREFIX-LEN(343).
-            MOVE "securitization_core" TO D-PROGRAM(343).
-            MOVE "SPE_" TO D-PREFIX(344).
+            MOVE "quality_core" TO D-PROGRAM(341).
+            MOVE "RTB_" TO D-PREFIX(342).
+            MOVE 4 TO D-PREFIX-LEN(342).
+            MOVE "retail_banking_core" TO D-PROGRAM(342).
+            MOVE "PRVB_" TO D-PREFIX(343).
+            MOVE 5 TO D-PREFIX-LEN(343).
+            MOVE "private_banking_core" TO D-PROGRAM(343).
+            MOVE "WSB_" TO D-PREFIX(344).
             MOVE 4 TO D-PREFIX-LEN(344).
-            MOVE "special_purpose_core" TO D-PROGRAM(344).
-            MOVE "SPV_" TO D-PREFIX(345).
+            MOVE "wholesale_banking_core" TO D-PROGRAM(344).
+            MOVE "MBK_" TO D-PREFIX(345).
             MOVE 4 TO D-PREFIX-LEN(345).
-            MOVE "vehicle_core" TO D-PROGRAM(345).
-            MOVE "TRT_" TO D-PREFIX(346).
+            MOVE "mobile_banking_core" TO D-PROGRAM(345).
+            MOVE "SVB_" TO D-PREFIX(346).
             MOVE 4 TO D-PREFIX-LEN(346).
-            MOVE "trust_core" TO D-PROGRAM(346).
-            MOVE "FND_" TO D-PREFIX(347).
+            MOVE "savings_bank_core" TO D-PROGRAM(346).
+            MOVE "THR_" TO D-PREFIX(347).
             MOVE 4 TO D-PREFIX-LEN(347).
-            MOVE "fund_core" TO D-PROGRAM(347).
-            MOVE "ETF_" TO D-PREFIX(348).
+            MOVE "thrift_core" TO D-PROGRAM(347).
+            MOVE "MTB_" TO D-PREFIX(348).
             MOVE 4 TO D-PREFIX-LEN(348).
-            MOVE "etf_core" TO D-PROGRAM(348).
-            MOVE "MFD_" TO D-PREFIX(349).
+            MOVE "mortgage_bank_core" TO D-PROGRAM(348).
+            MOVE "MCL_" TO D-PREFIX(349).
             MOVE 4 TO D-PREFIX-LEN(349).
-            MOVE "mutual_fund_core" TO D-PROGRAM(349).
-            MOVE "HDF_" TO D-PREFIX(350).
+            MOVE "micro_lending_core" TO D-PROGRAM(349).
+            MOVE "NCL_" TO D-PREFIX(350).
             MOVE 4 TO D-PREFIX-LEN(350).
-            MOVE "hedge_fund_core" TO D-PROGRAM(350).
-            MOVE "PEQ_" TO D-PREFIX(351).
-            MOVE 4 TO D-PREFIX-LEN(351).
-            MOVE "private_equity_core" TO D-PROGRAM(351).
-            MOVE "VCP_" TO D-PREFIX(352).
+            MOVE "nano_lending_core" TO D-PROGRAM(350).
+            MOVE "PDLG_" TO D-PREFIX(351).
+            MOVE 5 TO D-PREFIX-LEN(351).
+            MOVE "peer_lending_core" TO D-PROGRAM(351).
+            MOVE "MTG_" TO D-PREFIX(352).
             MOVE 4 TO D-PREFIX-LEN(352).
-            MOVE "venture_capital_core" TO D-PROGRAM(352).
-            MOVE "RET_" TO D-PREFIX(353).
+            MOVE "mortgage_core" TO D-PROGRAM(352).
+            MOVE "PLN_" TO D-PREFIX(353).
             MOVE 4 TO D-PREFIX-LEN(353).
-            MOVE "real_estate_core" TO D-PROGRAM(353).
-            MOVE "INF_" TO D-PREFIX(354).
+            MOVE "personal_loan_core" TO D-PROGRAM(353).
+            MOVE "ODR_" TO D-PREFIX(354).
             MOVE 4 TO D-PREFIX-LEN(354).
-            MOVE "infrastructure_core" TO D-PROGRAM(354).
-            MOVE "PDB_" TO D-PREFIX(355).
+            MOVE "overdraft_core" TO D-PROGRAM(354).
+            MOVE "FCT_" TO D-PREFIX(355).
             MOVE 4 TO D-PREFIX-LEN(355).
-            MOVE "private_debt_core" TO D-PROGRAM(355).
-            MOVE "DLL_" TO D-PREFIX(356).
+            MOVE "factoring_core" TO D-PROGRAM(355).
+            MOVE "PWN_" TO D-PREFIX(356).
             MOVE 4 TO D-PREFIX-LEN(356).
-            MOVE "direct_lending_core" TO D-PROGRAM(356).
-            MOVE "MEZ_" TO D-PREFIX(357).
+            MOVE "pawn_core" TO D-PROGRAM(356).
+            MOVE "MCF_" TO D-PREFIX(357).
             MOVE 4 TO D-PREFIX-LEN(357).
-            MOVE "mezzanine_core" TO D-PROGRAM(357).
-            MOVE "DIS_" TO D-PREFIX(358).
+            MOVE "microfinance_core" TO D-PROGRAM(357).
+            MOVE "P2P_" TO D-PREFIX(358).
             MOVE 4 TO D-PREFIX-LEN(358).
-            MOVE "distressed_core" TO D-PROGRAM(358).
-            MOVE "WRI_" TO D-PREFIX(359).
-            MOVE 4 TO D-PREFIX-LEN(359).
-            MOVE "warrant_issuing_core" TO D-PROGRAM(359).
-            MOVE "STN_" TO D-PREFIX(360).
+            MOVE "peer_to_peer_core" TO D-PROGRAM(358).
+            MOVE "SCFN_" TO D-PREFIX(359).
+            MOVE 5 TO D-PREFIX-LEN(359).
+            MOVE "supply_chain_core" TO D-PROGRAM(359).
+            MOVE "TCR_" TO D-PREFIX(360).
             MOVE 4 TO D-PREFIX-LEN(360).
-            MOVE "structured_note_core" TO D-PROGRAM(360).
-            MOVE "KYCC_" TO D-PREFIX(361).
-            MOVE 5 TO D-PREFIX-LEN(361).
-            MOVE "kyc_check_core" TO D-PROGRAM(361).
-            MOVE "SNCS_" TO D-PREFIX(362).
-            MOVE 5 TO D-PREFIX-LEN(362).
-            MOVE "sanctions_check_core" TO D-PROGRAM(362).
-            MOVE "FRDU_" TO D-PREFIX(363).
+            MOVE "trade_credit_core" TO D-PROGRAM(360).
+            MOVE "EXF_" TO D-PREFIX(361).
+            MOVE 4 TO D-PREFIX-LEN(361).
+            MOVE "export_finance_core" TO D-PROGRAM(361).
+            MOVE "IMF_" TO D-PREFIX(362).
+            MOVE 4 TO D-PREFIX-LEN(362).
+            MOVE "import_finance_core" TO D-PROGRAM(362).
+            MOVE "DCRD_" TO D-PREFIX(363).
             MOVE 5 TO D-PREFIX-LEN(363).
-            MOVE "fraud_check_core" TO D-PROGRAM(363).
-            MOVE "TXN_" TO D-PREFIX(364).
+            MOVE "documentary_credit_core" TO D-PROGRAM(363).
+            MOVE "BAC_" TO D-PREFIX(364).
             MOVE 4 TO D-PREFIX-LEN(364).
-            MOVE "transaction_core" TO D-PROGRAM(364).
-            MOVE "PAYM_" TO D-PREFIX(365).
-            MOVE 5 TO D-PREFIX-LEN(365).
-            MOVE "payment_processing_core" TO D-PROGRAM(365).
-            MOVE "TRFS_" TO D-PREFIX(366).
-            MOVE 5 TO D-PREFIX-LEN(366).
-            MOVE "transfer_core" TO D-PROGRAM(366).
-            MOVE "WDL_" TO D-PREFIX(367).
-            MOVE 4 TO D-PREFIX-LEN(367).
-            MOVE "withdrawal_core" TO D-PROGRAM(367).
-            MOVE "RECN_" TO D-PREFIX(368).
-            MOVE 5 TO D-PREFIX-LEN(368).
-            MOVE "reconciliation_core" TO D-PROGRAM(368).
-            MOVE "NET_" TO D-PREFIX(369).
+            MOVE "bankers_acceptance_core" TO D-PROGRAM(364).
+            MOVE "PMN_" TO D-PREFIX(365).
+            MOVE 4 TO D-PREFIX-LEN(365).
+            MOVE "promissory_note_core" TO D-PROGRAM(365).
+            MOVE "PBD_" TO D-PREFIX(366).
+            MOVE 4 TO D-PREFIX-LEN(366).
+            MOVE "performance_bond_core" TO D-PROGRAM(366).
+            MOVE "RTMN_" TO D-PREFIX(367).
+            MOVE 5 TO D-PREFIX-LEN(367).
+            MOVE "retention_money_core" TO D-PROGRAM(367).
+            MOVE "MSP_" TO D-PREFIX(368).
+            MOVE 4 TO D-PREFIX-LEN(368).
+            MOVE "milestone_payment_core" TO D-PROGRAM(368).
+            MOVE "WRT_" TO D-PREFIX(369).
             MOVE 4 TO D-PREFIX-LEN(369).
-            MOVE "netting_core" TO D-PROGRAM(369).
-            MOVE "NOS_" TO D-PREFIX(370).
-            MOVE 4 TO D-PREFIX-LEN(370).
-            MOVE "nostro_core" TO D-PROGRAM(370).
-            MOVE "VOS_" TO D-PREFIX(371).
-            MOVE 4 TO D-PREFIX-LEN(371).
-            MOVE "vostro_core" TO D-PROGRAM(371).
-            MOVE "SUS_" TO D-PREFIX(372).
-            MOVE 4 TO D-PREFIX-LEN(372).
-            MOVE "suspense_core" TO D-PROGRAM(372).
-            MOVE "GLM_" TO D-PREFIX(373).
-            MOVE 4 TO D-PREFIX-LEN(373).
-            MOVE "gl_master_core" TO D-PROGRAM(373).
-            MOVE "JRN_" TO D-PREFIX(374).
-            MOVE 4 TO D-PREFIX-LEN(374).
-            MOVE "journal_core" TO D-PROGRAM(374).
-            MOVE "TB_" TO D-PREFIX(375).
-            MOVE 3 TO D-PREFIX-LEN(375).
-            MOVE "trial_balance_core" TO D-PROGRAM(375).
-            MOVE "IS_" TO D-PREFIX(376).
-            MOVE 3 TO D-PREFIX-LEN(376).
-            MOVE "income_statement_core" TO D-PROGRAM(376).
-            MOVE "EQT_" TO D-PREFIX(377).
+            MOVE "warranty_core" TO D-PROGRAM(369).
+            MOVE "PRDT_" TO D-PREFIX(370).
+            MOVE 5 TO D-PREFIX-LEN(370).
+            MOVE "product_item_core" TO D-PROGRAM(370).
+            MOVE "PYMT_" TO D-PREFIX(371).
+            MOVE 5 TO D-PREFIX-LEN(371).
+            MOVE "payment_item_core" TO D-PROGRAM(371).
+            MOVE "TRNF_" TO D-PREFIX(372).
+            MOVE 5 TO D-PREFIX-LEN(372).
+            MOVE "transfer_item_core" TO D-PROGRAM(372).
+            MOVE "TXNS_" TO D-PREFIX(373).
+            MOVE 5 TO D-PREFIX-LEN(373).
+            MOVE "transaction_item_core" TO D-PROGRAM(373).
+            MOVE "ACST_" TO D-PREFIX(374).
+            MOVE 5 TO D-PREFIX-LEN(374).
+            MOVE "statement_item_core" TO D-PROGRAM(374).
+            MOVE "PENL_" TO D-PREFIX(375).
+            MOVE 5 TO D-PREFIX-LEN(375).
+            MOVE "penalty_item_core" TO D-PROGRAM(375).
+            MOVE "TAXS_" TO D-PREFIX(376).
+            MOVE 5 TO D-PREFIX-LEN(376).
+            MOVE "tax_item_core" TO D-PROGRAM(376).
+            MOVE "RBT_" TO D-PREFIX(377).
             MOVE 4 TO D-PREFIX-LEN(377).
-            MOVE "equity_account_core" TO D-PROGRAM(377).
-            MOVE "LIA_" TO D-PREFIX(378).
-            MOVE 4 TO D-PREFIX-LEN(378).
-            MOVE "liability_core" TO D-PROGRAM(378).
-            MOVE "RSV_" TO D-PREFIX(379).
-            MOVE 4 TO D-PREFIX-LEN(379).
-            MOVE "reserve_core" TO D-PROGRAM(379).
-            MOVE "FRCST_" TO D-PREFIX(380).
-            MOVE 6 TO D-PREFIX-LEN(380).
-            MOVE "forecast_core" TO D-PROGRAM(380).
-            MOVE "VARA_" TO D-PREFIX(381).
+            MOVE "rebate_item_core" TO D-PROGRAM(377).
+            MOVE "RFND_" TO D-PREFIX(378).
+            MOVE 5 TO D-PREFIX-LEN(378).
+            MOVE "refund_item_core" TO D-PROGRAM(378).
+            MOVE "RVRSL_" TO D-PREFIX(379).
+            MOVE 6 TO D-PREFIX-LEN(379).
+            MOVE "reversal_item_core" TO D-PROGRAM(379).
+            MOVE "SPN_" TO D-PREFIX(380).
+            MOVE 4 TO D-PREFIX-LEN(380).
+            MOVE "suspension_item_core" TO D-PROGRAM(380).
+            MOVE "TERM_" TO D-PREFIX(381).
             MOVE 5 TO D-PREFIX-LEN(381).
-            MOVE "variance_core" TO D-PROGRAM(381).
-            MOVE "SCN_" TO D-PREFIX(382).
-            MOVE 4 TO D-PREFIX-LEN(382).
-            MOVE "scenario_core" TO D-PROGRAM(382).
-            MOVE "SIM_" TO D-PREFIX(383).
+            MOVE "termination_item_core" TO D-PROGRAM(381).
+            MOVE "REOP_" TO D-PREFIX(382).
+            MOVE 5 TO D-PREFIX-LEN(382).
+            MOVE "reopening_item_core" TO D-PROGRAM(382).
+            MOVE "LOY_" TO D-PREFIX(383).
             MOVE 4 TO D-PREFIX-LEN(383).
-            MOVE "simulation_core" TO D-PROGRAM(383).
-            MOVE "OPTM_" TO D-PREFIX(384).
-            MOVE 5 TO D-PREFIX-LEN(384).
-            MOVE "optimization_core" TO D-PROGRAM(384).
-            MOVE "DST_" TO D-PREFIX(385).
-            MOVE 4 TO D-PREFIX-LEN(385).
-            MOVE "distribution_core" TO D-PROGRAM(385).
-            MOVE "ELM_" TO D-PREFIX(386).
-            MOVE 4 TO D-PREFIX-LEN(386).
-            MOVE "elimination_core" TO D-PROGRAM(386).
-            MOVE "ICP_" TO D-PREFIX(387).
-            MOVE 4 TO D-PREFIX-LEN(387).
-            MOVE "intercompany_core" TO D-PROGRAM(387).
-            MOVE "TPR_" TO D-PREFIX(388).
-            MOVE 4 TO D-PREFIX-LEN(388).
-            MOVE "transfer_pricing_core" TO D-PROGRAM(388).
-            MOVE "PC_" TO D-PREFIX(389).
-            MOVE 3 TO D-PREFIX-LEN(389).
-            MOVE "profit_center_core" TO D-PROGRAM(389).
-            MOVE "INVS_" TO D-PREFIX(390).
-            MOVE 5 TO D-PREFIX-LEN(390).
-            MOVE "investment_core" TO D-PROGRAM(390).
-            MOVE "PTF_" TO D-PREFIX(391).
-            MOVE 4 TO D-PREFIX-LEN(391).
-            MOVE "portfolio_core" TO D-PROGRAM(391).
-            MOVE "RBL_" TO D-PREFIX(392).
-            MOVE 4 TO D-PREFIX-LEN(392).
-            MOVE "rebalancing_core" TO D-PROGRAM(392).
-            MOVE "IDXX_" TO D-PREFIX(393).
-            MOVE 5 TO D-PREFIX-LEN(393).
-            MOVE "index_mgmt_core" TO D-PROGRAM(393).
-            MOVE "MKD_" TO D-PREFIX(394).
-            MOVE 4 TO D-PREFIX-LEN(394).
-            MOVE "market_data_core" TO D-PROGRAM(394).
-            MOVE "PF_" TO D-PREFIX(395).
-            MOVE 3 TO D-PREFIX-LEN(395).
-            MOVE "price_feed_core" TO D-PROGRAM(395).
-            MOVE "QTE_" TO D-PREFIX(396).
-            MOVE 4 TO D-PREFIX-LEN(396).
-            MOVE "quote_core" TO D-PROGRAM(396).
-            MOVE "ORD_" TO D-PREFIX(397).
-            MOVE 4 TO D-PREFIX-LEN(397).
-            MOVE "order_mgmt_core" TO D-PROGRAM(397).
-            MOVE "EXE_" TO D-PREFIX(398).
-            MOVE 4 TO D-PREFIX-LEN(398).
-            MOVE "execution_core" TO D-PROGRAM(398).
-            MOVE "FIL_" TO D-PREFIX(399).
-            MOVE 4 TO D-PREFIX-LEN(399).
-            MOVE "fill_core" TO D-PROGRAM(399).
-            MOVE "PSTN_" TO D-PREFIX(400).
-            MOVE 5 TO D-PREFIX-LEN(400).
-            MOVE "position_mgmt_core" TO D-PROGRAM(400).
-            MOVE "EXPS_" TO D-PREFIX(401).
-            MOVE 5 TO D-PREFIX-LEN(401).
-            MOVE "exposure_core" TO D-PROGRAM(401).
-            MOVE "HEDG_" TO D-PREFIX(402).
-            MOVE 5 TO D-PREFIX-LEN(402).
-            MOVE "hedge_core" TO D-PROGRAM(402).
-            MOVE "RGF_" TO D-PREFIX(403).
-            MOVE 4 TO D-PREFIX-LEN(403).
-            MOVE "regulatory_filing_core" TO D-PROGRAM(403).
-            MOVE "RSA_" TO D-PREFIX(404).
-            MOVE 4 TO D-PREFIX-LEN(404).
-            MOVE "risk_assessment_core" TO D-PROGRAM(404).
-            MOVE "PLR_" TO D-PREFIX(405).
-            MOVE 4 TO D-PREFIX-LEN(405).
-            MOVE "policy_review_core" TO D-PROGRAM(405).
-            MOVE "PRR_" TO D-PREFIX(406).
-            MOVE 4 TO D-PREFIX-LEN(406).
-            MOVE "procedure_review_core" TO D-PROGRAM(406).
-            MOVE "TRR_" TO D-PREFIX(407).
-            MOVE 4 TO D-PREFIX-LEN(407).
-            MOVE "training_record_core" TO D-PROGRAM(407).
-            MOVE "LIC_" TO D-PREFIX(408).
-            MOVE 4 TO D-PREFIX-LEN(408).
-            MOVE "license_core" TO D-PROGRAM(408).
-            MOVE "PRM_" TO D-PREFIX(409).
-            MOVE 4 TO D-PREFIX-LEN(409).
-            MOVE "permit_core" TO D-PROGRAM(409).
-            MOVE "REGN_" TO D-PREFIX(410).
-            MOVE 5 TO D-PREFIX-LEN(410).
-            MOVE "registration_core" TO D-PROGRAM(410).
-            MOVE "FIL2_" TO D-PREFIX(411).
-            MOVE 5 TO D-PREFIX-LEN(411).
-            MOVE "filing_core" TO D-PROGRAM(411).
-            MOVE "SUB2_" TO D-PREFIX(412).
-            MOVE 5 TO D-PREFIX-LEN(412).
-            MOVE "submission_core" TO D-PROGRAM(412).
-            MOVE "DLG_" TO D-PREFIX(413).
-            MOVE 4 TO D-PREFIX-LEN(413).
-            MOVE "delegation_core" TO D-PROGRAM(413).
-            MOVE "ESCL_" TO D-PREFIX(414).
-            MOVE 5 TO D-PREFIX-LEN(414).
-            MOVE "escalation_core" TO D-PROGRAM(414).
-            MOVE "NTFC_" TO D-PREFIX(415).
-            MOVE 5 TO D-PREFIX-LEN(415).
-            MOVE "notification_mgmt_core" TO D-PROGRAM(415).
-            MOVE "INCD_" TO D-PREFIX(416).
-            MOVE 5 TO D-PREFIX-LEN(416).
-            MOVE "incident_mgmt_core" TO D-PROGRAM(416).
-            MOVE "PRB_" TO D-PREFIX(417).
-            MOVE 4 TO D-PREFIX-LEN(417).
-            MOVE "problem_core" TO D-PROGRAM(417).
-            MOVE "REL_" TO D-PREFIX(418).
-            MOVE 4 TO D-PREFIX-LEN(418).
-            MOVE "release_mgmt_core" TO D-PROGRAM(418).
-            MOVE "DEP2_" TO D-PREFIX(419).
-            MOVE 5 TO D-PREFIX-LEN(419).
-            MOVE "deployment_core" TO D-PROGRAM(419).
-            MOVE "ROL_" TO D-PREFIX(420).
-            MOVE 4 TO D-PREFIX-LEN(420).
-            MOVE "rollback_core" TO D-PROGRAM(420).
-            MOVE "HFX_" TO D-PREFIX(421).
-            MOVE 4 TO D-PREFIX-LEN(421).
-            MOVE "hotfix_core" TO D-PROGRAM(421).
-            MOVE "PCH_" TO D-PREFIX(422).
-            MOVE 4 TO D-PREFIX-LEN(422).
-            MOVE "patch_core" TO D-PROGRAM(422).
-            MOVE "UPG_" TO D-PREFIX(423).
-            MOVE 4 TO D-PREFIX-LEN(423).
-            MOVE "upgrade_core" TO D-PROGRAM(423).
-            MOVE "MIG_" TO D-PREFIX(424).
-            MOVE 4 TO D-PREFIX-LEN(424).
-            MOVE "migration_core" TO D-PROGRAM(424).
-            MOVE "LIF_" TO D-PREFIX(425).
-            MOVE 4 TO D-PREFIX-LEN(425).
-            MOVE "life_insurance_core" TO D-PROGRAM(425).
-            MOVE "HLT_" TO D-PREFIX(426).
-            MOVE 4 TO D-PREFIX-LEN(426).
-            MOVE "health_insurance_core" TO D-PROGRAM(426).
-            MOVE "PTY_" TO D-PREFIX(427).
-            MOVE 4 TO D-PREFIX-LEN(427).
-            MOVE "property_insurance_core" TO D-PROGRAM(427).
-            MOVE "HOM_" TO D-PREFIX(428).
-            MOVE 4 TO D-PREFIX-LEN(428).
-            MOVE "home_insurance_core" TO D-PROGRAM(428).
-            MOVE "TRV_" TO D-PREFIX(429).
-            MOVE 4 TO D-PREFIX-LEN(429).
-            MOVE "travel_insurance_core" TO D-PROGRAM(429).
-            MOVE "MRN_" TO D-PREFIX(430).
-            MOVE 4 TO D-PREFIX-LEN(430).
-            MOVE "marine_insurance_core" TO D-PROGRAM(430).
-            MOVE "FIR_" TO D-PREFIX(431).
-            MOVE 4 TO D-PREFIX-LEN(431).
-            MOVE "fire_insurance_core" TO D-PROGRAM(431).
-            MOVE "THF_" TO D-PREFIX(432).
-            MOVE 4 TO D-PREFIX-LEN(432).
-            MOVE "theft_insurance_core" TO D-PROGRAM(432).
-            MOVE "LIB_" TO D-PREFIX(433).
-            MOVE 4 TO D-PREFIX-LEN(433).
-            MOVE "liability_insurance_core" TO D-PROGRAM(433).
-            MOVE "PIN_" TO D-PREFIX(434).
-            MOVE 4 TO D-PREFIX-LEN(434).
-            MOVE "professional_indemnity_core" TO D-PROGRAM(434).
-            MOVE "DOL_" TO D-PREFIX(435).
-            MOVE 4 TO D-PREFIX-LEN(435).
-            MOVE "directors_liability_core" TO D-PROGRAM(435).
-            MOVE "PDL_" TO D-PREFIX(436).
-            MOVE 4 TO D-PREFIX-LEN(436).
-            MOVE "product_liability_core" TO D-PROGRAM(436).
-            MOVE "PUL_" TO D-PREFIX(437).
-            MOVE 4 TO D-PREFIX-LEN(437).
-            MOVE "public_liability_core" TO D-PROGRAM(437).
-            MOVE "EMLI_" TO D-PREFIX(438).
-            MOVE 5 TO D-PREFIX-LEN(438).
-            MOVE "employer_liability_core" TO D-PROGRAM(438).
-            MOVE "KNR_" TO D-PREFIX(439).
-            MOVE 4 TO D-PREFIX-LEN(439).
-            MOVE "kidnap_ransom_core" TO D-PROGRAM(439).
-            MOVE "POL_" TO D-PREFIX(440).
-            MOVE 4 TO D-PREFIX-LEN(440).
-            MOVE "political_risk_core" TO D-PROGRAM(440).
-            MOVE "SR_" TO D-PREFIX(441).
-            MOVE 3 TO D-PREFIX-LEN(441).
-            MOVE "surety_core" TO D-PROGRAM(441).
-            MOVE "GUA_" TO D-PREFIX(442).
-            MOVE 4 TO D-PREFIX-LEN(442).
-            MOVE "guarantee_core" TO D-PROGRAM(442).
-            MOVE "FDL_" TO D-PREFIX(443).
-            MOVE 4 TO D-PREFIX-LEN(443).
-            MOVE "fidelity_core" TO D-PROGRAM(443).
-            MOVE "EAO_" TO D-PREFIX(444).
-            MOVE 4 TO D-PREFIX-LEN(444).
-            MOVE "errors_omissions_core" TO D-PROGRAM(444).
-            MOVE "PRK_" TO D-PREFIX(445).
-            MOVE 4 TO D-PREFIX-LEN(445).
-            MOVE "professional_risk_core" TO D-PROGRAM(445).
-            MOVE "MNL_" TO D-PREFIX(446).
-            MOVE 4 TO D-PREFIX-LEN(446).
-            MOVE "management_liability_core" TO D-PROGRAM(446).
-            MOVE "EPL_" TO D-PREFIX(447).
-            MOVE 4 TO D-PREFIX-LEN(447).
-            MOVE "employment_practices_core" TO D-PROGRAM(447).
-            MOVE "FID_" TO D-PREFIX(448).
-            MOVE 4 TO D-PREFIX-LEN(448).
-            MOVE "fiduciary_core" TO D-PROGRAM(448).
-            MOVE "VDR_" TO D-PREFIX(449).
-            MOVE 4 TO D-PREFIX-LEN(449).
-            MOVE "vendor_mgmt_core" TO D-PROGRAM(449).
-            MOVE "SPL_" TO D-PREFIX(450).
-            MOVE 4 TO D-PREFIX-LEN(450).
-            MOVE "supplier_core" TO D-PROGRAM(450).
-            MOVE "PRCM_" TO D-PREFIX(451).
-            MOVE 5 TO D-PREFIX-LEN(451).
-            MOVE "procurement_mgmt_core" TO D-PROGRAM(451).
-            MOVE "PUR_" TO D-PREFIX(452).
-            MOVE 4 TO D-PREFIX-LEN(452).
-            MOVE "purchasing_core" TO D-PROGRAM(452).
-            MOVE "INV2_" TO D-PREFIX(453).
-            MOVE 5 TO D-PREFIX-LEN(453).
-            MOVE "inventory_core" TO D-PROGRAM(453).
-            MOVE "STK_" TO D-PREFIX(454).
-            MOVE 4 TO D-PREFIX-LEN(454).
-            MOVE "stock_core" TO D-PROGRAM(454).
-            MOVE "WHS_" TO D-PREFIX(455).
-            MOVE 4 TO D-PREFIX-LEN(455).
-            MOVE "warehouse_core" TO D-PROGRAM(455).
-            MOVE "LOG2_" TO D-PREFIX(456).
-            MOVE 5 TO D-PREFIX-LEN(456).
-            MOVE "logistics_core" TO D-PROGRAM(456).
-            MOVE "SHP_" TO D-PREFIX(457).
-            MOVE 4 TO D-PREFIX-LEN(457).
-            MOVE "shipping_core" TO D-PROGRAM(457).
-            MOVE "DLV_" TO D-PREFIX(458).
-            MOVE 4 TO D-PREFIX-LEN(458).
-            MOVE "delivery_core" TO D-PROGRAM(458).
-            MOVE "TRK_" TO D-PREFIX(459).
-            MOVE 4 TO D-PREFIX-LEN(459).
-            MOVE "tracking_core" TO D-PROGRAM(459).
-            MOVE "FLF_" TO D-PREFIX(460).
-            MOVE 4 TO D-PREFIX-LEN(460).
-            MOVE "fulfillment_core" TO D-PROGRAM(460).
-            MOVE "ORD2_" TO D-PREFIX(461).
-            MOVE 5 TO D-PREFIX-LEN(461).
-            MOVE "order_mgmt2_core" TO D-PROGRAM(461).
-            MOVE "INVM_" TO D-PREFIX(462).
-            MOVE 5 TO D-PREFIX-LEN(462).
-            MOVE "invoice_mgmt_core" TO D-PROGRAM(462).
-            MOVE "PYM2_" TO D-PREFIX(463).
-            MOVE 5 TO D-PREFIX-LEN(463).
-            MOVE "payment_mgmt_core" TO D-PROGRAM(463).
-            MOVE "REC2_" TO D-PREFIX(464).
-            MOVE 5 TO D-PREFIX-LEN(464).
-            MOVE "receivable_core" TO D-PROGRAM(464).
-            MOVE "PYBL_" TO D-PREFIX(465).
-            MOVE 5 TO D-PREFIX-LEN(465).
-            MOVE "payable_core" TO D-PROGRAM(465).
-            MOVE "EXP2_" TO D-PREFIX(466).
-            MOVE 5 TO D-PREFIX-LEN(466).
-            MOVE "expense_core" TO D-PROGRAM(466).
-            MOVE "FCM_" TO D-PREFIX(467).
-            MOVE 4 TO D-PREFIX-LEN(467).
-            MOVE "forecast_mgmt_core" TO D-PROGRAM(467).
-            MOVE "PLN2_" TO D-PREFIX(468).
-            MOVE 5 TO D-PREFIX-LEN(468).
-            MOVE "planning_core" TO D-PROGRAM(468).
-            MOVE "STG_" TO D-PREFIX(469).
-            MOVE 4 TO D-PREFIX-LEN(469).
-            MOVE "strategy_core" TO D-PROGRAM(469).
-            MOVE "RSH_" TO D-PREFIX(470).
-            MOVE 4 TO D-PREFIX-LEN(470).
-            MOVE "research_core" TO D-PROGRAM(470).
-            MOVE "DEV_" TO D-PREFIX(471).
-            MOVE 4 TO D-PREFIX-LEN(471).
-            MOVE "development_core" TO D-PROGRAM(471).
-            MOVE "TST_" TO D-PREFIX(472).
-            MOVE 4 TO D-PREFIX-LEN(472).
-            MOVE "testing_core" TO D-PROGRAM(472).
-            MOVE "QLT_" TO D-PREFIX(473).
-            MOVE 4 TO D-PREFIX-LEN(473).
-            MOVE "quality_core" TO D-PROGRAM(473).
-            MOVE "RTB_" TO D-PREFIX(474).
-            MOVE 4 TO D-PREFIX-LEN(474).
-            MOVE "retail_banking_core" TO D-PROGRAM(474).
-            MOVE "IVB_" TO D-PREFIX(475).
-            MOVE 4 TO D-PREFIX-LEN(475).
-            MOVE "investment_banking_core" TO D-PROGRAM(475).
-            MOVE "PRVB_" TO D-PREFIX(476).
-            MOVE 5 TO D-PREFIX-LEN(476).
-            MOVE "private_banking_core" TO D-PROGRAM(476).
-            MOVE "WSB_" TO D-PREFIX(477).
-            MOVE 4 TO D-PREFIX-LEN(477).
-            MOVE "wholesale_banking_core" TO D-PROGRAM(477).
-            MOVE "DBNK_" TO D-PREFIX(478).
-            MOVE 5 TO D-PREFIX-LEN(478).
-            MOVE "digital_banking2_core" TO D-PROGRAM(478).
-            MOVE "MBK_" TO D-PREFIX(479).
-            MOVE 4 TO D-PREFIX-LEN(479).
-            MOVE "mobile_banking_core" TO D-PROGRAM(479).
-            MOVE "IBNK_" TO D-PREFIX(480).
-            MOVE 5 TO D-PREFIX-LEN(480).
-            MOVE "internet_banking2_core" TO D-PROGRAM(480).
-            MOVE "SVB_" TO D-PREFIX(481).
-            MOVE 4 TO D-PREFIX-LEN(481).
-            MOVE "savings_bank_core" TO D-PROGRAM(481).
-            MOVE "THR_" TO D-PREFIX(482).
-            MOVE 4 TO D-PREFIX-LEN(482).
-            MOVE "thrift_core" TO D-PROGRAM(482).
-            MOVE "FCO_" TO D-PREFIX(483).
-            MOVE 4 TO D-PREFIX-LEN(483).
-            MOVE "finance_company_core" TO D-PROGRAM(483).
-            MOVE "LCO_" TO D-PREFIX(484).
-            MOVE 4 TO D-PREFIX-LEN(484).
-            MOVE "leasing_company_core" TO D-PROGRAM(484).
-            MOVE "FCOM_" TO D-PREFIX(485).
-            MOVE 5 TO D-PREFIX-LEN(485).
-            MOVE "factoring_company_core" TO D-PROGRAM(485).
-            MOVE "MTB_" TO D-PREFIX(486).
-            MOVE 4 TO D-PREFIX-LEN(486).
-            MOVE "mortgage_bank_core" TO D-PROGRAM(486).
-            MOVE "HFC_" TO D-PREFIX(487).
-            MOVE 4 TO D-PREFIX-LEN(487).
-            MOVE "housing_finance_core" TO D-PROGRAM(487).
-            MOVE "MCL_" TO D-PREFIX(488).
-            MOVE 4 TO D-PREFIX-LEN(488).
-            MOVE "micro_lending_core" TO D-PROGRAM(488).
-            MOVE "NCL_" TO D-PREFIX(489).
-            MOVE 4 TO D-PREFIX-LEN(489).
-            MOVE "nano_lending_core" TO D-PROGRAM(489).
-            MOVE "PDLG_" TO D-PREFIX(490).
-            MOVE 5 TO D-PREFIX-LEN(490).
-            MOVE "peer_lending_core" TO D-PROGRAM(490).
-            MOVE "MTG_" TO D-PREFIX(491).
-            MOVE 4 TO D-PREFIX-LEN(491).
-            MOVE "mortgage_core" TO D-PROGRAM(491).
-            MOVE "PLN_" TO D-PREFIX(492).
-            MOVE 4 TO D-PREFIX-LEN(492).
-            MOVE "personal_loan_core" TO D-PROGRAM(492).
-            MOVE "ODR_" TO D-PREFIX(493).
-            MOVE 4 TO D-PREFIX-LEN(493).
-            MOVE "overdraft_core" TO D-PROGRAM(493).
-            MOVE "FCT_" TO D-PREFIX(494).
-            MOVE 4 TO D-PREFIX-LEN(494).
-            MOVE "factoring_core" TO D-PROGRAM(494).
-            MOVE "LSG_" TO D-PREFIX(495).
-            MOVE 4 TO D-PREFIX-LEN(495).
-            MOVE "leasing_core" TO D-PROGRAM(495).
-            MOVE "HPR_" TO D-PREFIX(496).
-            MOVE 4 TO D-PREFIX-LEN(496).
-            MOVE "hire_purchase_core" TO D-PROGRAM(496).
-            MOVE "PWN_" TO D-PREFIX(497).
-            MOVE 4 TO D-PREFIX-LEN(497).
-            MOVE "pawn_core" TO D-PROGRAM(497).
-            MOVE "MCF_" TO D-PREFIX(498).
-            MOVE 4 TO D-PREFIX-LEN(498).
-            MOVE "microfinance_core" TO D-PROGRAM(498).
-            MOVE "P2P_" TO D-PREFIX(499).
-            MOVE 4 TO D-PREFIX-LEN(499).
-            MOVE "peer_to_peer_core" TO D-PROGRAM(499).
-            MOVE "IND_" TO D-PREFIX(500).
-            MOVE 4 TO D-PREFIX-LEN(500).
-            MOVE "invoice_discounting_core" TO D-PROGRAM(500).
-            MOVE "SCFN_" TO D-PREFIX(501).
-            MOVE 5 TO D-PREFIX-LEN(501).
-            MOVE "supply_chain_core" TO D-PROGRAM(501).
-            MOVE "TCR_" TO D-PREFIX(502).
-            MOVE 4 TO D-PREFIX-LEN(502).
-            MOVE "trade_credit_core" TO D-PROGRAM(502).
-            MOVE "EXF_" TO D-PREFIX(503).
-            MOVE 4 TO D-PREFIX-LEN(503).
-            MOVE "export_finance_core" TO D-PROGRAM(503).
-            MOVE "IMF_" TO D-PREFIX(504).
-            MOVE 4 TO D-PREFIX-LEN(504).
-            MOVE "import_finance_core" TO D-PROGRAM(504).
-            MOVE "DCRD_" TO D-PREFIX(505).
-            MOVE 5 TO D-PREFIX-LEN(505).
-            MOVE "documentary_credit_core" TO D-PROGRAM(505).
-            MOVE "BAC_" TO D-PREFIX(506).
-            MOVE 4 TO D-PREFIX-LEN(506).
-            MOVE "bankers_acceptance_core" TO D-PROGRAM(506).
-            MOVE "PMN_" TO D-PREFIX(507).
-            MOVE 4 TO D-PREFIX-LEN(507).
-            MOVE "promissory_note_core" TO D-PROGRAM(507).
-            MOVE "LOGG_" TO D-PREFIX(508).
-            MOVE 5 TO D-PREFIX-LEN(508).
-            MOVE "letter_of_guarantee_core" TO D-PROGRAM(508).
-            MOVE "PBD_" TO D-PREFIX(509).
-            MOVE 4 TO D-PREFIX-LEN(509).
-            MOVE "performance_bond_core" TO D-PROGRAM(509).
-            MOVE "RTMN_" TO D-PREFIX(510).
-            MOVE 5 TO D-PREFIX-LEN(510).
-            MOVE "retention_money_core" TO D-PROGRAM(510).
-            MOVE "MSP_" TO D-PREFIX(511).
-            MOVE 4 TO D-PREFIX-LEN(511).
-            MOVE "milestone_payment_core" TO D-PROGRAM(511).
-            MOVE "FNP_" TO D-PREFIX(512).
-            MOVE 4 TO D-PREFIX-LEN(512).
-            MOVE "final_payment_core" TO D-PROGRAM(512).
-            MOVE "WRT_" TO D-PREFIX(513).
-            MOVE 4 TO D-PREFIX-LEN(513).
-            MOVE "warranty_core" TO D-PROGRAM(513).
-            MOVE "PRDT_" TO D-PREFIX(514).
-            MOVE 5 TO D-PREFIX-LEN(514).
-            MOVE "product_item_core" TO D-PROGRAM(514).
-            MOVE "LN_" TO D-PREFIX(515).
-            MOVE 3 TO D-PREFIX-LEN(515).
-            MOVE "loan_account_core" TO D-PROGRAM(515).
-            MOVE "DEPS_" TO D-PREFIX(516).
-            MOVE 5 TO D-PREFIX-LEN(516).
-            MOVE "deposit_book_core" TO D-PROGRAM(516).
-            MOVE "PYMT_" TO D-PREFIX(517).
-            MOVE 5 TO D-PREFIX-LEN(517).
-            MOVE "payment_item_core" TO D-PROGRAM(517).
-            MOVE "TRNF_" TO D-PREFIX(518).
-            MOVE 5 TO D-PREFIX-LEN(518).
-            MOVE "transfer_item_core" TO D-PROGRAM(518).
-            MOVE "TXNS_" TO D-PREFIX(519).
-            MOVE 5 TO D-PREFIX-LEN(519).
-            MOVE "transaction_item_core" TO D-PROGRAM(519).
-            MOVE "ACST_" TO D-PREFIX(520).
-            MOVE 5 TO D-PREFIX-LEN(520).
-            MOVE "statement_item_core" TO D-PROGRAM(520).
-            MOVE "INTR_" TO D-PREFIX(521).
-            MOVE 5 TO D-PREFIX-LEN(521).
-            MOVE "interest_item_core" TO D-PROGRAM(521).
-            MOVE "FEES_" TO D-PREFIX(522).
-            MOVE 5 TO D-PREFIX-LEN(522).
-            MOVE "fee_item_core" TO D-PROGRAM(522).
-            MOVE "PENL_" TO D-PREFIX(523).
-            MOVE 5 TO D-PREFIX-LEN(523).
-            MOVE "penalty_item_core" TO D-PROGRAM(523).
-            MOVE "TAXS_" TO D-PREFIX(524).
-            MOVE 5 TO D-PREFIX-LEN(524).
-            MOVE "tax_item_core" TO D-PROGRAM(524).
-            MOVE "DISC_" TO D-PREFIX(525).
-            MOVE 5 TO D-PREFIX-LEN(525).
-            MOVE "discount_item_core" TO D-PROGRAM(525).
-            MOVE "RBT_" TO D-PREFIX(526).
-            MOVE 4 TO D-PREFIX-LEN(526).
-            MOVE "rebate_item_core" TO D-PROGRAM(526).
-            MOVE "RFND_" TO D-PREFIX(527).
-            MOVE 5 TO D-PREFIX-LEN(527).
-            MOVE "refund_item_core" TO D-PROGRAM(527).
-            MOVE "RVRSL_" TO D-PREFIX(528).
-            MOVE 6 TO D-PREFIX-LEN(528).
-            MOVE "reversal_item_core" TO D-PROGRAM(528).
-            MOVE "SPN_" TO D-PREFIX(529).
-            MOVE 4 TO D-PREFIX-LEN(529).
-            MOVE "suspension_item_core" TO D-PROGRAM(529).
-            MOVE "TERM_" TO D-PREFIX(530).
-            MOVE 5 TO D-PREFIX-LEN(530).
-            MOVE "termination_item_core" TO D-PROGRAM(530).
-            MOVE "DEACT_" TO D-PREFIX(531).
-            MOVE 6 TO D-PREFIX-LEN(531).
-            MOVE "deactivation_item_core" TO D-PROGRAM(531).
-            MOVE "REOP_" TO D-PREFIX(532).
-            MOVE 5 TO D-PREFIX-LEN(532).
-            MOVE "reopening_item_core" TO D-PROGRAM(532).
-            MOVE "LOY_" TO D-PREFIX(533).
-            MOVE 4 TO D-PREFIX-LEN(533).
-            MOVE "loyalty_core" TO D-PROGRAM(533).
+            MOVE "loyalty_core" TO D-PROGRAM(383).
             EXIT PARAGRAPH.
 
         DISPATCH-ACTION.

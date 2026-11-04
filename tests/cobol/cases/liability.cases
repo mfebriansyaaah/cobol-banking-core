@@ -1,6 +1,0 @@
-# Liability (Wave13) validation cases.
-LIA_CREATE missing ref@@ERROR\|INVALID_INPUT@@LIA_CREATE||||||admin@test.com
-LIA_GET missing id@@ERROR\|INVALID_INPUT@@LIA_GET||||||admin@test.com
-LIA_CALC missing id@@ERROR\|INVALID_INPUT@@LIA_CALC||||||admin@test.com
-LIA_DELETE missing id@@ERROR\|INVALID_INPUT@@LIA_DELETE||||||admin@test.com
-LIA_VALIDATE ok@@SUCCESS\|LIA_VALID@@LIA_VALIDATE|100.00|USD||||admin@test.com

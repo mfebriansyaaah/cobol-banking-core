@@ -1,6 +1,9 @@
 // Unit tests for scripts/retire_modules.mjs pure helpers. No database, no build.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import {
   rewriteDispatch,
   pruneBarrel,
@@ -8,6 +11,8 @@ import {
   removeDbResetBlock,
   dropBaselineLines,
   pruneTokenIdentityMap,
+  dropDeadActionEntries,
+  dropStaleShadowedRoutes,
 } from '../retire_modules.mjs';
 
 const DISPATCH = [
@@ -129,4 +134,52 @@ test('pruneTokenIdentityMap removes only deleted actions', () => {
   assert.ok(!text.includes('AAA_CREATE'), 'deleted action gone');
   assert.ok(text.includes('KEEP_THIS'), 'kept action stays');
   assert.ok(text.includes('AAAX'), 'prefix-collision key stays');
+});
+
+test('dropDeadActionEntries removes deleted and unrouted actions only', () => {
+  const d = mkdtempSync(path.join(tmpdir(), 'retire-base-'));
+  try {
+    const routes = path.join(d, 'middleware', 'src', 'routes');
+    mkdirSync(routes, { recursive: true });
+    writeFileSync(
+      path.join(routes, 'keep.js'),
+      "export const K = [\n  { method: 'get', path: '/keep', action: 'KEEP_GET', fields: [] },\n];\n",
+    );
+    writeFileSync(path.join(routes, 'index.js'), 'export const ALL_ROUTES = [];\n');
+    writeFileSync(path.join(d, 'middleware', 'src', 'app.js'), 'export const ROUTES = [];\n');
+    mkdirSync(path.join(d, 'tests'), { recursive: true });
+    writeFileSync(path.join(d, 'tests', 'action_test_coverage_baseline.txt'), '# header\n\nGONE_ACTION\nKEEP_GET\n');
+    const changed = dropDeadActionEntries(d, new Set(['GONE_ACTION']));
+    assert.equal(changed, true);
+    const out = readFileSync(path.join(d, 'tests', 'action_test_coverage_baseline.txt'), 'utf8');
+    assert.ok(!out.includes('GONE_ACTION'), 'dead entry dropped');
+    assert.ok(out.includes('KEEP_GET'), 'routed entry kept');
+    assert.ok(out.includes('# header'), 'comment kept');
+    assert.equal(dropDeadActionEntries(d, new Set(['GONE_ACTION'])), false);
+  } finally {
+    rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test('dropStaleShadowedRoutes drops only fully-gone routes', () => {
+  const d = mkdtempSync(path.join(tmpdir(), 'retire-shadow-'));
+  try {
+    const routes = path.join(d, 'middleware', 'src', 'routes');
+    mkdirSync(routes, { recursive: true });
+    writeFileSync(
+      path.join(routes, 'keep.js'),
+      "export const K = [\n  { method: 'get', path: '/keep', action: 'KEEP_GET', fields: [] },\n];\n",
+    );
+    writeFileSync(path.join(routes, 'index.js'), 'export const ALL_ROUTES = [];\n');
+    writeFileSync(path.join(d, 'middleware', 'src', 'app.js'), 'export const ROUTES = [];\n');
+    mkdirSync(path.join(d, 'tests'), { recursive: true });
+    writeFileSync(path.join(d, 'tests', 'known_shadowed_routes.txt'), '# header\n\nGET /gone\nGET /keep\n');
+    const changed = dropStaleShadowedRoutes(d);
+    assert.equal(changed, true);
+    const out = readFileSync(path.join(d, 'tests', 'known_shadowed_routes.txt'), 'utf8');
+    assert.ok(!out.includes('GET /gone'), 'gone route dropped');
+    assert.ok(out.includes('GET /keep'), 'live route kept even though single');
+  } finally {
+    rmSync(d, { recursive: true, force: true });
+  }
 });

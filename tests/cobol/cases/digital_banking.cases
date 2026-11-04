@@ -1,6 +1,0 @@
-# Digital Banking (Wave5) validation cases.
-DGB_CREATE missing ref@@ERROR\|INVALID_INPUT@@DGB_CREATE||||||admin@test.com
-DGB_GET missing id@@ERROR\|INVALID_INPUT@@DGB_GET||||||admin@test.com
-DGB_CALC missing id@@ERROR\|INVALID_INPUT@@DGB_CALC||||||admin@test.com
-DGB_DELETE missing id@@ERROR\|INVALID_INPUT@@DGB_DELETE||||||admin@test.com
-DGB_VALIDATE ok@@SUCCESS\|DGB_VALID@@DGB_VALIDATE|100.00|USD||||admin@test.com

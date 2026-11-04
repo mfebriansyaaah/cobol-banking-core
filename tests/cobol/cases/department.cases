@@ -1,6 +1,0 @@
-# Department (Wave10) validation cases.
-DPT_CREATE missing ref@@ERROR\|INVALID_INPUT@@DPT_CREATE||||||admin@test.com
-DPT_GET missing id@@ERROR\|INVALID_INPUT@@DPT_GET||||||admin@test.com
-DPT_CALC missing id@@ERROR\|INVALID_INPUT@@DPT_CALC||||||admin@test.com
-DPT_DELETE missing id@@ERROR\|INVALID_INPUT@@DPT_DELETE||||||admin@test.com
-DPT_VALIDATE ok@@SUCCESS\|DPT_VALID@@DPT_VALIDATE|100.00|USD||||admin@test.com

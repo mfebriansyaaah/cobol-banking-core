@@ -1,6 +1,0 @@
-# Interest Item (Wave15) validation cases.
-INTR_CREATE missing ref@@ERROR\|INVALID_INPUT@@INTR_CREATE||||||admin@test.com
-INTR_GET missing id@@ERROR\|INVALID_INPUT@@INTR_GET||||||admin@test.com
-INTR_CALC missing id@@ERROR\|INVALID_INPUT@@INTR_CALC||||||admin@test.com
-INTR_DELETE missing id@@ERROR\|INVALID_INPUT@@INTR_DELETE||||||admin@test.com
-INTR_VALIDATE ok@@SUCCESS\|INTR_VALID@@INTR_VALIDATE|100.00|USD||||admin@test.com

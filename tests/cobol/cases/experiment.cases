@@ -1,6 +1,0 @@
-# Experiment (Wave11) validation cases.
-XPR_CREATE missing ref@@ERROR\|INVALID_INPUT@@XPR_CREATE||||||admin@test.com
-XPR_GET missing id@@ERROR\|INVALID_INPUT@@XPR_GET||||||admin@test.com
-XPR_CALC missing id@@ERROR\|INVALID_INPUT@@XPR_CALC||||||admin@test.com
-XPR_DELETE missing id@@ERROR\|INVALID_INPUT@@XPR_DELETE||||||admin@test.com
-XPR_VALIDATE ok@@SUCCESS\|XPR_VALID@@XPR_VALIDATE|100.00|USD||||admin@test.com

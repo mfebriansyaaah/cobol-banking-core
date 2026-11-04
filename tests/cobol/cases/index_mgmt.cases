@@ -1,6 +1,0 @@
-# Index Mgmt (Wave14) validation cases.
-IDXX_CREATE missing ref@@ERROR\|INVALID_INPUT@@IDXX_CREATE||||||admin@test.com
-IDXX_GET missing id@@ERROR\|INVALID_INPUT@@IDXX_GET||||||admin@test.com
-IDXX_CALC missing id@@ERROR\|INVALID_INPUT@@IDXX_CALC||||||admin@test.com
-IDXX_DELETE missing id@@ERROR\|INVALID_INPUT@@IDXX_DELETE||||||admin@test.com
-IDXX_VALIDATE ok@@SUCCESS\|IDXX_VALID@@IDXX_VALIDATE|100.00|USD||||admin@test.com

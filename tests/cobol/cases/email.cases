@@ -1,6 +1,0 @@
-# Email (Wave11) validation cases.
-EML_CREATE missing ref@@ERROR\|INVALID_INPUT@@EML_CREATE||||||admin@test.com
-EML_GET missing id@@ERROR\|INVALID_INPUT@@EML_GET||||||admin@test.com
-EML_CALC missing id@@ERROR\|INVALID_INPUT@@EML_CALC||||||admin@test.com
-EML_DELETE missing id@@ERROR\|INVALID_INPUT@@EML_DELETE||||||admin@test.com
-EML_VALIDATE ok@@SUCCESS\|EML_VALID@@EML_VALIDATE|100.00|USD||||admin@test.com

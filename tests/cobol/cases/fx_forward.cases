@@ -1,6 +1,0 @@
-# Fx Forward (Wave9) validation cases.
-FXF_CREATE missing ref@@ERROR\|INVALID_INPUT@@FXF_CREATE||||||admin@test.com
-FXF_GET missing id@@ERROR\|INVALID_INPUT@@FXF_GET||||||admin@test.com
-FXF_CALC missing id@@ERROR\|INVALID_INPUT@@FXF_CALC||||||admin@test.com
-FXF_DELETE missing id@@ERROR\|INVALID_INPUT@@FXF_DELETE||||||admin@test.com
-FXF_VALIDATE ok@@SUCCESS\|FXF_VALID@@FXF_VALIDATE|100.00|USD||||admin@test.com

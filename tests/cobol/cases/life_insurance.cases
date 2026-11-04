@@ -1,6 +1,0 @@
-# Life Insurance (Wave18) validation cases.
-LIF_CREATE missing ref@@ERROR\|INVALID_INPUT@@LIF_CREATE||||||admin@test.com
-LIF_GET missing id@@ERROR\|INVALID_INPUT@@LIF_GET||||||admin@test.com
-LIF_CALC missing id@@ERROR\|INVALID_INPUT@@LIF_CALC||||||admin@test.com
-LIF_DELETE missing id@@ERROR\|INVALID_INPUT@@LIF_DELETE||||||admin@test.com
-LIF_VALIDATE ok@@SUCCESS\|LIF_VALID@@LIF_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Indexing (Wave11) validation cases.
-IDX_CREATE missing ref@@ERROR\|INVALID_INPUT@@IDX_CREATE||||||admin@test.com
-IDX_GET missing id@@ERROR\|INVALID_INPUT@@IDX_GET||||||admin@test.com
-IDX_CALC missing id@@ERROR\|INVALID_INPUT@@IDX_CALC||||||admin@test.com
-IDX_DELETE missing id@@ERROR\|INVALID_INPUT@@IDX_DELETE||||||admin@test.com
-IDX_VALIDATE ok@@SUCCESS\|IDX_VALID@@IDX_VALIDATE|100.00|USD||||admin@test.com

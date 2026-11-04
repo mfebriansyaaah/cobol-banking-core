@@ -1,6 +1,0 @@
-# Forecast (Wave14) validation cases.
-FRCST_CREATE missing ref@@ERROR\|INVALID_INPUT@@FRCST_CREATE||||||admin@test.com
-FRCST_GET missing id@@ERROR\|INVALID_INPUT@@FRCST_GET||||||admin@test.com
-FRCST_CALC missing id@@ERROR\|INVALID_INPUT@@FRCST_CALC||||||admin@test.com
-FRCST_DELETE missing id@@ERROR\|INVALID_INPUT@@FRCST_DELETE||||||admin@test.com
-FRCST_VALIDATE ok@@SUCCESS\|FRCST_VALID@@FRCST_VALIDATE|100.00|USD||||admin@test.com

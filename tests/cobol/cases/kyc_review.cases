@@ -1,4 +1,0 @@
-KYC_CREATE missing first param@@ERROR\|INVALID_INPUT@@KYC_CREATE||||||admin@test.com
-KYC_GET missing first param@@ERROR\|INVALID_INPUT@@KYC_GET||||||admin@test.com
-KYC_APPROVE missing first param@@ERROR\|INVALID_INPUT@@KYC_APPROVE||||||admin@test.com
-KYC_REJECT missing first param@@ERROR\|INVALID_INPUT@@KYC_REJECT||||||admin@test.com

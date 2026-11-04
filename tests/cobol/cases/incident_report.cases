@@ -1,6 +1,0 @@
-# Incident Report (Wave7) validation cases.
-INR_CREATE missing ref@@ERROR\|INVALID_INPUT@@INR_CREATE||||||admin@test.com
-INR_GET missing id@@ERROR\|INVALID_INPUT@@INR_GET||||||admin@test.com
-INR_CALC missing id@@ERROR\|INVALID_INPUT@@INR_CALC||||||admin@test.com
-INR_DELETE missing id@@ERROR\|INVALID_INPUT@@INR_DELETE||||||admin@test.com
-INR_VALIDATE ok@@SUCCESS\|INR_VALID@@INR_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Investment Banking (Wave20) validation cases.
-IVB_CREATE missing ref@@ERROR\|INVALID_INPUT@@IVB_CREATE||||||admin@test.com
-IVB_GET missing id@@ERROR\|INVALID_INPUT@@IVB_GET||||||admin@test.com
-IVB_CALC missing id@@ERROR\|INVALID_INPUT@@IVB_CALC||||||admin@test.com
-IVB_DELETE missing id@@ERROR\|INVALID_INPUT@@IVB_DELETE||||||admin@test.com
-IVB_VALIDATE ok@@SUCCESS\|IVB_VALID@@IVB_VALIDATE|100.00|USD||||admin@test.com

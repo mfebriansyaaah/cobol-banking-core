@@ -1,6 +1,0 @@
-# Home Insurance (Wave18) validation cases.
-HOM_CREATE missing ref@@ERROR\|INVALID_INPUT@@HOM_CREATE||||||admin@test.com
-HOM_GET missing id@@ERROR\|INVALID_INPUT@@HOM_GET||||||admin@test.com
-HOM_CALC missing id@@ERROR\|INVALID_INPUT@@HOM_CALC||||||admin@test.com
-HOM_DELETE missing id@@ERROR\|INVALID_INPUT@@HOM_DELETE||||||admin@test.com
-HOM_VALIDATE ok@@SUCCESS\|HOM_VALID@@HOM_VALIDATE|100.00|USD||||admin@test.com

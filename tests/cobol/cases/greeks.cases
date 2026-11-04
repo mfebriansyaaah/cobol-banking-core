@@ -1,6 +1,0 @@
-# Greeks (Wave9) validation cases.
-GRK_CREATE missing ref@@ERROR\|INVALID_INPUT@@GRK_CREATE||||||admin@test.com
-GRK_GET missing id@@ERROR\|INVALID_INPUT@@GRK_GET||||||admin@test.com
-GRK_CALC missing id@@ERROR\|INVALID_INPUT@@GRK_CALC||||||admin@test.com
-GRK_DELETE missing id@@ERROR\|INVALID_INPUT@@GRK_DELETE||||||admin@test.com
-GRK_VALIDATE ok@@SUCCESS\|GRK_VALID@@GRK_VALIDATE|100.00|USD||||admin@test.com

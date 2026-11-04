@@ -1,6 +1,0 @@
-# Debt Collection (Wave7) validation cases.
-DCL_CREATE missing ref@@ERROR\|INVALID_INPUT@@DCL_CREATE||||||admin@test.com
-DCL_GET missing id@@ERROR\|INVALID_INPUT@@DCL_GET||||||admin@test.com
-DCL_CALC missing id@@ERROR\|INVALID_INPUT@@DCL_CALC||||||admin@test.com
-DCL_DELETE missing id@@ERROR\|INVALID_INPUT@@DCL_DELETE||||||admin@test.com
-DCL_VALIDATE ok@@SUCCESS\|DCL_VALID@@DCL_VALIDATE|100.00|USD||||admin@test.com
