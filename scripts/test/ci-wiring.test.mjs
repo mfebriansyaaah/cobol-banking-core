@@ -66,9 +66,7 @@ print(json.dumps(out))
 
 // Pure checker so the negative control below exercises the real logic.
 function findUnwired(entries, runSteps) {
-  return entries
-    .filter(([_, needles]) => !needles.some((n) => runSteps.some((s) => s.includes(n))))
-    .map(([entry]) => entry);
+  return entries.filter((entry) => !entry[1].some((n) => runSteps.some((s) => s.includes(n)))).map(([name]) => name);
 }
 
 test('every documented entrypoint is wired into a workflow', () => {
