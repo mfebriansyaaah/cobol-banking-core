@@ -1,0 +1,35 @@
+# Tool checksums (R0 00B, T-029).
+# Every binary downloaded in .github/workflows/ci.yml must match this file.
+# Verify with: sha256sum -c scripts/ci/tool-checksums.txt
+# Versions are pinned in ci.yml; this file pins the content hash.
+# Python packages use == pins (yamllint==1.38.0, semgrep==1.136.0).
+# Node uses setup-node@<sha> with node 24 and npm ci lockfiles.
+# cppcheck comes from apt; record the installed version in docs/CI.md after each run.
+# CodeQL bundle, diff-cover, Syft/Stryker are Phase 1/2 (T-031/T-037); add here when approved.
+
+# shellcheck 0.10.0
+# https://github.com/koalaman/shellcheck/releases/download/v0.10.0/shellcheck-v0.10.0.linux.x86_64.tar.xz
+6c881ab0698e4e6ea235245f22832860544f17ba386442fe7e9d629f8cbedf87  shellcheck-v0.10.0.linux.x86_64.tar.xz
+
+# shfmt 3.11.0
+# https://github.com/mvdan/sh/releases/download/v3.11.0/shfmt_v3.11.0_linux_amd64
+1904ec6bac715c1d05cd7f6612eec8f67a625c3749cb327e5bfb4127d09035ff  shfmt_v3.11.0_linux_amd64
+
+# actionlint 1.7.7
+# https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz
+023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757  actionlint_1.7.7_linux_amd64.tar.gz
+
+# promtool 3.3.1 (inside prometheus-3.3.1.linux-amd64.tar.gz)
+# https://github.com/prometheus/prometheus/releases/download/v3.3.1/prometheus-3.3.1.linux-amd64.tar.gz
+e22600b314f65fd180fe17c0afeea85ed8484e924fc589c2331b084813699ef0  prometheus-3.3.1.linux-amd64.tar.gz
+
+# gitleaks 8.28.0
+# https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz
+a65b5253807a68ac0cafa4414031fd740aeb55f54fb7e55f386acb52e6a840eb  gitleaks_8.28.0_linux_x64.tar.gz
+
+# Notes (no binary hash; version-pinned):
+# - yamllint==1.38.0 via pip --break-system-packages
+# - semgrep==1.136.0 via pip --break-system-packages
+# - actions/checkout@11d5960a326750d5838078e36cf38b85af677262, setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 / 49933ea5288caeca8642d1e84afbd3f7d6820020, cache@0057852bfaa89a56745cba8c7296529d2fc39830, download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 / d3f86a106a0bac45b974a628896c90dbdf5c8093 — full SHAs, see ci.yml
+# - mariadb:11.8 image — pin digest in Phase 1 (T-030); current tag recorded in docs/CI.md
+# - gnucobol: apt 3.1.2 for build/test; 3.2 built from source for coverage (scripts/ci/install_gnucobol.sh, pinned SHA-256 inside that script)
