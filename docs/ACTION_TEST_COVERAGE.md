@@ -137,6 +137,10 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   suite — payment_hold lifecycle (reserve/capture/release/expire, 19
   asserts) — shell-covered 2,396 → 2,402 (86.4%), baseline 384 → 378.
   (PHL_GET already covered elsewhere.)
+
+- Batch 4 (`test/testing-p1-04-route-batch4`): third from-scratch cat-3
+  suite — velocity cluster (profile/check/record/usage/block, 15
+  asserts) — shell-covered 2,402 → 2,407 (86.6%), baseline 378 → 373.
 - Prod fix required: `loan_schedule_core.cob` read actions returned
   unprefixed rows (dispatch epilogue clobbered `LS-OUTPUT-BUFFER`);
   1-line copy-back at each of the 4 success exits. LSC_GET/SUMMARY/
