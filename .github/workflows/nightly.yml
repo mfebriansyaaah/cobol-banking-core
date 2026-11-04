@@ -94,23 +94,21 @@ jobs:
           ./build.sh 2>&1 | tee build.log
 
       - name: Full run 1 of 2
-        run: tests/run_all.sh --json full
+        run: REPORT_DIR=artifacts/nightly-run1 tests/run_all.sh --json full
 
       - name: Stash run 1 report
         if: always()
         run: |
           mkdir -p nightly
-          cp artifacts/run-all.json nightly/run1.json 2>/dev/null || echo "no run-all.json from run 1"
-          # report_init appends; without this, run 2 would inherit run 1's rows.
-          rm -rf artifacts
+          cp artifacts/nightly-run1/run-all.json nightly/run1.json 2>/dev/null || echo "no run-all.json from run 1"
 
       - name: Full run 2 of 2
-        run: tests/run_all.sh --json full
+        run: REPORT_DIR=artifacts/nightly-run2 tests/run_all.sh --json full
 
       - name: Stash run 2 report
         if: always()
         run: |
-          cp artifacts/run-all.json nightly/run2.json 2>/dev/null || echo "no run-all.json from run 2"
+          cp artifacts/nightly-run2/run-all.json nightly/run2.json 2>/dev/null || echo "no run-all.json from run 2"
 
       - name: Compare runs (flake gate)
         run: node scripts/ci/compare_runs.mjs nightly/run1.json nightly/run2.json

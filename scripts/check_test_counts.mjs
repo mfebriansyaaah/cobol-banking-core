@@ -4,8 +4,9 @@
 //
 // Two data sources:
 //   runtime (default): tests report rows from <report-dir>/report.tsv
-//     (written by tests/lib/report.sh) plus gateway JUnit XMLs
-//     (junit-*.xml) in the same directory.
+//     (written by tests/lib/report.sh) plus gateway JUnit XMLs from
+//     <report-dir>/junit/gateway/ (legacy flat dirs: junit-*.xml at root,
+//     junit/db/ always excluded).
 //   static (--static): counts assert_match lines per tests/db/*.sh and @@
 //     case lines, without running anything. Used by the probes harness and
 //     for fast local checks. Exact counts hold for every suite except the
@@ -127,14 +128,18 @@ function loadRuntime() {
     }
   }
   // gateway_tests from JUnit XMLs (Node junit: bare testcases; tap converter: testsuite attrs).
+  // Only junit/gateway/ counts: junit/db/ holds converted TAP logs for PR
+  // annotations, not gateway tests. Legacy flat dirs (no junit/gateway)
+  // fall back to scanning the report root while pruning junit/db/.
   let gateway = null;
   if (existsSync(reportDir)) {
     let tests = 0;
     let files = 0;
-    const walk = (dir) => {
+    const walk = (dir, prune = new Set()) => {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
         const p = path.join(dir, e.name);
-        if (e.isDirectory()) walk(p);
+        if (prune.has(path.resolve(p))) continue;
+        if (e.isDirectory()) walk(p, prune);
         else if (e.name.endsWith('.xml')) {
           const src = readFileSync(p, 'utf8');
           if (!src.includes('<testsuite') && !src.includes('<testcase')) continue;
@@ -145,8 +150,13 @@ function loadRuntime() {
         }
       }
     };
+    const gwDir = path.join(reportDir, 'junit', 'gateway');
+    const dbDir = path.join(reportDir, 'junit', 'db');
     try {
-      walk(reportDir);
+      // Prefer the namespaced layout; legacy flat dirs (pre-T-012) fall
+      // back to a root scan that still prunes junit/db/.
+      if (existsSync(gwDir)) walk(gwDir);
+      else walk(reportDir, new Set([path.resolve(dbDir)]));
     } catch {
       return { rows, gateway: null, missing: `cannot scan ${reportDir}` };
     }
