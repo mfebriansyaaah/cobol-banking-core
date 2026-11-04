@@ -5,7 +5,7 @@
 set -u
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT"
+cd "$ROOT" || exit
 
 passed=0
 failed=0

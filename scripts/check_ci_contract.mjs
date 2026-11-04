@@ -15,7 +15,7 @@
 // Usage:
 //   node scripts/check_ci_contract.mjs [--root DIR]
 // Exit: 0 ok, 1 contract violation, 2 usage error.
-import { execFileSync, execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -55,11 +55,11 @@ for f in sys.argv[1:]:
 print(json.dumps(out))
 `;
   try {
-    const stdout = execFileSync(
-      'python3',
-      ['-c', script, ...files],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60000 },
-    );
+    const stdout = execFileSync('python3', ['-c', script, ...files], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 60000,
+    });
     return JSON.parse(stdout);
   } catch (e) {
     console.error(`FAIL: cannot parse workflows (python3+yaml required): ${e.message}`);
