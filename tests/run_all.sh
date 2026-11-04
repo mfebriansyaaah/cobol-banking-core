@@ -98,8 +98,7 @@ check_js_syntax() {
 # --- DB fleet sharding (Fase 2.3) -------------------------------------------
 # SHARD_DBS: worker databases created by this run (space-separated).
 # ISOLATED_DB_CREATED: throwaway template DB from the isolation block.
-SHARD_DBS=""
-ISOLATED_DB_CREATED=""
+# (Initialized once, just before dispatch; see the single EXIT trap below.)
 
 mysql_admin() {
     mysql -h "${DB_HOST:-localhost}" -P "${DB_PORT:-3306}" \
@@ -510,7 +509,6 @@ run_fast() {
     . "$ROOT/tests/lib/report.sh"
     # shellcheck disable=SC2119
     report_init
-    trap report_finalize EXIT
     run_gates
     run_build
     echo "=== COBOL TABLE TESTS ==="
@@ -550,7 +548,6 @@ run_affected() {
     . "$ROOT/tests/lib/report.sh"
     # shellcheck disable=SC2119
     report_init
-    trap 'db_lock_release; report_finalize' EXIT
     run_gates
     run_build
     echo "=== COBOL TABLE TESTS (selected) ==="
@@ -574,7 +571,6 @@ run_affected() {
         # shellcheck disable=SC2031
         DB_NAME="${DB_NAME:-cobol_db}"
         db_lock_acquire || exit 1
-        trap 'db_lock_release; report_finalize' EXIT
         require_db
         # shellcheck disable=SC1091
         . "$ROOT/tests/lib/report.sh"
@@ -681,12 +677,9 @@ run_db() {
     . "$ROOT/tests/lib/report.sh"
     DB_NAME="${DB_NAME:-cobol_db}"
     # Throwaway databases (isolated template + shard workers) are all dropped
-    # by one EXIT trap; the isolation block below only records what it made.
-    # The lock is held for the whole run so two runners cannot interleave
-    # DELETE/reset statements against the same target.
-    SHARD_DBS=""
-    ISOLATED_DB_CREATED=""
-    trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
+    # by the single top-level EXIT trap; the isolation block below only
+    # records what it made. The lock is held for the whole run so two
+    # runners cannot interleave DELETE/reset statements against the same target.
     db_lock_acquire || exit 1
     # shellcheck disable=SC2119
     report_init
@@ -753,9 +746,8 @@ run_integration() {
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/report.sh"
     DB_NAME="${DB_NAME:-cobol_db}"
-    SHARD_DBS=""
-    ISOLATED_DB_CREATED=""
-    trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
+    # The top-level EXIT trap owns cleanup; this function must not reset the
+    # throwaway-DB lists recorded by run_db (see tests/scripts/test_db_cleanup.sh).
     db_lock_acquire || exit 1
     # shellcheck disable=SC2119
     report_init
@@ -809,6 +801,16 @@ run_error_harness() {
     tests/check_cobol_c_errors.sh
 }
 
+# Single EXIT trap for the whole run (T-014). Throwaway databases (isolated
+# template + shard workers) are all dropped by cleanup_db_resources, which
+# reads the lists recorded by ensure_isolated_db / make_worker_db. Phase
+# functions must not reset SHARD_DBS/ISOLATED_DB_CREATED or install their own
+# EXIT trap; see tests/scripts/test_db_cleanup.sh. Guarded calls: probes mode
+# never sources guard/lock/report, so missing functions must not fail the run.
+SHARD_DBS=""
+ISOLATED_DB_CREATED=""
+trap 'cleanup_db_resources 2>/dev/null || true; db_lock_release 2>/dev/null || true; report_finalize 2>/dev/null || true' EXIT
+
 case "$MODE" in
     fast)
         run_fast
@@ -833,9 +835,8 @@ case "$MODE" in
         # shellcheck disable=SC1091
         . "$ROOT/tests/lib/report.sh"
         DB_NAME="${DB_NAME:-cobol_db}"
-        SHARD_DBS=""
-        ISOLATED_DB_CREATED=""
-        trap 'cleanup_db_resources; db_lock_release; report_finalize' EXIT
+        # The top-level EXIT trap owns cleanup; this branch must not reset the
+        # throwaway-DB lists (see tests/scripts/test_db_cleanup.sh).
         # report_init is env-driven (REPORT_DIR); script args are mode selectors, not its input.
         # shellcheck disable=SC2119
         report_init
