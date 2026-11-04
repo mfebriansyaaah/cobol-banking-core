@@ -113,11 +113,16 @@ fail — not skip — when a tool is missing.
 | **Estimated total** | — | **~22,700 minutes/month** |
 
 Private GitHub Free has a limited monthly minute quota; a 4-shard DB matrix
-plus nightly can exceed it. If the budget is insufficient, reduce in this
+plus nightly can exceed it. While the repository is temporarily public,
+Actions usage is free within fair-use limits, so this ceiling is a planning
+number, not a billing blocker. If the budget is insufficient, reduce in this
 order: db-shards only on DB/COBOL PRs; coverage/CodeQL/mutation nightly;
 nightly 3×/week. Never remove lint/build/test/count/security from `main`.
 Record actual minutes after two weeks and replace this table.
-Owner approval required for the budget (R0 criterion 6).
+
+Approved 2026-11-04 by `@mfebriansyaaah`: ceiling ~22,700 minutes/month
+accepted as planning number; re-approve with measured minutes before
+re-privatizing the repository.
 
 ## Enforcement
 
@@ -162,7 +167,7 @@ deliberately red PR that cannot merge.
 | 3 | Enforcement access verified | Met — `gh api .../rulesets` returns `[]` rc=0 2026-11-04; draft in `.github/rulesets/main.json` valid (4 rules); active blocking is G0 |
 | 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
 | 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
-| 6 | Cost approved | Partial — estimate in this file, approval pending |
+| 6 | Cost approved | Met — ceiling ~22,700 min/month approved 2026-11-04 by `@mfebriansyaaah`; re-approve with measured minutes before re-privatizing |
 | 7 | Named owners | Met — `@get-money-first` added as backup on every path 2026-11-04; see `docs/OWNERSHIP.md` |
 | 8 | Executor independence | Partial — single-engineer execution; tabletop pending second engineer |
 | 9 | Communication ready | Met — this file + rollout above |
@@ -197,9 +202,8 @@ Approved by `@mfebriansyaaah` (repository owner):
 
 ### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
 
-R0 does **not** pass. Met: 1, 2, 3, 4, 5, 7, 9, 10, 11. Not met: none. Partial: 6, 8.
-Phase 0 must not start until the partials are closed (cost approval with date,
-second-engineer tabletop).
+R0 does **not** pass. Met: 1, 2, 3, 4, 5, 6, 7, 9, 10, 11. Not met: none. Partial: 8.
+Phase 0 must not start until the tabletop is closed.
 
 Proven 2026-11-04: run
 `https://github.com/mfebriansyaaah/cobol-banking-core/actions/runs/41772256921`
@@ -209,9 +213,7 @@ triaged as G0/Phase 0, not billing).
 
 Blockers and owners:
 
-- Cost approval (criterion 6), second-engineer tabletop (criterion 8) —
-  partial, need dates and approvers. Day 0 preflight is done (triaged);
-  ownership exception resolved with `@get-money-first`.
+- Second-engineer tabletop (criterion 8) — partial, need date and approver.
 
 What 00A/00B delivered: branching plan, CI status source, ownership gap record,
 cost estimate, rollout plan, main-protection draft + hook, tool checksums with
