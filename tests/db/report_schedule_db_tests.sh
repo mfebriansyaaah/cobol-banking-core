@@ -42,6 +42,17 @@ assert_match "RPS_AUDIT ok" "$(run_cobol "RPS_AUDIT|50|0||||admin@test.com")" "S
 assert_match "RPS_VALIDATE ok" "$(run_cobol "RPS_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|RPS_VALID"
 assert_match "non-admin refused" "$(run_cobol "RPS_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM rpt_schedule_config WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM rpt_schedule_config_audit WHERE rpt_schedule_config_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "RPS_UPDATE|${id}|ScheduleA|DAILY|||admin@test.com")"
+assert_match "RPS_UPDATE ok" "$upd_out" "SUCCESS\\|RPS_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM rpt_schedule_config WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM rpt_schedule_config_audit WHERE rpt_schedule_config_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "RPS_UPDATE|999999|ScheduleA|DAILY|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "RPS_UPDATE|${id}|ScheduleA|DAILY|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
