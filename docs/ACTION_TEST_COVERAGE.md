@@ -1,0 +1,96 @@
+# Action Test Coverage — Triage and Burndown
+
+> R0 note: this document is the T-016A discovery spike record and the T-017
+> triage sheet. Owner sign-off on the order below is required before T-018
+> starts spending it.
+
+## Current picture (2026-11-04, measured)
+
+`node scripts/check_action_test_coverage.mjs --json .`:
+
+| Metric | Value |
+| --- | ---: |
+| Route actions (denominator) | 2,780 |
+| Shell-covered | 2,180 (78.4%) |
+| Baseline (uncovered, owned) | 600 |
+
+The denominator was 4,096 before retire waves A/B deleted ~1,300 generated
+actions and their tests. Targets below are percentages so they survive
+further retirements: **Phase 1 ≥90% (≤278 untested), Phase 2 ≥95%
+(≤139 untested).**
+
+| # | Category | Count | Owner | Ticket | Expires |
+| --- | ---: | --- | --- | --- | --- |
+| 1 | Template `*_UPDATE` gap | 244 | @mfebriansyaaah | T-019 | 2027-03-31 |
+| 2 | Inline `app.js` routes | 63 | @mfebriansyaaah | T-022 | 2027-03-31 |
+| 3 | Route files with no DB suite | 278 | @mfebriansyaaah | T-020 | 2027-03-31 |
+| 4 | Suite exists, does not invoke | 15 | @mfebriansyaaah | T-022 | 2027-03-31 |
+
+Every baseline entry carries `owner/reason/expires/ticket`; the gate fails
+on placeholders and on expiry. `reason` mirrors the category; see
+`tests/action_test_coverage_baseline.txt`.
+
+## T-016A spike: is a generator viable?
+
+**Decision: GO** for a template-driven transform
+(`scripts/generate_domain_tests.mjs`), with a manual queue for exceptions.
+Revisit if the first 20 domains show <80% uniformity.
+
+Evidence (all verified, not assumed):
+
+1. **Template suites are mechanically uniform.** Diffing any two
+   `tests/db/*_db_tests.sh` shows only names/refs/tables differ
+   (e.g. `account_db_tests.sh` vs `cost_center_db_tests.sh`); the 13-assertion
+   shape (CREATE → duplicate → GET → LIST → CALC → DELETE/CLOSE → SUMMARY →
+   AUDIT → VALIDATE → non-admin) is identical.
+2. **COBOL UPDATE paragraphs are uniform where they exist.**
+   246 of 304 `*_core.cob` modules implement `ACTION-UPDATE` with the same
+   shape (`ALLOW-ADMIN` → `INVALID_INPUT` on empty id → `LOAD-CLEARING` →
+   `UPDATE ... SET ... version = version + 1 WHERE id = ? AND version = ?`).
+3. **No client-visible conflict path exists.** UPDATE routes carry no version
+   field; `LOAD-CLEARING` reads the current version from the DB inside the
+   action. A stale-version `ERROR|CONFLICT` cannot be produced through the
+   action — concurrent updates are last-writer-wins. Template UPDATE tests
+   therefore pin happy-path + validation + audit, not conflicts.
+4. **Worked example (ACC, verified live):** `ACC_CREATE` → version 1 →
+   `ACC_UPDATE|id|...` → `SUCCESS|ACC_UPDATE`, version 1 → 2, exactly 1
+   `UPDATE` audit row; missing id → `ERROR|NOT_FOUND`; non-admin →
+   `ERROR|FORBIDDEN`. Fixture cleaned up afterwards.
+5. **Exceptions (manual queue, not generated):** 58 modules without
+   `ACTION-UPDATE` (auth, backup_drill, dashboard, eod, card, collection,
+   deposit, ...); tables without a `version` column (sampled: `deposit`,
+   `card`, `collection`, `payment_clearing` lack it, while `account`,
+   `cost_center`, `loan`, `treasury_liquidity` have it); richer hand-written
+   domains whose suites need extending by hand (card/deposit/loan/
+   loan_schedule — the 15 category-4 entries).
+
+Generator input is parsed from the existing suite (prefix, table, ref/name/
+type samples, LIST filter, CALC expectation, VALIDATE sample); output is the
+UPDATE block (valid update + version bump + audit count + invalid input +
+missing id + non-admin). Generated suites must pass unmodified; any domain
+needing hand edits goes to the manual queue and counts against the 80% bar.
+
+## Burndown plan (owner sign-off required)
+
+| Milestone | Covered | Untested (max) | How |
+| --- | ---: | ---: | --- |
+| Baseline (now) | 2,180 (78.4%) | 600 | — |
+| End sprint 1 | ≥2,367 (≥85.4%) | ≤413 | Template UPDATE, top money-path domains first |
+| G1 (Phase 1) | ≥2,502 (≥90.0%) | ≤278 | Remaining template UPDATE + first route clusters |
+| Mid Phase 2 | ≥2,571 (≥92.7%) | ≤209 | Route clusters continue |
+| G2 (Phase 2) | ≥2,641 (≥95.0%) | ≤139 | Invariant-adjacent remainder; residue = documented exceptions |
+
+Weekly review: run `--json`, record covered/baseline, review the diff.
+
+## Domain groups
+
+- **Critical money path** (two approvals): wallet, auth, payments, treasury,
+  GL, settlement. UPDATE tests here first (T-018).
+- **Financial domains** (depth: invariants + UPDATE): loan, deposit, card,
+  collection.
+- **Other/synthetic**: remaining template domains, batched (T-019).
+
+## Sign-off
+
+- [ ] Triage order approved by: ____________________ Date: __________
+- [ ] Generator approach approved (or risk-based fallback invoked): __________ Date: __________
