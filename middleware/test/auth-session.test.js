@@ -11,14 +11,32 @@ const app = buildApp();
 // broad gw_% cleanup deletes these users mid-run.
 const NS = testNamespace('sess');
 const U = (tag) => uniqueEmail(NS, tag);
-after(() => { cleanupNamespace(NS); });
+after(() => {
+  cleanupNamespace(NS);
+});
 
 async function loginNewUser() {
-  const email = U('sess');
-  await request(app)
+  // Unique per call: two tests share this helper, and re-signup of an
+  // already-verified user returns 200 without issuing a new code, so a
+  // shared email would leave the second caller with no usable code.
+  loginNewUser.n = (loginNewUser.n || 0) + 1;
+  const email = U(`sess${loginNewUser.n}`);
+  const signup = await request(app)
     .post('/auth/signup')
     .send({ email, password: 'secret123', name: 'Session User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
+  assert.equal(signup.status, 200);
+  // The code is read back over a separate mysql client while other test files
+  // hammer the same database; a transient read failure used to surface later
+  // as a misleading 401 on login. Retry the read bounded, then fail fast with
+  // the real step attached.
+  let code = '';
+  for (let i = 0; i < 5 && !code; i += 1) {
+    code = getVerificationCode(email);
+    if (!code) await new Promise((r) => setTimeout(r, 100));
+  }
+  assert.match(code, /^\d{6}$/, 'verification code readable');
+  const verify = await request(app).post('/auth/verify').send({ email, code });
+  assert.equal(verify.status, 200);
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   assert.equal(login.status, 200);
   return login.body.refreshToken;
@@ -47,8 +65,12 @@ test('logout revokes the refresh token', async () => {
 
 test('logout revokes the access token too', async () => {
   const email = U('rev');
-  await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Revoke User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
+  await request(app)
+    .post('/auth/signup')
+    .send({ email, password: 'secret123', name: 'Revoke User', dob: '1990-01-01' });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email, code: getVerificationCode(email) });
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   const auth = { Authorization: `Bearer ${login.body.token}` };
 
@@ -65,8 +87,12 @@ test('logout revokes the access token too', async () => {
 
 test('logout is per-device and leaves other sessions alone', async () => {
   const email = U('dev');
-  await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Device User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
+  await request(app)
+    .post('/auth/signup')
+    .send({ email, password: 'secret123', name: 'Device User', dob: '1990-01-01' });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email, code: getVerificationCode(email) });
   const a = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   const b = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   const authA = { Authorization: `Bearer ${a.body.token}` };
