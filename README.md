@@ -8,6 +8,10 @@ crypto helpers COBOL cannot call directly.
 
 [![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
 
+> **CI status (2026-11-04):** workflows are temporarily `workflow_dispatch`-only
+> while billing is resolved. See [docs/CI.md](docs/CI.md). Do not read the badge
+> above as proof of a green PR gate.
+
 > **Status (2026-10-29):** COBOL modules follow the 9-action contract (see
 > `docs/module_classification.md`): Tier-1 hand-reviewed core (auth, wallet,
 > lending, …) plus Tier-2 generated domain modules and Tier-3 utilities.
@@ -306,9 +310,9 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 ./ci.sh                   # wrapper for full
 ```
 
-| Suite | Assertions | Location |
+| Suite | Assertions (2026-11-04, see `tests/baseline_counts.txt`) | Location |
 | --- | ---: | --- |
-| COBOL table cases | 27 | `tests/cobol/cases/*.cases` |
+| COBOL table cases | 1422 | `tests/cobol/cases/*.cases` (298 files) |
 | Schema / migrations | 76 | `tests/db/schema_tests.sh` |
 | D1 loan schedule | 11 | `tests/db/loan_schedule_db_tests.sh` |
 | D2 deposit | 26 | `tests/db/deposit_db_tests.sh` |
@@ -320,7 +324,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | D8 gl allocation | 13 | `tests/db/gl_allocation_db_tests.sh` |
 | D9 backup drill | 13 | `tests/db/backup_drill_db_tests.sh` |
 | D10 report builder | 13 | `tests/db/report_builder_db_tests.sh` |
-| Gateway | 136 | `middleware/test/*.js` |
+| Gateway | 747 | `middleware/test/*.js` |
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
 suites fail closed with `FAIL: DB unavailable` when MariaDB is not reachable

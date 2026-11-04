@@ -1,5 +1,9 @@
 # Governance and Merge Policy
 
+> **CI status (2026-11-04):** workflows are temporarily `workflow_dispatch`-only
+> while billing is resolved. The rules below describe the target gate; while
+> parked, see [CI status](CI.md) and do not claim automatic PR enforcement.
+
 ## Status
 
 This repository is private and uses GitHub Free. GitHub rejects branch

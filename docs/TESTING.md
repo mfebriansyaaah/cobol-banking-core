@@ -347,7 +347,7 @@ and a route whose `fields` order drifts from the COBOL `LS-PARAM` order
 (executes with swapped parameters). Two mechanisms close this:
 
 **Reachability** (`middleware/test/route-reachability.test.js`, part of
-`test:fast`). Iterates all 5427 `ROUTES`: guarded routes are hit without a
+`test:fast`). Iterates all 2801 `ROUTES` (2026-11-04; see `docs/STATUS.md`): guarded routes are hit without a
 token (must 401/403 before any COBOL runs — a 200/400 would mean auth was
 skipped), public routes are hit with `{}` (must fail validation — a 401/403
 would mean auth was wrongly added). No request in this suite can write:
@@ -387,8 +387,10 @@ fails on *stale* entries (a test was added but the entry left behind) and
 
 HTTP tests do **not** count: hitting a route over HTTP is not executing its
 COBOL action (a guarded route 401s before the binary runs; an invalid payload
-400s before it runs). The current picture (generated 2026-11-01, 5399 route
-actions): 4338 shell-covered (80.3%), 1061 baselined in four verified groups
+400s before it runs). The current picture (measured 2026-11-04, 2780 route
+actions): 2180 shell-covered (78.4%), 600 baselined in four verified groups
+(see `tests/action_test_coverage_baseline.txt` and `docs/CI.md` for the live
+numbers; do not treat this paragraph as the source of truth)
 — 502 template `*_UPDATE` (no template suite invokes UPDATE, so
 optimistic-locking paths are unproven), 63 inline `app.js` routes
 (HTTP-exercised, no shell invocation), 479 in route files with no DB suite,
