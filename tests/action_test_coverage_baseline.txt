@@ -417,18 +417,3 @@ VRK_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=
 # --- 4. Suite exists but does not invoke these actions.
 #    The route surface is richer than what the domain suite exercises
 #    (e.g. LOAN_APPLY/APPROVE/DISBURSE/REJECT/REPAY vs template CRUD).
-CARD_CLOSE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-CARD_LIST  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-DEP_AUDIT  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-DEP_LIST  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-DEP_MATURE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LOAN_APPLY  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LOAN_APPROVE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LOAN_DISBURSE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LOAN_REJECT  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LOAN_REPAY  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LSC_DELETE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LSC_DETAIL  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LSC_HISTORY  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LSC_LIST  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
-LSC_SEARCH  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
