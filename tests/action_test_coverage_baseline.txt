@@ -5,7 +5,13 @@
 # scripts/check_action_test_coverage.mjs fails on:
 #   - unlisted actions (new action without a test),
 #   - stale entries (test added, entry left behind),
-#   - dead entries (action no longer routed).
+#   - dead entries (action no longer routed),
+#   - expired entries (expires date in the past: renew or add the test),
+#   - entries without owner/reason/expires/ticket metadata.
+# Every entry carries: ACTION  owner=@handle  reason="why untested"
+# expires=YYYY-MM-DD  ticket=REF. Use --write for new actions (placeholders
+# are added; the gate fails until a human fills them in), then move them
+# under a category header. Never add or keep an entry to make CI green.
 # Gateway HTTP tests do NOT count: reaching a route is not executing its
 # COBOL action (see route-reachability vs field-order in docs/TESTING.md).
 #
@@ -13,617 +19,614 @@
 # or run with --write and move the new actions under a category below with a
 # documented reason. Never add an entry to make CI green.
 
-# --- 1. Template UPDATE gap (verified: 0 of 504 template DB suites invoke *_UPDATE).
+# --- 1. Template UPDATE gap (verified: no template DB suite invokes *_UPDATE).
 #    The 9-action template exercises CREATE/GET/LIST/CALC/CLOSE/SUMMARY/AUDIT/VALIDATE
 #    but never UPDATE, so optimistic-locking/version-conflict paths are unproven.
-ACC_UPDATE
-ACST_UPDATE
-ASM_UPDATE
-BAC_UPDATE
-BKG_UPDATE
-CCL_UPDATE
-CDO_UPDATE
-CHB_UPDATE
-CLT_UPDATE
-CREP_UPDATE
-CRP_UPDATE
-CSB_UPDATE
-CSC_UPDATE
-DCRD_UPDATE
-DSM_UPDATE
-EXF_UPDATE
-FAS_UPDATE
-FCT_UPDATE
-IMF_UPDATE
-LOC_UPDATE
-LSC_UPDATE
-LYP_UPDATE
-MBK_UPDATE
-MBS_UPDATE
-MBW_UPDATE
-MCC_UPDATE
-MCF_UPDATE
-MCL_UPDATE
-MCS_UPDATE
-MET_UPDATE
-MEZ_UPDATE
-MFA_UPDATE
-MFD_UPDATE
-MIG_UPDATE
-MON_UPDATE
-MRT_UPDATE
-MSP_UPDATE
-MTB_UPDATE
-MTG_UPDATE
-MTR_UPDATE
-NCL_UPDATE
-NDP_UPDATE
-NET_UPDATE
-NFT_UPDATE
-NOS_UPDATE
-NSC_UPDATE
-NTFC_UPDATE
-NTP_UPDATE
-ODR_UPDATE
-OFB_UPDATE
-ONB_UPDATE
-OPN_UPDATE
-OPTM_UPDATE
-OPT_UPDATE
-ORD2_UPDATE
-ORD_UPDATE
-ORG_UPDATE
-OSC_UPDATE
-OTP_UPDATE
-P2P_UPDATE
-PAD_UPDATE
-PAYM_UPDATE
-PBD_UPDATE
-PCH_UPDATE
-PC_UPDATE
-PDB_UPDATE
-PDLG_UPDATE
-PDL_UPDATE
-PENL_UPDATE
-PEN_UPDATE
-PEP_UPDATE
-PEQ_UPDATE
-PER_UPDATE
-PF_UPDATE
-PIN_UPDATE
-PIS_UPDATE
-PLN2_UPDATE
-PLN_UPDATE
-PLR_UPDATE
-PML_UPDATE
-PMN_UPDATE
-PMS_UPDATE
-PNL_UPDATE
-POL_UPDATE
-POM_UPDATE
-POS_UPDATE
-PPC_UPDATE
-PRB_UPDATE
-PRCM_UPDATE
-PRDT_UPDATE
-PRD_UPDATE
-PRF_UPDATE
-PRG_UPDATE
-PRK_UPDATE
-PRL_UPDATE
-PRM_UPDATE
-PRR_UPDATE
-PRVB_UPDATE
-PRV_UPDATE
-PSH_UPDATE
-PSN_UPDATE
-PSTN_UPDATE
-PTF_UPDATE
-PTR_UPDATE
-PTY_UPDATE
-PUL_UPDATE
-PUR_UPDATE
-PWG_UPDATE
-PWN_UPDATE
-PWP_UPDATE
-PYBL_UPDATE
-PYM2_UPDATE
-PYMT_UPDATE
-QLT_UPDATE
-QRP_UPDATE
-QTE_UPDATE
-RBL_UPDATE
-RBT_UPDATE
-RCM_UPDATE
-RDP_UPDATE
-REC2_UPDATE
-RECN_UPDATE
-REC_UPDATE
-REGN_UPDATE
-REL_UPDATE
-REOP_UPDATE
-RET_UPDATE
-REV_UPDATE
-RFND_UPDATE
-RFP_UPDATE
-RGF_UPDATE
-RIC_UPDATE
-RKS_UPDATE
-RLM_UPDATE
-RMT_UPDATE
-ROL_UPDATE
-RPO_UPDATE
-RPS_UPDATE
-RPTG_UPDATE
-RSA_UPDATE
-RSH_UPDATE
-RSM_UPDATE
-RSV_UPDATE
-RTB_UPDATE
-RTL_UPDATE
-RTMN_UPDATE
-RTM_UPDATE
-RTY_UPDATE
-RVRSL_UPDATE
-RWD_UPDATE
-SAV_UPDATE
-SCFN_UPDATE
-SCF_UPDATE
-SCL_UPDATE
-SCN_UPDATE
-SEC_UPDATE
-SEL_UPDATE
-SGC_UPDATE
-SHP_UPDATE
-SIM_UPDATE
-SIN_UPDATE
-SLT_UPDATE
-SLV_UPDATE
-SMC_UPDATE
-SMS_UPDATE
-SNCS_UPDATE
-SPE_UPDATE
-SPL_UPDATE
-SPN_UPDATE
-SPV_UPDATE
-SRH_UPDATE
-SR_UPDATE
-SSM_UPDATE
-SSS_UPDATE
-SST_UPDATE
-STG_UPDATE
-STK_UPDATE
-STN_UPDATE
-STO_UPDATE
-STP_UPDATE
-STRU_UPDATE
-SUB2_UPDATE
-SUB_UPDATE
-SUS_UPDATE
-SVB_UPDATE
-SVM_UPDATE
-SWP_UPDATE
-SYL_UPDATE
-TAXS_UPDATE
-TB_UPDATE
-TCR_UPDATE
-TDP_UPDATE
-TERM_UPDATE
-THF_UPDATE
-THR_UPDATE
-TKM_UPDATE
-TKN_UPDATE
-TLR_UPDATE
-TMO_UPDATE
-TPR_UPDATE
-TRCH_UPDATE
-TRC_UPDATE
-TRFS_UPDATE
-TRF_UPDATE
-TRK_UPDATE
-TRNF_UPDATE
-TRN_UPDATE
-TRR_UPDATE
-TRS_UPDATE
-TRT_UPDATE
-TRV_UPDATE
-TSD_UPDATE
-TST_UPDATE
-TXL_UPDATE
-TXM_UPDATE
-TXNS_UPDATE
-TXN_UPDATE
-TXW_UPDATE
-UAC_UPDATE
-UPG_UPDATE
-VAL_UPDATE
-VARA_UPDATE
-VCP_UPDATE
-VDM_UPDATE
-VDR_UPDATE
-VLC_UPDATE
-VLT_UPDATE
-VOL_UPDATE
-VOS_UPDATE
-VRC_UPDATE
-VRS_UPDATE
-WAR_UPDATE
-WDL_UPDATE
-WFA_UPDATE
-WHB_UPDATE
-WHK_UPDATE
-WHS_UPDATE
-WHT_UPDATE
-WLM_UPDATE
-WOF_UPDATE
-WRI_UPDATE
-WRT_UPDATE
-WSB_UPDATE
-WTC_UPDATE
-
+ACC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ACST_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ASM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+BAC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+BKG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CDO_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CHB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CLT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CREP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CRP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CSB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+CSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+DCRD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+DSM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+EXF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+FAS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+FCT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+IMF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+LOC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+LSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+LYP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MBK_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MBS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MBW_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MCC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MCF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MCS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MET_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MEZ_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MFA_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MFD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MIG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MON_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MRT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MSP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MTB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MTG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+MTR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NDP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NET_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NFT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NOS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NTFC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+NTP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ODR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+OFB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ONB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+OPN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+OPTM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+OPT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ORD2_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ORD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ORG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+OSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+OTP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+P2P_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PAD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PAYM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PBD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PCH_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PDB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PDLG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PDL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PENL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PEN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PEP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PEQ_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PER_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PIN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PIS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PLN2_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PLN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PLR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PML_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PMN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PMS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PNL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+POL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+POM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+POS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PPC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRCM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRDT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRK_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRVB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PRV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PSH_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PSN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PSTN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PTF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PTR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PTY_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PUL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PUR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PWG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PWN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PWP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PYBL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PYM2_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+PYMT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+QLT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+QRP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+QTE_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RBL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RBT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RCM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RDP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+REC2_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RECN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+REC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+REGN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+REL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+REOP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RET_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+REV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RFND_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RFP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RGF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RIC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RKS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RLM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RMT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+ROL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RPO_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RPS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RPTG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RSA_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RSH_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RSM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RSV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RTB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RTL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RTMN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RTM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RTY_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RVRSL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+RWD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SAV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SCFN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SCF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SCL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SCN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SEC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SEL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SGC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SHP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SIM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SIN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SLT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SLV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SMC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SMS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SNCS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SPE_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SPL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SPN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SPV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SRH_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SSM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SSS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SST_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+STG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+STK_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+STN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+STO_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+STP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+STRU_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SUB2_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SUB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SUS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SVB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SVM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SWP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+SYL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TAXS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TCR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TDP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TERM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+THF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+THR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TKM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TKN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TLR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TMO_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TPR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRCH_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRFS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRK_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRNF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TRV_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TSD_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TST_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TXL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TXM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TXNS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TXN_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+TXW_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+UAC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+UPG_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VAL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VARA_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VCP_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VDM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VDR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VLC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VLT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VOL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VOS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VRC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+VRS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WAR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WDL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WFA_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WHB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WHK_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WHS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WHT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WLM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WOF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WRI_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WRT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WSB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
+WTC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 # --- 2. Inline app.js routes (auth/session/wallet/admin/disputes/MFA/reconcile).
 #    Exercised over HTTP by middleware/test/*.test.js (paths referenced there);
 #    never invoked via run_cobol or table cases, so shell-level coverage is the gap.
-ACK_DISPUTE
-ACK_EXCEPTION
-ADD_DISPUTE_NOTE
-ADMIN_RESET_MFA
-APPROVE_MFA_RECOVERY
-APPROVE_REQUEST
-ARCHIVE_AUDIT
-CHANGE_PASSWORD
-CHANGE_ROLE
-CLOSE_ACCESS_REVIEW
-CONFIRM_EMAIL_CHANGE
-DEACTIVATE_ACCOUNT
-DECIDE_ACCESS_ITEM
-FORGOT_PASSWORD
-GET_ACCESS_REVIEW
-GET_DASHBOARD
-GET_DISPUTE
-LIST_ACCESS_REVIEWS
-LIST_AUDIT
-LIST_DISPUTES
-LIST_EXCEPTIONS
-LIST_MFA_RECOVERY
-LIST_OUTBOX
-LIST_RECONCILIATIONS
-LIST_REQUESTS
-LIST_SESSIONS
-MARK_DORMANT
-MFA_BACKUP_CODES
-MFA_DISABLE
-MFA_ENROLL_BEGIN
-MFA_ENROLL_CONFIRM
-OPEN_ACCESS_REVIEW
-OPEN_DISPUTE
-PLACE_HOLD
-REACTIVATE_DORMANT
-RECONCILE
-REJECT_DISPUTE
-REJECT_MFA_RECOVERY
-REJECT_REQUEST
-RELEASE_HOLD
-REQUEST_MFA_RECOVERY
-REQUEST_OPERATION
-REQUEST_SIGNUP
-REQ_EMAIL_CHANGE
-RESEND_VERIFICATION
-RESET_PASSWORD
-RESOLVE_DISPUTE
-RESOLVE_EXCEPTION
-REVERSE_TRANSFER
-REVOKE_ALL_SESSIONS
-REVOKE_OTHER_DEVICES
-REVOKE_USER_SESSION
-RUN_RECONCILIATION
-SET_USER_STATUS
-STATEMENT
-SUSPEND_DORMANT
-TRANSFER
-TX_STATUS
-UNLOCK_USER
-UPDATE_PROFILE
-VERIFY_EMAIL
-VERIFY_MFA_RECOVERY
-VERIFY_REAUTH
-
+ACK_DISPUTE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+ACK_EXCEPTION  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+ADD_DISPUTE_NOTE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+ADMIN_RESET_MFA  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+APPROVE_MFA_RECOVERY  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+APPROVE_REQUEST  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+ARCHIVE_AUDIT  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+CHANGE_PASSWORD  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+CHANGE_ROLE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+CLOSE_ACCESS_REVIEW  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+CONFIRM_EMAIL_CHANGE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+DEACTIVATE_ACCOUNT  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+DECIDE_ACCESS_ITEM  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+FORGOT_PASSWORD  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+GET_ACCESS_REVIEW  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+GET_DASHBOARD  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+GET_DISPUTE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_ACCESS_REVIEWS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_AUDIT  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_DISPUTES  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_EXCEPTIONS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_MFA_RECOVERY  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_OUTBOX  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_RECONCILIATIONS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_REQUESTS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+LIST_SESSIONS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+MARK_DORMANT  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+MFA_BACKUP_CODES  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+MFA_DISABLE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+MFA_ENROLL_BEGIN  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+MFA_ENROLL_CONFIRM  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+OPEN_ACCESS_REVIEW  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+OPEN_DISPUTE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+PLACE_HOLD  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REACTIVATE_DORMANT  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+RECONCILE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REJECT_DISPUTE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REJECT_MFA_RECOVERY  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REJECT_REQUEST  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+RELEASE_HOLD  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REQUEST_MFA_RECOVERY  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REQUEST_OPERATION  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REQUEST_SIGNUP  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REQ_EMAIL_CHANGE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+RESEND_VERIFICATION  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+RESET_PASSWORD  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+RESOLVE_DISPUTE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+RESOLVE_EXCEPTION  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REVERSE_TRANSFER  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REVOKE_ALL_SESSIONS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REVOKE_OTHER_DEVICES  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+REVOKE_USER_SESSION  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+RUN_RECONCILIATION  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+SET_USER_STATUS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+STATEMENT  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+SUSPEND_DORMANT  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+TRANSFER  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+TX_STATUS  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+UNLOCK_USER  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+UPDATE_PROFILE  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+VERIFY_EMAIL  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+VERIFY_MFA_RECOVERY  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
+VERIFY_REAUTH  owner=@mfebriansyaaah reason="inline app.js route: HTTP-exercised only" expires=2027-03-31 ticket=T-022
 # --- 3. Route files with no DB suite at all.
 #    The domain has routes but no tests/db/*_db_tests.sh; actions untested at shell level.
-DSH_ACCOUNTS
-DSH_ALERTS
-DSH_CASHFLOW
-DSH_DISPUTES
-DSH_FEES
-DSH_IMPORTS
-DSH_OUTBOX
-DSH_OVERVIEW
-DSH_PAYMENTS
-DSH_POLICY
-DSH_RECON
-DSH_REPORTS
-EODJOB_DORMANT_MARK
-EODJOB_DORM_SUSPEND
-EODJOB_HOLD_EXPIRY
-EODJOB_LIST
-EODJOB_RECON
-EODJOB_STATEMENT
-EOD_CAL_LIST
-EOD_CAL_OPEN
-EOD_PHASE_SET
-EOD_RUN_FAIL
-EOD_RUN_LIST
-EOD_RUN_START
-EOD_RUN_STATUS
-FEE_RULE_LIST
-FEE_TIER_LIST
-FEE_WAIVER_LIST
-GL_ACCOUNT_LIST
-GL_JOURNAL_POST_ML
-GL_PERIOD_LIST
-GL_TRIAL_BALANCE
-IMPP_LEDGER
-IMPP_LIST
-IMP_BATCH_CLONE
-IMP_BATCH_DELETE
-IMP_BATCH_EXPORT
-IMP_BATCH_FAIL
-IMP_BATCH_LIST
-IMP_BATCH_RETRY
-IMP_BATCH_STAGE_BULK
-IMP_BATCH_SUMMARY
-IMP_ERROR_LIST
-IMP_ROW_CORRECT
-IMP_ROW_SKIP
-IMP_ROW_STAGE
-IMP_ROW_UNSKIP
-IRC_EXPORT
-IRC_FINISH
-IRC_ITEMS
-IRC_LIST
-IRC_MATCH
-IRC_RETRY
-IRC_START
-IRC_SUMMARY
-LOY_LIST
-NAU_ENQUEUE
-NAU_LIST
-NAU_RETRY
-NAU_SUMMARY
-NTF_PREF_CHECK
-NTF_PREF_LIST
-NTF_PREF_SET
-NTF_SEND
-NTF_TEMPLATE_LIST
-NTF_TEMPLATE_SET
-ODL_CLEANUP
-ODL_CONFIRM
-ODL_ENQUEUE
-ODL_LIST
-ODL_RETRY
-ODL_SEND
-ODL_SUMMARY
-ONC_ACK_PAGE
-ONC_CURRENT
-ONC_PAGE_ALERT
-ONC_PAGE_LIST
-ONC_POLICY_LIST
-ONC_POLICY_SET
-ONC_RESOLVE_PAGE
-ONC_ROTATION_LIST
-ONC_ROTATION_SET
-ONC_SHIFT_ADD
-ONC_SHIFT_LIST
-ONC_STEP_ADD
-ONC_STEP_LIST
-PAL_ACK
-PAL_LIST
-PAL_RAISE
-PAL_RESOLVE
-PAL_SUMMARY
-PAT_ATTEST
-PAT_LIST
-PAT_SUMMARY
-PAY_CHECK
-PAY_DAILY_USAGE
-PAY_POLICY_LIST
-PAY_POLICY_SET
-PAY_PROFILE_LIST
-PAY_PROFILE_SET
-PHL_CAPTURE
-PHL_EXPIRE
-PHL_LIST
-PHL_RELEASE
-PHL_RESERVE
-PHL_SUMMARY
-PIC_CANCEL
-PIC_DUE
-PIC_EXECUTE
-PIC_HISTORY
-PIC_LIST
-PIC_PAUSE
-PIC_RESUME
-PRC_REQUEST_LIST
-PRC_REQUEST_ORDER
-PRC_SUMMARY
-RAU_LIST
-RAU_RECORD
-RAU_SUMMARY
-RCL_EVENT_DONE
-RCL_EVENT_LIST
-RCL_SUMMARY
-RCP_AUTO_ASSIGN
-RCP_ESCALATE_OVERDUE
-RCP_HISTORY
-RCP_MANUAL_ASSIGN
-RCP_RULE_LIST
-RCP_RULE_PREVIEW
-RCP_RULE_SET
-RCP_UNASSIGN
-RCP_WORKLOAD
-RDL_LAYOUT_LIST
-RDL_LAYOUT_RENDER
-RDL_LAYOUT_SET
-RDL_SCHEDULE_DUE
-RDL_SCHEDULE_FAILS
-RDL_SCHEDULE_HISTORY
-RDL_SCHEDULE_LIST
-RDL_SCHEDULE_RUN
-RECON_AGING
-RECON_ASSIGN
-RECON_EXPORT
-RECON_NOTE_ADD
-RECON_NOTE_LIST
-RECON_SLA_GET
-RECON_SLA_SET
-RECON_SUMMARY
-RECON_TREND
-REG_ACCEPT
-REG_LIST
-REG_SUMMARY
-REX_ASSIGN
-REX_ESCALATE
-REX_HISTORY
-REX_LIST
-REX_NOTE_ADD
-REX_OPEN
-REX_OVERDUE
-REX_RESOLVE
-REX_SUMMARY
-RFE_TYPE_CREATE
-RFE_TYPE_LIST
-RFE_VALUE_APPROVE
-RFE_VALUE_CREATE
-RFE_VALUE_GET
-RFE_VALUE_HIST
-RFE_VALUE_LIST
-RFE_VALUE_RETIRE
-RPA_ARCHIVE
-RPA_LIST
-RPA_PURGE
-RPA_SUMMARY
-RPT_COLUMN_LIST
-RPT_COLUMN_UPDATE
-RPT_RUN_COMPLETE
-RPT_RUN_DELETE
-RPT_RUN_EXPORT
-RPT_RUN_FAIL
-RPT_RUN_GENERATE
-RPT_RUN_LIST
-RPT_RUN_RETRY
-RPT_RUN_ROW
-RPT_RUN_START
-RPT_RUN_STATUS
-RPT_TEMPLATE_CLONE
-RPT_TEMPLATE_DELETE
-RPT_TEMPLATE_LIST
-RPT_TEMPLATE_UPDATE
-RSC_RUN_COMPLETE
-RSC_RUN_LIST
-RSC_RUN_START
-RSC_SCHEDULE_LIST
-RSC_SCHEDULE_SET
-RSC_SUMMARY
-RSK_HIT_LIST
-RSK_PROFILE_SET
-RSK_SCREEN
-RSK_SUMMARY
-RTJ_POLICY_LIST
-RTJ_POLICY_SET
-RTJ_RUN
-RTJ_RUN_LIST
-RTJ_SUMMARY
-RX_EXPORT
-RX_HIERARCHY_ADD
-RX_HIERARCHY_LIST
-RX_HIERARCHY_REMOVE
-RX_TRANSLATION_LIST
-RX_TRANSLATION_SET
-RX_VALUE_CLONE
-RX_VALUE_GET_ASOF
-SCR_LIST
-SCR_ROTATE
-SCR_SCHEDULE
-SCR_SUMMARY
-SCR_VERIFY
-SHL_HOLD_LIST
-SHL_HOLD_RELEASE
-SHL_SUMMARY
-SLA_BREACH
-SLA_DEFINE
-SLA_LIST
-SLA_SUMMARY
-SLO_BURN
-SLO_DEFINE
-SLO_LIST
-SLO_RECORD
-SLO_SUMMARY
-SRC_EXPORT
-SRC_FINISH
-SRC_ITEMS
-SRC_LIST
-SRC_MATCH
-SRC_RETRY
-SRC_START
-SRC_SUMMARY
-STL_CLEANUP
-STL_DELIVER
-STL_ENQUEUE
-STL_LIST
-STL_RETRY
-STL_SEND
-STL_SUMMARY
-STMT_ARCHIVE_EXPORT
-STMT_RUN_FAIL
-STMT_RUN_GENERATE
-STMT_RUN_LIST
-STMT_RUN_START
-STMT_RUN_STATUS
-STR_ITEM_ADD
-STR_ITEM_LIST
-STR_ITEM_RESOLVE
-STR_RUN_COMPLETE
-STR_RUN_LIST
-STR_RUN_START
-STR_SUMMARY
-TAX_FILE
-TAX_LIST
-TAX_PAY
-TAX_SUMMARY
-TRP_LIST
-TRP_OPEN
-TRP_SUMMARY
-VCC_ASSESS
-VCC_LIST
-VCC_SUMMARY
-VEL_CHECK
-VEL_PROFILE_CREATE
-VEL_PROFILE_LIST
-VEL_RECORD
-VEL_USAGE
-VND_VENDOR_LIST
-VND_VENDOR_RETIRE
-VND_VENDOR_SET
-VND_VENDOR_SUMMARY
-VRK_ASSESS
-VRK_LIST
-VRK_SUMMARY
-
+DSH_ACCOUNTS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_ALERTS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_CASHFLOW  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_DISPUTES  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_FEES  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_IMPORTS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_OUTBOX  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_OVERVIEW  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_PAYMENTS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_POLICY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_RECON  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+DSH_REPORTS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EODJOB_DORMANT_MARK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EODJOB_DORM_SUSPEND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EODJOB_HOLD_EXPIRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EODJOB_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EODJOB_RECON  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EODJOB_STATEMENT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EOD_CAL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EOD_CAL_OPEN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EOD_PHASE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EOD_RUN_FAIL  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EOD_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EOD_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+EOD_RUN_STATUS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+FEE_RULE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+FEE_TIER_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+FEE_WAIVER_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+GL_ACCOUNT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+GL_JOURNAL_POST_ML  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+GL_PERIOD_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+GL_TRIAL_BALANCE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMPP_LEDGER  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMPP_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_CLONE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_DELETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_FAIL  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_STAGE_BULK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_BATCH_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_ERROR_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_ROW_CORRECT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_ROW_SKIP  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_ROW_STAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IMP_ROW_UNSKIP  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_FINISH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_ITEMS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_MATCH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+IRC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+LOY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NAU_ENQUEUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NAU_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NAU_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NAU_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NTF_PREF_CHECK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NTF_PREF_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NTF_PREF_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NTF_SEND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NTF_TEMPLATE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+NTF_TEMPLATE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ODL_CLEANUP  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ODL_CONFIRM  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ODL_ENQUEUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ODL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ODL_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ODL_SEND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ODL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_ACK_PAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_CURRENT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_PAGE_ALERT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_PAGE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_POLICY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_POLICY_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_RESOLVE_PAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_ROTATION_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_ROTATION_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_SHIFT_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_SHIFT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_STEP_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+ONC_STEP_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAL_ACK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAL_RAISE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAL_RESOLVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAT_ATTEST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAT_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAY_CHECK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAY_DAILY_USAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAY_POLICY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAY_POLICY_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAY_PROFILE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PAY_PROFILE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PHL_CAPTURE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PHL_EXPIRE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PHL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PHL_RELEASE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PHL_RESERVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PHL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PIC_CANCEL  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PIC_DUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PIC_EXECUTE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PIC_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PIC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PIC_PAUSE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PIC_RESUME  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PRC_REQUEST_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PRC_REQUEST_ORDER  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+PRC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RAU_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RAU_RECORD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RAU_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCL_EVENT_DONE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCL_EVENT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_AUTO_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_ESCALATE_OVERDUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_MANUAL_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_RULE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_RULE_PREVIEW  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_RULE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_UNASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RCP_WORKLOAD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_LAYOUT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_LAYOUT_RENDER  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_LAYOUT_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_SCHEDULE_DUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_SCHEDULE_FAILS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_SCHEDULE_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_SCHEDULE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RDL_SCHEDULE_RUN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_AGING  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_NOTE_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_NOTE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_SLA_GET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_SLA_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RECON_TREND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REG_ACCEPT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REG_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REG_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_ESCALATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_NOTE_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_OPEN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_OVERDUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_RESOLVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+REX_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_TYPE_CREATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_TYPE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_VALUE_APPROVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_VALUE_CREATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_VALUE_GET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_VALUE_HIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_VALUE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RFE_VALUE_RETIRE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPA_ARCHIVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPA_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPA_PURGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPA_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_COLUMN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_COLUMN_UPDATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_COMPLETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_DELETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_FAIL  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_GENERATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_ROW  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_RUN_STATUS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_TEMPLATE_CLONE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_TEMPLATE_DELETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_TEMPLATE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RPT_TEMPLATE_UPDATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSC_RUN_COMPLETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSC_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSC_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSC_SCHEDULE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSC_SCHEDULE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSK_HIT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSK_PROFILE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSK_SCREEN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RSK_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RTJ_POLICY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RTJ_POLICY_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RTJ_RUN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RTJ_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RTJ_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_HIERARCHY_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_HIERARCHY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_HIERARCHY_REMOVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_TRANSLATION_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_TRANSLATION_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_VALUE_CLONE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+RX_VALUE_GET_ASOF  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SCR_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SCR_ROTATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SCR_SCHEDULE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SCR_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SCR_VERIFY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SHL_HOLD_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SHL_HOLD_RELEASE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SHL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLA_BREACH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLA_DEFINE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLA_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLA_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLO_BURN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLO_DEFINE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLO_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLO_RECORD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SLO_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_FINISH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_ITEMS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_MATCH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+SRC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STL_CLEANUP  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STL_DELIVER  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STL_ENQUEUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STL_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STL_SEND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STMT_ARCHIVE_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STMT_RUN_FAIL  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STMT_RUN_GENERATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STMT_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STMT_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STMT_RUN_STATUS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STR_ITEM_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STR_ITEM_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STR_ITEM_RESOLVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STR_RUN_COMPLETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STR_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STR_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+STR_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+TAX_FILE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+TAX_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+TAX_PAY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+TAX_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+TRP_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+TRP_OPEN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+TRP_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VCC_ASSESS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VCC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VCC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VEL_CHECK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VEL_PROFILE_CREATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VEL_PROFILE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VEL_RECORD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VEL_USAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VND_VENDOR_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VND_VENDOR_RETIRE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VND_VENDOR_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VND_VENDOR_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VRK_ASSESS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VRK_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
+VRK_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 # --- 4. Suite exists but does not invoke these actions.
 #    The route surface is richer than what the domain suite exercises
 #    (e.g. LOAN_APPLY/APPROVE/DISBURSE/REJECT/REPAY vs template CRUD).
-CARD_CLOSE
-CARD_LIST
-DEP_AUDIT
-DEP_LIST
-DEP_MATURE
-LOAN_APPLY
-LOAN_APPROVE
-LOAN_DISBURSE
-LOAN_REJECT
-LOAN_REPAY
-LSC_DELETE
-LSC_DETAIL
-LSC_HISTORY
-LSC_LIST
-LSC_SEARCH
+CARD_CLOSE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+CARD_LIST  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+DEP_AUDIT  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+DEP_LIST  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+DEP_MATURE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LOAN_APPLY  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LOAN_APPROVE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LOAN_DISBURSE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LOAN_REJECT  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LOAN_REPAY  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LSC_DELETE  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LSC_DETAIL  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LSC_HISTORY  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LSC_LIST  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
+LSC_SEARCH  owner=@mfebriansyaaah reason="suite exists but does not invoke action" expires=2027-03-31 ticket=T-022
