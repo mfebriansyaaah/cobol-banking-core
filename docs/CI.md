@@ -223,7 +223,7 @@ triaged as G0/Phase 0, not billing).
 
 Status: done locally. Remote PR URLs: n/a (local-only dry-run; no remote branches created).
 
-## R0 sign-off (T-052, 2026-11-04) — PASSED
+## R0 final record (T-052, 2026-11-04) — PASSED
 
 R0 **passes** 2026-11-04. Met: 1–11 (criterion 10 triaged via `known-red.md`).
 Composite: 9.0/10. Phase 0 may start with branch 01.
