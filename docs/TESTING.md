@@ -132,7 +132,7 @@ fleet; local `full` always runs it). This is CI-only plumbing, not a general
 flag.
 
 Planner weights (`scripts/shard_suites.mjs`, LPT scheduling) come from
-`--timings artifacts/run-all.json` (measured durations, median fallback)
+`--timings artifacts/latest/run-all.json` (measured durations, median fallback)
 or, without it, from baseline assertion counts. Assignment is deterministic
 for identical inputs; `scripts/test/shard_suites.test.mjs` pins that.
 
@@ -222,8 +222,8 @@ dry-run by default.
   `run_all.sh db --only loan --repeat 5` runs each match five times and
   counts every iteration, so one flaky pass still fails the suite.
 - `--failed` reruns exactly the suites listed in
-  `artifacts/last-failed.txt` (rewritten by every run; a green run clears
-  it). When a full run goes red overnight, `--failed` reproduces it in
+  `artifacts/latest/last-failed.txt` (rewritten by every run; a green run
+  clears it). When a full run goes red overnight, `--failed` reproduces it in
   seconds instead of rerunning 500+ suites.
 - `--keep-logs` copies per-suite logs to timestamped
   `tests/artifacts/logs-*` (gitignored) for forensics.
@@ -246,23 +246,32 @@ interleave suites and litter `input.txt`/`output.txt` everywhere.
 
 ## Machine-readable reports
 
-Every shell suite records one TSV row in `artifacts/report.tsv`
+Every invocation gets its own run directory —
+`artifacts/runs/<UTC-timestamp>-<pid>/` — with `report.tsv`, `run-all.json`,
+`last-failed.txt`, `build.log`, `logs/`, `junit/gateway/`, and `junit/db/`
+(converted from TAP logs). `artifacts/latest` is a symlink to the newest run.
+An explicit `REPORT_DIR` (CI jobs, nightly runs, `--report-dir` callers) is
+used as-is instead. Repeated runs can never contaminate each other; pointing a
+tool at a stale `artifacts/report.tsv` path fails closed — use
+`artifacts/latest/` or a specific `runs/<id>/` directory.
+
+Every shell suite records one TSV row in the run's `report.tsv`
 (`suite`, `status`, `pass`, `fail`, `total`, `duration_ms`, `shard`) via
 `tests/lib/report.sh`. Statuses: `pass`, `fail`, or `missing` (exited 0
 without a TAP summary; enforced by P0-3). At the end of a run
-`artifacts/run-all.json` is generated from the TSV, plus `--json` prints its
+`run-all.json` is generated from the TSV, plus `--json` prints its
 path:
 
 ```sh
 SKIP_BUILD=1 tests/run_all.sh --json fast
-node scripts/test-report.mjs --report-dir artifacts --json /tmp/summary.json
-node scripts/test-report.mjs --report-dir artifacts --check
+node scripts/test-report.mjs --report-dir artifacts/latest --json /tmp/summary.json
+node scripts/test-report.mjs --report-dir artifacts/latest --check
 ```
 
-Gateway suites write JUnit XML next to `run-all.json` when `TEST_REPORT_DIR`
-is set (`test:junit`, `test:fast:junit`, `test:gateway:junit`,
+Gateway suites write JUnit XML to the run's `junit/gateway/` when
+`TEST_REPORT_DIR` is set (`test:junit`, `test:fast:junit`, `test:gateway:junit`,
 `test:endpoints:junit`; `tests/gateway/endpoint_smoke.sh` picks the `:junit`
-variant automatically). Conversion and summaries:
+variant automatically; `tests/run_all.sh` sets the directory). Conversion and summaries:
 
 - `scripts/tap-to-junit.mjs` — TAP to JUnit (used for shell logs if needed).
 - `scripts/ci/summary.mjs` — totals, 10 slowest suites, and failed test names
@@ -298,8 +307,8 @@ Conventions for adding gate tests:
 
 `tests/baseline_counts.txt` records the expected assertion total for every
 suite plus the gateway total. `scripts/check_test_counts.mjs` compares the
-actual run (`artifacts/report.tsv` + gateway JUnit) against it, and CI runs it
-with `--strict` after the full gate. Deleting an assertion — or a whole
+actual run (a run's `report.tsv` + its `junit/gateway/` JUnit) against it,
+and CI runs it with `--strict` after the full gate. Deleting an assertion — or a whole
 suite's assertions — without updating the baseline fails the run instead of
 shrinking coverage silently (probe `p7_missing_assertion` in
 `tests/probes/` proves the gate fires).
@@ -309,7 +318,7 @@ Update the baseline only for an intentional count change, and only with
 
 ```sh
 # After running the affected suites (full run for DB changes):
-node scripts/check_test_counts.mjs --report-dir artifacts --write
+node scripts/check_test_counts.mjs --report-dir artifacts/latest --write
 git diff -- tests/baseline_counts.txt   # review every hunk
 ```
 

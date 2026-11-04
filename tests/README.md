@@ -39,7 +39,7 @@ DB_SHARD_INDEX=0 DB_SHARD_COUNT=4 tests/run_all.sh db-shard   # one matrix shard
 bash tests/scripts/run.sh                   # offline harness tests
 ```
 
-`--failed` reads `artifacts/last-failed.txt`, rewritten by every run (a green
+`--failed` reads `artifacts/latest/last-failed.txt`, rewritten by every run (a green
 run clears it). `--repeat` counts every iteration as its own report row, so a
 single flaky pass still fails the suite. `--keep-logs` copies per-suite logs
 to `tests/artifacts/` (gitignored).
@@ -49,7 +49,7 @@ to `tests/artifacts/` (gitignored).
 - DB domain: new `tests/db/<domain>_db_tests.sh` following an existing suite
   (source `lib/db.sh`, `require_db`, reset-then-seed, `assert_match`,
   `print_summary`, exit non-zero on failure). Add its count with
-  `node scripts/check_test_counts.mjs --report-dir artifacts --write` and
+  `node scripts/check_test_counts.mjs --report-dir artifacts/latest --write` and
   review the `baseline_counts.txt` diff — never hand-edit numbers.
 - Never touch another suite's fixtures: test users live in per-file
   namespaces (see `middleware/test/support.js`), throwaway databases are per
@@ -57,9 +57,9 @@ to `tests/artifacts/` (gitignored).
 
 ## Debugging a failure
 
-- Per-suite logs: `artifacts/logs/<suite>.log` (or `tests/artifacts/` with
+- Per-suite logs: `artifacts/latest/logs/<suite>.log` (or `tests/artifacts/` with
   `--keep-logs`).
 - Rerun exactly it: `tests/run_all.sh db --only <substring>`.
 - Flaky suspect: `--repeat 5` on the suite, then compare `report.tsv` rows.
-- Machine-readable totals: `artifacts/run-all.json`
-  (`node scripts/test-report.mjs --report-dir artifacts --check`).
+- Machine-readable totals: `artifacts/latest/run-all.json`
+  (`node scripts/test-report.mjs --report-dir artifacts/latest --check`).
