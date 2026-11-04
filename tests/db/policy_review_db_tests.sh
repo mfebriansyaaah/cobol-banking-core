@@ -42,6 +42,17 @@ assert_match "PLR_AUDIT ok" "$(run_cobol "PLR_AUDIT|50|0||||admin@test.com")" "S
 assert_match "PLR_VALIDATE ok" "$(run_cobol "PLR_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PLR_VALID"
 assert_match "non-admin refused" "$(run_cobol "PLR_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM policy_review WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM policy_review_audit WHERE policy_review_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PLR_UPDATE|${id}|PolicyA|ANNUAL|||admin@test.com")"
+assert_match "PLR_UPDATE ok" "$upd_out" "SUCCESS\\|PLR_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM policy_review WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM policy_review_audit WHERE policy_review_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PLR_UPDATE|999999|PolicyA|ANNUAL|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PLR_UPDATE|${id}|PolicyA|ANNUAL|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

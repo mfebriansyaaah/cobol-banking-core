@@ -42,6 +42,17 @@ assert_match "PF_AUDIT ok" "$(run_cobol "PF_AUDIT|50|0||||admin@test.com")" "SUC
 assert_match "PF_VALIDATE ok" "$(run_cobol "PF_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PF_VALID"
 assert_match "non-admin refused" "$(run_cobol "PF_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM price_feed WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM price_feed_audit WHERE price_feed_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PF_UPDATE|${id}|PfA|BLOOMBERG|||admin@test.com")"
+assert_match "PF_UPDATE ok" "$upd_out" "SUCCESS\\|PF_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM price_feed WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM price_feed_audit WHERE price_feed_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PF_UPDATE|999999|PfA|BLOOMBERG|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PF_UPDATE|${id}|PfA|BLOOMBERG|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

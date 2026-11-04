@@ -42,6 +42,17 @@ assert_match "PIS_AUDIT ok" "$(run_cobol "PIS_AUDIT|50|0||||admin@test.com")" "S
 assert_match "PIS_VALIDATE ok" "$(run_cobol "PIS_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PIS_VALID"
 assert_match "non-admin refused" "$(run_cobol "PIS_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM pisp_management WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM pisp_management_audit WHERE pisp_management_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PIS_UPDATE|${id}|PISPA|PAYMENT|||admin@test.com")"
+assert_match "PIS_UPDATE ok" "$upd_out" "SUCCESS\\|PIS_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM pisp_management WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM pisp_management_audit WHERE pisp_management_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PIS_UPDATE|999999|PISPA|PAYMENT|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PIS_UPDATE|${id}|PISPA|PAYMENT|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

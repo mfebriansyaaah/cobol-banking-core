@@ -42,6 +42,17 @@ assert_match "PWP_AUDIT ok" "$(run_cobol "PWP_AUDIT|50|0||||admin@test.com")" "S
 assert_match "PWP_VALIDATE ok" "$(run_cobol "PWP_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PWP_VALID"
 assert_match "non-admin refused" "$(run_cobol "PWP_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM password_policy WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM password_policy_audit WHERE password_policy_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PWP_UPDATE|${id}|PolicyA|COMPLEXITY|||admin@test.com")"
+assert_match "PWP_UPDATE ok" "$upd_out" "SUCCESS\\|PWP_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM password_policy WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM password_policy_audit WHERE password_policy_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PWP_UPDATE|999999|PolicyA|COMPLEXITY|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PWP_UPDATE|${id}|PolicyA|COMPLEXITY|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

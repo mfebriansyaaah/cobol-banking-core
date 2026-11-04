@@ -42,6 +42,17 @@ assert_match "PEN_AUDIT ok" "$(run_cobol "PEN_AUDIT|50|0||||admin@test.com")" "S
 assert_match "PEN_VALIDATE ok" "$(run_cobol "PEN_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PEN_VALID"
 assert_match "non-admin refused" "$(run_cobol "PEN_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM pension WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM pension_audit WHERE pension_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PEN_UPDATE|${id}|EmployeeA|DEFINED_BENEFIT|||admin@test.com")"
+assert_match "PEN_UPDATE ok" "$upd_out" "SUCCESS\\|PEN_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM pension WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM pension_audit WHERE pension_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PEN_UPDATE|999999|EmployeeA|DEFINED_BENEFIT|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PEN_UPDATE|${id}|EmployeeA|DEFINED_BENEFIT|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
