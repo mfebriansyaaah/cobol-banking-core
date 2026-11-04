@@ -6,14 +6,14 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { planDomain, parseRouteFields, buildBlock, parseCli } from '../generate_domain_tests.mjs';
+import { planDomain, parseRouteFields, parseAuditFk, buildBlock, parseCli } from '../generate_domain_tests.mjs';
 
 const dirs = [];
 after(() => {
   for (const d of dirs) rmSync(d, { recursive: true, force: true });
 });
 
-function makeRoot({ routesExtra = '', suiteExtra = '', suiteName = 'widget' } = {}) {
+function makeRoot({ routesExtra = '', suiteExtra = '', suiteName = 'widget', fk = 'widget_id' } = {}) {
   const d = mkdtempSync(path.join(tmpdir(), 'gentest-'));
   dirs.push(d);
   const routes = path.join(d, 'middleware', 'src', 'routes');
@@ -26,6 +26,16 @@ function makeRoot({ routesExtra = '', suiteExtra = '', suiteName = 'widget' } = 
       `  { method: 'post', path: '/widgets/:id/update', action: 'WDG_UPDATE', tokenIdentity: 'actor', fields: [ID, { name: 'wName', pattern: /x/ }, { name: 'wType', pattern: /x/ }, BLANK, BLANK, ACTOR] },`,
       routesExtra,
       `];`,
+      '',
+    ].join('\n'),
+  );
+  const cob = path.join(d, 'cobol', 'src');
+  mkdirSync(cob, { recursive: true });
+  writeFileSync(
+    path.join(cob, `${suiteName}_core.cob`),
+    [
+      `       IDENTIFICATION DIVISION.`,
+      `       MOVE "INSERT INTO widget_audit (${fk}, action, actor_email) VALUES (?, ?, ?)" TO WS-PREP-SQL`,
       '',
     ].join('\n'),
   );
@@ -57,15 +67,45 @@ test('plans a uniform domain and emits the UPDATE block', () => {
   assert.match(plan.block, /non-admin update refused/);
 });
 
+test('parseAuditFk reads the FK column from the audit INSERT', () => {
+  assert.equal(
+    parseAuditFk('MOVE "INSERT INTO widget_audit (widget_id, action) VALUES (?, ?)" TO X', 'widget'),
+    'widget_id',
+  );
+  assert.equal(
+    parseAuditFk(
+      'move "insert into cost_center_audit (cc_id, action, actor_email, detail) values (?, ?, ?, ?)" to x',
+      'cost_center',
+    ),
+    'cc_id',
+  );
+  assert.equal(parseAuditFk('no insert here', 'widget'), null);
+});
+
+test('skips when the audit INSERT cannot be parsed', () => {
+  const d = makeRoot();
+  writeFileSync(path.join(d, 'cobol', 'src', 'widget_core.cob'), 'IDENTIFICATION DIVISION.\nno audit insert\n');
+  const r = planDomain('widget', { root: d });
+  assert.equal(r.ok, false);
+  assert.match(r.reason, /INSERT INTO widget_audit/);
+});
+
 test('parseRouteFields reads the six UPDATE slots', () => {
   const src = `[{ method: 'post', path: '/x/:id/update', action: 'X_UPDATE', tokenIdentity: 'actor', fields: [ID, { name: 'a', pattern: /x/ }, B, BLANK, BLANK, ACTOR] }]`;
   assert.deepEqual(parseRouteFields(src, 'X_UPDATE'), ['ID', 'a', 'B', 'BLANK', 'BLANK', 'ACTOR']);
 });
 
 test('buildBlock renders shell with literal suite variables', () => {
-  const out = buildBlock({ prefix: 'WDG', table: 'widget', actor: 'admin@test.com', updateArgs: ['Gadget', 'TOOL'] });
+  const out = buildBlock({
+    prefix: 'WDG',
+    table: 'widget',
+    actor: 'admin@test.com',
+    updateArgs: ['Gadget', 'TOOL'],
+    fk: 'widget_id',
+  });
   assert.match(out, /upd_out="\$\(run_cobol "WDG_UPDATE\|\$\{id\}\|Gadget\|TOOL\|\|\|admin@test\.com"\)"/);
   assert.match(out, /SELECT version FROM widget WHERE id=\$\{id\}/);
+  assert.match(out, /FROM widget_audit WHERE widget_id=\$\{id\}/);
   assert.match(out, /ver_before=.*SELECT version/);
   assert.match(out, /\^\$\(\(ver_before \+ 1\)\)\$/);
   assert.match(out, /\^\$\(\(aud_before \+ 1\)\)\$/);

@@ -85,7 +85,16 @@ function parseSuite(suiteSrc, prefix) {
   };
 }
 
-function buildBlock({ prefix, table, actor, updateArgs }) {
+function parseAuditFk(cobSrc, table) {
+  // The audit FK column is the first column of the audit INSERT
+  // (usually <table>_id, but e.g. cost_center_audit uses cc_id).
+  // Parsed from COBOL source, never guessed.
+  const m = cobSrc.match(new RegExp(`INSERT INTO ${table}_audit \\(([^)]*)\\)`, 'i'));
+  if (!m) return null;
+  return m[1].split(',')[0].trim().replace(/[`"]/g, '');
+}
+
+function buildBlock({ prefix, table, actor, updateArgs, fk }) {
   // Version/audit assertions are relative (+1): template suites already bump
   // the version through CALC/CLOSE before this block runs, so absolute
   // values would couple the block to suite order.
@@ -95,11 +104,11 @@ function buildBlock({ prefix, table, actor, updateArgs }) {
     '',
     MARKER,
     `ver_before="$(db_query "SELECT version FROM ${table} WHERE id=\${id};")"`,
-    `aud_before="$(db_query "SELECT COUNT(*) FROM ${table}_audit WHERE ${table}_id=\${id} AND action='UPDATE';")"`,
+    `aud_before="$(db_query "SELECT COUNT(*) FROM ${table}_audit WHERE ${fk}=\${id} AND action='UPDATE';")"`,
     `upd_out="$(${run(upd('${id}', actor))})"`,
     `assert_match "${prefix}_UPDATE ok" "$upd_out" "SUCCESS\\\\|${prefix}_UPDATE"`,
     `assert_match "version bumped" "$(db_query "SELECT version FROM ${table} WHERE id=\${id};")" "^$((ver_before + 1))$"`,
-    `assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM ${table}_audit WHERE ${table}_id=\${id} AND action='UPDATE';")" "^$((aud_before + 1))$"`,
+    `assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM ${table}_audit WHERE ${fk}=\${id} AND action='UPDATE';")" "^$((aud_before + 1))$"`,
     `assert_match "update missing id" "$(${run(upd('999999', actor))})" "ERROR\\\\|NOT_FOUND"`,
     `assert_match "non-admin update refused" "$(${run(upd('${id}', 'sender@test.com'))})" "ERROR\\\\|FORBIDDEN"`,
   ].join('\n');
@@ -167,6 +176,11 @@ function planDomain(stem, opts = {}) {
   }
   const actor = 'admin@test.com';
 
+  const cobPath = path.join(r, 'cobol', 'src', `${stem}_core.cob`);
+  if (!existsSync(cobPath)) return failSkip(stem, 'no COBOL module cobol/src/<stem>_core.cob');
+  const fk = parseAuditFk(readFileSync(cobPath, 'utf8'), table);
+  if (!fk) return failSkip(stem, `no INSERT INTO ${table}_audit (...) parsed from COBOL`);
+
   if (opts.verifyDb) {
     const has = (q) => dbQuery(q) !== '';
     if (!has(`SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '${table}'`)) {
@@ -184,13 +198,20 @@ function planDomain(stem, opts = {}) {
     ) {
       return failSkip(stem, `audit table ${table}_audit missing`);
     }
+    if (
+      !has(
+        `SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = '${table}_audit' AND column_name = '${fk}'`,
+      )
+    ) {
+      return failSkip(stem, `audit table ${table}_audit has no column ${fk}`);
+    }
   }
 
-  const block = buildBlock({ prefix, table, actor, updateArgs });
+  const block = buildBlock({ prefix, table, actor, updateArgs, fk });
   return { stem, ok: true, block, routeFile, prefix, table };
 }
 
-export { parseRouteFields, parseSuite, buildBlock, planDomain, parseCli };
+export { parseRouteFields, parseSuite, parseAuditFk, buildBlock, planDomain, parseCli };
 
 // ---- CLI ----
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
