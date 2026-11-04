@@ -42,6 +42,17 @@ assert_match "PUR_AUDIT ok" "$(run_cobol "PUR_AUDIT|50|0||||admin@test.com")" "S
 assert_match "PUR_VALIDATE ok" "$(run_cobol "PUR_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PUR_VALID"
 assert_match "non-admin refused" "$(run_cobol "PUR_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM purchasing WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM purchasing_audit WHERE purchasing_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PUR_UPDATE|${id}|BuyerA|PO|||admin@test.com")"
+assert_match "PUR_UPDATE ok" "$upd_out" "SUCCESS\\|PUR_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM purchasing WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM purchasing_audit WHERE purchasing_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PUR_UPDATE|999999|BuyerA|PO|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PUR_UPDATE|${id}|BuyerA|PO|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

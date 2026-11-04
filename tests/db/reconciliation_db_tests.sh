@@ -42,6 +42,17 @@ assert_match "RECN_AUDIT ok" "$(run_cobol "RECN_AUDIT|50|0||||admin@test.com")" 
 assert_match "RECN_VALIDATE ok" "$(run_cobol "RECN_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|RECN_VALID"
 assert_match "non-admin refused" "$(run_cobol "RECN_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM reconciliation WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM reconciliation_audit WHERE reconciliation_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "RECN_UPDATE|${id}|EntityA|DAILY|||admin@test.com")"
+assert_match "RECN_UPDATE ok" "$upd_out" "SUCCESS\\|RECN_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM reconciliation WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM reconciliation_audit WHERE reconciliation_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "RECN_UPDATE|999999|EntityA|DAILY|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "RECN_UPDATE|${id}|EntityA|DAILY|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
