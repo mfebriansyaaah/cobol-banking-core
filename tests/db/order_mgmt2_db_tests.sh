@@ -42,6 +42,17 @@ assert_match "ORD2_AUDIT ok" "$(run_cobol "ORD2_AUDIT|50|0||||admin@test.com")" 
 assert_match "ORD2_VALIDATE ok" "$(run_cobol "ORD2_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|ORD2_VALID"
 assert_match "non-admin refused" "$(run_cobol "ORD2_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM order_mgmt2 WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM order_mgmt2_audit WHERE order_mgmt2_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "ORD2_UPDATE|${id}|OrderA|SALES|||admin@test.com")"
+assert_match "ORD2_UPDATE ok" "$upd_out" "SUCCESS\\|ORD2_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM order_mgmt2 WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM order_mgmt2_audit WHERE order_mgmt2_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "ORD2_UPDATE|999999|OrderA|SALES|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "ORD2_UPDATE|${id}|OrderA|SALES|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
