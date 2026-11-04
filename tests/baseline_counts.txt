@@ -276,3 +276,5 @@ db_mortgage_bank_tests=18
 db_micro_lending_tests=18
 db_nano_lending_tests=18
 db_peer_lending_tests=18
+
+db_treasury_position_tests=12
