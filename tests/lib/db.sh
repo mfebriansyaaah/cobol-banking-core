@@ -180,6 +180,10 @@ db_reset_treasury_deal() {
     db_exec "DELETE FROM treasury_deal_audit; DELETE FROM treasury_deal;"
 }
 
+db_reset_treasury_position() {
+    db_exec "DELETE FROM treasury_audit; DELETE FROM treasury_position;"
+}
+
 db_reset_collateral_mgmt() {
     db_exec "DELETE FROM collateral_mgmt_audit; DELETE FROM collateral_mgmt;"
 }
