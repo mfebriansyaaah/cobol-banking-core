@@ -168,7 +168,7 @@ db_reset_merchant() {
 }
 
 db_reset_loan() {
-    db_exec "DELETE FROM loan_audit; DELETE FROM loan;"
+    db_exec "DELETE FROM loan_repayment; DELETE FROM loan_audit; DELETE FROM loan; DELETE FROM loan_application;"
 }
 
 

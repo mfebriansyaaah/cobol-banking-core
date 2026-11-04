@@ -80,6 +80,24 @@ assert_match "zero-rate principal total=1200" "$zero_principal" "^1200\.0000$"
 zero_interest="$(db_query "SELECT SUM(interest_due) FROM loan_installment WHERE schedule_id=${zero_sched_id};")"
 assert_match "zero-rate interest total=0" "$zero_interest" "^0\.0000$"
 
+# Read paths over the settled schedule, then soft-delete it.
+list_out="$(run_cobol "LSC_LIST|${loan_id}|50|0|||admin@test.com")"
+assert_match "LSC_LIST ok" "$list_out" "SUCCESS\|LSC_LIST\|"
+assert_match "list carries the schedule" "$list_out" "${sched_id}:${loan_id}"
+detail_out="$(run_cobol "LSC_DETAIL|${sched_id}|||||admin@test.com")"
+assert_match "LSC_DETAIL ok" "$detail_out" "SUCCESS\|LSC_DETAIL\|${sched_id}\|"
+assert_match "detail carries 12 installments" "$detail_out" "|12$"
+search_out="$(run_cobol "LSC_SEARCH|${loan_id}|||||admin@test.com")"
+assert_match "LSC_SEARCH ok" "$search_out" "SUCCESS\|LSC_SEARCH\|"
+assert_match "search finds the schedule" "$search_out" "${sched_id}:${loan_id}"
+hist_out="$(run_cobol "LSC_HISTORY|${sched_id}|||||admin@test.com")"
+assert_match "LSC_HISTORY ok" "$hist_out" "SUCCESS\|LSC_HISTORY\|"
+assert_match "history carries CREATE" "$hist_out" "CREATE"
+assert_match "LSC_DELETE ok" "$(run_cobol "LSC_DELETE|${sched_id}|||||admin@test.com")" "SUCCESS\|LSC_DELETE\|DELETED"
+assert_match "schedule cancelled" "$(db_query "SELECT status FROM loan_schedule WHERE id=${sched_id};")" "^CANCELLED$"
+assert_match "delete missing id" "$(run_cobol "LSC_DELETE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "non-admin list refused" "$(run_cobol "LSC_LIST|${loan_id}|50|0|||sender@test.com")" "ERROR\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
