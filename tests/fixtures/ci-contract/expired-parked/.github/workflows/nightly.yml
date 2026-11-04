@@ -1,0 +1,9 @@
+name: Nightly
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    steps: []

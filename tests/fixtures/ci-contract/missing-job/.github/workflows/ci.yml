@@ -1,0 +1,12 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  lint: { runs-on: ubuntu-latest, steps: [] }
+  build: { runs-on: ubuntu-latest, steps: [] }
+  test: { runs-on: ubuntu-latest, steps: [] }
+  db-shards: { runs-on: ubuntu-latest, steps: [] }
+  coverage: { runs-on: ubuntu-latest, steps: [] }

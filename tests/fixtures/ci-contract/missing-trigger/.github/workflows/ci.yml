@@ -1,0 +1,10 @@
+name: CI
+on:
+  workflow_dispatch:
+jobs:
+  lint: { runs-on: ubuntu-latest, steps: [] }
+  build: { runs-on: ubuntu-latest, steps: [] }
+  test: { runs-on: ubuntu-latest, steps: [] }
+  db-shards: { runs-on: ubuntu-latest, steps: [] }
+  db-aggregate: { runs-on: ubuntu-latest, steps: [] }
+  coverage: { runs-on: ubuntu-latest, steps: [] }
