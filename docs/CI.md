@@ -3,6 +3,7 @@
 > R0 readiness branch 00A. Single source of truth for CI triggers, required
 > checks, cost, enforcement, and rollout. Last verified: 2026-11-04, commit
 > `b92ee279`, by QA (tabletop, no Actions run — billing/access not verified).
+> Owner sign-off: see “Owner sign-off (R0 criterion 1)” below.
 
 ## Current status: MANUAL-ONLY (parked)
 
@@ -155,7 +156,7 @@ deliberately red PR that cannot merge.
 
 | # | Criterion | Status |
 | --- | :--- | --- |
-| 1 | Owner decisions signed | Partial — defaults in master plan 0.5, signatures pending |
+| 1 | Owner decisions signed | Met — signed 2026-11-04, see below |
 | 2 | Billing fixed | Not met — no Actions run verified |
 | 3 | Enforcement access verified | Not met — ruleset draft in `.github/rulesets/main.json`, access not verified |
 | 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
@@ -169,9 +170,33 @@ deliberately red PR that cannot merge.
 
 R0 passes when 1–8, 10, 11 are Met. Current composite: 8.5/10.
 
+### Owner sign-off (R0 criterion 1) — signed 2026-11-04
+
+Approved by `@mfebriansyaaah` (repository owner):
+
+- Billing / Actions: fix billing first; minimal bridge only for quota
+  throttling, not suspension.
+- Merge enforcement: GitHub Pro/public + ruleset; fallback merge bot; else cap
+  9/10 at 8.5.
+- Report layout: unique run directory + `artifacts/latest`, no append fallback.
+- DB cleanup: single top-level EXIT trap in `tests/run_all.sh`.
+- Action coverage denominator: all 2,780 route actions (2026-11-04); HTTP-only
+  is not shell-covered without owner + reason + expiry.
+- UPDATE tests: 2-day spike; generator only if ≥80% uniform, else risk-based.
+- Security: semgrep + gitleaks + npm audit + custom SAST on PR; CodeQL CLI +
+  SARIF if GHAS unavailable.
+- Test reporter: `dorny/test-reporter`, pinned SHA.
+- Diff coverage: `diff-cover` + lcov; Cobertura for COBOL.
+- Mutation: Stryker for JS money-path; hand-written COBOL mutants first.
+- Post-deploy: out of scope for 9/10 (10/10 ops work).
+- Money-path: wallet, auth, payments, treasury, GL, settlement (2 approvals);
+  plus loan, deposit, card, collection for depth.
+- Ownership: second owners required by 2026-12-04 or cap 9/10 at 8.5.
+- Tool versions: pinned with checksums in `scripts/ci/tool-checksums.txt`.
+
 ### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
 
-R0 does **not** pass. Met: 4, 5, 9, 11. Not met: 2, 3, 7, 10. Partial: 1, 6, 8.
+R0 does **not** pass. Met: 1, 4, 5, 9, 11. Not met: 2, 3, 7, 10. Partial: 6, 8.
 Phase 0 must not start until the blockers below are closed.
 
 Blockers and owners:
@@ -182,8 +207,9 @@ Blockers and owners:
 - Named owners (criterion 7) — owner must name second owners or accept the 8.5
   cap with expiry 2026-12-04.
 - Day 0 preflight (criterion 10) — must run full suite and triage red suites.
-- Owner signatures (criterion 1), cost approval (criterion 6), second-engineer
-  tabletop (criterion 8) — partial, need dates and approvers.
+- Owner signatures (criterion 1) — done 2026-11-04, see above.
+- Cost approval (criterion 6), second-engineer tabletop (criterion 8) —
+  partial, need dates and approvers.
 
 What 00A/00B delivered: branching plan, CI status source, ownership gap record,
 cost estimate, rollout plan, main-protection draft + hook, tool checksums with
