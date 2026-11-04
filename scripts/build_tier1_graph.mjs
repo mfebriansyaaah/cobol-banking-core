@@ -317,7 +317,7 @@ export function baselineText(graph) {
   return `${header.join('\n')}${lines.join('\n')}\n`;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const graph = buildGraph(root);
   if (write) {
     const generatedAt = new Date().toISOString();
