@@ -82,6 +82,17 @@ needing hand edits goes to the manual queue and counts against the 80% bar.
 
 Weekly review: run `--json`, record covered/baseline, review the diff.
 
+## T-018 progress (branch 07, `test/testing-p1-02-update-critical`)
+
+- Batch 1 (20 money-path domains): UPDATE blocks generated + green 18/18
+  each; shell-covered 2,180 → 2,200 (79.1%), baseline 600 → 580.
+  Category-1 remaining: 224 (244 − 20 done; includes manual-queue
+  LSC_UPDATE).
+- Assertions are relative (+1 from captured before-values): template suites
+  bump version via CALC/CLOSE before the UPDATE block, so absolute values
+  coupled the block to suite order (first green run showed uniform 17/18
+  with `expected ^2$, got 4`).
+
 ## Domain groups
 
 - **Critical money path** (two approvals): wallet, auth, payments, treasury,
