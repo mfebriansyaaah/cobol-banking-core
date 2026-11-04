@@ -236,12 +236,6 @@ PAY_POLICY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expi
 PAY_POLICY_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PAY_PROFILE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PAY_PROFILE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PHL_CAPTURE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PHL_EXPIRE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PHL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PHL_RELEASE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PHL_RESERVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PHL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PIC_CANCEL  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PIC_DUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PIC_EXECUTE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
