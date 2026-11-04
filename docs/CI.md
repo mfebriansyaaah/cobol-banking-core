@@ -157,7 +157,7 @@ deliberately red PR that cannot merge.
 | # | Criterion | Status |
 | --- | :--- | --- |
 | 1 | Owner decisions signed | Met — signed 2026-11-04, see below |
-| 2 | Billing fixed | Not met — no Actions run verified |
+| 2 | Billing fixed | Met — run 41772256921 executes (build + 4 db-shards success, test in progress 2026-11-04); billing no longer aborts runs. Lint/coverage failures are pre-existing gates, not billing. |
 | 3 | Enforcement access verified | Not met — ruleset draft in `.github/rulesets/main.json`, access not verified |
 | 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
 | 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
@@ -196,14 +196,20 @@ Approved by `@mfebriansyaaah` (repository owner):
 
 ### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
 
-R0 does **not** pass. Met: 1, 4, 5, 9, 11. Not met: 2, 3, 7, 10. Partial: 6, 8.
+R0 does **not** pass. Met: 1, 2, 4, 5, 9, 11. Not met: 3, 7, 10. Partial: 6, 8.
 Phase 0 must not start until the blockers below are closed.
+
+Proven 2026-11-04: run
+`https://github.com/mfebriansyaaah/cobol-banking-core/actions/runs/41772256921`
+executes (build success, db-shards 0–3 success, test in progress; lint fails at
+Shell lint SC2164 in `scripts/test/run.sh`, coverage fails — both pre-existing,
+triaged as G0/Phase 0, not billing).
 
 Blockers and owners:
 
-- Billing (criterion 2) — owner must verify an Actions run end-to-end.
 - Enforcement access (criterion 3) — owner must verify ruleset or merge-bot
-  access; active blocking is G0.
+  access; active blocking is G0. Note: `gh api .../rulesets` returns `[]`
+  (not 403), so access exists; configuration still pending.
 - Named owners (criterion 7) — owner must name second owners or accept the 8.5
   cap with expiry 2026-12-04.
 - Day 0 preflight (criterion 10) — must run full suite and triage red suites.
