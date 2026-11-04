@@ -169,12 +169,16 @@ deliberately red PR that cannot merge.
 | 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
 | 6 | Cost approved | Met — ceiling ~22,700 min/month approved 2026-11-04 by `@mfebriansyaaah`; re-approve with measured minutes before re-privatizing |
 | 7 | Named owners | Met — `@get-money-first` added as backup on every path 2026-11-04; see `docs/OWNERSHIP.md` |
-| 8 | Executor independence | Partial — single-engineer execution; tabletop pending second engineer |
+| 8 | Executor independence | Met — tabletop 2026-11-04 by `@mfebriansyaaah` + `@get-money-first`, see `docs/tabletop-r0.md` |
 | 9 | Communication ready | Met — this file + rollout above |
 | 10 | Day 0 preflight | Met (triaged) — full serial run 2026-11-04: 271/273 DB green; 2 env failures triaged in `docs/known-red.md`; integration/gateway/smoke/harness/fuzz green; no orphans; artifacts in `artifacts/preflight-b6e4d7ce/` |
 | 11 | Branching plan | Met — `docs/BRANCHING.md` added in 00A |
 
-R0 passes when 1–8, 10, 11 are Met. Current composite: 8.5/10.
+R0 passes when 1–8, 10, 11 are Met. Current composite: 9.0/10.
+
+### R0 sign-off (T-052, 2026-11-04) — PASSED
+
+R0 **passes**. Met: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11. Phase 0 may start.
 
 ### Owner sign-off (R0 criterion 1) — signed 2026-11-04
 
@@ -200,26 +204,12 @@ Approved by `@mfebriansyaaah` (repository owner):
 - Ownership: second owners required by 2026-12-04 or cap 9/10 at 8.5.
 - Tool versions: pinned with checksums in `scripts/ci/tool-checksums.txt`.
 
-### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
+### Evidence (run 41772256921, 2026-11-04)
 
-R0 does **not** pass. Met: 1, 2, 3, 4, 5, 6, 7, 9, 10, 11. Not met: none. Partial: 8.
-Phase 0 must not start until the tabletop is closed.
-
-Proven 2026-11-04: run
 `https://github.com/mfebriansyaaah/cobol-banking-core/actions/runs/41772256921`
 executes (build success, db-shards 0–3 success, test in progress; lint fails at
 Shell lint SC2164 in `scripts/test/run.sh`, coverage fails — both pre-existing,
 triaged as G0/Phase 0, not billing).
-
-Blockers and owners:
-
-- Second-engineer tabletop (criterion 8) — partial, need date and approver.
-
-What 00A/00B delivered: branching plan, CI status source, ownership gap record,
-cost estimate, rollout plan, main-protection draft + hook, tool checksums with
-verified SHAs, local branch-train dry-run with only `main` on the remote.
-
-Next: close the blockers above, then re-run T-052. Do not start Phase 0.
 
 ## Branch-train dry-run (T-058, done in 00B)
 
@@ -233,11 +223,10 @@ Next: close the blockers above, then re-run T-052. Do not start Phase 0.
 
 Status: done locally. Remote PR URLs: n/a (local-only dry-run; no remote branches created).
 
-## R0 sign-off (T-052, 2026-11-04) — NOT PASSED, Phase 0 blocked
+## R0 sign-off (T-052, 2026-11-04) — PASSED
 
-R0 composite remains 8.5/10. Do not start Phase 0. Re-run T-052 after billing,
-enforcement access, second owners, cost approval, second-engineer tabletop,
-and Day 0 preflight are closed.
+R0 **passes** 2026-11-04. Met: 1–11 (criterion 10 triaged via `known-red.md`).
+Composite: 9.0/10. Phase 0 may start with branch 01.
 
 ## Known-red / preflight
 
