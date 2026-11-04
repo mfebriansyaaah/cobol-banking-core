@@ -79,54 +79,119 @@ function runFail(root, extra = []) {
   return '';
 }
 
+function runJson(root, extra = []) {
+  try {
+    const stdout = run(root, ['--json', ...extra]);
+    return { json: JSON.parse(stdout), status: 0 };
+  } catch (e) {
+    return { json: JSON.parse(String((e && e.stdout) || '{}')), status: e?.status ?? 1 };
+  }
+}
+
+// Baseline entries need owner/reason/expires/ticket metadata (T-021).
+const META = 'owner=@tester reason="test entry" expires=2099-01-01 ticket=T-0';
+const B = (a, meta = META) => `${a} ${meta}`;
+
 test('matching baseline passes', () => {
-  const d = makeRoot({ baselineExtra: ['MISSING', 'APP_ONLY'] });
+  const d = makeRoot({ baselineExtra: [B('MISSING'), B('APP_ONLY')] });
   const out = run(d);
   assert.match(out, /OK: 2 of 4 route actions shell-covered/);
 });
 
 test('new untested action fails', () => {
-  const d = makeRoot({ baselineExtra: ['APP_ONLY'] });
+  const d = makeRoot({ baselineExtra: [B('APP_ONLY')] });
   const err = runFail(d);
   assert.match(err, /MISSING/);
   assert.match(err, /demo\.js/);
 });
 
 test('stale entry fails', () => {
-  const d = makeRoot({ baselineExtra: ['MISSING', 'APP_ONLY', 'COVERED'] });
+  const d = makeRoot({ baselineExtra: [B('MISSING'), B('APP_ONLY'), B('COVERED')] });
   assert.match(runFail(d), /now covered/i);
   assert.match(runFail(d), /COVERED/);
 });
 
 test('dead entry fails', () => {
-  const d = makeRoot({ baselineExtra: ['MISSING', 'APP_ONLY', 'GONE_ACTION'] });
+  const d = makeRoot({ baselineExtra: [B('MISSING'), B('APP_ONLY'), `${'GONE_ACTION'} ${META}`] });
   assert.match(runFail(d), /GONE_ACTION/);
 });
 
-test('--write adds new and drops stale/dead, keeps comments', () => {
-  const d = makeRoot({ baselineExtra: ['# group header', '', 'APP_ONLY', 'GONE_ACTION', 'COVERED'] });
+test('--write adds new and drops stale/dead, keeps comments and metadata', () => {
+  const d = makeRoot({ baselineExtra: ['# group header', '', B('APP_ONLY'), 'GONE_ACTION', 'COVERED'] });
   run(d, ['--write']);
   const after = readFileSync(path.join(d, 'tests', 'action_test_coverage_baseline.txt'), 'utf8');
   assert.match(after, /^# group header$/m);
-  assert.match(after, /^MISSING$/m);
-  assert.match(after, /^APP_ONLY$/m);
+  assert.match(after, /^MISSING\s+owner=\?\s+reason=\?\s+expires=\?\s+ticket=\?$/m);
+  assert.match(after, /^APP_ONLY owner=@tester/m);
   assert.ok(!after.split('\n').some((l) => l.trim() === 'GONE_ACTION'), 'dead entry removed');
   assert.ok(!after.split('\n').some((l) => l.trim() === 'COVERED'), 'stale entry removed');
-  run(d); // green after write
+  // Placeholders fail until a human fills them in.
+  assert.match(runFail(d), /WITHOUT OWNER/);
 });
 
 test('dynamic run_cobol calls are ignored, not treated as coverage', () => {
-  const d = makeRoot({ baselineExtra: ['MISSING', 'APP_ONLY'] });
+  const d = makeRoot({ baselineExtra: [B('MISSING'), B('APP_ONLY')] });
   const out = run(d);
   assert.match(out, /OK: 2 of 4 route actions shell-covered/);
 });
 
 test('malformed baseline line fails', () => {
-  const d = makeRoot({ baselineExtra: ['MISSING', 'APP_ONLY', 'lowercase_bad'] });
+  const d = makeRoot({ baselineExtra: [B('MISSING'), B('APP_ONLY'), 'lowercase_bad'] });
   assert.match(runFail(d), /malformed/);
 });
 
 test('duplicate baseline entries fail', () => {
-  const d = makeRoot({ baselineExtra: ['MISSING', 'APP_ONLY', 'MISSING'] });
+  const d = makeRoot({ baselineExtra: [B('MISSING'), B('APP_ONLY'), B('MISSING')] });
   assert.match(runFail(d), /duplicate/i);
+});
+
+test('entry without metadata fails', () => {
+  const d = makeRoot({ baselineExtra: ['MISSING', B('APP_ONLY')] });
+  const err = runFail(d);
+  assert.match(err, /WITHOUT OWNER/);
+  assert.match(err, /MISSING/);
+});
+
+test('entry with placeholder metadata fails until filled', () => {
+  const d = makeRoot({ baselineExtra: ['MISSING  owner=? reason=? expires=? ticket=?', B('APP_ONLY')] });
+  assert.match(runFail(d), /WITHOUT OWNER/);
+});
+
+test('expired entry fails', () => {
+  const d = makeRoot({
+    baselineExtra: ['MISSING  owner=@tester reason="old" expires=2000-01-01 ticket=T-0', B('APP_ONLY')],
+  });
+  const err = runFail(d);
+  assert.match(err, /EXPIRED|past their/i);
+  assert.match(err, /MISSING/);
+});
+
+test('unknown metadata key fails', () => {
+  const d = makeRoot({
+    baselineExtra: [`MISSING  owner=@tester reason="r" expires=2099-01-01 ticket=T-0 bogus=1`, B('APP_ONLY')],
+  });
+  assert.match(runFail(d), /unknown metadata key/);
+});
+
+test('--json reports totals and uncovered actions with metadata', () => {
+  const d = makeRoot({ baselineExtra: [B('MISSING'), B('APP_ONLY')] });
+  const { json, status } = runJson(d);
+  assert.equal(status, 0);
+  assert.equal(json.total, 4);
+  assert.equal(json.covered, 2);
+  assert.equal(json.baseline, 2);
+  assert.equal(json.uncovered.length, 2);
+  const byName = Object.fromEntries(json.uncovered.map((u) => [u.action, u]));
+  assert.deepEqual(byName.MISSING.files, ['demo.js']);
+  assert.equal(byName.MISSING.owner, '@tester');
+  assert.equal(byName.MISSING.ticket, 'T-0');
+  assert.equal(byName.APP_ONLY.category, 'ungrouped');
+});
+
+test('--json still prints on gate failure', () => {
+  const d = makeRoot({ baselineExtra: [B('APP_ONLY')] });
+  const { json, status } = runJson(d);
+  assert.equal(status, 1);
+  assert.equal(json.total, 4);
+  assert.ok(json.uncovered.some((u) => u.action === 'MISSING' && u.files.includes('demo.js')));
 });

@@ -14,11 +14,18 @@
 // Gateway HTTP tests are NOT counted: reaching a route is not executing its
 // COBOL action (see route-reachability vs field-order in docs/TESTING.md).
 //
+// Baseline entries carry metadata so exceptions stay owned and expire:
+//   ACTION  owner=@handle  reason="why untested"  expires=YYYY-MM-DD  ticket=REF
+// The gate fails on missing/placeholder metadata and on expired entries.
+// Categories come from the `# --- N. ...` section headers in the file.
+//
 // Usage:
-//   node scripts/check_action_test_coverage.mjs [--root DIR] [--write]
+//   node scripts/check_action_test_coverage.mjs [--root DIR] [--write] [--json]
 //   --write updates tests/action_test_coverage_baseline.txt (review the diff;
-//   new actions land ungrouped at the end - move them under a category header
-//   and document the reason).
+//   new actions land ungrouped at the end with placeholder metadata - fill it
+//   in and move them under a category header with a documented reason).
+//   --json prints {"total","covered","pct","baseline","uncovered":[...]} to
+//   stdout; the exit code still reflects the gate (0 ok, 1 mismatch).
 // Exit: 0 ok, 1 mismatch, 2 usage error.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -26,14 +33,16 @@ import path from 'node:path';
 const args = process.argv.slice(2);
 let root = '.';
 let write = false;
+let json = false;
 for (let i = 0; i < args.length; i += 1) {
   const a = args[i];
   if (a === '--root') {
     root = args[i + 1] ?? root;
     i += 1;
   } else if (a === '--write') write = true;
+  else if (a === '--json') json = true;
   else if (a === '--help' || a === '-h') {
-    console.log('usage: check_action_test_coverage.mjs [--root DIR] [--write]');
+    console.log('usage: check_action_test_coverage.mjs [--root DIR] [--write] [--json]');
     process.exit(0);
   } else if (!a.startsWith('--')) root = a;
   else {
@@ -93,33 +102,91 @@ function shellCovered() {
   return covered;
 }
 
+const META_KEYS = ['owner', 'reason', 'expires', 'ticket'];
+const PLACEHOLDER = '?';
+
+function parseMeta(rest) {
+  // Parses `key=value` pairs where values are "quoted strings" or bare tokens.
+  const meta = {};
+  const re = /(\w+)=("[^"]*"|\S+)/g;
+  let m;
+  while ((m = re.exec(rest)) !== null) {
+    const [, k, v] = m;
+    if (!META_KEYS.includes(k)) {
+      console.error(`FAIL: unknown metadata key: ${k} (want one of ${META_KEYS.join(', ')})`);
+      process.exit(2);
+    }
+    if (meta[k] !== undefined) {
+      console.error(`FAIL: duplicate metadata key: ${k}`);
+      process.exit(2);
+    }
+    meta[k] = v.startsWith('"') && v.endsWith('"') ? v.slice(1, -1) : v;
+  }
+  const leftover = rest.replace(/(\w+)=("[^"]*"|\S+)/g, '').trim();
+  if (leftover) {
+    console.error(`FAIL: malformed metadata segment: ${leftover}`);
+    process.exit(2);
+  }
+  return meta;
+}
+
+function metaProblems(action, meta) {
+  // Returns human-readable problems; empty means the metadata is complete.
+  const problems = [];
+  if (!meta.owner || meta.owner === PLACEHOLDER || !/^@\S+$/.test(meta.owner)) {
+    problems.push('missing owner=@handle');
+  }
+  if (!meta.reason || meta.reason === PLACEHOLDER) {
+    problems.push('missing reason="..."');
+  }
+  if (!meta.expires || meta.expires === PLACEHOLDER || !/^\d{4}-\d{2}-\d{2}$/.test(meta.expires)) {
+    problems.push('missing expires=YYYY-MM-DD');
+  }
+  if (!meta.ticket || meta.ticket === PLACEHOLDER) {
+    problems.push('missing ticket=REF');
+  }
+  return problems;
+}
+
 function loadBaseline() {
-  if (!existsSync(baselinePath)) return { order: [], values: new Map(), raw: [] };
+  if (!existsSync(baselinePath)) return { order: [], values: new Map(), meta: new Map(), raw: [] };
   const raw = readFileSync(baselinePath, 'utf8').split('\n');
   const order = [];
   const values = new Map();
+  const meta = new Map(); // action -> {owner, reason, expires, ticket, category}
+  let category = 'ungrouped';
   for (const line of raw) {
     const t = line.trim();
-    if (!t || t.startsWith('#')) continue;
+    if (!t) continue;
+    if (t.startsWith('#')) {
+      const hm = t.match(/^#\s*-+\s*\d+\.\s*(.+?)\s*$/);
+      if (hm) category = hm[1];
+      else if (/^#\s*-+\s*new entries\b/i.test(t)) category = 'new entries (uncategorized)';
+      continue;
+    }
     const key = t.split(/\s+/)[0];
     if (!/^[A-Z][A-Z0-9_]+$/.test(key)) {
       console.error(`FAIL: malformed baseline line: ${line}`);
       process.exit(2);
     }
     values.set(key, (values.get(key) ?? 0) + 1);
-    if (!order.includes(key)) order.push(key);
+    if (!order.includes(key)) {
+      order.push(key);
+      meta.set(key, { ...parseMeta(t.slice(key.length)), category });
+    }
   }
   const dupes = [...values.entries()].filter(([, n]) => n > 1).map(([k]) => k);
   if (dupes.length) {
     console.error(`FAIL: duplicate baseline entries: ${dupes.join(', ')}`);
     process.exit(2);
   }
-  return { order, values, raw };
+  return { order, values, meta, raw };
 }
 
 const routes = routeActions();
 const shell = shellCovered();
-const { order: recorded, raw } = loadBaseline();
+const { order: recorded, meta: recordedMeta, raw } = loadBaseline();
+const today = new Date().toISOString().slice(0, 10);
 
 let failed = false;
 // New untested actions: in routes, never shell-executed, not recorded.
@@ -128,6 +195,13 @@ const unlisted = [...routes.keys()].filter((a) => !shell.has(a) && !recorded.inc
 const stale = recorded.filter((a) => shell.has(a));
 // Baseline entries for actions that no longer exist as routes (dead entries).
 const dead = recorded.filter((a) => !routes.has(a));
+// Expired or metadata-less entries: owned exceptions that lapsed or were
+// never properly recorded. Placeholders (?, written by --write for new
+// actions) fail until a human fills them in. Dead entries are already
+// failures on their own; they are not double-reported here.
+const live = recorded.filter((a) => !shell.has(a) && routes.has(a));
+const expired = live.filter((a) => recordedMeta.get(a)?.expires && recordedMeta.get(a).expires < today);
+const unowned = live.filter((a) => metaProblems(a, recordedMeta.get(a) ?? {}).length > 0);
 
 if (!write) {
   if (unlisted.length) {
@@ -150,6 +224,21 @@ if (!write) {
     console.error('BASELINE ENTRIES WITH NO ROUTE (action removed or renamed?):');
     for (const a of dead.sort()) console.error(`  ${a}`);
   }
+  if (expired.length) {
+    failed = true;
+    console.error('BASELINE ENTRIES PAST THEIR EXPIRES DATE (renew or add the test):');
+    for (const a of expired.sort()) {
+      console.error(`  ${a}  (expired ${recordedMeta.get(a).expires})`);
+    }
+  }
+  if (unowned.length) {
+    failed = true;
+    console.error('BASELINE ENTRIES WITHOUT OWNER/REASON/EXPIRY/TICKET (fill them in):');
+    for (const a of unowned.sort().slice(0, 10)) {
+      console.error(`  ${a}  (${metaProblems(a, recordedMeta.get(a) ?? {}).join('; ')})`);
+    }
+    if (unowned.length > 10) console.error(`  ... and ${unowned.length - 10} more`);
+  }
 }
 
 if (write) {
@@ -166,26 +255,54 @@ if (write) {
     const key = t.split(/\s+/)[0];
     if (seen.has(key)) continue;
     seen.add(key);
-    if (want.has(key)) out.push(key);
+    if (want.has(key)) out.push(line);
     // else: stale or dead entry -> drop it (reported above when not writing).
   }
-  for (const k of [...want].filter((k) => !seen.has(k)).sort()) out.push(k);
+  const added = [...want].filter((k) => !seen.has(k)).sort();
+  if (added.length) {
+    out.push('# --- new entries (fill metadata + move under a category header) ---');
+    for (const k of added) out.push(`${k}  owner=? reason=? expires=? ticket=?`);
+  }
   writeFileSync(baselinePath, `${out.join('\n').replace(/\n+$/, '')}\n`);
-  const added = [...want].filter((k) => !recorded.includes(k));
   const removed = recorded.filter((k) => !want.has(k));
   console.log(`wrote ${baselinePath}: +${added.length} -${removed.length} (total ${want.size})`);
-  if (added.length)
-    console.log(`  added (categorize under a header + document the reason):\n    ${added.sort().join(', ')}`);
+  if (added.length) console.log(`  added (categorize under a header + document the reason):\n    ${added.join(', ')}`);
   if (removed.length) console.log(`  removed (now covered or unrouted): ${removed.sort().join(', ')}`);
+  console.log(
+    '  note: new entries carry placeholder metadata; the gate fails until a human fills owner/reason/expires/ticket',
+  );
   process.exit(0);
+}
+
+const covered = [...routes.keys()].filter((a) => shell.has(a)).length;
+const pct = ((100 * covered) / routes.size).toFixed(1);
+const summary = {
+  total: routes.size,
+  covered,
+  pct: Number(pct),
+  baseline: recorded.length,
+  uncovered: [...routes.keys()]
+    .filter((a) => !shell.has(a))
+    .sort()
+    .map((a) => ({
+      action: a,
+      files: [...(routes.get(a) ?? [])].sort(),
+      category: recordedMeta.get(a)?.category ?? null,
+      ...(recordedMeta.get(a) ?? {}),
+    })),
+};
+if (json) {
+  // Always print the machine-readable summary; the exit code still
+  // reflects the gate so --json works for both triage and gating.
+  console.log(JSON.stringify(summary, null, 2));
 }
 
 if (failed) {
   console.error(`\nFAIL: action test coverage does not match ${baselinePath}`);
   process.exit(1);
 }
-const covered = [...routes.keys()].filter((a) => shell.has(a)).length;
-const pct = ((100 * covered) / routes.size).toFixed(1);
-console.log(
-  `OK: ${covered} of ${routes.size} route actions shell-covered (${pct}%); baseline holds ${recorded.length} untested`,
-);
+if (!json) {
+  console.log(
+    `OK: ${covered} of ${routes.size} route actions shell-covered (${pct}%); baseline holds ${recorded.length} untested`,
+  );
+}
