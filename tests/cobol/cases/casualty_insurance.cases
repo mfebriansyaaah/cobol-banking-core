@@ -1,6 +1,0 @@
-# Casualty Insurance (Wave18) validation cases.
-CSL_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSL_CREATE||||||admin@test.com
-CSL_GET missing id@@ERROR\|INVALID_INPUT@@CSL_GET||||||admin@test.com
-CSL_CALC missing id@@ERROR\|INVALID_INPUT@@CSL_CALC||||||admin@test.com
-CSL_DELETE missing id@@ERROR\|INVALID_INPUT@@CSL_DELETE||||||admin@test.com
-CSL_VALIDATE ok@@SUCCESS\|CSL_VALID@@CSL_VALIDATE|100.00|USD||||admin@test.com

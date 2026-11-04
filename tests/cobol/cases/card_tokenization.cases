@@ -1,6 +1,0 @@
-# Card Tokenization (Wave8) validation cases.
-CDT_CREATE missing ref@@ERROR\|INVALID_INPUT@@CDT_CREATE||||||admin@test.com
-CDT_GET missing id@@ERROR\|INVALID_INPUT@@CDT_GET||||||admin@test.com
-CDT_CALC missing id@@ERROR\|INVALID_INPUT@@CDT_CALC||||||admin@test.com
-CDT_DELETE missing id@@ERROR\|INVALID_INPUT@@CDT_DELETE||||||admin@test.com
-CDT_VALIDATE ok@@SUCCESS\|CDT_VALID@@CDT_VALIDATE|100.00|USD||||admin@test.com

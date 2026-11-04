@@ -1,6 +1,0 @@
-# Crypto Exchange (Wave6) validation cases.
-CRX_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRX_CREATE||||||admin@test.com
-CRX_GET missing id@@ERROR\|INVALID_INPUT@@CRX_GET||||||admin@test.com
-CRX_CALC missing id@@ERROR\|INVALID_INPUT@@CRX_CALC||||||admin@test.com
-CRX_DELETE missing id@@ERROR\|INVALID_INPUT@@CRX_DELETE||||||admin@test.com
-CRX_VALIDATE ok@@SUCCESS\|CRX_VALID@@CRX_VALIDATE|100.00|USD||||admin@test.com

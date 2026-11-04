@@ -1,6 +1,0 @@
-# Core Banking (Wave20) validation cases.
-CBKG_CREATE missing ref@@ERROR\|INVALID_INPUT@@CBKG_CREATE||||||admin@test.com
-CBKG_GET missing id@@ERROR\|INVALID_INPUT@@CBKG_GET||||||admin@test.com
-CBKG_CALC missing id@@ERROR\|INVALID_INPUT@@CBKG_CALC||||||admin@test.com
-CBKG_DELETE missing id@@ERROR\|INVALID_INPUT@@CBKG_DELETE||||||admin@test.com
-CBKG_VALIDATE ok@@SUCCESS\|CBKG_VALID@@CBKG_VALIDATE|100.00|USD||||admin@test.com

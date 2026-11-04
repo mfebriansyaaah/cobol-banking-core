@@ -1,6 +1,0 @@
-# Blockchain Tracker (Wave6) validation cases.
-BCT_CREATE missing ref@@ERROR\|INVALID_INPUT@@BCT_CREATE||||||admin@test.com
-BCT_GET missing id@@ERROR\|INVALID_INPUT@@BCT_GET||||||admin@test.com
-BCT_CALC missing id@@ERROR\|INVALID_INPUT@@BCT_CALC||||||admin@test.com
-BCT_DELETE missing id@@ERROR\|INVALID_INPUT@@BCT_DELETE||||||admin@test.com
-BCT_VALIDATE ok@@SUCCESS\|BCT_VALID@@BCT_VALIDATE|100.00|USD||||admin@test.com

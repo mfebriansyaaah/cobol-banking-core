@@ -1,6 +1,0 @@
-# Audit Log (Wave10) validation cases.
-ADL_CREATE missing ref@@ERROR\|INVALID_INPUT@@ADL_CREATE||||||admin@test.com
-ADL_GET missing id@@ERROR\|INVALID_INPUT@@ADL_GET||||||admin@test.com
-ADL_CALC missing id@@ERROR\|INVALID_INPUT@@ADL_CALC||||||admin@test.com
-ADL_DELETE missing id@@ERROR\|INVALID_INPUT@@ADL_DELETE||||||admin@test.com
-ADL_VALIDATE ok@@SUCCESS\|ADL_VALID@@ADL_VALIDATE|100.00|USD||||admin@test.com

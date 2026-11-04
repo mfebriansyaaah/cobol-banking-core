@@ -1,6 +1,0 @@
-# AML screening (D11) validation cases.
-AML_CREATE missing ref@@ERROR\|INVALID_INPUT@@AML_CREATE||||||admin@test.com
-AML_GET missing id@@ERROR\|INVALID_INPUT@@AML_GET||||||admin@test.com
-AML_SCREEN missing id@@ERROR\|INVALID_INPUT@@AML_SCREEN||||||admin@test.com
-AML_CLOSE missing id@@ERROR\|INVALID_INPUT@@AML_CLOSE||||||admin@test.com
-AML_VALIDATE ok@@SUCCESS\|AML_VALID@@AML_VALIDATE|100.00|USD||||admin@test.com

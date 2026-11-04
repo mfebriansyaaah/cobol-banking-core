@@ -1,6 +1,0 @@
-# Asset Allocation (Wave14) validation cases.
-AAL_CREATE missing ref@@ERROR\|INVALID_INPUT@@AAL_CREATE||||||admin@test.com
-AAL_GET missing id@@ERROR\|INVALID_INPUT@@AAL_GET||||||admin@test.com
-AAL_CALC missing id@@ERROR\|INVALID_INPUT@@AAL_CALC||||||admin@test.com
-AAL_DELETE missing id@@ERROR\|INVALID_INPUT@@AAL_DELETE||||||admin@test.com
-AAL_VALIDATE ok@@SUCCESS\|AAL_VALID@@AAL_VALIDATE|100.00|USD||||admin@test.com

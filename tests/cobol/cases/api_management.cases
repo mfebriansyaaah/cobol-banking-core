@@ -1,6 +1,0 @@
-# Api Management (Wave5) validation cases.
-APM_CREATE missing ref@@ERROR\|INVALID_INPUT@@APM_CREATE||||||admin@test.com
-APM_GET missing id@@ERROR\|INVALID_INPUT@@APM_GET||||||admin@test.com
-APM_CALC missing id@@ERROR\|INVALID_INPUT@@APM_CALC||||||admin@test.com
-APM_DELETE missing id@@ERROR\|INVALID_INPUT@@APM_DELETE||||||admin@test.com
-APM_VALIDATE ok@@SUCCESS\|APM_VALID@@APM_VALIDATE|100.00|USD||||admin@test.com

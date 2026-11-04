@@ -1,6 +1,0 @@
-# Credit Union (Wave20) validation cases.
-CRU_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRU_CREATE||||||admin@test.com
-CRU_GET missing id@@ERROR\|INVALID_INPUT@@CRU_GET||||||admin@test.com
-CRU_CALC missing id@@ERROR\|INVALID_INPUT@@CRU_CALC||||||admin@test.com
-CRU_DELETE missing id@@ERROR\|INVALID_INPUT@@CRU_DELETE||||||admin@test.com
-CRU_VALIDATE ok@@SUCCESS\|CRU_VALID@@CRU_VALIDATE|100.00|USD||||admin@test.com

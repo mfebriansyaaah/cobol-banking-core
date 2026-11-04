@@ -1,6 +1,0 @@
-# Asset Backed Security (Wave12) validation cases.
-ASB_CREATE missing ref@@ERROR\|INVALID_INPUT@@ASB_CREATE||||||admin@test.com
-ASB_GET missing id@@ERROR\|INVALID_INPUT@@ASB_GET||||||admin@test.com
-ASB_CALC missing id@@ERROR\|INVALID_INPUT@@ASB_CALC||||||admin@test.com
-ASB_DELETE missing id@@ERROR\|INVALID_INPUT@@ASB_DELETE||||||admin@test.com
-ASB_VALIDATE ok@@SUCCESS\|ASB_VALID@@ASB_VALIDATE|100.00|USD||||admin@test.com

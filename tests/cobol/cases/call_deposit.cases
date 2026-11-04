@@ -1,6 +1,0 @@
-# Call Deposit (Wave9) validation cases.
-CLD_CREATE missing ref@@ERROR\|INVALID_INPUT@@CLD_CREATE||||||admin@test.com
-CLD_GET missing id@@ERROR\|INVALID_INPUT@@CLD_GET||||||admin@test.com
-CLD_CALC missing id@@ERROR\|INVALID_INPUT@@CLD_CALC||||||admin@test.com
-CLD_DELETE missing id@@ERROR\|INVALID_INPUT@@CLD_DELETE||||||admin@test.com
-CLD_VALIDATE ok@@SUCCESS\|CLD_VALID@@CLD_VALIDATE|100.00|USD||||admin@test.com

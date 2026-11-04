@@ -1,6 +1,0 @@
-# Consumer Finance (Wave20) validation cases.
-CSF_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSF_CREATE||||||admin@test.com
-CSF_GET missing id@@ERROR\|INVALID_INPUT@@CSF_GET||||||admin@test.com
-CSF_CALC missing id@@ERROR\|INVALID_INPUT@@CSF_CALC||||||admin@test.com
-CSF_DELETE missing id@@ERROR\|INVALID_INPUT@@CSF_DELETE||||||admin@test.com
-CSF_VALIDATE ok@@SUCCESS\|CSF_VALID@@CSF_VALIDATE|100.00|USD||||admin@test.com

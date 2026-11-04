@@ -1,6 +1,0 @@
-# Cost (Wave9) validation cases.
-COS_CREATE missing ref@@ERROR\|INVALID_INPUT@@COS_CREATE||||||admin@test.com
-COS_GET missing id@@ERROR\|INVALID_INPUT@@COS_GET||||||admin@test.com
-COS_CALC missing id@@ERROR\|INVALID_INPUT@@COS_CALC||||||admin@test.com
-COS_DELETE missing id@@ERROR\|INVALID_INPUT@@COS_DELETE||||||admin@test.com
-COS_VALIDATE ok@@SUCCESS\|COS_VALID@@COS_VALIDATE|100.00|USD||||admin@test.com

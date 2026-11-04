@@ -1,6 +1,0 @@
-# Data lineage (D22) validation cases.
-DLN_CREATE missing ref@@ERROR\|INVALID_INPUT@@DLN_CREATE||||||admin@test.com
-DLN_GET missing id@@ERROR\|INVALID_INPUT@@DLN_GET||||||admin@test.com
-DLN_CALC missing id@@ERROR\|INVALID_INPUT@@DLN_CALC||||||admin@test.com
-DLN_DELETE missing id@@ERROR\|INVALID_INPUT@@DLN_DELETE||||||admin@test.com
-DLN_VALIDATE ok@@SUCCESS\|DLN_VALID@@DLN_VALIDATE|100.00|USD||||admin@test.com

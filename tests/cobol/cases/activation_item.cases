@@ -1,6 +1,0 @@
-# Activation Item (Wave15) validation cases.
-ACT_CREATE missing ref@@ERROR\|INVALID_INPUT@@ACT_CREATE||||||admin@test.com
-ACT_GET missing id@@ERROR\|INVALID_INPUT@@ACT_GET||||||admin@test.com
-ACT_CALC missing id@@ERROR\|INVALID_INPUT@@ACT_CALC||||||admin@test.com
-ACT_DELETE missing id@@ERROR\|INVALID_INPUT@@ACT_DELETE||||||admin@test.com
-ACT_VALIDATE ok@@SUCCESS\|ACT_VALID@@ACT_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Commodity Swap (Wave9) validation cases.
-CMS_CREATE missing ref@@ERROR\|INVALID_INPUT@@CMS_CREATE||||||admin@test.com
-CMS_GET missing id@@ERROR\|INVALID_INPUT@@CMS_GET||||||admin@test.com
-CMS_CALC missing id@@ERROR\|INVALID_INPUT@@CMS_CALC||||||admin@test.com
-CMS_DELETE missing id@@ERROR\|INVALID_INPUT@@CMS_DELETE||||||admin@test.com
-CMS_VALIDATE ok@@SUCCESS\|CMS_VALID@@CMS_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Change Mgmt (Wave17) validation cases.
-CHG2_CREATE missing ref@@ERROR\|INVALID_INPUT@@CHG2_CREATE||||||admin@test.com
-CHG2_GET missing id@@ERROR\|INVALID_INPUT@@CHG2_GET||||||admin@test.com
-CHG2_CALC missing id@@ERROR\|INVALID_INPUT@@CHG2_CALC||||||admin@test.com
-CHG2_DELETE missing id@@ERROR\|INVALID_INPUT@@CHG2_DELETE||||||admin@test.com
-CHG2_VALIDATE ok@@SUCCESS\|CHG2_VALID@@CHG2_VALIDATE|100.00|USD||||admin@test.com

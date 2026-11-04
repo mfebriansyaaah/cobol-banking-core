@@ -1,6 +1,0 @@
-# Building Society (Wave20) validation cases.
-BLS_CREATE missing ref@@ERROR\|INVALID_INPUT@@BLS_CREATE||||||admin@test.com
-BLS_GET missing id@@ERROR\|INVALID_INPUT@@BLS_GET||||||admin@test.com
-BLS_CALC missing id@@ERROR\|INVALID_INPUT@@BLS_CALC||||||admin@test.com
-BLS_DELETE missing id@@ERROR\|INVALID_INPUT@@BLS_DELETE||||||admin@test.com
-BLS_VALIDATE ok@@SUCCESS\|BLS_VALID@@BLS_VALIDATE|100.00|USD||||admin@test.com

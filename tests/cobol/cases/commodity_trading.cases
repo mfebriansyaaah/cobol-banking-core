@@ -1,6 +1,0 @@
-# Commodity Trading (Wave6) validation cases.
-CMD_CREATE missing ref@@ERROR\|INVALID_INPUT@@CMD_CREATE||||||admin@test.com
-CMD_GET missing id@@ERROR\|INVALID_INPUT@@CMD_GET||||||admin@test.com
-CMD_CALC missing id@@ERROR\|INVALID_INPUT@@CMD_CALC||||||admin@test.com
-CMD_DELETE missing id@@ERROR\|INVALID_INPUT@@CMD_DELETE||||||admin@test.com
-CMD_VALIDATE ok@@SUCCESS\|CMD_VALID@@CMD_VALIDATE|100.00|USD||||admin@test.com

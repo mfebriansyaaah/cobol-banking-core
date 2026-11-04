@@ -1,6 +1,0 @@
-# Current Account (Wave9) validation cases.
-CUR_CREATE missing ref@@ERROR\|INVALID_INPUT@@CUR_CREATE||||||admin@test.com
-CUR_GET missing id@@ERROR\|INVALID_INPUT@@CUR_GET||||||admin@test.com
-CUR_CALC missing id@@ERROR\|INVALID_INPUT@@CUR_CALC||||||admin@test.com
-CUR_DELETE missing id@@ERROR\|INVALID_INPUT@@CUR_DELETE||||||admin@test.com
-CUR_VALIDATE ok@@SUCCESS\|CUR_VALID@@CUR_VALIDATE|100.00|USD||||admin@test.com

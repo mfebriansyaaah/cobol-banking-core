@@ -1,6 +1,0 @@
-# Credit Insurance (Wave16) validation cases.
-CRI_CREATE missing ref@@ERROR\|INVALID_INPUT@@CRI_CREATE||||||admin@test.com
-CRI_GET missing id@@ERROR\|INVALID_INPUT@@CRI_GET||||||admin@test.com
-CRI_CALC missing id@@ERROR\|INVALID_INPUT@@CRI_CALC||||||admin@test.com
-CRI_DELETE missing id@@ERROR\|INVALID_INPUT@@CRI_DELETE||||||admin@test.com
-CRI_VALIDATE ok@@SUCCESS\|CRI_VALID@@CRI_VALIDATE|100.00|USD||||admin@test.com

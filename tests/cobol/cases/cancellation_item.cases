@@ -1,6 +1,0 @@
-# Cancellation Item (Wave15) validation cases.
-CNCL_CREATE missing ref@@ERROR\|INVALID_INPUT@@CNCL_CREATE||||||admin@test.com
-CNCL_GET missing id@@ERROR\|INVALID_INPUT@@CNCL_GET||||||admin@test.com
-CNCL_CALC missing id@@ERROR\|INVALID_INPUT@@CNCL_CALC||||||admin@test.com
-CNCL_DELETE missing id@@ERROR\|INVALID_INPUT@@CNCL_DELETE||||||admin@test.com
-CNCL_VALIDATE ok@@SUCCESS\|CNCL_VALID@@CNCL_VALIDATE|100.00|USD||||admin@test.com

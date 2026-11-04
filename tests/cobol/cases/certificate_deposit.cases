@@ -1,6 +1,0 @@
-# Certificate Deposit (Wave9) validation cases.
-CDP_CREATE missing ref@@ERROR\|INVALID_INPUT@@CDP_CREATE||||||admin@test.com
-CDP_GET missing id@@ERROR\|INVALID_INPUT@@CDP_GET||||||admin@test.com
-CDP_CALC missing id@@ERROR\|INVALID_INPUT@@CDP_CALC||||||admin@test.com
-CDP_DELETE missing id@@ERROR\|INVALID_INPUT@@CDP_DELETE||||||admin@test.com
-CDP_VALIDATE ok@@SUCCESS\|CDP_VALID@@CDP_VALIDATE|100.00|USD||||admin@test.com

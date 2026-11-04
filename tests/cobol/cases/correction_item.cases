@@ -1,6 +1,0 @@
-# Correction Item (Wave15) validation cases.
-COR_CREATE missing ref@@ERROR\|INVALID_INPUT@@COR_CREATE||||||admin@test.com
-COR_GET missing id@@ERROR\|INVALID_INPUT@@COR_GET||||||admin@test.com
-COR_CALC missing id@@ERROR\|INVALID_INPUT@@COR_CALC||||||admin@test.com
-COR_DELETE missing id@@ERROR\|INVALID_INPUT@@COR_DELETE||||||admin@test.com
-COR_VALIDATE ok@@SUCCESS\|COR_VALID@@COR_VALIDATE|100.00|USD||||admin@test.com

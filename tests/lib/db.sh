@@ -123,10 +123,6 @@ db_reset_report_builder() {
     db_exec "DELETE FROM report_builder_audit; DELETE FROM report_builder;"
 }
 
-db_reset_aml_screening() {
-    db_exec "DELETE FROM aml_screening_audit; DELETE FROM aml_screening;"
-}
-
 db_reset_sanctions_list() {
     db_exec "DELETE FROM sanctions_list_audit; DELETE FROM sanctions_list;"
 }
@@ -139,54 +135,22 @@ db_reset_cost_center() {
     db_exec "DELETE FROM cost_center_audit; DELETE FROM cost_center;"
 }
 
-db_reset_cost() {
-    db_exec "DELETE FROM cost_audit; DELETE FROM cost;"
-}
-
 db_reset_fixed_asset() {
     db_exec "DELETE FROM fixed_asset_disposal;"
     db_exec "DELETE FROM fixed_asset_depreciation;"
     db_exec "DELETE FROM fixed_asset_audit; DELETE FROM fixed_asset;"
 }
 
-db_reset_consolidation() {
-    db_exec "DELETE FROM consolidation_audit; DELETE FROM consolidation;"
-}
-
 db_reset_fx_hedging() {
     db_exec "DELETE FROM fx_hedging_audit; DELETE FROM fx_hedging;"
-}
-
-db_reset_billpay() {
-    db_exec "DELETE FROM billpay_audit; DELETE FROM billpay;"
 }
 
 db_reset_incident_postmortem() {
     db_exec "DELETE FROM incident_postmortem_audit; DELETE FROM incident_postmortem;"
 }
 
-db_reset_change_approval() {
-    db_exec "DELETE FROM change_approval_audit; DELETE FROM change_approval;"
-}
-
-db_reset_capacity_forecast() {
-    db_exec "DELETE FROM capacity_forecast_audit; DELETE FROM capacity_forecast;"
-}
-
-db_reset_data_lineage() {
-    db_exec "DELETE FROM data_lineage_audit; DELETE FROM data_lineage;"
-}
-
 db_reset_metric_definition() {
     db_exec "DELETE FROM metric_definition_audit; DELETE FROM metric_definition;"
-}
-
-db_reset_analytics_snapshot() {
-    db_exec "DELETE FROM analytics_snapshot_audit; DELETE FROM analytics_snapshot;"
-}
-
-db_reset_customer() {
-    db_exec "DELETE FROM customer_audit; DELETE FROM customer;"
 }
 
 db_reset_product_catalog() {
@@ -207,10 +171,6 @@ db_reset_standing_order() {
 
 db_reset_remittance() {
     db_exec "DELETE FROM remittance_audit; DELETE FROM remittance;"
-}
-
-db_reset_case_management() {
-    db_exec "DELETE FROM case_management_audit; DELETE FROM case_management;"
 }
 
 db_reset_document() {
@@ -288,10 +248,6 @@ db_reset_portfolio_management() {
     db_exec "DELETE FROM portfolio_management_audit; DELETE FROM portfolio_management;"
 }
 
-db_reset_bond_trading() {
-    db_exec "DELETE FROM bond_trading_audit; DELETE FROM bond_trading;"
-}
-
 db_reset_letter_of_credit() {
     db_exec "DELETE FROM letter_of_credit_audit; DELETE FROM letter_of_credit;"
 }
@@ -324,10 +280,6 @@ db_reset_escrow_account() {
     db_exec "DELETE FROM escrow_account_audit; DELETE FROM escrow_account;"
 }
 
-db_reset_credit_card() {
-    db_exec "DELETE FROM credit_card_audit; DELETE FROM credit_card;"
-}
-
 db_reset_debit_card() {
     db_exec "DELETE FROM debit_card_audit; DELETE FROM debit_card;"
 }
@@ -353,10 +305,6 @@ db_reset_internet_banking() {
     db_exec "DELETE FROM internet_banking_audit; DELETE FROM internet_banking;"
 }
 
-db_reset_api_management() {
-    db_exec "DELETE FROM api_management_audit; DELETE FROM api_management;"
-}
-
 db_reset_rate_management() {
     db_exec "DELETE FROM rate_management_audit; DELETE FROM rate_management;"
 }
@@ -372,20 +320,8 @@ db_reset_tax_management() {
     db_exec "DELETE FROM tax_management_audit; DELETE FROM tax_management;"
 }
 
-db_reset_audit_trail() {
-    db_exec "DELETE FROM audit_trail_audit; DELETE FROM audit_trail;"
-}
-
 db_reset_adt_log() {
     db_exec "DELETE FROM adt_log_audit; DELETE FROM adt_log;"
-}
-
-db_reset_data_archive() {
-    db_exec "DELETE FROM data_archive_audit; DELETE FROM data_archive;"
-}
-
-db_reset_backup_management() {
-    db_exec "DELETE FROM backup_management_audit; DELETE FROM backup_management;"
 }
 
 db_reset_system_config() {
@@ -394,10 +330,6 @@ db_reset_system_config() {
 
 db_reset_user_activity() {
     db_exec "DELETE FROM user_activity_audit; DELETE FROM user_activity;"
-}
-
-db_reset_access_control() {
-    db_exec "DELETE FROM access_control_audit; DELETE FROM access_control;"
 }
 
 db_reset_role_management() {
@@ -410,18 +342,6 @@ db_reset_permission_set() {
 
 db_reset_organization_unit() {
     db_exec "DELETE FROM organization_unit_audit; DELETE FROM organization_unit;"
-}
-
-db_reset_crypto_wallet() {
-    db_exec "DELETE FROM crypto_wallet_audit; DELETE FROM crypto_wallet;"
-}
-
-db_reset_crypto_exchange() {
-    db_exec "DELETE FROM crypto_exchange_audit; DELETE FROM crypto_exchange;"
-}
-
-db_reset_blockchain_tracker() {
-    db_exec "DELETE FROM blockchain_tracker_audit; DELETE FROM blockchain_tracker;"
 }
 
 db_reset_digital_asset() {
@@ -448,18 +368,6 @@ db_reset_pisp_management() {
     db_exec "DELETE FROM pisp_management_audit; DELETE FROM pisp_management;"
 }
 
-db_reset_consent_management() {
-    db_exec "DELETE FROM consent_management_audit; DELETE FROM consent_management;"
-}
-
-db_reset_customer_support() {
-    db_exec "DELETE FROM customer_support_audit; DELETE FROM customer_support;"
-}
-
-db_reset_complaint_management() {
-    db_exec "DELETE FROM complaint_management_audit; DELETE FROM complaint_management;"
-}
-
 db_reset_dispute_management() {
     db_exec "DELETE FROM dispute_management_audit; DELETE FROM dispute_management;"
 }
@@ -472,28 +380,12 @@ db_reset_refund_processing() {
     db_exec "DELETE FROM refund_processing_audit; DELETE FROM refund_processing;"
 }
 
-db_reset_cash_management() {
-    db_exec "DELETE FROM cash_management_audit; DELETE FROM cash_management;"
-}
-
 db_reset_vault_management() {
     db_exec "DELETE FROM vault_management_audit; DELETE FROM vault_management;"
 }
 
-db_reset_atm_management() {
-    db_exec "DELETE FROM atm_management_audit; DELETE FROM atm_management;"
-}
-
-db_reset_branch_management() {
-    db_exec "DELETE FROM branch_management_audit; DELETE FROM branch_management;"
-}
-
 db_reset_teller_management() {
     db_exec "DELETE FROM teller_management_audit; DELETE FROM teller_management;"
-}
-
-db_reset_currency_exchange() {
-    db_exec "DELETE FROM currency_exchange_audit; DELETE FROM currency_exchange;"
 }
 
 db_reset_swap_contract() {
@@ -506,10 +398,6 @@ db_reset_future_contract() {
 
 db_reset_option_trading() {
     db_exec "DELETE FROM option_trading_audit; DELETE FROM option_trading;"
-}
-
-db_reset_commodity_trading() {
-    db_exec "DELETE FROM commodity_trading_audit; DELETE FROM commodity_trading;"
 }
 
 db_reset_repo_agreement() {
@@ -544,28 +432,12 @@ db_reset_reinsurance_contract() {
     db_exec "DELETE FROM reinsurance_contract_audit; DELETE FROM reinsurance_contract;"
 }
 
-db_reset_actuarial_calc() {
-    db_exec "DELETE FROM actuarial_calc_audit; DELETE FROM actuarial_calc;"
-}
-
-db_reset_claims_management() {
-    db_exec "DELETE FROM claims_management_audit; DELETE FROM claims_management;"
-}
-
 db_reset_policy_administration() {
     db_exec "DELETE FROM policy_administration_audit; DELETE FROM policy_administration;"
 }
 
-db_reset_beneficiary_registry() {
-    db_exec "DELETE FROM beneficiary_registry_audit; DELETE FROM beneficiary_registry;"
-}
-
 db_reset_guarantee_issuing() {
     db_exec "DELETE FROM guarantee_issuing_audit; DELETE FROM guarantee_issuing;"
-}
-
-db_reset_credit_bureau() {
-    db_exec "DELETE FROM credit_bureau_audit; DELETE FROM credit_bureau;"
 }
 
 db_reset_debt_collection() {
@@ -631,14 +503,6 @@ db_reset_incident_report() {
     db_exec "DELETE FROM incident_report_audit; DELETE FROM incident_report;"
 }
 
-db_reset_business_continuity() {
-    db_exec "DELETE FROM business_continuity_audit; DELETE FROM business_continuity;"
-}
-
-db_reset_crisis_management() {
-    db_exec "DELETE FROM crisis_management_audit; DELETE FROM crisis_management;"
-}
-
 db_reset_vendor_management() {
     db_exec "DELETE FROM vendor_management_audit; DELETE FROM vendor_management;"
 }
@@ -684,24 +548,12 @@ db_reset_virtual_card() {
     db_exec "DELETE FROM virtual_card_audit; DELETE FROM virtual_card;"
 }
 
-db_reset_card_tokenization() {
-    db_exec "DELETE FROM card_tokenization_audit; DELETE FROM card_tokenization;"
-}
-
 db_reset_payment_link() {
     db_exec "DELETE FROM payment_link_audit; DELETE FROM payment_link;"
 }
 
 db_reset_qr_payment() {
     db_exec "DELETE FROM qr_payment_audit; DELETE FROM qr_payment;"
-}
-
-db_reset_contactless() {
-    db_exec "DELETE FROM contactless_audit; DELETE FROM contactless;"
-}
-
-db_reset_biometric_auth() {
-    db_exec "DELETE FROM biometric_auth_audit; DELETE FROM biometric_auth;"
 }
 
 db_reset_device_management() {
@@ -732,16 +584,8 @@ db_reset_login_attempt() {
     db_exec "DELETE FROM login_attempt_audit; DELETE FROM login_attempt;"
 }
 
-db_reset_account_lock() {
-    db_exec "DELETE FROM account_lock_audit; DELETE FROM account_lock;"
-}
-
 db_reset_transaction_limit() {
     db_exec "DELETE FROM transaction_limit_audit; DELETE FROM transaction_limit;"
-}
-
-db_reset_daily_limit() {
-    db_exec "DELETE FROM daily_limit_audit; DELETE FROM daily_limit;"
 }
 
 db_reset_velocity_check() {
@@ -750,10 +594,6 @@ db_reset_velocity_check() {
 
 db_reset_risk_score() {
     db_exec "DELETE FROM risk_score_audit; DELETE FROM risk_score;"
-}
-
-db_reset_blacklist() {
-    db_exec "DELETE FROM blacklist_audit; DELETE FROM blacklist;"
 }
 
 db_reset_whitelist() {
@@ -768,10 +608,6 @@ db_reset_pep_screening() {
     db_exec "DELETE FROM pep_screening_audit; DELETE FROM pep_screening;"
 }
 
-db_reset_adverse_media() {
-    db_exec "DELETE FROM adverse_media_audit; DELETE FROM adverse_media;"
-}
-
 db_reset_name_screening() {
     db_exec "DELETE FROM name_screening_audit; DELETE FROM name_screening;"
 }
@@ -780,16 +616,8 @@ db_reset_savings_account() {
     db_exec "DELETE FROM savings_account_audit; DELETE FROM savings_account;"
 }
 
-db_reset_current_account() {
-    db_exec "DELETE FROM current_account_audit; DELETE FROM current_account;"
-}
-
 db_reset_term_deposit() {
     db_exec "DELETE FROM term_deposit_audit; DELETE FROM term_deposit;"
-}
-
-db_reset_certificate_deposit() {
-    db_exec "DELETE FROM certificate_deposit_audit; DELETE FROM certificate_deposit;"
 }
 
 db_reset_recurring_deposit() {
@@ -798,10 +626,6 @@ db_reset_recurring_deposit() {
 
 db_reset_fixed_deposit() {
     db_exec "DELETE FROM fixed_deposit_audit; DELETE FROM fixed_deposit;"
-}
-
-db_reset_call_deposit() {
-    db_exec "DELETE FROM call_deposit_audit; DELETE FROM call_deposit;"
 }
 
 db_reset_notice_deposit() {
@@ -814,10 +638,6 @@ db_reset_foreign_currency_deposit() {
 
 db_reset_multi_currency() {
     db_exec "DELETE FROM multi_currency_audit; DELETE FROM multi_currency;"
-}
-
-db_reset_currency_hedging() {
-    db_exec "DELETE FROM currency_hedging_audit; DELETE FROM currency_hedging;"
 }
 
 db_reset_fx_forward() {
@@ -836,20 +656,12 @@ db_reset_interest_rate_swap() {
     db_exec "DELETE FROM interest_rate_swap_audit; DELETE FROM interest_rate_swap;"
 }
 
-db_reset_credit_default_swap() {
-    db_exec "DELETE FROM credit_default_swap_audit; DELETE FROM credit_default_swap;"
-}
-
 db_reset_total_return_swap() {
     db_exec "DELETE FROM total_return_swap_audit; DELETE FROM total_return_swap;"
 }
 
 db_reset_equity_swap() {
     db_exec "DELETE FROM equity_swap_audit; DELETE FROM equity_swap;"
-}
-
-db_reset_commodity_swap() {
-    db_exec "DELETE FROM commodity_swap_audit; DELETE FROM commodity_swap;"
 }
 
 db_reset_variance_swap() {
@@ -900,10 +712,6 @@ db_reset_position() {
     db_exec "DELETE FROM position_audit; DELETE FROM position;"
 }
 
-db_reset_attendance() {
-    db_exec "DELETE FROM attendance_audit; DELETE FROM attendance;"
-}
-
 db_reset_leave_management() {
     db_exec "DELETE FROM leave_management_audit; DELETE FROM leave_management;"
 }
@@ -928,14 +736,6 @@ db_reset_offboarding() {
     db_exec "DELETE FROM offboarding_audit; DELETE FROM offboarding;"
 }
 
-db_reset_compensation() {
-    db_exec "DELETE FROM compensation_audit; DELETE FROM compensation;"
-}
-
-db_reset_benefits() {
-    db_exec "DELETE FROM benefits_audit; DELETE FROM benefits;"
-}
-
 db_reset_pension() {
     db_exec "DELETE FROM pension_audit; DELETE FROM pension;"
 }
@@ -944,20 +744,8 @@ db_reset_tax_withholding() {
     db_exec "DELETE FROM tax_withholding_audit; DELETE FROM tax_withholding;"
 }
 
-db_reset_billing() {
-    db_exec "DELETE FROM billing_audit; DELETE FROM billing;"
-}
-
 db_reset_subscription() {
     db_exec "DELETE FROM subscription_audit; DELETE FROM subscription;"
-}
-
-db_reset_contract() {
-    db_exec "DELETE FROM contract_audit; DELETE FROM contract;"
-}
-
-db_reset_agreement() {
-    db_exec "DELETE FROM agreement_audit; DELETE FROM agreement;"
 }
 
 db_reset_sla_management() {
@@ -966,10 +754,6 @@ db_reset_sla_management() {
 
 db_reset_kpi() {
     db_exec "DELETE FROM kpi_audit; DELETE FROM kpi;"
-}
-
-db_reset_dashboard_widget() {
-    db_exec "DELETE FROM dashboard_widget_audit; DELETE FROM dashboard_widget;"
 }
 
 db_reset_reporting() {
@@ -992,20 +776,12 @@ db_reset_master_data() {
     db_exec "DELETE FROM master_data_audit; DELETE FROM master_data;"
 }
 
-db_reset_audit_log() {
-    db_exec "DELETE FROM audit_log_audit; DELETE FROM audit_log;"
-}
-
 db_reset_invoice() {
     db_exec "DELETE FROM invoice_audit; DELETE FROM invoice;"
 }
 
 db_reset_metric() {
     db_exec "DELETE FROM metric_audit; DELETE FROM metric;"
-}
-
-db_reset_analytics() {
-    db_exec "DELETE FROM analytics_audit; DELETE FROM analytics;"
 }
 
 db_reset_email() {
@@ -1028,10 +804,6 @@ db_reset_webhook() {
     db_exec "DELETE FROM webhook_audit; DELETE FROM webhook;"
 }
 
-db_reset_api_gateway() {
-    db_exec "DELETE FROM api_gateway_audit; DELETE FROM api_gateway;"
-}
-
 db_reset_message_queue() {
     db_exec "DELETE FROM message_queue_audit; DELETE FROM message_queue;"
 }
@@ -1048,24 +820,12 @@ db_reset_load_balancer() {
     db_exec "DELETE FROM load_balancer_audit; DELETE FROM load_balancer;"
 }
 
-db_reset_cache() {
-    db_exec "DELETE FROM cache_audit; DELETE FROM cache;"
-}
-
 db_reset_session_store() {
     db_exec "DELETE FROM session_store_audit; DELETE FROM session_store;"
 }
 
-db_reset_config() {
-    db_exec "DELETE FROM config_audit; DELETE FROM config;"
-}
-
 db_reset_feature_flag() {
     db_exec "DELETE FROM feature_flag_audit; DELETE FROM feature_flag;"
-}
-
-db_reset_ab_testing() {
-    db_exec "DELETE FROM ab_testing_audit; DELETE FROM ab_testing;"
 }
 
 db_reset_experiment() {
@@ -1096,10 +856,6 @@ db_reset_monitoring() {
     db_exec "DELETE FROM monitoring_audit; DELETE FROM monitoring;"
 }
 
-db_reset_alerting() {
-    db_exec "DELETE FROM alerting_audit; DELETE FROM alerting;"
-}
-
 db_reset_tracing() {
     db_exec "DELETE FROM tracing_audit; DELETE FROM tracing;"
 }
@@ -1110,10 +866,6 @@ db_reset_metrics() {
 
 db_reset_health_check() {
     db_exec "DELETE FROM health_check_audit; DELETE FROM health_check;"
-}
-
-db_reset_circuit_breaker() {
-    db_exec "DELETE FROM circuit_breaker_audit; DELETE FROM circuit_breaker;"
 }
 
 db_reset_rate_limiter() {
@@ -1128,10 +880,6 @@ db_reset_timeout() {
     db_exec "DELETE FROM timeout_audit; DELETE FROM timeout;"
 }
 
-db_reset_bond() {
-    db_exec "DELETE FROM bond_audit; DELETE FROM bond;"
-}
-
 db_reset_equity() {
     db_exec "DELETE FROM equity_audit; DELETE FROM equity;"
 }
@@ -1144,16 +892,8 @@ db_reset_warrant() {
     db_exec "DELETE FROM warrant_audit; DELETE FROM warrant;"
 }
 
-db_reset_convertible() {
-    db_exec "DELETE FROM convertible_audit; DELETE FROM convertible;"
-}
-
 db_reset_structured() {
     db_exec "DELETE FROM structured_audit; DELETE FROM structured;"
-}
-
-db_reset_asset_backed() {
-    db_exec "DELETE FROM asset_backed_audit; DELETE FROM asset_backed;"
 }
 
 db_reset_mortgage_backed() {
@@ -1236,20 +976,8 @@ db_reset_warrant_issuing() {
     db_exec "DELETE FROM warrant_issuing_audit; DELETE FROM warrant_issuing;"
 }
 
-db_reset_convertible_bond() {
-    db_exec "DELETE FROM convertible_bond_audit; DELETE FROM convertible_bond;"
-}
-
 db_reset_structured_note() {
     db_exec "DELETE FROM structured_note_audit; DELETE FROM structured_note;"
-}
-
-db_reset_asset_backed_security() {
-    db_exec "DELETE FROM asset_backed_security_audit; DELETE FROM asset_backed_security;"
-}
-
-db_reset_aml_check() {
-    db_exec "DELETE FROM aml_check_audit; DELETE FROM aml_check;"
 }
 
 db_reset_kyc_check() {
@@ -1281,20 +1009,8 @@ db_reset_withdrawal() {
     db_exec "DELETE FROM withdrawal_audit; DELETE FROM withdrawal;"
 }
 
-db_reset_balance() {
-    db_exec "DELETE FROM balance_audit; DELETE FROM balance;"
-}
-
-db_reset_account_statement() {
-    db_exec "DELETE FROM account_statement_audit; DELETE FROM account_statement;"
-}
-
 db_reset_reconciliation() {
     db_exec "DELETE FROM reconciliation_audit; DELETE FROM reconciliation;"
-}
-
-db_reset_clearing() {
-    db_exec "DELETE FROM clearing_audit; DELETE FROM clearing;"
 }
 
 
@@ -1327,16 +1043,8 @@ db_reset_trial_balance() {
     db_exec "DELETE FROM trial_balance_audit; DELETE FROM trial_balance;"
 }
 
-db_reset_balance_sheet() {
-    db_exec "DELETE FROM balance_sheet_audit; DELETE FROM balance_sheet;"
-}
-
 db_reset_income_statement() {
     db_exec "DELETE FROM income_statement_audit; DELETE FROM income_statement;"
-}
-
-db_reset_cash_flow() {
-    db_exec "DELETE FROM cash_flow_audit; DELETE FROM cash_flow;"
 }
 
 db_reset_equity_account() {
@@ -1348,16 +1056,8 @@ db_reset_liability() {
     db_exec "DELETE FROM liability_audit; DELETE FROM liability;"
 }
 
-db_reset_capital() {
-    db_exec "DELETE FROM capital_audit; DELETE FROM capital;"
-}
-
 db_reset_reserve() {
     db_exec "DELETE FROM reserve_audit; DELETE FROM reserve;"
-}
-
-db_reset_budgeting() {
-    db_exec "DELETE FROM budgeting_audit; DELETE FROM budgeting;"
 }
 
 db_reset_forecast() {
@@ -1380,16 +1080,8 @@ db_reset_optimization() {
     db_exec "DELETE FROM optimization_audit; DELETE FROM optimization;"
 }
 
-db_reset_allocation() {
-    db_exec "DELETE FROM allocation_audit; DELETE FROM allocation;"
-}
-
 db_reset_distribution() {
     db_exec "DELETE FROM distribution_audit; DELETE FROM distribution;"
-}
-
-db_reset_consolidation_mgmt() {
-    db_exec "DELETE FROM consolidation_mgmt_audit; DELETE FROM consolidation_mgmt;"
 }
 
 db_reset_elimination() {
@@ -1404,10 +1096,6 @@ db_reset_transfer_pricing() {
     db_exec "DELETE FROM transfer_pricing_audit; DELETE FROM transfer_pricing;"
 }
 
-db_reset_cost_center_mgmt() {
-    db_exec "DELETE FROM cost_center_mgmt_audit; DELETE FROM cost_center_mgmt;"
-}
-
 db_reset_profit_center() {
     db_exec "DELETE FROM profit_center_audit; DELETE FROM profit_center;"
 }
@@ -1420,16 +1108,8 @@ db_reset_portfolio() {
     db_exec "DELETE FROM portfolio_audit; DELETE FROM portfolio;"
 }
 
-db_reset_asset_allocation() {
-    db_exec "DELETE FROM asset_allocation_audit; DELETE FROM asset_allocation;"
-}
-
 db_reset_rebalancing() {
     db_exec "DELETE FROM rebalancing_audit; DELETE FROM rebalancing;"
-}
-
-db_reset_benchmark() {
-    db_exec "DELETE FROM benchmark_audit; DELETE FROM benchmark;"
 }
 
 db_reset_index_mgmt() {
@@ -1473,14 +1153,6 @@ db_reset_hedge() {
 }
 
 
-db_reset_customer_profile() {
-    db_exec "DELETE FROM customer_profile_audit; DELETE FROM customer_profile;"
-}
-
-db_reset_account_detail() {
-    db_exec "DELETE FROM account_detail_audit; DELETE FROM account_detail;"
-}
-
 db_reset_product_item() {
     db_exec "DELETE FROM product_item_audit; DELETE FROM product_item;"
 }
@@ -1501,16 +1173,8 @@ db_reset_transfer_item() {
     db_exec "DELETE FROM transfer_item_audit; DELETE FROM transfer_item;"
 }
 
-db_reset_card_item() {
-    db_exec "DELETE FROM card_item_audit; DELETE FROM card_item;"
-}
-
 db_reset_transaction_item() {
     db_exec "DELETE FROM transaction_item_audit; DELETE FROM transaction_item;"
-}
-
-db_reset_balance_item() {
-    db_exec "DELETE FROM balance_item_audit; DELETE FROM balance_item;"
 }
 
 db_reset_statement_item() {
@@ -1525,20 +1189,12 @@ db_reset_fee_item() {
     db_exec "DELETE FROM fee_item_audit; DELETE FROM fee_item;"
 }
 
-db_reset_charge_item() {
-    db_exec "DELETE FROM charge_item_audit; DELETE FROM charge_item;"
-}
-
 db_reset_penalty_item() {
     db_exec "DELETE FROM penalty_item_audit; DELETE FROM penalty_item;"
 }
 
 db_reset_tax_item() {
     db_exec "DELETE FROM tax_item_audit; DELETE FROM tax_item;"
-}
-
-db_reset_commission_item() {
-    db_exec "DELETE FROM commission_item_audit; DELETE FROM commission_item;"
 }
 
 db_reset_discount_item() {
@@ -1557,18 +1213,6 @@ db_reset_reversal_item() {
     db_exec "DELETE FROM reversal_item_audit; DELETE FROM reversal_item;"
 }
 
-db_reset_adjustment_item() {
-    db_exec "DELETE FROM adjustment_item_audit; DELETE FROM adjustment_item;"
-}
-
-db_reset_correction_item() {
-    db_exec "DELETE FROM correction_item_audit; DELETE FROM correction_item;"
-}
-
-db_reset_cancellation_item() {
-    db_exec "DELETE FROM cancellation_item_audit; DELETE FROM cancellation_item;"
-}
-
 db_reset_suspension_item() {
     db_exec "DELETE FROM suspension_item_audit; DELETE FROM suspension_item;"
 }
@@ -1577,16 +1221,8 @@ db_reset_termination_item() {
     db_exec "DELETE FROM termination_item_audit; DELETE FROM termination_item;"
 }
 
-db_reset_activation_item() {
-    db_exec "DELETE FROM activation_item_audit; DELETE FROM activation_item;"
-}
-
 db_reset_deactivation_item() {
     db_exec "DELETE FROM deactivation_item_audit; DELETE FROM deactivation_item;"
-}
-
-db_reset_closure_item() {
-    db_exec "DELETE FROM closure_item_audit; DELETE FROM closure_item;"
 }
 
 db_reset_reopening_item() {
@@ -1597,20 +1233,8 @@ db_reset_mortgage() {
     db_exec "DELETE FROM mortgage_audit; DELETE FROM mortgage;"
 }
 
-db_reset_auto_loan() {
-    db_exec "DELETE FROM auto_loan_audit; DELETE FROM auto_loan;"
-}
-
 db_reset_personal_loan() {
     db_exec "DELETE FROM personal_loan_audit; DELETE FROM personal_loan;"
-}
-
-db_reset_business_loan() {
-    db_exec "DELETE FROM business_loan_audit; DELETE FROM business_loan;"
-}
-
-db_reset_credit_line() {
-    db_exec "DELETE FROM credit_line_audit; DELETE FROM credit_line;"
 }
 
 db_reset_overdraft() {
@@ -1639,10 +1263,6 @@ db_reset_microfinance() {
 
 db_reset_peer_to_peer() {
     db_exec "DELETE FROM peer_to_peer_audit; DELETE FROM peer_to_peer;"
-}
-
-db_reset_crowdfunding() {
-    db_exec "DELETE FROM crowdfunding_audit; DELETE FROM crowdfunding;"
 }
 
 db_reset_invoice_discounting() {
@@ -1677,20 +1297,12 @@ db_reset_promissory_note() {
     db_exec "DELETE FROM promissory_note_audit; DELETE FROM promissory_note;"
 }
 
-db_reset_bill_of_exchange() {
-    db_exec "DELETE FROM bill_of_exchange_audit; DELETE FROM bill_of_exchange;"
-}
-
 db_reset_letter_of_guarantee() {
     db_exec "DELETE FROM letter_of_guarantee_audit; DELETE FROM letter_of_guarantee;"
 }
 
 db_reset_performance_bond() {
     db_exec "DELETE FROM performance_bond_audit; DELETE FROM performance_bond;"
-}
-
-db_reset_advance_payment() {
-    db_exec "DELETE FROM advance_payment_audit; DELETE FROM advance_payment;"
 }
 
 db_reset_retention_money() {
@@ -1709,28 +1321,12 @@ db_reset_warranty() {
     db_exec "DELETE FROM warranty_audit; DELETE FROM warranty;"
 }
 
-db_reset_credit_insurance() {
-    db_exec "DELETE FROM credit_insurance_audit; DELETE FROM credit_insurance;"
-}
-
-db_reset_compliance_check() {
-    db_exec "DELETE FROM compliance_check_audit; DELETE FROM compliance_check;"
-}
-
 db_reset_regulatory_filing() {
     db_exec "DELETE FROM regulatory_filing_audit; DELETE FROM regulatory_filing;"
 }
 
-db_reset_audit_finding() {
-    db_exec "DELETE FROM audit_finding_audit; DELETE FROM audit_finding;"
-}
-
 db_reset_risk_assessment() {
     db_exec "DELETE FROM risk_assessment_audit; DELETE FROM risk_assessment;"
-}
-
-db_reset_control_test() {
-    db_exec "DELETE FROM control_test_audit; DELETE FROM control_test;"
 }
 
 db_reset_policy_review() {
@@ -1743,10 +1339,6 @@ db_reset_procedure_review() {
 
 db_reset_training_record() {
     db_exec "DELETE FROM training_record_audit; DELETE FROM training_record;"
-}
-
-db_reset_certification() {
-    db_exec "DELETE FROM certification_audit; DELETE FROM certification;"
 }
 
 db_reset_license() {
@@ -1769,14 +1361,6 @@ db_reset_submission() {
     db_exec "DELETE FROM submission_audit; DELETE FROM submission;"
 }
 
-db_reset_approval() {
-    db_exec "DELETE FROM approval_audit; DELETE FROM approval;"
-}
-
-db_reset_authorization() {
-    db_exec "DELETE FROM authorization_audit; DELETE FROM authorization;"
-}
-
 db_reset_delegation() {
     db_exec "DELETE FROM delegation_audit; DELETE FROM delegation;"
 }
@@ -1789,20 +1373,12 @@ db_reset_notification_mgmt() {
     db_exec "DELETE FROM notification_mgmt_audit; DELETE FROM notification_mgmt;"
 }
 
-db_reset_alert_mgmt() {
-    db_exec "DELETE FROM alert_mgmt_audit; DELETE FROM alert_mgmt;"
-}
-
 db_reset_incident_mgmt() {
     db_exec "DELETE FROM incident_mgmt_audit; DELETE FROM incident_mgmt;"
 }
 
 db_reset_problem() {
     db_exec "DELETE FROM problem_audit; DELETE FROM problem;"
-}
-
-db_reset_change_mgmt() {
-    db_exec "DELETE FROM change_mgmt_audit; DELETE FROM change_mgmt;"
 }
 
 db_reset_release_mgmt() {
@@ -1843,14 +1419,6 @@ db_reset_health_insurance() {
 
 db_reset_property_insurance() {
     db_exec "DELETE FROM property_insurance_audit; DELETE FROM property_insurance;"
-}
-
-db_reset_casualty_insurance() {
-    db_exec "DELETE FROM casualty_insurance_audit; DELETE FROM casualty_insurance;"
-}
-
-db_reset_auto_insurance() {
-    db_exec "DELETE FROM auto_insurance_audit; DELETE FROM auto_insurance;"
 }
 
 db_reset_home_insurance() {
@@ -1897,20 +1465,12 @@ db_reset_employer_liability() {
     db_exec "DELETE FROM employer_liability_audit; DELETE FROM employer_liability;"
 }
 
-db_reset_cyber_insurance() {
-    db_exec "DELETE FROM cyber_insurance_audit; DELETE FROM cyber_insurance;"
-}
-
 db_reset_kidnap_ransom() {
     db_exec "DELETE FROM kidnap_ransom_audit; DELETE FROM kidnap_ransom;"
 }
 
 db_reset_political_risk() {
     db_exec "DELETE FROM political_risk_audit; DELETE FROM political_risk;"
-}
-
-db_reset_credit_insurance2() {
-    db_exec "DELETE FROM credit_insurance2_audit; DELETE FROM credit_insurance2;"
 }
 
 db_reset_surety() {
@@ -1921,16 +1481,8 @@ db_reset_guarantee() {
     db_exec "DELETE FROM guarantee_audit; DELETE FROM guarantee;"
 }
 
-db_reset_bond_insurance() {
-    db_exec "DELETE FROM bond_insurance_audit; DELETE FROM bond_insurance;"
-}
-
 db_reset_fidelity() {
     db_exec "DELETE FROM fidelity_audit; DELETE FROM fidelity;"
-}
-
-db_reset_crime() {
-    db_exec "DELETE FROM crime_audit; DELETE FROM crime;"
 }
 
 db_reset_errors_omissions() {
@@ -2009,16 +1561,8 @@ db_reset_invoice_mgmt() {
     db_exec "DELETE FROM invoice_mgmt_audit; DELETE FROM invoice_mgmt;"
 }
 
-db_reset_billing_mgmt() {
-    db_exec "DELETE FROM billing_mgmt_audit; DELETE FROM billing_mgmt;"
-}
-
 db_reset_payment_mgmt() {
     db_exec "DELETE FROM payment_mgmt_audit; DELETE FROM payment_mgmt;"
-}
-
-db_reset_collection_mgmt() {
-    db_exec "DELETE FROM collection_mgmt_audit; DELETE FROM collection_mgmt;"
 }
 
 db_reset_receivable() {
@@ -2033,10 +1577,6 @@ db_reset_expense() {
     db_exec "DELETE FROM expense_audit; DELETE FROM expense;"
 }
 
-db_reset_budget_mgmt() {
-    db_exec "DELETE FROM budget_mgmt_audit; DELETE FROM budget_mgmt;"
-}
-
 db_reset_forecast_mgmt() {
     db_exec "DELETE FROM forecast_mgmt_audit; DELETE FROM forecast_mgmt;"
 }
@@ -2047,10 +1587,6 @@ db_reset_planning() {
 
 db_reset_strategy() {
     db_exec "DELETE FROM strategy_audit; DELETE FROM strategy;"
-}
-
-db_reset_analysis() {
-    db_exec "DELETE FROM analysis_audit; DELETE FROM analysis;"
 }
 
 db_reset_research() {
@@ -2069,20 +1605,8 @@ db_reset_quality() {
     db_exec "DELETE FROM quality_audit; DELETE FROM quality;"
 }
 
-db_reset_audit_mgmt() {
-    db_exec "DELETE FROM audit_mgmt_audit; DELETE FROM audit_mgmt;"
-}
-
-db_reset_core_banking() {
-    db_exec "DELETE FROM core_banking_audit; DELETE FROM core_banking;"
-}
-
 db_reset_retail_banking() {
     db_exec "DELETE FROM retail_banking_audit; DELETE FROM retail_banking;"
-}
-
-db_reset_corporate_banking() {
-    db_exec "DELETE FROM corporate_banking_audit; DELETE FROM corporate_banking;"
 }
 
 db_reset_investment_banking() {
@@ -2109,36 +1633,8 @@ db_reset_internet_banking2() {
     db_exec "DELETE FROM internet_banking2_audit; DELETE FROM internet_banking2;"
 }
 
-db_reset_branch_banking() {
-    db_exec "DELETE FROM branch_banking_audit; DELETE FROM branch_banking;"
-}
-
-db_reset_central_banking() {
-    db_exec "DELETE FROM central_banking_audit; DELETE FROM central_banking;"
-}
-
-db_reset_commercial_banking() {
-    db_exec "DELETE FROM commercial_banking_audit; DELETE FROM commercial_banking;"
-}
-
-db_reset_community_banking() {
-    db_exec "DELETE FROM community_banking_audit; DELETE FROM community_banking;"
-}
-
-db_reset_cooperative_banking() {
-    db_exec "DELETE FROM cooperative_banking_audit; DELETE FROM cooperative_banking;"
-}
-
 db_reset_savings_bank() {
     db_exec "DELETE FROM savings_bank_audit; DELETE FROM savings_bank;"
-}
-
-db_reset_credit_union() {
-    db_exec "DELETE FROM credit_union_audit; DELETE FROM credit_union;"
-}
-
-db_reset_building_society() {
-    db_exec "DELETE FROM building_society_audit; DELETE FROM building_society;"
 }
 
 db_reset_thrift() {
@@ -2157,24 +1653,12 @@ db_reset_factoring_company() {
     db_exec "DELETE FROM factoring_company_audit; DELETE FROM factoring_company;"
 }
 
-db_reset_consumer_finance() {
-    db_exec "DELETE FROM consumer_finance_audit; DELETE FROM consumer_finance;"
-}
-
-db_reset_auto_finance() {
-    db_exec "DELETE FROM auto_finance_audit; DELETE FROM auto_finance;"
-}
-
 db_reset_mortgage_bank() {
     db_exec "DELETE FROM mortgage_bank_audit; DELETE FROM mortgage_bank;"
 }
 
 db_reset_housing_finance() {
     db_exec "DELETE FROM housing_finance_audit; DELETE FROM housing_finance;"
-}
-
-db_reset_agricultural_finance() {
-    db_exec "DELETE FROM agricultural_finance_audit; DELETE FROM agricultural_finance;"
 }
 
 db_reset_micro_lending() {
@@ -2189,6 +1673,3 @@ db_reset_peer_lending() {
     db_exec "DELETE FROM peer_lending_audit; DELETE FROM peer_lending;"
 }
 
-db_reset_crowd_lending() {
-    db_exec "DELETE FROM crowd_lending_audit; DELETE FROM crowd_lending;"
-}

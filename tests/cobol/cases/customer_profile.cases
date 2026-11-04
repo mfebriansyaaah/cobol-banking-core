@@ -1,6 +1,0 @@
-# Customer Profile (Wave15) validation cases.
-CSTMR_CREATE missing ref@@ERROR\|INVALID_INPUT@@CSTMR_CREATE||||||admin@test.com
-CSTMR_GET missing id@@ERROR\|INVALID_INPUT@@CSTMR_GET||||||admin@test.com
-CSTMR_CALC missing id@@ERROR\|INVALID_INPUT@@CSTMR_CALC||||||admin@test.com
-CSTMR_DELETE missing id@@ERROR\|INVALID_INPUT@@CSTMR_DELETE||||||admin@test.com
-CSTMR_VALIDATE ok@@SUCCESS\|CSTMR_VALID@@CSTMR_VALIDATE|100.00|USD||||admin@test.com

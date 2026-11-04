@@ -6,189 +6,39 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-03T12:10:52.163Z
-- Commit: `5b79155a`
+- Generated at: 2026-11-04T01:25:37.752Z
+- Commit: `c6b9f1de`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 18 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 2 |
-| L0 (isolated) | 576 |
+| L0 (isolated) | 426 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
 
 | Module | Level | Business tables | Tier-1 calls | Route files | Reason |
 | --- | --- | --- | --- | ---: | --- |
-| `ab_testing_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `access_audit_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `access_control_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `account_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `account_detail_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `account_lock_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `account_statement_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `activation_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `actuarial_calc_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `adjustment_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `advance_payment_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `adverse_media_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `agreement_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `agricultural_finance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `alert_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `alert_escalation_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `alert_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `alerting_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `allocation_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `aml_check_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `aml_screening_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `analysis_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `analytics_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `analytics_snapshot_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `api_gateway_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `api_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `approval_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `asset_allocation_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `asset_backed_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `asset_backed_security_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `asset_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `asset_maintenance_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `asset_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `atm_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `attendance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_analytics_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_drilldown_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_finding_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_log_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_retention_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_snapshot_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `audit_trail_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `auth_core` | L3 | — | — | 1 | Tier-1 core module |
 | `auth_password_core` | L3 | — | — | 0 | Tier-1 core module |
-| `authorization_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auto_finance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auto_insurance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auto_loan_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `backup_drill_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `backup_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `backup_restore_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `backup_verification_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `balance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `balance_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `balance_sheet_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `bank_guarantee_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `bankers_acceptance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `batch_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `benchmark_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `beneficiary_registry_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `benefits_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `bill_of_exchange_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `billing_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `billing_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `billpay_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `biometric_auth_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `blacklist_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `blockchain_tracker_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `bond_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `bond_insurance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `bond_trading_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `branch_banking_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `branch_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `budget_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `budget_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `budgeting_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `building_society_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `business_continuity_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `business_loan_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cache_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `call_deposit_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cancellation_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `capacity_forecast_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `capacity_plan_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `capital_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `card_core` | L3 | — | — | 1 | Tier-1 core module |
-| `card_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `card_tokenization_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `case_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cash_flow_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cash_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `cashback_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `casualty_insurance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `central_banking_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `certificate_deposit_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `certification_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `change_approval_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `change_control_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `change_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `charge_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `chargeback_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `circuit_breaker_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `claims_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `clearing_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `closure_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `collateral_core` | L2 | loan_application | — | 1 | business link (tables loan_application) + test |
 | `collateral_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `collateral_repossession_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `collateralized_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `collection_core` | L3 | — | — | 1 | Tier-1 core module |
-| `collection_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `commercial_banking_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `commission_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `commodity_swap_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `commodity_trading_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `community_banking_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `compensation_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `complaint_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `compliance_audit_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `compliance_calendar_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `compliance_check_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `compliance_export_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `compliance_retention_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `config_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `consent_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `consolidation_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `consolidation_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `consumer_finance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `contactless_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `contract_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `control_test_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `convertible_bond_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `convertible_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cooperative_banking_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `core_banking_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `corporate_banking_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `correction_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `cost_center_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cost_center_mgmt_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cost_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `credit_bureau_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `credit_card_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `credit_default_swap_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `credit_insurance2_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `credit_insurance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `credit_line_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `credit_union_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `crime_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `crisis_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `crowd_lending_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `crowdfunding_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `crypto_exchange_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `crypto_wallet_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `currency_exchange_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `currency_hedging_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `current_account_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `customer_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `customer_profile_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `customer_support_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cyber_insurance_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `daily_limit_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `dashboard_core` | L1 | accounts, ledger | — | 1 | linked code with no DB/table/integration test (downgraded) |
-| `dashboard_widget_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `data_archive_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `data_lineage_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `data_quality_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `data_retention_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `data_warehouse_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `deactivation_item_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `debit_card_core` | L0 | — | — | 1 | own domain tables only, no core link |

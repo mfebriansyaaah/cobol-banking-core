@@ -1,6 +1,0 @@
-# Customer (Wave1) validation cases.
-CST_CREATE missing ref@@ERROR\|INVALID_INPUT@@CST_CREATE||||||admin@test.com
-CST_GET missing id@@ERROR\|INVALID_INPUT@@CST_GET||||||admin@test.com
-CST_CALC missing id@@ERROR\|INVALID_INPUT@@CST_CALC||||||admin@test.com
-CST_DELETE missing id@@ERROR\|INVALID_INPUT@@CST_DELETE||||||admin@test.com
-CST_VALIDATE ok@@SUCCESS\|CST_VALID@@CST_VALIDATE|100.00|USD||||admin@test.com

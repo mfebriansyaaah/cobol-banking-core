@@ -1,6 +1,0 @@
-# Cache (Wave11) validation cases.
-CCH_CREATE missing ref@@ERROR\|INVALID_INPUT@@CCH_CREATE||||||admin@test.com
-CCH_GET missing id@@ERROR\|INVALID_INPUT@@CCH_GET||||||admin@test.com
-CCH_CALC missing id@@ERROR\|INVALID_INPUT@@CCH_CALC||||||admin@test.com
-CCH_DELETE missing id@@ERROR\|INVALID_INPUT@@CCH_DELETE||||||admin@test.com
-CCH_VALIDATE ok@@SUCCESS\|CCH_VALID@@CCH_VALIDATE|100.00|USD||||admin@test.com

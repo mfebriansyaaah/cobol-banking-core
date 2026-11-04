@@ -1,6 +1,0 @@
-# Authorization (Wave17) validation cases.
-AUT_CREATE missing ref@@ERROR\|INVALID_INPUT@@AUT_CREATE||||||admin@test.com
-AUT_GET missing id@@ERROR\|INVALID_INPUT@@AUT_GET||||||admin@test.com
-AUT_CALC missing id@@ERROR\|INVALID_INPUT@@AUT_CALC||||||admin@test.com
-AUT_DELETE missing id@@ERROR\|INVALID_INPUT@@AUT_DELETE||||||admin@test.com
-AUT_VALIDATE ok@@SUCCESS\|AUT_VALID@@AUT_VALIDATE|100.00|USD||||admin@test.com

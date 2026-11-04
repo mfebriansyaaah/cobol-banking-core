@@ -1,6 +1,0 @@
-# Cost Center Mgmt (Wave14) validation cases.
-CCN_CREATE missing ref@@ERROR\|INVALID_INPUT@@CCN_CREATE||||||admin@test.com
-CCN_GET missing id@@ERROR\|INVALID_INPUT@@CCN_GET||||||admin@test.com
-CCN_CALC missing id@@ERROR\|INVALID_INPUT@@CCN_CALC||||||admin@test.com
-CCN_DELETE missing id@@ERROR\|INVALID_INPUT@@CCN_DELETE||||||admin@test.com
-CCN_VALIDATE ok@@SUCCESS\|CCN_VALID@@CCN_VALIDATE|100.00|USD||||admin@test.com

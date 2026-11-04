@@ -1,6 +1,0 @@
-# Biometric Auth (Wave8) validation cases.
-BMA_CREATE missing ref@@ERROR\|INVALID_INPUT@@BMA_CREATE||||||admin@test.com
-BMA_GET missing id@@ERROR\|INVALID_INPUT@@BMA_GET||||||admin@test.com
-BMA_CALC missing id@@ERROR\|INVALID_INPUT@@BMA_CALC||||||admin@test.com
-BMA_DELETE missing id@@ERROR\|INVALID_INPUT@@BMA_DELETE||||||admin@test.com
-BMA_VALIDATE ok@@SUCCESS\|BMA_VALID@@BMA_VALIDATE|100.00|USD||||admin@test.com

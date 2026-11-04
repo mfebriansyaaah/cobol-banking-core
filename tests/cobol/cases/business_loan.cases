@@ -1,6 +1,0 @@
-# Business Loan (Wave16) validation cases.
-BLN_CREATE missing ref@@ERROR\|INVALID_INPUT@@BLN_CREATE||||||admin@test.com
-BLN_GET missing id@@ERROR\|INVALID_INPUT@@BLN_GET||||||admin@test.com
-BLN_CALC missing id@@ERROR\|INVALID_INPUT@@BLN_CALC||||||admin@test.com
-BLN_DELETE missing id@@ERROR\|INVALID_INPUT@@BLN_DELETE||||||admin@test.com
-BLN_VALIDATE ok@@SUCCESS\|BLN_VALID@@BLN_VALIDATE|100.00|USD||||admin@test.com

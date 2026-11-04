@@ -1,6 +1,0 @@
-# Branch Management (Wave6) validation cases.
-BRN_CREATE missing ref@@ERROR\|INVALID_INPUT@@BRN_CREATE||||||admin@test.com
-BRN_GET missing id@@ERROR\|INVALID_INPUT@@BRN_GET||||||admin@test.com
-BRN_CALC missing id@@ERROR\|INVALID_INPUT@@BRN_CALC||||||admin@test.com
-BRN_DELETE missing id@@ERROR\|INVALID_INPUT@@BRN_DELETE||||||admin@test.com
-BRN_VALIDATE ok@@SUCCESS\|BRN_VALID@@BRN_VALIDATE|100.00|USD||||admin@test.com

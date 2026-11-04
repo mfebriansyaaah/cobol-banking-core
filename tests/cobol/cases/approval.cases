@@ -1,6 +1,0 @@
-# Approval (Wave17) validation cases.
-APR_CREATE missing ref@@ERROR\|INVALID_INPUT@@APR_CREATE||||||admin@test.com
-APR_GET missing id@@ERROR\|INVALID_INPUT@@APR_GET||||||admin@test.com
-APR_CALC missing id@@ERROR\|INVALID_INPUT@@APR_CALC||||||admin@test.com
-APR_DELETE missing id@@ERROR\|INVALID_INPUT@@APR_DELETE||||||admin@test.com
-APR_VALIDATE ok@@SUCCESS\|APR_VALID@@APR_VALIDATE|100.00|USD||||admin@test.com

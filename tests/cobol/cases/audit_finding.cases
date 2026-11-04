@@ -1,6 +1,0 @@
-# Audit Finding (Wave17) validation cases.
-AUF_CREATE missing ref@@ERROR\|INVALID_INPUT@@AUF_CREATE||||||admin@test.com
-AUF_GET missing id@@ERROR\|INVALID_INPUT@@AUF_GET||||||admin@test.com
-AUF_CALC missing id@@ERROR\|INVALID_INPUT@@AUF_CALC||||||admin@test.com
-AUF_DELETE missing id@@ERROR\|INVALID_INPUT@@AUF_DELETE||||||admin@test.com
-AUF_VALIDATE ok@@SUCCESS\|AUF_VALID@@AUF_VALIDATE|100.00|USD||||admin@test.com

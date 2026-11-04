@@ -1,6 +1,0 @@
-# Bill Of Exchange (Wave16) validation cases.
-BOE_CREATE missing ref@@ERROR\|INVALID_INPUT@@BOE_CREATE||||||admin@test.com
-BOE_GET missing id@@ERROR\|INVALID_INPUT@@BOE_GET||||||admin@test.com
-BOE_CALC missing id@@ERROR\|INVALID_INPUT@@BOE_CALC||||||admin@test.com
-BOE_DELETE missing id@@ERROR\|INVALID_INPUT@@BOE_DELETE||||||admin@test.com
-BOE_VALIDATE ok@@SUCCESS\|BOE_VALID@@BOE_VALIDATE|100.00|USD||||admin@test.com
