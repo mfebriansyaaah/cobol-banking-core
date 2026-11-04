@@ -42,6 +42,17 @@ assert_match "PYBL_AUDIT ok" "$(run_cobol "PYBL_AUDIT|50|0||||admin@test.com")" 
 assert_match "PYBL_VALIDATE ok" "$(run_cobol "PYBL_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PYBL_VALID"
 assert_match "non-admin refused" "$(run_cobol "PYBL_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM payable WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM payable_audit WHERE payable_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PYBL_UPDATE|${id}|PayableA|AP|||admin@test.com")"
+assert_match "PYBL_UPDATE ok" "$upd_out" "SUCCESS\\|PYBL_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM payable WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM payable_audit WHERE payable_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PYBL_UPDATE|999999|PayableA|AP|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PYBL_UPDATE|${id}|PayableA|AP|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
