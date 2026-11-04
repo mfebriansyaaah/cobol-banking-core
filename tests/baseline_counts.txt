@@ -280,3 +280,5 @@ db_peer_lending_tests=18
 db_treasury_position_tests=12
 
 db_payment_hold_tests=19
+
+db_velocity_tests=15

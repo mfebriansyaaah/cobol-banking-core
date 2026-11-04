@@ -393,11 +393,6 @@ TAX_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=
 VCC_ASSESS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VCC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VCC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VEL_CHECK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VEL_PROFILE_CREATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VEL_PROFILE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VEL_RECORD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VEL_USAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VND_VENDOR_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VND_VENDOR_RETIRE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 VND_VENDOR_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
