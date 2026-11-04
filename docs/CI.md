@@ -9,7 +9,7 @@
 All four workflows are `workflow_dispatch` only at HEAD:
 
 | Workflow | File | Trigger at HEAD | Intended trigger | Status |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | CI | `.github/workflows/ci.yml` | `workflow_dispatch` | `push: [main]`, `pull_request` | parked (commit `7e030110`) |
 | Coverage | `.github/workflows/coverage.yml` | `workflow_dispatch` | `schedule 30 2 * * *` | parked (commit `1dfc11de`) |
 | Nightly | `.github/workflows/nightly.yml` | `workflow_dispatch` | `schedule 0 2 * * *` | parked (commit `1dfc11de`) |
@@ -26,7 +26,7 @@ green gate. The badge reflects the last manual run only.
 ## Trigger matrix (target, after unpark)
 
 | Event | Workflow | Jobs |
-|---|---|---|
+| --- | --- | --- |
 | `pull_request`, `push: [main]` | `ci.yml` | lint, build, test, db-shards (4), db-aggregate, coverage, coverage-pr |
 | `push: [main]` | `ci.yml` post-merge | migration rollback, backup/restore, schema drift |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + load test + flake compare |
@@ -65,7 +65,7 @@ Rules:
 ## Job durations and timeouts
 
 | Workflow / job | Timeout | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, gate unit tests, npm audit |
 | `ci.yml` build | 20 min | manifest, docs, complexity snapshot, probes, SAST, build, warning ratchet |
 | `ci.yml` test | 30 min | full gate minus DB matrix, benchmarks, drills, drift |
@@ -95,15 +95,15 @@ DB_NAME=cobol_db_premerge scripts/dev/setup-test-db.sh
 DB_NAME=cobol_db_premerge bash scripts/ci/premerge.sh --ci-parity
 ```
 
-`--ci-parity` runs `run_all.sh full` (fast + DB + integration + error harness
-+ gateway), probes, count gate, docs, schema drift, warnings, gateway
-coverage, bench, drills, lint, security, offline tests, and the coverage
-mapper. It must fail — not skip — when a tool is missing.
+`--ci-parity` runs `run_all.sh full` (fast, DB, integration, error harness,
+gateway), probes, count gate, docs, schema drift, warnings, gateway coverage,
+bench, drills, lint, security, offline tests, and the coverage mapper. It must
+fail — not skip — when a tool is missing.
 
 ## Cost plan (planning ceiling, replace after 2 weeks)
 
 | Workload | Assumption | Job-minutes/month |
-|---|---|---:|
+| --- | --- | ---: |
 | PR gate | 190 job-min × 20 PRs | 3,800 |
 | Main push | 210 job-min × 20 pushes | 4,200 |
 | Nightly full + coverage + load | 300 job-min × 30 nights | 9,000 |
@@ -154,7 +154,7 @@ deliberately red PR that cannot merge.
 ## R0 readiness (2026-11-04)
 
 | # | Criterion | Status |
-|---|:---|---|
+| --- | :--- | --- |
 | 1 | Owner decisions signed | Partial — defaults in master plan 0.5, signatures pending |
 | 2 | Billing fixed | Not met — no Actions run verified |
 | 3 | Enforcement access verified | Not met — ruleset access not verified |

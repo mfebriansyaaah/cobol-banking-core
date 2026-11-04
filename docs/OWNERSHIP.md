@@ -6,7 +6,7 @@
 ## Current state (2026-11-04)
 
 | Critical path | Primary owner | Backup owner | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | COBOL core (`cobol/`) | @mfebriansyaaah | — | backup missing |
 | Gateway (`middleware/`) | @mfebriansyaaah | — | backup missing |
 | Database / migrations (`database/`) | @mfebriansyaaah | — | backup missing |

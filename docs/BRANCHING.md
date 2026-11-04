@@ -22,7 +22,7 @@ snapshots within days. A serial train keeps `schema.sql`, `baseline_counts.txt`,
 ## Branch types
 
 | Type | Pattern | Base | Lifetime | Protection |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Work | `<type>/testing-p<0-2>-<nn>-<slug>` | `main` | ≤5 working days | PR checks + approval |
 | Readiness | `chore/testing-r0-00a-policy`, `chore/testing-r0-00b-tooling-dryrun` | `main` / previous readiness branch | ≤10 working days, docs/config/evidence only | PR checks + owner sign-off |
 | Release (optional) | `release/<major.minor>` | tag / `main` | only while supported | same as `main`, owner-only |
@@ -57,7 +57,7 @@ implementation second, baseline/evidence third, docs last**.
 
 Format: `<area>(T-XXX): <imperative subject>`, for example:
 
-```
+```text
 test(T-022): add wallet balance conservation
 fix(T-022): enforce balance check before debit
 docs(T-022): record invariant evidence
@@ -114,7 +114,7 @@ Rules:
 ## Branch protection
 
 | Branch | Required | Approvals | Force push | Delete after merge |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `main` | All required checks, linear history, CODEOWNERS | 1; 2 for critical money path | Blocked | n/a |
 | work branch | PR checks | 1 | Allowed to owner | Yes |
 | `release/*` | All required checks | 1 + owner | Blocked | At EOL |
