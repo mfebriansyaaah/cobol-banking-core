@@ -36,7 +36,8 @@ Phase 0 (before G0):
 - `lint`
 - `build`
 - `test`
-- `db-aggregate`
+- `db aggregate` (job ID `db-aggregate`; GitHub matches the check-run **name**
+  with a space — `db-aggregate` with a hyphen never reports, use the space form)
 - `coverage`
 
 Phase 1 adds (after WP-1.4 first green run):
@@ -117,10 +118,14 @@ re-privatizing the repository.
 ## Enforcement
 
 ACTIVE since branch 02 (2026-11-04, verified via API): branch protection on
-`main` requires `lint`, `build`, `test`, `db-aggregate`, `coverage` (strict),
+`main` requires `lint`, `build`, `test`, `db aggregate`, `coverage` (strict),
 1 approval with stale-review dismissal, CODEOWNERS review, linear history;
 force pushes, branch deletion, and admin bypass are blocked. Red-PR proof is
 recorded below.
+
+Naming trap (burned us on PR #510): GitHub matches the check-run **name**
+(`db aggregate`, with space — the job `name:`), not the job ID
+(`db-aggregate`). Requiring the hyphen form blocks every PR forever.
 
 Notes:
 
