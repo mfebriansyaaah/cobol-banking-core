@@ -1,6 +1,0 @@
-# Attendance (Wave10) validation cases.
-ATT_CREATE missing ref@@ERROR\|INVALID_INPUT@@ATT_CREATE||||||admin@test.com
-ATT_GET missing id@@ERROR\|INVALID_INPUT@@ATT_GET||||||admin@test.com
-ATT_CALC missing id@@ERROR\|INVALID_INPUT@@ATT_CALC||||||admin@test.com
-ATT_DELETE missing id@@ERROR\|INVALID_INPUT@@ATT_DELETE||||||admin@test.com
-ATT_VALIDATE ok@@SUCCESS\|ATT_VALID@@ATT_VALIDATE|100.00|USD||||admin@test.com

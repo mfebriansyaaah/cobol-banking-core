@@ -1,6 +1,0 @@
-# Credit Bureau (Wave7) validation cases.
-CBU_CREATE missing ref@@ERROR\|INVALID_INPUT@@CBU_CREATE||||||admin@test.com
-CBU_GET missing id@@ERROR\|INVALID_INPUT@@CBU_GET||||||admin@test.com
-CBU_CALC missing id@@ERROR\|INVALID_INPUT@@CBU_CALC||||||admin@test.com
-CBU_DELETE missing id@@ERROR\|INVALID_INPUT@@CBU_DELETE||||||admin@test.com
-CBU_VALIDATE ok@@SUCCESS\|CBU_VALID@@CBU_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Billing Mgmt (Wave19) validation cases.
-BILM_CREATE missing ref@@ERROR\|INVALID_INPUT@@BILM_CREATE||||||admin@test.com
-BILM_GET missing id@@ERROR\|INVALID_INPUT@@BILM_GET||||||admin@test.com
-BILM_CALC missing id@@ERROR\|INVALID_INPUT@@BILM_CALC||||||admin@test.com
-BILM_DELETE missing id@@ERROR\|INVALID_INPUT@@BILM_DELETE||||||admin@test.com
-BILM_VALIDATE ok@@SUCCESS\|BILM_VALID@@BILM_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Advance Payment (Wave16) validation cases.
-APYM_CREATE missing ref@@ERROR\|INVALID_INPUT@@APYM_CREATE||||||admin@test.com
-APYM_GET missing id@@ERROR\|INVALID_INPUT@@APYM_GET||||||admin@test.com
-APYM_CALC missing id@@ERROR\|INVALID_INPUT@@APYM_CALC||||||admin@test.com
-APYM_DELETE missing id@@ERROR\|INVALID_INPUT@@APYM_DELETE||||||admin@test.com
-APYM_VALIDATE ok@@SUCCESS\|APYM_VALID@@APYM_VALIDATE|100.00|USD||||admin@test.com

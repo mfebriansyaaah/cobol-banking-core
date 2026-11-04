@@ -1,6 +1,0 @@
-# Data Archive (Wave5) validation cases.
-DTA_CREATE missing ref@@ERROR\|INVALID_INPUT@@DTA_CREATE||||||admin@test.com
-DTA_GET missing id@@ERROR\|INVALID_INPUT@@DTA_GET||||||admin@test.com
-DTA_CALC missing id@@ERROR\|INVALID_INPUT@@DTA_CALC||||||admin@test.com
-DTA_DELETE missing id@@ERROR\|INVALID_INPUT@@DTA_DELETE||||||admin@test.com
-DTA_VALIDATE ok@@SUCCESS\|DTA_VALID@@DTA_VALIDATE|100.00|USD||||admin@test.com

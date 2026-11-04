@@ -1,6 +1,0 @@
-# Contract (Wave10) validation cases.
-CON_CREATE missing ref@@ERROR\|INVALID_INPUT@@CON_CREATE||||||admin@test.com
-CON_GET missing id@@ERROR\|INVALID_INPUT@@CON_GET||||||admin@test.com
-CON_CALC missing id@@ERROR\|INVALID_INPUT@@CON_CALC||||||admin@test.com
-CON_DELETE missing id@@ERROR\|INVALID_INPUT@@CON_DELETE||||||admin@test.com
-CON_VALIDATE ok@@SUCCESS\|CON_VALID@@CON_VALIDATE|100.00|USD||||admin@test.com

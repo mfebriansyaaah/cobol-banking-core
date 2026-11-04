@@ -1,6 +1,0 @@
-# Control Test (Wave17) validation cases.
-CTL2_CREATE missing ref@@ERROR\|INVALID_INPUT@@CTL2_CREATE||||||admin@test.com
-CTL2_GET missing id@@ERROR\|INVALID_INPUT@@CTL2_GET||||||admin@test.com
-CTL2_CALC missing id@@ERROR\|INVALID_INPUT@@CTL2_CALC||||||admin@test.com
-CTL2_DELETE missing id@@ERROR\|INVALID_INPUT@@CTL2_DELETE||||||admin@test.com
-CTL2_VALIDATE ok@@SUCCESS\|CTL2_VALID@@CTL2_VALIDATE|100.00|USD||||admin@test.com

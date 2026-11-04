@@ -1,6 +1,0 @@
-# Benchmark (Wave14) validation cases.
-BNM_CREATE missing ref@@ERROR\|INVALID_INPUT@@BNM_CREATE||||||admin@test.com
-BNM_GET missing id@@ERROR\|INVALID_INPUT@@BNM_GET||||||admin@test.com
-BNM_CALC missing id@@ERROR\|INVALID_INPUT@@BNM_CALC||||||admin@test.com
-BNM_DELETE missing id@@ERROR\|INVALID_INPUT@@BNM_DELETE||||||admin@test.com
-BNM_VALIDATE ok@@SUCCESS\|BNM_VALID@@BNM_VALIDATE|100.00|USD||||admin@test.com

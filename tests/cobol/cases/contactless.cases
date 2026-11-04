@@ -1,6 +1,0 @@
-# Contactless (Wave8) validation cases.
-CTL_CREATE missing ref@@ERROR\|INVALID_INPUT@@CTL_CREATE||||||admin@test.com
-CTL_GET missing id@@ERROR\|INVALID_INPUT@@CTL_GET||||||admin@test.com
-CTL_CALC missing id@@ERROR\|INVALID_INPUT@@CTL_CALC||||||admin@test.com
-CTL_DELETE missing id@@ERROR\|INVALID_INPUT@@CTL_DELETE||||||admin@test.com
-CTL_VALIDATE ok@@SUCCESS\|CTL_VALID@@CTL_VALIDATE|100.00|USD||||admin@test.com

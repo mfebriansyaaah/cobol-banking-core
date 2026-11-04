@@ -1,6 +1,0 @@
-# Bond Insurance (Wave18) validation cases.
-BNI_CREATE missing ref@@ERROR\|INVALID_INPUT@@BNI_CREATE||||||admin@test.com
-BNI_GET missing id@@ERROR\|INVALID_INPUT@@BNI_GET||||||admin@test.com
-BNI_CALC missing id@@ERROR\|INVALID_INPUT@@BNI_CALC||||||admin@test.com
-BNI_DELETE missing id@@ERROR\|INVALID_INPUT@@BNI_DELETE||||||admin@test.com
-BNI_VALIDATE ok@@SUCCESS\|BNI_VALID@@BNI_VALIDATE|100.00|USD||||admin@test.com

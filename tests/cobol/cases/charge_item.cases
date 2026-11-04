@@ -1,6 +1,0 @@
-# Charge Item (Wave15) validation cases.
-CHGS_CREATE missing ref@@ERROR\|INVALID_INPUT@@CHGS_CREATE||||||admin@test.com
-CHGS_GET missing id@@ERROR\|INVALID_INPUT@@CHGS_GET||||||admin@test.com
-CHGS_CALC missing id@@ERROR\|INVALID_INPUT@@CHGS_CALC||||||admin@test.com
-CHGS_DELETE missing id@@ERROR\|INVALID_INPUT@@CHGS_DELETE||||||admin@test.com
-CHGS_VALIDATE ok@@SUCCESS\|CHGS_VALID@@CHGS_VALIDATE|100.00|USD||||admin@test.com

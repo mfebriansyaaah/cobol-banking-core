@@ -35,62 +35,45 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/loan_schedule_core.cob \
     cobol/src/collection_core.cob \
     cobol/src/payment_clearing_core.cob \
-    cobol/src/billpay_core.cob \
     cobol/src/treasury_liquidity_core.cob \
     cobol/src/fx_hedging_core.cob \
     cobol/src/kyc_periodic_core.cob \
-    cobol/src/aml_screening_core.cob \
     cobol/src/sanctions_list_core.cob \
     cobol/src/fraud_case_core.cob \
     cobol/src/gl_allocation_core.cob \
     cobol/src/fixed_asset_core.cob \
     cobol/src/cost_center_core.cob \
-    cobol/src/customer_core.cob \
     cobol/src/product_catalog_core.cob \
     cobol/src/interest_rate_core.cob \
     cobol/src/account_core.cob \
     cobol/src/collateral_core.cob \
     cobol/src/standing_order_core.cob \
     cobol/src/remittance_core.cob \
-    cobol/src/case_management_core.cob \
     cobol/src/document_core.cob \
     cobol/src/workflow_approval_core.cob \
-    cobol/src/consolidation_core.cob \
     cobol/src/backup_drill_core.cob \
     cobol/src/incident_postmortem_core.cob \
-    cobol/src/change_approval_core.cob \
-    cobol/src/capacity_forecast_core.cob \
-    cobol/src/data_lineage_core.cob \
     cobol/src/metric_definition_core.cob \
     cobol/src/report_builder_core.cob \
-    cobol/src/analytics_snapshot_core.cob \
     cobol/src/auth_password_core.cob \
     cobol/src/ref_engine.cob \
     cobol/src/gl_core.cob \
-    cobol/src/batch_core.cob \
     cobol/src/report_core.cob \
     cobol/src/report_delivery_core.cob \
     cobol/src/dispute_ops_core.cob \
     cobol/src/export_archive_core.cob \
     cobol/src/recon_ops_core.cob \
-    cobol/src/alert_core.cob \
     cobol/src/dashboard_core.cob \
     cobol/src/statement_recon_core.cob \
     cobol/src/payment_instruction_core.cob \
     cobol/src/oncall_core.cob \
-    cobol/src/audit_analytics_core.cob \
     cobol/src/import_recon_core.cob \
     cobol/src/recon_exception_core.cob \
     cobol/src/dispute_notify_core.cob \
     cobol/src/export_stream_core.cob \
-    cobol/src/alert_escalation_core.cob \
-    cobol/src/audit_drilldown_core.cob \
-    cobol/src/compliance_export_core.cob \
     cobol/src/payment_hold_core.cob \
     cobol/src/oncall_delivery_core.cob \
-    cobol/src/compliance_retention_core.cob \
     cobol/src/report_scheduler_core.cob \
-    cobol/src/audit_snapshot_core.cob \
     cobol/src/report_archive_core.cob \
     cobol/src/kyc_review_core.cob \
     cobol/src/regulatory_report_core.cob \
@@ -107,12 +90,8 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/syndicated_loan_core.cob \
     cobol/src/insurance_policy_core.cob \
     cobol/src/reinsurance_contract_core.cob \
-    cobol/src/actuarial_calc_core.cob \
-    cobol/src/claims_management_core.cob \
     cobol/src/policy_administration_core.cob \
-    cobol/src/beneficiary_registry_core.cob \
     cobol/src/guarantee_issuing_core.cob \
-    cobol/src/credit_bureau_core.cob \
     cobol/src/debt_collection_core.cob \
     cobol/src/debt_recovery_core.cob \
     cobol/src/legal_case_core.cob \
@@ -123,15 +102,12 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/loss_reserve_core.cob \
     cobol/src/risk_model_core.cob \
     cobol/src/stress_test_core.cob \
-    cobol/src/compliance_audit_core.cob \
     cobol/src/tax_report_core.cob \
     cobol/src/internal_audit_core.cob \
     cobol/src/external_audit_core.cob \
     cobol/src/investigation_core.cob \
     cobol/src/whistleblowing_core.cob \
     cobol/src/incident_report_core.cob \
-    cobol/src/business_continuity_core.cob \
-    cobol/src/crisis_management_core.cob \
     cobol/src/vendor_management_core.cob \
     cobol/src/outsourcing_contract_core.cob \
     cobol/src/loyalty_program_core.cob \
@@ -142,11 +118,8 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/gift_card_core.cob \
     cobol/src/prepaid_card_core.cob \
     cobol/src/virtual_card_core.cob \
-    cobol/src/card_tokenization_core.cob \
     cobol/src/payment_link_core.cob \
     cobol/src/qr_payment_core.cob \
-    cobol/src/contactless_core.cob \
-    cobol/src/biometric_auth_core.cob \
     cobol/src/device_management_core.cob \
     cobol/src/session_management_core.cob \
     cobol/src/token_management_core.cob \
@@ -154,36 +127,26 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/mfa_management_core.cob \
     cobol/src/password_policy_core.cob \
     cobol/src/login_attempt_core.cob \
-    cobol/src/account_lock_core.cob \
     cobol/src/transaction_limit_core.cob \
-    cobol/src/daily_limit_core.cob \
     cobol/src/velocity_check_core.cob \
     cobol/src/risk_score_core.cob \
-    cobol/src/blacklist_core.cob \
     cobol/src/whitelist_core.cob \
     cobol/src/watchlist_core.cob \
     cobol/src/pep_screening_core.cob \
-    cobol/src/adverse_media_core.cob \
     cobol/src/name_screening_core.cob \
     cobol/src/savings_account_core.cob \
-    cobol/src/current_account_core.cob \
     cobol/src/term_deposit_core.cob \
-    cobol/src/certificate_deposit_core.cob \
     cobol/src/recurring_deposit_core.cob \
     cobol/src/fixed_deposit_core.cob \
-    cobol/src/call_deposit_core.cob \
     cobol/src/notice_deposit_core.cob \
     cobol/src/foreign_currency_deposit_core.cob \
     cobol/src/multi_currency_core.cob \
-    cobol/src/currency_hedging_core.cob \
     cobol/src/fx_forward_core.cob \
     cobol/src/fx_option_core.cob \
     cobol/src/fx_swap_core.cob \
     cobol/src/interest_rate_swap_core.cob \
-    cobol/src/credit_default_swap_core.cob \
     cobol/src/total_return_swap_core.cob \
     cobol/src/equity_swap_core.cob \
-    cobol/src/commodity_swap_core.cob \
     cobol/src/variance_swap_core.cob \
     cobol/src/volatility_core.cob \
     cobol/src/greeks_core.cob \
@@ -192,7 +155,6 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/mark_to_market_core.cob \
     cobol/src/pnl_core.cob \
     cobol/src/revenue_core.cob \
-    cobol/src/cost_core.cob \
     cobol/src/profit_core.cob \
     cobol/src/margin_core.cob \
     cobol/src/structured_product_core.cob \
@@ -200,48 +162,35 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/employee_core.cob \
     cobol/src/department_core.cob \
     cobol/src/position_core.cob \
-    cobol/src/attendance_core.cob \
     cobol/src/leave_management_core.cob \
     cobol/src/performance_core.cob \
     cobol/src/training_core.cob \
     cobol/src/recruitment_core.cob \
     cobol/src/onboarding_core.cob \
     cobol/src/offboarding_core.cob \
-    cobol/src/compensation_core.cob \
-    cobol/src/benefits_core.cob \
     cobol/src/pension_core.cob \
     cobol/src/tax_withholding_core.cob \
     cobol/src/invoice_core.cob \
-    cobol/src/billing_core.cob \
     cobol/src/subscription_core.cob \
-    cobol/src/contract_core.cob \
-    cobol/src/agreement_core.cob \
     cobol/src/sla_management_core.cob \
     cobol/src/kpi_core.cob \
     cobol/src/metric_core.cob \
-    cobol/src/dashboard_widget_core.cob \
     cobol/src/reporting_core.cob \
-    cobol/src/analytics_core.cob \
     cobol/src/data_warehouse_core.cob \
     cobol/src/etl_core.cob \
     cobol/src/dq_check_core.cob \
     cobol/src/master_data_core.cob \
-    cobol/src/audit_log_core.cob \
     cobol/src/email_core.cob \
     cobol/src/sms_core.cob \
     cobol/src/push_notification_core.cob \
     cobol/src/in_app_message_core.cob \
     cobol/src/webhook_core.cob \
-    cobol/src/api_gateway_core.cob \
     cobol/src/message_queue_core.cob \
     cobol/src/event_bus_core.cob \
     cobol/src/service_mesh_core.cob \
     cobol/src/load_balancer_core.cob \
-    cobol/src/cache_core.cob \
     cobol/src/session_store_core.cob \
-    cobol/src/config_core.cob \
     cobol/src/feature_flag_core.cob \
-    cobol/src/ab_testing_core.cob \
     cobol/src/experiment_core.cob \
     cobol/src/personalization_core.cob \
     cobol/src/recommendation_core.cob \
@@ -249,33 +198,25 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/indexing_core.cob \
     cobol/src/logging_core.cob \
     cobol/src/monitoring_core.cob \
-    cobol/src/alerting_core.cob \
     cobol/src/tracing_core.cob \
     cobol/src/metrics_core.cob \
     cobol/src/health_check_core.cob \
-    cobol/src/circuit_breaker_core.cob \
     cobol/src/rate_limiter_core.cob \
     cobol/src/retry_core.cob \
     cobol/src/timeout_core.cob \
-    cobol/src/budgeting_core.cob \
     cobol/src/forecast_core.cob \
     cobol/src/variance_core.cob \
     cobol/src/scenario_core.cob \
     cobol/src/simulation_core.cob \
     cobol/src/optimization_core.cob \
-    cobol/src/allocation_core.cob \
     cobol/src/distribution_core.cob \
-    cobol/src/consolidation_mgmt_core.cob \
     cobol/src/elimination_core.cob \
     cobol/src/intercompany_core.cob \
     cobol/src/transfer_pricing_core.cob \
-    cobol/src/cost_center_mgmt_core.cob \
     cobol/src/profit_center_core.cob \
     cobol/src/investment_core.cob \
     cobol/src/portfolio_core.cob \
-    cobol/src/asset_allocation_core.cob \
     cobol/src/rebalancing_core.cob \
-    cobol/src/benchmark_core.cob \
     cobol/src/index_mgmt_core.cob \
     cobol/src/market_data_core.cob \
     cobol/src/price_feed_core.cob \
@@ -286,29 +227,21 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/position_mgmt_core.cob \
     cobol/src/exposure_core.cob \
     cobol/src/hedge_core.cob \
-    cobol/src/compliance_check_core.cob \
     cobol/src/regulatory_filing_core.cob \
-    cobol/src/audit_finding_core.cob \
     cobol/src/risk_assessment_core.cob \
-    cobol/src/control_test_core.cob \
     cobol/src/policy_review_core.cob \
     cobol/src/procedure_review_core.cob \
     cobol/src/training_record_core.cob \
-    cobol/src/certification_core.cob \
     cobol/src/license_core.cob \
     cobol/src/permit_core.cob \
     cobol/src/registration_core.cob \
     cobol/src/filing_core.cob \
     cobol/src/submission_core.cob \
-    cobol/src/approval_core.cob \
-    cobol/src/authorization_core.cob \
     cobol/src/delegation_core.cob \
     cobol/src/escalation_core.cob \
     cobol/src/notification_mgmt_core.cob \
-    cobol/src/alert_mgmt_core.cob \
     cobol/src/incident_mgmt_core.cob \
     cobol/src/problem_core.cob \
-    cobol/src/change_mgmt_core.cob \
     cobol/src/release_mgmt_core.cob \
     cobol/src/deployment_core.cob \
     cobol/src/rollback_core.cob \
@@ -319,8 +252,6 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/life_insurance_core.cob \
     cobol/src/health_insurance_core.cob \
     cobol/src/property_insurance_core.cob \
-    cobol/src/casualty_insurance_core.cob \
-    cobol/src/auto_insurance_core.cob \
     cobol/src/home_insurance_core.cob \
     cobol/src/travel_insurance_core.cob \
     cobol/src/marine_insurance_core.cob \
@@ -332,50 +263,33 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/product_liability_core.cob \
     cobol/src/public_liability_core.cob \
     cobol/src/employer_liability_core.cob \
-    cobol/src/cyber_insurance_core.cob \
     cobol/src/kidnap_ransom_core.cob \
     cobol/src/political_risk_core.cob \
-    cobol/src/credit_insurance2_core.cob \
     cobol/src/surety_core.cob \
     cobol/src/guarantee_core.cob \
-    cobol/src/bond_insurance_core.cob \
     cobol/src/fidelity_core.cob \
-    cobol/src/crime_core.cob \
     cobol/src/errors_omissions_core.cob \
     cobol/src/professional_risk_core.cob \
     cobol/src/management_liability_core.cob \
     cobol/src/employment_practices_core.cob \
     cobol/src/fiduciary_core.cob \
-    cobol/src/core_banking_core.cob \
     cobol/src/retail_banking_core.cob \
-    cobol/src/corporate_banking_core.cob \
     cobol/src/investment_banking_core.cob \
     cobol/src/private_banking_core.cob \
     cobol/src/wholesale_banking_core.cob \
     cobol/src/digital_banking2_core.cob \
     cobol/src/mobile_banking_core.cob \
     cobol/src/internet_banking2_core.cob \
-    cobol/src/branch_banking_core.cob \
-    cobol/src/central_banking_core.cob \
-    cobol/src/commercial_banking_core.cob \
-    cobol/src/community_banking_core.cob \
-    cobol/src/cooperative_banking_core.cob \
     cobol/src/savings_bank_core.cob \
-    cobol/src/credit_union_core.cob \
-    cobol/src/building_society_core.cob \
     cobol/src/thrift_core.cob \
     cobol/src/finance_company_core.cob \
     cobol/src/leasing_company_core.cob \
     cobol/src/factoring_company_core.cob \
-    cobol/src/consumer_finance_core.cob \
-    cobol/src/auto_finance_core.cob \
     cobol/src/mortgage_bank_core.cob \
     cobol/src/housing_finance_core.cob \
-    cobol/src/agricultural_finance_core.cob \
     cobol/src/micro_lending_core.cob \
     cobol/src/nano_lending_core.cob \
     cobol/src/peer_lending_core.cob \
-    cobol/src/crowd_lending_core.cob \
     cobol/src/vendor_mgmt_core.cob \
     cobol/src/supplier_core.cob \
     cobol/src/procurement_mgmt_core.cob \
@@ -390,27 +304,19 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/fulfillment_core.cob \
     cobol/src/order_mgmt2_core.cob \
     cobol/src/invoice_mgmt_core.cob \
-    cobol/src/billing_mgmt_core.cob \
     cobol/src/payment_mgmt_core.cob \
-    cobol/src/collection_mgmt_core.cob \
     cobol/src/receivable_core.cob \
     cobol/src/payable_core.cob \
     cobol/src/expense_core.cob \
-    cobol/src/budget_mgmt_core.cob \
     cobol/src/forecast_mgmt_core.cob \
     cobol/src/planning_core.cob \
     cobol/src/strategy_core.cob \
-    cobol/src/analysis_core.cob \
     cobol/src/research_core.cob \
     cobol/src/development_core.cob \
     cobol/src/testing_core.cob \
     cobol/src/quality_core.cob \
-    cobol/src/audit_mgmt_core.cob \
     cobol/src/mortgage_core.cob \
-    cobol/src/auto_loan_core.cob \
     cobol/src/personal_loan_core.cob \
-    cobol/src/business_loan_core.cob \
-    cobol/src/credit_line_core.cob \
     cobol/src/overdraft_core.cob \
     cobol/src/factoring_core.cob \
     cobol/src/leasing_core.cob \
@@ -418,7 +324,6 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/pawn_core.cob \
     cobol/src/microfinance_core.cob \
     cobol/src/peer_to_peer_core.cob \
-    cobol/src/crowdfunding_core.cob \
     cobol/src/invoice_discounting_core.cob \
     cobol/src/supply_chain_core.cob \
     cobol/src/trade_credit_core.cob \
@@ -427,52 +332,35 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/documentary_credit_core.cob \
     cobol/src/bankers_acceptance_core.cob \
     cobol/src/promissory_note_core.cob \
-    cobol/src/bill_of_exchange_core.cob \
     cobol/src/letter_of_guarantee_core.cob \
     cobol/src/performance_bond_core.cob \
-    cobol/src/advance_payment_core.cob \
     cobol/src/retention_money_core.cob \
     cobol/src/milestone_payment_core.cob \
     cobol/src/final_payment_core.cob \
     cobol/src/warranty_core.cob \
-    cobol/src/credit_insurance_core.cob \
-    cobol/src/customer_profile_core.cob \
-    cobol/src/account_detail_core.cob \
     cobol/src/product_item_core.cob \
     cobol/src/loan_account_core.cob \
     cobol/src/deposit_book_core.cob \
     cobol/src/payment_item_core.cob \
     cobol/src/transfer_item_core.cob \
-    cobol/src/card_item_core.cob \
     cobol/src/transaction_item_core.cob \
-    cobol/src/balance_item_core.cob \
     cobol/src/statement_item_core.cob \
     cobol/src/interest_item_core.cob \
     cobol/src/fee_item_core.cob \
-    cobol/src/charge_item_core.cob \
     cobol/src/penalty_item_core.cob \
     cobol/src/tax_item_core.cob \
-    cobol/src/commission_item_core.cob \
     cobol/src/discount_item_core.cob \
     cobol/src/rebate_item_core.cob \
     cobol/src/refund_item_core.cob \
     cobol/src/reversal_item_core.cob \
-    cobol/src/adjustment_item_core.cob \
-    cobol/src/correction_item_core.cob \
-    cobol/src/cancellation_item_core.cob \
     cobol/src/suspension_item_core.cob \
     cobol/src/termination_item_core.cob \
-    cobol/src/activation_item_core.cob \
     cobol/src/deactivation_item_core.cob \
-    cobol/src/closure_item_core.cob \
     cobol/src/reopening_item_core.cob \
-    cobol/src/bond_core.cob \
     cobol/src/equity_core.cob \
     cobol/src/derivative_core.cob \
     cobol/src/warrant_core.cob \
-    cobol/src/convertible_core.cob \
     cobol/src/structured_core.cob \
-    cobol/src/asset_backed_core.cob \
     cobol/src/mortgage_backed_core.cob \
     cobol/src/collateralized_core.cob \
     cobol/src/tranche_core.cob \
@@ -493,10 +381,7 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/mezzanine_core.cob \
     cobol/src/distressed_core.cob \
     cobol/src/warrant_issuing_core.cob \
-    cobol/src/convertible_bond_core.cob \
     cobol/src/structured_note_core.cob \
-    cobol/src/asset_backed_security_core.cob \
-    cobol/src/aml_check_core.cob \
     cobol/src/kyc_check_core.cob \
     cobol/src/sanctions_check_core.cob \
     cobol/src/fraud_check_core.cob \
@@ -504,10 +389,7 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/payment_processing_core.cob \
     cobol/src/transfer_core.cob \
     cobol/src/withdrawal_core.cob \
-    cobol/src/balance_core.cob \
-    cobol/src/account_statement_core.cob \
     cobol/src/reconciliation_core.cob \
-    cobol/src/clearing_core.cob \
     cobol/src/netting_core.cob \
     cobol/src/nostro_core.cob \
     cobol/src/vostro_core.cob \
@@ -515,66 +397,45 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/gl_master_core.cob \
     cobol/src/journal_core.cob \
     cobol/src/trial_balance_core.cob \
-    cobol/src/balance_sheet_core.cob \
     cobol/src/income_statement_core.cob \
-    cobol/src/cash_flow_core.cob \
     cobol/src/equity_account_core.cob \
     cobol/src/liability_core.cob \
-    cobol/src/capital_core.cob \
     cobol/src/reserve_core.cob \
     cobol/src/securities_lending_core.cob \
     cobol/src/repo_agreement_core.cob \
-    cobol/src/commodity_trading_core.cob \
     cobol/src/option_trading_core.cob \
     cobol/src/future_contract_core.cob \
     cobol/src/swap_contract_core.cob \
-    cobol/src/currency_exchange_core.cob \
     cobol/src/teller_management_core.cob \
-    cobol/src/branch_management_core.cob \
-    cobol/src/atm_management_core.cob \
     cobol/src/vault_management_core.cob \
-    cobol/src/cash_management_core.cob \
     cobol/src/refund_processing_core.cob \
     cobol/src/chargeback_core.cob \
     cobol/src/dispute_management_core.cob \
-    cobol/src/complaint_management_core.cob \
-    cobol/src/customer_support_core.cob \
-    cobol/src/consent_management_core.cob \
     cobol/src/pisp_management_core.cob \
     cobol/src/open_banking_core.cob \
     cobol/src/nft_management_core.cob \
     cobol/src/smart_contract_core.cob \
     cobol/src/tokenization_core.cob \
     cobol/src/digital_asset_core.cob \
-    cobol/src/blockchain_tracker_core.cob \
-    cobol/src/crypto_exchange_core.cob \
-    cobol/src/crypto_wallet_core.cob \
     cobol/src/permission_set_core.cob \
     cobol/src/role_management_core.cob \
-    cobol/src/access_control_core.cob \
     cobol/src/user_activity_core.cob \
     cobol/src/system_config_core.cob \
-    cobol/src/backup_management_core.cob \
-    cobol/src/data_archive_core.cob \
-    cobol/src/audit_trail_core.cob \
     cobol/src/tax_management_core.cob \
     cobol/src/fee_management_core.cob \
     cobol/src/rate_management_core.cob \
-    cobol/src/api_management_core.cob \
     cobol/src/internet_banking_core.cob \
     cobol/src/digital_banking_core.cob \
     cobol/src/mobile_wallet_core.cob \
     cobol/src/payment_gateway_core.cob \
     cobol/src/merchant_settlement_core.cob \
     cobol/src/debit_card_core.cob \
-    cobol/src/credit_card_core.cob \
     cobol/src/wealth_management_core.cob \
     cobol/src/payroll_processing_core.cob \
     cobol/src/supply_chain_finance_core.cob \
     cobol/src/invoice_financing_core.cob \
     cobol/src/bank_guarantee_core.cob \
     cobol/src/letter_of_credit_core.cob \
-    cobol/src/bond_trading_core.cob \
     cobol/src/portfolio_management_core.cob \
     cobol/src/asset_management_core.cob \
     cobol/src/sla_tracker_core.cob \
@@ -594,11 +455,8 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/risk_screening_core.cob \
     cobol/src/vendor_core.cob \
     cobol/src/vendor_risk_core.cob \
-    cobol/src/asset_maintenance_core.cob \
-    cobol/src/asset_core.cob \
     cobol/src/policy_attestation_core.cob \
     cobol/src/regulatory_calendar_core.cob \
-    cobol/src/budget_core.cob \
     cobol/src/procurement_core.cob \
     cobol/src/settlement_recon_core.cob \
     cobol/src/statement_delivery_core.cob \
@@ -619,19 +477,11 @@ if [ "${BUILD_LEGACY:-0}" = "1" ]; then
     cobol/src/slo_report_core.cob \
     cobol/src/pipeline_alert_core.cob \
     cobol/src/incident_core.cob \
-    cobol/src/change_control_core.cob \
-    cobol/src/backup_restore_core.cob \
     cobol/src/secret_rotation_core.cob \
     cobol/src/disaster_recovery_core.cob \
-    cobol/src/capacity_plan_core.cob \
-    cobol/src/audit_retention_core.cob \
     cobol/src/vendor_compliance_core.cob \
-    cobol/src/data_quality_core.cob \
     cobol/src/notification_audit_core.cob \
     cobol/src/report_audit_core.cob \
-    cobol/src/data_retention_core.cob \
-    cobol/src/access_audit_core.cob \
-    cobol/src/backup_verification_core.cob \
     cobol/src/sla_tracking_core.cob \
     cobol/src/sql_bridge.c \
     cobol/c_lib/hash_lib.c \

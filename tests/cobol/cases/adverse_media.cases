@@ -1,6 +1,0 @@
-# Adverse Media (Wave8) validation cases.
-ADM_CREATE missing ref@@ERROR\|INVALID_INPUT@@ADM_CREATE||||||admin@test.com
-ADM_GET missing id@@ERROR\|INVALID_INPUT@@ADM_GET||||||admin@test.com
-ADM_CALC missing id@@ERROR\|INVALID_INPUT@@ADM_CALC||||||admin@test.com
-ADM_DELETE missing id@@ERROR\|INVALID_INPUT@@ADM_DELETE||||||admin@test.com
-ADM_VALIDATE ok@@SUCCESS\|ADM_VALID@@ADM_VALIDATE|100.00|USD||||admin@test.com

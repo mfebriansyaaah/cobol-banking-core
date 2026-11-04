@@ -1,6 +1,0 @@
-# Adjustment Item (Wave15) validation cases.
-ADJ_CREATE missing ref@@ERROR\|INVALID_INPUT@@ADJ_CREATE||||||admin@test.com
-ADJ_GET missing id@@ERROR\|INVALID_INPUT@@ADJ_GET||||||admin@test.com
-ADJ_CALC missing id@@ERROR\|INVALID_INPUT@@ADJ_CALC||||||admin@test.com
-ADJ_DELETE missing id@@ERROR\|INVALID_INPUT@@ADJ_DELETE||||||admin@test.com
-ADJ_VALIDATE ok@@SUCCESS\|ADJ_VALID@@ADJ_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Account Statement (Wave13) validation cases.
-STMTS_CREATE missing ref@@ERROR\|INVALID_INPUT@@STMTS_CREATE||||||admin@test.com
-STMTS_GET missing id@@ERROR\|INVALID_INPUT@@STMTS_GET||||||admin@test.com
-STMTS_CALC missing id@@ERROR\|INVALID_INPUT@@STMTS_CALC||||||admin@test.com
-STMTS_DELETE missing id@@ERROR\|INVALID_INPUT@@STMTS_DELETE||||||admin@test.com
-STMTS_VALIDATE ok@@SUCCESS\|STMTS_VALID@@STMTS_VALIDATE|100.00|USD||||admin@test.com

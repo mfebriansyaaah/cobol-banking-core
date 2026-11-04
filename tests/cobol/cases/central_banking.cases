@@ -1,6 +1,0 @@
-# Central Banking (Wave20) validation cases.
-CNB_CREATE missing ref@@ERROR\|INVALID_INPUT@@CNB_CREATE||||||admin@test.com
-CNB_GET missing id@@ERROR\|INVALID_INPUT@@CNB_GET||||||admin@test.com
-CNB_CALC missing id@@ERROR\|INVALID_INPUT@@CNB_CALC||||||admin@test.com
-CNB_DELETE missing id@@ERROR\|INVALID_INPUT@@CNB_DELETE||||||admin@test.com
-CNB_VALIDATE ok@@SUCCESS\|CNB_VALID@@CNB_VALIDATE|100.00|USD||||admin@test.com

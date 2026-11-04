@@ -1,6 +1,0 @@
-# Cooperative Banking (Wave20) validation cases.
-COB_CREATE missing ref@@ERROR\|INVALID_INPUT@@COB_CREATE||||||admin@test.com
-COB_GET missing id@@ERROR\|INVALID_INPUT@@COB_GET||||||admin@test.com
-COB_CALC missing id@@ERROR\|INVALID_INPUT@@COB_CALC||||||admin@test.com
-COB_DELETE missing id@@ERROR\|INVALID_INPUT@@COB_DELETE||||||admin@test.com
-COB_VALIDATE ok@@SUCCESS\|COB_VALID@@COB_VALIDATE|100.00|USD||||admin@test.com

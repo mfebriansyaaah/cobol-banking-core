@@ -1,6 +1,0 @@
-# Corporate Banking (Wave20) validation cases.
-CPB_CREATE missing ref@@ERROR\|INVALID_INPUT@@CPB_CREATE||||||admin@test.com
-CPB_GET missing id@@ERROR\|INVALID_INPUT@@CPB_GET||||||admin@test.com
-CPB_CALC missing id@@ERROR\|INVALID_INPUT@@CPB_CALC||||||admin@test.com
-CPB_DELETE missing id@@ERROR\|INVALID_INPUT@@CPB_DELETE||||||admin@test.com
-CPB_VALIDATE ok@@SUCCESS\|CPB_VALID@@CPB_VALIDATE|100.00|USD||||admin@test.com

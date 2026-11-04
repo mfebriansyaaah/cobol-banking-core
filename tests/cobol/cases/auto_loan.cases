@@ -1,6 +1,0 @@
-# Auto Loan (Wave16) validation cases.
-ALN_CREATE missing ref@@ERROR\|INVALID_INPUT@@ALN_CREATE||||||admin@test.com
-ALN_GET missing id@@ERROR\|INVALID_INPUT@@ALN_GET||||||admin@test.com
-ALN_CALC missing id@@ERROR\|INVALID_INPUT@@ALN_CALC||||||admin@test.com
-ALN_DELETE missing id@@ERROR\|INVALID_INPUT@@ALN_DELETE||||||admin@test.com
-ALN_VALIDATE ok@@SUCCESS\|ALN_VALID@@ALN_VALIDATE|100.00|USD||||admin@test.com

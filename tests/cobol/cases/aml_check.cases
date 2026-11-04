@@ -1,6 +1,0 @@
-# Aml Check (Wave13) validation cases.
-AMLC_CREATE missing ref@@ERROR\|INVALID_INPUT@@AMLC_CREATE||||||admin@test.com
-AMLC_GET missing id@@ERROR\|INVALID_INPUT@@AMLC_GET||||||admin@test.com
-AMLC_CALC missing id@@ERROR\|INVALID_INPUT@@AMLC_CALC||||||admin@test.com
-AMLC_DELETE missing id@@ERROR\|INVALID_INPUT@@AMLC_DELETE||||||admin@test.com
-AMLC_VALIDATE ok@@SUCCESS\|AMLC_VALID@@AMLC_VALIDATE|100.00|USD||||admin@test.com

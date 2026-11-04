@@ -1,6 +1,0 @@
-# Audit Mgmt (Wave19) validation cases.
-ADTL_CREATE missing ref@@ERROR\|INVALID_INPUT@@ADTL_CREATE||||||admin@test.com
-ADTL_GET missing id@@ERROR\|INVALID_INPUT@@ADTL_GET||||||admin@test.com
-ADTL_CALC missing id@@ERROR\|INVALID_INPUT@@ADTL_CALC||||||admin@test.com
-ADTL_DELETE missing id@@ERROR\|INVALID_INPUT@@ADTL_DELETE||||||admin@test.com
-ADTL_VALIDATE ok@@SUCCESS\|ADTL_VALID@@ADTL_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Collection Mgmt (Wave19) validation cases.
-CLTN_CREATE missing ref@@ERROR\|INVALID_INPUT@@CLTN_CREATE||||||admin@test.com
-CLTN_GET missing id@@ERROR\|INVALID_INPUT@@CLTN_GET||||||admin@test.com
-CLTN_CALC missing id@@ERROR\|INVALID_INPUT@@CLTN_CALC||||||admin@test.com
-CLTN_DELETE missing id@@ERROR\|INVALID_INPUT@@CLTN_DELETE||||||admin@test.com
-CLTN_VALIDATE ok@@SUCCESS\|CLTN_VALID@@CLTN_VALIDATE|100.00|USD||||admin@test.com

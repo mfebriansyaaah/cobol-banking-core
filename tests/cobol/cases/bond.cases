@@ -1,6 +1,0 @@
-# Bond (Wave12) validation cases.
-BON_CREATE missing ref@@ERROR\|INVALID_INPUT@@BON_CREATE||||||admin@test.com
-BON_GET missing id@@ERROR\|INVALID_INPUT@@BON_GET||||||admin@test.com
-BON_CALC missing id@@ERROR\|INVALID_INPUT@@BON_CALC||||||admin@test.com
-BON_DELETE missing id@@ERROR\|INVALID_INPUT@@BON_DELETE||||||admin@test.com
-BON_VALIDATE ok@@SUCCESS\|BON_VALID@@BON_VALIDATE|100.00|USD||||admin@test.com

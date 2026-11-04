@@ -1,6 +1,0 @@
-# Convertible Bond (Wave12) validation cases.
-CVB_CREATE missing ref@@ERROR\|INVALID_INPUT@@CVB_CREATE||||||admin@test.com
-CVB_GET missing id@@ERROR\|INVALID_INPUT@@CVB_GET||||||admin@test.com
-CVB_CALC missing id@@ERROR\|INVALID_INPUT@@CVB_CALC||||||admin@test.com
-CVB_DELETE missing id@@ERROR\|INVALID_INPUT@@CVB_DELETE||||||admin@test.com
-CVB_VALIDATE ok@@SUCCESS\|CVB_VALID@@CVB_VALIDATE|100.00|USD||||admin@test.com

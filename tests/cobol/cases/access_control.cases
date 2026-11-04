@@ -1,6 +1,0 @@
-# Access Control (Wave5) validation cases.
-AXC_CREATE missing ref@@ERROR\|INVALID_INPUT@@AXC_CREATE||||||admin@test.com
-AXC_GET missing id@@ERROR\|INVALID_INPUT@@AXC_GET||||||admin@test.com
-AXC_CALC missing id@@ERROR\|INVALID_INPUT@@AXC_CALC||||||admin@test.com
-AXC_DELETE missing id@@ERROR\|INVALID_INPUT@@AXC_DELETE||||||admin@test.com
-AXC_VALIDATE ok@@SUCCESS\|AXC_VALID@@AXC_VALIDATE|100.00|USD||||admin@test.com

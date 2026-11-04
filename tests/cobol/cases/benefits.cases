@@ -1,6 +1,0 @@
-# Benefits (Wave10) validation cases.
-BEN_CREATE missing ref@@ERROR\|INVALID_INPUT@@BEN_CREATE||||||admin@test.com
-BEN_GET missing id@@ERROR\|INVALID_INPUT@@BEN_GET||||||admin@test.com
-BEN_CALC missing id@@ERROR\|INVALID_INPUT@@BEN_CALC||||||admin@test.com
-BEN_DELETE missing id@@ERROR\|INVALID_INPUT@@BEN_DELETE||||||admin@test.com
-BEN_VALIDATE ok@@SUCCESS\|BEN_VALID@@BEN_VALIDATE|100.00|USD||||admin@test.com

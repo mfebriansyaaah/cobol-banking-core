@@ -1,6 +1,0 @@
-# Dashboard Widget (Wave10) validation cases.
-DSW_CREATE missing ref@@ERROR\|INVALID_INPUT@@DSW_CREATE||||||admin@test.com
-DSW_GET missing id@@ERROR\|INVALID_INPUT@@DSW_GET||||||admin@test.com
-DSW_CALC missing id@@ERROR\|INVALID_INPUT@@DSW_CALC||||||admin@test.com
-DSW_DELETE missing id@@ERROR\|INVALID_INPUT@@DSW_DELETE||||||admin@test.com
-DSW_VALIDATE ok@@SUCCESS\|DSW_VALID@@DSW_VALIDATE|100.00|USD||||admin@test.com

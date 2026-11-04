@@ -1,6 +1,0 @@
-# Crowd Lending (Wave20) validation cases.
-CDL_CREATE missing ref@@ERROR\|INVALID_INPUT@@CDL_CREATE||||||admin@test.com
-CDL_GET missing id@@ERROR\|INVALID_INPUT@@CDL_GET||||||admin@test.com
-CDL_CALC missing id@@ERROR\|INVALID_INPUT@@CDL_CALC||||||admin@test.com
-CDL_DELETE missing id@@ERROR\|INVALID_INPUT@@CDL_DELETE||||||admin@test.com
-CDL_VALIDATE ok@@SUCCESS\|CDL_VALID@@CDL_VALIDATE|100.00|USD||||admin@test.com
