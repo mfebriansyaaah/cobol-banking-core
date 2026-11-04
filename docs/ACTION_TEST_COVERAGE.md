@@ -117,6 +117,15 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   (R–S) — shell-covered 2,318 → 2,348 (84.5%), baseline 462 → 432.
   Category-1 remaining: 76.
 
+- Batch 6, branch `test/testing-p1-03-update-batch6`: 30 general domains
+  (S–T) — shell-covered 2,348 → 2,378 (85.5%), baseline 432 → 402
+  (≤409 target branch 08 TERCAPAI). Category-1 remaining: 46
+  (termasuk manual: loan_schedule, tax_management).
+- Catatan 90%: sisa cat-1 (±44 generatable) hanya membawa ke ~2.422
+  (87,2%). Sisa ~80 aksi ke 2.502 harus dari kategori lain (cat-3/cat-2:
+  T-020) — keputusan owner: perpanjang T-019 atau tutup di baseline
+  dan lanjut branch 09.
+
 ## Domain groups
 
 - **Critical money path** (two approvals): wallet, auth, payments, treasury,
