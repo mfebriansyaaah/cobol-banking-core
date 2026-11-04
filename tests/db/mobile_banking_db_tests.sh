@@ -42,6 +42,17 @@ assert_match "MBK_AUDIT ok" "$(run_cobol "MBK_AUDIT|50|0||||admin@test.com")" "S
 assert_match "MBK_VALIDATE ok" "$(run_cobol "MBK_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|MBK_VALID"
 assert_match "non-admin refused" "$(run_cobol "MBK_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM mobile_banking WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM mobile_banking_audit WHERE mobile_banking_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "MBK_UPDATE|${id}|BankA|APP|||admin@test.com")"
+assert_match "MBK_UPDATE ok" "$upd_out" "SUCCESS\\|MBK_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM mobile_banking WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM mobile_banking_audit WHERE mobile_banking_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "MBK_UPDATE|999999|BankA|APP|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "MBK_UPDATE|${id}|BankA|APP|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
