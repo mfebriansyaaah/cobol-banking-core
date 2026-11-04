@@ -5,7 +5,7 @@
 #   --no-report       skip machine-readable reporting (logs only)
 #   --mode <mode>     same as the positional mode argument
 #   --only <substr>   run only DB suites whose file name contains <substr>
-#   --failed          rerun only suites listed in artifacts/last-failed.txt
+#   --failed          rerun only suites listed in artifacts/latest/last-failed.txt
 #   --repeat <n>      run every selected suite n times (flake hunting)
 #   --keep-logs       copy per-suite logs to tests/artifacts/logs-<ts>-<pid>
 #   --no-build        skip the COBOL build (same as SKIP_BUILD=1)
@@ -79,8 +79,8 @@ case "$REPEAT_COUNT" in
     ''|*[!0-9]*|0) echo "FAIL: --repeat needs a positive integer (got '$REPEAT_COUNT')" >&2; exit 2 ;;
 esac
 if [ "$FAILED_ONLY" = "1" ]; then
-    if [ ! -f artifacts/last-failed.txt ]; then
-        echo "FAIL: no artifacts/last-failed.txt; run the fleet once first" >&2
+    if [ ! -f artifacts/latest/last-failed.txt ]; then
+        echo "FAIL: no artifacts/latest/last-failed.txt; run the fleet once first" >&2
         exit 2
     fi
     if [ -n "$ONLY_PATTERN" ]; then
@@ -138,7 +138,7 @@ suite_selected() {
     local base
     base="$(basename "$1")"
     if [ "${FAILED_ONLY:-0}" = "1" ]; then
-        grep -qxF "$base" artifacts/last-failed.txt 2>/dev/null
+        grep -qxF "$base" artifacts/latest/last-failed.txt 2>/dev/null
         return $?
     fi
     if [ -n "${ONLY_PATTERN:-}" ]; then
@@ -784,10 +784,13 @@ run_integration() {
 
 run_gateway() {
     echo "=== GATEWAY ENDPOINT SMOKE ==="
-    # Route JUnit XMLs into the shared report dir so CI uploads one artifact.
+    # Route JUnit XMLs into the run's junit/gateway/ dir so CI uploads one
+    # artifact and the count gate stays on gateway tests only.
     # endpoint_smoke.sh only uses the :junit suite variants when this is set.
     if [ "${REPORT_ENABLED:-1}" = "1" ] && [ -n "${REPORT_DIR:-}" ]; then
-        TEST_REPORT_DIR="${TEST_REPORT_DIR:-$REPORT_DIR}" tests/gateway/endpoint_smoke.sh
+        TEST_REPORT_DIR="${TEST_REPORT_DIR:-$REPORT_DIR/junit/gateway}"
+        mkdir -p "$TEST_REPORT_DIR" 2>/dev/null || true
+        TEST_REPORT_DIR="$TEST_REPORT_DIR" tests/gateway/endpoint_smoke.sh
     else
         tests/gateway/endpoint_smoke.sh
     fi
