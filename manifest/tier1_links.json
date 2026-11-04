@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-04T01:43:02.281Z",
-  "commit": "bf14ffd6",
+  "generatedAt": "2026-11-04T16:24:31.011Z",
+  "commit": "2bf61419",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 18,
@@ -4557,6 +4557,7 @@
       "t1Actions": [],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/treasury_position_db_tests.sh",
         "tests/cobol/cases/treasury_position.cases"
       ],
       "reason": "own domain tables only, no core link",

@@ -6,8 +6,8 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-04T01:43:02.281Z
-- Commit: `bf14ffd6`
+- Generated at: 2026-11-04T16:24:31.011Z
+- Commit: `2bf61419`
 
 | Level | Modules |
 | --- | ---: |
