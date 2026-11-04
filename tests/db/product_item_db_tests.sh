@@ -42,6 +42,17 @@ assert_match "PRDT_AUDIT ok" "$(run_cobol "PRDT_AUDIT|50|0||||admin@test.com")" 
 assert_match "PRDT_VALIDATE ok" "$(run_cobol "PRDT_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PRDT_VALID"
 assert_match "non-admin refused" "$(run_cobol "PRDT_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM product_item WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM product_item_audit WHERE product_item_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PRDT_UPDATE|${id}|ProductA|DEPOSIT|||admin@test.com")"
+assert_match "PRDT_UPDATE ok" "$upd_out" "SUCCESS\\|PRDT_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM product_item WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM product_item_audit WHERE product_item_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PRDT_UPDATE|999999|ProductA|DEPOSIT|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PRDT_UPDATE|${id}|ProductA|DEPOSIT|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

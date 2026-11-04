@@ -42,6 +42,17 @@ assert_match "PSH_AUDIT ok" "$(run_cobol "PSH_AUDIT|50|0||||admin@test.com")" "S
 assert_match "PSH_VALIDATE ok" "$(run_cobol "PSH_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|PSH_VALID"
 assert_match "non-admin refused" "$(run_cobol "PSH_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM push_notification WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM push_notification_audit WHERE push_notification_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "PSH_UPDATE|${id}|AppA|FCM|||admin@test.com")"
+assert_match "PSH_UPDATE ok" "$upd_out" "SUCCESS\\|PSH_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM push_notification WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM push_notification_audit WHERE push_notification_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "PSH_UPDATE|999999|AppA|FCM|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "PSH_UPDATE|${id}|AppA|FCM|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

@@ -42,6 +42,17 @@ assert_match "REC2_AUDIT ok" "$(run_cobol "REC2_AUDIT|50|0||||admin@test.com")" 
 assert_match "REC2_VALIDATE ok" "$(run_cobol "REC2_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|REC2_VALID"
 assert_match "non-admin refused" "$(run_cobol "REC2_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM receivable WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM receivable_audit WHERE receivable_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "REC2_UPDATE|${id}|ReceivableA|AR|||admin@test.com")"
+assert_match "REC2_UPDATE ok" "$upd_out" "SUCCESS\\|REC2_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM receivable WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM receivable_audit WHERE receivable_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "REC2_UPDATE|999999|ReceivableA|AR|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "REC2_UPDATE|${id}|ReceivableA|AR|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

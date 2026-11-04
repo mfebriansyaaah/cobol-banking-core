@@ -42,6 +42,17 @@ assert_match "RTM_AUDIT ok" "$(run_cobol "RTM_AUDIT|50|0||||admin@test.com")" "S
 assert_match "RTM_VALIDATE ok" "$(run_cobol "RTM_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|RTM_VALID"
 assert_match "non-admin refused" "$(run_cobol "RTM_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM rate_management WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM rate_management_audit WHERE rate_management_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "RTM_UPDATE|${id}|RateA|FIXED|||admin@test.com")"
+assert_match "RTM_UPDATE ok" "$upd_out" "SUCCESS\\|RTM_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM rate_management WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM rate_management_audit WHERE rate_management_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "RTM_UPDATE|999999|RateA|FIXED|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "RTM_UPDATE|${id}|RateA|FIXED|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
