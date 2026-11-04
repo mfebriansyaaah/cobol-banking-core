@@ -1,10 +1,19 @@
 # Ownership
 
-> R0 readiness branch 00A. Single owner today; second owners required for 9/10.
-> Review date: 2026-12-04 or when a second owner is named, whichever is first.
-> Exception accepted 2026-11-04, see “Formal exception” below.
+> Second owner named 2026-11-04: `@get-money-first`. Bus factor 1 closed for R0.
+> Exception cap 8.5 is lifted for ownership; review date 2026-12-04 stays for
+> onboarding proof.
 
 ## Current state (2026-11-04)
+
+| Critical path | Primary owner | Backup owner | Status |
+| --- | --- | --- | --- |
+| COBOL core (`cobol/`) | @mfebriansyaaah | @get-money-first | OK |
+| Gateway (`middleware/`) | @mfebriansyaaah | @get-money-first | OK |
+| Database / migrations (`database/`) | @mfebriansyaaah | @get-money-first | OK |
+| Tests / CI (`tests/`, `scripts/`, `.github/`) | @mfebriansyaaah | @get-money-first | OK |
+| Security (SAST, secrets, audit) | @mfebriansyaaah | @get-money-first | OK |
+| Docs (`docs/`) | @mfebriansyaaah | @get-money-first | OK |
 
 | Critical path | Primary owner | Backup owner | Status |
 | --- | --- | --- | --- |
@@ -28,7 +37,7 @@ ownership criterion. Until they are named:
 - Expiry: 2026-12-04. Revisit when a second owner joins or the repository
   becomes public.
 
-## Formal exception (accepted 2026-11-04)
+## Formal exception (accepted 2026-11-04, resolved 2026-11-04)
 
 - Reason: single maintainer; no second owner available yet.
 - Risk: bus factor 1; reviews depend on one person; money-path two-approval
@@ -40,6 +49,13 @@ ownership criterion. Until they are named:
 - Approver: `@mfebriansyaaah`.
 - Expiry: 2026-12-04. R0 criterion 7 stays Not met; 9/10 stays capped at 8.5
   until a second owner is named.
+
+## Resolution (2026-11-04)
+
+Second owner `@get-money-first` (verified via `gh api users/get-money-first`)
+added to every path in `.github/CODEOWNERS` and as backup in the table above.
+Ownership cap is lifted. Remaining step (T-044): onboarding tabletop with the
+second engineer; record it in the PR that closes T-044.
 
 ## Escalation
 

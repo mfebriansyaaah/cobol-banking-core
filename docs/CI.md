@@ -163,7 +163,7 @@ deliberately red PR that cannot merge.
 | 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
 | 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
 | 6 | Cost approved | Partial — estimate in this file, approval pending |
-| 7 | Named owners | Exception accepted 2026-11-04 — single owner, 9/10 capped at 8.5, expiry 2026-12-04; see `docs/OWNERSHIP.md`. R0 criterion stays Not met. |
+| 7 | Named owners | Met — `@get-money-first` added as backup on every path 2026-11-04; see `docs/OWNERSHIP.md` |
 | 8 | Executor independence | Partial — single-engineer execution; tabletop pending second engineer |
 | 9 | Communication ready | Met — this file + rollout above |
 | 10 | Day 0 preflight | Not met — full suite not run in R0 |
@@ -197,7 +197,7 @@ Approved by `@mfebriansyaaah` (repository owner):
 
 ### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
 
-R0 does **not** pass. Met: 1, 2, 3, 4, 5, 9, 11. Not met: 7, 10. Partial: 6, 8.
+R0 does **not** pass. Met: 1, 2, 3, 4, 5, 7, 9, 11. Not met: 10. Partial: 6, 8.
 Phase 0 must not start until the blockers below are closed.
 
 Proven 2026-11-04: run
@@ -208,10 +208,7 @@ triaged as G0/Phase 0, not billing).
 
 Blockers and owners:
 
-- Named owners (criterion 7) — owner must name second owners or accept the 8.5
-  cap with expiry 2026-12-04.
 - Day 0 preflight (criterion 10) — must run full suite and triage red suites.
-- Owner signatures (criterion 1) — done 2026-11-04, see above.
 - Cost approval (criterion 6), second-engineer tabletop (criterion 8) —
   partial, need dates and approvers.
 

@@ -1,15 +1,12 @@
-# R0 00A: single owner today; second owners required for 9/10.
-# See docs/OWNERSHIP.md. Bus factor 1 is a known gap; 9/10 capped at 8.5
-# until second owners are named (review 2026-12-04).
+# R0 00A: second owner named 2026-11-04; see docs/OWNERSHIP.md.
 # Default owner for every path.
-* @mfebriansyaaah
+* @mfebriansyaaah @get-money-first
 
 # Domain owners. Keep these aligned with the module classification.
-# TODO(ownership): add backup owner per path; see docs/OWNERSHIP.md.
-/cobol/ @mfebriansyaaah
-/middleware/ @mfebriansyaaah
-/database/ @mfebriansyaaah
-/tests/ @mfebriansyaaah
-/docs/ @mfebriansyaaah
-/scripts/ @mfebriansyaaah
-/.github/ @mfebriansyaaah
+/cobol/ @mfebriansyaaah @get-money-first
+/middleware/ @mfebriansyaaah @get-money-first
+/database/ @mfebriansyaaah @get-money-first
+/tests/ @mfebriansyaaah @get-money-first
+/docs/ @mfebriansyaaah @get-money-first
+/scripts/ @mfebriansyaaah @get-money-first
+/.github/ @mfebriansyaaah @get-money-first
