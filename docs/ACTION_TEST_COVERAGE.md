@@ -93,6 +93,14 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   coupled the block to suite order (first green run showed uniform 17/18
   with `expected ^2$, got 4`).
 
+- Batch 1, branch 08 (T-019, `test/testing-p1-03-update-remaining`): 28
+  domains (financial queue + general spillover) — shell-covered 2,200 →
+  2,228 (80.1%), baseline 580 → 552. Category-1 remaining: 196.
+  Generator fix in the same batch: audit FK is parsed from the COBOL
+  `INSERT INTO <table>_audit (...)` (cost_center uses `cc_id`), never
+  guessed; `--verify-db` pins the column. loan_schedule confirmed manual
+  queue (non-uniform LSC slots, no id capture).
+
 ## Domain groups
 
 - **Critical money path** (two approvals): wallet, auth, payments, treasury,
