@@ -94,8 +94,36 @@ mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" -e 
 }
 echo "privilege check OK (app: DML-only, migrate: DDL-capable)"
 
+echo "--- dropping existing objects for a clean rebuild (idempotent) ---"
+# schema.sql is written for fresh installs (IF NOT EXISTS creates, bare
+# CREATE INDEX): re-running it on a populated database fails. Drop every
+# table and view first; triggers go with their tables, and schema.sql
+# contains no bare CREATE PROCEDURE/FUNCTION. FK checks stay off for the
+# drops and the bulk load below, and are back on for migrations + seeds.
+mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" -N -B \
+    -e "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE';" \
+| while IFS= read -r t; do
+    [ -n "$t" ] || continue
+    mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" \
+        -e "SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS \`$t\`;" || exit 1
+done
+mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" -N -B \
+    -e "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'VIEW';" \
+| while IFS= read -r t; do
+    [ -n "$t" ] || continue
+    mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" \
+        -e "SET FOREIGN_KEY_CHECKS=0; DROP VIEW IF EXISTS \`$t\`;" || exit 1
+done
+
 echo "--- loading baseline schema + migrations ---"
-mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
+# Idempotent re-runs must survive existing tables: drop order in schema.sql
+# is not FK-safe, so suspend referential checks for the bulk load only.
+# Migrations and seeds run with checks on, exactly as before.
+{
+    echo "SET FOREIGN_KEY_CHECKS=0;"
+    cat database/schema.sql
+    echo "SET FOREIGN_KEY_CHECKS=1;"
+} | mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
 DB_NAME="$DB_NAME" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT" \
     DB_USER="$DB_USER" DB_PASS="$DB_PASS" \
     DB_MIGRATE_USER="$DB_MIGRATE_USER" DB_MIGRATE_PASS="$DB_MIGRATE_PASS" \

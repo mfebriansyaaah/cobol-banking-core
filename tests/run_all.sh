@@ -212,10 +212,17 @@ run_db_serial() {
     return 0
 }
 
-# Dump the template schema plus the migration ledger (which schema_tests
-# asserts on) for worker DB creation. Prints ONLY the dump path on stdout
-# (progress goes to stderr: callers capture stdout). Returns 1 with a
-# message when the template cannot be dumped.
+# Dump the template database WITH data for worker DB creation. The dump must
+# carry migration-seeded reference rows (gl_account chart, ref_type/value,
+# password_blocklist, ...) that suites and integration flows read but never
+# create: a schema-only dump plus a fresh seed silently drops them, so
+# isolated runs behaved differently from direct runs (T-051 found
+# trade_finance_lc_flow failing only under isolation). The template is
+# freshly provisioned and deterministic (schema + migrations + idempotent
+# seed; suites never touch it), so a full-data dump stays faithful.
+# Prints ONLY the dump path on stdout (progress goes to stderr: callers
+# capture stdout). Returns 1 with a message when the template cannot be
+# dumped.
 dump_template_schema() {
     local template="$1"
     if [ -z "${ISOLATED_DB_CREATED:-}" ]; then
@@ -232,22 +239,11 @@ dump_template_schema() {
     schema_dump="$(mktemp "${TMPDIR:-/tmp}/cobol-schema.XXXXXX.sql")" || return 1
     if ! mysqldump -h "${DB_HOST:-localhost}" -P "${DB_PORT:-3306}" \
         -u "${DB_MIGRATE_USER:-cobol_user}" -p"${DB_MIGRATE_PASS:-cobol_pass}" \
-        --no-data --routines --triggers --single-transaction \
+        --routines --triggers --single-transaction \
         "$template" >"$schema_dump" 2>/dev/null; then
-        echo "FAIL: cannot dump template schema from $template" >&2
+        echo "FAIL: cannot dump template database from $template" >&2
         rm -f "$schema_dump"
         return 1
-    fi
-    # Schema-only misses the migration ledger, which schema_tests asserts on.
-    # Append its rows (routines/triggers were already dumped above).
-    if mysql_admin -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$template' AND table_name='schema_migrations';" 2>/dev/null | grep -q '^[1-9]'; then
-        if ! mysqldump -h "${DB_HOST:-localhost}" -P "${DB_PORT:-3306}" \
-            -u "${DB_MIGRATE_USER:-cobol_user}" -p"${DB_MIGRATE_PASS:-cobol_pass}" \
-            --no-create-info --skip-triggers "$template" schema_migrations >>"$schema_dump" 2>/dev/null; then
-            echo "FAIL: cannot dump migration ledger from $template" >&2
-            rm -f "$schema_dump"
-            return 1
-        fi
     fi
     printf '%s' "$schema_dump"
 }
