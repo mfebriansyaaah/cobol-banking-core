@@ -1,6 +1,0 @@
-# Fidelity (Wave18) validation cases.
-FDL_CREATE missing ref@@ERROR\|INVALID_INPUT@@FDL_CREATE||||||admin@test.com
-FDL_GET missing id@@ERROR\|INVALID_INPUT@@FDL_GET||||||admin@test.com
-FDL_CALC missing id@@ERROR\|INVALID_INPUT@@FDL_CALC||||||admin@test.com
-FDL_DELETE missing id@@ERROR\|INVALID_INPUT@@FDL_DELETE||||||admin@test.com
-FDL_VALIDATE ok@@SUCCESS\|FDL_VALID@@FDL_VALIDATE|100.00|USD||||admin@test.com

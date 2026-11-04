@@ -1,3 +1,0 @@
-LBP_CREATE missing first param@@ERROR\|INVALID_INPUT@@LBP_CREATE||||||admin@test.com
-LBP_GET missing first param@@ERROR\|INVALID_INPUT@@LBP_GET||||||admin@test.com
-LBP_SUBMIT missing first param@@ERROR\|INVALID_INPUT@@LBP_SUBMIT||||||admin@test.com

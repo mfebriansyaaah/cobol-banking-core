@@ -1,6 +1,0 @@
-# Fund (Wave12) validation cases.
-FND_CREATE missing ref@@ERROR\|INVALID_INPUT@@FND_CREATE||||||admin@test.com
-FND_GET missing id@@ERROR\|INVALID_INPUT@@FND_GET||||||admin@test.com
-FND_CALC missing id@@ERROR\|INVALID_INPUT@@FND_CALC||||||admin@test.com
-FND_DELETE missing id@@ERROR\|INVALID_INPUT@@FND_DELETE||||||admin@test.com
-FND_VALIDATE ok@@SUCCESS\|FND_VALID@@FND_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Fill (Wave14) validation cases.
-FIL_CREATE missing ref@@ERROR\|INVALID_INPUT@@FIL_CREATE||||||admin@test.com
-FIL_GET missing id@@ERROR\|INVALID_INPUT@@FIL_GET||||||admin@test.com
-FIL_CALC missing id@@ERROR\|INVALID_INPUT@@FIL_CALC||||||admin@test.com
-FIL_DELETE missing id@@ERROR\|INVALID_INPUT@@FIL_DELETE||||||admin@test.com
-FIL_VALIDATE ok@@SUCCESS\|FIL_VALID@@FIL_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Digital Banking2 (Wave20) validation cases.
-DBNK_CREATE missing ref@@ERROR\|INVALID_INPUT@@DBNK_CREATE||||||admin@test.com
-DBNK_GET missing id@@ERROR\|INVALID_INPUT@@DBNK_GET||||||admin@test.com
-DBNK_CALC missing id@@ERROR\|INVALID_INPUT@@DBNK_CALC||||||admin@test.com
-DBNK_DELETE missing id@@ERROR\|INVALID_INPUT@@DBNK_DELETE||||||admin@test.com
-DBNK_VALIDATE ok@@SUCCESS\|DBNK_VALID@@DBNK_VALIDATE|100.00|USD||||admin@test.com

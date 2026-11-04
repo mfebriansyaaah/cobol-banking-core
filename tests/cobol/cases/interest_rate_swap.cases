@@ -1,6 +1,0 @@
-# Interest Rate Swap (Wave9) validation cases.
-IRS_CREATE missing ref@@ERROR\|INVALID_INPUT@@IRS_CREATE||||||admin@test.com
-IRS_GET missing id@@ERROR\|INVALID_INPUT@@IRS_GET||||||admin@test.com
-IRS_CALC missing id@@ERROR\|INVALID_INPUT@@IRS_CALC||||||admin@test.com
-IRS_DELETE missing id@@ERROR\|INVALID_INPUT@@IRS_DELETE||||||admin@test.com
-IRS_VALIDATE ok@@SUCCESS\|IRS_VALID@@IRS_VALIDATE|100.00|USD||||admin@test.com

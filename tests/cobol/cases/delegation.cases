@@ -1,6 +1,0 @@
-# Delegation (Wave17) validation cases.
-DLG_CREATE missing ref@@ERROR\|INVALID_INPUT@@DLG_CREATE||||||admin@test.com
-DLG_GET missing id@@ERROR\|INVALID_INPUT@@DLG_GET||||||admin@test.com
-DLG_CALC missing id@@ERROR\|INVALID_INPUT@@DLG_CALC||||||admin@test.com
-DLG_DELETE missing id@@ERROR\|INVALID_INPUT@@DLG_DELETE||||||admin@test.com
-DLG_VALIDATE ok@@SUCCESS\|DLG_VALID@@DLG_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Equity Account (Wave13) validation cases.
-EQT_CREATE missing ref@@ERROR\|INVALID_INPUT@@EQT_CREATE||||||admin@test.com
-EQT_GET missing id@@ERROR\|INVALID_INPUT@@EQT_GET||||||admin@test.com
-EQT_CALC missing id@@ERROR\|INVALID_INPUT@@EQT_CALC||||||admin@test.com
-EQT_DELETE missing id@@ERROR\|INVALID_INPUT@@EQT_DELETE||||||admin@test.com
-EQT_VALIDATE ok@@SUCCESS\|EQT_VALID@@EQT_VALIDATE|100.00|USD||||admin@test.com

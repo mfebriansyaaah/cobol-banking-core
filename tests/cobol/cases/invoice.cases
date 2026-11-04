@@ -1,6 +1,0 @@
-# Invoice (Wave10) validation cases.
-INVC_CREATE missing ref@@ERROR\|INVALID_INPUT@@INVC_CREATE||||||admin@test.com
-INVC_GET missing id@@ERROR\|INVALID_INPUT@@INVC_GET||||||admin@test.com
-INVC_CALC missing id@@ERROR\|INVALID_INPUT@@INVC_CALC||||||admin@test.com
-INVC_DELETE missing id@@ERROR\|INVALID_INPUT@@INVC_DELETE||||||admin@test.com
-INVC_VALIDATE ok@@SUCCESS\|INVC_VALID@@INVC_VALIDATE|100.00|USD||||admin@test.com

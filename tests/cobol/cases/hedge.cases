@@ -1,6 +1,0 @@
-# Hedge (Wave14) validation cases.
-HEDG_CREATE missing ref@@ERROR\|INVALID_INPUT@@HEDG_CREATE||||||admin@test.com
-HEDG_GET missing id@@ERROR\|INVALID_INPUT@@HEDG_GET||||||admin@test.com
-HEDG_CALC missing id@@ERROR\|INVALID_INPUT@@HEDG_CALC||||||admin@test.com
-HEDG_DELETE missing id@@ERROR\|INVALID_INPUT@@HEDG_DELETE||||||admin@test.com
-HEDG_VALIDATE ok@@SUCCESS\|HEDG_VALID@@HEDG_VALIDATE|100.00|USD||||admin@test.com

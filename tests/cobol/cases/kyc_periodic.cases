@@ -1,5 +1,0 @@
-# KYC periodic (D7) validation cases.
-KCP_CREATE missing ref@@ERROR\|INVALID_INPUT@@KCP_CREATE||||||admin@test.com
-KCP_GET missing id@@ERROR\|INVALID_INPUT@@KCP_GET||||||admin@test.com
-KCP_CLOSE missing id@@ERROR\|INVALID_INPUT@@KCP_CLOSE||||||admin@test.com
-KCP_VALIDATE ok@@SUCCESS\|KCP_VALID@@KCP_VALIDATE|100.00|USD||||admin@test.com

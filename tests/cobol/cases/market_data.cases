@@ -1,6 +1,0 @@
-# Market Data (Wave14) validation cases.
-MKD_CREATE missing ref@@ERROR\|INVALID_INPUT@@MKD_CREATE||||||admin@test.com
-MKD_GET missing id@@ERROR\|INVALID_INPUT@@MKD_GET||||||admin@test.com
-MKD_CALC missing id@@ERROR\|INVALID_INPUT@@MKD_CALC||||||admin@test.com
-MKD_DELETE missing id@@ERROR\|INVALID_INPUT@@MKD_DELETE||||||admin@test.com
-MKD_VALIDATE ok@@SUCCESS\|MKD_VALID@@MKD_VALIDATE|100.00|USD||||admin@test.com

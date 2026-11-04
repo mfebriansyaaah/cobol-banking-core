@@ -1,6 +1,0 @@
-# Finance Company (Wave20) validation cases.
-FCO_CREATE missing ref@@ERROR\|INVALID_INPUT@@FCO_CREATE||||||admin@test.com
-FCO_GET missing id@@ERROR\|INVALID_INPUT@@FCO_GET||||||admin@test.com
-FCO_CALC missing id@@ERROR\|INVALID_INPUT@@FCO_CALC||||||admin@test.com
-FCO_DELETE missing id@@ERROR\|INVALID_INPUT@@FCO_DELETE||||||admin@test.com
-FCO_VALIDATE ok@@SUCCESS\|FCO_VALID@@FCO_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Logging (Wave11) validation cases.
-LOG_CREATE missing ref@@ERROR\|INVALID_INPUT@@LOG_CREATE||||||admin@test.com
-LOG_GET missing id@@ERROR\|INVALID_INPUT@@LOG_GET||||||admin@test.com
-LOG_CALC missing id@@ERROR\|INVALID_INPUT@@LOG_CALC||||||admin@test.com
-LOG_DELETE missing id@@ERROR\|INVALID_INPUT@@LOG_DELETE||||||admin@test.com
-LOG_VALIDATE ok@@SUCCESS\|LOG_VALID@@LOG_VALIDATE|100.00|USD||||admin@test.com

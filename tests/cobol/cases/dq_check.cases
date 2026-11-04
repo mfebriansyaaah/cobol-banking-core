@@ -1,6 +1,0 @@
-# Dq Check (Wave10) validation cases.
-DQL_CREATE missing ref@@ERROR\|INVALID_INPUT@@DQL_CREATE||||||admin@test.com
-DQL_GET missing id@@ERROR\|INVALID_INPUT@@DQL_GET||||||admin@test.com
-DQL_CALC missing id@@ERROR\|INVALID_INPUT@@DQL_CALC||||||admin@test.com
-DQL_DELETE missing id@@ERROR\|INVALID_INPUT@@DQL_DELETE||||||admin@test.com
-DQL_VALIDATE ok@@SUCCESS\|DQL_VALID@@DQL_VALIDATE|100.00|USD||||admin@test.com

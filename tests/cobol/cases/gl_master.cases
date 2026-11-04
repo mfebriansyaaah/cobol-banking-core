@@ -1,6 +1,0 @@
-# Gl Master (Wave13) validation cases.
-GLM_CREATE missing ref@@ERROR\|INVALID_INPUT@@GLM_CREATE||||||admin@test.com
-GLM_GET missing id@@ERROR\|INVALID_INPUT@@GLM_GET||||||admin@test.com
-GLM_CALC missing id@@ERROR\|INVALID_INPUT@@GLM_CALC||||||admin@test.com
-GLM_DELETE missing id@@ERROR\|INVALID_INPUT@@GLM_DELETE||||||admin@test.com
-GLM_VALIDATE ok@@SUCCESS\|GLM_VALID@@GLM_VALIDATE|100.00|USD||||admin@test.com

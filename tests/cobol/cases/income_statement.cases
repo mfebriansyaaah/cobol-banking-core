@@ -1,6 +1,0 @@
-# Income Statement (Wave13) validation cases.
-IS_CREATE missing ref@@ERROR\|INVALID_INPUT@@IS_CREATE||||||admin@test.com
-IS_GET missing id@@ERROR\|INVALID_INPUT@@IS_GET||||||admin@test.com
-IS_CALC missing id@@ERROR\|INVALID_INPUT@@IS_CALC||||||admin@test.com
-IS_DELETE missing id@@ERROR\|INVALID_INPUT@@IS_DELETE||||||admin@test.com
-IS_VALIDATE ok@@SUCCESS\|IS_VALID@@IS_VALIDATE|100.00|USD||||admin@test.com

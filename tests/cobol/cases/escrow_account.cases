@@ -1,6 +1,0 @@
-# Escrow Account (Wave4) validation cases.
-ESC_CREATE missing ref@@ERROR\|INVALID_INPUT@@ESC_CREATE||||||admin@test.com
-ESC_GET missing id@@ERROR\|INVALID_INPUT@@ESC_GET||||||admin@test.com
-ESC_CALC missing id@@ERROR\|INVALID_INPUT@@ESC_CALC||||||admin@test.com
-ESC_DELETE missing id@@ERROR\|INVALID_INPUT@@ESC_DELETE||||||admin@test.com
-ESC_VALIDATE ok@@SUCCESS\|ESC_VALID@@ESC_VALIDATE|100.00|USD||||admin@test.com

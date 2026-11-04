@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T01:25:37.171Z",
+  "generatedAt": "2026-11-04T01:43:01.813Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -56,112 +56,13 @@
       "source": "dashboard_core.cob"
     },
     {
-      "source": "data_warehouse_core.cob"
-    },
-    {
-      "source": "deactivation_item_core.cob"
-    },
-    {
-      "source": "debit_card_core.cob"
-    },
-    {
-      "source": "debt_collection_core.cob"
-    },
-    {
-      "source": "debt_recovery_core.cob"
-    },
-    {
-      "source": "delegation_core.cob"
-    },
-    {
-      "source": "delivery_core.cob"
-    },
-    {
-      "source": "department_core.cob"
-    },
-    {
-      "source": "deployment_core.cob"
-    },
-    {
-      "source": "deposit_book_core.cob"
-    },
-    {
       "source": "deposit_core.cob"
-    },
-    {
-      "source": "derivative_core.cob"
-    },
-    {
-      "source": "development_core.cob"
-    },
-    {
-      "source": "device_management_core.cob"
-    },
-    {
-      "source": "digital_asset_core.cob"
-    },
-    {
-      "source": "digital_banking2_core.cob"
-    },
-    {
-      "source": "digital_banking_core.cob"
-    },
-    {
-      "source": "direct_debit_core.cob"
-    },
-    {
-      "source": "direct_lending_core.cob"
-    },
-    {
-      "source": "directors_liability_core.cob"
-    },
-    {
-      "source": "disaster_recovery_core.cob"
-    },
-    {
-      "source": "discount_item_core.cob"
     },
     {
       "source": "dispute_management_core.cob"
     },
     {
-      "source": "dispute_notify_core.cob"
-    },
-    {
-      "source": "dispute_ops_core.cob"
-    },
-    {
-      "source": "distressed_core.cob"
-    },
-    {
-      "source": "distribution_core.cob"
-    },
-    {
-      "source": "document_core.cob"
-    },
-    {
       "source": "documentary_credit_core.cob"
-    },
-    {
-      "source": "dq_check_core.cob"
-    },
-    {
-      "source": "dsar_core.cob"
-    },
-    {
-      "source": "elimination_core.cob"
-    },
-    {
-      "source": "email_core.cob"
-    },
-    {
-      "source": "employee_core.cob"
-    },
-    {
-      "source": "employer_liability_core.cob"
-    },
-    {
-      "source": "employment_practices_core.cob"
     },
     {
       "source": "eod_core.cob"
@@ -170,151 +71,16 @@
       "source": "eod_jobs_core.cob"
     },
     {
-      "source": "equity_account_core.cob"
-    },
-    {
-      "source": "equity_core.cob"
-    },
-    {
-      "source": "equity_swap_core.cob"
-    },
-    {
-      "source": "errors_omissions_core.cob"
-    },
-    {
-      "source": "escalation_core.cob"
-    },
-    {
-      "source": "escrow_account_core.cob"
-    },
-    {
-      "source": "etf_core.cob"
-    },
-    {
-      "source": "etl_core.cob"
-    },
-    {
-      "source": "event_bus_core.cob"
-    },
-    {
-      "source": "execution_core.cob"
-    },
-    {
-      "source": "expense_core.cob"
-    },
-    {
-      "source": "experiment_core.cob"
-    },
-    {
-      "source": "export_archive_core.cob"
-    },
-    {
       "source": "export_finance_core.cob"
-    },
-    {
-      "source": "export_stream_core.cob"
-    },
-    {
-      "source": "exposure_core.cob"
-    },
-    {
-      "source": "external_audit_core.cob"
-    },
-    {
-      "source": "factoring_company_core.cob"
     },
     {
       "source": "factoring_core.cob"
     },
     {
-      "source": "feature_flag_core.cob"
-    },
-    {
       "source": "fee_core.cob"
     },
     {
-      "source": "fee_item_core.cob"
-    },
-    {
-      "source": "fee_management_core.cob"
-    },
-    {
-      "source": "fee_waiver_core.cob"
-    },
-    {
-      "source": "fidelity_core.cob"
-    },
-    {
-      "source": "fiduciary_core.cob"
-    },
-    {
-      "source": "filing_core.cob"
-    },
-    {
-      "source": "fill_core.cob"
-    },
-    {
-      "source": "final_payment_core.cob"
-    },
-    {
-      "source": "finance_company_core.cob"
-    },
-    {
-      "source": "fire_insurance_core.cob"
-    },
-    {
       "source": "fixed_asset_core.cob"
-    },
-    {
-      "source": "fixed_deposit_core.cob"
-    },
-    {
-      "source": "forecast_core.cob"
-    },
-    {
-      "source": "forecast_mgmt_core.cob"
-    },
-    {
-      "source": "foreclosure_core.cob"
-    },
-    {
-      "source": "foreign_currency_deposit_core.cob"
-    },
-    {
-      "source": "fraud_case_core.cob"
-    },
-    {
-      "source": "fraud_check_core.cob"
-    },
-    {
-      "source": "fraud_ops_core.cob"
-    },
-    {
-      "source": "fulfillment_core.cob"
-    },
-    {
-      "source": "fund_core.cob"
-    },
-    {
-      "source": "future_contract_core.cob"
-    },
-    {
-      "source": "fx_deal_core.cob"
-    },
-    {
-      "source": "fx_forward_core.cob"
-    },
-    {
-      "source": "fx_hedging_core.cob"
-    },
-    {
-      "source": "fx_option_core.cob"
-    },
-    {
-      "source": "fx_swap_core.cob"
-    },
-    {
-      "source": "gift_card_core.cob"
     },
     {
       "source": "gl_allocation_core.cob"
@@ -323,49 +89,7 @@
       "source": "gl_core.cob"
     },
     {
-      "source": "gl_master_core.cob"
-    },
-    {
-      "source": "gl_period_close_core.cob"
-    },
-    {
-      "source": "gl_reval_core.cob"
-    },
-    {
-      "source": "greeks_core.cob"
-    },
-    {
-      "source": "guarantee_core.cob"
-    },
-    {
-      "source": "guarantee_issuing_core.cob"
-    },
-    {
       "source": "hashlen_core.cob"
-    },
-    {
-      "source": "health_check_core.cob"
-    },
-    {
-      "source": "health_insurance_core.cob"
-    },
-    {
-      "source": "hedge_core.cob"
-    },
-    {
-      "source": "hedge_fund_core.cob"
-    },
-    {
-      "source": "hire_purchase_core.cob"
-    },
-    {
-      "source": "home_insurance_core.cob"
-    },
-    {
-      "source": "hotfix_core.cob"
-    },
-    {
-      "source": "housing_finance_core.cob"
     },
     {
       "source": "import_core.cob"
@@ -380,145 +104,7 @@
       "source": "import_recon_core.cob"
     },
     {
-      "source": "in_app_message_core.cob"
-    },
-    {
-      "source": "incident_core.cob"
-    },
-    {
-      "source": "incident_mgmt_core.cob"
-    },
-    {
-      "source": "incident_postmortem_core.cob"
-    },
-    {
-      "source": "incident_report_core.cob"
-    },
-    {
-      "source": "income_statement_core.cob"
-    },
-    {
-      "source": "index_mgmt_core.cob"
-    },
-    {
-      "source": "indexing_core.cob"
-    },
-    {
-      "source": "infrastructure_core.cob"
-    },
-    {
-      "source": "insurance_policy_core.cob"
-    },
-    {
-      "source": "intercompany_core.cob"
-    },
-    {
-      "source": "interest_item_core.cob"
-    },
-    {
-      "source": "interest_rate_core.cob"
-    },
-    {
-      "source": "interest_rate_swap_core.cob"
-    },
-    {
-      "source": "internal_audit_core.cob"
-    },
-    {
-      "source": "internet_banking2_core.cob"
-    },
-    {
-      "source": "internet_banking_core.cob"
-    },
-    {
-      "source": "inventory_core.cob"
-    },
-    {
-      "source": "investigation_core.cob"
-    },
-    {
-      "source": "investment_banking_core.cob"
-    },
-    {
-      "source": "investment_core.cob"
-    },
-    {
-      "source": "invoice_core.cob"
-    },
-    {
-      "source": "invoice_discounting_core.cob"
-    },
-    {
-      "source": "invoice_financing_core.cob"
-    },
-    {
-      "source": "invoice_mgmt_core.cob"
-    },
-    {
-      "source": "journal_core.cob"
-    },
-    {
-      "source": "key_rotation_core.cob"
-    },
-    {
-      "source": "kidnap_ransom_core.cob"
-    },
-    {
-      "source": "kpi_core.cob"
-    },
-    {
-      "source": "kyc_check_core.cob"
-    },
-    {
-      "source": "kyc_periodic_core.cob"
-    },
-    {
-      "source": "kyc_review_core.cob"
-    },
-    {
-      "source": "lbpue_core.cob"
-    },
-    {
-      "source": "leasing_company_core.cob"
-    },
-    {
-      "source": "leasing_core.cob"
-    },
-    {
-      "source": "leave_management_core.cob"
-    },
-    {
-      "source": "legal_case_core.cob"
-    },
-    {
-      "source": "legal_hold_core.cob"
-    },
-    {
       "source": "letter_of_credit_core.cob"
-    },
-    {
-      "source": "letter_of_guarantee_core.cob"
-    },
-    {
-      "source": "liability_core.cob"
-    },
-    {
-      "source": "liability_insurance_core.cob"
-    },
-    {
-      "source": "license_core.cob"
-    },
-    {
-      "source": "life_insurance_core.cob"
-    },
-    {
-      "source": "limit_profile_core.cob"
-    },
-    {
-      "source": "load_balancer_core.cob"
-    },
-    {
-      "source": "loan_account_core.cob"
     },
     {
       "source": "loan_core.cob"
@@ -527,52 +113,16 @@
       "source": "loan_schedule_core.cob"
     },
     {
-      "source": "logging_core.cob"
-    },
-    {
-      "source": "login_attempt_core.cob"
-    },
-    {
-      "source": "logistics_core.cob"
-    },
-    {
-      "source": "loss_reserve_core.cob"
-    },
-    {
       "source": "loyalty_core.cob"
     },
     {
       "source": "loyalty_program_core.cob"
     },
     {
-      "source": "management_liability_core.cob"
-    },
-    {
-      "source": "margin_core.cob"
-    },
-    {
-      "source": "margin_trading_core.cob"
-    },
-    {
-      "source": "marine_insurance_core.cob"
-    },
-    {
-      "source": "mark_to_market_core.cob"
-    },
-    {
-      "source": "market_data_core.cob"
-    },
-    {
-      "source": "master_data_core.cob"
-    },
-    {
       "source": "merchant_core.cob"
     },
     {
       "source": "merchant_settlement_core.cob"
-    },
-    {
-      "source": "message_queue_core.cob"
     },
     {
       "source": "metric_core.cob"
@@ -1384,178 +934,27 @@
     "compliance_calendar.js",
     "cost_center.js",
     "dashboard.js",
-    "data_warehouse.js",
-    "deactivation_item.js",
-    "debit_card.js",
-    "debt_collection.js",
-    "debt_recovery.js",
-    "delegation.js",
-    "delivery.js",
-    "department.js",
-    "deployment.js",
     "deposit.js",
-    "deposit_book.js",
-    "derivative.js",
-    "development.js",
-    "device_management.js",
-    "digital_asset.js",
-    "digital_banking.js",
-    "digital_banking2.js",
-    "direct_debit.js",
-    "direct_lending.js",
-    "directors_liability.js",
-    "disaster_recovery.js",
-    "discount_item.js",
     "dispute_management.js",
-    "dispute_notify.js",
-    "dispute_ops.js",
-    "distressed.js",
-    "distribution.js",
-    "document.js",
     "documentary_credit.js",
-    "dq_check.js",
-    "dsar.js",
-    "elimination.js",
-    "email.js",
-    "employee.js",
-    "employer_liability.js",
-    "employment_practices.js",
     "eod.js",
     "eod_jobs.js",
-    "equity.js",
-    "equity_account.js",
-    "equity_swap.js",
-    "errors_omissions.js",
-    "escalation.js",
-    "escrow_account.js",
-    "etf.js",
-    "etl.js",
-    "event_bus.js",
-    "execution.js",
-    "expense.js",
-    "experiment.js",
-    "export_archive.js",
     "export_finance.js",
-    "export_stream.js",
-    "exposure.js",
-    "external_audit.js",
     "factoring.js",
-    "factoring_company.js",
-    "feature_flag.js",
     "fee.js",
-    "fee_item.js",
-    "fee_management.js",
-    "fee_waiver.js",
-    "fidelity.js",
-    "fiduciary.js",
-    "filing.js",
-    "fill.js",
-    "final_payment.js",
-    "finance_company.js",
-    "fire_insurance.js",
     "fixed_asset.js",
-    "fixed_deposit.js",
-    "forecast.js",
-    "forecast_mgmt.js",
-    "foreclosure.js",
-    "foreign_currency_deposit.js",
-    "fraud_case.js",
-    "fraud_check.js",
-    "fraud_ops.js",
-    "fulfillment.js",
-    "fund.js",
-    "future_contract.js",
-    "fx_deal.js",
-    "fx_forward.js",
-    "fx_hedging.js",
-    "fx_option.js",
-    "fx_swap.js",
-    "gift_card.js",
     "gl.js",
     "gl_allocation.js",
-    "gl_master.js",
-    "gl_period_close.js",
-    "gl_reval.js",
-    "greeks.js",
-    "guarantee.js",
-    "guarantee_issuing.js",
-    "health_check.js",
-    "health_insurance.js",
-    "hedge.js",
-    "hedge_fund.js",
-    "hire_purchase.js",
-    "home_insurance.js",
-    "hotfix.js",
-    "housing_finance.js",
     "import.js",
     "import_finance.js",
     "import_recon.js",
-    "in_app_message.js",
-    "incident.js",
-    "incident_mgmt.js",
-    "incident_postmortem.js",
-    "incident_report.js",
-    "income_statement.js",
-    "index_mgmt.js",
-    "indexing.js",
-    "infrastructure.js",
-    "insurance_policy.js",
-    "intercompany.js",
-    "interest_item.js",
-    "interest_rate.js",
-    "interest_rate_swap.js",
-    "internal_audit.js",
-    "internet_banking.js",
-    "internet_banking2.js",
-    "inventory.js",
-    "investigation.js",
-    "investment.js",
-    "investment_banking.js",
-    "invoice.js",
-    "invoice_discounting.js",
-    "invoice_financing.js",
-    "invoice_mgmt.js",
-    "journal.js",
-    "key_rotation.js",
-    "kidnap_ransom.js",
-    "kpi.js",
-    "kyc.js",
-    "kyc_check.js",
-    "kyc_periodic.js",
-    "kyc_review.js",
-    "lbpue.js",
-    "leasing.js",
-    "leasing_company.js",
-    "leave_management.js",
-    "legal_case.js",
-    "legal_hold.js",
     "letter_of_credit.js",
-    "letter_of_guarantee.js",
-    "liability.js",
-    "liability_insurance.js",
-    "license.js",
-    "life_insurance.js",
-    "limit_profile.js",
-    "load_balancer.js",
     "loan.js",
-    "loan_account.js",
     "loan_schedule.js",
-    "logging.js",
-    "login_attempt.js",
-    "logistics.js",
-    "loss_reserve.js",
     "loyalty.js",
     "loyalty_program.js",
-    "management_liability.js",
-    "margin.js",
-    "margin_trading.js",
-    "marine_insurance.js",
-    "mark_to_market.js",
-    "market_data.js",
-    "master_data.js",
     "merchant.js",
     "merchant_settlement.js",
-    "message_queue.js",
     "metric.js",
     "metric_definition.js",
     "metrics.js",
@@ -2272,26 +1671,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "DOC_",
-      "program": "document_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FRC_",
-      "program": "fraud_case_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "IRT_",
-      "program": "interest_rate_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "IPM_",
-      "program": "incident_postmortem_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "RPB_",
       "program": "report_builder_core"
     },
@@ -2322,28 +1701,13 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "EXP_",
-      "program": "export_archive_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "SCL_",
       "program": "sanctions_list_core"
     },
     {
       "prefixLen": 4,
-      "prefix": "LBP_",
-      "program": "lbpue_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "FEE_",
       "program": "fee_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DSN_",
-      "program": "dispute_notify_core"
     },
     {
       "prefixLen": 4,
@@ -2357,11 +1721,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "KCP_",
-      "program": "kyc_periodic_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "RSK_",
       "program": "risk_screening_core"
     },
@@ -2369,11 +1728,6 @@
       "prefixLen": 4,
       "prefix": "STL_",
       "program": "statement_delivery_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "GRL_",
-      "program": "gl_reval_core"
     },
     {
       "prefixLen": 4,
@@ -2387,18 +1741,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "DSP_",
-      "program": "dispute_ops_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "EOD_",
       "program": "eod_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "KYC_",
-      "program": "kyc_review_core"
     },
     {
       "prefixLen": 4,
@@ -2409,11 +1753,6 @@
       "prefixLen": 4,
       "prefix": "TAX_",
       "program": "tax_report_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FXH_",
-      "program": "fx_hedging_core"
     },
     {
       "prefixLen": 4,
@@ -2434,11 +1773,6 @@
       "prefixLen": 4,
       "prefix": "PAL_",
       "program": "pipeline_alert_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FWV_",
-      "program": "fee_waiver_core"
     },
     {
       "prefixLen": 4,
@@ -2467,38 +1801,13 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "FOP_",
-      "program": "fraud_ops_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "TRP_",
       "program": "treasury_position_core"
     },
     {
       "prefixLen": 4,
-      "prefix": "GPC_",
-      "program": "gl_period_close_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "SLA_",
       "program": "sla_tracking_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "INC_",
-      "program": "incident_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "XST_",
-      "program": "export_stream_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DSR_",
-      "program": "dsar_core"
     },
     {
       "prefixLen": 4,
@@ -2509,11 +1818,6 @@
       "prefixLen": 4,
       "prefix": "FAS_",
       "program": "fixed_asset_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "LHO_",
-      "program": "legal_hold_core"
     },
     {
       "prefixLen": 4,
@@ -2542,11 +1846,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "KRO_",
-      "program": "key_rotation_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "STO_",
       "program": "standing_order_core"
     },
@@ -2564,11 +1863,6 @@
       "prefixLen": 4,
       "prefix": "VEL_",
       "program": "fee_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DCR_",
-      "program": "disaster_recovery_core"
     },
     {
       "prefixLen": 4,
@@ -2594,11 +1888,6 @@
       "prefixLen": 4,
       "prefix": "STR_",
       "program": "settlement_recon_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FXD_",
-      "program": "fx_deal_core"
     },
     {
       "prefixLen": 4,
@@ -2657,11 +1946,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "LPR_",
-      "program": "limit_profile_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "RCL_",
       "program": "regulatory_calendar_core"
     },
@@ -2699,11 +1983,6 @@
       "prefixLen": 4,
       "prefix": "SIN_",
       "program": "standing_instruction_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DDB_",
-      "program": "direct_debit_core"
     },
     {
       "prefixLen": 4,
@@ -2747,11 +2026,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "IVC_",
-      "program": "invoice_financing_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "SCF_",
       "program": "supply_chain_finance_core"
     },
@@ -2764,16 +2038,6 @@
       "prefixLen": 4,
       "prefix": "WLM_",
       "program": "wealth_management_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "ESC_",
-      "program": "escrow_account_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DBC_",
-      "program": "debit_card_core"
     },
     {
       "prefixLen": 4,
@@ -2792,23 +2056,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "DGB_",
-      "program": "digital_banking_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "INB_",
-      "program": "internet_banking_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "RTM_",
       "program": "rate_management_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FMM_",
-      "program": "fee_management_core"
     },
     {
       "prefixLen": 4,
@@ -2839,11 +2088,6 @@
       "prefixLen": 4,
       "prefix": "ORG_",
       "program": "organization_unit_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DAS_",
-      "program": "digital_asset_core"
     },
     {
       "prefixLen": 4,
@@ -2902,11 +2146,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "FTC_",
-      "program": "future_contract_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "OPT_",
       "program": "option_trading_core"
     },
@@ -2922,11 +2161,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "MGT_",
-      "program": "margin_trading_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "STP_",
       "program": "structured_product_core"
     },
@@ -2934,11 +2168,6 @@
       "prefixLen": 4,
       "prefix": "SYL_",
       "program": "syndicated_loan_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "ISP_",
-      "program": "insurance_policy_core"
     },
     {
       "prefixLen": 4,
@@ -2952,33 +2181,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "GIN_",
-      "program": "guarantee_issuing_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DCL_",
-      "program": "debt_collection_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DRC_",
-      "program": "debt_recovery_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "LGC_",
-      "program": "legal_case_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "CRP_",
       "program": "collateral_repossession_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FCL_",
-      "program": "foreclosure_core"
     },
     {
       "prefixLen": 4,
@@ -2992,11 +2196,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "LSR_",
-      "program": "loss_reserve_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "RSM_",
       "program": "risk_model_core"
     },
@@ -3007,28 +2206,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "INA_",
-      "program": "internal_audit_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EXA_",
-      "program": "external_audit_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "INV_",
-      "program": "investigation_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "WHB_",
       "program": "whistleblowing_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "INR_",
-      "program": "incident_report_core"
     },
     {
       "prefixLen": 4,
@@ -3062,11 +2241,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "GFC_",
-      "program": "gift_card_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PPC_",
       "program": "prepaid_card_core"
     },
@@ -3084,11 +2258,6 @@
       "prefixLen": 4,
       "prefix": "QRP_",
       "program": "qr_payment_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DVM_",
-      "program": "device_management_core"
     },
     {
       "prefixLen": 4,
@@ -3114,11 +2283,6 @@
       "prefixLen": 4,
       "prefix": "PWP_",
       "program": "password_policy_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "LGA_",
-      "program": "login_attempt_core"
     },
     {
       "prefixLen": 4,
@@ -3172,18 +2336,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "FDP_",
-      "program": "fixed_deposit_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "NDP_",
       "program": "notice_deposit_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FCD_",
-      "program": "foreign_currency_deposit_core"
     },
     {
       "prefixLen": 4,
@@ -3192,33 +2346,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "FXF_",
-      "program": "fx_forward_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FXO_",
-      "program": "fx_option_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FXS_",
-      "program": "fx_swap_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "IRS_",
-      "program": "interest_rate_swap_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "TRS_",
       "program": "total_return_swap_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EQS_",
-      "program": "equity_swap_core"
     },
     {
       "prefixLen": 4,
@@ -3232,11 +2361,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "GRK_",
-      "program": "greeks_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PRG_",
       "program": "pricing_core"
     },
@@ -3244,11 +2368,6 @@
       "prefixLen": 4,
       "prefix": "VAL_",
       "program": "valuation_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "MTM_",
-      "program": "mark_to_market_core"
     },
     {
       "prefixLen": 4,
@@ -3267,28 +2386,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "MRG_",
-      "program": "margin_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EMP_",
-      "program": "employee_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DPT_",
-      "program": "department_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "POS_",
       "program": "position_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "LEA_",
-      "program": "leave_management_core"
     },
     {
       "prefixLen": 4,
@@ -3326,11 +2425,6 @@
       "program": "tax_withholding_core"
     },
     {
-      "prefixLen": 5,
-      "prefix": "INVC_",
-      "program": "invoice_core"
-    },
-    {
       "prefixLen": 4,
       "prefix": "SUB_",
       "program": "subscription_core"
@@ -3339,11 +2433,6 @@
       "prefixLen": 4,
       "prefix": "SLV_",
       "program": "sla_management_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "KPI_",
-      "program": "kpi_core"
     },
     {
       "prefixLen": 4,
@@ -3357,31 +2446,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "DWH_",
-      "program": "data_warehouse_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "ETL_",
-      "program": "etl_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DQL_",
-      "program": "dq_check_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "MDM_",
-      "program": "master_data_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EML_",
-      "program": "email_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "SMS_",
       "program": "sms_core"
     },
@@ -3392,23 +2456,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "IAM_",
-      "program": "in_app_message_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "WHK_",
       "program": "webhook_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "MQQ_",
-      "program": "message_queue_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EVB_",
-      "program": "event_bus_core"
     },
     {
       "prefixLen": 4,
@@ -3417,23 +2466,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "LDB_",
-      "program": "load_balancer_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "SSS_",
       "program": "session_store_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FFL_",
-      "program": "feature_flag_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "XPR_",
-      "program": "experiment_core"
     },
     {
       "prefixLen": 4,
@@ -3452,16 +2486,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "IDX_",
-      "program": "indexing_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "LOG_",
-      "program": "logging_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "MON_",
       "program": "monitoring_core"
     },
@@ -3477,11 +2501,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "HLC_",
-      "program": "health_check_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "RTL_",
       "program": "rate_limiter_core"
     },
@@ -3494,16 +2513,6 @@
       "prefixLen": 4,
       "prefix": "TMO_",
       "program": "timeout_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EQY_",
-      "program": "equity_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DRV_",
-      "program": "derivative_core"
     },
     {
       "prefixLen": 4,
@@ -3552,23 +2561,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "FND_",
-      "program": "fund_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "ETF_",
-      "program": "etf_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "MFD_",
       "program": "mutual_fund_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "HDF_",
-      "program": "hedge_fund_core"
     },
     {
       "prefixLen": 4,
@@ -3587,28 +2581,13 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "INF_",
-      "program": "infrastructure_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PDB_",
       "program": "private_debt_core"
     },
     {
       "prefixLen": 4,
-      "prefix": "DLL_",
-      "program": "direct_lending_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "MEZ_",
       "program": "mezzanine_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DIS_",
-      "program": "distressed_core"
     },
     {
       "prefixLen": 4,
@@ -3622,18 +2601,8 @@
     },
     {
       "prefixLen": 5,
-      "prefix": "KYCC_",
-      "program": "kyc_check_core"
-    },
-    {
-      "prefixLen": 5,
       "prefix": "SNCS_",
       "program": "sanctions_check_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "FRDU_",
-      "program": "fraud_check_core"
     },
     {
       "prefixLen": 4,
@@ -3681,44 +2650,14 @@
       "program": "suspense_core"
     },
     {
-      "prefixLen": 4,
-      "prefix": "GLM_",
-      "program": "gl_master_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "JRN_",
-      "program": "journal_core"
-    },
-    {
       "prefixLen": 3,
       "prefix": "TB_",
       "program": "trial_balance_core"
     },
     {
-      "prefixLen": 3,
-      "prefix": "IS_",
-      "program": "income_statement_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EQT_",
-      "program": "equity_account_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "LIA_",
-      "program": "liability_core"
-    },
-    {
       "prefixLen": 4,
       "prefix": "RSV_",
       "program": "reserve_core"
-    },
-    {
-      "prefixLen": 6,
-      "prefix": "FRCST_",
-      "program": "forecast_core"
     },
     {
       "prefixLen": 5,
@@ -3742,21 +2681,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "DST_",
-      "program": "distribution_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "ELM_",
-      "program": "elimination_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "ICP_",
-      "program": "intercompany_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "TPR_",
       "program": "transfer_pricing_core"
     },
@@ -3764,11 +2688,6 @@
       "prefixLen": 3,
       "prefix": "PC_",
       "program": "profit_center_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "INVS_",
-      "program": "investment_core"
     },
     {
       "prefixLen": 4,
@@ -3779,16 +2698,6 @@
       "prefixLen": 4,
       "prefix": "RBL_",
       "program": "rebalancing_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "IDXX_",
-      "program": "index_mgmt_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "MKD_",
-      "program": "market_data_core"
     },
     {
       "prefixLen": 3,
@@ -3806,29 +2715,9 @@
       "program": "order_mgmt_core"
     },
     {
-      "prefixLen": 4,
-      "prefix": "EXE_",
-      "program": "execution_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FIL_",
-      "program": "fill_core"
-    },
-    {
       "prefixLen": 5,
       "prefix": "PSTN_",
       "program": "position_mgmt_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "EXPS_",
-      "program": "exposure_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "HEDG_",
-      "program": "hedge_core"
     },
     {
       "prefixLen": 4,
@@ -3857,11 +2746,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "LIC_",
-      "program": "license_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PRM_",
       "program": "permit_core"
     },
@@ -3872,33 +2756,13 @@
     },
     {
       "prefixLen": 5,
-      "prefix": "FIL2_",
-      "program": "filing_core"
-    },
-    {
-      "prefixLen": 5,
       "prefix": "SUB2_",
       "program": "submission_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DLG_",
-      "program": "delegation_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "ESCL_",
-      "program": "escalation_core"
     },
     {
       "prefixLen": 5,
       "prefix": "NTFC_",
       "program": "notification_mgmt_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "INCD_",
-      "program": "incident_mgmt_core"
     },
     {
       "prefixLen": 4,
@@ -3911,19 +2775,9 @@
       "program": "release_mgmt_core"
     },
     {
-      "prefixLen": 5,
-      "prefix": "DEP2_",
-      "program": "deployment_core"
-    },
-    {
       "prefixLen": 4,
       "prefix": "ROL_",
       "program": "rollback_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "HFX_",
-      "program": "hotfix_core"
     },
     {
       "prefixLen": 4,
@@ -3942,23 +2796,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "LIF_",
-      "program": "life_insurance_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "HLT_",
-      "program": "health_insurance_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PTY_",
       "program": "property_insurance_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "HOM_",
-      "program": "home_insurance_core"
     },
     {
       "prefixLen": 4,
@@ -3967,33 +2806,13 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "MRN_",
-      "program": "marine_insurance_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FIR_",
-      "program": "fire_insurance_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "THF_",
       "program": "theft_insurance_core"
     },
     {
       "prefixLen": 4,
-      "prefix": "LIB_",
-      "program": "liability_insurance_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PIN_",
       "program": "professional_indemnity_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DOL_",
-      "program": "directors_liability_core"
     },
     {
       "prefixLen": 4,
@@ -4004,16 +2823,6 @@
       "prefixLen": 4,
       "prefix": "PUL_",
       "program": "public_liability_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "EMLI_",
-      "program": "employer_liability_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "KNR_",
-      "program": "kidnap_ransom_core"
     },
     {
       "prefixLen": 4,
@@ -4027,38 +2836,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "GUA_",
-      "program": "guarantee_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FDL_",
-      "program": "fidelity_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EAO_",
-      "program": "errors_omissions_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PRK_",
       "program": "professional_risk_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "MNL_",
-      "program": "management_liability_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "EPL_",
-      "program": "employment_practices_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FID_",
-      "program": "fiduciary_core"
     },
     {
       "prefixLen": 4,
@@ -4081,11 +2860,6 @@
       "program": "purchasing_core"
     },
     {
-      "prefixLen": 5,
-      "prefix": "INV2_",
-      "program": "inventory_core"
-    },
-    {
       "prefixLen": 4,
       "prefix": "STK_",
       "program": "stock_core"
@@ -4096,19 +2870,9 @@
       "program": "warehouse_core"
     },
     {
-      "prefixLen": 5,
-      "prefix": "LOG2_",
-      "program": "logistics_core"
-    },
-    {
       "prefixLen": 4,
       "prefix": "SHP_",
       "program": "shipping_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DLV_",
-      "program": "delivery_core"
     },
     {
       "prefixLen": 4,
@@ -4116,19 +2880,9 @@
       "program": "tracking_core"
     },
     {
-      "prefixLen": 4,
-      "prefix": "FLF_",
-      "program": "fulfillment_core"
-    },
-    {
       "prefixLen": 5,
       "prefix": "ORD2_",
       "program": "order_mgmt2_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "INVM_",
-      "program": "invoice_mgmt_core"
     },
     {
       "prefixLen": 5,
@@ -4147,16 +2901,6 @@
     },
     {
       "prefixLen": 5,
-      "prefix": "EXP2_",
-      "program": "expense_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "FCM_",
-      "program": "forecast_mgmt_core"
-    },
-    {
-      "prefixLen": 5,
       "prefix": "PLN2_",
       "program": "planning_core"
     },
@@ -4169,11 +2913,6 @@
       "prefixLen": 4,
       "prefix": "RSH_",
       "program": "research_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "DEV_",
-      "program": "development_core"
     },
     {
       "prefixLen": 4,
@@ -4191,11 +2930,6 @@
       "program": "retail_banking_core"
     },
     {
-      "prefixLen": 4,
-      "prefix": "IVB_",
-      "program": "investment_banking_core"
-    },
-    {
       "prefixLen": 5,
       "prefix": "PRVB_",
       "program": "private_banking_core"
@@ -4206,19 +2940,9 @@
       "program": "wholesale_banking_core"
     },
     {
-      "prefixLen": 5,
-      "prefix": "DBNK_",
-      "program": "digital_banking2_core"
-    },
-    {
       "prefixLen": 4,
       "prefix": "MBK_",
       "program": "mobile_banking_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "IBNK_",
-      "program": "internet_banking2_core"
     },
     {
       "prefixLen": 4,
@@ -4232,28 +2956,8 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "FCO_",
-      "program": "finance_company_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "LCO_",
-      "program": "leasing_company_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "FCOM_",
-      "program": "factoring_company_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "MTB_",
       "program": "mortgage_bank_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "HFC_",
-      "program": "housing_finance_core"
     },
     {
       "prefixLen": 4,
@@ -4292,16 +2996,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "LSG_",
-      "program": "leasing_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "HPR_",
-      "program": "hire_purchase_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "PWN_",
       "program": "pawn_core"
     },
@@ -4314,11 +3008,6 @@
       "prefixLen": 4,
       "prefix": "P2P_",
       "program": "peer_to_peer_core"
-    },
-    {
-      "prefixLen": 4,
-      "prefix": "IND_",
-      "program": "invoice_discounting_core"
     },
     {
       "prefixLen": 5,
@@ -4356,11 +3045,6 @@
       "program": "promissory_note_core"
     },
     {
-      "prefixLen": 5,
-      "prefix": "LOGG_",
-      "program": "letter_of_guarantee_core"
-    },
-    {
       "prefixLen": 4,
       "prefix": "PBD_",
       "program": "performance_bond_core"
@@ -4377,11 +3061,6 @@
     },
     {
       "prefixLen": 4,
-      "prefix": "FNP_",
-      "program": "final_payment_core"
-    },
-    {
-      "prefixLen": 4,
       "prefix": "WRT_",
       "program": "warranty_core"
     },
@@ -4389,16 +3068,6 @@
       "prefixLen": 5,
       "prefix": "PRDT_",
       "program": "product_item_core"
-    },
-    {
-      "prefixLen": 3,
-      "prefix": "LN_",
-      "program": "loan_account_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "DEPS_",
-      "program": "deposit_book_core"
     },
     {
       "prefixLen": 5,
@@ -4422,16 +3091,6 @@
     },
     {
       "prefixLen": 5,
-      "prefix": "INTR_",
-      "program": "interest_item_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "FEES_",
-      "program": "fee_item_core"
-    },
-    {
-      "prefixLen": 5,
       "prefix": "PENL_",
       "program": "penalty_item_core"
     },
@@ -4439,11 +3098,6 @@
       "prefixLen": 5,
       "prefix": "TAXS_",
       "program": "tax_item_core"
-    },
-    {
-      "prefixLen": 5,
-      "prefix": "DISC_",
-      "program": "discount_item_core"
     },
     {
       "prefixLen": 4,
@@ -4469,11 +3123,6 @@
       "prefixLen": 5,
       "prefix": "TERM_",
       "program": "termination_item_core"
-    },
-    {
-      "prefixLen": 6,
-      "prefix": "DEACT_",
-      "program": "deactivation_item_core"
     },
     {
       "prefixLen": 5,

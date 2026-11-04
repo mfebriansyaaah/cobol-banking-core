@@ -1,6 +1,0 @@
-# Guarantee Issuing (Wave7) validation cases.
-GIN_CREATE missing ref@@ERROR\|INVALID_INPUT@@GIN_CREATE||||||admin@test.com
-GIN_GET missing id@@ERROR\|INVALID_INPUT@@GIN_GET||||||admin@test.com
-GIN_CALC missing id@@ERROR\|INVALID_INPUT@@GIN_CALC||||||admin@test.com
-GIN_DELETE missing id@@ERROR\|INVALID_INPUT@@GIN_DELETE||||||admin@test.com
-GIN_VALIDATE ok@@SUCCESS\|GIN_VALID@@GIN_VALIDATE|100.00|USD||||admin@test.com

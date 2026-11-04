@@ -1,6 +1,0 @@
-# Debit Card (Wave5) validation cases.
-DBC_CREATE missing ref@@ERROR\|INVALID_INPUT@@DBC_CREATE||||||admin@test.com
-DBC_GET missing id@@ERROR\|INVALID_INPUT@@DBC_GET||||||admin@test.com
-DBC_CALC missing id@@ERROR\|INVALID_INPUT@@DBC_CALC||||||admin@test.com
-DBC_DELETE missing id@@ERROR\|INVALID_INPUT@@DBC_DELETE||||||admin@test.com
-DBC_VALIDATE ok@@SUCCESS\|DBC_VALID@@DBC_VALIDATE|100.00|USD||||admin@test.com

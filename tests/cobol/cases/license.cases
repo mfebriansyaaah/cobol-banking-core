@@ -1,6 +1,0 @@
-# License (Wave17) validation cases.
-LIC_CREATE missing ref@@ERROR\|INVALID_INPUT@@LIC_CREATE||||||admin@test.com
-LIC_GET missing id@@ERROR\|INVALID_INPUT@@LIC_GET||||||admin@test.com
-LIC_CALC missing id@@ERROR\|INVALID_INPUT@@LIC_CALC||||||admin@test.com
-LIC_DELETE missing id@@ERROR\|INVALID_INPUT@@LIC_DELETE||||||admin@test.com
-LIC_VALIDATE ok@@SUCCESS\|LIC_VALID@@LIC_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Deployment (Wave17) validation cases.
-DEP2_CREATE missing ref@@ERROR\|INVALID_INPUT@@DEP2_CREATE||||||admin@test.com
-DEP2_GET missing id@@ERROR\|INVALID_INPUT@@DEP2_GET||||||admin@test.com
-DEP2_CALC missing id@@ERROR\|INVALID_INPUT@@DEP2_CALC||||||admin@test.com
-DEP2_DELETE missing id@@ERROR\|INVALID_INPUT@@DEP2_DELETE||||||admin@test.com
-DEP2_VALIDATE ok@@SUCCESS\|DEP2_VALID@@DEP2_VALIDATE|100.00|USD||||admin@test.com

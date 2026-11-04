@@ -1,6 +1,0 @@
-# Master Data (Wave10) validation cases.
-MDM_CREATE missing ref@@ERROR\|INVALID_INPUT@@MDM_CREATE||||||admin@test.com
-MDM_GET missing id@@ERROR\|INVALID_INPUT@@MDM_GET||||||admin@test.com
-MDM_CALC missing id@@ERROR\|INVALID_INPUT@@MDM_CALC||||||admin@test.com
-MDM_DELETE missing id@@ERROR\|INVALID_INPUT@@MDM_DELETE||||||admin@test.com
-MDM_VALIDATE ok@@SUCCESS\|MDM_VALID@@MDM_VALIDATE|100.00|USD||||admin@test.com

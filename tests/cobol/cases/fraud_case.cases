@@ -1,6 +1,0 @@
-# Fraud case (D13) validation cases.
-FRC_CREATE missing ref@@ERROR\|INVALID_INPUT@@FRC_CREATE||||||admin@test.com
-FRC_GET missing id@@ERROR\|INVALID_INPUT@@FRC_GET||||||admin@test.com
-FRC_SCREEN missing id@@ERROR\|INVALID_INPUT@@FRC_SCREEN||||||admin@test.com
-FRC_CLOSE missing id@@ERROR\|INVALID_INPUT@@FRC_CLOSE||||||admin@test.com
-FRC_VALIDATE ok@@SUCCESS\|FRC_VALID@@FRC_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# External Audit (Wave7) validation cases.
-EXA_CREATE missing ref@@ERROR\|INVALID_INPUT@@EXA_CREATE||||||admin@test.com
-EXA_GET missing id@@ERROR\|INVALID_INPUT@@EXA_GET||||||admin@test.com
-EXA_CALC missing id@@ERROR\|INVALID_INPUT@@EXA_CALC||||||admin@test.com
-EXA_DELETE missing id@@ERROR\|INVALID_INPUT@@EXA_DELETE||||||admin@test.com
-EXA_VALIDATE ok@@SUCCESS\|EXA_VALID@@EXA_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Investigation (Wave7) validation cases.
-INV_CREATE missing ref@@ERROR\|INVALID_INPUT@@INV_CREATE||||||admin@test.com
-INV_GET missing id@@ERROR\|INVALID_INPUT@@INV_GET||||||admin@test.com
-INV_CALC missing id@@ERROR\|INVALID_INPUT@@INV_CALC||||||admin@test.com
-INV_DELETE missing id@@ERROR\|INVALID_INPUT@@INV_DELETE||||||admin@test.com
-INV_VALIDATE ok@@SUCCESS\|INV_VALID@@INV_VALIDATE|100.00|USD||||admin@test.com

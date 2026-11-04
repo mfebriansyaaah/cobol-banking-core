@@ -1,6 +1,0 @@
-# Health Insurance (Wave18) validation cases.
-HLT_CREATE missing ref@@ERROR\|INVALID_INPUT@@HLT_CREATE||||||admin@test.com
-HLT_GET missing id@@ERROR\|INVALID_INPUT@@HLT_GET||||||admin@test.com
-HLT_CALC missing id@@ERROR\|INVALID_INPUT@@HLT_CALC||||||admin@test.com
-HLT_DELETE missing id@@ERROR\|INVALID_INPUT@@HLT_DELETE||||||admin@test.com
-HLT_VALIDATE ok@@SUCCESS\|HLT_VALID@@HLT_VALIDATE|100.00|USD||||admin@test.com

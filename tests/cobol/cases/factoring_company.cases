@@ -1,6 +1,0 @@
-# Factoring Company (Wave20) validation cases.
-FCOM_CREATE missing ref@@ERROR\|INVALID_INPUT@@FCOM_CREATE||||||admin@test.com
-FCOM_GET missing id@@ERROR\|INVALID_INPUT@@FCOM_GET||||||admin@test.com
-FCOM_CALC missing id@@ERROR\|INVALID_INPUT@@FCOM_CALC||||||admin@test.com
-FCOM_DELETE missing id@@ERROR\|INVALID_INPUT@@FCOM_DELETE||||||admin@test.com
-FCOM_VALIDATE ok@@SUCCESS\|FCOM_VALID@@FCOM_VALIDATE|100.00|USD||||admin@test.com

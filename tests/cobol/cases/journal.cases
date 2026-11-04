@@ -1,6 +1,0 @@
-# Journal (Wave13) validation cases.
-JRN_CREATE missing ref@@ERROR\|INVALID_INPUT@@JRN_CREATE||||||admin@test.com
-JRN_GET missing id@@ERROR\|INVALID_INPUT@@JRN_GET||||||admin@test.com
-JRN_CALC missing id@@ERROR\|INVALID_INPUT@@JRN_CALC||||||admin@test.com
-JRN_DELETE missing id@@ERROR\|INVALID_INPUT@@JRN_DELETE||||||admin@test.com
-JRN_VALIDATE ok@@SUCCESS\|JRN_VALID@@JRN_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# FX hedging (D17) validation cases.
-FXH_CREATE missing ref@@ERROR\|INVALID_INPUT@@FXH_CREATE||||||admin@test.com
-FXH_GET missing id@@ERROR\|INVALID_INPUT@@FXH_GET||||||admin@test.com
-FXH_CALC missing id@@ERROR\|INVALID_INPUT@@FXH_CALC||||||admin@test.com
-FXH_DELETE missing id@@ERROR\|INVALID_INPUT@@FXH_DELETE||||||admin@test.com
-FXH_VALIDATE ok@@SUCCESS\|FXH_VALID@@FXH_VALIDATE|100.00|USD||||admin@test.com

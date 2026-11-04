@@ -1,6 +1,0 @@
-# Fire Insurance (Wave18) validation cases.
-FIR_CREATE missing ref@@ERROR\|INVALID_INPUT@@FIR_CREATE||||||admin@test.com
-FIR_GET missing id@@ERROR\|INVALID_INPUT@@FIR_GET||||||admin@test.com
-FIR_CALC missing id@@ERROR\|INVALID_INPUT@@FIR_CALC||||||admin@test.com
-FIR_DELETE missing id@@ERROR\|INVALID_INPUT@@FIR_DELETE||||||admin@test.com
-FIR_VALIDATE ok@@SUCCESS\|FIR_VALID@@FIR_VALIDATE|100.00|USD||||admin@test.com

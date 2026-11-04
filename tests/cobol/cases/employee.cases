@@ -1,6 +1,0 @@
-# Employee (Wave10) validation cases.
-EMP_CREATE missing ref@@ERROR\|INVALID_INPUT@@EMP_CREATE||||||admin@test.com
-EMP_GET missing id@@ERROR\|INVALID_INPUT@@EMP_GET||||||admin@test.com
-EMP_CALC missing id@@ERROR\|INVALID_INPUT@@EMP_CALC||||||admin@test.com
-EMP_DELETE missing id@@ERROR\|INVALID_INPUT@@EMP_DELETE||||||admin@test.com
-EMP_VALIDATE ok@@SUCCESS\|EMP_VALID@@EMP_VALIDATE|100.00|USD||||admin@test.com

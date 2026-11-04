@@ -1,6 +1,0 @@
-# Discount Item (Wave15) validation cases.
-DISC_CREATE missing ref@@ERROR\|INVALID_INPUT@@DISC_CREATE||||||admin@test.com
-DISC_GET missing id@@ERROR\|INVALID_INPUT@@DISC_GET||||||admin@test.com
-DISC_CALC missing id@@ERROR\|INVALID_INPUT@@DISC_CALC||||||admin@test.com
-DISC_DELETE missing id@@ERROR\|INVALID_INPUT@@DISC_DELETE||||||admin@test.com
-DISC_VALIDATE ok@@SUCCESS\|DISC_VALID@@DISC_VALIDATE|100.00|USD||||admin@test.com
