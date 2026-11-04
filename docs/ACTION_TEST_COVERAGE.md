@@ -101,6 +101,10 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   guessed; `--verify-db` pins the column. loan_schedule confirmed manual
   queue (non-uniform LSC slots, no id capture).
 
+- Batch 2, branch `test/testing-p1-03-update-batch2`: 30 general domains —
+  shell-covered 2,228 → 2,258 (81.2%), baseline 552 → 522. Category-1
+  remaining: 166.
+
 ## Domain groups
 
 - **Critical money path** (two approvals): wallet, auth, payments, treasury,
