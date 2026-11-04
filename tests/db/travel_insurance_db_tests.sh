@@ -42,6 +42,17 @@ assert_match "TRV_AUDIT ok" "$(run_cobol "TRV_AUDIT|50|0||||admin@test.com")" "S
 assert_match "TRV_VALIDATE ok" "$(run_cobol "TRV_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|TRV_VALID"
 assert_match "non-admin refused" "$(run_cobol "TRV_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM travel_insurance WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM travel_insurance_audit WHERE travel_insurance_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "TRV_UPDATE|${id}|PolicyholderA|TRIP|||admin@test.com")"
+assert_match "TRV_UPDATE ok" "$upd_out" "SUCCESS\\|TRV_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM travel_insurance WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM travel_insurance_audit WHERE travel_insurance_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "TRV_UPDATE|999999|PolicyholderA|TRIP|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "TRV_UPDATE|${id}|PolicyholderA|TRIP|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
