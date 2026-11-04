@@ -133,6 +133,12 @@ Weekly review: run `--json`, record covered/baseline, review the diff.
   shell-covered 2,378 → 2,393 (86.1%), baseline 402 → 387.
   (Keputusan owner: T-020 dimulai; T-019 ditutup di capaian baseline.)
 
+## T-019 final (branch `test/testing-p1-03-update-final`)
+
+- 30 generated UPDATE blocks (T–V) + 2 manual (loan_schedule,
+  tax_management, next branch) — shell-covered 2,407 → 2,437 (87.7%),
+  baseline 373 → 343. Category-1: 14 generatable + 2 manual remain.
+
 - Batch 3 (`test/testing-p1-04-route-batch3`): second from-scratch cat-3
   suite — payment_hold lifecycle (reserve/capture/release/expire, 19
   asserts) — shell-covered 2,396 → 2,402 (86.4%), baseline 384 → 378.
