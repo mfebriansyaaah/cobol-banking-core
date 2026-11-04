@@ -166,7 +166,7 @@ deliberately red PR that cannot merge.
 | 7 | Named owners | Met — `@get-money-first` added as backup on every path 2026-11-04; see `docs/OWNERSHIP.md` |
 | 8 | Executor independence | Partial — single-engineer execution; tabletop pending second engineer |
 | 9 | Communication ready | Met — this file + rollout above |
-| 10 | Day 0 preflight | Not met — full suite not run in R0 |
+| 10 | Day 0 preflight | Met (triaged) — full serial run 2026-11-04: 271/273 DB green; 2 env failures triaged in `docs/known-red.md`; integration/gateway/smoke/harness/fuzz green; no orphans; artifacts in `artifacts/preflight-b6e4d7ce/` |
 | 11 | Branching plan | Met — `docs/BRANCHING.md` added in 00A |
 
 R0 passes when 1–8, 10, 11 are Met. Current composite: 8.5/10.
@@ -197,8 +197,9 @@ Approved by `@mfebriansyaaah` (repository owner):
 
 ### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
 
-R0 does **not** pass. Met: 1, 2, 3, 4, 5, 7, 9, 11. Not met: 10. Partial: 6, 8.
-Phase 0 must not start until the blockers below are closed.
+R0 does **not** pass. Met: 1, 2, 3, 4, 5, 7, 9, 10, 11. Not met: none. Partial: 6, 8.
+Phase 0 must not start until the partials are closed (cost approval with date,
+second-engineer tabletop).
 
 Proven 2026-11-04: run
 `https://github.com/mfebriansyaaah/cobol-banking-core/actions/runs/41772256921`
@@ -208,9 +209,9 @@ triaged as G0/Phase 0, not billing).
 
 Blockers and owners:
 
-- Day 0 preflight (criterion 10) — must run full suite and triage red suites.
 - Cost approval (criterion 6), second-engineer tabletop (criterion 8) —
-  partial, need dates and approvers.
+  partial, need dates and approvers. Day 0 preflight is done (triaged);
+  ownership exception resolved with `@get-money-first`.
 
 What 00A/00B delivered: branching plan, CI status source, ownership gap record,
 cost estimate, rollout plan, main-protection draft + hook, tool checksums with
@@ -238,6 +239,7 @@ and Day 0 preflight are closed.
 
 ## Known-red / preflight
 
-Day 0 preflight has not been run in R0. Before Phase 0, run the section 0.4
-commands and store the result under `artifacts/preflight-<short-sha>/`. If
-red, list every suite in `docs/known-red.md` with owner, reason, and expiry.
+Day 0 preflight done 2026-11-04 (triaged, not green): see `docs/known-red.md`
+and `artifacts/preflight-b6e4d7ce/`. Before Phase 0, re-run the section 0.4
+commands on a provisioned database (Docker 3307) and confirm zero red, or carry
+the two env entries with owner and expiry.
