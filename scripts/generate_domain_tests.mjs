@@ -86,15 +86,20 @@ function parseSuite(suiteSrc, prefix) {
 }
 
 function buildBlock({ prefix, table, actor, updateArgs }) {
+  // Version/audit assertions are relative (+1): template suites already bump
+  // the version through CALC/CLOSE before this block runs, so absolute
+  // values would couple the block to suite order.
   const run = (input) => `run_cobol "${input}"`;
   const upd = (id, who) => `${prefix}_UPDATE|${id}|${updateArgs.join('|')}|||${who}`;
   return [
     '',
     MARKER,
+    `ver_before="$(db_query "SELECT version FROM ${table} WHERE id=\${id};")"`,
+    `aud_before="$(db_query "SELECT COUNT(*) FROM ${table}_audit WHERE ${table}_id=\${id} AND action='UPDATE';")"`,
     `upd_out="$(${run(upd('${id}', actor))})"`,
     `assert_match "${prefix}_UPDATE ok" "$upd_out" "SUCCESS\\\\|${prefix}_UPDATE"`,
-    `assert_match "version bumped" "$(db_query "SELECT version FROM ${table} WHERE id=\${id};")" "^2$"`,
-    `assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM ${table}_audit WHERE ${table}_id=\${id} AND action='UPDATE';")" "^1$"`,
+    `assert_match "version bumped" "$(db_query "SELECT version FROM ${table} WHERE id=\${id};")" "^$((ver_before + 1))$"`,
+    `assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM ${table}_audit WHERE ${table}_id=\${id} AND action='UPDATE';")" "^$((aud_before + 1))$"`,
     `assert_match "update missing id" "$(${run(upd('999999', actor))})" "ERROR\\\\|NOT_FOUND"`,
     `assert_match "non-admin update refused" "$(${run(upd('${id}', 'sender@test.com'))})" "ERROR\\\\|FORBIDDEN"`,
   ].join('\n');

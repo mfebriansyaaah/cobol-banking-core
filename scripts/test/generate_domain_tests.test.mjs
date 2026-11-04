@@ -66,6 +66,9 @@ test('buildBlock renders shell with literal suite variables', () => {
   const out = buildBlock({ prefix: 'WDG', table: 'widget', actor: 'admin@test.com', updateArgs: ['Gadget', 'TOOL'] });
   assert.match(out, /upd_out="\$\(run_cobol "WDG_UPDATE\|\$\{id\}\|Gadget\|TOOL\|\|\|admin@test\.com"\)"/);
   assert.match(out, /SELECT version FROM widget WHERE id=\$\{id\}/);
+  assert.match(out, /ver_before=.*SELECT version/);
+  assert.match(out, /\^\$\(\(ver_before \+ 1\)\)\$/);
+  assert.match(out, /\^\$\(\(aud_before \+ 1\)\)\$/);
 });
 
 test('skips when UPDATE route is missing', () => {
