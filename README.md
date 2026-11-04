@@ -8,9 +8,8 @@ crypto helpers COBOL cannot call directly.
 
 [![CI](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml/badge.svg)](https://github.com/mfebriansyaaah/cobol-banking-core/actions/workflows/ci.yml)
 
-> **CI status (2026-11-04):** workflows are temporarily `workflow_dispatch`-only
-> while billing is resolved. See [docs/CI.md](docs/CI.md). Do not read the badge
-> above as proof of a green PR gate.
+> **CI status (2026-11-04):** automatic triggers restored in Phase 0 branch 01
+> (`push: [main]`, `pull_request`, schedules). See [docs/CI.md](docs/CI.md).
 >
 > **Status (2026-10-29):** COBOL modules follow the 9-action contract (see
 > `docs/module_classification.md`): Tier-1 hand-reviewed core (auth, wallet,

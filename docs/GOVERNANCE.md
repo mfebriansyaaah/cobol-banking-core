@@ -1,8 +1,7 @@
 # Governance and Merge Policy
 
-> **CI status (2026-11-04):** workflows are temporarily `workflow_dispatch`-only
-> while billing is resolved. The rules below describe the target gate; while
-> parked, see [CI status](CI.md) and do not claim automatic PR enforcement.
+> **CI status (2026-11-04):** automatic triggers restored in Phase 0 branch 01.
+> See [CI status](CI.md). Required checks block merge; no admin bypass.
 
 ## Status
 

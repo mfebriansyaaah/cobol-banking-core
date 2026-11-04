@@ -1,28 +1,18 @@
 # CI Status
 
 > R0 readiness branch 00A. Single source of truth for CI triggers, required
-> checks, cost, enforcement, and rollout. Last verified: 2026-11-04, commit
-> `b92ee279`, by QA (tabletop, no Actions run — billing/access not verified).
-> Owner sign-off: see “Owner sign-off (R0 criterion 1)” below.
+> checks, cost, enforcement, and rollout. Last verified: 2026-11-04.
+> Phase 0 branch 01 restores automatic triggers; see “Current status” below.
 
-## Current status: MANUAL-ONLY (parked)
+## Current status: AUTOMATIC (restored in Phase 0 branch 01)
 
-All four workflows are `workflow_dispatch` only at HEAD:
+`ci.yml` runs on `push: [main]`, `pull_request`, and `workflow_dispatch`.
+`nightly.yml` (`0 2 * * *`), `coverage.yml` (`30 2 * * *`), and `codeql.yml`
+(`0 3 * * 1`) run on schedule plus `workflow_dispatch`.
 
-| Workflow | File | Trigger at HEAD | Intended trigger | Status |
-| --- | --- | --- | --- | --- |
-| CI | `.github/workflows/ci.yml` | `workflow_dispatch` | `push: [main]`, `pull_request` | parked (commit `7e030110`) |
-| Coverage | `.github/workflows/coverage.yml` | `workflow_dispatch` | `schedule 30 2 * * *` | parked (commit `1dfc11de`) |
-| Nightly | `.github/workflows/nightly.yml` | `workflow_dispatch` | `schedule 0 2 * * *` | parked (commit `1dfc11de`) |
-| CodeQL | `.github/workflows/codeql.yml` | `workflow_dispatch` | schedule (GHAS-gated) | manual until GHAS decision |
-
-Exception: billing suspension aborts every run before it starts. A minimal
-bridge workflow does **not** fix suspension. Owner: `@mfebriansyaaah`.
-Review/expiry: 2026-11-18. If billing is still suspended, update this file and
-do not claim automatic CI.
-
-Badge policy: while parked, do not present the README CI badge as proof of a
-green gate. The badge reflects the last manual run only.
+T-003 minimal bridge: skipped with reason — billing is fixed (public repo, run
+41772256921 executes), full CI is restored, so a bridge would only duplicate
+the gate and waste minutes.
 
 ## Trigger matrix (target, after unpark)
 

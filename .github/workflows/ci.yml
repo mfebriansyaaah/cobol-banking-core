@@ -85,6 +85,9 @@ jobs:
       - name: Workflow lint
         run: actionlint
 
+      - name: CI contract
+        run: node scripts/check_ci_contract.mjs .
+
       - name: YAML lint
         run: >
           yamllint --strict -c .yamllint .github/workflows/
