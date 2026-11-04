@@ -1,0 +1,3531 @@
+{
+  "generatedAt": "2026-11-04T01:02:43.504Z",
+  "items": [
+    {
+      "id": "auth_core:action:outbox-claim-logic",
+      "module": "auth_core",
+      "kind": "action",
+      "subject": "OUTBOX-CLAIM-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes notification_outbox)",
+      "evidence": [
+        "paragraph OUTBOX-CLAIM-LOGIC",
+        "touched tables: notification_outbox"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:action:outbox-mark-logic",
+      "module": "auth_core",
+      "kind": "action",
+      "subject": "OUTBOX-MARK-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes notification_outbox)",
+      "evidence": [
+        "paragraph OUTBOX-MARK-LOGIC",
+        "touched tables: 100, notification_outbox"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:action:revoke-access-token-logic",
+      "module": "auth_core",
+      "kind": "action",
+      "subject": "REVOKE-ACCESS-TOKEN-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes revoked_access_tokens)",
+      "evidence": [
+        "paragraph REVOKE-ACCESS-TOKEN-LOGIC",
+        "touched tables: revoked_access_tokens"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:action:revoke-user-session-logic",
+      "module": "auth_core",
+      "kind": "action",
+      "subject": "REVOKE-USER-SESSION-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes refresh_sessions)",
+      "evidence": [
+        "paragraph REVOKE-USER-SESSION-LOGIC",
+        "touched tables: refresh_sessions"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:action:store-session-logic",
+      "module": "auth_core",
+      "kind": "action",
+      "subject": "STORE-SESSION-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes refresh_families, refresh_sessions)",
+      "evidence": [
+        "paragraph STORE-SESSION-LOGIC",
+        "touched tables: refresh_families, refresh_sessions, revoked_access_tokens"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:audit:core-reference",
+      "module": "auth_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:0",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "0",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:1",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:100",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:16383",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "16383",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:20",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "20",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:256",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "256",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:access-review-items",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "access_review_items",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'attested', 'revoked'), account_status, constraint, decided_at, decision, email, item_id, key, last_login_at, mfa_enabled, note, review_id, reviewer_email, role",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:access-reviews",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "access_reviews",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'closed'), closed_at, closed_by, created_at, key, opened_by, period_end, period_start, review_id, state",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:audit-trail",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:dual-control-operations",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "dual_control_operations",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: operation",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:known-devices",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "known_devices",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: email, first_seen_at, ip, ip), last_seen_at, primary, user_agent",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:maker-requests",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "maker_requests",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'approved', 'rejected'), checker_email, constraint, created_at, decided_at, detail, key, maker_email, operation, request_id, state, target_email",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:mfa-backup-codes",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "mfa_backup_codes",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: code_hash, constraint, created_at, id, key, used, used), user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:mfa-recovery-requests",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "mfa_recovery_requests",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'approved', 'rejected'), 'verified', constraint, created_at, decided_at, decided_by, key, request_id, state, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:notification-outbox",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "notification_outbox",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:permissions",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "permissions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: description, name",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:refresh-families",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "refresh_families",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: constraint, created_at, email, family, rotations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:refresh-sessions",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "refresh_sessions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: constraint, created_at, email, expires_at, family, if, ip, jti, key, last_seen_at, revoked, user_agent",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:revoked-access-tokens",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "revoked_access_tokens",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: constraint, email, expires_at, jti, key, revoked_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:role-permissions",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "role_permissions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:step-up-policy",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "step_up_policy",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 4), action, enabled, min_amount",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_core:table:verification-logs",
+      "module": "auth_core",
+      "kind": "table",
+      "subject": "verification_logs",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'email_change', 'mfa_recovery'), 'password_reset', attempts, code, created_at, email, expires_at, id, if, is_used, purpose",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "auth_password_core:audit:core-reference",
+      "module": "auth_password_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "card_core:audit:core-reference",
+      "module": "card_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "card_core:table:100",
+      "module": "card_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "card_core:table:16384",
+      "module": "card_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-allocate",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-ALLOCATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral_allocation)",
+      "evidence": [
+        "paragraph ACTION-ALLOCATE",
+        "touched tables: collateral_allocation, collateral_pledge"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-appraise",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-APPRAISE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral, collateral_valuation)",
+      "evidence": [
+        "paragraph ACTION-APPRAISE",
+        "touched tables: collateral, collateral_valuation"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-close",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral)",
+      "evidence": [
+        "paragraph ACTION-CLOSE",
+        "touched tables: collateral"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-create",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral)",
+      "evidence": [
+        "paragraph ACTION-CREATE",
+        "touched tables: collateral"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-dispose",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-DISPOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral)",
+      "evidence": [
+        "paragraph ACTION-DISPOSE",
+        "touched tables: collateral"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-register",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-REGISTER",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral)",
+      "evidence": [
+        "paragraph ACTION-REGISTER",
+        "touched tables: collateral"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-repossess",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-REPOSSESS",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral)",
+      "evidence": [
+        "paragraph ACTION-REPOSSESS",
+        "touched tables: collateral"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-revalue",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-REVALUE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral, collateral_valuation)",
+      "evidence": [
+        "paragraph ACTION-REVALUE",
+        "touched tables: collateral, collateral_valuation"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-submit",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT",
+        "touched tables: collateral"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:action:action-update",
+      "module": "collateral_core",
+      "kind": "action",
+      "subject": "ACTION-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes collateral)",
+      "evidence": [
+        "paragraph ACTION-UPDATE",
+        "touched tables: collateral"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:audit:core-reference",
+      "module": "collateral_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:table:100",
+      "module": "collateral_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:table:16384",
+      "module": "collateral_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:table:collateral",
+      "module": "collateral_core",
+      "kind": "table",
+      "subject": "collateral",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'active', 'deleted'), 'released', 4), appraised_at, appraised_value, assessed_value, asset_name, asset_type, asset_type), collateral_ref, created_at, created_by, deleted_at, id, if, index, release_reason, released_at, status, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collateral_core:table:collateral-valuation",
+      "module": "collateral_core",
+      "kind": "table",
+      "subject": "collateral_valuation",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'haircut'), 'revaluation', 4), check, collateral_id, constraint, created_at, created_at), created_by, currency, if, index, method, note, valid_until, valuation_id, valuation_type, value_amount, valuer",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collection_core:audit:core-reference",
+      "module": "collection_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "collection_core:table:100",
+      "module": "collection_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "collection_core:table:16384",
+      "module": "collection_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "deposit_core:audit:core-reference",
+      "module": "deposit_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "deposit_core:table:100",
+      "module": "deposit_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "deposit_core:table:16384",
+      "module": "deposit_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "deposit_core:table:days",
+      "module": "deposit_core",
+      "kind": "table",
+      "subject": "days",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:action:action-vel-profile-create",
+      "module": "fee_core",
+      "kind": "action",
+      "subject": "ACTION-VEL-PROFILE-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes velocity_profile)",
+      "evidence": [
+        "paragraph ACTION-VEL-PROFILE-CREATE",
+        "touched tables: velocity_profile"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:action:action-vel-record",
+      "module": "fee_core",
+      "kind": "action",
+      "subject": "ACTION-VEL-RECORD",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes used_count, velocity_counter)",
+      "evidence": [
+        "paragraph ACTION-VEL-RECORD",
+        "touched tables: used_count, velocity_counter, velocity_profile"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:audit:core-reference",
+      "module": "fee_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:1",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:100",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:16384",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:30",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:pic",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "pic",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:used-count",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "used_count",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:velocity-counter",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "velocity_counter",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), account_email, check, id, profile_code, unique, updated_at, used_amount, used_count, window_start, window_start)",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:table:velocity-profile",
+      "module": "fee_core",
+      "kind": "table",
+      "subject": "velocity_profile",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), check, created_at, created_by, currency_code, enabled, id, max_amount, max_count, name, profile_code, window_seconds",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:action:action-account-create",
+      "module": "gl_core",
+      "kind": "action",
+      "subject": "ACTION-ACCOUNT-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes gl_account)",
+      "evidence": [
+        "paragraph ACTION-ACCOUNT-CREATE",
+        "touched tables: gl_account"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:action:action-period-close",
+      "module": "gl_core",
+      "kind": "action",
+      "subject": "ACTION-PERIOD-CLOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes gl_period)",
+      "evidence": [
+        "paragraph ACTION-PERIOD-CLOSE",
+        "touched tables: gl_period"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:action:action-period-open",
+      "module": "gl_core",
+      "kind": "action",
+      "subject": "ACTION-PERIOD-OPEN",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes gl_period)",
+      "evidence": [
+        "paragraph ACTION-PERIOD-OPEN",
+        "touched tables: gl_period"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:audit:core-reference",
+      "module": "gl_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "gl_core:table:1",
+      "module": "gl_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:table:100",
+      "module": "gl_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:table:16384",
+      "module": "gl_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:table:30",
+      "module": "gl_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:table:audit-trail",
+      "module": "gl_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:table:gl-account",
+      "module": "gl_core",
+      "kind": "table",
+      "subject": "gl_account",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'credit'), 'equity', 'expense'), 'liability', 'revenue', account_code, account_type, constraint, created_at, is_active, name, normal_side, parent_code",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "gl_core:table:gl-period",
+      "module": "gl_core",
+      "kind": "table",
+      "subject": "gl_period",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'closed'), check, closed_at, closed_by, opened_at, period_code, status",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_post_core:audit:core-reference",
+      "module": "import_post_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "import_post_core:table:100",
+      "module": "import_post_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_post_core:table:16384",
+      "module": "import_post_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_post_core:table:gl-period",
+      "module": "import_post_core",
+      "kind": "table",
+      "subject": "gl_period",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'closed'), check, closed_at, closed_by, opened_at, period_code, status",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_post_core:table:import-batch",
+      "module": "import_post_core",
+      "kind": "table",
+      "subject": "import_batch",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_post_core:table:import-row",
+      "module": "import_post_core",
+      "kind": "table",
+      "subject": "import_row",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:action:action-finish",
+      "module": "import_recon_core",
+      "kind": "action",
+      "subject": "ACTION-FINISH",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_recon_run)",
+      "evidence": [
+        "paragraph ACTION-FINISH",
+        "touched tables: import_recon_item, import_recon_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:action:action-retry",
+      "module": "import_recon_core",
+      "kind": "action",
+      "subject": "ACTION-RETRY",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_recon_run)",
+      "evidence": [
+        "paragraph ACTION-RETRY",
+        "touched tables: import_recon_item, import_recon_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:action:action-start",
+      "module": "import_recon_core",
+      "kind": "action",
+      "subject": "ACTION-START",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_recon_run)",
+      "evidence": [
+        "paragraph ACTION-START",
+        "touched tables: import_batch, import_posting, import_recon_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:audit:core-reference",
+      "module": "import_recon_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:table:1",
+      "module": "import_recon_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:table:100",
+      "module": "import_recon_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:table:16384",
+      "module": "import_recon_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:table:30",
+      "module": "import_recon_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:table:import-batch",
+      "module": "import_recon_core",
+      "kind": "table",
+      "subject": "import_batch",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:table:import-recon-run",
+      "module": "import_recon_core",
+      "kind": "table",
+      "subject": "import_recon_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'completed', 'failed'), batch_id, check, constraint, created_by, error_detail, finished_at, id, index, matched_count, mismatch_count, row_count, started_at, started_at), status, unmatched_count",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "import_recon_core:table:import-row",
+      "module": "import_recon_core",
+      "kind": "table",
+      "subject": "import_row",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_core:action:action-close",
+      "module": "loan_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes loan)",
+      "evidence": [
+        "paragraph ACTION-CLOSE",
+        "touched tables: loan"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_core:action:action-create",
+      "module": "loan_core",
+      "kind": "action",
+      "subject": "ACTION-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes loan)",
+      "evidence": [
+        "paragraph ACTION-CREATE",
+        "touched tables: loan"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_core:action:action-submit",
+      "module": "loan_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes loan)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT",
+        "touched tables: loan"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_core:action:action-update",
+      "module": "loan_core",
+      "kind": "action",
+      "subject": "ACTION-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes loan)",
+      "evidence": [
+        "paragraph ACTION-UPDATE",
+        "touched tables: loan"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_core:audit:core-reference",
+      "module": "loan_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "loan_core:table:100",
+      "module": "loan_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_core:table:16384",
+      "module": "loan_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_core:table:loan",
+      "module": "loan_core",
+      "kind": "table",
+      "subject": "loan",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'active', 'closed', 'deleted'), 4), close_reason, closed_at, created_at, created_by, customer_name, deleted_at, disbursed_amount, disbursed_at, id, index, loan_amount, loan_ref, loan_type, loan_type), status, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_schedule_core:audit:core-reference",
+      "module": "loan_schedule_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "loan_schedule_core:table:1",
+      "module": "loan_schedule_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_schedule_core:table:100",
+      "module": "loan_schedule_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "loan_schedule_core:table:16384",
+      "module": "loan_schedule_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-approve",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-APPROVE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant, merchant_fee_profile)",
+      "evidence": [
+        "paragraph ACTION-APPROVE",
+        "touched tables: customer, merchant, merchant_fee_profile"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-close",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant)",
+      "evidence": [
+        "paragraph ACTION-CLOSE",
+        "touched tables: merchant"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-close-mch",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE-MCH",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant)",
+      "evidence": [
+        "paragraph ACTION-CLOSE-MCH",
+        "touched tables: merchant, merchant_settlement"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-create",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant)",
+      "evidence": [
+        "paragraph ACTION-CREATE",
+        "touched tables: merchant"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-set-fee",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-SET-FEE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant, merchant_fee_profile)",
+      "evidence": [
+        "paragraph ACTION-SET-FEE",
+        "touched tables: merchant, merchant_fee_profile"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-submit",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT",
+        "touched tables: merchant"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-submit-kyc",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT-KYC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT-KYC",
+        "touched tables: merchant"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-suspend",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-SUSPEND",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant)",
+      "evidence": [
+        "paragraph ACTION-SUSPEND",
+        "touched tables: merchant"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:action:action-update",
+      "module": "merchant_core",
+      "kind": "action",
+      "subject": "ACTION-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant)",
+      "evidence": [
+        "paragraph ACTION-UPDATE",
+        "touched tables: merchant"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:audit:core-reference",
+      "module": "merchant_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:table:100",
+      "module": "merchant_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:table:16384",
+      "module": "merchant_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:table:customer",
+      "module": "merchant_core",
+      "kind": "table",
+      "subject": "customer",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:table:merchant",
+      "module": "merchant_core",
+      "kind": "table",
+      "subject": "merchant",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'active', 'closed', 'deleted'), 4), activated_at, close_reason, closed_at, created_at, created_by, deleted_at, id, if, index, merchant_name, merchant_ref, merchant_type, merchant_type), settled_volume, status, transaction_volume, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "merchant_core:table:merchant-settlement",
+      "module": "merchant_core",
+      "kind": "table",
+      "subject": "merchant_settlement",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'active', 'deleted'), 'settled', 4), created_at, created_by, deleted_at, id, if, index, merchant_name, paid_amount, scheduled_at, settle_reason, settled_at, settlement_amount, settlement_ref, settlement_type, settlement_type), status, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:action:action-cancel",
+      "module": "payment_clearing_core",
+      "kind": "action",
+      "subject": "ACTION-CANCEL",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_clearing)",
+      "evidence": [
+        "paragraph ACTION-CANCEL",
+        "touched tables: payment_clearing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:action:action-create",
+      "module": "payment_clearing_core",
+      "kind": "action",
+      "subject": "ACTION-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_clearing)",
+      "evidence": [
+        "paragraph ACTION-CREATE",
+        "touched tables: payment_clearing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:action:action-post",
+      "module": "payment_clearing_core",
+      "kind": "action",
+      "subject": "ACTION-POST",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_clearing)",
+      "evidence": [
+        "paragraph ACTION-POST",
+        "touched tables: payment_clearing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:action:action-settle",
+      "module": "payment_clearing_core",
+      "kind": "action",
+      "subject": "ACTION-SETTLE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_clearing)",
+      "evidence": [
+        "paragraph ACTION-SETTLE",
+        "touched tables: payment_clearing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:audit:core-reference",
+      "module": "payment_clearing_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:table:100",
+      "module": "payment_clearing_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:table:16384",
+      "module": "payment_clearing_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_clearing_core:table:payment-clearing",
+      "module": "payment_clearing_core",
+      "kind": "table",
+      "subject": "payment_clearing",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'cancelled'), 'posted', 'settled', 4), amount, cancellation_reason, cancelled_at, clearing_ref, created_at, created_by, currency, currency), id, index, payment_ref, posted_amount, posted_at, settled_amount, settled_at, status, unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:action:action-policy-set",
+      "module": "payment_core",
+      "kind": "action",
+      "subject": "ACTION-POLICY-SET",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes max_per_txn, payment_policy)",
+      "evidence": [
+        "paragraph ACTION-POLICY-SET",
+        "touched tables: max_per_txn, payment_policy"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:action:action-profile-set",
+      "module": "payment_core",
+      "kind": "action",
+      "subject": "ACTION-PROFILE-SET",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes daily_limit, payment_profile)",
+      "evidence": [
+        "paragraph ACTION-PROFILE-SET",
+        "touched tables: daily_limit, payment_profile"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:audit:core-reference",
+      "module": "payment_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:1",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:100",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:16384",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:30",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:daily-limit",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "daily_limit",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'active', 'closed', 'deleted'), 4), activated_at, budget_amount, closed_at, closure_reason, created_at, created_by, dailylimit_ref, deleted_at, id, index, name, spent_amount, status, type, type), unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:max-per-txn",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "max_per_txn",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:payment-policy",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "payment_policy",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), 2), check, currency_code, daily_count, daily_limit, enabled, hold_percent, hold_threshold, max_per_txn, updated_at, updated_by",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_core:table:payment-profile",
+      "module": "payment_core",
+      "kind": "table",
+      "subject": "payment_profile",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), check, currency_code, currency_code), daily_count, daily_limit, enabled, id, unique, updated_at, updated_by, user_email",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:action:action-capture",
+      "module": "payment_hold_core",
+      "kind": "action",
+      "subject": "ACTION-CAPTURE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_hold)",
+      "evidence": [
+        "paragraph ACTION-CAPTURE",
+        "touched tables: payment_hold"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:action:action-expire",
+      "module": "payment_hold_core",
+      "kind": "action",
+      "subject": "ACTION-EXPIRE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_hold)",
+      "evidence": [
+        "paragraph ACTION-EXPIRE",
+        "touched tables: payment_hold"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:action:action-release",
+      "module": "payment_hold_core",
+      "kind": "action",
+      "subject": "ACTION-RELEASE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_hold)",
+      "evidence": [
+        "paragraph ACTION-RELEASE",
+        "touched tables: payment_hold"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:audit:core-reference",
+      "module": "payment_hold_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:table:1",
+      "module": "payment_hold_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:table:100",
+      "module": "payment_hold_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:table:16384",
+      "module": "payment_hold_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_hold_core:table:30",
+      "module": "payment_hold_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:action:action-cancel",
+      "module": "payment_instruction_core",
+      "kind": "action",
+      "subject": "ACTION-CANCEL",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_instruction)",
+      "evidence": [
+        "paragraph ACTION-CANCEL",
+        "touched tables: payment_instruction"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:action:action-pause",
+      "module": "payment_instruction_core",
+      "kind": "action",
+      "subject": "ACTION-PAUSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_instruction)",
+      "evidence": [
+        "paragraph ACTION-PAUSE",
+        "touched tables: payment_instruction"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:action:action-resume",
+      "module": "payment_instruction_core",
+      "kind": "action",
+      "subject": "ACTION-RESUME",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payment_instruction)",
+      "evidence": [
+        "paragraph ACTION-RESUME",
+        "touched tables: payment_instruction"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:audit:core-reference",
+      "module": "payment_instruction_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:1",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:100",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:16384",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:30",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:cast",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "cast",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:move",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "move",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:payment-instruction",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "payment_instruction",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'cancelled', 'completed'), 'daily', 'monthly'), 'paused', 'weekly', 10), amount, check, created_at, created_by, currency_code, end_date, frequency, from_email, id, index, instruction_code, last_run_at, last_txn_ref, next_run_date, next_run_date), status, status), to_email, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:payment-instruction-run",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "payment_instruction_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), constraint, created_by, error_detail, id, id), index, instruction_id, run_at, status, txn_ref",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:pic",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "pic",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:tallying",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "tallying",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:to",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "to",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payment_instruction_core:table:trim",
+      "module": "payment_instruction_core",
+      "kind": "table",
+      "subject": "trim",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:action:action-approve",
+      "module": "payroll_processing_core",
+      "kind": "action",
+      "subject": "ACTION-APPROVE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payroll_processing)",
+      "evidence": [
+        "paragraph ACTION-APPROVE",
+        "touched tables: payroll_processing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:action:action-close",
+      "module": "payroll_processing_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payroll_processing)",
+      "evidence": [
+        "paragraph ACTION-CLOSE",
+        "touched tables: payroll_processing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:action:action-close-pay",
+      "module": "payroll_processing_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE-PAY",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payroll_processing)",
+      "evidence": [
+        "paragraph ACTION-CLOSE-PAY",
+        "touched tables: payroll_payment, payroll_processing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:action:action-pay",
+      "module": "payroll_processing_core",
+      "kind": "action",
+      "subject": "ACTION-PAY",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payroll_employee, payroll_payment, payroll_processing)",
+      "evidence": [
+        "paragraph ACTION-PAY",
+        "touched tables: payroll_employee, payroll_payment, payroll_processing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:action:action-submit",
+      "module": "payroll_processing_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payroll_processing)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT",
+        "touched tables: payroll_processing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:action:action-update",
+      "module": "payroll_processing_core",
+      "kind": "action",
+      "subject": "ACTION-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payroll_processing)",
+      "evidence": [
+        "paragraph ACTION-UPDATE",
+        "touched tables: payroll_processing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:action:action-validate-batch",
+      "module": "payroll_processing_core",
+      "kind": "action",
+      "subject": "ACTION-VALIDATE-BATCH",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes payroll_employee, payroll_processing)",
+      "evidence": [
+        "paragraph ACTION-VALIDATE-BATCH",
+        "touched tables: payroll_employee, payroll_processing"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:audit:core-reference",
+      "module": "payroll_processing_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:table:100",
+      "module": "payroll_processing_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:table:16384",
+      "module": "payroll_processing_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:table:customer",
+      "module": "payroll_processing_core",
+      "kind": "table",
+      "subject": "customer",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:table:payroll-employee",
+      "module": "payroll_processing_core",
+      "kind": "table",
+      "subject": "payroll_employee",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'paid', 'valid', 4), batch_id, check, constraint, created_at, deduction_amount, employee_account_id, employee_id, employee_name, employee_ref, employee_ref), gross_amount, index, net_amount, status, status), tax_amount, unique",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:table:payroll-payment",
+      "module": "payroll_processing_core",
+      "kind": "table",
+      "subject": "payroll_payment",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'paid', 'posted', 4), amount, batch_id, check, constraint, created_at, employee_id, error_code, error_detail, index, paid_at, payment_clearing_ref, payment_id, posted_at, status, status)",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:table:payroll-processing",
+      "module": "payroll_processing_core",
+      "kind": "table",
+      "subject": "payroll_processing",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'active', 'completed', 'deleted'), 4), batch_name, complete_reason, completed_at, created_at, created_by, deleted_at, id, if, index, payroll_ref, payroll_type, payroll_type), processed_amount, processed_at, status, total_amount, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "payroll_processing_core:table:tax-management",
+      "module": "payroll_processing_core",
+      "kind": "table",
+      "subject": "tax_management",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'active', 'deleted'), 'inactive', 4), activated_at, collected_tax, created_at, created_by, deactivate_reason, deactivated_at, deleted_at, id, if, index, max_tax, status, tax_name, tax_ref, tax_type, tax_type), unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-column-create",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-COLUMN-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_template_column)",
+      "evidence": [
+        "paragraph ACTION-COLUMN-CREATE",
+        "touched tables: report_template_column"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-column-update",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-COLUMN-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_template_column)",
+      "evidence": [
+        "paragraph ACTION-COLUMN-UPDATE",
+        "touched tables: report_template_column"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-run-complete",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-COMPLETE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_run)",
+      "evidence": [
+        "paragraph ACTION-RUN-COMPLETE",
+        "touched tables: report_run, report_run_row"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-run-fail",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-FAIL",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_run)",
+      "evidence": [
+        "paragraph ACTION-RUN-FAIL",
+        "touched tables: report_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-run-retry",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-RETRY",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_run)",
+      "evidence": [
+        "paragraph ACTION-RUN-RETRY",
+        "touched tables: report_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-run-row",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-ROW",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_run_row)",
+      "evidence": [
+        "paragraph ACTION-RUN-ROW",
+        "touched tables: report_run_row"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-run-start",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-START",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_run)",
+      "evidence": [
+        "paragraph ACTION-RUN-START",
+        "touched tables: report_run, report_template_column"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-template-clone",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-TEMPLATE-CLONE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_template, report_template_column)",
+      "evidence": [
+        "paragraph ACTION-TEMPLATE-CLONE",
+        "touched tables: report_template, report_template_column"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-template-create",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-TEMPLATE-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_template)",
+      "evidence": [
+        "paragraph ACTION-TEMPLATE-CREATE",
+        "touched tables: report_template"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:action:action-template-update",
+      "module": "report_core",
+      "kind": "action",
+      "subject": "ACTION-TEMPLATE-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_template)",
+      "evidence": [
+        "paragraph ACTION-TEMPLATE-UPDATE",
+        "touched tables: report_template"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:audit:core-reference",
+      "module": "report_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:1",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:100",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:16384",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:30",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:gl-account",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "gl_account",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'credit'), 'equity', 'expense'), 'liability', 'revenue', account_code, account_type, constraint, created_at, is_active, name, normal_side, parent_code",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:report-run",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "report_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'completed', 'failed'), 10), check, checksum, constraint, created_at, created_by, error_code, error_detail, finished_at, id, index, parameters, row_count, started_at, started_at), status, template_id, total_credit, total_debit, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:report-run-row",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "report_run_row",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), check, constraint, created_at, credit, debit, id, ordinal, ordinal), row_data, run_id, unique",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:report-template",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "report_template",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'custom'), 'fixed', 'json'), 'reconciliation', 'statement', created_at, created_by, enabled, id, name, output_format, report_type, template_code, title, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "report_core:table:report-template-column",
+      "module": "report_core",
+      "kind": "table",
+      "subject": "report_template_column",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'amount', 'center'), 'date', 'integer'), 'right', align, check, column_format, constraint, created_at, header, id, ordinal, ordinal), source_field, template_id, unique, width",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:action:action-run-fail",
+      "module": "statement_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-FAIL",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes statement_run)",
+      "evidence": [
+        "paragraph ACTION-RUN-FAIL",
+        "touched tables: statement_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:action:action-run-start",
+      "module": "statement_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-START",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes statement_run)",
+      "evidence": [
+        "paragraph ACTION-RUN-START",
+        "touched tables: statement_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:audit:core-reference",
+      "module": "statement_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:1",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:100",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:16384",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:30",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:delimited",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "delimited",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:pic",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "pic",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:statement-archive",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "statement_archive",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), account_email, check, closing_balance, constraint, created_at, currency_code, currency_code), id, opening_balance, row_count, run_id, total_credit, total_debit, unique",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:statement-archive-line",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "statement_archive_line",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), archive_id, balance_after, check, constraint, created_at, credit_amount, debit_amount, description, id, line_no, line_no), posting_date, source, txn_ref, unique",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:statement-run",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "statement_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'completed', 'failed'), account_count, check, created_by, currency_code, error_code, error_detail, failed_count, finished_at, generated_count, id, index, period_end, period_end), period_start, started_at, status, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_core:table:to",
+      "module": "statement_core",
+      "kind": "table",
+      "subject": "to",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:action:action-finish",
+      "module": "statement_recon_core",
+      "kind": "action",
+      "subject": "ACTION-FINISH",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes statement_recon_run)",
+      "evidence": [
+        "paragraph ACTION-FINISH",
+        "touched tables: statement_recon_item, statement_recon_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:action:action-retry",
+      "module": "statement_recon_core",
+      "kind": "action",
+      "subject": "ACTION-RETRY",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes statement_recon_run)",
+      "evidence": [
+        "paragraph ACTION-RETRY",
+        "touched tables: statement_recon_item, statement_recon_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:action:action-start",
+      "module": "statement_recon_core",
+      "kind": "action",
+      "subject": "ACTION-START",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes statement_recon_run)",
+      "evidence": [
+        "paragraph ACTION-START",
+        "touched tables: statement_recon_run, statement_run"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:audit:core-reference",
+      "module": "statement_recon_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:1",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:100",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:16384",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:30",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:statement-archive",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "statement_archive",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), account_email, check, closing_balance, constraint, created_at, currency_code, currency_code), id, opening_balance, row_count, run_id, total_credit, total_debit, unique",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:statement-archive-line",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "statement_archive_line",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), archive_id, balance_after, check, constraint, created_at, credit_amount, debit_amount, description, id, line_no, line_no), posting_date, source, txn_ref, unique",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:statement-recon-run",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "statement_recon_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'completed', 'failed'), check, constraint, created_by, error_detail, finished_at, id, index, line_count, matched_count, mismatch_count, started_at, started_at), statement_run_id, status, unmatched_count",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "statement_recon_core:table:statement-run",
+      "module": "statement_recon_core",
+      "kind": "table",
+      "subject": "statement_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'completed', 'failed'), account_count, check, created_by, currency_code, error_code, error_detail, failed_count, finished_at, generated_count, id, index, period_end, period_end), period_start, started_at, status, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:action:action-cancel",
+      "module": "treasury_liquidity_core",
+      "kind": "action",
+      "subject": "ACTION-CANCEL",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes treasury_liquidity)",
+      "evidence": [
+        "paragraph ACTION-CANCEL",
+        "touched tables: treasury_liquidity"
+      ],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:action:action-close",
+      "module": "treasury_liquidity_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes treasury_liquidity)",
+      "evidence": [
+        "paragraph ACTION-CLOSE",
+        "touched tables: treasury_liquidity"
+      ],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:action:action-create",
+      "module": "treasury_liquidity_core",
+      "kind": "action",
+      "subject": "ACTION-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes treasury_liquidity)",
+      "evidence": [
+        "paragraph ACTION-CREATE",
+        "touched tables: treasury_liquidity"
+      ],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:action:action-post",
+      "module": "treasury_liquidity_core",
+      "kind": "action",
+      "subject": "ACTION-POST",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes treasury_liquidity)",
+      "evidence": [
+        "paragraph ACTION-POST",
+        "touched tables: treasury_liquidity"
+      ],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:audit:core-reference",
+      "module": "treasury_liquidity_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:table:100",
+      "module": "treasury_liquidity_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:table:16384",
+      "module": "treasury_liquidity_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "treasury_liquidity_core:table:treasury-liquidity",
+      "module": "treasury_liquidity_core",
+      "kind": "table",
+      "subject": "treasury_liquidity",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'adjusted'), 'closed', 'projected', 'realized', 4), amount, closed_at, closure_reason, created_at, created_by, currency, currency), id, if, index, liq_ref, projected_amount, projected_at, realized_amount, realized_at, source_ref, status, unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:audit:core-reference",
+      "module": "user_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:100",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:20",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "20",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:30",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "30",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:300",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "300",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:audit-trail",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:mfa-backup-codes",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "mfa_backup_codes",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: code_hash, constraint, created_at, id, key, used, used), user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:notification-outbox",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "notification_outbox",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:refresh-sessions",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "refresh_sessions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: constraint, created_at, email, expires_at, family, if, ip, jti, key, last_seen_at, revoked, user_agent",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:so",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "so",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "user_core:table:verification-logs",
+      "module": "user_core",
+      "kind": "table",
+      "subject": "verification_logs",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'email_change', 'mfa_recovery'), 'password_reset', attempts, code, created_at, email, expires_at, id, if, is_used, purpose",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:audit:core-reference",
+      "module": "wallet_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:1",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "1",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:100",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:16383",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "16383",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:20",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "20",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:audit-authz-denied",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "audit_authz_denied",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:audit-trail",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:delimited",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "delimited",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:dispute-cases",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "dispute_cases",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'acknowledged', 'rejected'), 'resolved', assigned_to, case_id, constraint, created_at, decided_at, detail, due_date, if, key, resolution, state, state), subject, txn_ref, updated_at, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:dispute-messages",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "dispute_messages",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: author_id, body, case_id, constraint, created_at, key, msg_id, msg_id)",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:end",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "end",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:exchange-rates",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "exchange_rates",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 6), base_currency_id, constraint, exchange_rate, rate_id, target_currency_id, target_currency_id), unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:if",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "if",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:in",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "in",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:not",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "not",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:pending-transactions",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "pending_transactions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:pic",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "pic",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:reconciliation-runs",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "reconciliation_runs",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'mismatch'), 'scheduled'), actor_email, created_at, key, mismatch_count, run_id, status, trigger_src",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:reversal-fee-policy",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "reversal_fee_policy",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: reason, refund_fee, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:role-permissions",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "role_permissions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:to",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "to",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_core:table:transfer-reversals",
+      "module": "wallet_core",
+      "kind": "table",
+      "subject": "transfer_reversals",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: --, actor_id, constraint, from_email, from_email), if, orig_ref, primary, reason, reversed_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    }
+  ]
+}
