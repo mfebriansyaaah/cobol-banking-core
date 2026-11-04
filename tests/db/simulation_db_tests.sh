@@ -42,6 +42,17 @@ assert_match "SIM_AUDIT ok" "$(run_cobol "SIM_AUDIT|50|0||||admin@test.com")" "S
 assert_match "SIM_VALIDATE ok" "$(run_cobol "SIM_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|SIM_VALID"
 assert_match "non-admin refused" "$(run_cobol "SIM_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+
+# UPDATE (optimistic locking: version bump + audit).
+ver_before="$(db_query "SELECT version FROM simulation WHERE id=${id};")"
+aud_before="$(db_query "SELECT COUNT(*) FROM simulation_audit WHERE simulation_id=${id} AND action='UPDATE';")"
+upd_out="$(run_cobol "SIM_UPDATE|${id}|SimA|MONTE_CARLO|||admin@test.com")"
+assert_match "SIM_UPDATE ok" "$upd_out" "SUCCESS\\|SIM_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM simulation WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM simulation_audit WHERE simulation_id=${id} AND action='UPDATE';")" "^$((aud_before + 1))$"
+assert_match "update missing id" "$(run_cobol "SIM_UPDATE|999999|SimA|MONTE_CARLO|||admin@test.com")" "ERROR\\|NOT_FOUND"
+assert_match "non-admin update refused" "$(run_cobol "SIM_UPDATE|${id}|SimA|MONTE_CARLO|||sender@test.com")" "ERROR\\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0
