@@ -1,7 +1,11 @@
+# R0 00A: single owner today; second owners required for 9/10.
+# See docs/OWNERSHIP.md. Bus factor 1 is a known gap; 9/10 capped at 8.5
+# until second owners are named (review 2026-12-04).
 # Default owner for every path.
 * @mfebriansyaaah
 
 # Domain owners. Keep these aligned with the module classification.
+# TODO(ownership): add backup owner per path; see docs/OWNERSHIP.md.
 /cobol/ @mfebriansyaaah
 /middleware/ @mfebriansyaaah
 /database/ @mfebriansyaaah
