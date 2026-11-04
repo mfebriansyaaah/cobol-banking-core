@@ -92,6 +92,13 @@ gateway), probes, count gate, docs, schema drift, warnings, gateway coverage,
 bench, drills, lint, security, offline tests, and the coverage mapper. It must
 fail — not skip — when a tool is missing.
 
+T-051 dry-run record (2026-11-04): first fully green `--ci-parity` on a
+private MariaDB 11.8 instance (port 3307, provisioned via
+`setup-test-db.sh`). Full serial+sharded fleet, probes, drills, and all
+lint/security gates green, zero FAIL lines. Two discoveries fixed along the
+way: per-run report dirs must not truncate mid-run, and worker DB dumps must
+carry migration-seeded reference data (see branch 05 commits).
+
 ## Cost plan (planning ceiling, replace after 2 weeks)
 
 | Workload | Assumption | Job-minutes/month |
