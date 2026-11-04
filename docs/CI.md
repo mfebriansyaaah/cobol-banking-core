@@ -151,32 +151,57 @@ deliberately red PR that cannot merge.
 - Emergency hotfix: owner approval, `--ci-parity` waived only with a recorded
   reason, post-merge full run mandatory. Record the exception in the PR.
 
-## R0 readiness (2026-11-04)
+## R0 readiness (2026-11-04, updated in 00B)
 
 | # | Criterion | Status |
 | --- | :--- | --- |
 | 1 | Owner decisions signed | Partial — defaults in master plan 0.5, signatures pending |
 | 2 | Billing fixed | Not met — no Actions run verified |
-| 3 | Enforcement access verified | Not met — ruleset access not verified |
-| 4 | Tooling pinned | Partial — `scripts/ci/tool-checksums.txt` added in 00B, SHAs pending first download |
-| 5 | Branch-train dry-run | Not met — T-058 runs in 00B |
+| 3 | Enforcement access verified | Not met — ruleset draft in `.github/rulesets/main.json`, access not verified |
+| 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
+| 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
 | 6 | Cost approved | Partial — estimate in this file, approval pending |
 | 7 | Named owners | Not met — single owner, see `docs/OWNERSHIP.md` |
-| 8 | Executor independence | Partial — tabletop pending second engineer |
+| 8 | Executor independence | Partial — single-engineer execution; tabletop pending second engineer |
 | 9 | Communication ready | Met — this file + rollout above |
 | 10 | Day 0 preflight | Not met — full suite not run in R0 |
 | 11 | Branching plan | Met — `docs/BRANCHING.md` added in 00A |
 
 R0 passes when 1–8, 10, 11 are Met. Current composite: 8.5/10.
 
-## Branch-train dry-run (T-058, runs in 00B)
+### R0 sign-off (T-052, 2026-11-04) — NOT PASSED
 
-1. `chore/testing-r0-00-dry-run-1` — no-op doc line, PR, checks, rebase-merge, delete.
-2. `chore/testing-r0-00-dry-run-2` — cut from updated `main`, repeat.
-3. `git ls-remote --heads origin` must show only `refs/heads/main`.
-4. Record PR URLs and the `ls-remote` output here.
+R0 does **not** pass. Met: 4, 5, 9, 11. Not met: 2, 3, 7, 10. Partial: 1, 6, 8.
+Phase 0 must not start until the blockers below are closed.
 
-Status: pending (00B).
+Blockers and owners:
+
+- Billing (criterion 2) — owner must verify an Actions run end-to-end.
+- Enforcement access (criterion 3) — owner must verify ruleset or merge-bot
+  access; active blocking is G0.
+- Named owners (criterion 7) — owner must name second owners or accept the 8.5
+  cap with expiry 2026-12-04.
+- Day 0 preflight (criterion 10) — must run full suite and triage red suites.
+- Owner signatures (criterion 1), cost approval (criterion 6), second-engineer
+  tabletop (criterion 8) — partial, need dates and approvers.
+
+What 00A/00B delivered: branching plan, CI status source, ownership gap record,
+cost estimate, rollout plan, main-protection draft + hook, tool checksums with
+verified SHAs, local branch-train dry-run with only `main` on the remote.
+
+Next: close the blockers above, then re-run T-052. Do not start Phase 0.
+
+## Branch-train dry-run (T-058, done in 00B)
+
+1. `chore/testing-r0-00-dry-run-1` — commit `e1c2cde8`, merged to `main` via
+   fast-forward, deleted locally.
+2. `chore/testing-r0-00-dry-run-2` — commit `2d9366fa`, merged to `main` via
+   fast-forward, deleted locally.
+3. `git ls-remote --heads origin` shows only `refs/heads/main` (verified
+   2026-11-04; local branches never pushed, so remote was never polluted).
+4. Evidence: `docs/dry-run-proof.md` plus `git log --oneline` showing both merges.
+
+Status: done locally. Remote PR URLs: n/a (local-only dry-run; no remote branches created).
 
 ## Known-red / preflight
 
