@@ -10,4 +10,4 @@
 # 70% gateway branches. The ratchet tolerance is 1.0 percentage point.
 cobol_total 59.61
 gateway_lines 99.26
-gateway_branches 87.69
+gateway_branches 90.35

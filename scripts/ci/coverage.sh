@@ -132,13 +132,13 @@ fi
 
 # Curated money-path/core modules measured for COBOL line coverage.
 CURATED=(
-    main_logic user_core wallet_core auth_core ref_engine gl_core
+    main_logic user_core wallet_core auth_core ref_engine gl_core batch_core
     report_core fee_core eod_core statement_core notification_core loan_core
     loan_schedule_core deposit_core card_core collection_core
-    payment_clearing_core treasury_liquidity_core
-    sanctions_list_core gl_allocation_core
-    cost_center_core fixed_asset_core account_core
-    product_catalog_core
+    payment_clearing_core treasury_liquidity_core kyc_periodic_core
+    aml_screening_core sanctions_list_core fraud_case_core gl_allocation_core
+    cost_center_core fixed_asset_core interest_rate_core account_core
+    customer_core product_catalog_core
 )
 
 # Representative DB suites. Missing suites are skipped with a warning so the
@@ -146,13 +146,13 @@ CURATED=(
 SUITES=(
     schema_tests loan_db_tests loan_schedule_db_tests deposit_db_tests
     card_db_tests collection_db_tests payment_clearing_db_tests
-    treasury_liquidity_db_tests
-    sanctions_list_db_tests gl_allocation_db_tests
-    account_db_tests
-    cost_center_db_tests fixed_asset_db_tests
-    fixed_asset_domain_db_tests product_catalog_db_tests
+    treasury_liquidity_db_tests kyc_periodic_db_tests aml_screening_db_tests
+    sanctions_list_db_tests fraud_case_db_tests gl_allocation_db_tests
+    gl_master_db_tests fee_management_db_tests account_db_tests
+    customer_db_tests cost_center_db_tests fixed_asset_db_tests
+    fixed_asset_domain_db_tests interest_rate_db_tests product_catalog_db_tests
     report_builder_db_tests reporting_db_tests notification_template_db_tests
-    statement_item_db_tests
+    statement_item_db_tests account_statement_db_tests
 )
 
 baseline() {
