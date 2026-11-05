@@ -29295,6 +29295,27 @@ CREATE TABLE `report_archive_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `report_audit`
+--
+
+DROP TABLE IF EXISTS `report_audit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `report_audit` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `action` varchar(40) NOT NULL,
+  `actor_email` varchar(100) NOT NULL,
+  `template_code` varchar(40) DEFAULT NULL,
+  `run_id` int(11) DEFAULT NULL,
+  `detail` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_report_audit_actor` (`actor_email`,`created_at`),
+  KEY `idx_report_audit_run` (`run_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `report_builder`
 --
 

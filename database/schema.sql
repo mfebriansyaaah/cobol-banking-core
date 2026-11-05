@@ -2785,6 +2785,23 @@ CREATE TABLE IF NOT EXISTS report_run_row (
     CHECK (debit >= 0 AND credit >= 0)
 ) ENGINE=InnoDB;
 
+-- Folded from migration 0059 (report audit tracking). This table was dropped
+-- from the snapshot by e2ebf00e (slice 45 rename *_audit -> *_execution_audit)
+-- but live code (report_core AUDIT-REPORT) still writes report_audit, so a
+-- fresh provision ended up without it. Keep both names: aged databases carry
+-- both, and nothing references report_execution_audit yet.
+CREATE TABLE IF NOT EXISTS report_audit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    action VARCHAR(40) NOT NULL,
+    actor_email VARCHAR(100) NOT NULL,
+    template_code VARCHAR(40) NULL,
+    run_id INT NULL,
+    detail VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_report_audit_actor (actor_email, created_at),
+    INDEX idx_report_audit_run (run_id)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS report_execution_audit (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     action VARCHAR(40) NOT NULL,
