@@ -5,37 +5,20 @@
 # by a retirement wave. Never add an entry to make CI green.
 
 account_core CANDIDATE
-asset_management_core CANDIDATE
 backup_drill_core CANDIDATE
 bank_guarantee_core CANDIDATE
-bankers_acceptance_core CANDIDATE
-cashback_core CANDIDATE
 chargeback_core CANDIDATE
-collateral_mgmt_core CANDIDATE
-collateral_repossession_core CANDIDATE
-collateralized_core CANDIDATE
 compliance_calendar_core CANDIDATE
 cost_center_core CANDIDATE
-dispute_management_core CANDIDATE
-documentary_credit_core CANDIDATE
 eod_core CANDIDATE
-export_finance_core CANDIDATE
-factoring_core CANDIDATE
 fixed_asset_core CANDIDATE
 gl_allocation_core CANDIDATE
 import_core CANDIDATE
-import_finance_core CANDIDATE
 letter_of_credit_core CANDIDATE
 loyalty_core CANDIDATE
-loyalty_program_core CANDIDATE
 merchant_settlement_core CANDIDATE
 notification_template_core CANDIDATE
-points_redemption_core CANDIDATE
 report_builder_core CANDIDATE
 report_schedule_core CANDIDATE
-rewards_management_core CANDIDATE
 sla_tracker_core CANDIDATE
-tax_item_core CANDIDATE
 tax_management_core CANDIDATE
-tax_withholding_core CANDIDATE
-trade_finance_core CANDIDATE

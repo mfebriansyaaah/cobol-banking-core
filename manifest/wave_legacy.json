@@ -1,0 +1,23 @@
+{
+  "wave": "legacy",
+  "note": "PR-011+012+013: 17 deprecated legacy modules, replacements in domain_status.json",
+  "modules": [
+    "collateral_mgmt_core",
+    "collateral_repossession_core",
+    "collateralized_core",
+    "trade_finance_core",
+    "documentary_credit_core",
+    "bankers_acceptance_core",
+    "export_finance_core",
+    "import_finance_core",
+    "factoring_core",
+    "tax_withholding_core",
+    "tax_item_core",
+    "dispute_management_core",
+    "loyalty_program_core",
+    "rewards_management_core",
+    "points_redemption_core",
+    "cashback_core",
+    "asset_management_core"
+  ]
+}

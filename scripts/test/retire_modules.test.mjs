@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
@@ -13,6 +14,8 @@ import {
   pruneTokenIdentityMap,
   dropDeadActionEntries,
   dropStaleShadowedRoutes,
+  splitRouteObjects,
+  pruneRouteActions,
 } from '../retire_modules.mjs';
 
 const DISPATCH = [
@@ -182,4 +185,50 @@ test('dropStaleShadowedRoutes drops only fully-gone routes', () => {
   } finally {
     rmSync(d, { recursive: true, force: true });
   }
+});
+
+const SHARED_SRC = [
+  'import { PATTERNS } from "../validation.js";',
+  'export const MIX_ROUTES = [',
+  "  { method: 'get', path: '/mix', action: 'KEEP_GET', fields: [BLANK] },",
+  "  { method: 'post', path: '/mix', action: 'GONE_CREATE', fields: [",
+  "    { name: 'x', pattern: PATTERNS.KEY, required: true },",
+  '  ] },',
+  "  { method: 'get', path: '/mix/:id', action: 'KEEP_GET_ID', fields: [ID] },",
+  '];',
+  '',
+].join('\n');
+
+test('splitRouteObjects finds spans with actions', () => {
+  const objs = splitRouteObjects(SHARED_SRC);
+  assert.equal(objs.length, 3);
+  assert.deepEqual(
+    objs.map((o) => o.action),
+    ['KEEP_GET', 'GONE_CREATE', 'KEEP_GET_ID'],
+  );
+  for (const o of objs) {
+    assert.ok(SHARED_SRC.slice(o.start, o.end).startsWith('{'), 'span starts at brace');
+    assert.ok(SHARED_SRC.slice(o.start, o.end).trimEnd().endsWith('}'), 'span ends at brace');
+  }
+});
+
+test('pruneRouteActions removes only retired objects and stays parseable', () => {
+  const { text, removed } = pruneRouteActions(SHARED_SRC, new Set(['GONE_CREATE']));
+  assert.equal(removed, 1);
+  assert.ok(!text.includes('GONE_CREATE'), 'retired action gone');
+  assert.ok(text.includes('KEEP_GET'), 'kept actions stay');
+  assert.ok(!text.includes(',,') && !text.includes('[,'), 'no dangling separators');
+  const tmp = path.join(tmpdir(), `pruned-${process.pid}.mjs`);
+  writeFileSync(tmp, text);
+  try {
+    execFileSync(process.execPath, ['--check', tmp], { stdio: ['ignore', 'pipe', 'pipe'] });
+  } finally {
+    rmSync(tmp, { force: true });
+  }
+});
+
+test('pruneRouteActions is a no-op without matches', () => {
+  const { text, removed } = pruneRouteActions(SHARED_SRC, new Set(['NOPE']));
+  assert.equal(removed, 0);
+  assert.equal(text, SHARED_SRC);
 });

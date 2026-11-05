@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T00:05:08.966Z",
+  "generatedAt": "2026-11-05T01:42:24.804Z",
   "candidates": [
     {
       "module": "account_core",
@@ -16,24 +16,6 @@
       "trafficLastSeen": null,
       "consumer": null,
       "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "asset_management_core",
-      "domain": "asset_management",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: fixed_asset_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table asset_management: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "fixed_asset_core",
       "ownerSignoff": null,
       "status": "CANDIDATE"
     },
@@ -74,42 +56,6 @@
       "status": "CANDIDATE"
     },
     {
-      "module": "bankers_acceptance_core",
-      "domain": "bankers_acceptance",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table bankers_acceptance: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "letter_of_credit_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "cashback_core",
-      "domain": "cashback",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table cashback: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "loyalty_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
       "module": "chargeback_core",
       "domain": "chargeback",
       "linkageLevel": "L0",
@@ -124,60 +70,6 @@
       "trafficLastSeen": null,
       "consumer": null,
       "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "collateral_mgmt_core",
-      "domain": "collateral_mgmt",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table collateral_mgmt: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "collateral_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "collateral_repossession_core",
-      "domain": "collateral_repossession",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table collateral_repossession: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "collateral_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "collateralized_core",
-      "domain": "collateralized",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table collateralized: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "collateral_core",
       "ownerSignoff": null,
       "status": "CANDIDATE"
     },
@@ -218,42 +110,6 @@
       "status": "CANDIDATE"
     },
     {
-      "module": "dispute_management_core",
-      "domain": "dispute_management",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: chargeback_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table dispute_management: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "chargeback_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "documentary_credit_core",
-      "domain": "documentary_credit",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table documentary_credit: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "letter_of_credit_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
       "module": "eod_core",
       "domain": "eod",
       "linkageLevel": "L0",
@@ -268,42 +124,6 @@
       "trafficLastSeen": null,
       "consumer": null,
       "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "export_finance_core",
-      "domain": "export_finance",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table export_finance: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "letter_of_credit_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "factoring_core",
-      "domain": "factoring",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table factoring: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "letter_of_credit_core",
       "ownerSignoff": null,
       "status": "CANDIDATE"
     },
@@ -362,24 +182,6 @@
       "status": "CANDIDATE"
     },
     {
-      "module": "import_finance_core",
-      "domain": "import_finance",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table import_finance: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "letter_of_credit_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
       "module": "letter_of_credit_core",
       "domain": "letter_of_credit",
       "linkageLevel": "L0",
@@ -412,24 +214,6 @@
       "trafficLastSeen": null,
       "consumer": null,
       "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "loyalty_program_core",
-      "domain": "loyalty_program",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table loyalty_program: also referenced by loyalty_core",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "loyalty_core",
       "ownerSignoff": null,
       "status": "CANDIDATE"
     },
@@ -470,24 +254,6 @@
       "status": "CANDIDATE"
     },
     {
-      "module": "points_redemption_core",
-      "domain": "points_redemption",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table points_redemption: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "loyalty_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
       "module": "report_builder_core",
       "domain": "report_builder",
       "linkageLevel": "L0",
@@ -524,24 +290,6 @@
       "status": "CANDIDATE"
     },
     {
-      "module": "rewards_management_core",
-      "domain": "rewards_management",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table rewards_management: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "loyalty_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
       "module": "sla_tracker_core",
       "domain": "sla_tracker",
       "linkageLevel": "L0",
@@ -560,24 +308,6 @@
       "status": "CANDIDATE"
     },
     {
-      "module": "tax_item_core",
-      "domain": "tax_item",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table tax_item: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "tax_management_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
       "module": "tax_management_core",
       "domain": "tax_management",
       "linkageLevel": "L0",
@@ -592,42 +322,6 @@
       "trafficLastSeen": null,
       "consumer": null,
       "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "tax_withholding_core",
-      "domain": "tax_withholding",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table tax_withholding: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "tax_management_core",
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "trade_finance_core",
-      "domain": "trade_finance",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table trade_finance: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": "letter_of_credit_core",
       "ownerSignoff": null,
       "status": "CANDIDATE"
     }

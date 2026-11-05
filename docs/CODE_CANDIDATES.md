@@ -8,14 +8,14 @@
 
 | Status | Candidates |
 | --- | ---: |
-| CANDIDATE | 276 |
+| CANDIDATE | 35 |
 | DEPRECATED | 0 |
 | RETIRED | 0 |
 
 | Kind | Candidates |
 | --- | ---: |
-| DUPLICATE (template clone) | 236 |
-| UNLINKED (custom code, no core link) | 40 |
+| DUPLICATE (template clone) | 25 |
+| UNLINKED (custom code, no core link) | 10 |
 
 | Module | Link | Status | Replacement | Traffic | Sign-off | Reason |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -44,254 +44,13 @@
 | `loyalty_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `loyalty_program_core` | L0 | CANDIDATE | `loyalty_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `merchant_settlement_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `metric_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `metric_definition_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `metrics_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mezzanine_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mfa_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `micro_lending_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `microfinance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `migration_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `milestone_payment_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mobile_banking_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mobile_wallet_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `monitoring_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mortgage_backed_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mortgage_bank_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mortgage_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `multi_currency_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mutual_fund_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `name_screening_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `nano_lending_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `netting_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `nft_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `nostro_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `notice_deposit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `notification_audit_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `notification_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `notification_mgmt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `notification_template_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `offboarding_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `onboarding_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `oncall_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `oncall_delivery_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `open_banking_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `optimization_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `option_trading_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `order_mgmt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `order_mgmt2_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `organization_unit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `otp_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `outsourcing_contract_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `overdraft_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `password_policy_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `patch_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `pawn_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `payable_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `payment_gateway_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `payment_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `payment_link_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `payment_mgmt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `payment_processing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `peer_lending_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `peer_to_peer_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `penalty_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `pension_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `pep_screening_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `performance_bond_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `performance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `permission_set_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `permit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `personal_loan_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `personalization_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `pipeline_alert_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `pisp_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `planning_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `pnl_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `points_redemption_core` | L0 | CANDIDATE | `loyalty_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `policy_administration_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `policy_attestation_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `policy_review_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `political_risk_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `portfolio_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `portfolio_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `position_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `position_mgmt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `prepaid_card_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `price_feed_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `pricing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `private_banking_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `private_debt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `private_equity_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `problem_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `procedure_review_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `procurement_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `procurement_mgmt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `product_catalog_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `product_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `product_liability_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `professional_indemnity_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `professional_risk_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `profit_center_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `profit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `promissory_note_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `property_insurance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `provisioning_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `public_liability_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `purchasing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `push_notification_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `qr_payment_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `quality_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `quote_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `rate_limiter_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `rate_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `real_estate_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `rebalancing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `rebate_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `receivable_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `recommendation_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `recon_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `recon_exception_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `recon_ops_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `reconciliation_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `recruitment_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `recurring_deposit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `refund_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `refund_processing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `registration_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `regulatory_calendar_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `regulatory_filing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `regulatory_report_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `reinsurance_contract_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `release_mgmt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `remittance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `reopening_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `repo_agreement_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `report_archive_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `report_audit_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `report_builder_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `report_delivery_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `report_schedule_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `report_scheduler_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `reporting_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `research_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `reserve_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `retail_banking_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `retention_job_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `retention_money_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `retry_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `revenue_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `reversal_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `rewards_management_core` | L0 | CANDIDATE | `loyalty_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `risk_assessment_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `risk_model_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `risk_score_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `risk_screening_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `role_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `rollback_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `sanctions_check_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `sanctions_hold_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `sanctions_list_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `savings_account_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `savings_bank_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `scenario_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `search_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `secret_rotation_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `securities_lending_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `securitization_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `service_mesh_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `session_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `session_store_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `settlement_recon_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `shipping_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `simulation_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `sla_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `sla_tracker_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `sla_tracking_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `slo_report_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `smart_contract_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `sms_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `special_purpose_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `standing_instruction_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `standing_order_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `statement_delivery_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `statement_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `stock_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `strategy_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `stress_test_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `structured_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `structured_note_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `structured_product_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `submission_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `subscription_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `supplier_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `supply_chain_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `supply_chain_finance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `surety_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `suspense_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `suspension_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `swap_contract_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `syndicated_loan_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `system_config_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `tax_item_core` | L0 | CANDIDATE | `tax_management_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `tax_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `tax_report_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `tax_withholding_core` | L0 | CANDIDATE | `tax_management_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `teller_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `term_deposit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `termination_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `testing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `theft_insurance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `thrift_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `timeout_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `token_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `tokenization_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `total_return_swap_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `tracing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `tracking_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `trade_credit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `trade_finance_core` | L0 | CANDIDATE | `letter_of_credit_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `training_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `training_record_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `tranche_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `transaction_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `transaction_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `transaction_limit_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `transfer_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `transfer_item_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `transfer_pricing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `travel_insurance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `treasury_deal_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `treasury_position_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `trial_balance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `trust_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `upgrade_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `user_activity_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `valuation_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `variance_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `variance_swap_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vault_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vehicle_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `velocity_check_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vendor_compliance_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vendor_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vendor_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vendor_mgmt_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vendor_risk_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `venture_capital_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `virtual_card_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `volatility_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `vostro_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `warehouse_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `warrant_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `warrant_issuing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `warranty_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `watchlist_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `wealth_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `webhook_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `whistleblowing_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `whitelist_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `wholesale_banking_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `withdrawal_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `workflow_approval_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `write_off_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
