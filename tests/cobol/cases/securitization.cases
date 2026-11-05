@@ -1,6 +1,0 @@
-# Securitization (Wave12) validation cases.
-SEC_CREATE missing ref@@ERROR\|INVALID_INPUT@@SEC_CREATE||||||admin@test.com
-SEC_GET missing id@@ERROR\|INVALID_INPUT@@SEC_GET||||||admin@test.com
-SEC_CALC missing id@@ERROR\|INVALID_INPUT@@SEC_CALC||||||admin@test.com
-SEC_DELETE missing id@@ERROR\|INVALID_INPUT@@SEC_DELETE||||||admin@test.com
-SEC_VALIDATE ok@@SUCCESS\|SEC_VALID@@SEC_VALIDATE|100.00|USD||||admin@test.com

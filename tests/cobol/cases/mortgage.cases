@@ -1,6 +1,0 @@
-# Mortgage (Wave16) validation cases.
-MTG_CREATE missing ref@@ERROR\|INVALID_INPUT@@MTG_CREATE||||||admin@test.com
-MTG_GET missing id@@ERROR\|INVALID_INPUT@@MTG_GET||||||admin@test.com
-MTG_CALC missing id@@ERROR\|INVALID_INPUT@@MTG_CALC||||||admin@test.com
-MTG_DELETE missing id@@ERROR\|INVALID_INPUT@@MTG_DELETE||||||admin@test.com
-MTG_VALIDATE ok@@SUCCESS\|MTG_VALID@@MTG_VALIDATE|100.00|USD||||admin@test.com

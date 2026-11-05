@@ -1,6 +1,0 @@
-# Mortgage Backed (Wave12) validation cases.
-MBS_CREATE missing ref@@ERROR\|INVALID_INPUT@@MBS_CREATE||||||admin@test.com
-MBS_GET missing id@@ERROR\|INVALID_INPUT@@MBS_GET||||||admin@test.com
-MBS_CALC missing id@@ERROR\|INVALID_INPUT@@MBS_CALC||||||admin@test.com
-MBS_DELETE missing id@@ERROR\|INVALID_INPUT@@MBS_DELETE||||||admin@test.com
-MBS_VALIDATE ok@@SUCCESS\|MBS_VALID@@MBS_VALIDATE|100.00|USD||||admin@test.com

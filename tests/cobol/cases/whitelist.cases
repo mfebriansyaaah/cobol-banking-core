@@ -1,6 +1,0 @@
-# Whitelist (Wave8) validation cases.
-WHT_CREATE missing ref@@ERROR\|INVALID_INPUT@@WHT_CREATE||||||admin@test.com
-WHT_GET missing id@@ERROR\|INVALID_INPUT@@WHT_GET||||||admin@test.com
-WHT_CALC missing id@@ERROR\|INVALID_INPUT@@WHT_CALC||||||admin@test.com
-WHT_DELETE missing id@@ERROR\|INVALID_INPUT@@WHT_DELETE||||||admin@test.com
-WHT_VALIDATE ok@@SUCCESS\|WHT_VALID@@WHT_VALIDATE|100.00|USD||||admin@test.com

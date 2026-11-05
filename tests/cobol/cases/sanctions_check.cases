@@ -1,6 +1,0 @@
-# Sanctions Check (Wave13) validation cases.
-SNCS_CREATE missing ref@@ERROR\|INVALID_INPUT@@SNCS_CREATE||||||admin@test.com
-SNCS_GET missing id@@ERROR\|INVALID_INPUT@@SNCS_GET||||||admin@test.com
-SNCS_CALC missing id@@ERROR\|INVALID_INPUT@@SNCS_CALC||||||admin@test.com
-SNCS_DELETE missing id@@ERROR\|INVALID_INPUT@@SNCS_DELETE||||||admin@test.com
-SNCS_VALIDATE ok@@SUCCESS\|SNCS_VALID@@SNCS_VALIDATE|100.00|USD||||admin@test.com

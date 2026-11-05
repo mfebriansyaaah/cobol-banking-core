@@ -1,6 +1,0 @@
-# Revenue (Wave9) validation cases.
-REV_CREATE missing ref@@ERROR\|INVALID_INPUT@@REV_CREATE||||||admin@test.com
-REV_GET missing id@@ERROR\|INVALID_INPUT@@REV_GET||||||admin@test.com
-REV_CALC missing id@@ERROR\|INVALID_INPUT@@REV_CALC||||||admin@test.com
-REV_DELETE missing id@@ERROR\|INVALID_INPUT@@REV_DELETE||||||admin@test.com
-REV_VALIDATE ok@@SUCCESS\|REV_VALID@@REV_VALIDATE|100.00|USD||||admin@test.com

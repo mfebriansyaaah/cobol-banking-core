@@ -24,20 +24,6 @@
 #    but never UPDATE, so optimistic-locking/version-conflict paths are unproven.
 LSC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 TXM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-VOS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WAR_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WDL_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WFA_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WHB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WHK_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WHS_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WHT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WLM_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WOF_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WRI_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WRT_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WSB_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
-WTC_UPDATE  owner=@mfebriansyaaah reason="template UPDATE gap: suite never invokes UPDATE" expires=2027-03-31 ticket=T-019
 # --- 2. Inline app.js routes (auth/session/wallet/admin/disputes/MFA/reconcile).
 #    Exercised over HTTP by middleware/test/*.test.js (paths referenced there);
 #    never invoked via run_cobol or table cases, so shell-level coverage is the gap.
@@ -162,44 +148,6 @@ IRC_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=20
 IRC_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 IRC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 LOY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NAU_ENQUEUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NAU_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NAU_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NAU_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NTF_PREF_CHECK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NTF_PREF_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NTF_PREF_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NTF_SEND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NTF_TEMPLATE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-NTF_TEMPLATE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ODL_CLEANUP  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ODL_CONFIRM  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ODL_ENQUEUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ODL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ODL_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ODL_SEND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ODL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_ACK_PAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_CURRENT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_PAGE_ALERT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_PAGE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_POLICY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_POLICY_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_RESOLVE_PAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_ROTATION_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_ROTATION_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_SHIFT_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_SHIFT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_STEP_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-ONC_STEP_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAL_ACK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAL_RAISE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAL_RESOLVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAT_ATTEST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PAT_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PAY_CHECK  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PAY_DAILY_USAGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PAY_POLICY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
@@ -213,53 +161,6 @@ PIC_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=
 PIC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PIC_PAUSE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 PIC_RESUME  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PRC_REQUEST_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PRC_REQUEST_ORDER  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-PRC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RAU_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RAU_RECORD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RAU_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCL_EVENT_DONE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCL_EVENT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_AUTO_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_ESCALATE_OVERDUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_MANUAL_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_RULE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_RULE_PREVIEW  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_RULE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_UNASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RCP_WORKLOAD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_LAYOUT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_LAYOUT_RENDER  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_LAYOUT_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_SCHEDULE_DUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_SCHEDULE_FAILS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_SCHEDULE_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_SCHEDULE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RDL_SCHEDULE_RUN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_AGING  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_NOTE_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_NOTE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_SLA_GET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_SLA_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RECON_TREND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REG_ACCEPT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REG_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REG_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_ASSIGN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_ESCALATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_HISTORY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_NOTE_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_OPEN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_OVERDUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_RESOLVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-REX_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RFE_TYPE_CREATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RFE_TYPE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RFE_VALUE_APPROVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
@@ -268,10 +169,6 @@ RFE_VALUE_GET  owner=@mfebriansyaaah reason="route file with no DB suite" expire
 RFE_VALUE_HIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RFE_VALUE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RFE_VALUE_RETIRE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RPA_ARCHIVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RPA_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RPA_PURGE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RPA_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RPT_COLUMN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RPT_COLUMN_UPDATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RPT_RUN_COMPLETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
@@ -288,21 +185,6 @@ RPT_TEMPLATE_CLONE  owner=@mfebriansyaaah reason="route file with no DB suite" e
 RPT_TEMPLATE_DELETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RPT_TEMPLATE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RPT_TEMPLATE_UPDATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSC_RUN_COMPLETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSC_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSC_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSC_SCHEDULE_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSC_SCHEDULE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSK_HIT_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSK_PROFILE_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSK_SCREEN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RSK_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RTJ_POLICY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RTJ_POLICY_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RTJ_RUN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RTJ_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-RTJ_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RX_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RX_HIERARCHY_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RX_HIERARCHY_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
@@ -311,23 +193,6 @@ RX_TRANSLATION_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" 
 RX_TRANSLATION_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RX_VALUE_CLONE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 RX_VALUE_GET_ASOF  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SCR_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SCR_ROTATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SCR_SCHEDULE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SCR_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SCR_VERIFY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SHL_HOLD_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SHL_HOLD_RELEASE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SHL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLA_BREACH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLA_DEFINE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLA_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLA_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLO_BURN  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLO_DEFINE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLO_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLO_RECORD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-SLO_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 SRC_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 SRC_FINISH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 SRC_ITEMS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
@@ -336,40 +201,12 @@ SRC_MATCH  owner=@mfebriansyaaah reason="route file with no DB suite" expires=20
 SRC_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 SRC_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 SRC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STL_CLEANUP  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STL_DELIVER  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STL_ENQUEUE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STL_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STL_RETRY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STL_SEND  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STL_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 STMT_ARCHIVE_EXPORT  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 STMT_RUN_FAIL  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 STMT_RUN_GENERATE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 STMT_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 STMT_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 STMT_RUN_STATUS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STR_ITEM_ADD  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STR_ITEM_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STR_ITEM_RESOLVE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STR_RUN_COMPLETE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STR_RUN_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STR_RUN_START  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-STR_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-TAX_FILE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-TAX_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-TAX_PAY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-TAX_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VCC_ASSESS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VCC_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VCC_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VND_VENDOR_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VND_VENDOR_RETIRE  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VND_VENDOR_SET  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VND_VENDOR_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VRK_ASSESS  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VRK_LIST  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
-VRK_SUMMARY  owner=@mfebriansyaaah reason="route file with no DB suite" expires=2027-03-31 ticket=T-020
 # --- 4. Suite exists but does not invoke these actions.
 #    The route surface is richer than what the domain suite exercises
 #    (e.g. LOAN_APPLY/APPROVE/DISBURSE/REJECT/REPAY vs template CRUD).

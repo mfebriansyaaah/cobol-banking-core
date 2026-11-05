@@ -1,6 +1,0 @@
-# Submission (Wave17) validation cases.
-SUB2_CREATE missing ref@@ERROR\|INVALID_INPUT@@SUB2_CREATE||||||admin@test.com
-SUB2_GET missing id@@ERROR\|INVALID_INPUT@@SUB2_GET||||||admin@test.com
-SUB2_CALC missing id@@ERROR\|INVALID_INPUT@@SUB2_CALC||||||admin@test.com
-SUB2_DELETE missing id@@ERROR\|INVALID_INPUT@@SUB2_DELETE||||||admin@test.com
-SUB2_VALIDATE ok@@SUCCESS\|SUB2_VALID@@SUB2_VALIDATE|100.00|USD||||admin@test.com

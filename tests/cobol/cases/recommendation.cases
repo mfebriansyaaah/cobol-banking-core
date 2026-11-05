@@ -1,6 +1,0 @@
-# Recommendation (Wave11) validation cases.
-RCM_CREATE missing ref@@ERROR\|INVALID_INPUT@@RCM_CREATE||||||admin@test.com
-RCM_GET missing id@@ERROR\|INVALID_INPUT@@RCM_GET||||||admin@test.com
-RCM_CALC missing id@@ERROR\|INVALID_INPUT@@RCM_CALC||||||admin@test.com
-RCM_DELETE missing id@@ERROR\|INVALID_INPUT@@RCM_DELETE||||||admin@test.com
-RCM_VALIDATE ok@@SUCCESS\|RCM_VALID@@RCM_VALIDATE|100.00|USD||||admin@test.com

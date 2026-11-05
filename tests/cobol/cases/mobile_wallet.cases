@@ -1,6 +1,0 @@
-# Mobile Wallet (Wave5) validation cases.
-MBW_CREATE missing ref@@ERROR\|INVALID_INPUT@@MBW_CREATE||||||admin@test.com
-MBW_GET missing id@@ERROR\|INVALID_INPUT@@MBW_GET||||||admin@test.com
-MBW_CALC missing id@@ERROR\|INVALID_INPUT@@MBW_CALC||||||admin@test.com
-MBW_DELETE missing id@@ERROR\|INVALID_INPUT@@MBW_DELETE||||||admin@test.com
-MBW_VALIDATE ok@@SUCCESS\|MBW_VALID@@MBW_VALIDATE|100.00|USD||||admin@test.com

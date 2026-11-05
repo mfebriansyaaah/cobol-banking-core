@@ -1,6 +1,0 @@
-# Planning (Wave19) validation cases.
-PLN2_CREATE missing ref@@ERROR\|INVALID_INPUT@@PLN2_CREATE||||||admin@test.com
-PLN2_GET missing id@@ERROR\|INVALID_INPUT@@PLN2_GET||||||admin@test.com
-PLN2_CALC missing id@@ERROR\|INVALID_INPUT@@PLN2_CALC||||||admin@test.com
-PLN2_DELETE missing id@@ERROR\|INVALID_INPUT@@PLN2_DELETE||||||admin@test.com
-PLN2_VALIDATE ok@@SUCCESS\|PLN2_VALID@@PLN2_VALIDATE|100.00|USD||||admin@test.com

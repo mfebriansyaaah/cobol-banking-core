@@ -1,6 +1,0 @@
-# Session Management (Wave8) validation cases.
-SSM_CREATE missing ref@@ERROR\|INVALID_INPUT@@SSM_CREATE||||||admin@test.com
-SSM_GET missing id@@ERROR\|INVALID_INPUT@@SSM_GET||||||admin@test.com
-SSM_CALC missing id@@ERROR\|INVALID_INPUT@@SSM_CALC||||||admin@test.com
-SSM_DELETE missing id@@ERROR\|INVALID_INPUT@@SSM_DELETE||||||admin@test.com
-SSM_VALIDATE ok@@SUCCESS\|SSM_VALID@@SSM_VALIDATE|100.00|USD||||admin@test.com

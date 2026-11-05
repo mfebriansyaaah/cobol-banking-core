@@ -1,6 +1,0 @@
-# Receivable (Wave19) validation cases.
-REC2_CREATE missing ref@@ERROR\|INVALID_INPUT@@REC2_CREATE||||||admin@test.com
-REC2_GET missing id@@ERROR\|INVALID_INPUT@@REC2_GET||||||admin@test.com
-REC2_CALC missing id@@ERROR\|INVALID_INPUT@@REC2_CALC||||||admin@test.com
-REC2_DELETE missing id@@ERROR\|INVALID_INPUT@@REC2_DELETE||||||admin@test.com
-REC2_VALIDATE ok@@SUCCESS\|REC2_VALID@@REC2_VALIDATE|100.00|USD||||admin@test.com

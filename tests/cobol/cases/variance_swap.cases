@@ -1,6 +1,0 @@
-# Variance Swap (Wave9) validation cases.
-VRS_CREATE missing ref@@ERROR\|INVALID_INPUT@@VRS_CREATE||||||admin@test.com
-VRS_GET missing id@@ERROR\|INVALID_INPUT@@VRS_GET||||||admin@test.com
-VRS_CALC missing id@@ERROR\|INVALID_INPUT@@VRS_CALC||||||admin@test.com
-VRS_DELETE missing id@@ERROR\|INVALID_INPUT@@VRS_DELETE||||||admin@test.com
-VRS_VALIDATE ok@@SUCCESS\|VRS_VALID@@VRS_VALIDATE|100.00|USD||||admin@test.com

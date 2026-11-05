@@ -1,6 +1,0 @@
-# Mezzanine (Wave12) validation cases.
-MEZ_CREATE missing ref@@ERROR\|INVALID_INPUT@@MEZ_CREATE||||||admin@test.com
-MEZ_GET missing id@@ERROR\|INVALID_INPUT@@MEZ_GET||||||admin@test.com
-MEZ_CALC missing id@@ERROR\|INVALID_INPUT@@MEZ_CALC||||||admin@test.com
-MEZ_DELETE missing id@@ERROR\|INVALID_INPUT@@MEZ_DELETE||||||admin@test.com
-MEZ_VALIDATE ok@@SUCCESS\|MEZ_VALID@@MEZ_VALIDATE|100.00|USD||||admin@test.com

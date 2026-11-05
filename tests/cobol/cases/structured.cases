@@ -1,6 +1,0 @@
-# Structured (Wave12) validation cases.
-STRU_CREATE missing ref@@ERROR\|INVALID_INPUT@@STRU_CREATE||||||admin@test.com
-STRU_GET missing id@@ERROR\|INVALID_INPUT@@STRU_GET||||||admin@test.com
-STRU_CALC missing id@@ERROR\|INVALID_INPUT@@STRU_CALC||||||admin@test.com
-STRU_DELETE missing id@@ERROR\|INVALID_INPUT@@STRU_DELETE||||||admin@test.com
-STRU_VALIDATE ok@@SUCCESS\|STRU_VALID@@STRU_VALIDATE|100.00|USD||||admin@test.com

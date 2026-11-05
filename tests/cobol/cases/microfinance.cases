@@ -1,6 +1,0 @@
-# Microfinance (Wave16) validation cases.
-MCF_CREATE missing ref@@ERROR\|INVALID_INPUT@@MCF_CREATE||||||admin@test.com
-MCF_GET missing id@@ERROR\|INVALID_INPUT@@MCF_GET||||||admin@test.com
-MCF_CALC missing id@@ERROR\|INVALID_INPUT@@MCF_CALC||||||admin@test.com
-MCF_DELETE missing id@@ERROR\|INVALID_INPUT@@MCF_DELETE||||||admin@test.com
-MCF_VALIDATE ok@@SUCCESS\|MCF_VALID@@MCF_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Special Purpose (Wave12) validation cases.
-SPE_CREATE missing ref@@ERROR\|INVALID_INPUT@@SPE_CREATE||||||admin@test.com
-SPE_GET missing id@@ERROR\|INVALID_INPUT@@SPE_GET||||||admin@test.com
-SPE_CALC missing id@@ERROR\|INVALID_INPUT@@SPE_CALC||||||admin@test.com
-SPE_DELETE missing id@@ERROR\|INVALID_INPUT@@SPE_DELETE||||||admin@test.com
-SPE_VALIDATE ok@@SUCCESS\|SPE_VALID@@SPE_VALIDATE|100.00|USD||||admin@test.com

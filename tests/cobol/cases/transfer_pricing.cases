@@ -1,6 +1,0 @@
-# Transfer Pricing (Wave14) validation cases.
-TPR_CREATE missing ref@@ERROR\|INVALID_INPUT@@TPR_CREATE||||||admin@test.com
-TPR_GET missing id@@ERROR\|INVALID_INPUT@@TPR_GET||||||admin@test.com
-TPR_CALC missing id@@ERROR\|INVALID_INPUT@@TPR_CALC||||||admin@test.com
-TPR_DELETE missing id@@ERROR\|INVALID_INPUT@@TPR_DELETE||||||admin@test.com
-TPR_VALIDATE ok@@SUCCESS\|TPR_VALID@@TPR_VALIDATE|100.00|USD||||admin@test.com

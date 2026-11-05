@@ -1,6 +1,0 @@
-# remittance (Wave1) validation cases.
-RMT_CREATE missing ref@@ERROR\|INVALID_INPUT@@RMT_CREATE||||||admin@test.com
-RMT_GET missing id@@ERROR\|INVALID_INPUT@@RMT_GET||||||admin@test.com
-RMT_CALC missing id@@ERROR\|INVALID_INPUT@@RMT_CALC||||||admin@test.com
-RMT_DELETE missing id@@ERROR\|INVALID_INPUT@@RMT_DELETE||||||admin@test.com
-RMT_VALIDATE ok@@SUCCESS\|RMT_VALID@@RMT_VALIDATE|100.00|USD||||admin@test.com

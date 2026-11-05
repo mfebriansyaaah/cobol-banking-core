@@ -1,6 +1,0 @@
-# Netting (Wave13) validation cases.
-NET_CREATE missing ref@@ERROR\|INVALID_INPUT@@NET_CREATE||||||admin@test.com
-NET_GET missing id@@ERROR\|INVALID_INPUT@@NET_GET||||||admin@test.com
-NET_CALC missing id@@ERROR\|INVALID_INPUT@@NET_CALC||||||admin@test.com
-NET_DELETE missing id@@ERROR\|INVALID_INPUT@@NET_DELETE||||||admin@test.com
-NET_VALIDATE ok@@SUCCESS\|NET_VALID@@NET_VALIDATE|100.00|USD||||admin@test.com

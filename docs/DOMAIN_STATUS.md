@@ -11,7 +11,7 @@
 | ACTIVE | 21 |
 | PILOT | 6 |
 | REVIEW | 2 |
-| FROZEN | 426 |
+| FROZEN | 276 |
 | RETIRED | 0 |
 
 Status meanings: ACTIVE (linked, refactorable with equivalence), PILOT (L2,
@@ -38,179 +38,29 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `compliance_calendar` | `compliance_calendar_core` | 2 | L0 | FROZEN | compliance_calendar.js | compliance_calendar | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `cost_center` | `cost_center_core` | 2 | L0 | FROZEN | cost_center.js | cost_center | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `dashboard` | `dashboard_core` | 2 | L1 | REVIEW | dashboard.js | accounts | — | Weak or untested link; manual review decides upgrade-to-L2 or dead-candidate. |
-| `data_warehouse` | `data_warehouse_core` | 2 | L0 | FROZEN | data_warehouse.js | data_warehouse | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `deactivation_item` | `deactivation_item_core` | 2 | L0 | FROZEN | deactivation_item.js | deactivation_item | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `debit_card` | `debit_card_core` | 2 | L0 | FROZEN | debit_card.js | debit_card | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `debt_collection` | `debt_collection_core` | 2 | L0 | FROZEN | debt_collection.js | debt_collection | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `debt_recovery` | `debt_recovery_core` | 2 | L0 | FROZEN | debt_recovery.js | debt_recovery | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `delegation` | `delegation_core` | 2 | L0 | FROZEN | delegation.js | delegation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `delivery` | `delivery_core` | 2 | L0 | FROZEN | delivery.js | delivery | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `department` | `department_core` | 2 | L0 | FROZEN | department.js | department | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `deployment` | `deployment_core` | 2 | L0 | FROZEN | deployment.js | deployment | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `deposit_book` | `deposit_book_core` | 2 | L0 | FROZEN | deposit_book.js | deposit_book | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `deposit` | `deposit_core` | 1 | L3 | ACTIVE | deposit.js | deposit_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `derivative` | `derivative_core` | 2 | L0 | FROZEN | derivative.js | derivative | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `development` | `development_core` | 2 | L0 | FROZEN | development.js | development | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `device_management` | `device_management_core` | 2 | L0 | FROZEN | device_management.js | device_management | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `digital_asset` | `digital_asset_core` | 2 | L0 | FROZEN | digital_asset.js | digital_asset | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `digital_banking` | `digital_banking_core` | 2 | L0 | FROZEN | digital_banking.js | digital_banking | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `digital_banking2` | `digital_banking2_core` | 2 | L0 | FROZEN | digital_banking2.js | digital_banking2 | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `direct_debit` | `direct_debit_core` | 2 | L0 | FROZEN | direct_debit.js | direct_debit | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `direct_lending` | `direct_lending_core` | 2 | L0 | FROZEN | direct_lending.js | direct_lending | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `directors_liability` | `directors_liability_core` | 2 | L0 | FROZEN | directors_liability.js | directors_liability | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `disaster_recovery` | `disaster_recovery_core` | 2 | L0 | FROZEN | disaster_recovery.js | dr_plan | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `discount_item` | `discount_item_core` | 2 | L0 | FROZEN | discount_item.js | discount_item | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `dispute_management` | `dispute_management_core` | 2 | L0 | FROZEN | dispute_management.js | dispute_management | `chargeback_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: chargeback_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `dispute_notify` | `dispute_notify_core` | 2 | L0 | FROZEN | dispute_notify.js | dispute_notification | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `dispute_ops` | `dispute_ops_core` | 2 | L0 | FROZEN | dispute_ops.js | dispute_cases | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `distressed` | `distressed_core` | 2 | L0 | FROZEN | distressed.js | distressed | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `distribution` | `distribution_core` | 2 | L0 | FROZEN | distribution.js | distribution | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `document` | `document_core` | 2 | L0 | FROZEN | document.js | document | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `documentary_credit` | `documentary_credit_core` | 2 | L0 | FROZEN | documentary_credit.js | documentary_credit | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `dq_check` | `dq_check_core` | 2 | L0 | FROZEN | dq_check.js | dq_check | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `dsar` | `dsar_core` | 2 | L0 | FROZEN | dsar.js | dsar_request | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `elimination` | `elimination_core` | 2 | L0 | FROZEN | elimination.js | elimination | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `email` | `email_core` | 2 | L0 | FROZEN | email.js | email | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `employee` | `employee_core` | 2 | L0 | FROZEN | employee.js | employee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `employer_liability` | `employer_liability_core` | 2 | L0 | FROZEN | employer_liability.js | employer_liability | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `employment_practices` | `employment_practices_core` | 2 | L0 | FROZEN | employment_practices.js | employment_practices | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `eod` | `eod_core` | 2 | L0 | FROZEN | eod.js | eod_phase | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `eod_jobs` | `eod_jobs_core` | 2 | L1 | REVIEW | eod_jobs.js | eod_job_run | — | Weak or untested link; manual review decides upgrade-to-L2 or dead-candidate. |
-| `equity_account` | `equity_account_core` | 2 | L0 | FROZEN | equity_account.js | equity_account | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `equity` | `equity_core` | 2 | L0 | FROZEN | equity.js | equity | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `equity_swap` | `equity_swap_core` | 2 | L0 | FROZEN | equity_swap.js | equity_swap | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `errors_omissions` | `errors_omissions_core` | 2 | L0 | FROZEN | errors_omissions.js | errors_omissions | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `escalation` | `escalation_core` | 2 | L0 | FROZEN | escalation.js | escalation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `escrow_account` | `escrow_account_core` | 2 | L0 | FROZEN | escrow_account.js | escrow_account | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `etf` | `etf_core` | 2 | L0 | FROZEN | etf.js | etf | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `etl` | `etl_core` | 2 | L0 | FROZEN | etl.js | etl | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `event_bus` | `event_bus_core` | 2 | L0 | FROZEN | event_bus.js | event_bus | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `execution` | `execution_core` | 2 | L0 | FROZEN | execution.js | execution | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `expense` | `expense_core` | 2 | L0 | FROZEN | expense.js | expense | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `experiment` | `experiment_core` | 2 | L0 | FROZEN | experiment.js | experiment | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `export_archive` | `export_archive_core` | 2 | L0 | FROZEN | export_archive.js | export_archive | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `export_finance` | `export_finance_core` | 2 | L0 | FROZEN | export_finance.js | export_finance | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `export_stream` | `export_stream_core` | 2 | L0 | FROZEN | export_stream.js | export_download_token | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `exposure` | `exposure_core` | 2 | L0 | FROZEN | exposure.js | exposure | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `external_audit` | `external_audit_core` | 2 | L0 | FROZEN | external_audit.js | — | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `factoring_company` | `factoring_company_core` | 2 | L0 | FROZEN | factoring_company.js | factoring_company | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `factoring` | `factoring_core` | 2 | L0 | FROZEN | factoring.js | factoring | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `feature_flag` | `feature_flag_core` | 2 | L0 | FROZEN | feature_flag.js | feature_flag | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `fee` | `fee_core` | 1 | L3 | ACTIVE | fee.js | fee_rule | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `fee_item` | `fee_item_core` | 2 | L0 | FROZEN | fee_item.js | fee_item | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fee_management` | `fee_management_core` | 2 | L0 | FROZEN | fee_management.js | fee_management | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fee_waiver` | `fee_waiver_core` | 2 | L0 | FROZEN | fee_waiver.js | fee_waiver_request | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fidelity` | `fidelity_core` | 2 | L0 | FROZEN | fidelity.js | fidelity | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fiduciary` | `fiduciary_core` | 2 | L0 | FROZEN | fiduciary.js | fiduciary | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `filing` | `filing_core` | 2 | L0 | FROZEN | filing.js | filing | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fill` | `fill_core` | 2 | L0 | FROZEN | fill.js | fill | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `final_payment` | `final_payment_core` | 2 | L0 | FROZEN | final_payment.js | final_payment | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `finance_company` | `finance_company_core` | 2 | L0 | FROZEN | finance_company.js | finance_company | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fire_insurance` | `fire_insurance_core` | 2 | L0 | FROZEN | fire_insurance.js | fire_insurance | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `fixed_asset` | `fixed_asset_core` | 2 | L0 | FROZEN | fixed_asset.js | fixed_asset | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `fixed_deposit` | `fixed_deposit_core` | 2 | L0 | FROZEN | fixed_deposit.js | fixed_deposit | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `forecast` | `forecast_core` | 2 | L0 | FROZEN | forecast.js | forecast | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `forecast_mgmt` | `forecast_mgmt_core` | 2 | L0 | FROZEN | forecast_mgmt.js | forecast_mgmt | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `foreclosure` | `foreclosure_core` | 2 | L0 | FROZEN | foreclosure.js | foreclosure | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `foreign_currency_deposit` | `foreign_currency_deposit_core` | 2 | L0 | FROZEN | foreign_currency_deposit.js | foreign_currency_deposit | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fraud_case` | `fraud_case_core` | 2 | L0 | FROZEN | fraud_case.js | fraud_case | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fraud_check` | `fraud_check_core` | 2 | L0 | FROZEN | fraud_check.js | fraud_check | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fraud_ops` | `fraud_ops_core` | 2 | L0 | FROZEN | fraud_ops.js | fraud_review | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fulfillment` | `fulfillment_core` | 2 | L0 | FROZEN | fulfillment.js | fulfillment | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fund` | `fund_core` | 2 | L0 | FROZEN | fund.js | fund | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `future_contract` | `future_contract_core` | 2 | L0 | FROZEN | future_contract.js | future_contract | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fx_deal` | `fx_deal_core` | 2 | L0 | FROZEN | fx_deal.js | fx_deal | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fx_forward` | `fx_forward_core` | 2 | L0 | FROZEN | fx_forward.js | fx_forward | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fx_hedging` | `fx_hedging_core` | 2 | L0 | FROZEN | fx_hedging.js | fx_hedging | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fx_option` | `fx_option_core` | 2 | L0 | FROZEN | fx_option.js | fx_option | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fx_swap` | `fx_swap_core` | 2 | L0 | FROZEN | fx_swap.js | fx_swap | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `gift_card` | `gift_card_core` | 2 | L0 | FROZEN | gift_card.js | gift_card | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `gl_allocation` | `gl_allocation_core` | 2 | L0 | FROZEN | gl_allocation.js | gl_allocation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `gl` | `gl_core` | 1 | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `gl_master` | `gl_master_core` | 2 | L0 | FROZEN | gl_master.js | gl_master | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `gl_period_close` | `gl_period_close_core` | 2 | L0 | FROZEN | gl_period_close.js | gl_period_lock | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `gl_reval` | `gl_reval_core` | 2 | L0 | FROZEN | gl_reval.js | gl_revaluation_run | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `greeks` | `greeks_core` | 2 | L0 | FROZEN | greeks.js | greeks | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `guarantee` | `guarantee_core` | 2 | L0 | FROZEN | guarantee.js | guarantee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `guarantee_issuing` | `guarantee_issuing_core` | 2 | L0 | FROZEN | guarantee_issuing.js | guarantee_issuing | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `hashlen` | `hashlen_core` | 3 | UTILITY | ACTIVE | — | — | — | Tier-3 utility; never a retire candidate. |
-| `health_check` | `health_check_core` | 2 | L0 | FROZEN | health_check.js | health_check | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `health_insurance` | `health_insurance_core` | 2 | L0 | FROZEN | health_insurance.js | health_insurance | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `hedge` | `hedge_core` | 2 | L0 | FROZEN | hedge.js | hedge | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `hedge_fund` | `hedge_fund_core` | 2 | L0 | FROZEN | hedge_fund.js | hedge_fund | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `hire_purchase` | `hire_purchase_core` | 2 | L0 | FROZEN | hire_purchase.js | hire_purchase | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `home_insurance` | `home_insurance_core` | 2 | L0 | FROZEN | home_insurance.js | home_insurance | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `hotfix` | `hotfix_core` | 2 | L0 | FROZEN | hotfix.js | hotfix | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `housing_finance` | `housing_finance_core` | 2 | L0 | FROZEN | housing_finance.js | housing_finance | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import` | `import_core` | 2 | L0 | FROZEN | import.js | import_row | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import_finance` | `import_finance_core` | 2 | L0 | FROZEN | import_finance.js | import_finance | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `import_post` | `import_post_core` | 2 | L3 | ACTIVE | — | import_batch | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `import_recon` | `import_recon_core` | 2 | L2 | PILOT | import_recon.js | import_recon_item | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
-| `in_app_message` | `in_app_message_core` | 2 | L0 | FROZEN | in_app_message.js | in_app_message | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `incident` | `incident_core` | 2 | L0 | FROZEN | incident.js | incident | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `incident_mgmt` | `incident_mgmt_core` | 2 | L0 | FROZEN | incident_mgmt.js | incident_mgmt | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `incident_postmortem` | `incident_postmortem_core` | 2 | L0 | FROZEN | incident_postmortem.js | incident_postmortem | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `incident_report` | `incident_report_core` | 2 | L0 | FROZEN | incident_report.js | incident_report | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `income_statement` | `income_statement_core` | 2 | L0 | FROZEN | income_statement.js | income_statement | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `index_mgmt` | `index_mgmt_core` | 2 | L0 | FROZEN | index_mgmt.js | index_mgmt | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `indexing` | `indexing_core` | 2 | L0 | FROZEN | indexing.js | indexing | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `infrastructure` | `infrastructure_core` | 2 | L0 | FROZEN | infrastructure.js | infrastructure | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `insurance_policy` | `insurance_policy_core` | 2 | L0 | FROZEN | insurance_policy.js | insurance_policy | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `intercompany` | `intercompany_core` | 2 | L0 | FROZEN | intercompany.js | intercompany | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `interest_item` | `interest_item_core` | 2 | L0 | FROZEN | interest_item.js | interest_item | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `interest_rate` | `interest_rate_core` | 2 | L0 | FROZEN | interest_rate.js | interest_rate | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `interest_rate_swap` | `interest_rate_swap_core` | 2 | L0 | FROZEN | interest_rate_swap.js | interest_rate_swap | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `internal_audit` | `internal_audit_core` | 2 | L0 | FROZEN | internal_audit.js | — | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `internet_banking` | `internet_banking_core` | 2 | L0 | FROZEN | internet_banking.js | internet_banking | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `internet_banking2` | `internet_banking2_core` | 2 | L0 | FROZEN | internet_banking2.js | internet_banking2 | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `inventory` | `inventory_core` | 2 | L0 | FROZEN | inventory.js | inventory | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `investigation` | `investigation_core` | 2 | L0 | FROZEN | investigation.js | investigation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `investment_banking` | `investment_banking_core` | 2 | L0 | FROZEN | investment_banking.js | investment_banking | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `investment` | `investment_core` | 2 | L0 | FROZEN | investment.js | investment | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `invoice` | `invoice_core` | 2 | L0 | FROZEN | invoice.js | invoice | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `invoice_discounting` | `invoice_discounting_core` | 2 | L0 | FROZEN | invoice_discounting.js | invoice_discounting | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `invoice_financing` | `invoice_financing_core` | 2 | L0 | FROZEN | invoice_financing.js | invoice_financing | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `invoice_mgmt` | `invoice_mgmt_core` | 2 | L0 | FROZEN | invoice_mgmt.js | invoice_mgmt | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `journal` | `journal_core` | 2 | L0 | FROZEN | journal.js | journal | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `key_rotation` | `key_rotation_core` | 2 | L0 | FROZEN | key_rotation.js | key_rotation_plan | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `kidnap_ransom` | `kidnap_ransom_core` | 2 | L0 | FROZEN | kidnap_ransom.js | kidnap_ransom | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `kpi` | `kpi_core` | 2 | L0 | FROZEN | kpi.js | kpi | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `kyc_check` | `kyc_check_core` | 2 | L0 | FROZEN | kyc_check.js | kyc_check | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `kyc_periodic` | `kyc_periodic_core` | 2 | L0 | FROZEN | kyc_periodic.js | kyc_periodic | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `kyc_review` | `kyc_review_core` | 2 | L0 | FROZEN | kyc.js | kyc_review | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `lbpue` | `lbpue_core` | 2 | L0 | FROZEN | lbpue.js | lbpue_report | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `leasing_company` | `leasing_company_core` | 2 | L0 | FROZEN | leasing_company.js | leasing_company | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `leasing` | `leasing_core` | 2 | L0 | FROZEN | leasing.js | leasing | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `leave_management` | `leave_management_core` | 2 | L0 | FROZEN | leave_management.js | leave_management | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `legal_case` | `legal_case_core` | 2 | L0 | FROZEN | legal_case.js | legal_case | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `legal_hold` | `legal_hold_core` | 2 | L0 | FROZEN | legal_hold.js | legal_hold | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `letter_of_credit` | `letter_of_credit_core` | 2 | L0 | FROZEN | letter_of_credit.js | letter_of_credit | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `letter_of_guarantee` | `letter_of_guarantee_core` | 2 | L0 | FROZEN | letter_of_guarantee.js | letter_of_guarantee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `liability` | `liability_core` | 2 | L0 | FROZEN | liability.js | liability | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `liability_insurance` | `liability_insurance_core` | 2 | L0 | FROZEN | liability_insurance.js | liability_insurance | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `license` | `license_core` | 2 | L0 | FROZEN | license.js | license | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `life_insurance` | `life_insurance_core` | 2 | L0 | FROZEN | life_insurance.js | life_insurance | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `limit_profile` | `limit_profile_core` | 2 | L0 | FROZEN | limit_profile.js | limit_profile | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `load_balancer` | `load_balancer_core` | 2 | L0 | FROZEN | load_balancer.js | load_balancer | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `loan_account` | `loan_account_core` | 2 | L0 | FROZEN | loan_account.js | loan_account | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `loan` | `loan_core` | 1 | L3 | ACTIVE | loan.js | loan | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `loan_schedule` | `loan_schedule_core` | 1 | L3 | ACTIVE | loan_schedule.js | loan_schedule | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `logging` | `logging_core` | 2 | L0 | FROZEN | logging.js | logging | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `login_attempt` | `login_attempt_core` | 2 | L0 | FROZEN | login_attempt.js | login_attempt | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `logistics` | `logistics_core` | 2 | L0 | FROZEN | logistics.js | logistics | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `loss_reserve` | `loss_reserve_core` | 2 | L0 | FROZEN | loss_reserve.js | loss_reserve | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `loyalty` | `loyalty_core` | 2 | L0 | FROZEN | loyalty.js | loyalty_member | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `loyalty_program` | `loyalty_program_core` | 2 | L0 | FROZEN | loyalty_program.js | loyalty_program | `loyalty_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `management_liability` | `management_liability_core` | 2 | L0 | FROZEN | management_liability.js | management_liability | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `margin` | `margin_core` | 2 | L0 | FROZEN | margin.js | margin | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `margin_trading` | `margin_trading_core` | 2 | L0 | FROZEN | margin_trading.js | margin_trading | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `marine_insurance` | `marine_insurance_core` | 2 | L0 | FROZEN | marine_insurance.js | marine_insurance | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `mark_to_market` | `mark_to_market_core` | 2 | L0 | FROZEN | mark_to_market.js | mark_to_market | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `market_data` | `market_data_core` | 2 | L0 | FROZEN | market_data.js | market_data | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `master_data` | `master_data_core` | 2 | L0 | FROZEN | master_data.js | master_data | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `merchant` | `merchant_core` | 2 | L2 | PILOT | merchant.js | merchant | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `merchant_settlement` | `merchant_settlement_core` | 2 | L0 | FROZEN | merchant_settlement.js | merchant_settlement | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `message_queue` | `message_queue_core` | 2 | L0 | FROZEN | message_queue.js | message_queue | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `metric` | `metric_core` | 2 | L0 | FROZEN | metric.js | metric | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `metric_definition` | `metric_definition_core` | 2 | L0 | FROZEN | metric_definition.js | metric_definition | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `metrics` | `metrics_core` | 2 | L0 | FROZEN | metrics.js | metrics | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |

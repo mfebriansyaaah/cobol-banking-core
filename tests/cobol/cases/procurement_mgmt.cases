@@ -1,6 +1,0 @@
-# Procurement Mgmt (Wave19) validation cases.
-PRCM_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRCM_CREATE||||||admin@test.com
-PRCM_GET missing id@@ERROR\|INVALID_INPUT@@PRCM_GET||||||admin@test.com
-PRCM_CALC missing id@@ERROR\|INVALID_INPUT@@PRCM_CALC||||||admin@test.com
-PRCM_DELETE missing id@@ERROR\|INVALID_INPUT@@PRCM_DELETE||||||admin@test.com
-PRCM_VALIDATE ok@@SUCCESS\|PRCM_VALID@@PRCM_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Pep Screening (Wave8) validation cases.
-PEP_CREATE missing ref@@ERROR\|INVALID_INPUT@@PEP_CREATE||||||admin@test.com
-PEP_GET missing id@@ERROR\|INVALID_INPUT@@PEP_GET||||||admin@test.com
-PEP_CALC missing id@@ERROR\|INVALID_INPUT@@PEP_CALC||||||admin@test.com
-PEP_DELETE missing id@@ERROR\|INVALID_INPUT@@PEP_DELETE||||||admin@test.com
-PEP_VALIDATE ok@@SUCCESS\|PEP_VALID@@PEP_VALIDATE|100.00|USD||||admin@test.com

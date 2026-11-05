@@ -1,6 +1,0 @@
-# Testing (Wave19) validation cases.
-TST_CREATE missing ref@@ERROR\|INVALID_INPUT@@TST_CREATE||||||admin@test.com
-TST_GET missing id@@ERROR\|INVALID_INPUT@@TST_GET||||||admin@test.com
-TST_CALC missing id@@ERROR\|INVALID_INPUT@@TST_CALC||||||admin@test.com
-TST_DELETE missing id@@ERROR\|INVALID_INPUT@@TST_DELETE||||||admin@test.com
-TST_VALIDATE ok@@SUCCESS\|TST_VALID@@TST_VALIDATE|100.00|USD||||admin@test.com

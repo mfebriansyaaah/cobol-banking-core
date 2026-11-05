@@ -1,6 +1,0 @@
-# Transfer Item (Wave15) validation cases.
-TRNF_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRNF_CREATE||||||admin@test.com
-TRNF_GET missing id@@ERROR\|INVALID_INPUT@@TRNF_GET||||||admin@test.com
-TRNF_CALC missing id@@ERROR\|INVALID_INPUT@@TRNF_CALC||||||admin@test.com
-TRNF_DELETE missing id@@ERROR\|INVALID_INPUT@@TRNF_DELETE||||||admin@test.com
-TRNF_VALIDATE ok@@SUCCESS\|TRNF_VALID@@TRNF_VALIDATE|100.00|USD||||admin@test.com

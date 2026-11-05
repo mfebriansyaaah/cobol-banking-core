@@ -1,6 +1,0 @@
-# Optimization (Wave14) validation cases.
-OPTM_CREATE missing ref@@ERROR\|INVALID_INPUT@@OPTM_CREATE||||||admin@test.com
-OPTM_GET missing id@@ERROR\|INVALID_INPUT@@OPTM_GET||||||admin@test.com
-OPTM_CALC missing id@@ERROR\|INVALID_INPUT@@OPTM_CALC||||||admin@test.com
-OPTM_DELETE missing id@@ERROR\|INVALID_INPUT@@OPTM_DELETE||||||admin@test.com
-OPTM_VALIDATE ok@@SUCCESS\|OPTM_VALID@@OPTM_VALIDATE|100.00|USD||||admin@test.com

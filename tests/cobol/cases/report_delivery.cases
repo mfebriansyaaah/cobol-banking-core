@@ -1,4 +1,0 @@
-RDL_LAYOUT_GET missing first param@@ERROR\|INVALID_INPUT@@RDL_LAYOUT_GET||||||admin@test.com
-RDL_SCHEDULE_CREATE missing first param@@ERROR\|INVALID_INPUT@@RDL_SCHEDULE_CREATE||||||admin@test.com
-RDL_SCHEDULE_UPDATE missing first param@@ERROR\|INVALID_INPUT@@RDL_SCHEDULE_UPDATE||||||admin@test.com
-RDL_SCHEDULE_DELETE missing first param@@ERROR\|INVALID_INPUT@@RDL_SCHEDULE_DELETE||||||admin@test.com

@@ -1,6 +1,0 @@
-# Wholesale Banking (Wave20) validation cases.
-WSB_CREATE missing ref@@ERROR\|INVALID_INPUT@@WSB_CREATE||||||admin@test.com
-WSB_GET missing id@@ERROR\|INVALID_INPUT@@WSB_GET||||||admin@test.com
-WSB_CALC missing id@@ERROR\|INVALID_INPUT@@WSB_CALC||||||admin@test.com
-WSB_DELETE missing id@@ERROR\|INVALID_INPUT@@WSB_DELETE||||||admin@test.com
-WSB_VALIDATE ok@@SUCCESS\|WSB_VALID@@WSB_VALIDATE|100.00|USD||||admin@test.com

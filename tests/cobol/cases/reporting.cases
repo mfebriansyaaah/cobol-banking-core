@@ -1,6 +1,0 @@
-# Reporting (Wave10) validation cases.
-RPTG_CREATE missing ref@@ERROR\|INVALID_INPUT@@RPTG_CREATE||||||admin@test.com
-RPTG_GET missing id@@ERROR\|INVALID_INPUT@@RPTG_GET||||||admin@test.com
-RPTG_CALC missing id@@ERROR\|INVALID_INPUT@@RPTG_CALC||||||admin@test.com
-RPTG_DELETE missing id@@ERROR\|INVALID_INPUT@@RPTG_DELETE||||||admin@test.com
-RPTG_VALIDATE ok@@SUCCESS\|RPTG_VALID@@RPTG_VALIDATE|100.00|USD||||admin@test.com

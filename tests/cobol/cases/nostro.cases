@@ -1,6 +1,0 @@
-# Nostro (Wave13) validation cases.
-NOS_CREATE missing ref@@ERROR\|INVALID_INPUT@@NOS_CREATE||||||admin@test.com
-NOS_GET missing id@@ERROR\|INVALID_INPUT@@NOS_GET||||||admin@test.com
-NOS_CALC missing id@@ERROR\|INVALID_INPUT@@NOS_CALC||||||admin@test.com
-NOS_DELETE missing id@@ERROR\|INVALID_INPUT@@NOS_DELETE||||||admin@test.com
-NOS_VALIDATE ok@@SUCCESS\|NOS_VALID@@NOS_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Transaction (Wave13) validation cases.
-TXN_CREATE missing ref@@ERROR\|INVALID_INPUT@@TXN_CREATE||||||admin@test.com
-TXN_GET missing id@@ERROR\|INVALID_INPUT@@TXN_GET||||||admin@test.com
-TXN_CALC missing id@@ERROR\|INVALID_INPUT@@TXN_CALC||||||admin@test.com
-TXN_DELETE missing id@@ERROR\|INVALID_INPUT@@TXN_DELETE||||||admin@test.com
-TXN_VALIDATE ok@@SUCCESS\|TXN_VALID@@TXN_VALIDATE|100.00|USD||||admin@test.com

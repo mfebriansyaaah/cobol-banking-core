@@ -1,6 +1,0 @@
-# Suspension Item (Wave15) validation cases.
-SPN_CREATE missing ref@@ERROR\|INVALID_INPUT@@SPN_CREATE||||||admin@test.com
-SPN_GET missing id@@ERROR\|INVALID_INPUT@@SPN_GET||||||admin@test.com
-SPN_CALC missing id@@ERROR\|INVALID_INPUT@@SPN_CALC||||||admin@test.com
-SPN_DELETE missing id@@ERROR\|INVALID_INPUT@@SPN_DELETE||||||admin@test.com
-SPN_VALIDATE ok@@SUCCESS\|SPN_VALID@@SPN_VALIDATE|100.00|USD||||admin@test.com

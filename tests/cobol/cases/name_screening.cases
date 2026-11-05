@@ -1,6 +1,0 @@
-# Name Screening (Wave8) validation cases.
-NSC_CREATE missing ref@@ERROR\|INVALID_INPUT@@NSC_CREATE||||||admin@test.com
-NSC_GET missing id@@ERROR\|INVALID_INPUT@@NSC_GET||||||admin@test.com
-NSC_CALC missing id@@ERROR\|INVALID_INPUT@@NSC_CALC||||||admin@test.com
-NSC_DELETE missing id@@ERROR\|INVALID_INPUT@@NSC_DELETE||||||admin@test.com
-NSC_VALIDATE ok@@SUCCESS\|NSC_VALID@@NSC_VALIDATE|100.00|USD||||admin@test.com

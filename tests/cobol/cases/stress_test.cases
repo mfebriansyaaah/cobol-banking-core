@@ -1,6 +1,0 @@
-# Stress Test (Wave7) validation cases.
-SST_CREATE missing ref@@ERROR\|INVALID_INPUT@@SST_CREATE||||||admin@test.com
-SST_GET missing id@@ERROR\|INVALID_INPUT@@SST_GET||||||admin@test.com
-SST_CALC missing id@@ERROR\|INVALID_INPUT@@SST_CALC||||||admin@test.com
-SST_DELETE missing id@@ERROR\|INVALID_INPUT@@SST_DELETE||||||admin@test.com
-SST_VALIDATE ok@@SUCCESS\|SST_VALID@@SST_VALIDATE|100.00|USD||||admin@test.com

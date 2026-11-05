@@ -1,6 +1,0 @@
-# Subscription (Wave10) validation cases.
-SUB_CREATE missing ref@@ERROR\|INVALID_INPUT@@SUB_CREATE||||||admin@test.com
-SUB_GET missing id@@ERROR\|INVALID_INPUT@@SUB_GET||||||admin@test.com
-SUB_CALC missing id@@ERROR\|INVALID_INPUT@@SUB_CALC||||||admin@test.com
-SUB_DELETE missing id@@ERROR\|INVALID_INPUT@@SUB_DELETE||||||admin@test.com
-SUB_VALIDATE ok@@SUCCESS\|SUB_VALID@@SUB_VALIDATE|100.00|USD||||admin@test.com

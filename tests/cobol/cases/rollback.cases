@@ -1,6 +1,0 @@
-# Rollback (Wave17) validation cases.
-ROL_CREATE missing ref@@ERROR\|INVALID_INPUT@@ROL_CREATE||||||admin@test.com
-ROL_GET missing id@@ERROR\|INVALID_INPUT@@ROL_GET||||||admin@test.com
-ROL_CALC missing id@@ERROR\|INVALID_INPUT@@ROL_CALC||||||admin@test.com
-ROL_DELETE missing id@@ERROR\|INVALID_INPUT@@ROL_DELETE||||||admin@test.com
-ROL_VALIDATE ok@@SUCCESS\|ROL_VALID@@ROL_VALIDATE|100.00|USD||||admin@test.com

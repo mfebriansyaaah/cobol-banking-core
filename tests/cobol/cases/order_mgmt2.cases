@@ -1,6 +1,0 @@
-# Order Mgmt2 (Wave19) validation cases.
-ORD2_CREATE missing ref@@ERROR\|INVALID_INPUT@@ORD2_CREATE||||||admin@test.com
-ORD2_GET missing id@@ERROR\|INVALID_INPUT@@ORD2_GET||||||admin@test.com
-ORD2_CALC missing id@@ERROR\|INVALID_INPUT@@ORD2_CALC||||||admin@test.com
-ORD2_DELETE missing id@@ERROR\|INVALID_INPUT@@ORD2_DELETE||||||admin@test.com
-ORD2_VALIDATE ok@@SUCCESS\|ORD2_VALID@@ORD2_VALIDATE|100.00|USD||||admin@test.com

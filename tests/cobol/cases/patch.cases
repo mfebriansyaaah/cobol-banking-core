@@ -1,6 +1,0 @@
-# Patch (Wave17) validation cases.
-PCH_CREATE missing ref@@ERROR\|INVALID_INPUT@@PCH_CREATE||||||admin@test.com
-PCH_GET missing id@@ERROR\|INVALID_INPUT@@PCH_GET||||||admin@test.com
-PCH_CALC missing id@@ERROR\|INVALID_INPUT@@PCH_CALC||||||admin@test.com
-PCH_DELETE missing id@@ERROR\|INVALID_INPUT@@PCH_DELETE||||||admin@test.com
-PCH_VALIDATE ok@@SUCCESS\|PCH_VALID@@PCH_VALIDATE|100.00|USD||||admin@test.com

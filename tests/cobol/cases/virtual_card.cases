@@ -1,6 +1,0 @@
-# Virtual Card (Wave8) validation cases.
-VRC_CREATE missing ref@@ERROR\|INVALID_INPUT@@VRC_CREATE||||||admin@test.com
-VRC_GET missing id@@ERROR\|INVALID_INPUT@@VRC_GET||||||admin@test.com
-VRC_CALC missing id@@ERROR\|INVALID_INPUT@@VRC_CALC||||||admin@test.com
-VRC_DELETE missing id@@ERROR\|INVALID_INPUT@@VRC_DELETE||||||admin@test.com
-VRC_VALIDATE ok@@SUCCESS\|VRC_VALID@@VRC_VALIDATE|100.00|USD||||admin@test.com

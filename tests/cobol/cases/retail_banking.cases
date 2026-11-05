@@ -1,6 +1,0 @@
-# Retail Banking (Wave20) validation cases.
-RTB_CREATE missing ref@@ERROR\|INVALID_INPUT@@RTB_CREATE||||||admin@test.com
-RTB_GET missing id@@ERROR\|INVALID_INPUT@@RTB_GET||||||admin@test.com
-RTB_CALC missing id@@ERROR\|INVALID_INPUT@@RTB_CALC||||||admin@test.com
-RTB_DELETE missing id@@ERROR\|INVALID_INPUT@@RTB_DELETE||||||admin@test.com
-RTB_VALIDATE ok@@SUCCESS\|RTB_VALID@@RTB_VALIDATE|100.00|USD||||admin@test.com

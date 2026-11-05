@@ -1,6 +1,0 @@
-# Outsourcing Contract (Wave7) validation cases.
-OSC_CREATE missing ref@@ERROR\|INVALID_INPUT@@OSC_CREATE||||||admin@test.com
-OSC_GET missing id@@ERROR\|INVALID_INPUT@@OSC_GET||||||admin@test.com
-OSC_CALC missing id@@ERROR\|INVALID_INPUT@@OSC_CALC||||||admin@test.com
-OSC_DELETE missing id@@ERROR\|INVALID_INPUT@@OSC_DELETE||||||admin@test.com
-OSC_VALIDATE ok@@SUCCESS\|OSC_VALID@@OSC_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Recruitment (Wave10) validation cases.
-REC_CREATE missing ref@@ERROR\|INVALID_INPUT@@REC_CREATE||||||admin@test.com
-REC_GET missing id@@ERROR\|INVALID_INPUT@@REC_GET||||||admin@test.com
-REC_CALC missing id@@ERROR\|INVALID_INPUT@@REC_CALC||||||admin@test.com
-REC_DELETE missing id@@ERROR\|INVALID_INPUT@@REC_DELETE||||||admin@test.com
-REC_VALIDATE ok@@SUCCESS\|REC_VALID@@REC_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Metric (Wave10) validation cases.
-MET_CREATE missing ref@@ERROR\|INVALID_INPUT@@MET_CREATE||||||admin@test.com
-MET_GET missing id@@ERROR\|INVALID_INPUT@@MET_GET||||||admin@test.com
-MET_CALC missing id@@ERROR\|INVALID_INPUT@@MET_CALC||||||admin@test.com
-MET_DELETE missing id@@ERROR\|INVALID_INPUT@@MET_DELETE||||||admin@test.com
-MET_VALIDATE ok@@SUCCESS\|MET_VALID@@MET_VALIDATE|100.00|USD||||admin@test.com

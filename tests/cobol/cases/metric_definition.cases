@@ -1,6 +1,0 @@
-# Metric definition (D23) validation cases.
-MDF_CREATE missing ref@@ERROR\|INVALID_INPUT@@MDF_CREATE||||||admin@test.com
-MDF_GET missing id@@ERROR\|INVALID_INPUT@@MDF_GET||||||admin@test.com
-MDF_CALC missing id@@ERROR\|INVALID_INPUT@@MDF_CALC||||||admin@test.com
-MDF_DELETE missing id@@ERROR\|INVALID_INPUT@@MDF_DELETE||||||admin@test.com
-MDF_VALIDATE ok@@SUCCESS\|MDF_VALID@@MDF_VALIDATE|100.00|USD||||admin@test.com

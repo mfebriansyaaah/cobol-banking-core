@@ -1,6 +1,0 @@
-# Performance (Wave10) validation cases.
-PER_CREATE missing ref@@ERROR\|INVALID_INPUT@@PER_CREATE||||||admin@test.com
-PER_GET missing id@@ERROR\|INVALID_INPUT@@PER_GET||||||admin@test.com
-PER_CALC missing id@@ERROR\|INVALID_INPUT@@PER_CALC||||||admin@test.com
-PER_DELETE missing id@@ERROR\|INVALID_INPUT@@PER_DELETE||||||admin@test.com
-PER_VALIDATE ok@@SUCCESS\|PER_VALID@@PER_VALIDATE|100.00|USD||||admin@test.com

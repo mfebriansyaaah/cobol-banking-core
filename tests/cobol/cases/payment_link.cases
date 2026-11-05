@@ -1,6 +1,0 @@
-# Payment Link (Wave8) validation cases.
-PML_CREATE missing ref@@ERROR\|INVALID_INPUT@@PML_CREATE||||||admin@test.com
-PML_GET missing id@@ERROR\|INVALID_INPUT@@PML_GET||||||admin@test.com
-PML_CALC missing id@@ERROR\|INVALID_INPUT@@PML_CALC||||||admin@test.com
-PML_DELETE missing id@@ERROR\|INVALID_INPUT@@PML_DELETE||||||admin@test.com
-PML_VALIDATE ok@@SUCCESS\|PML_VALID@@PML_VALIDATE|100.00|USD||||admin@test.com

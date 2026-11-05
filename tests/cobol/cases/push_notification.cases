@@ -1,6 +1,0 @@
-# Push Notification (Wave11) validation cases.
-PSH_CREATE missing ref@@ERROR\|INVALID_INPUT@@PSH_CREATE||||||admin@test.com
-PSH_GET missing id@@ERROR\|INVALID_INPUT@@PSH_GET||||||admin@test.com
-PSH_CALC missing id@@ERROR\|INVALID_INPUT@@PSH_CALC||||||admin@test.com
-PSH_DELETE missing id@@ERROR\|INVALID_INPUT@@PSH_DELETE||||||admin@test.com
-PSH_VALIDATE ok@@SUCCESS\|PSH_VALID@@PSH_VALIDATE|100.00|USD||||admin@test.com

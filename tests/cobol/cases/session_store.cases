@@ -1,6 +1,0 @@
-# Session Store (Wave11) validation cases.
-SSS_CREATE missing ref@@ERROR\|INVALID_INPUT@@SSS_CREATE||||||admin@test.com
-SSS_GET missing id@@ERROR\|INVALID_INPUT@@SSS_GET||||||admin@test.com
-SSS_CALC missing id@@ERROR\|INVALID_INPUT@@SSS_CALC||||||admin@test.com
-SSS_DELETE missing id@@ERROR\|INVALID_INPUT@@SSS_DELETE||||||admin@test.com
-SSS_VALIDATE ok@@SUCCESS\|SSS_VALID@@SSS_VALIDATE|100.00|USD||||admin@test.com

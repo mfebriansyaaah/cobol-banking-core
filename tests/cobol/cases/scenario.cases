@@ -1,6 +1,0 @@
-# Scenario (Wave14) validation cases.
-SCN_CREATE missing ref@@ERROR\|INVALID_INPUT@@SCN_CREATE||||||admin@test.com
-SCN_GET missing id@@ERROR\|INVALID_INPUT@@SCN_GET||||||admin@test.com
-SCN_CALC missing id@@ERROR\|INVALID_INPUT@@SCN_CALC||||||admin@test.com
-SCN_DELETE missing id@@ERROR\|INVALID_INPUT@@SCN_DELETE||||||admin@test.com
-SCN_VALIDATE ok@@SUCCESS\|SCN_VALID@@SCN_VALIDATE|100.00|USD||||admin@test.com

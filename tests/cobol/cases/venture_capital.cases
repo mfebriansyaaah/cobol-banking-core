@@ -1,6 +1,0 @@
-# Venture Capital (Wave12) validation cases.
-VCP_CREATE missing ref@@ERROR\|INVALID_INPUT@@VCP_CREATE||||||admin@test.com
-VCP_GET missing id@@ERROR\|INVALID_INPUT@@VCP_GET||||||admin@test.com
-VCP_CALC missing id@@ERROR\|INVALID_INPUT@@VCP_CALC||||||admin@test.com
-VCP_DELETE missing id@@ERROR\|INVALID_INPUT@@VCP_DELETE||||||admin@test.com
-VCP_VALIDATE ok@@SUCCESS\|VCP_VALID@@VCP_VALIDATE|100.00|USD||||admin@test.com
