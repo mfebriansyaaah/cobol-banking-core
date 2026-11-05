@@ -160,7 +160,7 @@ most tables have a matching `_audit` table for traceability.
 ## Notes
 
 - Baseline schema: 478 tables (`database/schema.sql`).
-- Migrations: 147 (latest `0147_loan_hardening`).
+- Migrations: 657 (latest `0666_schema_migrations_checksum`).
 - Runtime database: `cobol_db` (MariaDB/MySQL).
 - Application account is DML-only (`cobol_user` after `grants.sh`); migrations
   run under a separate privileged account.

@@ -245,7 +245,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [ ! -d "$ROOT/cobol/build/obj" ] || ! ls "$ROOT/cobol/build/obj"/*.o >/dev/null 2>&1; then
-    echo "FAIL cobol: no normal objects (run ./build.sh without BUILD_LEGACY=1 first)" >&2
+    echo "FAIL cobol: no normal objects (run ./build.sh first)" >&2
     exit 1
 fi
 

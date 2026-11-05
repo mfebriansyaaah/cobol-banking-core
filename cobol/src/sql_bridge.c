@@ -25,6 +25,20 @@ static const char *env_or(const char *name, const char *fallback) {
     return (v && v[0] != '\0') ? v : fallback;
 }
 
+/* Debug logging is opt-in via SQL_BRIDGE_DEBUG=1. Per-query and per-row
+ * stderr noise stays out of production logs; abnormal conditions (a leaked
+ * transaction rollback) are always reported. */
+static int bridge_debug(void) {
+    static int checked = 0;
+    static int enabled = 0;
+    if (!checked) {
+        const char *v = getenv("SQL_BRIDGE_DEBUG");
+        enabled = (v && v[0] != '\0' && strcmp(v, "0") != 0);
+        checked = 1;
+    }
+    return enabled;
+}
+
 /* True when the process is in production but the database credentials are
  * still the development defaults (or unset). Production must set them
  * explicitly; the gateway refuses to start on the same condition, and this
@@ -111,7 +125,7 @@ void SET_QUERY(char *query) {
 void GET_RESULT(char *result) {
     if (!result) return;
     size_t len = strlen(G_RESULT);
-    fprintf(stderr, "GET_RESULT len=%zu\n", len);
+    if (bridge_debug()) fprintf(stderr, "GET_RESULT len=%zu\n", len);
     if (len > 16383) len = 16383;
     memset(result, ' ', 16383);
     memcpy(result, G_RESULT, len);
@@ -137,7 +151,7 @@ void SQL_EXECUTE() {
 
     /* Length only: G_QUERY on this path holds concatenated literals (emails),
      * so the text itself must never reach the logs. */
-    fprintf(stderr, "[SQL_BRIDGE] Executing query (%zu bytes)\\n", strlen(G_QUERY));
+    if (bridge_debug()) fprintf(stderr, "[SQL_BRIDGE] Executing query (%zu bytes)\\n", strlen(G_QUERY));
 
     if (mysql_query(conn, G_QUERY)) {
         snprintf(G_RESULT, 16383, "ERROR|QUERY_FAILED|%d", mysql_errno(conn));
@@ -293,7 +307,7 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
-    fprintf(stderr, "ROWS_QUERY: %s\n", query);
+    if (bridge_debug()) fprintf(stderr, "ROWS_QUERY: %s\n", query);
     MYSQL *conn = G_CONN;
     int own_conn = 0;
     if (conn == NULL) {
@@ -414,7 +428,7 @@ void SQL_PREPARE_EXEC7(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
-    fprintf(stderr, "ROWS_QUERY: %s\n", query);
+    if (bridge_debug()) fprintf(stderr, "ROWS_QUERY: %s\n", query);
 
     MYSQL *conn = G_CONN;
     if (conn == NULL) {
@@ -529,7 +543,7 @@ void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
-    fprintf(stderr, "ROWS_QUERY: %s\n", query);
+    if (bridge_debug()) fprintf(stderr, "ROWS_QUERY: %s\n", query);
 
     MYSQL *conn = G_CONN;
     int own_conn = 0;
@@ -605,7 +619,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
     query[1023] = '\0';
     trim_trailing_spaces(query);
     if (query[0] == '\0') return;
-    fprintf(stderr, "ROWS_QUERY: %s\n", query);
+    if (bridge_debug()) fprintf(stderr, "ROWS_QUERY: %s\n", query);
 
     MYSQL *conn = G_CONN;
     int own_conn = 0;
@@ -694,7 +708,8 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
         int rc;
         int rowcount = 0;
         while ((rc = mysql_stmt_fetch(st)) == 0 || rc == MYSQL_DATA_TRUNCATED) {
-            rowcount++; fprintf(stderr, "FETCH rc=%d row=%d\n", rc, rowcount);
+            rowcount++;
+            if (bridge_debug()) fprintf(stderr, "FETCH rc=%d row=%d\n", rc, rowcount);
             if (!first_row) strncat(G_RESULT, ";", 16383 - strlen(G_RESULT) - 1);
             first_row = 0;
             for (unsigned int i = 0; i < cols; i++) {
@@ -708,7 +723,7 @@ void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
                 if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
             }
         }
-        fprintf(stderr, "TOTAL_ROWS=%d first_row=%d G_RESULT_LEN=%zu\n", rowcount, first_row, strlen(G_RESULT));
+        if (bridge_debug()) fprintf(stderr, "TOTAL_ROWS=%d first_row=%d G_RESULT_LEN=%zu\n", rowcount, first_row, strlen(G_RESULT));
         if (first_row) {
             strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
         }
