@@ -108,7 +108,7 @@ done
 
 COVERAGE_DIR="${COVERAGE_DIR:-$ROOT/coverage}"
 BASELINE="$ROOT/tests/coverage_baseline.txt"
-FLOOR=30
+FLOOR=100
 TOLERANCE=1.0
 mkdir -p "$COVERAGE_DIR"
 
