@@ -399,14 +399,11 @@ fails on *stale* entries (a test was added but the entry left behind) and
 
 HTTP tests do **not** count: hitting a route over HTTP is not executing its
 COBOL action (a guarded route 401s before the binary runs; an invalid payload
-400s before it runs). The current picture (measured 2026-11-04, 2780 route
-actions): 2180 shell-covered (78.4%), 600 baselined in four verified groups
-(see `tests/action_test_coverage_baseline.txt` and `docs/CI.md` for the live
-numbers; do not treat this paragraph as the source of truth)
-— 502 template `*_UPDATE` (no template suite invokes UPDATE, so
-optimistic-locking paths are unproven), 63 inline `app.js` routes
-(HTTP-exercised, no shell invocation), 479 in route files with no DB suite,
-17 richer-surface actions whose suites don't invoke them.
+400s before it runs). The current picture (measured 2026-11-05, 527 route
+actions per `node scripts/check_action_test_coverage.mjs .`): 527
+shell-covered (100.0%), 0 baselined (see
+`tests/action_test_coverage_baseline.txt` for the live numbers; do not treat
+this paragraph as the source of truth).
 
 Workflow: add the shell test first (then the baseline entry becomes stale and
 the gate tells you to remove it), or run with `--write` and move the new

@@ -22,7 +22,7 @@ instrumented C line maps to it, and covered when any of those C lines ran.
 
 ## Scope
 
-- **COBOL curated core:** the 24 money-path/core modules listed in
+- **COBOL curated core:** the 21 money-path/core modules listed in
   `scripts/ci/coverage.sh` (`main_logic`, `wallet_core`, `auth_core`,
   `user_core`, `loan_core`, `deposit_core`, `card_core`, `collection_core`,
   `payment_clearing_core`, `treasury_liquidity_core`, compliance modules,
@@ -84,7 +84,7 @@ The script writes:
 ## Per-module ratchet
 
 The total (30% floor + ratchet) cannot see one module collapsing while another
-rises. `tests/coverage_module_baseline.txt` pins all 24 curated modules:
+rises. `tests/coverage_module_baseline.txt` pins all 21 curated modules:
 `scripts/check_coverage_modules.mjs --json coverage/cobol.json` fails any
 module that drops more than 1.0pp below its recorded value. `coverage.sh`
 runs this gate automatically after the COBOL measurement.
