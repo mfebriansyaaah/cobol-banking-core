@@ -19,7 +19,7 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request`, `push: [main]` | `ci.yml` | lint, build, test, db-shards (4), db-aggregate, coverage, coverage-pr |
+| `pull_request`, `push: [main]` | `ci.yml` | lint, build, db-snapshot, test, db-shards (4), db-aggregate, coverage, coverage-pr |
 | `push: [main]` + `workflow_dispatch` | `ci.yml` db-ops | migration rollback, backup/restore, schema drift (not a PR gate) |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
@@ -114,6 +114,7 @@ Rules:
 | --- | --- | --- |
 | `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, gate unit tests, npm audit |
 | `ci.yml` build | 20 min | manifest, docs, complexity snapshot, probes, SAST, build, warning ratchet |
+| `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact |
 | `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
 | `ci.yml` db-shards (×4) | 30 min each | one shard per runner |
 | `ci.yml` db-aggregate | 15 min | merge + inventory + count gate + summary |
@@ -123,6 +124,30 @@ Rules:
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
 | `coverage.yml` | 45 min | full COBOL + gateway |
 | `nightly.yml` | 180 min | full twice + drills + coverage + benchmark + load + flake compare |
+
+## DB snapshot producer (CI-008A)
+
+The `db-snapshot` job publishes one migrated gzip snapshot per run
+(`db-snapshot` artifact, retention 1 day) so DB jobs can restore instead of
+replaying schema + all migrations. This branch adds the producer only;
+no consumer job restores it yet (restore + fallback is CI-008B).
+
+- Producer: `scripts/ci/build_db_snapshot.sh /tmp/cobol-snapshot.sql.gz`.
+  Requires `DB_NAME`, `DB_MIGRATE_USER`, `DB_MIGRATE_PASS` (`DB_HOST`/`DB_PORT`
+  default to localhost/3306); refuses system databases and empty names
+  (exit 2); runs `migrate.sh --check` and aborts on pending migrations;
+  dumps with `mysqldump --single-transaction --routines --triggers` (D5
+  default — `--no-tablespaces` omitted: S1 confirmed the flag only in the
+  MariaDB 11.8 client help, with no live dump/restore smoke, so the
+  unverified flag stays out, matching every other in-tree dump call site);
+  prints snapshot size and table count; never prints the password.
+- Wired by `scripts/test/ci-wiring.test.mjs` (`build_db_snapshot` needle);
+  offline guard tests in `tests/scripts/test_db_snapshot_guard.sh`.
+- Live-DB acceptance (artifact size, restore round trip, job wall time)
+  needs CI and is deferred: expected snapshot < 50 MB compressed and
+  `db-snapshot` wall <= 3 min; the first green CI run records the actuals.
+- Rollback: delete the `db-snapshot` job, the producer script, and this
+  section. Consumers are unchanged, so schema + migrate keeps working.
 
 ## How to run locally
 

@@ -195,6 +195,30 @@ with `scripts/generate_schema_snapshot.sh` after reviewing the diff).
 (no backup file, no data verification), covered by
 `tests/scripts/test_restore_guard.sh`.
 
+## Migrated DB snapshot producer (CI-008A)
+
+`scripts/ci/build_db_snapshot.sh <output.sql.gz>` dumps an already-migrated
+database into a gzip snapshot for the per-run `db-snapshot` CI artifact. The
+CI job loads `database/schema.sql`, applies `database/migrate.sh`, and dumps
+before any fixture seeding, so the snapshot is a migrated baseline with
+reference data only (no test fixture users). Safety properties:
+
+- Read-only: no `DROP` or `CREATE` anywhere; only `migrate.sh --check`,
+  `mysqldump`, and a table-count query.
+- Refuses system databases (`mysql`, `performance_schema`, `sys`,
+  `information_schema`) and empty/missing credentials (exit 2).
+  `cobol_db` is allowed as the dump source — dumping is read-only.
+- Fails when `migrate.sh --check` reports pending migrations, when the dump
+  is empty, or when the source has no tables.
+- Dump flags are the D5 default (`--single-transaction --routines --triggers`);
+  `--no-tablespaces` is omitted (see `docs/CI.md`).
+
+Covered by `tests/scripts/test_db_snapshot_guard.sh`, which runs the producer
+offline against fake `mysql`/`mysqldump`/`migrate.sh` and pins the refusals,
+the `--check` gate, the output report, and the flag set. Restoring the
+snapshot in DB jobs (including the restore-before-`grants.sh` order) belongs
+to CI-008B and is intentionally not done here.
+
 ## Orphan cleanup
 
 A successful `tests/run_all.sh full` leaves no throwaway database behind: one

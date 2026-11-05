@@ -198,6 +198,66 @@ jobs:
           path: cobol/bin/main_logic
           if-no-files-found: error
 
+  db-snapshot:
+    name: db-snapshot
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            mariadb-client
+
+      - name: Load baseline schema
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
+          < database/schema.sql
+
+      - name: Apply migrations
+        run: ./database/migrate.sh
+
+      - name: Verify migration ledger
+        run: ./database/migrate.sh --check
+
+      - name: Build DB snapshot
+        run: bash scripts/ci/build_db_snapshot.sh /tmp/cobol-snapshot.sql.gz
+
+      - name: Upload DB snapshot
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: db-snapshot
+          path: /tmp/cobol-snapshot.sql.gz
+          retention-days: 1
+          if-no-files-found: error
+
   test:
     name: test
     needs: build
