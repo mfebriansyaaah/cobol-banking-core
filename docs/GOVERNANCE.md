@@ -2,7 +2,7 @@
 
 > **CI status (2026-11-04):** automatic triggers restored in Phase 0 branch 01.
 > Branch protection active on `main` since branch 02 (required checks, 1
-> approval + CODEOWNERS, linear history, no force push, no bypass).
+> approval + CODEOWNERS, merge commits, no force push, no bypass).
 > See [CI status](CI.md).
 
 ## Status
@@ -91,4 +91,4 @@ Revisit rulesets if the plan upgrades. Current settings on `main`:
 - required status checks `lint`, `build`, `test`, `db aggregate`, `coverage`,
   `coverage-pr` (strict), enforced for admins;
 - 1 approval, dismiss stale reviews, CODEOWNERS review required;
-- linear history, force pushes and branch deletion blocked.
+- merge commits (squash/rebase merging disabled), force pushes and branch deletion blocked.
