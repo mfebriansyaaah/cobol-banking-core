@@ -6,14 +6,14 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-05T01:42:24.600Z
-- Commit: `8c5ed936`
+- Generated at: 2026-11-05T03:28:25.905Z
+- Commit: `e5764f82`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 18 |
+| L3 (core transaction) | 19 |
 | L2 (business reference) | 6 |
-| L1 (weak / untested link) | 2 |
+| L1 (weak / untested link) | 1 |
 | L0 (isolated) | 18 |
 | UTILITY | 3 |
 
@@ -32,7 +32,7 @@ Unresolved route files: none.
 | `collection_core` | L3 | — | — | 1 | Tier-1 core module |
 | `compliance_calendar_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `cost_center_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `dashboard_core` | L1 | accounts, ledger | — | 1 | linked code with no DB/table/integration test (downgraded) |
+| `dashboard_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Tier-1 core module |
 | `eod_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `eod_jobs_core` | L1 | accounts | user_core, wallet_core | 1 | linked code with no DB/table/integration test (downgraded) |

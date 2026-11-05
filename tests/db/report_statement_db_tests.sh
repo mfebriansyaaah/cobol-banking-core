@@ -21,27 +21,12 @@ db_exec "DELETE FROM report_template_column WHERE template_id IN (SELECT id FROM
 db_exec "DELETE FROM report_template WHERE template_code='${T}' OR template_code='${C}';"
 
 # Template + column lifecycle.
-# Retry-once helper for fixture INSERTs: CI shards share one DB, so a
-# concurrent writer on the same table can deadlock us (ERROR|DB_ERROR);
-# a short backoff + retry resolves it. Any other error fails immediately.
-create_retry() {
-    local out i
-    for i in 1 2 3; do
-        out="$(run_cobol "$1")"
-        case "$out" in
-            ERROR\|DB_ERROR) sleep 0.5;;
-            *) printf '%s' "$out"; return 0;;
-        esac
-    done
-    printf '%s' "$out"
-    return 0
-}
-assert_match "RPT_TEMPLATE_CREATE ok" "$(create_retry "RPT_TEMPLATE_CREATE|${T}|Shell Report|TRIAL_BALANCE|CSV|Shell Title|${A}")" "SUCCESS\|"
+assert_match "RPT_TEMPLATE_CREATE ok" "$(run_cobol "RPT_TEMPLATE_CREATE|${T}|Shell Report|TRIAL_BALANCE|CSV|Shell Title|${A}")" "SUCCESS\|"
 assert_match "RPT_TEMPLATE_GET ok" "$(run_cobol "RPT_TEMPLATE_GET|${T}|||||${A}")" "SUCCESS\|"
 assert_match "RPT_TEMPLATE_LIST ok" "$(run_cobol "RPT_TEMPLATE_LIST|50|0||||${A}")" "SUCCESS\|"
 assert_match "RPT_TEMPLATE_UPDATE ok" "$(run_cobol "RPT_TEMPLATE_UPDATE|${T}|1|CSV|Shell Title 2||${A}")" "SUCCESS\|"
 assert_match "RPT_TEMPLATE_CLONE ok" "$(run_cobol "RPT_TEMPLATE_CLONE|${T}|${C}|Clone Name|Clone Title||${A}")" "SUCCESS\|"
-assert_match "RPT_COLUMN_CREATE ok" "$(create_retry "RPT_COLUMN_CREATE|${T}|1|Account|account|20,LEFT,TEXT|${A}")" "SUCCESS\|"
+assert_match "RPT_COLUMN_CREATE ok" "$(run_cobol "RPT_COLUMN_CREATE|${T}|1|Account|account|20,LEFT,TEXT|${A}")" "SUCCESS\|"
 assert_match "RPT_COLUMN_LIST ok" "$(run_cobol "RPT_COLUMN_LIST|${T}|50|0|||${A}")" "SUCCESS\|"
 assert_match "RPT_COLUMN_UPDATE ok" "$(run_cobol "RPT_COLUMN_UPDATE|${T}|1|Account No|account|20,LEFT,TEXT|${A}")" "SUCCESS\|"
 
