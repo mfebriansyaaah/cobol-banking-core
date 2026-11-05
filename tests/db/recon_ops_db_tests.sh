@@ -28,6 +28,9 @@ assert_match "rows staged" "$(db_query "SELECT COUNT(*) FROM import_row WHERE ba
 assert_match "IMP_BATCH_VALIDATE ok" "$(run_cobol "IMP_BATCH_VALIDATE|${C}|||||${A}")" "SUCCESS\|"
 assert_match "IMP_ROW_CORRECT ok" "$(run_cobol "IMP_ROW_CORRECT|${C}|1|1000:10.00:0|||${A}")" "SUCCESS\|IMP_ROW_CORRECTED"
 assert_match "IMP_BATCH_REVALIDATE ok" "$(run_cobol "IMP_BATCH_VALIDATE|${C}|||||${A}")" "SUCCESS\|"
+# The target GL period must exist: open it idempotently (no cross-suite
+# assumption; CI shards share one DB and run in any order).
+run_cobol "GL_PERIOD_OPEN|2026-06|||||${A}" >/dev/null
 assert_match "IMPP_LEDGER ok (post for recon)" "$(run_cobol "IMPP_LEDGER|${C}|2026-06-01|shell recon post|USD||${A}")" "SUCCESS\|"
 
 # Import-recon lifecycle.
