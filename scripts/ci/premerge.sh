@@ -185,7 +185,7 @@ run_ci_parity() {
         --exclude package-lock.json --error middleware scripts
 
     echo "=== PREMERGE: secret scan ==="
-    gitleaks detect --source . --no-git --config .gitleaks.toml
+    gitleaks detect --source . --no-git --redact --config .gitleaks.toml
 
     echo "=== PREMERGE: SAST scan ==="
     bash scripts/ci/sast.sh
