@@ -36,8 +36,15 @@ DB_NAME=cobol_db_premerge scripts/dev/setup-test-db.sh
 DB_NAME=cobol_db_premerge bash scripts/ci/premerge.sh --ci-parity
 ```
 
-`--ci-parity` does not exist yet (Phase 0, T-009). Until it lands, use
-`--all` for money paths and document the gap in the PR.
+`--ci-parity` is the exact-parity money-path gate on a dedicated database
+(never `cobol_db`): full suite, probes, count/docs/contract/schema/warnings/
+coverage gates, benchmarks, both drills, full lint + security (including
+actionlint, YAML lint, SAST, and gate unit tests), offline harnesses, and the
+coverage mapper. Curated COBOL coverage is opt-in via `--cobol-coverage`
+(needs GnuCOBOL 3.2 with `cobc --coverage`). Run
+`bash scripts/ci/premerge.sh --print-plan` for the exact step list and the
+deliberate exclusions (in-job sharding instead of the CI matrix, no CodeQL
+upload, no branch-protection remote state).
 
 It runs the static gates and the fast suite by default (probes, docs, and
 the full DB/gateway suite are opt-in via `--probes`, `--docs`, `--full`;
