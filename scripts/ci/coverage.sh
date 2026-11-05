@@ -53,30 +53,18 @@ resolve_changed_base() {
 }
 
 # True when the change set touches anything the curated COBOL measurement
-# depends on: curated modules, shared COBOL inputs, the build, the database
-# surface, the exercised suites/cases, or the measurement scripts themselves.
-# Gateway-only changes are deliberately excluded: they cannot lower COBOL
-# line counts (the same suites run against the same binary), so the cheap
-# gateway-only gate stays sufficient for them.
-# Anything else (docs, other domains) likewise skips the instrumented build.
+# depends on. Classification lives in scripts/ci/coverage_trigger.mjs
+# (unit-tested table-driven); this function only collects the change set:
+# the three-dot diff against the base plus untracked files. A failed diff
+# measures (fail safe); an empty change set skips.
 coverage_triggered() {
-    local base="$1" f
+    local base="$1"
     local changed
     changed="$(git -C "$ROOT" diff --name-only "$base"...HEAD 2>/dev/null)" || return 0
     changed="$changed
 $(git -C "$ROOT" ls-files --others --exclude-standard 2>/dev/null)"
     [ -n "$(printf '%s' "$changed" | tr -d '[:space:]')" ] || return 1
-    while IFS= read -r f; do
-        [ -n "$f" ] || continue
-        case "$f" in
-            cobol/src/*_core.cob|cobol/copy/*|cobol/c_lib/*|cobol/src/*.[ch]|build.sh|cobol/Makefile|database/*|tests/cobol/cases/*|tests/cobol/table_runner.sh|tests/db/*|scripts/ci/coverage.sh|scripts/coverage/*|tests/coverage_*)
-                return 0
-                ;;
-        esac
-    done <<EOF
-$changed
-EOF
-    return 1
+    printf '%s\n' "$changed" | sed '/^$/d' | node "$ROOT/scripts/ci/coverage_trigger.mjs" --stdin
 }
 
 while [ $# -gt 0 ]; do
@@ -122,8 +110,8 @@ if [ -n "$CHANGED" ]; then
     fi
     if [ -z "$CHANGED" ]; then
         echo "=== COBOL COVERAGE: no git base available; measuring (cannot tell what changed) ===" >&2
-    elif coverage_triggered "$CHANGED"; then
-        echo "=== COBOL COVERAGE: change set touches curated inputs ($CHANGED...HEAD); measuring ===" >&2
+    elif reason="$(coverage_triggered "$CHANGED")"; then
+        echo "=== COBOL COVERAGE: change set touches curated inputs ($CHANGED...HEAD: $reason); measuring ===" >&2
     else
         echo "=== COBOL COVERAGE SKIPPED: no curated inputs changed ($CHANGED...HEAD) ===" >&2
         exit 0
