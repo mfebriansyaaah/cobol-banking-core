@@ -17,7 +17,6 @@ report_core 12.97
 fee_core 20.24
 eod_core 17.27
 statement_core 24.86
-notification_core 33.59
 loan_core 76.1
 loan_schedule_core 31.76
 deposit_core 74.3
@@ -25,9 +24,7 @@ card_core 74.87
 collection_core 87.22
 payment_clearing_core 88.26
 treasury_liquidity_core 89.6
-sanctions_list_core 88.3
 gl_allocation_core 88.97
 cost_center_core 89.42
 fixed_asset_core 82.35
 account_core 89.42
-product_catalog_core 89.42
