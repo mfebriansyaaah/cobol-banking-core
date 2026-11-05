@@ -129,9 +129,17 @@ DB_NAME=cobol_db_premerge bash scripts/ci/premerge.sh --ci-parity
 ```
 
 `--ci-parity` runs `run_all.sh full` (fast, DB, integration, error harness,
-gateway), probes, count gate, docs, schema drift, warnings, gateway coverage,
-bench, drills, lint, security, offline tests, and the coverage mapper. It must
-fail — not skip — when a tool is missing.
+gateway), probes, gate detection, count gate, docs, CI contract, schema
+drift, build log + warning ratchet, gateway coverage, curated COBOL coverage
+(only with `--cobol-coverage`, needs GnuCOBOL 3.2), benchmarks, both drills,
+shell/JS/markdown/workflow/YAML lint, strict C, semgrep, secret scan, SAST +
+SAST extra, gate unit tests, dependency audit, alert rules, offline harness,
+and the coverage mapper. It must fail — not skip — when a tool is missing.
+
+Exact scope is printed by `bash scripts/ci/premerge.sh --print-plan`:
+in-job DB sharding instead of the CI `db-shards` matrix (same planner, one
+runner), no CodeQL upload (GitHub security events exist only in CI;
+semgrep/SAST run instead), no branch-protection remote state.
 
 T-051 dry-run record (2026-11-04): first fully green `--ci-parity` on a
 private MariaDB 11.8 instance (port 3307, provisioned via
