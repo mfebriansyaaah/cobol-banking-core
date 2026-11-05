@@ -1,0 +1,6 @@
+# Copybook estate baseline (PR-020 ratchet).
+# Counts of the inclusion graph; update only after reviewing the
+# drift the gate prints. This baseline must only change intentionally.
+files=3
+paragraphs=8
+vars=134
