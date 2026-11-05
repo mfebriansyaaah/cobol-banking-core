@@ -44,9 +44,13 @@ assert_match "IRC_FINISH ok" "$(run_cobol "IRC_FINISH|${ircid}|||||${A}")" "SUCC
 assert_match "IRC_RETRY refused after finish" "$(run_cobol "IRC_RETRY|${ircid}|||||${A}")" "ERROR\|INVALID_STATUS"
 
 # Statement-recon lifecycle (statement run completes over today's window).
+# The run id is parsed from the START output, never "latest global row":
+# parallel suites create statement runs concurrently (ISOLATED_DB=0).
 TODAY="$(date +%F)"
-assert_match "STMT_RUN_START ok" "$(run_cobol "STMT_RUN_START|${TODAY}|${TODAY}|USD|||${A}")" "SUCCESS\|STMT_RUN_STARTED"
-stmtid="$(db_query "SELECT id FROM statement_run ORDER BY id DESC LIMIT 1;")"
+stmt_start_out="$(run_cobol "STMT_RUN_START|${TODAY}|${TODAY}|USD|||${A}")"
+assert_match "STMT_RUN_START ok" "$stmt_start_out" "SUCCESS\|STMT_RUN_STARTED"
+stmtid="$(printf '%s' "$stmt_start_out" | awk -F'|' '{print $3}')"
+assert_match "stmt id present" "$stmtid" "^[0-9]+$"
 assert_match "STMT_RUN_GENERATE ok" "$(run_cobol "STMT_RUN_GENERATE|${stmtid}|||||${A}")" "SUCCESS\|"
 assert_match "statement completed" "$(db_query "SELECT status FROM statement_run WHERE id=${stmtid};")" "^COMPLETED$"
 assert_match "SRC_START ok" "$(run_cobol "SRC_START|${stmtid}|||||${A}")" "SUCCESS\|"
