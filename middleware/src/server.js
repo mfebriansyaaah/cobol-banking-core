@@ -2,10 +2,14 @@ import 'dotenv/config';
 import { buildApp, trustProxyWarning } from './app.js';
 import { assertSecureConfig } from './auth.js';
 import { assertPoolConfig } from './pool.js';
+import { assertIntegrationConfig } from './integrations/index.js';
 import { jsonLogger, startMetricsExporter } from './observability.js';
 import { resetPool } from './pool.js';
 
 assertSecureConfig();
+// Unknown providers and production-without-secrets fail here, not on the
+// first user request that needs them.
+assertIntegrationConfig();
 // Production default: use the worker pool (4 workers, 2 in-flight each) unless
 // explicitly overridden. Development and tests keep file mode (size 0) so a
 // missing COBOL_POOL_SIZE does not spawn long-lived processes there.
@@ -96,7 +100,11 @@ function fatalLog(kind, err) {
 
 process.on('uncaughtException', (err) => {
   fatalLog('uncaughtException', err);
-  try { resetPool(); } catch { /* ignore */ }
+  try {
+    resetPool();
+  } catch {
+    /* ignore */
+  }
   process.exit(1);
 });
 
