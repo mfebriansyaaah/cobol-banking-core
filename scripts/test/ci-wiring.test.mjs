@@ -95,3 +95,90 @@ test('negative control: an unwired entry is reported', () => {
   const missing = findUnwired([['no/such_thing.sh', ['definitely-not-a-real-step']]], ['echo hi']);
   assert.deepEqual(missing, ['no/such_thing.sh']);
 });
+
+// CI-007: DB drills and the hardware-sensitive benchmark run on main and
+// nightly, not on every PR. These tests pin the end state: a `db-ops` job in
+// ci.yml owns the three checks, the PR `test` job owns none of them, the old
+// `post-merge` job is gone, and the benchmark lives in nightly.
+const DRILL_NEEDLES = ['migration_rollback_drill', 'backup_restore_drill', 'check_schema_drift'];
+
+function collectWorkflowJobs() {
+  const script = `
+import json, sys, glob, os, yaml
+out = {}
+for f in sorted(glob.glob('GH/.github/workflows/*.yml'.replace('GH', sys.argv[1]))):
+    try:
+        with open(f) as fh:
+            doc = yaml.safe_load(fh.read())
+    except Exception:
+        continue
+    jobs = {}
+    for job_id, spec in (doc.get('jobs') or {}).items():
+        spec = spec or {}
+        runs = [s['run'] for s in (spec.get('steps') or []) if isinstance(s, dict) and s.get('run')]
+        jobs[job_id] = {
+            'name': spec.get('name'),
+            'if': spec.get('if'),
+            'needs': spec.get('needs'),
+            'timeout': spec.get('timeout-minutes'),
+            'runs': runs,
+        }
+    out[os.path.basename(f)] = jobs
+print(json.dumps(out))
+`;
+  const stdout = execFileSync('python3', ['-c', script, ROOT], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 60000,
+  });
+  return JSON.parse(stdout);
+}
+
+test('db-ops job runs rollback, backup, and drift checks', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.ok(ci['db-ops'], 'ci.yml must define a db-ops job');
+  assert.equal(ci['db-ops'].name, 'db-ops');
+  assert.equal(ci['db-ops'].timeout, 20);
+  const runs = ci['db-ops'].runs.join('\n');
+  for (const needle of DRILL_NEEDLES) {
+    assert.match(runs, new RegExp(needle), `db-ops must run ${needle}`);
+  }
+});
+
+test('db-ops runs on push main and dispatch, never on PRs', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.ok(ci['db-ops'], 'ci.yml must define a db-ops job');
+  assert.equal(ci['db-ops'].needs, 'build');
+  assert.match(
+    String(ci['db-ops'].if),
+    /github\.event_name != 'pull_request'/,
+    'db-ops must be excluded from pull_request',
+  );
+});
+
+test('PR test job has no drills, drift check, or benchmarks', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  const runs = ci['test'].runs.join('\n');
+  for (const needle of [...DRILL_NEEDLES, 'bench.sh', 'drill-logs']) {
+    assert.doesNotMatch(runs, new RegExp(needle), `test job must not contain ${needle}`);
+  }
+});
+
+test('post-merge job is removed (replaced by db-ops)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.ok(!('post-merge' in ci), 'ci.yml must not define a post-merge job');
+});
+
+test('performance benchmark runs in nightly, not in the PR gate', () => {
+  const all = collectWorkflowJobs();
+  const nightlyJob = all['nightly.yml']['full-twice'];
+  assert.ok(nightlyJob, 'nightly.yml must define the full-twice job');
+  const nightlyRuns = nightlyJob.runs.join('\n');
+  assert.match(nightlyRuns, /tests\/perf\/bench\.sh/, 'nightly must run the performance benchmark');
+  const ciTestRuns = all['ci.yml']['test'].runs.join('\n');
+  assert.doesNotMatch(ciTestRuns, /bench\.sh/, 'PR test job must not run the benchmark');
+  const idx = (needle) => nightlyJob.runs.findIndex((s) => s.includes(needle));
+  assert.ok(idx('coverage.sh') >= 0 && idx('bench.sh') >= 0 && idx('load_gateway.sh') >= 0);
+  assert.ok(idx('coverage.sh') < idx('bench.sh'), 'benchmark must run after gateway coverage');
+  assert.ok(idx('bench.sh') < idx('load_gateway.sh'), 'benchmark must run before the load test');
+});

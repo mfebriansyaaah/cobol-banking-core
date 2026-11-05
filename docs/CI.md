@@ -20,15 +20,15 @@ the gate and waste minutes.
 | Event | Workflow | Jobs |
 | --- | --- | --- |
 | `pull_request`, `push: [main]` | `ci.yml` | lint, build, db-snapshot, test, db-shards (4), db-aggregate, coverage, coverage-pr |
-| `push: [main]` | `ci.yml` post-merge | migration rollback, backup/restore, schema drift |
-| nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + load test + flake compare |
+| `push: [main]` + `workflow_dispatch` | `ci.yml` db-ops | migration rollback, backup/restore, schema drift (not a PR gate) |
+| nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
 | `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | JS + C analysis, SARIF uploaded to code scanning |
 
 Restore order: revert `7e030110` (PR/push), then `1dfc11de` (schedules).
 Verify with a throwaway PR: lint fails on broken shell, build fails on broken
-COBOL, db-aggregate fails on deleted assertion, post-merge runs on `main`,
-nightly starts on schedule.
+COBOL, db-aggregate fails on deleted assertion, db-ops runs on `main`
+(push) while PRs skip the drills, nightly starts on schedule.
 
 CI-003 evidence (2026-11-05, Option A): code scanning works end-to-end with
 no UI step — the PR-triggered CodeQL run
@@ -89,6 +89,11 @@ Phase 0 (before G0):
 - `coverage`
 - `coverage-pr` (curated COBOL coverage gate; required since CI-002)
 
+`db-ops` (rollback/backup/drift on push `main` + `workflow_dispatch`) is
+intentionally not a required PR check: it never runs on `pull_request`, so
+requiring it would block every PR forever. Main-line evidence comes from the
+push run plus nightly, which runs the same three checks.
+
 Phase 1 adds (after WP-1.4 first green run):
 
 - `security` (semgrep + gitleaks + npm audit + custom SAST + CodeQL CLI/SARIF)
@@ -110,15 +115,15 @@ Rules:
 | `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, gate unit tests, npm audit |
 | `ci.yml` build | 20 min | manifest, docs, complexity snapshot, probes, SAST, build, warning ratchet |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact |
-| `ci.yml` test | 30 min | full gate minus DB matrix, benchmarks, drills, drift |
+| `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
 | `ci.yml` db-shards (×4) | 30 min each | one shard per runner |
 | `ci.yml` db-aggregate | 15 min | merge + inventory + count gate + summary |
 | `ci.yml` coverage | 20 min | gateway-only |
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
-| `ci.yml` post-merge | 20 min | rollback, backup/restore, drift |
+| `ci.yml` db-ops | 20 min | rollback, backup/restore, drift (push `main` + dispatch only; not a PR required check) |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
 | `coverage.yml` | 45 min | full COBOL + gateway |
-| `nightly.yml` | 180 min | full twice + drills + coverage + load + flake compare |
+| `nightly.yml` | 180 min | full twice + drills + coverage + benchmark + load + flake compare |
 
 ## DB snapshot producer (CI-008A)
 
@@ -232,7 +237,9 @@ model above is pending.
 
 ACTIVE since branch 02 (2026-11-04, verified via API): branch protection on
 `main` requires `lint`, `build`, `test`, `db aggregate`, `coverage`,
-`coverage-pr` (strict), merge commits (linear history is not required and
+`coverage-pr` (not strict since 2026-11-05: checks must pass, but the PR
+need not contain the latest `main`; update via `git merge origin/main`
+before merging), merge commits (linear history is not required and
 rebase/squash merging is disabled),
 1 approval with stale-review dismissal, CODEOWNERS review;
 force pushes, branch deletion, and admin bypass are blocked. Red-PR proof is
@@ -244,9 +251,11 @@ Naming trap (burned us on PR #510): GitHub matches the check-run **name**
 
 CI-002 evidence (2026-11-05): `coverage-pr` added to required status checks
 via API (`required_status_checks/contexts`: `lint`, `build`, `test`,
-`coverage`, `db aggregate`, `coverage-pr`; strict). Red-proof: PR #532
+`coverage`, `db aggregate`, `coverage-pr`; strict at the time). Red-proof: PR #532
 (`ci/ci-p0-02-red-proof`, COBOL floor forced to 100) failed `coverage-pr`
 and showed `mergeStateStatus: BLOCKED`; closed unmerged, branch deleted.
+Strictness removed 2026-11-05 (owner decision): checks stay required,
+up-to-date branch no longer enforced.
 `coverage-pr` is now a merge-blocking gate, not an advisory check.
 
 Notes:
@@ -280,7 +289,7 @@ deliberately red PR that cannot merge (closed unmerged).
 - Publish weekly: pass rate, action coverage, coverage, open flake age,
   security findings, Actions minutes vs budget.
 - Emergency hotfix: owner approval, `--ci-parity` waived only with a recorded
-  reason, post-merge full run mandatory. Record the exception in the PR.
+  reason, a full post-merge run mandatory. Record the exception in the PR.
 
 ## R0 readiness (2026-11-04, updated in 00B)
 
