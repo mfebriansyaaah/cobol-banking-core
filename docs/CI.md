@@ -163,6 +163,13 @@ Naming trap (burned us on PR #510): GitHub matches the check-run **name**
 (`db aggregate`, with space — the job `name:`), not the job ID
 (`db-aggregate`). Requiring the hyphen form blocks every PR forever.
 
+CI-002 evidence (2026-11-05): `coverage-pr` added to required status checks
+via API (`required_status_checks/contexts`: `lint`, `build`, `test`,
+`coverage`, `db aggregate`, `coverage-pr`; strict). Red-proof: PR #532
+(`ci/ci-p0-02-red-proof`, COBOL floor forced to 100) failed `coverage-pr`
+and showed `mergeStateStatus: BLOCKED`; closed unmerged, branch deleted.
+`coverage-pr` is now a merge-blocking gate, not an advisory check.
+
 Notes:
 
 - Repository rulesets on this plan reject the `pull_request` and
