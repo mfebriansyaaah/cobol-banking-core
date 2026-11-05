@@ -167,8 +167,9 @@ re-privatizing the repository.
 
 ACTIVE since branch 02 (2026-11-04, verified via API): branch protection on
 `main` requires `lint`, `build`, `test`, `db aggregate`, `coverage`,
-`coverage-pr` (strict),
-1 approval with stale-review dismissal, CODEOWNERS review, linear history;
+`coverage-pr` (strict), merge commits (linear history is not required and
+rebase/squash merging is disabled),
+1 approval with stale-review dismissal, CODEOWNERS review;
 force pushes, branch deletion, and admin bypass are blocked. Red-PR proof is
 recorded below.
 

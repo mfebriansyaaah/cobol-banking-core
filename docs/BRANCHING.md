@@ -39,8 +39,8 @@ Full table lives in the master plan section 4.6.3. Summary of the rule:
 1. Branch N is cut from `main` **after branch N-1 is merged**, unless it is
    explicitly marked parallel-safe.
 2. Parallel-safe branches are cut from the **group-start** `main` (the branch
-   before the group), not from each other. Rebase on the merged partner before
-   merge. Merge in table order.
+   before the group), not from each other. Merge the partner into the branch
+   before merge (`git merge`, no rebase). Merge in table order.
 3. Current parallel-safe groups: 03+04, 12+13, 14+15, 16+17.
 4. Readiness exception: 00A/00B may live up to 10 working days while owner
    decisions are pending, but must contain docs/config/evidence only.
@@ -76,16 +76,17 @@ Rules:
 
 ## Merge method
 
-- Rebase the branch on `origin/main` before opening/updating the PR:
+- Update the branch with `origin/main` before opening/updating the PR:
 
   ```sh
   git fetch origin
-  git rebase origin/main
-  git push --force-with-lease
+  git merge origin/main
+  git push
   ```
 
-- Use **Rebase and merge** in GitHub. Disable squash and merge commits for
-  this work.
+- Use **Create a merge commit** in GitHub (auto-merge allowed). Squash and
+  rebase merging are disabled for this repository; merge commits are
+  required, linear history is not.
 - Delete the remote branch immediately after merge:
 
   ```sh
@@ -93,9 +94,9 @@ Rules:
   git fetch --prune
   ```
 
-- If the branch conflicts: rebase, do not merge `main` into the branch. If
-  conflict resolution changes behavior, add a test and re-run the branch merge
-  gate.
+- If the branch conflicts: merge `main` into the branch (do not rebase).
+  If conflict resolution changes behavior, add a test and re-run the branch
+  merge gate.
 
 ## Release, tag, hotfix
 
@@ -115,7 +116,7 @@ Rules:
 
 | Branch | Required | Approvals | Force push | Delete after merge |
 | --- | --- | --- | --- | --- |
-| `main` | All required checks, linear history, CODEOWNERS | 1; 2 for critical money path | Blocked | n/a |
+| `main` | All required checks, merge commits, CODEOWNERS | 1; 2 for critical money path | Blocked | n/a |
 | work branch | PR checks | 1 | Allowed to owner | Yes |
 | `release/*` | All required checks | 1 + owner | Blocked | At EOL |
 | `hotfix/*` | All required checks | 1; 2 for money path | Blocked | Yes |
