@@ -42,6 +42,14 @@ CodeQL scope: the JavaScript gateway and the C crypto helpers
 no CodeQL extractor exists. CodeQL stays informational (not a required
 check) until one green run plus an alert-triage pass.
 
+CI-006 evidence (2026-11-05): `scripts/check_docs.mjs` now fails on stale
+fleet counts, wrong required-check names, and retired claims (unit-tested in
+`scripts/test/stale_claims.test.mjs`); `scripts/ci/ci_metrics.mjs` records
+before/after evidence under `artifacts/ci-audit/<date>/`. All counts above
+were re-verified against the tree on 2026-11-05. Next docs review: with the
+G1 sign-off, or sooner if the DB fleet grows past 80 suites (revisit the
+shard-count prose and the cost model).
+
 ## CI contract (`scripts/check_ci_contract.mjs`)
 
 The lint job runs `node scripts/check_ci_contract.mjs .` on every PR and push.
