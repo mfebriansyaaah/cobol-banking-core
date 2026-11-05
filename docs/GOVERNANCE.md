@@ -89,6 +89,7 @@ Branch protection is configured via the classic Branch Protection API
 Revisit rulesets if the plan upgrades. Current settings on `main`:
 
 - required status checks `lint`, `build`, `test`, `db aggregate`, `coverage`,
-  `coverage-pr` (strict), enforced for admins;
+  `coverage-pr` (not strict: passing checks are required, an up-to-date
+  branch is not), enforced for admins;
 - 1 approval, dismiss stale reviews, CODEOWNERS review required;
 - merge commits (squash/rebase merging disabled), force pushes and branch deletion blocked.

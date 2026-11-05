@@ -207,7 +207,9 @@ model above is pending.
 
 ACTIVE since branch 02 (2026-11-04, verified via API): branch protection on
 `main` requires `lint`, `build`, `test`, `db aggregate`, `coverage`,
-`coverage-pr` (strict), merge commits (linear history is not required and
+`coverage-pr` (not strict since 2026-11-05: checks must pass, but the PR
+need not contain the latest `main`; update via `git merge origin/main`
+before merging), merge commits (linear history is not required and
 rebase/squash merging is disabled),
 1 approval with stale-review dismissal, CODEOWNERS review;
 force pushes, branch deletion, and admin bypass are blocked. Red-PR proof is
@@ -219,9 +221,11 @@ Naming trap (burned us on PR #510): GitHub matches the check-run **name**
 
 CI-002 evidence (2026-11-05): `coverage-pr` added to required status checks
 via API (`required_status_checks/contexts`: `lint`, `build`, `test`,
-`coverage`, `db aggregate`, `coverage-pr`; strict). Red-proof: PR #532
+`coverage`, `db aggregate`, `coverage-pr`; strict at the time). Red-proof: PR #532
 (`ci/ci-p0-02-red-proof`, COBOL floor forced to 100) failed `coverage-pr`
 and showed `mergeStateStatus: BLOCKED`; closed unmerged, branch deleted.
+Strictness removed 2026-11-05 (owner decision): checks stay required,
+up-to-date branch no longer enforced.
 `coverage-pr` is now a merge-blocking gate, not an advisory check.
 
 Notes:
