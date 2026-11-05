@@ -105,7 +105,7 @@ Rules:
 | `ci.yml` db-shards (×4) | 30 min each | one shard per runner |
 | `ci.yml` db-aggregate | 15 min | merge + inventory + count gate + summary |
 | `ci.yml` coverage | 20 min | gateway-only |
-| `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected |
+| `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
 | `ci.yml` post-merge | 20 min | rollback, backup/restore, drift |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
 | `coverage.yml` | 45 min | full COBOL + gateway |
