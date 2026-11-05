@@ -1,6 +1,0 @@
-# Mobile Banking (Wave20) validation cases.
-MBK_CREATE missing ref@@ERROR\|INVALID_INPUT@@MBK_CREATE||||||admin@test.com
-MBK_GET missing id@@ERROR\|INVALID_INPUT@@MBK_GET||||||admin@test.com
-MBK_CALC missing id@@ERROR\|INVALID_INPUT@@MBK_CALC||||||admin@test.com
-MBK_DELETE missing id@@ERROR\|INVALID_INPUT@@MBK_DELETE||||||admin@test.com
-MBK_VALIDATE ok@@SUCCESS\|MBK_VALID@@MBK_VALIDATE|100.00|USD||||admin@test.com

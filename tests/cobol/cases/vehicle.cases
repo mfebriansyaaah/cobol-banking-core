@@ -1,6 +1,0 @@
-# Vehicle (Wave12) validation cases.
-SPV_CREATE missing ref@@ERROR\|INVALID_INPUT@@SPV_CREATE||||||admin@test.com
-SPV_GET missing id@@ERROR\|INVALID_INPUT@@SPV_GET||||||admin@test.com
-SPV_CALC missing id@@ERROR\|INVALID_INPUT@@SPV_CALC||||||admin@test.com
-SPV_DELETE missing id@@ERROR\|INVALID_INPUT@@SPV_DELETE||||||admin@test.com
-SPV_VALIDATE ok@@SUCCESS\|SPV_VALID@@SPV_VALIDATE|100.00|USD||||admin@test.com

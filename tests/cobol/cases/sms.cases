@@ -1,6 +1,0 @@
-# Sms (Wave11) validation cases.
-SMS_CREATE missing ref@@ERROR\|INVALID_INPUT@@SMS_CREATE||||||admin@test.com
-SMS_GET missing id@@ERROR\|INVALID_INPUT@@SMS_GET||||||admin@test.com
-SMS_CALC missing id@@ERROR\|INVALID_INPUT@@SMS_CALC||||||admin@test.com
-SMS_DELETE missing id@@ERROR\|INVALID_INPUT@@SMS_DELETE||||||admin@test.com
-SMS_VALIDATE ok@@SUCCESS\|SMS_VALID@@SMS_VALIDATE|100.00|USD||||admin@test.com

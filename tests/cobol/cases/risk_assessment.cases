@@ -1,6 +1,0 @@
-# Risk Assessment (Wave17) validation cases.
-RSA_CREATE missing ref@@ERROR\|INVALID_INPUT@@RSA_CREATE||||||admin@test.com
-RSA_GET missing id@@ERROR\|INVALID_INPUT@@RSA_GET||||||admin@test.com
-RSA_CALC missing id@@ERROR\|INVALID_INPUT@@RSA_CALC||||||admin@test.com
-RSA_DELETE missing id@@ERROR\|INVALID_INPUT@@RSA_DELETE||||||admin@test.com
-RSA_VALIDATE ok@@SUCCESS\|RSA_VALID@@RSA_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Metrics (Wave11) validation cases.
-MTR_CREATE missing ref@@ERROR\|INVALID_INPUT@@MTR_CREATE||||||admin@test.com
-MTR_GET missing id@@ERROR\|INVALID_INPUT@@MTR_GET||||||admin@test.com
-MTR_CALC missing id@@ERROR\|INVALID_INPUT@@MTR_CALC||||||admin@test.com
-MTR_DELETE missing id@@ERROR\|INVALID_INPUT@@MTR_DELETE||||||admin@test.com
-MTR_VALIDATE ok@@SUCCESS\|MTR_VALID@@MTR_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Search (Wave11) validation cases.
-SRH_CREATE missing ref@@ERROR\|INVALID_INPUT@@SRH_CREATE||||||admin@test.com
-SRH_GET missing id@@ERROR\|INVALID_INPUT@@SRH_GET||||||admin@test.com
-SRH_CALC missing id@@ERROR\|INVALID_INPUT@@SRH_CALC||||||admin@test.com
-SRH_DELETE missing id@@ERROR\|INVALID_INPUT@@SRH_DELETE||||||admin@test.com
-SRH_VALIDATE ok@@SUCCESS\|SRH_VALID@@SRH_VALIDATE|100.00|USD||||admin@test.com

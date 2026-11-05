@@ -1,6 +1,0 @@
-# Training (Wave10) validation cases.
-TRN_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRN_CREATE||||||admin@test.com
-TRN_GET missing id@@ERROR\|INVALID_INPUT@@TRN_GET||||||admin@test.com
-TRN_CALC missing id@@ERROR\|INVALID_INPUT@@TRN_CALC||||||admin@test.com
-TRN_DELETE missing id@@ERROR\|INVALID_INPUT@@TRN_DELETE||||||admin@test.com
-TRN_VALIDATE ok@@SUCCESS\|TRN_VALID@@TRN_VALIDATE|100.00|USD||||admin@test.com

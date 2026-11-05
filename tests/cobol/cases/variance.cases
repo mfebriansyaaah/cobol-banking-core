@@ -1,6 +1,0 @@
-# Variance (Wave14) validation cases.
-VARA_CREATE missing ref@@ERROR\|INVALID_INPUT@@VARA_CREATE||||||admin@test.com
-VARA_GET missing id@@ERROR\|INVALID_INPUT@@VARA_GET||||||admin@test.com
-VARA_CALC missing id@@ERROR\|INVALID_INPUT@@VARA_CALC||||||admin@test.com
-VARA_DELETE missing id@@ERROR\|INVALID_INPUT@@VARA_DELETE||||||admin@test.com
-VARA_VALIDATE ok@@SUCCESS\|VARA_VALID@@VARA_VALIDATE|100.00|USD||||admin@test.com

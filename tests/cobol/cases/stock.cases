@@ -1,6 +1,0 @@
-# Stock (Wave19) validation cases.
-STK_CREATE missing ref@@ERROR\|INVALID_INPUT@@STK_CREATE||||||admin@test.com
-STK_GET missing id@@ERROR\|INVALID_INPUT@@STK_GET||||||admin@test.com
-STK_CALC missing id@@ERROR\|INVALID_INPUT@@STK_CALC||||||admin@test.com
-STK_DELETE missing id@@ERROR\|INVALID_INPUT@@STK_DELETE||||||admin@test.com
-STK_VALIDATE ok@@SUCCESS\|STK_VALID@@STK_VALIDATE|100.00|USD||||admin@test.com

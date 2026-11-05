@@ -1,6 +1,0 @@
-# User Activity (Wave5) validation cases.
-UAC_CREATE missing ref@@ERROR\|INVALID_INPUT@@UAC_CREATE||||||admin@test.com
-UAC_GET missing id@@ERROR\|INVALID_INPUT@@UAC_GET||||||admin@test.com
-UAC_CALC missing id@@ERROR\|INVALID_INPUT@@UAC_CALC||||||admin@test.com
-UAC_DELETE missing id@@ERROR\|INVALID_INPUT@@UAC_DELETE||||||admin@test.com
-UAC_VALIDATE ok@@SUCCESS\|UAC_VALID@@UAC_VALIDATE|100.00|USD||||admin@test.com

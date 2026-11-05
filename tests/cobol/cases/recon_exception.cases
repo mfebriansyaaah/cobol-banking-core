@@ -1,3 +1,0 @@
-REX_GET missing first param@@ERROR\|INVALID_INPUT@@REX_GET||||||admin@test.com
-REX_REJECT missing first param@@ERROR\|INVALID_INPUT@@REX_REJECT||||||admin@test.com
-REX_CLOSE missing first param@@ERROR\|INVALID_INPUT@@REX_CLOSE||||||admin@test.com

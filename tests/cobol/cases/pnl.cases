@@ -1,6 +1,0 @@
-# Pnl (Wave9) validation cases.
-PNL_CREATE missing ref@@ERROR\|INVALID_INPUT@@PNL_CREATE||||||admin@test.com
-PNL_GET missing id@@ERROR\|INVALID_INPUT@@PNL_GET||||||admin@test.com
-PNL_CALC missing id@@ERROR\|INVALID_INPUT@@PNL_CALC||||||admin@test.com
-PNL_DELETE missing id@@ERROR\|INVALID_INPUT@@PNL_DELETE||||||admin@test.com
-PNL_VALIDATE ok@@SUCCESS\|PNL_VALID@@PNL_VALIDATE|100.00|USD||||admin@test.com

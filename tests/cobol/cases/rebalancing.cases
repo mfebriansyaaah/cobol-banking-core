@@ -1,6 +1,0 @@
-# Rebalancing (Wave14) validation cases.
-RBL_CREATE missing ref@@ERROR\|INVALID_INPUT@@RBL_CREATE||||||admin@test.com
-RBL_GET missing id@@ERROR\|INVALID_INPUT@@RBL_GET||||||admin@test.com
-RBL_CALC missing id@@ERROR\|INVALID_INPUT@@RBL_CALC||||||admin@test.com
-RBL_DELETE missing id@@ERROR\|INVALID_INPUT@@RBL_DELETE||||||admin@test.com
-RBL_VALIDATE ok@@SUCCESS\|RBL_VALID@@RBL_VALIDATE|100.00|USD||||admin@test.com

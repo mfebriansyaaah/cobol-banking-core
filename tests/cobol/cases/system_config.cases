@@ -1,6 +1,0 @@
-# System Config (Wave5) validation cases.
-SGC_CREATE missing ref@@ERROR\|INVALID_INPUT@@SGC_CREATE||||||admin@test.com
-SGC_GET missing id@@ERROR\|INVALID_INPUT@@SGC_GET||||||admin@test.com
-SGC_CALC missing id@@ERROR\|INVALID_INPUT@@SGC_CALC||||||admin@test.com
-SGC_DELETE missing id@@ERROR\|INVALID_INPUT@@SGC_DELETE||||||admin@test.com
-SGC_VALIDATE ok@@SUCCESS\|SGC_VALID@@SGC_VALIDATE|100.00|USD||||admin@test.com

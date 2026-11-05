@@ -1,6 +1,0 @@
-# Profit (Wave9) validation cases.
-PRF_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRF_CREATE||||||admin@test.com
-PRF_GET missing id@@ERROR\|INVALID_INPUT@@PRF_GET||||||admin@test.com
-PRF_CALC missing id@@ERROR\|INVALID_INPUT@@PRF_CALC||||||admin@test.com
-PRF_DELETE missing id@@ERROR\|INVALID_INPUT@@PRF_DELETE||||||admin@test.com
-PRF_VALIDATE ok@@SUCCESS\|PRF_VALID@@PRF_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Mfa Management (Wave8) validation cases.
-MFA_CREATE missing ref@@ERROR\|INVALID_INPUT@@MFA_CREATE||||||admin@test.com
-MFA_GET missing id@@ERROR\|INVALID_INPUT@@MFA_GET||||||admin@test.com
-MFA_CALC missing id@@ERROR\|INVALID_INPUT@@MFA_CALC||||||admin@test.com
-MFA_DELETE missing id@@ERROR\|INVALID_INPUT@@MFA_DELETE||||||admin@test.com
-MFA_VALIDATE ok@@SUCCESS\|MFA_VALID@@MFA_VALIDATE|100.00|USD||||admin@test.com

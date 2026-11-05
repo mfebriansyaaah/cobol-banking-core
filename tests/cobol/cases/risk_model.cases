@@ -1,6 +1,0 @@
-# Risk Model (Wave7) validation cases.
-RSM_CREATE missing ref@@ERROR\|INVALID_INPUT@@RSM_CREATE||||||admin@test.com
-RSM_GET missing id@@ERROR\|INVALID_INPUT@@RSM_GET||||||admin@test.com
-RSM_CALC missing id@@ERROR\|INVALID_INPUT@@RSM_CALC||||||admin@test.com
-RSM_DELETE missing id@@ERROR\|INVALID_INPUT@@RSM_DELETE||||||admin@test.com
-RSM_VALIDATE ok@@SUCCESS\|RSM_VALID@@RSM_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Swap Contract (Wave6) validation cases.
-SWP_CREATE missing ref@@ERROR\|INVALID_INPUT@@SWP_CREATE||||||admin@test.com
-SWP_GET missing id@@ERROR\|INVALID_INPUT@@SWP_GET||||||admin@test.com
-SWP_CALC missing id@@ERROR\|INVALID_INPUT@@SWP_CALC||||||admin@test.com
-SWP_DELETE missing id@@ERROR\|INVALID_INPUT@@SWP_DELETE||||||admin@test.com
-SWP_VALIDATE ok@@SUCCESS\|SWP_VALID@@SWP_VALIDATE|100.00|USD||||admin@test.com

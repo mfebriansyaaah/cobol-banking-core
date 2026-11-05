@@ -1,6 +1,0 @@
-# Termination Item (Wave15) validation cases.
-TERM_CREATE missing ref@@ERROR\|INVALID_INPUT@@TERM_CREATE||||||admin@test.com
-TERM_GET missing id@@ERROR\|INVALID_INPUT@@TERM_GET||||||admin@test.com
-TERM_CALC missing id@@ERROR\|INVALID_INPUT@@TERM_CALC||||||admin@test.com
-TERM_DELETE missing id@@ERROR\|INVALID_INPUT@@TERM_DELETE||||||admin@test.com
-TERM_VALIDATE ok@@SUCCESS\|TERM_VALID@@TERM_VALIDATE|100.00|USD||||admin@test.com

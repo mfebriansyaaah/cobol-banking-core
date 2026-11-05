@@ -1,6 +1,0 @@
-# Supply Chain Finance (Wave4) validation cases.
-SCF_CREATE missing ref@@ERROR\|INVALID_INPUT@@SCF_CREATE||||||admin@test.com
-SCF_GET missing id@@ERROR\|INVALID_INPUT@@SCF_GET||||||admin@test.com
-SCF_CALC missing id@@ERROR\|INVALID_INPUT@@SCF_CALC||||||admin@test.com
-SCF_DELETE missing id@@ERROR\|INVALID_INPUT@@SCF_DELETE||||||admin@test.com
-SCF_VALIDATE ok@@SUCCESS\|SCF_VALID@@SCF_VALIDATE|100.00|USD||||admin@test.com

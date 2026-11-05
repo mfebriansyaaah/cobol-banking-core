@@ -144,12 +144,12 @@ suites, table cases, and the action/suite inventory gates. See
 <!-- BEGIN GENERATED STATS -->
 | Metric | Value |
 | --- | ---: |
-| COBOL modules | **305** |
-| COBOL source files (incl. dispatcher) | **306** |
-| COBOL lines | **221,676** |
-| Gateway route files | **299** |
-| Gateway route definitions | **2,801** |
-| Dispatch entries | **383** |
+| COBOL modules | **64** |
+| COBOL source files (incl. dispatcher) | **65** |
+| COBOL lines | **63,366** |
+| Gateway route files | **58** |
+| Gateway route definitions | **701** |
+| Dispatch entries | **142** |
 | Recorded migrations | **657** |
 | Tables in schema.sql | **478** |
 <!-- END GENERATED STATS -->

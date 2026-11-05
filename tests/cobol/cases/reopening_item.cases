@@ -1,6 +1,0 @@
-# Reopening Item (Wave15) validation cases.
-REOP_CREATE missing ref@@ERROR\|INVALID_INPUT@@REOP_CREATE||||||admin@test.com
-REOP_GET missing id@@ERROR\|INVALID_INPUT@@REOP_GET||||||admin@test.com
-REOP_CALC missing id@@ERROR\|INVALID_INPUT@@REOP_CALC||||||admin@test.com
-REOP_DELETE missing id@@ERROR\|INVALID_INPUT@@REOP_DELETE||||||admin@test.com
-REOP_VALIDATE ok@@SUCCESS\|REOP_VALID@@REOP_VALIDATE|100.00|USD||||admin@test.com

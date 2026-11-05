@@ -1,6 +1,0 @@
-# Open Banking (Wave6) validation cases.
-OPN_CREATE missing ref@@ERROR\|INVALID_INPUT@@OPN_CREATE||||||admin@test.com
-OPN_GET missing id@@ERROR\|INVALID_INPUT@@OPN_GET||||||admin@test.com
-OPN_CALC missing id@@ERROR\|INVALID_INPUT@@OPN_CALC||||||admin@test.com
-OPN_DELETE missing id@@ERROR\|INVALID_INPUT@@OPN_DELETE||||||admin@test.com
-OPN_VALIDATE ok@@SUCCESS\|OPN_VALID@@OPN_VALIDATE|100.00|USD||||admin@test.com

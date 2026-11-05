@@ -1,6 +1,0 @@
-# Public Liability (Wave18) validation cases.
-PUL_CREATE missing ref@@ERROR\|INVALID_INPUT@@PUL_CREATE||||||admin@test.com
-PUL_GET missing id@@ERROR\|INVALID_INPUT@@PUL_GET||||||admin@test.com
-PUL_CALC missing id@@ERROR\|INVALID_INPUT@@PUL_CALC||||||admin@test.com
-PUL_DELETE missing id@@ERROR\|INVALID_INPUT@@PUL_DELETE||||||admin@test.com
-PUL_VALIDATE ok@@SUCCESS\|PUL_VALID@@PUL_VALIDATE|100.00|USD||||admin@test.com

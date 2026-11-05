@@ -1,6 +1,0 @@
-# Otp Management (Wave8) validation cases.
-OTP_CREATE missing ref@@ERROR\|INVALID_INPUT@@OTP_CREATE||||||admin@test.com
-OTP_GET missing id@@ERROR\|INVALID_INPUT@@OTP_GET||||||admin@test.com
-OTP_CALC missing id@@ERROR\|INVALID_INPUT@@OTP_CALC||||||admin@test.com
-OTP_DELETE missing id@@ERROR\|INVALID_INPUT@@OTP_DELETE||||||admin@test.com
-OTP_VALIDATE ok@@SUCCESS\|OTP_VALID@@OTP_VALIDATE|100.00|USD||||admin@test.com

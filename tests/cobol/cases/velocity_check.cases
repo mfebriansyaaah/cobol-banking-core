@@ -1,6 +1,0 @@
-# Velocity Check (Wave8) validation cases.
-VLC_CREATE missing ref@@ERROR\|INVALID_INPUT@@VLC_CREATE||||||admin@test.com
-VLC_GET missing id@@ERROR\|INVALID_INPUT@@VLC_GET||||||admin@test.com
-VLC_CALC missing id@@ERROR\|INVALID_INPUT@@VLC_CALC||||||admin@test.com
-VLC_DELETE missing id@@ERROR\|INVALID_INPUT@@VLC_DELETE||||||admin@test.com
-VLC_VALIDATE ok@@SUCCESS\|VLC_VALID@@VLC_VALIDATE|100.00|USD||||admin@test.com

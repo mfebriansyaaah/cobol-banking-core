@@ -1,6 +1,0 @@
-# Vostro (Wave13) validation cases.
-VOS_CREATE missing ref@@ERROR\|INVALID_INPUT@@VOS_CREATE||||||admin@test.com
-VOS_GET missing id@@ERROR\|INVALID_INPUT@@VOS_GET||||||admin@test.com
-VOS_CALC missing id@@ERROR\|INVALID_INPUT@@VOS_CALC||||||admin@test.com
-VOS_DELETE missing id@@ERROR\|INVALID_INPUT@@VOS_DELETE||||||admin@test.com
-VOS_VALIDATE ok@@SUCCESS\|VOS_VALID@@VOS_VALIDATE|100.00|USD||||admin@test.com

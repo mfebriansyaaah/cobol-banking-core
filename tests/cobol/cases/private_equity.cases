@@ -1,6 +1,0 @@
-# Private Equity (Wave12) validation cases.
-PEQ_CREATE missing ref@@ERROR\|INVALID_INPUT@@PEQ_CREATE||||||admin@test.com
-PEQ_GET missing id@@ERROR\|INVALID_INPUT@@PEQ_GET||||||admin@test.com
-PEQ_CALC missing id@@ERROR\|INVALID_INPUT@@PEQ_CALC||||||admin@test.com
-PEQ_DELETE missing id@@ERROR\|INVALID_INPUT@@PEQ_DELETE||||||admin@test.com
-PEQ_VALIDATE ok@@SUCCESS\|PEQ_VALID@@PEQ_VALIDATE|100.00|USD||||admin@test.com

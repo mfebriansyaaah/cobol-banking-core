@@ -1,6 +1,0 @@
-# Standing instruction (Wave3) validation cases.
-SIN_CREATE missing ref@@ERROR\|INVALID_INPUT@@SIN_CREATE||||||admin@test.com
-SIN_GET missing id@@ERROR\|INVALID_INPUT@@SIN_GET||||||admin@test.com
-SIN_CALC missing id@@ERROR\|INVALID_INPUT@@SIN_CALC||||||admin@test.com
-SIN_DELETE missing id@@ERROR\|INVALID_INPUT@@SIN_DELETE||||||admin@test.com
-SIN_VALIDATE ok@@SUCCESS\|SIN_VALID@@SIN_VALIDATE|100.00|USD||||admin@test.com

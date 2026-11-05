@@ -1,6 +1,0 @@
-# Promissory Note (Wave16) validation cases.
-PMN_CREATE missing ref@@ERROR\|INVALID_INPUT@@PMN_CREATE||||||admin@test.com
-PMN_GET missing id@@ERROR\|INVALID_INPUT@@PMN_GET||||||admin@test.com
-PMN_CALC missing id@@ERROR\|INVALID_INPUT@@PMN_CALC||||||admin@test.com
-PMN_DELETE missing id@@ERROR\|INVALID_INPUT@@PMN_DELETE||||||admin@test.com
-PMN_VALIDATE ok@@SUCCESS\|PMN_VALID@@PMN_VALIDATE|100.00|USD||||admin@test.com

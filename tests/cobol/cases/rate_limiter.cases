@@ -1,6 +1,0 @@
-# Rate Limiter (Wave11) validation cases.
-RTL_CREATE missing ref@@ERROR\|INVALID_INPUT@@RTL_CREATE||||||admin@test.com
-RTL_GET missing id@@ERROR\|INVALID_INPUT@@RTL_GET||||||admin@test.com
-RTL_CALC missing id@@ERROR\|INVALID_INPUT@@RTL_CALC||||||admin@test.com
-RTL_DELETE missing id@@ERROR\|INVALID_INPUT@@RTL_DELETE||||||admin@test.com
-RTL_VALIDATE ok@@SUCCESS\|RTL_VALID@@RTL_VALIDATE|100.00|USD||||admin@test.com

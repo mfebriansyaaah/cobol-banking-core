@@ -1,6 +1,0 @@
-# Payment Processing (Wave13) validation cases.
-PAYM_CREATE missing ref@@ERROR\|INVALID_INPUT@@PAYM_CREATE||||||admin@test.com
-PAYM_GET missing id@@ERROR\|INVALID_INPUT@@PAYM_GET||||||admin@test.com
-PAYM_CALC missing id@@ERROR\|INVALID_INPUT@@PAYM_CALC||||||admin@test.com
-PAYM_DELETE missing id@@ERROR\|INVALID_INPUT@@PAYM_DELETE||||||admin@test.com
-PAYM_VALIDATE ok@@SUCCESS\|PAYM_VALID@@PAYM_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Volatility (Wave9) validation cases.
-VOL_CREATE missing ref@@ERROR\|INVALID_INPUT@@VOL_CREATE||||||admin@test.com
-VOL_GET missing id@@ERROR\|INVALID_INPUT@@VOL_GET||||||admin@test.com
-VOL_CALC missing id@@ERROR\|INVALID_INPUT@@VOL_CALC||||||admin@test.com
-VOL_DELETE missing id@@ERROR\|INVALID_INPUT@@VOL_DELETE||||||admin@test.com
-VOL_VALIDATE ok@@SUCCESS\|VOL_VALID@@VOL_VALIDATE|100.00|USD||||admin@test.com

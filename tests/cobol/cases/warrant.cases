@@ -1,6 +1,0 @@
-# Warrant (Wave12) validation cases.
-WAR_CREATE missing ref@@ERROR\|INVALID_INPUT@@WAR_CREATE||||||admin@test.com
-WAR_GET missing id@@ERROR\|INVALID_INPUT@@WAR_GET||||||admin@test.com
-WAR_CALC missing id@@ERROR\|INVALID_INPUT@@WAR_CALC||||||admin@test.com
-WAR_DELETE missing id@@ERROR\|INVALID_INPUT@@WAR_DELETE||||||admin@test.com
-WAR_VALIDATE ok@@SUCCESS\|WAR_VALID@@WAR_VALIDATE|100.00|USD||||admin@test.com

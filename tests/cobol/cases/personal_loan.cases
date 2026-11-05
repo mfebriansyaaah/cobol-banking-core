@@ -1,6 +1,0 @@
-# Personal Loan (Wave16) validation cases.
-PLN_CREATE missing ref@@ERROR\|INVALID_INPUT@@PLN_CREATE||||||admin@test.com
-PLN_GET missing id@@ERROR\|INVALID_INPUT@@PLN_GET||||||admin@test.com
-PLN_CALC missing id@@ERROR\|INVALID_INPUT@@PLN_CALC||||||admin@test.com
-PLN_DELETE missing id@@ERROR\|INVALID_INPUT@@PLN_DELETE||||||admin@test.com
-PLN_VALIDATE ok@@SUCCESS\|PLN_VALID@@PLN_VALIDATE|100.00|USD||||admin@test.com

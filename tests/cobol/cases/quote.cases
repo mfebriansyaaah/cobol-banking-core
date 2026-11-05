@@ -1,6 +1,0 @@
-# Quote (Wave14) validation cases.
-QTE_CREATE missing ref@@ERROR\|INVALID_INPUT@@QTE_CREATE||||||admin@test.com
-QTE_GET missing id@@ERROR\|INVALID_INPUT@@QTE_GET||||||admin@test.com
-QTE_CALC missing id@@ERROR\|INVALID_INPUT@@QTE_CALC||||||admin@test.com
-QTE_DELETE missing id@@ERROR\|INVALID_INPUT@@QTE_DELETE||||||admin@test.com
-QTE_VALIDATE ok@@SUCCESS\|QTE_VALID@@QTE_VALIDATE|100.00|USD||||admin@test.com

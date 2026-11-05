@@ -1,6 +1,0 @@
-# Strategy (Wave19) validation cases.
-STG_CREATE missing ref@@ERROR\|INVALID_INPUT@@STG_CREATE||||||admin@test.com
-STG_GET missing id@@ERROR\|INVALID_INPUT@@STG_GET||||||admin@test.com
-STG_CALC missing id@@ERROR\|INVALID_INPUT@@STG_CALC||||||admin@test.com
-STG_DELETE missing id@@ERROR\|INVALID_INPUT@@STG_DELETE||||||admin@test.com
-STG_VALIDATE ok@@SUCCESS\|STG_VALID@@STG_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Option Trading (Wave6) validation cases.
-OPT_CREATE missing ref@@ERROR\|INVALID_INPUT@@OPT_CREATE||||||admin@test.com
-OPT_GET missing id@@ERROR\|INVALID_INPUT@@OPT_GET||||||admin@test.com
-OPT_CALC missing id@@ERROR\|INVALID_INPUT@@OPT_CALC||||||admin@test.com
-OPT_DELETE missing id@@ERROR\|INVALID_INPUT@@OPT_DELETE||||||admin@test.com
-OPT_VALIDATE ok@@SUCCESS\|OPT_VALID@@OPT_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Migration (Wave17) validation cases.
-MIG_CREATE missing ref@@ERROR\|INVALID_INPUT@@MIG_CREATE||||||admin@test.com
-MIG_GET missing id@@ERROR\|INVALID_INPUT@@MIG_GET||||||admin@test.com
-MIG_CALC missing id@@ERROR\|INVALID_INPUT@@MIG_CALC||||||admin@test.com
-MIG_DELETE missing id@@ERROR\|INVALID_INPUT@@MIG_DELETE||||||admin@test.com
-MIG_VALIDATE ok@@SUCCESS\|MIG_VALID@@MIG_VALIDATE|100.00|USD||||admin@test.com

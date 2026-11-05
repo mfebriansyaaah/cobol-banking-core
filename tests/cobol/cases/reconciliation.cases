@@ -1,6 +1,0 @@
-# Reconciliation (Wave13) validation cases.
-RECN_CREATE missing ref@@ERROR\|INVALID_INPUT@@RECN_CREATE||||||admin@test.com
-RECN_GET missing id@@ERROR\|INVALID_INPUT@@RECN_GET||||||admin@test.com
-RECN_CALC missing id@@ERROR\|INVALID_INPUT@@RECN_CALC||||||admin@test.com
-RECN_DELETE missing id@@ERROR\|INVALID_INPUT@@RECN_DELETE||||||admin@test.com
-RECN_VALIDATE ok@@SUCCESS\|RECN_VALID@@RECN_VALIDATE|100.00|USD||||admin@test.com

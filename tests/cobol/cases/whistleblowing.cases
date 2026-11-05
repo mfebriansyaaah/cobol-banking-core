@@ -1,6 +1,0 @@
-# Whistleblowing (Wave7) validation cases.
-WHB_CREATE missing ref@@ERROR\|INVALID_INPUT@@WHB_CREATE||||||admin@test.com
-WHB_GET missing id@@ERROR\|INVALID_INPUT@@WHB_GET||||||admin@test.com
-WHB_CALC missing id@@ERROR\|INVALID_INPUT@@WHB_CALC||||||admin@test.com
-WHB_DELETE missing id@@ERROR\|INVALID_INPUT@@WHB_DELETE||||||admin@test.com
-WHB_VALIDATE ok@@SUCCESS\|WHB_VALID@@WHB_VALIDATE|100.00|USD||||admin@test.com

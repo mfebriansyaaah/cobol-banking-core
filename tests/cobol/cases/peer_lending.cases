@@ -1,6 +1,0 @@
-# Peer Lending (Wave20) validation cases.
-PDLG_CREATE missing ref@@ERROR\|INVALID_INPUT@@PDLG_CREATE||||||admin@test.com
-PDLG_GET missing id@@ERROR\|INVALID_INPUT@@PDLG_GET||||||admin@test.com
-PDLG_CALC missing id@@ERROR\|INVALID_INPUT@@PDLG_CALC||||||admin@test.com
-PDLG_DELETE missing id@@ERROR\|INVALID_INPUT@@PDLG_DELETE||||||admin@test.com
-PDLG_VALIDATE ok@@SUCCESS\|PDLG_VALID@@PDLG_VALIDATE|100.00|USD||||admin@test.com

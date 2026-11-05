@@ -1,6 +1,0 @@
-# Transaction Limit (Wave8) validation cases.
-TXL_CREATE missing ref@@ERROR\|INVALID_INPUT@@TXL_CREATE||||||admin@test.com
-TXL_GET missing id@@ERROR\|INVALID_INPUT@@TXL_GET||||||admin@test.com
-TXL_CALC missing id@@ERROR\|INVALID_INPUT@@TXL_CALC||||||admin@test.com
-TXL_DELETE missing id@@ERROR\|INVALID_INPUT@@TXL_DELETE||||||admin@test.com
-TXL_VALIDATE ok@@SUCCESS\|TXL_VALID@@TXL_VALIDATE|100.00|USD||||admin@test.com

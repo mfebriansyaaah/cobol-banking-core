@@ -1,6 +1,0 @@
-# Micro Lending (Wave20) validation cases.
-MCL_CREATE missing ref@@ERROR\|INVALID_INPUT@@MCL_CREATE||||||admin@test.com
-MCL_GET missing id@@ERROR\|INVALID_INPUT@@MCL_GET||||||admin@test.com
-MCL_CALC missing id@@ERROR\|INVALID_INPUT@@MCL_CALC||||||admin@test.com
-MCL_DELETE missing id@@ERROR\|INVALID_INPUT@@MCL_DELETE||||||admin@test.com
-MCL_VALIDATE ok@@SUCCESS\|MCL_VALID@@MCL_VALIDATE|100.00|USD||||admin@test.com

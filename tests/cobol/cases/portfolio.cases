@@ -1,6 +1,0 @@
-# Portfolio (Wave14) validation cases.
-PTF_CREATE missing ref@@ERROR\|INVALID_INPUT@@PTF_CREATE||||||admin@test.com
-PTF_GET missing id@@ERROR\|INVALID_INPUT@@PTF_GET||||||admin@test.com
-PTF_CALC missing id@@ERROR\|INVALID_INPUT@@PTF_CALC||||||admin@test.com
-PTF_DELETE missing id@@ERROR\|INVALID_INPUT@@PTF_DELETE||||||admin@test.com
-PTF_VALIDATE ok@@SUCCESS\|PTF_VALID@@PTF_VALIDATE|100.00|USD||||admin@test.com

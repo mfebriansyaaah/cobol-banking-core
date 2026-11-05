@@ -1,6 +1,0 @@
-# Travel Insurance (Wave18) validation cases.
-TRV_CREATE missing ref@@ERROR\|INVALID_INPUT@@TRV_CREATE||||||admin@test.com
-TRV_GET missing id@@ERROR\|INVALID_INPUT@@TRV_GET||||||admin@test.com
-TRV_CALC missing id@@ERROR\|INVALID_INPUT@@TRV_CALC||||||admin@test.com
-TRV_DELETE missing id@@ERROR\|INVALID_INPUT@@TRV_DELETE||||||admin@test.com
-TRV_VALIDATE ok@@SUCCESS\|TRV_VALID@@TRV_VALIDATE|100.00|USD||||admin@test.com

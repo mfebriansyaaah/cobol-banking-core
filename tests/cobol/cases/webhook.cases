@@ -1,6 +1,0 @@
-# Webhook (Wave11) validation cases.
-WHK_CREATE missing ref@@ERROR\|INVALID_INPUT@@WHK_CREATE||||||admin@test.com
-WHK_GET missing id@@ERROR\|INVALID_INPUT@@WHK_GET||||||admin@test.com
-WHK_CALC missing id@@ERROR\|INVALID_INPUT@@WHK_CALC||||||admin@test.com
-WHK_DELETE missing id@@ERROR\|INVALID_INPUT@@WHK_DELETE||||||admin@test.com
-WHK_VALIDATE ok@@SUCCESS\|WHK_VALID@@WHK_VALIDATE|100.00|USD||||admin@test.com

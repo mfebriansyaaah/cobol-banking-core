@@ -1,6 +1,0 @@
-# Procedure Review (Wave17) validation cases.
-PRR_CREATE missing ref@@ERROR\|INVALID_INPUT@@PRR_CREATE||||||admin@test.com
-PRR_GET missing id@@ERROR\|INVALID_INPUT@@PRR_GET||||||admin@test.com
-PRR_CALC missing id@@ERROR\|INVALID_INPUT@@PRR_CALC||||||admin@test.com
-PRR_DELETE missing id@@ERROR\|INVALID_INPUT@@PRR_DELETE||||||admin@test.com
-PRR_VALIDATE ok@@SUCCESS\|PRR_VALID@@PRR_VALIDATE|100.00|USD||||admin@test.com

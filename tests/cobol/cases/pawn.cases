@@ -1,6 +1,0 @@
-# Pawn (Wave16) validation cases.
-PWN_CREATE missing ref@@ERROR\|INVALID_INPUT@@PWN_CREATE||||||admin@test.com
-PWN_GET missing id@@ERROR\|INVALID_INPUT@@PWN_GET||||||admin@test.com
-PWN_CALC missing id@@ERROR\|INVALID_INPUT@@PWN_CALC||||||admin@test.com
-PWN_DELETE missing id@@ERROR\|INVALID_INPUT@@PWN_DELETE||||||admin@test.com
-PWN_VALIDATE ok@@SUCCESS\|PWN_VALID@@PWN_VALIDATE|100.00|USD||||admin@test.com

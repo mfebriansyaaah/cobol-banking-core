@@ -1,6 +1,0 @@
-# Nano Lending (Wave20) validation cases.
-NCL_CREATE missing ref@@ERROR\|INVALID_INPUT@@NCL_CREATE||||||admin@test.com
-NCL_GET missing id@@ERROR\|INVALID_INPUT@@NCL_GET||||||admin@test.com
-NCL_CALC missing id@@ERROR\|INVALID_INPUT@@NCL_CALC||||||admin@test.com
-NCL_DELETE missing id@@ERROR\|INVALID_INPUT@@NCL_DELETE||||||admin@test.com
-NCL_VALIDATE ok@@SUCCESS\|NCL_VALID@@NCL_VALIDATE|100.00|USD||||admin@test.com

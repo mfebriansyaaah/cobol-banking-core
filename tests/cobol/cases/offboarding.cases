@@ -1,6 +1,0 @@
-# Offboarding (Wave10) validation cases.
-OFB_CREATE missing ref@@ERROR\|INVALID_INPUT@@OFB_CREATE||||||admin@test.com
-OFB_GET missing id@@ERROR\|INVALID_INPUT@@OFB_GET||||||admin@test.com
-OFB_CALC missing id@@ERROR\|INVALID_INPUT@@OFB_CALC||||||admin@test.com
-OFB_DELETE missing id@@ERROR\|INVALID_INPUT@@OFB_DELETE||||||admin@test.com
-OFB_VALIDATE ok@@SUCCESS\|OFB_VALID@@OFB_VALIDATE|100.00|USD||||admin@test.com

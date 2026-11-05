@@ -1,6 +1,0 @@
-# Syndicated Loan (Wave6) validation cases.
-SYL_CREATE missing ref@@ERROR\|INVALID_INPUT@@SYL_CREATE||||||admin@test.com
-SYL_GET missing id@@ERROR\|INVALID_INPUT@@SYL_GET||||||admin@test.com
-SYL_CALC missing id@@ERROR\|INVALID_INPUT@@SYL_CALC||||||admin@test.com
-SYL_DELETE missing id@@ERROR\|INVALID_INPUT@@SYL_DELETE||||||admin@test.com
-SYL_VALIDATE ok@@SUCCESS\|SYL_VALID@@SYL_VALIDATE|100.00|USD||||admin@test.com

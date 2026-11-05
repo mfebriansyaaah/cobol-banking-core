@@ -1,6 +1,0 @@
-# Price Feed (Wave14) validation cases.
-PF_CREATE missing ref@@ERROR\|INVALID_INPUT@@PF_CREATE||||||admin@test.com
-PF_GET missing id@@ERROR\|INVALID_INPUT@@PF_GET||||||admin@test.com
-PF_CALC missing id@@ERROR\|INVALID_INPUT@@PF_CALC||||||admin@test.com
-PF_DELETE missing id@@ERROR\|INVALID_INPUT@@PF_DELETE||||||admin@test.com
-PF_VALIDATE ok@@SUCCESS\|PF_VALID@@PF_VALIDATE|100.00|USD||||admin@test.com

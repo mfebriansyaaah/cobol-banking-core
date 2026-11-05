@@ -1,6 +1,0 @@
-# Transaction Item (Wave15) validation cases.
-TXNS_CREATE missing ref@@ERROR\|INVALID_INPUT@@TXNS_CREATE||||||admin@test.com
-TXNS_GET missing id@@ERROR\|INVALID_INPUT@@TXNS_GET||||||admin@test.com
-TXNS_CALC missing id@@ERROR\|INVALID_INPUT@@TXNS_CALC||||||admin@test.com
-TXNS_DELETE missing id@@ERROR\|INVALID_INPUT@@TXNS_DELETE||||||admin@test.com
-TXNS_VALIDATE ok@@SUCCESS\|TXNS_VALID@@TXNS_VALIDATE|100.00|USD||||admin@test.com

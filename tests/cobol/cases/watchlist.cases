@@ -1,6 +1,0 @@
-# Watchlist (Wave8) validation cases.
-WTC_CREATE missing ref@@ERROR\|INVALID_INPUT@@WTC_CREATE||||||admin@test.com
-WTC_GET missing id@@ERROR\|INVALID_INPUT@@WTC_GET||||||admin@test.com
-WTC_CALC missing id@@ERROR\|INVALID_INPUT@@WTC_CALC||||||admin@test.com
-WTC_DELETE missing id@@ERROR\|INVALID_INPUT@@WTC_DELETE||||||admin@test.com
-WTC_VALIDATE ok@@SUCCESS\|WTC_VALID@@WTC_VALIDATE|100.00|USD||||admin@test.com

@@ -1,6 +1,0 @@
-# Trade Credit (Wave16) validation cases.
-TCR_CREATE missing ref@@ERROR\|INVALID_INPUT@@TCR_CREATE||||||admin@test.com
-TCR_GET missing id@@ERROR\|INVALID_INPUT@@TCR_GET||||||admin@test.com
-TCR_CALC missing id@@ERROR\|INVALID_INPUT@@TCR_CALC||||||admin@test.com
-TCR_DELETE missing id@@ERROR\|INVALID_INPUT@@TCR_DELETE||||||admin@test.com
-TCR_VALIDATE ok@@SUCCESS\|TCR_VALID@@TCR_VALIDATE|100.00|USD||||admin@test.com

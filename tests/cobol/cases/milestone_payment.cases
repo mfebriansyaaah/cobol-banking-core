@@ -1,6 +1,0 @@
-# Milestone Payment (Wave16) validation cases.
-MSP_CREATE missing ref@@ERROR\|INVALID_INPUT@@MSP_CREATE||||||admin@test.com
-MSP_GET missing id@@ERROR\|INVALID_INPUT@@MSP_GET||||||admin@test.com
-MSP_CALC missing id@@ERROR\|INVALID_INPUT@@MSP_CALC||||||admin@test.com
-MSP_DELETE missing id@@ERROR\|INVALID_INPUT@@MSP_DELETE||||||admin@test.com
-MSP_VALIDATE ok@@SUCCESS\|MSP_VALID@@MSP_VALIDATE|100.00|USD||||admin@test.com
