@@ -597,6 +597,7 @@ jobs:
   db-ops:
     name: db-ops
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
