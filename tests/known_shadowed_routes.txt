@@ -8,4 +8,3 @@
 #
 # Format: "<METHOD> <path>"
 # Do not add entries to make CI green. Fix the duplicate instead.
-

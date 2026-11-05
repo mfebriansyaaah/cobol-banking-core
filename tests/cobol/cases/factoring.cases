@@ -1,6 +1,0 @@
-# Factoring (Wave16) validation cases.
-FCT_CREATE missing ref@@ERROR\|INVALID_INPUT@@FCT_CREATE||||||admin@test.com
-FCT_GET missing id@@ERROR\|INVALID_INPUT@@FCT_GET||||||admin@test.com
-FCT_CALC missing id@@ERROR\|INVALID_INPUT@@FCT_CALC||||||admin@test.com
-FCT_DELETE missing id@@ERROR\|INVALID_INPUT@@FCT_DELETE||||||admin@test.com
-FCT_VALIDATE ok@@SUCCESS\|FCT_VALID@@FCT_VALIDATE|100.00|USD||||admin@test.com

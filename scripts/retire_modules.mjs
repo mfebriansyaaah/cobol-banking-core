@@ -31,6 +31,7 @@ const args = process.argv.slice(2);
 let root = '.';
 let waveFile = null;
 let apply = false;
+let includeLegacy = false;
 for (let i = 0; i < args.length; i += 1) {
   const a = args[i];
   if (a === '--wave-file') {
@@ -38,11 +39,12 @@ for (let i = 0; i < args.length; i += 1) {
     i += 1;
   } else if (a === '--apply') apply = true;
   else if (a === '--check') apply = false;
+  else if (a === '--include-legacy') includeLegacy = true;
   else if (a === '--root') {
     root = args[i + 1] ?? root;
     i += 1;
   } else if (a === '--help' || a === '-h') {
-    console.log('usage: retire_modules.mjs --wave-file FILE [--check|--apply] [--root DIR]');
+    console.log('usage: retire_modules.mjs --wave-file FILE [--check|--apply] [--include-legacy] [--root DIR]');
     process.exit(0);
   } else if (a.startsWith('--')) {
     console.error(`unknown argument: ${a}`);
@@ -222,6 +224,75 @@ export function pruneTokenIdentityMap(testText, actions) {
   return { text: kept.join('\n'), removed: lines.length - kept.length };
 }
 
+// Split top-level route objects `{ method: ... }` with spans. Quote-aware
+// balanced-brace scan; an opener qualifies when `method` follows the brace
+// (same criterion as scripts/lib/route_fields.mjs, plus source spans).
+export function splitRouteObjects(src) {
+  const out = [];
+  for (let i = 0; i < src.length; i += 1) {
+    if (src[i] !== '{') continue;
+    if (!/^\s*method\s*:/.test(src.slice(i + 1, i + 40))) continue;
+    let depth = 0;
+    let quote = null;
+    let j = i;
+    for (; j < src.length; j += 1) {
+      const ch = src[j];
+      if (quote) {
+        if (ch === '\\') {
+          j += 1;
+          continue;
+        }
+        if (ch === quote) quote = null;
+        continue;
+      }
+      if (ch === "'" || ch === '"' || ch === '`') {
+        quote = ch;
+        continue;
+      }
+      if (ch === '{') depth += 1;
+      else if (ch === '}') {
+        depth -= 1;
+        if (depth === 0) break;
+      }
+    }
+    const body = src.slice(i, j + 1);
+    const am = body.match(/action:\s*'([A-Z0-9_]+)'/);
+    out.push({ start: i, end: j + 1, body, action: am ? am[1] : null });
+    i = j;
+  }
+  return out;
+}
+
+// Remove route objects whose action is being retired. Extends each removed
+// span over the adjacent separator comma so the array stays valid.
+export function pruneRouteActions(src, goneActions) {
+  const gone = new Set(goneActions);
+  const objs = splitRouteObjects(src).filter((o) => o.action && gone.has(o.action));
+  if (objs.length === 0) return { text: src, removed: 0 };
+  const spans = objs.map((o) => {
+    let { start, end } = o;
+    const after = src.slice(end, end + 40).match(/^(\s*,)?/)[0];
+    if (after.includes(',')) {
+      end += after.length;
+    } else {
+      const before = src.slice(Math.max(0, start - 40), start).match(/(,\s*)$/);
+      if (before) start -= before[0].length;
+    }
+    return [start, end];
+  });
+  spans.sort((a, b) => a[0] - b[0]);
+  let out = '';
+  let pos = 0;
+  for (const [s, e] of spans) {
+    out += src.slice(pos, s);
+    pos = e;
+  }
+  out += src.slice(pos);
+  // Collapse 3+ consecutive blank lines left behind, keep file tidy.
+  out = out.replace(/\n{4,}/g, '\n\n\n');
+  return { text: out, removed: objs.length };
+}
+
 function routeActionSet(rootDir) {
   const out = new Set();
   const routesDir = path.join(rootDir, 'middleware', 'src', 'routes');
@@ -295,7 +366,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (st !== 'CANDIDATE' && st !== 'DEPRECATED') fail(`${m}: not a CANDIDATE/DEPRECATED code candidate (has ${st})`);
     const level = links.get(m)?.linkageLevel;
     if (level !== 'L0' && level !== 'L1') fail(`${m}: waves only cover L0/L1 (has ${level})`);
-    if (LEGACY.has(m)) fail(`${m}: legacy module, belongs to PR-011..013`);
+    if (LEGACY.has(m) && !includeLegacy) fail(`${m}: legacy module, belongs to PR-011..013 (use --include-legacy)`);
     if (m === TEMPLATE_MODULE) fail(`${m}: canonical template must stay`);
     if (!existsSync(path.join(root, 'cobol', 'src', `${m}.cob`))) fail(`${m}: cobol source missing`);
   }
@@ -305,18 +376,49 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const waveSet = new Set(modules);
   const actions = waveActions(root, modules);
 
-  // Exclusivity: every action in a deleted route file must resolve to a
-  // deleted module, and every deleted action must keep a dispatch entry.
+  // Route files: exclusive (every action resolves to a deleted module, file
+  // goes away) or shared (kept actions stay; only deleted route objects are
+  // pruned). Unresolvable actions fail either way.
   const routeFiles = new Set();
+  const sharedPruned = new Map();
   for (const m of modules) {
     for (const f of links.get(m)?.routeFiles || []) routeFiles.add(f);
   }
+  // Some modules resolve to no route file (e.g. pure-COBOL actions); scan
+  // every route file that mentions a deleted action so shared files like
+  // trade_finance.js are classified even when they are nobody's primary.
+  {
+    const extra = new Set();
+    for (const f of readdirSync(path.join(root, 'middleware', 'src', 'routes'))
+      .filter((x) => x.endsWith('.js') && x !== 'index.js')
+      .sort()) {
+      const src = readFileSync(path.join(root, 'middleware', 'src', 'routes', f), 'utf8');
+      for (const o of splitRouteObjects(src)) {
+        if (o.action && waveSet.has(programOf(dispatch, o.action))) extra.add(f);
+      }
+    }
+    for (const f of extra) routeFiles.add(f);
+  }
   for (const f of routeFiles) {
     const src = readFileSync(path.join(root, 'middleware', 'src', 'routes', f), 'utf8');
-    for (const am of src.matchAll(/action:\s*'([A-Z0-9_]+)'/g)) {
-      const owner = programOf(dispatch, am[1]);
-      if (!owner || !waveSet.has(owner))
-        fail(`route file ${f}: action ${am[1]} resolves to kept ${owner} (not exclusive)`);
+    const objs = splitRouteObjects(src);
+    const owners = new Map();
+    for (const o of objs) {
+      if (!o.action) continue;
+      const owner = programOf(dispatch, o.action);
+      if (!owner) fail(`route file ${f}: action ${o.action} has no dispatch entry`);
+      else owners.set(o.action, owner);
+    }
+    const kept = [...owners.values()].some((p) => !waveSet.has(p));
+    const gone = [...owners.values()].some((p) => waveSet.has(p));
+    if (gone && kept) {
+      const pruned = pruneRouteActions(src, new Set([...owners].filter(([, p]) => waveSet.has(p)).map(([a]) => a)));
+      if (pruned.removed === 0) fail(`route file ${f}: shared classification but nothing pruned`);
+      sharedPruned.set(f, pruned.text);
+    } else if (gone && !kept) {
+      // exclusive: deleted wholly below
+    } else {
+      fail(`route file ${f}: contains no deleted actions (not part of this wave)`);
     }
   }
   for (const [action, owner] of actions) {
@@ -329,9 +431,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   for (const m of modules) {
     const base = m.endsWith('_core') ? m.slice(0, -5) : m;
     doomed.add(`cobol/src/${m}.cob`);
-    for (const f of links.get(m)?.routeFiles || []) doomed.add(`middleware/src/routes/${f}`);
     doomed.add(`tests/db/${base}_db_tests.sh`);
     doomed.add(`tests/cobol/cases/${base}.cases`);
+  }
+  for (const f of routeFiles) {
+    if (!sharedPruned.has(f)) doomed.add(`middleware/src/routes/${f}`);
   }
   const prunedMap = pruneTokenIdentityMap(
     readFileSync(path.join(root, 'middleware', 'test', 'routes.test.js'), 'utf8'),
@@ -358,6 +462,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (skipPrefixes.some((s) => rel === s || rel.startsWith(s))) continue;
     let text = readFileSync(path.join(root, rel), 'utf8');
     if (rel === 'middleware/test/routes.test.js') text = prunedMap;
+    if (rel.startsWith('middleware/src/routes/') && sharedPruned.has(path.basename(rel))) {
+      text = sharedPruned.get(path.basename(rel));
+    }
     const found = new Set(text.match(tok) || []);
     for (const a of found) {
       if (actions.has(a)) scanHits.push(`${rel}: ${a} (${actions.get(a)})`);
@@ -368,17 +475,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
   // Plan summary.
   let loc = 0;
-  let routeCount = 0;
   for (const m of modules) {
     const t = readFileSync(path.join(root, 'cobol', 'src', `${m}.cob`), 'utf8');
     loc += t.split('\n').length - (t.endsWith('\n') ? 1 : 0);
-    for (const f of links.get(m)?.routeFiles || []) {
-      const src = readFileSync(path.join(root, 'middleware', 'src', 'routes', f), 'utf8');
-      routeCount += (src.match(/action:\s*'[A-Z0-9_]+'/g) || []).length;
-    }
   }
+  const exclusiveCount = [...routeFiles].filter((f) => !sharedPruned.has(f)).length;
   console.log(
-    `wave ${wave.wave || '?'}: ${modules.length} modules, ${routeFiles.size} route files (~${routeCount} routes), ~${loc.toLocaleString('en-US')} COBOL lines`,
+    `wave ${wave.wave || '?'}: ${modules.length} modules, ${exclusiveCount} exclusive + ${sharedPruned.size} shared route files (~${actions.size} actions), ~${loc.toLocaleString('en-US')} COBOL lines`,
   );
 
   if (failures.length > 0) {
@@ -392,7 +495,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
   // ---------------- apply ----------------
   for (const f of routeFiles) {
-    rmSync(path.join(root, 'middleware', 'src', 'routes', f), { force: true });
+    if (sharedPruned.has(f)) {
+      writeFileSync(path.join(root, 'middleware', 'src', 'routes', f), sharedPruned.get(f));
+    } else {
+      rmSync(path.join(root, 'middleware', 'src', 'routes', f), { force: true });
+    }
   }
   for (const m of modules) {
     const base = m.endsWith('_core') ? m.slice(0, -5) : m;
@@ -405,7 +512,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
   // Barrel, build list, identity-test map, dispatch table.
   const indexPath = path.join(root, 'middleware', 'src', 'routes', 'index.js');
-  writeFileSync(indexPath, pruneBarrel(readFileSync(indexPath, 'utf8'), [...routeFiles]));
+  const exclusiveFiles = [...routeFiles].filter((f) => !sharedPruned.has(f));
+  writeFileSync(indexPath, pruneBarrel(readFileSync(indexPath, 'utf8'), exclusiveFiles));
   const buildPath = path.join(root, 'build.sh');
   writeFileSync(
     buildPath,

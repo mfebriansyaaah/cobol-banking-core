@@ -1,6 +1,0 @@
-# Tax Withholding (Wave10) validation cases.
-TXW_CREATE missing ref@@ERROR\|INVALID_INPUT@@TXW_CREATE||||||admin@test.com
-TXW_GET missing id@@ERROR\|INVALID_INPUT@@TXW_GET||||||admin@test.com
-TXW_CALC missing id@@ERROR\|INVALID_INPUT@@TXW_CALC||||||admin@test.com
-TXW_DELETE missing id@@ERROR\|INVALID_INPUT@@TXW_DELETE||||||admin@test.com
-TXW_VALIDATE ok@@SUCCESS\|TXW_VALID@@TXW_VALIDATE|100.00|USD||||admin@test.com

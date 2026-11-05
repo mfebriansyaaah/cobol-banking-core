@@ -1,6 +1,0 @@
-# Collateral mgmt (Wave3) validation cases.
-CREP_CREATE missing ref@@ERROR\|INVALID_INPUT@@CREP_CREATE||||||admin@test.com
-CREP_GET missing id@@ERROR\|INVALID_INPUT@@CREP_GET||||||admin@test.com
-CREP_CALC missing id@@ERROR\|INVALID_INPUT@@CREP_CALC||||||admin@test.com
-CREP_DELETE missing id@@ERROR\|INVALID_INPUT@@CREP_DELETE||||||admin@test.com
-CREP_VALIDATE ok@@SUCCESS\|CREP_VALID@@CREP_VALIDATE|100.00|USD||||admin@test.com

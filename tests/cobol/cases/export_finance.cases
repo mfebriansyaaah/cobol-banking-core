@@ -1,6 +1,0 @@
-# Export Finance (Wave16) validation cases.
-EXF_CREATE missing ref@@ERROR\|INVALID_INPUT@@EXF_CREATE||||||admin@test.com
-EXF_GET missing id@@ERROR\|INVALID_INPUT@@EXF_GET||||||admin@test.com
-EXF_CALC missing id@@ERROR\|INVALID_INPUT@@EXF_CALC||||||admin@test.com
-EXF_DELETE missing id@@ERROR\|INVALID_INPUT@@EXF_DELETE||||||admin@test.com
-EXF_VALIDATE ok@@SUCCESS\|EXF_VALID@@EXF_VALIDATE|100.00|USD||||admin@test.com

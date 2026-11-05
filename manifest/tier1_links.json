@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T00:05:08.732Z",
-  "commit": "8495e677",
+  "generatedAt": "2026-11-05T01:42:24.600Z",
+  "commit": "8c5ed936",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 18,
     "L2": 6,
     "L1": 2,
-    "L0": 35,
+    "L0": 18,
     "UTILITY": 3
   },
   "modules": [
@@ -25,23 +25,6 @@
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "account.js"
-      ]
-    },
-    {
-      "module": "asset_management_core",
-      "source": "asset_management_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/asset_management_db_tests.sh",
-        "tests/cobol/cases/asset_management.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "asset_management.js"
       ]
     },
     {
@@ -105,23 +88,6 @@
       ]
     },
     {
-      "module": "bankers_acceptance_core",
-      "source": "bankers_acceptance_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/bankers_acceptance_db_tests.sh",
-        "tests/cobol/cases/bankers_acceptance.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "bankers_acceptance.js"
-      ]
-    },
-    {
       "module": "card_core",
       "source": "card_core.cob",
       "linkageLevel": "L3",
@@ -133,23 +99,6 @@
       "reason": "Tier-1 core module",
       "routeFiles": [
         "card.js"
-      ]
-    },
-    {
-      "module": "cashback_core",
-      "source": "cashback_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/cashback_db_tests.sh",
-        "tests/cobol/cases/cashback.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "cashback.js"
       ]
     },
     {
@@ -188,57 +137,6 @@
       "reason": "business link (tables loan_application) + test",
       "routeFiles": [
         "collateral.js"
-      ]
-    },
-    {
-      "module": "collateral_mgmt_core",
-      "source": "collateral_mgmt_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/collateral_mgmt_db_tests.sh",
-        "tests/cobol/cases/collateral_mgmt.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "collateral_mgmt.js"
-      ]
-    },
-    {
-      "module": "collateral_repossession_core",
-      "source": "collateral_repossession_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/collateral_repossession_db_tests.sh",
-        "tests/cobol/cases/collateral_repossession.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "collateral_repossession.js"
-      ]
-    },
-    {
-      "module": "collateralized_core",
-      "source": "collateralized_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/collateralized_db_tests.sh",
-        "tests/cobol/cases/collateralized.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "collateralized.js"
       ]
     },
     {
@@ -320,40 +218,6 @@
       ]
     },
     {
-      "module": "dispute_management_core",
-      "source": "dispute_management_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/dispute_management_db_tests.sh",
-        "tests/cobol/cases/dispute_management.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "dispute_management.js"
-      ]
-    },
-    {
-      "module": "documentary_credit_core",
-      "source": "documentary_credit_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/documentary_credit_db_tests.sh",
-        "tests/cobol/cases/documentary_credit.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "documentary_credit.js"
-      ]
-    },
-    {
       "module": "eod_core",
       "source": "eod_core.cob",
       "linkageLevel": "L0",
@@ -386,40 +250,6 @@
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": [
         "eod_jobs.js"
-      ]
-    },
-    {
-      "module": "export_finance_core",
-      "source": "export_finance_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/export_finance_db_tests.sh",
-        "tests/cobol/cases/export_finance.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "export_finance.js"
-      ]
-    },
-    {
-      "module": "factoring_core",
-      "source": "factoring_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/factoring_db_tests.sh",
-        "tests/cobol/cases/factoring.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "factoring.js"
       ]
     },
     {
@@ -511,23 +341,6 @@
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "import.js"
-      ]
-    },
-    {
-      "module": "import_finance_core",
-      "source": "import_finance_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/import_finance_db_tests.sh",
-        "tests/cobol/cases/import_finance.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "import_finance.js"
       ]
     },
     {
@@ -626,23 +439,6 @@
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "loyalty.js"
-      ]
-    },
-    {
-      "module": "loyalty_program_core",
-      "source": "loyalty_program_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/loyalty_program_db_tests.sh",
-        "tests/cobol/cases/loyalty_program.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "loyalty_program.js"
       ]
     },
     {
@@ -790,23 +586,6 @@
       ]
     },
     {
-      "module": "points_redemption_core",
-      "source": "points_redemption_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/points_redemption_db_tests.sh",
-        "tests/cobol/cases/points_redemption.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "points_redemption.js"
-      ]
-    },
-    {
       "module": "ref_engine",
       "source": "ref_engine.cob",
       "linkageLevel": "UTILITY",
@@ -887,23 +666,6 @@
       ]
     },
     {
-      "module": "rewards_management_core",
-      "source": "rewards_management_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/rewards_management_db_tests.sh",
-        "tests/cobol/cases/rewards_management.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "rewards_management.js"
-      ]
-    },
-    {
       "module": "sla_tracker_core",
       "source": "sla_tracker_core.cob",
       "linkageLevel": "L0",
@@ -959,23 +721,6 @@
       ]
     },
     {
-      "module": "tax_item_core",
-      "source": "tax_item_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/tax_item_db_tests.sh",
-        "tests/cobol/cases/tax_item.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "tax_item.js"
-      ]
-    },
-    {
       "module": "tax_management_core",
       "source": "tax_management_core.cob",
       "linkageLevel": "L0",
@@ -991,40 +736,6 @@
       "routeFiles": [
         "tax_management.js"
       ]
-    },
-    {
-      "module": "tax_withholding_core",
-      "source": "tax_withholding_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/tax_withholding_db_tests.sh",
-        "tests/cobol/cases/tax_withholding.cases",
-        "tests/integration/tax_withholding_flow.sh"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "tax_withholding.js"
-      ]
-    },
-    {
-      "module": "trade_finance_core",
-      "source": "trade_finance_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/trade_finance_db_tests.sh",
-        "tests/cobol/cases/trade_finance.cases",
-        "tests/integration/trade_finance_lc_flow.sh"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": []
     },
     {
       "module": "treasury_liquidity_core",
@@ -1067,40 +778,28 @@
   ],
   "routeModules": {
     "account.js": "account_core",
-    "asset_management.js": "asset_management_core",
     "backup_drill.js": "backup_drill_core",
     "bank_guarantee.js": "bank_guarantee_core",
-    "bankers_acceptance.js": "bankers_acceptance_core",
     "card.js": "card_core",
-    "cashback.js": "cashback_core",
     "chargeback.js": "chargeback_core",
     "collateral.js": "collateral_core",
-    "collateral_mgmt.js": "collateral_mgmt_core",
-    "collateral_repossession.js": "collateral_repossession_core",
-    "collateralized.js": "collateralized_core",
     "collection.js": "collection_core",
     "compliance_calendar.js": "compliance_calendar_core",
     "cost_center.js": "cost_center_core",
     "dashboard.js": "dashboard_core",
     "deposit.js": "deposit_core",
-    "dispute_management.js": "dispute_management_core",
-    "documentary_credit.js": "documentary_credit_core",
     "eod.js": "eod_core",
     "eod_jobs.js": "eod_jobs_core",
-    "export_finance.js": "export_finance_core",
-    "factoring.js": "factoring_core",
     "fee.js": "fee_core",
     "fixed_asset.js": "fixed_asset_core",
     "gl.js": "gl_core",
     "gl_allocation.js": "gl_allocation_core",
     "import.js": "import_core",
-    "import_finance.js": "import_finance_core",
     "import_recon.js": "import_recon_core",
     "letter_of_credit.js": "letter_of_credit_core",
     "loan.js": "loan_core",
     "loan_schedule.js": "loan_schedule_core",
     "loyalty.js": "loyalty_core",
-    "loyalty_program.js": "loyalty_program_core",
     "merchant.js": "merchant_core",
     "merchant_settlement.js": "merchant_settlement_core",
     "notification_template.js": "notification_template_core",
@@ -1109,19 +808,15 @@
     "payment_hold.js": "payment_hold_core",
     "payment_instructions.js": "payment_instruction_core",
     "payroll_processing.js": "payroll_processing_core",
-    "points_redemption.js": "points_redemption_core",
     "ref_engine.js": "ref_engine",
     "ref_ext.js": "ref_ext_core",
     "report.js": "report_core",
     "report_builder.js": "report_builder_core",
     "report_schedule.js": "report_schedule_core",
-    "rewards_management.js": "rewards_management_core",
     "sla_tracker.js": "sla_tracker_core",
     "statement.js": "statement_core",
     "statement_recon.js": "statement_recon_core",
-    "tax_item.js": "tax_item_core",
     "tax_management.js": "tax_management_core",
-    "tax_withholding.js": "tax_withholding_core",
     "trade_finance.js": "letter_of_credit_core",
     "treasury_liquidity.js": "treasury_liquidity_core",
     "app.js": "auth_core"

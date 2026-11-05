@@ -1,6 +1,0 @@
-# Points Redemption (Wave8) validation cases.
-PTR_CREATE missing ref@@ERROR\|INVALID_INPUT@@PTR_CREATE||||||admin@test.com
-PTR_GET missing id@@ERROR\|INVALID_INPUT@@PTR_GET||||||admin@test.com
-PTR_CALC missing id@@ERROR\|INVALID_INPUT@@PTR_CALC||||||admin@test.com
-PTR_DELETE missing id@@ERROR\|INVALID_INPUT@@PTR_DELETE||||||admin@test.com
-PTR_VALIDATE ok@@SUCCESS\|PTR_VALID@@PTR_VALIDATE|100.00|USD||||admin@test.com

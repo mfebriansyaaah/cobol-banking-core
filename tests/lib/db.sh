@@ -141,10 +141,6 @@ db_reset_collateral() {
     db_exec "DELETE FROM collateral_allocation; DELETE FROM collateral_pledge; DELETE FROM collateral_valuation; DELETE FROM collateral_audit; DELETE FROM collateral;"
 }
 
-db_reset_trade_finance() {
-    db_exec "DELETE FROM trade_finance_audit; DELETE FROM trade_finance;"
-}
-
 db_reset_merchant() {
     db_exec "DELETE FROM merchant_transaction;"
     db_exec "DELETE FROM merchant_fee_profile;"
@@ -158,10 +154,6 @@ db_reset_loan() {
 
 db_reset_account() {
     db_exec "DELETE FROM account_audit; DELETE FROM account;"
-}
-
-db_reset_collateral_mgmt() {
-    db_exec "DELETE FROM collateral_mgmt_audit; DELETE FROM collateral_mgmt;"
 }
 
 db_reset_notification_template() {
@@ -186,10 +178,6 @@ db_reset_sla_tracker() {
 
 db_reset_compliance_calendar() {
     db_exec "DELETE FROM compliance_calendar_audit; DELETE FROM compliance_calendar;"
-}
-
-db_reset_asset_management() {
-    db_exec "DELETE FROM asset_management_audit; DELETE FROM asset_management;"
 }
 
 db_reset_letter_of_credit() {
@@ -224,24 +212,12 @@ db_reset_adt_log() {
     db_exec "DELETE FROM adt_log_audit; DELETE FROM adt_log;"
 }
 
-db_reset_dispute_management() {
-    db_exec "DELETE FROM dispute_management_audit; DELETE FROM dispute_management;"
-}
-
 db_reset_chargeback() {
     db_exec "DELETE FROM chargeback_audit; DELETE FROM chargeback;"
 }
 
-db_reset_collateral_repossession() {
-    db_exec "DELETE FROM collateral_repossession_audit; DELETE FROM collateral_repossession;"
-}
 
 
-
-
-db_reset_loyalty_program() {
-    db_exec "DELETE FROM loyalty_program_audit; DELETE FROM loyalty_program;"
-}
 
 db_reset_loyalty_domain() {
     db_exec "DELETE FROM loyalty_audit;"
@@ -252,52 +228,8 @@ db_reset_loyalty_domain() {
     db_exec "DELETE FROM loyalty_program_audit; DELETE FROM loyalty_program;"
 }
 
-db_reset_rewards_management() {
-    db_exec "DELETE FROM rewards_management_audit; DELETE FROM rewards_management;"
-}
-
-db_reset_cashback() {
-    db_exec "DELETE FROM cashback_audit; DELETE FROM cashback;"
-}
-
-db_reset_points_redemption() {
-    db_exec "DELETE FROM points_redemption_audit; DELETE FROM points_redemption;"
-}
-
-db_reset_tax_withholding() {
-    db_exec "DELETE FROM tax_withholding_audit; DELETE FROM tax_withholding;"
-}
-
-db_reset_collateralized() {
-    db_exec "DELETE FROM collateralized_audit; DELETE FROM collateralized;"
-}
 
 
 
 
-
-
-db_reset_tax_item() {
-    db_exec "DELETE FROM tax_item_audit; DELETE FROM tax_item;"
-}
-
-db_reset_factoring() {
-    db_exec "DELETE FROM factoring_audit; DELETE FROM factoring;"
-}
-
-db_reset_export_finance() {
-    db_exec "DELETE FROM export_finance_audit; DELETE FROM export_finance;"
-}
-
-db_reset_import_finance() {
-    db_exec "DELETE FROM import_finance_audit; DELETE FROM import_finance;"
-}
-
-db_reset_documentary_credit() {
-    db_exec "DELETE FROM documentary_credit_audit; DELETE FROM documentary_credit;"
-}
-
-db_reset_bankers_acceptance() {
-    db_exec "DELETE FROM bankers_acceptance_audit; DELETE FROM bankers_acceptance;"
-}
 

@@ -1,6 +1,0 @@
-# Documentary Credit (Wave16) validation cases.
-DCRD_CREATE missing ref@@ERROR\|INVALID_INPUT@@DCRD_CREATE||||||admin@test.com
-DCRD_GET missing id@@ERROR\|INVALID_INPUT@@DCRD_GET||||||admin@test.com
-DCRD_CALC missing id@@ERROR\|INVALID_INPUT@@DCRD_CALC||||||admin@test.com
-DCRD_DELETE missing id@@ERROR\|INVALID_INPUT@@DCRD_DELETE||||||admin@test.com
-DCRD_VALIDATE ok@@SUCCESS\|DCRD_VALID@@DCRD_VALIDATE|100.00|USD||||admin@test.com
