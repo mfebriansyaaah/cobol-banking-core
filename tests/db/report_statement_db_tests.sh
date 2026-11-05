@@ -52,16 +52,21 @@ assert_match "RPT_TEMPLATE_DELETE ok" "$(run_cobol "RPT_TEMPLATE_DELETE|${C}||||
 assert_match "non-admin refused" "$(run_cobol "RPT_TEMPLATE_LIST|50|0||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Statement runs: generate over a window covering today (ledger rows exist).
+# Run ids are parsed from START output, never "latest global row": parallel
+# suites create statement runs concurrently (ISOLATED_DB=0).
 TODAY="$(date +%F)"
-assert_match "STMT_RUN_START ok" "$(run_cobol "STMT_RUN_START|${TODAY}|${TODAY}|USD|||${A}")" "SUCCESS\|STMT_RUN_STARTED"
-stmtid="$(db_query "SELECT id FROM statement_run ORDER BY id DESC LIMIT 1;")"
+stmt_start_out="$(run_cobol "STMT_RUN_START|${TODAY}|${TODAY}|USD|||${A}")"
+assert_match "STMT_RUN_START ok" "$stmt_start_out" "SUCCESS\|STMT_RUN_STARTED"
+stmtid="$(printf '%s' "$stmt_start_out" | awk -F'|' '{print $3}')"
 assert_match "stmt row present" "$stmtid" "^[0-9]+$"
 assert_match "STMT_RUN_GENERATE ok" "$(run_cobol "STMT_RUN_GENERATE|${stmtid}|||||${A}")" "SUCCESS\|"
 assert_match "STMT_RUN_STATUS ok" "$(run_cobol "STMT_RUN_STATUS|${stmtid}|||||${A}")" "SUCCESS\|STMT_RUN"
 assert_match "STMT_RUN_LIST ok" "$(run_cobol "STMT_RUN_LIST|50|0||||${A}")" "SUCCESS\|"
 assert_match "STMT_ARCHIVE_EXPORT ok" "$(run_cobol "STMT_ARCHIVE_EXPORT|sender@test.com|${stmtid}|CSV|||${A}")" "SUCCESS\|"
-assert_match "STMT_RUN_START ok (2)" "$(run_cobol "STMT_RUN_START|${TODAY}|${TODAY}|USD|||${A}")" "SUCCESS\|STMT_RUN_STARTED"
-stmtid2="$(db_query "SELECT id FROM statement_run ORDER BY id DESC LIMIT 1;")"
+stmt_start_out2="$(run_cobol "STMT_RUN_START|${TODAY}|${TODAY}|USD|||${A}")"
+assert_match "STMT_RUN_START ok (2)" "$stmt_start_out2" "SUCCESS\|STMT_RUN_STARTED"
+stmtid2="$(printf '%s' "$stmt_start_out2" | awk -F'|' '{print $3}')"
+assert_match "stmt2 id present" "$stmtid2" "^[0-9]+$"
 assert_match "STMT_RUN_FAIL ok" "$(run_cobol "STMT_RUN_FAIL|${stmtid2}|E999|boom|||${A}")" "SUCCESS\|"
 
 db_exec "DELETE FROM statement_archive_line WHERE archive_id IN (SELECT id FROM statement_archive WHERE run_id=${stmtid} OR run_id=${stmtid2});"
