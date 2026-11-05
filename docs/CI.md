@@ -8,7 +8,8 @@
 
 `ci.yml` runs on `push: [main]`, `pull_request`, and `workflow_dispatch`.
 `nightly.yml` (`0 2 * * *`), `coverage.yml` (`30 2 * * *`), and `codeql.yml`
-(`0 3 * * 1`) run on schedule plus `workflow_dispatch`.
+(`0 3 * * 1`) run on schedule plus `workflow_dispatch`. `codeql.yml` also
+runs on `push: [main]` and `pull_request` (CI-003).
 
 T-003 minimal bridge: skipped with reason — billing is fixed (public repo, run
 41772256921 executes), full CI is restored, so a bridge would only duplicate
@@ -22,12 +23,24 @@ the gate and waste minutes.
 | `push: [main]` | `ci.yml` post-merge | migration rollback, backup/restore, schema drift |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
-| schedule/manual | `codeql.yml` | JS + C analysis (SARIF artifact while GHAS unavailable) |
+| `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | JS + C analysis, SARIF uploaded to code scanning |
 
 Restore order: revert `7e030110` (PR/push), then `1dfc11de` (schedules).
 Verify with a throwaway PR: lint fails on broken shell, build fails on broken
 COBOL, db-aggregate fails on deleted assertion, post-merge runs on `main`,
 nightly starts on schedule.
+
+CI-003 evidence (2026-11-05, Option A): code scanning works end-to-end with
+no UI step — the PR-triggered CodeQL run
+(`actions/runs/41976873579`, branch `ci/ci-p0-03-codeql-green`) uploaded SARIF
+for both `javascript` and `cpp`, and
+`code-scanning/analyses` lists both tools with 0 open alerts. The earlier
+"not enabled" failure (2026-11-02) no longer reproduces; `gh` + runs suffice.
+
+CodeQL scope: the JavaScript gateway and the C crypto helpers
+(`cobol/c_lib`, self-contained, traced with gcc). COBOL is out of scope —
+no CodeQL extractor exists. CodeQL stays informational (not a required
+check) until one green run plus an alert-triage pass.
 
 ## CI contract (`scripts/check_ci_contract.mjs`)
 
@@ -94,7 +107,7 @@ Rules:
 | `ci.yml` coverage | 20 min | gateway-only |
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected |
 | `ci.yml` post-merge | 20 min | rollback, backup/restore, drift |
-| `codeql.yml` analyze | 30 min | JS + C, SARIF artifact while GHAS unavailable |
+| `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
 | `coverage.yml` | 45 min | full COBOL + gateway |
 | `nightly.yml` | 180 min | full twice + drills + coverage + load + flake compare |
 

@@ -4,13 +4,21 @@ name: CodeQL
 # COBOL itself is out of scope (no CodeQL extractor exists); the C bridge is
 # limited to cobol/c_lib (self-contained: libc only, no mysql headers needed),
 # traced with the same gcc the build uses.
-# NOTE: repository is public, so GHAS code scanning is available. Schedule kept
-# so the configuration stays exercised; PR/push triggers can be added once the
-# first scheduled run is green.
+# NOTE: repository is public, so GHAS code scanning is available. The weekly
+# schedule keeps the configuration exercised; PR/push triggers run the same
+# analysis on every change.
 on:
+  push:
+    branches: [main]
+  pull_request:
   schedule:
     - cron: '0 3 * * 1'
   workflow_dispatch:
+
+# Own group: a push must not cancel a running CodeQL analysis (or vice versa).
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
