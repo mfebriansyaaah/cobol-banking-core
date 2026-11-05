@@ -98,6 +98,20 @@ assert_match "schedule cancelled" "$(db_query "SELECT status FROM loan_schedule 
 assert_match "delete missing id" "$(run_cobol "LSC_DELETE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 assert_match "non-admin list refused" "$(run_cobol "LSC_LIST|${loan_id}|50|0|||sender@test.com")" "ERROR\|FORBIDDEN"
 
+# UPDATE: optimistic-locking guarded update with version bump + audit.
+upd_sched_out="$(run_cobol "LSC_CREATE|${loan_id}|6|5.0000|2026-02-01||admin@test.com")"
+assert_match "LSC_CREATE ok (update fixture)" "$upd_sched_out" "SUCCESS\|LSC_CREATE"
+upd_sched_id="$(db_query "SELECT id FROM loan_schedule WHERE loan_id=${loan_id} ORDER BY id DESC LIMIT 1;")"
+ver_before="$(db_query "SELECT version FROM loan_schedule WHERE id=${upd_sched_id};")"
+assert_match "version starts at 1" "$ver_before" "^1$"
+assert_match "LSC_UPDATE ok" "$(run_cobol "LSC_UPDATE|${upd_sched_id}|12|7.5000|||admin@test.com")" "SUCCESS\|LSC_UPDATE\|OK"
+assert_match "version bumped" "$(db_query "SELECT version FROM loan_schedule WHERE id=${upd_sched_id};")" "^2$"
+assert_match "term persisted" "$(db_query "SELECT term_months FROM loan_schedule WHERE id=${upd_sched_id};")" "^12$"
+assert_match "rate persisted" "$(db_query "SELECT interest_rate FROM loan_schedule WHERE id=${upd_sched_id};")" "^7.5000$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM loan_schedule_audit WHERE schedule_id=${upd_sched_id} AND action='UPDATE';")" "^[1-9][0-9]*$"
+assert_match "update missing id" "$(run_cobol "LSC_UPDATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "non-admin update refused" "$(run_cobol "LSC_UPDATE|${upd_sched_id}|12|||||sender@test.com")" "ERROR\|FORBIDDEN"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

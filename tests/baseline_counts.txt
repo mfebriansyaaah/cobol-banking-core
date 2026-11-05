@@ -1,6 +1,6 @@
 cobol_table_tests=235
 db_schema_tests=76
-db_loan_schedule_tests=33
+db_loan_schedule_tests=42
 db_deposit_tests=30
 db_card_tests=38
 db_collection_tests=35
@@ -21,7 +21,7 @@ db_merchant_tests=18
 db_merchant_domain_tests=22
 db_merchant_schema_tests=10
 db_compliance_calendar_tests=18
-db_tax_management_tests=13
+db_tax_management_tests=20
 db_tax_domain_tests=26
 db_tax_schema_tests=8
 db_merchant_settlement_tests=18
@@ -52,3 +52,15 @@ db_loyalty_domain_tests=39
 db_payment_hold_tests=19
 
 db_velocity_tests=15
+
+db_admin_shell_tests=30
+db_auth_shell_tests=39
+db_dashboard_tests=13
+db_eod_ops_tests=16
+db_fee_read_tests=9
+db_import_ops_tests=20
+db_ops_shell_tests=39
+db_payment_pic_loyalty_tests=21
+db_recon_ops_tests=31
+db_ref_pair_tests=21
+db_report_statement_tests=30
