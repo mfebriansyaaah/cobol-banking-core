@@ -8,7 +8,7 @@
 // Usage:
 //   node scripts/check_coverage_modules.mjs --json coverage/cobol.json
 //       [--baseline tests/coverage_module_baseline.txt]
-//       [--tolerance 1.0] [--write]
+//       [--tolerance 1.0] [--floor 70] [--write]
 //   --write updates the baseline from the JSON (review the diff; never
 //   hand-edit, never lower to make CI green).
 // Exit: 0 ok, 1 mismatch, 2 usage error.
@@ -19,12 +19,16 @@ const args = process.argv.slice(2);
 let jsonPath = null;
 let baselinePath = path.resolve('tests/coverage_module_baseline.txt');
 let tolerance = 1.0;
+let floor = 0;
+let floorBacklogPath = path.resolve('tests/coverage_floor_backlog.txt');
 let write = false;
 for (let i = 0; i < args.length; i += 1) {
   const a = args[i];
   if (a === '--json') ((jsonPath = args[i + 1] ?? jsonPath), (i += 1));
   else if (a === '--baseline') ((baselinePath = path.resolve(args[i + 1] ?? baselinePath)), (i += 1));
   else if (a === '--tolerance') ((tolerance = Number(args[i + 1] ?? tolerance)), (i += 1));
+  else if (a === '--floor') ((floor = Number(args[i + 1] ?? floor)), (i += 1));
+  else if (a === '--floor-backlog') ((floorBacklogPath = path.resolve(args[i + 1] ?? floorBacklogPath)), (i += 1));
   else if (a === '--write') write = true;
   else if (a === '--help' || a === '-h') {
     console.log('usage: check_coverage_modules.mjs --json FILE [--baseline FILE] [--tolerance PP] [--write]');
@@ -135,6 +139,54 @@ if (write) {
 if (failed) {
   console.error(`\nFAIL: per-module coverage does not match ${baselinePath}`);
   process.exit(1);
+}
+
+// Stage-1 floor (PR-044): measured Tier-1 modules must sit at or above
+// --floor, unless explicitly recorded in the floor backlog (ratchet both
+// ways: unlisted sub-floor modules fail, and backlogged modules that reach
+// the floor must leave the backlog).
+if (floor > 0) {
+  let tier1 = [];
+  try {
+    const t1 = JSON.parse(readFileSync(path.resolve('manifest/tier1.json'), 'utf8'));
+    tier1 = t1.tier1Modules || [];
+  } catch {
+    console.error('FAIL: cannot load manifest/tier1.json for floor check');
+    process.exit(1);
+  }
+  const backlogged = new Set();
+  if (existsSync(floorBacklogPath)) {
+    for (const line of readFileSync(floorBacklogPath, 'utf8').split('\n')) {
+      const t = line.trim();
+      if (!t || t.startsWith('#')) continue;
+      backlogged.add(t.split(/\s+/)[0]);
+    }
+  }
+  let floorFailed = false;
+  for (const m of tier1) {
+    if (!actual.has(m)) continue; // unmeasured: baseline/measurement rules own it
+    const v = actual.get(m);
+    if (v >= floor) {
+      if (backlogged.has(m)) {
+        console.error(`FLOOR-BACKLOG STALE: ${m} reached ${v}% (>= ${floor}%); remove it`);
+        floorFailed = true;
+      }
+    } else if (!backlogged.has(m)) {
+      console.error(`FLOOR VIOLATION: Tier-1 ${m} at ${v}% (< ${floor}%); add tests or record it`);
+      floorFailed = true;
+    }
+  }
+  for (const m of backlogged) {
+    if (!tier1.includes(m)) {
+      console.error(`FLOOR-BACKLOG DEAD: ${m} is not a Tier-1 module; remove it`);
+      floorFailed = true;
+    }
+  }
+  if (floorFailed) {
+    console.error('\nFAIL: Tier-1 floor check');
+    process.exit(1);
+  }
+  console.log(`OK: Tier-1 floor ${floor}% holds (${tier1.filter((m) => actual.has(m)).length} measured)`);
 }
 const improved = order.filter((k) => actual.has(k) && actual.get(k) - baseline.get(k) > 0);
 console.log(
