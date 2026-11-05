@@ -53,7 +53,9 @@ Every domain module exposes these actions (prefix + action):
 - Audit rows go to `<table>_audit`.
 - Admin-only actions call `ALLOW-ADMIN` / `ALLOW-SUPER-ADMIN`.
 - Keep `WS-PREP-SQL` ≤ 1024 chars (bridge buffer limit) and params ≤ 6 (7 for EXEC7).
-- Add the module to `build.sh`, regenerate the manifest, and add tests + warning baseline entry.
+- New modules are picked up by `cobol/Makefile` automatically (wildcard); no
+  `build.sh` change needed. Regenerate the manifest, and add tests + warning
+  baseline entry.
 - Every new gateway action must be invoked by at least one shell-level test
   (`run_cobol` in a DB suite or `@@ACTION` in a table case), or recorded in
   `tests/action_test_coverage_baseline.txt` with a reason — see the action

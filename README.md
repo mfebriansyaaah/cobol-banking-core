@@ -25,7 +25,7 @@ crypto helpers COBOL cannot call directly.
 Client
   │  HTTPS / JSON
   ▼
-middleware/                     Node 18+ / Express 4
+middleware/                     Node 18+ / Express 5
   app.js                       route table: HTTP → COBOL action
   routes/*.js                  per-domain field order + patterns
   validation.js                request shape, no business rules
@@ -248,7 +248,8 @@ Authenticated session endpoints:
 
 Operational endpoints:
 
-- `GET /health` — liveness, public.
+- `GET /health` — deep health check (COBOL/DB round-trip), public.
+- `GET /live` — liveness (process up, no dependencies), public.
 - `GET /ready` — dependency check (cached), public.
 - `GET /metrics` — Prometheus text; requires an `AUDIT_READ` bearer token.
 
@@ -309,21 +310,20 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 ./ci.sh                   # wrapper for full
 ```
 
-| Suite | Assertions (2026-11-04, see `tests/baseline_counts.txt`) | Location |
+| Suite | Assertions (2026-11-05, see `tests/baseline_counts.txt`) | Location |
 | --- | ---: | --- |
-| COBOL table cases | 1422 | `tests/cobol/cases/*.cases` (298 files) |
+| COBOL table cases | 320 | `tests/cobol/cases/*.cases` (60 files) |
 | Schema / migrations | 76 | `tests/db/schema_tests.sh` |
-| D1 loan schedule | 11 | `tests/db/loan_schedule_db_tests.sh` |
-| D2 deposit | 26 | `tests/db/deposit_db_tests.sh` |
-| D3 card | 32 | `tests/db/card_db_tests.sh` |
+| D1 loan schedule | 33 | `tests/db/loan_schedule_db_tests.sh` |
+| D2 deposit | 30 | `tests/db/deposit_db_tests.sh` |
+| D3 card | 38 | `tests/db/card_db_tests.sh` |
 | D4 collections | 35 | `tests/db/collection_db_tests.sh` |
 | D5 payments | 20 | `tests/db/payment_clearing_db_tests.sh` |
 | D6 treasury | 18 | `tests/db/treasury_liquidity_db_tests.sh` |
-| D7 kyc periodic | 11 | `tests/db/kyc_periodic_db_tests.sh` |
 | D8 gl allocation | 13 | `tests/db/gl_allocation_db_tests.sh` |
 | D9 backup drill | 13 | `tests/db/backup_drill_db_tests.sh` |
 | D10 report builder | 13 | `tests/db/report_builder_db_tests.sh` |
-| Gateway | 747 | `middleware/test/*.js` |
+| Gateway | 151 `test()` blocks (`tests/baseline_counts.txt`: `gateway_tests=205` at runtime) | `middleware/test/*.js` |
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
 suites fail closed with `FAIL: DB unavailable` when MariaDB is not reachable

@@ -33,18 +33,14 @@ if (JSON.stringify(actualCobol) !== JSON.stringify(manifestCobol)) {
   ok(`${actualCobol.length} cobol modules match manifest`);
 }
 
-// build.sh must compile exactly the manifest cobol modules + main_logic.cob.
+// build.sh delegates to cobol/Makefile, which compiles every manifest module
+// via wildcard. Guard the delegation itself so a future rewrite that drops
+// the Makefile path fails loudly instead of silently building nothing.
 const buildSh = readFileSync(path.join(ROOT, 'build.sh'), 'utf8');
-const buildSources = [...buildSh.matchAll(/cobol\/src\/([A-Za-z0-9_]+\.cob)/g)].map((m) => m[1]);
-const expectedBuild = [...manifestCobol, 'main_logic.cob'].sort();
-const actualBuild = [...new Set(buildSources)].sort();
-if (JSON.stringify(actualBuild) !== JSON.stringify(expectedBuild)) {
-  const missing = expectedBuild.filter((f) => !actualBuild.includes(f));
-  const extra = actualBuild.filter((f) => !expectedBuild.includes(f));
-  if (missing.length) fail(`build.sh missing cobol sources: ${missing.join(', ')}`);
-  if (extra.length) fail(`build.sh lists cobol sources not in manifest: ${extra.join(', ')}`);
+if (!/cobol\/Makefile/.test(buildSh)) {
+  fail('build.sh no longer delegates to cobol/Makefile (the wildcard build path)');
 } else {
-  ok(`build.sh includes all ${expectedBuild.length} cobol sources`);
+  ok('build.sh delegates to the cobol/Makefile wildcard build');
 }
 
 // --- Gateway route modules -------------------------------------------------
