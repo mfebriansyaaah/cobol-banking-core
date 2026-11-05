@@ -108,16 +108,30 @@ from going unnoticed, raising it is separate work.
   the `coverage` artifact.
 - **Pull requests (curated COBOL, impact-selected):** the `coverage-pr` job
   runs `scripts/ci/coverage.sh --cobol-only --changed origin/main --json`.
-  When the change set touches no curated inputs (docs, gateway-only changes,
-  other domains), the instrumented build is skipped in seconds. Otherwise the
-  full curated measurement runs and a Markdown summary (totals vs baselines,
-  any module below its baseline) is appended to the run summary, with the
-  full report in the `coverage-pr` artifact. (A PR comment is not used: this
-  repository's token permissions are read-only, so `issues: write` calls
-  fail; the run summary needs no extra permission.)
+  The change set is classified by `scripts/ci/coverage_trigger.mjs`
+  (unit-tested in `scripts/test/coverage_trigger.test.mjs`) into trigger
+  groups — `cobol` (curated modules, shared inputs, build, C bridge),
+  `data` (database surface, suites/cases), `measurement` (the scripts and
+  baselines themselves), and `gateway` (`middleware/src`, `middleware/test`,
+  `tests/gateway`, `tests/lib`). Gateway changes trigger the measurement:
+  the gateway suite exercises COBOL actions through the instrumented binary,
+  so a route change can drop COBOL coverage. Docs-only changes, generated
+  data, and build noise skip the instrumented build in seconds; unrecognized
+  paths measure (safe default). Otherwise the full curated measurement runs
+  and a Markdown summary (totals vs baselines, any module below its baseline)
+  is appended to the run summary, with the full report in the `coverage-pr`
+  artifact. (A PR comment is not used: this repository's token permissions
+  are read-only, so `issues: write` calls fail; the run summary needs no
+  extra permission.)
 - **Nightly:** `.github/workflows/coverage.yml` runs the full COBOL + gateway
   measurement with a MariaDB service and uploads the report. It can also be
   started manually with `workflow_dispatch`.
+
+> Preload mode: `coverage.sh` runs the gateway suite with `preload.mjs`
+> (file mode: one COBOL process per call), while `endpoint_smoke.sh` uses
+> `preload.gateway.mjs` for `test:gateway` (persistent worker pool).
+> Gateway coverage therefore measures file mode, not pool mode. Coverage is
+> a measurement floor, not a behavior gate — behavior is covered by `test`.
 
 ### Toolchain
 
