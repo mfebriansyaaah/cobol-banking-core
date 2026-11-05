@@ -15,6 +15,11 @@ on:
     - cron: '0 3 * * 1'
   workflow_dispatch:
 
+# Own group: a push must not cancel a running CodeQL analysis (or vice versa).
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
