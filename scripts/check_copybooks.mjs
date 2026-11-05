@@ -69,7 +69,7 @@ const deadParas = [...paraDef.keys()].filter((p) => !performed.has(p));
 // 2b. Inline-duplication ratchet (PR-021 rollout): paragraphs with a shared
 // copybook must not gain new inline copies. Counts inline definitions of
 // the extracted paragraphs across src modules; must only shrink.
-const EXTRACTED = ['TRIM-VALUE'];
+const EXTRACTED = ['TRIM-VALUE', 'TRIM-ALL', 'VALIDATE-COUNT-FIELD'];
 const inlineDupes = {};
 for (const name of EXTRACTED) {
   let n = 0;
