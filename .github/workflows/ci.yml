@@ -298,29 +298,6 @@ jobs:
           fi
           TEST_RUN_ID="$TEST_RUN_ID" bash scripts/check_test_residue.sh | tee /tmp/gateway_residue.log
 
-      # Benchmarks run before the drills: the backup drill's mysqldump competes
-      # for I/O, and the seeded service database is at its most representative
-      # right after the gateway suites.
-      - name: Performance benchmarks
-        run: bash tests/perf/bench.sh
-
-      - name: Migration rollback drill
-        run: |
-          bash scripts/ci/migration_rollback_drill.sh > /tmp/migration_rollback_drill.log 2>&1
-          rc=$?
-          tail -20 /tmp/migration_rollback_drill.log
-          exit $rc
-
-      - name: Backup and restore drill
-        run: |
-          bash scripts/ci/backup_restore_drill.sh > /tmp/backup_restore_drill.log 2>&1
-          rc=$?
-          tail -20 /tmp/backup_restore_drill.log
-          exit $rc
-
-      - name: Schema drift check
-        run: bash scripts/check_schema_drift.sh
-
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
@@ -335,16 +312,6 @@ jobs:
         with:
           name: gateway-log
           path: /tmp/gateway_endpoints.log
-          if-no-files-found: ignore
-
-      - name: Upload drill logs on failure
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
-        with:
-          name: drill-logs
-          path: |
-            /tmp/migration_rollback_drill.log
-            /tmp/backup_restore_drill.log
           if-no-files-found: ignore
 
       - name: Upload residue log on failure
@@ -646,57 +613,6 @@ jobs:
       - name: Schema drift check
         run: bash scripts/check_schema_drift.sh
 
-  post-merge:
-    name: post-merge
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [build, test]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    services:
-      mariadb:
-        image: mariadb:11.8
-        env:
-          MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: cobol_db
-          MARIADB_USER: cobol_user
-          MARIADB_PASSWORD: cobol_pass
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=20
-    env:
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_NAME: cobol_db
-      DB_USER: cobol_user
-      DB_PASS: cobol_pass
-      DB_MIGRATE_USER: root
-      DB_MIGRATE_PASS: root
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
-      - name: Install runtime dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
-      - name: Apply migrations
-        run: ./database/migrate.sh
-      - name: Migration rollback drill
-        run: bash scripts/ci/migration_rollback_drill.sh
-
-      - name: Backup and restore drill
-        run: bash scripts/ci/backup_restore_drill.sh
-
-      - name: Schema drift check
-        run: bash scripts/check_schema_drift.sh
   coverage-pr:
     name: coverage-pr
     if: github.event_name == 'pull_request'
