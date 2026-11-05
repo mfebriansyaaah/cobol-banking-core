@@ -81,6 +81,11 @@ run_ci_parity() {
     need_tool python3 "system package manager"
     need_tool mysql "mariadb-client package (or mysql-client)"
     need_tool cobc "gnucobol package"
+    need_tool cppcheck "apt install cppcheck (strict C gate needs it)"
+    if ! node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 20 ? 0 : 1)' >/dev/null 2>&1; then
+        echo "FAIL: node >= 20 required (CI uses node 24)" >&2
+        exit 2
+    fi
     need_tool flock "util-linux package (Linux-only; without it the run lock warns)"
     echo "tools OK"
 
@@ -140,6 +145,12 @@ run_ci_parity() {
     echo "=== PREMERGE: markdown lint ==="
     npm run lint:md
 
+    echo "=== PREMERGE: workflow lint ==="
+    actionlint
+
+    echo "=== PREMERGE: YAML lint ==="
+    bash scripts/ci/yaml_lint.sh
+
     echo "=== PREMERGE: strict C ==="
     bash scripts/ci/c_strict.sh
 
@@ -149,6 +160,15 @@ run_ci_parity() {
 
     echo "=== PREMERGE: secret scan ==="
     gitleaks detect --source . --no-git --config .gitleaks.toml
+
+    echo "=== PREMERGE: SAST scan ==="
+    bash scripts/ci/sast.sh
+
+    echo "=== PREMERGE: SAST extra scan ==="
+    bash scripts/ci/sast_extra.sh
+
+    echo "=== PREMERGE: gate unit tests ==="
+    npm run test:scripts
 
     echo "=== PREMERGE: dependency audit ==="
     npm audit --omit=dev
