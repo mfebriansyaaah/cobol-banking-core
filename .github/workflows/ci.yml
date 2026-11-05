@@ -373,7 +373,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Keep in sync: matrix size, DB_SHARD_COUNT below, and the shard count
-    # argument of the aggregate step. Four shards split ~537 suites.
+    # argument of the aggregate step. Four shards split the DB fleet
+    # (57 suites; recount with `ls tests/db/*_db_tests.sh | wc -l`).
     strategy:
       fail-fast: false
       matrix:
