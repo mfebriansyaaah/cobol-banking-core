@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-05T01:42:24.600Z",
-  "commit": "8c5ed936",
+  "generatedAt": "2026-11-05T03:28:25.905Z",
+  "commit": "e5764f82",
   "tier1": "manifest/tier1.json",
   "summary": {
-    "L3": 18,
+    "L3": 19,
     "L2": 6,
-    "L1": 2,
+    "L1": 1,
     "L0": 18,
     "UTILITY": 3
   },
@@ -189,16 +189,18 @@
     {
       "module": "dashboard_core",
       "source": "dashboard_core.cob",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "ledger"
       ],
       "t1Calls": [],
       "t1Actions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/dashboard_db_tests.sh"
+      ],
+      "reason": "money-table touch (accounts, ledger) with depth + test",
       "routeFiles": [
         "dashboard.js"
       ]
