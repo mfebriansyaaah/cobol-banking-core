@@ -44,7 +44,7 @@ for (let i = 0; i < args.length; i += 1) {
 root = path.resolve(root);
 
 const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml'];
-const REQUIRED_JOBS = ['lint', 'build', 'test', 'db-shards', 'db-aggregate', 'coverage'];
+const REQUIRED_JOBS = ['lint', 'build', 'test', 'db-shards', 'db-aggregate', 'coverage', 'coverage-pr'];
 
 // GitHub matches check runs by display name (job `name:`), not job ID.
 // PR #510 was blocked by requiring `db-aggregate` (hyphen) instead of
