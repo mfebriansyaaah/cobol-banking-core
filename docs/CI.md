@@ -29,6 +29,33 @@ Verify with a throwaway PR: lint fails on broken shell, build fails on broken
 COBOL, db-aggregate fails on deleted assertion, post-merge runs on `main`,
 nightly starts on schedule.
 
+## CI contract (`scripts/check_ci_contract.mjs`)
+
+The lint job runs `node scripts/check_ci_contract.mjs .` on every PR and push.
+It fails the run when any of these invariants break. Unit tests live in
+`scripts/test/check_ci_contract.test.mjs`; negative fixtures live in
+`tests/fixtures/ci-contract/`.
+
+Enforced invariants (CI-001):
+
+- Triggers: `ci.yml` has `pull_request` (not restricted to `closed`) and
+  `push` to `main` (`branches-ignore: [main]` is rejected); `nightly.yml`
+  (`0 2 * * *`), `coverage.yml` (`30 2 * * *`), and `codeql.yml` (weekly)
+  have schedules.
+- Required jobs: `ci.yml` contains `lint`, `build`, `test`, `db-shards`,
+  `db-aggregate`, `coverage`.
+- Display names: GitHub matches check runs by `name:`, not job ID.
+  Expected names are `lint`, `build`, `test`, `db shard <n>` (prefix),
+  `db aggregate` (space), `coverage`, `coverage-pr`. A rename to
+  `db-aggregate` (hyphen) fails the contract instead of blocking every PR.
+- Timeouts: every job in every workflow declares `timeout-minutes`.
+- Action pins: every remote `uses:` is a 40-hex SHA (floating tags like
+  `@v4` fail); local `./...` actions are exempt.
+- Permissions: every workflow declares `permissions` (or every job does);
+  `write-all` is rejected.
+- Shard consistency: the `db-shards` matrix size, the `DB_SHARD_COUNT` the
+  shard runner uses, and the `aggregate_shard_reports.sh` argument must agree.
+
 ## Required checks
 
 Phase 0 (before G0):
@@ -65,7 +92,7 @@ Rules:
 | `ci.yml` db-aggregate | 15 min | merge + inventory + count gate + summary |
 | `ci.yml` coverage | 20 min | gateway-only |
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected |
-| `ci.yml` post-merge | no timeout set | rollback, backup/restore, drift |
+| `ci.yml` post-merge | 20 min | rollback, backup/restore, drift |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF artifact while GHAS unavailable |
 | `coverage.yml` | 45 min | full COBOL + gateway |
 | `nightly.yml` | 180 min | full twice + drills + coverage + load + flake compare |
