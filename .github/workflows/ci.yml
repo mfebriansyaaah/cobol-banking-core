@@ -80,7 +80,7 @@ jobs:
           --exclude package-lock.json --error middleware scripts
 
       - name: Secret scan
-        run: gitleaks detect --source . --no-git --config .gitleaks.toml
+        run: gitleaks detect --source . --no-git --redact --config .gitleaks.toml
 
       - name: Gate unit tests
         run: >
