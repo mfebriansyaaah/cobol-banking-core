@@ -215,9 +215,22 @@ reference data only (no test fixture users). Safety properties:
 
 Covered by `tests/scripts/test_db_snapshot_guard.sh`, which runs the producer
 offline against fake `mysql`/`mysqldump`/`migrate.sh` and pins the refusals,
-the `--check` gate, the output report, and the flag set. Restoring the
-snapshot in DB jobs (including the restore-before-`grants.sh` order) belongs
-to CI-008B and is intentionally not done here.
+the `--check` gate, the output report, and the flag set.
+
+## Migrated DB snapshot consumers (CI-008B)
+
+Every DB job restores the per-run snapshot instead of replaying schema +
+migrations. Order per job: download `db-snapshot` (`continue-on-error`),
+restore with `scripts/ci/restore_db_snapshot.sh` or fall back to
+`schema.sql` + `migrate.sh` when the artifact is missing, `migrate.sh
+--check` green, then `database/grants.sh` (restore recreates the database,
+so grants must come after), then the job's own seed. The helper is CI-only
+(`CI=true`/`GITHUB_ACTIONS=true`, or `ALLOW_CI_DB=1` locally), allows only
+`cobol_db`/`cobol_db_*`, refuses system databases and empty names (exit 2),
+fails closed on a zero table/migration count, a schema-snapshot count
+mismatch, or a pending-migration ledger, and never prints the password.
+Covered by `tests/scripts/test_db_snapshot_restore_guard.sh` (offline,
+fake `mysql`/gzip/migrate, password-absence assertion).
 
 ## Orphan cleanup
 
