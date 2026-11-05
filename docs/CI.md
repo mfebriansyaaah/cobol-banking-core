@@ -125,12 +125,24 @@ Rules:
 | `coverage.yml` | 45 min | full COBOL + gateway |
 | `nightly.yml` | 180 min | full twice + drills + coverage + benchmark + load + flake compare |
 
-## DB snapshot producer (CI-008A)
+## DB snapshot producer + consumers (CI-008A/CI-008B)
 
 The `db-snapshot` job publishes one migrated gzip snapshot per run
 (`db-snapshot` artifact, retention 1 day) so DB jobs can restore instead of
-replaying schema + all migrations. This branch adds the producer only;
-no consumer job restores it yet (restore + fallback is CI-008B).
+replaying schema + all migrations. Every DB job (`test`, `db-shards`,
+`coverage`, `coverage-pr`, `db-ops`) downloads it and restores it with
+`scripts/ci/restore_db_snapshot.sh`, falling back to schema + migrations
+when the artifact is missing (expired retention, failed producer job).
+
+Restore order per job (enforced by `restore_db_snapshot.sh` + job steps):
+
+1. Download `db-snapshot` (`continue-on-error: true` — a missing artifact
+   must fall back, never fail the job).
+2. Restore the snapshot, or rebuild from `schema.sql` + `migrate.sh`.
+3. `migrate.sh --check` must be green (runs inside the helper).
+4. `database/grants.sh` **after** restore (restore recreates the database).
+5. Job-specific seed (`run_all.sh` seeds itself; `coverage`/`coverage-pr`
+   run `seed_test_data.sql`; `db-ops` drills seed themselves).
 
 - Producer: `scripts/ci/build_db_snapshot.sh /tmp/cobol-snapshot.sql.gz`.
   Requires `DB_NAME`, `DB_MIGRATE_USER`, `DB_MIGRATE_PASS` (`DB_HOST`/`DB_PORT`
