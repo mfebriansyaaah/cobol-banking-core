@@ -18,7 +18,6 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const INSTALLER = path.join(ROOT, 'scripts', 'ci', 'install-tools.sh');
 const FIXTURE_BASE = path.join(ROOT, 'tests', 'fixtures', 'install-tools', 'actionlint');
 const VALID_TGZ = path.join(FIXTURE_BASE, 'v1.7.7', 'actionlint_1.7.7_linux_amd64.tar.gz');
-const CORRUPT_TGZ = `${VALID_TGZ}.corrupt`;
 
 const sha256File = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
 
