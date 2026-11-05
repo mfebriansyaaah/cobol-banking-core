@@ -27,23 +27,29 @@ const copyDir = path.join(root, 'cobol', 'copy');
 const srcDir = path.join(root, 'cobol', 'src');
 const baseFile = path.join(root, 'tests', 'copybook_baseline.txt');
 
-const codeOnly = (s) => s.split('\n').filter((l) => !l.trim().startsWith('*>')).join('\n');
+const codeOnly = (s) =>
+  s
+    .split('\n')
+    .filter((l) => !l.trim().startsWith('*>'))
+    .join('\n');
 const load = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
 
 const cpyFiles = existsSync(copyDir)
-  ? readdirSync(copyDir).filter((f) => f.endsWith('.cpy')).sort()
+  ? readdirSync(copyDir)
+      .filter((f) => f.endsWith('.cpy'))
+      .sort()
   : [];
 const cobolFiles = existsSync(srcDir)
-  ? readdirSync(srcDir).filter((f) => f.endsWith('.cob')).sort()
+  ? readdirSync(srcDir)
+      .filter((f) => f.endsWith('.cob'))
+      .sort()
   : [];
 const allSrc = new Map();
 for (const f of cpyFiles) allSrc.set(`copy/${f}`, codeOnly(load(path.join(copyDir, f))));
 for (const f of cobolFiles) allSrc.set(`src/${f}`, codeOnly(load(path.join(srcDir, f))));
 
 // 1. Every copybook included at least once (COPY "name.cpy").
-const orphans = cpyFiles.filter(
-  (f) => ![...allSrc.values()].some((s) => s.includes(`COPY "${f}"`)),
-);
+const orphans = cpyFiles.filter((f) => ![...allSrc.values()].some((s) => s.includes(`COPY "${f}"`)));
 
 // 2. Every paragraph defined in a copybook PERFORMed from somewhere
 // (transitively live: reached paragraphs keep their callees alive).
@@ -62,7 +68,6 @@ const deadParas = [...paraDef.keys()].filter((p) => !performed.has(p));
 
 // 3. Every 01 WS var referenced in code; 88-levels count for their parents.
 const wsVars = [];
-const live88Parents = new Set();
 for (const [file, src] of allSrc) {
   if (!file.startsWith('copy/')) continue;
   for (const m of src.matchAll(/^\s+01\s+([A-Z][A-Z0-9-]+)\s/gm)) wsVars.push({ name: m[1], file });
@@ -95,8 +100,7 @@ for (const { name, file } of wsVars) {
   if (!used) {
     // An 01 owning referenced 88-levels is used via its children.
     const childUsed = [...parentOf88.entries()].some(
-      ([c88, parent]) => parent === name
-        && [...allSrc.values()].some((s) => new RegExp(`\\b${c88}\\b`).test(s)),
+      ([c88, parent]) => parent === name && [...allSrc.values()].some((s) => new RegExp(`\\b${c88}\\b`).test(s)),
     );
     if (!childUsed) deadVars.push(`${name} (${file})`);
   }
@@ -146,5 +150,8 @@ else {
   }
 }
 for (const d of details) fail(d);
-if (!failed) console.log(`OK: copybooks tight (${actual.files} files, ${actual.paragraphs} paragraphs, ${actual.vars} vars, 0 dead)`);
+if (!failed)
+  console.log(
+    `OK: copybooks tight (${actual.files} files, ${actual.paragraphs} paragraphs, ${actual.vars} vars, 0 dead)`,
+  );
 process.exit(failed ? 1 : 0);
