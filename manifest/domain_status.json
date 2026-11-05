@@ -196,7 +196,7 @@
       "routeFile": "dashboard.js",
       "table": "accounts",
       "tier": 2,
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "linkedCoreDomains": [
         "wallet/ledger"
       ],
@@ -204,8 +204,8 @@
       "consumer": null,
       "trafficLastSeen": null,
       "owner": null,
-      "status": "REVIEW",
-      "reason": "Weak or untested link; manual review decides upgrade-to-L2 or dead-candidate.",
+      "status": "ACTIVE",
+      "reason": "Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof.",
       "retireAfter": null,
       "tableDropDate": null
     },
