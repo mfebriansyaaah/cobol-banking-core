@@ -327,7 +327,7 @@ COBOL_TOTAL=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["p
 check_value cobol-total "$COBOL_TOTAL" "$FLOOR" "$(baseline cobol_total)" || SUITE_FAILED=1
 # Per-module ratchet: no curated module may quietly collapse while the total
 # still looks fine. Baseline lives in tests/coverage_module_baseline.txt.
-node "$ROOT/scripts/check_coverage_modules.mjs" --json "$COBOL_JSON_FILE" || SUITE_FAILED=1
+node "$ROOT/scripts/check_coverage_modules.mjs" --json "$COBOL_JSON_FILE" --floor 70 || SUITE_FAILED=1
 if [ "$GW_RC" -eq 0 ]; then
     check_value gateway-lines "$GATEWAY_LINES" 80 "$(baseline gateway_lines)" || SUITE_FAILED=1
     check_value gateway-branches "$GATEWAY_BRANCHES" 70 "$(baseline gateway_branches)" || SUITE_FAILED=1

@@ -7,10 +7,10 @@ percentage.
 
 ## What is measured
 
-| Surface | Measure | Tool |
-| --- | --- | --- |
-| COBOL curated core | statement (line) coverage mapped back to `.cob` lines | `scripts/ci/coverage.sh` |
-| Gateway | line, branch, and function coverage over `middleware/src/**` | Node `--experimental-test-coverage` |
+| Surface            | Measure                                                      | Tool                                |
+| ------------------ | ------------------------------------------------------------ | ----------------------------------- |
+| COBOL curated core | statement (line) coverage mapped back to `.cob` lines        | `scripts/ci/coverage.sh`            |
+| Gateway            | line, branch, and function coverage over `middleware/src/**` | Node `--experimental-test-coverage` |
 
 GnuCOBOL translates COBOL to C. The coverage build compiles only the curated
 modules with `cobc --coverage` and reuses normal objects from the incremental
@@ -43,6 +43,11 @@ whole-codebase coverage.
 
 - Absolute floor: **30%** for COBOL, **80%** for gateway lines, **70%** for
   gateway branches.
+- Stage-1 per-module floor (PR-044): every measured Tier-1 module
+  (`manifest/tier1.json`) must sit at or above **70%** line coverage.
+  Modules below the floor are recorded in `tests/coverage_floor_backlog.txt`
+  with reason instead of dragging silently; the gate fails unlisted
+  sub-floor modules and stale (reached-floor) entries alike.
 - Ratchet: `tests/coverage_baseline.txt` values may not drop by more than
   **1.0 percentage point**. Lower a baseline only for a deliberate change that
   removes exercised code, never to accept a regression.
