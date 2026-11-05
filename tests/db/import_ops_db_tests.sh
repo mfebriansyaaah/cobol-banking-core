@@ -35,6 +35,9 @@ assert_match "IMP_BATCH_FAIL ok" "$(run_cobol "IMP_BATCH_FAIL|${C}|E999|boom|||$
 assert_match "batch failed" "$(db_query "SELECT status FROM import_batch WHERE batch_code='${C}';")" "^FAILED$"
 assert_match "IMP_BATCH_RETRY ok" "$(run_cobol "IMP_BATCH_RETRY|${C}|||||${A}")" "SUCCESS\|"
 assert_match "IMP_BATCH_REVALIDATE2 ok" "$(run_cobol "IMP_BATCH_VALIDATE|${C}|||||${A}")" "SUCCESS\|"
+# The target GL period must exist: open it idempotently (no cross-suite
+# assumption; CI shards share one DB and run in any order).
+run_cobol "GL_PERIOD_OPEN|2026-06|||||${A}" >/dev/null
 assert_match "IMPP_LEDGER ok" "$(run_cobol "IMPP_LEDGER|${C}|2026-06-01|shell post|USD||${A}")" "SUCCESS\|"
 assert_match "IMP_BATCH_DELETE ok" "$(run_cobol "IMP_BATCH_DELETE|${C}-CLONE|||||${A}")" "SUCCESS\|"
 assert_match "non-admin refused" "$(run_cobol "IMP_BATCH_LIST|50|0||||sender@test.com")" "ERROR\|FORBIDDEN"
