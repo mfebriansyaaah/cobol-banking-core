@@ -1,4 +1,4 @@
-# Tool checksums (R0 00B, T-029).
+# Tool checksums (R0 00B, T-029; installer in scripts/ci/install-tools.sh, CI-012).
 # Every binary downloaded in .github/workflows/ci.yml must match this file.
 # Verify with: sha256sum -c scripts/ci/tool-checksums.txt
 # Versions are pinned in ci.yml; this file pins the content hash.
@@ -6,6 +6,15 @@
 # Node uses setup-node@<sha> with node 24 and npm ci lockfiles.
 # cppcheck comes from apt; record the installed version in docs/CI.md after each run.
 # CodeQL bundle, diff-cover, Syft/Stryker are Phase 1/2 (T-031/T-037); add here when approved.
+#
+# Bumping a tool (example: shellcheck 0.10.0 -> 0.11.0):
+#   1. Download the new release file locally.
+#   2. Append `sha256sum <file>` output to this file (keep the version comment).
+#   3. Bump the default in scripts/ci/install-tools.sh (SC_VER=...).
+#   4. Run node --test scripts/test/install-tools.test.mjs (checksums + installer).
+#   5. Run the full lint job (or CI) to confirm green.
+# Never bump the installer default without the matching hash here:
+# install-tools.sh refuses versions with no pinned checksum.
 
 # shellcheck 0.10.0
 # https://github.com/koalaman/shellcheck/releases/download/v0.10.0/shellcheck-v0.10.0.linux.x86_64.tar.xz

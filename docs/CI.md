@@ -107,7 +107,7 @@ Rules:
 
 | Workflow / job | Timeout | Notes |
 | --- | --- | --- |
-| `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, gate unit tests, npm audit |
+| `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks (checksum-verified via `scripts/ci/install-tools.sh`; bump procedure in `scripts/ci/tool-checksums.txt`), gate unit tests, npm audit |
 | `ci.yml` build | 20 min | manifest, docs, complexity snapshot, probes, SAST, build, warning ratchet |
 | `ci.yml` test | 30 min | full gate minus DB matrix, benchmarks, drills, drift |
 | `ci.yml` db-shards (×4) | 30 min each | one shard per runner |
