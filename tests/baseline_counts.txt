@@ -68,3 +68,5 @@ db_report_statement_tests=31
 db_wallet_invariants_tests=26
 
 db_auth_invariants_tests=35
+
+db_payment_gl_invariants_tests=20

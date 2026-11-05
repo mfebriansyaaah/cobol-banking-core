@@ -23,8 +23,11 @@ assert_match "FEE_WAIVER_LIST ok" "$(run_cobol "FEE_WAIVER_LIST|FEE-SHELL-1|50|0
 assert_match "GL_ACCOUNT_LIST ok" "$(run_cobol "GL_ACCOUNT_LIST|50|0||||${A}")" "SUCCESS\|"
 assert_match "GL_PERIOD_LIST ok" "$(run_cobol "GL_PERIOD_LIST|50|0||||${A}")" "SUCCESS\|"
 assert_match "GL_TRIAL_BALANCE ok" "$(run_cobol "GL_TRIAL_BALANCE|2026-01-01|2026-12-31|USD|||${A}")" "SUCCESS\|"
-run_cobol "GL_PERIOD_OPEN|2026-06|||||${A}" >/dev/null
-assert_match "GL_JOURNAL_POST_ML ok" "$(run_cobol "GL_JOURNAL_POST_ML|2026-06-01|test|USD|1000:10.00:0;1100:0:10.00||${A}")" "SUCCESS\|GL_POSTED"
+# Dedicated far-future period: shared months get closed by month-end jobs
+# outside any suite (2026-06 went CLOSED and broke this suite); 2099-03
+# stays open and harmless.
+run_cobol "GL_PERIOD_OPEN|2099-03|||||${A}" >/dev/null
+assert_match "GL_JOURNAL_POST_ML ok" "$(run_cobol "GL_JOURNAL_POST_ML|2099-03-01|test|USD|1000:10.00:0;1100:0:10.00||${A}")" "SUCCESS\|GL_POSTED"
 assert_match "non-admin refused" "$(run_cobol "FEE_RULE_LIST|50|0||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 db_exec "DELETE FROM fee_rule WHERE rule_code='FEE-SHELL-1';"
