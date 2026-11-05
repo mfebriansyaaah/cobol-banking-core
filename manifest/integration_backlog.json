@@ -639,20 +639,6 @@
       "owner": null
     },
     {
-      "id": "collection_core:table:100",
-      "module": "collection_core",
-      "kind": "table",
-      "subject": "100",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "collection_core:table:16384",
       "module": "collection_core",
       "kind": "table",
