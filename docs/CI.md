@@ -148,7 +148,30 @@ lint/security gates green, zero FAIL lines. Two discoveries fixed along the
 way: per-run report dirs must not truncate mid-run, and worker DB dumps must
 carry migration-seeded reference data (see branch 05 commits).
 
-## Cost plan (planning ceiling, replace after 2 weeks)
+## Cost model (measured 2026-11-05; replaces the planning ceiling below)
+
+| Workload | Measured basis | Job-minutes/month |
+| --- | --- | ---: |
+| PR gate | 29 job-min × 235 PRs/30d | 6,815 |
+| Main push | 34 job-min × 150 pushes/30d | 5,100 |
+| Nightly full + coverage + load | not yet measured (no nightly runs recorded as of 2026-11-05) | 9,000 (planning) |
+| Mutation/CodeQL weekly | 120 job-min × 4 weeks | 480 |
+| Subtotal | — | 21,395 |
+| Buffer 30% | — | +6,419 |
+| **Estimated total** | — | **~27,800 minutes/month** |
+
+Measured per-run costs come from successful runs (`gh api .../actions/runs`
+job timings): PR wall ~8 min / ~29 job-min, push wall ~15 min / ~34 job-min.
+Run frequency (235 PR + 150 push per 30 days) reflects train velocity and
+exceeds the old planning assumption (20 + 20). The repository is public, so
+Actions usage is free within fair-use limits — this is a planning number,
+not a billing blocker. If a private quota applies later, reduce in this
+order: db-shards only on DB/COBOL PRs; coverage/CodeQL/mutation nightly;
+nightly 3×/week. Never remove lint/build/test/count/security from `main`.
+Re-measure after CI-007…CI-014 land and after two weeks of nightly runs,
+then re-approve with the owner before re-privatizing.
+
+## Cost plan (planning ceiling, superseded 2026-11-05 — historical)
 
 | Workload | Assumption | Job-minutes/month |
 | --- | --- | ---: |
@@ -169,7 +192,8 @@ Record actual minutes after two weeks and replace this table.
 
 Approved 2026-11-04 by `@mfebriansyaaah`: ceiling ~22,700 minutes/month
 accepted as planning number; re-approve with measured minutes before
-re-privatizing the repository.
+re-privatizing the repository. Re-approval against the measured 2026-11-05
+model above is pending.
 
 ## Enforcement
 
