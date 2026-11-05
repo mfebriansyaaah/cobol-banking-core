@@ -304,21 +304,32 @@ jobs:
       - name: Make binary executable
         run: chmod +x cobol/bin/main_logic
 
+      - name: Download DB snapshot
+        id: db_snapshot
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: db-snapshot
+          path: /tmp/db-snapshot
+
+      - name: Restore snapshot or rebuild schema
+        run: |
+          if [ "${{ steps.db_snapshot.outcome }}" = "success" ] \
+              && [ -f /tmp/db-snapshot/cobol-snapshot.sql.gz ]; then
+            bash scripts/ci/restore_db_snapshot.sh /tmp/db-snapshot/cobol-snapshot.sql.gz
+          else
+            echo "snapshot unavailable; falling back to schema + migrations"
+            mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" \
+              -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
+            ./database/migrate.sh
+          fi
+
       - name: Provision least-privilege app account
         run: >
           APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
           MIGRATE_DB_PASS="$DB_MIGRATE_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
           DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
           DB_NAME="$DB_NAME" database/grants.sh
-
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
-
-      - name: Apply migrations
-        run: ./database/migrate.sh
 
       - name: Run full test gate (DB via matrix)
         env:
@@ -444,21 +455,32 @@ jobs:
       - name: Make binary executable
         run: chmod +x cobol/bin/main_logic
 
+      - name: Download DB snapshot
+        id: db_snapshot
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: db-snapshot
+          path: /tmp/db-snapshot
+
+      - name: Restore snapshot or rebuild schema
+        run: |
+          if [ "${{ steps.db_snapshot.outcome }}" = "success" ] \
+              && [ -f /tmp/db-snapshot/cobol-snapshot.sql.gz ]; then
+            bash scripts/ci/restore_db_snapshot.sh /tmp/db-snapshot/cobol-snapshot.sql.gz
+          else
+            echo "snapshot unavailable; falling back to schema + migrations"
+            mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" \
+              -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
+            ./database/migrate.sh
+          fi
+
       - name: Provision least-privilege app account
         run: >
           APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
           MIGRATE_DB_PASS="$DB_MIGRATE_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
           DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
           DB_NAME="$DB_NAME" database/grants.sh
-
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
-
-      - name: Apply migrations
-        run: ./database/migrate.sh
 
       - name: Run DB shard
         run: DB_SHARD_INDEX=${{ matrix.shard }} DB_SHARD_COUNT=4 tests/run_all.sh db-shard
@@ -575,14 +597,32 @@ jobs:
       - name: Make binary executable
         run: chmod +x cobol/bin/main_logic
 
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
+      - name: Download DB snapshot
+        id: db_snapshot
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: db-snapshot
+          path: /tmp/db-snapshot
 
-      - name: Apply migrations
-        run: ./database/migrate.sh
+      - name: Restore snapshot or rebuild schema
+        run: |
+          if [ "${{ steps.db_snapshot.outcome }}" = "success" ] \
+              && [ -f /tmp/db-snapshot/cobol-snapshot.sql.gz ]; then
+            bash scripts/ci/restore_db_snapshot.sh /tmp/db-snapshot/cobol-snapshot.sql.gz
+          else
+            echo "snapshot unavailable; falling back to schema + migrations"
+            mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" \
+              -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
+            ./database/migrate.sh
+          fi
+
+      - name: Provision least-privilege app account
+        run: >
+          APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
+          MIGRATE_DB_PASS="$DB_MIGRATE_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
+          DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
+          DB_NAME="$DB_NAME" database/grants.sh
 
       - name: Seed test data
         run: >
@@ -637,13 +677,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             gnucobol libmysqlclient-dev build-essential mariadb-client
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
-      - name: Apply migrations
-        run: ./database/migrate.sh
+      - name: Download DB snapshot
+        id: db_snapshot
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: db-snapshot
+          path: /tmp/db-snapshot
+
+      - name: Restore snapshot or rebuild schema
+        run: |
+          if [ "${{ steps.db_snapshot.outcome }}" = "success" ] \
+              && [ -f /tmp/db-snapshot/cobol-snapshot.sql.gz ]; then
+            bash scripts/ci/restore_db_snapshot.sh /tmp/db-snapshot/cobol-snapshot.sql.gz
+          else
+            echo "snapshot unavailable; falling back to schema + migrations"
+            mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" \
+              -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
+            ./database/migrate.sh
+          fi
+
       - name: Migration rollback drill
         run: bash scripts/ci/migration_rollback_drill.sh
 
@@ -748,14 +801,32 @@ jobs:
       - name: Install gateway dependencies
         run: npm ci --prefix middleware
 
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
+      - name: Download DB snapshot
+        id: db_snapshot
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          name: db-snapshot
+          path: /tmp/db-snapshot
 
-      - name: Apply migrations
-        run: ./database/migrate.sh
+      - name: Restore snapshot or rebuild schema
+        run: |
+          if [ "${{ steps.db_snapshot.outcome }}" = "success" ] \
+              && [ -f /tmp/db-snapshot/cobol-snapshot.sql.gz ]; then
+            bash scripts/ci/restore_db_snapshot.sh /tmp/db-snapshot/cobol-snapshot.sql.gz
+          else
+            echo "snapshot unavailable; falling back to schema + migrations"
+            mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" \
+              -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
+            ./database/migrate.sh
+          fi
+
+      - name: Provision least-privilege app account
+        run: >
+          APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
+          MIGRATE_DB_PASS="$DB_MIGRATE_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
+          DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
+          DB_NAME="$DB_NAME" database/grants.sh
 
       - name: Seed test data
         run: >
