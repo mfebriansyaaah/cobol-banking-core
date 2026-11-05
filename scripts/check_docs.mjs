@@ -7,6 +7,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { collect, renderReadmeBlock, ROOT } from './docs_stats.mjs';
+import { findStaleClaims } from './ci/stale_claims.mjs';
 
 const REQUIRED = [
   'README.md',
@@ -87,6 +88,19 @@ const markdownFiles = [
   ...walkMarkdown(path.join(ROOT, 'docs')),
 ].filter((f) => existsSync(f));
 markdownFiles.forEach(checkLinks);
+
+// Stale volatile numbers and wrong required-check names (CI-006). Historical
+// R0 evidence lines containing "historical" are skipped by the scanner.
+// tests/README.md carries fleet counts too, so it is scanned here even
+// though link/reach checks stay on markdownFiles.
+const staleExtra = [path.join(ROOT, 'tests', 'README.md')].filter((f) => existsSync(f));
+const staleFiles = [...markdownFiles, ...staleExtra].map((f) => ({
+  path: path.relative(ROOT, f),
+  text: readFileSync(f, 'utf8'),
+}));
+for (const hit of findStaleClaims(staleFiles)) {
+  errors.push(`${hit.path}:${hit.line}: stale claim (${hit.rule}): ${hit.message}`);
+}
 
 const allDocs = markdownFiles.map((f) => readFileSync(f, 'utf8')).join('\n');
 const reach = stats.modules.filter((m) => allDocs.includes(m.module)).length;
