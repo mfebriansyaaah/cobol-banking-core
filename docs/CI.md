@@ -37,6 +37,11 @@ for both `javascript` and `cpp`, and
 `code-scanning/analyses` lists both tools with 0 open alerts. The earlier
 "not enabled" failure (2026-11-02) no longer reproduces; `gh` + runs suffice.
 
+CodeQL scope: the JavaScript gateway and the C crypto helpers
+(`cobol/c_lib`, self-contained, traced with gcc). COBOL is out of scope —
+no CodeQL extractor exists. CodeQL stays informational (not a required
+check) until one green run plus an alert-triage pass.
+
 ## CI contract (`scripts/check_ci_contract.mjs`)
 
 The lint job runs `node scripts/check_ci_contract.mjs .` on every PR and push.

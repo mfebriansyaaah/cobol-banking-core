@@ -58,6 +58,12 @@ A pull request is not mergeable under this policy unless the required checks
 enforces this on `main` via branch protection; reviewers still verify the
 evidence.
 
+CodeQL (`codeql.yml`, PR/push/schedule) scans the JavaScript gateway and the
+C crypto helpers (`cobol/c_lib`); COBOL is out of scope (no extractor
+exists). CodeQL is informational, not a required check, until one green run
+plus an alert-triage pass; it becomes required only if the owner accepts
+security findings as merge blockers.
+
 ## CODEOWNERS
 
 `.github/CODEOWNERS` assigns every path to `@mfebriansyaaah` with
