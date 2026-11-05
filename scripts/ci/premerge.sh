@@ -19,11 +19,20 @@
 #             warnings/coverage gates, benchmarks, both drills, full lint +
 #             security, offline harnesses. Slow (~1h); this is the gate that
 #             must pass before merging a money-path change.
+#             Exclusions are documented below and printed by --print-plan:
+#             in-job DB sharding instead of the CI matrix, no CodeQL upload,
+#             no branch-protection remote state, curated COBOL coverage only
+#             with --cobol-coverage (needs GnuCOBOL 3.2).
+#   --cobol-coverage
+#             also run the curated COBOL coverage measurement inside
+#             --ci-parity (fails closed without cobc --coverage support)
+#   --print-plan
+#             print the --ci-parity steps and exclusions, then exit
 #
 # The same toggles exist as env vars for CI-style invocation:
 # PREMERGE_FULL=1, PREMERGE_PROBES=1, PREMERGE_DOCS=1,
-# PREMERGE_CI_PARITY=1. Flags and env vars are equivalent; either one
-# enables the section.
+# PREMERGE_CI_PARITY=1, PREMERGE_COBOL_COVERAGE=1, PREMERGE_PRINT_PLAN=1.
+# Flags and env vars are equivalent; either one enables the section.
 #
 # Default (no flags) runs only the fast suite: static gates, build, table
 # tests, and smoke. DB/gateway/full, probes, and docs are skipped locally and
@@ -34,13 +43,15 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 usage() {
-    sed -n '2,24p' "$0" | sed 's/^# \?//'
+    sed -n '2,32p' "$0" | sed 's/^# \?//'
 }
 
 FULL=0
 PROBES=0
 DOCS=0
 CI_PARITY=0
+COBOL_COVERAGE=0
+PRINT_PLAN=0
 for _arg in "$@"; do
     case "$_arg" in
         --full) FULL=1 ;;
@@ -48,6 +59,8 @@ for _arg in "$@"; do
         --docs) DOCS=1 ;;
         --all) FULL=1; PROBES=1; DOCS=1 ;;
         --ci-parity) CI_PARITY=1 ;;
+        --cobol-coverage) COBOL_COVERAGE=1 ;;
+        --print-plan) PRINT_PLAN=1 ;;
         --help|-h) usage; exit 0 ;;
         *) echo "unknown flag: $_arg (see --help)" >&2; exit 2 ;;
     esac
@@ -56,6 +69,8 @@ done
 [ "${PREMERGE_PROBES:-0}" = "1" ] && PROBES=1
 [ "${PREMERGE_DOCS:-0}" = "1" ] && DOCS=1
 [ "${PREMERGE_CI_PARITY:-0}" = "1" ] && CI_PARITY=1
+[ "${PREMERGE_COBOL_COVERAGE:-0}" = "1" ] && COBOL_COVERAGE=1
+[ "${PREMERGE_PRINT_PLAN:-0}" = "1" ] && PRINT_PLAN=1
 
 # Exact CI parity gate (T-009). Never touches the developer database:
 # everything runs against the dedicated cobol_db_premerge database
@@ -81,6 +96,11 @@ run_ci_parity() {
     need_tool python3 "system package manager"
     need_tool mysql "mariadb-client package (or mysql-client)"
     need_tool cobc "gnucobol package"
+    need_tool cppcheck "apt install cppcheck (strict C gate needs it)"
+    if ! node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 20 ? 0 : 1)' >/dev/null 2>&1; then
+        echo "FAIL: node >= 20 required (CI uses node 24)" >&2
+        exit 2
+    fi
     need_tool flock "util-linux package (Linux-only; without it the run lock warns)"
     echo "tools OK"
 
@@ -121,6 +141,17 @@ run_ci_parity() {
     echo "=== PREMERGE: gateway coverage ==="
     bash scripts/ci/coverage.sh --gateway-only
 
+    if [ "$COBOL_COVERAGE" = "1" ]; then
+        echo "=== PREMERGE: curated COBOL coverage (opt-in) ==="
+        if [ "$(cobc --help 2>&1 | grep -c -- '--coverage')" -eq 0 ]; then
+            echo "FAIL: installed cobc has no --coverage support (needs GnuCOBOL 3.2)" >&2
+            exit 1
+        fi
+        bash scripts/ci/coverage.sh --cobol-only --changed origin/main --json
+    else
+        echo "=== PREMERGE: curated COBOL coverage skipped (opt-in via --cobol-coverage; needs GnuCOBOL 3.2) ==="
+    fi
+
     echo "=== PREMERGE: benchmarks ==="
     bash tests/perf/bench.sh
 
@@ -140,6 +171,12 @@ run_ci_parity() {
     echo "=== PREMERGE: markdown lint ==="
     npm run lint:md
 
+    echo "=== PREMERGE: workflow lint ==="
+    actionlint
+
+    echo "=== PREMERGE: YAML lint ==="
+    bash scripts/ci/yaml_lint.sh
+
     echo "=== PREMERGE: strict C ==="
     bash scripts/ci/c_strict.sh
 
@@ -149,6 +186,15 @@ run_ci_parity() {
 
     echo "=== PREMERGE: secret scan ==="
     gitleaks detect --source . --no-git --config .gitleaks.toml
+
+    echo "=== PREMERGE: SAST scan ==="
+    bash scripts/ci/sast.sh
+
+    echo "=== PREMERGE: SAST extra scan ==="
+    bash scripts/ci/sast_extra.sh
+
+    echo "=== PREMERGE: gate unit tests ==="
+    npm run test:scripts
 
     echo "=== PREMERGE: dependency audit ==="
     npm audit --omit=dev
@@ -165,6 +211,31 @@ run_ci_parity() {
 
     echo "=== PREMERGE: CI PARITY GREEN ==="
 }
+
+# What --ci-parity runs, and what it deliberately does not. Reviewers read
+# this instead of diffing the function against ci.yml by hand.
+print_ci_plan() {
+    cat <<'EOF'
+--ci-parity runs (in order): tool bootstrap, dedicated database, full suite
+(run_all.sh full, in-job DB_SHARDS), gate-detection probes, assertion counts
+(--strict), docs gate, CI contract, schema drift, build log + warning
+ratchet, gateway coverage, curated COBOL coverage (only with
+--cobol-coverage), benchmarks, migration rollback drill, backup and restore
+drill, shell lint, JS lint + format, markdown lint, workflow lint
+(actionlint), YAML lint, strict C, semgrep, secret scan, SAST + SAST extra,
+gate unit tests, dependency audit, alert rules, offline safety harness,
+coverage mapper unit tests.
+Exclusions vs CI: in-job DB sharding instead of the db-shards matrix (same
+planner, one runner); no CodeQL upload (needs GitHub security events —
+semgrep/SAST run instead); no branch-protection remote state; curated COBOL
+coverage is opt-in (needs GnuCOBOL 3.2 with cobc --coverage).
+EOF
+}
+
+if [ "$PRINT_PLAN" = "1" ]; then
+    print_ci_plan
+    exit 0
+fi
 
 if [ "$CI_PARITY" = "1" ]; then
     run_ci_parity

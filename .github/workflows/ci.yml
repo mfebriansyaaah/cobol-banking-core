@@ -89,10 +89,7 @@ jobs:
         run: node scripts/check_ci_contract.mjs .
 
       - name: YAML lint
-        run: >
-          yamllint --strict -c .yamllint .github/workflows/
-          docker-compose.test.yml monitoring/prometheus-alerts.yml
-          .github/ISSUE_TEMPLATE/config.yml
+        run: bash scripts/ci/yaml_lint.sh
 
       - name: Validate alert rules
         run: promtool check rules monitoring/prometheus-alerts.yml
