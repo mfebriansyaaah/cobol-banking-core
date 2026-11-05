@@ -405,20 +405,6 @@
       "owner": null
     },
     {
-      "id": "card_core:table:16384",
-      "module": "card_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "collateral_core:action:action-allocate",
       "module": "collateral_core",
       "kind": "action",
@@ -625,20 +611,6 @@
       "owner": null
     },
     {
-      "id": "collection_core:table:16384",
-      "module": "collection_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "dashboard_core:audit:core-reference",
       "module": "dashboard_core",
       "kind": "audit",
@@ -653,20 +625,6 @@
       "module": "dashboard_core",
       "kind": "table",
       "subject": "100",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "dashboard_core:table:16384",
-      "module": "dashboard_core",
-      "kind": "table",
-      "subject": "16384",
       "status": "OPEN",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
@@ -841,20 +799,6 @@
       "owner": null
     },
     {
-      "id": "deposit_core:table:16384",
-      "module": "deposit_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "deposit_core:table:days",
       "module": "deposit_core",
       "kind": "table",
@@ -923,20 +867,6 @@
       "module": "fee_core",
       "kind": "table",
       "subject": "100",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "fee_core:table:16384",
-      "module": "fee_core",
-      "kind": "table",
-      "subject": "16384",
       "status": "OPEN",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
@@ -1094,20 +1024,6 @@
       "owner": null
     },
     {
-      "id": "gl_core:table:16384",
-      "module": "gl_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "gl_core:table:30",
       "module": "gl_core",
       "kind": "table",
@@ -1178,20 +1094,6 @@
       "module": "import_post_core",
       "kind": "table",
       "subject": "100",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "import_post_core:table:16384",
-      "module": "import_post_core",
-      "kind": "table",
-      "subject": "16384",
       "status": "OPEN",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
@@ -1290,20 +1192,6 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
-    },
-    {
-      "id": "import_recon_core:table:16384",
-      "module": "import_recon_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
       "owner": null
     },
     {
@@ -1467,20 +1355,6 @@
       "module": "loan_schedule_core",
       "kind": "table",
       "subject": "1",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "loan_schedule_core:table:16384",
-      "module": "loan_schedule_core",
-      "kind": "table",
-      "subject": "16384",
       "status": "OPEN",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
@@ -1842,20 +1716,6 @@
       "owner": null
     },
     {
-      "id": "payment_core:table:16384",
-      "module": "payment_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "payment_core:table:30",
       "module": "payment_core",
       "kind": "table",
@@ -1975,20 +1835,6 @@
       "owner": null
     },
     {
-      "id": "payment_hold_core:table:16384",
-      "module": "payment_hold_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "payment_instruction_core:action:action-cancel",
       "module": "payment_instruction_core",
       "kind": "action",
@@ -2042,20 +1888,6 @@
       "module": "payment_instruction_core",
       "kind": "table",
       "subject": "100",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "payment_instruction_core:table:16384",
-      "module": "payment_instruction_core",
-      "kind": "table",
-      "subject": "16384",
       "status": "OPEN",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
@@ -2837,20 +2669,6 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
-    },
-    {
-      "id": "statement_recon_core:table:16384",
-      "module": "statement_recon_core",
-      "kind": "table",
-      "subject": "16384",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
       "owner": null
     },
     {
