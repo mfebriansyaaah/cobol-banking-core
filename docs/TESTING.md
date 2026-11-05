@@ -144,8 +144,15 @@ never cross compiler versions; its binary travels via artifact).
 Nightly (`nightly.yml`, own concurrency group so pushes never cancel it)
 runs the full gate twice and fails on any per-suite drift between the two
 reports (`scripts/ci/compare_runs.mjs` ignores durations), then runs the
-drills and gateway coverage. A red nightly means order-dependence or a flake,
+drills, gateway coverage, the performance benchmark, and the gateway load
+test. A red nightly means order-dependence or a flake,
 not a broken PR.
+
+Push to `main` (and manual `workflow_dispatch`) additionally runs the
+`db-ops` job — migration rollback drill, backup/restore drill, and schema
+drift check — exactly once per push and once nightly. PRs skip it; the PR
+`test` job keeps the static gates, table, smoke, integration, error harness,
+gateway, and residue checks.
 
 On any failure, `scripts/ci/collect_diagnostics.sh` gathers tool versions,
 git state, DB/table counts, the ledger check, and log tails into one
