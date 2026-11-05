@@ -38,6 +38,7 @@ const WIRED = [
   // Local-only by design (schema snapshot helper; CI covers the same ground
   // through the rollback/backup drills + drift check).
   ['scripts/ci/restore_drill.sh', ['LOCAL-ONLY']],
+  ['scripts/ci/build_db_snapshot.sh', ['build_db_snapshot']],
 ];
 
 function collectRunSteps() {
