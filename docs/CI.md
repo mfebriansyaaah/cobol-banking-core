@@ -66,6 +66,7 @@ Phase 0 (before G0):
 - `db aggregate` (job ID `db-aggregate`; GitHub matches the check-run **name**
   with a space — `db-aggregate` with a hyphen never reports, use the space form)
 - `coverage`
+- `coverage-pr` (curated COBOL coverage gate; required since CI-002)
 
 Phase 1 adds (after WP-1.4 first green run):
 
@@ -152,7 +153,8 @@ re-privatizing the repository.
 ## Enforcement
 
 ACTIVE since branch 02 (2026-11-04, verified via API): branch protection on
-`main` requires `lint`, `build`, `test`, `db aggregate`, `coverage` (strict),
+`main` requires `lint`, `build`, `test`, `db aggregate`, `coverage`,
+`coverage-pr` (strict),
 1 approval with stale-review dismissal, CODEOWNERS review, linear history;
 force pushes, branch deletion, and admin bypass are blocked. Red-PR proof is
 recorded below.

@@ -16,6 +16,7 @@
 - [ ] No secrets or real PII added
 - [ ] Docs updated if behavior or setup changed
 - [ ] `node scripts/check_docs.mjs` green after `node scripts/docs_stats.mjs --write`
+- [ ] Required checks green, including `coverage-pr` (COBOL coverage gate)
 
 ## Risk and rollback
 

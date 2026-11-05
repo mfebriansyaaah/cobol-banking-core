@@ -129,7 +129,7 @@ reason, and expiry. 9/10 is capped at 8.5 without server-side or merge-bot
 enforcement.
 
 Required checks (Phase 0): `lint`, `build`, `test`, `db-aggregate`,
-`coverage`. `security` joins after WP-1.4.
+`coverage`, `coverage-pr`. `security` joins after WP-1.4.
 
 ## Final remote cleanup
 
