@@ -42,7 +42,6 @@
         01  WS-STEPUP-ACTION        PIC X(20) VALUE SPACES.
         01  WS-AUDIT-STATUS         PIC X(7)  VALUE SPACES.
         01  WS-AR-ID                PIC X(20) VALUE SPACES.
-        01  WS-AR-ITEM               PIC X(20) VALUE SPACES.
         01  WS-AR-STATE              PIC X(12) VALUE SPACES.
         01  WS-AR-DECISION           PIC X(12) VALUE SPACES.
         01  WS-AR-EMAIL              PIC X(100) VALUE SPACES.
@@ -66,7 +65,6 @@
         01  WS-BACKUP-LIST          PIC X(100) VALUE SPACES.
         01  WS-BACKUP-POS           PIC 9(3)   VALUE 1.
         01  WS-CODE2                PIC X(7)   VALUE SPACES.
-        01  WS-REC-ID               PIC X(20)  VALUE SPACES.
         01  WS-REC-STATE            PIC X(12)  VALUE SPACES.
         01  WS-NOTIF-TO             PIC X(100) VALUE SPACES.
         01  WS-NOTIF-PURPOSE        PIC X(32)  VALUE SPACES.
@@ -94,7 +92,6 @@
         01  WS-ROT-COUNT            PIC 9(9) VALUE 0.
         01  WS-ID-LEN               PIC 9(3) VALUE 1.
         01  WS-FAILS                PIC X(20) VALUE SPACES.
-        01  WS-FAIL-COUNT           PIC 9(4) VALUE 0.
         01  WS-LOCKED               PIC X(1) VALUE "0".
         01  WS-CODE                 PIC X(7) VALUE SPACES.
         01  WS-PLAIN                PIC X(100) VALUE SPACES.
