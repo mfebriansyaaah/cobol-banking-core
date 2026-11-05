@@ -1,13 +1,18 @@
-// CI contract check (T-006).
+// CI contract check (T-006, CI-001).
 //
-// Verifies the workflow triggers and required jobs that the 9/10 gate needs.
+// Verifies the workflow triggers, required jobs, and hardening invariants
+// that branch protection and supply-chain policy depend on.
 // Parsing uses Python 3 + PyYAML (already installed for yamllint) so no new
 // npm dependency is required and nested YAML is not regex-parsed.
 //
 // Modes:
 //   enforced (default): ci.yml must have pull_request + push to main;
 //     nightly.yml and coverage.yml must have schedule; codeql.yml must have
-//     schedule; ci.yml must contain the required jobs.
+//     schedule; ci.yml must contain the required jobs; every job in every
+//     workflow must have timeout-minutes and SHA-pinned actions; every
+//     workflow must declare permissions; ci.yml display names must match
+//     GitHub check-run names; db-shards matrix must agree with the shard
+//     runner and the aggregate step.
 //   parked: if docs/ci-parked.md exists, it must have valid front matter
 //     (owner, reason, expires YYYY-MM-DD, alternative_gate) and must not be
 //     expired. A valid parked file relaxes the trigger requirements.
@@ -40,6 +45,19 @@ root = path.resolve(root);
 
 const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml'];
 const REQUIRED_JOBS = ['lint', 'build', 'test', 'db-shards', 'db-aggregate', 'coverage'];
+
+// GitHub matches check runs by display name (job `name:`), not job ID.
+// PR #510 was blocked by requiring `db-aggregate` (hyphen) instead of
+// `db aggregate` (space). Enforce the exact names here.
+const EXPECTED_JOB_NAMES = {
+  lint: 'lint',
+  build: 'build',
+  test: 'test',
+  'db-shards': /^db shard /,
+  'db-aggregate': 'db aggregate',
+  coverage: 'coverage',
+  'coverage-pr': 'coverage-pr',
+};
 
 function loadWorkflows() {
   const files = WORKFLOWS.map((f) => path.join(root, '.github', 'workflows', f));
@@ -85,6 +103,13 @@ function pushBranches(on) {
   if (!push) return [];
   if (typeof push === 'object' && push.branches) return asList(push.branches);
   return ['(any)'];
+}
+
+function pushBranchesIgnore(on) {
+  const push = on.push;
+  if (!push || typeof push !== 'object') return [];
+  if (push['branches-ignore']) return asList(push['branches-ignore']);
+  return [];
 }
 
 function schedules(on) {
@@ -140,9 +165,29 @@ if (park.parked) {
 const failed = [];
 const ciOn = onOf(byName['ci.yml']);
 if (!('pull_request' in ciOn)) failed.push('ci.yml lacks pull_request trigger');
+else {
+  // A pull_request trigger restricted to `closed` never runs on PR activity.
+  const pr = ciOn.pull_request;
+  if (pr && typeof pr === 'object' && pr.types) {
+    const types = asList(pr.types);
+    const active = types.filter((t) => t !== 'closed');
+    if (types.length > 0 && active.length === 0) {
+      failed.push('ci.yml pull_request trigger is restricted to closed (never runs on PRs)');
+    }
+  }
+}
 if (!('push' in ciOn)) failed.push('ci.yml lacks push trigger');
-else if (!pushBranches(ciOn).includes('main')) {
-  failed.push(`ci.yml push branches must include main (got: ${pushBranches(ciOn).join(',')})`);
+else {
+  const ignored = pushBranchesIgnore(ciOn);
+  if (ignored.includes('main')) {
+    failed.push('ci.yml push branches-ignore must not include main (main would never trigger)');
+  } else if (
+    !pushBranches(ciOn).includes('main') &&
+    !pushBranches(ciOn).includes('(any)') &&
+    !pushBranches(ciOn).includes('*')
+  ) {
+    failed.push(`ci.yml push branches must include main (got: ${pushBranches(ciOn).join(',')})`);
+  }
 }
 
 const nightlyCrons = schedules(onOf(byName['nightly.yml']));
@@ -160,6 +205,118 @@ const jobs = (byName['ci.yml'] && byName['ci.yml'].jobs) || {};
 for (const j of REQUIRED_JOBS) {
   if (!(j in jobs)) failed.push(`ci.yml lacks required job: ${j}`);
 }
+
+// Display names: GitHub matches the check-run name, not the job ID.
+for (const [id, expected] of Object.entries(EXPECTED_JOB_NAMES)) {
+  if (!(id in jobs)) continue;
+  const actual = jobs[id] && jobs[id].name;
+  if (expected instanceof RegExp) {
+    if (typeof actual !== 'string' || !expected.test(actual)) {
+      failed.push(`ci.yml job '${id}' display name must match ${expected} (got: ${JSON.stringify(actual)})`);
+    }
+  } else if (actual !== expected) {
+    failed.push(`ci.yml job '${id}' display name must be '${expected}' (got: ${JSON.stringify(actual)})`);
+  }
+}
+
+// Every job in every workflow must declare a timeout.
+for (const wf of WORKFLOWS) {
+  const wjobs = (byName[wf] && byName[wf].jobs) || {};
+  for (const [id, spec] of Object.entries(wjobs)) {
+    const t = spec && spec['timeout-minutes'];
+    if (typeof t !== 'number' || !Number.isFinite(t) || t <= 0) {
+      failed.push(`${wf} job '${id}' lacks timeout-minutes (add timeout-minutes: <minutes>)`);
+    }
+  }
+}
+
+// Every remote action must be pinned to a 40-hex SHA. Local actions (`./...`)
+// are exempt; everything else (including floating tags like @v4) fails.
+const SHA_RE = /^[0-9a-f]{40}$/;
+for (const wf of WORKFLOWS) {
+  const wjobs = (byName[wf] && byName[wf].jobs) || {};
+  for (const [id, spec] of Object.entries(wjobs)) {
+    for (const step of (spec && spec.steps) || []) {
+      if (!step || typeof step !== 'object' || !step.uses) continue;
+      const uses = String(step.uses);
+      if (uses.startsWith('./')) continue;
+      const at = uses.lastIndexOf('@');
+      const ref = at >= 0 ? uses.slice(at + 1) : '';
+      if (!SHA_RE.test(ref)) {
+        failed.push(`${wf} job '${id}' step uses '${uses}' must be pinned to a 40-hex SHA`);
+      }
+    }
+  }
+}
+
+// Permissions: each workflow must declare them at the top level, or every
+// job must declare them. write-all is never allowed.
+for (const wf of WORKFLOWS) {
+  const doc = byName[wf] || {};
+  const top = doc.permissions;
+  if (top === 'write-all') {
+    failed.push(`${wf} must not use permissions: write-all`);
+    continue;
+  }
+  if (top !== undefined && top !== null) continue;
+  const wjobs = doc.jobs || {};
+  const without = Object.entries(wjobs)
+    .filter(([, spec]) => spec.permissions === undefined || spec.permissions === null)
+    .map(([id]) => id);
+  if (without.length > 0) {
+    failed.push(`${wf} lacks permissions (add workflow-level permissions: contents: read)`);
+  }
+  for (const [id, spec] of Object.entries(wjobs)) {
+    if (spec.permissions === 'write-all') {
+      failed.push(`${wf} job '${id}' must not use permissions: write-all`);
+    }
+  }
+}
+
+// Shard consistency: the db-shards matrix, the DB_SHARD_COUNT the shard
+// runner uses, and the aggregate step argument must agree.
+(function checkShards() {
+  const shardJob = jobs['db-shards'];
+  const aggJob = jobs['db-aggregate'];
+  if (!shardJob || !aggJob) return;
+  const matrix = shardJob.strategy && shardJob.strategy.matrix && shardJob.strategy.matrix.shard;
+  const matrixLen = Array.isArray(matrix) ? matrix.length : 0;
+  if (!matrixLen) {
+    failed.push('ci.yml db-shards lacks strategy.matrix.shard');
+    return;
+  }
+  let shardCount = null;
+  if (shardJob.env && shardJob.env.DB_SHARD_COUNT !== undefined) {
+    shardCount = Number(shardJob.env.DB_SHARD_COUNT);
+  }
+  for (const step of shardJob.steps || []) {
+    if (!step || typeof step !== 'object' || !step.run) continue;
+    const m = String(step.run).match(/DB_SHARD_COUNT=(\d+)/);
+    if (m) shardCount = Number(m[1]);
+  }
+  if (shardCount === null || !Number.isFinite(shardCount)) {
+    failed.push('ci.yml db-shards lacks DB_SHARD_COUNT (matrix runner must declare it)');
+    return;
+  }
+  let aggCount = null;
+  for (const step of aggJob.steps || []) {
+    if (!step || typeof step !== 'object' || !step.run) continue;
+    const run = String(step.run);
+    if (!run.includes('aggregate_shard_reports.sh')) continue;
+    const parts = run.trim().split(/\s+/);
+    const last = Number(parts[parts.length - 1]);
+    if (Number.isFinite(last)) aggCount = last;
+  }
+  if (aggCount === null) {
+    failed.push('ci.yml db-aggregate lacks shard count argument (aggregate_shard_reports.sh <parts> <out> <n>)');
+    return;
+  }
+  if (matrixLen !== shardCount || matrixLen !== aggCount) {
+    failed.push(
+      `ci.yml shard count mismatch (matrix ${matrixLen}, DB_SHARD_COUNT ${shardCount}, aggregate ${aggCount})`,
+    );
+  }
+})();
 
 if (failed.length) {
   for (const f of failed) console.error(`FAIL: ${f}`);
