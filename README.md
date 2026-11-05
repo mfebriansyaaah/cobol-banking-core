@@ -151,7 +151,7 @@ suites, table cases, and the action/suite inventory gates. See
 | Gateway route definitions | **548** |
 | Dispatch entries | **125** |
 | Recorded migrations | **657** |
-| Tables in schema.sql | **478** |
+| Tables in schema.sql | **479** |
 <!-- END GENERATED STATS -->
 
 ## Request contract
