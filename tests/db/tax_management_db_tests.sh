@@ -36,6 +36,16 @@ assert_match "used credit persisted" "$(db_query "SELECT collected_tax FROM tax_
 assert_match "TXM_DELETE ok" "$(run_cobol "TXM_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|TXM_DELETE"
 assert_match "closed persisted" "$(db_query "SELECT status FROM tax_management WHERE id=${id};")" "^INACTIVE$"
 
+# Update: optimistic-locking guarded update with version bump + audit.
+ver_before="$(db_query "SELECT version FROM tax_management WHERE id=${id};")"
+assert_match "version readable" "$ver_before" "^[0-9]+$"
+assert_match "TXM_UPDATE ok" "$(run_cobol "TXM_UPDATE|${id}|UpdatedTax|VAT|||admin@test.com")" "SUCCESS\|TXM_UPDATE"
+assert_match "version bumped" "$(db_query "SELECT version FROM tax_management WHERE id=${id};")" "^$((ver_before + 1))$"
+assert_match "name persisted" "$(db_query "SELECT tax_name FROM tax_management WHERE id=${id};")" "^UpdatedTax$"
+assert_match "update audited" "$(db_query "SELECT COUNT(*) FROM tax_management_audit WHERE tax_management_id=${id} AND action='UPDATE';")" "^[1-9][0-9]*$"
+assert_match "update missing id" "$(run_cobol "TXM_UPDATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "non-admin update refused" "$(run_cobol "TXM_UPDATE|${id}|X|VAT|||sender@test.com")" "ERROR\|FORBIDDEN"
+
 # Summary and audit.
 assert_match "TXM_SUMMARY ok" "$(run_cobol "TXM_SUMMARY||||||admin@test.com")" "SUCCESS\|TXM_SUMMARY"
 assert_match "TXM_AUDIT ok" "$(run_cobol "TXM_AUDIT|50|0||||admin@test.com")" "SUCCESS\|TXM_AUDIT"
