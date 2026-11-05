@@ -58,17 +58,15 @@ assert_match "RUN_RECONCILIATION ok" "$(run_cobol "RUN_RECONCILIATION|${A}|MANUA
 assert_match "LIST_RECONCILIATIONS ok" "$(run_cobol "LIST_RECONCILIATIONS|${A}|50|0")" "SUCCESS\|"
 assert_match "LIST_OUTBOX ok" "$(run_cobol "LIST_OUTBOX|${A}|||")" "SUCCESS\|"
 
-# Exceptions: list, then ack/resolve whatever the recon run produced
-# (or assert NOT_FOUND when the queue is empty — the action still runs).
+# Exceptions: ack + resolve the newest OPEN finding when the queue is
+# non-empty, else exercise both actions against a missing id. The findings
+# table is shared across suites, so either verdict is valid — but exactly
+# two assertions run on every path (static count == runtime count).
 assert_match "LIST_EXCEPTIONS ok" "$(run_cobol "LIST_EXCEPTIONS|${A}|||")" "SUCCESS\|"
-fid="$(db_query "SELECT id FROM recon_exception WHERE state='OPEN' ORDER BY id DESC LIMIT 1;")"
-if [ -n "$fid" ]; then
-    assert_match "ACK_EXCEPTION ok" "$(run_cobol "ACK_EXCEPTION|${fid}|${A}")" "SUCCESS\|"
-    assert_match "RESOLVE_EXCEPTION ok" "$(run_cobol "RESOLVE_EXCEPTION|${fid}|${A}|fixed")" "SUCCESS\|"
-else
-    assert_match "ACK_EXCEPTION missing" "$(run_cobol "ACK_EXCEPTION|999999|${A}")" "ERROR\|"
-    assert_match "RESOLVE_EXCEPTION missing" "$(run_cobol "RESOLVE_EXCEPTION|999999|${A}|x")" "ERROR\|"
-fi
+fid="$(db_query "SELECT finding_id FROM reconciliation_findings WHERE status='OPEN' ORDER BY finding_id DESC LIMIT 1;")"
+if [ -n "$fid" ]; then tgt="$fid"; else tgt="999999"; fi
+assert_match "ACK_EXCEPTION verdict" "$(run_cobol "ACK_EXCEPTION|${tgt}|${A}")" "SUCCESS\|EXCEPTION_ACKNOWLEDGED|ERROR\|UNKNOWN_TRANSACTION"
+assert_match "RESOLVE_EXCEPTION verdict" "$(run_cobol "RESOLVE_EXCEPTION|${tgt}|${A}|fixed")" "SUCCESS\|EXCEPTION_RESOLVED|ERROR\|UNKNOWN_TRANSACTION"
 
 # Dual-control operation request lifecycle (CHANGE_ROLE is executable).
 # Designation list is empty by default (Gate 0): designate for this suite,

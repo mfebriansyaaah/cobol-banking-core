@@ -16,6 +16,10 @@ db_seed
 A="admin@test.com"
 S="sender@test.com"
 R="receiver@test.com"
+# Policy/profile rows are global (bank-wide / per-sender): own them fully —
+# pre-clean for rerun-safety, post-clean so later suites transfer freely.
+db_exec "DELETE FROM payment_profile WHERE user_email='${S}' AND currency_code='USD';"
+db_exec "DELETE FROM payment_policy WHERE currency_code='USD';"
 
 # Payment policy + profile lifecycle (idempotent upserts).
 assert_match "PAY_POLICY_SET ok" "$(run_cobol "PAY_POLICY_SET|USD|1000.00,500.00,10,100.00,50.00|1|||${A}")" "SUCCESS\|"
@@ -53,6 +57,8 @@ assert_match "program listed" "$(run_cobol "LOY_LIST|DRAFT||50|0||${A}")" "LOY-S
 assert_match "non-admin refused" "$(run_cobol "PIC_LIST||50|0|||sender@test.com")" "ERROR\|FORBIDDEN"
 
 db_exec "DELETE FROM payment_instruction WHERE instruction_code='${P}' OR instruction_code='${Q}';"
+db_exec "DELETE FROM payment_profile WHERE user_email='${S}' AND currency_code='USD';"
+db_exec "DELETE FROM payment_policy WHERE currency_code='USD';"
 db_exec "DELETE FROM loyalty_member WHERE program_id IN (SELECT id FROM loyalty_program WHERE program_code='LOY-SHELL');"
 db_exec "DELETE FROM loyalty_program WHERE program_code='LOY-SHELL';"
 
