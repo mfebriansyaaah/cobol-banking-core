@@ -66,6 +66,21 @@ for (const s of allSrc.values()) {
 }
 const deadParas = [...paraDef.keys()].filter((p) => !performed.has(p));
 
+// 2b. Inline-duplication ratchet (PR-021 rollout): paragraphs with a shared
+// copybook must not gain new inline copies. Counts inline definitions of
+// the extracted paragraphs across src modules; must only shrink.
+const EXTRACTED = ['TRIM-VALUE'];
+const inlineDupes = {};
+for (const name of EXTRACTED) {
+  let n = 0;
+  for (const [file, src] of allSrc) {
+    if (!file.startsWith('src/')) continue;
+    const re = new RegExp(`^\\s{7}${name}\\.(?=\\s|$)`, 'gm');
+    n += [...src.matchAll(re)].length;
+  }
+  inlineDupes[`inline_${name.toLowerCase().replace(/-/g, '_')}`] = n;
+}
+
 // 3. Every 01 WS var referenced in code; 88-levels count for their parents.
 const wsVars = [];
 for (const [file, src] of allSrc) {
@@ -106,7 +121,12 @@ for (const { name, file } of wsVars) {
   }
 }
 
-const actual = { files: cpyFiles.length, paragraphs: paraDef.size, vars: wsVars.length };
+const actual = {
+  files: cpyFiles.length,
+  paragraphs: paraDef.size,
+  vars: wsVars.length,
+  ...inlineDupes,
+};
 let want = null;
 if (existsSync(baseFile)) {
   want = {};
@@ -125,7 +145,10 @@ const details = [
 if (write) {
   writeFileSync(
     baseFile,
-    `# Copybook estate baseline (PR-020 ratchet).\n# Counts of the inclusion graph; update only after reviewing the\n# drift the gate prints. This baseline must only change intentionally.\nfiles=${actual.files}\nparagraphs=${actual.paragraphs}\nvars=${actual.vars}\n`,
+    `# Copybook estate baseline (PR-020 ratchet, PR-021 inline-dupe counts).\n# Counts of the inclusion graph; update only after reviewing the\n# drift the gate prints. This baseline must only change intentionally.\nfiles=${actual.files}\nparagraphs=${actual.paragraphs}\nvars=${actual.vars}\n` +
+      Object.entries(inlineDupes)
+        .map(([k, v]) => `${k}=${v}\n`)
+        .join(''),
   );
   console.log(`wrote ${baseFile}: ${JSON.stringify(actual)}`);
   if (details.length) {
