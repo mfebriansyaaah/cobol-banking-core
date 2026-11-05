@@ -81,6 +81,10 @@ test('.gitleaks.toml has no path-wide exemption', () => {
   const src = readFileSync(path.join(ROOT, '.gitleaks.toml'), 'utf8');
   assert.ok(!/^\s*paths\s*=/m.test(src), 'path-wide allowlist must go');
   assert.ok(/allowlist/.test(src), 'regex allowlist for migration checksums stays');
+  assert.ok(
+    /regexTarget\s*=\s*"match"/.test(src),
+    'regex targets the matched span (gitleaks matches name+hash, not the full line)',
+  );
 });
 
 function haveGitleaks() {
@@ -92,22 +96,26 @@ function haveGitleaks() {
   }
 }
 
-test('gitleaks redacts findings instead of printing secrets', { skip: !haveGitleaks() && 'gitleaks binary absent' }, () => {
-  const dir = mkdtempSync(path.join(tmpdir(), 'gitleaks-'));
-  const secret = `token = "xoxb-test-secret-${Date.now()}"`;
-  writeFileSync(path.join(dir, 'leak.txt'), `${secret}\n`);
-  let status = 0;
-  let out = '';
-  try {
-    execFileSync(
-      'gitleaks',
-      ['detect', '--source', dir, '--no-git', '--config', path.join(ROOT, '.gitleaks.toml'), '--redact', '--verbose'],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 },
-    );
-  } catch (e) {
-    status = typeof e?.status === 'number' ? e.status : 1;
-    out = String(e?.stdout || '') + String(e?.stderr || '');
-  }
-  assert.equal(status, 1, 'a finding must fail the scan');
-  assert.ok(!out.includes('xoxb-test-secret-'), 'the secret value must not appear (redacted)');
-});
+test(
+  'gitleaks redacts findings instead of printing secrets',
+  { skip: !haveGitleaks() && 'gitleaks binary absent' },
+  () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'gitleaks-'));
+    const secret = `token = "xoxb-test-secret-${Date.now()}"`;
+    writeFileSync(path.join(dir, 'leak.txt'), `${secret}\n`);
+    let status = 0;
+    let out = '';
+    try {
+      execFileSync(
+        'gitleaks',
+        ['detect', '--source', dir, '--no-git', '--config', path.join(ROOT, '.gitleaks.toml'), '--redact', '--verbose'],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 },
+      );
+    } catch (e) {
+      status = typeof e?.status === 'number' ? e.status : 1;
+      out = String(e?.stdout || '') + String(e?.stderr || '');
+    }
+    assert.equal(status, 1, 'a finding must fail the scan');
+    assert.ok(!out.includes('xoxb-test-secret-'), 'the secret value must not appear (redacted)');
+  },
+);
