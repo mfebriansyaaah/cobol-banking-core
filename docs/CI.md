@@ -257,7 +257,8 @@ Approved by `@mfebriansyaaah` (repository owner):
   9/10 at 8.5.
 - Report layout: unique run directory + `artifacts/latest`, no append fallback.
 - DB cleanup: single top-level EXIT trap in `tests/run_all.sh`.
-- Action coverage denominator: all 2,780 route actions (2026-11-04); HTTP-only
+- Action coverage denominator: all 527 route actions (2026-11-05, per
+  `node scripts/check_action_test_coverage.mjs .`); HTTP-only
   is not shell-covered without owner + reason + expiry.
 - UPDATE tests: 2-day spike; generator only if ≥80% uniform, else risk-based.
 - Security: semgrep + gitleaks + npm audit + custom SAST on PR; CodeQL CLI +

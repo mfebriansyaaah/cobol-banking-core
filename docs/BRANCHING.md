@@ -14,8 +14,9 @@ Trunk-based development with a **serial merge train**.
 - When all work is done, only `main` remains as a branch on the remote
   (`git ls-remote --heads origin` shows exactly one line).
 
-Why trunk-based: the fleet has 274 DB suites, 2,780 route actions, and 657
-migrations. Long-lived branches diverge the schema, baselines, and generated
+Why trunk-based: the fleet has 57 DB suites, 527 route actions, and 657
+recorded migrations (counts move; see the README generated stats and
+`tests/baseline_counts.txt`). Long-lived branches diverge the schema, baselines, and generated
 snapshots within days. A serial train keeps `schema.sql`, `baseline_counts.txt`,
 `route_field_order.json`, and the manifest coherent.
 
@@ -129,7 +130,7 @@ checklist in `docs/CI.md`. Record the exception in `docs/CI.md` with owner,
 reason, and expiry. 9/10 is capped at 8.5 without server-side or merge-bot
 enforcement.
 
-Required checks (Phase 0): `lint`, `build`, `test`, `db-aggregate`,
+Required checks (Phase 0): `lint`, `build`, `test`, `db aggregate`,
 `coverage`, `coverage-pr`. `security` joins after WP-1.4.
 
 ## Final remote cleanup

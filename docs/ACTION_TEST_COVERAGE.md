@@ -4,20 +4,21 @@
 > triage sheet. Owner sign-off on the order below is required before T-018
 > starts spending it.
 
-## Current picture (2026-11-04, measured)
+## Current picture (2026-11-05, measured)
 
 `node scripts/check_action_test_coverage.mjs --json .`:
 
 | Metric | Value |
 | --- | ---: |
-| Route actions (denominator) | 2,780 |
-| Shell-covered | 2,180 (78.4%) |
-| Baseline (uncovered, owned) | 600 |
+| Route actions (denominator) | 527 |
+| Shell-covered | 527 (100.0%) |
+| Baseline (uncovered, owned) | 0 |
 
-The denominator was 4,096 before retire waves A/B deleted ~1,300 generated
-actions and their tests. Targets below are percentages so they survive
-further retirements: **Phase 1 ≥90% (≤278 untested), Phase 2 ≥95%
-(≤139 untested).**
+The 2026-11-04 burndown below is closed (historical): retire waves and the
+template/cluster work covered every baseline entry, so the four categories
+hold zero actions today. Targets below are percentages so they survive
+further retirements: **Phase 1 ≥90% (≤52 untested), Phase 2 ≥95%
+(≤26 untested).**
 
 | # | Category | Count | Owner | Ticket | Expires |
 | --- | ---: | --- | --- | --- | --- |
