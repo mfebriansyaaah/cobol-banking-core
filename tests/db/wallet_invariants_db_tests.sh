@@ -57,11 +57,27 @@ assert_match "balance intact" "$(bal "$WA")" "^900.0000$"
 # 4. Self-transfer refused.
 assert_match "self refused" "$(run_cobol "TRANSFER|${WA}|${WA}|1.00|WLTINV-3|||")" "ERROR\|SELF_TRANSFER"
 
+# 4b. Frozen sender refused; unfreeze restores (probe reversed right away
+# so downstream balance math is untouched).
+db_exec "UPDATE accounts SET status='FROZEN' WHERE user_id=(SELECT id FROM users WHERE email='${WA}') AND currency_id=1;"
+assert_match "frozen refused" "$(run_cobol "TRANSFER|${WA}|${WB}|1.00|WLTINV-3F|||")" "ERROR\|ACCOUNT_FROZEN"
+db_exec "UPDATE accounts SET status='ACTIVE' WHERE user_id=(SELECT id FROM users WHERE email='${WA}') AND currency_id=1;"
+assert_match "unfrozen works" "$(run_cobol "TRANSFER|${WA}|${WB}|1.00|WLTINV-3G|||")" "SUCCESS\|TRANSFER_OK"
+assert_match "probe reversed" "$(run_cobol "REVERSE_TRANSFER|WLTINV-3G|${A}|${WA}|CUSTOMER_ERROR")" "SUCCESS\|TRANSFER_REVERSED"
+
 # 5. Ambiguous account: second currency, unpinned refused, pinned resolves.
 db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 2, 0.00 FROM users WHERE email='${WB}';"
 assert_match "ambiguous refused" "$(run_cobol "TRANSFER|${WA}|${WB}|1.00|WLTINV-4|||")" "ERROR\|AMBIGUOUS_ACCOUNT"
 assert_match "pinned resolves" "$(run_cobol "TRANSFER|${WA}|${WB}|1.00|WLTINV-5||USD|")" "SUCCESS\|TRANSFER_OK"
 assert_match "pinned debit" "$(bal "$WA")" "^899.0000$"
+
+# 5b. Missing FX rate refused (rate row owned: dropped and restored here).
+db_exec "DELETE FROM exchange_rates WHERE base_currency_id=1 AND target_currency_id=2;"
+assert_match "no-rate refused" "$(run_cobol "TRANSFER|${WA}|${WB}|1.00|WLTINV-5R|USD|EUR|")" "ERROR\|RATE_NOT_FOUND"
+db_exec "INSERT INTO exchange_rates (base_currency_id, target_currency_id, exchange_rate) VALUES (1, 2, 0.92);"
+
+# 5c. Transfer audit lands exactly once per committed move.
+assert_match "audit present" "$(db_query "SELECT COUNT(*) FROM audit_trail WHERE action='TRANSFER' AND user_id=(SELECT id FROM users WHERE email='${WA}');")" "^[1-9][0-9]*$"
 
 # 6. Reversal once-only: balances restored, second reversal refused.
 assert_match "reverse ok" "$(run_cobol "REVERSE_TRANSFER|WLTINV-1|${A}|${WA}|CUSTOMER_ERROR")" "SUCCESS\|TRANSFER_REVERSED"
@@ -78,6 +94,12 @@ assert_match "receiver gets amount" "$(bal "$WB")" "^1101.0000$"
 assert_match "fee income exact" "$(db_query "SELECT balance FROM accounts WHERE account_type='FEE_INCOME' AND currency_id=1;")" "^2.5000$"
 db_exec "DELETE FROM fee_schedule WHERE currency_id=1;"
 db_exec "DELETE FROM accounts WHERE account_type='FEE_INCOME' AND currency_id=1;"
+
+# 8b. In-flight intent: a PENDING row for the key refuses a new attempt
+# (deterministic stand-in for a concurrent duplicate submission).
+db_exec "INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('WLTINV-P', '${WA}', '${WB}', 5.00, 'PENDING');"
+assert_match "in-flight refused" "$(run_cobol "TRANSFER|${WA}|${WB}|5.00|WLTINV-P|USD|USD|")" "ERROR\|TRANSFER_IN_PROGRESS"
+db_exec "DELETE FROM pending_transactions WHERE txn_ref='WLTINV-P';"
 
 # 8. Concurrency: two racers, 600 each on ~896.50 — exactly one wins,
 # balance never negative, ledger nets still match.

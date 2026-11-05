@@ -42,6 +42,7 @@ run_cobol "GL_PERIOD_OPEN|${PD}|||||${A}" >/dev/null
 assert_match "ML post ok" "$(run_cobol "GL_JOURNAL_POST_ML|${PD}-01|pginv|USD|1000:25.00:0;1100:0:25.00||${A}")" "SUCCESS\|GL_POSTED"
 jid="$(db_query "SELECT id FROM gl_journal ORDER BY id DESC LIMIT 1;")"
 assert_match "journal balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount),'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=${jid};")" "^BALANCED$"
+assert_match "unbalanced rejected" "$(run_cobol "GL_JOURNAL_POST_ML|${PD}-02|pginv|USD|1000:9.99:0||${A}")" "ERROR\|UNBALANCED"
 assert_match "trial balanced" "$(run_cobol "GL_TRIAL_BALANCE|${PD}-01|${PD}-28|USD|||${A}")" "SUCCESS\|GL_TRIAL\|.*BALANCED"
 
 # 3. Closed period refuses postings (stays closed across reruns: harmless,
