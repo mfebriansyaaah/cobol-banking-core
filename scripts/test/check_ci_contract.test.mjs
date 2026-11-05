@@ -1,4 +1,4 @@
-// Unit tests for scripts/check_ci_contract.mjs (T-006/T-011).
+// Unit tests for scripts/check_ci_contract.mjs (T-006/T-011, CI-001).
 // Fixture repos live in tests/fixtures/ci-contract/ (committed, no DB/build).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -29,4 +29,40 @@ test('expired parked file fails', () => {
   const r = runGate('scripts/check_ci_contract.mjs', [fix('expired-parked')]);
   assert.equal(r.status, 1);
   assert.match(r.stderr + r.stdout, /expired/);
+});
+
+test('renamed db aggregate display name fails (CI-001)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('renamed-db-aggregate')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /db aggregate/);
+});
+
+test('floating action version fails (CI-001)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('floating-action')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /SHA|pinned|floating/i);
+});
+
+test('missing job timeout fails (CI-001)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('missing-timeout')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /timeout-minutes/);
+});
+
+test('missing permissions fails (CI-001)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('missing-permissions')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /permissions/);
+});
+
+test('branches-ignore main fails (CI-001)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('branches-ignore-main')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /branches-ignore|push branches must include main/);
+});
+
+test('shard matrix mismatch fails (CI-001)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('matrix-mismatch')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /shard|matrix|aggregate/i);
 });
