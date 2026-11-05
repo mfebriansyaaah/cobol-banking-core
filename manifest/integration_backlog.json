@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T01:02:43.504Z",
+  "generatedAt": "2026-11-05T03:51:35.728Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -661,6 +661,198 @@
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
         "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:audit:core-reference",
+      "module": "dashboard_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:100",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "100",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:16384",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "16384",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:audit-trail",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:dispute-cases",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "dispute_cases",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'acknowledged', 'rejected'), 'resolved', assigned_to, case_id, constraint, created_at, decided_at, detail, due_date, if, key, resolution, state, state), subject, txn_ref, updated_at, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:import-batch",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "import_batch",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:notification-outbox",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "notification_outbox",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:ops-alert",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "ops_alert",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'acknowledged', 'critical'), 'resolved'), 'warning', acknowledged_at, alert_type, created_at, created_at), created_by, detail, id, index, owner_email, resolved_at, severity, source_key, state, state), title, unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:payment-policy",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "payment_policy",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), 2), check, currency_code, daily_count, daily_limit, enabled, hold_percent, hold_threshold, max_per_txn, updated_at, updated_by",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:payment-profile",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "payment_profile",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 10), check, currency_code, currency_code), daily_count, daily_limit, enabled, id, unique, updated_at, updated_by, user_email",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:pending-transactions",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "pending_transactions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:reconciliation-runs",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "reconciliation_runs",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'mismatch'), 'scheduled'), actor_email, created_at, key, mismatch_count, run_id, status, trigger_src",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:report-run",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "report_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'completed', 'failed'), 10), check, checksum, constraint, created_at, created_by, error_code, error_detail, finished_at, id, index, parameters, row_count, started_at, started_at), status, template_id, total_credit, total_debit, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "dashboard_core:table:report-schedule",
+      "module": "dashboard_core",
+      "kind": "table",
+      "subject": "report_schedule",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'fixed', 'json'), 'monthly'), 'weekly', check, created_at, created_by, currency_code, enabled, frequency, id, index, last_run_at, next_run_date, next_run_date), output_format, recipient, schedule_time, template_code, updated_at",
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],

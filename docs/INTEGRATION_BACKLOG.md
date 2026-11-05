@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 24 |
+| PARTIAL (open items) | 25 |
 
-Open/in-progress items: 264 of 264 recorded.
+Open/in-progress items: 278 of 278 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -22,6 +22,7 @@ Open/in-progress items: 264 of 264 recorded.
 | `card_core` | PARTIAL | 3 |
 | `collateral_core` | PARTIAL | 15 |
 | `collection_core` | PARTIAL | 3 |
+| `dashboard_core` | PARTIAL | 14 |
 | `deposit_core` | PARTIAL | 4 |
 | `fee_core` | PARTIAL | 11 |
 | `gl_core` | PARTIAL | 11 |
@@ -94,6 +95,20 @@ Open/in-progress items: 264 of 264 recorded.
 | `collection_core:audit:core-reference` | `collection_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `collection_core:table:100` | `collection_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `collection_core:table:16384` | `collection_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:audit:core-reference` | `dashboard_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `dashboard_core:table:100` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:16384` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:audit-trail` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:dispute-cases` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:import-batch` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:notification-outbox` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:ops-alert` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:payment-policy` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:payment-profile` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:pending-transactions` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:reconciliation-runs` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:report-run` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `dashboard_core:table:report-schedule` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `deposit_core:audit:core-reference` | `deposit_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `deposit_core:table:100` | `deposit_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `deposit_core:table:16384` | `deposit_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
