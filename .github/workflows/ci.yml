@@ -215,7 +215,7 @@ jobs:
           else
             BASE="${{ github.event.before }}"
           fi
-          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git rev-parse --verify --quiet "$BASE" >/dev/null; then
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             BASE="origin/main"
           fi
           if ! git rev-parse --verify --quiet "$BASE" >/dev/null; then
@@ -225,7 +225,9 @@ jobs:
           CHANGED="$(git diff --name-only "$BASE"...HEAD)"
           CHANGED="$CHANGED
           $(git ls-files --others --exclude-standard)"
-          RESULT="$(printf '%s\n' "$CHANGED" | node scripts/ci/classify_changes.mjs --stdin)" || RESULT="docs_only=false"
+          RESULT="$(printf '%s\n' "$CHANGED" \
+            | node scripts/ci/classify_changes.mjs --stdin)" \
+            || RESULT="docs_only=false"
           echo "$RESULT" >> "$GITHUB_OUTPUT"
 
   db-snapshot:
