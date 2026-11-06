@@ -1,0 +1,497 @@
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. auth_mfa_core.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        COPY "auth_password_ws.cpy".
+        LINKAGE SECTION.
+        01  LS-CMD-ACTION          PIC X(30).
+        01  LS-PARAM1              PIC X(100).
+        01  LS-PARAM2              PIC X(100).
+        01  LS-PARAM3              PIC X(100).
+        01  LS-PARAM4              PIC X(100).
+        01  LS-PARAM5              PIC X(100).
+        01  LS-PARAM6              PIC X(100).
+        01  LS-OUTPUT-BUFFER      PIC X(16384).
+
+        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+
+        MAIN-LOGIC.
+            PERFORM TRIM-PARAM1
+            PERFORM TRIM-PARAM2
+            PERFORM TRIM-PARAM3
+            PERFORM TRIM-PARAM4
+            PERFORM TRIM-PARAM5
+            PERFORM TRIM-PARAM6
+            PERFORM ESCAPE-PARAMS
+            PERFORM VALIDATE-ALL
+            IF WS-BAD > 0
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                GOBACK
+            END-IF
+            EVALUATE TRUE
+                WHEN LS-CMD-ACTION(1:19) = "MFA_ENROLL_REQUIRED"
+                    PERFORM MFA-ENROLL-REQUIRED-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "MFA_ENROLL_BEGIN"
+                    PERFORM MFA-ENROLL-BEGIN-LOGIC
+                WHEN LS-CMD-ACTION(1:18) = "MFA_ENROLL_CONFIRM"
+                    PERFORM MFA-ENROLL-CONFIRM-LOGIC
+                WHEN LS-CMD-ACTION(1:11) = "MFA_DISABLE"
+                    PERFORM MFA-DISABLE-LOGIC
+                WHEN LS-CMD-ACTION(1:16) = "MFA_BACKUP_CODES"
+                    PERFORM MFA-BACKUP-CODES-LOGIC
+                WHEN OTHER
+                    MOVE 4 TO WS-EXIT-CODE
+                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
+            END-EVALUATE.
+            GOBACK.
+
+        COPY "auth_password_helpers.cpy".
+        COPY "auth_password_logic.cpy".
+
+        VALIDATE-ALL.
+            *> Only protocol-breaking characters are rejected here; SQL values
+            *> are escaped via ESCAPE-PARAMS.
+            MOVE 0 TO WS-BAD
+            MOVE LS-PARAM1 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM2 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM3 TO WS-CHECK
+            PERFORM VALIDATE-INPUT
+            MOVE LS-PARAM4 TO WS-CHECK
+            PERFORM VALIDATE-INPUT.
+            EXIT PARAGRAPH.
+
+        VALIDATE-INPUT.
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-NL
+            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-CR.
+            EXIT PARAGRAPH.
+
+        ESCAPE-PARAMS.
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM1-TRIMMED BY REFERENCE WS-P1-ESC BY VALUE 256 END-CALL
+            MOVE 0 TO WS-P1-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P1-ELEN > 0
+                IF WS-P1-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P1-ELEN
+                END-IF
+            END-PERFORM
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM2-TRIMMED BY REFERENCE WS-P2-ESC BY VALUE 256 END-CALL
+            MOVE 0 TO WS-P2-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P2-ELEN > 0
+                IF WS-P2-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P2-ELEN
+                END-IF
+            END-PERFORM
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-P3-ESC BY VALUE 256 END-CALL
+            MOVE 0 TO WS-P3-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P3-ELEN > 0
+                IF WS-P3-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P3-ELEN
+                END-IF
+            END-PERFORM
+            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM4-TRIMMED BY REFERENCE WS-P4-ESC BY VALUE 256 END-CALL
+            MOVE 0 TO WS-P4-ELEN
+            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P4-ELEN > 0
+                IF WS-P4-ESC(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P4-ELEN
+                END-IF
+            END-PERFORM
+            IF WS-P1-ELEN = 0
+                MOVE 1 TO WS-P1-ELEN
+            END-IF
+            IF WS-P2-ELEN = 0
+                MOVE 1 TO WS-P2-ELEN
+            END-IF
+            IF WS-P3-ELEN = 0
+                MOVE 1 TO WS-P3-ELEN
+            END-IF
+            IF WS-P4-ELEN = 0
+                MOVE 1 TO WS-P4-ELEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        TRIM-PARAM1.
+            MOVE LS-PARAM1 TO WS-PARAM1-TRIMMED
+            MOVE 0 TO WS-P1-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P1-LEN > 0
+                IF WS-PARAM1-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P1-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P1-LEN = 0
+                MOVE 1 TO WS-P1-LEN
+            END-IF.
+
+        TRIM-PARAM2.
+            MOVE LS-PARAM2 TO WS-PARAM2-TRIMMED
+            MOVE 0 TO WS-P2-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P2-LEN > 0
+                IF WS-PARAM2-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P2-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P2-LEN = 0
+                MOVE 1 TO WS-P2-LEN
+            END-IF.
+
+        TRIM-PARAM3.
+            MOVE LS-PARAM3 TO WS-PARAM3-TRIMMED
+            MOVE 0 TO WS-P3-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P3-LEN > 0
+                IF WS-PARAM3-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P3-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P3-LEN = 0
+                MOVE 1 TO WS-P3-LEN
+            END-IF.
+
+        TRIM-PARAM4.
+            MOVE LS-PARAM4 TO WS-PARAM4-TRIMMED
+            MOVE 0 TO WS-P4-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
+                IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P4-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P4-LEN = 0
+                MOVE 1 TO WS-P4-LEN
+            END-IF.
+
+        TRIM-PARAM5.
+            MOVE LS-PARAM5 TO WS-PARAM5-TRIMMED
+            MOVE 0 TO WS-P5-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P5-LEN > 0
+                IF WS-PARAM5-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P5-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P5-LEN = 0
+                MOVE 1 TO WS-P5-LEN
+            END-IF.
+
+        TRIM-PARAM6.
+            MOVE LS-PARAM6 TO WS-PARAM6-TRIMMED
+            MOVE 0 TO WS-P6-LEN
+            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P6-LEN > 0
+                IF WS-PARAM6-TRIMMED(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-P6-LEN
+                END-IF
+            END-PERFORM
+            IF WS-P6-LEN = 0
+                MOVE 1 TO WS-P6-LEN
+            END-IF.
+
+        GET-USER-ID.
+            *> WS-USER-ID / WS-ID-LEN for the user named by param 1's email.
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+
+            MOVE WS-RESULT(1:20) TO WS-USER-ID
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM
+            IF WS-ID-LEN = 0
+                MOVE 1 TO WS-ID-LEN
+            END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-RECORD-FAILURE.
+            *> Count a wrong MFA code like a failed login (per-account
+            *> lockout): 3 failures lock the account for 15 minutes, and a
+            *> good login or password reset clears the counter. No-op while
+            *> already locked or when the owner row is gone. Expects
+            *> WS-PARAM1-TRIMMED = the owner email.
+            MOVE "SELECT CAST(id AS CHAR), CASE WHEN locked_until IS NOT NULL AND locked_until > NOW() THEN '1' ELSE '0' END FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA" OR WS-RESULT(1:5) = "ERROR"
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-USER-ID WS-LOCKED
+            END-UNSTRING
+            IF WS-LOCKED NOT = "1"
+                MOVE "UPDATE users SET locked_until = CASE WHEN failed_logins + 1 >= 3 THEN DATE_ADD(NOW(), INTERVAL 15 MINUTE) ELSE locked_until END, failed_logins = failed_logins + 1 WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (?, 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-ENROLL-BEGIN-LOGIC.
+            *> p1 = email, p2 = actor. Owner-only. Issues a pending secret.
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT CAST(mfa_enabled AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:1) = "1"
+                MOVE "ERROR|MFA_ALREADY_ENABLED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-MFA-SECRET
+            CALL "generate_mfa_secret" USING BY REFERENCE WS-MFA-SECRET END-CALL
+            MOVE "UPDATE users SET mfa_secret = ? WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-MFA-SECRET TO WS-BIND-1
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|MFA_ENROLL_FAILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|MFA_SECRET|" WS-MFA-SECRET(1:32) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-ENROLL-CONFIRM-LOGIC.
+            *> p1 = email, p2 = code, p3 = actor. Owner-only; turns MFA on.
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM3-TRIMMED(1:WS-P3-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT mfa_secret FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-RESULT(1:64) TO WS-MFA-SECRET
+            CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM2-TRIMMED BY REFERENCE WS-VERIFY END-CALL
+            IF WS-VERIFY NOT = "1"
+                PERFORM MFA-RECORD-FAILURE
+                MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE users SET mfa_enabled = 1 WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|MFA_ENROLL_FAILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|MFA_ENABLED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-DISABLE-LOGIC.
+            *> p1 = email, p2 = code, p3 = actor. Owner-only; turns MFA off.
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM3-TRIMMED(1:WS-P3-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "SELECT mfa_secret FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT = SPACES OR WS-RESULT(1:4) = "NULL"
+                MOVE "ERROR|MFA_NOT_ENABLED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE WS-RESULT(1:64) TO WS-MFA-SECRET
+            CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM2-TRIMMED BY REFERENCE WS-VERIFY END-CALL
+            IF WS-VERIFY NOT = "1"
+                PERFORM MFA-RECORD-FAILURE
+                MOVE "ERROR|INVALID_MFA" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE "UPDATE users SET mfa_enabled = 0, mfa_secret = NULL WHERE email = ?" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+
+            IF WS-RESULT(1:5) NOT = "ERROR"
+                MOVE "DELETE FROM mfa_backup_codes WHERE user_id = (SELECT id FROM users WHERE email = ?)" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            END-IF.            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|MFA_DISABLE_FAILED" TO LS-OUTPUT-BUFFER
+            ELSE
+                MOVE "SUCCESS|MFA_DISABLED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-BACKUP-CODES-LOGIC.
+            *> p1 = email, p2 = actor (owner). Issues 8 fresh single-use
+            *> backup codes, hashed at rest, shown exactly once. Replaces
+            *> any previous set. Requires MFA to be enabled already.
+            SET STEP-OK TO TRUE
+            IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(mfa_enabled AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:1) NOT = "1"
+                MOVE "ERROR|MFA_NOT_ENABLED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-USER-ID
+            MOVE 0 TO WS-ID-LEN
+            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
+                IF WS-USER-ID(WS-I:1) NOT = SPACE
+                    MOVE WS-I TO WS-ID-LEN
+                END-IF
+            END-PERFORM.
+            IF WS-ID-LEN = 0
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "DELETE FROM mfa_backup_codes WHERE user_id = ?" TO WS-PREP-SQL
+            MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-BACKUP-LIST
+            SET STEP-OK TO TRUE
+            PERFORM VARYING WS-BACKUP-N FROM 1 BY 1 UNTIL WS-BACKUP-N > 8 OR STEP-FAIL
+                CALL "generate_random_code" USING BY REFERENCE WS-CODE END-CALL
+                CALL "generate_random_code" USING BY REFERENCE WS-CODE2 END-CALL
+                STRING WS-CODE(1:6) WS-CODE2(1:4) DELIMITED BY SIZE INTO WS-BACKUP-CODE(1:10)
+                END-STRING
+                MOVE SPACES TO WS-PLAIN
+                MOVE WS-BACKUP-CODE(1:10) TO WS-PLAIN
+                CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH END-CALL
+                MOVE "INSERT INTO mfa_backup_codes (user_id, code_hash) VALUES (?, ?)" TO WS-PREP-SQL
+                MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
+                MOVE WS-HASH TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    COMPUTE WS-BACKUP-POS = (WS-BACKUP-N - 1) * 11 + 1 END-COMPUTE
+                    IF WS-BACKUP-N > 1
+                        STRING "," DELIMITED BY SIZE WS-BACKUP-CODE(1:10) DELIMITED BY SIZE INTO WS-BACKUP-LIST(WS-BACKUP-POS - 1:11)
+                        END-STRING
+                    ELSE
+                        MOVE WS-BACKUP-CODE(1:10) TO WS-BACKUP-LIST(1:10)
+                    END-IF
+                END-IF
+            END-PERFORM.
+            IF STEP-OK
+                MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, u.id, 'MFA_BACKUP_ISSUED', 'USER', u.id, 'SUCCESS' FROM users u WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE SPACES TO LS-OUTPUT-BUFFER
+                STRING "SUCCESS|BACKUP_CODES|" WS-BACKUP-LIST(1:87) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
+                END-STRING
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|MFA_ENROLL_FAILED" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        MFA-ENROLL-REQUIRED-LOGIC.
+            *> p1 = email. Decides whether the account must enrol MFA: "1" for
+            *> SUPER_ADMIN/MANAGER without MFA, else "0". The gateway forwards
+            *> this flag and must not reimplement the admin-role rule.
+            MOVE "SELECT role, CAST(mfa_enabled AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-ROLE WS-MFA-ON
+            END-UNSTRING
+            IF WS-MFA-ON = "1"
+                MOVE "SUCCESS|0" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-ROLE = "SUPER_ADMIN" OR WS-ROLE = "MANAGER"
+                    MOVE "SUCCESS|1" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "SUCCESS|0" TO LS-OUTPUT-BUFFER
+                END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ENQUEUE-NOTIFICATION.
+            *> Transactional outbox: the intent commits or rolls back with
+            *> the business action that created it. Sets WS-NOTIF-FAIL on
+            *> DB error; the caller maps it to its own failure output.
+            MOVE 0 TO WS-NOTIF-FAIL
+            MOVE "INSERT INTO notification_outbox (recipient, purpose, code, detail) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-NOTIF-TO TO WS-BIND-1
+            MOVE WS-NOTIF-PURPOSE TO WS-BIND-2
+            MOVE WS-NOTIF-CODE TO WS-BIND-3
+            MOVE WS-NOTIF-DETAIL TO WS-BIND-4
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE 1 TO WS-NOTIF-FAIL
+            END-IF.
+            EXIT PARAGRAPH.
+
+        TRIM-RESULT-LEN.
+            *> Compute WS-RLEN = length of WS-RESULT without trailing spaces.
+            MOVE 0 TO WS-RLEN
+            PERFORM VARYING WS-J FROM 16383 BY -1 UNTIL WS-J < 1 OR WS-RLEN > 0
+                IF WS-RESULT(WS-J:1) NOT = SPACE
+                    MOVE WS-J TO WS-RLEN
+                END-IF
+            END-PERFORM
+            IF WS-RLEN = 0
+                MOVE 1 TO WS-RLEN
+            END-IF.
+            EXIT PARAGRAPH.

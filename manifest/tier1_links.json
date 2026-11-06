@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T14:49:54.294Z",
-  "commit": "67398329",
+  "generatedAt": "2026-11-06T15:06:48.098Z",
+  "commit": "fa2571c3",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
     "L2": 6,
     "L1": 9,
-    "L0": 23,
+    "L0": 27,
     "UTILITY": 3
   },
   "modules": [
@@ -38,9 +38,32 @@
       "testEvidence": [],
       "reason": "Tier-1 core module",
       "routeFiles": [
-        "admin.js",
         "auth.js"
       ]
+    },
+    {
+      "module": "auth_mfa_core",
+      "source": "auth_mfa_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": []
+    },
+    {
+      "module": "auth_ops_core",
+      "source": "auth_ops_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": []
     },
     {
       "module": "auth_password_core",
@@ -52,6 +75,32 @@
       "hasTests": true,
       "testEvidence": [],
       "reason": "Tier-1 core module",
+      "routeFiles": []
+    },
+    {
+      "module": "auth_recovery_core",
+      "source": "auth_recovery_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": [
+        "admin.js"
+      ]
+    },
+    {
+      "module": "auth_review_core",
+      "source": "auth_review_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
       "routeFiles": []
     },
     {
@@ -989,7 +1038,7 @@
   ],
   "routeModules": {
     "account.js": "account_core",
-    "admin.js": "auth_core",
+    "admin.js": "auth_recovery_core",
     "auth.js": "auth_core",
     "backup_drill.js": "backup_drill_core",
     "bank_guarantee.js": "bank_guarantee_core",

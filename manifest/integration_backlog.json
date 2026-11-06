@@ -6,26 +6,26 @@
       "module": "auth_core",
       "kind": "action",
       "subject": "OUTBOX-CLAIM-LOGIC",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes notification_outbox)",
       "evidence": [
-        "paragraph OUTBOX-CLAIM-LOGIC",
-        "touched tables: notification_outbox"
+        "paragraph moved to auth_ops_core.cob by the PR-057 split",
+        "outbox claim covered by outbox worker + email_otp_flow.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:action:outbox-mark-logic",
       "module": "auth_core",
       "kind": "action",
       "subject": "OUTBOX-MARK-LOGIC",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes notification_outbox)",
       "evidence": [
-        "paragraph OUTBOX-MARK-LOGIC",
-        "touched tables: 100, notification_outbox"
+        "paragraph moved to auth_ops_core.cob by the PR-057 split",
+        "outbox marking covered by outbox worker + email_otp_flow.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:action:revoke-access-token-logic",
@@ -95,14 +95,13 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "1",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: numeric literal matched by the tableRefs heuristic",
+        "no table named 1 in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:100",
@@ -165,28 +164,26 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "access_review_items",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'attested', 'revoked'), account_status, constraint, decided_at, decision, email, item_id, key, last_login_at, mfa_enabled, note, review_id, reviewer_email, role",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to auth_review_core.cob by the PR-057 split",
+        "table has DDL (0041_access_review); reviewed with the review module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:access-reviews",
       "module": "auth_core",
       "kind": "table",
       "subject": "access_reviews",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'closed'), closed_at, closed_by, created_at, key, opened_by, period_end, period_start, review_id, state",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to auth_review_core.cob by the PR-057 split",
+        "table has DDL (0041_access_review); reviewed with the review module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:audit-trail",
@@ -235,14 +232,13 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "maker_requests",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'approved', 'rejected'), checker_email, constraint, created_at, decided_at, detail, key, maker_email, operation, request_id, state, target_email",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to auth_recovery_core.cob by the PR-057 split",
+        "table has DDL (0033_dual_control); reviewed with the recovery module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:mfa-backup-codes",
@@ -263,14 +259,13 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "mfa_recovery_requests",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'approved', 'rejected'), 'verified', constraint, created_at, decided_at, decided_by, key, request_id, state, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to auth_recovery_core.cob by the PR-057 split",
+        "table has DDL (0035_mfa_recovery); reviewed with the recovery module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:notification-outbox",
@@ -291,14 +286,13 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "permissions",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: description, name",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to auth_ops_core/auth_review_core by the PR-057 split",
+        "table has DDL (0042_scoped_permissions); permission checks JOIN users"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:refresh-families",
@@ -347,14 +341,13 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "role_permissions",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to auth_ops_core/auth_review_core by the PR-057 split (permission checks)",
+        "the queries JOIN users on role (core-linked reads), not unlinked domain writes"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:step-up-policy",

@@ -3,7 +3,11 @@
 # Add each domain's modules here as they gain real logic.
 account_core.cob=0
 auth_core.cob=0
+auth_mfa_core.cob=0
+auth_ops_core.cob=0
 auth_password_core.cob=0
+auth_recovery_core.cob=0
+auth_review_core.cob=0
 backup_drill_core.cob=0
 card_core.cob=0
 collateral_core.cob=0

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T14:51:29.319Z",
-  "commit": "67398329",
+  "generatedAt": "2026-11-06T15:08:06.086Z",
+  "commit": "fa2571c3",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 545,
   "actions": [
@@ -422,7 +422,7 @@
     },
     {
       "action": "APPROVE_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "APPROVE_MFA_RECOVERY",
       "method": "post",
       "path": "/admin/mfa-recovery/approve",
@@ -445,16 +445,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "APPROVE_REQUEST",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "APPROVE_REQUEST",
       "method": "post",
       "path": "/admin/requests/approve",
@@ -477,16 +477,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ARCHIVE_AUDIT",
-      "module": "auth_core",
+      "module": "auth_ops_core",
       "prefix": "ARCHIVE_AUDIT",
       "method": "post",
       "path": "/admin/audit/archive",
@@ -509,12 +509,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "AUTH_LOGIN",
@@ -2859,7 +2859,7 @@
     },
     {
       "action": "CLOSE_ACCESS_REVIEW",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "CLOSE_ACCESS_REVIEW",
       "method": "post",
       "path": "/admin/access-reviews/:id/close",
@@ -2882,12 +2882,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "CLT_ALLOCATE",
@@ -4331,7 +4331,7 @@
     },
     {
       "action": "DECIDE_ACCESS_ITEM",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "DECIDE_ACCESS_ITEM",
       "method": "post",
       "path": "/admin/access-review-items/:itemId/decide",
@@ -4354,12 +4354,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "DEP_ACCRUE",
@@ -6401,7 +6401,7 @@
     },
     {
       "action": "GET_ACCESS_REVIEW",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "GET_ACCESS_REVIEW",
       "method": "get",
       "path": "/admin/access-reviews/:id",
@@ -6424,12 +6424,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "GET_DASHBOARD",
@@ -8163,7 +8163,7 @@
     },
     {
       "action": "LIST_ACCESS_REVIEWS",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "LIST_ACCESS_REVIEWS",
       "method": "get",
       "path": "/admin/access-reviews",
@@ -8186,16 +8186,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_AUDIT",
-      "module": "auth_core",
+      "module": "auth_ops_core",
       "prefix": "LIST_AUDIT",
       "method": "get",
       "path": "/admin/audit",
@@ -8218,12 +8218,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_DISPUTES",
@@ -8291,7 +8291,7 @@
     },
     {
       "action": "LIST_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "LIST_MFA_RECOVERY",
       "method": "get",
       "path": "/admin/mfa-recovery",
@@ -8314,16 +8314,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_OUTBOX",
-      "module": "auth_core",
+      "module": "auth_ops_core",
       "prefix": "LIST_OUTBOX",
       "method": "get",
       "path": "/admin/outbox",
@@ -8346,12 +8346,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_RECONCILIATIONS",
@@ -8387,7 +8387,7 @@
     },
     {
       "action": "LIST_REQUESTS",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "LIST_REQUESTS",
       "method": "get",
       "path": "/admin/requests",
@@ -8410,12 +8410,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_SESSIONS",
@@ -10376,7 +10376,7 @@
     },
     {
       "action": "MFA_BACKUP_CODES",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_BACKUP_CODES",
       "method": "post",
       "path": "/mfa/backup-codes",
@@ -10399,16 +10399,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MFA_DISABLE",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_DISABLE",
       "method": "post",
       "path": "/mfa/disable",
@@ -10431,16 +10431,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MFA_ENROLL_BEGIN",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_ENROLL_BEGIN",
       "method": "post",
       "path": "/mfa/enroll",
@@ -10463,16 +10463,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MFA_ENROLL_CONFIRM",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_ENROLL_CONFIRM",
       "method": "post",
       "path": "/mfa/confirm",
@@ -10495,12 +10495,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MRT_ACTIVATE",
@@ -11272,7 +11272,7 @@
     },
     {
       "action": "OPEN_ACCESS_REVIEW",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "OPEN_ACCESS_REVIEW",
       "method": "post",
       "path": "/admin/access-reviews",
@@ -11295,12 +11295,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "OPEN_DISPUTE",
@@ -13106,7 +13106,7 @@
     },
     {
       "action": "REJECT_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REJECT_MFA_RECOVERY",
       "method": "post",
       "path": "/admin/mfa-recovery/reject",
@@ -13129,16 +13129,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REJECT_REQUEST",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REJECT_REQUEST",
       "method": "post",
       "path": "/admin/requests/reject",
@@ -13161,12 +13161,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RELEASE_HOLD",
@@ -13202,7 +13202,7 @@
     },
     {
       "action": "REQUEST_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REQUEST_MFA_RECOVERY",
       "method": "post",
       "path": "/mfa/recover",
@@ -13225,16 +13225,16 @@
       "public": true,
       "stepUp": false,
       "tokenIdentity": null,
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REQUEST_OPERATION",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REQUEST_OPERATION",
       "method": "post",
       "path": "/admin/requests",
@@ -13257,12 +13257,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REQUEST_SIGNUP",
@@ -17461,7 +17461,7 @@
     },
     {
       "action": "VERIFY_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "VERIFY_MFA_RECOVERY",
       "method": "post",
       "path": "/mfa/recover/confirm",
@@ -17484,12 +17484,12 @@
       "public": true,
       "stepUp": false,
       "tokenIdentity": null,
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "VERIFY_REAUTH",
@@ -17529,7 +17529,7 @@
       "slot": 1,
       "prefix": "REQUEST_MFA_RECOVERY",
       "prefixLen": 20,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 2,
@@ -17547,7 +17547,7 @@
       "slot": 4,
       "prefix": "APPROVE_MFA_RECOVERY",
       "prefixLen": 20,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 5,
@@ -17565,7 +17565,7 @@
       "slot": 7,
       "prefix": "VERIFY_MFA_RECOVERY",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 8,
@@ -17577,19 +17577,19 @@
       "slot": 9,
       "prefix": "MFA_ENROLL_REQUIRED",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 10,
       "prefix": "CLOSE_ACCESS_REVIEW",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 11,
       "prefix": "LIST_ACCESS_REVIEWS",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 12,
@@ -17601,7 +17601,7 @@
       "slot": 13,
       "prefix": "REJECT_MFA_RECOVERY",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 14,
@@ -17625,19 +17625,19 @@
       "slot": 17,
       "prefix": "DECIDE_ACCESS_ITEM",
       "prefixLen": 18,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 18,
       "prefix": "MFA_ENROLL_CONFIRM",
       "prefixLen": 18,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 19,
       "prefix": "OPEN_ACCESS_REVIEW",
       "prefixLen": 18,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 20,
@@ -17649,13 +17649,13 @@
       "slot": 21,
       "prefix": "REQUEST_OPERATION",
       "prefixLen": 17,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 22,
       "prefix": "LIST_MFA_RECOVERY",
       "prefixLen": 17,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 23,
@@ -17673,31 +17673,31 @@
       "slot": 25,
       "prefix": "GET_ACCESS_REVIEW",
       "prefixLen": 17,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 26,
       "prefix": "APPROVE_REQUEST",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 27,
       "prefix": "LIST_PERMISSIONS",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 28,
       "prefix": "CHECK_PERMISSION",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 29,
       "prefix": "MFA_BACKUP_CODES",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 30,
@@ -17709,7 +17709,7 @@
       "slot": 31,
       "prefix": "MFA_ENROLL_BEGIN",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 32,
@@ -17781,13 +17781,13 @@
       "slot": 43,
       "prefix": "REJECT_REQUEST",
       "prefixLen": 14,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 44,
       "prefix": "LIST_REQUESTS",
       "prefixLen": 14,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 45,
@@ -17865,7 +17865,7 @@
       "slot": 57,
       "prefix": "ARCHIVE_AUDIT",
       "prefixLen": 13,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 58,
@@ -17877,7 +17877,7 @@
       "slot": 59,
       "prefix": "OUTBOX_CLAIM",
       "prefixLen": 12,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 60,
@@ -17895,7 +17895,7 @@
       "slot": 62,
       "prefix": "LIST_OUTBOX",
       "prefixLen": 12,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 63,
@@ -17913,7 +17913,7 @@
       "slot": 65,
       "prefix": "MFA_DISABLE",
       "prefixLen": 11,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 66,
@@ -17949,7 +17949,7 @@
       "slot": 71,
       "prefix": "OUTBOX_MARK",
       "prefixLen": 11,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 72,
@@ -17979,7 +17979,7 @@
       "slot": 76,
       "prefix": "LIST_AUDIT",
       "prefixLen": 10,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 77,

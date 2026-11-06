@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T14:49:54.208Z",
+  "generatedAt": "2026-11-06T15:06:48.007Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -8,7 +8,19 @@
       "source": "auth_core.cob"
     },
     {
+      "source": "auth_mfa_core.cob"
+    },
+    {
+      "source": "auth_ops_core.cob"
+    },
+    {
       "source": "auth_password_core.cob"
+    },
+    {
+      "source": "auth_recovery_core.cob"
+    },
+    {
+      "source": "auth_review_core.cob"
     },
     {
       "source": "backup_drill_core.cob"
@@ -242,7 +254,7 @@
       "slot": 1,
       "prefixLen": 20,
       "prefix": "REQUEST_MFA_RECOVERY",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 2,
@@ -260,7 +272,7 @@
       "slot": 4,
       "prefixLen": 20,
       "prefix": "APPROVE_MFA_RECOVERY",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 5,
@@ -278,7 +290,7 @@
       "slot": 7,
       "prefixLen": 19,
       "prefix": "VERIFY_MFA_RECOVERY",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 8,
@@ -290,19 +302,19 @@
       "slot": 9,
       "prefixLen": 19,
       "prefix": "MFA_ENROLL_REQUIRED",
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 10,
       "prefixLen": 19,
       "prefix": "CLOSE_ACCESS_REVIEW",
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 11,
       "prefixLen": 19,
       "prefix": "LIST_ACCESS_REVIEWS",
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 12,
@@ -314,7 +326,7 @@
       "slot": 13,
       "prefixLen": 19,
       "prefix": "REJECT_MFA_RECOVERY",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 14,
@@ -338,19 +350,19 @@
       "slot": 17,
       "prefixLen": 18,
       "prefix": "DECIDE_ACCESS_ITEM",
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 18,
       "prefixLen": 18,
       "prefix": "MFA_ENROLL_CONFIRM",
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 19,
       "prefixLen": 18,
       "prefix": "OPEN_ACCESS_REVIEW",
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 20,
@@ -362,13 +374,13 @@
       "slot": 21,
       "prefixLen": 17,
       "prefix": "REQUEST_OPERATION",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 22,
       "prefixLen": 17,
       "prefix": "LIST_MFA_RECOVERY",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 23,
@@ -386,31 +398,31 @@
       "slot": 25,
       "prefixLen": 17,
       "prefix": "GET_ACCESS_REVIEW",
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 26,
       "prefixLen": 16,
       "prefix": "APPROVE_REQUEST",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 27,
       "prefixLen": 16,
       "prefix": "LIST_PERMISSIONS",
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 28,
       "prefixLen": 16,
       "prefix": "CHECK_PERMISSION",
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 29,
       "prefixLen": 16,
       "prefix": "MFA_BACKUP_CODES",
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 30,
@@ -422,7 +434,7 @@
       "slot": 31,
       "prefixLen": 16,
       "prefix": "MFA_ENROLL_BEGIN",
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 32,
@@ -494,13 +506,13 @@
       "slot": 43,
       "prefixLen": 14,
       "prefix": "REJECT_REQUEST",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 44,
       "prefixLen": 14,
       "prefix": "LIST_REQUESTS",
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 45,
@@ -578,7 +590,7 @@
       "slot": 57,
       "prefixLen": 13,
       "prefix": "ARCHIVE_AUDIT",
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 58,
@@ -590,7 +602,7 @@
       "slot": 59,
       "prefixLen": 12,
       "prefix": "OUTBOX_CLAIM",
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 60,
@@ -608,7 +620,7 @@
       "slot": 62,
       "prefixLen": 12,
       "prefix": "LIST_OUTBOX",
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 63,
@@ -626,7 +638,7 @@
       "slot": 65,
       "prefixLen": 11,
       "prefix": "MFA_DISABLE",
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 66,
@@ -662,7 +674,7 @@
       "slot": 71,
       "prefixLen": 11,
       "prefix": "OUTBOX_MARK",
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 72,
@@ -692,7 +704,7 @@
       "slot": 76,
       "prefixLen": 10,
       "prefix": "LIST_AUDIT",
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 77,

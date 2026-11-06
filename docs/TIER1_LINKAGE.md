@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T14:49:54.294Z
-- Commit: `67398329`
+- Generated at: 2026-11-06T15:06:48.098Z
+- Commit: `fa2571c3`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 19 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 9 |
-| L0 (isolated) | 23 |
+| L0 (isolated) | 27 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -22,8 +22,12 @@ Unresolved route files: none.
 | Module | Level | Business tables | Tier-1 calls | Route files | Reason |
 | --- | --- | --- | --- | ---: | --- |
 | `account_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auth_core` | L3 | — | — | 2 | Tier-1 core module |
+| `auth_core` | L3 | — | — | 1 | Tier-1 core module |
+| `auth_mfa_core` | L0 | — | — | 0 | own domain tables only, no core link |
+| `auth_ops_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `auth_password_core` | L3 | — | — | 0 | Tier-1 core module |
+| `auth_recovery_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `auth_review_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `backup_drill_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `bank_guarantee_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `card_core` | L3 | — | — | 1 | Tier-1 core module |

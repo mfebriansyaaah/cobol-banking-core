@@ -8,6 +8,10 @@
 # This baseline must only shrink (PR-010A..D retire the entries).
 # Never add an entry to make CI green.
 account_core L0
+auth_mfa_core L0
+auth_ops_core L0
+auth_recovery_core L0
+auth_review_core L0
 backup_drill_core L0
 bank_guarantee_core L0
 chargeback_core L0
