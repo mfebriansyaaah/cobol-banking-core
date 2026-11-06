@@ -6095,6 +6095,32 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "risk.js :: GET /risk/status": {
+    "action": "RISK_STATUS",
+    "fields": [
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "risk.js :: POST /risk/note": {
+    "action": "RISK_NOTE",
+    "fields": [
+      "email",
+      "country",
+      "city",
+      "asn",
+      "ipHashFlags",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
   "screening.js :: GET /screening/reviews": {
     "action": "IDV_REVIEW_LIST",
     "fields": [

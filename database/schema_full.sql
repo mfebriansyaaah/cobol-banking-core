@@ -30372,6 +30372,28 @@ CREATE TABLE `risk_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `risk_events`
+--
+
+DROP TABLE IF EXISTS `risk_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `risk_events` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `country` varchar(16) DEFAULT NULL,
+  `city` varchar(64) DEFAULT NULL,
+  `asn` varchar(32) DEFAULT NULL,
+  `ip_hash` char(64) NOT NULL,
+  `flags` varchar(128) NOT NULL DEFAULT '',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_risk_user` (`user_id`,`created_at`),
+  CONSTRAINT `fk_risk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `risk_model`
 --
 

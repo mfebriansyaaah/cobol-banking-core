@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T07:14:44.832Z
-- Commit: `01c7e8f3`
+- Generated at: 2026-11-06T07:24:44.361Z
+- Commit: `6016b0b0`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 19 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 1 |
-| L0 (isolated) | 21 |
+| L0 (isolated) | 22 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -64,6 +64,7 @@ Unresolved route files: none.
 | `report_builder_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `report_core` | L3 | gl_journal, gl_journal_line | — | 1 | money-table touch (gl_journal, gl_journal_line) with depth + test |
 | `report_schedule_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `risk_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `sla_tracker_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `statement_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `statement_recon_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |

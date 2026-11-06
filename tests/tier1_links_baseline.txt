@@ -27,5 +27,6 @@ notification_template_core L0
 phone_otp_core L0
 report_builder_core L0
 report_schedule_core L0
+risk_core L0
 sla_tracker_core L0
 tax_management_core L0

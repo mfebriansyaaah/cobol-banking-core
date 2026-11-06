@@ -753,6 +753,23 @@
       "tableDropDate": null
     },
     {
+      "domain": "risk",
+      "module": "risk_core",
+      "routeFile": "risk.js",
+      "table": "risk_events",
+      "tier": 2,
+      "linkageLevel": "L0",
+      "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "REVIEW",
+      "reason": "New in PR-092; signals only until the auth slice consumes RISK_STATUS for step-up. Upgrade or dead-candidate after.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
       "domain": "sla_tracker",
       "module": "sla_tracker_core",
       "routeFile": "sla_tracker.js",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T07:14:12.708Z",
+  "generatedAt": "2026-11-06T07:24:20.825Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -131,6 +131,9 @@
       "source": "report_schedule_core.cob"
     },
     {
+      "source": "risk_core.cob"
+    },
+    {
       "source": "sla_tracker_core.cob"
     },
     {
@@ -192,6 +195,7 @@
     "report.js",
     "report_builder.js",
     "report_schedule.js",
+    "risk.js",
     "screening.js",
     "sla_tracker.js",
     "statement.js",
@@ -845,6 +849,11 @@
       "prefixLen": 3,
       "prefix": "FX_",
       "program": "fx_rate_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "RISK_",
+      "program": "risk_core"
     }
   ]
 }

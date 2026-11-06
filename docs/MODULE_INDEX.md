@@ -54,6 +54,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `report_builder_core` | `RPB_` | [report_builder.js](../middleware/src/routes/report_builder.js) | [report_builder.cases](../tests/cobol/cases/report_builder.cases) | [report_builder_db_tests.sh](../tests/db/report_builder_db_tests.sh) |
 | `report_core` | `RPT_` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
 | `report_schedule_core` | `RPS_` | [report_schedule.js](../middleware/src/routes/report_schedule.js) | — | [report_schedule_db_tests.sh](../tests/db/report_schedule_db_tests.sh) |
+| `risk_core` | `RISK_` | [risk.js](../middleware/src/routes/risk.js) | — | [risk_db_tests.sh](../tests/db/risk_db_tests.sh) |
 | `sla_tracker_core` | `SLT_` | [sla_tracker.js](../middleware/src/routes/sla_tracker.js) | — | [sla_tracker_db_tests.sh](../tests/db/sla_tracker_db_tests.sh) |
 | `statement_core` | `STMT_` | [statement.js](../middleware/src/routes/statement.js) | [statement.cases](../tests/cobol/cases/statement.cases) | — |
 | `statement_recon_core` | `SRC_` | [statement_recon.js](../middleware/src/routes/statement_recon.js) | [statement_recon.cases](../tests/cobol/cases/statement_recon.cases) | — |

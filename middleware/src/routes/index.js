@@ -44,6 +44,7 @@ import { PHONE_ROUTES } from './phone.js';
 import { IDENTITY_ROUTES } from './identity.js';
 import { SCREENING_ROUTES } from './screening.js';
 import { FX_ROUTES } from './fx_rates.js';
+import { RISK_ROUTES } from './risk.js';
 
 export const ALL_ROUTES = [
   ...REF_ENGINE_ROUTES,
@@ -92,4 +93,5 @@ export const ALL_ROUTES = [
   ...IDENTITY_ROUTES,
   ...SCREENING_ROUTES,
   ...FX_ROUTES,
+  ...RISK_ROUTES,
 ];
