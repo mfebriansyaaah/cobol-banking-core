@@ -592,8 +592,18 @@ jobs:
         run: bash scripts/ci/aggregate_shard_reports.sh parts merged "$DB_SHARD_COUNT"
 
       - name: Assertion count gate
-        if: always()
+        # If the test job did not succeed, its report is incomplete: skip
+        # only the count gate with a notice instead of masking the real
+        # failure with "missing suite rows / no JUnit XML".
+        if: always() && needs.test.result == 'success'
         run: node scripts/check_test_counts.mjs --report-dir merged --strict
+
+      - name: Note skipped count gate
+        if: always() && needs.test.result != 'success'
+        run: >
+          echo "test job did not succeed (result: ${{ needs.test.result }});
+          skipping the assertion-count gate — see the test job for the
+          real failure"
 
       - name: Write test summary
         if: always()
