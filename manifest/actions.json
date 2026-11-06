@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T15:08:06.086Z",
-  "commit": "fa2571c3",
+  "generatedAt": "2026-11-06T15:20:39.394Z",
+  "commit": "fc052657",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 545,
   "actions": [
@@ -7332,7 +7332,7 @@
     {
       "action": "IMP_BATCH_CLONE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_CLONE",
       "method": "post",
       "path": "/imports/batches/:code/clone",
       "fields": [
@@ -7364,7 +7364,7 @@
     {
       "action": "IMP_BATCH_CREATE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_CREATE",
       "method": "post",
       "path": "/imports/batches",
       "fields": [
@@ -7396,7 +7396,7 @@
     {
       "action": "IMP_BATCH_DELETE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_DELETE",
       "method": "delete",
       "path": "/imports/batches/:code",
       "fields": [
@@ -7428,7 +7428,7 @@
     {
       "action": "IMP_BATCH_EXPORT",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_EXPORT",
       "method": "get",
       "path": "/imports/batches/:code/export",
       "fields": [
@@ -7460,7 +7460,7 @@
     {
       "action": "IMP_BATCH_FAIL",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_FAIL",
       "method": "post",
       "path": "/imports/batches/:code/fail",
       "fields": [
@@ -7492,7 +7492,7 @@
     {
       "action": "IMP_BATCH_GET",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_GET",
       "method": "get",
       "path": "/imports/batches/:code",
       "fields": [
@@ -7524,7 +7524,7 @@
     {
       "action": "IMP_BATCH_LIST",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_LIST",
       "method": "get",
       "path": "/imports/batches",
       "fields": [
@@ -7556,7 +7556,7 @@
     {
       "action": "IMP_BATCH_POST",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_POST",
       "method": "post",
       "path": "/imports/batches/:code/post",
       "fields": [
@@ -7588,7 +7588,7 @@
     {
       "action": "IMP_BATCH_RETRY",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_RETRY",
       "method": "post",
       "path": "/imports/batches/:code/retry",
       "fields": [
@@ -7619,8 +7619,8 @@
     },
     {
       "action": "IMP_BATCH_STAGE_BULK",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_BATCH_STAGE_BULK",
       "method": "post",
       "path": "/imports/batches/:code/bulk",
       "fields": [
@@ -7645,14 +7645,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_BATCH_SUMMARY",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_SUMMARY",
       "method": "get",
       "path": "/imports/batches/:code/summary",
       "fields": [
@@ -7684,7 +7684,7 @@
     {
       "action": "IMP_BATCH_VALIDATE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_VALIDATE",
       "method": "post",
       "path": "/imports/batches/:code/validate",
       "fields": [
@@ -7715,8 +7715,8 @@
     },
     {
       "action": "IMP_ERROR_LIST",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ERROR_LIST",
       "method": "get",
       "path": "/imports/batches/:code/errors",
       "fields": [
@@ -7741,14 +7741,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_CORRECT",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_CORRECT",
       "method": "post",
       "path": "/imports/batches/:code/rows/:rowNo",
       "fields": [
@@ -7773,14 +7773,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_SKIP",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_SKIP",
       "method": "post",
       "path": "/imports/batches/:code/rows/:rowNo/skip",
       "fields": [
@@ -7805,14 +7805,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_STAGE",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_STAGE",
       "method": "post",
       "path": "/imports/batches/:code/rows",
       "fields": [
@@ -7837,14 +7837,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_UNSKIP",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_UNSKIP",
       "method": "post",
       "path": "/imports/batches/:code/rows/:rowNo/unskip",
       "fields": [
@@ -7869,9 +7869,9 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IRC_EXPORT",
@@ -14453,7 +14453,7 @@
     {
       "action": "RPT_COLUMN_CREATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_CREATE",
       "method": "post",
       "path": "/reports/templates/:code/columns",
       "fields": [
@@ -14475,17 +14475,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_COLUMN_DELETE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_DELETE",
       "method": "delete",
       "path": "/reports/templates/:code/columns/:ordinal",
       "fields": [
@@ -14507,17 +14507,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_COLUMN_LIST",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_LIST",
       "method": "get",
       "path": "/reports/templates/:code/columns",
       "fields": [
@@ -14539,17 +14539,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_COLUMN_UPDATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_UPDATE",
       "method": "patch",
       "path": "/reports/templates/:code/columns/:ordinal",
       "fields": [
@@ -14571,17 +14571,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_COMPLETE",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_COMPLETE",
       "method": "post",
       "path": "/reports/runs/:id/complete",
       "fields": [
@@ -14603,17 +14603,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_DELETE",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_DELETE",
       "method": "delete",
       "path": "/reports/runs/:id",
       "fields": [
@@ -14635,17 +14635,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_EXPORT",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_EXPORT",
       "method": "get",
       "path": "/reports/runs/:id/export",
       "fields": [
@@ -14667,17 +14667,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_FAIL",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_FAIL",
       "method": "post",
       "path": "/reports/runs/:id/fail",
       "fields": [
@@ -14699,17 +14699,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_GENERATE",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_GENERATE",
       "method": "post",
       "path": "/reports/runs/:id/generate",
       "fields": [
@@ -14731,17 +14731,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_LIST",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_LIST",
       "method": "get",
       "path": "/reports/runs",
       "fields": [
@@ -14763,17 +14763,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_RETRY",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_RETRY",
       "method": "post",
       "path": "/reports/runs/:id/retry",
       "fields": [
@@ -14795,17 +14795,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_ROW",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_ROW",
       "method": "post",
       "path": "/reports/runs/:id/rows",
       "fields": [
@@ -14827,17 +14827,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_START",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_START",
       "method": "post",
       "path": "/reports/runs",
       "fields": [
@@ -14859,17 +14859,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_STATUS",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_STATUS",
       "method": "get",
       "path": "/reports/runs/:id",
       "fields": [
@@ -14891,17 +14891,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_CLONE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_CLONE",
       "method": "post",
       "path": "/reports/templates/:code/clone",
       "fields": [
@@ -14923,17 +14923,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_CREATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_CREATE",
       "method": "post",
       "path": "/reports/templates",
       "fields": [
@@ -14955,17 +14955,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_DELETE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_DELETE",
       "method": "delete",
       "path": "/reports/templates/:code",
       "fields": [
@@ -14987,17 +14987,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_GET",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_GET",
       "method": "get",
       "path": "/reports/templates/:code",
       "fields": [
@@ -15019,17 +15019,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_LIST",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_LIST",
       "method": "get",
       "path": "/reports/templates",
       "fields": [
@@ -15051,17 +15051,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_UPDATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_UPDATE",
       "method": "patch",
       "path": "/reports/templates/:code",
       "fields": [
@@ -15083,12 +15083,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RUN_RECONCILIATION",
@@ -18079,399 +18079,609 @@
     },
     {
       "slot": 93,
-      "prefix": "RPT_",
-      "prefixLen": 4,
-      "program": "report_core"
-    },
-    {
-      "slot": 94,
       "prefix": "PAY_",
       "prefixLen": 4,
       "program": "payment_core"
     },
     {
-      "slot": 95,
+      "slot": 94,
       "prefix": "EOD_",
       "prefixLen": 4,
       "program": "eod_core"
     },
     {
-      "slot": 96,
+      "slot": 95,
       "prefix": "PIC_",
       "prefixLen": 4,
       "program": "payment_instruction_core"
     },
     {
-      "slot": 97,
+      "slot": 96,
       "prefix": "PING",
       "prefixLen": 4,
       "program": "auth_core"
     },
     {
-      "slot": 98,
+      "slot": 97,
       "prefix": "DSH_",
       "prefixLen": 4,
       "program": "dashboard_core"
     },
     {
-      "slot": 99,
-      "prefix": "IMP_",
-      "prefixLen": 4,
-      "program": "import_core"
-    },
-    {
-      "slot": 100,
+      "slot": 98,
       "prefix": "FAS_",
       "prefixLen": 4,
       "program": "fixed_asset_core"
     },
     {
-      "slot": 101,
+      "slot": 99,
       "prefix": "CSC_",
       "prefixLen": 4,
       "program": "cost_center_core"
     },
     {
-      "slot": 102,
+      "slot": 100,
       "prefix": "IRC_",
       "prefixLen": 4,
       "program": "import_recon_core"
     },
     {
-      "slot": 103,
+      "slot": 101,
       "prefix": "ACC_",
       "prefixLen": 4,
       "program": "account_core"
     },
     {
-      "slot": 104,
+      "slot": 102,
       "prefix": "VEL_",
       "prefixLen": 4,
       "program": "fee_core"
     },
     {
-      "slot": 105,
+      "slot": 103,
       "prefix": "GLA_",
       "prefixLen": 4,
       "program": "gl_allocation_core"
     },
     {
-      "slot": 106,
+      "slot": 104,
       "prefix": "DEP_",
       "prefixLen": 4,
       "program": "deposit_core"
     },
     {
-      "slot": 107,
+      "slot": 105,
       "prefix": "COL_",
       "prefixLen": 4,
       "program": "collection_core"
     },
     {
-      "slot": 108,
+      "slot": 106,
       "prefix": "RFE_",
       "prefixLen": 4,
       "program": "ref_engine"
     },
     {
-      "slot": 109,
+      "slot": 107,
       "prefix": "PHL_",
       "prefixLen": 4,
       "program": "payment_hold_core"
     },
     {
-      "slot": 110,
+      "slot": 108,
       "prefix": "CLT_",
       "prefixLen": 4,
       "program": "collateral_core"
     },
     {
-      "slot": 111,
+      "slot": 109,
       "prefix": "RX_",
       "prefixLen": 3,
       "program": "ref_ext_core"
     },
     {
-      "slot": 112,
+      "slot": 110,
       "prefix": "GL_",
       "prefixLen": 3,
       "program": "gl_core"
     },
     {
-      "slot": 113,
+      "slot": 111,
       "prefix": "MRT_",
       "prefixLen": 4,
       "program": "merchant_core"
     },
     {
-      "slot": 114,
+      "slot": 112,
       "prefix": "NTP_",
       "prefixLen": 4,
       "program": "notification_template_core"
     },
     {
-      "slot": 115,
+      "slot": 113,
       "prefix": "RPS_",
       "prefixLen": 4,
       "program": "report_schedule_core"
     },
     {
-      "slot": 116,
+      "slot": 114,
       "prefix": "SLT_",
       "prefixLen": 4,
       "program": "sla_tracker_core"
     },
     {
-      "slot": 117,
+      "slot": 115,
       "prefix": "CCL_",
       "prefixLen": 4,
       "program": "compliance_calendar_core"
     },
     {
-      "slot": 118,
+      "slot": 116,
       "prefix": "LOC_",
       "prefixLen": 4,
       "program": "letter_of_credit_core"
     },
     {
-      "slot": 119,
+      "slot": 117,
       "prefix": "BKG_",
       "prefixLen": 4,
       "program": "bank_guarantee_core"
     },
     {
-      "slot": 120,
+      "slot": 118,
       "prefix": "PRL_",
       "prefixLen": 4,
       "program": "payroll_processing_core"
     },
     {
-      "slot": 121,
+      "slot": 119,
       "prefix": "MCS_",
       "prefixLen": 4,
       "program": "merchant_settlement_core"
     },
     {
-      "slot": 122,
+      "slot": 120,
       "prefix": "TXM_",
       "prefixLen": 4,
       "program": "tax_management_core"
     },
     {
-      "slot": 123,
+      "slot": 121,
       "prefix": "CHB_",
       "prefixLen": 4,
       "program": "chargeback_core"
     },
     {
-      "slot": 124,
+      "slot": 122,
       "prefix": "LOY_",
       "prefixLen": 4,
       "program": "loyalty_core"
     },
     {
-      "slot": 125,
+      "slot": 123,
       "prefix": "OTP_",
       "prefixLen": 4,
       "program": "phone_otp_core"
     },
     {
-      "slot": 126,
+      "slot": 124,
       "prefix": "IDV_",
       "prefixLen": 4,
       "program": "identity_core"
     },
     {
-      "slot": 127,
+      "slot": 125,
       "prefix": "SCR_",
       "prefixLen": 4,
       "program": "identity_core"
     },
     {
-      "slot": 128,
+      "slot": 126,
       "prefix": "FX_",
       "prefixLen": 3,
       "program": "fx_rate_core"
     },
     {
-      "slot": 129,
+      "slot": 127,
       "prefix": "RISK_",
       "prefixLen": 5,
       "program": "risk_core"
     },
     {
-      "slot": 130,
+      "slot": 128,
       "prefix": "CORP_",
       "prefixLen": 5,
       "program": "corp_core"
     },
     {
-      "slot": 131,
+      "slot": 129,
       "prefix": "LSC_CREATE",
       "prefixLen": 10,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 132,
+      "slot": 130,
       "prefix": "LSC_GET",
       "prefixLen": 7,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 133,
+      "slot": 131,
       "prefix": "LSC_LIST",
       "prefixLen": 8,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 134,
+      "slot": 132,
       "prefix": "LSC_DETAIL",
       "prefixLen": 10,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 135,
+      "slot": 133,
       "prefix": "LSC_UPDATE",
       "prefixLen": 10,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 136,
+      "slot": 134,
       "prefix": "LSC_DELETE",
       "prefixLen": 10,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 137,
+      "slot": 135,
       "prefix": "LSC_SEARCH",
       "prefixLen": 10,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 138,
+      "slot": 136,
       "prefix": "LSC_HISTORY",
       "prefixLen": 11,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 139,
+      "slot": 137,
       "prefix": "LSC_VALIDATE",
       "prefixLen": 12,
       "program": "loan_schedule_core"
     },
     {
-      "slot": 140,
+      "slot": 138,
       "prefix": "LSC_APPROVE",
       "prefixLen": 11,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 141,
+      "slot": 139,
       "prefix": "LSC_REJECT",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 142,
+      "slot": 140,
       "prefix": "LSC_CLOSE",
       "prefixLen": 9,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 143,
+      "slot": 141,
       "prefix": "LSC_REOPEN",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 144,
+      "slot": 142,
       "prefix": "LSC_CANCEL",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 145,
+      "slot": 143,
       "prefix": "LSC_HOLD",
       "prefixLen": 8,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 146,
+      "slot": 144,
       "prefix": "LSC_RELEASE",
       "prefixLen": 11,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 147,
+      "slot": 145,
       "prefix": "LSC_STATUS",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 148,
+      "slot": 146,
       "prefix": "LSC_POST",
       "prefixLen": 8,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 149,
+      "slot": 147,
       "prefix": "LSC_ACCRUE",
       "prefixLen": 10,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 150,
+      "slot": 148,
       "prefix": "LSC_SETTLE",
       "prefixLen": 10,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 151,
+      "slot": 149,
       "prefix": "LSC_CALC",
       "prefixLen": 8,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 152,
+      "slot": 150,
       "prefix": "LSC_SCHEDULED",
       "prefixLen": 13,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 153,
+      "slot": 151,
       "prefix": "LSC_FORECAST",
       "prefixLen": 12,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 154,
+      "slot": 152,
       "prefix": "LSC_OVERRIDE",
       "prefixLen": 12,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 155,
+      "slot": 153,
       "prefix": "LSC_ADJUST",
       "prefixLen": 10,
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 156,
+      "slot": 154,
       "prefix": "LSC_SUMMARY",
       "prefixLen": 11,
       "program": "loan_schedule_report_core"
     },
     {
-      "slot": 157,
+      "slot": 155,
       "prefix": "LSC_EXPORT",
       "prefixLen": 10,
       "program": "loan_schedule_report_core"
     },
     {
-      "slot": 158,
+      "slot": 156,
       "prefix": "LSC_AUDIT",
       "prefixLen": 9,
       "program": "loan_schedule_report_core"
+    },
+    {
+      "slot": 157,
+      "prefix": "RPT_TEMPLATE_CREATE",
+      "prefixLen": 19,
+      "program": "report_core"
+    },
+    {
+      "slot": 158,
+      "prefix": "RPT_TEMPLATE_LIST",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 159,
+      "prefix": "RPT_TEMPLATE_GET",
+      "prefixLen": 16,
+      "program": "report_core"
+    },
+    {
+      "slot": 160,
+      "prefix": "RPT_COLUMN_CREATE",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 161,
+      "prefix": "RPT_COLUMN_LIST",
+      "prefixLen": 15,
+      "program": "report_core"
+    },
+    {
+      "slot": 162,
+      "prefix": "RPT_COLUMN_DELETE",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 163,
+      "prefix": "RPT_COLUMN_UPDATE",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 164,
+      "prefix": "RPT_TEMPLATE_UPDATE",
+      "prefixLen": 19,
+      "program": "report_core"
+    },
+    {
+      "slot": 165,
+      "prefix": "RPT_TEMPLATE_CLONE",
+      "prefixLen": 18,
+      "program": "report_core"
+    },
+    {
+      "slot": 166,
+      "prefix": "RPT_TEMPLATE_DELETE",
+      "prefixLen": 19,
+      "program": "report_core"
+    },
+    {
+      "slot": 167,
+      "prefix": "RPT_RUN_START",
+      "prefixLen": 13,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 168,
+      "prefix": "RPT_RUN_ROW",
+      "prefixLen": 11,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 169,
+      "prefix": "RPT_RUN_STATUS",
+      "prefixLen": 14,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 170,
+      "prefix": "RPT_RUN_COMPLETE",
+      "prefixLen": 16,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 171,
+      "prefix": "RPT_RUN_FAIL",
+      "prefixLen": 12,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 172,
+      "prefix": "RPT_RUN_LIST",
+      "prefixLen": 12,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 173,
+      "prefix": "RPT_RUN_EXPORT",
+      "prefixLen": 14,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 174,
+      "prefix": "RPT_RUN_DELETE",
+      "prefixLen": 14,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 175,
+      "prefix": "RPT_RUN_RETRY",
+      "prefixLen": 13,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 176,
+      "prefix": "RPT_RUN_GENERATE",
+      "prefixLen": 16,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 177,
+      "prefix": "IMP_BATCH_CREATE",
+      "prefixLen": 16,
+      "program": "import_core"
+    },
+    {
+      "slot": 178,
+      "prefix": "IMP_BATCH_LIST",
+      "prefixLen": 14,
+      "program": "import_core"
+    },
+    {
+      "slot": 179,
+      "prefix": "IMP_BATCH_GET",
+      "prefixLen": 13,
+      "program": "import_core"
+    },
+    {
+      "slot": 180,
+      "prefix": "IMP_BATCH_VALIDATE",
+      "prefixLen": 18,
+      "program": "import_core"
+    },
+    {
+      "slot": 181,
+      "prefix": "IMP_BATCH_POST",
+      "prefixLen": 14,
+      "program": "import_core"
+    },
+    {
+      "slot": 182,
+      "prefix": "IMP_BATCH_FAIL",
+      "prefixLen": 14,
+      "program": "import_core"
+    },
+    {
+      "slot": 183,
+      "prefix": "IMP_BATCH_EXPORT",
+      "prefixLen": 16,
+      "program": "import_core"
+    },
+    {
+      "slot": 184,
+      "prefix": "IMP_BATCH_CLONE",
+      "prefixLen": 15,
+      "program": "import_core"
+    },
+    {
+      "slot": 185,
+      "prefix": "IMP_BATCH_DELETE",
+      "prefixLen": 16,
+      "program": "import_core"
+    },
+    {
+      "slot": 186,
+      "prefix": "IMP_BATCH_RETRY",
+      "prefixLen": 15,
+      "program": "import_core"
+    },
+    {
+      "slot": 187,
+      "prefix": "IMP_BATCH_SUMMARY",
+      "prefixLen": 17,
+      "program": "import_core"
+    },
+    {
+      "slot": 188,
+      "prefix": "IMP_ROW_STAGE",
+      "prefixLen": 13,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 189,
+      "prefix": "IMP_ROW_CORRECT",
+      "prefixLen": 15,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 190,
+      "prefix": "IMP_ERROR_LIST",
+      "prefixLen": 14,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 191,
+      "prefix": "IMP_BATCH_STAGE_BULK",
+      "prefixLen": 20,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 192,
+      "prefix": "IMP_ROW_SKIP",
+      "prefixLen": 12,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 193,
+      "prefix": "IMP_ROW_UNSKIP",
+      "prefixLen": 14,
+      "program": "import_row_core"
     }
   ]
 }

@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T15:06:48.098Z
-- Commit: `fa2571c3`
+- Generated at: 2026-11-06T15:16:52.235Z
+- Commit: `fc052657`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 19 |
+| L3 (core transaction) | 18 |
 | L2 (business reference) | 6 |
-| L1 (weak / untested link) | 9 |
-| L0 (isolated) | 27 |
+| L1 (weak / untested link) | 10 |
+| L0 (isolated) | 29 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -51,6 +51,7 @@ Unresolved route files: none.
 | `import_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `import_post_core` | L3 | gl_journal, gl_journal_line | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
 | `import_recon_core` | L2 | gl_journal_line | — | 1 | business link (tables gl_journal_line) + test |
+| `import_row_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `letter_of_credit_core` | L0 | — | — | 2 | own domain tables only, no core link |
 | `loan_core` | L3 | — | — | 1 | Tier-1 core module |
 | `loan_schedule_core` | L3 | — | — | 1 | Tier-1 core module |
@@ -70,7 +71,8 @@ Unresolved route files: none.
 | `ref_engine` | UTILITY | — | — | 1 | Tier-3 utility (never a retire candidate) |
 | `ref_ext_core` | UTILITY | — | — | 1 | Tier-3 utility (never a retire candidate) |
 | `report_builder_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `report_core` | L3 | gl_journal, gl_journal_line | — | 1 | money-table touch (gl_journal, gl_journal_line) with depth + test |
+| `report_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `report_run_core` | L1 | gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `report_schedule_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `risk_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `sla_tracker_core` | L0 | — | — | 1 | own domain tables only, no core link |

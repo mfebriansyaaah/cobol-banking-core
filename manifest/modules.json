@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T15:06:48.007Z",
+  "generatedAt": "2026-11-06T15:16:52.136Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -92,6 +92,9 @@
       "source": "import_recon_core.cob"
     },
     {
+      "source": "import_row_core.cob"
+    },
+    {
       "source": "letter_of_credit_core.cob"
     },
     {
@@ -150,6 +153,9 @@
     },
     {
       "source": "report_core.cob"
+    },
+    {
+      "source": "report_run_core.cob"
     },
     {
       "source": "report_schedule_core.cob"
@@ -805,398 +811,608 @@
     {
       "slot": 93,
       "prefixLen": 4,
-      "prefix": "RPT_",
-      "program": "report_core"
-    },
-    {
-      "slot": 94,
-      "prefixLen": 4,
       "prefix": "PAY_",
       "program": "payment_core"
     },
     {
-      "slot": 95,
+      "slot": 94,
       "prefixLen": 4,
       "prefix": "EOD_",
       "program": "eod_core"
     },
     {
-      "slot": 96,
+      "slot": 95,
       "prefixLen": 4,
       "prefix": "PIC_",
       "program": "payment_instruction_core"
     },
     {
-      "slot": 97,
+      "slot": 96,
       "prefixLen": 4,
       "prefix": "PING",
       "program": "auth_core"
     },
     {
-      "slot": 98,
+      "slot": 97,
       "prefixLen": 4,
       "prefix": "DSH_",
       "program": "dashboard_core"
     },
     {
-      "slot": 99,
-      "prefixLen": 4,
-      "prefix": "IMP_",
-      "program": "import_core"
-    },
-    {
-      "slot": 100,
+      "slot": 98,
       "prefixLen": 4,
       "prefix": "FAS_",
       "program": "fixed_asset_core"
     },
     {
-      "slot": 101,
+      "slot": 99,
       "prefixLen": 4,
       "prefix": "CSC_",
       "program": "cost_center_core"
     },
     {
-      "slot": 102,
+      "slot": 100,
       "prefixLen": 4,
       "prefix": "IRC_",
       "program": "import_recon_core"
     },
     {
-      "slot": 103,
+      "slot": 101,
       "prefixLen": 4,
       "prefix": "ACC_",
       "program": "account_core"
     },
     {
-      "slot": 104,
+      "slot": 102,
       "prefixLen": 4,
       "prefix": "VEL_",
       "program": "fee_core"
     },
     {
-      "slot": 105,
+      "slot": 103,
       "prefixLen": 4,
       "prefix": "GLA_",
       "program": "gl_allocation_core"
     },
     {
-      "slot": 106,
+      "slot": 104,
       "prefixLen": 4,
       "prefix": "DEP_",
       "program": "deposit_core"
     },
     {
-      "slot": 107,
+      "slot": 105,
       "prefixLen": 4,
       "prefix": "COL_",
       "program": "collection_core"
     },
     {
-      "slot": 108,
+      "slot": 106,
       "prefixLen": 4,
       "prefix": "RFE_",
       "program": "ref_engine"
     },
     {
-      "slot": 109,
+      "slot": 107,
       "prefixLen": 4,
       "prefix": "PHL_",
       "program": "payment_hold_core"
     },
     {
-      "slot": 110,
+      "slot": 108,
       "prefixLen": 4,
       "prefix": "CLT_",
       "program": "collateral_core"
     },
     {
-      "slot": 111,
+      "slot": 109,
       "prefixLen": 3,
       "prefix": "RX_",
       "program": "ref_ext_core"
     },
     {
-      "slot": 112,
+      "slot": 110,
       "prefixLen": 3,
       "prefix": "GL_",
       "program": "gl_core"
     },
     {
-      "slot": 113,
+      "slot": 111,
       "prefixLen": 4,
       "prefix": "MRT_",
       "program": "merchant_core"
     },
     {
-      "slot": 114,
+      "slot": 112,
       "prefixLen": 4,
       "prefix": "NTP_",
       "program": "notification_template_core"
     },
     {
-      "slot": 115,
+      "slot": 113,
       "prefixLen": 4,
       "prefix": "RPS_",
       "program": "report_schedule_core"
     },
     {
-      "slot": 116,
+      "slot": 114,
       "prefixLen": 4,
       "prefix": "SLT_",
       "program": "sla_tracker_core"
     },
     {
-      "slot": 117,
+      "slot": 115,
       "prefixLen": 4,
       "prefix": "CCL_",
       "program": "compliance_calendar_core"
     },
     {
-      "slot": 118,
+      "slot": 116,
       "prefixLen": 4,
       "prefix": "LOC_",
       "program": "letter_of_credit_core"
     },
     {
-      "slot": 119,
+      "slot": 117,
       "prefixLen": 4,
       "prefix": "BKG_",
       "program": "bank_guarantee_core"
     },
     {
-      "slot": 120,
+      "slot": 118,
       "prefixLen": 4,
       "prefix": "PRL_",
       "program": "payroll_processing_core"
     },
     {
-      "slot": 121,
+      "slot": 119,
       "prefixLen": 4,
       "prefix": "MCS_",
       "program": "merchant_settlement_core"
     },
     {
-      "slot": 122,
+      "slot": 120,
       "prefixLen": 4,
       "prefix": "TXM_",
       "program": "tax_management_core"
     },
     {
-      "slot": 123,
+      "slot": 121,
       "prefixLen": 4,
       "prefix": "CHB_",
       "program": "chargeback_core"
     },
     {
-      "slot": 124,
+      "slot": 122,
       "prefixLen": 4,
       "prefix": "LOY_",
       "program": "loyalty_core"
     },
     {
-      "slot": 125,
+      "slot": 123,
       "prefixLen": 4,
       "prefix": "OTP_",
       "program": "phone_otp_core"
     },
     {
-      "slot": 126,
+      "slot": 124,
       "prefixLen": 4,
       "prefix": "IDV_",
       "program": "identity_core"
     },
     {
-      "slot": 127,
+      "slot": 125,
       "prefixLen": 4,
       "prefix": "SCR_",
       "program": "identity_core"
     },
     {
-      "slot": 128,
+      "slot": 126,
       "prefixLen": 3,
       "prefix": "FX_",
       "program": "fx_rate_core"
     },
     {
-      "slot": 129,
+      "slot": 127,
       "prefixLen": 5,
       "prefix": "RISK_",
       "program": "risk_core"
     },
     {
-      "slot": 130,
+      "slot": 128,
       "prefixLen": 5,
       "prefix": "CORP_",
       "program": "corp_core"
     },
     {
-      "slot": 131,
+      "slot": 129,
       "prefixLen": 10,
       "prefix": "LSC_CREATE",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 132,
+      "slot": 130,
       "prefixLen": 7,
       "prefix": "LSC_GET",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 133,
+      "slot": 131,
       "prefixLen": 8,
       "prefix": "LSC_LIST",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 134,
+      "slot": 132,
       "prefixLen": 10,
       "prefix": "LSC_DETAIL",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 135,
+      "slot": 133,
       "prefixLen": 10,
       "prefix": "LSC_UPDATE",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 136,
+      "slot": 134,
       "prefixLen": 10,
       "prefix": "LSC_DELETE",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 137,
+      "slot": 135,
       "prefixLen": 10,
       "prefix": "LSC_SEARCH",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 138,
+      "slot": 136,
       "prefixLen": 11,
       "prefix": "LSC_HISTORY",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 139,
+      "slot": 137,
       "prefixLen": 12,
       "prefix": "LSC_VALIDATE",
       "program": "loan_schedule_core"
     },
     {
-      "slot": 140,
+      "slot": 138,
       "prefixLen": 11,
       "prefix": "LSC_APPROVE",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 141,
+      "slot": 139,
       "prefixLen": 10,
       "prefix": "LSC_REJECT",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 142,
+      "slot": 140,
       "prefixLen": 9,
       "prefix": "LSC_CLOSE",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 143,
+      "slot": 141,
       "prefixLen": 10,
       "prefix": "LSC_REOPEN",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 144,
+      "slot": 142,
       "prefixLen": 10,
       "prefix": "LSC_CANCEL",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 145,
+      "slot": 143,
       "prefixLen": 8,
       "prefix": "LSC_HOLD",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 146,
+      "slot": 144,
       "prefixLen": 11,
       "prefix": "LSC_RELEASE",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 147,
+      "slot": 145,
       "prefixLen": 10,
       "prefix": "LSC_STATUS",
       "program": "loan_schedule_lifecycle_core"
     },
     {
-      "slot": 148,
+      "slot": 146,
       "prefixLen": 8,
       "prefix": "LSC_POST",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 149,
+      "slot": 147,
       "prefixLen": 10,
       "prefix": "LSC_ACCRUE",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 150,
+      "slot": 148,
       "prefixLen": 10,
       "prefix": "LSC_SETTLE",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 151,
+      "slot": 149,
       "prefixLen": 8,
       "prefix": "LSC_CALC",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 152,
+      "slot": 150,
       "prefixLen": 13,
       "prefix": "LSC_SCHEDULED",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 153,
+      "slot": 151,
       "prefixLen": 12,
       "prefix": "LSC_FORECAST",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 154,
+      "slot": 152,
       "prefixLen": 12,
       "prefix": "LSC_OVERRIDE",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 155,
+      "slot": 153,
       "prefixLen": 10,
       "prefix": "LSC_ADJUST",
       "program": "loan_schedule_posting_core"
     },
     {
-      "slot": 156,
+      "slot": 154,
       "prefixLen": 11,
       "prefix": "LSC_SUMMARY",
       "program": "loan_schedule_report_core"
     },
     {
-      "slot": 157,
+      "slot": 155,
       "prefixLen": 10,
       "prefix": "LSC_EXPORT",
       "program": "loan_schedule_report_core"
     },
     {
-      "slot": 158,
+      "slot": 156,
       "prefixLen": 9,
       "prefix": "LSC_AUDIT",
       "program": "loan_schedule_report_core"
+    },
+    {
+      "slot": 157,
+      "prefixLen": 19,
+      "prefix": "RPT_TEMPLATE_CREATE",
+      "program": "report_core"
+    },
+    {
+      "slot": 158,
+      "prefixLen": 17,
+      "prefix": "RPT_TEMPLATE_LIST",
+      "program": "report_core"
+    },
+    {
+      "slot": 159,
+      "prefixLen": 16,
+      "prefix": "RPT_TEMPLATE_GET",
+      "program": "report_core"
+    },
+    {
+      "slot": 160,
+      "prefixLen": 17,
+      "prefix": "RPT_COLUMN_CREATE",
+      "program": "report_core"
+    },
+    {
+      "slot": 161,
+      "prefixLen": 15,
+      "prefix": "RPT_COLUMN_LIST",
+      "program": "report_core"
+    },
+    {
+      "slot": 162,
+      "prefixLen": 17,
+      "prefix": "RPT_COLUMN_DELETE",
+      "program": "report_core"
+    },
+    {
+      "slot": 163,
+      "prefixLen": 17,
+      "prefix": "RPT_COLUMN_UPDATE",
+      "program": "report_core"
+    },
+    {
+      "slot": 164,
+      "prefixLen": 19,
+      "prefix": "RPT_TEMPLATE_UPDATE",
+      "program": "report_core"
+    },
+    {
+      "slot": 165,
+      "prefixLen": 18,
+      "prefix": "RPT_TEMPLATE_CLONE",
+      "program": "report_core"
+    },
+    {
+      "slot": 166,
+      "prefixLen": 19,
+      "prefix": "RPT_TEMPLATE_DELETE",
+      "program": "report_core"
+    },
+    {
+      "slot": 167,
+      "prefixLen": 13,
+      "prefix": "RPT_RUN_START",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 168,
+      "prefixLen": 11,
+      "prefix": "RPT_RUN_ROW",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 169,
+      "prefixLen": 14,
+      "prefix": "RPT_RUN_STATUS",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 170,
+      "prefixLen": 16,
+      "prefix": "RPT_RUN_COMPLETE",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 171,
+      "prefixLen": 12,
+      "prefix": "RPT_RUN_FAIL",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 172,
+      "prefixLen": 12,
+      "prefix": "RPT_RUN_LIST",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 173,
+      "prefixLen": 14,
+      "prefix": "RPT_RUN_EXPORT",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 174,
+      "prefixLen": 14,
+      "prefix": "RPT_RUN_DELETE",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 175,
+      "prefixLen": 13,
+      "prefix": "RPT_RUN_RETRY",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 176,
+      "prefixLen": 16,
+      "prefix": "RPT_RUN_GENERATE",
+      "program": "report_run_core"
+    },
+    {
+      "slot": 177,
+      "prefixLen": 16,
+      "prefix": "IMP_BATCH_CREATE",
+      "program": "import_core"
+    },
+    {
+      "slot": 178,
+      "prefixLen": 14,
+      "prefix": "IMP_BATCH_LIST",
+      "program": "import_core"
+    },
+    {
+      "slot": 179,
+      "prefixLen": 13,
+      "prefix": "IMP_BATCH_GET",
+      "program": "import_core"
+    },
+    {
+      "slot": 180,
+      "prefixLen": 18,
+      "prefix": "IMP_BATCH_VALIDATE",
+      "program": "import_core"
+    },
+    {
+      "slot": 181,
+      "prefixLen": 14,
+      "prefix": "IMP_BATCH_POST",
+      "program": "import_core"
+    },
+    {
+      "slot": 182,
+      "prefixLen": 14,
+      "prefix": "IMP_BATCH_FAIL",
+      "program": "import_core"
+    },
+    {
+      "slot": 183,
+      "prefixLen": 16,
+      "prefix": "IMP_BATCH_EXPORT",
+      "program": "import_core"
+    },
+    {
+      "slot": 184,
+      "prefixLen": 15,
+      "prefix": "IMP_BATCH_CLONE",
+      "program": "import_core"
+    },
+    {
+      "slot": 185,
+      "prefixLen": 16,
+      "prefix": "IMP_BATCH_DELETE",
+      "program": "import_core"
+    },
+    {
+      "slot": 186,
+      "prefixLen": 15,
+      "prefix": "IMP_BATCH_RETRY",
+      "program": "import_core"
+    },
+    {
+      "slot": 187,
+      "prefixLen": 17,
+      "prefix": "IMP_BATCH_SUMMARY",
+      "program": "import_core"
+    },
+    {
+      "slot": 188,
+      "prefixLen": 13,
+      "prefix": "IMP_ROW_STAGE",
+      "program": "import_row_core"
+    },
+    {
+      "slot": 189,
+      "prefixLen": 15,
+      "prefix": "IMP_ROW_CORRECT",
+      "program": "import_row_core"
+    },
+    {
+      "slot": 190,
+      "prefixLen": 14,
+      "prefix": "IMP_ERROR_LIST",
+      "program": "import_row_core"
+    },
+    {
+      "slot": 191,
+      "prefixLen": 20,
+      "prefix": "IMP_BATCH_STAGE_BULK",
+      "program": "import_row_core"
+    },
+    {
+      "slot": 192,
+      "prefixLen": 12,
+      "prefix": "IMP_ROW_SKIP",
+      "program": "import_row_core"
+    },
+    {
+      "slot": 193,
+      "prefixLen": 14,
+      "prefix": "IMP_ROW_UNSKIP",
+      "program": "import_row_core"
     }
   ]
 }

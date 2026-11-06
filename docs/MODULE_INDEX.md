@@ -38,9 +38,10 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `gl_core` | `GL_` | [gl.js](../middleware/src/routes/gl.js) | [gl.cases](../tests/cobol/cases/gl.cases) | — |
 | `hashlen_core` | — | — | — | — |
 | `identity_core` | `IDV_`, `SCR_` | [identity.js](../middleware/src/routes/identity.js) | — | [identity_db_tests.sh](../tests/db/identity_db_tests.sh) |
-| `import_core` | `IMP_` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
+| `import_core` | `IMP_BATCH_CREATE`, `IMP_BATCH_LIST`, `IMP_BATCH_GET`, `IMP_BATCH_VALIDATE`, `IMP_BATCH_POST`, `IMP_BATCH_FAIL`, `IMP_BATCH_EXPORT`, `IMP_BATCH_CLONE`, `IMP_BATCH_DELETE`, `IMP_BATCH_RETRY`, `IMP_BATCH_SUMMARY` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
 | `import_post_core` | `IMPP_` | — | [import_post.cases](../tests/cobol/cases/import_post.cases) | — |
 | `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | — |
+| `import_row_core` | `IMP_ROW_STAGE`, `IMP_ROW_CORRECT`, `IMP_ERROR_LIST`, `IMP_BATCH_STAGE_BULK`, `IMP_ROW_SKIP`, `IMP_ROW_UNSKIP` | — | — | — |
 | `letter_of_credit_core` | `LOC_` | [letter_of_credit.js](../middleware/src/routes/letter_of_credit.js) | [letter_of_credit.cases](../tests/cobol/cases/letter_of_credit.cases) | [letter_of_credit_db_tests.sh](../tests/db/letter_of_credit_db_tests.sh) |
 | `loan_core` | `LOAN_` | [loan.js](../middleware/src/routes/loan.js) | [loan.cases](../tests/cobol/cases/loan.cases) | [loan_db_tests.sh](../tests/db/loan_db_tests.sh) |
 | `loan_schedule_core` | `LSC_CREATE`, `LSC_GET`, `LSC_LIST`, `LSC_DETAIL`, `LSC_UPDATE`, `LSC_DELETE`, `LSC_SEARCH`, `LSC_HISTORY`, `LSC_VALIDATE` | [loan_schedule.js](../middleware/src/routes/loan_schedule.js) | [loan_schedule.cases](../tests/cobol/cases/loan_schedule.cases) | [loan_schedule_db_tests.sh](../tests/db/loan_schedule_db_tests.sh) |
@@ -60,7 +61,8 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `ref_engine` | `RFE_` | [ref_engine.js](../middleware/src/routes/ref_engine.js) | — | — |
 | `ref_ext_core` | `RX_` | [ref_ext.js](../middleware/src/routes/ref_ext.js) | — | — |
 | `report_builder_core` | `RPB_` | [report_builder.js](../middleware/src/routes/report_builder.js) | [report_builder.cases](../tests/cobol/cases/report_builder.cases) | [report_builder_db_tests.sh](../tests/db/report_builder_db_tests.sh) |
-| `report_core` | `RPT_` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
+| `report_core` | `RPT_TEMPLATE_CREATE`, `RPT_TEMPLATE_LIST`, `RPT_TEMPLATE_GET`, `RPT_COLUMN_CREATE`, `RPT_COLUMN_LIST`, `RPT_COLUMN_DELETE`, `RPT_COLUMN_UPDATE`, `RPT_TEMPLATE_UPDATE`, `RPT_TEMPLATE_CLONE`, `RPT_TEMPLATE_DELETE` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
+| `report_run_core` | `RPT_RUN_START`, `RPT_RUN_ROW`, `RPT_RUN_STATUS`, `RPT_RUN_COMPLETE`, `RPT_RUN_FAIL`, `RPT_RUN_LIST`, `RPT_RUN_EXPORT`, `RPT_RUN_DELETE`, `RPT_RUN_RETRY`, `RPT_RUN_GENERATE` | — | — | — |
 | `report_schedule_core` | `RPS_` | [report_schedule.js](../middleware/src/routes/report_schedule.js) | — | [report_schedule_db_tests.sh](../tests/db/report_schedule_db_tests.sh) |
 | `risk_core` | `RISK_` | [risk.js](../middleware/src/routes/risk.js) | — | [risk_db_tests.sh](../tests/db/risk_db_tests.sh) |
 | `sla_tracker_core` | `SLT_` | [sla_tracker.js](../middleware/src/routes/sla_tracker.js) | — | [sla_tracker_db_tests.sh](../tests/db/sla_tracker_db_tests.sh) |

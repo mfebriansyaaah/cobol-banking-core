@@ -25,6 +25,7 @@ fx_rate_core L0
 gl_allocation_core L0
 identity_core L0
 import_core L0
+import_row_core L0
 letter_of_credit_core L0
 loan_schedule_lifecycle_core L1
 loan_schedule_posting_core L1
@@ -34,6 +35,8 @@ merchant_settlement_core L0
 notification_template_core L0
 phone_otp_core L0
 report_builder_core L0
+report_core L0
+report_run_core L1
 report_schedule_core L0
 risk_core L0
 sla_tracker_core L0

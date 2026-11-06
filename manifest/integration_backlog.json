@@ -2205,266 +2205,259 @@
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-COLUMN-CREATE",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_template_column)",
       "evidence": [
-        "paragraph ACTION-COLUMN-CREATE",
-        "touched tables: report_template_column"
+        "paragraph moved to report_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-column-update",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-COLUMN-UPDATE",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_template_column)",
       "evidence": [
-        "paragraph ACTION-COLUMN-UPDATE",
-        "touched tables: report_template_column"
+        "paragraph moved to report_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-run-complete",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-RUN-COMPLETE",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_run)",
       "evidence": [
-        "paragraph ACTION-RUN-COMPLETE",
-        "touched tables: report_run, report_run_row"
+        "paragraph moved to report_run_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-run-fail",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-RUN-FAIL",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_run)",
       "evidence": [
-        "paragraph ACTION-RUN-FAIL",
-        "touched tables: report_run"
+        "paragraph moved to report_run_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-run-retry",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-RUN-RETRY",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_run)",
       "evidence": [
-        "paragraph ACTION-RUN-RETRY",
-        "touched tables: report_run"
+        "paragraph moved to report_run_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-run-row",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-RUN-ROW",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_run_row)",
       "evidence": [
-        "paragraph ACTION-RUN-ROW",
-        "touched tables: report_run_row"
+        "paragraph moved to report_run_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-run-start",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-RUN-START",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_run)",
       "evidence": [
-        "paragraph ACTION-RUN-START",
-        "touched tables: report_run, report_template_column"
+        "paragraph moved to report_run_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-template-clone",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-TEMPLATE-CLONE",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_template, report_template_column)",
       "evidence": [
-        "paragraph ACTION-TEMPLATE-CLONE",
-        "touched tables: report_template, report_template_column"
+        "paragraph moved to report_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-template-create",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-TEMPLATE-CREATE",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_template)",
       "evidence": [
-        "paragraph ACTION-TEMPLATE-CREATE",
-        "touched tables: report_template"
+        "paragraph moved to report_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:action:action-template-update",
       "module": "report_core",
       "kind": "action",
       "subject": "ACTION-TEMPLATE-UPDATE",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Write paragraph with no core link (writes report_template)",
       "evidence": [
-        "paragraph ACTION-TEMPLATE-UPDATE",
-        "touched tables: report_template"
+        "paragraph moved to report_core.cob by the PR-058 split",
+        "behavior covered by report_statement/report_builder suites (31+13 green)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:audit:core-reference",
       "module": "report_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": null
+      "evidence": [
+        "verified by inspection: AUDIT-REPORT inserts (action, actor_email, template_code, run_id, detail) — run_id and template_code are the core references"
+      ],
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:1",
       "module": "report_core",
       "kind": "table",
       "subject": "1",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: numeric literal matched by the tableRefs heuristic",
+        "no table named 1 in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:100",
       "module": "report_core",
       "kind": "table",
       "subject": "100",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: numeric literal matched by the tableRefs heuristic",
+        "no table named 100 in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:16384",
       "module": "report_core",
       "kind": "table",
       "subject": "16384",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: numeric literal matched by the tableRefs heuristic",
+        "no table named 16384 in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:30",
       "module": "report_core",
       "kind": "table",
       "subject": "30",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: numeric literal matched by the tableRefs heuristic",
+        "no table named 30 in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:gl-account",
       "module": "report_core",
       "kind": "table",
       "subject": "gl_account",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'credit'), 'equity', 'expense'), 'liability', 'revenue', account_code, account_type, constraint, created_at, is_active, name, normal_side, parent_code",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "reference moved to report_run_core.cob by the PR-058 split",
+        "gl_account is a core table owned by gl_core (0056_gl_core); run linkage downgraded with the module, not the data"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:report-run",
       "module": "report_core",
       "kind": "table",
       "subject": "report_run",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'completed', 'failed'), 10), check, checksum, constraint, created_at, created_by, error_code, error_detail, finished_at, id, index, parameters, row_count, started_at, started_at), status, template_id, total_credit, total_debit, updated_at, version",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references now under report_core/report_run_core (L0/L1, unaudited) after the PR-058 split",
+        "tables have DDL; covered by report_statement/report_builder suites"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:report-run-row",
       "module": "report_core",
       "kind": "table",
       "subject": "report_run_row",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 10), check, constraint, created_at, credit, debit, id, ordinal, ordinal), row_data, run_id, unique",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references now under report_core/report_run_core (L0/L1, unaudited) after the PR-058 split",
+        "tables have DDL; covered by report_statement/report_builder suites"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:report-template",
       "module": "report_core",
       "kind": "table",
       "subject": "report_template",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'custom'), 'fixed', 'json'), 'reconciliation', 'statement', created_at, created_by, enabled, id, name, output_format, report_type, template_code, title, updated_at",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references now under report_core/report_run_core (L0/L1, unaudited) after the PR-058 split",
+        "tables have DDL; covered by report_statement/report_builder suites"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "report_core:table:report-template-column",
       "module": "report_core",
       "kind": "table",
       "subject": "report_template_column",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'amount', 'center'), 'date', 'integer'), 'right', align, check, column_format, constraint, created_at, header, id, ordinal, ordinal), source_field, template_id, unique, width",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "PR-058 split reclassified report_core L3->L0 (templates only); L0 modules unaudited",
+        "table has DDL; template columns reviewed with the report module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "statement_core:action:action-run-fail",

@@ -1,4 +1,4 @@
-            MOVE 158 TO DISPATCH-COUNT.
+            MOVE 193 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_recovery_core" TO D-PROGRAM(1).
@@ -275,201 +275,306 @@
             MOVE "FEE_" TO D-PREFIX(92).
             MOVE 4 TO D-PREFIX-LEN(92).
             MOVE "fee_core" TO D-PROGRAM(92).
-            MOVE "RPT_" TO D-PREFIX(93).
+            MOVE "PAY_" TO D-PREFIX(93).
             MOVE 4 TO D-PREFIX-LEN(93).
-            MOVE "report_core" TO D-PROGRAM(93).
-            MOVE "PAY_" TO D-PREFIX(94).
+            MOVE "payment_core" TO D-PROGRAM(93).
+            MOVE "EOD_" TO D-PREFIX(94).
             MOVE 4 TO D-PREFIX-LEN(94).
-            MOVE "payment_core" TO D-PROGRAM(94).
-            MOVE "EOD_" TO D-PREFIX(95).
+            MOVE "eod_core" TO D-PROGRAM(94).
+            MOVE "PIC_" TO D-PREFIX(95).
             MOVE 4 TO D-PREFIX-LEN(95).
-            MOVE "eod_core" TO D-PROGRAM(95).
-            MOVE "PIC_" TO D-PREFIX(96).
+            MOVE "payment_instruction_core" TO D-PROGRAM(95).
+            MOVE "PING" TO D-PREFIX(96).
             MOVE 4 TO D-PREFIX-LEN(96).
-            MOVE "payment_instruction_core" TO D-PROGRAM(96).
-            MOVE "PING" TO D-PREFIX(97).
+            MOVE "auth_core" TO D-PROGRAM(96).
+            MOVE "DSH_" TO D-PREFIX(97).
             MOVE 4 TO D-PREFIX-LEN(97).
-            MOVE "auth_core" TO D-PROGRAM(97).
-            MOVE "DSH_" TO D-PREFIX(98).
+            MOVE "dashboard_core" TO D-PROGRAM(97).
+            MOVE "FAS_" TO D-PREFIX(98).
             MOVE 4 TO D-PREFIX-LEN(98).
-            MOVE "dashboard_core" TO D-PROGRAM(98).
-            MOVE "IMP_" TO D-PREFIX(99).
+            MOVE "fixed_asset_core" TO D-PROGRAM(98).
+            MOVE "CSC_" TO D-PREFIX(99).
             MOVE 4 TO D-PREFIX-LEN(99).
-            MOVE "import_core" TO D-PROGRAM(99).
-            MOVE "FAS_" TO D-PREFIX(100).
+            MOVE "cost_center_core" TO D-PROGRAM(99).
+            MOVE "IRC_" TO D-PREFIX(100).
             MOVE 4 TO D-PREFIX-LEN(100).
-            MOVE "fixed_asset_core" TO D-PROGRAM(100).
-            MOVE "CSC_" TO D-PREFIX(101).
+            MOVE "import_recon_core" TO D-PROGRAM(100).
+            MOVE "ACC_" TO D-PREFIX(101).
             MOVE 4 TO D-PREFIX-LEN(101).
-            MOVE "cost_center_core" TO D-PROGRAM(101).
-            MOVE "IRC_" TO D-PREFIX(102).
+            MOVE "account_core" TO D-PROGRAM(101).
+            MOVE "VEL_" TO D-PREFIX(102).
             MOVE 4 TO D-PREFIX-LEN(102).
-            MOVE "import_recon_core" TO D-PROGRAM(102).
-            MOVE "ACC_" TO D-PREFIX(103).
+            MOVE "fee_core" TO D-PROGRAM(102).
+            MOVE "GLA_" TO D-PREFIX(103).
             MOVE 4 TO D-PREFIX-LEN(103).
-            MOVE "account_core" TO D-PROGRAM(103).
-            MOVE "VEL_" TO D-PREFIX(104).
+            MOVE "gl_allocation_core" TO D-PROGRAM(103).
+            MOVE "DEP_" TO D-PREFIX(104).
             MOVE 4 TO D-PREFIX-LEN(104).
-            MOVE "fee_core" TO D-PROGRAM(104).
-            MOVE "GLA_" TO D-PREFIX(105).
+            MOVE "deposit_core" TO D-PROGRAM(104).
+            MOVE "COL_" TO D-PREFIX(105).
             MOVE 4 TO D-PREFIX-LEN(105).
-            MOVE "gl_allocation_core" TO D-PROGRAM(105).
-            MOVE "DEP_" TO D-PREFIX(106).
+            MOVE "collection_core" TO D-PROGRAM(105).
+            MOVE "RFE_" TO D-PREFIX(106).
             MOVE 4 TO D-PREFIX-LEN(106).
-            MOVE "deposit_core" TO D-PROGRAM(106).
-            MOVE "COL_" TO D-PREFIX(107).
+            MOVE "ref_engine" TO D-PROGRAM(106).
+            MOVE "PHL_" TO D-PREFIX(107).
             MOVE 4 TO D-PREFIX-LEN(107).
-            MOVE "collection_core" TO D-PROGRAM(107).
-            MOVE "RFE_" TO D-PREFIX(108).
+            MOVE "payment_hold_core" TO D-PROGRAM(107).
+            MOVE "CLT_" TO D-PREFIX(108).
             MOVE 4 TO D-PREFIX-LEN(108).
-            MOVE "ref_engine" TO D-PROGRAM(108).
-            MOVE "PHL_" TO D-PREFIX(109).
-            MOVE 4 TO D-PREFIX-LEN(109).
-            MOVE "payment_hold_core" TO D-PROGRAM(109).
-            MOVE "CLT_" TO D-PREFIX(110).
-            MOVE 4 TO D-PREFIX-LEN(110).
-            MOVE "collateral_core" TO D-PROGRAM(110).
-            MOVE "RX_" TO D-PREFIX(111).
-            MOVE 3 TO D-PREFIX-LEN(111).
-            MOVE "ref_ext_core" TO D-PROGRAM(111).
-            MOVE "GL_" TO D-PREFIX(112).
-            MOVE 3 TO D-PREFIX-LEN(112).
-            MOVE "gl_core" TO D-PROGRAM(112).
-            MOVE "MRT_" TO D-PREFIX(113).
+            MOVE "collateral_core" TO D-PROGRAM(108).
+            MOVE "RX_" TO D-PREFIX(109).
+            MOVE 3 TO D-PREFIX-LEN(109).
+            MOVE "ref_ext_core" TO D-PROGRAM(109).
+            MOVE "GL_" TO D-PREFIX(110).
+            MOVE 3 TO D-PREFIX-LEN(110).
+            MOVE "gl_core" TO D-PROGRAM(110).
+            MOVE "MRT_" TO D-PREFIX(111).
+            MOVE 4 TO D-PREFIX-LEN(111).
+            MOVE "merchant_core" TO D-PROGRAM(111).
+            MOVE "NTP_" TO D-PREFIX(112).
+            MOVE 4 TO D-PREFIX-LEN(112).
+            MOVE "notification_template_core" TO D-PROGRAM(112).
+            MOVE "RPS_" TO D-PREFIX(113).
             MOVE 4 TO D-PREFIX-LEN(113).
-            MOVE "merchant_core" TO D-PROGRAM(113).
-            MOVE "NTP_" TO D-PREFIX(114).
+            MOVE "report_schedule_core" TO D-PROGRAM(113).
+            MOVE "SLT_" TO D-PREFIX(114).
             MOVE 4 TO D-PREFIX-LEN(114).
-            MOVE "notification_template_core" TO D-PROGRAM(114).
-            MOVE "RPS_" TO D-PREFIX(115).
+            MOVE "sla_tracker_core" TO D-PROGRAM(114).
+            MOVE "CCL_" TO D-PREFIX(115).
             MOVE 4 TO D-PREFIX-LEN(115).
-            MOVE "report_schedule_core" TO D-PROGRAM(115).
-            MOVE "SLT_" TO D-PREFIX(116).
+            MOVE "compliance_calendar_core" TO D-PROGRAM(115).
+            MOVE "LOC_" TO D-PREFIX(116).
             MOVE 4 TO D-PREFIX-LEN(116).
-            MOVE "sla_tracker_core" TO D-PROGRAM(116).
-            MOVE "CCL_" TO D-PREFIX(117).
+            MOVE "letter_of_credit_core" TO D-PROGRAM(116).
+            MOVE "BKG_" TO D-PREFIX(117).
             MOVE 4 TO D-PREFIX-LEN(117).
-            MOVE "compliance_calendar_core" TO D-PROGRAM(117).
-            MOVE "LOC_" TO D-PREFIX(118).
+            MOVE "bank_guarantee_core" TO D-PROGRAM(117).
+            MOVE "PRL_" TO D-PREFIX(118).
             MOVE 4 TO D-PREFIX-LEN(118).
-            MOVE "letter_of_credit_core" TO D-PROGRAM(118).
-            MOVE "BKG_" TO D-PREFIX(119).
+            MOVE "payroll_processing_core" TO D-PROGRAM(118).
+            MOVE "MCS_" TO D-PREFIX(119).
             MOVE 4 TO D-PREFIX-LEN(119).
-            MOVE "bank_guarantee_core" TO D-PROGRAM(119).
-            MOVE "PRL_" TO D-PREFIX(120).
+            MOVE "merchant_settlement_core" TO D-PROGRAM(119).
+            MOVE "TXM_" TO D-PREFIX(120).
             MOVE 4 TO D-PREFIX-LEN(120).
-            MOVE "payroll_processing_core" TO D-PROGRAM(120).
-            MOVE "MCS_" TO D-PREFIX(121).
+            MOVE "tax_management_core" TO D-PROGRAM(120).
+            MOVE "CHB_" TO D-PREFIX(121).
             MOVE 4 TO D-PREFIX-LEN(121).
-            MOVE "merchant_settlement_core" TO D-PROGRAM(121).
-            MOVE "TXM_" TO D-PREFIX(122).
+            MOVE "chargeback_core" TO D-PROGRAM(121).
+            MOVE "LOY_" TO D-PREFIX(122).
             MOVE 4 TO D-PREFIX-LEN(122).
-            MOVE "tax_management_core" TO D-PROGRAM(122).
-            MOVE "CHB_" TO D-PREFIX(123).
+            MOVE "loyalty_core" TO D-PROGRAM(122).
+            MOVE "OTP_" TO D-PREFIX(123).
             MOVE 4 TO D-PREFIX-LEN(123).
-            MOVE "chargeback_core" TO D-PROGRAM(123).
-            MOVE "LOY_" TO D-PREFIX(124).
+            MOVE "phone_otp_core" TO D-PROGRAM(123).
+            MOVE "IDV_" TO D-PREFIX(124).
             MOVE 4 TO D-PREFIX-LEN(124).
-            MOVE "loyalty_core" TO D-PROGRAM(124).
-            MOVE "OTP_" TO D-PREFIX(125).
+            MOVE "identity_core" TO D-PROGRAM(124).
+            MOVE "SCR_" TO D-PREFIX(125).
             MOVE 4 TO D-PREFIX-LEN(125).
-            MOVE "phone_otp_core" TO D-PROGRAM(125).
-            MOVE "IDV_" TO D-PREFIX(126).
-            MOVE 4 TO D-PREFIX-LEN(126).
-            MOVE "identity_core" TO D-PROGRAM(126).
-            MOVE "SCR_" TO D-PREFIX(127).
-            MOVE 4 TO D-PREFIX-LEN(127).
-            MOVE "identity_core" TO D-PROGRAM(127).
-            MOVE "FX_" TO D-PREFIX(128).
-            MOVE 3 TO D-PREFIX-LEN(128).
-            MOVE "fx_rate_core" TO D-PROGRAM(128).
-            MOVE "RISK_" TO D-PREFIX(129).
-            MOVE 5 TO D-PREFIX-LEN(129).
-            MOVE "risk_core" TO D-PROGRAM(129).
-            MOVE "CORP_" TO D-PREFIX(130).
-            MOVE 5 TO D-PREFIX-LEN(130).
-            MOVE "corp_core" TO D-PROGRAM(130).
-            MOVE "LSC_CREATE" TO D-PREFIX(131).
-            MOVE 10 TO D-PREFIX-LEN(131).
+            MOVE "identity_core" TO D-PROGRAM(125).
+            MOVE "FX_" TO D-PREFIX(126).
+            MOVE 3 TO D-PREFIX-LEN(126).
+            MOVE "fx_rate_core" TO D-PROGRAM(126).
+            MOVE "RISK_" TO D-PREFIX(127).
+            MOVE 5 TO D-PREFIX-LEN(127).
+            MOVE "risk_core" TO D-PROGRAM(127).
+            MOVE "CORP_" TO D-PREFIX(128).
+            MOVE 5 TO D-PREFIX-LEN(128).
+            MOVE "corp_core" TO D-PROGRAM(128).
+            MOVE "LSC_CREATE" TO D-PREFIX(129).
+            MOVE 10 TO D-PREFIX-LEN(129).
+            MOVE "loan_schedule_core" TO D-PROGRAM(129).
+            MOVE "LSC_GET" TO D-PREFIX(130).
+            MOVE 7 TO D-PREFIX-LEN(130).
+            MOVE "loan_schedule_core" TO D-PROGRAM(130).
+            MOVE "LSC_LIST" TO D-PREFIX(131).
+            MOVE 8 TO D-PREFIX-LEN(131).
             MOVE "loan_schedule_core" TO D-PROGRAM(131).
-            MOVE "LSC_GET" TO D-PREFIX(132).
-            MOVE 7 TO D-PREFIX-LEN(132).
+            MOVE "LSC_DETAIL" TO D-PREFIX(132).
+            MOVE 10 TO D-PREFIX-LEN(132).
             MOVE "loan_schedule_core" TO D-PROGRAM(132).
-            MOVE "LSC_LIST" TO D-PREFIX(133).
-            MOVE 8 TO D-PREFIX-LEN(133).
+            MOVE "LSC_UPDATE" TO D-PREFIX(133).
+            MOVE 10 TO D-PREFIX-LEN(133).
             MOVE "loan_schedule_core" TO D-PROGRAM(133).
-            MOVE "LSC_DETAIL" TO D-PREFIX(134).
+            MOVE "LSC_DELETE" TO D-PREFIX(134).
             MOVE 10 TO D-PREFIX-LEN(134).
             MOVE "loan_schedule_core" TO D-PROGRAM(134).
-            MOVE "LSC_UPDATE" TO D-PREFIX(135).
+            MOVE "LSC_SEARCH" TO D-PREFIX(135).
             MOVE 10 TO D-PREFIX-LEN(135).
             MOVE "loan_schedule_core" TO D-PROGRAM(135).
-            MOVE "LSC_DELETE" TO D-PREFIX(136).
-            MOVE 10 TO D-PREFIX-LEN(136).
+            MOVE "LSC_HISTORY" TO D-PREFIX(136).
+            MOVE 11 TO D-PREFIX-LEN(136).
             MOVE "loan_schedule_core" TO D-PROGRAM(136).
-            MOVE "LSC_SEARCH" TO D-PREFIX(137).
-            MOVE 10 TO D-PREFIX-LEN(137).
+            MOVE "LSC_VALIDATE" TO D-PREFIX(137).
+            MOVE 12 TO D-PREFIX-LEN(137).
             MOVE "loan_schedule_core" TO D-PROGRAM(137).
-            MOVE "LSC_HISTORY" TO D-PREFIX(138).
+            MOVE "LSC_APPROVE" TO D-PREFIX(138).
             MOVE 11 TO D-PREFIX-LEN(138).
-            MOVE "loan_schedule_core" TO D-PROGRAM(138).
-            MOVE "LSC_VALIDATE" TO D-PREFIX(139).
-            MOVE 12 TO D-PREFIX-LEN(139).
-            MOVE "loan_schedule_core" TO D-PROGRAM(139).
-            MOVE "LSC_APPROVE" TO D-PREFIX(140).
-            MOVE 11 TO D-PREFIX-LEN(140).
+            MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(138).
+            MOVE "LSC_REJECT" TO D-PREFIX(139).
+            MOVE 10 TO D-PREFIX-LEN(139).
+            MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(139).
+            MOVE "LSC_CLOSE" TO D-PREFIX(140).
+            MOVE 9 TO D-PREFIX-LEN(140).
             MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(140).
-            MOVE "LSC_REJECT" TO D-PREFIX(141).
+            MOVE "LSC_REOPEN" TO D-PREFIX(141).
             MOVE 10 TO D-PREFIX-LEN(141).
             MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(141).
-            MOVE "LSC_CLOSE" TO D-PREFIX(142).
-            MOVE 9 TO D-PREFIX-LEN(142).
+            MOVE "LSC_CANCEL" TO D-PREFIX(142).
+            MOVE 10 TO D-PREFIX-LEN(142).
             MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(142).
-            MOVE "LSC_REOPEN" TO D-PREFIX(143).
-            MOVE 10 TO D-PREFIX-LEN(143).
+            MOVE "LSC_HOLD" TO D-PREFIX(143).
+            MOVE 8 TO D-PREFIX-LEN(143).
             MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(143).
-            MOVE "LSC_CANCEL" TO D-PREFIX(144).
-            MOVE 10 TO D-PREFIX-LEN(144).
+            MOVE "LSC_RELEASE" TO D-PREFIX(144).
+            MOVE 11 TO D-PREFIX-LEN(144).
             MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(144).
-            MOVE "LSC_HOLD" TO D-PREFIX(145).
-            MOVE 8 TO D-PREFIX-LEN(145).
+            MOVE "LSC_STATUS" TO D-PREFIX(145).
+            MOVE 10 TO D-PREFIX-LEN(145).
             MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(145).
-            MOVE "LSC_RELEASE" TO D-PREFIX(146).
-            MOVE 11 TO D-PREFIX-LEN(146).
-            MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(146).
-            MOVE "LSC_STATUS" TO D-PREFIX(147).
+            MOVE "LSC_POST" TO D-PREFIX(146).
+            MOVE 8 TO D-PREFIX-LEN(146).
+            MOVE "loan_schedule_posting_core" TO D-PROGRAM(146).
+            MOVE "LSC_ACCRUE" TO D-PREFIX(147).
             MOVE 10 TO D-PREFIX-LEN(147).
-            MOVE "loan_schedule_lifecycle_core" TO D-PROGRAM(147).
-            MOVE "LSC_POST" TO D-PREFIX(148).
-            MOVE 8 TO D-PREFIX-LEN(148).
+            MOVE "loan_schedule_posting_core" TO D-PROGRAM(147).
+            MOVE "LSC_SETTLE" TO D-PREFIX(148).
+            MOVE 10 TO D-PREFIX-LEN(148).
             MOVE "loan_schedule_posting_core" TO D-PROGRAM(148).
-            MOVE "LSC_ACCRUE" TO D-PREFIX(149).
-            MOVE 10 TO D-PREFIX-LEN(149).
+            MOVE "LSC_CALC" TO D-PREFIX(149).
+            MOVE 8 TO D-PREFIX-LEN(149).
             MOVE "loan_schedule_posting_core" TO D-PROGRAM(149).
-            MOVE "LSC_SETTLE" TO D-PREFIX(150).
-            MOVE 10 TO D-PREFIX-LEN(150).
+            MOVE "LSC_SCHEDULED" TO D-PREFIX(150).
+            MOVE 13 TO D-PREFIX-LEN(150).
             MOVE "loan_schedule_posting_core" TO D-PROGRAM(150).
-            MOVE "LSC_CALC" TO D-PREFIX(151).
-            MOVE 8 TO D-PREFIX-LEN(151).
+            MOVE "LSC_FORECAST" TO D-PREFIX(151).
+            MOVE 12 TO D-PREFIX-LEN(151).
             MOVE "loan_schedule_posting_core" TO D-PROGRAM(151).
-            MOVE "LSC_SCHEDULED" TO D-PREFIX(152).
-            MOVE 13 TO D-PREFIX-LEN(152).
+            MOVE "LSC_OVERRIDE" TO D-PREFIX(152).
+            MOVE 12 TO D-PREFIX-LEN(152).
             MOVE "loan_schedule_posting_core" TO D-PROGRAM(152).
-            MOVE "LSC_FORECAST" TO D-PREFIX(153).
-            MOVE 12 TO D-PREFIX-LEN(153).
+            MOVE "LSC_ADJUST" TO D-PREFIX(153).
+            MOVE 10 TO D-PREFIX-LEN(153).
             MOVE "loan_schedule_posting_core" TO D-PROGRAM(153).
-            MOVE "LSC_OVERRIDE" TO D-PREFIX(154).
-            MOVE 12 TO D-PREFIX-LEN(154).
-            MOVE "loan_schedule_posting_core" TO D-PROGRAM(154).
-            MOVE "LSC_ADJUST" TO D-PREFIX(155).
+            MOVE "LSC_SUMMARY" TO D-PREFIX(154).
+            MOVE 11 TO D-PREFIX-LEN(154).
+            MOVE "loan_schedule_report_core" TO D-PROGRAM(154).
+            MOVE "LSC_EXPORT" TO D-PREFIX(155).
             MOVE 10 TO D-PREFIX-LEN(155).
-            MOVE "loan_schedule_posting_core" TO D-PROGRAM(155).
-            MOVE "LSC_SUMMARY" TO D-PREFIX(156).
-            MOVE 11 TO D-PREFIX-LEN(156).
+            MOVE "loan_schedule_report_core" TO D-PROGRAM(155).
+            MOVE "LSC_AUDIT" TO D-PREFIX(156).
+            MOVE 9 TO D-PREFIX-LEN(156).
             MOVE "loan_schedule_report_core" TO D-PROGRAM(156).
-            MOVE "LSC_EXPORT" TO D-PREFIX(157).
-            MOVE 10 TO D-PREFIX-LEN(157).
-            MOVE "loan_schedule_report_core" TO D-PROGRAM(157).
-            MOVE "LSC_AUDIT" TO D-PREFIX(158).
-            MOVE 9 TO D-PREFIX-LEN(158).
-            MOVE "loan_schedule_report_core" TO D-PROGRAM(158).
+            MOVE "RPT_TEMPLATE_CREATE" TO D-PREFIX(157).
+            MOVE 19 TO D-PREFIX-LEN(157).
+            MOVE "report_core" TO D-PROGRAM(157).
+            MOVE "RPT_TEMPLATE_LIST" TO D-PREFIX(158).
+            MOVE 17 TO D-PREFIX-LEN(158).
+            MOVE "report_core" TO D-PROGRAM(158).
+            MOVE "RPT_TEMPLATE_GET" TO D-PREFIX(159).
+            MOVE 16 TO D-PREFIX-LEN(159).
+            MOVE "report_core" TO D-PROGRAM(159).
+            MOVE "RPT_COLUMN_CREATE" TO D-PREFIX(160).
+            MOVE 17 TO D-PREFIX-LEN(160).
+            MOVE "report_core" TO D-PROGRAM(160).
+            MOVE "RPT_COLUMN_LIST" TO D-PREFIX(161).
+            MOVE 15 TO D-PREFIX-LEN(161).
+            MOVE "report_core" TO D-PROGRAM(161).
+            MOVE "RPT_COLUMN_DELETE" TO D-PREFIX(162).
+            MOVE 17 TO D-PREFIX-LEN(162).
+            MOVE "report_core" TO D-PROGRAM(162).
+            MOVE "RPT_COLUMN_UPDATE" TO D-PREFIX(163).
+            MOVE 17 TO D-PREFIX-LEN(163).
+            MOVE "report_core" TO D-PROGRAM(163).
+            MOVE "RPT_TEMPLATE_UPDATE" TO D-PREFIX(164).
+            MOVE 19 TO D-PREFIX-LEN(164).
+            MOVE "report_core" TO D-PROGRAM(164).
+            MOVE "RPT_TEMPLATE_CLONE" TO D-PREFIX(165).
+            MOVE 18 TO D-PREFIX-LEN(165).
+            MOVE "report_core" TO D-PROGRAM(165).
+            MOVE "RPT_TEMPLATE_DELETE" TO D-PREFIX(166).
+            MOVE 19 TO D-PREFIX-LEN(166).
+            MOVE "report_core" TO D-PROGRAM(166).
+            MOVE "RPT_RUN_START" TO D-PREFIX(167).
+            MOVE 13 TO D-PREFIX-LEN(167).
+            MOVE "report_run_core" TO D-PROGRAM(167).
+            MOVE "RPT_RUN_ROW" TO D-PREFIX(168).
+            MOVE 11 TO D-PREFIX-LEN(168).
+            MOVE "report_run_core" TO D-PROGRAM(168).
+            MOVE "RPT_RUN_STATUS" TO D-PREFIX(169).
+            MOVE 14 TO D-PREFIX-LEN(169).
+            MOVE "report_run_core" TO D-PROGRAM(169).
+            MOVE "RPT_RUN_COMPLETE" TO D-PREFIX(170).
+            MOVE 16 TO D-PREFIX-LEN(170).
+            MOVE "report_run_core" TO D-PROGRAM(170).
+            MOVE "RPT_RUN_FAIL" TO D-PREFIX(171).
+            MOVE 12 TO D-PREFIX-LEN(171).
+            MOVE "report_run_core" TO D-PROGRAM(171).
+            MOVE "RPT_RUN_LIST" TO D-PREFIX(172).
+            MOVE 12 TO D-PREFIX-LEN(172).
+            MOVE "report_run_core" TO D-PROGRAM(172).
+            MOVE "RPT_RUN_EXPORT" TO D-PREFIX(173).
+            MOVE 14 TO D-PREFIX-LEN(173).
+            MOVE "report_run_core" TO D-PROGRAM(173).
+            MOVE "RPT_RUN_DELETE" TO D-PREFIX(174).
+            MOVE 14 TO D-PREFIX-LEN(174).
+            MOVE "report_run_core" TO D-PROGRAM(174).
+            MOVE "RPT_RUN_RETRY" TO D-PREFIX(175).
+            MOVE 13 TO D-PREFIX-LEN(175).
+            MOVE "report_run_core" TO D-PROGRAM(175).
+            MOVE "RPT_RUN_GENERATE" TO D-PREFIX(176).
+            MOVE 16 TO D-PREFIX-LEN(176).
+            MOVE "report_run_core" TO D-PROGRAM(176).
+            MOVE "IMP_BATCH_CREATE" TO D-PREFIX(177).
+            MOVE 16 TO D-PREFIX-LEN(177).
+            MOVE "import_core" TO D-PROGRAM(177).
+            MOVE "IMP_BATCH_LIST" TO D-PREFIX(178).
+            MOVE 14 TO D-PREFIX-LEN(178).
+            MOVE "import_core" TO D-PROGRAM(178).
+            MOVE "IMP_BATCH_GET" TO D-PREFIX(179).
+            MOVE 13 TO D-PREFIX-LEN(179).
+            MOVE "import_core" TO D-PROGRAM(179).
+            MOVE "IMP_BATCH_VALIDATE" TO D-PREFIX(180).
+            MOVE 18 TO D-PREFIX-LEN(180).
+            MOVE "import_core" TO D-PROGRAM(180).
+            MOVE "IMP_BATCH_POST" TO D-PREFIX(181).
+            MOVE 14 TO D-PREFIX-LEN(181).
+            MOVE "import_core" TO D-PROGRAM(181).
+            MOVE "IMP_BATCH_FAIL" TO D-PREFIX(182).
+            MOVE 14 TO D-PREFIX-LEN(182).
+            MOVE "import_core" TO D-PROGRAM(182).
+            MOVE "IMP_BATCH_EXPORT" TO D-PREFIX(183).
+            MOVE 16 TO D-PREFIX-LEN(183).
+            MOVE "import_core" TO D-PROGRAM(183).
+            MOVE "IMP_BATCH_CLONE" TO D-PREFIX(184).
+            MOVE 15 TO D-PREFIX-LEN(184).
+            MOVE "import_core" TO D-PROGRAM(184).
+            MOVE "IMP_BATCH_DELETE" TO D-PREFIX(185).
+            MOVE 16 TO D-PREFIX-LEN(185).
+            MOVE "import_core" TO D-PROGRAM(185).
+            MOVE "IMP_BATCH_RETRY" TO D-PREFIX(186).
+            MOVE 15 TO D-PREFIX-LEN(186).
+            MOVE "import_core" TO D-PROGRAM(186).
+            MOVE "IMP_BATCH_SUMMARY" TO D-PREFIX(187).
+            MOVE 17 TO D-PREFIX-LEN(187).
+            MOVE "import_core" TO D-PROGRAM(187).
+            MOVE "IMP_ROW_STAGE" TO D-PREFIX(188).
+            MOVE 13 TO D-PREFIX-LEN(188).
+            MOVE "import_row_core" TO D-PROGRAM(188).
+            MOVE "IMP_ROW_CORRECT" TO D-PREFIX(189).
+            MOVE 15 TO D-PREFIX-LEN(189).
+            MOVE "import_row_core" TO D-PROGRAM(189).
+            MOVE "IMP_ERROR_LIST" TO D-PREFIX(190).
+            MOVE 14 TO D-PREFIX-LEN(190).
+            MOVE "import_row_core" TO D-PROGRAM(190).
+            MOVE "IMP_BATCH_STAGE_BULK" TO D-PREFIX(191).
+            MOVE 20 TO D-PREFIX-LEN(191).
+            MOVE "import_row_core" TO D-PROGRAM(191).
+            MOVE "IMP_ROW_SKIP" TO D-PREFIX(192).
+            MOVE 12 TO D-PREFIX-LEN(192).
+            MOVE "import_row_core" TO D-PROGRAM(192).
+            MOVE "IMP_ROW_UNSKIP" TO D-PREFIX(193).
+            MOVE 14 TO D-PREFIX-LEN(193).
+            MOVE "import_row_core" TO D-PROGRAM(193).
