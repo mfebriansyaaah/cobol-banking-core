@@ -67,7 +67,10 @@ docs(T-022): record invariant evidence
 Rules:
 
 - One branch = one coherent task group.
-- Maximum diff: 500 changed lines excluding generated fixtures/docs.
+- Maximum diff: 1500 changed lines excluding generated fixtures/docs.
+  Larger changes must be split, unless an exception is recorded: state the
+  reason, the added review risk, and the reviewer in the PR body, and get
+  owner approval before merge.
 - A commit that only fixes a previous commit in the same branch must be
   squashed with `git rebase -i` before merge.
 - Every commit should keep the tree buildable if practical. At minimum the PR
