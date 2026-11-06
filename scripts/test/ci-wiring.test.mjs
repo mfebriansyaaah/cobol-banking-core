@@ -185,10 +185,10 @@ test('performance benchmark runs in nightly, not in the PR gate', () => {
   assert.ok(idx('bench.sh') < idx('load_gateway.sh'), 'benchmark must run before the load test');
 });
 
-test('docs-only PRs skip heavy jobs but keep the test gate (CI-011)', () => {
+test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['changes'], 'ci.yml must define a changes job');
-  for (const id of ['db-shards', 'coverage-pr', 'db-aggregate', 'db-ops']) {
+  for (const id of ['db-shards', 'coverage-pr', 'db-aggregate', 'db-ops', 'test', 'db-snapshot']) {
     const job = ci[id];
     assert.ok(job, `ci.yml must define ${id}`);
     assert.match(
@@ -199,8 +199,13 @@ test('docs-only PRs skip heavy jobs but keep the test gate (CI-011)', () => {
     const needs = Array.isArray(job.needs) ? job.needs : [job.needs];
     assert.ok(needs.includes('changes'), `${id} must need the changes job`);
   }
-  // D3 default: the test gate keeps running on docs-only PRs.
-  assert.doesNotMatch(String(ci['test'].if || ''), /docs_only/, 'test job must always run');
+  // D3 option A (owner-approved): docs-only PRs skip the test gate too;
+  // a skipped required check counts as success (D2), and ci:full forces full.
+  assert.match(
+    String(ci['test'].if || ''),
+    /needs\.changes\.outputs\.docs_only/,
+    'test job must be gated on the changes job output',
+  );
 });
 
 test('ci:full label forces a full run (CI-011)', () => {
