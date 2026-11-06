@@ -236,7 +236,8 @@ jobs:
 
   db-snapshot:
     name: db-snapshot
-    needs: build
+    needs: [build, changes]
+    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -297,7 +298,8 @@ jobs:
 
   test:
     name: test
-    needs: [build, db-snapshot]
+    needs: [build, db-snapshot, changes]
+    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
