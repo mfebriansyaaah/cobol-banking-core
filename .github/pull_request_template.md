@@ -17,6 +17,7 @@
 - [ ] Docs updated if behavior or setup changed
 - [ ] `node scripts/check_docs.mjs` green after `node scripts/docs_stats.mjs --write`
 - [ ] Required checks green, including `coverage-pr` (COBOL coverage gate)
+- [ ] Docs-only PR? Heavy jobs (`db-shards`, `coverage-pr`, `db-aggregate`) are skipped automatically; add the `ci:full` label to force a full run
 
 ## Risk and rollback
 

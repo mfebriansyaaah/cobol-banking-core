@@ -30,6 +30,19 @@ Verify with a throwaway PR: lint fails on broken shell, build fails on broken
 COBOL, db-aggregate fails on deleted assertion, db-ops runs on `main`
 (push) while PRs skip the drills, nightly starts on schedule.
 
+## Docs-only fast path (CI-011)
+
+PRs that touch only documentation (`docs/**`, root doc files, issue/PR
+templates, `CODEOWNERS` — classified by `scripts/ci/classify_changes.mjs`,
+unit-tested) skip the heavy jobs: `db-shards`, `coverage-pr`, and
+`db-aggregate`. `lint`, `build`, and the `test` gate always run (D3
+conservative default). Add the `ci:full` label to force a full run.
+Skipped required checks count as success (proven by the S5 spike PR #552,
+which merged with `coverage` skipped); a skipped job never fails the gate.
+`test` still runs on docs-only PRs, so a broken docs change can never look
+green. On `push`, `db-ops` is likewise skipped for docs-only changes
+(nightly covers the drills).
+
 CI-003 evidence (2026-11-05, Option A): code scanning works end-to-end with
 no UI step — the PR-triggered CodeQL run
 (`actions/runs/41976873579`, branch `ci/ci-p0-03-codeql-green`) uploaded SARIF
