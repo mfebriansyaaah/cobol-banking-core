@@ -10,6 +10,7 @@ import { normalizeIdPhone } from './phone/normalize.js';
 import { sendTelegramOtp } from './phone/telegram.js';
 import { sendFreeSms } from './phone/free_sms.js';
 import { recordFallback } from './resilience.js';
+import { redactChatId, redactPhone } from './redact.js';
 
 export { normalizeIdPhone };
 
@@ -23,7 +24,8 @@ export function createPhoneProvider(kind, { logger = null } = {}) {
       kind,
       calls: mock.calls,
       async sendOtp({ to, channel = 'sms' }) {
-        const event = { event: 'phone_otp', to: normalizeIdPhone(to) ?? to, channel };
+        // PR-087: the raw number never reaches logs; last4 only.
+        const event = { event: 'phone_otp', to: redactPhone(normalizeIdPhone(to) ?? to), channel };
         if (logger) logger(event);
         return mock.record(event);
       },
@@ -35,10 +37,11 @@ export function createPhoneProvider(kind, { logger = null } = {}) {
   if (kind === 'telegram') {
     return {
       kind,
-      async sendOtp({ chatId, code, text, idempotencyKey = null, logger: callLogger = null }) {
+      async sendOtp({ chatId, code, text, idempotencyKey = null, fetchImpl = fetch, logger: callLogger = null }) {
         const body = text ?? `Your verification code is ${code}`;
-        const done = await sendTelegramOtp({ chatId, text: body, idempotencyKey });
-        (callLogger ?? logger)?.({ event: 'phone_otp', channel: 'telegram', chatId });
+        const done = await sendTelegramOtp({ chatId, text: body, idempotencyKey }, { fetchImpl });
+        // PR-087: chat_id is linkable; log the tail only, never the code.
+        (callLogger ?? logger)?.({ event: 'phone_otp', channel: 'telegram', chatId: redactChatId(chatId) });
         return done;
       },
       async health() {
@@ -51,10 +54,13 @@ export function createPhoneProvider(kind, { logger = null } = {}) {
   }
   return {
     kind: 'free_sms',
-    async sendOtp({ to, code, text, idempotencyKey = null }) {
+    async sendOtp({ to, code, text, idempotencyKey = null, fetchImpl = fetch }) {
       const target = normalizeIdPhone(to);
       if (!target) throw new Error(`unparseable phone number: ${JSON.stringify(to)}`);
-      return sendFreeSms({ to: target, text: text ?? `Your verification code is ${code}`, idempotencyKey });
+      return sendFreeSms(
+        { to: target, text: text ?? `Your verification code is ${code}`, idempotencyKey },
+        { fetchImpl },
+      );
     },
     async health() {
       return safeHealth(async () => {
