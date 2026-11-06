@@ -5,24 +5,72 @@ import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from './inv
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, PATTERNS, assertLineLength } from './validation.js';
 import { ALL_ROUTES } from './routes/index.js';
-import { requireAuth, signToken, signRefresh, verifyRefresh, verifyAccess, verifyStepUp, REFRESH_TTL_DAYS, ACCESS_TTL_SECONDS } from './auth.js';
+import {
+  requireAuth,
+  signToken,
+  signRefresh,
+  verifyRefresh,
+  verifyAccess,
+  verifyStepUp,
+  REFRESH_TTL_DAYS,
+  ACCESS_TTL_SECONDS,
+} from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText, recordError, recordAuthFailure } from './observability.js';
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
+import { assertPasswordAllowed } from './integrations/security/pwned.js';
 import { createTokenStore } from './tokenStore.js';
 import { RESPONSE_MAPPERS, sanitizeMeta, tokenVersion } from './responseMappers.js';
 
-const { EMAIL, PASSWORD, NAME, DATE, CODE, ROLE, AMOUNT, INT, LIMIT, KEY, CURRENCY, REASON, TRIGGER_SRC, RECON_STATUS, REQUEST_STATUS, OUTBOX_STATUS, OPERATION, DATERANGE, DISPUTE_STATUS, MFA_CODE, RECOVERY_STATUS, USER_STATUS, AUDIT_ACTION, REVIEW_STATE, REVIEW_DECISION } = PATTERNS;
+const {
+  EMAIL,
+  PASSWORD,
+  NAME,
+  DATE,
+  CODE,
+  ROLE,
+  AMOUNT,
+  INT,
+  LIMIT,
+  KEY,
+  CURRENCY,
+  REASON,
+  TRIGGER_SRC,
+  RECON_STATUS,
+  REQUEST_STATUS,
+  OUTBOX_STATUS,
+  OPERATION,
+  DATERANGE,
+  DISPUTE_STATUS,
+  MFA_CODE,
+  RECOVERY_STATUS,
+  USER_STATUS,
+  AUDIT_ACTION,
+  REVIEW_STATE,
+  REVIEW_DECISION,
+} = PATTERNS;
 
 // Reasons counted in gateway_auth_failures_total. Telemetry only: the code
 // still decides, this list only decides which failures are worth counting as
 // authentication events.
 const AUTH_FAILURE_CODES = new Set([
-  'INVALID_CREDENTIALS', 'INVALID_MFA', 'MFA_REQUIRED', 'MFA_SETUP_REQUIRED',
-  'ACCOUNT_LOCKED', 'USER_SUSPENDED', 'USER_CLOSED', 'UNVERIFIED',
-  'SESSION_NOT_FOUND', 'SESSION_EXPIRED', 'SESSION_FAMILY_EXPIRED', 'SESSION_REUSED',
-  'TOKEN_REVOKED', 'PERMISSION_DENIED', 'FORBIDDEN', 'ROLE_DENIED',
+  'INVALID_CREDENTIALS',
+  'INVALID_MFA',
+  'MFA_REQUIRED',
+  'MFA_SETUP_REQUIRED',
+  'ACCOUNT_LOCKED',
+  'USER_SUSPENDED',
+  'USER_CLOSED',
+  'UNVERIFIED',
+  'SESSION_NOT_FOUND',
+  'SESSION_EXPIRED',
+  'SESSION_FAMILY_EXPIRED',
+  'SESSION_REUSED',
+  'TOKEN_REVOKED',
+  'PERMISSION_DENIED',
+  'FORBIDDEN',
+  'ROLE_DENIED',
 ]);
 
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
@@ -30,357 +78,788 @@ const AUTH_FAILURE_CODES = new Set([
 // names the field filled from the verified token, never from the request body.
 export const ROUTES = [
   ...ALL_ROUTES,
-  { method: 'post', path: '/auth/signup', action: 'REQUEST_SIGNUP', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'password', pattern: PASSWORD, required: true },
-    { name: 'name', pattern: NAME, required: true },
-    { name: 'dob', pattern: DATE, required: true },
-  ],  },
-  { method: 'post', path: '/auth/verify', action: 'VERIFY_EMAIL', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'code', pattern: CODE, required: true },
-  ] },
-  { method: 'post', path: '/auth/forgot', action: 'FORGOT_PASSWORD', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'post', path: '/auth/reset-password', action: 'RESET_PASSWORD', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'code', pattern: CODE, required: true },
-    { name: 'password', pattern: PASSWORD, required: true },
-  ] },
-  { method: 'post', path: '/auth/resend', action: 'RESEND_VERIFICATION', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'post', path: '/auth/login', action: 'AUTH_LOGIN', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'password', pattern: PASSWORD, required: true },
-    { name: 'mfaCode', pattern: MFA_CODE, required: false },
-  ],  },
+  {
+    method: 'post',
+    path: '/auth/signup',
+    action: 'REQUEST_SIGNUP',
+    public: true,
+    passwordField: 'password',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'password', pattern: PASSWORD, required: true },
+      { name: 'name', pattern: NAME, required: true },
+      { name: 'dob', pattern: DATE, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/auth/verify',
+    action: 'VERIFY_EMAIL',
+    public: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'code', pattern: CODE, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/auth/forgot',
+    action: 'FORGOT_PASSWORD',
+    public: true,
+    fields: [{ name: 'email', pattern: EMAIL, required: true }],
+  },
+  {
+    method: 'post',
+    path: '/auth/reset-password',
+    action: 'RESET_PASSWORD',
+    public: true,
+    passwordField: 'password',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'code', pattern: CODE, required: true },
+      { name: 'password', pattern: PASSWORD, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/auth/resend',
+    action: 'RESEND_VERIFICATION',
+    public: true,
+    fields: [{ name: 'email', pattern: EMAIL, required: true }],
+  },
+  {
+    method: 'post',
+    path: '/auth/login',
+    action: 'AUTH_LOGIN',
+    public: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'password', pattern: PASSWORD, required: true },
+      { name: 'mfaCode', pattern: MFA_CODE, required: false },
+    ],
+  },
 
   // Step-up: re-verify the caller's own credentials and mint a short-lived
   // proof required by privileged admin actions. Bearer-authenticated.
-  { method: 'post', path: '/auth/step-up', action: 'VERIFY_REAUTH', tokenIdentity: 'email', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'password', pattern: PASSWORD, required: true },
-    { name: 'mfaCode', pattern: MFA_CODE, required: false },
-  ],  },
+  {
+    method: 'post',
+    path: '/auth/step-up',
+    action: 'VERIFY_REAUTH',
+    tokenIdentity: 'email',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'password', pattern: PASSWORD, required: true },
+      { name: 'mfaCode', pattern: MFA_CODE, required: false },
+    ],
+  },
 
-  { method: 'get', path: '/users', action: 'LIST_USERS', tokenIdentity: 'actor', fields: [
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'role', pattern: ROLE, required: false },
-  ],  },
-  { method: 'get', path: '/users/:email', action: 'GET_USER', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'get', path: '/wallet/balance', action: 'CHECK_BALANCE', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'get', path: '/statements', action: 'STATEMENT', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'currency', pattern: CURRENCY, required: true },
-    { name: 'range', pattern: DATERANGE, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ],  },
-  { method: 'post', path: '/disputes', action: 'OPEN_DISPUTE', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'subject', pattern: REASON, required: true },
-    { name: 'detail', pattern: REASON, required: true },
-    { name: 'ref', pattern: KEY, required: false },
-  ],  },
-  { method: 'post', path: '/disputes/:id/notes', action: 'ADD_DISPUTE_NOTE', tokenIdentity: 'actor', fields: [
-    { name: 'id', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'body', pattern: REASON, required: true },
-  ] },
-  { method: 'post', path: '/disputes/:id/acknowledge', action: 'ACK_DISPUTE', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'id', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'due', pattern: DATE, required: false },
-  ] },
-  { method: 'post', path: '/disputes/:id/resolve', action: 'RESOLVE_DISPUTE', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'id', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'resolution', pattern: REASON, required: true },
-  ] },
-  { method: 'post', path: '/disputes/:id/reject', action: 'REJECT_DISPUTE', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'id', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'reason', pattern: REASON, required: true },
-  ] },
-  { method: 'get', path: '/disputes', action: 'LIST_DISPUTES', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'email', pattern: EMAIL, required: false },
-    { name: 'status', pattern: DISPUTE_STATUS, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ],  },
-  { method: 'get', path: '/disputes/:id', action: 'GET_DISPUTE', tokenIdentity: 'actor', fields: [
-    { name: 'id', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'post', path: '/wallet/transfer', action: 'TRANSFER', tokenIdentity: 'from', stepUpPolicy: 'TRANSFER', fields: [
-    { name: 'from', pattern: EMAIL, required: true },
-    { name: 'to', pattern: EMAIL, required: true },
-    { name: 'amount', pattern: AMOUNT, required: true },
-    { name: 'idempotencyKey', pattern: KEY, required: true },
-    { name: 'fromCurrency', pattern: CURRENCY, required: false },
-    { name: 'toCurrency', pattern: CURRENCY, required: false },
-  ] },
-  { method: 'get', path: '/transactions/:ref', action: 'TX_STATUS', tokenIdentity: 'actor', fields: [
-    { name: 'ref', pattern: KEY, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'sender', pattern: EMAIL, required: false },
-  ] },
-  { method: 'post', path: '/transactions/:ref/reverse', action: 'REVERSE_TRANSFER', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'ref', pattern: KEY, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'sender', pattern: EMAIL, required: false },
-    { name: 'reason', pattern: REASON, required: true },
-  ] },
+  {
+    method: 'get',
+    path: '/users',
+    action: 'LIST_USERS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'role', pattern: ROLE, required: false },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/users/:email',
+    action: 'GET_USER',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/wallet/balance',
+    action: 'CHECK_BALANCE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/statements',
+    action: 'STATEMENT',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'currency', pattern: CURRENCY, required: true },
+      { name: 'range', pattern: DATERANGE, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/disputes',
+    action: 'OPEN_DISPUTE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'subject', pattern: REASON, required: true },
+      { name: 'detail', pattern: REASON, required: true },
+      { name: 'ref', pattern: KEY, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/disputes/:id/notes',
+    action: 'ADD_DISPUTE_NOTE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'body', pattern: REASON, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/disputes/:id/acknowledge',
+    action: 'ACK_DISPUTE',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'id', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'due', pattern: DATE, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/disputes/:id/resolve',
+    action: 'RESOLVE_DISPUTE',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'id', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'resolution', pattern: REASON, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/disputes/:id/reject',
+    action: 'REJECT_DISPUTE',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'id', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'reason', pattern: REASON, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/disputes',
+    action: 'LIST_DISPUTES',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'email', pattern: EMAIL, required: false },
+      { name: 'status', pattern: DISPUTE_STATUS, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/disputes/:id',
+    action: 'GET_DISPUTE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'id', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/wallet/transfer',
+    action: 'TRANSFER',
+    tokenIdentity: 'from',
+    stepUpPolicy: 'TRANSFER',
+    fields: [
+      { name: 'from', pattern: EMAIL, required: true },
+      { name: 'to', pattern: EMAIL, required: true },
+      { name: 'amount', pattern: AMOUNT, required: true },
+      { name: 'idempotencyKey', pattern: KEY, required: true },
+      { name: 'fromCurrency', pattern: CURRENCY, required: false },
+      { name: 'toCurrency', pattern: CURRENCY, required: false },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/transactions/:ref',
+    action: 'TX_STATUS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'ref', pattern: KEY, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'sender', pattern: EMAIL, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/transactions/:ref/reverse',
+    action: 'REVERSE_TRANSFER',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'ref', pattern: KEY, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'sender', pattern: EMAIL, required: false },
+      { name: 'reason', pattern: REASON, required: true },
+    ],
+  },
 
-  { method: 'get', path: '/profile', action: 'GET_DASHBOARD', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'patch', path: '/profile', action: 'UPDATE_PROFILE', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'name', pattern: NAME, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'dob', pattern: DATE, required: false },
-  ] },
-  { method: 'post', path: '/profile/deactivate', action: 'DEACTIVATE_ACCOUNT', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  {
+    method: 'get',
+    path: '/profile',
+    action: 'GET_DASHBOARD',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/profile',
+    action: 'UPDATE_PROFILE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'name', pattern: NAME, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'dob', pattern: DATE, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/deactivate',
+    action: 'DEACTIVATE_ACCOUNT',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
   // Dormant account lifecycle (ADR 0080): flag, suspend after the grace
   // window, and reactivate. SUPER_ADMIN only; the core reads the policy.
-  { method: 'post', path: '/admin/dormancy/mark', action: 'MARK_DORMANT', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/dormancy/suspend', action: 'SUSPEND_DORMANT', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/dormancy/reactivate', action: 'REACTIVATE_DORMANT', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/user-status', action: 'SET_USER_STATUS', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'status', pattern: USER_STATUS, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/unlock', action: 'UNLOCK_USER', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/mfa-reset', action: 'ADMIN_RESET_MFA', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/holds', action: 'PLACE_HOLD', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'amount', pattern: AMOUNT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'days', pattern: INT, required: false },
-    { name: 'currency', pattern: CURRENCY, required: false },
-    { name: 'reason', pattern: REASON, required: false },
-  ] },
-  { method: 'post', path: '/admin/holds/release', action: 'RELEASE_HOLD', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'holdId', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/profile/email/request', action: 'REQ_EMAIL_CHANGE', tokenIdentity: 'actor', stepUpPolicy: 'REQ_EMAIL_CHANGE', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'newEmail', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'password', pattern: PASSWORD, required: true },
-  ],  },
-  { method: 'post', path: '/profile/email/confirm', action: 'CONFIRM_EMAIL_CHANGE', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'newEmail', pattern: EMAIL, required: true },
-    { name: 'code', pattern: CODE, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'post', path: '/profile/password', action: 'CHANGE_PASSWORD', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'currentPassword', pattern: PASSWORD, required: true },
-    { name: 'newPassword', pattern: PASSWORD, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/mfa/backup-codes', action: 'MFA_BACKUP_CODES', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'post', path: '/mfa/recover', action: 'REQUEST_MFA_RECOVERY', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'password', pattern: PASSWORD, required: true },
-  ] },
-  { method: 'post', path: '/mfa/recover/confirm', action: 'VERIFY_MFA_RECOVERY', public: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'code', pattern: CODE, required: true },
-  ] },
-  { method: 'post', path: '/admin/mfa-recovery/approve', action: 'APPROVE_MFA_RECOVERY', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'requestId', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/mfa-recovery/reject', action: 'REJECT_MFA_RECOVERY', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'requestId', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'get', path: '/admin/mfa-recovery', action: 'LIST_MFA_RECOVERY', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'status', pattern: RECOVERY_STATUS, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ] },
-  { method: 'post', path: '/mfa/enroll', action: 'MFA_ENROLL_BEGIN', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ],  },
-  { method: 'post', path: '/mfa/confirm', action: 'MFA_ENROLL_CONFIRM', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'code', pattern: CODE, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/mfa/disable', action: 'MFA_DISABLE', tokenIdentity: 'actor', stepUpPolicy: 'MFA_DISABLE', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'code', pattern: CODE, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'get', path: '/sessions', action: 'LIST_SESSIONS', tokenIdentity: 'actor', tokenSid: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'sid', pattern: KEY, required: false },
-  ] },
-  { method: 'post', path: '/sessions/revoke', action: 'REVOKE_USER_SESSION', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'sessionId', pattern: KEY, required: true },
-  ] },
-  { method: 'post', path: '/sessions/revoke-all', action: 'REVOKE_ALL_SESSIONS', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  {
+    method: 'post',
+    path: '/admin/dormancy/mark',
+    action: 'MARK_DORMANT',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [{ name: 'actor', pattern: EMAIL, required: true }],
+  },
+  {
+    method: 'post',
+    path: '/admin/dormancy/suspend',
+    action: 'SUSPEND_DORMANT',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [{ name: 'actor', pattern: EMAIL, required: true }],
+  },
+  {
+    method: 'post',
+    path: '/admin/dormancy/reactivate',
+    action: 'REACTIVATE_DORMANT',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/user-status',
+    action: 'SET_USER_STATUS',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'status', pattern: USER_STATUS, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/unlock',
+    action: 'UNLOCK_USER',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/mfa-reset',
+    action: 'ADMIN_RESET_MFA',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/holds',
+    action: 'PLACE_HOLD',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'amount', pattern: AMOUNT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'days', pattern: INT, required: false },
+      { name: 'currency', pattern: CURRENCY, required: false },
+      { name: 'reason', pattern: REASON, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/holds/release',
+    action: 'RELEASE_HOLD',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'holdId', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/email/request',
+    action: 'REQ_EMAIL_CHANGE',
+    tokenIdentity: 'actor',
+    stepUpPolicy: 'REQ_EMAIL_CHANGE',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'newEmail', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'password', pattern: PASSWORD, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/email/confirm',
+    action: 'CONFIRM_EMAIL_CHANGE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'newEmail', pattern: EMAIL, required: true },
+      { name: 'code', pattern: CODE, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/password',
+    action: 'CHANGE_PASSWORD',
+    tokenIdentity: 'actor',
+    passwordField: 'newPassword',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'currentPassword', pattern: PASSWORD, required: true },
+      { name: 'newPassword', pattern: PASSWORD, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/mfa/backup-codes',
+    action: 'MFA_BACKUP_CODES',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/mfa/recover',
+    action: 'REQUEST_MFA_RECOVERY',
+    public: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'password', pattern: PASSWORD, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/mfa/recover/confirm',
+    action: 'VERIFY_MFA_RECOVERY',
+    public: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'code', pattern: CODE, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/mfa-recovery/approve',
+    action: 'APPROVE_MFA_RECOVERY',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'requestId', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/mfa-recovery/reject',
+    action: 'REJECT_MFA_RECOVERY',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'requestId', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/mfa-recovery',
+    action: 'LIST_MFA_RECOVERY',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'status', pattern: RECOVERY_STATUS, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/mfa/enroll',
+    action: 'MFA_ENROLL_BEGIN',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/mfa/confirm',
+    action: 'MFA_ENROLL_CONFIRM',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'code', pattern: CODE, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/mfa/disable',
+    action: 'MFA_DISABLE',
+    tokenIdentity: 'actor',
+    stepUpPolicy: 'MFA_DISABLE',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'code', pattern: CODE, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/sessions',
+    action: 'LIST_SESSIONS',
+    tokenIdentity: 'actor',
+    tokenSid: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'sid', pattern: KEY, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/sessions/revoke',
+    action: 'REVOKE_USER_SESSION',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'sessionId', pattern: KEY, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/sessions/revoke-all',
+    action: 'REVOKE_ALL_SESSIONS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
   // Sign out every other device, keeping the caller's own session family.
-  { method: 'post', path: '/sessions/revoke-others', action: 'REVOKE_OTHER_DEVICES', tokenIdentity: 'actor', tokenSid: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'sid', pattern: KEY, required: true },
-  ] },
-  { method: 'get', path: '/admin/role', action: 'CHECK_ROLE', tokenIdentity: 'actor', fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'role', pattern: ROLE, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  {
+    method: 'post',
+    path: '/sessions/revoke-others',
+    action: 'REVOKE_OTHER_DEVICES',
+    tokenIdentity: 'actor',
+    tokenSid: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'sid', pattern: KEY, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/role',
+    action: 'CHECK_ROLE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'role', pattern: ROLE, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
   // Read-only consistency check: every account balance against its ledger sum.
   // Requires a SUPER_ADMIN actor, taken from the verified token (not the body).
-  { method: 'get', path: '/admin/reconcile', action: 'RECONCILE', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  {
+    method: 'get',
+    path: '/admin/reconcile',
+    action: 'RECONCILE',
+    tokenIdentity: 'actor',
+    fields: [{ name: 'actor', pattern: EMAIL, required: true }],
+  },
   // Recorded reconciliation: same check, but the run and its findings are
   // stored immutably for ownership, resolution, and export.
-  { method: 'post', path: '/admin/reconcile/run', action: 'RUN_RECONCILIATION', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'trigger', pattern: TRIGGER_SRC, required: false },
-  ] },
-  { method: 'get', path: '/admin/reconcile/runs', action: 'LIST_RECONCILIATIONS', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ] },
-  { method: 'get', path: '/admin/reconcile/exceptions', action: 'LIST_EXCEPTIONS', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'status', pattern: RECON_STATUS, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ] },
-  { method: 'post', path: '/admin/reconcile/acknowledge', action: 'ACK_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'findingId', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'get', path: '/admin/outbox', action: 'LIST_OUTBOX', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'status', pattern: OUTBOX_STATUS, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ] },
-  { method: 'post', path: '/admin/reconcile/resolve', action: 'RESOLVE_EXCEPTION', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'findingId', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'note', pattern: REASON, required: false },
-  ] },
-  { method: 'post', path: '/admin/requests', action: 'REQUEST_OPERATION', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'operation', pattern: OPERATION, required: true },
-    { name: 'target', pattern: EMAIL, required: true },
-    { name: 'detail', pattern: KEY, required: false },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/requests/approve', action: 'APPROVE_REQUEST', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'requestId', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/requests/reject', action: 'REJECT_REQUEST', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'requestId', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'get', path: '/admin/requests', action: 'LIST_REQUESTS', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'status', pattern: REQUEST_STATUS, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ] },
-  { method: 'post', path: '/admin/role', action: 'CHANGE_ROLE', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'email', pattern: EMAIL, required: true },
-    { name: 'role', pattern: ROLE, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
-  { method: 'post', path: '/admin/audit/archive', action: 'ARCHIVE_AUDIT', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'days', pattern: INT, required: true },
-    { name: 'actor', pattern: EMAIL, required: true },
-  ] },
+  {
+    method: 'post',
+    path: '/admin/reconcile/run',
+    action: 'RUN_RECONCILIATION',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'trigger', pattern: TRIGGER_SRC, required: false },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/reconcile/runs',
+    action: 'LIST_RECONCILIATIONS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/reconcile/exceptions',
+    action: 'LIST_EXCEPTIONS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'status', pattern: RECON_STATUS, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/reconcile/acknowledge',
+    action: 'ACK_EXCEPTION',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'findingId', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/outbox',
+    action: 'LIST_OUTBOX',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'status', pattern: OUTBOX_STATUS, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/reconcile/resolve',
+    action: 'RESOLVE_EXCEPTION',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'findingId', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'note', pattern: REASON, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/requests',
+    action: 'REQUEST_OPERATION',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'operation', pattern: OPERATION, required: true },
+      { name: 'target', pattern: EMAIL, required: true },
+      { name: 'detail', pattern: KEY, required: false },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/requests/approve',
+    action: 'APPROVE_REQUEST',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'requestId', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/requests/reject',
+    action: 'REJECT_REQUEST',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'requestId', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/requests',
+    action: 'LIST_REQUESTS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'status', pattern: REQUEST_STATUS, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/role',
+    action: 'CHANGE_ROLE',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: EMAIL, required: true },
+      { name: 'role', pattern: ROLE, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/audit/archive',
+    action: 'ARCHIVE_AUDIT',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'days', pattern: INT, required: true },
+      { name: 'actor', pattern: EMAIL, required: true },
+    ],
+  },
   // Read-only audit trail (SUPER_ADMIN): optional action/email filters + paging.
   // Access review (ADR 0073): a SUPER_ADMIN opens a review, records a
   // decision per privileged account, and closes it once every item is
   // decided and every revoked access is actually gone.
-  { method: 'post', path: '/admin/access-reviews', action: 'OPEN_ACCESS_REVIEW', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'periodStart', pattern: DATE, required: true },
-    { name: 'periodEnd', pattern: DATE, required: true },
-  ],  },
-  { method: 'get', path: '/admin/access-reviews', action: 'LIST_ACCESS_REVIEWS', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'state', pattern: REVIEW_STATE, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ],  },
-  { method: 'get', path: '/admin/access-reviews/:id', action: 'GET_ACCESS_REVIEW', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'id', pattern: INT, required: true },
-  ],  },
-  { method: 'post', path: '/admin/access-review-items/:itemId/decide', action: 'DECIDE_ACCESS_ITEM', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'itemId', pattern: INT, required: true },
-    { name: 'decision', pattern: REVIEW_DECISION, required: true },
-    { name: 'note', pattern: REASON, required: false },
-  ],  },
-  { method: 'post', path: '/admin/access-reviews/:id/close', action: 'CLOSE_ACCESS_REVIEW', tokenIdentity: 'actor', stepUp: true, fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'id', pattern: INT, required: true },
-  ],  },
-  { method: 'get', path: '/admin/audit', action: 'LIST_AUDIT', tokenIdentity: 'actor', fields: [
-    { name: 'actor', pattern: EMAIL, required: true },
-    { name: 'action', pattern: AUDIT_ACTION, required: false },
-    { name: 'email', pattern: EMAIL, required: false },
-    { name: 'limit', pattern: LIMIT, required: false },
-    { name: 'offset', pattern: INT, required: false },
-  ] },
+  {
+    method: 'post',
+    path: '/admin/access-reviews',
+    action: 'OPEN_ACCESS_REVIEW',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'periodStart', pattern: DATE, required: true },
+      { name: 'periodEnd', pattern: DATE, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/access-reviews',
+    action: 'LIST_ACCESS_REVIEWS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'state', pattern: REVIEW_STATE, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/access-reviews/:id',
+    action: 'GET_ACCESS_REVIEW',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'id', pattern: INT, required: true },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/access-review-items/:itemId/decide',
+    action: 'DECIDE_ACCESS_ITEM',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'itemId', pattern: INT, required: true },
+      { name: 'decision', pattern: REVIEW_DECISION, required: true },
+      { name: 'note', pattern: REASON, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/access-reviews/:id/close',
+    action: 'CLOSE_ACCESS_REVIEW',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'id', pattern: INT, required: true },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/audit',
+    action: 'LIST_AUDIT',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'actor', pattern: EMAIL, required: true },
+      { name: 'action', pattern: AUDIT_ACTION, required: false },
+      { name: 'email', pattern: EMAIL, required: false },
+      { name: 'limit', pattern: LIMIT, required: false },
+      { name: 'offset', pattern: INT, required: false },
+    ],
+  },
 ];
 
 // Response mappers and helpers live in responseMappers.js.
@@ -543,7 +1022,11 @@ export function buildRouter({ mailer, tokenStore } = {}) {
       const ua = sanitizeMeta(req.headers && req.headers['user-agent'], 120);
       const ip = sanitizeMeta(req.ip, 45);
       await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family, ua, ip]);
-      try { await invoke('LOGIN_NOTICE', [payload.email, ua, ip]); } catch { /* best effort */ }
+      try {
+        await invoke('LOGIN_NOTICE', [payload.email, ua, ip]);
+      } catch {
+        /* best effort */
+      }
       const enroll = (await invoke('MFA_ENROLL_REQUIRED', [payload.email])) === 'SUCCESS|1';
       return res.json({
         data: ['REFRESHED'],
@@ -606,6 +1089,17 @@ export function buildRouter({ mailer, tokenStore } = {}) {
         }
         const params = buildParams(route, input);
         assertLineLength(route.action, params);
+        // Breached-password gate (PR-093): routes carrying a *new* password
+        // opt in via `passwordField`. Breached -> 400, API down -> fail open
+        // with a metric (rate limits still apply).
+        if (route.passwordField && typeof input[route.passwordField] === 'string' && input[route.passwordField]) {
+          const allowed = await assertPasswordAllowed(input[route.passwordField]);
+          if (!allowed) {
+            res.locals.errorCode = 'BREACHED_PASSWORD';
+            recordError('BREACHED_PASSWORD');
+            return res.status(400).json({ error: 'BREACHED_PASSWORD' });
+          }
+        }
         const t0 = Date.now();
         const raw = await invoke(route.action, params);
         res.set('X-Cobol-Ms', String(Date.now() - t0));

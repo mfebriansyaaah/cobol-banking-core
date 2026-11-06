@@ -54,6 +54,12 @@ Out of scope:
   floor; see [docs/COVERAGE.md](docs/COVERAGE.md).
 - Production configuration refuses development secrets and development
   database defaults.
+- New passwords (signup, reset, change) are checked against Pwned Passwords
+  via k-anonymity (5-char prefix only; full password/hash never leaves the
+  process). Breached -> `BREACHED_PASSWORD` (400); API down -> fail open
+  with a metric (rate limits still apply). Enforced when `PWNED_ENFORCE=1`
+  or in production (unless `PWNED_DISABLE=1`); unit suites stay offline
+  without an explicit `PWNED_ENDPOINT`.
 
 ## Branch protection exception
 
