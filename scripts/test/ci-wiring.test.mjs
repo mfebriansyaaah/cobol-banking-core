@@ -212,6 +212,11 @@ test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', 
 test('quarantined flakes skip only in the CI test job, never nightly/local', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.equal(ci['test'].env?.QUARANTINE, '1', 'test job must set QUARANTINE=1 (quarantine.txt applies in CI only)');
+  assert.equal(
+    ci['db-aggregate'].env?.QUARANTINE,
+    '1',
+    'db aggregate must set QUARANTINE=1 (count gate adjusts only for quarantined reports)',
+  );
 });
 
 test('ci:full label forces a full run (CI-011)', () => {

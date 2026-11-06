@@ -21,6 +21,53 @@
 // Exit: 0 ok, 1 mismatch, 2 usage error.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { activePatterns, parseQuarantine } from './ci/quarantine_flag.mjs';
+
+// Quarantined-away gateway tests, counted deterministically from source:
+// number of top-level test('name') in middleware/test/*.test.js whose name
+// matches an active (non-expired) quarantine pattern. Used to adjust the
+// gateway_tests baseline only when QUARANTINE=1 produced the reports;
+// full runs (nightly/local/premerge) keep the unadjusted baseline.
+export function quarantineDeduction(rootDir, today = new Date().toISOString().slice(0, 10)) {
+  let entries;
+  try {
+    entries = parseQuarantine(readFileSync(path.join(rootDir, 'middleware', 'test', 'quarantine.txt'), 'utf8'));
+  } catch {
+    return 0;
+  }
+  const patterns = activePatterns(entries, today);
+  if (!patterns.length) return 0;
+  const res = patterns
+    .map((p) => {
+      try {
+        return new RegExp(p);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+  if (!res.length) return 0;
+  let files;
+  try {
+    files = readdirSync(path.join(rootDir, 'middleware', 'test')).filter((f) => f.endsWith('.test.js'));
+  } catch {
+    return 0;
+  }
+  let n = 0;
+  for (const f of files) {
+    let src;
+    try {
+      src = readFileSync(path.join(rootDir, 'middleware', 'test', f), 'utf8');
+    } catch {
+      continue;
+    }
+    for (const line of src.split('\n')) {
+      const m = line.match(/^\s*test\(\s*['"`](.*?)['"`]/);
+      if (m && m[1] && res.some((re) => re.test(m[1]))) n += 1;
+    }
+  }
+  return n;
+}
 
 const args = process.argv.slice(2);
 let reportDir = 'artifacts';
@@ -300,7 +347,15 @@ if (data.gateway === 'skip') {
     }
   }
 } else if (baseline.has('gateway_tests')) {
-  if (data.gateway !== baseline.get('gateway_tests')) {
+  let expected = baseline.get('gateway_tests');
+  if (process.env.QUARANTINE === '1') {
+    const q = quarantineDeduction(root);
+    if (q > 0) {
+      expected -= q;
+      notes.push(`gateway_tests: quarantine adjustment -${q} (QUARANTINE=1, expires force renewal)`);
+    }
+  }
+  if (data.gateway !== expected) {
     failed = true;
     console.error('COUNT DRIFT (baseline vs actual):');
     console.error(`  gateway_tests: baseline=${baseline.get('gateway_tests')} actual=${data.gateway}`);

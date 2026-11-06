@@ -183,3 +183,73 @@ test('static mode detects deleted assertions (p7 shape)', () => {
   });
   assert.match(runFail(d, [], 'static'), /db_account_tests: baseline=2 actual=1/);
 });
+
+function makeQuarantineRoot({ baselineGateway, junitCount, quarantineLines, testNames }) {
+  const d = makeRoot({
+    baseline: `gateway_tests=${baselineGateway}\n`,
+    tsvRows: [],
+    junit:
+      '<?xml version="1.0"?><testsuites>' +
+      Array.from({ length: junitCount }, (_, i) => `<testcase name="t${i}"/>`).join('') +
+      '</testsuites>',
+  });
+  const mw = path.join(d, 'middleware', 'test');
+  mkdirSync(mw, { recursive: true });
+  writeFileSync(path.join(mw, 'quarantine.txt'), quarantineLines.join('\n') + '\n');
+  writeFileSync(path.join(mw, 'a.test.js'), testNames.map((n) => `test('${n}', () => {});`).join('\n') + '\n');
+  return d;
+}
+
+function runEnv(root, args, env, reportDir = null) {
+  const a = [GATE, '--root', root];
+  a.push('--report-dir', reportDir ?? path.join(root, 'artifacts'));
+  a.push(...args);
+  return execFileSync(process.execPath, a, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, ...env },
+  });
+}
+
+function runEnvFail(root, args, env, reportDir = null) {
+  try {
+    runEnv(root, args, env, reportDir);
+  } catch (e) {
+    return String((e && e.stderr) || e);
+  }
+  assert.fail(`expected failure for ${args.join(' ')}`);
+  return '';
+}
+
+const QLINE = (pattern, expires) => `${pattern} | reason | TICKET | ${expires}`;
+
+test('quarantine adjustment: QUARANTINE=1 tolerates exactly the quarantined tests', () => {
+  const d = makeQuarantineRoot({
+    baselineGateway: 4,
+    junitCount: 2,
+    quarantineLines: [QLINE('flaky one', '2026-12-15'), QLINE('flaky two', '2026-12-15')],
+    testNames: ['flaky one', 'flaky two', 'steady three', 'steady four'],
+  });
+  const out = runEnv(d, ['--strict'], { QUARANTINE: '1' });
+  assert.match(out, /quarantine adjustment -2/);
+});
+
+test('quarantine adjustment: unset QUARANTINE keeps full baseline (negative control)', () => {
+  const d = makeQuarantineRoot({
+    baselineGateway: 4,
+    junitCount: 2,
+    quarantineLines: [QLINE('flaky one', '2026-12-15'), QLINE('flaky two', '2026-12-15')],
+    testNames: ['flaky one', 'flaky two', 'steady three', 'steady four'],
+  });
+  assert.match(runEnvFail(d, ['--strict'], {}), /gateway_tests: baseline=4 actual=2/);
+});
+
+test('quarantine adjustment: expired entries do not adjust', () => {
+  const d = makeQuarantineRoot({
+    baselineGateway: 4,
+    junitCount: 2,
+    quarantineLines: [QLINE('flaky one', '2026-01-01'), QLINE('flaky two', '2026-01-01')],
+    testNames: ['flaky one', 'flaky two', 'steady three', 'steady four'],
+  });
+  assert.match(runEnvFail(d, ['--strict'], { QUARANTINE: '1' }), /gateway_tests: baseline=4 actual=2/);
+});
