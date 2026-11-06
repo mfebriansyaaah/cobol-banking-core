@@ -12,8 +12,12 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | Module | Dispatch prefix | Route | Table cases | DB suite |
 | --- | --- | --- | --- | --- |
 | `account_core` | `ACC_` | [account.js](../middleware/src/routes/account.js) | [account.cases](../tests/cobol/cases/account.cases) | [account_db_tests.sh](../tests/db/account_db_tests.sh) |
-| `auth_core` | `REQUEST_MFA_RECOVERY`, `REVOKE_OTHER_DEVICES`, `APPROVE_MFA_RECOVERY`, `REVOKE_ALL_SESSIONS`, `VERIFY_MFA_RECOVERY`, `RESEND_VERIFICATION`, `MFA_ENROLL_REQUIRED`, `CLOSE_ACCESS_REVIEW`, `LIST_ACCESS_REVIEWS`, `REVOKE_USER_SESSION`, `REJECT_MFA_RECOVERY`, `REVOKE_ACCESS_TOKEN`, `DECIDE_ACCESS_ITEM`, `MFA_ENROLL_CONFIRM`, `OPEN_ACCESS_REVIEW`, `REQUEST_OPERATION`, `LIST_MFA_RECOVERY`, `GET_TOKEN_VERSION`, `GET_ACCESS_REVIEW`, `APPROVE_REQUEST`, `LIST_PERMISSIONS`, `CHECK_PERMISSION`, `MFA_BACKUP_CODES`, `MFA_ENROLL_BEGIN`, `STEP_UP_REQUIRED`, `CONSUME_SESSION`, `REJECT_REQUEST`, `LIST_REQUESTS`, `REQUEST_SIGNUP`, `REVOKE_SESSION`, `LIST_SESSIONS`, `STORE_SESSION`, `VERIFY_REAUTH`, `ARCHIVE_AUDIT`, `LOGIN_NOTICE`, `OUTBOX_CLAIM`, `LIST_OUTBOX`, `VERIFY_EMAIL`, `MFA_DISABLE`, `CHECK_TOKEN`, `CHANGE_ROLE`, `OUTBOX_MARK`, `CHECK_ROLE`, `AUTH_LOGIN`, `LIST_AUDIT`, `PING` | [auth.js](../middleware/src/routes/auth.js) | — | — |
+| `auth_core` | `REVOKE_OTHER_DEVICES`, `REVOKE_ALL_SESSIONS`, `RESEND_VERIFICATION`, `REVOKE_USER_SESSION`, `REVOKE_ACCESS_TOKEN`, `GET_TOKEN_VERSION`, `STEP_UP_REQUIRED`, `CONSUME_SESSION`, `REQUEST_SIGNUP`, `REVOKE_SESSION`, `LIST_SESSIONS`, `STORE_SESSION`, `VERIFY_REAUTH`, `LOGIN_NOTICE`, `VERIFY_EMAIL`, `CHECK_TOKEN`, `CHANGE_ROLE`, `CHECK_ROLE`, `AUTH_LOGIN`, `PING` | [auth.js](../middleware/src/routes/auth.js) | — | — |
+| `auth_mfa_core` | `MFA_ENROLL_REQUIRED`, `MFA_ENROLL_CONFIRM`, `MFA_BACKUP_CODES`, `MFA_ENROLL_BEGIN`, `MFA_DISABLE` | — | — | — |
+| `auth_ops_core` | `ARCHIVE_AUDIT`, `OUTBOX_CLAIM`, `LIST_OUTBOX`, `OUTBOX_MARK`, `LIST_AUDIT` | — | — | — |
 | `auth_password_core` | `FORGOT_PASSWORD`, `CHANGE_PASSWORD`, `RESET_PASSWORD` | — | — | — |
+| `auth_recovery_core` | `REQUEST_MFA_RECOVERY`, `APPROVE_MFA_RECOVERY`, `VERIFY_MFA_RECOVERY`, `REJECT_MFA_RECOVERY`, `REQUEST_OPERATION`, `LIST_MFA_RECOVERY`, `APPROVE_REQUEST`, `REJECT_REQUEST`, `LIST_REQUESTS` | — | — | — |
+| `auth_review_core` | `CLOSE_ACCESS_REVIEW`, `LIST_ACCESS_REVIEWS`, `DECIDE_ACCESS_ITEM`, `OPEN_ACCESS_REVIEW`, `GET_ACCESS_REVIEW`, `LIST_PERMISSIONS`, `CHECK_PERMISSION` | — | — | — |
 | `backup_drill_core` | `BDR_` | [backup_drill.js](../middleware/src/routes/backup_drill.js) | [backup_drill.cases](../tests/cobol/cases/backup_drill.cases) | [backup_drill_db_tests.sh](../tests/db/backup_drill_db_tests.sh) |
 | `bank_guarantee_core` | `BKG_` | [bank_guarantee.js](../middleware/src/routes/bank_guarantee.js) | [bank_guarantee.cases](../tests/cobol/cases/bank_guarantee.cases) | [bank_guarantee_db_tests.sh](../tests/db/bank_guarantee_db_tests.sh) |
 | `card_core` | `CARD_` | [card.js](../middleware/src/routes/card.js) | [card.cases](../tests/cobol/cases/card.cases) | [card_db_tests.sh](../tests/db/card_db_tests.sh) |
@@ -34,12 +38,16 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `gl_core` | `GL_` | [gl.js](../middleware/src/routes/gl.js) | [gl.cases](../tests/cobol/cases/gl.cases) | — |
 | `hashlen_core` | — | — | — | — |
 | `identity_core` | `IDV_`, `SCR_` | [identity.js](../middleware/src/routes/identity.js) | — | [identity_db_tests.sh](../tests/db/identity_db_tests.sh) |
-| `import_core` | `IMP_` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
+| `import_core` | `IMP_BATCH_CREATE`, `IMP_BATCH_LIST`, `IMP_BATCH_GET`, `IMP_BATCH_VALIDATE`, `IMP_BATCH_POST`, `IMP_BATCH_FAIL`, `IMP_BATCH_EXPORT`, `IMP_BATCH_CLONE`, `IMP_BATCH_DELETE`, `IMP_BATCH_RETRY`, `IMP_BATCH_SUMMARY` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
 | `import_post_core` | `IMPP_` | — | [import_post.cases](../tests/cobol/cases/import_post.cases) | — |
 | `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | — |
+| `import_row_core` | `IMP_ROW_STAGE`, `IMP_ROW_CORRECT`, `IMP_ERROR_LIST`, `IMP_BATCH_STAGE_BULK`, `IMP_ROW_SKIP`, `IMP_ROW_UNSKIP` | — | — | — |
 | `letter_of_credit_core` | `LOC_` | [letter_of_credit.js](../middleware/src/routes/letter_of_credit.js) | [letter_of_credit.cases](../tests/cobol/cases/letter_of_credit.cases) | [letter_of_credit_db_tests.sh](../tests/db/letter_of_credit_db_tests.sh) |
 | `loan_core` | `LOAN_` | [loan.js](../middleware/src/routes/loan.js) | [loan.cases](../tests/cobol/cases/loan.cases) | [loan_db_tests.sh](../tests/db/loan_db_tests.sh) |
-| `loan_schedule_core` | `LSC_` | [loan_schedule.js](../middleware/src/routes/loan_schedule.js) | [loan_schedule.cases](../tests/cobol/cases/loan_schedule.cases) | [loan_schedule_db_tests.sh](../tests/db/loan_schedule_db_tests.sh) |
+| `loan_schedule_core` | `LSC_CREATE`, `LSC_GET`, `LSC_LIST`, `LSC_DETAIL`, `LSC_UPDATE`, `LSC_DELETE`, `LSC_SEARCH`, `LSC_HISTORY`, `LSC_VALIDATE` | [loan_schedule.js](../middleware/src/routes/loan_schedule.js) | [loan_schedule.cases](../tests/cobol/cases/loan_schedule.cases) | [loan_schedule_db_tests.sh](../tests/db/loan_schedule_db_tests.sh) |
+| `loan_schedule_lifecycle_core` | `LSC_APPROVE`, `LSC_REJECT`, `LSC_CLOSE`, `LSC_REOPEN`, `LSC_CANCEL`, `LSC_HOLD`, `LSC_RELEASE`, `LSC_STATUS` | — | — | — |
+| `loan_schedule_posting_core` | `LSC_POST`, `LSC_ACCRUE`, `LSC_SETTLE`, `LSC_CALC`, `LSC_SCHEDULED`, `LSC_FORECAST`, `LSC_OVERRIDE`, `LSC_ADJUST` | — | — | — |
+| `loan_schedule_report_core` | `LSC_SUMMARY`, `LSC_EXPORT`, `LSC_AUDIT` | — | — | — |
 | `loyalty_core` | `LOY_` | [loyalty.js](../middleware/src/routes/loyalty.js) | [loyalty.cases](../tests/cobol/cases/loyalty.cases) | — |
 | `merchant_core` | `MRT_` | [merchant.js](../middleware/src/routes/merchant.js) | [merchant.cases](../tests/cobol/cases/merchant.cases) | [merchant_db_tests.sh](../tests/db/merchant_db_tests.sh) |
 | `merchant_settlement_core` | `MCS_` | [merchant_settlement.js](../middleware/src/routes/merchant_settlement.js) | [merchant_settlement.cases](../tests/cobol/cases/merchant_settlement.cases) | [merchant_settlement_db_tests.sh](../tests/db/merchant_settlement_db_tests.sh) |
@@ -53,7 +61,8 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `ref_engine` | `RFE_` | [ref_engine.js](../middleware/src/routes/ref_engine.js) | — | — |
 | `ref_ext_core` | `RX_` | [ref_ext.js](../middleware/src/routes/ref_ext.js) | — | — |
 | `report_builder_core` | `RPB_` | [report_builder.js](../middleware/src/routes/report_builder.js) | [report_builder.cases](../tests/cobol/cases/report_builder.cases) | [report_builder_db_tests.sh](../tests/db/report_builder_db_tests.sh) |
-| `report_core` | `RPT_` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
+| `report_core` | `RPT_TEMPLATE_CREATE`, `RPT_TEMPLATE_LIST`, `RPT_TEMPLATE_GET`, `RPT_COLUMN_CREATE`, `RPT_COLUMN_LIST`, `RPT_COLUMN_DELETE`, `RPT_COLUMN_UPDATE`, `RPT_TEMPLATE_UPDATE`, `RPT_TEMPLATE_CLONE`, `RPT_TEMPLATE_DELETE` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
+| `report_run_core` | `RPT_RUN_START`, `RPT_RUN_ROW`, `RPT_RUN_STATUS`, `RPT_RUN_COMPLETE`, `RPT_RUN_FAIL`, `RPT_RUN_LIST`, `RPT_RUN_EXPORT`, `RPT_RUN_DELETE`, `RPT_RUN_RETRY`, `RPT_RUN_GENERATE` | — | — | — |
 | `report_schedule_core` | `RPS_` | [report_schedule.js](../middleware/src/routes/report_schedule.js) | — | [report_schedule_db_tests.sh](../tests/db/report_schedule_db_tests.sh) |
 | `risk_core` | `RISK_` | [risk.js](../middleware/src/routes/risk.js) | — | [risk_db_tests.sh](../tests/db/risk_db_tests.sh) |
 | `sla_tracker_core` | `SLT_` | [sla_tracker.js](../middleware/src/routes/sla_tracker.js) | — | [sla_tracker_db_tests.sh](../tests/db/sla_tracker_db_tests.sh) |
@@ -62,4 +71,9 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `tax_management_core` | `TXM_` | [tax_management.js](../middleware/src/routes/tax_management.js) | [tax_management.cases](../tests/cobol/cases/tax_management.cases) | [tax_management_db_tests.sh](../tests/db/tax_management_db_tests.sh) |
 | `treasury_liquidity_core` | `TRL_` | [treasury_liquidity.js](../middleware/src/routes/treasury_liquidity.js) | [treasury_liquidity.cases](../tests/cobol/cases/treasury_liquidity.cases) | [treasury_liquidity_db_tests.sh](../tests/db/treasury_liquidity_db_tests.sh) |
 | `user_core` | `CONFIRM_EMAIL_CHANGE`, `REACTIVATE_DORMANT`, `DEACTIVATE_ACCOUNT`, `REQ_EMAIL_CHANGE`, `SUSPEND_DORMANT`, `ADMIN_RESET_MFA`, `SET_USER_STATUS`, `UPDATE_PROFILE`, `GET_DASHBOARD`, `MARK_DORMANT`, `UNLOCK_USER`, `LIST_USERS`, `GET_USER` | — | — | — |
-| `wallet_core` | `LIST_RECONCILIATIONS`, `RUN_RECONCILIATION`, `RESOLVE_EXCEPTION`, `REVERSE_TRANSFER`, `ADD_DISPUTE_NOTE`, `RESOLVE_DISPUTE`, `LIST_EXCEPTIONS`, `REJECT_DISPUTE`, `CHECK_BALANCE`, `LIST_DISPUTES`, `ACK_EXCEPTION`, `OPEN_DISPUTE`, `RELEASE_HOLD`, `ACK_DISPUTE`, `GET_DISPUTE`, `PLACE_HOLD`, `TX_STATUS`, `RECONCILE`, `STATEMENT`, `TRANSFER` | [wallet.js](../middleware/src/routes/wallet.js) | — | — |
+| `wallet_core` | `CHECK_BALANCE`, `TX_STATUS`, `TRANSFER` | [wallet.js](../middleware/src/routes/wallet.js) | — | — |
+| `wallet_dispute_core` | `ADD_DISPUTE_NOTE`, `RESOLVE_DISPUTE`, `REJECT_DISPUTE`, `LIST_DISPUTES`, `OPEN_DISPUTE`, `ACK_DISPUTE`, `GET_DISPUTE` | — | — | — |
+| `wallet_hold_core` | `RELEASE_HOLD`, `PLACE_HOLD` | — | — | — |
+| `wallet_recon_core` | `LIST_RECONCILIATIONS`, `RUN_RECONCILIATION`, `RESOLVE_EXCEPTION`, `LIST_EXCEPTIONS`, `ACK_EXCEPTION`, `RECONCILE` | — | — | — |
+| `wallet_reversal_core` | `REVERSE_TRANSFER` | — | — | — |
+| `wallet_statement_core` | `STATEMENT` | — | — | — |

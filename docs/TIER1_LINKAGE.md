@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T11:45:00.741Z
-- Commit: `e5023245`
+- Generated at: 2026-11-06T16:09:39.676Z
+- Commit: `72ae26c4`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 19 |
+| L3 (core transaction) | 18 |
 | L2 (business reference) | 6 |
-| L1 (weak / untested link) | 1 |
-| L0 (isolated) | 23 |
+| L1 (weak / untested link) | 10 |
+| L0 (isolated) | 29 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -22,8 +22,12 @@ Unresolved route files: none.
 | Module | Level | Business tables | Tier-1 calls | Route files | Reason |
 | --- | --- | --- | --- | ---: | --- |
 | `account_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auth_core` | L3 | — | — | 2 | Tier-1 core module |
+| `auth_core` | L3 | — | — | 1 | Tier-1 core module |
+| `auth_mfa_core` | L0 | — | — | 0 | own domain tables only, no core link |
+| `auth_ops_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `auth_password_core` | L3 | — | — | 0 | Tier-1 core module |
+| `auth_recovery_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `auth_review_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `backup_drill_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `bank_guarantee_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `card_core` | L3 | — | — | 1 | Tier-1 core module |
@@ -36,7 +40,7 @@ Unresolved route files: none.
 | `dashboard_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Tier-1 core module |
 | `eod_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `eod_jobs_core` | L1 | accounts | user_core, wallet_core | 1 | linked code with no DB/table/integration test (downgraded) |
+| `eod_jobs_core` | L1 | accounts | user_core | 1 | linked code with no DB/table/integration test (downgraded) |
 | `fee_core` | L3 | — | — | 1 | Tier-1 core module |
 | `fixed_asset_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `fx_rate_core` | L0 | — | — | 1 | own domain tables only, no core link |
@@ -47,9 +51,13 @@ Unresolved route files: none.
 | `import_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `import_post_core` | L3 | gl_journal, gl_journal_line | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
 | `import_recon_core` | L2 | gl_journal_line | — | 1 | business link (tables gl_journal_line) + test |
+| `import_row_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `letter_of_credit_core` | L0 | — | — | 2 | own domain tables only, no core link |
 | `loan_core` | L3 | — | — | 1 | Tier-1 core module |
 | `loan_schedule_core` | L3 | — | — | 1 | Tier-1 core module |
+| `loan_schedule_lifecycle_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `loan_schedule_posting_core` | L1 | loan_application, loan_installment, loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `loan_schedule_report_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `loyalty_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `merchant_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
 | `merchant_settlement_core` | L0 | — | — | 1 | own domain tables only, no core link |
@@ -63,7 +71,8 @@ Unresolved route files: none.
 | `ref_engine` | UTILITY | — | — | 1 | Tier-3 utility (never a retire candidate) |
 | `ref_ext_core` | UTILITY | — | — | 1 | Tier-3 utility (never a retire candidate) |
 | `report_builder_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `report_core` | L3 | gl_journal, gl_journal_line | — | 1 | money-table touch (gl_journal, gl_journal_line) with depth + test |
+| `report_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `report_run_core` | L1 | gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `report_schedule_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `risk_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `sla_tracker_core` | L0 | — | — | 1 | own domain tables only, no core link |
@@ -72,4 +81,9 @@ Unresolved route files: none.
 | `tax_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `treasury_liquidity_core` | L3 | — | — | 1 | Tier-1 core module |
 | `user_core` | L3 | — | — | 1 | Tier-1 core module |
-| `wallet_core` | L3 | — | — | 2 | Tier-1 core module |
+| `wallet_core` | L3 | — | — | 1 | Tier-1 core module |
+| `wallet_dispute_core` | L1 | accounts, ledger | — | 1 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_hold_core` | L1 | accounts | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_recon_core` | L1 | accounts, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_reversal_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_statement_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |

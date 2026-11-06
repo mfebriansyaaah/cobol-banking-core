@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T11:45:00.741Z",
-  "commit": "e5023245",
+  "generatedAt": "2026-11-06T16:09:39.676Z",
+  "commit": "72ae26c4",
   "tier1": "manifest/tier1.json",
   "summary": {
-    "L3": 19,
+    "L3": 18,
     "L2": 6,
-    "L1": 1,
-    "L0": 23,
+    "L1": 10,
+    "L0": 29,
     "UTILITY": 3
   },
   "modules": [
@@ -38,9 +38,32 @@
       "testEvidence": [],
       "reason": "Tier-1 core module",
       "routeFiles": [
-        "admin.js",
         "auth.js"
       ]
+    },
+    {
+      "module": "auth_mfa_core",
+      "source": "auth_mfa_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": []
+    },
+    {
+      "module": "auth_ops_core",
+      "source": "auth_ops_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": []
     },
     {
       "module": "auth_password_core",
@@ -52,6 +75,32 @@
       "hasTests": true,
       "testEvidence": [],
       "reason": "Tier-1 core module",
+      "routeFiles": []
+    },
+    {
+      "module": "auth_recovery_core",
+      "source": "auth_recovery_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": [
+        "admin.js"
+      ]
+    },
+    {
+      "module": "auth_review_core",
+      "source": "auth_review_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
       "routeFiles": []
     },
     {
@@ -258,8 +307,7 @@
         "accounts"
       ],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "t1Actions": [],
       "hasTests": false,
@@ -430,6 +478,18 @@
       ]
     },
     {
+      "module": "import_row_core",
+      "source": "import_row_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": []
+    },
+    {
       "module": "letter_of_credit_core",
       "source": "letter_of_credit_core.cob",
       "linkageLevel": "L0",
@@ -474,6 +534,50 @@
       "routeFiles": [
         "loan_schedule.js"
       ]
+    },
+    {
+      "module": "loan_schedule_lifecycle_core",
+      "source": "loan_schedule_lifecycle_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "loan_schedule"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "loan_schedule_posting_core",
+      "source": "loan_schedule_posting_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "loan_application",
+        "loan_installment",
+        "loan_schedule"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "loan_schedule_report_core",
+      "source": "loan_schedule_report_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "loan_schedule"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
     },
     {
       "module": "loyalty_core",
@@ -700,21 +804,33 @@
     {
       "module": "report_core",
       "source": "report_core.cob",
-      "linkageLevel": "L3",
-      "businessTables": [
-        "gl_journal",
-        "gl_journal_line"
-      ],
+      "linkageLevel": "L0",
+      "businessTables": [],
       "t1Calls": [],
       "t1Actions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/report.cases"
       ],
-      "reason": "money-table touch (gl_journal, gl_journal_line) with depth + test",
+      "reason": "own domain tables only, no core link",
       "routeFiles": [
         "report.js"
       ]
+    },
+    {
+      "module": "report_run_core",
+      "source": "report_run_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "gl_journal",
+        "gl_journal_line"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
     },
     {
       "module": "report_schedule_core",
@@ -859,14 +975,93 @@
       "testEvidence": [],
       "reason": "Tier-1 core module",
       "routeFiles": [
-        "disputes.js",
         "wallet.js"
       ]
+    },
+    {
+      "module": "wallet_dispute_core",
+      "source": "wallet_dispute_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": [
+        "disputes.js"
+      ]
+    },
+    {
+      "module": "wallet_hold_core",
+      "source": "wallet_hold_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "wallet_recon_core",
+      "source": "wallet_recon_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "wallet_reversal_core",
+      "source": "wallet_reversal_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "journal_entries",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [
+        "REVERSE_TRANSFER"
+      ],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "wallet_statement_core",
+      "source": "wallet_statement_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "journal_entries",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
     }
   ],
   "routeModules": {
     "account.js": "account_core",
-    "admin.js": "auth_core",
+    "admin.js": "auth_recovery_core",
     "auth.js": "auth_core",
     "backup_drill.js": "backup_drill_core",
     "bank_guarantee.js": "bank_guarantee_core",
@@ -879,7 +1074,7 @@
     "cost_center.js": "cost_center_core",
     "dashboard.js": "dashboard_core",
     "deposit.js": "deposit_core",
-    "disputes.js": "wallet_core",
+    "disputes.js": "wallet_dispute_core",
     "eod.js": "eod_core",
     "eod_jobs.js": "eod_jobs_core",
     "fee.js": "fee_core",

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T11:33:39.277Z",
-  "commit": "67b2d0f6",
+  "generatedAt": "2026-11-06T16:09:39.893Z",
+  "commit": "72ae26c4",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 545,
   "actions": [
@@ -294,7 +294,7 @@
     },
     {
       "action": "ACK_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "ACK_DISPUTE",
       "method": "post",
       "path": "/disputes/:id/acknowledge",
@@ -317,16 +317,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ACK_EXCEPTION",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "ACK_EXCEPTION",
       "method": "post",
       "path": "/admin/reconcile/acknowledge",
@@ -349,16 +349,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ADD_DISPUTE_NOTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "ADD_DISPUTE_NOTE",
       "method": "post",
       "path": "/disputes/:id/notes",
@@ -381,12 +381,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ADMIN_RESET_MFA",
@@ -422,7 +422,7 @@
     },
     {
       "action": "APPROVE_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "APPROVE_MFA_RECOVERY",
       "method": "post",
       "path": "/admin/mfa-recovery/approve",
@@ -445,16 +445,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "APPROVE_REQUEST",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "APPROVE_REQUEST",
       "method": "post",
       "path": "/admin/requests/approve",
@@ -477,16 +477,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ARCHIVE_AUDIT",
-      "module": "auth_core",
+      "module": "auth_ops_core",
       "prefix": "ARCHIVE_AUDIT",
       "method": "post",
       "path": "/admin/audit/archive",
@@ -509,12 +509,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "AUTH_LOGIN",
@@ -2859,7 +2859,7 @@
     },
     {
       "action": "CLOSE_ACCESS_REVIEW",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "CLOSE_ACCESS_REVIEW",
       "method": "post",
       "path": "/admin/access-reviews/:id/close",
@@ -2882,12 +2882,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "CLT_ALLOCATE",
@@ -4331,7 +4331,7 @@
     },
     {
       "action": "DECIDE_ACCESS_ITEM",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "DECIDE_ACCESS_ITEM",
       "method": "post",
       "path": "/admin/access-review-items/:itemId/decide",
@@ -4354,12 +4354,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "DEP_ACCRUE",
@@ -5189,8 +5189,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5224,8 +5223,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5259,8 +5257,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5294,8 +5291,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5329,8 +5325,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5364,8 +5359,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -6401,7 +6395,7 @@
     },
     {
       "action": "GET_ACCESS_REVIEW",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "GET_ACCESS_REVIEW",
       "method": "get",
       "path": "/admin/access-reviews/:id",
@@ -6424,12 +6418,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "GET_DASHBOARD",
@@ -6465,7 +6459,7 @@
     },
     {
       "action": "GET_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "GET_DISPUTE",
       "method": "get",
       "path": "/disputes/:id",
@@ -6488,12 +6482,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "GET_USER",
@@ -7332,7 +7326,7 @@
     {
       "action": "IMP_BATCH_CLONE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_CLONE",
       "method": "post",
       "path": "/imports/batches/:code/clone",
       "fields": [
@@ -7364,7 +7358,7 @@
     {
       "action": "IMP_BATCH_CREATE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_CREATE",
       "method": "post",
       "path": "/imports/batches",
       "fields": [
@@ -7396,7 +7390,7 @@
     {
       "action": "IMP_BATCH_DELETE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_DELETE",
       "method": "delete",
       "path": "/imports/batches/:code",
       "fields": [
@@ -7428,7 +7422,7 @@
     {
       "action": "IMP_BATCH_EXPORT",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_EXPORT",
       "method": "get",
       "path": "/imports/batches/:code/export",
       "fields": [
@@ -7460,7 +7454,7 @@
     {
       "action": "IMP_BATCH_FAIL",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_FAIL",
       "method": "post",
       "path": "/imports/batches/:code/fail",
       "fields": [
@@ -7492,7 +7486,7 @@
     {
       "action": "IMP_BATCH_GET",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_GET",
       "method": "get",
       "path": "/imports/batches/:code",
       "fields": [
@@ -7524,7 +7518,7 @@
     {
       "action": "IMP_BATCH_LIST",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_LIST",
       "method": "get",
       "path": "/imports/batches",
       "fields": [
@@ -7556,7 +7550,7 @@
     {
       "action": "IMP_BATCH_POST",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_POST",
       "method": "post",
       "path": "/imports/batches/:code/post",
       "fields": [
@@ -7588,7 +7582,7 @@
     {
       "action": "IMP_BATCH_RETRY",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_RETRY",
       "method": "post",
       "path": "/imports/batches/:code/retry",
       "fields": [
@@ -7619,8 +7613,8 @@
     },
     {
       "action": "IMP_BATCH_STAGE_BULK",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_BATCH_STAGE_BULK",
       "method": "post",
       "path": "/imports/batches/:code/bulk",
       "fields": [
@@ -7645,14 +7639,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_BATCH_SUMMARY",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_SUMMARY",
       "method": "get",
       "path": "/imports/batches/:code/summary",
       "fields": [
@@ -7684,7 +7678,7 @@
     {
       "action": "IMP_BATCH_VALIDATE",
       "module": "import_core",
-      "prefix": "IMP_",
+      "prefix": "IMP_BATCH_VALIDATE",
       "method": "post",
       "path": "/imports/batches/:code/validate",
       "fields": [
@@ -7715,8 +7709,8 @@
     },
     {
       "action": "IMP_ERROR_LIST",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ERROR_LIST",
       "method": "get",
       "path": "/imports/batches/:code/errors",
       "fields": [
@@ -7741,14 +7735,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_CORRECT",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_CORRECT",
       "method": "post",
       "path": "/imports/batches/:code/rows/:rowNo",
       "fields": [
@@ -7773,14 +7767,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_SKIP",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_SKIP",
       "method": "post",
       "path": "/imports/batches/:code/rows/:rowNo/skip",
       "fields": [
@@ -7805,14 +7799,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_STAGE",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_STAGE",
       "method": "post",
       "path": "/imports/batches/:code/rows",
       "fields": [
@@ -7837,14 +7831,14 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IMP_ROW_UNSKIP",
-      "module": "import_core",
-      "prefix": "IMP_",
+      "module": "import_row_core",
+      "prefix": "IMP_ROW_UNSKIP",
       "method": "post",
       "path": "/imports/batches/:code/rows/:rowNo/unskip",
       "fields": [
@@ -7869,9 +7863,9 @@
       "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "REVIEW"
     },
     {
       "action": "IRC_EXPORT",
@@ -8163,7 +8157,7 @@
     },
     {
       "action": "LIST_ACCESS_REVIEWS",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "LIST_ACCESS_REVIEWS",
       "method": "get",
       "path": "/admin/access-reviews",
@@ -8186,16 +8180,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_AUDIT",
-      "module": "auth_core",
+      "module": "auth_ops_core",
       "prefix": "LIST_AUDIT",
       "method": "get",
       "path": "/admin/audit",
@@ -8218,16 +8212,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_DISPUTES",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "LIST_DISPUTES",
       "method": "get",
       "path": "/disputes",
@@ -8250,16 +8244,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_EXCEPTIONS",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "LIST_EXCEPTIONS",
       "method": "get",
       "path": "/admin/reconcile/exceptions",
@@ -8282,16 +8276,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "LIST_MFA_RECOVERY",
       "method": "get",
       "path": "/admin/mfa-recovery",
@@ -8314,16 +8308,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_OUTBOX",
-      "module": "auth_core",
+      "module": "auth_ops_core",
       "prefix": "LIST_OUTBOX",
       "method": "get",
       "path": "/admin/outbox",
@@ -8346,16 +8340,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_RECONCILIATIONS",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "LIST_RECONCILIATIONS",
       "method": "get",
       "path": "/admin/reconcile/runs",
@@ -8378,16 +8372,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_REQUESTS",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "LIST_REQUESTS",
       "method": "get",
       "path": "/admin/requests",
@@ -8410,12 +8404,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_SESSIONS",
@@ -9673,7 +9667,7 @@
     {
       "action": "LSC_CREATE",
       "module": "loan_schedule_core",
-      "prefix": "LSC_",
+      "prefix": "LSC_CREATE",
       "method": "post",
       "path": "/loans/:id/schedule",
       "fields": [
@@ -9705,7 +9699,7 @@
     {
       "action": "LSC_DELETE",
       "module": "loan_schedule_core",
-      "prefix": "LSC_",
+      "prefix": "LSC_DELETE",
       "method": "delete",
       "path": "/loans/schedules/:id",
       "fields": [
@@ -9737,7 +9731,7 @@
     {
       "action": "LSC_DETAIL",
       "module": "loan_schedule_core",
-      "prefix": "LSC_",
+      "prefix": "LSC_DETAIL",
       "method": "get",
       "path": "/loans/schedules/:id",
       "fields": [
@@ -9769,7 +9763,7 @@
     {
       "action": "LSC_HISTORY",
       "module": "loan_schedule_core",
-      "prefix": "LSC_",
+      "prefix": "LSC_HISTORY",
       "method": "get",
       "path": "/loans/schedules/:id/history",
       "fields": [
@@ -9801,7 +9795,7 @@
     {
       "action": "LSC_LIST",
       "module": "loan_schedule_core",
-      "prefix": "LSC_",
+      "prefix": "LSC_LIST",
       "method": "get",
       "path": "/loans/:id/schedules",
       "fields": [
@@ -9833,7 +9827,7 @@
     {
       "action": "LSC_SEARCH",
       "module": "loan_schedule_core",
-      "prefix": "LSC_",
+      "prefix": "LSC_SEARCH",
       "method": "get",
       "path": "/loans/schedules/search",
       "fields": [
@@ -9865,7 +9859,7 @@
     {
       "action": "LSC_UPDATE",
       "module": "loan_schedule_core",
-      "prefix": "LSC_",
+      "prefix": "LSC_UPDATE",
       "method": "put",
       "path": "/loans/schedules/:id",
       "fields": [
@@ -10376,7 +10370,7 @@
     },
     {
       "action": "MFA_BACKUP_CODES",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_BACKUP_CODES",
       "method": "post",
       "path": "/mfa/backup-codes",
@@ -10399,16 +10393,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MFA_DISABLE",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_DISABLE",
       "method": "post",
       "path": "/mfa/disable",
@@ -10431,16 +10425,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MFA_ENROLL_BEGIN",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_ENROLL_BEGIN",
       "method": "post",
       "path": "/mfa/enroll",
@@ -10463,16 +10457,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MFA_ENROLL_CONFIRM",
-      "module": "auth_core",
+      "module": "auth_mfa_core",
       "prefix": "MFA_ENROLL_CONFIRM",
       "method": "post",
       "path": "/mfa/confirm",
@@ -10495,12 +10489,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "MRT_ACTIVATE",
@@ -11272,7 +11266,7 @@
     },
     {
       "action": "OPEN_ACCESS_REVIEW",
-      "module": "auth_core",
+      "module": "auth_review_core",
       "prefix": "OPEN_ACCESS_REVIEW",
       "method": "post",
       "path": "/admin/access-reviews",
@@ -11295,16 +11289,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "OPEN_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "OPEN_DISPUTE",
       "method": "post",
       "path": "/disputes",
@@ -11327,12 +11321,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "OTP_ISSUE",
@@ -12236,7 +12230,7 @@
     },
     {
       "action": "PLACE_HOLD",
-      "module": "wallet_core",
+      "module": "wallet_hold_core",
       "prefix": "PLACE_HOLD",
       "method": "post",
       "path": "/admin/holds",
@@ -12259,12 +12253,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "PMC_AUDIT",
@@ -13042,7 +13036,7 @@
     },
     {
       "action": "RECONCILE",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "RECONCILE",
       "method": "get",
       "path": "/admin/reconcile",
@@ -13065,16 +13059,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REJECT_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "REJECT_DISPUTE",
       "method": "post",
       "path": "/disputes/:id/reject",
@@ -13097,16 +13091,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REJECT_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REJECT_MFA_RECOVERY",
       "method": "post",
       "path": "/admin/mfa-recovery/reject",
@@ -13129,16 +13123,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REJECT_REQUEST",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REJECT_REQUEST",
       "method": "post",
       "path": "/admin/requests/reject",
@@ -13161,16 +13155,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RELEASE_HOLD",
-      "module": "wallet_core",
+      "module": "wallet_hold_core",
       "prefix": "RELEASE_HOLD",
       "method": "post",
       "path": "/admin/holds/release",
@@ -13193,16 +13187,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REQUEST_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REQUEST_MFA_RECOVERY",
       "method": "post",
       "path": "/mfa/recover",
@@ -13225,16 +13219,16 @@
       "public": true,
       "stepUp": false,
       "tokenIdentity": null,
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REQUEST_OPERATION",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "REQUEST_OPERATION",
       "method": "post",
       "path": "/admin/requests",
@@ -13257,12 +13251,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REQUEST_SIGNUP",
@@ -13394,7 +13388,7 @@
     },
     {
       "action": "RESOLVE_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "RESOLVE_DISPUTE",
       "method": "post",
       "path": "/disputes/:id/resolve",
@@ -13417,16 +13411,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RESOLVE_EXCEPTION",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "RESOLVE_EXCEPTION",
       "method": "post",
       "path": "/admin/reconcile/resolve",
@@ -13449,16 +13443,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REVERSE_TRANSFER",
-      "module": "wallet_core",
+      "module": "wallet_reversal_core",
       "prefix": "REVERSE_TRANSFER",
       "method": "post",
       "path": "/transactions/:ref/reverse",
@@ -13481,12 +13475,14 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
-      "t1Actions": [],
+      "linkageLevel": "L1",
+      "t1Actions": [
+        "REVERSE_TRANSFER"
+      ],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REVOKE_ALL_SESSIONS",
@@ -14451,7 +14447,7 @@
     {
       "action": "RPT_COLUMN_CREATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_CREATE",
       "method": "post",
       "path": "/reports/templates/:code/columns",
       "fields": [
@@ -14473,17 +14469,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_COLUMN_DELETE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_DELETE",
       "method": "delete",
       "path": "/reports/templates/:code/columns/:ordinal",
       "fields": [
@@ -14505,17 +14501,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_COLUMN_LIST",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_LIST",
       "method": "get",
       "path": "/reports/templates/:code/columns",
       "fields": [
@@ -14537,17 +14533,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_COLUMN_UPDATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_COLUMN_UPDATE",
       "method": "patch",
       "path": "/reports/templates/:code/columns/:ordinal",
       "fields": [
@@ -14569,17 +14565,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_COMPLETE",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_COMPLETE",
       "method": "post",
       "path": "/reports/runs/:id/complete",
       "fields": [
@@ -14601,17 +14597,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_DELETE",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_DELETE",
       "method": "delete",
       "path": "/reports/runs/:id",
       "fields": [
@@ -14633,17 +14629,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_EXPORT",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_EXPORT",
       "method": "get",
       "path": "/reports/runs/:id/export",
       "fields": [
@@ -14665,17 +14661,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_FAIL",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_FAIL",
       "method": "post",
       "path": "/reports/runs/:id/fail",
       "fields": [
@@ -14697,17 +14693,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_GENERATE",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_GENERATE",
       "method": "post",
       "path": "/reports/runs/:id/generate",
       "fields": [
@@ -14729,17 +14725,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_LIST",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_LIST",
       "method": "get",
       "path": "/reports/runs",
       "fields": [
@@ -14761,17 +14757,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_RETRY",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_RETRY",
       "method": "post",
       "path": "/reports/runs/:id/retry",
       "fields": [
@@ -14793,17 +14789,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_ROW",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_ROW",
       "method": "post",
       "path": "/reports/runs/:id/rows",
       "fields": [
@@ -14825,17 +14821,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_START",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_START",
       "method": "post",
       "path": "/reports/runs",
       "fields": [
@@ -14857,17 +14853,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_RUN_STATUS",
-      "module": "report_core",
-      "prefix": "RPT_",
+      "module": "report_run_core",
+      "prefix": "RPT_RUN_STATUS",
       "method": "get",
       "path": "/reports/runs/:id",
       "fields": [
@@ -14889,17 +14885,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_CLONE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_CLONE",
       "method": "post",
       "path": "/reports/templates/:code/clone",
       "fields": [
@@ -14921,17 +14917,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_CREATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_CREATE",
       "method": "post",
       "path": "/reports/templates",
       "fields": [
@@ -14953,17 +14949,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_DELETE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_DELETE",
       "method": "delete",
       "path": "/reports/templates/:code",
       "fields": [
@@ -14985,17 +14981,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_GET",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_GET",
       "method": "get",
       "path": "/reports/templates/:code",
       "fields": [
@@ -15017,17 +15013,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_LIST",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_LIST",
       "method": "get",
       "path": "/reports/templates",
       "fields": [
@@ -15049,17 +15045,17 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RPT_TEMPLATE_UPDATE",
       "module": "report_core",
-      "prefix": "RPT_",
+      "prefix": "RPT_TEMPLATE_UPDATE",
       "method": "patch",
       "path": "/reports/templates/:code",
       "fields": [
@@ -15081,16 +15077,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "report",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RUN_RECONCILIATION",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "RUN_RECONCILIATION",
       "method": "post",
       "path": "/admin/reconcile/run",
@@ -15113,12 +15109,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RX_EXPORT",
@@ -16050,7 +16046,7 @@
     },
     {
       "action": "STATEMENT",
-      "module": "wallet_core",
+      "module": "wallet_statement_core",
       "prefix": "STATEMENT",
       "method": "get",
       "path": "/statements",
@@ -16073,12 +16069,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "STMT_ARCHIVE_EXPORT",
@@ -17459,7 +17455,7 @@
     },
     {
       "action": "VERIFY_MFA_RECOVERY",
-      "module": "auth_core",
+      "module": "auth_recovery_core",
       "prefix": "VERIFY_MFA_RECOVERY",
       "method": "post",
       "path": "/mfa/recover/confirm",
@@ -17482,12 +17478,12 @@
       "public": true,
       "stepUp": false,
       "tokenIdentity": null,
-      "linkageLevel": "L3",
+      "linkageLevel": "L0",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "auth",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "VERIFY_REAUTH",
@@ -17527,7 +17523,7 @@
       "slot": 1,
       "prefix": "REQUEST_MFA_RECOVERY",
       "prefixLen": 20,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 2,
@@ -17539,13 +17535,13 @@
       "slot": 3,
       "prefix": "LIST_RECONCILIATIONS",
       "prefixLen": 20,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 4,
       "prefix": "APPROVE_MFA_RECOVERY",
       "prefixLen": 20,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 5,
@@ -17563,7 +17559,7 @@
       "slot": 7,
       "prefix": "VERIFY_MFA_RECOVERY",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 8,
@@ -17575,19 +17571,19 @@
       "slot": 9,
       "prefix": "MFA_ENROLL_REQUIRED",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 10,
       "prefix": "CLOSE_ACCESS_REVIEW",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 11,
       "prefix": "LIST_ACCESS_REVIEWS",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 12,
@@ -17599,7 +17595,7 @@
       "slot": 13,
       "prefix": "REJECT_MFA_RECOVERY",
       "prefixLen": 19,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 14,
@@ -17611,7 +17607,7 @@
       "slot": 15,
       "prefix": "RUN_RECONCILIATION",
       "prefixLen": 18,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 16,
@@ -17623,19 +17619,19 @@
       "slot": 17,
       "prefix": "DECIDE_ACCESS_ITEM",
       "prefixLen": 18,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 18,
       "prefix": "MFA_ENROLL_CONFIRM",
       "prefixLen": 18,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 19,
       "prefix": "OPEN_ACCESS_REVIEW",
       "prefixLen": 18,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 20,
@@ -17647,19 +17643,19 @@
       "slot": 21,
       "prefix": "REQUEST_OPERATION",
       "prefixLen": 17,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 22,
       "prefix": "LIST_MFA_RECOVERY",
       "prefixLen": 17,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 23,
       "prefix": "RESOLVE_EXCEPTION",
       "prefixLen": 17,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 24,
@@ -17671,43 +17667,43 @@
       "slot": 25,
       "prefix": "GET_ACCESS_REVIEW",
       "prefixLen": 17,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 26,
       "prefix": "APPROVE_REQUEST",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 27,
       "prefix": "LIST_PERMISSIONS",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 28,
       "prefix": "CHECK_PERMISSION",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_review_core"
     },
     {
       "slot": 29,
       "prefix": "MFA_BACKUP_CODES",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 30,
       "prefix": "REVERSE_TRANSFER",
       "prefixLen": 16,
-      "program": "wallet_core"
+      "program": "wallet_reversal_core"
     },
     {
       "slot": 31,
       "prefix": "MFA_ENROLL_BEGIN",
       "prefixLen": 16,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 32,
@@ -17725,7 +17721,7 @@
       "slot": 34,
       "prefix": "ADD_DISPUTE_NOTE",
       "prefixLen": 16,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 35,
@@ -17737,7 +17733,7 @@
       "slot": 36,
       "prefix": "RESOLVE_DISPUTE",
       "prefixLen": 15,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 37,
@@ -17749,7 +17745,7 @@
       "slot": 38,
       "prefix": "LIST_EXCEPTIONS",
       "prefixLen": 15,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 39,
@@ -17779,19 +17775,19 @@
       "slot": 43,
       "prefix": "REJECT_REQUEST",
       "prefixLen": 14,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 44,
       "prefix": "LIST_REQUESTS",
       "prefixLen": 14,
-      "program": "auth_core"
+      "program": "auth_recovery_core"
     },
     {
       "slot": 45,
       "prefix": "REJECT_DISPUTE",
       "prefixLen": 14,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 46,
@@ -17851,19 +17847,19 @@
       "slot": 55,
       "prefix": "LIST_DISPUTES",
       "prefixLen": 13,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 56,
       "prefix": "ACK_EXCEPTION",
       "prefixLen": 13,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 57,
       "prefix": "ARCHIVE_AUDIT",
       "prefixLen": 13,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 58,
@@ -17875,7 +17871,7 @@
       "slot": 59,
       "prefix": "OUTBOX_CLAIM",
       "prefixLen": 12,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 60,
@@ -17887,19 +17883,19 @@
       "slot": 61,
       "prefix": "OPEN_DISPUTE",
       "prefixLen": 12,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 62,
       "prefix": "LIST_OUTBOX",
       "prefixLen": 12,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 63,
       "prefix": "RELEASE_HOLD",
       "prefixLen": 12,
-      "program": "wallet_core"
+      "program": "wallet_hold_core"
     },
     {
       "slot": 64,
@@ -17911,7 +17907,7 @@
       "slot": 65,
       "prefix": "MFA_DISABLE",
       "prefixLen": 11,
-      "program": "auth_core"
+      "program": "auth_mfa_core"
     },
     {
       "slot": 66,
@@ -17923,7 +17919,7 @@
       "slot": 67,
       "prefix": "ACK_DISPUTE",
       "prefixLen": 11,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 68,
@@ -17941,13 +17937,13 @@
       "slot": 70,
       "prefix": "GET_DISPUTE",
       "prefixLen": 11,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 71,
       "prefix": "OUTBOX_MARK",
       "prefixLen": 11,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 72,
@@ -17959,7 +17955,7 @@
       "slot": 73,
       "prefix": "PLACE_HOLD",
       "prefixLen": 10,
-      "program": "wallet_core"
+      "program": "wallet_hold_core"
     },
     {
       "slot": 74,
@@ -17977,7 +17973,7 @@
       "slot": 76,
       "prefix": "LIST_AUDIT",
       "prefixLen": 10,
-      "program": "auth_core"
+      "program": "auth_ops_core"
     },
     {
       "slot": 77,
@@ -17989,13 +17985,13 @@
       "slot": 78,
       "prefix": "RECONCILE",
       "prefixLen": 9,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 79,
       "prefix": "STATEMENT",
       "prefixLen": 9,
-      "program": "wallet_core"
+      "program": "wallet_statement_core"
     },
     {
       "slot": 80,
@@ -18071,243 +18067,615 @@
     },
     {
       "slot": 92,
-      "prefix": "LSC_",
-      "prefixLen": 4,
-      "program": "loan_schedule_core"
-    },
-    {
-      "slot": 93,
       "prefix": "FEE_",
       "prefixLen": 4,
       "program": "fee_core"
     },
     {
-      "slot": 94,
-      "prefix": "RPT_",
-      "prefixLen": 4,
-      "program": "report_core"
-    },
-    {
-      "slot": 95,
+      "slot": 93,
       "prefix": "PAY_",
       "prefixLen": 4,
       "program": "payment_core"
     },
     {
-      "slot": 96,
+      "slot": 94,
       "prefix": "EOD_",
       "prefixLen": 4,
       "program": "eod_core"
     },
     {
-      "slot": 97,
+      "slot": 95,
       "prefix": "PIC_",
       "prefixLen": 4,
       "program": "payment_instruction_core"
     },
     {
-      "slot": 98,
+      "slot": 96,
       "prefix": "PING",
       "prefixLen": 4,
       "program": "auth_core"
     },
     {
-      "slot": 99,
+      "slot": 97,
       "prefix": "DSH_",
       "prefixLen": 4,
       "program": "dashboard_core"
     },
     {
-      "slot": 100,
-      "prefix": "IMP_",
-      "prefixLen": 4,
-      "program": "import_core"
-    },
-    {
-      "slot": 101,
+      "slot": 98,
       "prefix": "FAS_",
       "prefixLen": 4,
       "program": "fixed_asset_core"
     },
     {
-      "slot": 102,
+      "slot": 99,
       "prefix": "CSC_",
       "prefixLen": 4,
       "program": "cost_center_core"
     },
     {
-      "slot": 103,
+      "slot": 100,
       "prefix": "IRC_",
       "prefixLen": 4,
       "program": "import_recon_core"
     },
     {
-      "slot": 104,
+      "slot": 101,
       "prefix": "ACC_",
       "prefixLen": 4,
       "program": "account_core"
     },
     {
-      "slot": 105,
+      "slot": 102,
       "prefix": "VEL_",
       "prefixLen": 4,
       "program": "fee_core"
     },
     {
-      "slot": 106,
+      "slot": 103,
       "prefix": "GLA_",
       "prefixLen": 4,
       "program": "gl_allocation_core"
     },
     {
-      "slot": 107,
+      "slot": 104,
       "prefix": "DEP_",
       "prefixLen": 4,
       "program": "deposit_core"
     },
     {
-      "slot": 108,
+      "slot": 105,
       "prefix": "COL_",
       "prefixLen": 4,
       "program": "collection_core"
     },
     {
-      "slot": 109,
+      "slot": 106,
       "prefix": "RFE_",
       "prefixLen": 4,
       "program": "ref_engine"
     },
     {
-      "slot": 110,
+      "slot": 107,
       "prefix": "PHL_",
       "prefixLen": 4,
       "program": "payment_hold_core"
     },
     {
-      "slot": 111,
+      "slot": 108,
       "prefix": "CLT_",
       "prefixLen": 4,
       "program": "collateral_core"
     },
     {
-      "slot": 112,
+      "slot": 109,
       "prefix": "RX_",
       "prefixLen": 3,
       "program": "ref_ext_core"
     },
     {
-      "slot": 113,
+      "slot": 110,
       "prefix": "GL_",
       "prefixLen": 3,
       "program": "gl_core"
     },
     {
-      "slot": 114,
+      "slot": 111,
       "prefix": "MRT_",
       "prefixLen": 4,
       "program": "merchant_core"
     },
     {
-      "slot": 115,
+      "slot": 112,
       "prefix": "NTP_",
       "prefixLen": 4,
       "program": "notification_template_core"
     },
     {
-      "slot": 116,
+      "slot": 113,
       "prefix": "RPS_",
       "prefixLen": 4,
       "program": "report_schedule_core"
     },
     {
-      "slot": 117,
+      "slot": 114,
       "prefix": "SLT_",
       "prefixLen": 4,
       "program": "sla_tracker_core"
     },
     {
-      "slot": 118,
+      "slot": 115,
       "prefix": "CCL_",
       "prefixLen": 4,
       "program": "compliance_calendar_core"
     },
     {
-      "slot": 119,
+      "slot": 116,
       "prefix": "LOC_",
       "prefixLen": 4,
       "program": "letter_of_credit_core"
     },
     {
-      "slot": 120,
+      "slot": 117,
       "prefix": "BKG_",
       "prefixLen": 4,
       "program": "bank_guarantee_core"
     },
     {
-      "slot": 121,
+      "slot": 118,
       "prefix": "PRL_",
       "prefixLen": 4,
       "program": "payroll_processing_core"
     },
     {
-      "slot": 122,
+      "slot": 119,
       "prefix": "MCS_",
       "prefixLen": 4,
       "program": "merchant_settlement_core"
     },
     {
-      "slot": 123,
+      "slot": 120,
       "prefix": "TXM_",
       "prefixLen": 4,
       "program": "tax_management_core"
     },
     {
-      "slot": 124,
+      "slot": 121,
       "prefix": "CHB_",
       "prefixLen": 4,
       "program": "chargeback_core"
     },
     {
-      "slot": 125,
+      "slot": 122,
       "prefix": "LOY_",
       "prefixLen": 4,
       "program": "loyalty_core"
     },
     {
-      "slot": 126,
+      "slot": 123,
       "prefix": "OTP_",
       "prefixLen": 4,
       "program": "phone_otp_core"
     },
     {
-      "slot": 127,
+      "slot": 124,
       "prefix": "IDV_",
       "prefixLen": 4,
       "program": "identity_core"
     },
     {
-      "slot": 128,
+      "slot": 125,
       "prefix": "SCR_",
       "prefixLen": 4,
       "program": "identity_core"
     },
     {
-      "slot": 129,
+      "slot": 126,
       "prefix": "FX_",
       "prefixLen": 3,
       "program": "fx_rate_core"
     },
     {
-      "slot": 130,
+      "slot": 127,
       "prefix": "RISK_",
       "prefixLen": 5,
       "program": "risk_core"
     },
     {
-      "slot": 131,
+      "slot": 128,
       "prefix": "CORP_",
       "prefixLen": 5,
       "program": "corp_core"
+    },
+    {
+      "slot": 129,
+      "prefix": "LSC_CREATE",
+      "prefixLen": 10,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 130,
+      "prefix": "LSC_GET",
+      "prefixLen": 7,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 131,
+      "prefix": "LSC_LIST",
+      "prefixLen": 8,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 132,
+      "prefix": "LSC_DETAIL",
+      "prefixLen": 10,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 133,
+      "prefix": "LSC_UPDATE",
+      "prefixLen": 10,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 134,
+      "prefix": "LSC_DELETE",
+      "prefixLen": 10,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 135,
+      "prefix": "LSC_SEARCH",
+      "prefixLen": 10,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 136,
+      "prefix": "LSC_HISTORY",
+      "prefixLen": 11,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 137,
+      "prefix": "LSC_VALIDATE",
+      "prefixLen": 12,
+      "program": "loan_schedule_core"
+    },
+    {
+      "slot": 138,
+      "prefix": "LSC_APPROVE",
+      "prefixLen": 11,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 139,
+      "prefix": "LSC_REJECT",
+      "prefixLen": 10,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 140,
+      "prefix": "LSC_CLOSE",
+      "prefixLen": 9,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 141,
+      "prefix": "LSC_REOPEN",
+      "prefixLen": 10,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 142,
+      "prefix": "LSC_CANCEL",
+      "prefixLen": 10,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 143,
+      "prefix": "LSC_HOLD",
+      "prefixLen": 8,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 144,
+      "prefix": "LSC_RELEASE",
+      "prefixLen": 11,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 145,
+      "prefix": "LSC_STATUS",
+      "prefixLen": 10,
+      "program": "loan_schedule_lifecycle_core"
+    },
+    {
+      "slot": 146,
+      "prefix": "LSC_POST",
+      "prefixLen": 8,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 147,
+      "prefix": "LSC_ACCRUE",
+      "prefixLen": 10,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 148,
+      "prefix": "LSC_SETTLE",
+      "prefixLen": 10,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 149,
+      "prefix": "LSC_CALC",
+      "prefixLen": 8,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 150,
+      "prefix": "LSC_SCHEDULED",
+      "prefixLen": 13,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 151,
+      "prefix": "LSC_FORECAST",
+      "prefixLen": 12,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 152,
+      "prefix": "LSC_OVERRIDE",
+      "prefixLen": 12,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 153,
+      "prefix": "LSC_ADJUST",
+      "prefixLen": 10,
+      "program": "loan_schedule_posting_core"
+    },
+    {
+      "slot": 154,
+      "prefix": "LSC_SUMMARY",
+      "prefixLen": 11,
+      "program": "loan_schedule_report_core"
+    },
+    {
+      "slot": 155,
+      "prefix": "LSC_EXPORT",
+      "prefixLen": 10,
+      "program": "loan_schedule_report_core"
+    },
+    {
+      "slot": 156,
+      "prefix": "LSC_AUDIT",
+      "prefixLen": 9,
+      "program": "loan_schedule_report_core"
+    },
+    {
+      "slot": 157,
+      "prefix": "RPT_TEMPLATE_CREATE",
+      "prefixLen": 19,
+      "program": "report_core"
+    },
+    {
+      "slot": 158,
+      "prefix": "RPT_TEMPLATE_LIST",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 159,
+      "prefix": "RPT_TEMPLATE_GET",
+      "prefixLen": 16,
+      "program": "report_core"
+    },
+    {
+      "slot": 160,
+      "prefix": "RPT_COLUMN_CREATE",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 161,
+      "prefix": "RPT_COLUMN_LIST",
+      "prefixLen": 15,
+      "program": "report_core"
+    },
+    {
+      "slot": 162,
+      "prefix": "RPT_COLUMN_DELETE",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 163,
+      "prefix": "RPT_COLUMN_UPDATE",
+      "prefixLen": 17,
+      "program": "report_core"
+    },
+    {
+      "slot": 164,
+      "prefix": "RPT_TEMPLATE_UPDATE",
+      "prefixLen": 19,
+      "program": "report_core"
+    },
+    {
+      "slot": 165,
+      "prefix": "RPT_TEMPLATE_CLONE",
+      "prefixLen": 18,
+      "program": "report_core"
+    },
+    {
+      "slot": 166,
+      "prefix": "RPT_TEMPLATE_DELETE",
+      "prefixLen": 19,
+      "program": "report_core"
+    },
+    {
+      "slot": 167,
+      "prefix": "RPT_RUN_START",
+      "prefixLen": 13,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 168,
+      "prefix": "RPT_RUN_ROW",
+      "prefixLen": 11,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 169,
+      "prefix": "RPT_RUN_STATUS",
+      "prefixLen": 14,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 170,
+      "prefix": "RPT_RUN_COMPLETE",
+      "prefixLen": 16,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 171,
+      "prefix": "RPT_RUN_FAIL",
+      "prefixLen": 12,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 172,
+      "prefix": "RPT_RUN_LIST",
+      "prefixLen": 12,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 173,
+      "prefix": "RPT_RUN_EXPORT",
+      "prefixLen": 14,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 174,
+      "prefix": "RPT_RUN_DELETE",
+      "prefixLen": 14,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 175,
+      "prefix": "RPT_RUN_RETRY",
+      "prefixLen": 13,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 176,
+      "prefix": "RPT_RUN_GENERATE",
+      "prefixLen": 16,
+      "program": "report_run_core"
+    },
+    {
+      "slot": 177,
+      "prefix": "IMP_BATCH_CREATE",
+      "prefixLen": 16,
+      "program": "import_core"
+    },
+    {
+      "slot": 178,
+      "prefix": "IMP_BATCH_LIST",
+      "prefixLen": 14,
+      "program": "import_core"
+    },
+    {
+      "slot": 179,
+      "prefix": "IMP_BATCH_GET",
+      "prefixLen": 13,
+      "program": "import_core"
+    },
+    {
+      "slot": 180,
+      "prefix": "IMP_BATCH_VALIDATE",
+      "prefixLen": 18,
+      "program": "import_core"
+    },
+    {
+      "slot": 181,
+      "prefix": "IMP_BATCH_POST",
+      "prefixLen": 14,
+      "program": "import_core"
+    },
+    {
+      "slot": 182,
+      "prefix": "IMP_BATCH_FAIL",
+      "prefixLen": 14,
+      "program": "import_core"
+    },
+    {
+      "slot": 183,
+      "prefix": "IMP_BATCH_EXPORT",
+      "prefixLen": 16,
+      "program": "import_core"
+    },
+    {
+      "slot": 184,
+      "prefix": "IMP_BATCH_CLONE",
+      "prefixLen": 15,
+      "program": "import_core"
+    },
+    {
+      "slot": 185,
+      "prefix": "IMP_BATCH_DELETE",
+      "prefixLen": 16,
+      "program": "import_core"
+    },
+    {
+      "slot": 186,
+      "prefix": "IMP_BATCH_RETRY",
+      "prefixLen": 15,
+      "program": "import_core"
+    },
+    {
+      "slot": 187,
+      "prefix": "IMP_BATCH_SUMMARY",
+      "prefixLen": 17,
+      "program": "import_core"
+    },
+    {
+      "slot": 188,
+      "prefix": "IMP_ROW_STAGE",
+      "prefixLen": 13,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 189,
+      "prefix": "IMP_ROW_CORRECT",
+      "prefixLen": 15,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 190,
+      "prefix": "IMP_ERROR_LIST",
+      "prefixLen": 14,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 191,
+      "prefix": "IMP_BATCH_STAGE_BULK",
+      "prefixLen": 20,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 192,
+      "prefix": "IMP_ROW_SKIP",
+      "prefixLen": 12,
+      "program": "import_row_core"
+    },
+    {
+      "slot": 193,
+      "prefix": "IMP_ROW_UNSKIP",
+      "prefixLen": 14,
+      "program": "import_row_core"
     }
   ]
 }

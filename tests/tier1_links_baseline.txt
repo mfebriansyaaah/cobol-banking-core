@@ -8,6 +8,10 @@
 # This baseline must only shrink (PR-010A..D retire the entries).
 # Never add an entry to make CI green.
 account_core L0
+auth_mfa_core L0
+auth_ops_core L0
+auth_recovery_core L0
+auth_review_core L0
 backup_drill_core L0
 bank_guarantee_core L0
 chargeback_core L0
@@ -21,13 +25,24 @@ fx_rate_core L0
 gl_allocation_core L0
 identity_core L0
 import_core L0
+import_row_core L0
 letter_of_credit_core L0
+loan_schedule_lifecycle_core L1
+loan_schedule_posting_core L1
+loan_schedule_report_core L1
 loyalty_core L0
 merchant_settlement_core L0
 notification_template_core L0
 phone_otp_core L0
 report_builder_core L0
+report_core L0
+report_run_core L1
 report_schedule_core L0
 risk_core L0
 sla_tracker_core L0
 tax_management_core L0
+wallet_dispute_core L1
+wallet_hold_core L1
+wallet_recon_core L1
+wallet_reversal_core L1
+wallet_statement_core L1

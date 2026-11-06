@@ -136,18 +136,9 @@
                WHEN LS-CMD-ACTION(1:13) = "IMP_BATCH_GET"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-BATCH-GET
-               WHEN LS-CMD-ACTION(1:13) = "IMP_ROW_STAGE"
-                   PERFORM TRIM-ALL
-                   PERFORM ACTION-ROW-STAGE
                WHEN LS-CMD-ACTION(1:18) = "IMP_BATCH_VALIDATE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-BATCH-VALIDATE
-               WHEN LS-CMD-ACTION(1:15) = "IMP_ROW_CORRECT"
-                   PERFORM TRIM-ALL
-                   PERFORM ACTION-ROW-CORRECT
-               WHEN LS-CMD-ACTION(1:14) = "IMP_ERROR_LIST"
-                   PERFORM TRIM-ALL
-                   PERFORM ACTION-ERROR-LIST
                WHEN LS-CMD-ACTION(1:14) = "IMP_BATCH_POST"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-BATCH-POST
@@ -157,18 +148,9 @@
                WHEN LS-CMD-ACTION(1:16) = "IMP_BATCH_EXPORT"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-BATCH-EXPORT
-               WHEN LS-CMD-ACTION(1:20) = "IMP_BATCH_STAGE_BULK"
-                   PERFORM TRIM-ALL
-                   PERFORM ACTION-BATCH-STAGE-BULK
                WHEN LS-CMD-ACTION(1:15) = "IMP_BATCH_CLONE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-BATCH-CLONE
-               WHEN LS-CMD-ACTION(1:12) = "IMP_ROW_SKIP"
-                   PERFORM TRIM-ALL
-                   PERFORM ACTION-ROW-SKIP
-               WHEN LS-CMD-ACTION(1:14) = "IMP_ROW_UNSKIP"
-                   PERFORM TRIM-ALL
-                   PERFORM ACTION-ROW-UNSKIP
                WHEN LS-CMD-ACTION(1:16) = "IMP_BATCH_DELETE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-BATCH-DELETE
@@ -182,6 +164,10 @@
                    MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
            END-EVALUATE.
            GOBACK.
+
+        COPY "common_trim.cpy".
+        COPY "common_validate.cpy".
+        COPY "common_result.cpy".
 
        VALIDATE-ALL.
            MOVE 0 TO WS-BAD
@@ -230,10 +216,6 @@
            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
            EXIT PARAGRAPH.
 
-        COPY "common_trim.cpy".
-        COPY "common_validate.cpy".
-
-
        VALIDATE-CODE-FIELD.
            MOVE 0 TO WS-BAD
            MOVE 0 TO WS-CODE-LEN
@@ -255,7 +237,6 @@
                END-IF
            END-PERFORM.
            EXIT PARAGRAPH.
-
 
        VALIDATE-DECIMAL-FIELD.
            MOVE 0 TO WS-BAD
@@ -386,8 +367,6 @@
                END-IF
            END-PERFORM.
            EXIT PARAGRAPH.
-
-        COPY "common_result.cpy".
 
        VALIDATE-IMPORT-ROW.
            MOVE SPACES TO WS-ROW-STATUS WS-ROW-ERR WS-ROW-DETAIL
@@ -786,90 +765,6 @@
            END-IF.
            EXIT PARAGRAPH.
 
-       ACTION-ROW-STAGE.
-           PERFORM ALLOW-ADMIN
-           IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-BATCH
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-BATCH-STATUS NOT = "STAGED"
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-P2-TRIMMED(1:30) TO WS-COUNT-IN
-           PERFORM VALIDATE-COUNT-FIELD
-           IF WS-BAD > 0 OR FUNCTION NUMVAL(WS-COUNT-IN) < 1
-              OR FUNCTION NUMVAL(WS-COUNT-IN) > 99999
-               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE "SELECT 1 FROM import_row WHERE batch_id = ? AND row_no = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-BATCH-ID TO WS-BIND-1
-           MOVE WS-P2-TRIMMED TO WS-BIND-2
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "1"
-               MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           SET STEP-OK TO TRUE
-           MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
-           MOVE "INSERT INTO import_row (batch_id, row_no, raw_data, status) VALUES (?, ?, ?, 'STAGED')" TO WS-PREP-SQL
-           MOVE WS-BATCH-ID TO WS-BIND-1
-           MOVE WS-P2-TRIMMED TO WS-BIND-2
-           MOVE WS-P3-TRIMMED TO WS-BIND-3
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE WS-RESULT(1:40) TO WS-ERR
-               SET STEP-FAIL TO TRUE
-           END-IF.
-           IF STEP-OK
-               MOVE "UPDATE import_batch SET total_rows = total_rows + 1, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
-               MOVE WS-BATCH-ID TO WS-BIND-1
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE WS-RESULT(1:40) TO WS-ERR
-                   SET STEP-FAIL TO TRUE
-               END-IF
-           END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|IMP_ROW_STAGED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
-           EXIT PARAGRAPH.
-
        ACTION-BATCH-VALIDATE.
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
@@ -1004,149 +899,6 @@
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
-           EXIT PARAGRAPH.
-
-       ACTION-ROW-CORRECT.
-           PERFORM ALLOW-ADMIN
-           IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-BATCH
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-BATCH-STATUS NOT = "VALIDATED" AND WS-BATCH-STATUS NOT = "FAILED"
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-ROW
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           SET STEP-OK TO TRUE
-           MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
-           MOVE "UPDATE import_row SET raw_data = ?, status = 'STAGED', error_code = NULL, error_detail = NULL WHERE id = ?" TO WS-PREP-SQL
-           MOVE WS-P3-TRIMMED TO WS-BIND-1
-           MOVE WS-ROW-ID TO WS-BIND-2
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE WS-RESULT(1:40) TO WS-ERR
-               SET STEP-FAIL TO TRUE
-           END-IF.
-           IF STEP-OK
-               MOVE "UPDATE import_batch SET status = 'STAGED', valid_rows = 0, invalid_rows = 0, posted_rows = 0, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
-               MOVE WS-BATCH-ID TO WS-BIND-1
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE WS-RESULT(1:40) TO WS-ERR
-                   SET STEP-FAIL TO TRUE
-               END-IF
-           END-IF.
-           IF STEP-OK
-               MOVE "ROW_CORRECT" TO WS-AUDIT-ACTION
-               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-BATCH
-               MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
-               PERFORM AUDIT-IMPORT
-           END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|IMP_ROW_CORRECTED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
-           EXIT PARAGRAPH.
-
-       ACTION-ERROR-LIST.
-           PERFORM ALLOW-ADMIN
-           IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF LS-PARAM1 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE "50" TO WS-LIMIT
-           MOVE "0" TO WS-OFFSET
-           IF LS-PARAM2 NOT = SPACES
-               MOVE WS-P2-TRIMMED(1:WS-P2-LEN) TO WS-LIMIT
-           END-IF.
-           IF LS-PARAM3 NOT = SPACES
-               MOVE WS-P3-TRIMMED(1:WS-P3-LEN) TO WS-OFFSET
-           END-IF.
-           PERFORM CHECK-BATCH
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM import_row WHERE batch_id = ? AND status = 'INVALID'" TO WS-PREP-SQL
-           MOVE WS-BATCH-ID TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF
-           MOVE WS-RESULT(1:20) TO WS-TOTAL
-           MOVE "SELECT CONCAT(row_no, ':', error_code, ':', error_detail, ':', raw_data) FROM import_row WHERE batch_id = ? AND status = 'INVALID' ORDER BY row_no LIMIT ? OFFSET ?" TO WS-PREP-SQL
-           MOVE WS-BATCH-ID TO WS-BIND-1
-           MOVE WS-LIMIT TO WS-BIND-2
-           MOVE WS-OFFSET TO WS-BIND-3
-           CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           MOVE SPACES TO LS-OUTPUT-BUFFER
-           IF WS-RESULT = "ERROR|NO_DATA"
-               STRING "SUCCESS|IMP_ERRORS|" DELIMITED BY SIZE
-                      WS-TOTAL DELIMITED BY SPACE
-                      INTO LS-OUTPUT-BUFFER
-               END-STRING
-           ELSE
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
-               PERFORM TRIM-RESULT-LEN
-               STRING "SUCCESS|IMP_ERRORS|" DELIMITED BY SIZE
-                      WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
-                      WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
-                      INTO LS-OUTPUT-BUFFER
-               END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -1326,139 +1078,6 @@
            END-STRING.
            EXIT PARAGRAPH.
 
-       STAGE-CHUNK.
-           MOVE SPACES TO WS-CHUNK
-           MOVE WS-CHUNK-SOURCE TO WS-TRIM-IN
-           PERFORM TRIM-VALUE
-           MOVE WS-TRIM-OUT TO WS-CHUNK
-           MOVE WS-TRIM-LEN TO WS-CHUNK-LEN
-           IF WS-CHUNK-LEN = 0 OR WS-CHUNK = SPACES
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE 1 TO WS-CHUNK-PTR
-           PERFORM UNTIL WS-CHUNK-PTR > WS-CHUNK-LEN OR STEP-FAIL
-               MOVE SPACES TO WS-LINE
-               UNSTRING WS-CHUNK DELIMITED BY ";" INTO WS-LINE
-                   WITH POINTER WS-CHUNK-PTR
-               END-UNSTRING
-               MOVE WS-LINE TO WS-TRIM-IN
-               PERFORM TRIM-VALUE
-               MOVE WS-TRIM-OUT TO WS-LINE
-               MOVE WS-TRIM-LEN TO WS-LINE-LEN
-               IF WS-LINE NOT = SPACES
-                   ADD 1 TO WS-ROW-INDEX END-ADD
-                   MOVE WS-ROW-INDEX TO WS-ROW-INDEX-ED
-                   MOVE WS-ROW-INDEX-ED TO WS-ROW-NO
-                   MOVE "INSERT INTO import_row (batch_id, row_no, raw_data, status) VALUES (?, ?, ?, 'STAGED')" TO WS-PREP-SQL
-                   MOVE WS-BATCH-ID TO WS-BIND-1
-                   MOVE WS-ROW-NO TO WS-BIND-2
-                   MOVE WS-LINE TO WS-BIND-3
-                   CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                       BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                       BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                   END-CALL
-                   CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                   IF WS-RESULT(1:5) = "ERROR"
-                       MOVE WS-RESULT(1:40) TO WS-ERR
-                       SET STEP-FAIL TO TRUE
-                   ELSE
-                       ADD 1 TO WS-STAGED-COUNT END-ADD
-                   END-IF
-               END-IF
-           END-PERFORM.
-           EXIT PARAGRAPH.
-
-       ACTION-BATCH-STAGE-BULK.
-           PERFORM ALLOW-ADMIN
-           IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF LS-PARAM1 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-BATCH
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-BATCH-STATUS NOT = "STAGED"
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE "SELECT CAST(COALESCE(MAX(row_no), 0) AS CHAR) FROM import_row WHERE batch_id = ?" TO WS-PREP-SQL
-           MOVE WS-BATCH-ID TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-RESULT(1:10) TO WS-ROW-NO
-           COMPUTE WS-ROW-INDEX = FUNCTION NUMVAL(WS-ROW-NO) END-COMPUTE
-           MOVE 0 TO WS-STAGED-COUNT
-           SET STEP-OK TO TRUE
-           MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
-           MOVE WS-P2-TRIMMED TO WS-CHUNK-SOURCE
-           PERFORM STAGE-CHUNK
-           MOVE WS-P3-TRIMMED TO WS-CHUNK-SOURCE
-           PERFORM STAGE-CHUNK
-           MOVE WS-P4-TRIMMED TO WS-CHUNK-SOURCE
-           PERFORM STAGE-CHUNK
-           MOVE WS-P5-TRIMMED TO WS-CHUNK-SOURCE
-           PERFORM STAGE-CHUNK
-           IF STEP-OK AND WS-STAGED-COUNT = 0
-               MOVE "ERROR|NO_ROWS" TO WS-ERR
-               SET STEP-FAIL TO TRUE
-           END-IF.
-           IF STEP-OK
-               MOVE "UPDATE import_batch SET total_rows = total_rows + ?, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
-               MOVE WS-STAGED-COUNT TO WS-BIND-1
-               MOVE WS-BATCH-ID TO WS-BIND-2
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE WS-RESULT(1:40) TO WS-ERR
-                   SET STEP-FAIL TO TRUE
-               END-IF
-           END-IF.
-           IF STEP-OK
-               MOVE "BATCH_STAGE_BULK" TO WS-AUDIT-ACTION
-               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-BATCH
-               MOVE WS-STAGED-COUNT TO WS-COUNT-IN
-               MOVE WS-COUNT-IN(1:9) TO WS-AUDIT-DETAIL
-               PERFORM AUDIT-IMPORT
-           END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE WS-STAGED-COUNT TO WS-VALID-COUNT-ED
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|IMP_BULK_STAGED|" DELIMITED BY SIZE
-                      FUNCTION TRIM(WS-VALID-COUNT-ED) DELIMITED BY SIZE
-                      INTO LS-OUTPUT-BUFFER
-               END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               IF WS-ERR = "ERROR|NO_ROWS"
-                   MOVE "ERROR|NO_ROWS" TO LS-OUTPUT-BUFFER
-               ELSE
-                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               END-IF
-           END-IF.
-           EXIT PARAGRAPH.
-
        ACTION-BATCH-CLONE.
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
@@ -1565,112 +1184,6 @@
                       WS-BATCH-ID DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
                END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
-           EXIT PARAGRAPH.
-
-       ACTION-ROW-SKIP.
-           PERFORM ALLOW-ADMIN
-           IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-BATCH
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-BATCH-STATUS NOT = "VALIDATED"
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-ROW
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           SET STEP-OK TO TRUE
-           MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
-           MOVE "UPDATE import_row SET status = 'SKIPPED' WHERE id = ?" TO WS-PREP-SQL
-           MOVE WS-ROW-ID TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE WS-RESULT(1:40) TO WS-ERR
-               SET STEP-FAIL TO TRUE
-           END-IF.
-           IF STEP-OK
-               MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM import_row WHERE batch_id = ? AND status = 'VALID'" TO WS-PREP-SQL
-               MOVE WS-BATCH-ID TO WS-BIND-1
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE WS-RESULT(1:40) TO WS-ERR
-                   SET STEP-FAIL TO TRUE
-               ELSE
-                   MOVE WS-RESULT(1:20) TO WS-COUNT1
-               END-IF
-           END-IF.
-           IF STEP-OK
-               MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM import_row WHERE batch_id = ? AND status = 'INVALID'" TO WS-PREP-SQL
-               MOVE WS-BATCH-ID TO WS-BIND-1
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE WS-RESULT(1:40) TO WS-ERR
-                   SET STEP-FAIL TO TRUE
-               ELSE
-                   MOVE WS-RESULT(1:20) TO WS-COUNT2
-               END-IF
-           END-IF.
-           IF STEP-OK
-               MOVE "UPDATE import_batch SET valid_rows = ?, invalid_rows = ?, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
-               MOVE WS-COUNT1 TO WS-BIND-1
-               MOVE WS-COUNT2 TO WS-BIND-2
-               MOVE WS-BATCH-ID TO WS-BIND-3
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE WS-RESULT(1:40) TO WS-ERR
-                   SET STEP-FAIL TO TRUE
-               END-IF
-           END-IF.
-           IF STEP-OK
-               MOVE "ROW_SKIP" TO WS-AUDIT-ACTION
-               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-BATCH
-               MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
-               PERFORM AUDIT-IMPORT
-           END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|IMP_ROW_SKIPPED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -1788,80 +1301,6 @@
            IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
                MOVE "SUCCESS|IMP_BATCH_RETRIED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
-           EXIT PARAGRAPH.
-
-       ACTION-ROW-UNSKIP.
-           PERFORM ALLOW-ADMIN
-           IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
-               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-BATCH
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-BATCH-STATUS NOT = "VALIDATED" AND WS-BATCH-STATUS NOT = "STAGED"
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           PERFORM CHECK-ROW
-           IF WS-LOOKUP-BAD = 1
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-LOOKUP-BAD = 2
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           SET STEP-OK TO TRUE
-           MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
-           MOVE "UPDATE import_row SET status = 'STAGED', error_code = NULL, error_detail = NULL WHERE id = ?" TO WS-PREP-SQL
-           MOVE WS-ROW-ID TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE WS-RESULT(1:40) TO WS-ERR
-               SET STEP-FAIL TO TRUE
-           END-IF.
-           IF STEP-OK
-               MOVE "UPDATE import_batch SET status = 'STAGED', valid_rows = 0, invalid_rows = 0, posted_rows = 0, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
-               MOVE WS-BATCH-ID TO WS-BIND-1
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE WS-RESULT(1:40) TO WS-ERR
-                   SET STEP-FAIL TO TRUE
-               END-IF
-           END-IF.
-           IF STEP-OK
-               MOVE "ROW_UNSKIP" TO WS-AUDIT-ACTION
-               MOVE WS-P1-TRIMMED(1:40) TO WS-AUDIT-BATCH
-               MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
-               PERFORM AUDIT-IMPORT
-           END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|IMP_ROW_UNSKIPPED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
