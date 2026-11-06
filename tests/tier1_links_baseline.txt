@@ -34,3 +34,8 @@ report_schedule_core L0
 risk_core L0
 sla_tracker_core L0
 tax_management_core L0
+wallet_dispute_core L1
+wallet_hold_core L1
+wallet_recon_core L1
+wallet_reversal_core L1
+wallet_statement_core L1

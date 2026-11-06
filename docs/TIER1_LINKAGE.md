@@ -6,14 +6,14 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T14:37:34.599Z
-- Commit: `b612f292`
+- Generated at: 2026-11-06T14:49:54.294Z
+- Commit: `67398329`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 19 |
 | L2 (business reference) | 6 |
-| L1 (weak / untested link) | 4 |
+| L1 (weak / untested link) | 9 |
 | L0 (isolated) | 23 |
 | UTILITY | 3 |
 
@@ -75,4 +75,9 @@ Unresolved route files: none.
 | `tax_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `treasury_liquidity_core` | L3 | — | — | 1 | Tier-1 core module |
 | `user_core` | L3 | — | — | 1 | Tier-1 core module |
-| `wallet_core` | L3 | — | — | 2 | Tier-1 core module |
+| `wallet_core` | L3 | — | — | 1 | Tier-1 core module |
+| `wallet_dispute_core` | L1 | accounts, ledger | — | 1 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_hold_core` | L1 | accounts | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_recon_core` | L1 | accounts, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_reversal_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_statement_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |

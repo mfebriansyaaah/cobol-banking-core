@@ -3023,14 +3023,13 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "16383",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: numeric literal matched by the tableRefs heuristic (PR-056 split moved the matched line)",
+        "no table named 16383 in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:20",
@@ -3093,42 +3092,39 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "dispute_cases",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'acknowledged', 'rejected'), 'resolved', assigned_to, case_id, constraint, created_at, decided_at, detail, due_date, if, key, resolution, state, state), subject, txn_ref, updated_at, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to wallet_dispute_core.cob by the PR-056 split (14 hits)",
+        "tables have DDL (0036_disputes); reviewed with the dispute module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:dispute-messages",
       "module": "wallet_core",
       "kind": "table",
       "subject": "dispute_messages",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: author_id, body, case_id, constraint, created_at, key, msg_id, msg_id)",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "references moved to wallet_dispute_core.cob by the PR-056 split (14 hits)",
+        "tables have DDL (0036_disputes); reviewed with the dispute module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:end",
       "module": "wallet_core",
       "kind": "table",
       "subject": "end",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: SQL keyword matched by the tableRefs heuristic",
+        "no table named end in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:exchange-rates",
@@ -3177,14 +3173,13 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "not",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: SQL keyword matched by the tableRefs heuristic",
+        "no table named not in schema/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:pending-transactions",
@@ -3219,42 +3214,39 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "reconciliation_runs",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'mismatch'), 'scheduled'), actor_email, created_at, key, mismatch_count, run_id, status, trigger_src",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "reference moved to wallet_recon_core.cob by the PR-056 split (recon run tracking)",
+        "table has DDL (0032_reconciliation_runs); operational ledger for recon runs, reviewed with the recon module"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:reversal-fee-policy",
       "module": "wallet_core",
       "kind": "table",
       "subject": "reversal_fee_policy",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: reason, refund_fee, updated_at",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "reference moved to wallet_reversal_core.cob by the PR-056 split (refund_fee lookup)",
+        "table has DDL + seed rows (0038_reversal_fee_policy); read-only policy lookup, not an unlinked write"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:role-permissions",
       "module": "wallet_core",
       "kind": "table",
       "subject": "role_permissions",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "reference moved to wallet_recon_core.cob by the PR-056 split (permission check paragraph)",
+        "the query JOINs users on role (core-linked read), not an unlinked domain write"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:to",

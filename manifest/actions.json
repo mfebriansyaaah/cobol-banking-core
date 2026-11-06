@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T14:36:42.483Z",
-  "commit": "b612f292",
+  "generatedAt": "2026-11-06T14:51:29.319Z",
+  "commit": "67398329",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 545,
   "actions": [
@@ -294,7 +294,7 @@
     },
     {
       "action": "ACK_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "ACK_DISPUTE",
       "method": "post",
       "path": "/disputes/:id/acknowledge",
@@ -317,16 +317,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ACK_EXCEPTION",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "ACK_EXCEPTION",
       "method": "post",
       "path": "/admin/reconcile/acknowledge",
@@ -349,16 +349,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ADD_DISPUTE_NOTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "ADD_DISPUTE_NOTE",
       "method": "post",
       "path": "/disputes/:id/notes",
@@ -381,12 +381,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "ADMIN_RESET_MFA",
@@ -6465,7 +6465,7 @@
     },
     {
       "action": "GET_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "GET_DISPUTE",
       "method": "get",
       "path": "/disputes/:id",
@@ -6488,12 +6488,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "GET_USER",
@@ -8227,7 +8227,7 @@
     },
     {
       "action": "LIST_DISPUTES",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "LIST_DISPUTES",
       "method": "get",
       "path": "/disputes",
@@ -8250,16 +8250,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_EXCEPTIONS",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "LIST_EXCEPTIONS",
       "method": "get",
       "path": "/admin/reconcile/exceptions",
@@ -8282,12 +8282,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_MFA_RECOVERY",
@@ -8355,7 +8355,7 @@
     },
     {
       "action": "LIST_RECONCILIATIONS",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "LIST_RECONCILIATIONS",
       "method": "get",
       "path": "/admin/reconcile/runs",
@@ -8378,12 +8378,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "LIST_REQUESTS",
@@ -11304,7 +11304,7 @@
     },
     {
       "action": "OPEN_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "OPEN_DISPUTE",
       "method": "post",
       "path": "/disputes",
@@ -11327,12 +11327,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "OTP_ISSUE",
@@ -12236,7 +12236,7 @@
     },
     {
       "action": "PLACE_HOLD",
-      "module": "wallet_core",
+      "module": "wallet_hold_core",
       "prefix": "PLACE_HOLD",
       "method": "post",
       "path": "/admin/holds",
@@ -12259,12 +12259,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "PMC_AUDIT",
@@ -13042,7 +13042,7 @@
     },
     {
       "action": "RECONCILE",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "RECONCILE",
       "method": "get",
       "path": "/admin/reconcile",
@@ -13065,16 +13065,16 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REJECT_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "REJECT_DISPUTE",
       "method": "post",
       "path": "/disputes/:id/reject",
@@ -13097,12 +13097,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REJECT_MFA_RECOVERY",
@@ -13170,7 +13170,7 @@
     },
     {
       "action": "RELEASE_HOLD",
-      "module": "wallet_core",
+      "module": "wallet_hold_core",
       "prefix": "RELEASE_HOLD",
       "method": "post",
       "path": "/admin/holds/release",
@@ -13193,12 +13193,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REQUEST_MFA_RECOVERY",
@@ -13394,7 +13394,7 @@
     },
     {
       "action": "RESOLVE_DISPUTE",
-      "module": "wallet_core",
+      "module": "wallet_dispute_core",
       "prefix": "RESOLVE_DISPUTE",
       "method": "post",
       "path": "/disputes/:id/resolve",
@@ -13417,16 +13417,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RESOLVE_EXCEPTION",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "RESOLVE_EXCEPTION",
       "method": "post",
       "path": "/admin/reconcile/resolve",
@@ -13449,16 +13449,16 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REVERSE_TRANSFER",
-      "module": "wallet_core",
+      "module": "wallet_reversal_core",
       "prefix": "REVERSE_TRANSFER",
       "method": "post",
       "path": "/transactions/:ref/reverse",
@@ -13481,12 +13481,14 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
-      "t1Actions": [],
+      "linkageLevel": "L1",
+      "t1Actions": [
+        "REVERSE_TRANSFER"
+      ],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "REVOKE_ALL_SESSIONS",
@@ -15090,7 +15092,7 @@
     },
     {
       "action": "RUN_RECONCILIATION",
-      "module": "wallet_core",
+      "module": "wallet_recon_core",
       "prefix": "RUN_RECONCILIATION",
       "method": "post",
       "path": "/admin/reconcile/run",
@@ -15113,12 +15115,12 @@
       "public": false,
       "stepUp": true,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "RX_EXPORT",
@@ -16050,7 +16052,7 @@
     },
     {
       "action": "STATEMENT",
-      "module": "wallet_core",
+      "module": "wallet_statement_core",
       "prefix": "STATEMENT",
       "method": "get",
       "path": "/statements",
@@ -16073,12 +16075,12 @@
       "public": false,
       "stepUp": false,
       "tokenIdentity": "actor",
-      "linkageLevel": "L3",
+      "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [],
-      "tested": true,
+      "tested": false,
       "domain": "wallet",
-      "status": "ACTIVE"
+      "status": "REVIEW"
     },
     {
       "action": "STMT_ARCHIVE_EXPORT",
@@ -17539,7 +17541,7 @@
       "slot": 3,
       "prefix": "LIST_RECONCILIATIONS",
       "prefixLen": 20,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 4,
@@ -17611,7 +17613,7 @@
       "slot": 15,
       "prefix": "RUN_RECONCILIATION",
       "prefixLen": 18,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 16,
@@ -17659,7 +17661,7 @@
       "slot": 23,
       "prefix": "RESOLVE_EXCEPTION",
       "prefixLen": 17,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 24,
@@ -17701,7 +17703,7 @@
       "slot": 30,
       "prefix": "REVERSE_TRANSFER",
       "prefixLen": 16,
-      "program": "wallet_core"
+      "program": "wallet_reversal_core"
     },
     {
       "slot": 31,
@@ -17725,7 +17727,7 @@
       "slot": 34,
       "prefix": "ADD_DISPUTE_NOTE",
       "prefixLen": 16,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 35,
@@ -17737,7 +17739,7 @@
       "slot": 36,
       "prefix": "RESOLVE_DISPUTE",
       "prefixLen": 15,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 37,
@@ -17749,7 +17751,7 @@
       "slot": 38,
       "prefix": "LIST_EXCEPTIONS",
       "prefixLen": 15,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 39,
@@ -17791,7 +17793,7 @@
       "slot": 45,
       "prefix": "REJECT_DISPUTE",
       "prefixLen": 14,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 46,
@@ -17851,13 +17853,13 @@
       "slot": 55,
       "prefix": "LIST_DISPUTES",
       "prefixLen": 13,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 56,
       "prefix": "ACK_EXCEPTION",
       "prefixLen": 13,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 57,
@@ -17887,7 +17889,7 @@
       "slot": 61,
       "prefix": "OPEN_DISPUTE",
       "prefixLen": 12,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 62,
@@ -17899,7 +17901,7 @@
       "slot": 63,
       "prefix": "RELEASE_HOLD",
       "prefixLen": 12,
-      "program": "wallet_core"
+      "program": "wallet_hold_core"
     },
     {
       "slot": 64,
@@ -17923,7 +17925,7 @@
       "slot": 67,
       "prefix": "ACK_DISPUTE",
       "prefixLen": 11,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 68,
@@ -17941,7 +17943,7 @@
       "slot": 70,
       "prefix": "GET_DISPUTE",
       "prefixLen": 11,
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 71,
@@ -17959,7 +17961,7 @@
       "slot": 73,
       "prefix": "PLACE_HOLD",
       "prefixLen": 10,
-      "program": "wallet_core"
+      "program": "wallet_hold_core"
     },
     {
       "slot": 74,
@@ -17989,13 +17991,13 @@
       "slot": 78,
       "prefix": "RECONCILE",
       "prefixLen": 9,
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 79,
       "prefix": "STATEMENT",
       "prefixLen": 9,
-      "program": "wallet_core"
+      "program": "wallet_statement_core"
     },
     {
       "slot": 80,

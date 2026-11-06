@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-06T14:37:34.599Z",
-  "commit": "b612f292",
+  "generatedAt": "2026-11-06T14:49:54.294Z",
+  "commit": "67398329",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
     "L2": 6,
-    "L1": 4,
+    "L1": 9,
     "L0": 23,
     "UTILITY": 3
   },
@@ -903,9 +903,88 @@
       "testEvidence": [],
       "reason": "Tier-1 core module",
       "routeFiles": [
-        "disputes.js",
         "wallet.js"
       ]
+    },
+    {
+      "module": "wallet_dispute_core",
+      "source": "wallet_dispute_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": [
+        "disputes.js"
+      ]
+    },
+    {
+      "module": "wallet_hold_core",
+      "source": "wallet_hold_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "wallet_recon_core",
+      "source": "wallet_recon_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "wallet_reversal_core",
+      "source": "wallet_reversal_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "journal_entries",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [
+        "REVERSE_TRANSFER"
+      ],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "wallet_statement_core",
+      "source": "wallet_statement_core.cob",
+      "linkageLevel": "L1",
+      "businessTables": [
+        "accounts",
+        "journal_entries",
+        "ledger"
+      ],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
     }
   ],
   "routeModules": {
@@ -923,7 +1002,7 @@
     "cost_center.js": "cost_center_core",
     "dashboard.js": "dashboard_core",
     "deposit.js": "deposit_core",
-    "disputes.js": "wallet_core",
+    "disputes.js": "wallet_dispute_core",
     "eod.js": "eod_core",
     "eod_jobs.js": "eod_jobs_core",
     "fee.js": "fee_core",

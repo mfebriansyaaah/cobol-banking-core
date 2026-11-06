@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T14:37:28.881Z",
+  "generatedAt": "2026-11-06T14:49:54.208Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -165,6 +165,21 @@
     },
     {
       "source": "wallet_core.cob"
+    },
+    {
+      "source": "wallet_dispute_core.cob"
+    },
+    {
+      "source": "wallet_hold_core.cob"
+    },
+    {
+      "source": "wallet_recon_core.cob"
+    },
+    {
+      "source": "wallet_reversal_core.cob"
+    },
+    {
+      "source": "wallet_statement_core.cob"
     }
   ],
   "gatewayRoutes": [
@@ -239,7 +254,7 @@
       "slot": 3,
       "prefixLen": 20,
       "prefix": "LIST_RECONCILIATIONS",
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 4,
@@ -311,7 +326,7 @@
       "slot": 15,
       "prefixLen": 18,
       "prefix": "RUN_RECONCILIATION",
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 16,
@@ -359,7 +374,7 @@
       "slot": 23,
       "prefixLen": 17,
       "prefix": "RESOLVE_EXCEPTION",
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 24,
@@ -401,7 +416,7 @@
       "slot": 30,
       "prefixLen": 16,
       "prefix": "REVERSE_TRANSFER",
-      "program": "wallet_core"
+      "program": "wallet_reversal_core"
     },
     {
       "slot": 31,
@@ -425,7 +440,7 @@
       "slot": 34,
       "prefixLen": 16,
       "prefix": "ADD_DISPUTE_NOTE",
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 35,
@@ -437,7 +452,7 @@
       "slot": 36,
       "prefixLen": 15,
       "prefix": "RESOLVE_DISPUTE",
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 37,
@@ -449,7 +464,7 @@
       "slot": 38,
       "prefixLen": 15,
       "prefix": "LIST_EXCEPTIONS",
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 39,
@@ -491,7 +506,7 @@
       "slot": 45,
       "prefixLen": 14,
       "prefix": "REJECT_DISPUTE",
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 46,
@@ -551,13 +566,13 @@
       "slot": 55,
       "prefixLen": 13,
       "prefix": "LIST_DISPUTES",
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 56,
       "prefixLen": 13,
       "prefix": "ACK_EXCEPTION",
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 57,
@@ -587,7 +602,7 @@
       "slot": 61,
       "prefixLen": 12,
       "prefix": "OPEN_DISPUTE",
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 62,
@@ -599,7 +614,7 @@
       "slot": 63,
       "prefixLen": 12,
       "prefix": "RELEASE_HOLD",
-      "program": "wallet_core"
+      "program": "wallet_hold_core"
     },
     {
       "slot": 64,
@@ -623,7 +638,7 @@
       "slot": 67,
       "prefixLen": 11,
       "prefix": "ACK_DISPUTE",
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 68,
@@ -641,7 +656,7 @@
       "slot": 70,
       "prefixLen": 11,
       "prefix": "GET_DISPUTE",
-      "program": "wallet_core"
+      "program": "wallet_dispute_core"
     },
     {
       "slot": 71,
@@ -659,7 +674,7 @@
       "slot": 73,
       "prefixLen": 10,
       "prefix": "PLACE_HOLD",
-      "program": "wallet_core"
+      "program": "wallet_hold_core"
     },
     {
       "slot": 74,
@@ -689,13 +704,13 @@
       "slot": 78,
       "prefixLen": 9,
       "prefix": "RECONCILE",
-      "program": "wallet_core"
+      "program": "wallet_recon_core"
     },
     {
       "slot": 79,
       "prefixLen": 9,
       "prefix": "STATEMENT",
-      "program": "wallet_core"
+      "program": "wallet_statement_core"
     },
     {
       "slot": 80,

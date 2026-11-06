@@ -7,7 +7,7 @@
             MOVE "auth_core" TO D-PROGRAM(2).
             MOVE "LIST_RECONCILIATIONS" TO D-PREFIX(3).
             MOVE 20 TO D-PREFIX-LEN(3).
-            MOVE "wallet_core" TO D-PROGRAM(3).
+            MOVE "wallet_recon_core" TO D-PROGRAM(3).
             MOVE "APPROVE_MFA_RECOVERY" TO D-PREFIX(4).
             MOVE 20 TO D-PREFIX-LEN(4).
             MOVE "auth_core" TO D-PROGRAM(4).
@@ -43,7 +43,7 @@
             MOVE "auth_core" TO D-PROGRAM(14).
             MOVE "RUN_RECONCILIATION" TO D-PREFIX(15).
             MOVE 18 TO D-PREFIX-LEN(15).
-            MOVE "wallet_core" TO D-PROGRAM(15).
+            MOVE "wallet_recon_core" TO D-PROGRAM(15).
             MOVE "REACTIVATE_DORMANT" TO D-PREFIX(16).
             MOVE 18 TO D-PREFIX-LEN(16).
             MOVE "user_core" TO D-PROGRAM(16).
@@ -67,7 +67,7 @@
             MOVE "auth_core" TO D-PROGRAM(22).
             MOVE "RESOLVE_EXCEPTION" TO D-PREFIX(23).
             MOVE 17 TO D-PREFIX-LEN(23).
-            MOVE "wallet_core" TO D-PROGRAM(23).
+            MOVE "wallet_recon_core" TO D-PROGRAM(23).
             MOVE "GET_TOKEN_VERSION" TO D-PREFIX(24).
             MOVE 17 TO D-PREFIX-LEN(24).
             MOVE "auth_core" TO D-PROGRAM(24).
@@ -88,7 +88,7 @@
             MOVE "auth_core" TO D-PROGRAM(29).
             MOVE "REVERSE_TRANSFER" TO D-PREFIX(30).
             MOVE 16 TO D-PREFIX-LEN(30).
-            MOVE "wallet_core" TO D-PROGRAM(30).
+            MOVE "wallet_reversal_core" TO D-PROGRAM(30).
             MOVE "MFA_ENROLL_BEGIN" TO D-PREFIX(31).
             MOVE 16 TO D-PREFIX-LEN(31).
             MOVE "auth_core" TO D-PROGRAM(31).
@@ -100,19 +100,19 @@
             MOVE "user_core" TO D-PROGRAM(33).
             MOVE "ADD_DISPUTE_NOTE" TO D-PREFIX(34).
             MOVE 16 TO D-PREFIX-LEN(34).
-            MOVE "wallet_core" TO D-PROGRAM(34).
+            MOVE "wallet_dispute_core" TO D-PROGRAM(34).
             MOVE "SUSPEND_DORMANT" TO D-PREFIX(35).
             MOVE 15 TO D-PREFIX-LEN(35).
             MOVE "user_core" TO D-PROGRAM(35).
             MOVE "RESOLVE_DISPUTE" TO D-PREFIX(36).
             MOVE 15 TO D-PREFIX-LEN(36).
-            MOVE "wallet_core" TO D-PROGRAM(36).
+            MOVE "wallet_dispute_core" TO D-PROGRAM(36).
             MOVE "CONSUME_SESSION" TO D-PREFIX(37).
             MOVE 15 TO D-PREFIX-LEN(37).
             MOVE "auth_core" TO D-PROGRAM(37).
             MOVE "LIST_EXCEPTIONS" TO D-PREFIX(38).
             MOVE 15 TO D-PREFIX-LEN(38).
-            MOVE "wallet_core" TO D-PROGRAM(38).
+            MOVE "wallet_recon_core" TO D-PROGRAM(38).
             MOVE "ADMIN_RESET_MFA" TO D-PREFIX(39).
             MOVE 15 TO D-PREFIX-LEN(39).
             MOVE "user_core" TO D-PROGRAM(39).
@@ -133,7 +133,7 @@
             MOVE "auth_core" TO D-PROGRAM(44).
             MOVE "REJECT_DISPUTE" TO D-PREFIX(45).
             MOVE 14 TO D-PREFIX-LEN(45).
-            MOVE "wallet_core" TO D-PROGRAM(45).
+            MOVE "wallet_dispute_core" TO D-PROGRAM(45).
             MOVE "REQUEST_SIGNUP" TO D-PREFIX(46).
             MOVE 14 TO D-PREFIX-LEN(46).
             MOVE "auth_core" TO D-PROGRAM(46).
@@ -163,10 +163,10 @@
             MOVE "auth_core" TO D-PROGRAM(54).
             MOVE "LIST_DISPUTES" TO D-PREFIX(55).
             MOVE 13 TO D-PREFIX-LEN(55).
-            MOVE "wallet_core" TO D-PROGRAM(55).
+            MOVE "wallet_dispute_core" TO D-PROGRAM(55).
             MOVE "ACK_EXCEPTION" TO D-PREFIX(56).
             MOVE 13 TO D-PREFIX-LEN(56).
-            MOVE "wallet_core" TO D-PROGRAM(56).
+            MOVE "wallet_recon_core" TO D-PROGRAM(56).
             MOVE "ARCHIVE_AUDIT" TO D-PREFIX(57).
             MOVE 13 TO D-PREFIX-LEN(57).
             MOVE "auth_core" TO D-PROGRAM(57).
@@ -181,13 +181,13 @@
             MOVE "user_core" TO D-PROGRAM(60).
             MOVE "OPEN_DISPUTE" TO D-PREFIX(61).
             MOVE 12 TO D-PREFIX-LEN(61).
-            MOVE "wallet_core" TO D-PROGRAM(61).
+            MOVE "wallet_dispute_core" TO D-PROGRAM(61).
             MOVE "LIST_OUTBOX" TO D-PREFIX(62).
             MOVE 12 TO D-PREFIX-LEN(62).
             MOVE "auth_core" TO D-PROGRAM(62).
             MOVE "RELEASE_HOLD" TO D-PREFIX(63).
             MOVE 12 TO D-PREFIX-LEN(63).
-            MOVE "wallet_core" TO D-PROGRAM(63).
+            MOVE "wallet_hold_core" TO D-PROGRAM(63).
             MOVE "VERIFY_EMAIL" TO D-PREFIX(64).
             MOVE 12 TO D-PREFIX-LEN(64).
             MOVE "auth_core" TO D-PROGRAM(64).
@@ -199,7 +199,7 @@
             MOVE "auth_core" TO D-PROGRAM(66).
             MOVE "ACK_DISPUTE" TO D-PREFIX(67).
             MOVE 11 TO D-PREFIX-LEN(67).
-            MOVE "wallet_core" TO D-PROGRAM(67).
+            MOVE "wallet_dispute_core" TO D-PROGRAM(67).
             MOVE "CHANGE_ROLE" TO D-PREFIX(68).
             MOVE 11 TO D-PREFIX-LEN(68).
             MOVE "auth_core" TO D-PROGRAM(68).
@@ -208,7 +208,7 @@
             MOVE "user_core" TO D-PROGRAM(69).
             MOVE "GET_DISPUTE" TO D-PREFIX(70).
             MOVE 11 TO D-PREFIX-LEN(70).
-            MOVE "wallet_core" TO D-PROGRAM(70).
+            MOVE "wallet_dispute_core" TO D-PROGRAM(70).
             MOVE "OUTBOX_MARK" TO D-PREFIX(71).
             MOVE 11 TO D-PREFIX-LEN(71).
             MOVE "auth_core" TO D-PROGRAM(71).
@@ -217,7 +217,7 @@
             MOVE "user_core" TO D-PROGRAM(72).
             MOVE "PLACE_HOLD" TO D-PREFIX(73).
             MOVE 10 TO D-PREFIX-LEN(73).
-            MOVE "wallet_core" TO D-PROGRAM(73).
+            MOVE "wallet_hold_core" TO D-PROGRAM(73).
             MOVE "CHECK_ROLE" TO D-PREFIX(74).
             MOVE 10 TO D-PREFIX-LEN(74).
             MOVE "auth_core" TO D-PROGRAM(74).
@@ -232,10 +232,10 @@
             MOVE "wallet_core" TO D-PROGRAM(77).
             MOVE "RECONCILE" TO D-PREFIX(78).
             MOVE 9 TO D-PREFIX-LEN(78).
-            MOVE "wallet_core" TO D-PROGRAM(78).
+            MOVE "wallet_recon_core" TO D-PROGRAM(78).
             MOVE "STATEMENT" TO D-PREFIX(79).
             MOVE 9 TO D-PREFIX-LEN(79).
-            MOVE "wallet_core" TO D-PROGRAM(79).
+            MOVE "wallet_statement_core" TO D-PROGRAM(79).
             MOVE "GET_USER" TO D-PREFIX(80).
             MOVE 8 TO D-PREFIX-LEN(80).
             MOVE "user_core" TO D-PROGRAM(80).

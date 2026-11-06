@@ -65,4 +65,9 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `tax_management_core` | `TXM_` | [tax_management.js](../middleware/src/routes/tax_management.js) | [tax_management.cases](../tests/cobol/cases/tax_management.cases) | [tax_management_db_tests.sh](../tests/db/tax_management_db_tests.sh) |
 | `treasury_liquidity_core` | `TRL_` | [treasury_liquidity.js](../middleware/src/routes/treasury_liquidity.js) | [treasury_liquidity.cases](../tests/cobol/cases/treasury_liquidity.cases) | [treasury_liquidity_db_tests.sh](../tests/db/treasury_liquidity_db_tests.sh) |
 | `user_core` | `CONFIRM_EMAIL_CHANGE`, `REACTIVATE_DORMANT`, `DEACTIVATE_ACCOUNT`, `REQ_EMAIL_CHANGE`, `SUSPEND_DORMANT`, `ADMIN_RESET_MFA`, `SET_USER_STATUS`, `UPDATE_PROFILE`, `GET_DASHBOARD`, `MARK_DORMANT`, `UNLOCK_USER`, `LIST_USERS`, `GET_USER` | — | — | — |
-| `wallet_core` | `LIST_RECONCILIATIONS`, `RUN_RECONCILIATION`, `RESOLVE_EXCEPTION`, `REVERSE_TRANSFER`, `ADD_DISPUTE_NOTE`, `RESOLVE_DISPUTE`, `LIST_EXCEPTIONS`, `REJECT_DISPUTE`, `CHECK_BALANCE`, `LIST_DISPUTES`, `ACK_EXCEPTION`, `OPEN_DISPUTE`, `RELEASE_HOLD`, `ACK_DISPUTE`, `GET_DISPUTE`, `PLACE_HOLD`, `TX_STATUS`, `RECONCILE`, `STATEMENT`, `TRANSFER` | [wallet.js](../middleware/src/routes/wallet.js) | — | — |
+| `wallet_core` | `CHECK_BALANCE`, `TX_STATUS`, `TRANSFER` | [wallet.js](../middleware/src/routes/wallet.js) | — | — |
+| `wallet_dispute_core` | `ADD_DISPUTE_NOTE`, `RESOLVE_DISPUTE`, `REJECT_DISPUTE`, `LIST_DISPUTES`, `OPEN_DISPUTE`, `ACK_DISPUTE`, `GET_DISPUTE` | — | — | — |
+| `wallet_hold_core` | `RELEASE_HOLD`, `PLACE_HOLD` | — | — | — |
+| `wallet_recon_core` | `LIST_RECONCILIATIONS`, `RUN_RECONCILIATION`, `RESOLVE_EXCEPTION`, `LIST_EXCEPTIONS`, `ACK_EXCEPTION`, `RECONCILE` | — | — | — |
+| `wallet_reversal_core` | `REVERSE_TRANSFER` | — | — | — |
+| `wallet_statement_core` | `STATEMENT` | — | — | — |
