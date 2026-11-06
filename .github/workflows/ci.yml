@@ -847,7 +847,7 @@ jobs:
           key: >
             cobol-build-${{ runner.os }}-gnucobol3.2-${{
             hashFiles('cobol/src/**', 'cobol/copy/**', 'cobol/c_lib/**',
-            'build.sh', 'cobol/Makefile') }}
+            'build.sh', 'cobol/Makefile', 'scripts/ci/install_gnucobol.sh') }}
           restore-keys: |
             cobol-build-${{ runner.os }}-gnucobol3.2-
 
