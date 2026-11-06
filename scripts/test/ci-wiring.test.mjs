@@ -39,6 +39,7 @@ const WIRED = [
   // through the rollback/backup drills + drift check).
   ['scripts/ci/restore_drill.sh', ['LOCAL-ONLY']],
   ['scripts/ci/build_db_snapshot.sh', ['build_db_snapshot']],
+  ['scripts/ci/classify_changes.mjs', ['classify_changes']],
 ];
 
 function collectRunSteps() {
@@ -148,7 +149,8 @@ test('db-ops job runs rollback, backup, and drift checks', () => {
 test('db-ops runs on push main and dispatch, never on PRs', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['db-ops'], 'ci.yml must define a db-ops job');
-  assert.equal(ci['db-ops'].needs, 'build');
+  const needs = Array.isArray(ci['db-ops'].needs) ? ci['db-ops'].needs : [ci['db-ops'].needs];
+  assert.ok(needs.includes('build'), 'db-ops must need the build job');
   assert.match(
     String(ci['db-ops'].if),
     /github\.event_name != 'pull_request'/,
@@ -181,4 +183,27 @@ test('performance benchmark runs in nightly, not in the PR gate', () => {
   assert.ok(idx('coverage.sh') >= 0 && idx('bench.sh') >= 0 && idx('load_gateway.sh') >= 0);
   assert.ok(idx('coverage.sh') < idx('bench.sh'), 'benchmark must run after gateway coverage');
   assert.ok(idx('bench.sh') < idx('load_gateway.sh'), 'benchmark must run before the load test');
+});
+
+test('docs-only PRs skip heavy jobs but keep the test gate (CI-011)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.ok(ci['changes'], 'ci.yml must define a changes job');
+  for (const id of ['db-shards', 'coverage-pr', 'db-aggregate', 'db-ops']) {
+    const job = ci[id];
+    assert.ok(job, `ci.yml must define ${id}`);
+    assert.match(
+      String(job.if || ''),
+      /needs\.changes\.outputs\.docs_only/,
+      `${id} must be gated on the changes job output`,
+    );
+    const needs = Array.isArray(job.needs) ? job.needs : [job.needs];
+    assert.ok(needs.includes('changes'), `${id} must need the changes job`);
+  }
+  // D3 default: the test gate keeps running on docs-only PRs.
+  assert.doesNotMatch(String(ci['test'].if || ''), /docs_only/, 'test job must always run');
+});
+
+test('ci:full label forces a full run (CI-011)', () => {
+  const runs = collectWorkflowJobs()['ci.yml']['changes'].runs.join('\n');
+  assert.match(runs, /ci:full/, 'changes job must honor the ci:full label override');
 });

@@ -46,6 +46,13 @@ coverage mapper. Curated COBOL coverage is opt-in via `--cobol-coverage`
 deliberate exclusions (in-job sharding instead of the CI matrix, no CodeQL
 upload, no branch-protection remote state).
 
+Documentation-only PRs take a fast path: when every changed file is docs
+(`docs/**`, root doc files, issue/PR templates, `CODEOWNERS`), CI skips the
+heavy jobs (`db-shards`, `coverage-pr`, `db-aggregate`) and runs only
+lint, build, and the `test` gate. Add the `ci:full` label to force a full
+run (e.g. when a docs change touches generated content). See
+[docs/CI.md](docs/CI.md) for the exact rules.
+
 It runs the static gates and the fast suite by default (probes, docs, and
 the full DB/gateway suite are opt-in via `--probes`, `--docs`, `--full`;
 run with `--help` for details). CI runs the full DB, integration, fuzz,
