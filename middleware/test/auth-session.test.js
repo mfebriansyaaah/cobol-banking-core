@@ -2,6 +2,7 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
+import { resetPool } from '../src/pool.js';
 import { getVerificationCode, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
 
 const app = buildApp();
@@ -14,6 +15,10 @@ const U = (tag) => uniqueEmail(NS, tag);
 after(() => {
   cleanupNamespace(NS);
 });
+// Drop pooled COBOL workers so the process can exit when this file runs
+// under pool mode (preload.gateway): spawned --serve children keep the
+// event loop alive (gateway.test.js and endpoints.test.js do the same).
+after(() => resetPool());
 
 async function loginNewUser() {
   // Unique per call: two tests share this helper, and re-signup of an
