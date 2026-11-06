@@ -52,4 +52,5 @@ chargeback_core.cob=0
 loyalty_core.cob=0
 merchant_settlement_core.cob=0
 phone_otp_core.cob=0
+identity_core.cob=0
 wallet_core.cob=0

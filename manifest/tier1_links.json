@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T03:26:41.770Z",
-  "commit": "22fd26ae",
+  "generatedAt": "2026-11-06T05:12:00.612Z",
+  "commit": "73b9a300",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
     "L2": 6,
     "L1": 1,
-    "L0": 19,
+    "L0": 20,
     "UTILITY": 3
   },
   "modules": [
@@ -328,6 +328,23 @@
       "testEvidence": [],
       "reason": "Tier-3 utility (never a retire candidate)",
       "routeFiles": []
+    },
+    {
+      "module": "identity_core",
+      "source": "identity_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/identity_db_tests.sh",
+        "tests/integration/identity_flow.sh"
+      ],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": [
+        "identity.js"
+      ]
     },
     {
       "module": "import_core",
@@ -812,6 +829,7 @@
     "fixed_asset.js": "fixed_asset_core",
     "gl.js": "gl_core",
     "gl_allocation.js": "gl_allocation_core",
+    "identity.js": "identity_core",
     "import.js": "import_core",
     "import_recon.js": "import_recon_core",
     "letter_of_credit.js": "letter_of_credit_core",

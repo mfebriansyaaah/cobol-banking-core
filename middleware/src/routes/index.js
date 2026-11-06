@@ -41,6 +41,7 @@ import { COLLECTION_ROUTES } from './collection.js';
 import { STATEMENT_RECON_ROUTES } from './statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './payment_instructions.js';
 import { PHONE_ROUTES } from './phone.js';
+import { IDENTITY_ROUTES } from './identity.js';
 
 export const ALL_ROUTES = [
   ...REF_ENGINE_ROUTES,
@@ -86,4 +87,5 @@ export const ALL_ROUTES = [
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...COLLECTION_ROUTES,
   ...PHONE_ROUTES,
+  ...IDENTITY_ROUTES,
 ];

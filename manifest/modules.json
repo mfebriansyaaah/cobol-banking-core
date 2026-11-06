@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T03:23:15.519Z",
+  "generatedAt": "2026-11-06T04:31:30.106Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -60,6 +60,9 @@
     },
     {
       "source": "hashlen_core.cob"
+    },
+    {
+      "source": "identity_core.cob"
     },
     {
       "source": "import_core.cob"
@@ -164,6 +167,7 @@
     "fixed_asset.js",
     "gl.js",
     "gl_allocation.js",
+    "identity.js",
     "import.js",
     "import_recon.js",
     "letter_of_credit.js",
@@ -821,6 +825,11 @@
       "prefixLen": 4,
       "prefix": "OTP_",
       "program": "phone_otp_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "IDV_",
+      "program": "identity_core"
     }
   ]
 }
