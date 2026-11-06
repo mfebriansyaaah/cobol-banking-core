@@ -25,7 +25,7 @@ echo "=== shellcheck (all repo shell files + build.sh) ==="
 # slower than independent chunks (no cross-file analysis is lost: -x only
 # follows sourced files, which stay inside each chunk's reach).
 mapfile -t files < <(find tests scripts database -name '*.sh' | sort)
-printf '%s\0' "${files[@]}" build.sh | xargs -0 -P "$(nproc)" -n 50 shellcheck -x
+printf '%s\0' "${files[@]}" build.sh ci.sh ci-fast.sh | xargs -0 -P "$(nproc)" -n 50 shellcheck -x
 echo "shellcheck clean"
 
 echo "=== shfmt (toolchain allowlist, -i 4) ==="

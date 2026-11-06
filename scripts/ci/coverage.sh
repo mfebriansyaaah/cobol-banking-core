@@ -259,13 +259,13 @@ for src in "$ROOT"/cobol/src/*.cob; do
             ;;
     esac
 done
-C_OBJS=(
-    "$ROOT/cobol/build/cobj/sql_bridge.o"
-    "$ROOT/cobol/build/cobj/hash_lib.o"
-    "$ROOT/cobol/build/cobj/totp_lib.o"
-    "$ROOT/cobol/build/cobj/settings_lib.o"
-    "$ROOT/cobol/build/cobj/random_lib.o"
-)
+# Every C object from the incremental build cache: a new C helper must be
+# linked automatically, never added to a hardcoded list.
+C_OBJS=("$ROOT"/cobol/build/cobj/*.o)
+if [ "${#C_OBJS[@]}" -eq 0 ] || [ ! -f "${C_OBJS[0]}" ]; then
+    echo "FAIL cobol: no C objects in cobol/build/cobj (run ./build.sh first)" >&2
+    exit 1
+fi
 for o in "${NORMAL_OBJS[@]}" "${C_OBJS[@]}"; do
     if [ ! -f "$o" ]; then
         echo "FAIL cobol: missing object $o (stale build cache?)" >&2

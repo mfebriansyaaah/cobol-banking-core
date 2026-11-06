@@ -1,17 +1,46 @@
 # Dependabot (P1-6): weekly bumps for the gateway runtime, the root lint
 # toolchain, and pinned GitHub Actions (SHA pins with `# vX` comments, which
 # Dependabot understands and updates in place).
+#
+# Groups (CI-014): one PR per group instead of one PR per package, so a
+# lint-toolchain release week does not open a full CI run per package.
+# open-pull-requests-limit caps the backlog; security updates are exempt
+# from the cap and always open separately.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /middleware
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      middleware-prod:
+        patterns:
+          - dotenv
+          - express
+          - helmet
+          - jsonwebtoken
+          - nodemailer
+          - redis
+      middleware-dev:
+        patterns:
+          - supertest
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      lint-toolchain:
+        patterns:
+          - eslint
+          - "@eslint/js"
+          - autocannon
+          - globals
+          - markdownlint-cli
+          - prettier
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5

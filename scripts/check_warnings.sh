@@ -5,10 +5,10 @@
 #   scripts/check_warnings.sh [build.log]   compare with tests/warning_baseline.txt
 #   scripts/check_warnings.sh --print [log] print current counts, do not fail
 #
-# The log is the stderr+stdout of ./build.sh. Only files listed in the
-# baseline are checked, so legacy modules cannot mask a regression in a core
-# domain. When a domain is finished, add its modules with their current count
-# (ideally zero), then lower the numbers as warnings are fixed.
+# The log is the stderr+stdout of ./build.sh. Every core module must be
+# listed: an unlisted module escapes the ratchet entirely. When a domain is
+# finished, add its modules with their current count (ideally zero), then
+# lower the numbers as warnings are fixed.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -23,6 +23,22 @@ LOG="${1:-/tmp/build.log}"
 if [ ! -f "$LOG" ]; then
     echo "FAIL: build log not found: $LOG" >&2
     exit 2
+fi
+
+# Completeness (CI-014): every cobol/src/*_core.cob plus the dispatcher and
+# the C bridge must have a baseline entry. A new core module without one
+# would never be checked.
+missing=""
+for src in "$ROOT"/cobol/src/*_core.cob "$ROOT"/cobol/src/main_logic.cob "$ROOT"/cobol/src/sql_bridge.c; do
+    mod="$(basename "$src")"
+    if ! grep -qE "^${mod}=" "$BASE"; then
+        missing="$missing $mod"
+    fi
+done
+if [ -n "$missing" ]; then
+    echo "FAIL: core modules without a warning_baseline.txt entry:$missing" >&2
+    echo "Add each with its current count (see --print), then commit the baseline." >&2
+    exit 1
 fi
 
 count_for() {
