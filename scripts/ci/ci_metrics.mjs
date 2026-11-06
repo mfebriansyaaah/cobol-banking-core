@@ -91,6 +91,7 @@ function gh(args, repo) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     timeout: 120000,
+    maxBuffer: 64 * 1024 * 1024,
     env: { ...process.env, GH_REPO: repo },
   });
 }
@@ -104,7 +105,9 @@ function detectRepo() {
 }
 
 function fetchRuns({ repo, event, limit }) {
-  const raw = gh([`repos/${repo}/actions/runs`, '-f', 'per_page=100'], repo);
+  // Note: per_page goes in the URL query string. Passing it via -f makes
+  // `gh api` send a POST, which this read-only endpoint answers with 404.
+  const raw = gh([`repos/${repo}/actions/runs?per_page=100`], repo);
   const all = JSON.parse(raw).workflow_runs || [];
   const matching = all
     .filter((r) => r.name === 'CI' && r.event === event && (r.conclusion === 'success' || r.conclusion === 'failure'))

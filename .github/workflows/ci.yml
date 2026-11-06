@@ -297,7 +297,7 @@ jobs:
 
   test:
     name: test
-    needs: build
+    needs: [build, db-snapshot]
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -456,7 +456,7 @@ jobs:
 
   db-shards:
     name: db shard ${{ matrix.shard }}
-    needs: [build, changes]
+    needs: [build, db-snapshot, changes]
     if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -622,7 +622,7 @@ jobs:
     name: coverage
     # Gateway-only gate for pushes and nightly; PRs use coverage-pr instead.
     if: github.event_name != 'pull_request'
-    needs: build
+    needs: [build, db-snapshot]
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -727,7 +727,7 @@ jobs:
 
   db-ops:
     name: db-ops
-    needs: [build, changes]
+    needs: [build, db-snapshot, changes]
     if: github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -793,7 +793,7 @@ jobs:
   coverage-pr:
     name: coverage-pr
     if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
-    needs: [build, changes]
+    needs: [build, db-snapshot, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
