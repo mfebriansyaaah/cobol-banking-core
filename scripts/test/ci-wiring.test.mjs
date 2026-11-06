@@ -122,6 +122,7 @@ for f in sorted(glob.glob('GH/.github/workflows/*.yml'.replace('GH', sys.argv[1]
             'if': spec.get('if'),
             'needs': spec.get('needs'),
             'timeout': spec.get('timeout-minutes'),
+            'env': spec.get('env') or {},
             'runs': runs,
         }
     out[os.path.basename(f)] = jobs
@@ -201,6 +202,11 @@ test('docs-only PRs skip heavy jobs but keep the test gate (CI-011)', () => {
   }
   // D3 default: the test gate keeps running on docs-only PRs.
   assert.doesNotMatch(String(ci['test'].if || ''), /docs_only/, 'test job must always run');
+});
+
+test('quarantined flakes skip only in the CI test job, never nightly/local', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.equal(ci['test'].env?.QUARANTINE, '1', 'test job must set QUARANTINE=1 (quarantine.txt applies in CI only)');
 });
 
 test('ci:full label forces a full run (CI-011)', () => {
