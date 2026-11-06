@@ -15,6 +15,13 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Single source of truth for the DB fleet size (CI-010): the db-shards
+# matrix, the shard runner, and the aggregate step all read this.
+# 58 suites (run `ls tests/db/*_db_tests.sh | wc -l` to recount); revisit
+# if the fleet grows beyond 80.
+env:
+  DB_SHARD_COUNT: 4
+
 jobs:
   lint:
     name: lint
@@ -483,7 +490,7 @@ jobs:
           DB_NAME="$DB_NAME" database/grants.sh
 
       - name: Run DB shard
-        run: DB_SHARD_INDEX=${{ matrix.shard }} DB_SHARD_COUNT=4 tests/run_all.sh db-shard
+        run: DB_SHARD_INDEX=${{ matrix.shard }} tests/run_all.sh db-shard
 
       - name: Upload shard reports
         if: always()
@@ -519,7 +526,7 @@ jobs:
 
       - name: Merge and verify shard reports
         if: always()
-        run: bash scripts/ci/aggregate_shard_reports.sh parts merged 4
+        run: bash scripts/ci/aggregate_shard_reports.sh parts merged "$DB_SHARD_COUNT"
 
       - name: Assertion count gate
         if: always()

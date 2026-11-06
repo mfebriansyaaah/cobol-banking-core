@@ -276,6 +276,8 @@ for (const wf of WORKFLOWS) {
 // Shard consistency: the db-shards matrix, the DB_SHARD_COUNT the shard
 // runner uses, and the aggregate step argument must agree.
 (function checkShards() {
+  const ciDoc = byName['ci.yml'] || {};
+  const ciEnv = (ciDoc && ciDoc.env) || {};
   const shardJob = jobs['db-shards'];
   const aggJob = jobs['db-aggregate'];
   if (!shardJob || !aggJob) return;
@@ -285,6 +287,8 @@ for (const wf of WORKFLOWS) {
     failed.push('ci.yml db-shards lacks strategy.matrix.shard');
     return;
   }
+  // Precedence: inline `DB_SHARD_COUNT=n` in the run step, then the job env,
+  // then the workflow env (the centralized single source of truth, CI-010).
   let shardCount = null;
   if (shardJob.env && shardJob.env.DB_SHARD_COUNT !== undefined) {
     shardCount = Number(shardJob.env.DB_SHARD_COUNT);
@@ -294,21 +298,33 @@ for (const wf of WORKFLOWS) {
     const m = String(step.run).match(/DB_SHARD_COUNT=(\d+)/);
     if (m) shardCount = Number(m[1]);
   }
+  if ((shardCount === null || !Number.isFinite(shardCount)) && ciEnv.DB_SHARD_COUNT !== undefined) {
+    shardCount = Number(ciEnv.DB_SHARD_COUNT);
+  }
   if (shardCount === null || !Number.isFinite(shardCount)) {
     failed.push('ci.yml db-shards lacks DB_SHARD_COUNT (matrix runner must declare it)');
     return;
   }
+  const resolveCountArg = (token) => {
+    const bare = token.replace(/^["']|["']$/g, '');
+    if (!/^\$/.test(bare)) return Number(bare);
+    const name = bare.replace(/^\$\{?/, '').replace(/\}$/, '');
+    const fromJob = aggJob.env && aggJob.env[name] !== undefined ? Number(aggJob.env[name]) : null;
+    if (fromJob !== null && Number.isFinite(fromJob)) return fromJob;
+    if (ciEnv[name] !== undefined) return Number(ciEnv[name]);
+    return NaN;
+  };
   let aggCount = null;
   for (const step of aggJob.steps || []) {
     if (!step || typeof step !== 'object' || !step.run) continue;
     const run = String(step.run);
     if (!run.includes('aggregate_shard_reports.sh')) continue;
     const parts = run.trim().split(/\s+/);
-    const last = Number(parts[parts.length - 1]);
+    const last = resolveCountArg(parts[parts.length - 1]);
     if (Number.isFinite(last)) aggCount = last;
   }
   if (aggCount === null) {
-    failed.push('ci.yml db-aggregate lacks shard count argument (aggregate_shard_reports.sh <parts> <out> <n>)');
+    failed.push('ci.yml db-aggregate lacks shard count argument (aggregate_shard_reports.sh <parts> <out> <n|$VAR>)');
     return;
   }
   if (matrixLen !== shardCount || matrixLen !== aggCount) {

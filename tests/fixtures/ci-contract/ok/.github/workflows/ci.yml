@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Merge and verify shard reports
-        run: bash scripts/ci/aggregate_shard_reports.sh parts merged $DB_SHARD_COUNT
+        run: bash scripts/ci/aggregate_shard_reports.sh parts merged "$DB_SHARD_COUNT"
   coverage:
     name: coverage
     runs-on: ubuntu-latest
