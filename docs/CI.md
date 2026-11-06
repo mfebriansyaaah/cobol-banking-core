@@ -19,8 +19,8 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request`, `push: [main]` | `ci.yml` | lint, build, db-snapshot, test, db-shards (2), db-aggregate, coverage, coverage-pr |
-| `push: [main]` + `workflow_dispatch` | `ci.yml` db-ops | migration rollback, backup/restore, schema drift (not a PR gate) |
+| `pull_request` | `ci.yml` | lint, build, db-snapshot, test, db-shards (2, skipped on docs-only), db-aggregate, coverage-pr (skipped on docs-only) |
+| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, db-snapshot, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
 | `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | JS + C analysis, SARIF uploaded to code scanning |
@@ -42,6 +42,13 @@ which merged with `coverage` skipped); a skipped job never fails the gate.
 `test` still runs on docs-only PRs, so a broken docs change can never look
 green. On `push`, `db-ops` is likewise skipped for docs-only changes
 (nightly covers the drills).
+
+CI-009 evidence (2026-11-06, D2 = allowed): the S5 spike PR #552 merged with
+the required `coverage` check skipped, and branch protection reported all
+required checks satisfied — a skipped check counts as success in this
+repository. Consequence: `coverage` runs on pushes only; every PR gets its
+gateway coverage gate from `coverage-pr` instead, with no required-check
+gap. Revisit only if GitHub changes skipped-check semantics.
 
 CI-003 evidence (2026-11-05, Option A): code scanning works end-to-end with
 no UI step — the PR-triggered CodeQL run

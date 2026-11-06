@@ -620,8 +620,7 @@ jobs:
 
   coverage:
     name: coverage
-    # S5 SPIKE ONLY (do not merge): skip on PR to prove skipped required
-    # checks satisfy branch protection in this repository.
+    # Gateway-only gate for pushes and nightly; PRs use coverage-pr instead.
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest

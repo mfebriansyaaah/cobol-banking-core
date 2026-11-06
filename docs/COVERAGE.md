@@ -67,7 +67,7 @@ whole-codebase coverage.
 # Full COBOL + gateway measurement and gate (nightly)
 bash scripts/ci/coverage.sh
 
-# Fast gateway-only gate (used on pull requests)
+# Fast gateway-only gate (used on pushes; PRs use the coverage-pr job)
 bash scripts/ci/coverage.sh --gateway-only
 
 # Machine-readable summary in coverage/summary.json
@@ -108,9 +108,11 @@ from going unnoticed, raising it is separate work.
 
 ## CI
 
-- **Pull requests:** the `coverage` job in `.github/workflows/ci.yml` runs
-  `scripts/ci/coverage.sh --gateway-only` against a fresh database and uploads
-  the `coverage` artifact.
+- **Pushes and nightly:** the `coverage` job in `.github/workflows/ci.yml`
+  runs `scripts/ci/coverage.sh --gateway-only` against a fresh database and
+  uploads the `coverage` artifact. It does not run on pull requests
+  (skipped via `if: github.event_name != 'pull_request'`); PRs use
+  `coverage-pr` below instead.
 - **Pull requests (curated COBOL, impact-selected):** the `coverage-pr` job
   runs `scripts/ci/coverage.sh --cobol-only --changed origin/main --json`.
   The change set is classified by `scripts/ci/coverage_trigger.mjs`
