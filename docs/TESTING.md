@@ -300,6 +300,15 @@ Intermittent failures that are environmental (not assertion bugs) go to
   test (`scripts/test/quarantine_flag.test.mjs`), forcing the owner to renew
   or remove them before the expiry date — quarantine can never go stale
   silently.
+- The `db aggregate` count gate stays honest: `check_test_counts.mjs`
+  counts quarantined-away tests from source and subtracts them from the
+  baseline **only when `QUARANTINE=1`** (same env on both jobs). Baseline
+  `gateway_tests=293` is untouched — full runs (nightly/local/premerge)
+  keep the unadjusted expectation, and the adjustment is logged as
+  `note: gateway_tests: quarantine adjustment -N`.
+- Current entries: `/auth/refresh` rotation tests (intermittent 500,
+  `DOMAIN-REVIEW`, expires 2026-12-15). Fix the root cause or renew with
+  evidence; do not extend without a rerun.
 
 ## 500 forensics (fail-open error logging)
 
@@ -311,15 +320,6 @@ record (`code`, `status`, `method`, `url`, `message`, `stack`) to stderr when
 no logger is injected — response body unchanged, COBOL pipe untouched. In CI
 this lands in the job log, so the next intermittent 500 arrives with its
 stack attached instead of a bare status code.
-- The `db aggregate` count gate stays honest: `check_test_counts.mjs`
-  counts quarantined-away tests from source and subtracts them from the
-  baseline **only when `QUARANTINE=1`** (same env on both jobs). Baseline
-  `gateway_tests=293` is untouched — full runs (nightly/local/premerge)
-  keep the unadjusted expectation, and the adjustment is logged as
-  `note: gateway_tests: quarantine adjustment -N`.
-- Current entries: `/auth/refresh` rotation tests (intermittent 500,
-  `DOMAIN-REVIEW`, expires 2026-12-15). Fix the root cause or renew with
-  evidence; do not extend without a rerun.
 
 Every test that invokes the COBOL binary directly runs in a throwaway
 workdir (`tests/lib/workdir.sh`), never the repo root: the binary reads
