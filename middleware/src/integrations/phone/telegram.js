@@ -1,20 +1,34 @@
-// Telegram OTP channel (PR-082): Bot API sendMessage, no dependencies.
-// The caller supplies the chat_id (phone->chat binding lands with the
-// phone_links table in the 082b commit); this module only delivers.
-// Failures reject so the caller can mark rows FAILED (unlike the mock,
-// real delivery is never faked as success).
-export async function sendTelegramOtp({ chatId, text, token }) {
+// Telegram OTP channel (PR-082, hardened PR-086): Bot API sendMessage via
+// resilientFetch (4s timeout, retry only 429/5xx/network, per-provider
+// circuit breaker). Failures reject with named errors so the caller can fall
+// back to free SMS / manual review (never faked as success). Malformed JSON
+// or a rejected body is terminal (no retry: the send happened).
+import { resilientFetch, DEFAULT_TIMEOUT_MS } from '../resilience.js';
+
+export async function sendTelegramOtp(
+  { chatId, text, token, idempotencyKey = null },
+  { fetchImpl = fetch, timeoutMs = Number(process.env.TELEGRAM_TIMEOUT_MS || DEFAULT_TIMEOUT_MS) } = {},
+) {
   const botToken = token ?? process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) throw new Error('TELEGRAM_BOT_TOKEN is not set');
   if (!chatId) throw new Error('chat_id is required (link the phone first)');
-  const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text }),
-    signal: AbortSignal.timeout(Number(process.env.TELEGRAM_TIMEOUT_MS || 10000)),
-  });
+  const res = await resilientFetch(
+    'telegram',
+    `https://api.telegram.org/bot${botToken}/sendMessage`,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text }),
+    },
+    { fetchImpl, timeoutMs, idempotencyKey },
+  );
   if (!res.ok) throw new Error(`telegram send failed: HTTP ${res.status}`);
-  const body = await res.json();
+  let body;
+  try {
+    body = await res.json();
+  } catch {
+    throw new Error('telegram send rejected (malformed JSON)');
+  }
   if (!body || body.ok !== true) throw new Error('telegram send rejected');
   return true;
 }

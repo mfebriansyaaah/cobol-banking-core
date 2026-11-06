@@ -31,3 +31,33 @@ change.
 
 See `middleware/.env.example` (`INTEGRATION_MODE`, `EMAIL_PROVIDER`,
 `PHONE_OTP_PROVIDER`, `IDENTITY_PROVIDER`, `KTP_OCR_PROVIDER`).
+
+## Resilience (PR-086)
+
+Every HTTP adapter goes through `resilientFetch`
+(`middleware/src/integrations/resilience.js`; `http.js` holds the bare
+timeout primitive):
+
+- **Timeout** 4s default (3s Nusakit), via `AbortSignal` — no hanging socket.
+- **Retry only** 429/5xx/network failures, max 2 retries. 4xx is terminal
+  (exactly one call — an OTP already sent is never re-sent).
+- **Circuit breaker** per provider: opens after 5 consecutive failures,
+  half-opens after 30s cooldown. Open circuits fail fast with
+  `circuit open for provider 'x'`.
+- **Idempotency key** per OTP/NIK request, sent as the `idempotency-key`
+  header on every attempt.
+- **Fallbacks** (the user never hangs):
+  - email fails → outbox/retry (`mailer.js` best-effort + outbox worker),
+    never a signup rollback;
+  - telegram fails → free SMS (`sendOtpWithFallback` in `phone.js`) →
+    manual review;
+  - Nusakit fails (any mode incl. circuit open) → local structural result
+    with `remote: 'fallback (...)'`;
+  - OCR confidence < 0.85 → manual review.
+
+## Metrics
+
+- `integration_requests_total{provider,result}` (`ok`|`error`) + the
+  `integration_request_duration_ms` latency histogram.
+- `integration_fallback_total{provider,reason}` on every fallback hop.
+- `integration_circuit_open{provider}` gauge (1 while the breaker is open).
