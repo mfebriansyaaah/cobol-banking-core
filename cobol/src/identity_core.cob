@@ -88,6 +88,9 @@
                 WHEN LS-CMD-ACTION(1:18) = "IDV_REVIEW_DECIDE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-REVIEW-DECIDE
+                WHEN LS-CMD-ACTION(1:15) = "IDV_REVIEW_LIST"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-REVIEW-LIST
                 WHEN OTHER
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
@@ -531,4 +534,37 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-REVIEW-LIST.
+            *> p6 = actor (SUPER_ADMIN). Lists OPEN manual reviews as
+            *> id:user_id:kind:status:created rows joined by ';' (empty when
+            *> the queue is clear). Read-only: no transaction.
+            PERFORM CHECK-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT GROUP_CONCAT(CONCAT(id, ':', user_id, ':', kind, ':', status) ORDER BY id SEPARATOR ';') FROM manual_reviews WHERE status = 'OPEN'" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "SUCCESS|REVIEWS|" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT = SPACES
+                MOVE "SUCCESS|REVIEWS|" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|REVIEWS|" DELIMITED BY SIZE
+                   FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER END-STRING.
             EXIT PARAGRAPH.

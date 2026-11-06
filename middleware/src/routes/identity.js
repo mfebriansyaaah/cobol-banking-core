@@ -41,8 +41,15 @@ export const IDENTITY_ROUTES = [
     ],
   },
   {
+    method: 'get', path: '/identity/reviews', action: 'IDV_REVIEW_LIST',
+    tokenIdentity: 'actor', stepUp: true,
+    fields: [
+      BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
     method: 'post', path: '/identity/reviews/decide', action: 'IDV_REVIEW_DECIDE',
-    tokenIdentity: 'actor',
+    tokenIdentity: 'actor', stepUp: true,
     fields: [
       { name: 'reviewId', pattern: PATTERNS.INT, required: true },
       { name: 'decision', pattern: PATTERNS.NAME, required: true },
