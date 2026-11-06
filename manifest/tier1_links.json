@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T04:38:33.190Z",
-  "commit": "6fa8608f",
+  "generatedAt": "2026-11-06T05:12:00.612Z",
+  "commit": "73b9a300",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
@@ -338,7 +338,8 @@
       "t1Actions": [],
       "hasTests": true,
       "testEvidence": [
-        "tests/db/identity_db_tests.sh"
+        "tests/db/identity_db_tests.sh",
+        "tests/integration/identity_flow.sh"
       ],
       "reason": "own domain tables only, no core link",
       "routeFiles": [
