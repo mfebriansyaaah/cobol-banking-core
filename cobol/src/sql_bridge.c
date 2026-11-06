@@ -291,15 +291,129 @@ void SQL_ROLLBACK() {
     }
     G_CONN = NULL;   /* pooled connection is kept for reuse */
 }
-
-/* --- Prepared statement execution ---------------------------------------
- * Prepare a template with '?' placeholders and bind up to six string
- * parameters (values are sent to the server, never concatenated). Single-row
- * results are concatenated like SQL_EXECUTE.
+/* --- Unified prepared execution (PR-060) ----------------------------------
+ * One core, thin entry points. Modes:
+ *   EXEC_ONE  — first row only (fields joined by '|'), else ERROR|NO_DATA.
+ *   EXEC_ROWS — every row (fields '|', rows ';'), else ERROR|NO_DATA.
+ *   EXEC_LOCK — no fetch at all (locking SELECT); SUCCESS|LOCKED.
+ * Parameter capacity is 7 for every mode (EXEC7 was EXEC_ONE with 7 slots).
+ * Every error string is byte-identical to the pre-unification variants.
  * ------------------------------------------------------------------------ */
 
-void SQL_PREPARE_EXEC(char *sql, int nparams,
-                      char *p1, char *p2, char *p3, char *p4, char *p5, char *p6) {
+enum exec_mode { EXEC_ONE, EXEC_ROWS, EXEC_LOCK };
+
+#define RES_CAP 16383
+#define MAX_COLS 32
+
+/* Append one sanitized field value (already length-capped by the caller). */
+static void append_field(const char *text) {
+    char temp[512];
+    strncpy(temp, text ? text : "", 511);
+    temp[511] = '\0';
+    sanitize_string(temp);
+    trim_trailing_spaces(temp);
+    strncat(G_RESULT, temp, RES_CAP - strlen(G_RESULT) - 1);
+}
+
+static void append_sep(const char *sep) {
+    strncat(G_RESULT, sep, RES_CAP - strlen(G_RESULT) - 1);
+}
+
+/* Bind string column buffers for fetching (up to MAX_COLS columns). */
+static int bind_columns(MYSQL_STMT *st, char rbuf[MAX_COLS][512], unsigned long rlen[MAX_COLS],
+                        MYSQL_BIND rb[MAX_COLS], unsigned int *cols) {
+    MYSQL_RES *meta = mysql_stmt_result_metadata(st);
+    if (meta == NULL) return 0;
+    unsigned int nf = mysql_num_fields(meta);
+    *cols = nf < MAX_COLS ? nf : MAX_COLS;
+    for (unsigned int i = 0; i < *cols; i++) {
+        memset(rbuf[i], 0, sizeof(rbuf[i]));
+        rlen[i] = 0;
+        rb[i].buffer_type = MYSQL_TYPE_STRING;
+        rb[i].buffer = rbuf[i];
+        rb[i].buffer_length = 511;
+        rb[i].length = &rlen[i];
+    }
+    if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
+        strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", RES_CAP);
+        mysql_free_result(meta);
+        return -1;
+    }
+    mysql_free_result(meta);
+    return 1;
+}
+
+/* Copy one fetched column into a NUL-terminated scratch field. */
+static void column_text(char out[512], const char *rbuf, unsigned long rlen) {
+    unsigned long l = rlen < 511 ? rlen : 511;
+    memcpy(out, rbuf, l);
+    out[l] = '\0';
+}
+
+static void fetch_one(MYSQL_STMT *st) {
+    char rbuf[MAX_COLS][512];
+    unsigned long rlen[MAX_COLS];
+    MYSQL_BIND rb[MAX_COLS];
+    unsigned int cols = 0;
+    memset(rb, 0, sizeof(rb));
+    int has = bind_columns(st, rbuf, rlen, rb, &cols);
+    if (has < 0) return;
+    if (has == 0) {
+        long affected = (long)mysql_stmt_affected_rows(st);
+        snprintf(G_RESULT, RES_CAP, "SUCCESS|AFFECTED_%ld", affected);
+        return;
+    }
+    int rc = mysql_stmt_fetch(st);
+    if (rc == 0 || rc == MYSQL_DATA_TRUNCATED) {
+        char temp[512];
+        G_RESULT[0] = '\0';
+        for (unsigned int i = 0; i < cols; i++) {
+            column_text(temp, rbuf[i], rlen[i]);
+            append_field(temp);
+            if (i < cols - 1) append_sep("|");
+        }
+    } else {
+        strncpy(G_RESULT, "ERROR|NO_DATA", RES_CAP);
+    }
+}
+
+static void fetch_all(MYSQL_STMT *st) {
+    char rbuf[MAX_COLS][512];
+    unsigned long rlen[MAX_COLS];
+    MYSQL_BIND rb[MAX_COLS];
+    unsigned int cols = 0;
+    memset(rb, 0, sizeof(rb));
+    int has = bind_columns(st, rbuf, rlen, rb, &cols);
+    if (has < 0) return;
+    if (has == 0) {
+        long affected = (long)mysql_stmt_affected_rows(st);
+        snprintf(G_RESULT, RES_CAP, "SUCCESS|AFFECTED_%ld", affected);
+        return;
+    }
+    char temp[512];
+    G_RESULT[0] = '\0';
+    int first_row = 1;
+    int rc;
+    int rowcount = 0;
+    while ((rc = mysql_stmt_fetch(st)) == 0 || rc == MYSQL_DATA_TRUNCATED) {
+        rowcount++;
+        if (bridge_debug()) fprintf(stderr, "FETCH rc=%d row=%d\n", rc, rowcount);
+        if (!first_row) append_sep(";");
+        first_row = 0;
+        for (unsigned int i = 0; i < cols; i++) {
+            column_text(temp, rbuf[i], rlen[i]);
+            append_field(temp);
+            if (i < cols - 1) append_sep("|");
+        }
+    }
+    if (bridge_debug())
+        fprintf(stderr, "TOTAL_ROWS=%d first_row=%d G_RESULT_LEN=%zu\n", rowcount, first_row, strlen(G_RESULT));
+    if (first_row) {
+        strncpy(G_RESULT, "ERROR|NO_DATA", RES_CAP);
+    }
+}
+
+static void prepared_exec(char *sql, int nparams, char **params, int maxparams, int mode) {
     if (!sql) return;
 
     char query[1024];
@@ -319,136 +433,17 @@ void SQL_PREPARE_EXEC(char *sql, int nparams,
 
     MYSQL_STMT *st = mysql_stmt_init(conn);
     if (st == NULL) {
-        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
+        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", RES_CAP);
         /* pooled: connection kept for reuse */
         return;
     }
     if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
-        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, RES_CAP, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
         /* pooled: connection kept for reuse */
         return;
     }
 
-    char *src[6] = { p1, p2, p3, p4, p5, p6 };
-    char bufs[6][512];
-    unsigned long lens[6];
-    MYSQL_BIND bind[6];
-    memset(bind, 0, sizeof(bind));
-
-    int n = nparams;
-    if (n < 0) n = 0;
-    if (n > 6) n = 6;
-
-    for (int i = 0; i < n; i++) {
-        memset(bufs[i], 0, sizeof(bufs[i]));
-        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
-        trim_trailing_spaces(bufs[i]);
-        lens[i] = (unsigned long)strlen(bufs[i]);
-        bind[i].buffer_type = MYSQL_TYPE_STRING;
-        bind[i].buffer = bufs[i];
-        bind[i].buffer_length = 511;
-        bind[i].length = &lens[i];
-    }
-    if (n > 0 && mysql_stmt_bind_param(st, bind)) {
-        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
-        mysql_stmt_close(st);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    if (mysql_stmt_execute(st)) {
-        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
-        mysql_stmt_close(st);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    MYSQL_RES *meta = mysql_stmt_result_metadata(st);
-    if (meta == NULL) {
-        long affected = (long)mysql_stmt_affected_rows(st);
-        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
-    } else {
-        unsigned int nf = mysql_num_fields(meta);
-        MYSQL_FIELD *fields = mysql_fetch_fields(meta);
-        char rbuf[32][512];
-        unsigned long rlen[32];
-        MYSQL_BIND rb[32];
-        memset(rb, 0, sizeof(rb));
-        unsigned int cols = nf < 32 ? nf : 32;
-        for (unsigned int i = 0; i < cols; i++) {
-            memset(rbuf[i], 0, sizeof(rbuf[i]));
-            rlen[i] = 0;
-            rb[i].buffer_type = MYSQL_TYPE_STRING;
-            rb[i].buffer = rbuf[i];
-            rb[i].buffer_length = 511;
-            rb[i].length = &rlen[i];
-        }
-        if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
-            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
-            mysql_free_result(meta);
-            mysql_stmt_close(st);
-            /* pooled: connection kept for reuse */
-            return;
-        }
-        int rc = mysql_stmt_fetch(st);
-        if (rc == 0 || rc == MYSQL_DATA_TRUNCATED) {
-            G_RESULT[0] = '\0';
-            for (unsigned int i = 0; i < cols; i++) {
-                char temp[512];
-                unsigned long l = rlen[i] < 511 ? rlen[i] : 511;
-                memcpy(temp, rbuf[i], l);
-                temp[l] = '\0';
-                sanitize_string(temp);
-                trim_trailing_spaces(temp);
-                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
-                if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
-            }
-        } else {
-            strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
-        }
-        mysql_free_result(meta);
-    }
-
-    mysql_stmt_close(st);
-    /* pooled: connection kept for reuse */
-}
-
-/* --- Prepared execute with up to seven bound parameters -----------------
- * Same as SQL_PREPARE_EXEC but with one extra slot, for the CREDIT ledger
- * insert which binds the rate twice (multiply + snapshot) plus the sender.
- * ------------------------------------------------------------------------ */
-
-void SQL_PREPARE_EXEC7(char *sql, int nparams,
-                       char *p1, char *p2, char *p3, char *p4, char *p5, char *p6, char *p7) {
-    if (!sql) return;
-
-    char query[1024];
-    strncpy(query, sql, 1023);
-    query[1023] = '\0';
-    trim_trailing_spaces(query);
-    if (query[0] == '\0') return;
-    if (bridge_debug()) fprintf(stderr, "ROWS_QUERY: %s\n", query);
-
-    MYSQL *conn = G_CONN;
-    if (conn == NULL) {
-        int insecure = 0;
-        conn = bridge_connect(&insecure);
-        if (conn == NULL) { set_connect_error(insecure); return; }
-    }
-
-    MYSQL_STMT *st = mysql_stmt_init(conn);
-    if (st == NULL) {
-        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
-        return;
-    }
-    if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
-        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
-        mysql_stmt_close(st);
-        return;
-    }
-
-    char *src[7] = { p1, p2, p3, p4, p5, p6, p7 };
     char bufs[7][512];
     unsigned long lens[7];
     MYSQL_BIND bind[7];
@@ -456,11 +451,11 @@ void SQL_PREPARE_EXEC7(char *sql, int nparams,
 
     int n = nparams;
     if (n < 0) n = 0;
-    if (n > 7) n = 7;
+    if (n > maxparams) n = maxparams;
 
     for (int i = 0; i < n; i++) {
         memset(bufs[i], 0, sizeof(bufs[i]));
-        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
+        if (params[i]) { strncpy(bufs[i], params[i], 256); bufs[i][256] = '\0'; }
         trim_trailing_spaces(bufs[i]);
         lens[i] = (unsigned long)strlen(bufs[i]);
         bind[i].buffer_type = MYSQL_TYPE_STRING;
@@ -469,267 +464,64 @@ void SQL_PREPARE_EXEC7(char *sql, int nparams,
         bind[i].length = &lens[i];
     }
     if (n > 0 && mysql_stmt_bind_param(st, bind)) {
-        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
+        strncpy(G_RESULT, "ERROR|BIND_FAILED", RES_CAP);
         mysql_stmt_close(st);
+        /* pooled: connection kept for reuse */
         return;
     }
 
     if (mysql_stmt_execute(st)) {
-        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
+        snprintf(G_RESULT, RES_CAP, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
         mysql_stmt_close(st);
+        /* pooled: connection kept for reuse */
         return;
     }
 
-    MYSQL_RES *meta = mysql_stmt_result_metadata(st);
-    if (meta == NULL) {
-        long affected = (long)mysql_stmt_affected_rows(st);
-        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
+    if (mode == EXEC_LOCK) {
+        strncpy(G_RESULT, "SUCCESS|LOCKED", RES_CAP);
+    } else if (mode == EXEC_ROWS) {
+        fetch_all(st);
     } else {
-        unsigned int nf = mysql_num_fields(meta);
-        char rbuf[32][512];
-        unsigned long rlen[32];
-        MYSQL_BIND rb[32];
-        memset(rb, 0, sizeof(rb));
-        unsigned int cols = nf < 32 ? nf : 32;
-        for (unsigned int i = 0; i < cols; i++) {
-            memset(rbuf[i], 0, sizeof(rbuf[i]));
-            rlen[i] = 0;
-            rb[i].buffer_type = MYSQL_TYPE_STRING;
-            rb[i].buffer = rbuf[i];
-            rb[i].buffer_length = 511;
-            rb[i].length = &rlen[i];
-        }
-        if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
-            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
-            mysql_free_result(meta);
-            mysql_stmt_close(st);
-            return;
-        }
-        int rc = mysql_stmt_fetch(st);
-        if (rc == 0 || rc == MYSQL_DATA_TRUNCATED) {
-            G_RESULT[0] = '\0';
-            for (unsigned int i = 0; i < cols; i++) {
-                char temp[512];
-                unsigned long l = rlen[i] < 511 ? rlen[i] : 511;
-                memcpy(temp, rbuf[i], l);
-                temp[l] = '\0';
-                sanitize_string(temp);
-                trim_trailing_spaces(temp);
-                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
-                if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
-            }
-        } else {
-            strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
-        }
-        mysql_free_result(meta);
+        fetch_one(st);
     }
 
     mysql_stmt_close(st);
+    /* pooled: connection kept for reuse */
+    (void)own_conn;
 }
 
-/* --- Prepared execute without reading rows ------------------------------
- * Binds parameters and runs the statement, but does not fetch/bind a result
- * set. Used for a locking `SELECT ... FOR UPDATE` whose rows are not needed;
- * reading them via mysql_stmt_store_result makes MariaDB raise ER_CHECKREAD
- * (1020) under contention, even though the lock itself succeeded.
- * ------------------------------------------------------------------------ */
+/* --- Thin entry points (COBOL-visible symbols, unchanged) ----------------- */
 
+void SQL_PREPARE_EXEC(char *sql, int nparams,
+                      char *p1, char *p2, char *p3, char *p4, char *p5, char *p6) {
+    char *params[7] = { p1, p2, p3, p4, p5, p6, NULL };
+    prepared_exec(sql, nparams, params, 6, EXEC_ONE);
+}
+
+/* Same as SQL_PREPARE_EXEC but with one extra slot, for the CREDIT ledger
+ * insert which binds the rate twice (multiply + snapshot) plus the sender. */
+void SQL_PREPARE_EXEC7(char *sql, int nparams,
+                       char *p1, char *p2, char *p3, char *p4, char *p5, char *p6, char *p7) {
+    char *params[7] = { p1, p2, p3, p4, p5, p6, p7 };
+    prepared_exec(sql, nparams, params, 7, EXEC_ONE);
+}
+
+/* Prepared execute without reading rows. Binds parameters and runs the
+ * statement, but does not fetch/bind a result set. Used for a locking
+ * `SELECT ... FOR UPDATE` whose rows are not needed; reading them via
+ * mysql_stmt_store_result makes MariaDB raise ER_CHECKREAD (1020) under
+ * contention, even though the lock itself succeeded. */
 void SQL_PREPARE_EXEC_LOCK(char *sql, int nparams,
                            char *p1, char *p2, char *p3, char *p4, char *p5, char *p6) {
-    if (!sql) return;
-
-    char query[1024];
-    strncpy(query, sql, 1023);
-    query[1023] = '\0';
-    trim_trailing_spaces(query);
-    if (query[0] == '\0') return;
-    if (bridge_debug()) fprintf(stderr, "ROWS_QUERY: %s\n", query);
-
-    MYSQL *conn = G_CONN;
-    int own_conn = 0;
-    if (conn == NULL) {
-        int insecure = 0;
-        conn = bridge_connect(&insecure);
-        own_conn = 1;
-        if (conn == NULL) { set_connect_error(insecure); return; }
-    }
-
-    MYSQL_STMT *st = mysql_stmt_init(conn);
-    if (st == NULL) {
-        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-    if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
-        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
-        mysql_stmt_close(st);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    char *src[6] = { p1, p2, p3, p4, p5, p6 };
-    char bufs[6][512];
-    unsigned long lens[6];
-    MYSQL_BIND bind[6];
-    memset(bind, 0, sizeof(bind));
-
-    int n = nparams;
-    if (n < 0) n = 0;
-    if (n > 6) n = 6;
-
-    for (int i = 0; i < n; i++) {
-        memset(bufs[i], 0, sizeof(bufs[i]));
-        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
-        trim_trailing_spaces(bufs[i]);
-        lens[i] = (unsigned long)strlen(bufs[i]);
-        bind[i].buffer_type = MYSQL_TYPE_STRING;
-        bind[i].buffer = bufs[i];
-        bind[i].buffer_length = 511;
-        bind[i].length = &lens[i];
-    }
-    if (n > 0 && mysql_stmt_bind_param(st, bind)) {
-        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
-        mysql_stmt_close(st);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    if (mysql_stmt_execute(st)) {
-        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
-    } else {
-        strncpy(G_RESULT, "SUCCESS|LOCKED", 16383);
-    }
-
-    mysql_stmt_close(st);
-    /* pooled: connection kept for reuse */
+    char *params[7] = { p1, p2, p3, p4, p5, p6, NULL };
+    prepared_exec(sql, nparams, params, 6, EXEC_LOCK);
 }
 
-/* --- Prepared multi-row execute -----------------------------------------
- * Like SQL_PREPARE_EXEC (bound parameters) but concatenates EVERY row:
- * fields joined by '|', rows joined by ';'. Used for paged lists whose
- * LIMIT/OFFSET are supplied by the caller.
- * ------------------------------------------------------------------------ */
-
+/* Prepared multi-row execute. Like SQL_PREPARE_EXEC (bound parameters) but
+ * concatenates EVERY row: fields joined by '|', rows joined by ';'. Used for
+ * paged lists whose LIMIT/OFFSET are supplied by the caller. */
 void SQL_PREPARE_EXEC_ROWS(char *sql, int nparams,
                            char *p1, char *p2, char *p3, char *p4, char *p5, char *p6) {
-    if (!sql) return;
-
-    char query[1024];
-    strncpy(query, sql, 1023);
-    query[1023] = '\0';
-    trim_trailing_spaces(query);
-    if (query[0] == '\0') return;
-    if (bridge_debug()) fprintf(stderr, "ROWS_QUERY: %s\n", query);
-
-    MYSQL *conn = G_CONN;
-    int own_conn = 0;
-    if (conn == NULL) {
-        int insecure = 0;
-        conn = bridge_connect(&insecure);
-        own_conn = 1;
-        if (conn == NULL) { set_connect_error(insecure); return; }
-    }
-
-    MYSQL_STMT *st = mysql_stmt_init(conn);
-    if (st == NULL) {
-        strncpy(G_RESULT, "ERROR|STMT_INIT_FAILED", 16383);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-    if (mysql_stmt_prepare(st, query, (unsigned long)strlen(query))) {
-        snprintf(G_RESULT, 16383, "ERROR|PREPARE_FAILED|%d", mysql_errno(conn));
-        mysql_stmt_close(st);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    char *src[6] = { p1, p2, p3, p4, p5, p6 };
-    char bufs[6][512];
-    unsigned long lens[6];
-    MYSQL_BIND bind[6];
-    memset(bind, 0, sizeof(bind));
-
-    int n = nparams;
-    if (n < 0) n = 0;
-    if (n > 6) n = 6;
-
-    for (int i = 0; i < n; i++) {
-        memset(bufs[i], 0, sizeof(bufs[i]));
-        if (src[i]) { strncpy(bufs[i], src[i], 256); bufs[i][256] = '\0'; }
-        trim_trailing_spaces(bufs[i]);
-        lens[i] = (unsigned long)strlen(bufs[i]);
-        bind[i].buffer_type = MYSQL_TYPE_STRING;
-        bind[i].buffer = bufs[i];
-        bind[i].buffer_length = 511;
-        bind[i].length = &lens[i];
-    }
-    if (n > 0 && mysql_stmt_bind_param(st, bind)) {
-        strncpy(G_RESULT, "ERROR|BIND_FAILED", 16383);
-        mysql_stmt_close(st);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    if (mysql_stmt_execute(st)) {
-        snprintf(G_RESULT, 16383, "ERROR|EXEC_FAILED|%d", mysql_errno(conn));
-        mysql_stmt_close(st);
-        /* pooled: connection kept for reuse */
-        return;
-    }
-
-    MYSQL_RES *meta = mysql_stmt_result_metadata(st);
-    if (meta == NULL) {
-        long affected = (long)mysql_stmt_affected_rows(st);
-        snprintf(G_RESULT, 16383, "SUCCESS|AFFECTED_%ld", affected);
-    } else {
-        unsigned int nf = mysql_num_fields(meta);
-        char rbuf[32][512];
-        unsigned long rlen[32];
-        MYSQL_BIND rb[32];
-        memset(rb, 0, sizeof(rb));
-        unsigned int cols = nf < 32 ? nf : 32;
-        for (unsigned int i = 0; i < cols; i++) {
-            memset(rbuf[i], 0, sizeof(rbuf[i]));
-            rlen[i] = 0;
-            rb[i].buffer_type = MYSQL_TYPE_STRING;
-            rb[i].buffer = rbuf[i];
-            rb[i].buffer_length = 511;
-            rb[i].length = &rlen[i];
-        }
-        if (mysql_stmt_bind_result(st, rb) || mysql_stmt_store_result(st)) {
-            strncpy(G_RESULT, "ERROR|RESULT_BIND_FAILED", 16383);
-            mysql_free_result(meta);
-            mysql_stmt_close(st);
-            /* pooled: connection kept for reuse */
-            return;
-        }
-        G_RESULT[0] = '\0';
-        int first_row = 1;
-        int rc;
-        int rowcount = 0;
-        while ((rc = mysql_stmt_fetch(st)) == 0 || rc == MYSQL_DATA_TRUNCATED) {
-            rowcount++;
-            if (bridge_debug()) fprintf(stderr, "FETCH rc=%d row=%d\n", rc, rowcount);
-            if (!first_row) strncat(G_RESULT, ";", 16383 - strlen(G_RESULT) - 1);
-            first_row = 0;
-            for (unsigned int i = 0; i < cols; i++) {
-                char temp[512];
-                unsigned long l = rlen[i] < 511 ? rlen[i] : 511;
-                memcpy(temp, rbuf[i], l);
-                temp[l] = '\0';
-                sanitize_string(temp);
-                trim_trailing_spaces(temp);
-                strncat(G_RESULT, temp, 16383 - strlen(G_RESULT) - 1);
-                if (i < cols - 1) strncat(G_RESULT, "|", 16383 - strlen(G_RESULT) - 1);
-            }
-        }
-        if (bridge_debug()) fprintf(stderr, "TOTAL_ROWS=%d first_row=%d G_RESULT_LEN=%zu\n", rowcount, first_row, strlen(G_RESULT));
-        if (first_row) {
-            strncpy(G_RESULT, "ERROR|NO_DATA", 16383);
-        }
-        mysql_free_result(meta);
-    }
-
-    mysql_stmt_close(st);
-    /* pooled: connection kept for reuse */
+    char *params[7] = { p1, p2, p3, p4, p5, p6, NULL };
+    prepared_exec(sql, nparams, params, 6, EXEC_ROWS);
 }
