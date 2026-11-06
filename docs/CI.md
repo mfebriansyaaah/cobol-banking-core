@@ -412,3 +412,7 @@ Day 0 preflight done 2026-11-04 (triaged, not green): see `docs/known-red.md`
 and `artifacts/preflight-b6e4d7ce/`. Before Phase 0, re-run the section 0.4
 commands on a provisioned database (Docker 3307) and confirm zero red, or carry
 the two env entries with owner and expiry.
+
+## G1 docs-only fast-path proof (2026-11-06)
+
+- Proof PR touches docs only to exercise selective CI (`docs_only=true`); `ci:full` label override verified separately.
