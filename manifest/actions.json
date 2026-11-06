@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T15:48:58.864Z",
-  "commit": "90cc6d5a",
+  "generatedAt": "2026-11-06T16:09:39.893Z",
+  "commit": "72ae26c4",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 545,
   "actions": [
@@ -5189,8 +5189,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5224,8 +5223,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5259,8 +5257,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5294,8 +5291,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5329,8 +5325,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",
@@ -5364,8 +5359,7 @@
       "linkageLevel": "L1",
       "t1Actions": [],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "tested": false,
       "domain": "eod_jobs",

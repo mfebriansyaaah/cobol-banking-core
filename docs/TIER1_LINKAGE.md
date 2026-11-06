@@ -6,8 +6,8 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T15:16:52.235Z
-- Commit: `fc052657`
+- Generated at: 2026-11-06T16:09:39.676Z
+- Commit: `72ae26c4`
 
 | Level | Modules |
 | --- | ---: |
@@ -40,7 +40,7 @@ Unresolved route files: none.
 | `dashboard_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Tier-1 core module |
 | `eod_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `eod_jobs_core` | L1 | accounts | user_core, wallet_core | 1 | linked code with no DB/table/integration test (downgraded) |
+| `eod_jobs_core` | L1 | accounts | user_core | 1 | linked code with no DB/table/integration test (downgraded) |
 | `fee_core` | L3 | — | — | 1 | Tier-1 core module |
 | `fixed_asset_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `fx_rate_core` | L0 | — | — | 1 | own domain tables only, no core link |

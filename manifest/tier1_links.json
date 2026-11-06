@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T15:16:52.235Z",
-  "commit": "fc052657",
+  "generatedAt": "2026-11-06T16:09:39.676Z",
+  "commit": "72ae26c4",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 18,
@@ -307,8 +307,7 @@
         "accounts"
       ],
       "t1Calls": [
-        "user_core",
-        "wallet_core"
+        "user_core"
       ],
       "t1Actions": [],
       "hasTests": false,
