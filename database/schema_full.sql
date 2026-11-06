@@ -20608,6 +20608,29 @@ CREATE TABLE `organization_unit_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `otp_challenges`
+--
+
+DROP TABLE IF EXISTS `otp_challenges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `otp_challenges` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `channel` enum('sms','telegram') NOT NULL DEFAULT 'sms',
+  `code` varchar(10) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `attempts` int(11) NOT NULL DEFAULT 0,
+  `used` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_otp_user` (`user_id`,`created_at`),
+  CONSTRAINT `fk_otp_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `CONSTRAINT_1` CHECK (`attempts` >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `otp_management`
 --
 
@@ -20655,6 +20678,27 @@ CREATE TABLE `otp_management_audit` (
   PRIMARY KEY (`id`),
   KEY `idx_OTP_audit_actor` (`actor_email`,`created_at`),
   KEY `idx_OTP_audit_otp_management` (`otp_management_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `phone_links`
+--
+
+DROP TABLE IF EXISTS `phone_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_links` (
+  `user_id` int(11) NOT NULL,
+  `phone_hash` varchar(64) NOT NULL,
+  `chat_id` varchar(64) DEFAULT NULL,
+  `link_token` varchar(64) DEFAULT NULL,
+  `token_expires_at` datetime DEFAULT NULL,
+  `verified_at` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `uq_phone_chat` (`chat_id`),
+  CONSTRAINT `fk_phone_links_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

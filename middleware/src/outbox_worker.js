@@ -7,6 +7,8 @@
 //
 // Transports:
 //   smtp (default) - real delivery via the mailer (needs SMTP_* env).
+//   mailpit        - same SMTP path against a local Mailpit (EMAIL_PROVIDER
+//                    resolves the host/port when SMTP_* is unset).
 //   log            - append the full delivery record as JSONL to
 //                    OUTBOX_LOG_FILE (development/tests; never production,
 //                    since it would mark mail delivered without sending).
@@ -65,6 +67,11 @@ async function main() {
   const transport = process.env.OUTBOX_TRANSPORT ?? 'smtp';
   const logFile = process.env.OUTBOX_LOG_FILE;
 
+  if (transport !== 'smtp' && transport !== 'mailpit' && transport !== 'log') {
+    // eslint-disable-next-line no-console -- startup usage error goes to stderr by convention
+    console.error(`OUTBOX_TRANSPORT must be smtp, mailpit, or log (got ${transport})`);
+    process.exit(1);
+  }
   if (transport === 'log' && !logFile) {
     // eslint-disable-next-line no-console -- startup usage error goes to stderr by convention
     console.error('OUTBOX_LOG_FILE is required with OUTBOX_TRANSPORT=log');
@@ -91,10 +98,22 @@ async function main() {
     let sent = false;
     let error = '';
     try {
-      if (purpose !== 'SIGNUP' && purpose !== 'PASSWORD_RESET' && purpose !== 'EMAIL_CHANGE' && purpose !== 'EMAIL_CHANGED' && purpose !== 'MFA_RECOVERY' && purpose !== 'MFA_RECOVERY_NOTICE' && purpose !== 'NEW_DEVICE' && purpose !== 'DORMANT_NOTICE') {
+      if (
+        purpose !== 'SIGNUP' &&
+        purpose !== 'PASSWORD_RESET' &&
+        purpose !== 'EMAIL_CHANGE' &&
+        purpose !== 'EMAIL_CHANGED' &&
+        purpose !== 'MFA_RECOVERY' &&
+        purpose !== 'MFA_RECOVERY_NOTICE' &&
+        purpose !== 'NEW_DEVICE' &&
+        purpose !== 'DORMANT_NOTICE'
+      ) {
         error = `unknown purpose ${purpose}`;
       } else if (transport === 'log') {
-        await appendFile(logFile, JSON.stringify({ ts: new Date().toISOString(), id, to, purpose, subject, text }) + '\n');
+        await appendFile(
+          logFile,
+          JSON.stringify({ ts: new Date().toISOString(), id, to, purpose, subject, text }) + '\n',
+        );
         sent = true;
       } else {
         sent = await mailer.deliver({ from, to, subject, text });
@@ -124,7 +143,13 @@ try {
   await main();
 } catch (err) {
   // eslint-disable-next-line no-console -- last-resort crash report; the process is exiting
-  console.error(JSON.stringify({ ts: new Date().toISOString(), event: 'outbox_worker_error', error: String((err && err.message) || err).slice(0, 200) }));
+  console.error(
+    JSON.stringify({
+      ts: new Date().toISOString(),
+      event: 'outbox_worker_error',
+      error: String((err && err.message) || err).slice(0, 200),
+    }),
+  );
   process.exit(1);
 } finally {
   // Drop pooled COBOL workers so --once actually terminates. In file mode

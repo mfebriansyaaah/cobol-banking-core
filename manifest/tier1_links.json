@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-05T03:28:25.905Z",
-  "commit": "e5764f82",
+  "generatedAt": "2026-11-06T03:26:41.770Z",
+  "commit": "22fd26ae",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
     "L2": 6,
     "L1": 1,
-    "L0": 18,
+    "L0": 19,
     "UTILITY": 3
   },
   "modules": [
@@ -588,6 +588,22 @@
       ]
     },
     {
+      "module": "phone_otp_core",
+      "source": "phone_otp_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/phone_otp_db_tests.sh"
+      ],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": [
+        "phone.js"
+      ]
+    },
+    {
       "module": "ref_engine",
       "source": "ref_engine.cob",
       "linkageLevel": "UTILITY",
@@ -810,6 +826,7 @@
     "payment_hold.js": "payment_hold_core",
     "payment_instructions.js": "payment_instruction_core",
     "payroll_processing.js": "payroll_processing_core",
+    "phone.js": "phone_otp_core",
     "ref_engine.js": "ref_engine",
     "ref_ext.js": "ref_ext_core",
     "report.js": "report_core",

@@ -5250,6 +5250,58 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "phone.js :: POST /auth/phone/link/begin": {
+    "action": "OTP_LINK_BEGIN",
+    "fields": [
+      "email",
+      "phoneHash",
+      "BLANK",
+      "ACTOR",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "phone.js :: POST /auth/phone/link/confirm": {
+    "action": "OTP_LINK_CONFIRM",
+    "fields": [
+      "email",
+      "token",
+      "chatId",
+      "ACTOR",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "phone.js :: POST /auth/phone/otp/issue": {
+    "action": "OTP_ISSUE",
+    "fields": [
+      "email",
+      "channel",
+      "BLANK",
+      "ACTOR",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "phone.js :: POST /auth/phone/otp/verify": {
+    "action": "OTP_VERIFY",
+    "fields": [
+      "email",
+      "code",
+      "BLANK",
+      "ACTOR",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
   "ref_engine.js :: GET /reference-engine/types": {
     "action": "RFE_TYPE_LIST",
     "fields": [

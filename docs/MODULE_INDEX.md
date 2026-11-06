@@ -46,6 +46,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `payment_hold_core` | `PHL_` | [payment_hold.js](../middleware/src/routes/payment_hold.js) | [payment_hold.cases](../tests/cobol/cases/payment_hold.cases) | [payment_hold_db_tests.sh](../tests/db/payment_hold_db_tests.sh) |
 | `payment_instruction_core` | `PIC_` | — | [payment_instruction.cases](../tests/cobol/cases/payment_instruction.cases) | — |
 | `payroll_processing_core` | `PRL_` | [payroll_processing.js](../middleware/src/routes/payroll_processing.js) | [payroll_processing.cases](../tests/cobol/cases/payroll_processing.cases) | [payroll_processing_db_tests.sh](../tests/db/payroll_processing_db_tests.sh) |
+| `phone_otp_core` | `OTP_` | — | — | [phone_otp_db_tests.sh](../tests/db/phone_otp_db_tests.sh) |
 | `ref_engine` | `RFE_` | [ref_engine.js](../middleware/src/routes/ref_engine.js) | — | — |
 | `ref_ext_core` | `RX_` | [ref_ext.js](../middleware/src/routes/ref_ext.js) | — | — |
 | `report_builder_core` | `RPB_` | [report_builder.js](../middleware/src/routes/report_builder.js) | [report_builder.cases](../tests/cobol/cases/report_builder.cases) | [report_builder_db_tests.sh](../tests/db/report_builder_db_tests.sh) |

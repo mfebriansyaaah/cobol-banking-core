@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T01:42:24.803Z",
+  "generatedAt": "2026-11-06T03:26:51.845Z",
   "entries": [
     {
       "domain": "account",
@@ -611,6 +611,23 @@
       "owner": null,
       "status": "PILOT",
       "reason": "Business link proven; integration completion (PR-010E) still open before ACTIVE.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "phone_otp",
+      "module": "phone_otp_core",
+      "routeFile": "phone.js",
+      "table": "phone_links",
+      "tier": 2,
+      "linkageLevel": "L0",
+      "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "REVIEW",
+      "reason": "New in PR-082b; own tables only until OTP gates a core flow (PR-085). Upgrade to L2 then or dead-candidate.",
       "retireAfter": null,
       "tableDropDate": null
     },
