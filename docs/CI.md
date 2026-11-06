@@ -19,8 +19,8 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request`, `push: [main]` | `ci.yml` | lint, build, db-snapshot, test, db-shards (2), db-aggregate, coverage, coverage-pr |
-| `push: [main]` + `workflow_dispatch` | `ci.yml` db-ops | migration rollback, backup/restore, schema drift (not a PR gate) |
+| `pull_request` | `ci.yml` | lint, build, db-snapshot, test, db-shards (2, skipped on docs-only), db-aggregate, coverage-pr (skipped on docs-only) |
+| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, db-snapshot, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
 | `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | JS + C analysis, SARIF uploaded to code scanning |
