@@ -119,7 +119,7 @@ DB suites run two ways from the same code (`tests/run_all.sh`):
 
 - Local / single job: `run_all.sh db` shards in-job (`DB_SHARDS` workers,
   default 4) against throwaway worker databases.
-- CI: four `db-shards` matrix jobs (`matrix.shard` 0–3) each run
+- CI: two `db-shards` matrix jobs (`matrix.shard` 0–1) each run
   `run_all.sh db-shard` with `DB_SHARD_INDEX`/`DB_SHARD_COUNT`, so every
   shard gets its own runner and database. `db-aggregate` then merges the
   per-shard `report.tsv` files, verifies each shard ran exactly its planner
@@ -135,6 +135,12 @@ Planner weights (`scripts/shard_suites.mjs`, LPT scheduling) come from
 `--timings artifacts/latest/run-all.json` (measured durations, median fallback)
 or, without it, from baseline assertion counts. Assignment is deterministic
 for identical inputs; `scripts/test/shard_suites.test.mjs` pins that.
+
+Right-sizing rationale (CI-010): with 58 suites, four shards cost one
+runner each while a shard's suite work is only ~2 min against ~80–100 s of
+setup (container + migration). Two shards keep the wall-clock (the `test`
+job's ~7 min remains the critical path) while saving ~5–7 job-min per run.
+Revisit if the fleet grows beyond 80 suites or a shard exceeds 4 min.
 
 `coverage-pr` restores `cobol/build` from cache (key pins GnuCOBOL 3.2 plus
 every build input) so `./build.sh` inside coverage is a warm relink; the

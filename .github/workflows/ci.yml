@@ -15,6 +15,13 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Single source of truth for the DB fleet size (CI-010): the db-shards
+# matrix, the shard runner, and the aggregate step all read this.
+# 58 suites (run `ls tests/db/*_db_tests.sh | wc -l` to recount); revisit
+# if the fleet grows beyond 80.
+env:
+  DB_SHARD_COUNT: 2
+
 jobs:
   lint:
     name: lint
@@ -390,13 +397,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Keep in sync: matrix size, DB_SHARD_COUNT below, and the shard count
-    # argument of the aggregate step. Four shards split the DB fleet
-    # (57 suites; recount with `ls tests/db/*_db_tests.sh | wc -l`).
+    # Assignment for two shards (CI-010): the LPT planner in
+    # scripts/shard_suites.mjs splits ~58 suites across both runners.
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3]
+        shard: [0, 1]
 
     services:
       mariadb:
@@ -483,7 +489,7 @@ jobs:
           DB_NAME="$DB_NAME" database/grants.sh
 
       - name: Run DB shard
-        run: DB_SHARD_INDEX=${{ matrix.shard }} DB_SHARD_COUNT=4 tests/run_all.sh db-shard
+        run: DB_SHARD_INDEX=${{ matrix.shard }} tests/run_all.sh db-shard
 
       - name: Upload shard reports
         if: always()
@@ -519,7 +525,7 @@ jobs:
 
       - name: Merge and verify shard reports
         if: always()
-        run: bash scripts/ci/aggregate_shard_reports.sh parts merged 4
+        run: bash scripts/ci/aggregate_shard_reports.sh parts merged "$DB_SHARD_COUNT"
 
       - name: Assertion count gate
         if: always()

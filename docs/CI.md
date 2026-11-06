@@ -19,7 +19,7 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request`, `push: [main]` | `ci.yml` | lint, build, db-snapshot, test, db-shards (4), db-aggregate, coverage, coverage-pr |
+| `pull_request`, `push: [main]` | `ci.yml` | lint, build, db-snapshot, test, db-shards (2), db-aggregate, coverage, coverage-pr |
 | `push: [main]` + `workflow_dispatch` | `ci.yml` db-ops | migration rollback, backup/restore, schema drift (not a PR gate) |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
@@ -116,7 +116,7 @@ Rules:
 | `ci.yml` build | 20 min | manifest, docs, complexity snapshot, probes, SAST, build, warning ratchet |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact |
 | `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
-| `ci.yml` db-shards (×4) | 30 min each | one shard per runner |
+| `ci.yml` db-shards (×2) | 30 min each | one shard per runner |
 | `ci.yml` db-aggregate | 15 min | merge + inventory + count gate + summary |
 | `ci.yml` coverage | 20 min | gateway-only |
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
@@ -232,7 +232,7 @@ then re-approve with the owner before re-privatizing.
 | Buffer 30% | — | +5,244 |
 | **Estimated total** | — | **~22,700 minutes/month** |
 
-Private GitHub Free has a limited monthly minute quota; a 4-shard DB matrix
+Private GitHub Free has a limited monthly minute quota; a 2-shard DB matrix
 plus nightly can exceed it. While the repository is temporarily public,
 Actions usage is free within fair-use limits, so this ceiling is a planning
 number, not a billing blocker. If the budget is insufficient, reduce in this
