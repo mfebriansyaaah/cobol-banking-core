@@ -45,7 +45,12 @@ function yamlScalar(v) {
   if (v === null || v === undefined) return 'null';
   if (typeof v === 'boolean' || typeof v === 'number') return String(v);
   const s = String(v);
-  if (s === '' || /[:#[\]{},&*!|>'"%@`\n]/.test(s) || /^\s|\s$/.test(s) || /^(true|false|null|~|[0-9]+(\.[0-9]+)?)$/.test(s)) {
+  if (
+    s === '' ||
+    /[:#[\]{},&*!|>'"%@`\n]/.test(s) ||
+    /^\s|\s$/.test(s) ||
+    /^(true|false|null|~|[0-9]+(\.[0-9]+)?)$/.test(s)
+  ) {
     return JSON.stringify(s);
   }
   return s;
@@ -188,11 +193,19 @@ for (const file of routeFiles) {
       summary: `${action} — ${opMapSummary[op] || 'Execute action'}`,
       tags: [file.replace('.js', '')],
       parameters: params,
-      ...(method === 'post' ? { requestBody: { required: true, content: { 'application/json': { schema: body } } } } : {}),
+      ...(method === 'post'
+        ? { requestBody: { required: true, content: { 'application/json': { schema: body } } } }
+        : {}),
       responses: {
         200: { description: 'Success' },
-        400: { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
-        403: { description: 'Forbidden', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } },
+        400: {
+          description: 'Bad request',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+        },
+        403: {
+          description: 'Forbidden',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+        },
       },
     };
   }

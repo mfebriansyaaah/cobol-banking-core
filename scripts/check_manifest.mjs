@@ -93,8 +93,7 @@ if (actualDispatch.length === 0) {
       (d) => !declared.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
     );
     const extra = declared.filter(
-      (d) =>
-        !actual.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
+      (d) => !actual.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
     );
     if (missing.length) fail(`dispatch entries missing from manifest: ${missing.map((d) => d.prefix).join(', ')}`);
     if (extra.length)

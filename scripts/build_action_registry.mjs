@@ -116,5 +116,7 @@ if (!WRITE) {
   console.log(`wrote ${OUT}: ${actions.length} actions`);
 }
 if (unmapped.length) {
-  console.error(`WARN: ${unmapped.length} action(s) without dispatch program: ${unmapped.map((a) => a.action).join(', ')}`);
+  console.error(
+    `WARN: ${unmapped.length} action(s) without dispatch program: ${unmapped.map((a) => a.action).join(', ')}`,
+  );
 }
