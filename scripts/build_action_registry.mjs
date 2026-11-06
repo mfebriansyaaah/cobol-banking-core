@@ -100,8 +100,12 @@ if (!WRITE) {
     console.error('registry missing: run scripts/build_action_registry.mjs --write');
     process.exit(1);
   }
-  const { generatedAt: _a, commit: _b, ...restCurrent } = current;
-  const { generatedAt: _c, commit: _d, ...restFresh } = registry;
+  const { generatedAt: _ga, commit: _cb, ...restCurrent } = current;
+  const { generatedAt: _gc, commit: _cd, ...restFresh } = registry;
+  void _ga;
+  void _cb;
+  void _gc;
+  void _cd;
   if (JSON.stringify(restCurrent) !== JSON.stringify(restFresh)) {
     console.error('action registry drifted: run scripts/build_action_registry.mjs --write and review the diff');
     process.exit(1);

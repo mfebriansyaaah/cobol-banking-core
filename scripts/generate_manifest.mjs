@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 

@@ -73,7 +73,6 @@ if (JSON.stringify(importedRoutes) !== JSON.stringify(manifestRoutes)) {
 // An empty dispatch table used to make this whole section a no-op, which is
 // how main_logic.cob's table refactor shipped with a blank manifest. The
 // manifest is now compared *exactly* against what the COBOL source declares.
-const mainLogicPath = path.join(cobolDir, 'main_logic.cob');
 const mainLogic = loadDispatchSource(path.join(cobolDir, '..', '..'));
 const { entries: actualDispatch, problems } = parseDispatchTable(mainLogic);
 for (const p of problems) fail(p);

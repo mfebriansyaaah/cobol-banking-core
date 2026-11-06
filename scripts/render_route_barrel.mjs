@@ -28,7 +28,7 @@ const ordered = [];
 for (const m of current.matchAll(/\.\.\.(\w+_ROUTES),?/g)) ordered.push(m[1]);
 const known = new Set(ordered);
 const missing = [];
-for (const [f, names] of exportsByFile) {
+for (const names of exportsByFile.values()) {
   for (const n of names) if (!known.has(n)) missing.push(n);
 }
 missing.sort();
