@@ -28,3 +28,15 @@ fails new unregistered tables, generic financial names (`budget_amount(s)`,
 893+ legacy tables have no domain trace. Retrofitting ownership for all of
 them is a project of its own (Phase 5 follow-up at most); the ratchet holds
 the line for everything new starting now.
+
+## Artifact policy (PR-065)
+
+- `database/schema_full.sql` stays committed (review trail for a ledger
+  schema beats a 1.4 MB saving; no per-domain split).
+- CI publishes its sha256 (`schema-hash` artifact, 7 days) and runs
+  `check_schema_drift.sh` (fresh rebuild from `schema.sql` + migrations must
+  byte-match the committed snapshot).
+- Never commit dumps/backups (`backups/`, `artifacts/`, `coverage/` are
+  git-ignored); customer data never lands in the repo.
+- Migration squash (657 → <150) is explicitly deferred: high-risk, solo-PR
+  only, preconditions unmet (see plan PR-063).
