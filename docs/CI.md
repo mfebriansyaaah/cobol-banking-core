@@ -416,3 +416,7 @@ the two env entries with owner and expiry.
 ## G1 docs-only fast-path proof (2026-11-06)
 
 - Proof PR touches docs only to exercise selective CI (`docs_only=true`); `ci:full` label override verified separately.
+
+## G1 ci:full override proof (2026-11-06)
+
+- Proof PR touches docs only but carries the `ci:full` label to force `docs_only=false` (full run).
