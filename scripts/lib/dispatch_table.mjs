@@ -41,7 +41,7 @@ export function parseDispatchTable(source) {
       problems.push(`slot ${slot} ("${prefix}") has no D-PREFIX-LEN assignment`);
       continue;
     }
-    entries.push({ prefixLen: declaredLen, prefix, program });
+    entries.push({ slot, prefixLen: declaredLen, prefix, program });
   }
 
   // CMD-ACTION and D-PREFIX are space-padded fixed-width fields, so a declared
@@ -79,4 +79,21 @@ export function parseDispatchTable(source) {
   }
 
   return { entries, problems };
+}
+
+// Load main_logic.cob with COPY "file" includes expanded from cobol/copy/
+// (PR-051: the dispatch table itself lives in a generated copybook). Depth
+// guard keeps a cyclic COPY from hanging the gates.
+import { readFileSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+
+export function loadDispatchSource(root) {
+  const mainPath = join(root, 'cobol', 'src', 'main_logic.cob');
+  let text = readFileSync(mainPath, 'utf8');
+  text = text.replace(/^\s*COPY\s+"([^"]+)"\s*\.\s*$/gm, (m, file) => {
+    const full = join(dirname(mainPath), '..', 'copy', file);
+    if (!existsSync(full)) return m;
+    return readFileSync(full, 'utf8');
+  });
+  return text;
 }

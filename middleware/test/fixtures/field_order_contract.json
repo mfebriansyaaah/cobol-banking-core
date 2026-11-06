@@ -3,33 +3,57 @@
     "email",
     "password",
     "name",
-    "dob"
+    "dob",
+    "",
+    ""
   ],
   "VERIFY_EMAIL": [
     "email",
-    "code"
+    "code",
+    "",
+    "",
+    "",
+    ""
   ],
   "FORGOT_PASSWORD": [
-    "email"
+    "email",
+    "",
+    "",
+    "",
+    "",
+    ""
   ],
   "RESET_PASSWORD": [
     "email",
     "code",
-    "password"
+    "password",
+    "",
+    "",
+    ""
   ],
   "AUTH_LOGIN": [
     "email",
     "password",
-    "mfaCode"
+    "mfaCode",
+    "",
+    "",
+    ""
   ],
   "VERIFY_REAUTH": [
     "email",
     "password",
-    "mfaCode"
+    "mfaCode",
+    "",
+    "",
+    ""
   ],
   "CHECK_BALANCE": [
     "email",
-    "actor"
+    "actor",
+    "",
+    "",
+    "",
+    ""
   ],
   "TRANSFER": [
     "from",
@@ -42,13 +66,18 @@
   "TX_STATUS": [
     "ref",
     "actor",
-    "sender"
+    "sender",
+    "",
+    "",
+    ""
   ],
   "REVERSE_TRANSFER": [
     "ref",
     "actor",
     "sender",
-    "reason"
+    "reason",
+    "",
+    ""
   ],
   "ACC_CREATE": [
     "accountRef",
@@ -94,10 +123,16 @@
     "limit",
     "offset",
     "actor",
-    "role"
+    "role",
+    "",
+    ""
   ],
   "GET_USER": [
     "email",
-    "actor"
+    "actor",
+    "",
+    "",
+    "",
+    ""
   ]
 }

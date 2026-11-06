@@ -6,8 +6,8 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T10:34:02.587Z
-- Commit: `206887bd`
+- Generated at: 2026-11-06T11:45:00.741Z
+- Commit: `e5023245`
 
 | Level | Modules |
 | --- | ---: |
@@ -22,7 +22,7 @@ Unresolved route files: none.
 | Module | Level | Business tables | Tier-1 calls | Route files | Reason |
 | --- | --- | --- | --- | ---: | --- |
 | `account_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auth_core` | L3 | — | — | 1 | Tier-1 core module |
+| `auth_core` | L3 | — | — | 2 | Tier-1 core module |
 | `auth_password_core` | L3 | — | — | 0 | Tier-1 core module |
 | `backup_drill_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `bank_guarantee_core` | L0 | — | — | 1 | own domain tables only, no core link |
@@ -71,5 +71,5 @@ Unresolved route files: none.
 | `statement_recon_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `tax_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `treasury_liquidity_core` | L3 | — | — | 1 | Tier-1 core module |
-| `user_core` | L3 | — | — | 0 | Tier-1 core module |
-| `wallet_core` | L3 | — | — | 0 | Tier-1 core module |
+| `user_core` | L3 | — | — | 1 | Tier-1 core module |
+| `wallet_core` | L3 | — | — | 2 | Tier-1 core module |

@@ -31,21 +31,26 @@ import { LOC_ROUTES } from './letter_of_credit.js';
 import { SLT_ROUTES } from './sla_tracker.js';
 import { RPS_ROUTES } from './report_schedule.js';
 import { NTP_ROUTES } from './notification_template.js';
-import { CLT_ROUTES } from './collateral.js';
 import { ACCOUNT_ROUTES } from './account.js';
+import { CLT_ROUTES } from './collateral.js';
 import { LOAN_ROUTES } from './loan.js';
 import { LOAN_SCHEDULE_ROUTES } from './loan_schedule.js';
 import { DEPOSIT_ROUTES } from './deposit.js';
 import { CARD_ROUTES } from './card.js';
-import { COLLECTION_ROUTES } from './collection.js';
 import { STATEMENT_RECON_ROUTES } from './statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './payment_instructions.js';
+import { COLLECTION_ROUTES } from './collection.js';
 import { PHONE_ROUTES } from './phone.js';
 import { IDENTITY_ROUTES } from './identity.js';
 import { SCREENING_ROUTES } from './screening.js';
 import { FX_ROUTES } from './fx_rates.js';
 import { RISK_ROUTES } from './risk.js';
 import { CORPORATE_ROUTES } from './corporate.js';
+import { AUTH_ROUTES } from './auth.js';
+import { USER_PROFILE_ROUTES } from './user_profile.js';
+import { WALLET_ROUTES } from './wallet.js';
+import { DISPUTE_ROUTES } from './disputes.js';
+import { ADMIN_ROUTES } from './admin.js';
 
 export const ALL_ROUTES = [
   ...REF_ENGINE_ROUTES,
@@ -96,4 +101,9 @@ export const ALL_ROUTES = [
   ...FX_ROUTES,
   ...RISK_ROUTES,
   ...CORPORATE_ROUTES,
+  ...AUTH_ROUTES,
+  ...USER_PROFILE_ROUTES,
+  ...WALLET_ROUTES,
+  ...DISPUTE_ROUTES,
+  ...ADMIN_ROUTES,
 ];

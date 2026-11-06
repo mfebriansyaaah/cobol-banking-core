@@ -29,7 +29,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const args = process.argv.slice(2);
 let root = '.';
@@ -244,7 +244,7 @@ export function buildGraph(rootDir = root) {
   }
 
   const mainLogic = path.join(cobolDir, 'main_logic.cob');
-  const dispatchEntries = existsSync(mainLogic) ? parseDispatchTable(readFileSync(mainLogic, 'utf8')).entries : [];
+  const dispatchEntries = existsSync(mainLogic) ? parseDispatchTable(loadDispatchSource(rootDir)).entries : [];
   const { routeModules, unresolvedRoutes } = resolveRouteModules(rootDir, dispatchEntries, cobolModules);
   for (const m of modules) {
     m.routeFiles = Object.entries(routeModules)

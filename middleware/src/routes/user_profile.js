@@ -1,0 +1,121 @@
+import { PATTERNS } from '../validation.js';
+const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
+
+export const USER_PROFILE_ROUTES = [
+
+  {
+    method: 'get',
+    path: '/users',
+    action: 'LIST_USERS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'role', pattern: PATTERNS.ROLE, required: false },
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'get',
+    path: '/users/:email',
+    action: 'GET_USER',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      BLANK,
+      BLANK,
+      BLANK,
+      BLANK,
+    ],
+  },
+
+  {
+    method: 'get',
+    path: '/profile',
+    action: 'GET_DASHBOARD',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      BLANK,
+      BLANK,
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/profile',
+    action: 'UPDATE_PROFILE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'name', pattern: PATTERNS.NAME, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'dob', pattern: PATTERNS.DATE, required: false },
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/deactivate',
+    action: 'DEACTIVATE_ACCOUNT',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      BLANK,
+      BLANK,
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/email/request',
+    action: 'REQ_EMAIL_CHANGE',
+    tokenIdentity: 'actor',
+    stepUpPolicy: 'REQ_EMAIL_CHANGE',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'newEmail', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'password', pattern: PATTERNS.PASSWORD, required: true },
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/email/confirm',
+    action: 'CONFIRM_EMAIL_CHANGE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'newEmail', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'code', pattern: PATTERNS.CODE, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'post',
+    path: '/profile/password',
+    action: 'CHANGE_PASSWORD',
+    tokenIdentity: 'actor',
+    passwordField: 'newPassword',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'currentPassword', pattern: PATTERNS.PASSWORD, required: true },
+      { name: 'newPassword', pattern: PATTERNS.PASSWORD, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      BLANK,
+      BLANK,
+    ],
+  },
+];
