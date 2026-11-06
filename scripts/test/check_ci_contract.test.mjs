@@ -67,6 +67,12 @@ test('shard matrix mismatch fails (CI-001)', () => {
   assert.match(r.stderr + r.stdout, /shard|matrix|aggregate/i);
 });
 
+test('shard matrix vs env count mismatch fails (CI-010)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('matrix-env-mismatch')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /matrix 3, DB_SHARD_COUNT 2, aggregate 2/);
+});
+
 test('missing coverage-pr job fails (CI-002)', () => {
   const r = runGate('scripts/check_ci_contract.mjs', [fix('missing-coverage-pr')]);
   assert.equal(r.status, 1, r.stdout + r.stderr);
