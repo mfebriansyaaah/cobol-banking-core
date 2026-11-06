@@ -46,6 +46,7 @@
         01  WS-KYC                  PIC X(20) VALUE SPACES.
         01  WS-HAS-NIK              PIC X(1) VALUE '0'.
         01  WS-HAS-PHONE            PIC X(1) VALUE '0'.
+        01  WS-HAS-SCREENING        PIC X(1) VALUE '0'.
         01  WS-EMAIL-OK             PIC X(1) VALUE '0'.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -91,6 +92,12 @@
                 WHEN LS-CMD-ACTION(1:15) = "IDV_REVIEW_LIST"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-REVIEW-LIST
+                WHEN LS-CMD-ACTION(1:10) = "SCR_SCREEN"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SCR-SCREEN
+                WHEN LS-CMD-ACTION(1:10) = "SCR_STATUS"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-SCR-STATUS
                 WHEN OTHER
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
@@ -386,6 +393,24 @@
                 MOVE "SUCCESS|KYC_PENDING|EMAIL" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            *> Sanctions gate (PR-090): the latest screening verdict must be
+            *> CLEAR or a reviewed FALSE_POSITIVE; anything else (including no
+            *> check at all) names SCREENING as the missing piece.
+            MOVE "N" TO WS-HAS-SCREENING
+            MOVE "SELECT result FROM screening_checks WHERE user_id = ? ORDER BY id DESC LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-USER-ID TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "CLEAR" OR WS-RESULT = "FALSE_POSITIVE"
+                MOVE "Y" TO WS-HAS-SCREENING
+            END-IF.
+            IF WS-HAS-SCREENING = "N"
+                MOVE "SUCCESS|KYC_PENDING|SCREENING" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
             MOVE "UPDATE users SET kyc_status = 'APPROVED', kyc_verified_at = NOW() WHERE id = ?" TO WS-PREP-SQL
@@ -537,20 +562,30 @@
             EXIT PARAGRAPH.
 
         ACTION-REVIEW-LIST.
-            *> p6 = actor (SUPER_ADMIN). Lists OPEN manual reviews as
-            *> id:user_id:kind:status:created rows joined by ';' (empty when
-            *> the queue is clear). Read-only: no transaction.
+            *> p2 = kind filter (empty = all kinds), p6 = actor (SUPER_ADMIN).
+            *> Lists OPEN manual reviews as id:user_id:kind:status rows joined
+            *> by ';' (empty when the queue is clear). Read-only.
             PERFORM CHECK-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE "SELECT GROUP_CONCAT(CONCAT(id, ':', user_id, ':', kind, ':', status) ORDER BY id SEPARATOR ';') FROM manual_reviews WHERE status = ?" TO WS-PREP-SQL
-            MOVE "OPEN" TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
+            IF LS-PARAM2 = SPACES
+                MOVE "SELECT GROUP_CONCAT(CONCAT(id, ':', user_id, ':', kind, ':', status) ORDER BY id SEPARATOR ';') FROM manual_reviews WHERE status = ?" TO WS-PREP-SQL
+                MOVE "OPEN" TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+            ELSE
+                MOVE "SELECT GROUP_CONCAT(CONCAT(id, ':', user_id, ':', kind, ':', status) ORDER BY id SEPARATOR ';') FROM manual_reviews WHERE status = ? AND kind = ?" TO WS-PREP-SQL
+                MOVE "OPEN" TO WS-BIND-1
+                MOVE WS-P2-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+            END-IF.
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
                 IF WS-RESULT = "ERROR|NO_DATA"
@@ -566,6 +601,132 @@
             END-IF.
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|REVIEWS|" DELIMITED BY SIZE
+                   FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER END-STRING.
+            EXIT PARAGRAPH.
+
+        ACTION-SCR-SCREEN.
+            *> p1 = email, p2 = query_hash, p3 = result
+            *> (CLEAR|POTENTIAL_MATCH|CONFIRMED_MATCH|FALSE_POSITIVE|MANUAL_REVIEW),
+            *> p4 = provider, p5 = provider_ref, p6 = actor. Middleware verdicts
+            *> (CLEAR/POTENTIAL_MATCH/MANUAL_REVIEW) record owner-side; reviewer
+            *> verdicts (FALSE_POSITIVE/CONFIRMED_MATCH) need SUPER_ADMIN, so a
+            *> potential match is never auto-cleared. Non-clear results open a
+            *> SCREENING review row in the same transaction.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-TRIMMED NOT = "CLEAR"
+               AND WS-P3-TRIMMED NOT = "POTENTIAL_MATCH"
+               AND WS-P3-TRIMMED NOT = "CONFIRMED_MATCH"
+               AND WS-P3-TRIMMED NOT = "FALSE_POSITIVE"
+               AND WS-P3-TRIMMED NOT = "MANUAL_REVIEW"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-TRIMMED = "FALSE_POSITIVE"
+               OR WS-P3-TRIMMED = "CONFIRMED_MATCH"
+                PERFORM CHECK-ADMIN
+                IF WS-ALLOWED NOT = 1
+                    MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            ELSE
+                PERFORM CHECK-OWNER
+                IF WS-ALLOWED NOT = 1
+                    MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            PERFORM LOAD-USER
+            IF WS-LOOKUP-BAD NOT = 0
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "INSERT INTO screening_checks (user_id, provider, query_hash, result, provider_ref, reviewed_by) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-USER-ID TO WS-BIND-1
+            IF WS-P4-TRIMMED = SPACES
+                MOVE "opensanctions" TO WS-BIND-2
+            ELSE
+                MOVE WS-P4-TRIMMED TO WS-BIND-2
+            END-IF.
+            MOVE WS-P2-TRIMMED TO WS-BIND-3
+            MOVE WS-P3-TRIMMED TO WS-BIND-4
+            MOVE WS-P5-TRIMMED TO WS-BIND-5
+            MOVE WS-P6-TRIMMED TO WS-BIND-6
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK AND WS-P3-TRIMMED NOT = "CLEAR"
+               AND WS-P3-TRIMMED NOT = "FALSE_POSITIVE"
+                MOVE "INSERT INTO manual_reviews (user_id, kind, status, reason) VALUES (?, 'SCREENING', 'OPEN', ?)" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                MOVE WS-P3-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                CALL "SQL_COMMIT" END-CALL
+                MOVE "SUCCESS|SCREEN_RECORDED" TO LS-OUTPUT-BUFFER
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+            END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-SCR-STATUS.
+            *> p1 = email, p6 = actor (self or admin). Auth first (a stranger
+            *> learns nothing), then the latest screening verdict; never
+            *> screened reads UNSCREENED.
+            MOVE 0 TO WS-ALLOWED
+            IF WS-P1-TRIMMED(1:WS-P1-LEN) = WS-P6-TRIMMED(1:WS-P6-LEN)
+                MOVE 1 TO WS-ALLOWED
+            ELSE
+                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-P6-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "SUPER_ADMIN"
+                    MOVE 1 TO WS-ALLOWED
+                END-IF
+            END-IF.
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT result FROM screening_checks WHERE user_id = (SELECT id FROM users WHERE email = ? LIMIT 1) ORDER BY id DESC LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "SUCCESS|SCREEN_STATUS|UNSCREENED" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|SCREEN_STATUS|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
                    INTO LS-OUTPUT-BUFFER END-STRING.
             EXIT PARAGRAPH.

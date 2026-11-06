@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T04:39:01.684Z",
+  "generatedAt": "2026-11-06T07:14:16.751Z",
   "entries": [
     {
       "domain": "account",
@@ -293,6 +293,23 @@
       "owner": null,
       "status": "FROZEN",
       "reason": "No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "fx",
+      "module": "fx_rate_core",
+      "routeFile": "fx_rates.js",
+      "table": "fx_rate_snapshots",
+      "tier": 2,
+      "linkageLevel": "L0",
+      "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "REVIEW",
+      "reason": "New in PR-091; reference data only until transfer pricing consumes it. Upgrade or dead-candidate after.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -732,6 +749,23 @@
       "owner": null,
       "status": "FROZEN",
       "reason": "No proven core link; frozen pending dead-candidate evidence (PR-010F).",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "risk",
+      "module": "risk_core",
+      "routeFile": "risk.js",
+      "table": "risk_events",
+      "tier": 2,
+      "linkageLevel": "L0",
+      "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "REVIEW",
+      "reason": "New in PR-092; signals only until the auth slice consumes RISK_STATUS for step-up. Upgrade or dead-candidate after.",
       "retireAfter": null,
       "tableDropDate": null
     },

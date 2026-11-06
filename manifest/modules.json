@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T04:31:30.106Z",
+  "generatedAt": "2026-11-06T07:24:20.825Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -51,6 +51,9 @@
     },
     {
       "source": "fixed_asset_core.cob"
+    },
+    {
+      "source": "fx_rate_core.cob"
     },
     {
       "source": "gl_allocation_core.cob"
@@ -128,6 +131,9 @@
       "source": "report_schedule_core.cob"
     },
     {
+      "source": "risk_core.cob"
+    },
+    {
       "source": "sla_tracker_core.cob"
     },
     {
@@ -165,6 +171,7 @@
     "eod_jobs.js",
     "fee.js",
     "fixed_asset.js",
+    "fx_rates.js",
     "gl.js",
     "gl_allocation.js",
     "identity.js",
@@ -188,6 +195,8 @@
     "report.js",
     "report_builder.js",
     "report_schedule.js",
+    "risk.js",
+    "screening.js",
     "sla_tracker.js",
     "statement.js",
     "statement_recon.js",
@@ -830,6 +839,21 @@
       "prefixLen": 4,
       "prefix": "IDV_",
       "program": "identity_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SCR_",
+      "program": "identity_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "FX_",
+      "program": "fx_rate_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "RISK_",
+      "program": "risk_core"
     }
   ]
 }

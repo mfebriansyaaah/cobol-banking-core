@@ -3027,6 +3027,32 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "fx_rates.js :: GET /fx/rates": {
+    "action": "FX_RATE_GET",
+    "fields": [
+      "base",
+      "quote",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "fx_rates.js :: POST /fx/rates": {
+    "action": "FX_RATE_STORE",
+    "fields": [
+      "base",
+      "quote",
+      "rate",
+      "provider",
+      "date",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
   "gl.js :: GET /gl/accounts": {
     "action": "GL_ACCOUNT_LIST",
     "fields": [
@@ -6068,6 +6094,84 @@
     ],
     "tokenIdentity": "actor",
     "stepUp": false
+  },
+  "risk.js :: GET /risk/status": {
+    "action": "RISK_STATUS",
+    "fields": [
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "risk.js :: POST /risk/note": {
+    "action": "RISK_NOTE",
+    "fields": [
+      "email",
+      "country",
+      "city",
+      "asn",
+      "ipHashFlags",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "screening.js :: GET /screening/reviews": {
+    "action": "IDV_REVIEW_LIST",
+    "fields": [
+      "BLANK",
+      "kind",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
+  "screening.js :: GET /screening/status": {
+    "action": "SCR_STATUS",
+    "fields": [
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "screening.js :: POST /screening/check": {
+    "action": "SCR_SCREEN",
+    "fields": [
+      "email",
+      "queryHash",
+      "result",
+      "provider",
+      "providerRef",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "screening.js :: POST /screening/reviews/decide": {
+    "action": "IDV_REVIEW_DECIDE",
+    "fields": [
+      "reviewId",
+      "decision",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
   },
   "sla_tracker.js :: GET /sla-trackers": {
     "action": "SLT_LIST",

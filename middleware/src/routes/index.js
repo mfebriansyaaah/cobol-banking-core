@@ -42,6 +42,9 @@ import { STATEMENT_RECON_ROUTES } from './statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './payment_instructions.js';
 import { PHONE_ROUTES } from './phone.js';
 import { IDENTITY_ROUTES } from './identity.js';
+import { SCREENING_ROUTES } from './screening.js';
+import { FX_ROUTES } from './fx_rates.js';
+import { RISK_ROUTES } from './risk.js';
 
 export const ALL_ROUTES = [
   ...REF_ENGINE_ROUTES,
@@ -88,4 +91,7 @@ export const ALL_ROUTES = [
   ...COLLECTION_ROUTES,
   ...PHONE_ROUTES,
   ...IDENTITY_ROUTES,
+  ...SCREENING_ROUTES,
+  ...FX_ROUTES,
+  ...RISK_ROUTES,
 ];

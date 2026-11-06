@@ -28,10 +28,11 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `eod_jobs_core` | `EODJOB_` | [eod_jobs.js](../middleware/src/routes/eod_jobs.js) | — | — |
 | `fee_core` | `FEE_`, `VEL_` | [fee.js](../middleware/src/routes/fee.js) | [fee.cases](../tests/cobol/cases/fee.cases) | — |
 | `fixed_asset_core` | `FAS_` | [fixed_asset.js](../middleware/src/routes/fixed_asset.js) | [fixed_asset.cases](../tests/cobol/cases/fixed_asset.cases) | [fixed_asset_db_tests.sh](../tests/db/fixed_asset_db_tests.sh) |
+| `fx_rate_core` | `FX_` | — | — | — |
 | `gl_allocation_core` | `GLA_` | [gl_allocation.js](../middleware/src/routes/gl_allocation.js) | [gl_allocation.cases](../tests/cobol/cases/gl_allocation.cases) | [gl_allocation_db_tests.sh](../tests/db/gl_allocation_db_tests.sh) |
 | `gl_core` | `GL_` | [gl.js](../middleware/src/routes/gl.js) | [gl.cases](../tests/cobol/cases/gl.cases) | — |
 | `hashlen_core` | — | — | — | — |
-| `identity_core` | `IDV_` | [identity.js](../middleware/src/routes/identity.js) | — | [identity_db_tests.sh](../tests/db/identity_db_tests.sh) |
+| `identity_core` | `IDV_`, `SCR_` | [identity.js](../middleware/src/routes/identity.js) | — | [identity_db_tests.sh](../tests/db/identity_db_tests.sh) |
 | `import_core` | `IMP_` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
 | `import_post_core` | `IMPP_` | — | [import_post.cases](../tests/cobol/cases/import_post.cases) | — |
 | `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | — |
@@ -53,6 +54,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `report_builder_core` | `RPB_` | [report_builder.js](../middleware/src/routes/report_builder.js) | [report_builder.cases](../tests/cobol/cases/report_builder.cases) | [report_builder_db_tests.sh](../tests/db/report_builder_db_tests.sh) |
 | `report_core` | `RPT_` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
 | `report_schedule_core` | `RPS_` | [report_schedule.js](../middleware/src/routes/report_schedule.js) | — | [report_schedule_db_tests.sh](../tests/db/report_schedule_db_tests.sh) |
+| `risk_core` | `RISK_` | [risk.js](../middleware/src/routes/risk.js) | — | [risk_db_tests.sh](../tests/db/risk_db_tests.sh) |
 | `sla_tracker_core` | `SLT_` | [sla_tracker.js](../middleware/src/routes/sla_tracker.js) | — | [sla_tracker_db_tests.sh](../tests/db/sla_tracker_db_tests.sh) |
 | `statement_core` | `STMT_` | [statement.js](../middleware/src/routes/statement.js) | [statement.cases](../tests/cobol/cases/statement.cases) | — |
 | `statement_recon_core` | `SRC_` | [statement_recon.js](../middleware/src/routes/statement_recon.js) | [statement_recon.cases](../tests/cobol/cases/statement_recon.cases) | — |

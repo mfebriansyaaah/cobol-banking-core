@@ -10,8 +10,8 @@
 | --- | ---: |
 | ACTIVE | 22 |
 | PILOT | 6 |
-| REVIEW | 2 |
-| FROZEN | 19 |
+| REVIEW | 3 |
+| FROZEN | 18 |
 | RETIRED | 0 |
 
 Status meanings: ACTIVE (linked, refactorable with equivalence), PILOT (L2,
@@ -40,7 +40,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `gl_allocation` | `gl_allocation_core` | 2 | L0 | FROZEN | gl_allocation.js | gl_allocation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `gl` | `gl_core` | 1 | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `hashlen` | `hashlen_core` | 3 | UTILITY | ACTIVE | — | — | — | Tier-3 utility; never a retire candidate. |
-| `identity` | `identity_core` | 2 | L0 | FROZEN | identity.js | identity_verifications | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `identity` | `identity_core` | 2 | L0 | REVIEW | identity.js | identity_verifications | — | New in PR-085; own tables only until KYC gates a core flow. Upgrade or dead-candidate after. |
 | `import` | `import_core` | 2 | L0 | FROZEN | import.js | import_row | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import_post` | `import_post_core` | 2 | L3 | ACTIVE | — | import_batch | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `import_recon` | `import_recon_core` | 2 | L2 | PILOT | import_recon.js | import_recon_item | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |

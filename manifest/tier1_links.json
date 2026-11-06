@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T05:12:00.612Z",
-  "commit": "73b9a300",
+  "generatedAt": "2026-11-06T07:24:44.361Z",
+  "commit": "6016b0b0",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
     "L2": 6,
     "L1": 1,
-    "L0": 20,
+    "L0": 22,
     "UTILITY": 3
   },
   "modules": [
@@ -287,6 +287,22 @@
       ]
     },
     {
+      "module": "fx_rate_core",
+      "source": "fx_rate_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/integration/fx_rate_flow.sh"
+      ],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": [
+        "fx_rates.js"
+      ]
+    },
+    {
       "module": "gl_allocation_core",
       "source": "gl_allocation_core.cob",
       "linkageLevel": "L0",
@@ -343,7 +359,8 @@
       ],
       "reason": "own domain tables only, no core link",
       "routeFiles": [
-        "identity.js"
+        "identity.js",
+        "screening.js"
       ]
     },
     {
@@ -701,6 +718,22 @@
       ]
     },
     {
+      "module": "risk_core",
+      "source": "risk_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/risk_db_tests.sh"
+      ],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": [
+        "risk.js"
+      ]
+    },
+    {
       "module": "sla_tracker_core",
       "source": "sla_tracker_core.cob",
       "linkageLevel": "L0",
@@ -827,6 +860,7 @@
     "eod_jobs.js": "eod_jobs_core",
     "fee.js": "fee_core",
     "fixed_asset.js": "fixed_asset_core",
+    "fx_rates.js": "fx_rate_core",
     "gl.js": "gl_core",
     "gl_allocation.js": "gl_allocation_core",
     "identity.js": "identity_core",
@@ -850,6 +884,8 @@
     "report.js": "report_core",
     "report_builder.js": "report_builder_core",
     "report_schedule.js": "report_schedule_core",
+    "risk.js": "risk_core",
+    "screening.js": "identity_core",
     "sla_tracker.js": "sla_tracker_core",
     "statement.js": "statement_core",
     "statement_recon.js": "statement_recon_core",

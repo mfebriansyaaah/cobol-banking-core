@@ -13578,6 +13578,26 @@ CREATE TABLE `fx_option_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `fx_rate_snapshots`
+--
+
+DROP TABLE IF EXISTS `fx_rate_snapshots`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fx_rate_snapshots` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `base` char(3) NOT NULL,
+  `quote` char(3) NOT NULL,
+  `rate` decimal(18,6) NOT NULL,
+  `provider` varchar(32) NOT NULL,
+  `fetched_at` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_fx_pair` (`base`,`quote`,`fetched_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `fx_swap`
 --
 
@@ -30354,6 +30374,28 @@ CREATE TABLE `risk_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `risk_events`
+--
+
+DROP TABLE IF EXISTS `risk_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `risk_events` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `country` varchar(16) DEFAULT NULL,
+  `city` varchar(64) DEFAULT NULL,
+  `asn` varchar(32) DEFAULT NULL,
+  `ip_hash` char(64) NOT NULL,
+  `flags` varchar(128) NOT NULL DEFAULT '',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_risk_user` (`user_id`,`created_at`),
+  CONSTRAINT `fk_risk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `risk_model`
 --
 
@@ -30950,6 +30992,29 @@ CREATE TABLE `schema_migrations` (
   `applied_at` timestamp NULL DEFAULT current_timestamp(),
   `checksum` char(64) DEFAULT NULL,
   PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `screening_checks`
+--
+
+DROP TABLE IF EXISTS `screening_checks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `screening_checks` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `provider` varchar(32) NOT NULL,
+  `query_hash` char(64) NOT NULL,
+  `result` enum('CLEAR','POTENTIAL_MATCH','CONFIRMED_MATCH','FALSE_POSITIVE','MANUAL_REVIEW') NOT NULL,
+  `score` decimal(5,2) DEFAULT NULL,
+  `provider_ref` varchar(128) DEFAULT NULL,
+  `reviewed_by` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_screening_user` (`user_id`,`created_at`),
+  CONSTRAINT `fk_screening_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
