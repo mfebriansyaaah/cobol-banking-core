@@ -7,12 +7,12 @@ change.
 
 ## Matrix
 
-| Channel   | `local`/`log`/`mock`                    | `free`/`sandbox`                   | `production`                      |
-| --------- | --------------------------------------- | ---------------------------------- | --------------------------------- |
-| Email     | `log` (default; event only, no network) | `mailpit` (local SMTP)             | `smtp` (needs `SMTP_HOST`)        |
-| Phone OTP | `mock` (default; recorded) | `telegram` (Bot API + linked chat) / `free_sms` (env endpoint) | same, needs `TELEGRAM_BOT_TOKEN` |
-| Identity  | `mock` (default; approves)              | `local` (structural NIK only)      | `local` (never Dukcapil-verified) |
-| KTP OCR   | `mock` (default)                        | `local` (PR-084 decides Tesseract) | manual review required            |
+| Channel   | `local`/`log`/`mock`                    | `free`/`sandbox`                                               | `production`                      |
+| --------- | --------------------------------------- | -------------------------------------------------------------- | --------------------------------- |
+| Email     | `log` (default; event only, no network) | `mailpit` (local SMTP)                                         | `smtp` (needs `SMTP_HOST`)        |
+| Phone OTP | `mock` (default; recorded)              | `telegram` (Bot API + linked chat) / `free_sms` (env endpoint) | same, needs `TELEGRAM_BOT_TOKEN`  |
+| Identity  | `mock` (default; approves)              | `local` (structural NIK only)                                  | `local` (never Dukcapil-verified) |
+| KTP OCR   | `mock` (default)                        | `local` (PR-084 decides Tesseract)                             | manual review required            |
 
 ## Rules
 
