@@ -7370,6 +7370,28 @@ CREATE TABLE `corporate_banking_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `corporate_entities`
+--
+
+DROP TABLE IF EXISTS `corporate_entities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `corporate_entities` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `lei` char(20) NOT NULL,
+  `legal_name` varchar(255) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `parent_lei` char(20) DEFAULT NULL,
+  `fetched_at` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_corp_lei` (`lei`),
+  KEY `idx_corp_name` (`legal_name`(64))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `correction_item`
 --
 

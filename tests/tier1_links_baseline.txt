@@ -12,6 +12,7 @@ backup_drill_core L0
 bank_guarantee_core L0
 chargeback_core L0
 compliance_calendar_core L0
+corp_core L0
 cost_center_core L0
 eod_core L0
 eod_jobs_core L1

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-06T07:24:44.361Z",
-  "commit": "6016b0b0",
+  "generatedAt": "2026-11-06T10:34:02.587Z",
+  "commit": "206887bd",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
     "L2": 6,
     "L1": 1,
-    "L0": 22,
+    "L0": 23,
     "UTILITY": 3
   },
   "modules": [
@@ -167,6 +167,20 @@
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "compliance_calendar.js"
+      ]
+    },
+    {
+      "module": "corp_core",
+      "source": "corp_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": false,
+      "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": [
+        "corporate.js"
       ]
     },
     {
@@ -853,6 +867,7 @@
     "collateral.js": "collateral_core",
     "collection.js": "collection_core",
     "compliance_calendar.js": "compliance_calendar_core",
+    "corporate.js": "corp_core",
     "cost_center.js": "cost_center_core",
     "dashboard.js": "dashboard_core",
     "deposit.js": "deposit_core",

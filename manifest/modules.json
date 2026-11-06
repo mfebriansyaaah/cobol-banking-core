@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T07:24:20.825Z",
+  "generatedAt": "2026-11-06T10:33:42.736Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -30,6 +30,9 @@
     },
     {
       "source": "compliance_calendar_core.cob"
+    },
+    {
+      "source": "corp_core.cob"
     },
     {
       "source": "cost_center_core.cob"
@@ -164,6 +167,7 @@
     "collateral.js",
     "collection.js",
     "compliance_calendar.js",
+    "corporate.js",
     "cost_center.js",
     "dashboard.js",
     "deposit.js",
@@ -854,6 +858,11 @@
       "prefixLen": 5,
       "prefix": "RISK_",
       "program": "risk_core"
+    },
+    {
+      "prefixLen": 5,
+      "prefix": "CORP_",
+      "program": "corp_core"
     }
   ]
 }

@@ -25,6 +25,8 @@ import { invoke } from './invoker.js';
 import { resetPool } from './pool.js';
 import { toHttp } from './result.js';
 import { createMailer, mailerFrom, verificationSubject } from './mailer.js';
+import { pingCheck, pingFail } from './integrations/ops/healthchecks.js';
+import { sendAlert } from './integrations/ops/notify.js';
 
 function arg(name, fallback) {
   const i = process.argv.indexOf(name);
@@ -131,6 +133,8 @@ async function main() {
     const finalState = marked.body.data[1];
     if (finalState === 'DEAD') {
       logLine('outbox_dead_letter', { id, to, purpose });
+      // Alert carries ids/statuses only — never the recipient (PII).
+      await sendAlert('OUTBOX_DEAD', { id, purpose });
     } else if (sent) {
       logLine('outbox_sent', { id, to, purpose });
     } else {
@@ -141,6 +145,8 @@ async function main() {
 
 try {
   await main();
+  // Liveness ping (PR-095): best-effort, never fails the job.
+  await pingCheck(process.env.OUTBOX_CHECK_ID);
 } catch (err) {
   // eslint-disable-next-line no-console -- last-resort crash report; the process is exiting
   console.error(
@@ -150,6 +156,7 @@ try {
       error: String((err && err.message) || err).slice(0, 200),
     }),
   );
+  await pingFail(process.env.OUTBOX_CHECK_ID, 'outbox worker crashed');
   process.exit(1);
 } finally {
   // Drop pooled COBOL workers so --once actually terminates. In file mode
