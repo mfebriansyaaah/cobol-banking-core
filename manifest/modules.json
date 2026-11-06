@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T10:33:42.736Z",
+  "generatedAt": "2026-11-06T11:30:21.356Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -160,6 +160,8 @@
   ],
   "gatewayRoutes": [
     "account.js",
+    "admin.js",
+    "auth.js",
     "backup_drill.js",
     "bank_guarantee.js",
     "card.js",
@@ -171,6 +173,7 @@
     "cost_center.js",
     "dashboard.js",
     "deposit.js",
+    "disputes.js",
     "eod.js",
     "eod_jobs.js",
     "fee.js",
@@ -206,7 +209,9 @@
     "statement_recon.js",
     "tax_management.js",
     "trade_finance.js",
-    "treasury_liquidity.js"
+    "treasury_liquidity.js",
+    "user_profile.js",
+    "wallet.js"
   ],
   "dispatch": [
     {

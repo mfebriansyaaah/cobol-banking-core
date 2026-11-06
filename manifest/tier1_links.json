@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T10:34:02.587Z",
-  "commit": "206887bd",
+  "generatedAt": "2026-11-06T11:30:21.450Z",
+  "commit": "1df6b9a7",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
@@ -38,7 +38,8 @@
       "testEvidence": [],
       "reason": "Tier-1 core module",
       "routeFiles": [
-        "app.js"
+        "admin.js",
+        "auth.js"
       ]
     },
     {
@@ -843,7 +844,9 @@
       "hasTests": true,
       "testEvidence": [],
       "reason": "Tier-1 core module",
-      "routeFiles": []
+      "routeFiles": [
+        "user_profile.js"
+      ]
     },
     {
       "module": "wallet_core",
@@ -855,11 +858,16 @@
       "hasTests": true,
       "testEvidence": [],
       "reason": "Tier-1 core module",
-      "routeFiles": []
+      "routeFiles": [
+        "disputes.js",
+        "wallet.js"
+      ]
     }
   ],
   "routeModules": {
     "account.js": "account_core",
+    "admin.js": "auth_core",
+    "auth.js": "auth_core",
     "backup_drill.js": "backup_drill_core",
     "bank_guarantee.js": "bank_guarantee_core",
     "card.js": "card_core",
@@ -871,6 +879,7 @@
     "cost_center.js": "cost_center_core",
     "dashboard.js": "dashboard_core",
     "deposit.js": "deposit_core",
+    "disputes.js": "wallet_core",
     "eod.js": "eod_core",
     "eod_jobs.js": "eod_jobs_core",
     "fee.js": "fee_core",
@@ -907,7 +916,8 @@
     "tax_management.js": "tax_management_core",
     "trade_finance.js": "letter_of_credit_core",
     "treasury_liquidity.js": "treasury_liquidity_core",
-    "app.js": "auth_core"
+    "user_profile.js": "user_core",
+    "wallet.js": "wallet_core"
   },
   "unresolvedRoutes": []
 }
