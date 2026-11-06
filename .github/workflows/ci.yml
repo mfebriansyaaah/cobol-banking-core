@@ -185,6 +185,49 @@ jobs:
           path: cobol/bin/main_logic
           if-no-files-found: error
 
+  # Changed-file classifier (CI-011): docs-only PRs skip the heavy DB jobs.
+  # Fails safe to full: any classifier error, empty diff, unknown path, or
+  # the `ci:full` label forces `docs_only=false`.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.classify.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: classify
+        env:
+          HAS_CI_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
+        run: |
+          if [ "$HAS_CI_FULL_LABEL" = "true" ]; then
+            echo "ci:full label present; forcing full run"
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          BASE=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git rev-parse --verify --quiet "$BASE" >/dev/null; then
+            BASE="origin/main"
+          fi
+          if ! git rev-parse --verify --quiet "$BASE" >/dev/null; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          CHANGED="$(git diff --name-only "$BASE"...HEAD)"
+          CHANGED="$CHANGED
+          $(git ls-files --others --exclude-standard)"
+          RESULT="$(printf '%s\n' "$CHANGED" | node scripts/ci/classify_changes.mjs --stdin)" || RESULT="docs_only=false"
+          echo "$RESULT" >> "$GITHUB_OUTPUT"
+
   db-snapshot:
     name: db-snapshot
     needs: build
@@ -394,7 +437,8 @@ jobs:
 
   db-shards:
     name: db shard ${{ matrix.shard }}
-    needs: build
+    needs: [build, changes]
+    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Assignment for two shards (CI-010): the LPT planner in
@@ -501,8 +545,8 @@ jobs:
 
   db-aggregate:
     name: db aggregate
-    needs: [test, db-shards]
-    if: always()
+    needs: [test, db-shards, changes]
+    if: always() && (github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -652,8 +696,8 @@ jobs:
 
   db-ops:
     name: db-ops
-    needs: build
-    if: github.event_name != 'pull_request'
+    needs: [build, changes]
+    if: github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
@@ -717,8 +761,8 @@ jobs:
 
   coverage-pr:
     name: coverage-pr
-    if: github.event_name == 'pull_request'
-    needs: build
+    if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
+    needs: [build, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
