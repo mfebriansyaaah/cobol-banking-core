@@ -62,6 +62,10 @@ const NS = testNamespace('bot');
 after(() => {
   cleanupNamespace(NS);
 });
+// Low-entropy signup password for the HTTP proofs: the stub only hits the
+// 'password' suffix, so anything else misses (high-entropy fixtures trip the
+// secret scanner; see .gitleaks.toml).
+const HTTP_PASS = 'SignupPass123';
 
 test('HTTP: captcha enforced on signup only when secret set', async () => {
   const stub = http.createServer((req, res) => {
@@ -87,7 +91,7 @@ test('HTTP: captcha enforced on signup only when secret set', async () => {
       .post('/auth/signup')
       .send({
         email: uniqueEmail(NS, 'a'),
-        password: 'xQ9UniqueNeverBreached4f8c2aa71e',
+        password: HTTP_PASS,
         name: 'A',
         dob: '1990-01-01',
       });
@@ -97,7 +101,7 @@ test('HTTP: captcha enforced on signup only when secret set', async () => {
       .post('/auth/signup')
       .send({
         email: uniqueEmail(NS, 'b'),
-        password: 'xQ9UniqueNeverBreached4f8c2aa71e',
+        password: HTTP_PASS,
         name: 'B',
         dob: '1990-01-01',
         captchaToken: 'bad-token',
@@ -108,7 +112,7 @@ test('HTTP: captcha enforced on signup only when secret set', async () => {
       .post('/auth/signup')
       .send({
         email: uniqueEmail(NS, 'c'),
-        password: 'xQ9UniqueNeverBreached4f8c2aa71e',
+        password: HTTP_PASS,
         name: 'C',
         dob: '1990-01-01',
         captchaToken: 'good-token',
