@@ -5,12 +5,12 @@
 // ordinary input-validation cases.
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 const casesDir = path.join(ROOT, 'tests', 'cobol', 'cases');
 
-const mainLogic = readFileSync(path.join(ROOT, 'cobol', 'src', 'main_logic.cob'), 'utf8');
+const mainLogic = loadDispatchSource(ROOT);
 const { entries } = parseDispatchTable(mainLogic);
 
 // COBOL compares CMD-ACTION(1:LEN) with D-PREFIX(1:LEN) on space-padded

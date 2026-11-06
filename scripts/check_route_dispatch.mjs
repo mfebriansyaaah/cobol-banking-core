@@ -1,9 +1,10 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 
-const mainLogic = readFileSync(path.join(ROOT, 'cobol', 'src', 'main_logic.cob'), 'utf8');
+const mainLogic = loadDispatchSource(ROOT);
 const dispatchPrefixes = new Set();
 const re = /MOVE "([^"]+)" TO D-PREFIX\(\d+\)/g;
 let m;

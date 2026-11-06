@@ -116,278 +116,228 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/access-reviews": {
+  "admin.js :: GET /admin/access-reviews": {
     "action": "LIST_ACCESS_REVIEWS",
     "fields": [
       "actor",
       "state",
       "limit",
-      "offset"
+      "offset",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/access-reviews/:id": {
+  "admin.js :: GET /admin/access-reviews/:id": {
     "action": "GET_ACCESS_REVIEW",
     "fields": [
       "actor",
-      "id"
+      "id",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/audit": {
+  "admin.js :: GET /admin/audit": {
     "action": "LIST_AUDIT",
     "fields": [
       "actor",
       "action",
       "email",
       "limit",
-      "offset"
+      "offset",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/mfa-recovery": {
+  "admin.js :: GET /admin/mfa-recovery": {
     "action": "LIST_MFA_RECOVERY",
     "fields": [
       "actor",
       "status",
       "limit",
-      "offset"
+      "offset",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/outbox": {
+  "admin.js :: GET /admin/outbox": {
     "action": "LIST_OUTBOX",
     "fields": [
       "actor",
       "status",
       "limit",
-      "offset"
+      "offset",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/reconcile": {
+  "admin.js :: GET /admin/reconcile": {
     "action": "RECONCILE",
     "fields": [
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/reconcile/exceptions": {
+  "admin.js :: GET /admin/reconcile/exceptions": {
     "action": "LIST_EXCEPTIONS",
     "fields": [
       "actor",
       "status",
       "limit",
-      "offset"
+      "offset",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/reconcile/runs": {
+  "admin.js :: GET /admin/reconcile/runs": {
     "action": "LIST_RECONCILIATIONS",
     "fields": [
       "actor",
       "limit",
-      "offset"
+      "offset",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/requests": {
+  "admin.js :: GET /admin/requests": {
     "action": "LIST_REQUESTS",
     "fields": [
       "actor",
       "status",
       "limit",
-      "offset"
+      "offset",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /admin/role": {
+  "admin.js :: GET /admin/role": {
     "action": "CHECK_ROLE",
     "fields": [
       "email",
       "role",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /disputes": {
-    "action": "LIST_DISPUTES",
-    "fields": [
       "actor",
-      "email",
-      "status",
-      "limit",
-      "offset"
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: GET /disputes/:id": {
-    "action": "GET_DISPUTE",
-    "fields": [
-      "id",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /profile": {
-    "action": "GET_DASHBOARD",
-    "fields": [
-      "email",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /sessions": {
-    "action": "LIST_SESSIONS",
-    "fields": [
-      "email",
-      "actor",
-      "sid"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /statements": {
-    "action": "STATEMENT",
-    "fields": [
-      "email",
-      "actor",
-      "currency",
-      "range",
-      "limit",
-      "offset"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /transactions/:ref": {
-    "action": "TX_STATUS",
-    "fields": [
-      "ref",
-      "actor",
-      "sender"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /users": {
-    "action": "LIST_USERS",
-    "fields": [
-      "limit",
-      "offset",
-      "actor",
-      "role"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /users/:email": {
-    "action": "GET_USER",
-    "fields": [
-      "email",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: GET /wallet/balance": {
-    "action": "CHECK_BALANCE",
-    "fields": [
-      "email",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: PATCH /profile": {
-    "action": "UPDATE_PROFILE",
-    "fields": [
-      "email",
-      "name",
-      "actor",
-      "dob"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /admin/access-review-items/:itemId/decide": {
+  "admin.js :: POST /admin/access-review-items/:itemId/decide": {
     "action": "DECIDE_ACCESS_ITEM",
     "fields": [
       "actor",
       "itemId",
       "decision",
-      "note"
+      "note",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/access-reviews": {
+  "admin.js :: POST /admin/access-reviews": {
     "action": "OPEN_ACCESS_REVIEW",
     "fields": [
       "actor",
       "periodStart",
-      "periodEnd"
+      "periodEnd",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/access-reviews/:id/close": {
+  "admin.js :: POST /admin/access-reviews/:id/close": {
     "action": "CLOSE_ACCESS_REVIEW",
     "fields": [
       "actor",
-      "id"
+      "id",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/audit/archive": {
+  "admin.js :: POST /admin/audit/archive": {
     "action": "ARCHIVE_AUDIT",
     "fields": [
       "days",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/dormancy/mark": {
+  "admin.js :: POST /admin/dormancy/mark": {
     "action": "MARK_DORMANT",
     "fields": [
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/dormancy/reactivate": {
+  "admin.js :: POST /admin/dormancy/reactivate": {
     "action": "REACTIVATE_DORMANT",
     "fields": [
       "email",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/dormancy/suspend": {
+  "admin.js :: POST /admin/dormancy/suspend": {
     "action": "SUSPEND_DORMANT",
     "fields": [
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/holds": {
+  "admin.js :: POST /admin/holds": {
     "action": "PLACE_HOLD",
     "fields": [
       "email",
@@ -400,395 +350,394 @@
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/holds/release": {
+  "admin.js :: POST /admin/holds/release": {
     "action": "RELEASE_HOLD",
     "fields": [
       "holdId",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/mfa-recovery/approve": {
+  "admin.js :: POST /admin/mfa-recovery/approve": {
     "action": "APPROVE_MFA_RECOVERY",
     "fields": [
       "requestId",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/mfa-recovery/reject": {
+  "admin.js :: POST /admin/mfa-recovery/reject": {
     "action": "REJECT_MFA_RECOVERY",
     "fields": [
       "requestId",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/mfa-reset": {
+  "admin.js :: POST /admin/mfa-reset": {
     "action": "ADMIN_RESET_MFA",
     "fields": [
       "email",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/reconcile/acknowledge": {
+  "admin.js :: POST /admin/reconcile/acknowledge": {
     "action": "ACK_EXCEPTION",
     "fields": [
       "findingId",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/reconcile/resolve": {
+  "admin.js :: POST /admin/reconcile/resolve": {
     "action": "RESOLVE_EXCEPTION",
     "fields": [
       "findingId",
       "actor",
-      "note"
+      "note",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/reconcile/run": {
+  "admin.js :: POST /admin/reconcile/run": {
     "action": "RUN_RECONCILIATION",
     "fields": [
       "actor",
-      "trigger"
+      "trigger",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/requests": {
+  "admin.js :: POST /admin/requests": {
     "action": "REQUEST_OPERATION",
     "fields": [
       "operation",
       "target",
       "detail",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/requests/approve": {
+  "admin.js :: POST /admin/requests/approve": {
     "action": "APPROVE_REQUEST",
     "fields": [
       "requestId",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/requests/reject": {
+  "admin.js :: POST /admin/requests/reject": {
     "action": "REJECT_REQUEST",
     "fields": [
       "requestId",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/role": {
+  "admin.js :: POST /admin/role": {
     "action": "CHANGE_ROLE",
     "fields": [
       "email",
       "role",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/unlock": {
+  "admin.js :: POST /admin/unlock": {
     "action": "UNLOCK_USER",
     "fields": [
       "email",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /admin/user-status": {
+  "admin.js :: POST /admin/user-status": {
     "action": "SET_USER_STATUS",
     "fields": [
       "email",
       "status",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": true
   },
-  "app.js :: POST /auth/forgot": {
+  "auth.js :: GET /sessions": {
+    "action": "LIST_SESSIONS",
+    "fields": [
+      "email",
+      "actor",
+      "sid",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "auth.js :: POST /auth/forgot": {
     "action": "FORGOT_PASSWORD",
     "fields": [
-      "email"
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /auth/login": {
+  "auth.js :: POST /auth/login": {
     "action": "AUTH_LOGIN",
     "fields": [
       "email",
       "password",
-      "mfaCode"
+      "mfaCode",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /auth/resend": {
+  "auth.js :: POST /auth/resend": {
     "action": "RESEND_VERIFICATION",
     "fields": [
-      "email"
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /auth/reset-password": {
+  "auth.js :: POST /auth/reset-password": {
     "action": "RESET_PASSWORD",
     "fields": [
       "email",
       "code",
-      "password"
+      "password",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /auth/signup": {
+  "auth.js :: POST /auth/signup": {
     "action": "REQUEST_SIGNUP",
     "fields": [
       "email",
       "password",
       "name",
-      "dob"
+      "dob",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /auth/step-up": {
+  "auth.js :: POST /auth/step-up": {
     "action": "VERIFY_REAUTH",
     "fields": [
       "email",
       "password",
-      "mfaCode"
+      "mfaCode",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "email",
     "stepUp": false
   },
-  "app.js :: POST /auth/verify": {
+  "auth.js :: POST /auth/verify": {
     "action": "VERIFY_EMAIL",
     "fields": [
       "email",
-      "code"
+      "code",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /disputes": {
-    "action": "OPEN_DISPUTE",
-    "fields": [
-      "email",
-      "actor",
-      "subject",
-      "detail",
-      "ref"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /disputes/:id/acknowledge": {
-    "action": "ACK_DISPUTE",
-    "fields": [
-      "id",
-      "actor",
-      "due"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": true
-  },
-  "app.js :: POST /disputes/:id/notes": {
-    "action": "ADD_DISPUTE_NOTE",
-    "fields": [
-      "id",
-      "actor",
-      "body"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /disputes/:id/reject": {
-    "action": "REJECT_DISPUTE",
-    "fields": [
-      "id",
-      "actor",
-      "reason"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": true
-  },
-  "app.js :: POST /disputes/:id/resolve": {
-    "action": "RESOLVE_DISPUTE",
-    "fields": [
-      "id",
-      "actor",
-      "resolution"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": true
-  },
-  "app.js :: POST /mfa/backup-codes": {
+  "auth.js :: POST /mfa/backup-codes": {
     "action": "MFA_BACKUP_CODES",
     "fields": [
       "email",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: POST /mfa/confirm": {
+  "auth.js :: POST /mfa/confirm": {
     "action": "MFA_ENROLL_CONFIRM",
     "fields": [
       "email",
       "code",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: POST /mfa/disable": {
+  "auth.js :: POST /mfa/disable": {
     "action": "MFA_DISABLE",
     "fields": [
       "email",
       "code",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: POST /mfa/enroll": {
+  "auth.js :: POST /mfa/enroll": {
     "action": "MFA_ENROLL_BEGIN",
     "fields": [
       "email",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: POST /mfa/recover": {
+  "auth.js :: POST /mfa/recover": {
     "action": "REQUEST_MFA_RECOVERY",
     "fields": [
       "email",
-      "password"
+      "password",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /mfa/recover/confirm": {
+  "auth.js :: POST /mfa/recover/confirm": {
     "action": "VERIFY_MFA_RECOVERY",
     "fields": [
       "email",
-      "code"
+      "code",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": null,
     "stepUp": false
   },
-  "app.js :: POST /profile/deactivate": {
-    "action": "DEACTIVATE_ACCOUNT",
-    "fields": [
-      "email",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /profile/email/confirm": {
-    "action": "CONFIRM_EMAIL_CHANGE",
-    "fields": [
-      "email",
-      "newEmail",
-      "code",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /profile/email/request": {
-    "action": "REQ_EMAIL_CHANGE",
-    "fields": [
-      "email",
-      "newEmail",
-      "actor",
-      "password"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /profile/password": {
-    "action": "CHANGE_PASSWORD",
-    "fields": [
-      "email",
-      "currentPassword",
-      "newPassword",
-      "actor"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /sessions/revoke": {
+  "auth.js :: POST /sessions/revoke": {
     "action": "REVOKE_USER_SESSION",
     "fields": [
       "email",
       "actor",
-      "sessionId"
+      "sessionId",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: POST /sessions/revoke-all": {
+  "auth.js :: POST /sessions/revoke-all": {
     "action": "REVOKE_ALL_SESSIONS",
     "fields": [
       "email",
-      "actor"
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "app.js :: POST /sessions/revoke-others": {
+  "auth.js :: POST /sessions/revoke-others": {
     "action": "REVOKE_OTHER_DEVICES",
     "fields": [
       "email",
       "actor",
-      "sid"
+      "sid",
+      "BLANK",
+      "BLANK",
+      "BLANK"
     ],
     "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "app.js :: POST /transactions/:ref/reverse": {
-    "action": "REVERSE_TRANSFER",
-    "fields": [
-      "ref",
-      "actor",
-      "sender",
-      "reason"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": true
-  },
-  "app.js :: POST /wallet/transfer": {
-    "action": "TRANSFER",
-    "fields": [
-      "from",
-      "to",
-      "amount",
-      "idempotencyKey",
-      "fromCurrency",
-      "toCurrency"
-    ],
-    "tokenIdentity": "from",
     "stepUp": false
   },
   "backup_drill.js :: GET /it/backup-drills": {
@@ -2480,6 +2429,97 @@
     ],
     "tokenIdentity": "actor",
     "stepUp": false
+  },
+  "disputes.js :: GET /disputes": {
+    "action": "LIST_DISPUTES",
+    "fields": [
+      "actor",
+      "email",
+      "status",
+      "limit",
+      "offset",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "disputes.js :: GET /disputes/:id": {
+    "action": "GET_DISPUTE",
+    "fields": [
+      "id",
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "disputes.js :: POST /disputes": {
+    "action": "OPEN_DISPUTE",
+    "fields": [
+      "email",
+      "actor",
+      "subject",
+      "detail",
+      "ref",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "disputes.js :: POST /disputes/:id/acknowledge": {
+    "action": "ACK_DISPUTE",
+    "fields": [
+      "id",
+      "actor",
+      "due",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
+  "disputes.js :: POST /disputes/:id/notes": {
+    "action": "ADD_DISPUTE_NOTE",
+    "fields": [
+      "id",
+      "actor",
+      "body",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "disputes.js :: POST /disputes/:id/reject": {
+    "action": "REJECT_DISPUTE",
+    "fields": [
+      "id",
+      "actor",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
+  "disputes.js :: POST /disputes/:id/resolve": {
+    "action": "RESOLVE_DISPUTE",
+    "fields": [
+      "id",
+      "actor",
+      "resolution",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
   },
   "eod.js :: GET /eod/calendars": {
     "action": "EOD_CAL_LIST",
@@ -7172,6 +7212,175 @@
       "ACTOR"
     ],
     "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: GET /profile": {
+    "action": "GET_DASHBOARD",
+    "fields": [
+      "email",
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: GET /users": {
+    "action": "LIST_USERS",
+    "fields": [
+      "limit",
+      "offset",
+      "actor",
+      "role",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: GET /users/:email": {
+    "action": "GET_USER",
+    "fields": [
+      "email",
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: PATCH /profile": {
+    "action": "UPDATE_PROFILE",
+    "fields": [
+      "email",
+      "name",
+      "actor",
+      "dob",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: POST /profile/deactivate": {
+    "action": "DEACTIVATE_ACCOUNT",
+    "fields": [
+      "email",
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: POST /profile/email/confirm": {
+    "action": "CONFIRM_EMAIL_CHANGE",
+    "fields": [
+      "email",
+      "newEmail",
+      "code",
+      "actor",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: POST /profile/email/request": {
+    "action": "REQ_EMAIL_CHANGE",
+    "fields": [
+      "email",
+      "newEmail",
+      "actor",
+      "password",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "user_profile.js :: POST /profile/password": {
+    "action": "CHANGE_PASSWORD",
+    "fields": [
+      "email",
+      "currentPassword",
+      "newPassword",
+      "actor",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "wallet.js :: GET /statements": {
+    "action": "STATEMENT",
+    "fields": [
+      "email",
+      "actor",
+      "currency",
+      "range",
+      "limit",
+      "offset"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "wallet.js :: GET /transactions/:ref": {
+    "action": "TX_STATUS",
+    "fields": [
+      "ref",
+      "actor",
+      "sender",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "wallet.js :: GET /wallet/balance": {
+    "action": "CHECK_BALANCE",
+    "fields": [
+      "email",
+      "actor",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "wallet.js :: POST /transactions/:ref/reverse": {
+    "action": "REVERSE_TRANSFER",
+    "fields": [
+      "ref",
+      "actor",
+      "sender",
+      "reason",
+      "BLANK",
+      "BLANK"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
+  "wallet.js :: POST /wallet/transfer": {
+    "action": "TRANSFER",
+    "fields": [
+      "from",
+      "to",
+      "amount",
+      "idempotencyKey",
+      "fromCurrency",
+      "toCurrency"
+    ],
+    "tokenIdentity": "from",
     "stepUp": false
   }
 }

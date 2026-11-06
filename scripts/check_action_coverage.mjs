@@ -1,10 +1,11 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 
 // Map dispatch prefix -> cobol source file (module name).
-const mainLogic = readFileSync(path.join(ROOT, 'cobol', 'src', 'main_logic.cob'), 'utf8');
+const mainLogic = loadDispatchSource(ROOT);
 // Map each dispatch prefix to its target module by locating the nearest
 // CALL after the prefix test (handles OR-chained IF blocks).
 const prefixRe = /MOVE "([^"]+)" TO D-PREFIX\((\d+)\)/g;

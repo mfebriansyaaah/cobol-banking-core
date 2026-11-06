@@ -1,0 +1,77 @@
+import { PATTERNS } from '../validation.js';
+const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
+
+export const WALLET_ROUTES = [
+  {
+    method: 'get',
+    path: '/wallet/balance',
+    action: 'CHECK_BALANCE',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      BLANK,
+      BLANK,
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'get',
+    path: '/statements',
+    action: 'STATEMENT',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'currency', pattern: PATTERNS.CURRENCY, required: true },
+      { name: 'range', pattern: PATTERNS.DATERANGE, required: false },
+      { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
+      { name: 'offset', pattern: PATTERNS.INT, required: false },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/wallet/transfer',
+    action: 'TRANSFER',
+    tokenIdentity: 'from',
+    stepUpPolicy: 'TRANSFER',
+    fields: [
+      { name: 'from', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'to', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
+      { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: true },
+      { name: 'fromCurrency', pattern: PATTERNS.CURRENCY, required: false },
+      { name: 'toCurrency', pattern: PATTERNS.CURRENCY, required: false },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/transactions/:ref',
+    action: 'TX_STATUS',
+    tokenIdentity: 'actor',
+    fields: [
+      { name: 'ref', pattern: PATTERNS.KEY, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'sender', pattern: PATTERNS.EMAIL, required: false },
+      BLANK,
+      BLANK,
+      BLANK,
+    ],
+  },
+  {
+    method: 'post',
+    path: '/transactions/:ref/reverse',
+    action: 'REVERSE_TRANSFER',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'ref', pattern: PATTERNS.KEY, required: true },
+      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'sender', pattern: PATTERNS.EMAIL, required: false },
+      { name: 'reason', pattern: PATTERNS.REASON, required: true },
+      BLANK,
+      BLANK,
+    ],
+  },
+];
