@@ -130,7 +130,7 @@ Rules:
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact |
 | `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
 | `ci.yml` db-shards (×2) | 30 min each | one shard per runner |
-| `ci.yml` db-aggregate | 15 min | merge + inventory + count gate + summary |
+| `ci.yml` db-aggregate | 15 min | merge + inventory + count gate (skipped with a notice when `test` did not succeed) + summary |
 | `ci.yml` coverage | 20 min | gateway-only |
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
 | `ci.yml` db-ops | 20 min | rollback, backup/restore, drift (push `main` + dispatch only; not a PR required check) |
@@ -173,6 +173,18 @@ Restore order per job (enforced by `restore_db_snapshot.sh` + job steps):
   `db-snapshot` wall <= 3 min; the first green CI run records the actuals.
 - Rollback: delete the `db-snapshot` job, the producer script, and this
   section. Consumers are unchanged, so schema + migrate keeps working.
+
+## Rerun-safe artifacts and failure attribution (CI-013)
+
+Every `actions/upload-artifact` step sets `overwrite: true` (the pinned v4
+action deletes a same-name artifact before uploading), so rerunning a failed
+job never fails with "artifact already exists". Pinned by
+`scripts/test/ci-wiring.test.mjs` (every upload-artifact step must set it).
+
+When the `test` job does not succeed, `db-aggregate` still merges and
+verifies shard reports, but skips only the assertion-count gate with an
+explicit notice naming the `test` result — a red `test` job is never masked
+by a follow-on "missing suite rows / no JUnit XML" failure.
 
 ## How to run locally
 
