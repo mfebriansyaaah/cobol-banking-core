@@ -36,10 +36,11 @@ describe('formatFlag', () => {
     assert.equal(formatFlag([]), '');
   });
 
-  it('emits a single --test-skip-pattern alternation', () => {
+  it('emits a shell-safe --test-skip-pattern alternation (no quotes/spaces)', () => {
     const flag = formatFlag(['a', 'b c']);
-    assert.match(flag, /^--test-skip-pattern='/);
-    assert.match(flag, /a\|b c/);
+    assert.match(flag, /^--test-skip-pattern=/);
+    assert.ok(!flag.includes("'") && !flag.includes('"') && !flag.includes(' '));
+    assert.match(flag, /\(a\|b\\s\+c\)/);
   });
 });
 

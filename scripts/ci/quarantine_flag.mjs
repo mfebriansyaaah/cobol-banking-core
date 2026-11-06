@@ -48,9 +48,15 @@ export function activePatterns(entries, today) {
   return entries.filter((e) => e.expires >= today).map((e) => e.pattern);
 }
 
+/**
+ * Shell-safe flag: emitted through $(...) inside npm scripts, where the
+ * shell will NOT re-process quotes — so the value must contain no quotes
+ * and no whitespace. Literal spaces in patterns become \s+ (regex).
+ */
 export function formatFlag(patterns) {
   if (!patterns.length) return '';
-  return `--test-skip-pattern='(?:${patterns.join('|')})'`;
+  const safe = patterns.map((p) => p.replace(/ /g, '\\s+'));
+  return `--test-skip-pattern=(${safe.join('|')})`;
 }
 
 function todayUTC() {
