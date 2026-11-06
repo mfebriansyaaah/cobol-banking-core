@@ -7,14 +7,20 @@ import { resilientFetch, DEFAULT_TIMEOUT_MS } from '../resilience.js';
 
 export async function sendTelegramOtp(
   { chatId, text, token, idempotencyKey = null },
-  { fetchImpl = fetch, timeoutMs = Number(process.env.TELEGRAM_TIMEOUT_MS || DEFAULT_TIMEOUT_MS) } = {},
+  {
+    fetchImpl = fetch,
+    timeoutMs = Number(process.env.TELEGRAM_TIMEOUT_MS || DEFAULT_TIMEOUT_MS),
+    // Test seam (PR-088): point at the local fake. Production default is the
+    // real Bot API; CI never sets this to a real host.
+    baseUrl = process.env.TELEGRAM_API_BASE || 'https://api.telegram.org',
+  } = {},
 ) {
   const botToken = token ?? process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) throw new Error('TELEGRAM_BOT_TOKEN is not set');
   if (!chatId) throw new Error('chat_id is required (link the phone first)');
   const res = await resilientFetch(
     'telegram',
-    `https://api.telegram.org/bot${botToken}/sendMessage`,
+    `${baseUrl}/bot${botToken}/sendMessage`,
     {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

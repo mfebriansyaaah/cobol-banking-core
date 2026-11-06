@@ -55,6 +55,29 @@ timeout primitive):
     with `remote: 'fallback (...)'`;
   - OCR confidence < 0.85 → manual review.
 
+## Test harness (PR-088)
+
+No test touches a real provider. Two layers:
+
+- **JS chaos tests** (`middleware/test/integrations/`): injected `fetchImpl`
+  for timeout/429/500/malformed/down, breaker, idempotency, fallback.
+- **Shell harness** (`tests/integration/provider_fallback.sh`, auto-run by
+  `run_all.sh full`): real adapters over real sockets against
+  `tests/lib/fake_provider.mjs` (Telegram/free-SMS/Nusakit shapes with
+  per-service chaos modes + a request journal). Scenarios: telegram ok,
+  500→SMS fallback within retry budget, 400 single-call, NIK
+  timeout/malformed/down→local. Self-cleaning (trap kills the fake; asserts
+  no residue).
+- **Email** goes through Mailpit (`email_otp_flow.sh`; CI provides the
+  service, `REQUIRE_MAILPIT=1` enforces it).
+- **Rule:** every endpoint in tests is `127.0.0.1` — the harness asserts this
+  before running. `TELEGRAM_API_BASE` exists only as a test seam; production
+  uses the real Bot API.
+
+`INTEGRATION_MODE=test` was considered and skipped: the harness runs on the
+existing `free` mode with localhost endpoints, so no config dimension was
+added for tests alone.
+
 ## Metrics
 
 - `integration_requests_total{provider,result}` (`ok`|`error`) + the
