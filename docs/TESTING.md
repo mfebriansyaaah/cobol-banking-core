@@ -286,6 +286,30 @@ dry-run by default.
 - `db-shard` runs one matrix shard:
   `DB_SHARD_INDEX=0 DB_SHARD_COUNT=4 run_all.sh db-shard`.
 
+## Flaky-test quarantine
+
+Intermittent failures that are environmental (not assertion bugs) go to
+`middleware/test/quarantine.txt` instead of weakening the gate:
+
+- One line per test: `<name pattern> | <reason> | <ticket> | <expiry YYYY-MM-DD>`.
+- Honored **only when `QUARANTINE=1`** (the CI `test` job sets it, via
+  `$(node ../scripts/ci/quarantine_flag.mjs)` in the gateway/auth npm
+  scripts). Local runs and nightly run the full suite unquarantined, so
+  nightly stays the detection net for quarantined flakes.
+- Expired entries are ignored by the runner **and** fail the loader unit
+  test (`scripts/test/quarantine_flag.test.mjs`), forcing the owner to renew
+  or remove them before the expiry date — quarantine can never go stale
+  silently.
+- The `db aggregate` count gate stays honest: `check_test_counts.mjs`
+  counts quarantined-away tests from source and subtracts them from the
+  baseline **only when `QUARANTINE=1`** (same env on both jobs). Baseline
+  `gateway_tests=293` is untouched — full runs (nightly/local/premerge)
+  keep the unadjusted expectation, and the adjustment is logged as
+  `note: gateway_tests: quarantine adjustment -N`.
+- Current entries: `/auth/refresh` rotation tests (intermittent 500,
+  `DOMAIN-REVIEW`, expires 2026-12-15). Fix the root cause or renew with
+  evidence; do not extend without a rerun.
+
 Every test that invokes the COBOL binary directly runs in a throwaway
 workdir (`tests/lib/workdir.sh`), never the repo root: the binary reads
 `./input.txt` and writes `./output.txt`, so sharing the checkout would

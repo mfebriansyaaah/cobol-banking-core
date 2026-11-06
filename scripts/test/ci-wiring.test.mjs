@@ -122,6 +122,7 @@ for f in sorted(glob.glob('GH/.github/workflows/*.yml'.replace('GH', sys.argv[1]
             'if': spec.get('if'),
             'needs': spec.get('needs'),
             'timeout': spec.get('timeout-minutes'),
+            'env': spec.get('env') or {},
             'runs': runs,
         }
     out[os.path.basename(f)] = jobs
@@ -205,6 +206,16 @@ test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', 
     String(ci['test'].if || ''),
     /needs\.changes\.outputs\.docs_only/,
     'test job must be gated on the changes job output',
+  );
+});
+
+test('quarantined flakes skip only in the CI test job, never nightly/local', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.equal(ci['test'].env?.QUARANTINE, '1', 'test job must set QUARANTINE=1 (quarantine.txt applies in CI only)');
+  assert.equal(
+    ci['db-aggregate'].env?.QUARANTINE,
+    '1',
+    'db aggregate must set QUARANTINE=1 (count gate adjusts only for quarantined reports)',
   );
 });
 

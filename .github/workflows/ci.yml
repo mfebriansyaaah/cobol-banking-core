@@ -327,6 +327,10 @@ jobs:
           - 8025:8025
 
     env:
+      # QUARANTINE=1 activates middleware/test/quarantine.txt (flaky-test
+      # skip list). Nightly and local runs leave it unset: full suite,
+      # detection net for quarantined flakes. Expiry forces owner renewal.
+      QUARANTINE: '1'
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_NAME: cobol_db
@@ -571,6 +575,11 @@ jobs:
     if: always() && (github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    # Same QUARANTINE as the test job: the count gate subtracts quarantined
+    # tests from the baseline only when the reports were produced quarantined.
+    env:
+      QUARANTINE: '1'
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1

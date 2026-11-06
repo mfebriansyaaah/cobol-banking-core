@@ -1,0 +1,11 @@
+# Flaky-test quarantine list (one entry per line):
+#   <test-name pattern> | <reason> | <ticket> | <expiry YYYY-MM-DD>
+# Patterns are node --test-skip-pattern regex fragments matched against test
+# names. HONORED ONLY WHEN QUARANTINE=1 (the CI `test` job sets it); local
+# runs and nightly run the full suite unquarantined (detection net).
+# Expired entries are ignored by the runner AND fail the loader unit test,
+# forcing the owner to renew or remove them — quarantine can never go stale.
+refresh rotates the token: the old one stops working | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
+refresh token yields a new access token | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
+replaying a rotated refresh token revokes the whole family | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
+refresh rotates and a replay is rejected | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
