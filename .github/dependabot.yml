@@ -44,3 +44,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      # CodeQL actions must move together: init/autobuild/analyze refuse to
+      # run on mixed major versions (see PR #565). A grouped update bumps all
+      # three SHAs in one PR instead of three conflicting ones.
+      codeql-action:
+        patterns:
+          - "github/codeql-action/*"
