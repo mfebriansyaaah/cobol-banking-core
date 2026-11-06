@@ -107,6 +107,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: gate-tests-junit
+          overwrite: true
           path: test-results/gate/junit.xml
           if-no-files-found: warn
 
@@ -150,6 +151,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: complexity-snapshot
+          overwrite: true
           path: artifacts/complexity.json
           if-no-files-found: ignore
 
@@ -175,6 +177,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: build-log
+          overwrite: true
           path: build.log
           if-no-files-found: ignore
 
@@ -182,6 +185,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: cobol-binary
+          overwrite: true
           path: cobol/bin/main_logic
           if-no-files-found: error
 
@@ -286,6 +290,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: db-snapshot
+          overwrite: true
           path: /tmp/cobol-snapshot.sql.gz
           retention-days: 1
           if-no-files-found: error
@@ -414,6 +419,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: test-reports
+          overwrite: true
           path: artifacts/
           if-no-files-found: warn
 
@@ -422,6 +428,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: gateway-log
+          overwrite: true
           path: /tmp/gateway_endpoints.log
           if-no-files-found: ignore
 
@@ -430,6 +437,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: gateway-residue-log
+          overwrite: true
           path: /tmp/gateway_residue.log
           if-no-files-found: ignore
 
@@ -442,6 +450,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: diagnostics
+          overwrite: true
           path: /tmp/ci-diagnostics
           if-no-files-found: warn
 
@@ -550,6 +559,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: shard-reports-${{ matrix.shard }}
+          overwrite: true
           path: artifacts/
           if-no-files-found: warn
 
@@ -582,8 +592,18 @@ jobs:
         run: bash scripts/ci/aggregate_shard_reports.sh parts merged "$DB_SHARD_COUNT"
 
       - name: Assertion count gate
-        if: always()
+        # If the test job did not succeed, its report is incomplete: skip
+        # only the count gate with a notice instead of masking the real
+        # failure with "missing suite rows / no JUnit XML".
+        if: always() && needs.test.result == 'success'
         run: node scripts/check_test_counts.mjs --report-dir merged --strict
+
+      - name: Note skipped count gate
+        if: always() && needs.test.result != 'success'
+        run: >
+          echo "test job did not succeed (result: ${{ needs.test.result }});
+          skipping the assertion-count gate — see the test job for the
+          real failure"
 
       - name: Write test summary
         if: always()
@@ -594,6 +614,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: test-reports-merged
+          overwrite: true
           path: merged/
           if-no-files-found: warn
 
@@ -701,6 +722,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: coverage
+          overwrite: true
           path: coverage/
           if-no-files-found: ignore
 
@@ -909,5 +931,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: coverage-pr
+          overwrite: true
           path: coverage/
           if-no-files-found: warn
