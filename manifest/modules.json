@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T01:42:24.323Z",
+  "generatedAt": "2026-11-06T03:23:15.519Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -107,6 +107,9 @@
       "source": "payroll_processing_core.cob"
     },
     {
+      "source": "phone_otp_core.cob"
+    },
+    {
       "source": "ref_engine.cob"
     },
     {
@@ -175,6 +178,7 @@
     "payment_hold.js",
     "payment_instructions.js",
     "payroll_processing.js",
+    "phone.js",
     "ref_engine.js",
     "ref_ext.js",
     "report.js",
@@ -812,6 +816,11 @@
       "prefixLen": 4,
       "prefix": "LOY_",
       "program": "loyalty_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "OTP_",
+      "program": "phone_otp_core"
     }
   ]
 }

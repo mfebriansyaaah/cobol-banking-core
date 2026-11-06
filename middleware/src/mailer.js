@@ -28,12 +28,18 @@ export function createMailer({ logger = null } = {}) {
   const timeoutMs = Number(process.env.SMTP_TIMEOUT_MS || 10000);
 
   async function getTransport() {
-    if (!process.env.SMTP_HOST) return null;
+    // EMAIL_PROVIDER=mailpit resolves to a local Mailpit (explicit host env
+    // wins, else localhost:1025); smtp uses SMTP_* as before; anything else
+    // (or nothing set) stays a no-network stub.
+    const provider = (process.env.EMAIL_PROVIDER || '').trim().toLowerCase();
+    const host = process.env.SMTP_HOST || (provider === 'mailpit' ? process.env.MAILPIT_HOST || '127.0.0.1' : '');
+    if (!host) return null;
+    const port = Number(process.env.SMTP_PORT || (provider === 'mailpit' && !process.env.SMTP_HOST ? 1025 : 587));
     if (!transport) {
       const { default: nodemailer } = await import('nodemailer');
       transport = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT || 587),
+        host,
+        port,
         secure: process.env.SMTP_SECURE === 'true',
         auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
         connectionTimeout: timeoutMs,

@@ -40,6 +40,7 @@ import { CARD_ROUTES } from './card.js';
 import { COLLECTION_ROUTES } from './collection.js';
 import { STATEMENT_RECON_ROUTES } from './statement_recon.js';
 import { PAYMENT_INSTRUCTION_ROUTES } from './payment_instructions.js';
+import { PHONE_ROUTES } from './phone.js';
 
 export const ALL_ROUTES = [
   ...REF_ENGINE_ROUTES,
@@ -84,4 +85,5 @@ export const ALL_ROUTES = [
   ...STATEMENT_RECON_ROUTES,
   ...PAYMENT_INSTRUCTION_ROUTES,
   ...COLLECTION_ROUTES,
+  ...PHONE_ROUTES,
 ];

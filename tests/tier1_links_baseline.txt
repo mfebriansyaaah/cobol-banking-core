@@ -22,6 +22,7 @@ letter_of_credit_core L0
 loyalty_core L0
 merchant_settlement_core L0
 notification_template_core L0
+phone_otp_core L0
 report_builder_core L0
 report_schedule_core L0
 sla_tracker_core L0

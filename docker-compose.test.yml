@@ -16,3 +16,12 @@ services:
       start_period: 10s
     tmpfs:
       - /var/lib/mysql
+
+  # Local equivalent of the CI mailpit service (email OTP flow).
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: cobol-banking-test-mailpit
+    restart: "no"
+    ports:
+      - "1025:1025"
+      - "8025:8025"

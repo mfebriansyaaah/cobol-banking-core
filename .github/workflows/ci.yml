@@ -266,6 +266,13 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
+      # Email OTP flow (tests/integration/email_otp_flow.sh) delivers through
+      # this in CI; locally the flow skips without it (REQUIRE_MAILPIT=1).
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
 
     env:
       DB_HOST: 127.0.0.1
@@ -276,6 +283,7 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
+      REQUIRE_MAILPIT: '1'
       # The service database is already provisioned (schema + migrations) by
       # the steps below, so run_all.sh db uses it directly instead of
       # building a second isolated copy (Fase 4.2). Fuzz runs inside

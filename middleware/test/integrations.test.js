@@ -90,12 +90,33 @@ test('local NIK validation is structural only', () => {
   assert.equal(validateNikStructure('abcdefghijklmnop').ok, false);
 });
 
-test('unimplemented providers fail closed, not silent', async () => {
-  await withEnv({ PHONE_OTP_PROVIDER: 'telegram' }, async () => {
+test('telegram without token fails closed, health reports it', async () => {
+  await withEnv({ PHONE_OTP_PROVIDER: 'telegram', TELEGRAM_BOT_TOKEN: undefined }, async () => {
     const p = getProviders();
-    await assert.rejects(() => p.phone.sendOtp({ to: '+62000' }), /not implemented yet/);
+    await assert.rejects(() => p.phone.sendOtp({ chatId: '1', code: '1' }), /TELEGRAM_BOT_TOKEN/);
     const h = await p.phone.health();
     assert.equal(h.ok, false);
+  });
+});
+
+test('phone normalization is ID-only E.164', async () => {
+  const { normalizeIdPhone } = await import('../src/integrations/phone/normalize.js');
+  assert.equal(normalizeIdPhone('0812-3456-789'), '+628123456789');
+  assert.equal(normalizeIdPhone('+628123456789'), '+628123456789');
+  assert.equal(normalizeIdPhone('628123456789'), '+628123456789');
+  assert.equal(normalizeIdPhone('0812'), null);
+  assert.equal(normalizeIdPhone('abc'), null);
+});
+
+test('free_sms without config fails closed', async () => {
+  await withEnv({ PHONE_OTP_PROVIDER: 'free_sms', FREE_SMS_ENDPOINT: undefined }, async () => {
+    const { createPhoneProvider } = await import('../src/integrations/phone.js');
+    const prov = createPhoneProvider('free_sms');
+    await assert.rejects(() => prov.sendOtp({ to: '08123456789', code: '1' }), /not set/);
+    await assert.rejects(() => prov.sendOtp({ to: 'abc', code: '1' }), /unparseable/);
+    const h = await prov.health();
+    assert.equal(h.ok, false);
+    assert.throws(() => createPhoneProvider('pigeon'), /unknown phone provider/);
   });
 });
 
@@ -110,6 +131,18 @@ test('email log provider sends and reports healthy', async () => {
     assert.equal(seen.length, 2);
     assert.deepEqual(await prov.health(), { ok: true, provider: 'log', detail: null });
     assert.equal(p.email.kind, 'log');
+  });
+});
+
+test('mailpit provider defaults to localhost:1025 and fails gracefully', async () => {
+  await withEnv({ EMAIL_PROVIDER: 'mailpit', SMTP_HOST: undefined, MAILPIT_HOST: undefined }, async () => {
+    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const prov = createEmailProvider('mailpit');
+    assert.equal(prov.kind, 'mailpit');
+    const h = await prov.health();
+    assert.equal(h.detail.host, '127.0.0.1');
+    // No server listening: best-effort delivery reports false, no throw.
+    assert.equal(await prov.sendVerification({ to: 'a@t.co', purpose: 'X', code: '1' }), false);
   });
 });
 

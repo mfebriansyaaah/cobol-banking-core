@@ -8,10 +8,10 @@
 
 | Status | Modules |
 | --- | ---: |
-| ACTIVE | 21 |
+| ACTIVE | 22 |
 | PILOT | 6 |
-| REVIEW | 2 |
-| FROZEN | 35 |
+| REVIEW | 1 |
+| FROZEN | 19 |
 | RETIRED | 0 |
 
 Status meanings: ACTIVE (linked, refactorable with equivalence), PILOT (L2,
@@ -21,44 +21,32 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | Domain | Module | Tier | Link | Status | Route | Table | Replacement | Reason |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `account` | `account_core` | 2 | L0 | FROZEN | account.js | account | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `asset_management` | `asset_management_core` | 2 | L0 | FROZEN | asset_management.js | asset_management | `fixed_asset_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: fixed_asset_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `auth` | `auth_core` | 1 | L3 | ACTIVE | app.js | audit_trail | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `auth_password` | `auth_password_core` | 1 | L3 | ACTIVE | — | — | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `backup_drill` | `backup_drill_core` | 2 | L0 | FROZEN | backup_drill.js | backup_drill | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `bank_guarantee` | `bank_guarantee_core` | 2 | L0 | FROZEN | bank_guarantee.js | bank_guarantee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `bankers_acceptance` | `bankers_acceptance_core` | 2 | L0 | FROZEN | bankers_acceptance.js | bankers_acceptance | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `card` | `card_core` | 1 | L3 | ACTIVE | card.js | card_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `cashback` | `cashback_core` | 2 | L0 | FROZEN | cashback.js | cashback | `loyalty_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `chargeback` | `chargeback_core` | 2 | L0 | FROZEN | chargeback.js | chargeback_case | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `collateral` | `collateral_core` | 2 | L2 | PILOT | collateral.js | collateral | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
-| `collateral_mgmt` | `collateral_mgmt_core` | 2 | L0 | FROZEN | collateral_mgmt.js | collateral_mgmt | `collateral_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `collateral_repossession` | `collateral_repossession_core` | 2 | L0 | FROZEN | collateral_repossession.js | collateral_repossession | `collateral_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `collateralized` | `collateralized_core` | 2 | L0 | FROZEN | collateralized.js | collateralized | `collateral_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `collection` | `collection_core` | 1 | L3 | ACTIVE | collection.js | collection_case | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `compliance_calendar` | `compliance_calendar_core` | 2 | L0 | FROZEN | compliance_calendar.js | compliance_calendar | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `cost_center` | `cost_center_core` | 2 | L0 | FROZEN | cost_center.js | cost_center | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `dashboard` | `dashboard_core` | 2 | L1 | REVIEW | dashboard.js | accounts | — | Weak or untested link; manual review decides upgrade-to-L2 or dead-candidate. |
+| `dashboard` | `dashboard_core` | 2 | L3 | ACTIVE | dashboard.js | accounts | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `deposit` | `deposit_core` | 1 | L3 | ACTIVE | deposit.js | deposit_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `dispute_management` | `dispute_management_core` | 2 | L0 | FROZEN | dispute_management.js | dispute_management | `chargeback_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: chargeback_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `documentary_credit` | `documentary_credit_core` | 2 | L0 | FROZEN | documentary_credit.js | documentary_credit | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `eod` | `eod_core` | 2 | L0 | FROZEN | eod.js | eod_phase | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `eod_jobs` | `eod_jobs_core` | 2 | L1 | REVIEW | eod_jobs.js | eod_job_run | — | Weak or untested link; manual review decides upgrade-to-L2 or dead-candidate. |
-| `export_finance` | `export_finance_core` | 2 | L0 | FROZEN | export_finance.js | export_finance | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `factoring` | `factoring_core` | 2 | L0 | FROZEN | factoring.js | factoring | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `fee` | `fee_core` | 1 | L3 | ACTIVE | fee.js | fee_rule | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `fixed_asset` | `fixed_asset_core` | 2 | L0 | FROZEN | fixed_asset.js | fixed_asset | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `gl_allocation` | `gl_allocation_core` | 2 | L0 | FROZEN | gl_allocation.js | gl_allocation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `gl` | `gl_core` | 1 | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `hashlen` | `hashlen_core` | 3 | UTILITY | ACTIVE | — | — | — | Tier-3 utility; never a retire candidate. |
 | `import` | `import_core` | 2 | L0 | FROZEN | import.js | import_row | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `import_finance` | `import_finance_core` | 2 | L0 | FROZEN | import_finance.js | import_finance | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `import_post` | `import_post_core` | 2 | L3 | ACTIVE | — | import_batch | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `import_recon` | `import_recon_core` | 2 | L2 | PILOT | import_recon.js | import_recon_item | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `letter_of_credit` | `letter_of_credit_core` | 2 | L0 | FROZEN | letter_of_credit.js | letter_of_credit | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `loan` | `loan_core` | 1 | L3 | ACTIVE | loan.js | loan | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `loan_schedule` | `loan_schedule_core` | 1 | L3 | ACTIVE | loan_schedule.js | loan_schedule | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `loyalty` | `loyalty_core` | 2 | L0 | FROZEN | loyalty.js | loyalty_member | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `loyalty_program` | `loyalty_program_core` | 2 | L0 | FROZEN | loyalty_program.js | loyalty_program | `loyalty_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `merchant` | `merchant_core` | 2 | L2 | PILOT | merchant.js | merchant | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `merchant_settlement` | `merchant_settlement_core` | 2 | L0 | FROZEN | merchant_settlement.js | merchant_settlement | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `notification_template` | `notification_template_core` | 2 | L0 | FROZEN | notification_template.js | ntf_template_config | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
@@ -67,20 +55,16 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `payment_hold` | `payment_hold_core` | 2 | L2 | PILOT | payment_hold.js | payment_hold | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `payment_instruction` | `payment_instruction_core` | 2 | L2 | PILOT | payment_instructions.js | payment_instruction | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `payroll_processing` | `payroll_processing_core` | 2 | L2 | PILOT | payroll_processing.js | payroll_processing | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
-| `points_redemption` | `points_redemption_core` | 2 | L0 | FROZEN | points_redemption.js | points_redemption | `loyalty_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
+| `phone_otp` | `phone_otp_core` | 2 | L0 | FROZEN | phone.js | phone_links | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `ref_engine` | `ref_engine` | 3 | UTILITY | ACTIVE | ref_engine.js | audit_trail | — | Tier-3 utility; never a retire candidate. |
 | `ref_ext` | `ref_ext_core` | 3 | UTILITY | ACTIVE | ref_ext.js | label | — | Tier-3 utility; never a retire candidate. |
 | `report_builder` | `report_builder_core` | 2 | L0 | FROZEN | report_builder.js | report_builder | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `report` | `report_core` | 2 | L3 | ACTIVE | report.js | report_template | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `report_schedule` | `report_schedule_core` | 2 | L0 | FROZEN | report_schedule.js | rpt_schedule_config | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `rewards_management` | `rewards_management_core` | 2 | L0 | FROZEN | rewards_management.js | rewards_management | `loyalty_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `sla_tracker` | `sla_tracker_core` | 2 | L0 | FROZEN | sla_tracker.js | sla_tracker | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `statement` | `statement_core` | 2 | L3 | ACTIVE | statement.js | statement_archive | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `statement_recon` | `statement_recon_core` | 2 | L3 | ACTIVE | statement_recon.js | statement_recon_item | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `tax_item` | `tax_item_core` | 2 | L0 | FROZEN | tax_item.js | tax_item | `tax_management_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `tax_management` | `tax_management_core` | 2 | L0 | FROZEN | tax_management.js | tax_management | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `tax_withholding` | `tax_withholding_core` | 2 | L0 | FROZEN | tax_withholding.js | tax_withholding | `tax_management_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `trade_finance` | `trade_finance_core` | 2 | L0 | FROZEN | — | trade_finance | `letter_of_credit_core` | Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `treasury_liquidity` | `treasury_liquidity_core` | 1 | L3 | ACTIVE | treasury_liquidity.js | treasury_liquidity | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `user` | `user_core` | 1 | L3 | ACTIVE | — | audit_trail | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `wallet` | `wallet_core` | 1 | L3 | ACTIVE | — | accounts | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
