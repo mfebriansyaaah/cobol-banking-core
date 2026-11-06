@@ -6789,6 +6789,26 @@ CREATE TABLE `consent_management_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `consent_records`
+--
+
+DROP TABLE IF EXISTS `consent_records`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `consent_records` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `purpose` varchar(64) NOT NULL,
+  `version` varchar(20) NOT NULL,
+  `granted_at` datetime NOT NULL,
+  `revoked_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_consent_user` (`user_id`,`purpose`),
+  CONSTRAINT `fk_consent_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `consolidation`
 --
 
@@ -6938,26 +6958,6 @@ CREATE TABLE `consumer_finance_audit` (
   PRIMARY KEY (`id`),
   KEY `idx_CSF_audit_actor` (`actor_email`,`created_at`),
   KEY `idx_CSF_audit_consumer_finance` (`consumer_finance_id`,`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `consent_records`
---
-
-DROP TABLE IF EXISTS `consent_records`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `consent_records` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `purpose` varchar(64) NOT NULL,
-  `version` varchar(20) NOT NULL,
-  `granted_at` datetime NOT NULL,
-  `revoked_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_consent_user` (`user_id`,`purpose`),
-  CONSTRAINT `fk_consent_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -14547,6 +14547,32 @@ CREATE TABLE `housing_finance_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `identity_verifications`
+--
+
+DROP TABLE IF EXISTS `identity_verifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `identity_verifications` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `provider` varchar(32) NOT NULL,
+  `method` enum('NIK_STRUCTURAL','NIK_REMOTE','KTP_OCR','MANUAL') NOT NULL,
+  `status` enum('PENDING','VALID','INVALID','MANUAL_REVIEW','ERROR') NOT NULL,
+  `result_code` varchar(64) DEFAULT NULL,
+  `provider_ref` varchar(128) DEFAULT NULL,
+  `score` decimal(5,2) DEFAULT NULL,
+  `attempts` int(11) NOT NULL DEFAULT 0,
+  `expires_at` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_idv_user_status` (`user_id`,`status`,`created_at`),
+  CONSTRAINT `fk_idv_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `import_audit`
 --
 
@@ -14806,32 +14832,6 @@ CREATE TABLE `in_app_message_audit` (
   PRIMARY KEY (`id`),
   KEY `idx_IAM_audit_actor` (`actor_email`,`created_at`),
   KEY `idx_IAM_audit_in_app_message` (`in_app_message_id`,`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `identity_verifications`
---
-
-DROP TABLE IF EXISTS `identity_verifications`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `identity_verifications` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `provider` varchar(32) NOT NULL,
-  `method` enum('NIK_STRUCTURAL','NIK_REMOTE','KTP_OCR','MANUAL') NOT NULL,
-  `status` enum('PENDING','VALID','INVALID','MANUAL_REVIEW','ERROR') NOT NULL,
-  `result_code` varchar(64) DEFAULT NULL,
-  `provider_ref` varchar(128) DEFAULT NULL,
-  `score` decimal(5,2) DEFAULT NULL,
-  `attempts` int(11) NOT NULL DEFAULT 0,
-  `expires_at` datetime DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `idx_idv_user_status` (`user_id`,`status`,`created_at`),
-  CONSTRAINT `fk_idv_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -20702,6 +20702,7 @@ CREATE TABLE `otp_challenges` (
   KEY `idx_otp_user` (`user_id`,`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
 --
 -- Table structure for table `otp_management`
 --
@@ -20753,29 +20754,6 @@ CREATE TABLE `otp_management_audit` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `phone_links`
---
-
-DROP TABLE IF EXISTS `phone_links`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `phone_links` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `chat_id` varchar(64) DEFAULT NULL,
-  `phone_hash` char(64) NOT NULL,
-  `linked_at` datetime NOT NULL,
-  `revoked_at` datetime DEFAULT NULL,
-  `link_token` varchar(64) DEFAULT NULL,
-  `token_expires_at` datetime DEFAULT NULL,
-  `verified_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_phone_link_user` (`user_id`),
-  UNIQUE KEY `uq_phone_link_chat` (`chat_id`),
-  CONSTRAINT `fk_phone_link_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 --
 -- Table structure for table `outsourcing_contract`
 --
@@ -22367,6 +22345,30 @@ CREATE TABLE `personalization_audit` (
   PRIMARY KEY (`id`),
   KEY `idx_PSN_audit_actor` (`actor_email`,`created_at`),
   KEY `idx_PSN_audit_personalization` (`personalization_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `phone_links`
+--
+
+DROP TABLE IF EXISTS `phone_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_links` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `chat_id` varchar(64) DEFAULT NULL,
+  `phone_hash` char(64) NOT NULL,
+  `linked_at` datetime NOT NULL,
+  `revoked_at` datetime DEFAULT NULL,
+  `link_token` varchar(64) DEFAULT NULL,
+  `token_expires_at` datetime DEFAULT NULL,
+  `verified_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_phone_link_user` (`user_id`),
+  UNIQUE KEY `uq_phone_link_chat` (`chat_id`),
+  CONSTRAINT `fk_phone_link_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -34980,15 +34982,15 @@ CREATE TABLE `users` (
   `dob` date NOT NULL,
   `status` enum('UNVERIFIED','VERIFIED','SUSPENDED','CLOSED') DEFAULT 'UNVERIFIED',
   `role` enum('USER','MANAGER','SUPER_ADMIN') DEFAULT 'USER',
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `token_version` int(11) NOT NULL DEFAULT 1,
   `failed_logins` int(11) NOT NULL DEFAULT 0,
   `locked_until` timestamp NULL DEFAULT NULL,
-  `mfa_secret` varchar(64) DEFAULT NULL,
-  `mfa_enabled` tinyint(1) NOT NULL DEFAULT 0,
   `last_login_at` timestamp NULL DEFAULT NULL,
   `dormant_notified_at` timestamp NULL DEFAULT NULL,
+  `mfa_secret` varchar(64) DEFAULT NULL,
+  `mfa_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `phone_e164` varchar(20) DEFAULT NULL,
   `phone_verified_at` datetime DEFAULT NULL,
   `nik_hash` char(64) DEFAULT NULL,
@@ -35001,6 +35003,28 @@ CREATE TABLE `users` (
   KEY `idx_users_dormant` (`status`,`last_login_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_uca1400_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 */ /*!50003 TRIGGER IF NOT EXISTS trg_audit_snapshot_user_delete BEFORE DELETE ON users
+FOR EACH ROW
+BEGIN
+    INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at)
+    SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at
+    FROM audit_trail WHERE user_id = OLD.id;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
 --
 -- Table structure for table `valuation`
 --
