@@ -13578,6 +13578,26 @@ CREATE TABLE `fx_option_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `fx_rate_snapshots`
+--
+
+DROP TABLE IF EXISTS `fx_rate_snapshots`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fx_rate_snapshots` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `base` char(3) NOT NULL,
+  `quote` char(3) NOT NULL,
+  `rate` decimal(18,6) NOT NULL,
+  `provider` varchar(32) NOT NULL,
+  `fetched_at` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_fx_pair` (`base`,`quote`,`fetched_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `fx_swap`
 --
 

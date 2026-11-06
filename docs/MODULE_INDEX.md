@@ -28,6 +28,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `eod_jobs_core` | `EODJOB_` | [eod_jobs.js](../middleware/src/routes/eod_jobs.js) | — | — |
 | `fee_core` | `FEE_`, `VEL_` | [fee.js](../middleware/src/routes/fee.js) | [fee.cases](../tests/cobol/cases/fee.cases) | — |
 | `fixed_asset_core` | `FAS_` | [fixed_asset.js](../middleware/src/routes/fixed_asset.js) | [fixed_asset.cases](../tests/cobol/cases/fixed_asset.cases) | [fixed_asset_db_tests.sh](../tests/db/fixed_asset_db_tests.sh) |
+| `fx_rate_core` | `FX_` | — | — | — |
 | `gl_allocation_core` | `GLA_` | [gl_allocation.js](../middleware/src/routes/gl_allocation.js) | [gl_allocation.cases](../tests/cobol/cases/gl_allocation.cases) | [gl_allocation_db_tests.sh](../tests/db/gl_allocation_db_tests.sh) |
 | `gl_core` | `GL_` | [gl.js](../middleware/src/routes/gl.js) | [gl.cases](../tests/cobol/cases/gl.cases) | — |
 | `hashlen_core` | — | — | — | — |

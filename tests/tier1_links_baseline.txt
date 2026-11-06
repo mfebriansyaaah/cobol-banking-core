@@ -16,6 +16,7 @@ cost_center_core L0
 eod_core L0
 eod_jobs_core L1
 fixed_asset_core L0
+fx_rate_core L0
 gl_allocation_core L0
 identity_core L0
 import_core L0

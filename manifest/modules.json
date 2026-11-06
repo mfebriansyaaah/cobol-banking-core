@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T07:06:50.289Z",
+  "generatedAt": "2026-11-06T07:14:12.708Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -51,6 +51,9 @@
     },
     {
       "source": "fixed_asset_core.cob"
+    },
+    {
+      "source": "fx_rate_core.cob"
     },
     {
       "source": "gl_allocation_core.cob"
@@ -165,6 +168,7 @@
     "eod_jobs.js",
     "fee.js",
     "fixed_asset.js",
+    "fx_rates.js",
     "gl.js",
     "gl_allocation.js",
     "identity.js",
@@ -836,6 +840,11 @@
       "prefixLen": 4,
       "prefix": "SCR_",
       "program": "identity_core"
+    },
+    {
+      "prefixLen": 3,
+      "prefix": "FX_",
+      "program": "fx_rate_core"
     }
   ]
 }

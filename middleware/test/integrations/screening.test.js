@@ -13,8 +13,7 @@ import { matchLists } from '../../src/integrations/screening/lists.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 import { resetBreakers } from '../../src/integrations/resilience.js';
 
-const okMatch = (matches) => () =>
-  Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ matches }) });
+const okMatch = (matches) => () => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ matches }) });
 
 function withEnv(vars, fn) {
   const saved = {};

@@ -3027,6 +3027,32 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "fx_rates.js :: GET /fx/rates": {
+    "action": "FX_RATE_GET",
+    "fields": [
+      "base",
+      "quote",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "fx_rates.js :: POST /fx/rates": {
+    "action": "FX_RATE_STORE",
+    "fields": [
+      "base",
+      "quote",
+      "rate",
+      "provider",
+      "date",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
   "gl.js :: GET /gl/accounts": {
     "action": "GL_ACCOUNT_LIST",
     "fields": [

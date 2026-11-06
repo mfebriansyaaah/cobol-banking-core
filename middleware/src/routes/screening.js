@@ -4,7 +4,9 @@ const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 
 export const SCREENING_ROUTES = [
   {
-    method: 'post', path: '/screening/check', action: 'SCR_SCREEN',
+    method: 'post',
+    path: '/screening/check',
+    action: 'SCR_SCREEN',
     tokenIdentity: 'actor',
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
@@ -16,30 +18,33 @@ export const SCREENING_ROUTES = [
     ],
   },
   {
-    method: 'get', path: '/screening/status', action: 'SCR_STATUS',
+    method: 'get',
+    path: '/screening/status',
+    action: 'SCR_STATUS',
     tokenIdentity: 'actor',
-    fields: [
-      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
-      BLANK, BLANK, BLANK, BLANK, ACTOR,
-    ],
+    fields: [{ name: 'email', pattern: PATTERNS.EMAIL, required: true }, BLANK, BLANK, BLANK, BLANK, ACTOR],
   },
   {
-    method: 'get', path: '/screening/reviews', action: 'IDV_REVIEW_LIST',
-    tokenIdentity: 'actor', stepUp: true,
-    fields: [
-      BLANK,
-      { name: 'kind', pattern: PATTERNS.NAME, required: false },
-      BLANK, BLANK, BLANK, ACTOR,
-    ],
+    method: 'get',
+    path: '/screening/reviews',
+    action: 'IDV_REVIEW_LIST',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [BLANK, { name: 'kind', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR],
   },
   {
-    method: 'post', path: '/screening/reviews/decide', action: 'IDV_REVIEW_DECIDE',
-    tokenIdentity: 'actor', stepUp: true,
+    method: 'post',
+    path: '/screening/reviews/decide',
+    action: 'IDV_REVIEW_DECIDE',
+    tokenIdentity: 'actor',
+    stepUp: true,
     fields: [
       { name: 'reviewId', pattern: PATTERNS.INT, required: true },
       { name: 'decision', pattern: PATTERNS.NAME, required: true },
       { name: 'reason', pattern: PATTERNS.NAME, required: false },
-      BLANK, BLANK, ACTOR,
+      BLANK,
+      BLANK,
+      ACTOR,
     ],
   },
 ];

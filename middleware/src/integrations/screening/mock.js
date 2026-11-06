@@ -9,7 +9,18 @@ export function createMockScreening({ logger = null } = {}) {
     async screen({ name }) {
       const event = { event: 'screening', name: 'redacted', result: 'CLEAR' };
       if (logger) logger(event);
-      return { result: 'CLEAR', score: 0, ref: null, queryHash: createHash('sha256').update(`${String(name ?? '').trim().toLowerCase()}|`).digest('hex') };
+      return {
+        result: 'CLEAR',
+        score: 0,
+        ref: null,
+        queryHash: createHash('sha256')
+          .update(
+            `${String(name ?? '')
+              .trim()
+              .toLowerCase()}|`,
+          )
+          .digest('hex'),
+      };
     },
     async health() {
       return { ok: true, provider: 'mock', detail: null };
