@@ -250,3 +250,13 @@ test('gateway coverage job is skipped on PRs; coverage-pr owns PR coverage (CI-0
     'coverage-pr must run on pull requests',
   );
 });
+
+test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  for (const id of ['test', 'db-shards', 'coverage', 'coverage-pr', 'db-ops']) {
+    const job = ci[id];
+    assert.ok(job, `ci.yml must define ${id}`);
+    const needs = Array.isArray(job.needs) ? job.needs : [job.needs];
+    assert.ok(needs.includes('db-snapshot'), `${id} must need db-snapshot (no silent fallback race)`);
+  }
+});
