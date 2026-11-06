@@ -3248,6 +3248,19 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "identity.js :: GET /identity/reviews": {
+    "action": "IDV_REVIEW_LIST",
+    "fields": [
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
   "identity.js :: POST /identity/ktp/ocr": {
     "action": "IDV_KTP_OCR_RESULT",
     "fields": [
@@ -3298,7 +3311,7 @@
       "ACTOR"
     ],
     "tokenIdentity": "actor",
-    "stepUp": false
+    "stepUp": true
   },
   "import.js :: DELETE /imports/batches/:code": {
     "action": "IMP_BATCH_DELETE",

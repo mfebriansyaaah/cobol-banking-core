@@ -50,6 +50,8 @@
         01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
         01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
         01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
+        01  WS-KYC-GUARD            PIC X(20) VALUE SPACES.
+        01  WS-LOAN-AMT             PIC X(30) VALUE SPACES.
         01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
         01  WS-TMP-STR              PIC X(100) VALUE SPACES.
         01  WS-TMP-ID               PIC X(100) VALUE SPACES.
@@ -808,6 +810,32 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             END-IF.
             IF LS-PARAM1 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            *> Risk-based KYC step-up (PR-089, same bar as TRANSFER): disbursing
+            *> above 1,000,000 to an unapproved borrower is refused before any
+            *> write. LEFT JOIN: a borrower without a user row reads UNKNOWN
+            *> (never approved). Fail closed on lookup errors.
+            MOVE "SELECT CONCAT(COALESCE(u.kyc_status, 'UNKNOWN'), '|', CAST(a.principal AS CHAR)) FROM loan_application a LEFT JOIN users u ON u.email = a.customer_email WHERE a.id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-KYC-GUARD WS-LOAN-AMT
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-KYC-GUARD WS-LOAN-AMT
+            END-UNSTRING.
+            IF FUNCTION NUMVAL(WS-LOAN-AMT) > 1000000 AND WS-KYC-GUARD NOT = "APPROVED"
+                MOVE "ERROR|KYC_REQUIRED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE

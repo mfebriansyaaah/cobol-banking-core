@@ -3486,6 +3486,30 @@
                 MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            *> Risk-based KYC step-up (PR-089): transfers above 1,000,000 need
+            *> an APPROVED sender; smaller verified transfers stay frictionless.
+            *> Amounts parse via PARSE-MAJOR (this program compiles with
+            *> DECIMAL-POINT IS COMMA, so a raw NUMVAL would read the dot as
+            *> a thousands separator). Fail closed on lookup errors (money
+            *> must not move on doubt).
+            MOVE WS-PARAM3-TRIMMED TO WS-PARSE-SRC
+            PERFORM PARSE-MAJOR
+            IF WS-PARSE-NUM > 1000000
+                MOVE "SELECT kyc_status FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                IF WS-RESULT NOT = "APPROVED"
+                    MOVE "ERROR|KYC_REQUIRED" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF
             *> The idempotency key (param 4) doubles as the transaction
             *> reference. Without one, mint a collision-resistant reference
             *> (date+time to hundredths, plus a secure random suffix).

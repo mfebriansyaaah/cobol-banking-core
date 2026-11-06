@@ -3,13 +3,16 @@ import { buildApp, trustProxyWarning } from './app.js';
 import { assertSecureConfig } from './auth.js';
 import { assertPoolConfig } from './pool.js';
 import { assertIntegrationConfig } from './integrations/index.js';
+import { assertSecrets } from './integrations/secrets.js';
 import { jsonLogger, startMetricsExporter } from './observability.js';
 import { resetPool } from './pool.js';
 
 assertSecureConfig();
 // Unknown providers and production-without-secrets fail here, not on the
 // first user request that needs them.
-assertIntegrationConfig();
+const integrationCfg = assertIntegrationConfig();
+// Production secrets must come from the secret manager (.env is dev-only).
+assertSecrets(integrationCfg);
 // Production default: use the worker pool (4 workers, 2 in-flight each) unless
 // explicitly overridden. Development and tests keep file mode (size 0) so a
 // missing COBOL_POOL_SIZE does not spawn long-lived processes there.
