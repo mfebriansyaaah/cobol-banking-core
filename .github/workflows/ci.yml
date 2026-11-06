@@ -841,7 +841,7 @@ jobs:
       # not cached here: it uses apt GnuCOBOL 3.1.2, and its only output (the
       # linked binary) already travels via the cobol-binary artifact.
       - name: Restore COBOL build cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: cobol/build
           key: >
@@ -859,7 +859,7 @@ jobs:
 
       - name: Restore GnuCOBOL toolchain
         id: gnucobol-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.local/gnucobol
           # Bump the trailing v1 when scripts/ci/install_gnucobol.sh changes
