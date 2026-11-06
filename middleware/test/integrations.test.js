@@ -84,7 +84,7 @@ test('mock phone records without network', async () => {
 });
 
 test('local NIK validation is structural only', () => {
-  assert.deepEqual(validateNikStructure('1234560101900001'), { ok: true, reason: null });
+  assert.deepEqual(validateNikStructure('3171010101900001'), { ok: true, reason: null });
   assert.equal(validateNikStructure('123').ok, false);
   assert.equal(validateNikStructure('1234569901900001').ok, false);
   assert.equal(validateNikStructure('abcdefghijklmnop').ok, false);
@@ -170,7 +170,7 @@ test('identity local provider validates structurally', async () => {
   await withEnv({ IDENTITY_PROVIDER: 'local' }, async () => {
     const p = getProviders();
     assert.equal(p.identity.kind, 'local');
-    assert.deepEqual(await p.identity.validateNik({ nik: '1234560101900001' }), {
+    assert.deepEqual(await p.identity.validateNik({ nik: '3171010101900001' }), {
       ok: true,
       reason: null,
     });

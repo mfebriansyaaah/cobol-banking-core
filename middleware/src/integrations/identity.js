@@ -4,14 +4,11 @@
 //   no network, no personal data leaves the process. Full KYC workflow
 //   arrives in PR-085; the interface is frozen now.
 import { mockCalls, safeHealth } from './provider.js';
+import { parseNik } from './identity/local_nik.js';
 
 export function validateNikStructure(nik) {
-  const s = String(nik ?? '');
-  if (!/^\d{16}$/.test(s)) return { ok: false, reason: 'must be 16 digits' };
-  const day = Number(s.slice(6, 8));
-  const femaleDay = day > 40 ? day - 40 : day;
-  if (femaleDay < 1 || femaleDay > 31) return { ok: false, reason: 'bad birth-day segment' };
-  return { ok: true, reason: null };
+  const r = parseNik(nik);
+  return r.valid ? { ok: true, reason: null } : { ok: false, reason: r.reason };
 }
 
 export function createIdentityProvider(kind, { logger = null } = {}) {
