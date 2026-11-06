@@ -43,6 +43,13 @@ which merged with `coverage` skipped); a skipped job never fails the gate.
 green. On `push`, `db-ops` is likewise skipped for docs-only changes
 (nightly covers the drills).
 
+CI-009 evidence (2026-11-06, D2 = allowed): the S5 spike PR #552 merged with
+the required `coverage` check skipped, and branch protection reported all
+required checks satisfied — a skipped check counts as success in this
+repository. Consequence: `coverage` runs on pushes only; every PR gets its
+gateway coverage gate from `coverage-pr` instead, with no required-check
+gap. Revisit only if GitHub changes skipped-check semantics.
+
 CI-003 evidence (2026-11-05, Option A): code scanning works end-to-end with
 no UI step — the PR-triggered CodeQL run
 (`actions/runs/41976873579`, branch `ci/ci-p0-03-codeql-green`) uploaded SARIF
