@@ -5,6 +5,7 @@ import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from './inv
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, assertLineLength } from './validation.js';
 import { ALL_ROUTES } from './routes/index.js';
+import { groupRoutes } from './mount.js';
 import {
   requireAuth,
   signToken,
@@ -49,9 +50,7 @@ const AUTH_FAILURE_CODES = new Set([
 // Each route maps an HTTP endpoint to a COBOL action. `fields` lists the
 // parameters in the exact order the COBOL module expects them. `tokenIdentity`
 // names the field filled from the verified token, never from the request body.
-export const ROUTES = [
-  ...ALL_ROUTES,
-];
+export const ROUTES = [...ALL_ROUTES];
 
 // Response mappers and helpers live in responseMappers.js.
 // The access token carries the user's token version and its own jti; a mismatch
@@ -263,7 +262,7 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     }
   });
 
-  for (const route of ROUTES) {
+  const registerRoute = (target, route) => {
     const handler = async (req, res, next) => {
       try {
         const input = { ...req.params, ...req.query, ...req.body };
@@ -332,7 +331,16 @@ export function buildRouter({ mailer, tokenStore } = {}) {
     if (route.stepUp) chain.push(requireStepUp);
     else if (route.stepUpPolicy) chain.push(requireStepUpPolicy(route.stepUpPolicy));
     chain.push(handler);
-    router[route.method](route.path, ...chain);
+    target[route.method](route.path, ...chain);
+  };
+
+  // Domain mounts (PR-054): one sub-router per first path segment, mounted
+  // at '/' in first-seen order. Matching is identical to the flat table
+  // (see routes/mount.js); the split only bounds blast radius per domain.
+  for (const { routes } of groupRoutes(ROUTES)) {
+    const sub = express.Router();
+    for (const route of routes) registerRoute(sub, route);
+    router.use(sub);
   }
 
   return router;
