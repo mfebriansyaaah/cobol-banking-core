@@ -19,7 +19,7 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | lint, build, db-snapshot, test, db-shards (2, skipped on docs-only), db-aggregate, coverage-pr (skipped on docs-only) |
+| `pull_request` | `ci.yml` | lint, build (always); db-snapshot, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
 | `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, db-snapshot, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
@@ -34,13 +34,13 @@ COBOL, db-aggregate fails on deleted assertion, db-ops runs on `main`
 
 PRs that touch only documentation (`docs/**`, root doc files, issue/PR
 templates, `CODEOWNERS` — classified by `scripts/ci/classify_changes.mjs`,
-unit-tested) skip the heavy jobs: `db-shards`, `coverage-pr`, and
-`db-aggregate`. `lint`, `build`, and the `test` gate always run (D3
-conservative default). Add the `ci:full` label to force a full run.
-Skipped required checks count as success (proven by the S5 spike PR #552,
+unit-tested) skip the heavy jobs: `db-snapshot`, `test`, `db-shards`,
+`coverage-pr`, and `db-aggregate`. Only `lint` and `build` always run (D3
+option A, owner-approved 2026-11-06: a docs-only PR cannot break compiled or
+tested behavior, and `ci:full` forces a full run on demand). Skipped required
+checks count as success (proven by the S5 spike PR #552,
 which merged with `coverage` skipped); a skipped job never fails the gate.
-`test` still runs on docs-only PRs, so a broken docs change can never look
-green. On `push`, `db-ops` is likewise skipped for docs-only changes
+On `push`, `db-ops` is likewise skipped for docs-only changes
 (nightly covers the drills).
 
 CI-009 evidence (2026-11-06, D2 = allowed): the S5 spike PR #552 merged with

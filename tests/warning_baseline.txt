@@ -54,5 +54,6 @@ merchant_settlement_core.cob=0
 phone_otp_core.cob=0
 identity_core.cob=0
 fx_rate_core.cob=0
+corp_core.cob=0
 risk_core.cob=0
 wallet_core.cob=0
