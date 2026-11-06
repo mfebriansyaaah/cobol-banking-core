@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T15:20:39.394Z",
-  "commit": "fc052657",
+  "generatedAt": "2026-11-06T15:48:58.864Z",
+  "commit": "90cc6d5a",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 545,
   "actions": [

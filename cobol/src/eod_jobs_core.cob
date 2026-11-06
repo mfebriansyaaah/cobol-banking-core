@@ -587,7 +587,7 @@
                MOVE WS-P6-TRIMMED TO WS-CALL-P1
                MOVE "SCHEDULED" TO WS-CALL-P2
                MOVE SPACES TO WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6
-               CALL "wallet_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+               CALL "wallet_recon_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
                    WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
                END-CALL
                IF WS-CALL-OUT(1:5) = "ERROR"
