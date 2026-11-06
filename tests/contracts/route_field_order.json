@@ -6069,6 +6069,58 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "screening.js :: GET /screening/reviews": {
+    "action": "IDV_REVIEW_LIST",
+    "fields": [
+      "BLANK",
+      "kind",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
+  "screening.js :: GET /screening/status": {
+    "action": "SCR_STATUS",
+    "fields": [
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "screening.js :: POST /screening/check": {
+    "action": "SCR_SCREEN",
+    "fields": [
+      "email",
+      "queryHash",
+      "result",
+      "provider",
+      "providerRef",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "screening.js :: POST /screening/reviews/decide": {
+    "action": "IDV_REVIEW_DECIDE",
+    "fields": [
+      "reviewId",
+      "decision",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
   "sla_tracker.js :: GET /sla-trackers": {
     "action": "SLT_LIST",
     "fields": [

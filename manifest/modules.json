@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T04:31:30.106Z",
+  "generatedAt": "2026-11-06T07:06:50.289Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -188,6 +188,7 @@
     "report.js",
     "report_builder.js",
     "report_schedule.js",
+    "screening.js",
     "sla_tracker.js",
     "statement.js",
     "statement_recon.js",
@@ -829,6 +830,11 @@
     {
       "prefixLen": 4,
       "prefix": "IDV_",
+      "program": "identity_core"
+    },
+    {
+      "prefixLen": 4,
+      "prefix": "SCR_",
       "program": "identity_core"
     }
   ]

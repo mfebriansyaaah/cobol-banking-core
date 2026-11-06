@@ -6,8 +6,8 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T05:12:00.612Z
-- Commit: `73b9a300`
+- Generated at: 2026-11-06T07:07:06.306Z
+- Commit: `b20f773b`
 
 | Level | Modules |
 | --- | ---: |
@@ -41,7 +41,7 @@ Unresolved route files: none.
 | `gl_allocation_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `gl_core` | L3 | — | — | 1 | Tier-1 core module |
 | `hashlen_core` | UTILITY | — | — | 0 | Tier-3 utility (never a retire candidate) |
-| `identity_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `identity_core` | L0 | — | — | 2 | own domain tables only, no core link |
 | `import_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `import_post_core` | L3 | gl_journal, gl_journal_line | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
 | `import_recon_core` | L2 | gl_journal_line | — | 1 | business link (tables gl_journal_line) + test |

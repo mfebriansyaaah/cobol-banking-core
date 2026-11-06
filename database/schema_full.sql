@@ -30952,6 +30952,29 @@ CREATE TABLE `schema_migrations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `screening_checks`
+--
+
+DROP TABLE IF EXISTS `screening_checks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `screening_checks` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `provider` varchar(32) NOT NULL,
+  `query_hash` char(64) NOT NULL,
+  `result` enum('CLEAR','POTENTIAL_MATCH','CONFIRMED_MATCH','FALSE_POSITIVE','MANUAL_REVIEW') NOT NULL,
+  `score` decimal(5,2) DEFAULT NULL,
+  `provider_ref` varchar(128) DEFAULT NULL,
+  `reviewed_by` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_screening_user` (`user_id`,`created_at`),
+  CONSTRAINT `fk_screening_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `screening_hit`
 --
 

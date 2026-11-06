@@ -31,7 +31,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `gl_allocation_core` | `GLA_` | [gl_allocation.js](../middleware/src/routes/gl_allocation.js) | [gl_allocation.cases](../tests/cobol/cases/gl_allocation.cases) | [gl_allocation_db_tests.sh](../tests/db/gl_allocation_db_tests.sh) |
 | `gl_core` | `GL_` | [gl.js](../middleware/src/routes/gl.js) | [gl.cases](../tests/cobol/cases/gl.cases) | — |
 | `hashlen_core` | — | — | — | — |
-| `identity_core` | `IDV_` | [identity.js](../middleware/src/routes/identity.js) | — | [identity_db_tests.sh](../tests/db/identity_db_tests.sh) |
+| `identity_core` | `IDV_`, `SCR_` | [identity.js](../middleware/src/routes/identity.js) | — | [identity_db_tests.sh](../tests/db/identity_db_tests.sh) |
 | `import_core` | `IMP_` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
 | `import_post_core` | `IMPP_` | — | [import_post.cases](../tests/cobol/cases/import_post.cases) | — |
 | `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | — |

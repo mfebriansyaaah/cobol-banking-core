@@ -73,6 +73,8 @@ db_payment_gl_invariants_tests=21
 
 db_phone_otp_tests=15
 
-db_identity_tests=26
+db_identity_tests=27
 
-db_kyc_enforcement_tests=21
+db_kyc_enforcement_tests=22
+
+db_screening_tests=24

@@ -15,6 +15,7 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 
 db_seed
 U="idvflow@test.com"
+db_exec "DELETE FROM screening_checks WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM manual_reviews WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM identity_verifications WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM otp_challenges WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
@@ -32,9 +33,11 @@ assert_match "link" "$(run_cobol "OTP_LINK_CONFIRM|${U}|${token}|chat-flow|${U}|
 issue_out="$(run_cobol "OTP_ISSUE|${U}|PHONE|KYC_FLOW|${U}|")"
 otp="$(printf '%s' "$issue_out" | awk -F'|' '{print $4}')"
 assert_match "verify" "$(run_cobol "OTP_VERIFY|${U}|${otp}|KYC_FLOW|${U}|")" "SUCCESS\|OTP_VERIFIED"
+assert_match "screening clear" "$(run_cobol "SCR_SCREEN|${U}|qhash-flow|CLEAR|opensanctions|ref-flow|${U}")" "SUCCESS\|SCREEN_RECORDED"
 assert_match "approved" "$(run_cobol "IDV_APPLY|${U}|||||${U}")" "SUCCESS\|KYC_APPROVED"
 assert_match "status" "$(run_cobol "IDV_STATUS|${U}|||||${U}")" "SUCCESS\|KYC_STATUS\|APPROVED"
 
+db_exec "DELETE FROM screening_checks WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM manual_reviews WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM identity_verifications WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM otp_challenges WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T05:12:00.612Z",
-  "commit": "73b9a300",
+  "generatedAt": "2026-11-06T07:07:06.306Z",
+  "commit": "b20f773b",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
@@ -343,7 +343,8 @@
       ],
       "reason": "own domain tables only, no core link",
       "routeFiles": [
-        "identity.js"
+        "identity.js",
+        "screening.js"
       ]
     },
     {
@@ -850,6 +851,7 @@
     "report.js": "report_core",
     "report_builder.js": "report_builder_core",
     "report_schedule.js": "report_schedule_core",
+    "screening.js": "identity_core",
     "sla_tracker.js": "sla_tracker_core",
     "statement.js": "statement_core",
     "statement_recon.js": "statement_recon_core",
