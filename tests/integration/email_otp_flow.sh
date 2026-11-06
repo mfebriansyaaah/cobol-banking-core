@@ -33,7 +33,15 @@ db_exec "DELETE FROM users WHERE email='${U}';"
 
 signup_out="$(run_cobol "REQUEST_SIGNUP|${U}|Passw0rd!|Mail Flow|1990-01-01")"
 assert_match "signup ok" "$signup_out" "SUCCESS\|USER_CREATED"
-assert_match "no code leaks in response" "$signup_out" "^SUCCESS\|USER_CREATED$"
+# No-leak is an HTTP-layer property (the mapper strips the code the COBOL
+# core returns for tests): prove the mapped body carries no code.
+mapped="$(node --input-type=module -e "
+import('./middleware/src/responseMappers.js').then(async ({ RESPONSE_MAPPERS }) => {
+  const m = await RESPONSE_MAPPERS.REQUEST_SIGNUP();
+  console.log(JSON.stringify(m));
+});")"
+assert_match "no code leaks in response" "$mapped" '"USER_CREATED"'
+assert_match "mapped body exact (no room for a code)" "$mapped" '^\{"data":\["USER_CREATED"\]\}$'
 
 echo "=== Email OTP flow ($U via $MAILPIT) ==="
 export SMTP_HOST="${SMTP_HOST:-127.0.0.1}" SMTP_PORT="${SMTP_PORT:-1025}"
