@@ -10,6 +10,10 @@ export const DEFAULT_TIMEOUT_MS = 2000;
 export const DEFAULT_ENDPOINT = 'https://api.pwnedpasswords.com';
 
 export function sha1Upper(password) {
+  // SHA-1 is MANDATED here by the Pwned Passwords k-anonymity protocol (the
+  // range API indexes SHA-1 prefixes) — do NOT "upgrade" to bcrypt/scrypt
+  // (CodeQL js/insufficient-password-hash dismissed as false positive: the
+  // hash is never stored, only the 5-char prefix leaves the process).
   return createHash('sha1').update(String(password)).digest('hex').toUpperCase();
 }
 
