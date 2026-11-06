@@ -304,6 +304,11 @@ enum exec_mode { EXEC_ONE, EXEC_ROWS, EXEC_LOCK };
 
 #define RES_CAP 16383
 #define MAX_COLS 32
+#define ROW_CAP 2000
+
+/* Set when output would exceed the 16KB result buffer (PR-061): the caller
+ * gets ERROR|RESULT_TRUNCATED instead of a silently cut response. */
+static int g_truncated = 0;
 
 /* Append one sanitized field value (already length-capped by the caller). */
 static void append_field(const char *text) {
@@ -312,10 +317,18 @@ static void append_field(const char *text) {
     temp[511] = '\0';
     sanitize_string(temp);
     trim_trailing_spaces(temp);
+    if (strlen(G_RESULT) + strlen(temp) + 1 >= RES_CAP) {
+        g_truncated = 1;
+        return;
+    }
     strncat(G_RESULT, temp, RES_CAP - strlen(G_RESULT) - 1);
 }
 
 static void append_sep(const char *sep) {
+    if (strlen(G_RESULT) + strlen(sep) >= RES_CAP) {
+        g_truncated = 1;
+        return;
+    }
     strncat(G_RESULT, sep, RES_CAP - strlen(G_RESULT) - 1);
 }
 
@@ -372,6 +385,7 @@ static void fetch_one(MYSQL_STMT *st) {
             append_field(temp);
             if (i < cols - 1) append_sep("|");
         }
+        if (g_truncated) strncpy(G_RESULT, "ERROR|RESULT_TRUNCATED", RES_CAP);
     } else {
         strncpy(G_RESULT, "ERROR|NO_DATA", RES_CAP);
     }
@@ -397,6 +411,10 @@ static void fetch_all(MYSQL_STMT *st) {
     int rowcount = 0;
     while ((rc = mysql_stmt_fetch(st)) == 0 || rc == MYSQL_DATA_TRUNCATED) {
         rowcount++;
+        if (rowcount > ROW_CAP) {
+            g_truncated = 1;
+            break;
+        }
         if (bridge_debug()) fprintf(stderr, "FETCH rc=%d row=%d\n", rc, rowcount);
         if (!first_row) append_sep(";");
         first_row = 0;
@@ -408,13 +426,16 @@ static void fetch_all(MYSQL_STMT *st) {
     }
     if (bridge_debug())
         fprintf(stderr, "TOTAL_ROWS=%d first_row=%d G_RESULT_LEN=%zu\n", rowcount, first_row, strlen(G_RESULT));
-    if (first_row) {
+    if (g_truncated) {
+        strncpy(G_RESULT, "ERROR|RESULT_TRUNCATED", RES_CAP);
+    } else if (first_row) {
         strncpy(G_RESULT, "ERROR|NO_DATA", RES_CAP);
     }
 }
 
 static void prepared_exec(char *sql, int nparams, char **params, int maxparams, int mode) {
     if (!sql) return;
+    g_truncated = 0;
 
     char query[1024];
     strncpy(query, sql, 1023);

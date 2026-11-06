@@ -82,3 +82,5 @@ db_screening_tests=24
 db_risk_tests=13
 
 db_corporate_tests=9
+
+db_truncation_tests=4
