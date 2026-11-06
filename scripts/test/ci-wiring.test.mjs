@@ -207,3 +207,32 @@ test('ci:full label forces a full run (CI-011)', () => {
   const runs = collectWorkflowJobs()['ci.yml']['changes'].runs.join('\n');
   assert.match(runs, /ci:full/, 'changes job must honor the ci:full label override');
 });
+
+test('every upload-artifact step sets overwrite: true (CI-013)', () => {
+  const script = `
+import json, sys, glob, yaml
+out = []
+for f in sorted(glob.glob('GH/.github/workflows/*.yml'.replace('GH', sys.argv[1]))):
+    try:
+        with open(f) as fh:
+            doc = yaml.safe_load(fh.read())
+    except Exception:
+        continue
+    for job_id, spec in (doc.get('jobs') or {}).items():
+        for step in (spec or {}).get('steps') or []:
+            if isinstance(step, dict) and isinstance(step.get('uses'), str) and 'upload-artifact@' in step['uses']:
+                with_ = step.get('with') or {}
+                out.append([f, job_id, step.get('name'), bool(with_.get('overwrite'))])
+print(json.dumps(out))
+`;
+  const stdout = execFileSync('python3', ['-c', script, ROOT], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 60000,
+  });
+  const rows = JSON.parse(stdout);
+  assert.ok(rows.length > 0, 'expected upload-artifact steps in workflows');
+  for (const [file, job, name, overwrite] of rows) {
+    assert.equal(overwrite, true, `${file} :: ${job} :: ${name} must set overwrite: true`);
+  }
+});
