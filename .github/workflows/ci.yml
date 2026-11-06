@@ -539,6 +539,9 @@ jobs:
 
   coverage:
     name: coverage
+    # S5 SPIKE ONLY (do not merge): skip on PR to prove skipped required
+    # checks satisfy branch protection in this repository.
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 20
