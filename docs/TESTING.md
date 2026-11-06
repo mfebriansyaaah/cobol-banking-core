@@ -300,6 +300,17 @@ Intermittent failures that are environmental (not assertion bugs) go to
   test (`scripts/test/quarantine_flag.test.mjs`), forcing the owner to renew
   or remove them before the expiry date — quarantine can never go stale
   silently.
+
+## 500 forensics (fail-open error logging)
+
+The gateway error handler (`middleware/src/app.js`) maps known failures to
+status codes (400/401/502/503/504/413) and anything else to 500 `INTERNAL`.
+Tests build the app without a logger, so an unmapped 500 used to leave only
+`{"error":"INTERNAL"}` with no cause. The handler now also writes the full
+record (`code`, `status`, `method`, `url`, `message`, `stack`) to stderr when
+no logger is injected — response body unchanged, COBOL pipe untouched. In CI
+this lands in the job log, so the next intermittent 500 arrives with its
+stack attached instead of a bare status code.
 - The `db aggregate` count gate stays honest: `check_test_counts.mjs`
   counts quarantined-away tests from source and subtracts them from the
   baseline **only when `QUARANTINE=1`** (same env on both jobs). Baseline
