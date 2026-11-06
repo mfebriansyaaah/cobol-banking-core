@@ -395,16 +395,25 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
     }
     res.locals.errorCode = code;
     recordError(code);
+    // Fail-open forensics: tests build the app without a logger, so an
+    // unmapped 500 would otherwise leave only {"error":"INTERNAL"} with no
+    // cause. stderr never touches the HTTP body or the COBOL pipe.
+    const record = {
+      ts: new Date().toISOString(),
+      level: 'error',
+      event: 'gateway_error',
+      code,
+      status,
+      method: _req && _req.method,
+      url: _req && _req.originalUrl,
+      message: err && err.message,
+      stack: err && err.stack,
+    };
     if (logger) {
-      logger({
-        ts: new Date().toISOString(),
-        level: 'error',
-        event: 'gateway_error',
-        code,
-        status,
-        message: err && err.message,
-        stack: err && err.stack,
-      });
+      logger(record);
+    } else {
+      // stderr only: never touches the HTTP body or the COBOL pipe.
+      process.stderr.write(JSON.stringify(record) + '\n');
     }
     if (err instanceof ValidationError) {
       return res.status(status).json({ error: code, field: err.field });
