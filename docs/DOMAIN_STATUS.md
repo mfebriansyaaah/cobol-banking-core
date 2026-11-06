@@ -10,7 +10,7 @@
 | --- | ---: |
 | ACTIVE | 22 |
 | PILOT | 6 |
-| REVIEW | 1 |
+| REVIEW | 2 |
 | FROZEN | 19 |
 | RETIRED | 0 |
 
@@ -40,6 +40,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `gl_allocation` | `gl_allocation_core` | 2 | L0 | FROZEN | gl_allocation.js | gl_allocation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `gl` | `gl_core` | 1 | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `hashlen` | `hashlen_core` | 3 | UTILITY | ACTIVE | — | — | — | Tier-3 utility; never a retire candidate. |
+| `identity` | `identity_core` | 2 | L0 | FROZEN | identity.js | identity_verifications | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import` | `import_core` | 2 | L0 | FROZEN | import.js | import_row | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import_post` | `import_post_core` | 2 | L3 | ACTIVE | — | import_batch | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `import_recon` | `import_recon_core` | 2 | L2 | PILOT | import_recon.js | import_recon_item | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
@@ -55,7 +56,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `payment_hold` | `payment_hold_core` | 2 | L2 | PILOT | payment_hold.js | payment_hold | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `payment_instruction` | `payment_instruction_core` | 2 | L2 | PILOT | payment_instructions.js | payment_instruction | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `payroll_processing` | `payroll_processing_core` | 2 | L2 | PILOT | payroll_processing.js | payroll_processing | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
-| `phone_otp` | `phone_otp_core` | 2 | L0 | FROZEN | phone.js | phone_links | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `phone_otp` | `phone_otp_core` | 2 | L0 | REVIEW | phone.js | phone_links | — | New in PR-082b; own tables only until OTP gates a core flow (PR-085). Upgrade to L2 then or dead-candidate. |
 | `ref_engine` | `ref_engine` | 3 | UTILITY | ACTIVE | ref_engine.js | audit_trail | — | Tier-3 utility; never a retire candidate. |
 | `ref_ext` | `ref_ext_core` | 3 | UTILITY | ACTIVE | ref_ext.js | label | — | Tier-3 utility; never a retire candidate. |
 | `report_builder` | `report_builder_core` | 2 | L0 | FROZEN | report_builder.js | report_builder | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |

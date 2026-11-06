@@ -3235,6 +3235,71 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "identity.js :: GET /identity/kyc/status": {
+    "action": "IDV_STATUS",
+    "fields": [
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "identity.js :: POST /identity/ktp/ocr": {
+    "action": "IDV_KTP_OCR_RESULT",
+    "fields": [
+      "email",
+      "verdict",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "identity.js :: POST /identity/kyc/apply": {
+    "action": "IDV_APPLY",
+    "fields": [
+      "email",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "identity.js :: POST /identity/nik/validate": {
+    "action": "IDV_NIK_VALIDATE",
+    "fields": [
+      "email",
+      "nikHash",
+      "nikLast4",
+      "verdict",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "identity.js :: POST /identity/reviews/decide": {
+    "action": "IDV_REVIEW_DECIDE",
+    "fields": [
+      "reviewId",
+      "decision",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
   "import.js :: DELETE /imports/batches/:code": {
     "action": "IMP_BATCH_DELETE",
     "fields": [

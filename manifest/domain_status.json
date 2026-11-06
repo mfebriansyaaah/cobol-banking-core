@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T03:26:51.845Z",
+  "generatedAt": "2026-11-06T04:39:01.684Z",
   "entries": [
     {
       "domain": "account",
@@ -344,6 +344,23 @@
       "owner": null,
       "status": "ACTIVE",
       "reason": "Tier-3 utility; never a retire candidate.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "identity",
+      "module": "identity_core",
+      "routeFile": "identity.js",
+      "table": "identity_verifications",
+      "tier": 2,
+      "linkageLevel": "L0",
+      "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "REVIEW",
+      "reason": "New in PR-085; own tables only until KYC gates a core flow. Upgrade or dead-candidate after.",
       "retireAfter": null,
       "tableDropDate": null
     },
