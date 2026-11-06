@@ -5,7 +5,11 @@ import { DEFAULT_TIMEOUT_MS } from '../resilience.js';
 
 export async function pingCheck(
   checkId,
-  { fetchImpl = fetch, timeoutMs = Number(process.env.HEALTHCHECKS_TIMEOUT_MS || DEFAULT_TIMEOUT_MS), base = process.env.HEALTHCHECKS_BASE || 'https://hc-ping.com' } = {},
+  {
+    fetchImpl = fetch,
+    timeoutMs = Number(process.env.HEALTHCHECKS_TIMEOUT_MS || DEFAULT_TIMEOUT_MS),
+    base = process.env.HEALTHCHECKS_BASE || 'https://hc-ping.com',
+  } = {},
 ) {
   if (!checkId) return false;
   try {
@@ -24,7 +28,11 @@ export async function pingCheck(
 
 export async function pingFail(checkId, message, opts = {}) {
   if (!checkId) return false;
-  const { fetchImpl = fetch, timeoutMs = Number(process.env.HEALTHCHECKS_TIMEOUT_MS || DEFAULT_TIMEOUT_MS), base = process.env.HEALTHCHECKS_BASE || 'https://hc-ping.com' } = opts;
+  const {
+    fetchImpl = fetch,
+    timeoutMs = Number(process.env.HEALTHCHECKS_TIMEOUT_MS || DEFAULT_TIMEOUT_MS),
+    base = process.env.HEALTHCHECKS_BASE || 'https://hc-ping.com',
+  } = opts;
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);

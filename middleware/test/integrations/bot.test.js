@@ -8,8 +8,10 @@ import { turnstileEnabled, verifyTurnstile } from '../../src/integrations/bot/tu
 import { resetBreakers } from '../../src/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
-const okFetch = (success = true, codes = []) => () =>
-  Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ success, 'error-codes': codes }) });
+const okFetch =
+  (success = true, codes = []) =>
+  () =>
+    Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ success, 'error-codes': codes }) });
 const withSecret = { secret: 's3cret', timeoutMs: 500 };
 
 test('skipped without secret; missing token rejected', async () => {
@@ -82,17 +84,34 @@ test('HTTP: captcha enforced on signup only when secret set', async () => {
     const app = buildApp();
     const missing = await request(app)
       .post('/auth/signup')
-      .send({ email: uniqueEmail(NS, 'a'), password: 'xQ9UniqueNeverBreached4f8c2aa71e', name: 'A', dob: '1990-01-01' });
+      .send({
+        email: uniqueEmail(NS, 'a'),
+        password: 'xQ9UniqueNeverBreached4f8c2aa71e',
+        name: 'A',
+        dob: '1990-01-01',
+      });
     assert.equal(missing.status, 400);
     assert.equal(missing.body.error, 'CAPTCHA_REQUIRED');
     const bad = await request(app)
       .post('/auth/signup')
-      .send({ email: uniqueEmail(NS, 'b'), password: 'xQ9UniqueNeverBreached4f8c2aa71e', name: 'B', dob: '1990-01-01', captchaToken: 'bad-token' });
+      .send({
+        email: uniqueEmail(NS, 'b'),
+        password: 'xQ9UniqueNeverBreached4f8c2aa71e',
+        name: 'B',
+        dob: '1990-01-01',
+        captchaToken: 'bad-token',
+      });
     assert.equal(bad.status, 400);
     assert.equal(bad.body.error, 'CAPTCHA_REJECTED');
     const good = await request(app)
       .post('/auth/signup')
-      .send({ email: uniqueEmail(NS, 'c'), password: 'xQ9UniqueNeverBreached4f8c2aa71e', name: 'C', dob: '1990-01-01', captchaToken: 'good-token' });
+      .send({
+        email: uniqueEmail(NS, 'c'),
+        password: 'xQ9UniqueNeverBreached4f8c2aa71e',
+        name: 'C',
+        dob: '1990-01-01',
+        captchaToken: 'good-token',
+      });
     assert.equal(good.status, 200);
   } finally {
     if (savedSecret === undefined) delete process.env.TURNSTILE_SECRET;

@@ -46,10 +46,20 @@ export async function sendAlert(
       if (t.kind === 'telegram') {
         const token = process.env.TELEGRAM_BOT_TOKEN;
         const base = process.env.TELEGRAM_API_BASE || 'https://api.telegram.org';
-        results.telegram = await postJson(fetchImpl, `${base}/bot${token}/sendMessage`, { chat_id: t.chatId, text }, timeoutMs);
+        results.telegram = await postJson(
+          fetchImpl,
+          `${base}/bot${token}/sendMessage`,
+          { chat_id: t.chatId, text },
+          timeoutMs,
+        );
       } else {
         const server = process.env.NTFY_SERVER || 'https://ntfy.sh';
-        results.ntfy = await postJson(fetchImpl, `${server}/${t.topic}`, { topic: t.topic, message: text, title: event }, timeoutMs);
+        results.ntfy = await postJson(
+          fetchImpl,
+          `${server}/${t.topic}`,
+          { topic: t.topic, message: text, title: event },
+          timeoutMs,
+        );
       }
     } catch (err) {
       results[t.kind] = false;
