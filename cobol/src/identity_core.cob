@@ -545,8 +545,9 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE "SELECT GROUP_CONCAT(CONCAT(id, ':', user_id, ':', kind, ':', status) ORDER BY id SEPARATOR ';') FROM manual_reviews WHERE status = 'OPEN'" TO WS-PREP-SQL
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+            MOVE "SELECT GROUP_CONCAT(CONCAT(id, ':', user_id, ':', kind, ':', status) ORDER BY id SEPARATOR ';') FROM manual_reviews WHERE status = ?" TO WS-PREP-SQL
+            MOVE "OPEN" TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
