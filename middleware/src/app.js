@@ -20,6 +20,7 @@ import { createRequestObserver, metricsText, recordError, recordAuthFailure } fr
 import { getPool } from './pool.js';
 import { createMailer } from './mailer.js';
 import { assertPasswordAllowed } from './integrations/security/pwned.js';
+import { verifyTurnstile } from './integrations/bot/turnstile.js';
 import { createTokenStore } from './tokenStore.js';
 import { RESPONSE_MAPPERS, sanitizeMeta, tokenVersion } from './responseMappers.js';
 
@@ -83,6 +84,7 @@ export const ROUTES = [
     path: '/auth/signup',
     action: 'REQUEST_SIGNUP',
     public: true,
+    captcha: true,
     passwordField: 'password',
     fields: [
       { name: 'email', pattern: EMAIL, required: true },
@@ -106,6 +108,7 @@ export const ROUTES = [
     path: '/auth/forgot',
     action: 'FORGOT_PASSWORD',
     public: true,
+    captcha: true,
     fields: [{ name: 'email', pattern: EMAIL, required: true }],
   },
   {
@@ -125,6 +128,7 @@ export const ROUTES = [
     path: '/auth/resend',
     action: 'RESEND_VERIFICATION',
     public: true,
+    captcha: true,
     fields: [{ name: 'email', pattern: EMAIL, required: true }],
   },
   {
@@ -132,6 +136,7 @@ export const ROUTES = [
     path: '/auth/login',
     action: 'AUTH_LOGIN',
     public: true,
+    captcha: true,
     fields: [
       { name: 'email', pattern: EMAIL, required: true },
       { name: 'password', pattern: PASSWORD, required: true },
@@ -1101,6 +1106,18 @@ export function buildRouter({ mailer, tokenStore } = {}) {
             res.locals.errorCode = 'BREACHED_PASSWORD';
             recordError('BREACHED_PASSWORD');
             return res.status(400).json({ error: 'BREACHED_PASSWORD' });
+          }
+        }
+        // Bot gate (PR-094): routes opt in via `captcha: true`; the token
+        // arrives as `captchaToken` and never reaches COBOL. Missing/invalid
+        // rejects; provider down fails open (rate limiters still apply).
+        if (route.captcha) {
+          const verdict = await verifyTurnstile(input.captchaToken, { remoteip: req.ip });
+          if (!verdict.ok) {
+            const code = verdict.code === 'missing-input-response' ? 'CAPTCHA_REQUIRED' : 'CAPTCHA_REJECTED';
+            res.locals.errorCode = code;
+            recordError(code);
+            return res.status(400).json({ error: code });
           }
         }
         const t0 = Date.now();
