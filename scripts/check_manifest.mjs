@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 let failures = 0;
@@ -74,7 +74,7 @@ if (JSON.stringify(importedRoutes) !== JSON.stringify(manifestRoutes)) {
 // how main_logic.cob's table refactor shipped with a blank manifest. The
 // manifest is now compared *exactly* against what the COBOL source declares.
 const mainLogicPath = path.join(cobolDir, 'main_logic.cob');
-const mainLogic = readFileSync(mainLogicPath, 'utf8');
+const mainLogic = loadDispatchSource(path.join(cobolDir, '..', '..'));
 const { entries: actualDispatch, problems } = parseDispatchTable(mainLogic);
 for (const p of problems) fail(p);
 
@@ -88,13 +88,14 @@ if (actualDispatch.length === 0) {
     prefix: d.prefix,
     program: d.program,
   }));
-  if (JSON.stringify(declared) !== JSON.stringify(actualDispatch)) {
-    const missing = actualDispatch.filter(
+  const actual = actualDispatch.map((d) => ({ prefixLen: d.prefixLen, prefix: d.prefix, program: d.program }));
+  if (JSON.stringify(declared) !== JSON.stringify(actual)) {
+    const missing = actual.filter(
       (d) => !declared.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
     );
     const extra = declared.filter(
       (d) =>
-        !actualDispatch.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
+        !actual.some((x) => x.prefix === d.prefix && x.program === d.program && x.prefixLen === d.prefixLen),
     );
     if (missing.length) fail(`dispatch entries missing from manifest: ${missing.map((d) => d.prefix).join(', ')}`);
     if (extra.length)

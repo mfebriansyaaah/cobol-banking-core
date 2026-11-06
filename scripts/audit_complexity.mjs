@@ -23,7 +23,7 @@ import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { collectRoutes } from './lib/route_fields.mjs';
-import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const args = process.argv.slice(2);
 let root = '.';
@@ -210,7 +210,7 @@ function collectActions(rootDir) {
 function collectDispatch(rootDir) {
   const mainLogic = path.join(rootDir, 'cobol', 'src', 'main_logic.cob');
   if (!existsSync(mainLogic)) return { dispatchEntries: 0, dispatchProblems: ['main_logic.cob missing'] };
-  const { entries, problems } = parseDispatchTable(readFileSync(mainLogic, 'utf8'));
+  const { entries, problems } = parseDispatchTable(loadDispatchSource(rootDir));
   return { dispatchEntries: entries.length, dispatchProblems: problems };
 }
 

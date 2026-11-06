@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T11:30:21.356Z",
+  "generatedAt": "2026-11-06T11:35:27.795Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -215,656 +215,787 @@
   ],
   "dispatch": [
     {
+      "slot": 1,
       "prefixLen": 20,
       "prefix": "REQUEST_MFA_RECOVERY",
       "program": "auth_core"
     },
     {
+      "slot": 2,
       "prefixLen": 20,
       "prefix": "REVOKE_OTHER_DEVICES",
       "program": "auth_core"
     },
     {
+      "slot": 3,
       "prefixLen": 20,
       "prefix": "LIST_RECONCILIATIONS",
       "program": "wallet_core"
     },
     {
+      "slot": 4,
       "prefixLen": 20,
       "prefix": "APPROVE_MFA_RECOVERY",
       "program": "auth_core"
     },
     {
+      "slot": 5,
       "prefixLen": 20,
       "prefix": "CONFIRM_EMAIL_CHANGE",
       "program": "user_core"
     },
     {
+      "slot": 6,
       "prefixLen": 20,
       "prefix": "REVOKE_ALL_SESSIONS",
       "program": "auth_core"
     },
     {
+      "slot": 7,
       "prefixLen": 19,
       "prefix": "VERIFY_MFA_RECOVERY",
       "program": "auth_core"
     },
     {
+      "slot": 8,
       "prefixLen": 19,
       "prefix": "RESEND_VERIFICATION",
       "program": "auth_core"
     },
     {
+      "slot": 9,
       "prefixLen": 19,
       "prefix": "MFA_ENROLL_REQUIRED",
       "program": "auth_core"
     },
     {
+      "slot": 10,
       "prefixLen": 19,
       "prefix": "CLOSE_ACCESS_REVIEW",
       "program": "auth_core"
     },
     {
+      "slot": 11,
       "prefixLen": 19,
       "prefix": "LIST_ACCESS_REVIEWS",
       "program": "auth_core"
     },
     {
+      "slot": 12,
       "prefixLen": 19,
       "prefix": "REVOKE_USER_SESSION",
       "program": "auth_core"
     },
     {
+      "slot": 13,
       "prefixLen": 19,
       "prefix": "REJECT_MFA_RECOVERY",
       "program": "auth_core"
     },
     {
+      "slot": 14,
       "prefixLen": 19,
       "prefix": "REVOKE_ACCESS_TOKEN",
       "program": "auth_core"
     },
     {
+      "slot": 15,
       "prefixLen": 18,
       "prefix": "RUN_RECONCILIATION",
       "program": "wallet_core"
     },
     {
+      "slot": 16,
       "prefixLen": 18,
       "prefix": "REACTIVATE_DORMANT",
       "program": "user_core"
     },
     {
+      "slot": 17,
       "prefixLen": 18,
       "prefix": "DECIDE_ACCESS_ITEM",
       "program": "auth_core"
     },
     {
+      "slot": 18,
       "prefixLen": 18,
       "prefix": "MFA_ENROLL_CONFIRM",
       "program": "auth_core"
     },
     {
+      "slot": 19,
       "prefixLen": 18,
       "prefix": "OPEN_ACCESS_REVIEW",
       "program": "auth_core"
     },
     {
+      "slot": 20,
       "prefixLen": 18,
       "prefix": "DEACTIVATE_ACCOUNT",
       "program": "user_core"
     },
     {
+      "slot": 21,
       "prefixLen": 17,
       "prefix": "REQUEST_OPERATION",
       "program": "auth_core"
     },
     {
+      "slot": 22,
       "prefixLen": 17,
       "prefix": "LIST_MFA_RECOVERY",
       "program": "auth_core"
     },
     {
+      "slot": 23,
       "prefixLen": 17,
       "prefix": "RESOLVE_EXCEPTION",
       "program": "wallet_core"
     },
     {
+      "slot": 24,
       "prefixLen": 17,
       "prefix": "GET_TOKEN_VERSION",
       "program": "auth_core"
     },
     {
+      "slot": 25,
       "prefixLen": 17,
       "prefix": "GET_ACCESS_REVIEW",
       "program": "auth_core"
     },
     {
+      "slot": 26,
       "prefixLen": 16,
       "prefix": "APPROVE_REQUEST",
       "program": "auth_core"
     },
     {
+      "slot": 27,
       "prefixLen": 16,
       "prefix": "LIST_PERMISSIONS",
       "program": "auth_core"
     },
     {
+      "slot": 28,
       "prefixLen": 16,
       "prefix": "CHECK_PERMISSION",
       "program": "auth_core"
     },
     {
+      "slot": 29,
       "prefixLen": 16,
       "prefix": "MFA_BACKUP_CODES",
       "program": "auth_core"
     },
     {
+      "slot": 30,
       "prefixLen": 16,
       "prefix": "REVERSE_TRANSFER",
       "program": "wallet_core"
     },
     {
+      "slot": 31,
       "prefixLen": 16,
       "prefix": "MFA_ENROLL_BEGIN",
       "program": "auth_core"
     },
     {
+      "slot": 32,
       "prefixLen": 16,
       "prefix": "STEP_UP_REQUIRED",
       "program": "auth_core"
     },
     {
+      "slot": 33,
       "prefixLen": 16,
       "prefix": "REQ_EMAIL_CHANGE",
       "program": "user_core"
     },
     {
+      "slot": 34,
       "prefixLen": 16,
       "prefix": "ADD_DISPUTE_NOTE",
       "program": "wallet_core"
     },
     {
+      "slot": 35,
       "prefixLen": 15,
       "prefix": "SUSPEND_DORMANT",
       "program": "user_core"
     },
     {
+      "slot": 36,
       "prefixLen": 15,
       "prefix": "RESOLVE_DISPUTE",
       "program": "wallet_core"
     },
     {
+      "slot": 37,
       "prefixLen": 15,
       "prefix": "CONSUME_SESSION",
       "program": "auth_core"
     },
     {
+      "slot": 38,
       "prefixLen": 15,
       "prefix": "LIST_EXCEPTIONS",
       "program": "wallet_core"
     },
     {
+      "slot": 39,
       "prefixLen": 15,
       "prefix": "ADMIN_RESET_MFA",
       "program": "user_core"
     },
     {
+      "slot": 40,
       "prefixLen": 15,
       "prefix": "SET_USER_STATUS",
       "program": "user_core"
     },
     {
+      "slot": 41,
       "prefixLen": 15,
       "prefix": "FORGOT_PASSWORD",
       "program": "auth_password_core"
     },
     {
+      "slot": 42,
       "prefixLen": 15,
       "prefix": "CHANGE_PASSWORD",
       "program": "auth_password_core"
     },
     {
+      "slot": 43,
       "prefixLen": 14,
       "prefix": "REJECT_REQUEST",
       "program": "auth_core"
     },
     {
+      "slot": 44,
       "prefixLen": 14,
       "prefix": "LIST_REQUESTS",
       "program": "auth_core"
     },
     {
+      "slot": 45,
       "prefixLen": 14,
       "prefix": "REJECT_DISPUTE",
       "program": "wallet_core"
     },
     {
+      "slot": 46,
       "prefixLen": 14,
       "prefix": "REQUEST_SIGNUP",
       "program": "auth_core"
     },
     {
+      "slot": 47,
       "prefixLen": 14,
       "prefix": "RESET_PASSWORD",
       "program": "auth_password_core"
     },
     {
+      "slot": 48,
       "prefixLen": 14,
       "prefix": "UPDATE_PROFILE",
       "program": "user_core"
     },
     {
+      "slot": 49,
       "prefixLen": 14,
       "prefix": "REVOKE_SESSION",
       "program": "auth_core"
     },
     {
+      "slot": 50,
       "prefixLen": 13,
       "prefix": "GET_DASHBOARD",
       "program": "user_core"
     },
     {
+      "slot": 51,
       "prefixLen": 13,
       "prefix": "LIST_SESSIONS",
       "program": "auth_core"
     },
     {
+      "slot": 52,
       "prefixLen": 13,
       "prefix": "STORE_SESSION",
       "program": "auth_core"
     },
     {
+      "slot": 53,
       "prefixLen": 13,
       "prefix": "CHECK_BALANCE",
       "program": "wallet_core"
     },
     {
+      "slot": 54,
       "prefixLen": 13,
       "prefix": "VERIFY_REAUTH",
       "program": "auth_core"
     },
     {
+      "slot": 55,
       "prefixLen": 13,
       "prefix": "LIST_DISPUTES",
       "program": "wallet_core"
     },
     {
+      "slot": 56,
       "prefixLen": 13,
       "prefix": "ACK_EXCEPTION",
       "program": "wallet_core"
     },
     {
+      "slot": 57,
       "prefixLen": 13,
       "prefix": "ARCHIVE_AUDIT",
       "program": "auth_core"
     },
     {
+      "slot": 58,
       "prefixLen": 12,
       "prefix": "LOGIN_NOTICE",
       "program": "auth_core"
     },
     {
+      "slot": 59,
       "prefixLen": 12,
       "prefix": "OUTBOX_CLAIM",
       "program": "auth_core"
     },
     {
+      "slot": 60,
       "prefixLen": 12,
       "prefix": "MARK_DORMANT",
       "program": "user_core"
     },
     {
+      "slot": 61,
       "prefixLen": 12,
       "prefix": "OPEN_DISPUTE",
       "program": "wallet_core"
     },
     {
+      "slot": 62,
       "prefixLen": 12,
       "prefix": "LIST_OUTBOX",
       "program": "auth_core"
     },
     {
+      "slot": 63,
       "prefixLen": 12,
       "prefix": "RELEASE_HOLD",
       "program": "wallet_core"
     },
     {
+      "slot": 64,
       "prefixLen": 12,
       "prefix": "VERIFY_EMAIL",
       "program": "auth_core"
     },
     {
+      "slot": 65,
       "prefixLen": 11,
       "prefix": "MFA_DISABLE",
       "program": "auth_core"
     },
     {
+      "slot": 66,
       "prefixLen": 11,
       "prefix": "CHECK_TOKEN",
       "program": "auth_core"
     },
     {
+      "slot": 67,
       "prefixLen": 11,
       "prefix": "ACK_DISPUTE",
       "program": "wallet_core"
     },
     {
+      "slot": 68,
       "prefixLen": 11,
       "prefix": "CHANGE_ROLE",
       "program": "auth_core"
     },
     {
+      "slot": 69,
       "prefixLen": 11,
       "prefix": "UNLOCK_USER",
       "program": "user_core"
     },
     {
+      "slot": 70,
       "prefixLen": 11,
       "prefix": "GET_DISPUTE",
       "program": "wallet_core"
     },
     {
+      "slot": 71,
       "prefixLen": 11,
       "prefix": "OUTBOX_MARK",
       "program": "auth_core"
     },
     {
+      "slot": 72,
       "prefixLen": 10,
       "prefix": "LIST_USERS",
       "program": "user_core"
     },
     {
+      "slot": 73,
       "prefixLen": 10,
       "prefix": "PLACE_HOLD",
       "program": "wallet_core"
     },
     {
+      "slot": 74,
       "prefixLen": 10,
       "prefix": "CHECK_ROLE",
       "program": "auth_core"
     },
     {
+      "slot": 75,
       "prefixLen": 10,
       "prefix": "AUTH_LOGIN",
       "program": "auth_core"
     },
     {
+      "slot": 76,
       "prefixLen": 10,
       "prefix": "LIST_AUDIT",
       "program": "auth_core"
     },
     {
+      "slot": 77,
       "prefixLen": 9,
       "prefix": "TX_STATUS",
       "program": "wallet_core"
     },
     {
+      "slot": 78,
       "prefixLen": 9,
       "prefix": "RECONCILE",
       "program": "wallet_core"
     },
     {
+      "slot": 79,
       "prefixLen": 9,
       "prefix": "STATEMENT",
       "program": "wallet_core"
     },
     {
+      "slot": 80,
       "prefixLen": 8,
       "prefix": "GET_USER",
       "program": "user_core"
     },
     {
+      "slot": 81,
       "prefixLen": 8,
       "prefix": "TRANSFER",
       "program": "wallet_core"
     },
     {
+      "slot": 82,
       "prefixLen": 7,
       "prefix": "EODJOB_",
       "program": "eod_jobs_core"
     },
     {
+      "slot": 83,
       "prefixLen": 5,
       "prefix": "LOAN_",
       "program": "loan_core"
     },
     {
+      "slot": 84,
       "prefixLen": 5,
       "prefix": "STMT_",
       "program": "statement_core"
     },
     {
+      "slot": 85,
       "prefixLen": 5,
       "prefix": "CARD_",
       "program": "card_core"
     },
     {
+      "slot": 86,
       "prefixLen": 5,
       "prefix": "IMPP_",
       "program": "import_post_core"
     },
     {
+      "slot": 87,
       "prefixLen": 4,
       "prefix": "TRL_",
       "program": "treasury_liquidity_core"
     },
     {
+      "slot": 88,
       "prefixLen": 4,
       "prefix": "SRC_",
       "program": "statement_recon_core"
     },
     {
+      "slot": 89,
       "prefixLen": 4,
       "prefix": "RPB_",
       "program": "report_builder_core"
     },
     {
+      "slot": 90,
       "prefixLen": 4,
       "prefix": "BDR_",
       "program": "backup_drill_core"
     },
     {
+      "slot": 91,
       "prefixLen": 4,
       "prefix": "PMC_",
       "program": "payment_clearing_core"
     },
     {
+      "slot": 92,
       "prefixLen": 4,
       "prefix": "LSC_",
       "program": "loan_schedule_core"
     },
     {
+      "slot": 93,
       "prefixLen": 4,
       "prefix": "FEE_",
       "program": "fee_core"
     },
     {
+      "slot": 94,
       "prefixLen": 4,
       "prefix": "RPT_",
       "program": "report_core"
     },
     {
+      "slot": 95,
       "prefixLen": 4,
       "prefix": "PAY_",
       "program": "payment_core"
     },
     {
+      "slot": 96,
       "prefixLen": 4,
       "prefix": "EOD_",
       "program": "eod_core"
     },
     {
+      "slot": 97,
       "prefixLen": 4,
       "prefix": "PIC_",
       "program": "payment_instruction_core"
     },
     {
+      "slot": 98,
       "prefixLen": 4,
       "prefix": "PING",
       "program": "auth_core"
     },
     {
+      "slot": 99,
       "prefixLen": 4,
       "prefix": "DSH_",
       "program": "dashboard_core"
     },
     {
+      "slot": 100,
       "prefixLen": 4,
       "prefix": "IMP_",
       "program": "import_core"
     },
     {
+      "slot": 101,
       "prefixLen": 4,
       "prefix": "FAS_",
       "program": "fixed_asset_core"
     },
     {
+      "slot": 102,
       "prefixLen": 4,
       "prefix": "CSC_",
       "program": "cost_center_core"
     },
     {
+      "slot": 103,
       "prefixLen": 4,
       "prefix": "IRC_",
       "program": "import_recon_core"
     },
     {
+      "slot": 104,
       "prefixLen": 4,
       "prefix": "ACC_",
       "program": "account_core"
     },
     {
+      "slot": 105,
       "prefixLen": 4,
       "prefix": "VEL_",
       "program": "fee_core"
     },
     {
+      "slot": 106,
       "prefixLen": 4,
       "prefix": "GLA_",
       "program": "gl_allocation_core"
     },
     {
+      "slot": 107,
       "prefixLen": 4,
       "prefix": "DEP_",
       "program": "deposit_core"
     },
     {
+      "slot": 108,
       "prefixLen": 4,
       "prefix": "COL_",
       "program": "collection_core"
     },
     {
+      "slot": 109,
       "prefixLen": 4,
       "prefix": "RFE_",
       "program": "ref_engine"
     },
     {
+      "slot": 110,
       "prefixLen": 4,
       "prefix": "PHL_",
       "program": "payment_hold_core"
     },
     {
+      "slot": 111,
       "prefixLen": 4,
       "prefix": "CLT_",
       "program": "collateral_core"
     },
     {
+      "slot": 112,
       "prefixLen": 3,
       "prefix": "RX_",
       "program": "ref_ext_core"
     },
     {
+      "slot": 113,
       "prefixLen": 3,
       "prefix": "GL_",
       "program": "gl_core"
     },
     {
+      "slot": 114,
       "prefixLen": 4,
       "prefix": "MRT_",
       "program": "merchant_core"
     },
     {
+      "slot": 115,
       "prefixLen": 4,
       "prefix": "NTP_",
       "program": "notification_template_core"
     },
     {
+      "slot": 116,
       "prefixLen": 4,
       "prefix": "RPS_",
       "program": "report_schedule_core"
     },
     {
+      "slot": 117,
       "prefixLen": 4,
       "prefix": "SLT_",
       "program": "sla_tracker_core"
     },
     {
+      "slot": 118,
       "prefixLen": 4,
       "prefix": "CCL_",
       "program": "compliance_calendar_core"
     },
     {
+      "slot": 119,
       "prefixLen": 4,
       "prefix": "LOC_",
       "program": "letter_of_credit_core"
     },
     {
+      "slot": 120,
       "prefixLen": 4,
       "prefix": "BKG_",
       "program": "bank_guarantee_core"
     },
     {
+      "slot": 121,
       "prefixLen": 4,
       "prefix": "PRL_",
       "program": "payroll_processing_core"
     },
     {
+      "slot": 122,
       "prefixLen": 4,
       "prefix": "MCS_",
       "program": "merchant_settlement_core"
     },
     {
+      "slot": 123,
       "prefixLen": 4,
       "prefix": "TXM_",
       "program": "tax_management_core"
     },
     {
+      "slot": 124,
       "prefixLen": 4,
       "prefix": "CHB_",
       "program": "chargeback_core"
     },
     {
+      "slot": 125,
       "prefixLen": 4,
       "prefix": "LOY_",
       "program": "loyalty_core"
     },
     {
+      "slot": 126,
       "prefixLen": 4,
       "prefix": "OTP_",
       "program": "phone_otp_core"
     },
     {
+      "slot": 127,
       "prefixLen": 4,
       "prefix": "IDV_",
       "program": "identity_core"
     },
     {
+      "slot": 128,
       "prefixLen": 4,
       "prefix": "SCR_",
       "program": "identity_core"
     },
     {
+      "slot": 129,
       "prefixLen": 3,
       "prefix": "FX_",
       "program": "fx_rate_core"
     },
     {
+      "slot": 130,
       "prefixLen": 5,
       "prefix": "RISK_",
       "program": "risk_core"
     },
     {
+      "slot": 131,
       "prefixLen": 5,
       "prefix": "CORP_",
       "program": "corp_core"

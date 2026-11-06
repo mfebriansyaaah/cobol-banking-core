@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { ALL_ROUTES } from '../middleware/src/routes/index.js';
-import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
 const WRITE = process.argv.includes('--write');
@@ -28,7 +28,7 @@ function resolveAction(action, entries) {
   return best;
 }
 
-const mainLogic = readFileSync(`${ROOT}/cobol/src/main_logic.cob`, 'utf8');
+const mainLogic = loadDispatchSource(ROOT);
 const { entries: dispatch, problems } = parseDispatchTable(mainLogic);
 if (problems.length) {
   console.error(`dispatch problems:\n${problems.join('\n')}`);
@@ -87,6 +87,9 @@ const registry = {
   generator: 'scripts/build_action_registry.mjs (do not hand-edit)',
   count: actions.length,
   actions,
+  dispatch: [...dispatch]
+    .sort((a, b) => a.slot - b.slot)
+    .map((e) => ({ slot: e.slot, prefix: e.prefix, prefixLen: e.prefixLen, program: e.program })),
 };
 
 if (!WRITE) {

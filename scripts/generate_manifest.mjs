@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 
@@ -20,7 +20,7 @@ const gatewayRoutes = readdirSync(routesDir)
 // Dispatch entries parsed from the table-driven dispatcher in main_logic.cob.
 // The parser is shared with check_manifest.mjs (scripts/lib/dispatch_table.mjs)
 // so the two can never disagree about the table format again.
-const mainLogic = readFileSync(path.join(cobolDir, 'main_logic.cob'), 'utf8');
+const mainLogic = loadDispatchSource(ROOT);
 const { entries: uniqueDispatch, problems } = parseDispatchTable(mainLogic);
 if (problems.length > 0) {
   for (const p of problems) console.error(`FAIL: ${p}`);
