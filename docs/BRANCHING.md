@@ -166,7 +166,7 @@ audit evidence; otherwise keep annotated release tags.
 
 - Revert the PR commit range (`git revert <range>`); never reset `main`.
 - If the train breaks `main`, pause the train, revert, then resume.
-- If a branch grows beyond 5 days or 500 lines, split it rather than keeping
+- If a branch grows beyond 5 days or 1500 lines, split it rather than keeping
   it alive.
 - For emergency hotfix, branch from the production tag/`main`, run the full
   gate, merge, tag, then resume the train.
