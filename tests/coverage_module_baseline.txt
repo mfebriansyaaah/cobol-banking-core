@@ -9,7 +9,7 @@
 
 main_logic 92
 user_core 63.34
-wallet_core 67.6
+wallet_core 56.3
 auth_core 80.51
 ref_engine 0
 gl_core 32.13
