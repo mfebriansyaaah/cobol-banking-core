@@ -236,3 +236,17 @@ print(json.dumps(out))
     assert.equal(overwrite, true, `${file} :: ${job} :: ${name} must set overwrite: true`);
   }
 });
+
+test('gateway coverage job is skipped on PRs; coverage-pr owns PR coverage (CI-009)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.match(
+    String(ci['coverage'].if || ''),
+    /github\.event_name != 'pull_request'/,
+    'coverage job must be skipped on pull requests',
+  );
+  assert.match(
+    String(ci['coverage-pr'].if || ''),
+    /github\.event_name == 'pull_request'/,
+    'coverage-pr must run on pull requests',
+  );
+});
