@@ -11,7 +11,7 @@ db_backup_drill_tests=13
 db_grants_tests=6
 db_migration_checksum_tests=6
 db_report_builder_tests=13
-gateway_tests=275
+gateway_tests=293
 db_cost_center_tests=18
 db_fixed_asset_tests=18
 db_fixed_asset_schema_tests=8
@@ -80,3 +80,5 @@ db_kyc_enforcement_tests=22
 db_screening_tests=24
 
 db_risk_tests=13
+
+db_corporate_tests=9

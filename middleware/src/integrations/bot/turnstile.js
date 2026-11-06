@@ -24,8 +24,8 @@ export async function verifyTurnstile(
     logger = null,
   } = {},
 ) {
-  if (!token) return { ok: false, code: 'missing-input-response' };
   if (!secret) return { ok: true, skipped: true };
+  if (!token) return { ok: false, code: 'missing-input-response' };
   try {
     const body = new URLSearchParams({ secret, response: token });
     if (remoteip) body.set('remoteip', remoteip);

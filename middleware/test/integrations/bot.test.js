@@ -21,6 +21,7 @@ test('skipped without secret; missing token rejected', async () => {
   try {
     assert.equal(turnstileEnabled(), false);
     assert.deepEqual(await verifyTurnstile('any', { fetchImpl: okFetch() }), { ok: true, skipped: true });
+    assert.deepEqual(await verifyTurnstile('', { fetchImpl: okFetch() }), { ok: true, skipped: true });
   } finally {
     if (saved === undefined) delete process.env.TURNSTILE_SECRET;
     else process.env.TURNSTILE_SECRET = saved;

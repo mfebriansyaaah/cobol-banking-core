@@ -2013,6 +2013,32 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "corporate.js :: GET /corporate/status": {
+    "action": "CORP_STATUS",
+    "fields": [
+      "lei",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "corporate.js :: POST /corporate/resolve": {
+    "action": "CORP_RESOLVE",
+    "fields": [
+      "lei",
+      "legalName",
+      "status",
+      "address",
+      "date",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
   "cost_center.js :: GET /finance/cost-centers": {
     "action": "CSC_LIST",
     "fields": [

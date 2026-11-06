@@ -21,6 +21,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `collateral_core` | `CLT_` | [collateral.js](../middleware/src/routes/collateral.js) | [collateral.cases](../tests/cobol/cases/collateral.cases) | [collateral_db_tests.sh](../tests/db/collateral_db_tests.sh) |
 | `collection_core` | `COL_` | [collection.js](../middleware/src/routes/collection.js) | [collection.cases](../tests/cobol/cases/collection.cases) | [collection_db_tests.sh](../tests/db/collection_db_tests.sh) |
 | `compliance_calendar_core` | `CCL_` | [compliance_calendar.js](../middleware/src/routes/compliance_calendar.js) | — | [compliance_calendar_db_tests.sh](../tests/db/compliance_calendar_db_tests.sh) |
+| `corp_core` | `CORP_` | — | — | — |
 | `cost_center_core` | `CSC_` | [cost_center.js](../middleware/src/routes/cost_center.js) | [cost_center.cases](../tests/cobol/cases/cost_center.cases) | [cost_center_db_tests.sh](../tests/db/cost_center_db_tests.sh) |
 | `dashboard_core` | `DSH_` | [dashboard.js](../middleware/src/routes/dashboard.js) | — | [dashboard_db_tests.sh](../tests/db/dashboard_db_tests.sh) |
 | `deposit_core` | `DEP_` | [deposit.js](../middleware/src/routes/deposit.js) | [deposit.cases](../tests/cobol/cases/deposit.cases) | [deposit_db_tests.sh](../tests/db/deposit_db_tests.sh) |
