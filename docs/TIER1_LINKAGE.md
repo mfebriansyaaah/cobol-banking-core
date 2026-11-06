@@ -6,14 +6,14 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T11:45:00.741Z
-- Commit: `e5023245`
+- Generated at: 2026-11-06T14:37:34.599Z
+- Commit: `b612f292`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 19 |
 | L2 (business reference) | 6 |
-| L1 (weak / untested link) | 1 |
+| L1 (weak / untested link) | 4 |
 | L0 (isolated) | 23 |
 | UTILITY | 3 |
 
@@ -50,6 +50,9 @@ Unresolved route files: none.
 | `letter_of_credit_core` | L0 | — | — | 2 | own domain tables only, no core link |
 | `loan_core` | L3 | — | — | 1 | Tier-1 core module |
 | `loan_schedule_core` | L3 | — | — | 1 | Tier-1 core module |
+| `loan_schedule_lifecycle_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `loan_schedule_posting_core` | L1 | loan_application, loan_installment, loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `loan_schedule_report_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `loyalty_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `merchant_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
 | `merchant_settlement_core` | L0 | — | — | 1 | own domain tables only, no core link |

@@ -1355,14 +1355,13 @@
       "module": "loan_schedule_core",
       "kind": "table",
       "subject": "1",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "void item: subject '1' is a numeric literal matched by the tableRefs FROM-token heuristic, not a table (PR-055 split removed the matched line)",
+        "no DDL named '1' exists in schema.sql/migrations"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "merchant_core:action:action-approve",

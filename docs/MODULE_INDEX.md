@@ -39,7 +39,10 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | — |
 | `letter_of_credit_core` | `LOC_` | [letter_of_credit.js](../middleware/src/routes/letter_of_credit.js) | [letter_of_credit.cases](../tests/cobol/cases/letter_of_credit.cases) | [letter_of_credit_db_tests.sh](../tests/db/letter_of_credit_db_tests.sh) |
 | `loan_core` | `LOAN_` | [loan.js](../middleware/src/routes/loan.js) | [loan.cases](../tests/cobol/cases/loan.cases) | [loan_db_tests.sh](../tests/db/loan_db_tests.sh) |
-| `loan_schedule_core` | `LSC_` | [loan_schedule.js](../middleware/src/routes/loan_schedule.js) | [loan_schedule.cases](../tests/cobol/cases/loan_schedule.cases) | [loan_schedule_db_tests.sh](../tests/db/loan_schedule_db_tests.sh) |
+| `loan_schedule_core` | `LSC_CREATE`, `LSC_GET`, `LSC_LIST`, `LSC_DETAIL`, `LSC_UPDATE`, `LSC_DELETE`, `LSC_SEARCH`, `LSC_HISTORY`, `LSC_VALIDATE` | [loan_schedule.js](../middleware/src/routes/loan_schedule.js) | [loan_schedule.cases](../tests/cobol/cases/loan_schedule.cases) | [loan_schedule_db_tests.sh](../tests/db/loan_schedule_db_tests.sh) |
+| `loan_schedule_lifecycle_core` | `LSC_APPROVE`, `LSC_REJECT`, `LSC_CLOSE`, `LSC_REOPEN`, `LSC_CANCEL`, `LSC_HOLD`, `LSC_RELEASE`, `LSC_STATUS` | — | — | — |
+| `loan_schedule_posting_core` | `LSC_POST`, `LSC_ACCRUE`, `LSC_SETTLE`, `LSC_CALC`, `LSC_SCHEDULED`, `LSC_FORECAST`, `LSC_OVERRIDE`, `LSC_ADJUST` | — | — | — |
+| `loan_schedule_report_core` | `LSC_SUMMARY`, `LSC_EXPORT`, `LSC_AUDIT` | — | — | — |
 | `loyalty_core` | `LOY_` | [loyalty.js](../middleware/src/routes/loyalty.js) | [loyalty.cases](../tests/cobol/cases/loyalty.cases) | — |
 | `merchant_core` | `MRT_` | [merchant.js](../middleware/src/routes/merchant.js) | [merchant.cases](../tests/cobol/cases/merchant.cases) | [merchant_db_tests.sh](../tests/db/merchant_db_tests.sh) |
 | `merchant_settlement_core` | `MCS_` | [merchant_settlement.js](../middleware/src/routes/merchant_settlement.js) | [merchant_settlement.cases](../tests/cobol/cases/merchant_settlement.cases) | [merchant_settlement_db_tests.sh](../tests/db/merchant_settlement_db_tests.sh) |
