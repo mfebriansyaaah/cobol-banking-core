@@ -32,7 +32,7 @@ export function createIdentityProvider(kind, { logger = null } = {}) {
   return {
     kind: 'mock',
     calls: mock.calls,
-    async validateNik({ nik }) {
+    async validateNik() {
       const event = { event: 'nik_validation', nik: 'redacted', approved: true };
       if (logger) logger(event);
       mock.record(event);

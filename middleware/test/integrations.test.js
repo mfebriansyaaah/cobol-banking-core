@@ -11,7 +11,7 @@ import {
 } from '../src/integrations/index.js';
 import { validateNikStructure } from '../src/integrations/identity.js';
 
-function withEnv(vars, fn) {
+async function withEnv(vars, fn) {
   const saved = {};
   for (const k of Object.keys(vars)) {
     saved[k] = process.env[k];
@@ -19,7 +19,7 @@ function withEnv(vars, fn) {
     else process.env[k] = vars[k];
   }
   try {
-    return fn();
+    return await fn();
   } finally {
     for (const k of Object.keys(vars)) {
       if (saved[k] === undefined) delete process.env[k];
@@ -97,4 +97,99 @@ test('unimplemented providers fail closed, not silent', async () => {
     const h = await p.phone.health();
     assert.equal(h.ok, false);
   });
+});
+
+test('email log provider sends and reports healthy', async () => {
+  await withEnv({ EMAIL_PROVIDER: 'log' }, async () => {
+    const p = getProviders();
+    const seen = [];
+    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const prov = createEmailProvider('log', { logger: (e) => seen.push(e) });
+    assert.equal(await prov.sendVerification({ to: 'a@t.co', purpose: 'X' }), true);
+    assert.equal(await prov.sendNotice({ to: 'a@t.co', subject: 'Hi' }), true);
+    assert.equal(seen.length, 2);
+    assert.deepEqual(await prov.health(), { ok: true, provider: 'log', detail: null });
+    assert.equal(p.email.kind, 'log');
+  });
+});
+
+test('email smtp factory builds without network', async () => {
+  await withEnv({ EMAIL_PROVIDER: 'smtp', SMTP_HOST: undefined }, async () => {
+    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const prov = createEmailProvider('smtp');
+    assert.equal(prov.kind, 'smtp');
+    const h = await prov.health();
+    assert.equal(h.provider, 'smtp');
+    // No SMTP configured: best-effort delivery reports false, no network.
+    assert.equal(await prov.sendVerification({ to: 'a@t.co', purpose: 'X', code: '1' }), false);
+    assert.equal(await prov.sendNotice({ to: 'a@t.co', subject: 's', text: 't' }), false);
+  });
+  await withEnv({ MAILPIT_HOST: 'mp', SMTP_HOST: undefined }, async () => {
+    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const prov = createEmailProvider('mailpit');
+    const h = await prov.health();
+    assert.equal(h.ok, true);
+    assert.equal(h.detail.host, 'mp');
+  });
+});
+
+test('identity local provider validates structurally', async () => {
+  await withEnv({ IDENTITY_PROVIDER: 'local' }, async () => {
+    const p = getProviders();
+    assert.equal(p.identity.kind, 'local');
+    assert.deepEqual(await p.identity.validateNik({ nik: '1234560101900001' }), {
+      ok: true,
+      reason: null,
+    });
+    assert.equal((await p.identity.validateNik({ nik: 'nope' })).ok, false);
+    assert.equal((await p.identity.health()).ok, true);
+    const { createIdentityProvider } = await import('../src/integrations/identity.js');
+    const mock = createIdentityProvider('mock');
+    assert.equal((await mock.health()).ok, true);
+  });
+});
+
+test('ocr mock extracts, local fails closed', async () => {
+  await withEnv({}, async () => {
+    const p = getProviders();
+    const r = await p.ocr.extractKtp({ imageRef: 'img-1' });
+    assert.equal(r.ok, true);
+    assert.equal(r.needsReview, false);
+    assert.equal((await p.ocr.health()).ok, true);
+    const { createOcrProvider, OCR_REVIEW_THRESHOLD } = await import('../src/integrations/ocr.js');
+    assert.equal(OCR_REVIEW_THRESHOLD, 0.85);
+    const local = createOcrProvider('local');
+    await assert.rejects(() => local.extractKtp({ imageRef: 'x' }), /not implemented yet/);
+    assert.equal((await local.health()).ok, false);
+  });
+});
+
+test('production config gaps fail fast with names', async () => {
+  await withEnv(
+    {
+      NODE_ENV: 'production',
+      EMAIL_PROVIDER: 'smtp',
+      SMTP_HOST: 'h',
+      SMTP_USER: 'u',
+      SMTP_PASS: undefined,
+      PHONE_OTP_PROVIDER: 'mock',
+    },
+    () => {
+      assert.throws(() => assertIntegrationConfig(), /SMTP_PASS/);
+    },
+  );
+  await withEnv({ NODE_ENV: 'production', EMAIL_PROVIDER: 'mailpit', SMTP_HOST: undefined }, () => {
+    assert.throws(() => assertIntegrationConfig(), /MAILPIT_HOST/);
+  });
+  await withEnv(
+    {
+      NODE_ENV: 'production',
+      EMAIL_PROVIDER: 'smtp',
+      SMTP_HOST: 'h',
+      PHONE_OTP_PROVIDER: 'mock',
+    },
+    () => {
+      assert.ok(assertIntegrationConfig().email === 'smtp');
+    },
+  );
 });

@@ -12,10 +12,12 @@ export function createEmailProvider(kind, { logger = null } = {}) {
     return {
       kind,
       async sendVerification({ to, purpose, code }) {
-        return mailer.sendVerification({ to, purpose, code });
+        // The mailer resolves undefined when undelivered; this interface
+        // promises boolean delivery reports.
+        return (await mailer.sendVerification({ to, purpose, code })) ?? false;
       },
       async sendNotice({ to, subject, text }) {
-        return mailer.sendNotice({ to, subject, text });
+        return (await mailer.sendNotice({ to, subject, text })) ?? false;
       },
       async health() {
         return safeHealth(async () => {
