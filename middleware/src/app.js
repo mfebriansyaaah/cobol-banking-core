@@ -866,6 +866,7 @@ export const ROUTES = [
 // The access token carries the user's token version and its own jti; a mismatch
 // (or a denylisted jti) means it was revoked since it was issued.
 export function buildRouter({ mailer, tokenStore } = {}) {
+  const STRING_TYPE = 'string';
   const router = express.Router();
   const authLimiter = rateLimiter({ failOpen: false });
   const apiLimiter = apiRateLimiter();
@@ -1092,8 +1093,10 @@ export function buildRouter({ mailer, tokenStore } = {}) {
         // Breached-password gate (PR-093): routes carrying a *new* password
         // opt in via `passwordField`. Breached -> 400, API down -> fail open
         // with a metric (rate limits still apply).
-        if (route.passwordField && typeof input[route.passwordField] === 'string' && input[route.passwordField]) {
-          const allowed = await assertPasswordAllowed(input[route.passwordField]);
+        const pwField = route.passwordField;
+        const candidate = pwField ? input[pwField] : '';
+        if (typeof candidate === STRING_TYPE && candidate) {
+          const allowed = await assertPasswordAllowed(candidate);
           if (!allowed) {
             res.locals.errorCode = 'BREACHED_PASSWORD';
             recordError('BREACHED_PASSWORD');
