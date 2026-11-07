@@ -51,6 +51,40 @@ test('a well-formed x-request-id is echoed for tracing', async () => {
   assert.equal(res.headers['x-request-id'], 'trace-abc.123_XYZ');
 });
 
+test('request and error lines share the caller-supplied id', async () => {
+  const lines = [];
+  const app = buildApp({ logger: (line) => lines.push(line) });
+  const res = await request(app)
+    .post('/auth/signup')
+    .set('X-Request-Id', 'join-me-001')
+    .send({ email: 'not-an-email', password: 'secret123', name: 'N', dob: '2000-01-01' });
+  assert.equal(res.status, 400);
+  assert.equal(res.headers['x-request-id'], 'join-me-001');
+  const reqLine = lines.find((l) => l.event === 'http_request');
+  const errLine = lines.find((l) => l.event === 'gateway_error');
+  assert.ok(reqLine, 'request line emitted');
+  assert.ok(errLine, 'error line emitted');
+  assert.equal(reqLine.id, 'join-me-001');
+  assert.equal(errLine.id, 'join-me-001');
+});
+
+test('a minted id joins request and error lines when none is supplied', async () => {
+  const lines = [];
+  const app = buildApp({ logger: (line) => lines.push(line) });
+  const res = await request(app)
+    .post('/auth/signup')
+    .send({ email: 'not-an-email', password: 'secret123', name: 'N', dob: '2000-01-01' });
+  assert.equal(res.status, 400);
+  const headerId = res.headers['x-request-id'];
+  assert.match(headerId, /^[0-9a-f-]{36}$/);
+  const reqLine = lines.find((l) => l.event === 'http_request');
+  const errLine = lines.find((l) => l.event === 'gateway_error');
+  assert.ok(reqLine, 'request line emitted');
+  assert.ok(errLine, 'error line emitted');
+  assert.equal(reqLine.id, headerId);
+  assert.equal(errLine.id, headerId);
+});
+
 test('a malformed or oversized x-request-id is replaced', async () => {
   const app = buildApp();
   const bad = await request(app).get('/live').set('X-Request-Id', 'x'.repeat(200));

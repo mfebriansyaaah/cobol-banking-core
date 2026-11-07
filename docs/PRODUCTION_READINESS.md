@@ -21,7 +21,7 @@
 | Data safety    | 1     | Truncation loud, drills green; **no prod KMS** (env-only), retention policy un-drilled at scale.                   |
 | Security       | 1     | Auth+owners+STRIDE+SAST/secret green, CodeQL triaged; **no pen-test**.                                             |
 | Reliability    | 1     | SLO + load budgets; **write-path unprofiled**, canary never exercised.                                             |
-| Observability  | 1     | Logs/metrics/alerts/runbooks; **no tracing**.                                                                      |
+| Observability  | 2     | Logs/metrics/alerts/runbooks + correlation-id tracing (ADR-0005); OTel rejected with topology rationale.           |
 | Change control | 1     | CI + review + rollback docs; **two-reviewer rule unevidenced** (solo maintainer).                                  |
 | Integrations   | 2     | Adapters + fallback + DPIA + quota + review queue, all evidenced.                                                  |
 | Tier-1 linkage | 1     | 39 L0/L1 all evidenced; FROZEN set awaits the retirement program.                                                  |
@@ -41,7 +41,10 @@
 1. ~~Mutation harness + ≥80% target~~ — DONE: 15/15 curated mutants killed,
    weekly `mutation.yml` (Correctness → 2).
 2. Write-path load profile + canary exercise (Reliability 1→2).
-3. Tracing (or documented decision against) (Observability 1→2).
+3. ~~Tracing (or documented decision against)~~ — DONE: correlation-id
+   tracing (observer stashes `req.requestId`, both `gateway_error` sites
+   join by id; joinability tests), OTel rejected in ADR-0005 with topology
+   rationale + residuals (Observability → 2).
 4. Prod KMS + retention drill at scale (Data safety 1→2).
 5. Pen-test (Security 1→2).
 6. Retirement program → 063/064 → re-audit linkage (Tier-1 1→2, unblocks squash).
