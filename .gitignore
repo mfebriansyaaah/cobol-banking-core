@@ -37,6 +37,9 @@ coverage/
 artifacts/
 middleware/test-results/
 
+# Pre-merge evidence artifact (scripts/ci/premerge.sh); attached to PRs, never committed.
+premerge-report.json
+
 # Python bytecode caches
 __pycache__/
 
