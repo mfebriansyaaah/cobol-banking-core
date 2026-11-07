@@ -7,7 +7,7 @@ check the box in the release PR.
 
 - [ ] Version bump (semver; `CHANGELOG.md` entry with user-visible changes).
 - [ ] Migration plan: new migrations listed, inverses verified
-  (`migration_rollback_drill.sh` green for each).
+      (`migration_rollback_drill.sh` green for each).
 - [ ] `tests/run_all.sh full` green on the release commit (all 20 gates).
 - [ ] Coverage floors hold (gateway 80/70, Tier-1 70, no stale backlog).
 

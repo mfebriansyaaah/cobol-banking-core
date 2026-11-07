@@ -10,12 +10,12 @@ owner. Areas mirror `docs/DATA_MODEL.md`: `auth`, `identity`, `money`,
 
 ## Auth matrix
 
-| Kind | Rule | Examples |
-| --- | --- | --- |
-| Public entry | `public: true` + auth limiter + captcha/breach gates where set | signup, login, forgot, verify |
-| Authenticated | token + active session | everything else by default |
-| Admin | role check in COBOL | `/admin/*` (dormancy, roles, audit) |
-| Admin step-up | fresh re-auth proof required | reviews decide, reversals, recovery approve |
+| Kind          | Rule                                                           | Examples                                    |
+| ------------- | -------------------------------------------------------------- | ------------------------------------------- |
+| Public entry  | `public: true` + auth limiter + captcha/breach gates where set | signup, login, forgot, verify               |
+| Authenticated | token + active session                                         | everything else by default                  |
+| Admin         | role check in COBOL                                            | `/admin/*` (dormancy, roles, audit)         |
+| Admin step-up | fresh re-auth proof required                                   | reviews decide, reversals, recovery approve |
 
 Mutating methods without `tokenIdentity` fail the gate unless listed in
 `tests/known_public_routes.txt` (ratchet both directions).
