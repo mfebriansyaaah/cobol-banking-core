@@ -48,7 +48,9 @@
 4. Prod KMS + retention drill at scale (Data safety 1→2) — PARTIAL: sweep
    200-object scale drill + KMS rotation pinning/runbook done; rubric
    stays 1 until a real KMS key is provisioned in staging/prod.
-5. Pen-test (Security 1→2).
+5. Pen-test (Security 1→2) — PARTIAL: in-repo adversarial pass done
+   (alg-confusion, pipe smuggling, mass assignment, log secrecy locked);
+   rubric stays 1 until an external test clears the residuals.
 6. Retirement program → 063/064 → re-audit linkage (Tier-1 1→2, unblocks squash).
 7. Second reviewer on money paths (Change control 1→2).
 

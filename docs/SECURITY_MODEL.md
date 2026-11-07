@@ -32,3 +32,22 @@ Mutating methods without `tokenIdentity` fail the gate unless listed in
 - **DoS:** per-route limiters, pool bounds, quota kill switches, outbox caps.
 - **Elevation:** role checks live in COBOL (not the gateway); permission map
   in `role_permissions`.
+
+## Adversarial pass (gap-closure #5, in-repo)
+
+An external pen-test is still required (see `docs/PRODUCTION_READINESS.md`);
+what the repo itself proves, locked in `middleware/test/security.test.js`:
+
+- Algorithm confusion complete: `none` rejected alongside non-HS256 algs.
+- Pipe/control characters in free-text fields rejected pre-COBOL.
+- Mass assignment dead: `buildParams` allowlists spec fields only, and
+  `role`/`status` extras on signup still yield a plain UNVERIFIED USER.
+- Error-path logs carry no passwords (and no raw URLs with PII).
+- Pre-existing: injection chars, body-actor spoofing, token
+  issuer/audience/purpose pinning, rotation overlap, secure-config
+  fail-fast, metrics authz.
+
+Residuals for the external test: business-logic abuse (velocity/amount
+games within valid limits), session theft outside the gateway (XSS lives
+in clients, not this API), and infra-layer vectors (TLS, headers at the
+edge proxy, DB host hardening).
