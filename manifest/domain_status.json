@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T07:14:16.751Z",
+  "generatedAt": "2026-11-07T15:40:32.176Z",
   "entries": [
     {
       "domain": "account",
@@ -48,7 +48,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from auth_core in PR-057 (mfa); equivalence via auth_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 4 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -65,7 +65,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from auth_core in PR-057 (ops); equivalence via auth_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 3 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -99,7 +99,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from auth_core in PR-057 (recovery); equivalence via auth_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 9 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -116,7 +116,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from auth_core in PR-057 (review); equivalence via auth_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 5 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -254,7 +254,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "New in PR-097; triage cache only until corporate onboarding consumes it. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage GLEIF corporate resolve/status (PR-097). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -343,7 +343,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Weak or untested link; manual review decides upgrade-to-L2 or dead-candidate.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/eod_ops_db_tests.sh (7 EODJOB assertions). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -394,7 +394,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "New in PR-091; reference data only until transfer pricing consumes it. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage FX fresh/stale e2e (nightly evidence runs). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -462,7 +462,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "New in PR-085; own tables only until KYC gates a core flow. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage KYC gates TRANSFER (mutation M11 kill) + identity/screening e2e. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -480,23 +480,6 @@
       "owner": null,
       "status": "FROZEN",
       "reason": "No proven core link; frozen pending dead-candidate evidence (PR-010F).",
-      "retireAfter": null,
-      "tableDropDate": null
-    },
-    {
-      "domain": "import",
-      "module": "import_row_core",
-      "routeFile": "import.js",
-      "table": "import_row",
-      "tier": 2,
-      "linkageLevel": "L0",
-      "linkedCoreDomains": [],
-      "replacement": null,
-      "consumer": null,
-      "trafficLastSeen": null,
-      "owner": null,
-      "status": "REVIEW",
-      "reason": "Split from import_core in PR-058 (row ops); equivalence via import_ops_db_tests.sh. Upgrade or dead-candidate after.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -535,6 +518,23 @@
       "owner": null,
       "status": "PILOT",
       "reason": "Business link proven; integration completion (PR-010E) still open before ACTIVE.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "import",
+      "module": "import_row_core",
+      "routeFile": "import.js",
+      "table": "import_row",
+      "tier": 2,
+      "linkageLevel": "L0",
+      "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "REVIEW",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/import_ops_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -602,7 +602,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from loan_schedule_core in PR-055 (lifecycle); equivalence via loan_schedule_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -619,7 +619,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from loan_schedule_core in PR-055 (posting); equivalence via loan_schedule_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -636,7 +636,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from loan_schedule_core in PR-055 (report); equivalence via loan_schedule_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 3 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (3 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -814,7 +814,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "New in PR-082b; own tables only until OTP gates a core flow (PR-085). Upgrade to L2 then or dead-candidate.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 4 gateway-dispatched action(s); coverage OTP link/issue/verify flow (PR-082b). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -882,7 +882,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "PR-058 split: run paragraphs moved to report_run_core; templates only, no core link left. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (templates). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -899,7 +899,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from report_core in PR-058 (runs); L1 on evidence-naming (covered by report_statement/report_builder suites, no basename suite). Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (runs). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -933,7 +933,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "New in PR-092; signals only until the auth slice consumes RISK_STATUS for step-up. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage geo-risk e2e (nightly evidence runs). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -1073,7 +1073,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from wallet_core in PR-056 (disputes); equivalence via wallet_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 7 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -1090,7 +1090,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from wallet_core in PR-056 (holds); equivalence via wallet_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh + mutation M10. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -1107,7 +1107,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from wallet_core in PR-056 (recon); equivalence via wallet_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -1124,7 +1124,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from wallet_core in PR-056 (reversal); equivalence via wallet_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 1 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh + mutation M3. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -1141,7 +1141,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Split from wallet_core in PR-056 (statement); equivalence via wallet_invariants_db_tests.sh. Upgrade or dead-candidate after.",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 1 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     }

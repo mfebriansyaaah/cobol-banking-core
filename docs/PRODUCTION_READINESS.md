@@ -51,7 +51,11 @@
 5. Pen-test (Security 1→2) — PARTIAL: in-repo adversarial pass done
    (alg-confusion, pipe smuggling, mass assignment, log secrecy locked);
    rubric stays 1 until an external test clears the residuals.
-6. Retirement program → 063/064 → re-audit linkage (Tier-1 1→2, unblocks squash).
+6. Retirement program → 063/064 → re-audit linkage (Tier-1 1→2, unblocks squash) — PARTIAL: re-audit done
+   (21 REVIEW adjudicated RETAIN with per-module evidence; 0 dead found — every L0/L1 owns live
+   dispatched actions + suites; statuses kept REVIEW because FROZEN means death-row candidate tracking,
+   which live code must not enter); 063/064 DEFERRED with cause (plan requires staging + DBA review, both
+   absent; executing drops/squash without them would violate PR-063's own safety rules). Rubric stays 1.
 7. Second reviewer on money paths (Change control 1→2).
 
 ## Disclaimer (binding on the label)
