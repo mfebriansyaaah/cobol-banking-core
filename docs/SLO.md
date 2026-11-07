@@ -20,15 +20,22 @@ Reference run: 600 s × 20 conns against `/health`, localhost, seeded DB
 (2026-11-05, dev machine): **3.654.333 requests, 0 errors, 0 timeouts,
 0 non-2xx, p99 6 ms**. Shutdown drain measured separately: **104 ms**.
 
-| Signal                              | Budget     | Measured (reference)                      |
-| ----------------------------------- | ---------- | ----------------------------------------- |
-| Read p95 (`/health`, balance, list) | < 300 ms   | ≤ 6 ms (bounded by p99, same run)         |
-| Read p99                            | < 600 ms   | 6 ms                                      |
-| Write p95 (transfer, login)         | < 800 ms   | not profiled at load yet                  |
-| Write p99                           | < 1.500 ms | not profiled at load yet                  |
-| Error rate                          | < 0,1%     | 0% (3,65M req, 0 non-2xx)                 |
-| DB deadlocks during load            | 0          | 0 surfaced (any deadlock fails a request) |
-| Graceful shutdown (in-flight drain) | < 10 s     | 104 ms                                    |
+| Signal                              | Budget     | Measured (reference)              |
+| ----------------------------------- | ---------- | --------------------------------- |
+| Read p95 (`/health`, balance, list) | < 300 ms   | ≤ 6 ms (bounded by p99, same run) |
+| Read p99                            | < 600 ms   | 6 ms                              |
+| Write p95 (transfer, login)         | < 800 ms   | not profiled at load yet          |
+| Write p99                           | < 1.500 ms | not profiled at load yet          |
+
+> Write-path profiling is wired into `bench.sh` (transfer + login every run;
+> no silent spawn-failure). First dev-box numbers (Nov 2026, NOT reference):
+> transfer p50/p95 12/13 ms; login p50/p95 ~1,3/1,5 s — hash-bound, above the
+> 800 ms budget even allowing hardware skew. Reference-hardware numbers and
+> the budget decision are pending; that plus a live canary keeps Reliability
+> at 1 (see `docs/PRODUCTION_READINESS.md`).
+> | Error rate | < 0,1% | 0% (3,65M req, 0 non-2xx) |
+> | DB deadlocks during load | 0 | 0 surfaced (any deadlock fails a request) |
+> | Graceful shutdown (in-flight drain) | < 10 s | 104 ms |
 
 ## Regression rule
 

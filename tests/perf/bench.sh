@@ -27,6 +27,9 @@ trap 'rm -rf "$WORKDIR"' EXIT
 export DB_HOST="${DB_HOST:-localhost}" DB_PORT="${DB_PORT:-3306}"
 export DB_USER="${DB_USER:-cobol_user}" DB_PASS="${DB_PASS:-cobol_pass}"
 export DB_NAME="${DB_NAME:-cobol_db}"
+# A missing binary would otherwise benchmark spawn failures (the || true
+# below hides them): fail fast instead.
+[ -x "$ROOT/cobol/bin/main_logic" ] || { echo "FAIL: build first (./build.sh); no binary at cobol/bin/main_logic" >&2; exit 1; }
 
 # percentile <p> <sorted-file>: nearest-rank from a sorted sample file.
 pct() {
@@ -36,7 +39,39 @@ pct() {
 json='{'
 first_action=1
 failed=0
-for action in "PING" "GLA_LIST|||50|0||admin@test.com" "BDR_LIST|||50|0||admin@test.com"; do
+
+# Write-path fixtures (PR gap-closure #2): namespaced users, funded once,
+# fully cleaned afterwards so nightly neighbors never see them.
+bench_setup() {
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/cobol.sh"
+    db_seed
+    WA="benchwA@test.com"
+    WB="benchwB@test.com"
+    db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}')));"
+    db_exec "DELETE FROM pending_transactions WHERE from_email IN ('${WA}','${WB}') OR to_email IN ('${WA}','${WB}');"
+    db_exec "DELETE FROM audit_trail WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}'));"
+    db_exec "DELETE FROM verification_logs WHERE email IN ('${WA}','${WB}');"
+    db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}'));"
+    db_exec "DELETE FROM users WHERE email IN ('${WA}','${WB}');"
+    for U in "$WA" "$WB"; do
+        run_cobol "REQUEST_SIGNUP|${U}|BenchPass123|Bench W|1990-01-01" >/dev/null
+        code="$(db_query "SELECT code FROM verification_logs WHERE email='${U}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
+        run_cobol "VERIFY_EMAIL|${U}|${code}" >/dev/null
+        db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 100000.00 FROM users WHERE email='${U}';"
+    done
+}
+
+bench_cleanup() {
+    db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}')));"
+    db_exec "DELETE FROM pending_transactions WHERE from_email IN ('${WA}','${WB}') OR to_email IN ('${WA}','${WB}');"
+    db_exec "DELETE FROM audit_trail WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}'));"
+    db_exec "DELETE FROM verification_logs WHERE email IN ('${WA}','${WB}');"
+    db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}'));"
+    db_exec "DELETE FROM users WHERE email IN ('${WA}','${WB}');"
+}
+
+measure_action() {
   samples="$(mktemp "${TMPDIR:-/tmp}/bench-samples.XXXXXX")"
   min=999999999
   max=0
@@ -44,7 +79,7 @@ for action in "PING" "GLA_LIST|||50|0||admin@test.com" "BDR_LIST|||50|0||admin@t
   n=0
   for _ in $(seq 1 "$ITERS"); do
     start=$(date +%s%N)
-    printf '%s\n' "$action" > "$WORKDIR/input.txt"
+    printf '%s\n' "$(gen_action)" > "$WORKDIR/input.txt"
     ( cd "$WORKDIR" && "$ROOT/cobol/bin/main_logic" >/dev/null 2>&1 ) || true
     end=$(date +%s%N)
     elapsed=$(( (end - start) / 1000000 ))
@@ -94,7 +129,27 @@ for action in "PING" "GLA_LIST|||50|0||admin@test.com" "BDR_LIST|||50|0||admin@t
       fi
     fi
   fi
+}
+
+for action in "PING" "GLA_LIST|||50|0||admin@test.com" "BDR_LIST|||50|0||admin@test.com"; do
+  gen_action() { printf '%s' "$action"; }
+  measure_action
 done
+
+# Write path (gap-closure #2): transfers + logins profiled with real writes
+# against namespaced fixtures. New keys have no reference baseline yet, so
+# they report without gating (zero baseline never fails by design).
+bench_setup
+trap 'bench_cleanup; rm -rf "$WORKDIR"' EXIT
+i=0
+gen_action() { i=$((i + 1)); printf 'TRANSFER|benchwA@test.com|benchwB@test.com|1.00|BENCH-%d|||' "$i"; }
+action="TRANSFER|benchwA@test.com|benchwB@test.com|1.00|BENCH-i|||"
+measure_action
+gen_action() { printf 'AUTH_LOGIN|benchwA@test.com|BenchPass123||'; }
+action="AUTH_LOGIN|benchwA@test.com|BenchPass123||"
+measure_action
+bench_cleanup
+trap 'rm -rf "$WORKDIR"' EXIT
 json="$json}"
 printf '%s' "$json" | node -e "let s='';process.stdin.on('data',(c)=>s+=c).on('end',()=>{const d=JSON.parse(s);d.generatedAt=new Date().toISOString();d.iters=Number(process.env.ITERS||100);require('fs').writeFileSync(process.argv[1],JSON.stringify(d,null,2)+'\n');})" "$LAST"
 
