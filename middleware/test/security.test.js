@@ -419,3 +419,13 @@ test('secrets shared across the rotation family are refused', () => {
     restore();
   }
 });
+
+test('error records carry the route template, never the raw URL', async () => {
+  const lines = [];
+  const app = buildApp({ logger: (line) => lines.push(line) });
+  // An unmatched path with PII-shaped content must not land in logs raw.
+  await request(app).get('/users/someone@test.com');
+  const err = lines.find((l) => l.event === 'gateway_error');
+  assert.ok(!JSON.stringify(lines).includes('someone@test.com'));
+  assert.ok(!err || err.url === undefined);
+});

@@ -397,7 +397,9 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
     recordError(code);
     // Fail-open forensics: tests build the app without a logger, so an
     // unmapped 500 would otherwise leave only {"error":"INTERNAL"} with no
-    // cause. stderr never touches the HTTP body or the COBOL pipe.
+    // cause. stderr never touches the HTTP body or the COBOL pipe. The URL
+    // is never logged raw (paths/queries may carry emails or tokens): log
+    // the matched route template instead, like the request observer does.
     const record = {
       ts: new Date().toISOString(),
       level: 'error',
@@ -405,7 +407,7 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
       code,
       status,
       method: _req && _req.method,
-      url: _req && _req.originalUrl,
+      route: (_req && _req.route && _req.route.path) || 'unmatched',
       message: err && err.message,
       stack: err && err.stack,
     };
