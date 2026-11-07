@@ -1,10 +1,16 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { buildApp, trustProxyWarning } from '../src/app.js';
 import { assertSecureConfig, verifyAccess, verifyRefresh, verifyStepUp } from '../src/auth.js';
-import { getVerificationCode } from './support.js';
+import { buildParams, PATTERNS } from '../src/validation.js';
+import { getVerificationCode, testNamespace, uniqueEmail, cleanupNamespace, queryScalar } from './support.js';
+
+// Per-file fixture namespace with cleanup (see gateway.test.js).
+const NS = testNamespace('sec');
+const U = (tag) => uniqueEmail(NS, tag);
+after(() => { cleanupNamespace(NS); });
 
 test('security headers are set on responses', async () => {
   const app = buildApp();
@@ -428,4 +434,54 @@ test('error records carry the route template, never the raw URL', async () => {
   const err = lines.find((l) => l.event === 'gateway_error');
   assert.ok(!JSON.stringify(lines).includes('someone@test.com'));
   assert.ok(!err || err.url === undefined);
+});
+
+test('a none-algorithm token is rejected', async () => {
+  const app = buildApp();
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const forged = `${b64({ alg: 'none', typ: 'JWT' })}.${b64({ email: 'none@test.com' })}.`;
+  const res = await request(app).get('/users').set('Authorization', `Bearer ${forged}`);
+  assert.equal(res.status, 401);
+  assert.equal(res.body.error, 'INVALID_TOKEN');
+});
+
+test('pipe and control characters in free-text fields are rejected', async () => {
+  const app = buildApp();
+  for (const [tag, name] of [['pipe', 'Pipe|Smuggle'], ['nl', 'New\nLine'], ['cr', 'Carriage\rReturn']]) {
+    const res = await request(app)
+      .post('/auth/signup')
+      .send({ email: U(`free-${tag}`), password: 'secret123', name, dob: '1990-01-01' });
+    assert.equal(res.status, 400);
+    assert.equal(res.body.error, 'INVALID_PARAMETER');
+  }
+});
+
+test('mass assignment: undeclared body fields never reach the core', () => {
+  const spec = { fields: [{ name: 'email', pattern: PATTERNS.EMAIL, required: true }] };
+  assert.deepEqual(buildParams(spec, { email: 'a@test.com', role: 'SUPER_ADMIN', actor: 'root@test.com' }), [
+    'a@test.com',
+  ]);
+});
+
+test('mass assignment over HTTP: role/status extras do not escalate signup', async () => {
+  const app = buildApp();
+  const em = U('mass');
+  const res = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Mass', dob: '1990-01-01', role: 'SUPER_ADMIN', status: 'VERIFIED' });
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.data, ['USER_CREATED']);
+  assert.equal(queryScalar(`SELECT role FROM users WHERE email='${em}';`), 'USER');
+  assert.equal(queryScalar(`SELECT status FROM users WHERE email='${em}';`), 'UNVERIFIED');
+});
+
+test('passwords never appear in emitted log lines', async () => {
+  const lines = [];
+  const app = buildApp({ logger: (line) => lines.push(JSON.stringify(line)) });
+  const bad = await request(app)
+    .post('/auth/signup')
+    .send({ email: 'not-an-email', password: 'Sup3rSecret-PW', name: 'N', dob: '2000-01-01' });
+  assert.equal(bad.status, 400);
+  assert.ok(lines.length > 0, 'error path emits log lines');
+  assert.ok(lines.every((l) => !l.includes('Sup3rSecret-PW')));
 });
