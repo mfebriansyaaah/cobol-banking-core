@@ -55,7 +55,7 @@ export const ROUTES = [...ALL_ROUTES];
 // Response mappers and helpers live in responseMappers.js.
 // The access token carries the user's token version and its own jti; a mismatch
 // (or a denylisted jti) means it was revoked since it was issued.
-export function buildRouter({ mailer, tokenStore } = {}) {
+export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
   const STRING_TYPE = 'string';
   const router = express.Router();
   const authLimiter = rateLimiter({ failOpen: false });
@@ -314,6 +314,26 @@ export function buildRouter({ mailer, tokenStore } = {}) {
           recordError(body.error);
           if (AUTH_FAILURE_CODES.has(body.error)) recordAuthFailure(body.error);
         }
+        // Fail-open forensics for COBOL-mapped 5xx: these never throw, so the
+        // error-handler logger never sees them. Log action + code only (no
+        // PII: neither the concrete URL nor the body fields are recorded).
+        if (status >= 500) {
+          const record = {
+            ts: new Date().toISOString(),
+            level: 'error',
+            event: 'gateway_error',
+            code: body && body.error,
+            status,
+            method: req.method,
+            route: route.path,
+            action: route.action,
+          };
+          if (logger) {
+            logger(record);
+          } else {
+            process.stderr.write(JSON.stringify(record) + '\n');
+          }
+        }
         const mapper = status === 200 ? RESPONSE_MAPPERS[route.action] : null;
         if (mapper) {
           return res.status(status).json(await mapper(body, input, { mailer, req }));
@@ -372,7 +392,9 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
   // Legitimate bodies are under a kilobyte (short credential/profile fields);
   // reject anything larger before it costs parsing memory or reaches COBOL.
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20kb' }));
-  app.use(buildRouter({ mailer: mailer || createMailer({ logger }), tokenStore: tokenStore || createTokenStore() }));
+  app.use(
+    buildRouter({ mailer: mailer || createMailer({ logger }), tokenStore: tokenStore || createTokenStore(), logger }),
+  );
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
     let status = 500;
