@@ -420,3 +420,7 @@ the two env entries with owner and expiry.
 ## G1 ci:full override proof (2026-11-06)
 
 - Proof PR touches docs only but carries the `ci:full` label to force `docs_only=false` (full run).
+
+## G1 option-A fast-path proof (2026-11-07)
+
+- Proof PR touches docs only; option A (D3 revised) skips `test` + `db-snapshot` too. Expect wall <=3 min.
