@@ -150,7 +150,7 @@ suites, table cases, and the action/suite inventory gates. See
 | Gateway route files | **53** |
 | Gateway route definitions | **568** |
 | Dispatch entries | **193** |
-| Recorded migrations | **663** |
+| Recorded migrations | **664** |
 | Tables in schema.sql | **479** |
 <!-- END GENERATED STATS -->
 

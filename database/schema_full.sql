@@ -28874,6 +28874,7 @@ CREATE TABLE `refresh_sessions` (
   PRIMARY KEY (`jti`),
   KEY `idx_refresh_family` (`family`),
   KEY `fk_refresh_user` (`email`),
+  KEY `idx_refresh_expires` (`expires_at`),
   CONSTRAINT `fk_refresh_user` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
