@@ -141,6 +141,10 @@ function requestIdFor(req) {
 export function createRequestObserver({ logger = null } = {}) {
   return function observe(req, res, next) {
     const id = requestIdFor(req);
+    // Stash the id on the request so downstream handlers and the error
+    // middleware can include it: without this the id exists only in the
+    // response header and the http_request line and cannot join anything.
+    req.requestId = id;
     res.set('X-Request-Id', id);
     const start = performance.now();
 

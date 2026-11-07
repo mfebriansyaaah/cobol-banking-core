@@ -322,6 +322,8 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
             ts: new Date().toISOString(),
             level: 'error',
             event: 'gateway_error',
+            // Joinable to the http_request line (ADR-0005).
+            id: req.requestId || null,
             code: body && body.error,
             status,
             method: req.method,
@@ -426,6 +428,11 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
       ts: new Date().toISOString(),
       level: 'error',
       event: 'gateway_error',
+      // Same id as the http_request line and X-Request-Id header, so an
+      // error joins to its request (ADR-0005). Null when the observer never
+      // ran (e.g. a body-parser rejection ahead of it is impossible today —
+      // the observer is first — but defensiveness here is free).
+      id: (_req && _req.requestId) || null,
       code,
       status,
       method: _req && _req.method,
