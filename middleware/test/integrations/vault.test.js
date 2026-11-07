@@ -11,7 +11,7 @@ import {
   vaultConfig,
 } from '../../src/integrations/documents/storage.js';
 import { scanBuffer } from '../../src/integrations/documents/scan.js';
-import { retentionDue } from '../../src/integrations/documents/retention.js';
+import { retentionDue, sweepRetention } from '../../src/integrations/documents/retention.js';
 import { resetBreakers } from '../../src/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
@@ -154,4 +154,81 @@ test('vaultConfig reads env; signRequest carries method in scope', () => {
     mime: 'image/png',
   });
   assert.match(h.Authorization, /SignedHeaders=.*content-type/);
+});
+
+test('KMS key id pins at write time (rotation safety)', async () => {
+  resetBreakers();
+  const seen = [];
+  const put = (kmsKeyId) =>
+    putObject(
+      { key: 'ktp/rot', bytes: PNG, mime: 'image/png' },
+      {
+        cfg: { ...CFG, kmsKeyId },
+        fetchImpl: fakeS3(async (url, opts) => {
+          seen.push(opts.headers);
+          return { ok: true, status: 200 };
+        }),
+      },
+    );
+  // Stored under key A, the record pins A even after config moves to B.
+  const a = await put('kms-A');
+  assert.equal(a.kmsKeyId, 'kms-A');
+  assert.equal(seen[0]['x-amz-server-side-encryption-aws-kms-key-id'], 'kms-A');
+  const b = await put('kms-B');
+  assert.equal(b.kmsKeyId, 'kms-B');
+  assert.equal(seen[1]['x-amz-server-side-encryption-aws-kms-key-id'], 'kms-B');
+  assert.equal(a.kmsKeyId, 'kms-A');
+  // Without a key id there are no SSE headers and the record says so: the
+  // dev-vs-prod boundary is visible, never silent.
+  const plain = await put('');
+  assert.equal(plain.kmsKeyId, null);
+  assert.equal(seen[2]['x-amz-server-side-encryption'], undefined);
+});
+
+test('retention sweep at scale deletes exactly the due set', async () => {
+  const now = new Date('2026-11-06T00:00:00Z').getTime();
+  const old = '2026-09-01';
+  const recent = '2026-11-05';
+  const objects = [];
+  for (let i = 0; i < 200; i += 1) {
+    const kind = i % 4;
+    objects.push({
+      key: `ktp/obj-${i}`,
+      sha256: `hash-${i}`,
+      storedAt: kind === 0 || kind === 1 ? old : recent,
+      legalHold: kind === 1,
+      infected: kind === 3,
+    });
+  }
+  // kind 0 (expired, 50) + kind 3 (infected, 50) are due; kind 1 is held,
+  // kind 2 is recent. The deleter fails on one due key to prove a single
+  // failure is reported, not fatal.
+  const deletedKeys = [];
+  const audit = [];
+  const summary = await sweepRetention(objects, {
+    now,
+    deleteOne: async (key) => {
+      if (key === 'ktp/obj-0') throw new Error('S3 503');
+      deletedKeys.push(key);
+      return true;
+    },
+    logger: (line) => audit.push(line),
+  });
+  assert.equal(summary.checked, 200);
+  assert.equal(summary.deleted.length, 99);
+  assert.equal(summary.failed.length, 1);
+  assert.equal(summary.failed[0].key, 'ktp/obj-0');
+  assert.equal(summary.kept.length, 100);
+  assert.ok(
+    deletedKeys.every(
+      (k) => Number(k.slice('ktp/obj-'.length)) % 4 !== 1 && Number(k.slice('ktp/obj-'.length)) % 4 !== 2,
+    ),
+  );
+  assert.ok(!deletedKeys.includes('ktp/obj-1'), 'legal hold survives');
+  assert.ok(deletedKeys.includes('ktp/obj-3'), 'infected goes even when recent');
+  // Audit lines carry key + hash, never bytes.
+  const delLines = audit.filter((l) => l.event === 'retention_deleted');
+  assert.equal(delLines.length, 99);
+  assert.ok(delLines.every((l) => l.key && l.sha256 && !('bytes' in l)));
+  assert.equal(audit.filter((l) => l.event === 'retention_delete_failed').length, 1);
 });
