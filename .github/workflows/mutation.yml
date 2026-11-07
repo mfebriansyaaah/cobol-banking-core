@@ -1,0 +1,66 @@
+name: Mutation
+
+# Money-path mutation gate (gap-closure #1): each listed mutant neuters one
+# guard; the mapped suite MUST fail. Any survivor fails the run. Weekly
+# (each mutant rebuilds + runs suites) plus manual dispatch.
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mutants:
+    name: money-path mutants
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_USER: cobol_user
+      DB_PASS: cobol_pass
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gnucobol libmysqlclient-dev build-essential mariadb-client \
+            git python3 nodejs npm
+          npm ci --prefix middleware --no-audit --no-fund
+
+      - name: Seed test database
+        run: |
+          mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
+          ./database/migrate.sh
+
+      - name: Run money-path mutants
+        run: bash tests/probes/money_path_mutants.sh

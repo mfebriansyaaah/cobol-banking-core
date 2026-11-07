@@ -77,7 +77,7 @@ db_identity_tests=27
 
 db_kyc_enforcement_tests=22
 
-db_screening_tests=24
+db_screening_tests=26
 
 db_risk_tests=13
 

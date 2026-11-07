@@ -75,6 +75,8 @@ assert_match "confirmed opens review" "$(run_cobol "SCR_SCREEN|${V}|qhash4|CONFI
 assert_match "status confirmed" "$(run_cobol "SCR_STATUS|${V}|||||${V}")" "SUCCESS\|SCREEN_STATUS\|CONFIRMED_MATCH"
 assert_match "kind filter lists screening" "$(run_cobol "IDV_REVIEW_LIST||SCREENING||||${A}")" "SCREENING"
 assert_match "kind filter excludes kyc" "$(run_cobol "IDV_REVIEW_LIST||KYC||||${A}")" "SUCCESS\|REVIEWS\|$"
+assert_match "stranger cannot list" "$(run_cobol "IDV_REVIEW_LIST||||||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "stranger cannot list filtered" "$(run_cobol "IDV_REVIEW_LIST||SCREENING||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 cleanup
 

@@ -40,10 +40,9 @@ run_mutant() { # $1=id $2=desc $3=suites...
     shift 2
     echo "=== MUTANT $id: $desc ==="
     if ! ./build.sh >/tmp/mutant_build.log 2>&1; then
-        echo "MUTANT $id: BUILD FAILED (mutant does not compile?)"
+        echo "MUTANT $id: BUILD BROKEN (mutant does not compile — harness bug, not a suite gap)"
         tail -5 /tmp/mutant_build.log
-        FAIL=$((FAIL + 1))
-        return 0
+        exit 1
     fi
     local s failed=0
     for s in "$@"; do
@@ -76,6 +75,8 @@ PYEOF
 
 W=cobol/src/wallet_core.cob
 G=cobol/src/gl_core.cob
+WR=cobol/src/wallet_reversal_core.cob
+WH=cobol/src/wallet_hold_core.cob
 
 # M1: drop TRANSFER balance check.
 mutate "$W"
@@ -107,8 +108,8 @@ run_mutant "M2" "no idempotency flags (both sites)" tests/db/wallet_invariants_d
 restore_all
 
 # M3: drop already-reversed early exit (double reversal succeeds).
-mutate "$W"
-py_patch "$W" \
+mutate "$WR"
+py_patch "$WR" \
 '            ELSE
                 MOVE "ERROR|ALREADY_REVERSED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -179,19 +180,119 @@ run_mutant "M8" "mislabelled transfer audit" tests/db/wallet_invariants_db_tests
 restore_all
 
 # M10: drop hold-release state update.
-mutate "$W"
-py_patch "$W" \
+mutate "$WH"
+py_patch "$WH" \
 '            MOVE "UPDATE account_holds SET state = '"'"'RELEASED'"'"' WHERE hold_id = ?" TO WS-PREP-SQL' \
 '      *>MUTANT M10*             MOVE "UPDATE account_holds SET state = '"'"'RELEASED'"'"' WHERE hold_id = ?" TO WS-PREP-SQL' 1
 run_mutant "M10" "no hold release" tests/db/admin_shell_db_tests.sh
 restore_all
 
+# JS mutants (gateway hooks): no COBOL rebuild needed; the mapped node suite
+# must fail. Residue check at the end covers middleware/ too.
+run_js_mutant() { # $1=id $2=desc $3=node-test-file...
+    local id="$1" desc="$2"
+    shift 2
+    echo "=== MUTANT $id: $desc ==="
+    local failed=0
+    local s
+    for s in "$@"; do
+        if ( cd middleware && node --import ./preload.mjs --test --test-reporter=dot "$s" >/tmp/mutant_js.log 2>&1 ); then
+            : # suite passed despite mutant
+        else
+            failed=1
+        fi
+    done
+    if [ "$failed" = "1" ]; then
+        echo "MUTANT $id: KILLED (suite failed as required)"
+        PASS=$((PASS + 1))
+    else
+        echo "MUTANT $id: SURVIVED (no test caught it) <-- INVESTIGATE"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+I=middleware/src/app.js
+C=cobol/src/sql_bridge.c
+IDV=cobol/src/identity_core.cob
+
+# M11: drop the TRANSFER KYC gate (large transfers flow unverified).
+mutate "$W"
+py_patch "$W" \
+'                IF WS-RESULT NOT = "APPROVED"
+                    MOVE "ERROR|KYC_REQUIRED" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF' \
+'                IF WS-RESULT NOT = "APPROVED"
+                    CONTINUE *>MUTANT M11 no-op (was KYC_REQUIRED refusal)' 1
+run_mutant "M11" "no transfer KYC gate" tests/db/kyc_enforcement_db_tests.sh
+restore_all
+
+# M12: screening gate always passes (APPROVED without CLEAR).
+mutate "$IDV"
+py_patch "$IDV" \
+'            IF WS-HAS-SCREENING = "N"
+                MOVE "SUCCESS|KYC_PENDING|SCREENING" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF' \
+'            IF WS-HAS-SCREENING = "N"
+                CONTINUE *>MUTANT M12 no-op (was SCREENING gate)' 1
+run_mutant "M12" "no screening gate" tests/db/screening_db_tests.sh
+restore_all
+
+# M13: review list needs no admin (stranger enumerates the queue). The
+# FORBIDDEN branch becomes a no-op (structure kept so it still compiles).
+mutate "$IDV"
+py_patch "$IDV" \
+'            PERFORM CHECK-ADMIN
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM2 = SPACES' \
+'            PERFORM CHECK-ADMIN
+            IF WS-ALLOWED NOT = 1
+                CONTINUE *>MUTANT M13 no-op (was FORBIDDEN refusal)
+            END-IF.
+            IF LS-PARAM2 = SPACES' 1
+run_mutant "M13" "no review-list auth" tests/db/screening_db_tests.sh
+restore_all
+
+# M14: pwned hook always allows (breached password signs up).
+mutate "$I"
+py_patch "$I" \
+'          const allowed = await assertPasswordAllowed(candidate);' \
+'          const allowed = true; // MUTANT M14 (was assertPasswordAllowed)' 1
+run_js_mutant "M14" "no breached-password gate" test/integrations/pwned.test.js
+restore_all
+
+# M15: captcha hook skipped (bot signs up freely).
+mutate "$I"
+py_patch "$I" \
+'        if (route.captcha) {' \
+'        if (false) { // MUTANT M15 (was route.captcha)' 1
+run_js_mutant "M15" "no captcha gate" test/integrations/bot.test.js
+restore_all
+
+# M16: silent truncation returns (no RESULT_TRUNCATED marker, both sites).
+mutate "$C"
+py_patch "$C" \
+'        if (g_truncated) strncpy(G_RESULT, "ERROR|RESULT_TRUNCATED", RES_CAP);' \
+'        if (g_truncated) {} // MUTANT M16: swallow (was RESULT_TRUNCATED)' 1
+py_patch "$C" \
+'    if (g_truncated) {
+        strncpy(G_RESULT, "ERROR|RESULT_TRUNCATED", RES_CAP);
+    } else if (first_row) {' \
+'    if (g_truncated) {} // MUTANT M16: swallow (was RESULT_TRUNCATED)
+    else if (first_row) {' 1
+run_mutant "M16" "silent truncation" tests/db/truncation_db_tests.sh
+restore_all
+
 echo "=== rebuilding pristine tree ==="
 ./build.sh >/tmp/mutant_rebuild.log 2>&1 || { echo "FINAL REBUILD FAILED"; tail -5 /tmp/mutant_rebuild.log; exit 1; }
-if git diff --quiet -- cobol/; then
+if git diff --quiet -- cobol/ middleware/; then
     echo "tree clean (no mutant residue)"
 else
-    echo "RESIDUE IN COBOL TREE:"; git diff --stat -- cobol/; exit 1
+    echo "RESIDUE IN TREE:"; git diff --stat -- cobol/ middleware/; exit 1
 fi
 echo "=== MUTANTS: $PASS killed, $FAIL survived ==="
 [ "$FAIL" -eq 0 ]
