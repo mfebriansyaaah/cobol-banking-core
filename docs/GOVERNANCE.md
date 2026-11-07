@@ -22,8 +22,15 @@ Every change to `main` must satisfy all of the following:
 2. **Green CI.** The GitHub Actions `build` and `test` jobs must pass.
 3. **Local pre-merge gate.** `bash scripts/ci/premerge.sh` must pass on the
    exact commit being merged.
-4. **Review.** At least one approval is required. Two approvals are required
-   for money paths: wallet, auth, payments, treasury, GL, and settlement.
+4. **Review.** At least one approval is required (enforced by branch
+   protection together with code-owner review). The two-approvals-for-money-paths
+   aspiration cannot be satisfied by two distinct people while the project
+   has a solo human maintainer, so money-path PRs (wallet, auth, payments,
+   treasury, GL, settlement) operate under the solo rule instead:
+   the enforced code-owner approval, plus a recorded author second pass in
+   the PR body, plus green money-path gates (equivalence + mutation suites
+   in CI). See the exception below and `docs/OWNERSHIP.md` (expiry
+   2026-12-04).
 5. **Code owners.** Changes must be reviewed by the owner listed in
    `.github/CODEOWNERS`.
 6. **No admin bypass.** The owner must not merge with failing checks even
@@ -81,6 +88,20 @@ Any exception must be recorded in the pull request description with:
 - the approver.
 
 Silent exceptions are not permitted.
+
+### Standing exception: money-path second human reviewer (accepted 2026-11-07, expiry 2026-12-04)
+
+- Reason: solo human maintainer; the two-distinct-approvals rule for money
+  paths cannot be satisfied.
+- Compensating controls: (a) the enforced 1 code-owner approval operates on
+  every PR — audited 2026-11-07, PRs #567, #572, #574, #577, #580, #581,
+  #584, #586, #589, #590, #592, #593, #594, #595 all carry the
+  `@get-money-first` approval (query: `gh pr view <n> --json reviews`);
+  (b) author second pass recorded in money-path PR bodies; (c) automated
+  money-path gates (equivalence + mutation suites) green in CI before merge.
+- Approver: `@mfebriansyaaah`.
+- Expiry: 2026-12-04, shared with the ownership exception in
+  `docs/OWNERSHIP.md`. Revisit when a second human reviewer joins.
 
 ## Enforcement notes
 
