@@ -271,3 +271,17 @@ else
 fi
 
 echo "=== PREMERGE GREEN ==="
+
+# Machine-readable evidence artifact (PR-074): attach premerge-report.json
+# to the PR as merge evidence (branch protection records the approval; this
+# records what was verified, on which commit, with which suite depth).
+COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+cat > premerge-report.json <<EOF
+{
+  "commit": "$COMMIT",
+  "at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "modes": { "docs": "$DOCS", "probes": "$PROBES", "full": "$FULL" },
+  "result": "GREEN"
+}
+EOF
+echo "wrote premerge-report.json ($COMMIT)"

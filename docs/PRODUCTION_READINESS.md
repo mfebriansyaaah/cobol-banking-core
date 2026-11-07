@@ -1,0 +1,54 @@
+# Production Readiness — Final Audit (PR-075)
+
+> Verdict: **NOT CERTIFIED** — ship the fixes below first. This document is
+> the audit, not the label. Per plan, the `production-grade` label lands only
+> with all criteria met **plus** the free-vs-paid disclaimer.
+
+## Structure (verified this audit)
+
+- 0 ACTIVE L0/L1 modules without exception (all L0/L1 are FROZEN-by-decision
+  or REVIEW-tracked with reasons).
+- 545/545 actions mapped (registry), 193/193 dispatch slots generated,
+  505 OpenAPI paths, 20/20 static gates green.
+- Backlog 247 items recomputed clean; every WAIVED has owner + evidence.
+
+## Scores (0–2 per rubric area)
+
+| Area           | Score | Evidence / gap                                                                                   |
+| -------------- | ----- | ------------------------------------------------------------------------------------------------ |
+| Correctness    | 1     | All actions shell-covered (gates green); **no mutation tooling** → PR lanjutan.                  |
+| Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, Tier-1 floor holds with 4 backlog entries.                 |
+| Data safety    | 1     | Truncation loud, drills green; **no prod KMS** (env-only), retention policy un-drilled at scale. |
+| Security       | 1     | Auth+owners+STRIDE+SAST/secret green, CodeQL triaged; **no pen-test**.                           |
+| Reliability    | 1     | SLO + load budgets; **write-path unprofiled**, canary never exercised.                           |
+| Observability  | 1     | Logs/metrics/alerts/runbooks; **no tracing**.                                                    |
+| Change control | 1     | CI + review + rollback docs; **two-reviewer rule unevidenced** (solo maintainer).                |
+| Integrations   | 2     | Adapters + fallback + DPIA + quota + review queue, all evidenced.                                |
+| Tier-1 linkage | 1     | 39 L0/L1 all evidenced; FROZEN set awaits the retirement program.                                |
+
+## Evidence runs (this branch)
+
+- `tests/run_all.sh full` (CI): build, 20 static gates, DB shards, gateway,
+  drills (backup/restore, rollback, drift), perf budgets.
+- Integration: email OTP (Mailpit), identity KYC E2E, screening/false-positive,
+  FX fresh/stale, geo risk, pwned gate, Turnstile gate, ops ping, vault AV,
+  GLEIF cache — suites green, listed in `docs/STATUS.md`.
+- Hardening: secrets fail-fast, SPF/DKIM/DMARC script, DPIA, quota alerts,
+  review queue (step-up), KYC enforcement (transfer + disburse).
+
+## Gap PRs (certification blockers, in order)
+
+1. Mutation harness + ≥80% target (Correctness 1→2).
+2. Write-path load profile + canary exercise (Reliability 1→2).
+3. Tracing (or documented decision against) (Observability 1→2).
+4. Prod KMS + retention drill at scale (Data safety 1→2).
+5. Pen-test (Security 1→2).
+6. Retirement program → 063/064 → re-audit linkage (Tier-1 1→2, unblocks squash).
+7. Second reviewer on money paths (Change control 1→2).
+
+## Disclaimer (binding on the label)
+
+Free-tier providers (Frankfurter, ipapi, Pwned, Turnstile-free, Healthchecks,
+ntfy, MinIO-single-node, community ClamAV, GLEIF) are demo/staging grade.
+Production money movement needs paid/compliant equivalents per
+`docs/INTEGRATION_HARDENING.md` — the label never implies otherwise.

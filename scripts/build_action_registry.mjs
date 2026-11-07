@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { ALL_ROUTES } from '../middleware/src/routes/index.js';
 import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
+import { ownerFor } from './lib/route_owners.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
 const WRITE = process.argv.includes('--write');
@@ -57,6 +58,7 @@ for (const r of ALL_ROUTES) {
   }
   const hit = resolveAction(r.action, dispatch);
   const info = (hit && byModule.get(hit.program)) || {};
+  const owned = ownerFor(r.path);
   const entry = {
     action: r.action,
     module: hit ? hit.program : null,
@@ -68,6 +70,8 @@ for (const r of ALL_ROUTES) {
     public: Boolean(r.public),
     stepUp: Boolean(r.stepUp || r.stepUpPolicy),
     tokenIdentity: r.tokenIdentity || null,
+    owner: owned ? owned.owner : null,
+    authPolicy: owned ? owned.policy : null,
     linkageLevel: info.linkageLevel || null,
     t1Actions: info.t1Actions || [],
     t1Calls: info.t1Calls || [],

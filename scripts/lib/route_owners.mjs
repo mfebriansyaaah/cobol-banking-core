@@ -1,0 +1,63 @@
+// Route ownership (PR-071): first path segment -> accountable area + auth
+// baseline. One map (reviewed here), enforced by check_route_auth: every
+// route resolves to an owner; public mutating routes fail the gate.
+// Areas mirror the table-ownership vocabulary (see docs/DATA_MODEL.md).
+export const ROUTE_OWNERS = {
+  auth: { owner: 'auth', policy: 'public-entry' },
+  mfa: { owner: 'auth', policy: 'authenticated' },
+  sessions: { owner: 'auth', policy: 'authenticated' },
+  users: { owner: 'auth', policy: 'authenticated' },
+  profile: { owner: 'auth', policy: 'authenticated' },
+  identity: { owner: 'identity', policy: 'authenticated' },
+  screening: { owner: 'identity', policy: 'admin-stepup' },
+  wallet: { owner: 'money', policy: 'authenticated' },
+  transactions: { owner: 'money', policy: 'authenticated' },
+  payments: { owner: 'money', policy: 'authenticated' },
+  holds: { owner: 'money', policy: 'authenticated' },
+  deposits: { owner: 'money', policy: 'authenticated' },
+  cards: { owner: 'money', policy: 'authenticated' },
+  loans: { owner: 'money', policy: 'authenticated' },
+  collections: { owner: 'money', policy: 'authenticated' },
+  payrolls: { owner: 'money', policy: 'authenticated' },
+  'payroll-processing': { owner: 'money', policy: 'authenticated' },
+  merchants: { owner: 'money', policy: 'authenticated' },
+  'merchant-settlements': { owner: 'money', policy: 'authenticated' },
+  disputes: { owner: 'money', policy: 'authenticated' },
+  chargebacks: { owner: 'money', policy: 'authenticated' },
+  velocity: { owner: 'money', policy: 'authenticated' },
+  fees: { owner: 'money', policy: 'authenticated' },
+  accounts: { owner: 'money', policy: 'authenticated' },
+  finance: { owner: 'money', policy: 'authenticated' },
+  treasury: { owner: 'money', policy: 'authenticated' },
+  eod: { owner: 'ops', policy: 'admin' },
+  admin: { owner: 'ops', policy: 'admin-stepup' },
+  dashboard: { owner: 'ops', policy: 'authenticated' },
+  data: { owner: 'ops', policy: 'authenticated' },
+  it: { owner: 'ops', policy: 'admin' },
+  gl: { owner: 'ledger', policy: 'authenticated' },
+  statements: { owner: 'ledger', policy: 'authenticated' },
+  reports: { owner: 'data', policy: 'authenticated' },
+  'report-schedules': { owner: 'data', policy: 'authenticated' },
+  imports: { owner: 'data', policy: 'authenticated' },
+  ref: { owner: 'data', policy: 'authenticated' },
+  'reference-engine': { owner: 'data', policy: 'authenticated' },
+  fx: { owner: 'market', policy: 'authenticated' },
+  risk: { owner: 'risk', policy: 'authenticated' },
+  corporate: { owner: 'corporate', policy: 'authenticated' },
+  loyalty: { owner: 'growth', policy: 'authenticated' },
+  'notification-templates': { owner: 'comms', policy: 'authenticated' },
+  collateral: { owner: 'lending', policy: 'authenticated' },
+  'bank-guarantees': { owner: 'lending', policy: 'authenticated' },
+  'letters-of-credit': { owner: 'lending', policy: 'authenticated' },
+  'trade-finance': { owner: 'lending', policy: 'authenticated' },
+  'compliance-calendar': { owner: 'governance', policy: 'authenticated' },
+  'sla-trackers': { owner: 'governance', policy: 'authenticated' },
+  tax: { owner: 'governance', policy: 'authenticated' },
+  'tax-management': { owner: 'governance', policy: 'authenticated' },
+  'fixed-assets': { owner: 'governance', policy: 'authenticated' },
+};
+
+export function ownerFor(path) {
+  const seg = String(path || '').split('/')[1] || '';
+  return ROUTE_OWNERS[seg] || null;
+}

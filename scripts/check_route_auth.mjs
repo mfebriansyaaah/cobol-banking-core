@@ -15,6 +15,7 @@
 // the file cannot accumulate stale exemptions.
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { ownerFor } from './lib/route_owners.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 const routesDir = path.join(ROOT, 'middleware', 'src', 'routes');
@@ -87,10 +88,20 @@ const baseline = new Set(
 const key = (r) => `${r.method.toUpperCase()} ${r.path}`;
 const foundKeys = new Set(unguarded.map(key));
 
+const ownerless = routes.filter((r) => r.path && !ownerFor(r.path));
+
+let failed = false;
+if (ownerless.length) {
+  failed = true;
+  console.error('ROUTES WITHOUT AN OWNER (add the prefix to scripts/lib/route_owners.mjs):');
+  for (const r of ownerless) {
+    console.error(`  ${r.file}:${r.line}  ${key(r)}  (${r.action})`);
+  }
+}
+
 const unlisted = unguarded.filter((r) => !baseline.has(key(r)));
 const stale = [...baseline].filter((k) => !foundKeys.has(k));
 
-let failed = false;
 if (unlisted.length) {
   failed = true;
   console.error('MUTATING ROUTES WITHOUT tokenIdentity:');
