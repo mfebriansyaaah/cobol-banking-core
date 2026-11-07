@@ -40,7 +40,9 @@
 
 1. ~~Mutation harness + ≥80% target~~ — DONE: 15/15 curated mutants killed,
    weekly `mutation.yml` (Correctness → 2).
-2. Write-path load profile + canary exercise (Reliability 1→2).
+2. Write-path load profile + canary exercise (Reliability 1→2) — PARTIAL: transfer + login profiled
+   every bench run (dev-box: transfer p50/p95 12/13 ms, login ~1.3 s hash-bound, above budget); rubric
+   stays 1 until reference-hardware numbers + live canary (staging).
 3. ~~Tracing (or documented decision against)~~ — DONE: correlation-id
    tracing (observer stashes `req.requestId`, both `gateway_error` sites
    join by id; joinability tests), OTel rejected in ADR-0005 with topology
