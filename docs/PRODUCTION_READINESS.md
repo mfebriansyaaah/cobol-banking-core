@@ -56,7 +56,12 @@
    dispatched actions + suites; statuses kept REVIEW because FROZEN means death-row candidate tracking,
    which live code must not enter); 063/064 DEFERRED with cause (plan requires staging + DBA review, both
    absent; executing drops/squash without them would violate PR-063's own safety rules). Rubric stays 1.
-7. Second reviewer on money paths (Change control 1→2).
+7. Second reviewer on money paths (Change control 1→2) — PARTIAL: approval
+   control evidenced (14/14 PRs carry the second reviewer's approval; branch
+   protection enforces 1 + code-owner); unsatisfiable two-human rule replaced
+   by a recorded solo rule (approval + author second pass + money-path gates)
+   with a standing exception to 2026-12-04. Rubric stays 1 until a second
+   human reviewer joins.
 
 ## Disclaimer (binding on the label)
 

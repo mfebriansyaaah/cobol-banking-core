@@ -5,7 +5,15 @@
 ## Scope
 
 - [ ] One concern per PR (no mixed domain wave + refactor + docs)
-- [ ] Money path (wallet, auth, payments, treasury, GL, settlement)? If yes, request two approvals.
+- [ ] Money path (wallet, auth, payments, treasury, GL, settlement)? If yes: code-owner approval + author second pass below + money-path suites green.
+
+## Second pass (money-path PRs only, solo-maintainer rule per docs/GOVERNANCE.md)
+
+<!-- Re-read the full diff after CI is green and record the outcome. Delete if not a money-path PR. -->
+
+- [ ] Second read of the complete diff done after the last push
+- [ ] Every money-path invariant touched is covered by an equivalence/mutation suite (name it)
+- [ ] No unrelated change smuggled in (scope check)
 
 ## Verification
 
