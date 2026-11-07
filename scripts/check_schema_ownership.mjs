@@ -4,7 +4,6 @@
 // Legacy tables are grandfathered (listed by hash, not by name — renaming
 // history is out of scope). Usage: node scripts/check_schema_ownership.mjs [root]
 import { readFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 const ROOT = path.resolve(process.argv[2] || '.');
