@@ -45,7 +45,9 @@
    tracing (observer stashes `req.requestId`, both `gateway_error` sites
    join by id; joinability tests), OTel rejected in ADR-0005 with topology
    rationale + residuals (Observability → 2).
-4. Prod KMS + retention drill at scale (Data safety 1→2).
+4. Prod KMS + retention drill at scale (Data safety 1→2) — PARTIAL: sweep
+   200-object scale drill + KMS rotation pinning/runbook done; rubric
+   stays 1 until a real KMS key is provisioned in staging/prod.
 5. Pen-test (Security 1→2).
 6. Retirement program → 063/064 → re-audit linkage (Tier-1 1→2, unblocks squash).
 7. Second reviewer on money paths (Change control 1→2).

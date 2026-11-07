@@ -22,4 +22,5 @@ Object-key persistence (registry table) and the identity upload route land
 with the consuming slice; this PR ships the vault, the gate, the policy,
 and the drills. MinIO single-node and the dev credentials in
 `docker-compose.test.yml` are dev-only — production needs distributed
-MinIO, a real KMS, and rotated secrets.
+MinIO, a real KMS, and rotated secrets (provisioning/rotation/sweep
+procedure: `docs/runbooks/vault-kms.md`).
