@@ -287,6 +287,21 @@ jobs:
       - name: Build DB snapshot
         run: bash scripts/ci/build_db_snapshot.sh /tmp/cobol-snapshot.sql.gz
 
+      - name: Schema snapshot hash (PR-065 artifact policy)
+        run: sha256sum database/schema_full.sql | tee /tmp/schema-full.sha256
+
+      - name: Schema drift check (PR-065)
+        run: bash scripts/check_schema_drift.sh
+
+      - name: Upload schema hash
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: schema-hash
+          overwrite: true
+          path: /tmp/schema-full.sha256
+          retention-days: 7
+          if-no-files-found: error
+
       - name: Upload DB snapshot
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
