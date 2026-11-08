@@ -3,6 +3,7 @@
 // by derivations (or rejected), and OTP codes never appear in responses.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
 import { resetPool } from '../src/pool.js';
@@ -205,5 +206,145 @@ test('free_sms sends only to the verified number; mismatch never sends', async (
       else process.env[k] = v;
     }
     resetProviders();
+  }
+});
+
+test('PHONE issue delivers via the linked chat without exposing the code', async () => {
+  const { resetProviders } = await import('../services/integrations/index.js');
+  const em = U('tgchat');
+  const token = await userToken(em);
+  resetProviders();
+  const begun = await request(app)
+    .post('/auth/phone/link/begin')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, phone: '+6281234567890' });
+  const linkToken = begun.body.data[1];
+  const confirmed = await request(app)
+    .post('/auth/phone/link/confirm')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, token: linkToken, chatId: 'chat-tg-1' });
+  assert.equal(confirmed.status, 200);
+  const res = await request(app)
+    .post('/auth/phone/otp/issue')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, channel: 'PHONE', purpose: 'TB_TG' });
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.data, ['OTP_SENT']);
+  assert.equal(res.body.code, undefined);
+});
+
+test('free_sms without a verified number never sends', async () => {
+  const { resetProviders } = await import('../services/integrations/index.js');
+  const { resetBreakers } = await import('../services/integrations/resilience.js');
+  const { resetQuota } = await import('../services/integrations/quota.js');
+  const em = U('smsnonum');
+  const token = await userToken(em);
+  // Link and confirm first so the account has a verified stored hash; the
+  // issue below then omits the number, hitting the no_verified_number path.
+  const begun = await request(app)
+    .post('/auth/phone/link/begin')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, phone: '+6281234567890' });
+  const linkToken = begun.body.data[1];
+  const confirmed = await request(app)
+    .post('/auth/phone/link/confirm')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, token: linkToken, chatId: 'chat-sms-nonum' });
+  assert.equal(confirmed.status, 200);
+  const saved = {
+    PHONE_OTP_PROVIDER: process.env.PHONE_OTP_PROVIDER,
+    FREE_SMS_ENDPOINT: process.env.FREE_SMS_ENDPOINT,
+    FREE_SMS_API_KEY: process.env.FREE_SMS_API_KEY,
+  };
+  try {
+    process.env.PHONE_OTP_PROVIDER = 'free_sms';
+    process.env.FREE_SMS_ENDPOINT = 'http://127.0.0.1:1/unreachable';
+    process.env.FREE_SMS_API_KEY = 'test-key';
+    resetProviders();
+    resetBreakers();
+    resetQuota();
+    // Verified hash exists server-side but no number supplied: the relay
+    // must not be touched, delivery reports false, no code leaks.
+    const res = await request(app)
+      .post('/auth/phone/otp/issue')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ email: em, channel: 'PHONE', purpose: 'TB_SMS_NONUM' });
+    assert.equal(res.status, 200);
+    assert.deepEqual(res.body.data, ['OTP_SENT']);
+    assert.equal(res.body.delivered, false);
+    assert.equal(res.body.code, undefined);
+  } finally {
+    for (const [k, v] of Object.entries(saved)) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+    resetProviders();
+    resetBreakers();
+    resetQuota();
+  }
+});
+
+test('free_sms to the verified number delivers with no code in the response', async () => {
+  const { resetProviders } = await import('../services/integrations/index.js');
+  const { resetBreakers } = await import('../services/integrations/resilience.js');
+  const { resetQuota } = await import('../services/integrations/quota.js');
+  const em = U('smsok');
+  const token = await userToken(em);
+  const begun = await request(app)
+    .post('/auth/phone/link/begin')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, phone: '+6281234567890' });
+  const linkToken = begun.body.data[1];
+  const confirmed = await request(app)
+    .post('/auth/phone/link/confirm')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, token: linkToken, chatId: 'chat-sms-ok' });
+  assert.equal(confirmed.status, 200);
+  // Local relay that accepts every send: proves the match path delivers.
+  const seen = [];
+  const relay = http.createServer((req, res) => {
+    let body = '';
+    req.on('data', (c) => {
+      body += c;
+    });
+    req.on('end', () => {
+      seen.push(body);
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end('{"ok":true}');
+    });
+  });
+  await new Promise((resolve) => relay.listen(0, '127.0.0.1', resolve));
+  const port = relay.address().port;
+  const saved = {
+    PHONE_OTP_PROVIDER: process.env.PHONE_OTP_PROVIDER,
+    FREE_SMS_ENDPOINT: process.env.FREE_SMS_ENDPOINT,
+    FREE_SMS_API_KEY: process.env.FREE_SMS_API_KEY,
+  };
+  try {
+    process.env.PHONE_OTP_PROVIDER = 'free_sms';
+    process.env.FREE_SMS_ENDPOINT = `http://127.0.0.1:${port}/send`;
+    process.env.FREE_SMS_API_KEY = 'test-key';
+    resetProviders();
+    resetBreakers();
+    resetQuota();
+    const res = await request(app)
+      .post('/auth/phone/otp/issue')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ email: em, channel: 'PHONE', purpose: 'TB_SMS_OK', phone: '+6281234567890' });
+    assert.equal(res.status, 200);
+    assert.deepEqual(res.body.data, ['OTP_SENT']);
+    assert.equal(res.body.delivered, true);
+    assert.equal(res.body.code, undefined);
+    assert.equal(seen.length, 1);
+    assert.ok(seen[0].includes('+6281234567890'));
+  } finally {
+    for (const [k, v] of Object.entries(saved)) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+    resetProviders();
+    resetBreakers();
+    resetQuota();
+    await new Promise((resolve) => relay.close(resolve));
   }
 });
