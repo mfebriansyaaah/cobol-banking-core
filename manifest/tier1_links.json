@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-06T16:09:39.676Z",
-  "commit": "72ae26c4",
+  "generatedAt": "2026-11-08T07:43:39.264Z",
+  "commit": "ede796a7",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 18,
@@ -38,7 +38,8 @@
       "testEvidence": [],
       "reason": "Tier-1 core module",
       "routeFiles": [
-        "auth.js"
+        "auth.js",
+        "infra.js"
       ]
     },
     {
@@ -1085,6 +1086,7 @@
     "identity.js": "identity_core",
     "import.js": "import_core",
     "import_recon.js": "import_recon_core",
+    "infra.js": "auth_core",
     "letter_of_credit.js": "letter_of_credit_core",
     "loan.js": "loan_core",
     "loan_schedule.js": "loan_schedule_core",
