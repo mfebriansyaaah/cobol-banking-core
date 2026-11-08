@@ -50,7 +50,7 @@ if [ ! -f "$EXPECT_FILE" ]; then
     exit 2
 fi
 
-GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard route_auth bind_slots suite_coverage test_counts field_order action_coverage_tests)
+GATES=(js_syntax manifest route_dispatch route_conflicts action_coverage case_actions test_helpers auth_guard route_auth bind_slots suite_coverage test_counts field_order action_coverage_tests dependency_graph contract transaction_ownership cobol_call_graph cobol_field_sizes openapi)
 
 # --- gates under test -------------------------------------------------------
 # Each returns 0 when it believes the code is fine, non-zero when it refuses.
@@ -71,6 +71,12 @@ gate_suite_coverage() { node scripts/check_suite_coverage.mjs . >/dev/null 2>&1;
 gate_field_order() { node scripts/check_field_order.mjs . >/dev/null 2>&1; }
 gate_test_counts() { node scripts/check_test_counts.mjs --static . >/dev/null 2>&1; }
 gate_action_coverage_tests() { node scripts/check_action_test_coverage.mjs . >/dev/null 2>&1; }
+gate_dependency_graph() { node scripts/check_dependency_graph.mjs . >/dev/null 2>&1; }
+gate_contract() { node scripts/check_contract.mjs . >/dev/null 2>&1; }
+gate_transaction_ownership() { node scripts/check_transaction_ownership.mjs . >/dev/null 2>&1; }
+gate_cobol_call_graph() { node scripts/check_cobol_call_graph.mjs . >/dev/null 2>&1; }
+gate_cobol_field_sizes() { node scripts/check_cobol_field_sizes.mjs . >/dev/null 2>&1; }
+gate_openapi() { node scripts/check_openapi.mjs . >/dev/null 2>&1; }
 
 # Same check as scripts/ci/sast.sh: one route file must mention tokenIdentity
 # somewhere. Note it is per file, not per route — probe P3 measures that.
@@ -255,6 +261,84 @@ EOF
     grep -q 'SUCCESS|ACC_AUDIT|DUMMY' tests/db/account_db_tests.sh
 }
 
+# A service reaches back into the transport layer (services -> src). The
+# gateway still runs, still passes purity's file-local checks, but the
+# one-way layering (ADR-0006) is broken: only the dependency graph sees it.
+mut_p10_reverse_import() {
+    node <<'EOF'
+const fs = require('fs');
+const p = 'middleware/services/mailer.js';
+let s = fs.readFileSync(p, 'utf8');
+if (!s.includes("from '../telemetry/observability.js'")) throw new Error('anchor not found');
+s = s.replace(
+  "from '../telemetry/observability.js'",
+  "from '../src/observability.js'",
+);
+fs.writeFileSync(p, s);
+EOF
+}
+
+# One field keeps its name but changes pattern (LIMIT -> INT). Names,
+# registration, auth, and the COBOL handler are untouched, so route,
+# field-order, and dispatch gates all pass — only the contract records
+# patterns, so only it notices.
+mut_p11_pattern_swap() {
+    node <<'EOF'
+const fs = require('fs');
+const p = 'middleware/src/routes/account.js';
+let s = fs.readFileSync(p, 'utf8');
+const anchor = "{ name: 'limit', pattern: PATTERNS.LIMIT, required: false }";
+if (!s.includes(anchor)) throw new Error('anchor not found');
+s = s.replace(anchor, "{ name: 'limit', pattern: PATTERNS.INT, required: false }");
+fs.writeFileSync(p, s);
+EOF
+}
+
+# An orphan COMMIT in a module that never opens a transaction. No query
+# changes, no new edges, no buffer changes — only the ownership gate pairs
+# every close with an open in the same file.
+mut_p12_orphan_commit() {
+    node <<'EOF'
+const fs = require('fs');
+const p = 'cobol/src/dashboard_core.cob';
+let s = fs.readFileSync(p, 'utf8');
+const anchor = '       EXIT PARAGRAPH.';
+if (!s.includes(anchor)) throw new Error('anchor not found');
+s = s.replace(anchor, '           CALL "SQL_COMMIT" END-CALL\n       EXIT PARAGRAPH.');
+fs.writeFileSync(p, s);
+EOF
+}
+
+# A new COBOL->COBOL edge the registry never reviewed. Queries, binds,
+# buffers, and transactions are untouched — only the call-graph ratchet
+# lists every cross-module edge, so only it notices.
+mut_p13_new_call_edge() {
+    node <<'EOF'
+const fs = require('fs');
+const p = 'cobol/src/dashboard_core.cob';
+let s = fs.readFileSync(p, 'utf8');
+const anchor = '       EXIT PARAGRAPH.';
+if (!s.includes(anchor)) throw new Error('anchor not found');
+s = s.replace(anchor, '           CALL "wallet_core" USING WS-RESULT END-CALL\n       EXIT PARAGRAPH.');
+fs.writeFileSync(p, s);
+EOF
+}
+
+# A query buffer declared wider than the C bridge copies. Every query still
+# fits today, so builds and suites stay green — only the field-size gate
+# enforces the 1024-byte ceiling the bridge truncates at.
+mut_p14_oversize_buffer() {
+    sed -i 's/01  WS-PREP-SQL             PIC X(1024)/01  WS-PREP-SQL             PIC X(2048)/' cobol/src/dashboard_core.cob
+    grep -q 'PIC X(2048)' cobol/src/dashboard_core.cob
+}
+
+# Trailing garbage that breaks YAML parsing. Routes, dispatch, and the
+# contract are untouched, so every other gate passes — only the openapi
+# gate parses the file instead of string-comparing it.
+mut_p15_openapi_invalid() {
+    printf '  broken: [unclosed\n' >> docs/openapi.yaml
+}
+
 # --- runner -----------------------------------------------------------------
 
 PROBES=(
@@ -269,6 +353,12 @@ PROBES=(
     p7_missing_assertion
     p8_field_order_drift
     p9_action_without_test
+    p10_reverse_import
+    p11_pattern_swap
+    p12_orphan_commit
+    p13_new_call_edge
+    p14_oversize_buffer
+    p15_openapi_invalid
 )
 
 declare -A EXPECTED=()

@@ -10,19 +10,25 @@ tests/run_all.sh probes
 ```
 probe                                      expected   actual     caught by
 ------------------------------------------ ---------- ---------- ---------
-p1_broken_route_syntax                     detected   detected   js_syntax
-p2_duplicate_route                         detected   detected   route_conflicts
-p3a_one_route_without_identity             detected   detected   route_auth
-p3b_whole_route_file_without_identity      detected   detected   auth_guard,route_auth
-p4_action_without_cobol_handler            detected   detected   action_coverage
+p1_broken_route_syntax                     detected   detected   js_syntax,field_order,contract
+p2_duplicate_route                         detected   detected   route_conflicts,field_order,contract
+p3a_one_route_without_identity             detected   detected   route_auth,field_order,contract
+p3b_whole_route_file_without_identity      detected   detected   auth_guard,route_auth,field_order,contract
+p4_action_without_cobol_handler            detected   detected   action_coverage,field_order,action_coverage_tests,contract
 p5_dead_bind_slot                          detected   detected   bind_slots
 p5b_swapped_bind_slots                     missed     missed     none
-p6_deleted_db_suite                        detected   detected   suite_coverage
-p7_missing_assertion                       detected   detected   test_counts
-p8_field_order_drift                       detected   detected   field_order
+p6_deleted_db_suite                        detected   detected   suite_coverage,action_coverage_tests
+p7_missing_assertion                       detected   detected   test_counts,action_coverage_tests
+p8_field_order_drift                       detected   detected   field_order,contract
 p9_action_without_test                     detected   detected   action_coverage_tests
+p10_reverse_import                         detected   detected   dependency_graph
+p11_pattern_swap                           detected   detected   contract
+p12_orphan_commit                          detected   detected   transaction_ownership
+p13_new_call_edge                          detected   detected   cobol_call_graph
+p14_oversize_buffer                        detected   detected   cobol_field_sizes
+p15_openapi_invalid                        detected   detected   openapi
 
-probes: 11 | detected: 10 | missed: 1
+probes: 17 | detected: 16 | missed: 1
 OK: every probe matched its recorded expectation
 ```
 

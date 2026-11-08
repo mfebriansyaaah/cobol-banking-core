@@ -1,0 +1,50 @@
+// Unit tests for the ADR-0006 follow-up gates: transaction ownership,
+// COBOL call graph, and field sizes. No database, no build.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+for (const [gate, pattern] of [
+  ['check_transaction_ownership.mjs', /OK: transaction ownership holds/],
+  ['check_cobol_field_sizes.mjs', /OK: field sizes hold/],
+  ['check_cobol_call_graph.mjs', /OK: call graph holds/],
+]) {
+  test(`${gate} holds on the real tree`, () => {
+    const out = execFileSync('node', [path.join(ROOT, 'scripts', gate), ROOT], { encoding: 'utf8' });
+    assert.match(out, pattern);
+  });
+}
+
+test('call-graph registry is in sync and lists the known orchestrator edges', async () => {
+  const { readFileSync } = await import('node:fs');
+  const doc = JSON.parse(readFileSync(path.join(ROOT, 'manifest', 'cobol_calls.json'), 'utf8'));
+  assert.equal(doc.count, doc.edges.length);
+  const keys = new Set(doc.edges.map((e) => `${e.from} -> ${e.to}`));
+  // Orchestrator edges the architecture review approved (ADR-0006):
+  // wallet→payment policy check, instruction→wallet posting,
+  // EOD jobs→domain modules, password delegate→auth.
+  for (const e of [
+    'wallet_core -> payment_core',
+    'payment_instruction_core -> wallet_core',
+    'eod_jobs_core -> user_core',
+    'eod_jobs_core -> statement_core',
+    'eod_jobs_core -> wallet_recon_core',
+    'auth_password_core -> auth_core',
+  ]) {
+    assert.ok(keys.has(e), `registry must list ${e}`);
+  }
+});
+
+test('no module declares an oversized query buffer', async () => {
+  const { readdirSync, readFileSync } = await import('node:fs');
+  for (const f of readdirSync(path.join(ROOT, 'cobol', 'src')).filter((x) => x.endsWith('.cob'))) {
+    const src = readFileSync(path.join(ROOT, 'cobol', 'src', f), 'utf8');
+    for (const m of src.matchAll(/01\s+WS-PREP-SQL\s+PIC\s+X\((\d+)\)/g)) {
+      assert.ok(Number(m[1]) <= 1024, `${f}: WS-PREP-SQL X(${m[1]})`);
+    }
+  }
+});
