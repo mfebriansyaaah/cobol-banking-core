@@ -261,6 +261,11 @@
            EXIT PARAGRAPH.
 
        FINISH-JOB.
+           *> ADR-0006 transaction ownership: this module is an orchestrator,
+           *> not a transaction owner. START-JOB / FINISH-JOB run autocommit;
+           *> money work happens in the called modules' own BEGIN/COMMIT.
+           *> No orphan COMMIT/ROLLBACK here (previously returned
+           *> NO_TRANSACTION and implied atomicity that did not exist).
            IF STEP-OK
                MOVE "UPDATE eod_job_run SET status = 'COMPLETED', processed_count = ?, detail = ? WHERE id = ?" TO WS-PREP-SQL
                MOVE WS-JOB-PROCESSED TO WS-BIND-1
@@ -275,11 +280,6 @@
                    MOVE WS-RESULT(1:40) TO WS-ERR
                    SET STEP-FAIL TO TRUE
                END-IF
-           END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
            END-IF.
            EXIT PARAGRAPH.
 

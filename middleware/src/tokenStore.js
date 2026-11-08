@@ -1,7 +1,7 @@
 // Support-only seam for access-token validity and revocation. The default
 // store is the shared database (via the COBOL core); a distributed store
 // (e.g. Redis) can implement the same two methods without touching the router.
-import { invoke } from './invoker.js';
+import { invoke } from '../core-client/invoker.js';
 
 export function createTokenStore() {
   return {

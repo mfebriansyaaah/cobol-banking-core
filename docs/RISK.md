@@ -6,9 +6,10 @@ here blocks, approves, or scores a user.
 ## Flow
 
 - `POST /risk/note` takes the account email only. Middleware resolves the
-  client IP from the request socket (`geoip.js`, ipapi-compatible; private
-  IPs short-circuit to `UNKNOWN` without network), hashes it (SHA-256), and
-  computes flags (`COUNTRY_MISMATCH` vs last known, `GEO_UNKNOWN`).
+  client IP from the request socket (`middleware/adapters/signals.js` →
+  `geoip.js`, ipapi-compatible; private IPs short-circuit to `UNKNOWN`
+  without network), hashes it (SHA-256), and computes flags
+  (`COUNTRY_MISMATCH` vs last known, `GEO_UNKNOWN`).
   Client-sent country/hash values are overwritten before COBOL runs.
 - `RISK_NOTE` stores country/city/ASN + `ip_hash` + flags. `RISK_STATUS`
   serves the latest notation for step-up logic (wired by the auth slice).

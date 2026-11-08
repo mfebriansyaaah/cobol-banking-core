@@ -50,7 +50,7 @@ timeout primitive):
   - email fails → outbox/retry (`mailer.js` best-effort + outbox worker),
     never a signup rollback;
   - OTP issue (`POST /auth/phone/otp/issue`) delivers server-side
-    (`middleware/src/otpService.js`): EMAIL via the email provider, PHONE
+    (`middleware/adapters/otp.js`): EMAIL via the email provider, PHONE
     via the verified linked chat (`OTP_CHAT`, never via HTTP params).
     The HTTP response is `OTP_SENT` with a delivery flag — the code itself
     never appears in any response;

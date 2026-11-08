@@ -21,9 +21,9 @@
 //   cron: * * * * * OUTBOX_TRANSPORT=smtp node /opt/cobol-banking-core/middleware/workers/outbox.js --once --limit 100
 
 import { appendFile } from 'node:fs/promises';
-import { invoke } from '../src/invoker.js';
-import { resetPool } from '../src/pool.js';
-import { toHttp } from '../src/result.js';
+import { invoke } from '../core-client/invoker.js';
+import { resetPool } from '../core-client/pool.js';
+import { toHttp } from '../core-client/result.js';
 import { createMailer, mailerFrom, verificationSubject } from '../services/mailer.js';
 import { pingCheck, pingFail } from '../services/integrations/ops/healthchecks.js';
 import { sendAlert } from '../services/integrations/ops/notify.js';

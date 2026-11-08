@@ -4,7 +4,7 @@
 // permissions, enrollment, and session rows; this module only orchestrates
 // the transport-level sequence (invoke -> sign -> return).
 import { randomUUID } from 'node:crypto';
-import { invoke } from './invoker.js';
+import { invoke } from '../core-client/invoker.js';
 import { signToken, signRefresh, signStepUp, REFRESH_TTL_DAYS } from './auth.js';
 
 export function sanitizeMeta(value, max) {

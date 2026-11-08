@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import { buildApp, trustProxyWarning } from './app.js';
 import { assertSecureConfig } from './auth.js';
-import { assertPoolConfig } from './pool.js';
+import { assertPoolConfig } from '../core-client/pool.js';
 import { assertIntegrationConfig } from '../services/integrations/index.js';
 import { assertSecrets } from '../services/integrations/secrets.js';
 import { assertVaultConfig } from '../services/integrations/documents/storage.js';
-import { jsonLogger, startMetricsExporter } from './observability.js';
-import { resetPool } from './pool.js';
+import { jsonLogger, startMetricsExporter } from '../telemetry/observability.js';
+import { resetPool } from '../core-client/pool.js';
 
 assertSecureConfig();
 // Unknown providers and production-without-secrets fail here, not on the

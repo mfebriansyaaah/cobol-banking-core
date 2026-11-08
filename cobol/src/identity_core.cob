@@ -176,9 +176,10 @@
             EXIT PARAGRAPH.
 
         ACTION-NIK-VALIDATE.
-            *> p1 = email, p2 = nik_hash, p3 = nik_last4, p4 = verdict
-            *> (VALID|INVALID), p6 = actor (owner). Stores the middleware
-            *> result; sets NIK_VALID on users when valid.
+            *> ADR-0006 Option A: p2 = nik_hash (HMAC), p3 = nik_last4,
+            *> p4 = nikStructuralValid signal (VALID|INVALID) from adapters.
+            *> COBOL decides: stores the verification and sets NIK_VALID.
+            *> Raw NIK never reaches this module (privacy: hash + last4 only).
             PERFORM CHECK-OWNER
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -606,13 +607,11 @@
             EXIT PARAGRAPH.
 
         ACTION-SCR-SCREEN.
-            *> p1 = email, p2 = query_hash, p3 = result
-            *> (CLEAR|POTENTIAL_MATCH|CONFIRMED_MATCH|FALSE_POSITIVE|MANUAL_REVIEW),
-            *> p4 = provider, p5 = provider_ref, p6 = actor. Middleware verdicts
-            *> (CLEAR/POTENTIAL_MATCH/MANUAL_REVIEW) record owner-side; reviewer
-            *> verdicts (FALSE_POSITIVE/CONFIRMED_MATCH) need SUPER_ADMIN, so a
-            *> potential match is never auto-cleared. Non-clear results open a
-            *> SCREENING review row in the same transaction.
+            *> ADR-0006 Option A: p2 = query_hash, p3 = providerResultSignal
+            *> (CLEAR|POTENTIAL_MATCH|MANUAL_REVIEW), p4 = provider,
+            *> p5 = provider_ref, p6 = actor. The adapter classifies provider
+            *> output; COBOL decides: records owner-side, opens SCREENING
+            *> review for non-CLEAR, reviewer verdicts need SUPER_ADMIN.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH

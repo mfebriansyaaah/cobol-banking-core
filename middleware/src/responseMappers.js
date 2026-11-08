@@ -4,7 +4,7 @@
 // the two session mappers below delegate to it so all orchestration stays
 // in one gateway service module.
 import { completeLogin, completeStepUp, listPermissions } from './authService.js';
-import { completeIssue } from './otpService.js';
+import { completeIssue } from '../adapters/otp.js';
 
 export const RESPONSE_MAPPERS = {
   REQUEST_SIGNUP: async () => {

@@ -1,21 +1,21 @@
 import express from 'express';
 import helmet from 'helmet';
-import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from './invoker.js';
-import { toHttp } from './result.js';
+import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from '../core-client/invoker.js';
+import { toHttp } from '../core-client/result.js';
 import { buildParams, ValidationError, assertLineLength } from './validation.js';
 import { ALL_ROUTES } from './routes/index.js';
 import { groupRoutes } from './mount.js';
 import { requireAuth, verifyRefresh, verifyAccess, verifyStepUp, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
-import { createRequestObserver, metricsText, recordError, recordAuthFailure } from './observability.js';
-import { getPool } from './pool.js';
-import { createMailer } from '../services/mailer.js';
-import { assertPasswordAllowed } from '../services/integrations/security/pwned.js';
-import { verifyTurnstile } from '../services/integrations/bot/turnstile.js';
+import { createRequestObserver, metricsText, recordError, recordAuthFailure } from '../telemetry/observability.js';
+import { getPool } from '../core-client/pool.js';
+import { createMailer } from '../adapters/mail.js';
+import { assertPasswordAllowed } from '../adapters/guards.js';
+import { verifyTurnstile } from '../adapters/guards.js';
 import { createTokenStore } from './tokenStore.js';
 import { RESPONSE_MAPPERS } from './responseMappers.js';
 import { completeRefresh } from './authService.js';
-import { applyDerivation } from './derivations.js';
+import { applyDerivation } from '../adapters/signals.js';
 
 // Reasons counted in gateway_auth_failures_total. Telemetry only: the code
 // still decides, this list only decides which failures are worth counting as

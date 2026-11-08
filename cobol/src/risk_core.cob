@@ -141,9 +141,10 @@
             EXIT PARAGRAPH.
 
         ACTION-NOTE.
-            *> p1 = email, p2 = country (2-letter or UNKNOWN), p3 = city,
-            *> p4 = asn, p5 = "ip_hash|flags" (flags optional),
-            *> p6 = actor (owner). Stores one risk notation.
+            *> ADR-0006 Option A: p1 = email, p2 = country signal, p3 = city,
+            *> p4 = asn, p5 = "ip_hash:flagsSignal" (hash mandatory, flags
+            *> optional), p6 = actor (owner). Adapter resolves/hashes IP;
+            *> COBOL stores the notation. Signals only — never auto-blocks.
             PERFORM CHECK-OWNER
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER

@@ -34,7 +34,7 @@ HMAC-SHA256 + last4 only.
 ## Gateway trust boundary
 
 `POST /identity/nik/validate` accepts the raw NIK only. The gateway
-(`middleware/src/derivations.js`) validates structure, derives the verdict
+(`middleware/adapters/signals.js`) validates structure, derives the verdict
 and the HMAC handle with `NIK_HMAC_SECRET`, and overwrites any
 client-sent `nikHash`/`verdict` before COBOL runs. A missing secret fails
 the request instead of storing unhashed identity.

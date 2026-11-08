@@ -60,7 +60,26 @@ function toYaml(value, indent = 0) {
   const pad = '  '.repeat(indent);
   if (Array.isArray(value)) {
     if (!value.length) return '[]';
-    return `\n${value.map((v) => `${pad}- ${toYaml(v, indent + 1).replace(/^\n/, `\n${pad}  `)}`).join('\n')}`;
+    // ADR-0006: valid block sequences. Scalars inline; objects use
+    // `- key: value` on first line, subsequent keys aligned under it.
+    const lines = [];
+    for (const v of value) {
+      if (v && typeof v === 'object') {
+        const keys = Object.keys(v);
+        if (!keys.length) {
+          lines.push(`${pad}- {}`);
+          continue;
+        }
+        const [first, ...rest] = keys;
+        lines.push(`${pad}- ${yamlScalar(first)}:${toYaml(v[first], indent + 1).replace(/^(?!\n)/, ' ')}`);
+        for (const k of rest) {
+          lines.push(`${pad}  ${yamlScalar(k)}:${toYaml(v[k], indent + 1).replace(/^(?!\n)/, ' ')}`);
+        }
+      } else {
+        lines.push(`${pad}- ${yamlScalar(v)}`);
+      }
+    }
+    return `\n${lines.join('\n')}`;
   }
   if (value && typeof value === 'object') {
     const keys = Object.keys(value);

@@ -70,33 +70,61 @@ for (const f of listJs(ROUTES_DIR)) {
   if (/node:fs|node:net|child_process/.test(clean)) fail(`${rel}: routes must not use fs/net/child_process`);
 }
 
-// 2. invoke allowlist.
-const INVOKE_ALLOWED = new Set(['invoker.js', 'app.js', 'authService.js', 'otpService.js', 'tokenStore.js', 'pool.js']);
+// 2. invoke allowlist (ADR-0006 canonical: middleware/core-client/invoker.js).
+// Shims in src re-export canonical; transport (app/authService/tokenStore)
+// and adapters/otp may invoke. Nothing else may.
+const INVOKE_ALLOWED_SRC = new Set(['app.js', 'authService.js', 'tokenStore.js']);
+const INVOKE_ALLOWED_ADAPTERS = new Set(['otp.js', 'signals.js']);
 for (const f of listJs(SRC)) {
   if (f.startsWith(`${ROUTES_DIR}${path.sep}`)) continue;
   const rel = path.relative(ROOT, f);
   const base = path.basename(f);
   const clean = stripComments(readFileSync(f, 'utf8'));
-  const importsInvoke = /from\s+['"]\.\/invoker\.js['"]/.test(clean);
-  if (importsInvoke && !INVOKE_ALLOWED.has(base)) {
-    fail(`${rel}: direct invoker import not allowed (allowed: ${[...INVOKE_ALLOWED].join(', ')})`);
+  // Shim re-exports are allowed (single-line export *).
+  if (clean.split('\n').map((l) => l.trim()).filter(Boolean).length === 1 && clean.includes('export * from')) continue;
+  const importsInvoke =
+    /from\s+['"]\.\/invoker\.js['"]/.test(clean) ||
+    /from\s+['"]\.\.\/core-client\/invoker\.js['"]/.test(clean);
+  if (importsInvoke && !INVOKE_ALLOWED_SRC.has(base)) {
+    fail(`${rel}: direct invoker import not allowed (allowed src: ${[...INVOKE_ALLOWED_SRC].join(', ')})`);
+  }
+}
+{
+  const ADAPTERS = path.join(ROOT, 'middleware', 'adapters');
+  for (const f of listJs(ADAPTERS)) {
+    const rel = path.relative(ROOT, f);
+    const base = path.basename(f);
+    const clean = stripComments(readFileSync(f, 'utf8'));
+    const importsInvoke =
+      /from\s+['"]\.\.\/core-client\/invoker\.js['"]/.test(clean) ||
+      /from\s+['"]\.\/invoker\.js['"]/.test(clean);
+    if (importsInvoke && !INVOKE_ALLOWED_ADAPTERS.has(base) && base !== 'otp.js') {
+      // signals.js must never invoke COBOL (reshape only); otp.js may.
+      if (base === 'signals.js' && importsInvoke) fail(`${rel}: signals must never invoke COBOL (reshape only)`);
+      else if (!INVOKE_ALLOWED_ADAPTERS.has(base)) fail(`${rel}: direct invoker import not allowed (adapters: otp.js only)`);
+    }
   }
 }
 
-// 3. responseMappers purity.
+// 3. responseMappers purity (ADR-0006: may delegate to authService/adapters only).
 {
   const f = path.join(SRC, 'responseMappers.js');
   if (existsSync(f)) {
     const clean = stripComments(readFileSync(f, 'utf8'));
     const rel = path.relative(ROOT, f);
-    if (/from\s+['"]\.\/invoker\.js['"]/.test(clean))
+    if (/from\s+['"]\.\/invoker\.js['"]/.test(clean) || /from\s+['"]\.\.\/core-client\/invoker\.js['"]/.test(clean))
       fail(`${rel}: must not import invoker directly (use authService)`);
     if (/from\s+['"]\.\/auth\.js['"]/.test(clean)) fail(`${rel}: must not sign tokens directly (use authService)`);
     if (/node:fs|node:net|child_process/.test(clean)) fail(`${rel}: must not use fs/net/child_process`);
     if (/\bfetch\s*\(/.test(clean)) fail(`${rel}: must not fetch`);
     for (const imp of importsOf(clean)) {
-      if (imp.startsWith('.') && imp !== './authService.js' && imp !== './otpService.js') {
-        fail(`${rel}: only './authService.js' relative imports allowed (got '${imp}')`);
+      if (
+        imp.startsWith('.') &&
+        imp !== './authService.js' &&
+        imp !== '../adapters/otp.js' &&
+        imp !== './otpService.js'
+      ) {
+        fail(`${rel}: only './authService.js' and adapters/otp relative imports allowed (got '${imp}')`);
       }
     }
   }
@@ -114,16 +142,10 @@ for (const f of listJs(SRC)) {
   if (SQL_RE.test(clean)) fail(`${rel}: SQL string not allowed in gateway`);
 }
 
-// 5. services/workers imports only via allowlist.
-const SERVICE_IMPORT_ALLOW = new Map([
-  [
-    'app.js',
-    new Set([
-      '../services/mailer.js',
-      '../services/integrations/security/pwned.js',
-      '../services/integrations/bot/turnstile.js',
-    ]),
-  ],
+// 5. services/workers imports (ADR-0006 one-way).
+// src (except server.js composition root + shims) must not import services/workers.
+// adapters may import services; services/workers must not be reached via src.
+const SERVICE_IMPORT_ALLOW_SRC = new Map([
   [
     'server.js',
     new Set([
@@ -132,37 +154,24 @@ const SERVICE_IMPORT_ALLOW = new Map([
       '../services/integrations/documents/storage.js',
     ]),
   ],
-  [
-    'derivations.js',
-    new Set([
-      '../services/integrations/identity/local_nik.js',
-      '../services/integrations/screening/opensanctions.js',
-      '../services/integrations/ocr.js',
-      '../services/integrations/risk/risk_events.js',
-      '../services/integrations/phone/normalize.js',
-      '../services/integrations/quota.js',
-    ]),
-  ],
-  [
-    'otpService.js',
-    new Set([
-      '../services/integrations/index.js',
-      '../services/integrations/phone.js',
-      '../services/integrations/phone/normalize.js',
-      '../services/integrations/quota.js',
-      '../services/integrations/resilience.js',
-    ]),
-  ],
 ]);
 for (const f of listJs(SRC)) {
   if (f.startsWith(`${ROUTES_DIR}${path.sep}`)) continue;
   const rel = path.relative(ROOT, f);
   const base = path.basename(f);
-  const src = readFileSync(f, 'utf8');
+  const raw = readFileSync(f, 'utf8');
+  const clean = stripComments(raw);
+  // Shim re-exports are allowed.
+  if (clean.split('\n').map((l) => l.trim()).filter(Boolean).length === 1 && clean.includes('export * from')) continue;
+  const src = raw;
   for (const imp of importsOf(src)) {
     if (imp.includes('/services/') || imp.includes('/workers/') || imp.includes('/jobs/')) {
-      const allowed = SERVICE_IMPORT_ALLOW.get(base);
-      if (!allowed || !allowed.has(imp)) fail(`${rel}: services/workers import not allowed ('${imp}')`);
+      const allowed = SERVICE_IMPORT_ALLOW_SRC.get(base);
+      if (!allowed || !allowed.has(imp)) fail(`${rel}: src must not import services/workers directly (use adapters; got '${imp}')`);
+    }
+    if (imp.includes('/adapters/')) {
+      // src → adapters is the allowed direction (transport calls signals/guards).
+      continue;
     }
   }
 }

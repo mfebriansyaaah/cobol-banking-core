@@ -98,7 +98,10 @@ void sanitize_string(char *str) {
     if (!str) return;
     int i = 0;
     while (str[i]) {
-        if (!isprint((unsigned char)str[i]) && str[i] != '\n' && str[i] != '\r' && str[i] != '\t') {
+        /* ADR-0006: \n \r \t corrupt the line-delimited --serve framing
+         * (one COBOL result per stdout line; pool.js maps lines FIFO).
+         * Replace them with spaces so DB content can never split framing. */
+        if (!isprint((unsigned char)str[i]) || str[i] == '\n' || str[i] == '\r' || str[i] == '\t') {
             str[i] = ' ';
         }
         i++;
@@ -117,6 +120,9 @@ void trim_trailing_spaces(char *str) {
 void SET_QUERY(char *query) {
     if (!query) return;
     memset(G_QUERY, 0, sizeof(G_QUERY));
+    /* WS-QUERY is PIC X(512) space-padded, not NUL-terminated: copy a bounded
+     * prefix (original 511 semantics) so we never overread into adjacent
+     * WORKING-STORAGE. Longer WS-PREP-SQL goes via prepared_exec, not here. */
     strncpy(G_QUERY, query, 511);
     G_QUERY[511] = '\0';
     trim_trailing_spaces(G_QUERY);
@@ -386,8 +392,11 @@ static void fetch_one(MYSQL_STMT *st) {
             if (i < cols - 1) append_sep("|");
         }
         if (g_truncated) strncpy(G_RESULT, "ERROR|RESULT_TRUNCATED", RES_CAP);
-    } else {
+    } else if (rc == MYSQL_NO_DATA) {
         strncpy(G_RESULT, "ERROR|NO_DATA", RES_CAP);
+    } else {
+        /* ADR-0006: real fetch errors must not masquerade as NO_DATA. */
+        snprintf(G_RESULT, RES_CAP, "ERROR|EXEC_FAILED|%d", mysql_stmt_errno(st));
     }
 }
 
@@ -409,6 +418,7 @@ static void fetch_all(MYSQL_STMT *st) {
     int first_row = 1;
     int rc;
     int rowcount = 0;
+    int fetch_err = 0;
     while ((rc = mysql_stmt_fetch(st)) == 0 || rc == MYSQL_DATA_TRUNCATED) {
         rowcount++;
         if (rowcount > ROW_CAP) {
@@ -424,10 +434,16 @@ static void fetch_all(MYSQL_STMT *st) {
             if (i < cols - 1) append_sep("|");
         }
     }
+    if (rc != 0 && rc != MYSQL_DATA_TRUNCATED && rc != MYSQL_NO_DATA) {
+        /* ADR-0006: partial rows plus a fetch error must not look like success. */
+        fetch_err = 1;
+    }
     if (bridge_debug())
         fprintf(stderr, "TOTAL_ROWS=%d first_row=%d G_RESULT_LEN=%zu\n", rowcount, first_row, strlen(G_RESULT));
     if (g_truncated) {
         strncpy(G_RESULT, "ERROR|RESULT_TRUNCATED", RES_CAP);
+    } else if (fetch_err) {
+        snprintf(G_RESULT, RES_CAP, "ERROR|EXEC_FAILED|%d", mysql_stmt_errno(st));
     } else if (first_row) {
         strncpy(G_RESULT, "ERROR|NO_DATA", RES_CAP);
     }
@@ -437,6 +453,10 @@ static void prepared_exec(char *sql, int nparams, char **params, int maxparams, 
     if (!sql) return;
     g_truncated = 0;
 
+    /* WS-PREP-SQL is PIC X(1024) or X(2048) space-padded, not NUL-terminated.
+     * Copy a bounded prefix (original 1023 semantics) so a 1024-field never
+     * overreads; 2048-fields with queries >1023 would truncate (known gap,
+     * tracked by check_cobol_field_sizes — queries in tree are short). */
     char query[1024];
     strncpy(query, sql, 1023);
     query[1023] = '\0';

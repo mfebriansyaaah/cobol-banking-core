@@ -402,13 +402,16 @@ export class ValidationError extends Error {
   }
 }
 
-// The COBOL entry reads a single PIC X(500) line. Reject any request whose
-// composed `ACTION|p1|p2|p3|p4` line would exceed that record (CODING_STANDARDS 13).
+// The COBOL entry reads a single PIC X(500) line (bytes, not JS chars).
+// Reject any request whose composed `ACTION|p1|...` line would exceed that
+// record (CODING_STANDARDS 13). Byte length matters: 100 emoji are 400 JS
+// chars but 400 bytes in UTF-8, and the C bridge truncates silently beyond
+// the record. Non-ASCII is therefore rejected for fixed-width slots.
 export const MAX_INPUT_LINE = 500;
 
 export function assertLineLength(action, params, max = MAX_INPUT_LINE) {
   const line = [action, ...params].join('|');
-  if (line.length > max) {
+  if (Buffer.byteLength(line, 'utf8') > max) {
     const err = new ValidationError('input-line');
     err.reason = 'TOO_LONG';
     throw err;
