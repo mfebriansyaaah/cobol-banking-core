@@ -5,7 +5,7 @@
 //   after a send may have succeeded (no OTP double-send);
 // - breaker opens after N consecutive failures, half-opens after cooldown;
 // - every outcome is observable (state readable, transitions logged).
-import { incCounter, observeHistogram, setGauge } from '../../src/observability.js';
+import { incCounter, observeHistogram, setGauge } from '../../telemetry/observability.js';
 
 export const DEFAULT_TIMEOUT_MS = 4000;
 export const DEFAULT_MAX_RETRIES = 2;

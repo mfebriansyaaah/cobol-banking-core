@@ -1,7 +1,7 @@
 // Fixed-window rate limiter. Support-only security: it counts requests, it does
 // not touch business logic. Counters live in a pluggable store so several
 // gateway instances can share them (Redis); the default store is in-memory.
-import { incCounter } from './observability.js';
+import { incCounter } from '../telemetry/observability.js';
 
 /** In-process fixed-window counter. */
 export function memoryStore() {

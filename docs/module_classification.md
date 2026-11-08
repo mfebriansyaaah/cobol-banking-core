@@ -26,7 +26,10 @@ DELETE/CLOSE, SUMMARY, AUDIT, VALIDATE, plus a domain action) and use
 
 ## Intentional exceptions
 
-- `dashboard_core`, `eod_jobs_core`: read-only/aggregation, no `SQL_BEGIN` transaction.
+- `dashboard_core`: read-only/aggregation, no `SQL_BEGIN` transaction.
+- `eod_jobs_core`: orchestrator, not a transaction owner (ADR-0006). START/FINISH
+  run autocommit; money work happens in the called modules' own transactions.
+  No orphan `COMMIT`/`ROLLBACK` without `BEGIN`.
 - `auth_password_core`, `hashlen_core`: no admin guard / no bind slots (utility).
 - `user_core`: 5 bind slots (sufficient for its queries).
 

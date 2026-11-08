@@ -1,9 +1,3 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Absolute path to the COBOL binary. Override with COBOL_BIN.
-export const BINARY =
-  process.env.COBOL_BIN ||
-  path.resolve(__dirname, '../../cobol/bin/main_logic');
+// Shim (ADR-0006): canonical owner is middleware/core-client/binary.js.
+// New code imports the canonical path; this file stays for backward compat.
+export * from '../core-client/binary.js';
