@@ -20,6 +20,13 @@ test('responseMappers has no direct invoke/auth imports', async () => {
   assert.doesNotMatch(src, /from\s+['"]\.\/auth\.js['"]/);
 });
 
+test('derivations compute without invoking COBOL', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(path.join(ROOT, 'middleware', 'src', 'derivations.js'), 'utf8');
+  assert.doesNotMatch(src, /from\s+['"]\.\/invoker\.js['"]/);
+  assert.doesNotMatch(src, /\b(SELECT|INSERT INTO|UPDATE \w+ SET|DELETE FROM)\b/i);
+});
+
 test('relocated service paths do not exist inside src', async () => {
   const { existsSync } = await import('node:fs');
   assert.equal(existsSync(path.join(ROOT, 'middleware', 'src', 'integrations')), false);

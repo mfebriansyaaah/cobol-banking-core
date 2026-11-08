@@ -17,3 +17,6 @@ POST /auth/resend
 POST /auth/login
 POST /mfa/recover
 POST /mfa/recover/confirm
+
+POST /auth/refresh
+POST /auth/logout

@@ -91,6 +91,9 @@
                 WHEN LS-CMD-ACTION(1:10) = "OTP_RESEND"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-RESEND
+                WHEN LS-CMD-ACTION(1:8) = "OTP_CHAT"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-CHAT
                 WHEN OTHER
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
@@ -542,4 +545,54 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             END-IF.
+            EXIT PARAGRAPH.
+
+        ACTION-CHAT.
+            *> p1 = email, p4 = actor (owner). Read-only lookup of the
+            *> verified telegram chat_id and stored phone hash for OTP
+            *> delivery. Both are consumed server-side by the gateway and
+            *> never travel via HTTP request parameters.
+            PERFORM CHECK-OWNER
+            IF WS-ALLOWED NOT = 1
+                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-USER
+            IF WS-LOOKUP-BAD NOT = 0
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT CONCAT(chat_id, ':', phone_hash) FROM phone_links WHERE user_id = ? AND verified_at IS NOT NULL AND revoked_at IS NULL LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-USER-ID TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TOKEN WS-HASH-OUT
+            UNSTRING WS-RESULT DELIMITED BY ":"
+                INTO WS-TOKEN WS-HASH-OUT
+            END-UNSTRING.
+            IF WS-TOKEN = SPACES OR WS-HASH-OUT = SPACES
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
+            STRING "SUCCESS|CHAT|" DELIMITED BY SIZE
+                   FUNCTION TRIM(WS-TOKEN) DELIMITED BY SIZE
+                   "|" DELIMITED BY SIZE
+                   FUNCTION TRIM(WS-HASH-OUT) DELIMITED BY SIZE
+                   INTO LS-OUTPUT-BUFFER
+            END-STRING.
             EXIT PARAGRAPH.

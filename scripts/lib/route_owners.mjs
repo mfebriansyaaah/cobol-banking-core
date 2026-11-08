@@ -4,6 +4,10 @@
 // Areas mirror the table-ownership vocabulary (see docs/DATA_MODEL.md).
 export const ROUTE_OWNERS = {
   auth: { owner: 'auth', policy: 'public-entry' },
+  health: { owner: 'ops', policy: 'public-probe' },
+  live: { owner: 'ops', policy: 'public-probe' },
+  ready: { owner: 'ops', policy: 'public-probe' },
+  metrics: { owner: 'ops', policy: 'authenticated' },
   mfa: { owner: 'auth', policy: 'authenticated' },
   sessions: { owner: 'auth', policy: 'authenticated' },
   users: { owner: 'auth', policy: 'authenticated' },

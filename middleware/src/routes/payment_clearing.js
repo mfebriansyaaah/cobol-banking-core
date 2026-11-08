@@ -12,7 +12,7 @@ export const PAYMENT_CLEARING_ROUTES = [
     BLANK, BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/payments/clearing', action: 'PMC_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'status', pattern: PATTERNS.PMC_LIST_STATUS, required: false },
     { name: 'currency', pattern: PATTERNS.CURRENCY, required: false },
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },

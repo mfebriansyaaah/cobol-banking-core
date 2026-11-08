@@ -3782,6 +3782,48 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "infra.js :: GET /health": {
+    "action": "PING",
+    "fields": [],
+    "tokenIdentity": null,
+    "stepUp": false
+  },
+  "infra.js :: GET /live": {
+    "action": null,
+    "fields": [],
+    "tokenIdentity": null,
+    "stepUp": false
+  },
+  "infra.js :: GET /metrics": {
+    "action": null,
+    "fields": [],
+    "tokenIdentity": null,
+    "stepUp": false
+  },
+  "infra.js :: GET /ready": {
+    "action": "PING",
+    "fields": [],
+    "tokenIdentity": null,
+    "stepUp": false
+  },
+  "infra.js :: POST /auth/logout": {
+    "action": "REVOKE_SESSION",
+    "fields": [],
+    "tokenIdentity": null,
+    "stepUp": false
+  },
+  "infra.js :: POST /auth/refresh": {
+    "action": "CONSUME_SESSION",
+    "fields": [],
+    "tokenIdentity": null,
+    "stepUp": false
+  },
+  "infra.js :: POST /auth/revoke": {
+    "action": "REVOKE_ACCESS_TOKEN",
+    "fields": [],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
   "letter_of_credit.js :: GET /letters-of-credit": {
     "action": "LOC_LIST",
     "fields": [
@@ -5451,7 +5493,7 @@
     "fields": [
       "email",
       "channel",
-      "BLANK",
+      "purpose",
       "ACTOR",
       "BLANK",
       "BLANK"
@@ -5464,7 +5506,7 @@
     "fields": [
       "email",
       "code",
-      "BLANK",
+      "purpose",
       "ACTOR",
       "BLANK",
       "BLANK"

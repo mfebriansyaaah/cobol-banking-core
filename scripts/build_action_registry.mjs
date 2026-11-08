@@ -52,6 +52,9 @@ for (const e of domains.entries || domains) {
 const seen = new Map();
 const actions = [];
 for (const r of ALL_ROUTES) {
+  // Infrastructure routes with bespoke handlers (custom: true) carry no
+  // COBOL action (e.g. liveness, metrics): they are transport, not dispatch.
+  if (!r.action) continue;
   if (seen.has(r.action)) {
     seen.get(r.action).duplicatePaths = true;
     continue;

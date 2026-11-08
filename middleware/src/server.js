@@ -68,15 +68,17 @@ const stopExporter = startMetricsExporter({
   logger: jsonLogger,
 });
 
-// Drain: stop accepting requests, stop the exporter, and shut down the COBOL
-// worker pool before exiting.
+// Drain: stop accepting requests, wait for in-flight requests to finish,
+// then stop the exporter and shut down the COBOL worker pool before exiting.
 let shuttingDown = false;
 function shutdown(signal) {
   if (shuttingDown) return;
   shuttingDown = true;
   if (typeof stopExporter === 'function') stopExporter();
-  resetPool();
-  server.close(() => process.exit(0));
+  server.close(() => {
+    resetPool();
+    process.exit(0);
+  });
   setTimeout(() => process.exit(0), 5000).unref();
   if (signal) {
     // eslint-disable-next-line no-console -- shutdown notice to stdout by design

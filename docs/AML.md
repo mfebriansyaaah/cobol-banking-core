@@ -20,6 +20,10 @@
 - Adapter: `CLEAR` (no match) / `POTENTIAL_MATCH` (any match) /
   `MANUAL_REVIEW` (provider down, malformed, timeout — fail-closed, never
   `CLEAR` on doubt) / `SKIPPED` (no consent/endpoint — not recorded).
+- Gateway (`POST /screening/check`) sends name/DOB/consent only; the verdict,
+  query hash, and provider ref are derived server-side
+  (`middleware/src/derivations.js`, `SCREENING_PROVIDER`, default `mock`).
+  A client-sent `result` is overwritten and can never clear a user.
 - COBOL (`SCR_SCREEN`): middleware verdicts record owner-side; reviewer
   verdicts (`FALSE_POSITIVE`, `CONFIRMED_MATCH`) need `SUPER_ADMIN`, so a
   potential match is never auto-cleared. Non-clear results open a

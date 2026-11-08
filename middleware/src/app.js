@@ -15,6 +15,7 @@ import { verifyTurnstile } from '../services/integrations/bot/turnstile.js';
 import { createTokenStore } from './tokenStore.js';
 import { RESPONSE_MAPPERS } from './responseMappers.js';
 import { completeRefresh } from './authService.js';
+import { applyDerivation } from './derivations.js';
 
 // Reasons counted in gateway_auth_failures_total. Telemetry only: the code
 // still decides, this list only decides which failures are worth counting as
@@ -134,7 +135,7 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
   // Deep health: confirm the COBOL core can reach the database. Rate-limited:
   // it is public and performs a COBOL/DB round-trip, so it must not be an
   // anonymous amplification vector.
-  router.get('/health', apiLimiter, async (_req, res) => {
+  const infraHealth = async (_req, res) => {
     const t0 = Date.now();
     try {
       const raw = await invoke('PING', []);
@@ -148,17 +149,17 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       res.set('X-Cobol-Ms', String(Date.now() - t0));
       return res.status(503).json({ status: 'degraded', db: 'down' });
     }
-  });
+  };
 
   // Liveness: the process is up. No dependencies — never flaps on a DB blip.
-  router.get('/live', (_req, res) => res.json({ status: 'alive' }));
+  const infraLive = (_req, res) => res.json({ status: 'alive' });
 
   // Readiness: dependencies usable (DB reachable, pool has a worker when
   // pooling is on). Public like a readiness probe must be, so it is
   // rate-limited and its result is cached for a short window (PROBE_CACHE_MS)
   // to bound the DB round-trips an anonymous caller can trigger.
   let readyCache = null; // { at, status, body }
-  router.get('/ready', apiLimiter, async (_req, res) => {
+  const infraReady = async (_req, res) => {
     const ttl = Number(process.env.PROBE_CACHE_MS || 1000);
     const now = Date.now();
     if (readyCache && now - readyCache.at < ttl) {
@@ -181,37 +182,52 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
     const body = { status: ok ? 'ready' : 'not_ready', checks };
     readyCache = { at: now, status, body };
     return res.status(status).json(body);
-  });
+  };
 
   // Prometheus-style counters (support only). Authenticated to keep the
   // surface closed; scrapers send a bearer token.
-  router.get('/metrics', apiLimiter, requireAuth, requireActiveToken, requirePermission('AUDIT_READ'), (_req, res) => {
+  const infraMetrics = (_req, res) => {
     res.type('text/plain').send(metricsText());
-  });
+  };
 
   // Pure transport: exchange a refresh token for a new access token. The old
   // refresh token is consumed atomically; a replay is detected as reuse.
   // Session rotation itself lives in authService so the router stays thin.
-  router.post('/auth/refresh', authLimiter, async (req, res) => {
+  const infraRefresh = async (req, res) => {
+    let payload;
     try {
-      const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
+      payload = verifyRefresh((req.body && req.body.refreshToken) || '');
       const consume = await invoke('CONSUME_SESSION', [payload.jti || '']);
       if (consume !== 'SUCCESS|SESSION_CONSUMED') {
         return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
       }
-      return res.json(await completeRefresh(payload, { req }));
     } catch {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
     }
-  });
+    // Rotation persistence must not be reported as success when it fails.
+    try {
+      return res.json(await completeRefresh(payload, { req }));
+    } catch {
+      return res.status(500).json({ error: 'SESSION_STORE_FAILED' });
+    }
+  };
 
   // Per-device logout: revoke the presented refresh session and, when the
   // bearer is also presented, deny that access token. Other devices are
   // unaffected — use POST /sessions/revoke-all to log out everywhere.
-  router.post('/auth/logout', authLimiter, async (req, res) => {
+  // Fail closed: a refused revocation is a 500, never a false LOGGED_OUT.
+  const infraLogout = async (req, res) => {
+    let payload;
     try {
-      const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
-      await invoke('REVOKE_SESSION', [payload.jti || '']);
+      payload = verifyRefresh((req.body && req.body.refreshToken) || '');
+    } catch {
+      return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+    }
+    try {
+      const revoked = await invoke('REVOKE_SESSION', [payload.jti || '']);
+      if (revoked !== 'SUCCESS|SESSION_REVOKED') {
+        return res.status(500).json({ error: 'SESSION_REVOKE_FAILED' });
+      }
       const header = req.headers.authorization || '';
       const [scheme, token] = header.split(' ');
       if (scheme === 'Bearer' && token) {
@@ -222,20 +238,32 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       }
       return res.json({ data: ['LOGGED_OUT'] });
     } catch {
-      return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+      return res.status(500).json({ error: 'SESSION_REVOKE_FAILED' });
     }
-  });
+  };
 
   // Revoke just the presented access token (per-token denylist), leaving other
-  // sessions of the same user valid.
-  router.post('/auth/revoke', apiLimiter, requireAuth, requireActiveToken, async (req, res, next) => {
+  // sessions of the same user valid. Fail closed on denylist errors.
+  const infraRevoke = async (req, res) => {
     try {
       await tokenStore.revoke({ jti: req.user.jti, email: req.user.email, ttlSeconds: ACCESS_TTL_SECONDS });
       return res.json({ data: ['TOKEN_REVOKED'] });
-    } catch (err) {
-      return next(err);
+    } catch {
+      return res.status(500).json({ error: 'TOKEN_REVOKE_FAILED' });
     }
-  });
+  };
+
+  // Bespoke handlers for routes/infra.js (custom: true). Registration flows
+  // through registerRoute like every other route; only the handler differs.
+  const CUSTOM_HANDLERS = {
+    health: infraHealth,
+    live: infraLive,
+    ready: infraReady,
+    metrics: infraMetrics,
+    refresh: infraRefresh,
+    logout: infraLogout,
+    revoke: infraRevoke,
+  };
 
   const registerRoute = (target, route) => {
     const handler = async (req, res, next) => {
@@ -253,6 +281,12 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
         if (route.tokenSid) {
           input.sid = (req.user && req.user.sid) || '';
         }
+        // Server-side derivations (derivations.js): raw client input (NIK,
+        // screening name, risk IP, phone) is validated and converted into the
+        // derived values COBOL stores. Derived keys overwrite any client-sent
+        // values of the same name, so verdicts/hashes can never be spoofed.
+        const derived = await applyDerivation(route.action, input, { req });
+        Object.assign(input, derived);
         const params = buildParams(route, input);
         assertLineLength(route.action, params);
         // Breached-password gate (PR-093): routes carrying a *new* password
@@ -321,6 +355,19 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       }
     };
     const chain = [];
+    // Bespoke handlers (routes/infra.js) keep their original limiters and
+    // auth chains; only the registration moved into the table.
+    if (route.custom) {
+      chain.push(route.limiter === 'auth' ? authLimiter : apiLimiter);
+      if (!route.public) chain.push(requireAuth);
+      if (!route.public) chain.push(requireActiveToken);
+      if (route.permission) chain.push(requirePermission(route.permission));
+      const custom = CUSTOM_HANDLERS[route.custom];
+      if (!custom) throw new Error(`unknown custom handler: ${route.custom}`);
+      chain.push(custom);
+      target[route.method](route.path, ...chain);
+      return;
+    }
     if (route.path.startsWith('/auth')) chain.push(authLimiter);
     else chain.push(apiLimiter);
     if (!route.public) chain.push(requireAuth);

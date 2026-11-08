@@ -72,6 +72,12 @@ async function main() {
     console.error(`OUTBOX_TRANSPORT must be smtp, mailpit, or log (got ${transport})`);
     process.exit(1);
   }
+  // The log transport marks mail delivered without sending: development and
+  // tests only, never production (codes would sit in a file as SENT).
+  if (transport === 'log' && process.env.NODE_ENV === 'production') {
+    console.error('OUTBOX_TRANSPORT=log is not allowed in production (use smtp or mailpit)');
+    process.exit(1);
+  }
   if (transport === 'log' && !logFile) {
     console.error('OUTBOX_LOG_FILE is required with OUTBOX_TRANSPORT=log');
     process.exit(1);

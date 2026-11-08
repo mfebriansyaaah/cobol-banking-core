@@ -21,6 +21,9 @@ const fillParams = (p) => p.replace(/:[^/]+/g, '1');
 test('every registered route responds (never 404/405/5xx)', async () => {
   const failures = [];
   for (const route of ROUTES) {
+    // Probe routes answer 503 without a database; the dedicated probe test
+    // below covers them (here they would false-fail the generic contract).
+    if (route.custom === 'health' || route.custom === 'ready') continue;
     const path = fillParams(route.path);
     let res;
     try {
@@ -40,8 +43,16 @@ test('every registered route responds (never 404/405/5xx)', async () => {
       continue;
     }
     if (route.public) {
-      if (![200, 400, 409, 422].includes(res.status)) {
-        failures.push(`${tag}: public route returned HTTP ${res.status}, expected validation/success (2xx/400/409/422)`);
+      // Credential-bearing public routes (refresh/logout take a refresh
+      // token, not fields) answer 401 on an empty body instead of 400.
+      const ok =
+        route.custom === 'refresh' || route.custom === 'logout'
+          ? [200, 400, 401, 409, 422].includes(res.status)
+          : [200, 400, 409, 422].includes(res.status);
+      if (!ok) {
+        failures.push(
+          `${tag}: public route returned HTTP ${res.status}, expected validation/success (2xx/400/409/422)`,
+        );
       }
     } else if (![401, 403].includes(res.status)) {
       failures.push(`${tag}: guarded route returned HTTP ${res.status} without a token, expected 401/403`);

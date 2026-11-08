@@ -8988,9 +8988,6 @@ paths:
                   type: string
               required:
                 - email
-                - nikHash
-                - nikLast4
-                - verdict
       responses:
         "200":
           description: Success
@@ -9030,7 +9027,6 @@ paths:
                   type: string
               required:
                 - email
-                - verdict
       responses:
         "200":
           description: Success
@@ -10162,6 +10158,163 @@ paths:
       parameters:
         - 
                     $ref: "#/components/parameters/actor"
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /health:
+    get:
+      operationId: PING
+      summary: PING — List entities
+      tags:
+        - infra
+      parameters:
+        - 
+                    $ref: "#/components/parameters/status"
+        - 
+                    $ref: "#/components/parameters/type"
+        - 
+                    $ref: "#/components/parameters/limit"
+        - 
+                    $ref: "#/components/parameters/offset"
+        - 
+                    $ref: "#/components/parameters/actor"
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /ready:
+    get:
+      operationId: PING
+      summary: PING — List entities
+      tags:
+        - infra
+      parameters:
+        - 
+                    $ref: "#/components/parameters/status"
+        - 
+                    $ref: "#/components/parameters/type"
+        - 
+                    $ref: "#/components/parameters/limit"
+        - 
+                    $ref: "#/components/parameters/offset"
+        - 
+                    $ref: "#/components/parameters/actor"
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/refresh:
+    post:
+      operationId: CONSUME_SESSION
+      summary: CONSUME_SESSION — List entities
+      tags:
+        - infra
+      parameters:
+        - 
+                    $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/logout:
+    post:
+      operationId: REVOKE_SESSION
+      summary: REVOKE_SESSION — List entities
+      tags:
+        - infra
+      parameters:
+        - 
+                    $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/revoke:
+    post:
+      operationId: REVOKE_ACCESS_TOKEN
+      summary: REVOKE_ACCESS_TOKEN — List entities
+      tags:
+        - infra
+      parameters:
+        - 
+                    $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
       responses:
         "200":
           description: Success
@@ -14466,7 +14619,6 @@ paths:
                   type: string
               required:
                 - email
-                - phoneHash
       responses:
         "200":
           description: Success
@@ -14543,9 +14695,12 @@ paths:
                   type: string
                 channel:
                   type: string
+                purpose:
+                  type: string
               required:
                 - email
                 - channel
+                - purpose
       responses:
         "200":
           description: Success
@@ -14581,9 +14736,12 @@ paths:
                   type: string
                 code:
                   type: string
+                purpose:
+                  type: string
               required:
                 - email
                 - code
+                - purpose
       responses:
         "200":
           description: Success
@@ -16434,7 +16592,6 @@ paths:
                   type: string
               required:
                 - email
-                - ipHashFlags
       responses:
         "200":
           description: Success
@@ -16510,8 +16667,6 @@ paths:
                   type: string
               required:
                 - email
-                - queryHash
-                - result
       responses:
         "200":
           description: Success

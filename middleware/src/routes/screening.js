@@ -3,6 +3,8 @@ const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
 const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 
 export const SCREENING_ROUTES = [
+  // Screening verdicts are computed server-side (derivations.js) from the
+  // raw name (+dob, consent): the client never sends result/queryHash.
   {
     method: 'post',
     path: '/screening/check',
@@ -10,8 +12,8 @@ export const SCREENING_ROUTES = [
     tokenIdentity: 'actor',
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
-      { name: 'queryHash', pattern: PATTERNS.REF_VALUE_CODE, required: true },
-      { name: 'result', pattern: PATTERNS.NAME, required: true },
+      { name: 'queryHash', pattern: PATTERNS.REF_VALUE_CODE, required: false },
+      { name: 'result', pattern: PATTERNS.NAME, required: false },
       { name: 'provider', pattern: PATTERNS.NAME, required: false },
       { name: 'providerRef', pattern: PATTERNS.REF_VALUE_CODE, required: false },
       ACTOR,
