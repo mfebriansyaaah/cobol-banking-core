@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-11-08T07:43:39.264Z",
-  "commit": "ede796a7",
+  "generatedAt": "2026-11-08T23:50:08.110Z",
+  "commit": "8eaca344",
   "tier1": "manifest/tier1.json",
   "summary": {
-    "L3": 18,
-    "L2": 6,
+    "L3": 19,
+    "L2": 5,
     "L1": 10,
     "L0": 29,
     "UTILITY": 3
@@ -686,9 +686,11 @@
     {
       "module": "payment_hold_core",
       "source": "payment_hold_core.cob",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "businessTables": [
-        "accounts"
+        "accounts",
+        "journal_entries",
+        "ledger"
       ],
       "t1Calls": [],
       "t1Actions": [],
@@ -697,7 +699,7 @@
         "tests/db/payment_hold_db_tests.sh",
         "tests/cobol/cases/payment_hold.cases"
       ],
-      "reason": "business link (tables accounts) + test",
+      "reason": "money-table touch (accounts, journal_entries, ledger) with depth + test",
       "routeFiles": [
         "payment_hold.js"
       ]

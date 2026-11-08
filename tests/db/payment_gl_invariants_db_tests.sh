@@ -19,7 +19,11 @@ A="admin@test.com"
 C="CLR-INV-1"
 G="GLA-INV-1"
 P="2099-01"
+CUR="$(date +%Y-%m)"
+run_cobol "GL_PERIOD_OPEN|${CUR}|||||${A}" >/dev/null
 db_exec "DELETE FROM payment_clearing WHERE clearing_ref='${C}';"
+db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'PMC_SETTLE:${C}:%');"
+db_exec "DELETE FROM gl_journal WHERE description LIKE 'PMC_SETTLE:${C}:%';"
 db_exec "DELETE FROM gl_allocation_audit WHERE alloc_id IN (SELECT id FROM gl_allocation WHERE alloc_ref='${G}');"
 db_exec "DELETE FROM gl_allocation WHERE alloc_ref='${G}';"
 
@@ -31,6 +35,11 @@ assert_match "clearing row" "$cid" "^[0-9]+$"
 assert_match "PMC_POST ok" "$(run_cobol "PMC_POST|${cid}|250.00||||${A}")" "SUCCESS\|PMC_POST"
 assert_match "over-post refused" "$(run_cobol "PMC_POST|${cid}|999.00||||${A}")" "ERROR\|INVALID_AMOUNT"
 assert_match "PMC_SETTLE ok" "$(run_cobol "PMC_SETTLE|${cid}|250.00||||${A}")" "SUCCESS\|PMC_SETTLE"
+assert_match "settle linked a GL journal" "$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${cid};")" "^[0-9]+$"
+SJ="$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${cid};")"
+assert_match "settle journal balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount),'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=${SJ};")" "^BALANCED$"
+assert_match "settle lines 1200/2110" "$(db_query "SELECT CONCAT(gl_account_code,':',debit_amount,'/',credit_amount) FROM gl_journal_line WHERE journal_id=${SJ} ORDER BY gl_account_code;" | tr '\n' ';')" "^1200:250.0000000000/0.0000000000;2110:0.0000000000/250.0000000000;$"
+assert_match "settle description keyed" "$(db_query "SELECT description FROM gl_journal WHERE id=${SJ};")" "^PMC_SETTLE:${C}:0.0000[+]250.0000$"
 assert_match "sums conserved" "$(db_query "SELECT CONCAT(amount, '|', posted_amount, '|', settled_amount, '|', status) FROM payment_clearing WHERE id=${cid};")" "^250.0000|250.0000|250.0000|SETTLED$"
 assert_match "cancel settled refused" "$(run_cobol "PMC_CANCEL|${cid}|||||${A}")" "ERROR\|INVALID_STATUS"
 
@@ -62,6 +71,8 @@ assert_match "GLA_CLOSE ok" "$(run_cobol "GLA_CLOSE|${gid}|||||${A}")" "SUCCESS\
 assert_match "allocation closed" "$(db_query "SELECT status FROM gl_allocation WHERE id=${gid};")" "^CLOSED$"
 
 db_exec "DELETE FROM payment_clearing WHERE clearing_ref='${C}';"
+db_exec "DELETE FROM gl_journal_line WHERE journal_id=${SJ};"
+db_exec "DELETE FROM gl_journal WHERE id=${SJ};"
 db_exec "DELETE FROM gl_allocation_audit WHERE alloc_id IN (SELECT id FROM gl_allocation WHERE alloc_ref='${G}');"
 db_exec "DELETE FROM gl_allocation WHERE alloc_ref='${G}';"
 

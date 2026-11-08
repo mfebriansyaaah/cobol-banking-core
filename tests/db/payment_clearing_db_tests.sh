@@ -14,6 +14,12 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 
 db_seed
 db_reset_payment_clearing
+# Fase 1: SETTLE posts a real GL journal, so the current period must be open
+# and the journals it links are suite-owned.
+CUR="$(date +%Y-%m)"
+run_cobol "GL_PERIOD_OPEN|${CUR}|||||admin@test.com" >/dev/null
+db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-D5-%');"
+db_exec "DELETE FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-D5-%';"
 
 # Create a clearing entry.
 create_out="$(run_cobol "PMC_CREATE|CLR-D5-1|100.00|USD|||admin@test.com")"
@@ -38,6 +44,8 @@ assert_match "status posted" "$(db_query "SELECT status FROM payment_clearing WH
 # Settle remaining posted amount.
 assert_match "PMC_SETTLE ok" "$(run_cobol "PMC_SETTLE|${id}|40.00||||admin@test.com")" "SUCCESS\|PMC_SETTLE\|40.00"
 assert_match "settled persisted" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${id};")" "^40.0000$"
+assert_match "settle linked a GL journal" "$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${id};")" "^[0-9]+$"
+assert_match "settle journal balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount),'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=(SELECT gl_journal_id FROM payment_clearing WHERE id=${id});")" "^BALANCED$"
 
 # Over-post rejected.
 assert_match "over-post rejected" "$(run_cobol "PMC_POST|${id}|999.00||||admin@test.com")" "ERROR\|INVALID_STATUS"
