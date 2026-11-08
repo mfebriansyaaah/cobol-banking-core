@@ -25,7 +25,11 @@ function withEnv(vars, fn) {
 
 test('OCR mock never clears: success still requires human review', async () => {
   const res = await withEnv({ KTP_OCR_PROVIDER: 'mock' }, () => deriveOcr({ imageRef: 'img-123' }));
-  assert.deepEqual(res, { verdict: 'MANUAL_REVIEW', reason: 'human-review-required' });
+  assert.deepEqual(res, {
+    ocrReviewSignal: 'MANUAL_REVIEW',
+    verdict: 'MANUAL_REVIEW',
+    reason: 'human-review-required',
+  });
 });
 
 test('OCR unknown provider fails fast instead of failing open', async () => {
