@@ -1,15 +1,15 @@
-// OpenAPI generator (PR-053, fixed from known-broken scaffolding): docs/
-// openapi.yaml rendered from routes/*.js (no yaml dependency — minimal
-// deterministic emitter below). Usage: node scripts/generate_openapi.mjs
-// [root] [--write]; check mode (default) fails on drift.
+// OpenAPI generator: docs/openapi.yaml rendered from contracts/actions.yaml
+// (the registry is the source of truth; routes feed the registry via
+// build_contract.mjs). No yaml dependency — minimal deterministic emitter
+// below. Usage: node scripts/generate_openapi.mjs [root] [--write];
+// check mode (default) fails on drift.
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { loadContract } from './lib/contract.mjs';
 
 const args = process.argv.slice(2);
 const ROOT = args.find((a) => !a.startsWith('--')) || '.';
 const WRITE = args.includes('--write');
-const routesDir = path.join(ROOT, 'middleware', 'src', 'routes');
-const manifestPath = path.join(ROOT, 'manifest', 'modules.json');
 const outputPath = path.join(ROOT, 'docs', 'openapi.yaml');
 
 const opMapSummary = {
@@ -89,9 +89,6 @@ function toYaml(value, indent = 0) {
   return yamlScalar(value);
 }
 
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-const routeFiles = manifest.gatewayRoutes || [];
-
 const spec = {
   openapi: '3.0.3',
   info: {
@@ -131,61 +128,11 @@ const spec = {
   },
 };
 
-for (const file of routeFiles) {
-  const content = readFileSync(path.join(routesDir, file), 'utf8');
-  // Split top-level entries on 2-space boundaries (line-based: shared field
-  // consts like DATE_RANGE and single-line entries never confuse it).
-  const shared = {};
-  for (const sm of content.matchAll(/const (\w+) = \[([\s\S]*?)\];/g)) shared[sm[1]] = sm[2];
-  const splitLines = content.split('\n');
-  let cur = null;
-  let depth = 0;
-  let inStr = null;
-  const blocks = [];
-  const scanLine = (line) => {
-    let d = 0;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (inStr) {
-        if (ch === '\\') i++;
-        else if (ch === inStr) inStr = null;
-        continue;
-      }
-      if (ch === "'" || ch === '"' || ch === '`') {
-        inStr = ch;
-        continue;
-      }
-      if (ch === '/' && line[i + 1] === '/') break;
-      if (ch === '{') d++;
-      if (ch === '}') d--;
-    }
-    return d;
-  };
-  for (const line of splitLines) {
-    if (cur === null && /^ {2}\{/.test(line)) {
-      cur = [];
-      depth = 0;
-    }
-    if (cur !== null) {
-      cur.push(line);
-      depth += scanLine(line);
-      if (depth <= 0) {
-        blocks.push(cur.join('\n'));
-        cur = null;
-      }
-    }
-  }
-  for (const entry of blocks) {
-    const m = entry.match(/method: '(\w+)'[\s\S]*?path: '([^']+)'[\s\S]*?action: '(\w+)'/);
-    if (!m) continue;
-    const [, method, routePath, action] = m;
-    let fieldsText = '';
-    const fm = entry.match(/fields: \[([\s\S]*?)\]/);
-    if (fm) fieldsText = fm[1];
-    else {
-      const cm = entry.match(/fields: (\w+)/);
-      if (cm && shared[cm[1]]) fieldsText = shared[cm[1]];
-    }
+for (const entry of [...loadContract(ROOT)].sort((a, b) => a.seq - b.seq)) {
+  const { method, path: routePath, action } = entry;
+  const file = entry.routeFile || '';
+  const fields = entry.fields || [];
+  {
     const opKey = Object.keys(actionToOp).find((k) => action.endsWith(k));
     const op = opKey ? actionToOp[opKey] : 'list';
     if (!spec.paths[routePath]) spec.paths[routePath] = {};
@@ -200,10 +147,12 @@ for (const file of routeFiles) {
     params.push({ $ref: '#/components/parameters/actor' });
     const properties = {};
     const required = [];
-    for (const fm of fieldsText.matchAll(/\{\s*name: '([^']+)'(?:[\s\S]*?required: (true|false))?/g)) {
-      if (!fm[1]) continue;
-      properties[fm[1]] = { type: 'string' };
-      if (fm[2] === 'true') required.push(fm[1]);
+    // Only inline (client-sent) fields go in the body. Bare identifiers
+    // (BLANK/ACTOR/ID) are positional padding or server-injected identity.
+    for (const f of fields) {
+      if (!f.inline || !f.name) continue;
+      properties[f.name] = { type: 'string' };
+      if (f.required) required.push(f.name);
     }
     const body = { type: 'object', properties };
     if (required.length) body.required = required;
