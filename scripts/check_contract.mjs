@@ -79,17 +79,23 @@ const openapi = readFileSync(OPENAPI, 'utf8');
       fail(`contract entry missing method/path: ${action}`);
       continue;
     }
-    const esc = routePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pathRe = new RegExp(`^  ("?${esc}"?):`, 'm');
-    const pm = openapi.match(pathRe);
-    if (!pm) {
+    const lines = openapi.split('\n');
+    const indent2 = '  ';
+    const indent4 = '    ';
+    const hit = lines.findIndex((ln) => ln === `${indent2}${routePath}:` || ln === `${indent2}"${routePath}":`);
+    if (hit === -1) {
       fail(`contract route missing in openapi: ${method.toUpperCase()} ${routePath} (${action})`);
       continue;
     }
-    const section = openapi.slice(openapi.indexOf(pm[0]));
-    const nextPath = section.slice(1).search(/^  \//m);
-    const block = nextPath === -1 ? section : section.slice(0, nextPath + 1);
-    if (!new RegExp(`^    ${method}:`, 'm').test(block)) {
+    let end = lines.length;
+    for (let i = hit + 1; i < lines.length; i += 1) {
+      if (lines[i].startsWith(indent2) && !lines[i].startsWith(indent4)) {
+        end = i;
+        break;
+      }
+    }
+    const block = lines.slice(hit, end);
+    if (!block.some((ln) => ln === `${indent4}${method}:`)) {
       fail(`contract method missing in openapi: ${method.toUpperCase()} ${routePath} (${action})`);
     }
   }

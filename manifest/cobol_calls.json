@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-11-08T09:06:05.901Z",
+  "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
+  "count": 7,
+  "edges": [
+    {
+      "from": "auth_core",
+      "to": "hashlen_core",
+      "callsites": 2
+    },
+    {
+      "from": "auth_password_core",
+      "to": "auth_core",
+      "callsites": 1
+    },
+    {
+      "from": "eod_jobs_core",
+      "to": "statement_core",
+      "callsites": 2
+    },
+    {
+      "from": "eod_jobs_core",
+      "to": "user_core",
+      "callsites": 2
+    },
+    {
+      "from": "eod_jobs_core",
+      "to": "wallet_recon_core",
+      "callsites": 1
+    },
+    {
+      "from": "payment_instruction_core",
+      "to": "wallet_core",
+      "callsites": 1
+    },
+    {
+      "from": "wallet_core",
+      "to": "payment_core",
+      "callsites": 1
+    }
+  ]
+}

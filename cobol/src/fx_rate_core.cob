@@ -11,7 +11,7 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
-        01  WS-PREP-SQL             PIC X(2048) VALUE SPACES.
+        01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
         01  WS-BIND-3               PIC X(256) VALUE SPACES.
