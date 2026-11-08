@@ -57,3 +57,28 @@ p8_field_order_drift=detected
 # the runner nor the count gate notices — but the action is never executed,
 # which only check_action_test_coverage sees.
 p9_action_without_test=detected
+
+# A service reaching back into transport (services -> src). Only the
+# dependency graph (ADR-0006 one-way layering) sees the direction.
+p10_reverse_import=detected
+
+# One field keeps its name but changes pattern (LIMIT -> INT). Names,
+# registration, auth, and dispatch are untouched, so only the contract —
+# the sole gate recording patterns — notices.
+p11_pattern_swap=detected
+
+# An orphan COMMIT in a module that never opens a transaction. Only the
+# transaction-ownership gate pairs every close with an open.
+p12_orphan_commit=detected
+
+# A new COBOL->COBOL edge the registry never reviewed. Only the call-graph
+# ratchet lists every cross-module edge.
+p13_new_call_edge=detected
+
+# A query buffer declared wider than the C bridge copies. Only the
+# field-size gate enforces the 1024-byte ceiling.
+p14_oversize_buffer=detected
+
+# Trailing garbage that breaks YAML parsing. Only the openapi gate parses
+# the file instead of string-comparing it.
+p15_openapi_invalid=detected
