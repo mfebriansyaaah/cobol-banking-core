@@ -10,8 +10,8 @@ accepted only from people authorized by the owner.
 - Branch from `main`; never push directly to `main`. See
   [Branching and merge model](docs/BRANCHING.md) for the train, merge method,
   and final `git ls-remote --heads origin` check (only `main` remains).
-- Prefer PRs under 500 changed lines and under 5 working days (ceiling 3500
-  with a recorded exception — see `docs/BRANCHING.md`). Split large waves.
+- Keep PRs under 5 working days and within the 3500-line ceiling (recorded
+  exception path — see `docs/BRANCHING.md`). Split large waves.
 - No merge with a failing CI check. Required checks are listed in
   [CI status](docs/CI.md).
 - Do not add secrets, real customer data, or personal email addresses to code,
