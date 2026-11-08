@@ -15,18 +15,18 @@
 // Operational logs go to stdout WITHOUT codes or message bodies (redacted);
 // the delivery record (log transport) or the SMTP provider holds content.
 //
-// Usage: node middleware/src/outbox_worker.js [--once] [--limit N] [--worker ID]
-//   OUTBOX_TRANSPORT=smtp node middleware/src/outbox_worker.js --once
-//   OUTBOX_TRANSPORT=log OUTBOX_LOG_FILE=/tmp/outbox.log node middleware/src/outbox_worker.js --once
-//   cron: * * * * * OUTBOX_TRANSPORT=smtp node /opt/cobol-banking-core/middleware/src/outbox_worker.js --once --limit 100
+// Usage: node middleware/workers/outbox.js [--once] [--limit N] [--worker ID]
+//   OUTBOX_TRANSPORT=smtp node middleware/workers/outbox.js --once
+//   OUTBOX_TRANSPORT=log OUTBOX_LOG_FILE=/tmp/outbox.log node middleware/workers/outbox.js --once
+//   cron: * * * * * OUTBOX_TRANSPORT=smtp node /opt/cobol-banking-core/middleware/workers/outbox.js --once --limit 100
 
 import { appendFile } from 'node:fs/promises';
-import { invoke } from './invoker.js';
-import { resetPool } from './pool.js';
-import { toHttp } from './result.js';
-import { createMailer, mailerFrom, verificationSubject } from './mailer.js';
-import { pingCheck, pingFail } from './integrations/ops/healthchecks.js';
-import { sendAlert } from './integrations/ops/notify.js';
+import { invoke } from '../src/invoker.js';
+import { resetPool } from '../src/pool.js';
+import { toHttp } from '../src/result.js';
+import { createMailer, mailerFrom, verificationSubject } from '../services/mailer.js';
+import { pingCheck, pingFail } from '../services/integrations/ops/healthchecks.js';
+import { sendAlert } from '../services/integrations/ops/notify.js';
 
 function arg(name, fallback) {
   const i = process.argv.indexOf(name);
@@ -59,7 +59,6 @@ function textFor({ purpose, code, detail }) {
 
 function logLine(event, fields = {}) {
   // Redacted by construction: callers pass id/to/purpose only, never code.
-  // eslint-disable-next-line no-console -- 12-factor JSON log line to stdout by design
   console.log(JSON.stringify({ ts: new Date().toISOString(), event, ...fields }));
 }
 
@@ -70,12 +69,10 @@ async function main() {
   const logFile = process.env.OUTBOX_LOG_FILE;
 
   if (transport !== 'smtp' && transport !== 'mailpit' && transport !== 'log') {
-    // eslint-disable-next-line no-console -- startup usage error goes to stderr by convention
     console.error(`OUTBOX_TRANSPORT must be smtp, mailpit, or log (got ${transport})`);
     process.exit(1);
   }
   if (transport === 'log' && !logFile) {
-    // eslint-disable-next-line no-console -- startup usage error goes to stderr by convention
     console.error('OUTBOX_LOG_FILE is required with OUTBOX_TRANSPORT=log');
     process.exit(1);
   }
@@ -148,7 +145,6 @@ try {
   // Liveness ping (PR-095): best-effort, never fails the job.
   await pingCheck(process.env.OUTBOX_CHECK_ID);
 } catch (err) {
-  // eslint-disable-next-line no-console -- last-resort crash report; the process is exiting
   console.error(
     JSON.stringify({
       ts: new Date().toISOString(),

@@ -5,8 +5,8 @@ import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../../src/app.js';
 import { testNamespace, uniqueEmail, cleanupNamespace } from '../support.js';
-import { assertPasswordAllowed, checkPassword, enforced, sha1Upper } from '../../src/integrations/security/pwned.js';
-import { resetBreakers } from '../../src/integrations/resilience.js';
+import { assertPasswordAllowed, checkPassword, enforced, sha1Upper } from '../../services/integrations/security/pwned.js';
+import { resetBreakers } from '../../services/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
 // 'password' is in every breach corpus; this string is not.

@@ -3,10 +3,10 @@
 // single machine-readable result line. Fresh process per scenario, so circuit
 // breakers never leak between scenarios. Usage:
 //   FAKE=http://127.0.0.1:PORT TELEGRAM_API_BASE=$FAKE/telegram ... node driver.mjs <scenario> $FAKE
-import { sendTelegramOtp } from '../../middleware/src/integrations/phone/telegram.js';
-import { sendFreeSms } from '../../middleware/src/integrations/phone/free_sms.js';
-import { createPhoneProvider, sendOtpWithFallback } from '../../middleware/src/integrations/phone.js';
-import { validateNikRemote } from '../../middleware/src/integrations/identity/nusakit.js';
+import { sendTelegramOtp } from '../../middleware/services/integrations/phone/telegram.js';
+import { sendFreeSms } from '../../middleware/services/integrations/phone/free_sms.js';
+import { createPhoneProvider, sendOtpWithFallback } from '../../middleware/services/integrations/phone.js';
+import { validateNikRemote } from '../../middleware/services/integrations/identity/nusakit.js';
 
 const [scenario, fake] = process.argv.slice(2);
 const NIK = '3171010101900001';

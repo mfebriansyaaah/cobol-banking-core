@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { integrationConfig, assertIntegrationConfig } from '../src/integrations/config.js';
+import { integrationConfig, assertIntegrationConfig } from '../services/integrations/config.js';
 import {
   EMAIL_PROVIDER,
   PHONE_PROVIDER,
@@ -8,8 +8,8 @@ import {
   OCR_PROVIDER,
   getProviders,
   resetProviders,
-} from '../src/integrations/index.js';
-import { validateNikStructure } from '../src/integrations/identity.js';
+} from '../services/integrations/index.js';
+import { validateNikStructure } from '../services/integrations/identity.js';
 
 async function withEnv(vars, fn) {
   const saved = {};
@@ -100,7 +100,7 @@ test('telegram without token fails closed, health reports it', async () => {
 });
 
 test('phone normalization is ID-only E.164', async () => {
-  const { normalizeIdPhone } = await import('../src/integrations/phone/normalize.js');
+  const { normalizeIdPhone } = await import('../services/integrations/phone/normalize.js');
   assert.equal(normalizeIdPhone('0812-3456-789'), '+628123456789');
   assert.equal(normalizeIdPhone('+628123456789'), '+628123456789');
   assert.equal(normalizeIdPhone('628123456789'), '+628123456789');
@@ -110,7 +110,7 @@ test('phone normalization is ID-only E.164', async () => {
 
 test('free_sms without config fails closed', async () => {
   await withEnv({ PHONE_OTP_PROVIDER: 'free_sms', FREE_SMS_ENDPOINT: undefined }, async () => {
-    const { createPhoneProvider } = await import('../src/integrations/phone.js');
+    const { createPhoneProvider } = await import('../services/integrations/phone.js');
     const prov = createPhoneProvider('free_sms');
     await assert.rejects(() => prov.sendOtp({ to: '08123456789', code: '1' }), /not set/);
     await assert.rejects(() => prov.sendOtp({ to: 'abc', code: '1' }), /unparseable/);
@@ -124,7 +124,7 @@ test('email log provider sends and reports healthy', async () => {
   await withEnv({ EMAIL_PROVIDER: 'log' }, async () => {
     const p = getProviders();
     const seen = [];
-    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const { createEmailProvider } = await import('../services/integrations/email.js');
     const prov = createEmailProvider('log', { logger: (e) => seen.push(e) });
     assert.equal(await prov.sendVerification({ to: 'a@t.co', purpose: 'X' }), true);
     assert.equal(await prov.sendNotice({ to: 'a@t.co', subject: 'Hi' }), true);
@@ -136,7 +136,7 @@ test('email log provider sends and reports healthy', async () => {
 
 test('mailpit provider defaults to localhost:1025 and fails gracefully', async () => {
   await withEnv({ EMAIL_PROVIDER: 'mailpit', SMTP_HOST: undefined, MAILPIT_HOST: undefined }, async () => {
-    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const { createEmailProvider } = await import('../services/integrations/email.js');
     const prov = createEmailProvider('mailpit');
     assert.equal(prov.kind, 'mailpit');
     const h = await prov.health();
@@ -148,7 +148,7 @@ test('mailpit provider defaults to localhost:1025 and fails gracefully', async (
 
 test('email smtp factory builds without network', async () => {
   await withEnv({ EMAIL_PROVIDER: 'smtp', SMTP_HOST: undefined }, async () => {
-    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const { createEmailProvider } = await import('../services/integrations/email.js');
     const prov = createEmailProvider('smtp');
     assert.equal(prov.kind, 'smtp');
     const h = await prov.health();
@@ -158,7 +158,7 @@ test('email smtp factory builds without network', async () => {
     assert.equal(await prov.sendNotice({ to: 'a@t.co', subject: 's', text: 't' }), false);
   });
   await withEnv({ MAILPIT_HOST: 'mp', SMTP_HOST: undefined }, async () => {
-    const { createEmailProvider } = await import('../src/integrations/email.js');
+    const { createEmailProvider } = await import('../services/integrations/email.js');
     const prov = createEmailProvider('mailpit');
     const h = await prov.health();
     assert.equal(h.ok, true);
@@ -176,7 +176,7 @@ test('identity local provider validates structurally', async () => {
     });
     assert.equal((await p.identity.validateNik({ nik: 'nope' })).ok, false);
     assert.equal((await p.identity.health()).ok, true);
-    const { createIdentityProvider } = await import('../src/integrations/identity.js');
+    const { createIdentityProvider } = await import('../services/integrations/identity.js');
     const mock = createIdentityProvider('mock');
     assert.equal((await mock.health()).ok, true);
   });
@@ -189,7 +189,7 @@ test('ocr mock extracts, local fails closed', async () => {
     assert.equal(r.ok, true);
     assert.equal(r.needsReview, false);
     assert.equal((await p.ocr.health()).ok, true);
-    const { createOcrProvider, OCR_REVIEW_THRESHOLD } = await import('../src/integrations/ocr.js');
+    const { createOcrProvider, OCR_REVIEW_THRESHOLD } = await import('../services/integrations/ocr.js');
     assert.equal(OCR_REVIEW_THRESHOLD, 0.85);
     const local = createOcrProvider('local');
     await assert.rejects(() => local.extractKtp({ imageRef: 'x' }), /not implemented yet/);

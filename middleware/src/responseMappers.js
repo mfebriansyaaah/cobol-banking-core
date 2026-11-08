@@ -1,37 +1,9 @@
 // Response mappers: transform a successful COBOL result line into the
-// HTTP response body. Extracted from app.js so transport (Express) and
-// presentation (these mappers) stay separate. Keyed by COBOL action.
-import { randomUUID } from 'node:crypto';
-import { invoke } from './invoker.js';
-import { signToken, signRefresh, signStepUp, REFRESH_TTL_DAYS } from './auth.js';
-
-export function sanitizeMeta(value, max) {
-  return String(value || '')
-    .replace(/[^\x20-\x7E]/g, '')
-    .replace(/[|;]/g, '_')
-    .slice(0, max);
-}
-
-export async function listPermissions(email) {
-  try {
-    const raw = await invoke('LIST_PERMISSIONS', [email]);
-    if (!raw.startsWith('SUCCESS|PERMISSIONS')) return [];
-    const rows = raw.split('|')[2] || '';
-    return rows ? rows.split(';').filter(Boolean) : [];
-  } catch {
-    return [];
-  }
-}
-
-export async function tokenVersion(email) {
-  try {
-    const raw = await invoke('GET_TOKEN_VERSION', [email]);
-    const v = Number(String(raw).split('|')[1]);
-    return Number.isFinite(v) ? v : 1;
-  } catch {
-    return 1;
-  }
-}
+// HTTP response body. Pure presentation only: no direct COBOL invoke, no
+// token signing, no SQL. Session/token side effects live in authService.js;
+// the two session mappers below delegate to it so all orchestration stays
+// in one gateway service module.
+import { completeLogin, completeStepUp, listPermissions } from './authService.js';
 
 export const RESPONSE_MAPPERS = {
   REQUEST_SIGNUP: async () => {
@@ -48,30 +20,8 @@ export const RESPONSE_MAPPERS = {
     // Neutral: a new code is queued only when an UNVERIFIED account exists.
     return { data: ['CODE_SENT'] };
   },
-  AUTH_LOGIN: async (body, input, { req }) => {
-    const ver = await tokenVersion(input.email);
-    const issued = signRefresh({ email: input.email });
-    const ua = sanitizeMeta(req && req.headers && req.headers['user-agent'], 120);
-    const ip = sanitizeMeta(req && req.ip, 45);
-    await invoke('STORE_SESSION', [issued.jti, input.email, String(REFRESH_TTL_DAYS), issued.jti, ua, ip]);
-    // Announce a first sign-in from this fingerprint. Best effort: the login
-    // must not fail because the notice could not be queued.
-    try { await invoke('LOGIN_NOTICE', [input.email, ua, ip]); } catch { /* best effort */ }
-    // Whether an admin without MFA must enrol next is decided by COBOL; the
-    // gateway forwards the flag without reimplementing the admin-role rule.
-    const enroll = (await invoke('MFA_ENROLL_REQUIRED', [input.email])) === 'SUCCESS|1';
-    return {
-      ...body,
-      token: signToken({ email: input.email, ver, jti: randomUUID(), sid: issued.jti }),
-      refreshToken: issued.token,
-      mfaEnrollmentRequired: enroll,
-      permissions: await listPermissions(input.email),
-    };
-  },
-  VERIFY_REAUTH: async (body, input) => {
-    const ver = await tokenVersion(input.email);
-    return { data: ['STEP_UP_OK'], stepUpToken: signStepUp({ email: input.email, ver }) };
-  },
+  AUTH_LOGIN: async (body, input, { req }) => completeLogin(body, input, { req }),
+  VERIFY_REAUTH: async (body, input) => completeStepUp(input),
   LIST_USERS: async (body) => {
     // data: ['LIST_DONE', total, 'id:email:name:role:status;...']
     const total = Number(body.data[1]);
@@ -108,9 +58,27 @@ export const RESPONSE_MAPPERS = {
       .filter(Boolean)
       .map((row) => {
         const [id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed, ...desc] = row.split(':');
-        return { id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed: reversed === '1', description: desc.join(':') };
+        return {
+          id,
+          postedAt,
+          valueDate,
+          ref,
+          source,
+          side,
+          amount,
+          balanceAfter,
+          reversed: reversed === '1',
+          description: desc.join(':'),
+        };
       });
-    return { data: ['STATEMENT'], opening: body.data[1], closing: body.data[2], currency: body.data[3], total: body.data[4], lines: rows };
+    return {
+      data: ['STATEMENT'],
+      opening: body.data[1],
+      closing: body.data[2],
+      currency: body.data[3],
+      total: body.data[4],
+      lines: rows,
+    };
   },
   OPEN_DISPUTE: async (body) => {
     return { data: ['DISPUTE_OPENED'], caseId: body.data[1] };
@@ -127,7 +95,9 @@ export const RESPONSE_MAPPERS = {
     return { data: ['DISPUTES'], total: body.data[1], cases };
   },
   GET_DISPUTE: async (body) => {
-    const [caseId, email, ref, subject, detail, state, assignee, due, overdue, created, resolution] = String(body.data[1] || '').split(':');
+    const [caseId, email, ref, subject, detail, state, assignee, due, overdue, created, resolution] = String(
+      body.data[1] || '',
+    ).split(':');
     const messages = String(body.data[3] || '')
       .split(';')
       .filter(Boolean)
@@ -135,7 +105,24 @@ export const RESPONSE_MAPPERS = {
         const [msgId, author, msgBody, sentAt] = row.split(':');
         return { msgId, author, body: msgBody, sentAt };
       });
-    return { data: ['DISPUTE'], case: { caseId, email, ref, subject, detail, state, assignee, due, overdue: overdue === '1', created, resolution }, total: body.data[2], messages };
+    return {
+      data: ['DISPUTE'],
+      case: {
+        caseId,
+        email,
+        ref,
+        subject,
+        detail,
+        state,
+        assignee,
+        due,
+        overdue: overdue === '1',
+        created,
+        resolution,
+      },
+      total: body.data[2],
+      messages,
+    };
   },
   GET_DASHBOARD: async (body) => {
     // data: ['DASHBOARD', email, name, status, role, dob, createdAt, accounts]
@@ -146,7 +133,12 @@ export const RESPONSE_MAPPERS = {
           return { currency, balance, available, status };
         })
       : [];
-    return { data: ['PROFILE'], profile: { email, name, status, role, dob, createdAt }, accounts: balances, permissions: await listPermissions(email) };
+    return {
+      data: ['PROFILE'],
+      profile: { email, name, status, role, dob, createdAt },
+      accounts: balances,
+      permissions: await listPermissions(email),
+    };
   },
   REQ_EMAIL_CHANGE: async () => {
     // Neutral: a code is queued only when the new address is free.
@@ -157,7 +149,12 @@ export const RESPONSE_MAPPERS = {
     return { data: ['EMAIL_CHANGED'] };
   },
   MFA_BACKUP_CODES: async (body) => {
-    return { data: ['BACKUP_CODES'], codes: String(body.data[1] || '').split(',').filter(Boolean) };
+    return {
+      data: ['BACKUP_CODES'],
+      codes: String(body.data[1] || '')
+        .split(',')
+        .filter(Boolean),
+    };
   },
   MFA_ENROLL_BEGIN: async (body, input) => {
     // The secret is shown once so the user can add it to their authenticator.

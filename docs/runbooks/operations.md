@@ -4,7 +4,7 @@
 
 | Job             | Command                                                                 | Check                             |
 | --------------- | ----------------------------------------------------------------------- | --------------------------------- |
-| Outbox dispatch | `OUTBOX_TRANSPORT=smtp ... node middleware/src/outbox_worker.js --once` | `OUTBOX_CHECK_ID`                 |
+| Outbox dispatch | `OUTBOX_TRANSPORT=smtp ... node middleware/workers/outbox.js --once` | `OUTBOX_CHECK_ID`                 |
 | FX sync         | `FX_CRON_ACTOR=... node scripts/cron/fetch_fx_rates.mjs`                | `FX_CHECK_ID` (wire when created) |
 | Backup drill    | `scripts/ci/backup_restore_drill.sh`                                    | manual                            |
 

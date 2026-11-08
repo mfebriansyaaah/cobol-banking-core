@@ -16,7 +16,7 @@ Free-only integrations must not become production risks. Policy + mechanism:
 
 ## Quota guard
 
-- `middleware/src/integrations/quota.js`: daily per-provider counters
+- `middleware/services/integrations/quota.js`: daily per-provider counters
   (`QUOTA_<PROVIDER>_DAILY`, defaults in code). Alert at 80% (logged once),
   refuse with `QUOTA_EXCEEDED` over budget, `0` = kill switch (hard-disabled,
   callers fall back to local/manual).

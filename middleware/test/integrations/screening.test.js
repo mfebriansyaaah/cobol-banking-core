@@ -8,10 +8,10 @@ import {
   createScreeningProvider,
   queryHash,
   screenName,
-} from '../../src/integrations/screening/opensanctions.js';
-import { matchLists } from '../../src/integrations/screening/lists.js';
+} from '../../services/integrations/screening/opensanctions.js';
+import { matchLists } from '../../services/integrations/screening/lists.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
-import { resetBreakers } from '../../src/integrations/resilience.js';
+import { resetBreakers } from '../../services/integrations/resilience.js';
 
 const okMatch = (matches) => () => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ matches }) });
 

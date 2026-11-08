@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createGeoProvider, isPrivateIp, resolveGeo } from '../../src/integrations/risk/geoip.js';
-import { flagMismatch, hashIp, noteRisk } from '../../src/integrations/risk/risk_events.js';
-import { resetBreakers } from '../../src/integrations/resilience.js';
+import { createGeoProvider, isPrivateIp, resolveGeo } from '../../services/integrations/risk/geoip.js';
+import { flagMismatch, hashIp, noteRisk } from '../../services/integrations/risk/risk_events.js';
+import { resetBreakers } from '../../services/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
 const IP = '203.0.113.7';

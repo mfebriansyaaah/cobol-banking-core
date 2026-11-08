@@ -25,11 +25,11 @@ crypto helpers COBOL cannot call directly.
 Client
   │  HTTPS / JSON
   ▼
-middleware/                     Node 18+ / Express 5
+middleware/src/                 Node 18+ / Express 5 (transport only)
   app.js                       route table: HTTP → COBOL action
   routes/*.js                  per-domain field order + patterns
   validation.js                request shape, no business rules
-  auth.js                      JWT access/refresh, MFA, step-up
+  auth.js + authService.js      JWT access/refresh, MFA, step-up (session orchestration)
   invoker.js + pool.js         file mode or warm worker pool
   │  pipe protocol: ACTION|P1|P2|P3|P4|P5|P6
   ▼
@@ -42,6 +42,9 @@ cobol/src/sql_bridge.c          MySQL C API prepared statements
   ▼
 MariaDB / MySQL — database `cobol_db`
 ```
+
+Domain-adjacent policy lives outside the gateway: `middleware/services/`
+(integrations, mailer) and background work in `middleware/workers/`.
 
 Rules of the split:
 
@@ -60,7 +63,9 @@ Rules of the split:
 | `cobol/copy/` | Three copybooks used only by the password/auth module |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
-| `middleware/src/` | Express gateway: route modules, barrel, and core helpers |
+| `middleware/src/` | Express gateway (transport only): route modules, barrel, authService, and core helpers |
+| `middleware/services/` | Integration services + mailer (domain-adjacent policy, outside the gateway) |
+| `middleware/workers/` | Background workers (outbox dispatcher) |
 | `middleware/test/` | Gateway test suite (run with `npm --prefix middleware test`) |
 | `database/` | `schema.sql` baseline, migrations, seed, grants (counts in `docs/STATUS.md`) |
 | `tests/` | Unified runner, table-driven COBOL cases, DB suites, harness |
@@ -282,7 +287,7 @@ Production startup refuses weak/default JWT secrets and default DB credentials.
 Verification codes are queued in a transactional outbox; the dispatcher is:
 
 ```sh
-node middleware/src/outbox_worker.js --once --limit 100
+node middleware/workers/outbox.js --once --limit 100
 ```
 
 ## Database
@@ -418,7 +423,7 @@ tests/cobol/table_runner.sh tests/cobol/cases/card.cases
 tests/db/card_db_tests.sh               # one DB suite
 npm --prefix middleware test            # gateway suite
 node scripts/check_manifest.mjs         # registry drift check
-node middleware/src/outbox_worker.js --once
+node middleware/workers/outbox.js --once
 ```
 
 ## Documentation

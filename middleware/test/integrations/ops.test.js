@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { pingCheck, pingFail } from '../../src/integrations/ops/healthchecks.js';
-import { alertTargets, sendAlert } from '../../src/integrations/ops/notify.js';
+import { pingCheck, pingFail } from '../../services/integrations/ops/healthchecks.js';
+import { alertTargets, sendAlert } from '../../services/integrations/ops/notify.js';
 
 async function withEnv(vars, fn) {
   const saved = {};

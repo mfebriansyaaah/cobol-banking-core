@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseNik, nikHandle } from '../../src/integrations/identity/local_nik.js';
-import { validateNikRemote } from '../../src/integrations/identity/nusakit.js';
+import { parseNik, nikHandle } from '../../services/integrations/identity/local_nik.js';
+import { validateNikRemote } from '../../services/integrations/identity/nusakit.js';
 
 // Reference date pinned per case so age math never flakes at year bounds.
 const REF = new Date(Date.UTC(2026, 4, 15)); // 2026-05-15

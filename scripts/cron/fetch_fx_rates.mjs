@@ -3,7 +3,7 @@
 // DB snapshot (GET self-marks STALE past 24h); the cron never writes partial
 // pairs. Usage: FX_CRON_ACTOR=admin@example.com FX_QUOTES=IDR,EUR,SGD
 //   node scripts/cron/fetch_fx_rates.mjs [--once]
-import { fetchRates } from '../../middleware/src/integrations/market/frankfurter.js';
+import { fetchRates } from '../../middleware/services/integrations/market/frankfurter.js';
 import { invoke } from '../../middleware/src/invoker.js';
 
 export async function syncRates({ fetchImpl = fetch, store = null, base, quotes, date } = {}) {

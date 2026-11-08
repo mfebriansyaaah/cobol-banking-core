@@ -9,10 +9,10 @@ import {
   sha256Hex,
   signRequest,
   vaultConfig,
-} from '../../src/integrations/documents/storage.js';
-import { scanBuffer } from '../../src/integrations/documents/scan.js';
-import { retentionDue, sweepRetention } from '../../src/integrations/documents/retention.js';
-import { resetBreakers } from '../../src/integrations/resilience.js';
+} from '../../services/integrations/documents/storage.js';
+import { scanBuffer } from '../../services/integrations/documents/scan.js';
+import { retentionDue, sweepRetention } from '../../services/integrations/documents/retention.js';
+import { resetBreakers } from '../../services/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
 const CFG = {

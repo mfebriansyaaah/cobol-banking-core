@@ -39,7 +39,7 @@ the single-node MinIO).
 
 ## Retention sweep (operator drill)
 
-Policy (`middleware/src/integrations/documents/retention.js`): delete after
+Policy (`middleware/services/integrations/documents/retention.js`): delete after
 verification + `VAULT_RETENTION_DAYS` (default 30); legal hold always wins;
 infected objects go immediately; deletions audit key + hash only.
 
@@ -55,8 +55,8 @@ infected objects go immediately; deletions audit key + hash only.
 
 ## References
 
-- `middleware/src/integrations/documents/storage.js` — PUT/DELETE, SSE-KMS
+- `middleware/services/integrations/documents/storage.js` — PUT/DELETE, SSE-KMS
   headers, per-object key id.
-- `middleware/src/integrations/documents/retention.js` — policy predicate
+- `middleware/services/integrations/documents/retention.js` — policy predicate
   and sweep.
 - `docs/DATA_RETENTION.md` — policy summary and dev-only scope note.

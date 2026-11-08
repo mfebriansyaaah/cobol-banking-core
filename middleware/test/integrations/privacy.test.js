@@ -9,7 +9,7 @@ import {
   scanForPii,
   scrubEvent,
   scrubText,
-} from '../../src/integrations/redact.js';
+} from '../../services/integrations/redact.js';
 
 const NIK = '3171010101900001';
 const PHONE = '+628123456789';
@@ -75,9 +75,9 @@ test('scanForPii flags raw PII and passes clean events', () => {
 test('no provider log line carries NIK, phone, code, or token', async () => {
   const lines = [];
   const logger = (e) => lines.push(e);
-  const { createPhoneProvider } = await import('../../src/integrations/phone.js');
-  const { createEmailProvider } = await import('../../src/integrations/email.js');
-  const { createIdentityProvider } = await import('../../src/integrations/identity.js');
+  const { createPhoneProvider } = await import('../../services/integrations/phone.js');
+  const { createEmailProvider } = await import('../../services/integrations/email.js');
+  const { createIdentityProvider } = await import('../../services/integrations/identity.js');
 
   const mock = createPhoneProvider('mock', { logger });
   await mock.sendOtp({ to: PHONE, channel: 'sms', code: CODE });
@@ -87,7 +87,7 @@ test('no provider log line carries NIK, phone, code, or token', async () => {
   try {
     const tg = createPhoneProvider('telegram', { logger });
     await tg.sendOtp({ chatId: 'chat-999', code: CODE, fetchImpl: okFetch });
-    const { sendTelegramOtp } = await import('../../src/integrations/phone/telegram.js');
+    const { sendTelegramOtp } = await import('../../services/integrations/phone/telegram.js');
     await sendTelegramOtp(
       { chatId: 'chat-999', text: `Your verification code is ${CODE}` },
       { fetchImpl: okFetch },
@@ -106,7 +106,7 @@ test('no provider log line carries NIK, phone, code, or token', async () => {
   process.env.NUSAKIT_ENDPOINT = 'https://allow.example/nik';
   process.env.NUSAKIT_ALLOWLIST = 'allow.example';
   try {
-    const { validateNikRemote } = await import('../../src/integrations/identity/nusakit.js');
+    const { validateNikRemote } = await import('../../services/integrations/identity/nusakit.js');
     await validateNikRemote(
       { nik: NIK, consent: true },
       { fetchImpl: () => Promise.resolve({ ok: true, json: () => Promise.resolve({ verdict: 'match' }) }) },

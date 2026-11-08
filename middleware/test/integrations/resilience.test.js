@@ -7,12 +7,12 @@ import {
   resilientFetch,
   resetBreakers,
   DEFAULT_MAX_RETRIES,
-} from '../../src/integrations/resilience.js';
+} from '../../services/integrations/resilience.js';
 import { metricsText, resetMetrics } from '../../src/observability.js';
-import { sendTelegramOtp } from '../../src/integrations/phone/telegram.js';
-import { sendFreeSms } from '../../src/integrations/phone/free_sms.js';
-import { validateNikRemote } from '../../src/integrations/identity/nusakit.js';
-import { sendOtpWithFallback } from '../../src/integrations/phone.js';
+import { sendTelegramOtp } from '../../services/integrations/phone/telegram.js';
+import { sendFreeSms } from '../../services/integrations/phone/free_sms.js';
+import { validateNikRemote } from '../../services/integrations/identity/nusakit.js';
+import { sendOtpWithFallback } from '../../services/integrations/phone.js';
 
 const okRes = (body = { ok: true }) => ({
   ok: true,
