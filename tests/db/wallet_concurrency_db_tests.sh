@@ -24,7 +24,6 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 # races below would never actually overlap.
 export COBOL_TEST_SERVE=0
 db_seed
-A="admin@test.com"
 WA="wltconA@test.com"
 WB="wltconB@test.com"
 
