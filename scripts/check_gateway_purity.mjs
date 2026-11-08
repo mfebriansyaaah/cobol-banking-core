@@ -71,7 +71,7 @@ for (const f of listJs(ROUTES_DIR)) {
 }
 
 // 2. invoke allowlist.
-const INVOKE_ALLOWED = new Set(['invoker.js', 'app.js', 'authService.js', 'tokenStore.js', 'pool.js']);
+const INVOKE_ALLOWED = new Set(['invoker.js', 'app.js', 'authService.js', 'otpService.js', 'tokenStore.js', 'pool.js']);
 for (const f of listJs(SRC)) {
   if (f.startsWith(`${ROUTES_DIR}${path.sep}`)) continue;
   const rel = path.relative(ROOT, f);
@@ -95,7 +95,7 @@ for (const f of listJs(SRC)) {
     if (/node:fs|node:net|child_process/.test(clean)) fail(`${rel}: must not use fs/net/child_process`);
     if (/\bfetch\s*\(/.test(clean)) fail(`${rel}: must not fetch`);
     for (const imp of importsOf(clean)) {
-      if (imp.startsWith('.') && imp !== './authService.js') {
+      if (imp.startsWith('.') && imp !== './authService.js' && imp !== './otpService.js') {
         fail(`${rel}: only './authService.js' relative imports allowed (got '${imp}')`);
       }
     }
@@ -125,6 +125,27 @@ const SERVICE_IMPORT_ALLOW = new Map([
     ]),
   ],
   ['server.js', new Set(['../services/integrations/index.js', '../services/integrations/secrets.js'])],
+  [
+    'derivations.js',
+    new Set([
+      '../services/integrations/identity/local_nik.js',
+      '../services/integrations/screening/opensanctions.js',
+      '../services/integrations/ocr.js',
+      '../services/integrations/risk/risk_events.js',
+      '../services/integrations/phone/normalize.js',
+      '../services/integrations/quota.js',
+    ]),
+  ],
+  [
+    'otpService.js',
+    new Set([
+      '../services/integrations/index.js',
+      '../services/integrations/phone.js',
+      '../services/integrations/phone/normalize.js',
+      '../services/integrations/quota.js',
+      '../services/integrations/resilience.js',
+    ]),
+  ],
 ]);
 for (const f of listJs(SRC)) {
   if (f.startsWith(`${ROUTES_DIR}${path.sep}`)) continue;

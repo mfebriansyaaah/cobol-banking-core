@@ -10,9 +10,11 @@ export function createTokenStore() {
       const raw = await invoke('CHECK_TOKEN', [email || '', String(ver ?? ''), jti || '']);
       return raw === 'SUCCESS|TOKEN_VALID';
     },
-    // Deny a single access token until it would have expired.
+    // Deny a single access token until it would have expired. Fail closed:
+    // a refused denylist write must not be reported as a successful revoke.
     async revoke({ jti, email, ttlSeconds }) {
-      await invoke('REVOKE_ACCESS_TOKEN', [jti || '', email || '', String(ttlSeconds || 0)]);
+      const raw = await invoke('REVOKE_ACCESS_TOKEN', [jti || '', email || '', String(ttlSeconds || 0)]);
+      if (!String(raw).startsWith('SUCCESS|')) throw new Error(`revoke refused: ${raw}`);
     },
   };
 }

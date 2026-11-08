@@ -6,11 +6,11 @@ export const CHB_ROUTES = [
   { method: 'post', path: '/chargebacks/validate', action: 'CHB_VALIDATE', tokenIdentity: 'actor', fields: [ { name: 'amount', pattern: PATTERNS.AMOUNT, required: true }, { name: 'currency', pattern: PATTERNS.CURRENCY, required: true }, BLANK, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/chargebacks/summary', action: 'CHB_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/chargebacks/audit', action: 'CHB_AUDIT', tokenIdentity: 'actor', fields: [ { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, BLANK, BLANK, ACTOR ] },
-  { method: 'get', path: '/chargebacks', action: 'CHB_LIST', tokenIdentity: 'actor', fields: [ { name: 'status', pattern: PATTERNS.CODE, required: false }, { name: 'cbType', pattern: PATTERNS.NAME, required: false }, { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, ACTOR ] },
+  { method: 'get', path: '/chargebacks', action: 'CHB_LIST', tokenIdentity: 'actor', fields: [ { name: 'status', pattern: PATTERNS.LIST_STATUS, required: false }, { name: 'cbType', pattern: PATTERNS.NAME, required: false }, { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, ACTOR ] },
   { method: 'post', path: '/chargebacks', action: 'CHB_CREATE', tokenIdentity: 'actor', fields: [ { name: 'cbRef', pattern: PATTERNS.KEY, required: true }, { name: 'cardholderName', pattern: PATTERNS.NAME, required: true }, { name: 'cbType', pattern: PATTERNS.NAME, required: true }, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/chargebacks/cases', action: 'CHB_CASE_LIST', tokenIdentity: 'actor', fields: [
     { name: 'merchantId', pattern: PATTERNS.INT, required: false },
-    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'status', pattern: PATTERNS.CHB_CASE_STATUS, required: false },
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },
     BLANK, ACTOR,

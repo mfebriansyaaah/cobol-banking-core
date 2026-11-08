@@ -16,7 +16,7 @@ export const TREASURY_LIQUIDITY_ROUTES = [
     BLANK, BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/treasury/liquidity', action: 'TRL_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'status', pattern: PATTERNS.TRL_LIST_STATUS, required: false },
     { name: 'currency', pattern: PATTERNS.CURRENCY, required: false },
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },

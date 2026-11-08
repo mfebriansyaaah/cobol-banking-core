@@ -11,7 +11,7 @@ db_backup_drill_tests=13
 db_grants_tests=6
 db_migration_checksum_tests=6
 db_report_builder_tests=13
-gateway_tests=311
+gateway_tests=336
 db_cost_center_tests=18
 db_fixed_asset_tests=18
 db_fixed_asset_schema_tests=8
@@ -54,7 +54,7 @@ db_payment_hold_tests=19
 db_velocity_tests=15
 
 db_admin_shell_tests=30
-db_auth_shell_tests=39
+db_auth_shell_tests=43
 db_dashboard_tests=13
 db_eod_ops_tests=16
 db_fee_read_tests=9
@@ -71,7 +71,7 @@ db_auth_invariants_tests=35
 
 db_payment_gl_invariants_tests=21
 
-db_phone_otp_tests=15
+db_phone_otp_tests=18
 
 db_identity_tests=27
 

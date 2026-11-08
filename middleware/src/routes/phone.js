@@ -3,12 +3,14 @@ const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
 const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 
 export const PHONE_ROUTES = [
+  // The phone number is normalized and hashed server-side (derivations.js);
+  // only the hash is stored. A client-sent phoneHash is overwritten.
   {
     method: 'post', path: '/auth/phone/link/begin', action: 'OTP_LINK_BEGIN',
     tokenIdentity: 'actor',
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
-      { name: 'phoneHash', pattern: PATTERNS.REF_VALUE_CODE, required: true },
+      { name: 'phoneHash', pattern: PATTERNS.REF_VALUE_CODE, required: false },
       BLANK, ACTOR, BLANK, BLANK,
     ],
   },
@@ -28,7 +30,8 @@ export const PHONE_ROUTES = [
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'channel', pattern: PATTERNS.NAME, required: true },
-      BLANK, ACTOR, BLANK, BLANK,
+      { name: 'purpose', pattern: PATTERNS.KEY, required: true },
+      ACTOR, BLANK, BLANK,
     ],
   },
   {
@@ -37,7 +40,8 @@ export const PHONE_ROUTES = [
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'code', pattern: PATTERNS.CODE, required: true },
-      BLANK, ACTOR, BLANK, BLANK,
+      { name: 'purpose', pattern: PATTERNS.KEY, required: true },
+      ACTOR, BLANK, BLANK,
     ],
   },
 ];

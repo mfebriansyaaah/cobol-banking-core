@@ -221,13 +221,15 @@ mut_p7_missing_assertion() {
 # Two field names swap order in one route (status <-> type). The route still
 # registers, still authorizes, still validates; only the positional mapping to
 # COBOL shifts, so only the field-order gate notices.
+# Anchors match on field names only (not patterns) so pattern renames
+# (e.g. CODE -> LIST_STATUS) do not break the probe.
 mut_p8_field_order_drift() {
     node <<'EOF'
 const fs = require('fs');
 const p = 'middleware/src/routes/account.js';
 let s = fs.readFileSync(p, 'utf8');
-const a = "{ name: 'status', pattern: PATTERNS.CODE";
-const b = "{ name: 'type', pattern: PATTERNS.NAME";
+const a = "{ name: 'status'";
+const b = "{ name: 'type'";
 if (!s.includes(a) || !s.includes(b)) throw new Error('anchors not found');
 s = s.replace(a, '__TMP__').replace(b, a).replace('__TMP__', b);
 fs.writeFileSync(p, s);

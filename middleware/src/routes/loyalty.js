@@ -18,7 +18,7 @@ export const LOY_ROUTES = [
   ] },
   { method: 'post', path: '/loyalty/programs/:id/activate', action: 'LOY_ACTIVATE', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/loyalty/programs', action: 'LOY_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'status', pattern: PATTERNS.LOY_LIST_STATUS, required: false },
     BLANK,
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },

@@ -1,3 +1,4 @@
+import { INFRA_ROUTES } from './infra.js';
 import { REF_ENGINE_ROUTES } from './ref_engine.js';
 import { GL_ROUTES } from './gl.js';
 import { REPORT_ROUTES } from './report.js';
@@ -53,6 +54,7 @@ import { DISPUTE_ROUTES } from './disputes.js';
 import { ADMIN_ROUTES } from './admin.js';
 
 export const ALL_ROUTES = [
+  ...INFRA_ROUTES,
   ...REF_ENGINE_ROUTES,
   ...GL_ROUTES,
   ...REPORT_ROUTES,

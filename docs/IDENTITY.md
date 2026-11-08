@@ -31,10 +31,19 @@ failure. Only sends the NIK to an allowlisted host.
 Raw NIKs are never persisted: `nikHandle(nik, secret)` stores
 HMAC-SHA256 + last4 only.
 
-## OCR (PR-084: deferred)
+## Gateway trust boundary
+
+`POST /identity/nik/validate` accepts the raw NIK only. The gateway
+(`middleware/src/derivations.js`) validates structure, derives the verdict
+and the HMAC handle with `NIK_HMAC_SECRET`, and overwrites any
+client-sent `nikHash`/`verdict` before COBOL runs. A missing secret fails
+the request instead of storing unhashed identity.
+
+## OCR (PR-084: deferred, fail-fast)
 
 Local KTP OCR needs a native Tesseract not present in CI/dev images;
 `tesseract.js` would pull WASM models at runtime (no offline story).
-Deferred with rationale: the `mock` OCR provider stands, manual review
-remains mandatory (`OCR_REVIEW_THRESHOLD`), revisit when infra provides
-Tesseract. No fixture images committed (no PII in repo, real or synthetic).
+Configuring `KTP_OCR_PROVIDER=local` fails fast at boot instead of at the
+first request; only `mock` boots. Manual review remains mandatory
+(`OCR_REVIEW_THRESHOLD`); revisit when infra provides Tesseract. No fixture
+images committed (no PII in repo, real or synthetic).

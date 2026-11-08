@@ -6,8 +6,8 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-06T16:09:39.676Z
-- Commit: `72ae26c4`
+- Generated at: 2026-11-08T07:43:39.264Z
+- Commit: `ede796a7`
 
 | Level | Modules |
 | --- | ---: |
@@ -22,7 +22,7 @@ Unresolved route files: none.
 | Module | Level | Business tables | Tier-1 calls | Route files | Reason |
 | --- | --- | --- | --- | ---: | --- |
 | `account_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auth_core` | L3 | — | — | 1 | Tier-1 core module |
+| `auth_core` | L3 | — | — | 2 | Tier-1 core module |
 | `auth_mfa_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `auth_ops_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `auth_password_core` | L3 | — | — | 0 | Tier-1 core module |

@@ -7,7 +7,7 @@ const MODES = ['local', 'free', 'sandbox', 'production'];
 const EMAIL_PROVIDERS = ['log', 'mailpit', 'smtp'];
 const PHONE_PROVIDERS = ['mock', 'telegram', 'free_sms'];
 const IDENTITY_PROVIDERS = ['mock', 'local'];
-const OCR_PROVIDERS = ['mock', 'local'];
+const OCR_PROVIDERS = ['mock'];
 
 function pick(name, allowed, fallback) {
   const raw = (process.env[name] || '').trim().toLowerCase();
@@ -36,6 +36,11 @@ export function assertIntegrationConfig() {
   const cfg = integrationConfig();
   const missing = [];
   if (process.env.NODE_ENV === 'production') {
+    // Demo providers never serve production traffic: log/mock record or
+    // approve locally instead of delivering or verifying.
+    if (cfg.email === 'log') missing.push('EMAIL_PROVIDER (log is development-only)');
+    if (cfg.phone === 'mock') missing.push('PHONE_OTP_PROVIDER (mock is development-only)');
+    if (cfg.identity === 'mock') missing.push('IDENTITY_PROVIDER (mock approves everything)');
     if (cfg.email === 'smtp' && !process.env.SMTP_HOST) missing.push('SMTP_HOST');
     if (cfg.email === 'smtp' && process.env.SMTP_USER && !process.env.SMTP_PASS) {
       missing.push('SMTP_PASS');

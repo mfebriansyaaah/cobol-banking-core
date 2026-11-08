@@ -5,6 +5,7 @@
 //   node scripts/cron/fetch_fx_rates.mjs [--once]
 import { fetchRates } from '../../middleware/services/integrations/market/frankfurter.js';
 import { invoke } from '../../middleware/src/invoker.js';
+import { resetPool } from '../../middleware/src/pool.js';
 
 export async function syncRates({ fetchImpl = fetch, store = null, base, quotes, date } = {}) {
   const storeFn =
@@ -44,5 +45,9 @@ if (!direct) {
     .catch((err) => {
       console.error(`fx sync failed (last snapshot stands): ${err.message}`);
       process.exitCode = 1;
+    })
+    .finally(async () => {
+      // Drop pooled COBOL workers so the cron process actually terminates.
+      await resetPool();
     });
 }

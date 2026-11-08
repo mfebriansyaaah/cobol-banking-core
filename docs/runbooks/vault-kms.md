@@ -13,6 +13,16 @@ Production requires a real KMS (env-only dev defaults in
 `middleware/.env.example` and `docker-compose.test.yml` are dev-only, like
 the single-node MinIO).
 
+## No HTTP surface (by design)
+
+Document intake has no gateway endpoint: KTP material is never persisted
+and OCR runs by reference (`imageRef`), so there is nothing to upload
+through the API. `putObject`/`scanBuffer`/`sweepRetention` are
+operator-grade library calls exercised by the vault suite and the drill
+above — not request-path code. `scripts/test/vault_surface.test.mjs`
+locks this: wiring a documents adapter into `middleware/src` fails the
+gate until this section is deliberately revised.
+
 ## Provisioning (once per environment)
 
 - [ ] Create the KMS key in the environment's KMS (AWS KMS, MinIO KES, or
@@ -51,7 +61,7 @@ infected objects go immediately; deletions audit key + hash only.
       `deleted` key was due, every legal hold is in `kept`, `failed` is
       empty or has a follow-up ticket.
 - [ ] The scale evidence is `retention sweep at scale deletes exactly the
-    due set` (200 mixed objects, exact delete set asserted).
+  due set` (200 mixed objects, exact delete set asserted).
 
 ## References
 

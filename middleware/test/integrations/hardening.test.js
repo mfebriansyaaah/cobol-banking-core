@@ -21,24 +21,30 @@ function withEnv(vars, fn) {
 }
 
 test('required secrets follow the configured providers', () => {
-  assert.deepEqual(requiredSecrets({ email: 'log', phone: 'mock' }), []);
-  assert.deepEqual(requiredSecrets({ email: 'log', phone: 'telegram' }), ['TELEGRAM_BOT_TOKEN']);
+  assert.deepEqual(requiredSecrets({ email: 'log', phone: 'mock' }), ['NIK_HMAC_SECRET']);
+  assert.deepEqual(
+    requiredSecrets({ email: 'log', phone: 'telegram' }).sort(),
+    ['NIK_HMAC_SECRET', 'TELEGRAM_BOT_TOKEN'].sort(),
+  );
   assert.deepEqual(
     requiredSecrets({ email: 'smtp', phone: 'free_sms', identity: 'local' }).sort(),
-    ['FREE_SMS_API_KEY', 'FREE_SMS_ENDPOINT', 'SMTP_HOST'].sort(),
+    ['FREE_SMS_API_KEY', 'FREE_SMS_ENDPOINT', 'SMTP_HOST', 'NIK_HMAC_SECRET'].sort(),
   );
 });
 
 test('missing secrets fail boot in production only', () => {
-  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: undefined }, () => {
+  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: undefined, NIK_HMAC_SECRET: 'test-secret' }, () => {
     assert.deepEqual(missingSecrets({ email: 'log', phone: 'telegram' }), ['TELEGRAM_BOT_TOKEN']);
     assert.throws(() => assertSecrets({ email: 'log', phone: 'telegram' }), /TELEGRAM_BOT_TOKEN/);
   });
   withEnv({ NODE_ENV: 'test', TELEGRAM_BOT_TOKEN: undefined }, () => {
     assert.doesNotThrow(() => assertSecrets({ email: 'log', phone: 'telegram' }));
   });
-  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: 'x' }, () => {
+  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: 'x', NIK_HMAC_SECRET: 'test-secret' }, () => {
     assert.doesNotThrow(() => assertSecrets({ email: 'log', phone: 'telegram' }));
+  });
+  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: 'x', NIK_HMAC_SECRET: undefined }, () => {
+    assert.throws(() => assertSecrets({ email: 'log', phone: 'telegram' }), /NIK_HMAC_SECRET/);
   });
 });
 

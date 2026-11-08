@@ -16,7 +16,7 @@ export const GL_ALLOCATION_ROUTES = [
     BLANK, BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/finance/gl-allocation', action: 'GLA_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'status', pattern: PATTERNS.GLA_LIST_STATUS, required: false },
     { name: 'targetGl', pattern: PATTERNS.GL_ACCOUNT, required: false },
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },

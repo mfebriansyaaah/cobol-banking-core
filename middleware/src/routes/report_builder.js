@@ -16,7 +16,7 @@ export const REPORT_BUILDER_ROUTES = [
     BLANK, BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/data/reports', action: 'RPB_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'status', pattern: PATTERNS.RPB_LIST_STATUS, required: false },
     { name: 'type', pattern: PATTERNS.NAME, required: false },
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },

@@ -7,7 +7,7 @@ export const PRL_ROUTES = [
   { method: 'post', path: '/payroll-processing/validate', action: 'PRL_VALIDATE', tokenIdentity: 'actor', fields: [ { name: 'amount', pattern: PATTERNS.AMOUNT, required: true }, { name: 'currency', pattern: PATTERNS.CURRENCY, required: true }, BLANK, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/payroll-processing/summary', action: 'PRL_SUMMARY', tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   { method: 'get', path: '/payroll-processing/audit', action: 'PRL_AUDIT', tokenIdentity: 'actor', fields: [ { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, BLANK, BLANK, ACTOR ] },
-  { method: 'get', path: '/payroll-processing', action: 'PRL_LIST', tokenIdentity: 'actor', fields: [ { name: 'status', pattern: PATTERNS.CODE, required: false }, { name: 'payrollType', pattern: PATTERNS.NAME, required: false }, { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, ACTOR ] },
+  { method: 'get', path: '/payroll-processing', action: 'PRL_LIST', tokenIdentity: 'actor', fields: [ { name: 'status', pattern: PATTERNS.LIST_STATUS, required: false }, { name: 'payrollType', pattern: PATTERNS.NAME, required: false }, { name: 'limit', pattern: PATTERNS.LIMIT, required: false }, { name: 'offset', pattern: PATTERNS.INT, required: false }, BLANK, ACTOR ] },
   { method: 'post', path: '/payroll-processing', action: 'PRL_CREATE', tokenIdentity: 'actor', fields: [ { name: 'payrollRef', pattern: PATTERNS.KEY, required: true }, { name: 'batchName', pattern: PATTERNS.NAME, required: true }, { name: 'payrollType', pattern: PATTERNS.NAME, required: true }, BLANK, BLANK, ACTOR ] },
   { method: 'get', path: '/payroll-processing/:id', action: 'PRL_GET', tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] },
   // DEPRECATED: generic +1 calc; payroll lifecycle uses validate/approve/process/pay/close.
@@ -56,7 +56,7 @@ export const PRL_ROUTES = [
     BLANK, BLANK, BLANK, ACTOR,
   ] },
   { method: 'get', path: '/payrolls', action: 'PRL_LIST', tokenIdentity: 'actor', fields: [
-    { name: 'status', pattern: PATTERNS.CODE, required: false },
+    { name: 'status', pattern: PATTERNS.LIST_STATUS, required: false },
     { name: 'payrollType', pattern: PATTERNS.NAME, required: false },
     { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
     { name: 'offset', pattern: PATTERNS.INT, required: false },

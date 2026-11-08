@@ -101,6 +101,13 @@ assert_match "REVOKE_OTHER_DEVICES ok" "$(run_cobol "REVOKE_OTHER_DEVICES|${B}|$
 assert_match "other family intact" "$(db_query "SELECT revoked FROM refresh_sessions WHERE jti='shell-jti-b';")" "^0$"
 assert_match "REVOKE_ALL_SESSIONS ok" "$(run_cobol "REVOKE_ALL_SESSIONS|${B}|${B}")" "SUCCESS\|"
 assert_match "all revoked" "$(db_query "SELECT COUNT(*) FROM refresh_sessions WHERE email='${B}' AND revoked=0;")" "^0$"
+# Infra session endpoints (routes/infra.js): per-device logout and per-token
+# denylist used by POST /auth/logout and POST /auth/revoke.
+assert_match "REVOKE_SESSION ok" "$(run_cobol "STORE_SESSION|shell-jti-c|${B}|7|shell-fam-c|test-ua|127.0.0.1" >/dev/null; run_cobol "REVOKE_SESSION|shell-jti-c")" "SUCCESS\|SESSION_REVOKED"
+assert_match "logout removed" "$(db_query "SELECT COUNT(*) FROM refresh_sessions WHERE jti='shell-jti-c';")" "^0$"
+assert_match "REVOKE_ACCESS_TOKEN ok" "$(run_cobol "REVOKE_ACCESS_TOKEN|shell-acc-jti|${B}|900")" "SUCCESS\|TOKEN_REVOKED"
+ver="$(run_cobol "GET_TOKEN_VERSION|${B}" | awk -F'|' '{print $2}')"
+assert_match "token denylisted" "$(run_cobol "CHECK_TOKEN|${B}|${ver}|shell-acc-jti")" "ERROR\|TOKEN_REVOKED"
 db_exec "DELETE FROM refresh_sessions WHERE email='${B}'; DELETE FROM refresh_families WHERE email='${B}';"
 
 print_summary

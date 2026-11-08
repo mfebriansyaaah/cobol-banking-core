@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-07T01:31:33.714Z",
-  "commit": "986db3d4",
+  "generatedAt": "2026-11-08T05:22:52.723Z",
+  "commit": "ae0b0742",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
-  "count": 545,
+  "count": 549,
   "actions": [
     {
       "action": "ACC_AUDIT",
@@ -4192,6 +4192,26 @@
       "status": "ACTIVE"
     },
     {
+      "action": "CONSUME_SESSION",
+      "module": "auth_core",
+      "prefix": "CONSUME_SESSION",
+      "method": "post",
+      "path": "/auth/refresh",
+      "fields": [],
+      "required": [],
+      "public": true,
+      "stepUp": false,
+      "tokenIdentity": null,
+      "owner": "auth",
+      "authPolicy": "public-entry",
+      "linkageLevel": "L3",
+      "t1Actions": [],
+      "t1Calls": [],
+      "tested": true,
+      "domain": "auth",
+      "status": "ACTIVE"
+    },
+    {
       "action": "CORP_RESOLVE",
       "module": "corp_core",
       "prefix": "CORP_",
@@ -7521,7 +7541,7 @@
       ],
       "required": [
         true,
-        true,
+        false,
         false,
         false,
         false,
@@ -7555,9 +7575,9 @@
       ],
       "required": [
         true,
-        true,
-        true,
-        true,
+        false,
+        false,
+        false,
         false,
         true
       ],
@@ -12043,7 +12063,7 @@
       "fields": [
         "email",
         "channel",
-        "",
+        "purpose",
         "actor",
         "",
         ""
@@ -12051,7 +12071,7 @@
       "required": [
         true,
         true,
-        false,
+        true,
         true,
         false,
         false
@@ -12084,7 +12104,7 @@
       ],
       "required": [
         true,
-        true,
+        false,
         false,
         true,
         false,
@@ -12145,7 +12165,7 @@
       "fields": [
         "email",
         "code",
-        "",
+        "purpose",
         "actor",
         "",
         ""
@@ -12153,7 +12173,7 @@
       "required": [
         true,
         true,
-        false,
+        true,
         true,
         false,
         false
@@ -12987,6 +13007,27 @@
       "tested": true,
       "domain": "payment_instruction",
       "status": "PILOT"
+    },
+    {
+      "action": "PING",
+      "module": "auth_core",
+      "prefix": "PING",
+      "method": "get",
+      "path": "/health",
+      "fields": [],
+      "required": [],
+      "public": true,
+      "stepUp": false,
+      "tokenIdentity": null,
+      "owner": "ops",
+      "authPolicy": "public-probe",
+      "linkageLevel": "L3",
+      "t1Actions": [],
+      "t1Calls": [],
+      "tested": true,
+      "domain": "auth",
+      "status": "ACTIVE",
+      "duplicatePaths": true
     },
     {
       "action": "PLACE_HOLD",
@@ -14323,6 +14364,26 @@
       "status": "REVIEW"
     },
     {
+      "action": "REVOKE_ACCESS_TOKEN",
+      "module": "auth_core",
+      "prefix": "REVOKE_ACCESS_TOKEN",
+      "method": "post",
+      "path": "/auth/revoke",
+      "fields": [],
+      "required": [],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "auth",
+      "authPolicy": "public-entry",
+      "linkageLevel": "L3",
+      "t1Actions": [],
+      "t1Calls": [],
+      "tested": true,
+      "domain": "auth",
+      "status": "ACTIVE"
+    },
+    {
       "action": "REVOKE_ALL_SESSIONS",
       "module": "auth_core",
       "prefix": "REVOKE_ALL_SESSIONS",
@@ -14383,6 +14444,26 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "authenticated",
+      "linkageLevel": "L3",
+      "t1Actions": [],
+      "t1Calls": [],
+      "tested": true,
+      "domain": "auth",
+      "status": "ACTIVE"
+    },
+    {
+      "action": "REVOKE_SESSION",
+      "module": "auth_core",
+      "prefix": "REVOKE_SESSION",
+      "method": "post",
+      "path": "/auth/logout",
+      "fields": [],
+      "required": [],
+      "public": true,
+      "stepUp": false,
+      "tokenIdentity": null,
+      "owner": "auth",
+      "authPolicy": "public-entry",
       "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
@@ -14715,7 +14796,7 @@
         false,
         false,
         false,
-        true,
+        false,
         true
       ],
       "public": false,
@@ -16344,8 +16425,8 @@
       ],
       "required": [
         true,
-        true,
-        true,
+        false,
+        false,
         false,
         false,
         true

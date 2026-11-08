@@ -7,12 +7,12 @@ change.
 
 ## Matrix
 
-| Channel   | `local`/`log`/`mock`                    | `free`/`sandbox`                                               | `production`                      |
-| --------- | --------------------------------------- | -------------------------------------------------------------- | --------------------------------- |
-| Email     | `log` (default; event only, no network) | `mailpit` (local SMTP)                                         | `smtp` (needs `SMTP_HOST`)        |
-| Phone OTP | `mock` (default; recorded)              | `telegram` (Bot API + linked chat) / `free_sms` (env endpoint) | same, needs `TELEGRAM_BOT_TOKEN`  |
-| Identity  | `mock` (default; approves)              | `local` (structural NIK only)                                  | `local` (never Dukcapil-verified) |
-| KTP OCR   | `mock` (default)                        | `local` (PR-084 decides Tesseract)                             | manual review required            |
+| Channel   | `local`/`log`/`mock`                                | `free`/`sandbox`                                               | `production`                      |
+| --------- | --------------------------------------------------- | -------------------------------------------------------------- | --------------------------------- |
+| Email     | `log` (default; event only, no network)             | `mailpit` (local SMTP)                                         | `smtp` (needs `SMTP_HOST`)        |
+| Phone OTP | `mock` (default; recorded)                          | `telegram` (Bot API + linked chat) / `free_sms` (env endpoint) | same, needs `TELEGRAM_BOT_TOKEN`  |
+| Identity  | `mock` (default; approves)                          | `local` (structural NIK only)                                  | `local` (never Dukcapil-verified) |
+| KTP OCR   | `mock` (only; `local` fails fast, PR-084 undecided) | manual review required (OCR never clears)                      | manual review required            |
 
 ## Rules
 
@@ -49,8 +49,14 @@ timeout primitive):
 - **Fallbacks** (the user never hangs):
   - email fails → outbox/retry (`mailer.js` best-effort + outbox worker),
     never a signup rollback;
-  - telegram fails → free SMS (`sendOtpWithFallback` in `phone.js`) →
-    manual review;
+  - OTP issue (`POST /auth/phone/otp/issue`) delivers server-side
+    (`middleware/src/otpService.js`): EMAIL via the email provider, PHONE
+    via the verified linked chat (`OTP_CHAT`, never via HTTP params).
+    The HTTP response is `OTP_SENT` with a delivery flag — the code itself
+    never appears in any response;
+  - telegram fails → manual review hint (`sendOtpWithFallback` in
+    `phone.js`; free-SMS fallback needs a raw number the gateway never
+    stores, so PHONE delivery requires a linked chat);
   - Nusakit fails (any mode incl. circuit open) → local structural result
     with `remote: 'fallback (...)'`;
   - OCR confidence < 0.85 → manual review.

@@ -1,24 +1,15 @@
-// KTP OCR provider (PR-080): mock | local.
-// Only mock exists; local (Tesseract) is an explicit PR-084 decision with
-// a native dependency. Interface frozen now: extractKtp returns extracted
-// fields plus a confidence that forces manual review below threshold.
-import { mockCalls, safeHealth } from './provider.js';
+// KTP OCR provider: mock only. A `local` (Tesseract) backend was an explicit
+// PR-084 decision requiring a native dependency that CI/dev images do not
+// provide; configuring it fails fast at boot instead of at first request.
+// Interface frozen: extractKtp returns extracted fields plus a confidence
+// that forces manual review below threshold.
+import { mockCalls } from './provider.js';
 
 export const OCR_REVIEW_THRESHOLD = 0.85;
 
 export function createOcrProvider(kind, { logger = null } = {}) {
-  if (kind === 'local') {
-    return {
-      kind,
-      async extractKtp() {
-        throw new Error('local OCR not implemented yet (PR-084 decides Tesseract)');
-      },
-      async health() {
-        return safeHealth(async () => {
-          throw new Error('local OCR not implemented yet (PR-084 decides Tesseract)');
-        }, 'local');
-      },
-    };
+  if (kind !== 'mock') {
+    throw new Error(`unknown OCR provider '${kind}' (mock only; local Tesseract is undecided, see PR-084)`);
   }
   const mock = mockCalls();
   return {

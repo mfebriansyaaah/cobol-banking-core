@@ -14,8 +14,14 @@ for (const file of files) {
     const routes = mod[exportName];
     assert.ok(Array.isArray(routes), `${exportName} must be an array`);
     for (const r of routes) {
-      assert.ok(['get','post','put','patch','delete'].includes(r.method), `invalid method in ${file}`);
+      assert.ok(['get', 'post', 'put', 'patch', 'delete'].includes(r.method), `invalid method in ${file}`);
       assert.ok(typeof r.path === 'string' && r.path.startsWith('/'), `invalid path in ${file}`);
+      if (r.custom) {
+        // Infrastructure routes (routes/infra.js) carry bespoke handlers, not
+        // COBOL actions: only the custom key is required.
+        assert.ok(typeof r.custom === 'string' && r.custom.length > 0, `invalid custom in ${file}`);
+        continue;
+      }
       assert.ok(typeof r.action === 'string' && r.action.length > 0, `invalid action in ${file}`);
       assert.ok(Array.isArray(r.fields) && r.fields.length === 6, `fields must have 6 slots in ${file}`);
     }

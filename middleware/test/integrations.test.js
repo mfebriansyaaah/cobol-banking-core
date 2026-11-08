@@ -182,7 +182,7 @@ test('identity local provider validates structurally', async () => {
   });
 });
 
-test('ocr mock extracts, local fails closed', async () => {
+test('ocr mock extracts; local fails fast at boot', async () => {
   await withEnv({}, async () => {
     const p = getProviders();
     const r = await p.ocr.extractKtp({ imageRef: 'img-1' });
@@ -191,9 +191,10 @@ test('ocr mock extracts, local fails closed', async () => {
     assert.equal((await p.ocr.health()).ok, true);
     const { createOcrProvider, OCR_REVIEW_THRESHOLD } = await import('../services/integrations/ocr.js');
     assert.equal(OCR_REVIEW_THRESHOLD, 0.85);
-    const local = createOcrProvider('local');
-    await assert.rejects(() => local.extractKtp({ imageRef: 'x' }), /not implemented yet/);
-    assert.equal((await local.health()).ok, false);
+    assert.throws(() => createOcrProvider('local'), /mock only/);
+  });
+  await withEnv({ KTP_OCR_PROVIDER: 'local' }, () => {
+    assert.throws(() => integrationConfig(), /allowed: mock/);
   });
 });
 
@@ -205,7 +206,9 @@ test('production config gaps fail fast with names', async () => {
       SMTP_HOST: 'h',
       SMTP_USER: 'u',
       SMTP_PASS: undefined,
-      PHONE_OTP_PROVIDER: 'mock',
+      PHONE_OTP_PROVIDER: 'telegram',
+      TELEGRAM_BOT_TOKEN: 't',
+      IDENTITY_PROVIDER: 'local',
     },
     () => {
       assert.throws(() => assertIntegrationConfig(), /SMTP_PASS/);
@@ -219,10 +222,24 @@ test('production config gaps fail fast with names', async () => {
       NODE_ENV: 'production',
       EMAIL_PROVIDER: 'smtp',
       SMTP_HOST: 'h',
-      PHONE_OTP_PROVIDER: 'mock',
+      PHONE_OTP_PROVIDER: 'telegram',
+      TELEGRAM_BOT_TOKEN: 't',
+      IDENTITY_PROVIDER: 'local',
     },
     () => {
       assert.ok(assertIntegrationConfig().email === 'smtp');
     },
   );
+});
+
+test('production rejects demo providers (log/mock approve nothing real)', async () => {
+  await withEnv({ NODE_ENV: 'production', EMAIL_PROVIDER: 'log' }, () => {
+    assert.throws(() => assertIntegrationConfig(), /EMAIL_PROVIDER/);
+  });
+  await withEnv({ NODE_ENV: 'production', PHONE_OTP_PROVIDER: 'mock' }, () => {
+    assert.throws(() => assertIntegrationConfig(), /PHONE_OTP_PROVIDER/);
+  });
+  await withEnv({ NODE_ENV: 'production', IDENTITY_PROVIDER: 'mock' }, () => {
+    assert.throws(() => assertIntegrationConfig(), /IDENTITY_PROVIDER/);
+  });
 });
