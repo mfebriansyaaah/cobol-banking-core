@@ -1665,14 +1665,21 @@
             END-IF
             
             *> Mark the intent committed (the reference only persists on success).
+            *> Scoped by the full idempotency key (txn_ref, from_email): the
+            *> unscoped form full-scans the table and its gap locks collide
+            *> with concurrent transfers. Exactly one row must flip; anything
+            *> else means the receipt did not land, so fail closed instead of
+            *> reporting a false SUCCESS (a retry after a false success would
+            *> double-spend, as the replay check would find no row).
             IF WS-TRANSFER-OK AND LS-PARAM4 NOT = SPACES
-                MOVE "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = ?" TO WS-PREP-SQL
+                MOVE "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = ? AND from_email = ?" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                     BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
