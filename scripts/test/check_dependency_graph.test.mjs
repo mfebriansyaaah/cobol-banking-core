@@ -28,10 +28,7 @@ test('no reverse imports (services/workers do not reach src)', async () => {
   const { readFileSync } = await import('node:fs');
   const mailer = readFileSync(path.join(ROOT, 'middleware', 'services', 'mailer.js'), 'utf8');
   assert.doesNotMatch(mailer, /from\s+['"]\.\.\/src\//);
-  const resilience = readFileSync(
-    path.join(ROOT, 'middleware', 'services', 'integrations', 'resilience.js'),
-    'utf8',
-  );
+  const resilience = readFileSync(path.join(ROOT, 'middleware', 'services', 'integrations', 'resilience.js'), 'utf8');
   assert.doesNotMatch(resilience, /from\s+['"]\.\.\/\.\.\/src\//);
   const outbox = readFileSync(path.join(ROOT, 'middleware', 'workers', 'outbox.js'), 'utf8');
   assert.doesNotMatch(outbox, /from\s+['"]\.\.\/src\//);

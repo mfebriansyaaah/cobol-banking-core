@@ -81,10 +81,16 @@ for (const f of listJs(SRC)) {
   const base = path.basename(f);
   const clean = stripComments(readFileSync(f, 'utf8'));
   // Shim re-exports are allowed (single-line export *).
-  if (clean.split('\n').map((l) => l.trim()).filter(Boolean).length === 1 && clean.includes('export * from')) continue;
+  if (
+    clean
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean).length === 1 &&
+    clean.includes('export * from')
+  )
+    continue;
   const importsInvoke =
-    /from\s+['"]\.\/invoker\.js['"]/.test(clean) ||
-    /from\s+['"]\.\.\/core-client\/invoker\.js['"]/.test(clean);
+    /from\s+['"]\.\/invoker\.js['"]/.test(clean) || /from\s+['"]\.\.\/core-client\/invoker\.js['"]/.test(clean);
   if (importsInvoke && !INVOKE_ALLOWED_SRC.has(base)) {
     fail(`${rel}: direct invoker import not allowed (allowed src: ${[...INVOKE_ALLOWED_SRC].join(', ')})`);
   }
@@ -96,12 +102,12 @@ for (const f of listJs(SRC)) {
     const base = path.basename(f);
     const clean = stripComments(readFileSync(f, 'utf8'));
     const importsInvoke =
-      /from\s+['"]\.\.\/core-client\/invoker\.js['"]/.test(clean) ||
-      /from\s+['"]\.\/invoker\.js['"]/.test(clean);
+      /from\s+['"]\.\.\/core-client\/invoker\.js['"]/.test(clean) || /from\s+['"]\.\/invoker\.js['"]/.test(clean);
     if (importsInvoke && !INVOKE_ALLOWED_ADAPTERS.has(base) && base !== 'otp.js') {
       // signals.js must never invoke COBOL (reshape only); otp.js may.
       if (base === 'signals.js' && importsInvoke) fail(`${rel}: signals must never invoke COBOL (reshape only)`);
-      else if (!INVOKE_ALLOWED_ADAPTERS.has(base)) fail(`${rel}: direct invoker import not allowed (adapters: otp.js only)`);
+      else if (!INVOKE_ALLOWED_ADAPTERS.has(base))
+        fail(`${rel}: direct invoker import not allowed (adapters: otp.js only)`);
     }
   }
 }
@@ -162,12 +168,20 @@ for (const f of listJs(SRC)) {
   const raw = readFileSync(f, 'utf8');
   const clean = stripComments(raw);
   // Shim re-exports are allowed.
-  if (clean.split('\n').map((l) => l.trim()).filter(Boolean).length === 1 && clean.includes('export * from')) continue;
+  if (
+    clean
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean).length === 1 &&
+    clean.includes('export * from')
+  )
+    continue;
   const src = raw;
   for (const imp of importsOf(src)) {
     if (imp.includes('/services/') || imp.includes('/workers/') || imp.includes('/jobs/')) {
       const allowed = SERVICE_IMPORT_ALLOW_SRC.get(base);
-      if (!allowed || !allowed.has(imp)) fail(`${rel}: src must not import services/workers directly (use adapters; got '${imp}')`);
+      if (!allowed || !allowed.has(imp))
+        fail(`${rel}: src must not import services/workers directly (use adapters; got '${imp}')`);
     }
     if (imp.includes('/adapters/')) {
       // src → adapters is the allowed direction (transport calls signals/guards).

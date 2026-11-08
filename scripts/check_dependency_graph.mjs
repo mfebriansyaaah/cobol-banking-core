@@ -71,7 +71,13 @@ function targetLayer(file, imp) {
     if (rel.startsWith('telemetry/')) return 'telemetry';
     return 'other';
   }
-  if (imp.includes('/services/') || imp.includes('/workers/') || imp.includes('/core-client/') || imp.includes('/telemetry/') || imp.includes('/adapters/')) {
+  if (
+    imp.includes('/services/') ||
+    imp.includes('/workers/') ||
+    imp.includes('/core-client/') ||
+    imp.includes('/telemetry/') ||
+    imp.includes('/adapters/')
+  ) {
     if (imp.includes('/services/')) return 'services';
     if (imp.includes('/workers/')) return 'workers';
     if (imp.includes('/core-client/')) return 'core-client';
@@ -84,7 +90,10 @@ function targetLayer(file, imp) {
 const isCompositionRoot = (f) => path.basename(f) === 'server.js';
 const isShim = (f, src) => {
   // Shims are single-line re-exports for backward compat (ADR-0006).
-  const lines = stripComments(src).split('\n').map((l) => l.trim()).filter(Boolean);
+  const lines = stripComments(src)
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
   return lines.length === 1 && lines[0].startsWith('export * from');
 };
 
