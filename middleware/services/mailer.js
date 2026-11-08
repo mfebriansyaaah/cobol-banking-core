@@ -2,7 +2,7 @@
 // returns the code in an HTTP response; how it reaches the user (SMTP here, or
 // a stub in development) is a transport concern. Delivery is best-effort: a
 // failing or missing SMTP never fails the request, and failures are counted.
-import { incCounter } from './observability.js';
+import { incCounter } from '../src/observability.js';
 
 // Sender address, optionally with a display name ("Name <addr>").
 export function mailerFrom() {

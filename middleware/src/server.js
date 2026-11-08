@@ -2,8 +2,8 @@ import 'dotenv/config';
 import { buildApp, trustProxyWarning } from './app.js';
 import { assertSecureConfig } from './auth.js';
 import { assertPoolConfig } from './pool.js';
-import { assertIntegrationConfig } from './integrations/index.js';
-import { assertSecrets } from './integrations/secrets.js';
+import { assertIntegrationConfig } from '../services/integrations/index.js';
+import { assertSecrets } from '../services/integrations/secrets.js';
 import { jsonLogger, startMetricsExporter } from './observability.js';
 import { resetPool } from './pool.js';
 

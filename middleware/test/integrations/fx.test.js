@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createFxProvider, fetchRates } from '../../src/integrations/market/frankfurter.js';
+import { createFxProvider, fetchRates } from '../../services/integrations/market/frankfurter.js';
 import { syncRates } from '../../../scripts/cron/fetch_fx_rates.mjs';
-import { resetBreakers } from '../../src/integrations/resilience.js';
+import { resetBreakers } from '../../services/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
 const body = { base: 'USD', date: '2026-11-01', rates: { IDR: 16500.5, EUR: 0.92 } };

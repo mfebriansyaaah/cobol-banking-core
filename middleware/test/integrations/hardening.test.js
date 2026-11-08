@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assertSecrets, maskedSecrets, missingSecrets, requiredSecrets } from '../../src/integrations/secrets.js';
-import { assertQuota, quotaLimit, quotaStatus, recordUse, resetQuota } from '../../src/integrations/quota.js';
+import { assertSecrets, maskedSecrets, missingSecrets, requiredSecrets } from '../../services/integrations/secrets.js';
+import { assertQuota, quotaLimit, quotaStatus, recordUse, resetQuota } from '../../services/integrations/quota.js';
 
 function withEnv(vars, fn) {
   const saved = {};

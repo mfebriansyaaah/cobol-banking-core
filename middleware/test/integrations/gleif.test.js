@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createCorporateProvider, isLei, lookupLei, searchLeis } from '../../src/integrations/identity/gleif.js';
-import { resetBreakers } from '../../src/integrations/resilience.js';
+import { createCorporateProvider, isLei, lookupLei, searchLeis } from '../../services/integrations/identity/gleif.js';
+import { resetBreakers } from '../../services/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
 const LEI = '529900T8BM49AURSDO55';

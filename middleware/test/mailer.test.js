@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMailer, verificationSubject, mailerFrom } from '../src/mailer.js';
+import { createMailer, verificationSubject, mailerFrom } from '../services/mailer.js';
 import { metricsText } from '../src/observability.js';
 
 test('the development stub logs the event without the code', async () => {

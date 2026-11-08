@@ -46,7 +46,7 @@ assert_match "mapped body exact (no room for a code)" "$mapped" '^\{"data":\["US
 echo "=== Email OTP flow ($U via $MAILPIT) ==="
 export SMTP_HOST="${SMTP_HOST:-127.0.0.1}" SMTP_PORT="${SMTP_PORT:-1025}"
 export EMAIL_PROVIDER=mailpit OUTBOX_TRANSPORT=mailpit
-node "$ROOT/middleware/src/outbox_worker.js" --once --limit 10 >/tmp/mailflow_worker.log 2>&1
+node "$ROOT/middleware/workers/outbox.js" --once --limit 10 >/tmp/mailflow_worker.log 2>&1
 assert_match "worker delivered" "$(grep -c outbox_sent /tmp/mailflow_worker.log)" "^[1-9][0-9]*$"
 
 code="$(node -e '

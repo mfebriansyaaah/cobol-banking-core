@@ -1,29 +1,20 @@
 import express from 'express';
 import helmet from 'helmet';
-import { randomUUID } from 'node:crypto';
 import { invoke, InvocationTimeout, InvocationError, PoolSaturated } from './invoker.js';
 import { toHttp } from './result.js';
 import { buildParams, ValidationError, assertLineLength } from './validation.js';
 import { ALL_ROUTES } from './routes/index.js';
 import { groupRoutes } from './mount.js';
-import {
-  requireAuth,
-  signToken,
-  signRefresh,
-  verifyRefresh,
-  verifyAccess,
-  verifyStepUp,
-  REFRESH_TTL_DAYS,
-  ACCESS_TTL_SECONDS,
-} from './auth.js';
+import { requireAuth, verifyRefresh, verifyAccess, verifyStepUp, ACCESS_TTL_SECONDS } from './auth.js';
 import { rateLimiter, apiRateLimiter } from './rateLimit.js';
 import { createRequestObserver, metricsText, recordError, recordAuthFailure } from './observability.js';
 import { getPool } from './pool.js';
-import { createMailer } from './mailer.js';
-import { assertPasswordAllowed } from './integrations/security/pwned.js';
-import { verifyTurnstile } from './integrations/bot/turnstile.js';
+import { createMailer } from '../services/mailer.js';
+import { assertPasswordAllowed } from '../services/integrations/security/pwned.js';
+import { verifyTurnstile } from '../services/integrations/bot/turnstile.js';
 import { createTokenStore } from './tokenStore.js';
-import { RESPONSE_MAPPERS, sanitizeMeta, tokenVersion } from './responseMappers.js';
+import { RESPONSE_MAPPERS } from './responseMappers.js';
+import { completeRefresh } from './authService.js';
 
 // Reasons counted in gateway_auth_failures_total. Telemetry only: the code
 // still decides, this list only decides which failures are worth counting as
@@ -200,6 +191,7 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
 
   // Pure transport: exchange a refresh token for a new access token. The old
   // refresh token is consumed atomically; a replay is detected as reuse.
+  // Session rotation itself lives in authService so the router stays thin.
   router.post('/auth/refresh', authLimiter, async (req, res) => {
     try {
       const payload = verifyRefresh((req.body && req.body.refreshToken) || '');
@@ -207,24 +199,7 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       if (consume !== 'SUCCESS|SESSION_CONSUMED') {
         return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
       }
-      const family = payload.family || payload.jti;
-      const ver = await tokenVersion(payload.email);
-      const issued = signRefresh({ email: payload.email, family });
-      const ua = sanitizeMeta(req.headers && req.headers['user-agent'], 120);
-      const ip = sanitizeMeta(req.ip, 45);
-      await invoke('STORE_SESSION', [issued.jti, payload.email, String(REFRESH_TTL_DAYS), family, ua, ip]);
-      try {
-        await invoke('LOGIN_NOTICE', [payload.email, ua, ip]);
-      } catch {
-        /* best effort */
-      }
-      const enroll = (await invoke('MFA_ENROLL_REQUIRED', [payload.email])) === 'SUCCESS|1';
-      return res.json({
-        data: ['REFRESHED'],
-        token: signToken({ email: payload.email, ver, jti: randomUUID(), sid: family }),
-        refreshToken: issued.token,
-        mfaEnrollmentRequired: enroll,
-      });
+      return res.json(await completeRefresh(payload, { req }));
     } catch {
       return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
     }

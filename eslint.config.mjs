@@ -1,5 +1,8 @@
 // ESLint flat config for the gateway and scripts trees (P1-6).
-// - middleware/**/*.js: the Express gateway (src) and its node:test suites.
+// - middleware/src/**/*.js: the Express gateway (transport only).
+// - middleware/services/**/*.js: integration services (domain-adjacent policy).
+// - middleware/workers/**/*.js: background workers (outbox, cron support).
+// - middleware/test/**/*.js: node:test suites.
 // - scripts/**/*.mjs plus this file: ESM tooling, gates, and unit tests.
 // - Node globals only; no browser/DOM. `eslint.configs.recommended` is the
 //   base; rules below are relaxed only where the codebase has an established,

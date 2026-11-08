@@ -1,6 +1,6 @@
 # External Integrations (PR-080)
 
-One env-driven switchboard (`middleware/src/integrations/`) for every
+One env-driven switchboard (`middleware/services/integrations/`) for every
 external provider. Call sites use the frozen interfaces; adding a channel
 (PR-081+) means a new factory behind the same interface, never a call-site
 change.
@@ -35,7 +35,7 @@ See `middleware/.env.example` (`INTEGRATION_MODE`, `EMAIL_PROVIDER`,
 ## Resilience (PR-086)
 
 Every HTTP adapter goes through `resilientFetch`
-(`middleware/src/integrations/resilience.js`; `http.js` holds the bare
+(`middleware/services/integrations/resilience.js`; `http.js` holds the bare
 timeout primitive):
 
 - **Timeout** 4s default (3s Nusakit), via `AbortSignal` — no hanging socket.

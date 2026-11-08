@@ -13,7 +13,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 
 const ROOT = path.resolve(process.argv[2] || '.');
-const DIRS = ['middleware/src', 'scripts'].map((d) => path.join(ROOT, d));
+const DIRS = ['middleware/src', 'middleware/services', 'middleware/workers', 'scripts'].map((d) => path.join(ROOT, d));
 
 function collect(dir, out) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {

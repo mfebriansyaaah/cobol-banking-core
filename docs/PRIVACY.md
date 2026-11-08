@@ -42,7 +42,7 @@ while staying single-digit minutes and bounded. Attempts/lockout match.)
 
 ## Log policy
 
-`middleware/src/integrations/redact.js` is the single scrubber:
+`middleware/services/integrations/redact.js` is the single scrubber:
 
 - NIK → `************<last4>`; phone → `…<last4>`; chat_id → tail only.
 - OTP codes and tokens → `[redacted]`, always, even partially.

@@ -4,8 +4,8 @@ import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../../src/app.js';
 import { testNamespace, uniqueEmail, cleanupNamespace } from '../support.js';
-import { turnstileEnabled, verifyTurnstile } from '../../src/integrations/bot/turnstile.js';
-import { resetBreakers } from '../../src/integrations/resilience.js';
+import { turnstileEnabled, verifyTurnstile } from '../../services/integrations/bot/turnstile.js';
+import { resetBreakers } from '../../services/integrations/resilience.js';
 import { resetMetrics, metricsText } from '../../src/observability.js';
 
 const okFetch =
