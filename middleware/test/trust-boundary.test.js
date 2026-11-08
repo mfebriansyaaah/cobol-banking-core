@@ -348,3 +348,24 @@ test('free_sms to the verified number delivers with no code in the response', as
     await new Promise((resolve) => relay.close(resolve));
   }
 });
+
+test('adversarial shapes are rejected before any provider or COBOL runs', async () => {
+  const em = U('adv');
+  const token = await userToken(em);
+  const cases = [
+    ['/auth/phone/otp/issue', { email: em, channel: 'PHONE', purpose: 'A|B' }],
+    ['/auth/phone/otp/issue', { email: em, channel: 'PHONE', purpose: 'A\nB' }],
+    ['/auth/phone/otp/verify', { email: em, code: '123456', purpose: 'X;Y' }],
+    ['/identity/nik/validate', { email: em, nik: '317101010190000|', verdict: 'VALID' }],
+    ['/identity/nik/validate', { email: em, nik: 'short' }],
+    ['/screening/check', { email: em, name: 'John Doe', consent: 'true' }],
+    ['/screening/check', { email: em, name: 'Pipe|Smuggle', consent: '1' }],
+    ['/auth/phone/link/begin', { email: em, phone: 'not-a-number' }],
+    ['/risk/note', { email: 'not-an-email' }],
+  ];
+  for (const [path, body] of cases) {
+    const res = await request(app).post(path).set('Authorization', `Bearer ${token}`).send(body);
+    assert.equal(res.status, 400, `${path} ${JSON.stringify(body)}`);
+    assert.equal(res.body.error, 'INVALID_PARAMETER');
+  }
+});

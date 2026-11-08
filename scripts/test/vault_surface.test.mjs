@@ -23,15 +23,17 @@ function listJs(dir) {
   return out;
 }
 
-test('no gateway source imports document vault adapters', () => {
+test('no gateway source calls document vault operations', () => {
+  // server.js may import the boot assertion (assertVaultConfig); the
+  // operational calls (PUT/DELETE/scan/sweep) must stay out of src.
   const offenders = listJs(SRC).filter((f) => {
     const src = readFileSync(f, 'utf8');
-    return /documents\/(storage|scan|retention)/.test(src);
+    return /\b(putObject|deleteObject|scanBuffer|sweepRetention)\b/.test(src);
   });
   assert.deepEqual(
     offenders.map((f) => path.relative(ROOT, f)),
     [],
-    'documents adapters must stay out of the request path',
+    'document vault operations must stay out of the request path',
   );
 });
 

@@ -20,6 +20,17 @@ export function vaultConfig() {
   };
 }
 
+// Fail fast at boot (production only): objects written without a KMS key id
+// would rest unencrypted. Development/test boot bare.
+export function assertVaultConfig() {
+  const cfg = vaultConfig();
+  if (process.env.NODE_ENV !== 'production') return cfg;
+  if (cfg.endpoint && !cfg.kmsKeyId) {
+    throw new Error('VAULT_KMS_KEY_ID is required in production when VAULT_ENDPOINT is set');
+  }
+  return cfg;
+}
+
 export function assertObjectAllowed({ bytes, mime }) {
   if (!bytes || bytes.length > MAX_OBJECT_BYTES) return { ok: false, reason: 'oversize (5 MB max)' };
   if (!ALLOWED_MIME.has(mime)) return { ok: false, reason: 'unsupported type (JPEG/PNG/PDF)' };
