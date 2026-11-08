@@ -124,7 +124,14 @@ const SERVICE_IMPORT_ALLOW = new Map([
       '../services/integrations/bot/turnstile.js',
     ]),
   ],
-  ['server.js', new Set(['../services/integrations/index.js', '../services/integrations/secrets.js'])],
+  [
+    'server.js',
+    new Set([
+      '../services/integrations/index.js',
+      '../services/integrations/secrets.js',
+      '../services/integrations/documents/storage.js',
+    ]),
+  ],
   [
     'derivations.js',
     new Set([

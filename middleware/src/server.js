@@ -4,6 +4,7 @@ import { assertSecureConfig } from './auth.js';
 import { assertPoolConfig } from './pool.js';
 import { assertIntegrationConfig } from '../services/integrations/index.js';
 import { assertSecrets } from '../services/integrations/secrets.js';
+import { assertVaultConfig } from '../services/integrations/documents/storage.js';
 import { jsonLogger, startMetricsExporter } from './observability.js';
 import { resetPool } from './pool.js';
 
@@ -13,6 +14,8 @@ assertSecureConfig();
 const integrationCfg = assertIntegrationConfig();
 // Production secrets must come from the secret manager (.env is dev-only).
 assertSecrets(integrationCfg);
+// Production vault writes must carry a KMS key id (never rest unencrypted).
+assertVaultConfig();
 // Production default: use the worker pool (4 workers, 2 in-flight each) unless
 // explicitly overridden. Development and tests keep file mode (size 0) so a
 // missing COBOL_POOL_SIZE does not spawn long-lived processes there.

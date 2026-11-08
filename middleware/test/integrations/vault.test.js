@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import {
   assertObjectAllowed,
+  assertVaultConfig,
   deleteObject,
   objectKey,
   putObject,
@@ -154,6 +155,33 @@ test('vaultConfig reads env; signRequest carries method in scope', () => {
     mime: 'image/png',
   });
   assert.match(h.Authorization, /SignedHeaders=.*content-type/);
+});
+
+test('production vault writes require a KMS key id', () => {
+  const savedEnv = process.env.NODE_ENV;
+  const savedEndpoint = process.env.VAULT_ENDPOINT;
+  const savedKey = process.env.VAULT_KMS_KEY_ID;
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    delete process.env.VAULT_KMS_KEY_ID;
+    assert.throws(() => assertVaultConfig(), /VAULT_KMS_KEY_ID is required/);
+    process.env.VAULT_KMS_KEY_ID = 'kms-prod-1';
+    assert.equal(assertVaultConfig().kmsKeyId, 'kms-prod-1');
+    delete process.env.VAULT_ENDPOINT;
+    delete process.env.VAULT_KMS_KEY_ID;
+    assert.doesNotThrow(() => assertVaultConfig());
+    process.env.NODE_ENV = 'test';
+    process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    assert.doesNotThrow(() => assertVaultConfig());
+  } finally {
+    if (savedEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = savedEnv;
+    if (savedEndpoint === undefined) delete process.env.VAULT_ENDPOINT;
+    else process.env.VAULT_ENDPOINT = savedEndpoint;
+    if (savedKey === undefined) delete process.env.VAULT_KMS_KEY_ID;
+    else process.env.VAULT_KMS_KEY_ID = savedKey;
+  }
 });
 
 test('KMS key id pins at write time (rotation safety)', async () => {
