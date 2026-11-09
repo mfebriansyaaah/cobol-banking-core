@@ -550,7 +550,7 @@
             *> settle re-links the existing journal; a genuine next partial
             *> (different settled-before) always posts its own journal. The GL
             *> module owns its own transaction (called before ours opens); if
-            *> our link UPDATE fails afterwards, the journal survives as an
+            *> our link write fails afterwards, the journal survives as an
             *> audit trail and the retry re-links it.
             MOVE "SELECT clearing_ref FROM payment_clearing WHERE id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1

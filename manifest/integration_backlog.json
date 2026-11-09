@@ -1597,13 +1597,12 @@
       "module": "payment_clearing_core",
       "kind": "action",
       "subject": "ACTION-SETTLE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_clearing)",
       "evidence": [
-        "paragraph ACTION-SETTLE",
-        "touched tables: payment_clearing"
+        "Fase 1 (PR #607): ACTION-SETTLE posts a balanced GL journal via CALL gl_core GL_JOURNAL_POST_ML (DEBIT 1200 / CREDIT 2110) and links payment_clearing.gl_journal_id; proven by tests/db/payment_posting_db_tests.sh + payment_gl_invariants_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "payment_clearing_core:audit:core-reference",
@@ -1782,13 +1781,12 @@
       "module": "payment_hold_core",
       "kind": "action",
       "subject": "ACTION-CAPTURE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_hold)",
       "evidence": [
-        "paragraph ACTION-CAPTURE",
-        "touched tables: payment_hold"
+        "Fase 1 (PR #607): ACTION-CAPTURE posts DEBIT customer / CREDIT CLEARING-suspense ledger legs + journal_entries atomically with the status flip and links payment_hold.journal_id; proven by tests/db/payment_posting_db_tests.sh + payment_hold_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "payment_hold_core:action:action-expire",
