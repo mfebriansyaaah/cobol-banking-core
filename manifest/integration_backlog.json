@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T03:51:35.728Z",
+  "generatedAt": "2026-11-09T02:01:19.087Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -827,6 +827,19 @@
       "reason": "Write paragraph with no core link (writes used_count, velocity_counter)",
       "evidence": [
         "paragraph ACTION-VEL-RECORD",
+        "touched tables: used_count, velocity_counter, velocity_profile"
+      ],
+      "owner": null
+    },
+    {
+      "id": "fee_core:action:action-vel-record-all-txn",
+      "module": "fee_core",
+      "kind": "action",
+      "subject": "ACTION-VEL-RECORD-ALL-TXN",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes used_count, velocity_counter)",
+      "evidence": [
+        "paragraph ACTION-VEL-RECORD-ALL-TXN",
         "touched tables: used_count, velocity_counter, velocity_profile"
       ],
       "owner": null

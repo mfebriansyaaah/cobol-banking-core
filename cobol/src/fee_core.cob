@@ -94,6 +94,20 @@
        01  WS-COUNT2               PIC X(30) VALUE SPACES.
        01  WS-NEW-COUNT            PIC 9(18) VALUE 0.
        01  WS-NEW-AMOUNT           PIC 9(20)V9(4) VALUE 0.
+       01  WS-VEL-USED-COUNT       PIC X(20) VALUE SPACES.
+       01  WS-VEL-USED-AMOUNT      PIC X(30) VALUE SPACES.
+       01  WS-VEL-AMOUNT           PIC X(30) VALUE SPACES.
+       01  WS-VEL-COUNT-NORM       PIC X(30) VALUE SPACES.
+       01  WS-VEL-USED-NORM        PIC X(30) VALUE SPACES.
+       01  WS-VEL-AMT-NORM         PIC X(30) VALUE SPACES.
+       01  WS-VEL-MAXC-NORM        PIC X(30) VALUE SPACES.
+       01  WS-VEL-MAXA-NORM        PIC X(30) VALUE SPACES.
+       01  WS-VEL-NEWC-NUM         PIC 9(18) VALUE 0.
+       01  WS-VEL-NEWA-NUM         PIC 9(20)V9(4) VALUE 0.
+       01  WS-VEL-MAXC-NUM         PIC 9(18) VALUE 0.
+       01  WS-VEL-MAXA-NUM         PIC 9(20)V9(4) VALUE 0.
+       01  WS-VEL-BLOCKED          PIC X VALUE "0".
+       01  WS-VEL-CODES            PIC X(200) VALUE SPACES.
        01  WS-AT-COUNT             PIC 9(3) VALUE 0.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
        01  WS-AUDIT-RULE           PIC X(40) VALUE SPACES.
@@ -156,12 +170,21 @@
                WHEN LS-CMD-ACTION(1:18) = "VEL_PROFILE_CREATE"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-VEL-PROFILE-CREATE
+               *> Prefix dispatch: longer names first. "VEL_CHECK" also
+               *> matches "VEL_CHECK_ALL_TXN" (and VEL_RECORD likewise),
+               *> so the _ALL_TXN clauses must stay above the short ones.
                WHEN LS-CMD-ACTION(1:16) = "VEL_PROFILE_LIST"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-VEL-PROFILE-LIST
+               WHEN LS-CMD-ACTION(1:17) = "VEL_CHECK_ALL_TXN"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-VEL-CHECK-ALL-TXN
                WHEN LS-CMD-ACTION(1:9) = "VEL_CHECK"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-VEL-CHECK
+               WHEN LS-CMD-ACTION(1:18) = "VEL_RECORD_ALL_TXN"
+                   PERFORM TRIM-ALL
+                   PERFORM ACTION-VEL-RECORD-ALL-TXN
                WHEN LS-CMD-ACTION(1:10) = "VEL_RECORD"
                    PERFORM TRIM-ALL
                    PERFORM ACTION-VEL-RECORD
@@ -379,6 +402,37 @@
                WS-PROFILE-ID WS-PROFILE-WINDOW WS-PROFILE-MAX-COUNT
                WS-PROFILE-MAX-AMOUNT WS-PROFILE-CURRENCY WS-PROFILE-ENABLED
            END-UNSTRING.
+           EXIT PARAGRAPH.
+
+       EVALUATE-VELOCITY.
+           *> Single comparison point for velocity, shared by the public
+           *> VEL_CHECK and the internal transfer-path check. Inputs:
+           *> WS-VEL-USED-COUNT/WS-VEL-USED-AMOUNT (counter state),
+           *> WS-VEL-AMOUNT (candidate amount),
+           *> WS-PROFILE-MAX-COUNT/WS-PROFILE-MAX-AMOUNT (limits).
+           *> Sets WS-VEL-BLOCKED to "1" when the candidate would exceed
+           *> either cap. DECIMAL-POINT IS COMMA here, so every decimal
+           *> string is normalized (dot to comma) before NUMVAL; a raw
+           *> NUMVAL reads "100.00" as 10000 and miscompares by 100x.
+           MOVE "0" TO WS-VEL-BLOCKED
+           MOVE WS-VEL-USED-COUNT TO WS-VEL-COUNT-NORM
+           INSPECT WS-VEL-COUNT-NORM REPLACING ALL "." BY ","
+           MOVE WS-VEL-USED-AMOUNT TO WS-VEL-USED-NORM
+           INSPECT WS-VEL-USED-NORM REPLACING ALL "." BY ","
+           MOVE WS-VEL-AMOUNT TO WS-VEL-AMT-NORM
+           INSPECT WS-VEL-AMT-NORM REPLACING ALL "." BY ","
+           MOVE WS-PROFILE-MAX-COUNT TO WS-VEL-MAXC-NORM
+           INSPECT WS-VEL-MAXC-NORM REPLACING ALL "." BY ","
+           MOVE WS-PROFILE-MAX-AMOUNT TO WS-VEL-MAXA-NORM
+           INSPECT WS-VEL-MAXA-NORM REPLACING ALL "." BY ","
+           COMPUTE WS-VEL-NEWC-NUM = FUNCTION NUMVAL(WS-VEL-COUNT-NORM) + 1 END-COMPUTE
+           COMPUTE WS-VEL-NEWA-NUM = FUNCTION NUMVAL(WS-VEL-USED-NORM) + FUNCTION NUMVAL(WS-VEL-AMT-NORM) END-COMPUTE
+           COMPUTE WS-VEL-MAXC-NUM = FUNCTION NUMVAL(WS-VEL-MAXC-NORM) END-COMPUTE
+           COMPUTE WS-VEL-MAXA-NUM = FUNCTION NUMVAL(WS-VEL-MAXA-NORM) END-COMPUTE
+           IF WS-VEL-NEWC-NUM > WS-VEL-MAXC-NUM
+              OR WS-VEL-NEWA-NUM > WS-VEL-MAXA-NUM
+               MOVE "1" TO WS-VEL-BLOCKED
+           END-IF.
            EXIT PARAGRAPH.
 
         COPY "common_result.cpy".
@@ -1218,12 +1272,12 @@
            END-IF.
            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-COUNT1 WS-COUNT2
            END-UNSTRING
-           COMPUTE WS-NEW-COUNT = FUNCTION NUMVAL(WS-COUNT1) + 1 END-COMPUTE
-           COMPUTE WS-NEW-AMOUNT = FUNCTION NUMVAL(WS-COUNT2)
-               + FUNCTION NUMVAL(WS-P3-TRIMMED) END-COMPUTE
+           MOVE WS-COUNT1 TO WS-VEL-USED-COUNT
+           MOVE WS-COUNT2 TO WS-VEL-USED-AMOUNT
+           MOVE WS-P3-TRIMMED(1:30) TO WS-VEL-AMOUNT
+           PERFORM EVALUATE-VELOCITY
            MOVE SPACES TO LS-OUTPUT-BUFFER
-           IF WS-NEW-COUNT > FUNCTION NUMVAL(WS-PROFILE-MAX-COUNT)
-              OR WS-NEW-AMOUNT > FUNCTION NUMVAL(WS-PROFILE-MAX-AMOUNT)
+           IF WS-VEL-BLOCKED = "1"
                STRING "SUCCESS|VELOCITY|BLOCKED|" DELIMITED BY SIZE
                       WS-COUNT1 DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-COUNT2 DELIMITED BY SPACE
@@ -1347,4 +1401,87 @@
                   WS-COUNT2 DELIMITED BY SPACE
                   INTO LS-OUTPUT-BUFFER
            END-STRING.
+           EXIT PARAGRAPH.
+
+       ACTION-VEL-CHECK-ALL-TXN.
+           *> Internal transfer-path check (called by payment_core): no admin
+           *> gate, no audit, no transaction of its own. P1 = sender email,
+           *> P2 = currency ISO, P3 = amount. Evaluates every ENABLED
+           *> velocity profile of that currency against its current window
+           *> and returns the first-match verdict for the unified limit
+           *> evaluation. Amount comparison is decimal-exact in SQL, so no
+           *> COMMA normalization is needed here.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-PREP-SQL
+           STRING "SELECT COALESCE(GROUP_CONCAT(v.code SEPARATOR ','), '') FROM " DELIMITED BY SIZE
+                  "(SELECT p.profile_code AS code FROM velocity_profile p " DELIMITED BY SIZE
+                  "LEFT JOIN velocity_counter c ON c.profile_code = p.profile_code " DELIMITED BY SIZE
+                  "AND c.account_email = ? " DELIMITED BY SIZE
+                  "AND c.window_start = FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(NOW()) / p.window_seconds) * p.window_seconds) " DELIMITED BY SIZE
+                  "WHERE p.currency_code = ? AND p.enabled = TRUE " DELIMITED BY SIZE
+                  "GROUP BY p.profile_code, p.max_count, p.max_amount " DELIMITED BY SIZE
+                  "HAVING COALESCE(SUM(c.used_count), 0) + 1 > p.max_count " DELIMITED BY SIZE
+                  "OR COALESCE(SUM(c.used_amount), 0) + ? > p.max_amount) v" DELIMITED BY SIZE
+                  INTO WS-PREP-SQL END-STRING
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P2-TRIMMED TO WS-BIND-2
+           MOVE WS-P3-TRIMMED TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               IF WS-RESULT = "ERROR|NO_DATA"
+                   MOVE "SUCCESS|VELOCITY_TXN|OK" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:200) TO WS-VEL-CODES
+           IF WS-VEL-CODES = SPACES
+               MOVE "SUCCESS|VELOCITY_TXN|OK" TO LS-OUTPUT-BUFFER
+           ELSE
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "SUCCESS|VELOCITY_TXN|BLOCKED|" DELIMITED BY SIZE
+                      FUNCTION TRIM(WS-VEL-CODES) DELIMITED BY SIZE
+                      INTO LS-OUTPUT-BUFFER
+               END-STRING
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-VEL-RECORD-ALL-TXN.
+           *> Internal transfer-path recorder (called by wallet_core inside
+           *> the transfer transaction): no BEGIN/COMMIT of its own, no
+           *> audit. Advances every ENABLED velocity counter of the sender
+           *> currency for the current window, atomically with the money
+           *> movement. A missing profile set records zero rows and still
+           *> succeeds; only a real DB error fails the transfer closed.
+           IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-PREP-SQL
+           STRING "INSERT INTO velocity_counter (account_email, profile_code, window_start, used_count, used_amount) " DELIMITED BY SIZE
+                  "SELECT ?, p.profile_code, FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(NOW()) / p.window_seconds) * p.window_seconds), 1, ? " DELIMITED BY SIZE
+                  "FROM velocity_profile p WHERE p.currency_code = ? AND p.enabled = TRUE " DELIMITED BY SIZE
+                  "ON DUPLICATE KEY UPDATE used_count = used_count + 1, used_amount = used_amount + VALUES(used_amount)" DELIMITED BY SIZE
+                  INTO WS-PREP-SQL END-STRING
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P3-TRIMMED TO WS-BIND-2
+           MOVE WS-P2-TRIMMED TO WS-BIND-3
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+           ELSE
+               MOVE "SUCCESS|VELOCITY_TXN_RECORDED" TO LS-OUTPUT-BUFFER
+           END-IF.
            EXIT PARAGRAPH.

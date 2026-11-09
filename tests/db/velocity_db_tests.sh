@@ -14,6 +14,11 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 
 db_seed
 db_reset_velocity
+# Fase 2: transfers everywhere consult enabled velocity profiles, so this
+# suite owns its profiles and removes them afterwards; a leftover
+# max_count=1 profile would veto other suites' transfers.
+db_exec "DELETE FROM velocity_counter WHERE profile_code LIKE 'VEL-T%';"
+db_exec "DELETE FROM velocity_profile WHERE profile_code LIKE 'VEL-T%';"
 
 # Hourly profile: 3600s window, 10 events, 5000.00 USD cap.
 create_out="$(run_cobol "VEL_PROFILE_CREATE|VEL-T1|Hourly cap|3600,10,5000.00,USD|||admin@test.com")"
@@ -42,6 +47,9 @@ assert_match "check unknown profile" "$(run_cobol "VEL_CHECK|user@test.com|NOPE|
 
 assert_match "missing input" "$(run_cobol "VEL_CHECK||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 assert_match "non-admin refused" "$(run_cobol "VEL_PROFILE_LIST|50|0||||sender@test.com")" "ERROR\|FORBIDDEN"
+
+db_exec "DELETE FROM velocity_counter WHERE profile_code LIKE 'VEL-T%';"
+db_exec "DELETE FROM velocity_profile WHERE profile_code LIKE 'VEL-T%';"
 
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-08T23:45:58.325Z",
+  "generatedAt": "2026-11-09T01:55:53.383Z",
   "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
-  "count": 8,
+  "count": 10,
   "edges": [
     {
       "from": "auth_core",
@@ -34,8 +34,18 @@
       "callsites": 1
     },
     {
+      "from": "payment_core",
+      "to": "fee_core",
+      "callsites": 1
+    },
+    {
       "from": "payment_instruction_core",
       "to": "wallet_core",
+      "callsites": 1
+    },
+    {
+      "from": "wallet_core",
+      "to": "fee_core",
       "callsites": 1
     },
     {

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-09T01:33:15.175Z",
-  "commit": "4f88f02c",
+  "generatedAt": "2026-11-09T02:01:43.754Z",
+  "commit": "e826bc9e",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 549,
   "actions": [
@@ -12219,7 +12219,9 @@
       "authPolicy": "authenticated",
       "linkageLevel": "L3",
       "t1Actions": [],
-      "t1Calls": [],
+      "t1Calls": [
+        "fee_core"
+      ],
       "tested": true,
       "domain": "payment",
       "status": "ACTIVE"
@@ -12253,7 +12255,9 @@
       "authPolicy": "authenticated",
       "linkageLevel": "L3",
       "t1Actions": [],
-      "t1Calls": [],
+      "t1Calls": [
+        "fee_core"
+      ],
       "tested": true,
       "domain": "payment",
       "status": "ACTIVE"
@@ -12287,7 +12291,9 @@
       "authPolicy": "authenticated",
       "linkageLevel": "L3",
       "t1Actions": [],
-      "t1Calls": [],
+      "t1Calls": [
+        "fee_core"
+      ],
       "tested": true,
       "domain": "payment",
       "status": "ACTIVE"
@@ -12321,7 +12327,9 @@
       "authPolicy": "authenticated",
       "linkageLevel": "L3",
       "t1Actions": [],
-      "t1Calls": [],
+      "t1Calls": [
+        "fee_core"
+      ],
       "tested": true,
       "domain": "payment",
       "status": "ACTIVE"
@@ -12355,7 +12363,9 @@
       "authPolicy": "authenticated",
       "linkageLevel": "L3",
       "t1Actions": [],
-      "t1Calls": [],
+      "t1Calls": [
+        "fee_core"
+      ],
       "tested": true,
       "domain": "payment",
       "status": "ACTIVE"
@@ -12389,7 +12399,9 @@
       "authPolicy": "authenticated",
       "linkageLevel": "L3",
       "t1Actions": [],
-      "t1Calls": [],
+      "t1Calls": [
+        "fee_core"
+      ],
       "tested": true,
       "domain": "payment",
       "status": "ACTIVE"
@@ -12423,7 +12435,9 @@
       "authPolicy": "authenticated",
       "linkageLevel": "L3",
       "t1Actions": [],
-      "t1Calls": [],
+      "t1Calls": [
+        "fee_core"
+      ],
       "tested": true,
       "domain": "payment",
       "status": "ACTIVE"

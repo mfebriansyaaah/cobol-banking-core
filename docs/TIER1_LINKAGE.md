@@ -6,8 +6,8 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-08T23:50:08.110Z
-- Commit: `8eaca344`
+- Generated at: 2026-11-09T02:00:59.599Z
+- Commit: `e826bc9e`
 
 | Level | Modules |
 | --- | ---: |
@@ -63,7 +63,7 @@ Unresolved route files: none.
 | `merchant_settlement_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `notification_template_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `payment_clearing_core` | L3 | — | — | 1 | Tier-1 core module |
-| `payment_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
+| `payment_core` | L3 | accounts, ledger | fee_core | 1 | money-table touch (accounts, ledger) with depth + test |
 | `payment_hold_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `payment_instruction_core` | L2 | — | wallet_core | 1 | business link (calls wallet_core; actions TRANSFER) + test |
 | `payroll_processing_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
