@@ -154,6 +154,14 @@ run_cobol "PMC_POST|${CID4}|50.00||||${A}" >/dev/null
 assert_match "keyed over-settle refused" "$(run_cobol "PMC_SETTLE|${CID4}|100.00|||K-DOOM|${A}")" "ERROR\|INVALID_AMOUNT"
 assert_match "doomed key not blocked" "$(run_cobol "PMC_SETTLE|${CID4}|100.00|||K-DOOM|${A}")" "ERROR\|INVALID_AMOUNT"
 assert_match "no request residue" "$(db_query "SELECT COUNT(*) FROM payment_settle_request WHERE clearing_id=${CID4};")" "^0$"
+# Stale PENDING takeover: a crashed owner's key is taken over, not blocked.
+run_cobol "PMC_CREATE|CLR-RC-5|100.00|USD|||${A}" >/dev/null
+CID5="$(db_query "SELECT id FROM payment_clearing WHERE clearing_ref='CLR-RC-5';")"
+run_cobol "PMC_POST|${CID5}|100.00||||${A}" >/dev/null
+db_exec "INSERT INTO payment_settle_request (clearing_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${CID5},'K-TAKE',100.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "takeover succeeds" "$(run_cobol "PMC_SETTLE|${CID5}|100.00|||K-TAKE|${A}")" "SUCCESS\|PMC_SETTLE"
+assert_match "taken over and done" "$(db_query "SELECT status FROM payment_settle_request WHERE clearing_id=${CID5} AND idempotency_key='K-TAKE';")" "^DONE$"
+assert_match "takeover settled exact" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID5};")" "^100.0000$"
 
 # 16-20. Double instruction execute: money moves once. The wallet transfer
 # and the instruction bookkeeping are separate transactions, so a race
