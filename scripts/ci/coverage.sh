@@ -137,6 +137,8 @@ CURATED=(
 SUITES=(
     schema_tests loan_db_tests loan_schedule_db_tests deposit_db_tests
     card_db_tests collection_db_tests payment_clearing_db_tests
+    payment_posting_db_tests payment_race_db_tests
+    payment_conservation_db_tests payment_limits_db_tests
     treasury_liquidity_db_tests
     gl_allocation_db_tests
     account_db_tests
