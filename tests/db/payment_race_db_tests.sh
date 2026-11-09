@@ -104,6 +104,19 @@ assert_match "winner linked" "$(db_query "SELECT gl_journal_id FROM payment_clea
 assert_match "winner journal balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount),'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=(SELECT gl_journal_id FROM payment_clearing WHERE id=${CID});")" "^BALANCED$"
 assert_match "settle after full refused" "$(run_cobol "PMC_SETTLE|${CID}|1.00||||${A}")" "ERROR\|INVALID_STATUS"
 
+# 16-19. Posted-but-unlinked retry re-links instead of double-posting.
+# (Simulates the crash window: journal committed, linkage lost.)
+run_cobol "PMC_CREATE|CLR-RC-2|200.00|USD|||${A}" >/dev/null
+CID2="$(db_query "SELECT id FROM payment_clearing WHERE clearing_ref='CLR-RC-2';")"
+run_cobol "PMC_POST|${CID2}|200.00||||${A}" >/dev/null
+assert_match "first settle ok" "$(run_cobol "PMC_SETTLE|${CID2}|100.00||||${A}")" "SUCCESS\|PMC_SETTLE"
+J1="$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${CID2};")"
+db_exec "UPDATE payment_clearing SET settled_amount=0, gl_journal_id=NULL WHERE id=${CID2};"
+assert_match "retry re-links" "$(run_cobol "PMC_SETTLE|${CID2}|100.00||||${A}")" "SUCCESS\|PMC_SETTLE"
+assert_match "re-linked to same journal" "$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${CID2};")" "^${J1}$"
+assert_match "no duplicate journal" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-RC-2:%';")" "^1$"
+assert_match "settled exact" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID2};")" "^100.0000$"
+
 # 16-20. Double instruction execute: money moves once. The wallet transfer
 # and the instruction bookkeeping are separate transactions, so a race
 # loser is refused while the winner's verdict can occasionally be lost;
