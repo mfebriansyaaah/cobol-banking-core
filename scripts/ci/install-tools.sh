@@ -11,17 +11,22 @@
 # one with <TOOL>_BASE for tests (e.g. file:// fixture URLs). Per-file hashes
 # default to tool-checksums.txt; override one with <TOOL>_SHA256 for tests.
 #
-# Usage: bash scripts/ci/install-tools.sh --dest DIR [--only a,b]
+# Usage: bash scripts/ci/install-tools.sh --dest DIR [--only a,b] [--cache-dir DIR]
 #   --only limits to: shellcheck, shfmt, actionlint, promtool, gitleaks.
+#   --cache-dir enables an outage-proof archive: verified downloads are saved
+#   there (best effort), and a cache hit with a matching pinned checksum is
+#   used instead of downloading. The cache is never trusted: every byte taken
+#   from it is checksum-verified before extraction, exactly like a download.
 set -euo pipefail
 
 DEST=""
+CACHE_DIR=""
 ONLY="shellcheck,shfmt,actionlint,promtool,gitleaks"
 need_arg() {
     if [ -n "${2:-}" ]; then
         printf '%s' "$2"
     else
-        echo "usage: $0 --dest DIR [--only a,b]" >&2
+        echo "usage: $0 --dest DIR [--only a,b] [--cache-dir DIR]" >&2
         exit 2
     fi
 }
@@ -29,13 +34,15 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --dest) DEST="$(need_arg "$1" "${2:-}")"; shift 2 ;;
         --dest=*) DEST="${1#--dest=}"; shift ;;
+        --cache-dir) CACHE_DIR="$(need_arg "$1" "${2:-}")"; shift 2 ;;
+        --cache-dir=*) CACHE_DIR="${1#--cache-dir=}"; shift ;;
         --only) ONLY="$(need_arg "$1" "${2:-}")"; shift 2 ;;
         --only=*) ONLY="${1#--only=}"; shift ;;
         --help|-h) sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d'; exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
 done
-[ -n "$DEST" ] || { echo "usage: $0 --dest DIR [--only a,b]" >&2; exit 2; }
+[ -n "$DEST" ] || { echo "usage: $0 --dest DIR [--only a,b] [--cache-dir DIR]" >&2; exit 2; }
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CHECKSUMS="$ROOT/scripts/ci/tool-checksums.txt"
@@ -55,7 +62,10 @@ pinned_sha() {
 }
 
 # Download, verify, then extract into $DEST. Never touches $DEST before the
-# checksum matches.
+# checksum matches. With --cache-dir, a cache hit (checksum-verified the
+# same way) skips the download; a verified download backfills the cache.
+# Retries ride out short CDN blips; a sustained outage is covered by the
+# cache once any green run has populated it.
 fetch_verified() { # $1 = url, $2 = file, $3 = expected sha
     local url="$1" file="$2" expected="$3"
     if [ -z "$expected" ]; then
@@ -63,10 +73,22 @@ fetch_verified() { # $1 = url, $2 = file, $3 = expected sha
         return 1
     fi
     echo "--- $file ---"
-    curl -fsSL --retry 3 --retry-all-errors --max-time 300 -o "$WORK/$file" "$url"
+    if [ -n "$CACHE_DIR" ] && [ -f "$CACHE_DIR/$file" ]; then
+        if printf '%s  %s\n' "$expected" "$CACHE_DIR/$file" | sha256sum -c --status -; then
+            echo "cache HIT (checksum OK): $file"
+            cp "$CACHE_DIR/$file" "$WORK/$file"
+            return 0
+        fi
+        echo "cache STALE (re-downloading): $file"
+    fi
+    curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors --max-time 300 -o "$WORK/$file" "$url"
     printf '%s  %s\n' "$expected" "$WORK/$file" | sha256sum -c --status - \
         || { echo "FAIL: checksum mismatch for $file" >&2; return 1; }
     echo "checksum OK: $file"
+    if [ -n "$CACHE_DIR" ]; then
+        mkdir -p "$CACHE_DIR" 2>/dev/null || true
+        cp "$WORK/$file" "$CACHE_DIR/$file" 2>/dev/null || true
+    fi
 }
 
 want() { # $1 = tool name
