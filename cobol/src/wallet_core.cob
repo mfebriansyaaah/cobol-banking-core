@@ -174,6 +174,14 @@
         01  WS-PAY-ACTION          PIC X(30) VALUE SPACES.
         01  WS-PAY-ACTOR           PIC X(100) VALUE SPACES.
         01  WS-PAY-OUT             PIC X(16384) VALUE SPACES.
+        01  WS-VEL-ACTION          PIC X(30) VALUE SPACES.
+        01  WS-VEL-P1              PIC X(100) VALUE SPACES.
+        01  WS-VEL-P2              PIC X(100) VALUE SPACES.
+        01  WS-VEL-P3              PIC X(100) VALUE SPACES.
+        01  WS-VEL-P4              PIC X(100) VALUE SPACES.
+        01  WS-VEL-P5              PIC X(100) VALUE SPACES.
+        01  WS-VEL-P6              PIC X(100) VALUE SPACES.
+        01  WS-VEL-OUT             PIC X(16384) VALUE SPACES.
         01  WS-TARGET-PREC         PIC X(2)  VALUE SPACES.
         01  WS-RATE-STR            PIC X(40) VALUE SPACES.
         01  WS-RATE-UPDATED        PIC X(30) VALUE SPACES.
@@ -703,7 +711,10 @@
 
         CHECK-PAYMENT-POLICY.
             *> Owner-configured policy is enforced after the environment
-            *> caps. No policy row means no additional restriction.
+            *> caps. No policy row means no additional restriction. The
+            *> unified verdict also covers per-user overrides and velocity:
+            *> a VELOCITY block maps to the daily failure like the other
+            *> window limits (the precise reason stays in PAY_CHECK output).
             MOVE "PAY_ENFORCE" TO WS-PAY-ACTION
             MOVE WS-PARAM1-TRIMMED TO WS-PAY-ACTOR
             MOVE SPACES TO WS-PAY-OUT
@@ -721,6 +732,25 @@
                         SET WS-TRANSFER-FAIL-DAILY TO TRUE
                     END-IF
                 END-IF
+            END-IF.
+            EXIT PARAGRAPH.
+
+        RECORD-VELOCITY-USAGE.
+            *> Every transfer that passes the limit checks advances the
+            *> sender's velocity counters for the sender currency. The
+            *> recorder joins this transaction (no BEGIN/COMMIT of its
+            *> own), so a record failure rolls the money back with it
+            *> instead of leaving counters behind the ledger.
+            MOVE "VEL_RECORD_ALL_TXN" TO WS-VEL-ACTION
+            MOVE WS-PARAM1-TRIMMED TO WS-VEL-P1
+            MOVE WS-SENDER-ISO TO WS-VEL-P2
+            MOVE WS-PARAM3-TRIMMED TO WS-VEL-P3
+            MOVE SPACES TO WS-VEL-P4 WS-VEL-P5 WS-VEL-P6 WS-VEL-OUT
+            CALL "fee_core" USING WS-VEL-ACTION WS-VEL-P1 WS-VEL-P2
+                WS-VEL-P3 WS-VEL-P4 WS-VEL-P5 WS-VEL-P6 WS-VEL-OUT
+            END-CALL
+            IF WS-VEL-OUT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             EXIT PARAGRAPH.
 
@@ -1515,6 +1545,10 @@
             
             IF WS-TRANSFER-OK
                 PERFORM CHECK-PAYMENT-POLICY
+            END-IF.
+            
+            IF WS-TRANSFER-OK
+                PERFORM RECORD-VELOCITY-USAGE
             END-IF.
             
             IF WS-TRANSFER-OK

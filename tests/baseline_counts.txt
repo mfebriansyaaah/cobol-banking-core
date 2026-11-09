@@ -52,6 +52,7 @@ db_loyalty_domain_tests=39
 db_payment_hold_tests=22
 
 db_velocity_tests=15
+db_payment_limits_tests=28
 
 db_admin_shell_tests=30
 db_auth_shell_tests=43
