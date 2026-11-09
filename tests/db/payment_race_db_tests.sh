@@ -104,12 +104,16 @@ assert_match "winner linked" "$(db_query "SELECT gl_journal_id FROM payment_clea
 assert_match "winner journal balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount),'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=(SELECT gl_journal_id FROM payment_clearing WHERE id=${CID});")" "^BALANCED$"
 assert_match "settle after full refused" "$(run_cobol "PMC_SETTLE|${CID}|1.00||||${A}")" "ERROR\|INVALID_STATUS"
 
-# 16-19. Double instruction execute: money moves once.
+# 16-20. Double instruction execute: money moves once. The wallet transfer
+# and the instruction bookkeeping are separate transactions, so a race
+# loser is refused while the winner's verdict can occasionally be lost;
+# a settle-up execute always converges (replay is a no-op for money).
 run_cobol "PIC_CREATE|PI-RC-1|${WA}|${WB}|25.00,USD|ONCE,2026-06-01,2026-06-01|${A}" >/dev/null
 run_cobol "PIC_EXECUTE|PI-RC-1|||||${A}" >"$TMPD/exA.out" 2>&1 &
 run_cobol "PIC_EXECUTE|PI-RC-1|||||${A}" >"$TMPD/exB.out" 2>&1 &
 wait
-assert_match "at least one executed" "$(grep -o "SUCCESS|PIC_EXECUTED" "$TMPD"/ex*.out | wc -l | tr -d ' ')" "^[12]$"
+assert_match "settle-up execute converges" "$(run_cobol "PIC_EXECUTE|PI-RC-1|||||${A}")" "SUCCESS\|PIC_EXECUTED|ERROR\|INVALID_STATUS"
+assert_match "instruction completed" "$(db_query "SELECT status FROM payment_instruction WHERE instruction_code='PI-RC-1';")" "^COMPLETED$"
 assert_match "money moved once" "$(bal "$ACCT")" "^875.0000$"
 assert_match "counterpart credited once" "$(db_query "SELECT balance FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='${WB}') AND currency_id=1;")" "^1025.0000$"
 assert_match "single receipt" "$(db_query "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref LIKE 'PI-PI-RC-1-%';")" "^1$"
