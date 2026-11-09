@@ -27,8 +27,8 @@ run_cobol "GL_PERIOD_OPEN|${CUR}|||||${A}" >/dev/null
 
 cleanup_fixture() {
     db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'PHL-%' OR txn_ref LIKE 'PI-PRC-%';"
-    db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
     db_exec "DELETE FROM payment_hold WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}')));"
+    db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
     db_exec "DELETE FROM pending_transactions WHERE from_email IN ('${WA}','${WB}') OR to_email IN ('${WA}','${WB}');"
     db_exec "DELETE FROM payment_instruction_run WHERE instruction_id IN (SELECT id FROM payment_instruction WHERE instruction_code LIKE 'PI-RC-%');"
     db_exec "DELETE FROM payment_instruction WHERE instruction_code LIKE 'PI-RC-%';"
@@ -116,6 +116,52 @@ assert_match "retry re-links" "$(run_cobol "PMC_SETTLE|${CID2}|100.00||||${A}")"
 assert_match "re-linked to same journal" "$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${CID2};")" "^${J1}$"
 assert_match "no duplicate journal" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-RC-2:%';")" "^1$"
 assert_match "settled exact" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID2};")" "^100.0000$"
+
+# 20-32. Keyed settle: same key replays the stored outcome, a different
+# amount conflicts, concurrent keys serialize with one winner.
+run_cobol "PMC_CREATE|CLR-RC-3|200.00|USD|||${A}" >/dev/null
+CID3="$(db_query "SELECT id FROM payment_clearing WHERE clearing_ref='CLR-RC-3';")"
+run_cobol "PMC_POST|${CID3}|200.00||||${A}" >/dev/null
+assert_match "keyed settle ok" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RC3|${A}")" "SUCCESS\|PMC_SETTLE"
+JK="$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${CID3};")"
+assert_match "keyed replay ok" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RC3|${A}")" "SUCCESS\|PMC_SETTLE"
+assert_match "replay links same journal" "$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${CID3};")" "^${JK}$"
+assert_match "no duplicate journal" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-RC-3:%';")" "^1$"
+assert_match "request recorded DONE" "$(db_query "SELECT status FROM payment_settle_request WHERE clearing_id=${CID3} AND idempotency_key='K-RC3';")" "^DONE$"
+assert_match "different amount conflicts" "$(run_cobol "PMC_SETTLE|${CID3}|50.00|||K-RC3|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "conflict moves nothing" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID3};")" "^100.0000$"
+D1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; D2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'PMC_SETTLE|%s|100.00|||K-RACE|admin@test.com\n' "$CID3" >"$D1/input.txt"
+printf 'PMC_SETTLE|%s|100.00|||K-RACE|admin@test.com\n' "$CID3" >"$D2/input.txt"
+BIN="$PWD/cobol/bin/main_logic"
+(cd "$D1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+P1=$!
+(cd "$D2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+P2=$!
+wait $P1; wait $P2
+KA="$(tr -d ' \n' <"$D1/output.txt")"; KB="$(tr -d ' \n' <"$D2/output.txt")"
+rm -rf "$D1" "$D2"
+assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$KA" "$KB" | grep -c "SUCCESS|PMC_SETTLE")" "^1$"
+assert_match "loser sees in-progress" "$(printf '%s\n%s\n' "$KA" "$KB")" "ERROR\|SETTLE_IN_PROGRESS"
+assert_match "retry converges" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RACE|${A}")" "SUCCESS\|PMC_SETTLE"
+assert_match "single journal for key" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-RC-3:%';")" "^2$"
+assert_match "settled exact after race" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID3};")" "^200.0000$"
+assert_match "replay after full still memoized" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RC3|${A}")" "SUCCESS\|PMC_SETTLE"
+# Key on a doomed settle is refused without blocking the key.
+run_cobol "PMC_CREATE|CLR-RC-4|50.00|USD|||${A}" >/dev/null
+CID4="$(db_query "SELECT id FROM payment_clearing WHERE clearing_ref='CLR-RC-4';")"
+run_cobol "PMC_POST|${CID4}|50.00||||${A}" >/dev/null
+assert_match "keyed over-settle refused" "$(run_cobol "PMC_SETTLE|${CID4}|100.00|||K-DOOM|${A}")" "ERROR\|INVALID_AMOUNT"
+assert_match "doomed key not blocked" "$(run_cobol "PMC_SETTLE|${CID4}|100.00|||K-DOOM|${A}")" "ERROR\|INVALID_AMOUNT"
+assert_match "no request residue" "$(db_query "SELECT COUNT(*) FROM payment_settle_request WHERE clearing_id=${CID4};")" "^0$"
+# Stale PENDING takeover: a crashed owner's key is taken over, not blocked.
+run_cobol "PMC_CREATE|CLR-RC-5|100.00|USD|||${A}" >/dev/null
+CID5="$(db_query "SELECT id FROM payment_clearing WHERE clearing_ref='CLR-RC-5';")"
+run_cobol "PMC_POST|${CID5}|100.00||||${A}" >/dev/null
+db_exec "INSERT INTO payment_settle_request (clearing_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${CID5},'K-TAKE',100.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "takeover succeeds" "$(run_cobol "PMC_SETTLE|${CID5}|100.00|||K-TAKE|${A}")" "SUCCESS\|PMC_SETTLE"
+assert_match "taken over and done" "$(db_query "SELECT status FROM payment_settle_request WHERE clearing_id=${CID5} AND idempotency_key='K-TAKE';")" "^DONE$"
+assert_match "takeover settled exact" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID5};")" "^100.0000$"
 
 # 16-20. Double instruction execute: money moves once. The wallet transfer
 # and the instruction bookkeeping are separate transactions, so a race

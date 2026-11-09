@@ -21181,7 +21181,8 @@ CREATE TABLE `payment_clearing` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_payment_clearing_ref` (`clearing_ref`),
   KEY `idx_payment_clearing_status` (`status`,`currency`),
-  KEY `idx_payment_clearing_gl` (`gl_journal_id`)
+  KEY `idx_payment_clearing_gl` (`gl_journal_id`),
+  CONSTRAINT `fk_payment_clearing_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -21279,7 +21280,8 @@ CREATE TABLE `payment_hold` (
   KEY `fk_payment_hold_account` (`account_id`),
   KEY `idx_payment_hold_status` (`status`,`expires_at`),
   KEY `idx_payment_hold_journal` (`journal_id`),
-  CONSTRAINT `fk_payment_hold_account` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`account_id`) ON DELETE CASCADE
+  CONSTRAINT `fk_payment_hold_account` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`account_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_payment_hold_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -21602,6 +21604,29 @@ CREATE TABLE `payment_profile` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_payment_profile` (`user_email`,`currency_code`),
   CONSTRAINT `CONSTRAINT_1` CHECK (`daily_limit` >= 0 and `daily_count` >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `payment_settle_request`
+--
+
+DROP TABLE IF EXISTS `payment_settle_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_settle_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `clearing_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `gl_journal_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_settle_idem` (`clearing_id`,`idempotency_key`),
+  KEY `idx_settle_req_clearing` (`clearing_id`),
+  CONSTRAINT `fk_settle_req_clearing` FOREIGN KEY (`clearing_id`) REFERENCES `payment_clearing` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

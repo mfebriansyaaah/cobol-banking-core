@@ -12468,6 +12468,8 @@ paths:
               properties:
                 amount:
                   type: string
+                idempotencyKey:
+                  type: string
       responses:
         "200":
           description: Success

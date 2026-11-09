@@ -948,6 +948,7 @@
     "payment_processing",
     "payment_processing_audit",
     "payment_profile",
+    "payment_settle_request",
     "payroll_audit",
     "payroll_employee",
     "payroll_item",
