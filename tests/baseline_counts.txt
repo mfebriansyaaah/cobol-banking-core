@@ -4,7 +4,7 @@ db_loan_schedule_tests=42
 db_deposit_tests=30
 db_card_tests=38
 db_collection_tests=35
-db_payment_clearing_tests=20
+db_payment_clearing_tests=22
 db_treasury_liquidity_tests=18
 db_gl_allocation_tests=13
 db_backup_drill_tests=13
@@ -49,7 +49,7 @@ db_loyalty_schema_tests=11
 db_loyalty_domain_tests=39
 
 
-db_payment_hold_tests=19
+db_payment_hold_tests=22
 
 db_velocity_tests=15
 
@@ -71,7 +71,8 @@ db_wallet_conservation_tests=38
 
 db_auth_invariants_tests=35
 
-db_payment_gl_invariants_tests=21
+db_payment_gl_invariants_tests=25
+db_payment_posting_tests=40
 
 db_phone_otp_tests=18
 

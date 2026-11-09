@@ -752,7 +752,7 @@
       "routeFile": "payment_hold.js",
       "table": "payment_hold",
       "tier": 2,
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "linkedCoreDomains": [
         "wallet/ledger"
       ],
@@ -760,8 +760,8 @@
       "consumer": null,
       "trafficLastSeen": null,
       "owner": null,
-      "status": "PILOT",
-      "reason": "Business link proven; integration completion (PR-010E) still open before ACTIVE.",
+      "status": "ACTIVE",
+      "reason": "Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. Fase 1 (PR #607): CAPTURE posts ledger legs + journal atomically.",
       "retireAfter": null,
       "tableDropDate": null
     },

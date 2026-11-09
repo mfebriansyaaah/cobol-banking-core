@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-08T05:22:52.723Z",
-  "commit": "ae0b0742",
+  "generatedAt": "2026-11-09T01:33:15.175Z",
+  "commit": "4f88f02c",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 549,
   "actions": [
@@ -12455,12 +12455,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "payment_hold",
-      "status": "PILOT"
+      "status": "ACTIVE"
     },
     {
       "action": "PHL_EXPIRE",
@@ -12489,12 +12489,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "payment_hold",
-      "status": "PILOT"
+      "status": "ACTIVE"
     },
     {
       "action": "PHL_GET",
@@ -12523,12 +12523,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "payment_hold",
-      "status": "PILOT"
+      "status": "ACTIVE"
     },
     {
       "action": "PHL_LIST",
@@ -12557,12 +12557,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "payment_hold",
-      "status": "PILOT"
+      "status": "ACTIVE"
     },
     {
       "action": "PHL_RELEASE",
@@ -12591,12 +12591,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "payment_hold",
-      "status": "PILOT"
+      "status": "ACTIVE"
     },
     {
       "action": "PHL_RESERVE",
@@ -12625,12 +12625,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "payment_hold",
-      "status": "PILOT"
+      "status": "ACTIVE"
     },
     {
       "action": "PHL_SUMMARY",
@@ -12659,12 +12659,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "t1Actions": [],
       "t1Calls": [],
       "tested": true,
       "domain": "payment_hold",
-      "status": "PILOT"
+      "status": "ACTIVE"
     },
     {
       "action": "PIC_CANCEL",

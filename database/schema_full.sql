@@ -438,12 +438,12 @@ CREATE TABLE `accounts` (
   `account_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `currency_id` int(11) NOT NULL,
-  `account_type` enum('SAVINGS','CHECKING','INVESTMENT','FEE_INCOME','FX_PNL') DEFAULT 'SAVINGS',
+  `account_type` enum('SAVINGS','CHECKING','INVESTMENT','FEE_INCOME','FX_PNL','CLEARING') DEFAULT 'SAVINGS',
   `balance` decimal(18,4) NOT NULL DEFAULT 0.0000 CHECK (`balance` >= 0),
   `status` enum('ACTIVE','FROZEN','CLOSED') DEFAULT 'ACTIVE',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `control_slot` varchar(32) GENERATED ALWAYS AS (case when `status` = 'ACTIVE' and `account_type` in ('FX_PNL','FEE_INCOME') then concat(`currency_id`,'/',`account_type`) else NULL end) STORED,
+  `control_slot` varchar(32) GENERATED ALWAYS AS (case when `status` = 'ACTIVE' and `account_type` in ('FX_PNL','FEE_INCOME','CLEARING') then concat(`currency_id`,'/',`account_type`) else NULL end) STORED,
   PRIMARY KEY (`account_id`),
   UNIQUE KEY `unique_user_currency` (`user_id`,`currency_id`),
   UNIQUE KEY `uniq_active_control_acct` (`control_slot`),
@@ -21175,11 +21175,13 @@ CREATE TABLE `payment_clearing` (
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `posted_at` datetime DEFAULT NULL,
   `settled_at` datetime DEFAULT NULL,
+  `gl_journal_id` int(11) DEFAULT NULL,
   `cancelled_at` datetime DEFAULT NULL,
   `cancellation_reason` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_payment_clearing_ref` (`clearing_ref`),
-  KEY `idx_payment_clearing_status` (`status`,`currency`)
+  KEY `idx_payment_clearing_status` (`status`,`currency`),
+  KEY `idx_payment_clearing_gl` (`gl_journal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -21272,9 +21274,11 @@ CREATE TABLE `payment_hold` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `captured_at` datetime DEFAULT NULL,
   `released_at` datetime DEFAULT NULL,
+  `journal_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_payment_hold_account` (`account_id`),
   KEY `idx_payment_hold_status` (`status`,`expires_at`),
+  KEY `idx_payment_hold_journal` (`journal_id`),
   CONSTRAINT `fk_payment_hold_account` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`account_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

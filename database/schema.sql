@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     account_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     currency_id INT NOT NULL,
-    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT', 'FEE_INCOME', 'FX_PNL') DEFAULT 'SAVINGS',  -- FEE_INCOME: bank-owned fee collection account (one active per currency); FX_PNL: bank-owned FX gain/loss account (one active per currency, D1)
+    account_type ENUM('SAVINGS', 'CHECKING', 'INVESTMENT', 'FEE_INCOME', 'FX_PNL', 'CLEARING') DEFAULT 'SAVINGS',  -- FEE_INCOME: bank-owned fee collection account (one active per currency); FX_PNL: bank-owned FX gain/loss account (one active per currency, D1); CLEARING: bank-owned suspense for payment-hold captures (one active per currency)
     balance DECIMAL(18, 4) NOT NULL DEFAULT 0.0000 CHECK (balance >= 0),
     status ENUM('ACTIVE', 'FROZEN', 'CLOSED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     CONSTRAINT fk_acc_curr FOREIGN KEY (currency_id) REFERENCES currencies(currency_id),
     UNIQUE KEY unique_user_currency (user_id, currency_id),
     control_slot VARCHAR(32) GENERATED ALWAYS AS
-      (CASE WHEN status = 'ACTIVE' AND account_type IN ('FX_PNL','FEE_INCOME')
+      (CASE WHEN status = 'ACTIVE' AND account_type IN ('FX_PNL','FEE_INCOME','CLEARING')
             THEN CONCAT(currency_id, '/', account_type) ELSE NULL END) STORED,
     UNIQUE KEY uniq_active_control_acct (control_slot)
 ) ENGINE=InnoDB;
@@ -2574,7 +2574,9 @@ INSERT IGNORE INTO gl_account (account_code, name, account_type, normal_side, is
 ('1000', 'Cash', 'ASSET', 'DEBIT', TRUE),
 ('1100', 'Customer deposits', 'LIABILITY', 'CREDIT', TRUE),
 ('4000', 'Fee income', 'REVENUE', 'CREDIT', TRUE),
-('5000', 'Operating expense', 'EXPENSE', 'DEBIT', TRUE);
+('5000', 'Operating expense', 'EXPENSE', 'DEBIT', TRUE),
+('1200', 'Clearing suspense', 'ASSET', 'DEBIT', TRUE),
+('2110', 'Settlement payable', 'LIABILITY', 'CREDIT', TRUE);
 
 -- Phase 1 Sprint 1: GL period control.
 -- A period is YYYY-MM. Journals post only into an OPEN period.
@@ -3904,9 +3906,11 @@ CREATE TABLE IF NOT EXISTS payment_hold (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     captured_at DATETIME NULL,
     released_at DATETIME NULL,
+    journal_id BIGINT NULL,
     CONSTRAINT fk_payment_hold_account FOREIGN KEY (account_id)
         REFERENCES accounts(account_id) ON DELETE CASCADE,
-    INDEX idx_payment_hold_status (status, expires_at)
+    INDEX idx_payment_hold_status (status, expires_at),
+    INDEX idx_payment_hold_journal (journal_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS payment_hold_audit (

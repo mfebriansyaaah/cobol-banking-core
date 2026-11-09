@@ -6,13 +6,13 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-08T07:43:39.264Z
-- Commit: `ede796a7`
+- Generated at: 2026-11-08T23:50:08.110Z
+- Commit: `8eaca344`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 18 |
-| L2 (business reference) | 6 |
+| L3 (core transaction) | 19 |
+| L2 (business reference) | 5 |
 | L1 (weak / untested link) | 10 |
 | L0 (isolated) | 29 |
 | UTILITY | 3 |
@@ -64,7 +64,7 @@ Unresolved route files: none.
 | `notification_template_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `payment_clearing_core` | L3 | — | — | 1 | Tier-1 core module |
 | `payment_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
-| `payment_hold_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
+| `payment_hold_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `payment_instruction_core` | L2 | — | wallet_core | 1 | business link (calls wallet_core; actions TRANSFER) + test |
 | `payroll_processing_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
 | `phone_otp_core` | L0 | — | — | 1 | own domain tables only, no core link |

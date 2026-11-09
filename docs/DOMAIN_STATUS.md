@@ -8,8 +8,8 @@
 
 | Status | Modules |
 | --- | ---: |
-| ACTIVE | 21 |
-| PILOT | 6 |
+| ACTIVE | 22 |
+| PILOT | 5 |
 | REVIEW | 21 |
 | FROZEN | 18 |
 | RETIRED | 0 |
@@ -63,7 +63,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `notification_template` | `notification_template_core` | 2 | L0 | FROZEN | notification_template.js | ntf_template_config | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `payment_clearing` | `payment_clearing_core` | 1 | L3 | ACTIVE | payment_clearing.js | payment_clearing | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `payment` | `payment_core` | 2 | L3 | ACTIVE | payment.js | payment_policy | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
-| `payment_hold` | `payment_hold_core` | 2 | L2 | PILOT | payment_hold.js | payment_hold | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
+| `payment_hold` | `payment_hold_core` | 2 | L3 | ACTIVE | payment_hold.js | payment_hold | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. Fase 1 (PR #607): CAPTURE posts ledger legs + journal atomically. |
 | `payment_instruction` | `payment_instruction_core` | 2 | L2 | PILOT | payment_instructions.js | payment_instruction | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `payroll_processing` | `payroll_processing_core` | 2 | L2 | PILOT | payroll_processing.js | payroll_processing | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `phone_otp` | `phone_otp_core` | 2 | L0 | REVIEW | phone.js | phone_links | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 4 gateway-dispatched action(s); coverage OTP link/issue/verify flow (PR-082b). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |

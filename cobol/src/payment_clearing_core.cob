@@ -58,6 +58,21 @@
         01  WS-NUM-SETTLED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
+        01  WS-CALL-P1              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P2              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P3              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P4              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P5              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P6              PIC X(100) VALUE SPACES.
+        01  WS-CALL-OUT             PIC X(16384) VALUE SPACES.
+        01  WS-POST-DATE            PIC X(10) VALUE SPACES.
+        01  WS-GL-DESC              PIC X(100) VALUE SPACES.
+        01  WS-GL-LINES             PIC X(100) VALUE SPACES.
+        01  WS-GL-JID               PIC X(20) VALUE SPACES.
+        01  WS-CLR-REF              PIC X(40) VALUE SPACES.
+        01  WS-JOUT-1               PIC X(20) VALUE SPACES.
+        01  WS-JOUT-2               PIC X(20) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -528,14 +543,102 @@
             END-IF.
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+            *> Real posting: every settle writes one balanced GL journal
+            *> (DEBIT 1200 Clearing suspense / CREDIT 2110 Settlement payable)
+            *> and links it. The description carries the business key plus the
+            *> settled-before total, so only a retry of a posted-but-unlinked
+            *> settle re-links the existing journal; a genuine next partial
+            *> (different settled-before) always posts its own journal. The GL
+            *> module owns its own transaction (called before ours opens); if
+            *> our link write fails afterwards, the journal survives as an
+            *> audit trail and the retry re-links it.
+            MOVE "SELECT clearing_ref FROM payment_clearing WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:40) TO WS-CLR-REF
+            MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:10) TO WS-POST-DATE
+            MOVE SPACES TO WS-GL-DESC
+            STRING "PMC_SETTLE:" DELIMITED BY SIZE
+                   FUNCTION TRIM(WS-CLR-REF) DELIMITED BY SIZE
+                   ":" DELIMITED BY SIZE
+                   FUNCTION TRIM(WS-TMP-SETTLED) DELIMITED BY SIZE
+                   "+" DELIMITED BY SIZE
+                   FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE
+                   INTO WS-GL-DESC END-STRING
+            MOVE SPACES TO WS-GL-JID
+            MOVE "SELECT id FROM gl_journal WHERE description = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-GL-DESC TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT NOT = "ERROR|NO_DATA"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            ELSE
+                MOVE WS-RESULT(1:20) TO WS-GL-JID
+            END-IF.
+            IF WS-GL-JID = SPACES
+                MOVE SPACES TO WS-GL-LINES
+                STRING "1200:" DELIMITED BY SIZE
+                       FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE
+                       ":0;2110:0:" DELIMITED BY SIZE
+                       FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE
+                       INTO WS-GL-LINES END-STRING
+                MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
+                MOVE WS-POST-DATE TO WS-CALL-P1
+                MOVE WS-GL-DESC TO WS-CALL-P2
+                MOVE WS-TMP-CURR TO WS-CALL-P3
+                MOVE WS-GL-LINES TO WS-CALL-P4
+                MOVE SPACES TO WS-CALL-P5
+                MOVE WS-P6-TRIMMED TO WS-CALL-P6
+                MOVE SPACES TO WS-CALL-OUT
+                CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+                    WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+                END-CALL
+                IF WS-CALL-OUT(1:5) = "ERROR"
+                    MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+                UNSTRING WS-CALL-OUT DELIMITED BY "|"
+                    INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+                END-UNSTRING
+                IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE payment_clearing SET status = CASE WHEN settled_amount + ? >= posted_amount THEN 'SETTLED' ELSE 'POSTED' END, settled_at = CASE WHEN settled_amount + ? >= posted_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ? WHERE id = ?" TO WS-PREP-SQL
+            MOVE "UPDATE payment_clearing SET status = CASE WHEN settled_amount + ? >= posted_amount THEN 'SETTLED' ELSE 'POSTED' END, settled_at = CASE WHEN settled_amount + ? >= posted_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ?, gl_journal_id = ? WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-TMP-AMT TO WS-BIND-2
             MOVE WS-TMP-AMT TO WS-BIND-3
-            MOVE WS-P1-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+            MOVE WS-GL-JID TO WS-BIND-4
+            MOVE WS-P1-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL

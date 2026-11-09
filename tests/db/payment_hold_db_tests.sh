@@ -14,6 +14,14 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 
 db_seed
 db_reset_payment_hold
+# Fase 1: CAPTURE posts real legs (customer DEBIT / CLEARING-suspense CREDIT),
+# so the suite owns a USD suspense account and restores the seeded balance.
+BAL1="$(db_query "SELECT balance FROM accounts WHERE account_id=1;")"
+db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'PHL-%';"
+db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
+db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE account_type='CLEARING' AND currency_id=1);"
+db_exec "DELETE FROM accounts WHERE account_type='CLEARING' AND currency_id=1;"
+db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'CLEARING', 0 FROM users WHERE email='admin@test.com';"
 
 # Reserve against seeded account 1; unknown accounts are refused.
 reserve_out="$(run_cobol "PHL_RESERVE|1|250.00|USD|2027-01-01||admin@test.com")"
@@ -31,9 +39,13 @@ assert_match "PHL_LIST ok" "$list_out" "SUCCESS\|PHL_HOLDS\|"
 assert_match "list carries the hold" "$list_out" "${hold_id}:1"
 assert_match "PHL_SUMMARY ok" "$(run_cobol "PHL_SUMMARY||||||admin@test.com")" "SUCCESS\|PHL_SUMMARY\|1\|1\|0\|0\|0"
 
-# Capture; capturing twice is refused.
+# Capture; capturing twice is refused. The capture moves money: the two
+# legs share one journal linked from the hold.
 assert_match "PHL_CAPTURE ok" "$(run_cobol "PHL_CAPTURE|${hold_id}|||||admin@test.com")" "SUCCESS\|PHL_CAPTURED"
 assert_match "hold captured" "$(db_query "SELECT status FROM payment_hold WHERE id=${hold_id};")" "^CAPTURED$"
+assert_match "capture posted two legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='PHL-${hold_id}';")" "^2$"
+assert_match "suspense credited 250" "$(db_query "SELECT balance FROM accounts WHERE account_type='CLEARING' AND currency_id=1;")" "^250.0000$"
+assert_match "hold links journal" "$(db_query "SELECT journal_id FROM payment_hold WHERE id=${hold_id};")" "^[0-9]+$"
 assert_match "capture captured refused" "$(run_cobol "PHL_CAPTURE|${hold_id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
 
 # Release path on a second hold; releasing a captured hold is refused.
@@ -51,6 +63,15 @@ assert_match "past-due hold expired" "$(db_query "SELECT status FROM payment_hol
 
 assert_match "missing id" "$(run_cobol "PHL_CAPTURE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 assert_match "non-admin refused" "$(run_cobol "PHL_LIST|1||50|0||sender@test.com")" "ERROR\|FORBIDDEN"
+
+# Leave no trace: legs, journals, holds and the suspense account are ours;
+# the seeded balance is restored exactly.
+db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'PHL-%';"
+db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
+db_exec "DELETE FROM payment_hold_audit;"
+db_exec "DELETE FROM payment_hold;"
+db_exec "DELETE FROM accounts WHERE account_type='CLEARING' AND currency_id=1;"
+db_exec "UPDATE accounts SET balance=${BAL1} WHERE account_id=1;"
 
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
