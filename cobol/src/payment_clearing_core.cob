@@ -548,10 +548,14 @@
             *> and links it. The description carries the business key plus the
             *> settled-before total, so only a retry of a posted-but-unlinked
             *> settle re-links the existing journal; a genuine next partial
-            *> (different settled-before) always posts its own journal. The GL
-            *> module owns its own transaction (called before ours opens); if
-            *> our link write fails afterwards, the journal survives as an
-            *> audit trail and the retry re-links it.
+            *> (different settled-before) always posts its own journal.
+            *> The journal posts before our transaction opens (gl_core owns
+            *> its own transaction on this connection). The increment that
+            *> follows carries an atomic guard (settled + amount <= posted),
+            *> so a concurrent settle that would over-settle is refused with
+            *> INVALID_AMOUNT instead of piling on; the loser's journal row
+            *> survives as a balanced audit trail. Serialize settle calls
+            *> per clearing id when that noise matters.
             MOVE "SELECT clearing_ref FROM payment_clearing WHERE id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
@@ -631,20 +635,40 @@
                 END-IF
             END-IF.
             SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE payment_clearing SET status = CASE WHEN settled_amount + ? >= posted_amount THEN 'SETTLED' ELSE 'POSTED' END, settled_at = CASE WHEN settled_amount + ? >= posted_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ?, gl_journal_id = ? WHERE id = ?" TO WS-PREP-SQL
+            IF STEP-OK
+            MOVE "UPDATE payment_clearing SET status = CASE WHEN settled_amount + ? >= posted_amount THEN 'SETTLED' ELSE 'POSTED' END, settled_at = CASE WHEN settled_amount + ? >= posted_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ? WHERE id = ? AND settled_amount + ? <= posted_amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-TMP-AMT TO WS-BIND-2
             MOVE WS-TMP-AMT TO WS-BIND-3
-            MOVE WS-GL-JID TO WS-BIND-4
-            MOVE WS-P1-TRIMMED TO WS-BIND-5
+            MOVE WS-P1-TRIMMED TO WS-BIND-4
+            MOVE WS-TMP-AMT TO WS-BIND-5
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|INVALID_AMOUNT" TO WS-ERR
                 SET STEP-FAIL TO TRUE
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE payment_clearing SET gl_journal_id = ? WHERE id = ?" TO WS-PREP-SQL
+                MOVE WS-GL-JID TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF.
             IF STEP-OK
                 MOVE "SETTLE" TO WS-AUDIT-ACTION
@@ -658,7 +682,11 @@
                 STRING "SUCCESS|PMC_SETTLE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                IF WS-ERR = "ERROR|INVALID_AMOUNT"
+                    MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
