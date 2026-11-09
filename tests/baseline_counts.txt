@@ -53,6 +53,8 @@ db_payment_hold_tests=22
 
 db_velocity_tests=15
 db_payment_limits_tests=28
+db_payment_race_tests=24
+db_payment_conservation_tests=40
 
 db_admin_shell_tests=30
 db_auth_shell_tests=43
