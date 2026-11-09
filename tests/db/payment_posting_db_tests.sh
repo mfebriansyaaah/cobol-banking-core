@@ -26,8 +26,8 @@ run_cobol "GL_PERIOD_OPEN|${CUR}|||||${A}" >/dev/null
 
 cleanup_fixture() {
     db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'PHL-%' OR txn_ref LIKE 'PI-PST-%';"
-    db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
     db_exec "DELETE FROM payment_hold WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}')));"
+    db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
     db_exec "DELETE FROM pending_transactions WHERE from_email IN ('${WA}','${WB}') OR to_email IN ('${WA}','${WB}');"
     db_exec "DELETE FROM payment_instruction_run WHERE instruction_id IN (SELECT id FROM payment_instruction WHERE instruction_code LIKE 'PI-PST-%');"
     db_exec "DELETE FROM payment_instruction WHERE instruction_code LIKE 'PI-PST-%';"

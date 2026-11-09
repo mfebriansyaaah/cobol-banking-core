@@ -26,8 +26,8 @@ run_cobol "GL_PERIOD_OPEN|${CUR}|||||${A}" >/dev/null
 
 cleanup_fixture() {
     db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'PHL-%' OR txn_ref LIKE 'PI-PCS-%';"
-    db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
     db_exec "DELETE FROM payment_hold WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}')));"
+    db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
     db_exec "DELETE FROM payment_hold_audit WHERE hold_id NOT IN (SELECT id FROM payment_hold);"
     db_exec "DELETE FROM pending_transactions WHERE from_email IN ('${WA}','${WB}') OR to_email IN ('${WA}','${WB}');"
     db_exec "DELETE FROM payment_instruction_run WHERE instruction_id IN (SELECT id FROM payment_instruction WHERE instruction_code LIKE 'PI-CS-%');"
@@ -128,6 +128,10 @@ assert_match "capture journals linked" "$(db_query "SELECT COUNT(*) FROM payment
 assert_match "settle journals linked" "$(db_query "SELECT COUNT(*) FROM payment_clearing WHERE id=${CID} AND gl_journal_id IS NOT NULL;")" "^1$"
 assert_match "settle journals balanced" "$(db_query "SELECT COUNT(*) FROM (SELECT journal_id FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-CS-1:%') GROUP BY journal_id HAVING ABS(SUM(debit_amount)-SUM(credit_amount)) > 0.0001) t;")" "^0$"
 assert_match "run recorded" "$(db_query "SELECT status FROM payment_instruction_run WHERE instruction_id=(SELECT id FROM payment_instruction WHERE instruction_code='PI-CS-1') ORDER BY id DESC LIMIT 1;")" "^COMPLETED$"
+assert_match "re-execute completed refused" "$(run_cobol "PIC_EXECUTE|PI-CS-1|||||${A}")" "ERROR\|INVALID_STATUS"
+assert_match "terminal replay moves nothing" "$(total)" "^2000.0000$"
+assert_match "re-execute completed refused" "$(run_cobol "PIC_EXECUTE|PI-CS-1|||||${A}")" "ERROR\|INVALID_STATUS"
+assert_match "terminal replay moves nothing" "$(total)" "^2000.0000$"
 
 if [ -n "$STRAY" ]; then
     # shellcheck disable=SC2086

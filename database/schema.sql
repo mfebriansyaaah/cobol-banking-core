@@ -3909,6 +3909,8 @@ CREATE TABLE IF NOT EXISTS payment_hold (
     journal_id BIGINT NULL,
     CONSTRAINT fk_payment_hold_account FOREIGN KEY (account_id)
         REFERENCES accounts(account_id) ON DELETE CASCADE,
+    CONSTRAINT fk_payment_hold_journal FOREIGN KEY (journal_id)
+        REFERENCES journal_entries(journal_id),
     INDEX idx_payment_hold_status (status, expires_at),
     INDEX idx_payment_hold_journal (journal_id)
 ) ENGINE=InnoDB;

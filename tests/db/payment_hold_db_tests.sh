@@ -65,11 +65,11 @@ assert_match "missing id" "$(run_cobol "PHL_CAPTURE||||||admin@test.com")" "ERRO
 assert_match "non-admin refused" "$(run_cobol "PHL_LIST|1||50|0||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Leave no trace: legs, journals, holds and the suspense account are ours;
-# the seeded balance is restored exactly.
+# the seeded balance is restored exactly. Holds go before journals (FK).
 db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'PHL-%';"
-db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
 db_exec "DELETE FROM payment_hold_audit;"
 db_exec "DELETE FROM payment_hold;"
+db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'PHL-%';"
 db_exec "DELETE FROM accounts WHERE account_type='CLEARING' AND currency_id=1;"
 db_exec "UPDATE accounts SET balance=${BAL1} WHERE account_id=1;"
 
