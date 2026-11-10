@@ -9540,6 +9540,29 @@ CREATE TABLE `deposit_book_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `deposit_close_request`
+--
+
+DROP TABLE IF EXISTS `deposit_close_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `deposit_close_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `deposit_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `gl_journal_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_close_idem` (`deposit_id`,`idempotency_key`),
+  KEY `idx_close_req_deposit` (`deposit_id`),
+  CONSTRAINT `fk_close_req_deposit` FOREIGN KEY (`deposit_id`) REFERENCES `deposit_account` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `deposit_settle_request`
 --
 
@@ -9572,7 +9595,7 @@ DROP TABLE IF EXISTS `deposit_transaction`;
 CREATE TABLE `deposit_transaction` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `deposit_id` bigint(20) NOT NULL,
-  `txn_type` enum('INTEREST_POSTED','PRINCIPAL_PAYOUT','SETTLE','PRINCIPAL_FUNDED') NOT NULL,
+  `txn_type` enum('INTEREST_POSTED','PRINCIPAL_PAYOUT','SETTLE','PRINCIPAL_FUNDED','PRINCIPAL_REFUNDED') NOT NULL,
   `amount` decimal(18,4) NOT NULL,
   `currency` char(3) NOT NULL,
   `reference` varchar(100) NOT NULL,

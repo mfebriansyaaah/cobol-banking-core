@@ -36,8 +36,8 @@ cleanup_fixture() {
     db_exec "DELETE FROM deposit_account WHERE customer_email IN ('${WA}','${WB}');"
     db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'LOAN-%' OR txn_ref LIKE 'LOANRP-%' OR txn_ref LIKE 'DEP-%';"
     db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'LOAN%' OR txn_ref LIKE 'DEP-%' OR txn_ref LIKE 'LOANRP-%';"
-    db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%' OR description LIKE 'DEP_OPEN:%');"
-    db_exec "DELETE FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%' OR description LIKE 'DEP_OPEN:%';"
+    db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%' OR description LIKE 'DEP_OPEN:%' OR description LIKE 'DEP_CLOSE:%');"
+    db_exec "DELETE FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%' OR description LIKE 'DEP_OPEN:%' OR description LIKE 'DEP_CLOSE:%';"
     db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}','lnpLB@test.com','lnpPB@test.com')));"
     db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}','lnpLB@test.com','lnpPB@test.com'));"
     db_exec "DELETE FROM users WHERE email IN ('${WA}','${WB}','lnpLB@test.com','lnpPB@test.com');"
@@ -232,6 +232,48 @@ run_cobol "DEP_POST|${DID4}|||||${A}" >/dev/null
 db_exec "INSERT INTO deposit_settle_request (deposit_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${DID4},'K-TAKE2',401.6438,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
 assert_match "settle takeover succeeds" "$(run_cobol "DEP_SETTLE|${DID4}||||K-TAKE2|${A}")" "SUCCESS\|DEP_SETTLE\|401.6438"
 assert_match "settle taken over and done" "$(db_query "SELECT status FROM deposit_settle_request WHERE deposit_id=${DID4} AND idempotency_key='K-TAKE2';")" "^DONE$"
+
+# 73-90. Close refunds the funded principal (posted interest forfeited);
+# unfunded PENDING closes money-neutral; the refund is keyed.
+run_cobol "DEP_OPEN|${WB}|400.00|USD|12|5.00|${A}" >/dev/null
+DID5="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' ORDER BY id DESC LIMIT 1;")"
+run_cobol "DEP_ACCRUE|${DID5}|30||||${A}" >/dev/null
+run_cobol "DEP_POST|${DID5}|||||${A}" >/dev/null
+assert_match "keyed close ok" "$(run_cobol "DEP_CLOSE|${DID5}||||K-DC1|${A}")" "SUCCESS\|DEP_CLOSED\|400.0000"
+assert_match "closed after refund" "$(db_query "SELECT status FROM deposit_account WHERE id=${DID5};")" "^CLOSED$"
+assert_match "principal refunded, interest forfeited" "$(bal "$ACCTB")" "^3314.3836$"
+assert_match "two refund legs posted" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID5}-REFUND';")" "^2$"
+assert_match "close links journal" "$(db_query "SELECT journal_id FROM deposit_account WHERE id=${DID5};")" "^[0-9]+$"
+assert_match "close links gl" "$(db_query "SELECT gl_journal_id FROM deposit_account WHERE id=${DID5};")" "^[0-9]+$"
+assert_match "refund transaction recorded" "$(db_query "SELECT COUNT(*) FROM deposit_transaction WHERE deposit_id=${DID5} AND txn_type='PRINCIPAL_REFUNDED';")" "^1$"
+assert_match "refund gl balanced" "$(db_query "SELECT COUNT(*) FROM (SELECT journal_id FROM gl_journal_line WHERE journal_id=(SELECT gl_journal_id FROM deposit_account WHERE id=${DID5}) GROUP BY journal_id HAVING ABS(SUM(debit_amount - credit_amount)) > 0.0001) t;")" "^0$"
+assert_match "keyed close replay ok" "$(run_cobol "DEP_CLOSE|${DID5}||||K-DC1|${A}")" "SUCCESS\|DEP_CLOSED\|400.0000"
+assert_match "replay refunded once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID5}-REFUND';")" "^2$"
+assert_match "close on closed refused" "$(run_cobol "DEP_CLOSE|${DID5}||||K-DC2|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "close request recorded once" "$(db_query "SELECT COUNT(*) FROM deposit_close_request WHERE deposit_id=${DID5};")" "^1$"
+run_cobol "DEP_OPEN|${WB}|100.00|USD|12|5.00|${A}" >/dev/null
+DID6="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' ORDER BY id DESC LIMIT 1;")"
+C1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; C2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'DEP_CLOSE|%s||||K-DCRACE|admin@test.com\n' "$DID6" >"$C1/input.txt"
+printf 'DEP_CLOSE|%s||||K-DCRACE|admin@test.com\n' "$DID6" >"$C2/input.txt"
+(cd "$C1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+U1=$!
+(cd "$C2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+U2=$!
+wait $U1; wait $U2
+CA="$(tr -d ' \n' <"$C1/output.txt")"; CB="$(tr -d ' \n' <"$C2/output.txt")"
+rm -rf "$C1" "$C2"
+assert_match "exactly one close winner" "$(printf '%s\n%s\n' "$CA" "$CB" | grep -c "SUCCESS|DEP_CLOSED")" "^1$"
+assert_match "close loser sees in-progress" "$(printf '%s\n%s\n' "$CA" "$CB")" "ERROR\|CLOSE_IN_PROGRESS"
+assert_match "close retry converges" "$(run_cobol "DEP_CLOSE|${DID6}||||K-DCRACE|${A}")" "SUCCESS\|DEP_CLOSED\|100.0000"
+assert_match "single refund for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID6}-REFUND';")" "^2$"
+db_exec "INSERT INTO deposit_account (customer_email, principal, currency, term_months, interest_rate, created_by, status) VALUES ('${WB}', 250.00, 'USD', 12, 5.00, '${A}', 'PENDING');"
+DID7="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+BW0="$(bal "$ACCTB")"
+assert_match "pending close ok" "$(run_cobol "DEP_CLOSE|${DID7}||||K-DC3|${A}")" "SUCCESS\|DEP_CLOSED\|0.0000"
+assert_match "pending closed" "$(db_query "SELECT status FROM deposit_account WHERE id=${DID7};")" "^CLOSED$"
+assert_match "pending close moves nothing" "$(bal "$ACCTB")" "^${BW0}$"
+assert_match "pending close posts no legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'DEP-${DID7}%';")" "^0$"
 
 cleanup_fixture
 print_summary

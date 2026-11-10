@@ -1353,6 +1353,29 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(closedKey.status, 400);
   assert.equal(closedKey.body.error, 'INVALID_STATUS');
 
+  const open2 = await request(app).post('/deposits').set(auth).send({ email: owner, principal: '1000.00', currency: 'USD', term: '6', rate: '5.00' });
+  assert.equal(open2.status, 200);
+  const id2 = open2.body.data[1];
+  assert.match(String(id2), /^\d+$/);
+
+  const closed = await request(app).post(`/deposits/${id2}/close`).set(auth).send({ idempotencyKey: 'gw-close-1' });
+  assert.equal(closed.status, 200);
+  assert.deepEqual(closed.body.data, ['DEP_CLOSED', '1000.0000']);
+  assert.equal(
+    queryScalar(`SELECT COUNT(*) FROM ledger WHERE txn_ref = 'DEP-${id2}-REFUND'`),
+    '2',
+    'the refund posts two legs',
+  );
+
+  const closedReplay = await request(app).post(`/deposits/${id2}/close`).set(auth).send({ idempotencyKey: 'gw-close-1' });
+  assert.equal(closedReplay.status, 200);
+  assert.deepEqual(closedReplay.body.data, ['DEP_CLOSED', '1000.0000']);
+  assert.equal(
+    queryScalar(`SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'DEP_CLOSE:${id2}:%'`),
+    '1',
+    'the close replay posts no second journal',
+  );
+
   const summary = await request(app).get('/deposits/summary').set(auth);
   assert.equal(summary.status, 200);
   assert.equal(summary.body.data[0], 'DEP_SUMMARY');
@@ -1365,10 +1388,10 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(closeAgain.status, 400);
   assert.equal(closeAgain.body.error, 'INVALID_STATUS');
 
-  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref IN ('DEP-${id}', 'DEP-${id}-FUND')`), 'clean up the payout legs');
+  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref IN ('DEP-${id}', 'DEP-${id}-FUND', 'DEP-${id2}-FUND', 'DEP-${id2}-REFUND')`), 'clean up the payout legs');
   requireSeed(runSql(`DELETE FROM deposit_account WHERE customer_email = '${owner}'`), 'clean up the deposit');
   requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout journal');
-  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id}-FUND'`), 'clean up the funding journal');
+  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref IN ('DEP-${id}-FUND', 'DEP-${id2}-FUND', 'DEP-${id2}-REFUND')`), 'clean up the funding journal');
   requireSeed(
     runSql(
       `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%')`,
@@ -1383,6 +1406,20 @@ test('deposit lifecycle over HTTP', async () => {
     'clean up the funding GL lines',
   );
   requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id}:%'`), 'clean up the funding GL journal');
+  requireSeed(
+    runSql(
+      `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2}:%')`,
+    ),
+    'clean up the second funding GL lines',
+  );
+  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2}:%'`), 'clean up the second funding GL journal');
+  requireSeed(
+    runSql(
+      `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_CLOSE:${id2}:%')`,
+    ),
+    'clean up the refund GL lines',
+  );
+  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_CLOSE:${id2}:%'`), 'clean up the refund GL journal');
   requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${owner}','${bank}'))`), 'clean up wallets');
   requireSeed(runSql(`DELETE FROM users WHERE email IN ('${owner}','${bank}')`), 'clean up users');
 });
