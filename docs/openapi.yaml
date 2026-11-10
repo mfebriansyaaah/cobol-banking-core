@@ -5931,7 +5931,9 @@ paths:
           application/json:
             schema:
               type: object
-              properties: {}
+              properties:
+                idempotencyKey:
+                  type: string
       responses:
         "200":
           description: Success
