@@ -1270,9 +1270,10 @@ test('deposit lifecycle over HTTP', async () => {
   const token = await adminLoginFor(admin);
   const auth = { Authorization: `Bearer ${token}` };
 
-  // Fase 1: settling pays out real money, so the owner needs a wallet,
-  // the bank-owned DEPOSIT_POOL is capitalized, and the GL period is open.
-  requireSeed(seedUser(owner) && seedAccount(owner, '0.00'), 'seed the deposit owner wallet');
+  // Fase 2: opening funds the deposit, so the owner wallet holds the
+  // principal, the bank-owned DEPOSIT_POOL is capitalized, and the GL
+  // period is open.
+  requireSeed(seedUser(owner) && seedAccount(owner, '10000.00'), 'seed the deposit owner wallet');
   requireSeed(seedUser(bank), 'seed the pool owner');
   requireSeed(
     runSql(
@@ -1297,6 +1298,21 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(open.body.data[0], 'DEP_OPEN');
   const id = open.body.data[1];
   assert.match(String(id), /^\d+$/);
+  assert.equal(
+    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${owner}') AND currency_id = 1`),
+    '0.0000',
+    'funding debits the owner wallet',
+  );
+  assert.equal(
+    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${bank}') AND account_type = 'DEPOSIT_POOL'`),
+    '1010000.0000',
+    'funding credits the pool',
+  );
+  assert.equal(
+    queryScalar(`SELECT COUNT(*) FROM ledger WHERE txn_ref = 'DEP-${id}-FUND'`),
+    '2',
+    'two funding legs are posted',
+  );
 
   const got = await request(app).get(`/deposits/${id}`).set(auth);
   assert.equal(got.status, 200);
@@ -1336,9 +1352,10 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(closeAgain.status, 400);
   assert.equal(closeAgain.body.error, 'INVALID_STATUS');
 
-  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout legs');
+  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref IN ('DEP-${id}', 'DEP-${id}-FUND')`), 'clean up the payout legs');
   requireSeed(runSql(`DELETE FROM deposit_account WHERE customer_email = '${owner}'`), 'clean up the deposit');
   requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout journal');
+  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id}-FUND'`), 'clean up the funding journal');
   requireSeed(
     runSql(
       `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%')`,
@@ -1346,6 +1363,13 @@ test('deposit lifecycle over HTTP', async () => {
     'clean up the payout GL lines',
   );
   requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%'`), 'clean up the payout GL journal');
+  requireSeed(
+    runSql(
+      `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id}:%')`,
+    ),
+    'clean up the funding GL lines',
+  );
+  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id}:%'`), 'clean up the funding GL journal');
   requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${owner}','${bank}'))`), 'clean up wallets');
   requireSeed(runSql(`DELETE FROM users WHERE email IN ('${owner}','${bank}')`), 'clean up users');
 });
