@@ -19,8 +19,8 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | lint, build (always); db-snapshot, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
-| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, db-snapshot, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
+| `pull_request` | `ci.yml` | lint, build (always); db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
+| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
 | nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
 | `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | JS + C analysis, SARIF uploaded to code scanning |
@@ -34,7 +34,7 @@ COBOL, db-aggregate fails on deleted assertion, db-ops runs on `main`
 
 PRs that touch only documentation (`docs/**`, root doc files, issue/PR
 templates, `CODEOWNERS` — classified by `scripts/ci/classify_changes.mjs`,
-unit-tested) skip the heavy jobs: `db-snapshot`, `test`, `db-shards`,
+unit-tested) skip the heavy jobs: `db-snapshot`, `schema-drift`, `test`, `db-shards`,
 `coverage-pr`, and `db-aggregate`. Only `lint` and `build` always run (D3
 option A, owner-approved 2026-11-06: a docs-only PR cannot break compiled or
 tested behavior, and `ci:full` forces a full run on demand). Skipped required
@@ -109,7 +109,7 @@ Phase 0 (before G0):
 - `coverage`
 - `coverage-pr` (curated COBOL coverage gate; required since CI-002)
 
-`db-ops` (rollback/backup/drift on push `main` + `workflow_dispatch`) is
+`db-ops` (rollback/backup drills on push `main` + `workflow_dispatch`) is
 intentionally not a required PR check: it never runs on `pull_request`, so
 requiring it would block every PR forever. Main-line evidence comes from the
 push run plus nightly, which runs the same three checks.
@@ -134,13 +134,14 @@ Rules:
 | --- | --- | --- |
 | `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks (checksum-verified via `scripts/ci/install-tools.sh`; bump procedure in `scripts/ci/tool-checksums.txt`), gate unit tests, npm audit |
 | `ci.yml` build | 20 min | manifest, docs, complexity snapshot, probes, SAST, build, warning ratchet |
-| `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact |
+| `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact (pure producer) |
+| `ci.yml` schema-drift | 15 min | fresh schema+migrations vs committed `schema_full.sql`; parallel to db-snapshot so drift never blocks consumers |
 | `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
 | `ci.yml` db-shards (×2) | 30 min each | one shard per runner |
 | `ci.yml` db-aggregate | 15 min | merge + inventory + count gate (skipped with a notice when `test` did not succeed) + summary |
 | `ci.yml` coverage | 20 min | gateway-only |
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
-| `ci.yml` db-ops | 20 min | rollback, backup/restore, drift (push `main` + dispatch only; not a PR required check) |
+| `ci.yml` db-ops | 20 min | rollback, backup/restore (push `main` + dispatch only; not a PR required check) |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
 | `coverage.yml` | 45 min | full COBOL + gateway |
 | `nightly.yml` | 180 min | full twice + drills + coverage + benchmark + load + flake compare |

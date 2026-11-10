@@ -101,7 +101,7 @@ test('negative control: an unwired entry is reported', () => {
 // nightly, not on every PR. These tests pin the end state: a `db-ops` job in
 // ci.yml owns the three checks, the PR `test` job owns none of them, the old
 // `post-merge` job is gone, and the benchmark lives in nightly.
-const DRILL_NEEDLES = ['migration_rollback_drill', 'backup_restore_drill', 'check_schema_drift'];
+const DRILL_NEEDLES = ['migration_rollback_drill', 'backup_restore_drill'];
 
 function collectWorkflowJobs() {
   const script = `
@@ -136,7 +136,7 @@ print(json.dumps(out))
   return JSON.parse(stdout);
 }
 
-test('db-ops job runs rollback, backup, and drift checks', () => {
+test('db-ops job runs rollback and backup drills (drift moved out)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['db-ops'], 'ci.yml must define a db-ops job');
   assert.equal(ci['db-ops'].name, 'db-ops');
@@ -145,6 +145,36 @@ test('db-ops job runs rollback, backup, and drift checks', () => {
   for (const needle of DRILL_NEEDLES) {
     assert.match(runs, new RegExp(needle), `db-ops must run ${needle}`);
   }
+  assert.doesNotMatch(
+    runs,
+    /check_schema_drift/,
+    'drift must run once, in the schema-drift job (not duplicated on push)',
+  );
+});
+
+test('schema-drift is a separate job, parallel to db-snapshot', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.ok(ci['schema-drift'], 'ci.yml must define a schema-drift job');
+  assert.equal(ci['schema-drift'].name, 'schema-drift');
+  const runs = ci['schema-drift'].runs.join('\n');
+  assert.match(runs, /check_schema_drift/, 'schema-drift must run the drift check');
+  const needs = Array.isArray(ci['schema-drift'].needs) ? ci['schema-drift'].needs : [ci['schema-drift'].needs];
+  assert.ok(needs.includes('changes'), 'schema-drift must honor the docs-only gate');
+  assert.ok(
+    !needs.includes('db-snapshot'),
+    'schema-drift must not depend on db-snapshot: a stale snapshot must not block consumers',
+  );
+  assert.doesNotMatch(
+    ci['db-snapshot'].runs.join('\n'),
+    /check_schema_drift/,
+    'db-snapshot must stay a pure producer (no drift check before the artifact upload)',
+  );
+  // schema-drift is not a required check by name; the required db aggregate
+  // job must surface its failure so a stale snapshot still blocks merges.
+  const aggNeeds = Array.isArray(ci['db-aggregate'].needs) ? ci['db-aggregate'].needs : [ci['db-aggregate'].needs];
+  assert.ok(aggNeeds.includes('schema-drift'), 'db aggregate must wait for schema-drift');
+  const raw = readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
+  assert.match(raw, /needs\.schema-drift\.result == 'failure'/, 'db aggregate must fail when schema-drift failed');
 });
 
 test('db-ops runs on push main and dispatch, never on PRs', () => {

@@ -297,6 +297,53 @@ jobs:
       - name: Build DB snapshot
         run: bash scripts/ci/build_db_snapshot.sh /tmp/cobol-snapshot.sql.gz
 
+      - name: Upload DB snapshot
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: db-snapshot
+          overwrite: true
+          path: /tmp/cobol-snapshot.sql.gz
+          retention-days: 1
+          if-no-files-found: error
+
+  # Schema drift is a correctness gate, not a snapshot prerequisite: running
+  # it in its own job keeps a stale committed snapshot from blocking every
+  # DB consumer (it used to fail db-snapshot before the artifact upload).
+  # Parallel with db-snapshot so it costs wall-clock only, not the critical path.
+  schema-drift:
+    name: schema-drift
+    needs: changes
+    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            mariadb-client
+
       - name: Schema snapshot hash (PR-065 artifact policy)
         run: sha256sum database/schema_full.sql | tee /tmp/schema-full.sha256
 
@@ -310,15 +357,6 @@ jobs:
           overwrite: true
           path: /tmp/schema-full.sha256
           retention-days: 7
-          if-no-files-found: error
-
-      - name: Upload DB snapshot
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: db-snapshot
-          overwrite: true
-          path: /tmp/cobol-snapshot.sql.gz
-          retention-days: 1
           if-no-files-found: error
 
   test:
@@ -596,7 +634,7 @@ jobs:
 
   db-aggregate:
     name: db aggregate
-    needs: [test, db-shards, changes]
+    needs: [test, db-shards, schema-drift, changes]
     if: always() && (github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -608,6 +646,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      # schema-drift is not a required check by name, so bind it to this
+      # required job: a stale committed snapshot must still block the merge.
+      - name: Fail when schema drift failed
+        if: needs.schema-drift.result == 'failure'
+        run: |
+          echo "schema-drift failed: regenerate database/schema_full.sql (see that job)" >&2
+          exit 1
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
@@ -822,9 +868,6 @@ jobs:
 
       - name: Backup and restore drill
         run: bash scripts/ci/backup_restore_drill.sh
-
-      - name: Schema drift check
-        run: bash scripts/check_schema_drift.sh
 
   coverage-pr:
     name: coverage-pr
