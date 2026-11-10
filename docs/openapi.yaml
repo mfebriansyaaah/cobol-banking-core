@@ -6026,7 +6026,9 @@ paths:
           application/json:
             schema:
               type: object
-              properties: {}
+              properties:
+                idempotencyKey:
+                  type: string
       responses:
         "200":
           description: Success
@@ -10167,6 +10169,8 @@ paths:
                 id:
                   type: string
                 amount:
+                  type: string
+                idempotencyKey:
                   type: string
               required:
                 - id
