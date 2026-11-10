@@ -1277,7 +1277,13 @@ test('deposit lifecycle over HTTP', async () => {
   requireSeed(seedUser(bank), 'seed the pool owner');
   requireSeed(
     runSql(
-      `INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'DEPOSIT_POOL', 1000000.00 FROM users WHERE email = '${bank}'`,
+      // Idempotent: `uniq_active_control_acct` allows exactly one ACTIVE
+      // DEPOSIT_POOL per currency, so a rerun against the same database
+      // (coverage re-measure, retry) would otherwise hit a duplicate key.
+      // Re-own and re-fund the existing pool instead of failing the seed.
+      `INSERT INTO accounts (user_id, currency_id, account_type, balance, status)
+       SELECT id, 1, 'DEPOSIT_POOL', 1000000.00, 'ACTIVE' FROM users WHERE email = '${bank}'
+       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), balance = VALUES(balance), status = 'ACTIVE'`,
     ),
     'capitalize the deposit pool',
   );
