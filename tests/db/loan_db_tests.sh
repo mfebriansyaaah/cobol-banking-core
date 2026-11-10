@@ -78,6 +78,18 @@ assert_match "application rejected" "$(db_query "SELECT status FROM loan_applica
 assert_match "approve missing id" "$(run_cobol "LOAN_APPROVE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 assert_match "non-admin apply refused" "$(run_cobol "LOAN_APPLY|borrower@test.com|10000.00|USD|12|5.5|sender@test.com")" "ERROR\|FORBIDDEN"
 
+# Leave no bank-owned rows behind: the control-slot unique key is global,
+# and a later suite in the same database would fail its own pool insert.
+db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('borrower@test.com','loanbook@test.com')));"
+db_exec "DELETE FROM pending_transactions WHERE from_email IN ('borrower@test.com','loanbook@test.com') OR to_email IN ('borrower@test.com','loanbook@test.com');"
+db_exec "DELETE FROM loan_repayment WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email IN ('borrower@test.com','rejectme@test.com'));"
+db_exec "DELETE FROM loan_application WHERE customer_email IN ('borrower@test.com','rejectme@test.com');"
+db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'LOAN-%' OR txn_ref LIKE 'LOANRP-%';"
+db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%');"
+db_exec "DELETE FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%';"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('borrower@test.com','loanbook@test.com'));"
+db_exec "DELETE FROM users WHERE email IN ('borrower@test.com','loanbook@test.com');"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

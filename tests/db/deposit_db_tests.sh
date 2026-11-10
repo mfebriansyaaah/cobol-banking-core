@@ -114,6 +114,19 @@ assert_match "list carries the deposit" "$(run_cobol "DEP_LIST||50|0|||admin@tes
 assert_match "DEP_MATURE ok" "$(run_cobol "DEP_MATURE||||||admin@test.com")" "SUCCESS\|DEP_MATURED"
 assert_match "DEP_AUDIT ok" "$(run_cobol "DEP_AUDIT|${dep_id}|50|0|||admin@test.com")" "SUCCESS\|DEP_AUDIT\|"
 
+# Leave no bank-owned rows behind: the control-slot unique key is global,
+# and a later suite in the same database would fail its own pool insert.
+db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('dep_test@test.com','dep_pool@test.com')));"
+db_exec "DELETE FROM pending_transactions WHERE from_email IN ('dep_test@test.com','dep_pool@test.com') OR to_email IN ('dep_test@test.com','dep_pool@test.com');"
+db_exec "DELETE FROM deposit_transaction WHERE deposit_id=${dep_id};"
+db_exec "DELETE FROM deposit_accrual WHERE deposit_id=${dep_id};"
+db_exec "DELETE FROM deposit_account WHERE id=${dep_id};"
+db_exec "DELETE FROM journal_entries WHERE txn_ref='DEP-${dep_id}';"
+db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${dep_id}:%');"
+db_exec "DELETE FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${dep_id}:%';"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('dep_test@test.com','dep_pool@test.com'));"
+db_exec "DELETE FROM users WHERE email IN ('dep_test@test.com','dep_pool@test.com');"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

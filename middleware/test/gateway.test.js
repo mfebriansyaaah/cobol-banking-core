@@ -1336,13 +1336,16 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(closeAgain.status, 400);
   assert.equal(closeAgain.body.error, 'INVALID_STATUS');
 
+  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout legs');
   requireSeed(runSql(`DELETE FROM deposit_account WHERE customer_email = '${owner}'`), 'clean up the deposit');
+  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout journal');
   requireSeed(
     runSql(
-      `DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${owner}','${bank}')))`,
+      `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%')`,
     ),
-    'clean up the payout legs',
+    'clean up the payout GL lines',
   );
+  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%'`), 'clean up the payout GL journal');
   requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${owner}','${bank}'))`), 'clean up wallets');
   requireSeed(runSql(`DELETE FROM users WHERE email IN ('${owner}','${bank}')`), 'clean up users');
 });
