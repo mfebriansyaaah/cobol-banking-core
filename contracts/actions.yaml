@@ -3,7 +3,7 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-09T03:51:16.019Z"
+generatedAt: "2026-11-10T10:51:22.590Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
 count: 573
 actions:
@@ -7595,10 +7595,10 @@ actions:
         inline: false
         maxBytes: 100
       - slot: 5
-        name: ""
-        pattern: null
+        name: idempotencyKey
+        pattern: KEY
         required: false
-        inline: false
+        inline: true
         maxBytes: 100
       - slot: 6
         name: actor
@@ -14145,10 +14145,10 @@ actions:
         inline: false
         maxBytes: 100
       - slot: 5
-        name: ""
-        pattern: null
+        name: idempotencyKey
+        pattern: KEY
         required: false
-        inline: false
+        inline: true
         maxBytes: 100
       - slot: 6
         name: actor

@@ -27,6 +27,8 @@ CUR="$(date +%Y-%m)"
 run_cobol "GL_PERIOD_OPEN|${CUR}|||||${A}" >/dev/null
 
 cleanup_fixture() {
+    db_exec "DELETE FROM loan_repay_request WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email IN ('${WA}','${WB}'));"
+    db_exec "DELETE FROM deposit_settle_request WHERE deposit_id IN (SELECT id FROM deposit_account WHERE customer_email IN ('${WA}','${WB}'));"
     db_exec "DELETE FROM loan_repayment WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email IN ('${WA}','${WB}'));"
     db_exec "DELETE FROM loan_application WHERE customer_email IN ('${WA}','${WB}');"
     db_exec "DELETE FROM deposit_transaction WHERE deposit_id IN (SELECT id FROM deposit_account WHERE customer_email IN ('${WA}','${WB}'));"
@@ -155,6 +157,81 @@ assert_match "exactly one disburse wins" "$(printf '%s\n%s\n' "$DA" "$DB" | grep
 assert_match "loser refused" "$(printf '%s\n%s\n' "$DA" "$DB")" "ERROR\|INVALID_STATUS"
 assert_match "single credit only" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='LOAN-${APP4}';")" "^2$"
 assert_match "no negatives after race" "$(db_query "SELECT COUNT(*) FROM accounts WHERE account_id IN (${ACCTA},${ACCTB},${BOOK},${POOL}) AND balance < 0;")" "^0$"
+
+# 44-58. Keyed repay: the same key replays the stored outcome instead of
+# posting again; a different amount conflicts; concurrent keys serialize
+# with one winner; doomed keys stay usable; stale keys are taken over.
+assert_match "keyed repay ok" "$(run_cobol "LOAN_REPAY|${APP}|150.00|||K-LR1|${A}")" "SUCCESS\|LOAN_REPAY"
+assert_match "keyed replay ok" "$(run_cobol "LOAN_REPAY|${APP}|150.00|||K-LR1|${A}")" "SUCCESS\|LOAN_REPAY"
+assert_match "replay posted once" "$(db_query "SELECT COUNT(*) FROM loan_repayment WHERE loan_id=${APP} AND amount=150.00 AND status='PAID';")" "^1$"
+assert_match "request recorded DONE" "$(db_query "SELECT status FROM loan_repay_request WHERE loan_id=${APP} AND idempotency_key='K-LR1';")" "^DONE$"
+assert_match "different amount conflicts" "$(run_cobol "LOAN_REPAY|${APP}|160.00|||K-LR1|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "conflict posted nothing" "$(db_query "SELECT COUNT(*) FROM loan_repayment WHERE loan_id=${APP} AND amount=160.00;")" "^0$"
+R1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; R2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'LOAN_REPAY|%s|140.00|||K-LRACE|admin@test.com\n' "$APP" >"$R1/input.txt"
+printf 'LOAN_REPAY|%s|140.00|||K-LRACE|admin@test.com\n' "$APP" >"$R2/input.txt"
+(cd "$R1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+Q1=$!
+(cd "$R2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+Q2=$!
+wait $Q1; wait $Q2
+KA="$(tr -d ' \n' <"$R1/output.txt")"; KB="$(tr -d ' \n' <"$R2/output.txt")"
+rm -rf "$R1" "$R2"
+assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$KA" "$KB" | grep -c "SUCCESS|LOAN_REPAY")" "^1$"
+assert_match "loser sees in-progress" "$(printf '%s\n%s\n' "$KA" "$KB")" "ERROR\|REPAY_IN_PROGRESS"
+assert_match "retry converges" "$(run_cobol "LOAN_REPAY|${APP}|140.00|||K-LRACE|${A}")" "SUCCESS\|LOAN_REPAY"
+assert_match "single repayment for key" "$(db_query "SELECT COUNT(*) FROM loan_repayment WHERE loan_id=${APP} AND amount=140.00 AND status='PAID';")" "^1$"
+run_cobol "LOAN_APPLY|${WB}|100.00|USD|12|5.0|${A}" >/dev/null
+APP5="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+assert_match "keyed repay on open refused" "$(run_cobol "LOAN_REPAY|${APP5}|10.00|||K-DOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "doomed key not blocked" "$(run_cobol "LOAN_REPAY|${APP5}|10.00|||K-DOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "no request residue" "$(db_query "SELECT COUNT(*) FROM loan_repay_request WHERE loan_id=${APP5};")" "^0$"
+db_exec "DELETE FROM loan_application WHERE id=${APP5};"
+db_exec "INSERT INTO loan_repay_request (loan_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${APP},'K-TAKE',130.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "takeover succeeds" "$(run_cobol "LOAN_REPAY|${APP}|130.00|||K-TAKE|${A}")" "SUCCESS\|LOAN_REPAY"
+assert_match "taken over and done" "$(db_query "SELECT status FROM loan_repay_request WHERE loan_id=${APP} AND idempotency_key='K-TAKE';")" "^DONE$"
+
+# 59-72. Keyed settle: replay, race, doomed key, takeover, conflict guard.
+run_cobol "DEP_OPEN|${WB}|1000.00|USD|12|5.00|${A}" >/dev/null
+DID2="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' ORDER BY id DESC LIMIT 1;")"
+run_cobol "DEP_ACCRUE|${DID2}|30||||${A}" >/dev/null
+run_cobol "DEP_POST|${DID2}|||||${A}" >/dev/null
+assert_match "keyed settle ok" "$(run_cobol "DEP_SETTLE|${DID2}||||K-DS1|${A}")" "SUCCESS\|DEP_SETTLE\|1004.1096"
+assert_match "keyed replay ok" "$(run_cobol "DEP_SETTLE|${DID2}||||K-DS1|${A}")" "SUCCESS\|DEP_SETTLE\|1004.1096"
+assert_match "single payout journal" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${DID2}:%';")" "^1$"
+assert_match "request recorded DONE" "$(db_query "SELECT status FROM deposit_settle_request WHERE deposit_id=${DID2} AND idempotency_key='K-DS1';")" "^DONE$"
+db_exec "UPDATE deposit_settle_request SET amount = 1.00 WHERE deposit_id=${DID2} AND idempotency_key='K-DS1';"
+assert_match "changed amount conflicts" "$(run_cobol "DEP_SETTLE|${DID2}||||K-DS1|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "conflict paid nothing new" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID2}';")" "^2$"
+db_exec "UPDATE deposit_settle_request SET amount = 1004.1096 WHERE deposit_id=${DID2} AND idempotency_key='K-DS1';"
+run_cobol "DEP_OPEN|${WB}|500.00|USD|12|5.00|${A}" >/dev/null
+DID3="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' ORDER BY id DESC LIMIT 1;")"
+run_cobol "DEP_ACCRUE|${DID3}|30||||${A}" >/dev/null
+run_cobol "DEP_POST|${DID3}|||||${A}" >/dev/null
+S1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; S2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'DEP_SETTLE|%s||||K-DSRACE|admin@test.com\n' "$DID3" >"$S1/input.txt"
+printf 'DEP_SETTLE|%s||||K-DSRACE|admin@test.com\n' "$DID3" >"$S2/input.txt"
+(cd "$S1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+T1=$!
+(cd "$S2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+T2=$!
+wait $T1; wait $T2
+SA="$(tr -d ' \n' <"$S1/output.txt")"; SB="$(tr -d ' \n' <"$S2/output.txt")"
+rm -rf "$S1" "$S2"
+assert_match "exactly one settle winner" "$(printf '%s\n%s\n' "$SA" "$SB" | grep -c "SUCCESS|DEP_SETTLE")" "^1$"
+assert_match "settle loser sees in-progress" "$(printf '%s\n%s\n' "$SA" "$SB")" "ERROR\|SETTLE_IN_PROGRESS"
+assert_match "settle retry converges" "$(run_cobol "DEP_SETTLE|${DID3}||||K-DSRACE|${A}")" "SUCCESS\|DEP_SETTLE\|502.0548"
+assert_match "single payout for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID3}';")" "^2$"
+assert_match "keyed settle on closed refused" "$(run_cobol "DEP_SETTLE|${DID}||||K-DOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "settle doomed key not blocked" "$(run_cobol "DEP_SETTLE|${DID}||||K-DOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "no settle request residue" "$(db_query "SELECT COUNT(*) FROM deposit_settle_request WHERE deposit_id=${DID};")" "^0$"
+run_cobol "DEP_OPEN|${WA}|400.00|USD|12|5.00|${A}" >/dev/null
+DID4="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WA}' ORDER BY id DESC LIMIT 1;")"
+run_cobol "DEP_ACCRUE|${DID4}|30||||${A}" >/dev/null
+run_cobol "DEP_POST|${DID4}|||||${A}" >/dev/null
+db_exec "INSERT INTO deposit_settle_request (deposit_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${DID4},'K-TAKE2',401.6438,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "settle takeover succeeds" "$(run_cobol "DEP_SETTLE|${DID4}||||K-TAKE2|${A}")" "SUCCESS\|DEP_SETTLE\|401.6438"
+assert_match "settle taken over and done" "$(db_query "SELECT status FROM deposit_settle_request WHERE deposit_id=${DID4} AND idempotency_key='K-TAKE2';")" "^DONE$"
 
 cleanup_fixture
 print_summary
