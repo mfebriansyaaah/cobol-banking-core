@@ -39,6 +39,8 @@ export const LOAN_ROUTES = [
   { method: 'post', path: '/loans/:id/repay', action: 'LOAN_REPAY', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
     { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
-    BLANK, BLANK, BLANK, ACTOR,
+    BLANK, BLANK,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    ACTOR,
   ] },
 ];

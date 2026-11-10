@@ -1331,7 +1331,7 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(stmt.body.data[0], 'DEP_STATEMENT');
   assert.match(stmt.body.data[1], /T:INTEREST_POSTED/);
 
-  const settled = await request(app).post(`/deposits/${id}/settle`).set(auth).send({});
+  const settled = await request(app).post(`/deposits/${id}/settle`).set(auth).send({ idempotencyKey: 'gw-dep-1' });
   assert.equal(settled.status, 200);
   assert.deepEqual(settled.body.data, ['DEP_SETTLE', '10041.0959']);
   assert.equal(
@@ -1339,6 +1339,19 @@ test('deposit lifecycle over HTTP', async () => {
     '10041.0959',
     'the payout lands in the owner wallet',
   );
+
+  const replayed = await request(app).post(`/deposits/${id}/settle`).set(auth).send({ idempotencyKey: 'gw-dep-1' });
+  assert.equal(replayed.status, 200);
+  assert.deepEqual(replayed.body.data, ['DEP_SETTLE', '10041.0959']);
+  assert.equal(
+    queryScalar(`SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%'`),
+    '1',
+    'the replay posts no second journal',
+  );
+
+  const closedKey = await request(app).post(`/deposits/${id}/settle`).set(auth).send({ idempotencyKey: 'gw-dep-2' });
+  assert.equal(closedKey.status, 400);
+  assert.equal(closedKey.body.error, 'INVALID_STATUS');
 
   const summary = await request(app).get('/deposits/summary').set(auth);
   assert.equal(summary.status, 200);

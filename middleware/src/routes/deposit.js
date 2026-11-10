@@ -56,7 +56,9 @@ export const DEPOSIT_ROUTES = [
     ID, BLANK, BLANK, BLANK, BLANK, ACTOR,
   ] },
   { method: 'post', path: '/deposits/:id/settle', action: 'DEP_SETTLE', tokenIdentity: 'actor', fields: [
-    ID, BLANK, BLANK, BLANK, BLANK, ACTOR,
+    ID, BLANK, BLANK, BLANK,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    ACTOR,
   ] },
   { method: 'get', path: '/deposits/:id/statement', action: 'DEP_STATEMENT', tokenIdentity: 'actor', fields: [
     ID, BLANK, BLANK, BLANK, BLANK, ACTOR,
