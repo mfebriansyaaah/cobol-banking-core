@@ -830,7 +830,121 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
 
-        ACTION-DISBURSE.
+        CLAIM-DISBURSE-REQUEST.
+           *> Client-supplied idempotency for disburse (P5), mirroring
+           *> loan_repay_request. First call with a key inserts a PENDING
+           *> request row and owns it; a repeated key replays the stored DONE
+           *> outcome (or conflicts on a different amount) instead of posting
+           *> again; a key whose owner is still working is refused so two
+           *> owners never disburse twice. A PENDING row older than 5 minutes
+           *> is taken over (owner crashed).
+           *> WS-ERR on refusal; WS-IDEM-STATUS/AMT/JID/OWNED as usual. The
+           *> amount is the application principal (fixed once approved).
+           MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-JID
+           MOVE "0" TO WS-IDEM-OWNED
+           MOVE SPACES TO WS-ERR
+           MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM loan_disburse_request WHERE loan_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P5-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "INSERT INTO loan_disburse_request (loan_id, idempotency_key, amount, status) VALUES (?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-LOAN-AMT) TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
+                       MOVE "RETRY" TO WS-IDEM-STATUS
+                   ELSE
+                       MOVE "ERROR|DB_ERROR" TO WS-ERR
+                       EXIT PARAGRAPH
+                   END-IF
+               ELSE
+                   MOVE "PENDING" TO WS-IDEM-STATUS
+                   MOVE "1" TO WS-IDEM-OWNED
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-IDEM-STATUS = "RETRY"
+               MOVE SPACES TO WS-IDEM-STATUS
+               MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM loan_disburse_request WHERE loan_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
+               UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-AMT WS-IDEM-JID WS-TMP-ID
+               END-UNSTRING
+               IF WS-IDEM-STATUS = "DONE"
+                   IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-LOAN-AMT)
+                       MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                   END-IF
+               ELSE
+                   IF WS-TMP-ID NOT = "1"
+                       MOVE "ERROR|DISBURSE_IN_PROGRESS" TO WS-ERR
+                   ELSE
+                       MOVE "UPDATE loan_disburse_request SET updated_at = NOW() WHERE loan_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+                       MOVE WS-P1-TRIMMED TO WS-BIND-1
+                       MOVE WS-P5-TRIMMED TO WS-BIND-2
+                       CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                       END-CALL
+                       CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                       IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                           MOVE "ERROR|DISBURSE_IN_PROGRESS" TO WS-ERR
+                       ELSE
+                           MOVE "PENDING" TO WS-IDEM-STATUS
+                           MOVE "1" TO WS-IDEM-OWNED
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       DELETE-DISBURSE-REQUEST.
+           *> Drops our own PENDING request row when the disburse is refused
+           *> before posting, so the key stays usable instead of blocking
+           *> behind a 5-minute stale window. Only the owner row is ever
+           *> removed (status guard); DONE rows are never touched.
+           IF WS-IDEM-OWNED = "1" AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "DELETE FROM loan_disburse_request WHERE loan_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               MOVE "0" TO WS-IDEM-OWNED
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-DISBURSE.
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -866,6 +980,17 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 MOVE "ERROR|KYC_REQUIRED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            IF WS-P5-TRIMMED NOT = SPACES
+                PERFORM CLAIM-DISBURSE-REQUEST
+                IF WS-ERR NOT = SPACES
+                    MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                IF WS-IDEM-STATUS = "DONE"
+                    MOVE "SUCCESS|LOAN_DISBURSE" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
             *> Resolve the payout path: customer wallet in the loan currency
             *> plus the bank-owned LOAN_BOOK suspense for that currency.
             *> Either side missing fails closed with an explicit verdict.
@@ -888,6 +1013,7 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT = "ERROR|NO_DATA"
+                PERFORM DELETE-DISBURSE-REQUEST
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -903,6 +1029,7 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT = "ERROR|NO_DATA"
+                PERFORM DELETE-DISBURSE-REQUEST
                 MOVE "ERROR|LOAN_BOOK_MISSING" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -1089,6 +1216,19 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 MOVE WS-JID TO WS-BIND-1
                 MOVE WS-GL-JID TO WS-BIND-2
                 MOVE WS-P1-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
+                MOVE "UPDATE loan_disburse_request SET status = 'DONE', gl_journal_id = ? WHERE loan_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
+                MOVE WS-GL-JID TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+                MOVE WS-P5-TRIMMED TO WS-BIND-3
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                     BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL

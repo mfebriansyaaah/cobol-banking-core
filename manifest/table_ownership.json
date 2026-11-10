@@ -788,6 +788,7 @@
     "loan_account_audit",
     "loan_application",
     "loan_audit",
+    "loan_disburse_request",
     "loan_installment",
     "loan_repay_request",
     "loan_repayment",

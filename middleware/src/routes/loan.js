@@ -30,7 +30,9 @@ export const LOAN_ROUTES = [
   ] },
   { method: 'post', path: '/loans/:id/disburse', action: 'LOAN_DISBURSE', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
-    BLANK, BLANK, BLANK, BLANK, ACTOR,
+    BLANK, BLANK, BLANK,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    ACTOR,
   ] },
   { method: 'get', path: '/loans/:id', action: 'LOAN_GET', tokenIdentity: 'actor', fields: [
     { name: 'id', pattern: PATTERNS.INT, required: true },
