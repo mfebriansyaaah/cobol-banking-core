@@ -17595,6 +17595,29 @@ CREATE TABLE `loan_installment` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `loan_repay_request`
+--
+
+DROP TABLE IF EXISTS `loan_repay_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `loan_repay_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `loan_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `gl_journal_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_repay_idem` (`loan_id`,`idempotency_key`),
+  KEY `idx_repay_req_loan` (`loan_id`),
+  CONSTRAINT `fk_repay_req_loan` FOREIGN KEY (`loan_id`) REFERENCES `loan_application` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `loan_repayment`
 --
 
@@ -17617,29 +17640,6 @@ CREATE TABLE `loan_repayment` (
   CONSTRAINT `fk_loan_repay_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`),
   CONSTRAINT `fk_loan_repay_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`),
   CONSTRAINT `fk_loan_repayment_loan` FOREIGN KEY (`loan_id`) REFERENCES `loan_application` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `loan_repay_request`
---
-
-DROP TABLE IF EXISTS `loan_repay_request`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `loan_repay_request` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `loan_id` bigint(20) NOT NULL,
-  `idempotency_key` varchar(64) NOT NULL,
-  `amount` decimal(18,4) NOT NULL,
-  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
-  `gl_journal_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_repay_idem` (`loan_id`,`idempotency_key`),
-  KEY `idx_repay_req_loan` (`loan_id`),
-  CONSTRAINT `fk_repay_req_loan` FOREIGN KEY (`loan_id`) REFERENCES `loan_application` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
