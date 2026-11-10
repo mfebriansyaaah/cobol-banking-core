@@ -9566,6 +9566,33 @@ CREATE TABLE `deposit_close_request` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `deposit_open_request`
+--
+
+DROP TABLE IF EXISTS `deposit_open_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `deposit_open_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `idempotency_key` varchar(64) NOT NULL,
+  `customer_email` varchar(100) NOT NULL,
+  `principal` decimal(18,4) NOT NULL,
+  `currency` char(3) NOT NULL,
+  `term_months` int(11) NOT NULL,
+  `interest_rate` varchar(20) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `deposit_id` bigint(20) DEFAULT NULL,
+  `fund_gl_journal_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_open_idem` (`idempotency_key`),
+  KEY `idx_open_req_deposit` (`deposit_id`),
+  CONSTRAINT `fk_open_req_deposit` FOREIGN KEY (`deposit_id`) REFERENCES `deposit_account` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `deposit_settle_request`
 --
 

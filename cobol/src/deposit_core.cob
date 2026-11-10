@@ -21,12 +21,14 @@
        01  WS-P4-TRIMMED           PIC X(100) VALUE SPACES.
        01  WS-P5-TRIMMED           PIC X(100) VALUE SPACES.
        01  WS-P6-TRIMMED           PIC X(100) VALUE SPACES.
+       01  WS-P7-TRIMMED           PIC X(100) VALUE SPACES.
        01  WS-P1-LEN               PIC 9(3) VALUE 1.
        01  WS-P2-LEN               PIC 9(3) VALUE 1.
        01  WS-P3-LEN               PIC 9(3) VALUE 1.
        01  WS-P4-LEN               PIC 9(3) VALUE 1.
        01  WS-P5-LEN               PIC 9(3) VALUE 1.
        01  WS-P6-LEN               PIC 9(3) VALUE 1.
+       01  WS-P7-LEN               PIC 9(3) VALUE 1.
        01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
        01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.
        01  WS-TRIM-LEN             PIC 9(3) VALUE 1.
@@ -52,6 +54,12 @@
        01  WS-TMP-INTR             PIC X(30) VALUE SPACES.
        01  WS-PRINCIPAL-NUM        PIC 9(15)V9(4) VALUE 0.
        01  WS-BAL-NUM              PIC 9(15)V9(4) VALUE 0.
+       01  WS-AMT-EDIT             PIC Z(18)9.9999 VALUE 0.
+       01  WS-IDEM-EMAIL           PIC X(100) VALUE SPACES.
+       01  WS-IDEM-CURR            PIC X(10) VALUE SPACES.
+       01  WS-IDEM-TRM             PIC X(10) VALUE SPACES.
+       01  WS-IDEM-RT              PIC X(20) VALUE SPACES.
+       01  WS-ADOPTED              PIC X VALUE "0".
        01  WS-IDEM-STATUS          PIC X(10) VALUE SPACES.
        01  WS-IDEM-OWNED           PIC X VALUE "0".
        01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
@@ -106,10 +114,12 @@
        01  LS-PARAM4               PIC X(100).
        01  LS-PARAM5               PIC X(100).
        01  LS-PARAM6               PIC X(100).
+       01  LS-PARAM7               PIC X(100).
        01  LS-OUTPUT-BUFFER        PIC X(16384).
 
        PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2
-           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
+           LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-PARAM7
+           LS-OUTPUT-BUFFER.
 
        MAIN-LOGIC.
            PERFORM VALIDATE-ALL
@@ -120,6 +130,10 @@
            EVALUATE TRUE
                WHEN LS-CMD-ACTION(1:8) = "DEP_OPEN"
                    PERFORM TRIM-ALL
+                   MOVE LS-PARAM7 TO WS-TRIM-IN
+                   PERFORM TRIM-VALUE
+                   MOVE WS-TRIM-OUT TO WS-P7-TRIMMED
+                   MOVE WS-TRIM-LEN TO WS-P7-LEN
                    PERFORM ACTION-OPEN
                WHEN LS-CMD-ACTION(1:8) = "DEP_LIST"
                    PERFORM TRIM-ALL
@@ -233,6 +247,139 @@
 
         COPY "common_result.cpy".
 
+       CLAIM-OPEN-REQUEST.
+           *> Client-supplied idempotency for open (P7, global keyspace:
+           *> OPEN mints its own deposit id, so the key stands alone).
+           *> First call inserts a PENDING request row carrying the full
+           *> business tuple and owns it; a repeated key replays the stored
+           *> DONE deposit id, or conflicts when any of email, principal,
+           *> currency, term, or rate differs, instead of funding a second
+           *> deposit. A key whose owner is still working is refused
+           *> (OPEN_IN_PROGRESS) so two owners never fund twice. A PENDING
+           *> row older than 5 minutes is taken over (owner crashed): the
+           *> stored deposit, if linked, is adopted and funded instead of
+           *> inserting a duplicate; an unlinked stale row restarts the
+           *> insert. Refusals before posting delete the owned PENDING row.
+           *> Outputs: WS-IDEM-STATUS (PENDING owner / DONE replay),
+           *> WS-IDEM-JID (stored deposit id or spaces), WS-IDEM-OWNED "1".
+           *> WS-ERR on refusal.
+           MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE WS-IDEM-EMAIL WS-IDEM-CURR WS-IDEM-TRM WS-IDEM-RT
+           MOVE "0" TO WS-IDEM-OWNED
+           MOVE SPACES TO WS-ERR
+           MOVE WS-PRINCIPAL-NUM TO WS-AMT-EDIT
+           MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
+           MOVE "SELECT CONCAT(status, '|', COALESCE(CAST(deposit_id AS CHAR), ''), '|', CAST(principal AS CHAR), '|', customer_email, '|', currency, '|', CAST(term_months AS CHAR), '|', interest_rate, '|', COALESCE(fund_gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM deposit_open_request WHERE idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P7-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "INSERT INTO deposit_open_request (idempotency_key, customer_email, principal, currency, term_months, interest_rate, status) VALUES (?, ?, ?, ?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+               MOVE WS-P7-TRIMMED TO WS-BIND-1
+               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               MOVE WS-P3-TRIMMED TO WS-BIND-4
+               MOVE WS-P4-TRIMMED TO WS-BIND-5
+               MOVE WS-P5-TRIMMED TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
+                       MOVE "RETRY" TO WS-IDEM-STATUS
+                   ELSE
+                       MOVE "ERROR|DB_ERROR" TO WS-ERR
+                       EXIT PARAGRAPH
+                   END-IF
+               ELSE
+                   MOVE "PENDING" TO WS-IDEM-STATUS
+                   MOVE "1" TO WS-IDEM-OWNED
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-IDEM-STATUS = "RETRY"
+               MOVE SPACES TO WS-IDEM-STATUS
+               MOVE "SELECT CONCAT(status, '|', COALESCE(CAST(deposit_id AS CHAR), ''), '|', CAST(principal AS CHAR), '|', customer_email, '|', currency, '|', CAST(term_months AS CHAR), '|', interest_rate, '|', COALESCE(fund_gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM deposit_open_request WHERE idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P7-TRIMMED TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
+               UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-JID WS-IDEM-AMT WS-IDEM-EMAIL WS-IDEM-CURR WS-IDEM-TRM WS-IDEM-RT WS-GL-JID WS-IDEM-STALE
+               END-UNSTRING
+               IF WS-IDEM-STATUS = "DONE"
+                   IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-TMP-AMT)
+                       OR FUNCTION TRIM(WS-IDEM-EMAIL) NOT = FUNCTION TRIM(WS-P1-TRIMMED)
+                       OR FUNCTION TRIM(WS-IDEM-CURR) NOT = FUNCTION TRIM(WS-P3-TRIMMED)
+                       OR FUNCTION TRIM(WS-IDEM-TRM) NOT = FUNCTION TRIM(WS-P4-TRIMMED)
+                       OR FUNCTION TRIM(WS-IDEM-RT) NOT = FUNCTION TRIM(WS-P5-TRIMMED)
+                       MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                   END-IF
+               ELSE
+                   IF WS-IDEM-STALE NOT = "1"
+                       MOVE "ERROR|OPEN_IN_PROGRESS" TO WS-ERR
+                   ELSE
+                       IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-TMP-AMT)
+                           OR FUNCTION TRIM(WS-IDEM-EMAIL) NOT = FUNCTION TRIM(WS-P1-TRIMMED)
+                           OR FUNCTION TRIM(WS-IDEM-CURR) NOT = FUNCTION TRIM(WS-P3-TRIMMED)
+                           OR FUNCTION TRIM(WS-IDEM-TRM) NOT = FUNCTION TRIM(WS-P4-TRIMMED)
+                           OR FUNCTION TRIM(WS-IDEM-RT) NOT = FUNCTION TRIM(WS-P5-TRIMMED)
+                           MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                       ELSE
+                           MOVE "UPDATE deposit_open_request SET updated_at = NOW() WHERE idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+                           MOVE WS-P7-TRIMMED TO WS-BIND-1
+                           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                           END-CALL
+                           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                           IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                               MOVE "ERROR|OPEN_IN_PROGRESS" TO WS-ERR
+                           ELSE
+                               MOVE "PENDING" TO WS-IDEM-STATUS
+                               MOVE "1" TO WS-IDEM-OWNED
+                           END-IF
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       DELETE-OPEN-REQUEST.
+           *> Drops our own PENDING request row when the open is refused
+           *> before posting, so the key stays usable instead of blocking
+           *> behind a 5-minute stale window. Only the owner row is ever
+           *> removed (status guard); DONE rows are never touched.
+           IF WS-IDEM-OWNED = "1" AND WS-P7-TRIMMED NOT = SPACES
+               MOVE "DELETE FROM deposit_open_request WHERE idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-P7-TRIMMED TO WS-BIND-1
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               MOVE "0" TO WS-IDEM-OWNED
+           END-IF.
+           EXIT PARAGRAPH.
+
        ACTION-OPEN.
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
@@ -264,6 +411,18 @@
                MOVE "ERROR|INVALID_CURRENCY" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           IF WS-P7-TRIMMED NOT = SPACES
+               PERFORM CLAIM-OPEN-REQUEST
+               IF WS-ERR NOT = SPACES
+                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               IF WS-IDEM-STATUS = "DONE"
+                   MOVE SPACES TO LS-OUTPUT-BUFFER
+                   STRING "SUCCESS|DEP_OPEN|" DELIMITED BY SIZE FUNCTION TRIM(WS-IDEM-JID) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
            *> Fase 2: opening funds the deposit. Resolve the money path
            *> before writing anything: deposit currency, customer wallet,
            *> and bank-owned DEPOSIT_POOL suspense. A missing wallet or
@@ -289,6 +448,7 @@
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT = "ERROR|NO_DATA"
+               PERFORM DELETE-OPEN-REQUEST
                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -305,6 +465,7 @@
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT = "ERROR|NO_DATA"
+               PERFORM DELETE-OPEN-REQUEST
                MOVE "ERROR|DEPOSIT_POOL_MISSING" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -326,11 +487,18 @@
            END-IF.
            MOVE FUNCTION NUMVAL(WS-RESULT) TO WS-BAL-NUM
            IF WS-BAL-NUM < WS-PRINCIPAL-NUM
+               PERFORM DELETE-OPEN-REQUEST
                MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
+           MOVE "0" TO WS-ADOPTED
+           IF WS-P7-TRIMMED NOT = SPACES AND WS-IDEM-JID NOT = SPACES
+               MOVE WS-IDEM-JID TO WS-ID-TEXT
+               MOVE "1" TO WS-ADOPTED
+           END-IF.
+           IF WS-ADOPTED = "0"
            MOVE "INSERT INTO deposit_account (customer_email, principal, currency, term_months, interest_rate, created_by, status) VALUES (?, ?, ?, ?, COALESCE(NULLIF(?, ''), 0), ?, 'PENDING')" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -345,7 +513,7 @@
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE
-           END-IF.
+           END-IF
            IF STEP-OK
                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
@@ -357,6 +525,20 @@
                    SET STEP-FAIL TO TRUE
                ELSE
                    MOVE WS-RESULT(1:20) TO WS-ID-TEXT
+               END-IF
+           END-IF
+           END-IF.
+           IF STEP-OK AND WS-P7-TRIMMED NOT = SPACES AND WS-IDEM-JID = SPACES
+               MOVE "UPDATE deposit_open_request SET deposit_id = ? WHERE idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-ID-TEXT TO WS-BIND-1
+               MOVE WS-P7-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+               SET STEP-FAIL TO TRUE
                END-IF
            END-IF.
            IF STEP-OK
@@ -371,7 +553,7 @@
                    SET STEP-FAIL TO TRUE
                END-IF
            END-IF.
-           IF STEP-OK
+           IF STEP-OK AND WS-ADOPTED = "0"
                MOVE "OPEN" TO WS-AUDIT-ACTION
                MOVE WS-ID-TEXT TO WS-AUDIT-DEPOSIT
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
@@ -560,6 +742,19 @@
            IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
            SET STEP-FAIL TO TRUE
            END-IF
+           END-IF.
+           IF STEP-OK AND WS-P7-TRIMMED NOT = SPACES
+               MOVE "UPDATE deposit_open_request SET status = 'DONE', fund_gl_journal_id = ? WHERE idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-GL-JID TO WS-BIND-1
+               MOVE WS-P7-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+               SET STEP-FAIL TO TRUE
+               END-IF
            END-IF.
            IF STEP-OK
                CALL "SQL_COMMIT" END-CALL

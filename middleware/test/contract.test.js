@@ -23,7 +23,9 @@ for (const file of files) {
         continue;
       }
       assert.ok(typeof r.action === 'string' && r.action.length > 0, `invalid action in ${file}`);
-      assert.ok(Array.isArray(r.fields) && r.fields.length === 6, `fields must have 6 slots in ${file}`);
+      // Contract v2: DEP_OPEN carries a 7th slot (idempotency key); every other route keeps 6.
+      const want = r.action === 'DEP_OPEN' ? 7 : 6;
+      assert.ok(Array.isArray(r.fields) && r.fields.length === want, `fields must have ${want} slots in ${file}`);
     }
   });
 }

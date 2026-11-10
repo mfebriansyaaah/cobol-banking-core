@@ -1,6 +1,6 @@
 // Contract registry builder (ADR-0006 follow-up, phase 1).
 // Single source of truth for the gateway↔COBOL contract: every gateway
-// action with its method/path, 6 positional slots (name/pattern/required),
+// action with its method/path, positional slots (name/pattern/required),
 // auth shape, dispatch module/prefix, and shell-test evidence.
 // Generated, never hand-edited:
 //   node scripts/build_contract.mjs --write   (review the diff)

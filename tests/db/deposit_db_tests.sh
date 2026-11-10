@@ -55,6 +55,14 @@ assert_match "failed open wrote no row" "$(db_query "SELECT COUNT(*) FROM deposi
 assert_match "failed open posted no legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE from_email='dep_broke@test.com';")" "^0$"
 db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='dep_broke@test.com');"
 db_exec "DELETE FROM users WHERE email='dep_broke@test.com';"
+db_exec "INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ('dep_broke2@test.com',CONCAT('SHA256_',SHA2('secret123',256)),'Broke2','1990-01-01','VERIFIED','USER') ON DUPLICATE KEY UPDATE status='VERIFIED';"
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 10.00 FROM users WHERE email='dep_broke2@test.com' ON DUPLICATE KEY UPDATE balance=10.00;"
+assert_match "keyed short wallet refused" "$(run_cobol "DEP_OPEN|dep_broke2@test.com|5000.00|USD|12|5.00|admin@test.com|K-BROKE")" "ERROR\|INSUFFICIENT_FUNDS"
+assert_match "keyed retry refused again" "$(run_cobol "DEP_OPEN|dep_broke2@test.com|5000.00|USD|12|5.00|admin@test.com|K-BROKE")" "ERROR\|INSUFFICIENT_FUNDS"
+assert_match "failed key left no residue" "$(db_query "SELECT COUNT(*) FROM deposit_open_request WHERE idempotency_key='K-BROKE';")" "^0$"
+assert_match "failed keyed open wrote no row" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='dep_broke2@test.com';")" "^0$"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='dep_broke2@test.com');"
+db_exec "DELETE FROM users WHERE email='dep_broke2@test.com';"
 
 # maturity_date is derived from the term (12 months from today).
 mat="$(db_query "SELECT maturity_date = DATE_ADD(CURDATE(), INTERVAL 12 MONTH) FROM deposit_account WHERE id=${dep_id};")"

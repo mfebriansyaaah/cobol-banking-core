@@ -5686,6 +5686,8 @@ paths:
                   type: string
                 rate:
                   type: string
+                idempotencyKey:
+                  type: string
               required:
                 - email
                 - principal

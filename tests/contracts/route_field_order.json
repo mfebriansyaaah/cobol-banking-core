@@ -2334,7 +2334,8 @@
       "currency",
       "term",
       "rate",
-      "ACTOR"
+      "ACTOR",
+      "idempotencyKey"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
