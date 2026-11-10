@@ -13,7 +13,7 @@
 | CONNECTED (no open items) | 0 |
 | PARTIAL (open items) | 24 |
 
-Open/in-progress items: 168 of 204 recorded.
+Open/in-progress items: 156 of 204 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -49,24 +49,24 @@ Open/in-progress items: 168 of 204 recorded.
 | `auth_core:action:revoke-access-token-logic` | `auth_core` | action | DONE | assistant | Write paragraph with no core link (writes revoked_access_tokens) |
 | `auth_core:action:revoke-user-session-logic` | `auth_core` | action | DONE | assistant | Write paragraph with no core link (writes refresh_sessions) |
 | `auth_core:action:store-session-logic` | `auth_core` | action | DONE | assistant | Write paragraph with no core link (writes refresh_families, refresh_sessions) |
-| `auth_core:audit:core-reference` | `auth_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_core:audit:core-reference` | `auth_core` | audit | DONE | assistant | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `auth_core:table:access-review-items` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:access-reviews` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:audit-trail` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:dual-control-operations` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:known-devices` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:audit-trail` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:dual-control-operations` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:known-devices` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:maker-requests` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:mfa-backup-codes` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:mfa-backup-codes` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:mfa-recovery-requests` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:notification-outbox` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:notification-outbox` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:permissions` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:refresh-families` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:refresh-sessions` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:revoked-access-tokens` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:refresh-families` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:refresh-sessions` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:revoked-access-tokens` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:role-permissions` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:step-up-policy` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:verification-logs` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_password_core:audit:core-reference` | `auth_password_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_core:table:step-up-policy` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_core:table:verification-logs` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
+| `auth_password_core:audit:core-reference` | `auth_password_core` | audit | DONE | assistant | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `card_core:audit:core-reference` | `card_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `collateral_core:action:action-allocate` | `collateral_core` | action | OPEN | — | Write paragraph with no core link (writes collateral_allocation) |
 | `collateral_core:action:action-appraise` | `collateral_core` | action | OPEN | — | Write paragraph with no core link (writes collateral, collateral_valuation) |

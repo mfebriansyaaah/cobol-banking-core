@@ -68,10 +68,12 @@
       "module": "auth_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": null
+      "evidence": [
+        "verified live: auth rows store (action, entity_type=USER, entity_id=users.id, status); e.g. AUTH_LOGIN_SUCCESS, SESSION_REUSED, MFA_BACKUP_ISSUED"
+      ],
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:access-review-items",
@@ -104,42 +106,36 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "FK fk_audit_user -> users(id); rows carry (action, entity_type, entity_id, status); LOGIN rows asserted in tests/db/auth_race_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:dual-control-operations",
       "module": "auth_core",
       "kind": "table",
       "subject": "dual_control_operations",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: operation",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "PK(operation); operational guard table, no user/money row by design; no Tier-1 money link required"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:known-devices",
       "module": "auth_core",
       "kind": "table",
       "subject": "known_devices",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: email, first_seen_at, ip, ip), last_seen_at, primary, user_agent",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "PK(email,user_agent,ip); email anchors identity; no Tier-1 money link by design"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:maker-requests",
@@ -159,14 +155,12 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "mfa_backup_codes",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: code_hash, constraint, created_at, id, key, used, used), user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "FK fk_backup_user -> users(id); single-use burn proven race-tested in tests/db/auth_race_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:mfa-recovery-requests",
@@ -186,14 +180,12 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "notification_outbox",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "outbox queue, no FK by design (transient delivery rows); no Tier-1 money link required"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:permissions",
@@ -213,42 +205,36 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "refresh_families",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: constraint, created_at, email, family, rotations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "FK fk_refresh_family_user -> users(email); rotations accounting proven in tests/db/auth_conservation_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:refresh-sessions",
       "module": "auth_core",
       "kind": "table",
       "subject": "refresh_sessions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: constraint, created_at, email, expires_at, family, if, ip, jti, key, last_seen_at, revoked, user_agent",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "FK fk_refresh_user -> users(email); consume-once + reuse-kills-family proven in tests/db/auth_race_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:revoked-access-tokens",
       "module": "auth_core",
       "kind": "table",
       "subject": "revoked_access_tokens",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: constraint, email, expires_at, jti, key, revoked_at",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "FK fk_revoked_user -> users(email); reuse path tested end-to-end (SESSION_REUSED, family dead) in tests/db/auth_race_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:role-permissions",
@@ -268,38 +254,36 @@
       "module": "auth_core",
       "kind": "table",
       "subject": "step_up_policy",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 4), action, enabled, min_amount",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "PK(action); policy table exercised by STEP_UP_REQUIRED cases in tests/db/auth_invariants_db_tests.sh"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_core:table:verification-logs",
       "module": "auth_core",
       "kind": "table",
       "subject": "verification_logs",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'email_change', 'mfa_recovery'), 'password_reset', attempts, code, created_at, email, expires_at, id, if, is_used, purpose",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "signup/otp log exercised by every auth suite signup flow; no Tier-1 money link by design"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "auth_password_core:audit:core-reference",
       "module": "auth_password_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": null
+      "evidence": [
+        "verified live: password-change rows store (action, entity_type=USER, entity_id=users.id, status)"
+      ],
+      "owner": "assistant"
     },
     {
       "id": "card_core:audit:core-reference",
