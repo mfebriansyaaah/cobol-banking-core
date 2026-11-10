@@ -758,11 +758,11 @@
                     MOVE WS-HASH TO WS-STORED
                     CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY END-CALL
                     IF WS-VERIFY = "1"
-                        MOVE "UPDATE mfa_backup_codes SET used = 1 WHERE id = ?" TO WS-PREP-SQL
+                        MOVE "UPDATE mfa_backup_codes SET used = 1 WHERE id = ? AND used = 0" TO WS-PREP-SQL
                         MOVE WS-BACKUP-ID TO WS-BIND-1
                         CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
                         CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                        IF WS-RESULT(1:5) NOT = "ERROR"
+                        IF WS-RESULT = "SUCCESS|AFFECTED_1"
                             MOVE 1 TO WS-BACKUP-OK
                         END-IF
                     END-IF

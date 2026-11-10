@@ -41,10 +41,20 @@ jobs:
       # apt versions drift between runners and change findings.
       # Downloads are checksum-verified by scripts/ci/install-tools.sh
       # before extraction (see scripts/ci/tool-checksums.txt).
+      # The verified-download cache below lets lint survive a release-CDN
+      # outage once any green run populated it. Keyed on the installer;
+      # a checksums bump needs no key change because every cached byte
+      # is re-verified against tool-checksums.txt on use (stale entries
+      # just re-download).
+      - name: Restore lint-tools cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.cache/lint-tools
+          key: lint-tools-${{ runner.os }}-${{ hashFiles('scripts/ci/install-tools.sh') }}
       - name: Install lint tools
         run: |
           mkdir -p "$HOME/.local/bin"
-          bash scripts/ci/install-tools.sh --dest "$HOME/.local/bin"
+          bash scripts/ci/install-tools.sh --dest "$HOME/.local/bin" --cache-dir "$HOME/.cache/lint-tools"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           pip install --break-system-packages "yamllint==1.38.0" "semgrep==1.136.0"
 

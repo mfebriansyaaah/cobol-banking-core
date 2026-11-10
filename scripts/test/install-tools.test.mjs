@@ -21,10 +21,12 @@ const VALID_TGZ = path.join(FIXTURE_BASE, 'v1.7.7', 'actionlint_1.7.7_linux_amd6
 
 const sha256File = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
 
-function install({ ver, base, sha, only = 'actionlint' }) {
+function install({ ver, base, sha, only = 'actionlint', cacheDir = null }) {
   const dest = mkdtempSync(path.join(tmpdir(), 'install-tools-'));
+  const args = [INSTALLER, '--dest', dest, '--only', only];
+  if (cacheDir) args.push('--cache-dir', cacheDir);
   try {
-    execFileSync('bash', [INSTALLER, '--dest', dest, '--only', only], {
+    execFileSync('bash', args, {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 120000,
@@ -56,6 +58,37 @@ test('valid fixture installs the binary', () => {
 test('unknown tool name is rejected', () => {
   const r = install({ ver: '1', base: `file://${FIXTURE_BASE}`, sha: '0'.repeat(64), only: 'no-such-tool' });
   assert.notEqual(r.status, 0, 'unknown tool must fail');
+});
+
+test('cache hit skips a dead download URL', () => {
+  const cacheDir = mkdtempSync(path.join(tmpdir(), 'install-tools-cache-'));
+  const file = 'actionlint_1.7.7_linux_amd64.tar.gz';
+  writeFileSync(path.join(cacheDir, file), readFileSync(VALID_TGZ));
+  const r = install({
+    ver: '1.7.7',
+    base: 'file:///nonexistent-host-unreachable',
+    sha: sha256File(VALID_TGZ),
+    cacheDir,
+  });
+  assert.equal(r.status, 0, r.output || 'cache hit must install without network');
+  assert.deepEqual(readdirSync(r.dest), ['actionlint']);
+});
+
+test('stale cache falls back to download and repairs the cache', () => {
+  const cacheDir = mkdtempSync(path.join(tmpdir(), 'install-tools-cache-'));
+  const file = 'actionlint_1.7.7_linux_amd64.tar.gz';
+  writeFileSync(path.join(cacheDir, file), Buffer.from('tampered-bytes'));
+  const r = install({ ver: '1.7.7', base: `file://${FIXTURE_BASE}`, sha: sha256File(VALID_TGZ), cacheDir });
+  assert.equal(r.status, 0, r.output || 'stale cache must fall back to download');
+  assert.equal(sha256File(path.join(cacheDir, file)), sha256File(VALID_TGZ), 'cache must hold the verified file');
+});
+
+test('verified download backfills an empty cache', () => {
+  const cacheDir = mkdtempSync(path.join(tmpdir(), 'install-tools-cache-'));
+  const file = 'actionlint_1.7.7_linux_amd64.tar.gz';
+  const r = install({ ver: '1.7.7', base: `file://${FIXTURE_BASE}`, sha: sha256File(VALID_TGZ), cacheDir });
+  assert.equal(r.status, 0, r.output || '');
+  assert.equal(sha256File(path.join(cacheDir, file)), sha256File(VALID_TGZ), 'download must be cached');
 });
 
 test('tool-checksums.txt pins every installer tool with a 64-hex hash', () => {

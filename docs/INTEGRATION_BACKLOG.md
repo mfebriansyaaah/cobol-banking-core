@@ -13,49 +13,43 @@
 | CONNECTED (no open items) | 0 |
 | PARTIAL (open items) | 24 |
 
-Open/in-progress items: 208 of 248 recorded.
+Open/in-progress items: 168 of 204 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
-| `auth_core` | PARTIAL | 28 |
+| `auth_core` | PARTIAL | 22 |
 | `auth_password_core` | PARTIAL | 1 |
 | `card_core` | PARTIAL | 1 |
-| `collateral_core` | PARTIAL | 15 |
+| `collateral_core` | PARTIAL | 13 |
 | `collection_core` | PARTIAL | 1 |
-| `dashboard_core` | PARTIAL | 13 |
+| `dashboard_core` | PARTIAL | 12 |
 | `deposit_core` | PARTIAL | 2 |
-| `fee_core` | PARTIAL | 11 |
-| `gl_core` | PARTIAL | 10 |
-| `import_post_core` | PARTIAL | 5 |
+| `fee_core` | PARTIAL | 8 |
+| `gl_core` | PARTIAL | 7 |
+| `import_post_core` | PARTIAL | 4 |
 | `import_recon_core` | PARTIAL | 7 |
-| `loan_core` | PARTIAL | 8 |
-| `loan_schedule_core` | PARTIAL | 2 |
-| `merchant_core` | PARTIAL | 15 |
-| `payment_clearing_core` | PARTIAL | 8 |
-| `payment_core` | PARTIAL | 9 |
+| `loan_core` | PARTIAL | 6 |
+| `loan_schedule_core` | PARTIAL | 1 |
+| `merchant_core` | PARTIAL | 13 |
+| `payment_clearing_core` | PARTIAL | 6 |
+| `payment_core` | PARTIAL | 7 |
 | `payment_hold_core` | PARTIAL | 4 |
-| `payment_instruction_core` | PARTIAL | 13 |
-| `payroll_processing_core` | PARTIAL | 15 |
-| `statement_core` | PARTIAL | 11 |
+| `payment_instruction_core` | PARTIAL | 12 |
+| `payroll_processing_core` | PARTIAL | 13 |
+| `statement_core` | PARTIAL | 9 |
 | `statement_recon_core` | PARTIAL | 8 |
-| `treasury_liquidity_core` | PARTIAL | 8 |
-| `user_core` | PARTIAL | 11 |
-| `wallet_core` | PARTIAL | 22 |
+| `treasury_liquidity_core` | PARTIAL | 6 |
+| `user_core` | PARTIAL | 7 |
+| `wallet_core` | PARTIAL | 18 |
 
 | Item | Module | Kind | Status | Owner | Reason |
 | --- | --- | --- | --- | --- | --- |
 | `auth_core:action:outbox-claim-logic` | `auth_core` | action | WAIVED | assistant | Write paragraph with no core link (writes notification_outbox) |
 | `auth_core:action:outbox-mark-logic` | `auth_core` | action | WAIVED | assistant | Write paragraph with no core link (writes notification_outbox) |
-| `auth_core:action:revoke-access-token-logic` | `auth_core` | action | OPEN | — | Write paragraph with no core link (writes revoked_access_tokens) |
-| `auth_core:action:revoke-user-session-logic` | `auth_core` | action | OPEN | — | Write paragraph with no core link (writes refresh_sessions) |
-| `auth_core:action:store-session-logic` | `auth_core` | action | OPEN | — | Write paragraph with no core link (writes refresh_families, refresh_sessions) |
+| `auth_core:action:revoke-access-token-logic` | `auth_core` | action | DONE | assistant | Write paragraph with no core link (writes revoked_access_tokens) |
+| `auth_core:action:revoke-user-session-logic` | `auth_core` | action | DONE | assistant | Write paragraph with no core link (writes refresh_sessions) |
+| `auth_core:action:store-session-logic` | `auth_core` | action | DONE | assistant | Write paragraph with no core link (writes refresh_families, refresh_sessions) |
 | `auth_core:audit:core-reference` | `auth_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `auth_core:table:0` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:1` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:100` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:16383` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:20` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `auth_core:table:256` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:access-review-items` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:access-reviews` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_core:table:audit-trail` | `auth_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -85,13 +79,10 @@ Open/in-progress items: 208 of 248 recorded.
 | `collateral_core:action:action-submit` | `collateral_core` | action | OPEN | — | Write paragraph with no core link (writes collateral) |
 | `collateral_core:action:action-update` | `collateral_core` | action | OPEN | — | Write paragraph with no core link (writes collateral) |
 | `collateral_core:audit:core-reference` | `collateral_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `collateral_core:table:100` | `collateral_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `collateral_core:table:16384` | `collateral_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `collateral_core:table:collateral` | `collateral_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `collateral_core:table:collateral-valuation` | `collateral_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `collection_core:audit:core-reference` | `collection_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `dashboard_core:audit:core-reference` | `dashboard_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `dashboard_core:table:100` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `dashboard_core:table:audit-trail` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `dashboard_core:table:dispute-cases` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `dashboard_core:table:import-batch` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -109,9 +100,6 @@ Open/in-progress items: 208 of 248 recorded.
 | `fee_core:action:action-vel-record` | `fee_core` | action | OPEN | — | Write paragraph with no core link (writes used_count, velocity_counter) |
 | `fee_core:action:action-vel-record-all-txn` | `fee_core` | action | OPEN | — | Write paragraph with no core link (writes used_count, velocity_counter) |
 | `fee_core:audit:core-reference` | `fee_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `fee_core:table:1` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `fee_core:table:100` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `fee_core:table:30` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `fee_core:table:pic` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `fee_core:table:used-count` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `fee_core:table:velocity-counter` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -120,14 +108,10 @@ Open/in-progress items: 208 of 248 recorded.
 | `gl_core:action:action-period-close` | `gl_core` | action | OPEN | — | Write paragraph with no core link (writes gl_period) |
 | `gl_core:action:action-period-open` | `gl_core` | action | OPEN | — | Write paragraph with no core link (writes gl_period) |
 | `gl_core:audit:core-reference` | `gl_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `gl_core:table:1` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `gl_core:table:100` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `gl_core:table:30` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `gl_core:table:audit-trail` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `gl_core:table:gl-account` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `gl_core:table:gl-period` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `import_post_core:audit:core-reference` | `import_post_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `import_post_core:table:100` | `import_post_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `import_post_core:table:gl-period` | `import_post_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `import_post_core:table:import-batch` | `import_post_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `import_post_core:table:import-row` | `import_post_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -143,11 +127,8 @@ Open/in-progress items: 208 of 248 recorded.
 | `loan_core:action:action-submit` | `loan_core` | action | OPEN | — | Write paragraph with no core link (writes loan) |
 | `loan_core:action:action-update` | `loan_core` | action | OPEN | — | Write paragraph with no core link (writes loan) |
 | `loan_core:audit:core-reference` | `loan_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `loan_core:table:100` | `loan_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `loan_core:table:16384` | `loan_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `loan_core:table:loan` | `loan_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `loan_schedule_core:audit:core-reference` | `loan_schedule_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `loan_schedule_core:table:1` | `loan_schedule_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `merchant_core:action:action-approve` | `merchant_core` | action | OPEN | — | Write paragraph with no core link (writes merchant, merchant_fee_profile) |
 | `merchant_core:action:action-close` | `merchant_core` | action | OPEN | — | Write paragraph with no core link (writes merchant) |
 | `merchant_core:action:action-close-mch` | `merchant_core` | action | OPEN | — | Write paragraph with no core link (writes merchant) |
@@ -158,8 +139,6 @@ Open/in-progress items: 208 of 248 recorded.
 | `merchant_core:action:action-suspend` | `merchant_core` | action | OPEN | — | Write paragraph with no core link (writes merchant) |
 | `merchant_core:action:action-update` | `merchant_core` | action | OPEN | — | Write paragraph with no core link (writes merchant) |
 | `merchant_core:audit:core-reference` | `merchant_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `merchant_core:table:100` | `merchant_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `merchant_core:table:16384` | `merchant_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `merchant_core:table:customer` | `merchant_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `merchant_core:table:merchant` | `merchant_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `merchant_core:table:merchant-settlement` | `merchant_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -168,14 +147,10 @@ Open/in-progress items: 208 of 248 recorded.
 | `payment_clearing_core:action:action-post` | `payment_clearing_core` | action | OPEN | — | Write paragraph with no core link (writes payment_clearing) |
 | `payment_clearing_core:action:action-settle` | `payment_clearing_core` | action | DONE | assistant | Write paragraph with no core link (writes payment_clearing) |
 | `payment_clearing_core:audit:core-reference` | `payment_clearing_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `payment_clearing_core:table:100` | `payment_clearing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `payment_clearing_core:table:16384` | `payment_clearing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_clearing_core:table:payment-clearing` | `payment_clearing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_core:action:action-policy-set` | `payment_core` | action | OPEN | — | Write paragraph with no core link (writes max_per_txn, payment_policy) |
 | `payment_core:action:action-profile-set` | `payment_core` | action | OPEN | — | Write paragraph with no core link (writes daily_limit, payment_profile) |
 | `payment_core:audit:core-reference` | `payment_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `payment_core:table:1` | `payment_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `payment_core:table:30` | `payment_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_core:table:daily-limit` | `payment_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_core:table:max-per-txn` | `payment_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_core:table:payment-policy` | `payment_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -188,7 +163,6 @@ Open/in-progress items: 208 of 248 recorded.
 | `payment_instruction_core:action:action-pause` | `payment_instruction_core` | action | OPEN | — | Write paragraph with no core link (writes payment_instruction) |
 | `payment_instruction_core:action:action-resume` | `payment_instruction_core` | action | OPEN | — | Write paragraph with no core link (writes payment_instruction) |
 | `payment_instruction_core:audit:core-reference` | `payment_instruction_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `payment_instruction_core:table:100` | `payment_instruction_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_instruction_core:table:cast` | `payment_instruction_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_instruction_core:table:move` | `payment_instruction_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payment_instruction_core:table:payment-instruction` | `payment_instruction_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -205,8 +179,6 @@ Open/in-progress items: 208 of 248 recorded.
 | `payroll_processing_core:action:action-update` | `payroll_processing_core` | action | OPEN | — | Write paragraph with no core link (writes payroll_processing) |
 | `payroll_processing_core:action:action-validate-batch` | `payroll_processing_core` | action | OPEN | — | Write paragraph with no core link (writes payroll_employee, payroll_processing) |
 | `payroll_processing_core:audit:core-reference` | `payroll_processing_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `payroll_processing_core:table:100` | `payroll_processing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `payroll_processing_core:table:16384` | `payroll_processing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payroll_processing_core:table:customer` | `payroll_processing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payroll_processing_core:table:payroll-employee` | `payroll_processing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `payroll_processing_core:table:payroll-payment` | `payroll_processing_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -223,10 +195,6 @@ Open/in-progress items: 208 of 248 recorded.
 | `report_core:action:action-template-create` | `report_core` | action | WAIVED | assistant | Write paragraph with no core link (writes report_template) |
 | `report_core:action:action-template-update` | `report_core` | action | WAIVED | assistant | Write paragraph with no core link (writes report_template) |
 | `report_core:audit:core-reference` | `report_core` | audit | DONE | assistant | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `report_core:table:1` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `report_core:table:100` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `report_core:table:16384` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `report_core:table:30` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `report_core:table:gl-account` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `report_core:table:report-run` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `report_core:table:report-run-row` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
@@ -235,8 +203,6 @@ Open/in-progress items: 208 of 248 recorded.
 | `statement_core:action:action-run-fail` | `statement_core` | action | OPEN | — | Write paragraph with no core link (writes statement_run) |
 | `statement_core:action:action-run-start` | `statement_core` | action | OPEN | — | Write paragraph with no core link (writes statement_run) |
 | `statement_core:audit:core-reference` | `statement_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `statement_core:table:100` | `statement_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `statement_core:table:16384` | `statement_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `statement_core:table:delimited` | `statement_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `statement_core:table:pic` | `statement_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `statement_core:table:statement-archive` | `statement_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -256,14 +222,8 @@ Open/in-progress items: 208 of 248 recorded.
 | `treasury_liquidity_core:action:action-create` | `treasury_liquidity_core` | action | OPEN | — | Write paragraph with no core link (writes treasury_liquidity) |
 | `treasury_liquidity_core:action:action-post` | `treasury_liquidity_core` | action | OPEN | — | Write paragraph with no core link (writes treasury_liquidity) |
 | `treasury_liquidity_core:audit:core-reference` | `treasury_liquidity_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `treasury_liquidity_core:table:100` | `treasury_liquidity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `treasury_liquidity_core:table:16384` | `treasury_liquidity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `treasury_liquidity_core:table:treasury-liquidity` | `treasury_liquidity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:audit:core-reference` | `user_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `user_core:table:100` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `user_core:table:20` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `user_core:table:30` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `user_core:table:300` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:audit-trail` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:mfa-backup-codes` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:notification-outbox` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -271,10 +231,6 @@ Open/in-progress items: 208 of 248 recorded.
 | `user_core:table:so` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:verification-logs` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:audit:core-reference` | `wallet_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `wallet_core:table:1` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `wallet_core:table:100` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `wallet_core:table:16383` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `wallet_core:table:20` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:audit-authz-denied` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:audit-trail` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:delimited` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |

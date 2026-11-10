@@ -107,6 +107,8 @@ function splitParagraphs(source) {
 function tableRefs(text) {
   const out = new Set();
   for (const m of text.matchAll(/\b(?:FROM|JOIN|INTO|UPDATE)\s+`?([A-Za-z0-9_]+)`?/g)) {
+    // COBOL loop bounds (PERFORM VARYING i FROM 256 ...) are not tables.
+    if (/^\d+$/.test(m[1])) continue;
     out.add(m[1].toLowerCase());
   }
   return out;
@@ -116,6 +118,7 @@ function writeRefs(text) {
   const out = new Set();
   for (const m of text.matchAll(/\b(?:INTO|UPDATE)\s+`?([A-Za-z0-9_]+)`?/g)) {
     const t = m[1].toLowerCase();
+    if (/^\d+$/.test(t)) continue;
     if (!NOISE_TABLES.has(t)) out.add(t);
   }
   return out;

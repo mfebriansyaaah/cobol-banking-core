@@ -71,6 +71,8 @@ const isRefish = (t) => t === 'users' || t === 'currencies' || t.startsWith('ref
 function extractTables(source) {
   const out = new Set();
   for (const m of source.matchAll(/\b(?:FROM|JOIN|INTO|UPDATE)\s+`?([A-Za-z0-9_]+)`?/g)) {
+    // COBOL loop bounds (PERFORM VARYING i FROM 256 ...) are not tables.
+    if (/^\d+$/.test(m[1])) continue;
     out.add(m[1].toLowerCase());
   }
   return out;

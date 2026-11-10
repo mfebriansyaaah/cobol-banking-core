@@ -73,6 +73,7 @@ db_wallet_concurrency_tests=26
 db_wallet_conservation_tests=38
 
 db_auth_invariants_tests=35
+db_auth_race_tests=23
 
 db_payment_gl_invariants_tests=25
 db_payment_posting_tests=40
