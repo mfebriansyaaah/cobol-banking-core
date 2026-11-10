@@ -14,6 +14,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT" || exit 1
 
+# --check-anchors: resolve every mutant anchor against the current tree and
+# exit non-zero when one moved. Runs in ~1s (no build, no DB, no writes), so
+# a stale mutant fails a normal PR instead of breaking the weekly mutation run
+# after 15 rebuilds.
+DRY_RUN=0
+case "${1:-}" in
+    --check-anchors) DRY_RUN=1 ;;
+    "") ;;
+    *) echo "usage: $0 [--check-anchors]" >&2; exit 2 ;;
+esac
+
 PATCHED=()
 restore_all() {
     local f
@@ -28,6 +39,7 @@ trap restore_all EXIT INT TERM
 
 mutate() { # $1=file $2=python-patch-stdin expected-count
     local file="$1"
+    [ "$DRY_RUN" = "1" ] && return 0
     if [ ! -f "$file.mutantbak" ]; then
         cp "$file" "$file.mutantbak"
         PATCHED+=("$file")
@@ -39,6 +51,10 @@ run_mutant() { # $1=id $2=desc $3=suites...
     local id="$1" desc="$2"
     shift 2
     echo "=== MUTANT $id: $desc ==="
+    if [ "$DRY_RUN" = "1" ]; then
+        echo "MUTANT $id: anchors ok (dry run)"
+        return 0
+    fi
     if ! ./build.sh >/tmp/mutant_build.log 2>&1; then
         echo "MUTANT $id: BUILD BROKEN (mutant does not compile — harness bug, not a suite gap)"
         tail -5 /tmp/mutant_build.log
@@ -62,14 +78,20 @@ run_mutant() { # $1=id $2=desc $3=suites...
 }
 
 py_patch() {
-    python3 - "$@" <<'PYEOF'
-import sys
+    MUTANT_DRY_RUN="$DRY_RUN" python3 - "$@" <<'PYEOF'
+import os, sys
 path, old, new, expect = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
 src = open(path).read()
 n = src.count(old)
-assert n == expect, f'{path}: anchor x{n}, expected x{expect}'
-open(path, 'w').write(src.replace(old, new))
-print(f'patched {path}')
+assert n == expect, (
+    f'{path}: anchor x{n}, expected x{expect}. '
+    'The code moved: update this mutant anchor (run --check-anchors to see all).'
+)
+if os.environ.get('MUTANT_DRY_RUN') == '1':
+    print(f'anchor ok: {path}')
+else:
+    open(path, 'w').write(src.replace(old, new))
+    print(f'patched {path}')
 PYEOF
 }
 
@@ -145,17 +167,23 @@ restore_all
 
 # M6: swap transfer leg directions (journal must go unbalanced).
 mutate "$W"
-python3 - "$W" <<'PYEOF'
-import sys
+MUTANT_DRY_RUN="$DRY_RUN" python3 - "$W" <<'PYEOF'
+import os, sys
 path = sys.argv[1]
 src = open(path).read()
 a = ' WS-SENDER-PREC(1:1) "), '"'"'DEBIT'"'"''
 b = ' WS-TARGET-PREC(1:1) "), '"'"'CREDIT'"'"''
-assert src.count(a) == 1 and src.count(b) == 1, 'M6 anchors not unique'
-src = src.replace(a, ' WS-SENDER-PREC(1:1) "), '"'"'CREDIT'"'"'')
-src = src.replace(b, ' WS-TARGET-PREC(1:1) "), '"'"'DEBIT'"'"'')
-open(path, 'w').write(src)
-print('patched M6 leg swap')
+assert src.count(a) == 1 and src.count(b) == 1, (
+    f'{path}: M6 anchors not unique (DEBIT x{src.count(a)}, CREDIT x{src.count(b)}); '
+    'the leg code moved: update this mutant anchor'
+)
+if os.environ.get("MUTANT_DRY_RUN") == "1":
+    print(f'anchor ok: {path} (M6)')
+else:
+    src = src.replace(a, ' WS-SENDER-PREC(1:1) "), '"'"'CREDIT'"'"'')
+    src = src.replace(b, ' WS-TARGET-PREC(1:1) "), '"'"'DEBIT'"'"'')
+    open(path, 'w').write(src)
+    print('patched M6 leg swap')
 PYEOF
 run_mutant "M6" "swapped debit/credit legs" tests/db/wallet_invariants_db_tests.sh
 restore_all
@@ -193,6 +221,10 @@ run_js_mutant() { # $1=id $2=desc $3=node-test-file...
     local id="$1" desc="$2"
     shift 2
     echo "=== MUTANT $id: $desc ==="
+    if [ "$DRY_RUN" = "1" ]; then
+        echo "MUTANT $id: anchors ok (dry run)"
+        return 0
+    fi
     local failed=0
     local s
     for s in "$@"; do
@@ -281,11 +313,16 @@ py_patch "$C" \
 py_patch "$C" \
 '    if (g_truncated) {
         strncpy(G_RESULT, "ERROR|RESULT_TRUNCATED", RES_CAP);
-    } else if (first_row) {' \
+    } else if (fetch_err) {' \
 '    if (g_truncated) {} // MUTANT M16: swallow (was RESULT_TRUNCATED)
-    else if (first_row) {' 1
+    else if (fetch_err) {' 1
 run_mutant "M16" "silent truncation" tests/db/truncation_db_tests.sh
 restore_all
+
+if [ "$DRY_RUN" = "1" ]; then
+    echo "=== ANCHOR CHECK: all mutant anchors resolved ==="
+    exit 0
+fi
 
 echo "=== rebuilding pristine tree ==="
 ./build.sh >/tmp/mutant_rebuild.log 2>&1 || { echo "FINAL REBUILD FAILED"; tail -5 /tmp/mutant_rebuild.log; exit 1; }
