@@ -18,6 +18,15 @@ db_exec "DELETE FROM customer WHERE customer_ref='CUST-TAXI';"
 db_exec "INSERT INTO customer (customer_ref, full_name, customer_type, credit_limit, used_credit, status, kyc_status, created_by) VALUES ('CUST-TAXI','PT Tax','CORPORATE',1000000,0,'ONBOARDED','APPROVED','admin@test.com');"
 ADMIN="taxint@test.com"
 db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('$ADMIN', CONCAT('SHA256_',SHA2('secret123',256)), 'Tax Int', '1990-01-01', 'VERIFIED', 'SUPER_ADMIN') ON DUPLICATE KEY UPDATE role='SUPER_ADMIN', status='VERIFIED';"
+db_exec "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES ('taxintpool@test.com', CONCAT('SHA256_',SHA2('secret123',256)), 'Tax Pool', '1990-01-01', 'VERIFIED', 'USER') ON DUPLICATE KEY UPDATE status='VERIFIED';"
+IDR="$(db_query "SELECT currency_id FROM currencies WHERE iso_code='IDR';")"
+# Fase 2: DEP_OPEN funds the deposit, so the opener holds the principal in
+# an IDR wallet and a bank-owned IDR DEPOSIT_POOL exists (GL period is
+# already required open by the GL posts below).
+db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${ADMIN}','taxintpool@test.com')));"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${ADMIN}','taxintpool@test.com'));"
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, ${IDR}, 1000000.00 FROM users WHERE email='${ADMIN}';"
+db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, ${IDR}, 'DEPOSIT_POOL', 1000000.00 FROM users WHERE email='taxintpool@test.com';"
 PERIOD="$(db_query "SELECT DATE_FORMAT(NOW(),'%Y-%m');")"
 
 echo "=== Tax withholding integration (deposit + fee) ==="
@@ -72,8 +81,13 @@ db_exec "DELETE FROM tax_report_run WHERE period='${PERIOD}' AND tax_type='WITHH
 db_exec "DELETE FROM tax_audit WHERE detail LIKE 'DEPINT-%' OR detail LIKE 'FEE-TAXI%';"
 db_exec "DELETE FROM tax_management WHERE tax_ref='TXR-INT';"
 db_exec "DELETE FROM fee_rule WHERE rule_code='FEE-TAXI';"
+db_exec "DELETE FROM ledger WHERE txn_ref='DEP-${DID}-FUND';"
+db_exec "DELETE FROM deposit_transaction WHERE deposit_id=${DID};"
 db_exec "DELETE FROM deposit_accrual WHERE deposit_id=${DID};"
 db_exec "DELETE FROM deposit_account WHERE id=${DID};"
+db_exec "DELETE FROM journal_entries WHERE txn_ref='DEP-${DID}-FUND';"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${ADMIN}','taxintpool@test.com'));"
+db_exec "DELETE FROM users WHERE email='taxintpool@test.com';"
 db_exec "DELETE FROM customer WHERE customer_ref='CUST-TAXI';"
 
 print_summary

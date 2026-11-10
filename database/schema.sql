@@ -4237,11 +4237,15 @@ CREATE TABLE IF NOT EXISTS deposit_account (
     maturity_date DATE NULL,
     journal_id BIGINT NULL,
     gl_journal_id INT NULL,
+    fund_journal_id BIGINT NULL,
+    fund_gl_journal_id INT NULL,
     created_by VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CHECK (term_months BETWEEN 1 AND 360),
     INDEX idx_deposit_journal (journal_id),
-    INDEX idx_deposit_gl (gl_journal_id)
+    INDEX idx_deposit_gl (gl_journal_id),
+    INDEX idx_deposit_fund_journal (fund_journal_id),
+    INDEX idx_deposit_fund_gl (fund_gl_journal_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS deposit_audit (

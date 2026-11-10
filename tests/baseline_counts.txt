@@ -1,7 +1,7 @@
 cobol_table_tests=235
 db_schema_tests=76
 db_loan_schedule_tests=42
-db_deposit_tests=30
+db_deposit_tests=42
 db_card_tests=38
 db_collection_tests=35
 db_payment_clearing_tests=22
@@ -38,7 +38,7 @@ db_sla_tracker_tests=18
 db_report_schedule_tests=18
 db_notification_template_tests=18
 db_loan_tests=25
-db_lending_posting_tests=40
+db_lending_posting_tests=51
 db_collateral_tests=18
 db_collateral_domain_tests=30
 # Wave6 domains

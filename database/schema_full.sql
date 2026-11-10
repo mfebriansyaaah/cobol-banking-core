@@ -9425,6 +9425,8 @@ CREATE TABLE `deposit_account` (
   `maturity_date` date DEFAULT NULL,
   `journal_id` bigint(20) DEFAULT NULL,
   `gl_journal_id` int(11) DEFAULT NULL,
+  `fund_journal_id` bigint(20) DEFAULT NULL,
+  `fund_gl_journal_id` int(11) DEFAULT NULL,
   `created_by` varchar(100) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `accrued_interest` decimal(18,4) NOT NULL DEFAULT 0.0000,
@@ -9433,6 +9435,10 @@ CREATE TABLE `deposit_account` (
   PRIMARY KEY (`id`),
   KEY `idx_deposit_journal` (`journal_id`),
   KEY `idx_deposit_gl` (`gl_journal_id`),
+  KEY `idx_deposit_fund_journal` (`fund_journal_id`),
+  KEY `idx_deposit_fund_gl` (`fund_gl_journal_id`),
+  CONSTRAINT `fk_deposit_fund_gl` FOREIGN KEY (`fund_gl_journal_id`) REFERENCES `gl_journal` (`id`),
+  CONSTRAINT `fk_deposit_fund_journal` FOREIGN KEY (`fund_journal_id`) REFERENCES `journal_entries` (`journal_id`),
   CONSTRAINT `fk_deposit_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`),
   CONSTRAINT `fk_deposit_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`),
   CONSTRAINT `CONSTRAINT_1` CHECK (`term_months` between 1 and 360)
@@ -9543,7 +9549,7 @@ DROP TABLE IF EXISTS `deposit_transaction`;
 CREATE TABLE `deposit_transaction` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `deposit_id` bigint(20) NOT NULL,
-  `txn_type` enum('INTEREST_POSTED','PRINCIPAL_PAYOUT','SETTLE') NOT NULL,
+  `txn_type` enum('INTEREST_POSTED','PRINCIPAL_PAYOUT','SETTLE','PRINCIPAL_FUNDED') NOT NULL,
   `amount` decimal(18,4) NOT NULL,
   `currency` char(3) NOT NULL,
   `reference` varchar(100) NOT NULL,

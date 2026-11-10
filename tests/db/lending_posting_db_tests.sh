@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Lending Fase 1: real posting (toward lending 10/10). LOAN_DISBURSE moves
+# Lending Fase 1+2: real posting (toward lending 10/10). LOAN_DISBURSE moves
 # money (LOAN_BOOK debit / customer credit) plus a balanced GL journal and
 # links both; LOAN_REPAY collects (customer debit / LOAN_BOOK credit),
-# marks rows PAID and links both; DEP_SETTLE pays out (DEPOSIT_POOL debit /
-# customer credit) plus a balanced GL journal and links both. Rejected
-# paths post nothing; concurrent double-settle/disburse is refused by
-# atomic guards. Green twice required.
+# marks rows PAID and links both. Fase 2: DEP_OPEN funds first (customer
+# debit / DEPOSIT_POOL credit) plus GL linkage; DEP_SETTLE pays out
+# (DEPOSIT_POOL debit / customer credit) plus a balanced GL journal and
+# links both. Rejected paths post nothing; concurrent
+# double-settle/disburse is refused by atomic guards. Green twice required.
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # shellcheck disable=SC1091
@@ -33,8 +34,8 @@ cleanup_fixture() {
     db_exec "DELETE FROM deposit_account WHERE customer_email IN ('${WA}','${WB}');"
     db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'LOAN-%' OR txn_ref LIKE 'LOANRP-%' OR txn_ref LIKE 'DEP-%';"
     db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'LOAN%' OR txn_ref LIKE 'DEP-%' OR txn_ref LIKE 'LOANRP-%';"
-    db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%');"
-    db_exec "DELETE FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%';"
+    db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%' OR description LIKE 'DEP_OPEN:%');"
+    db_exec "DELETE FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%' OR description LIKE 'DEP_SETTLE:%' OR description LIKE 'DEP_OPEN:%';"
     db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}','lnpLB@test.com','lnpPB@test.com')));"
     db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}','lnpLB@test.com','lnpPB@test.com'));"
     db_exec "DELETE FROM users WHERE email IN ('${WA}','${WB}','lnpLB@test.com','lnpPB@test.com');"
@@ -45,7 +46,8 @@ for U in "$WA" "$WB" lnpLB@test.com lnpPB@test.com; do
     code="$(db_query "SELECT code FROM verification_logs WHERE email='${U}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
     run_cobol "VERIFY_EMAIL|${U}|${code}" >/dev/null
 done
-db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 1000.00 FROM users WHERE email IN ('${WA}','${WB}');"
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 1000.00 FROM users WHERE email='${WA}';"
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 3000.00 FROM users WHERE email='${WB}';"
 db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'LOAN_BOOK', 100000.00 FROM users WHERE email='lnpLB@test.com';"
 db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'DEPOSIT_POOL', 100000.00 FROM users WHERE email='lnpPB@test.com';"
 ACCTA="$(db_query "SELECT account_id FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='${WA}') AND currency_id=1;")"
@@ -93,31 +95,48 @@ assert_match "pool missing fails closed" "$(run_cobol "LOAN_DISBURSE|${APP3}||||
 db_exec "UPDATE accounts SET status='ACTIVE' WHERE account_id=${BOOK};"
 db_exec "DELETE FROM loan_repayment WHERE loan_id=${APP3}; DELETE FROM loan_application WHERE id=${APP3};"
 
-# 21-28. Deposit settle pays out principal + interest with linkage.
-run_cobol "DEP_OPEN|${WB}|2000.00|USD|12|5.00|${A}" >/dev/null
+# 21-23. Opening into a frozen pool fails closed with nothing written.
+db_exec "UPDATE accounts SET status='FROZEN' WHERE account_id=${POOL};"
+assert_match "open into frozen pool refused" "$(run_cobol "DEP_OPEN|${WA}|100.00|USD|12|5.00|${A}")" "ERROR\|DEPOSIT_POOL_MISSING"
+assert_match "failed open wrote no row" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='${WA}';")" "^0$"
+db_exec "UPDATE accounts SET status='ACTIVE' WHERE account_id=${POOL};"
+
+# 24-33. Deposit open funds first (wallet debit / pool credit), then settle
+# pays out principal + interest with linkage.
+open_out="$(run_cobol "DEP_OPEN|${WB}|2000.00|USD|12|5.00|${A}")"
+assert_match "open ok" "$open_out" "SUCCESS\|DEP_OPEN\|[0-9]+"
 DID="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' ORDER BY id DESC LIMIT 1;")"
+assert_match "deposit active after funding" "$(db_query "SELECT status FROM deposit_account WHERE id=${DID};")" "^ACTIVE$"
+assert_match "wallet debited by principal" "$(bal "$ACCTB")" "^1000.0000$"
+assert_match "pool credited by principal" "$(bal "$POOL")" "^102000.0000$"
+assert_match "two funding legs posted" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID}-FUND';")" "^2$"
+assert_match "deposit links fund journal" "$(db_query "SELECT fund_journal_id FROM deposit_account WHERE id=${DID};")" "^[0-9]+$"
+assert_match "deposit links fund gl" "$(db_query "SELECT fund_gl_journal_id FROM deposit_account WHERE id=${DID};")" "^[0-9]+$"
+assert_match "funding transaction recorded" "$(db_query "SELECT COUNT(*) FROM deposit_transaction WHERE deposit_id=${DID} AND txn_type='PRINCIPAL_FUNDED';")" "^1$"
 run_cobol "DEP_ACCRUE|${DID}|30||||${A}" >/dev/null
 run_cobol "DEP_POST|${DID}|||||${A}" >/dev/null
 assert_match "settle ok" "$(run_cobol "DEP_SETTLE|${DID}|||||${A}")" "SUCCESS\|DEP_SETTLE\|2008.2192"
 assert_match "deposit closed" "$(db_query "SELECT status FROM deposit_account WHERE id=${DID};")" "^CLOSED$"
 assert_match "customer paid out" "$(bal "$ACCTB")" "^3008.2192$"
-assert_match "pool debited" "$(bal "$POOL")" "^97991.7808$"
+assert_match "pool debited" "$(bal "$POOL")" "^99991.7808$"
 assert_match "two payout legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID}';")" "^2$"
 assert_match "deposit links journal" "$(db_query "SELECT journal_id FROM deposit_account WHERE id=${DID};")" "^[0-9]+$"
 assert_match "deposit links gl" "$(db_query "SELECT gl_journal_id FROM deposit_account WHERE id=${DID};")" "^[0-9]+$"
 assert_match "double settle refused" "$(run_cobol "DEP_SETTLE|${DID}|||||${A}")" "ERROR\|INVALID_STATUS"
 
-# 29-34. Conservation: every unit accounted, journals balanced.
+# 34-39. Conservation: the principal round-trips, only interest leaves
+# the pool; every unit accounted, journals balanced.
 assert_match "A final" "$(bal "$ACCTA")" "^1800.0000$"
 assert_match "B final" "$(bal "$ACCTB")" "^3008.2192$"
 assert_match "A ledger net equals delta" "$(net "$ACCTA")" "^800.0000$"
-assert_match "B ledger net equals delta" "$(net "$ACCTB")" "^2008.2192$"
+assert_match "B ledger net equals interest only" "$(net "$ACCTB")" "^8.2192$"
 assert_match "book net equals funding minus lending" "$(net "$BOOK")" "^-800.0000$"
+assert_match "pool net equals interest paid" "$(net "$POOL")" "^-8.2192$"
 assert_match "all journals balanced" "$(balanced)" "^0$"
 assert_match "no negatives" "$(db_query "SELECT COUNT(*) FROM accounts WHERE account_id IN (${ACCTA},${ACCTB},${BOOK},${POOL}) AND balance < 0;")" "^0$"
-assert_match "total conserved" "$(total)" "^202000.0000$"
+assert_match "total conserved" "$(total)" "^204000.0000$"
 
-# 35-38. Concurrent double disburse: exactly one wins, no double credit.
+# 40-43. Concurrent double disburse: exactly one wins, no double credit.
 run_cobol "LOAN_APPLY|${WB}|300.00|USD|12|5.0|${A}" >/dev/null
 APP4="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
 run_cobol "LOAN_APPROVE|${APP4}|5.0|ok|||${A}" >/dev/null

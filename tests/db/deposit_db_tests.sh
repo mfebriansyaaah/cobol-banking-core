@@ -14,8 +14,9 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 
 db_seed
 db_reset_deposit
-# Fase 1: DEP_SETTLE pays out real money, so the fixture owns a wallet, the
-# bank-owned DEPOSIT_POOL is capitalized, and the GL period is open.
+# Fase 2: DEP_OPEN funds the deposit, so the fixture wallet holds the
+# principal, the bank-owned DEPOSIT_POOL is capitalized, and the GL period
+# is open.
 CUR="$(date +%Y-%m)"
 run_cobol "GL_PERIOD_OPEN|${CUR}|||||admin@test.com" >/dev/null
 for U in dep_test@test.com dep_pool@test.com; do
@@ -27,14 +28,33 @@ for U in dep_test@test.com dep_pool@test.com; do
     code="$(db_query "SELECT code FROM verification_logs WHERE email='${U}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
     run_cobol "VERIFY_EMAIL|${U}|${code}" >/dev/null
 done
-db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 0 FROM users WHERE email='dep_test@test.com';"
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 10000.00 FROM users WHERE email='dep_test@test.com';"
 db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'DEPOSIT_POOL', 1000000.00 FROM users WHERE email='dep_pool@test.com';"
 
-# Open a 12-month USD deposit at 5%.
+# Open a 12-month USD deposit at 5%. Fase 2 funds it at open: the wallet
+# is debited and the pool credited, with subledger + GL linkage.
 open_out="$(run_cobol "DEP_OPEN|dep_test@test.com|10000.00|USD|12|5.00|admin@test.com")"
 assert_match "DEP_OPEN ok" "$open_out" "SUCCESS\|DEP_OPEN\|[0-9]+"
 dep_id="$(printf '%s' "$open_out" | awk -F'|' '{print $3}')"
 assert_match "deposit id present" "$dep_id" "^[0-9]+$"
+assert_match "deposit active after funding" "$(db_query "SELECT status FROM deposit_account WHERE id=${dep_id};")" "^ACTIVE$"
+assert_match "wallet debited by principal" "$(db_query "SELECT balance FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='dep_test@test.com') AND currency_id=1;")" "^0.0000$"
+assert_match "pool credited by principal" "$(db_query "SELECT balance FROM accounts WHERE account_type='DEPOSIT_POOL' AND currency_id=1;")" "^1010000.0000$"
+assert_match "two funding legs posted" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${dep_id}-FUND';")" "^2$"
+assert_match "funding debits wallet credits pool" "$(db_query "SELECT GROUP_CONCAT(CONCAT(account_id,':',type) ORDER BY type DESC) FROM ledger WHERE txn_ref='DEP-${dep_id}-FUND';")" "^$(db_query "SELECT account_id FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='dep_test@test.com') AND currency_id=1;"):DEBIT,$(db_query "SELECT account_id FROM accounts WHERE account_type='DEPOSIT_POOL' AND currency_id=1;"):CREDIT$"
+assert_match "deposit links fund journal" "$(db_query "SELECT fund_journal_id FROM deposit_account WHERE id=${dep_id};")" "^[0-9]+$"
+assert_match "deposit links fund gl" "$(db_query "SELECT fund_gl_journal_id FROM deposit_account WHERE id=${dep_id};")" "^[0-9]+$"
+assert_match "funding transaction recorded" "$(db_query "SELECT COUNT(*) FROM deposit_transaction WHERE deposit_id=${dep_id} AND txn_type='PRINCIPAL_FUNDED';")" "^1$"
+assert_match "funding gl balanced" "$(db_query "SELECT COUNT(*) FROM (SELECT journal_id FROM gl_journal_line WHERE journal_id=(SELECT fund_gl_journal_id FROM deposit_account WHERE id=${dep_id}) GROUP BY journal_id HAVING ABS(SUM(debit_amount - credit_amount)) > 0.0001) t;")" "^0$"
+
+# Opening without funds fails closed before any row is written.
+db_exec "INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ('dep_broke@test.com',CONCAT('SHA256_',SHA2('secret123',256)),'Broke','1990-01-01','VERIFIED','USER') ON DUPLICATE KEY UPDATE status='VERIFIED';"
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 10.00 FROM users WHERE email='dep_broke@test.com' ON DUPLICATE KEY UPDATE balance=10.00;"
+assert_match "short wallet refused" "$(run_cobol "DEP_OPEN|dep_broke@test.com|5000.00|USD|12|5.00|admin@test.com")" "ERROR\|INSUFFICIENT_FUNDS"
+assert_match "failed open wrote no row" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='dep_broke@test.com';")" "^0$"
+assert_match "failed open posted no legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE from_email='dep_broke@test.com';")" "^0$"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='dep_broke@test.com');"
+db_exec "DELETE FROM users WHERE email='dep_broke@test.com';"
 
 # maturity_date is derived from the term (12 months from today).
 mat="$(db_query "SELECT maturity_date = DATE_ADD(CURDATE(), INTERVAL 12 MONTH) FROM deposit_account WHERE id=${dep_id};")"
@@ -122,8 +142,11 @@ db_exec "DELETE FROM deposit_transaction WHERE deposit_id=${dep_id};"
 db_exec "DELETE FROM deposit_accrual WHERE deposit_id=${dep_id};"
 db_exec "DELETE FROM deposit_account WHERE id=${dep_id};"
 db_exec "DELETE FROM journal_entries WHERE txn_ref='DEP-${dep_id}';"
+db_exec "DELETE FROM journal_entries WHERE txn_ref='DEP-${dep_id}-FUND';"
 db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${dep_id}:%');"
 db_exec "DELETE FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${dep_id}:%';"
+db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${dep_id}:%');"
+db_exec "DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${dep_id}:%';"
 db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('dep_test@test.com','dep_pool@test.com'));"
 db_exec "DELETE FROM users WHERE email IN ('dep_test@test.com','dep_pool@test.com');"
 
