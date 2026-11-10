@@ -10111,6 +10111,8 @@ paths:
               properties:
                 id:
                   type: string
+                idempotencyKey:
+                  type: string
               required:
                 - id
       responses:

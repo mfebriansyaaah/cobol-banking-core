@@ -27,6 +27,7 @@ CUR="$(date +%Y-%m)"
 run_cobol "GL_PERIOD_OPEN|${CUR}|||||${A}" >/dev/null
 
 cleanup_fixture() {
+    db_exec "DELETE FROM loan_disburse_request WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email IN ('${WA}','${WB}'));"
     db_exec "DELETE FROM loan_repay_request WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email IN ('${WA}','${WB}'));"
     db_exec "DELETE FROM deposit_settle_request WHERE deposit_id IN (SELECT id FROM deposit_account WHERE customer_email IN ('${WA}','${WB}'));"
     db_exec "DELETE FROM loan_repayment WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email IN ('${WA}','${WB}'));"
@@ -274,6 +275,50 @@ assert_match "pending close ok" "$(run_cobol "DEP_CLOSE|${DID7}||||K-DC3|${A}")"
 assert_match "pending closed" "$(db_query "SELECT status FROM deposit_account WHERE id=${DID7};")" "^CLOSED$"
 assert_match "pending close moves nothing" "$(bal "$ACCTB")" "^${BW0}$"
 assert_match "pending close posts no legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'DEP-${DID7}%';")" "^0$"
+
+# 91-107. Keyed disburse: the same key replays the stored outcome instead
+# of posting again; concurrent keys serialize with one winner; doomed keys
+# refuse pre-posting; stale keys are taken over.
+run_cobol "LOAN_APPLY|${WB}|600.00|USD|12|5.0|${A}" >/dev/null
+APP6="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' ORDER BY id DESC LIMIT 1;")"
+run_cobol "LOAN_APPROVE|${APP6}|5.0|ok|||${A}" >/dev/null
+assert_match "keyed disburse ok" "$(run_cobol "LOAN_DISBURSE|${APP6}||||K-D1|${A}")" "SUCCESS\|LOAN_DISBURSE"
+assert_match "keyed disburse replay ok" "$(run_cobol "LOAN_DISBURSE|${APP6}||||K-D1|${A}")" "SUCCESS\|LOAN_DISBURSE"
+assert_match "replay posted once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='LOAN-${APP6}';")" "^2$"
+assert_match "disburse request recorded DONE" "$(db_query "SELECT status FROM loan_disburse_request WHERE loan_id=${APP6} AND idempotency_key='K-D1';")" "^DONE$"
+db_exec "UPDATE loan_disburse_request SET amount = 1.00 WHERE loan_id=${APP6} AND idempotency_key='K-D1';"
+assert_match "changed amount conflicts" "$(run_cobol "LOAN_DISBURSE|${APP6}||||K-D1|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "conflict posted nothing new" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='LOAN-${APP6}';")" "^2$"
+db_exec "UPDATE loan_disburse_request SET amount = 600.00 WHERE loan_id=${APP6} AND idempotency_key='K-D1';"
+run_cobol "LOAN_APPLY|${WB}|700.00|USD|12|5.0|${A}" >/dev/null
+APP7="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+run_cobol "LOAN_APPROVE|${APP7}|5.0|ok|||${A}" >/dev/null
+E1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; E2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'LOAN_DISBURSE|%s||||K-DRACE|admin@test.com\n' "$APP7" >"$E1/input.txt"
+printf 'LOAN_DISBURSE|%s||||K-DRACE|admin@test.com\n' "$APP7" >"$E2/input.txt"
+(cd "$E1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V1=$!
+(cd "$E2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V2=$!
+wait $V1; wait $V2
+EA="$(tr -d ' \n' <"$E1/output.txt")"; EB="$(tr -d ' \n' <"$E2/output.txt")"
+rm -rf "$E1" "$E2"
+assert_match "exactly one disburse winner" "$(printf '%s\n%s\n' "$EA" "$EB" | grep -c "SUCCESS|LOAN_DISBURSE")" "^1$"
+assert_match "disburse loser sees in-progress" "$(printf '%s\n%s\n' "$EA" "$EB")" "ERROR\|DISBURSE_IN_PROGRESS"
+assert_match "disburse retry converges" "$(run_cobol "LOAN_DISBURSE|${APP7}||||K-DRACE|${A}")" "SUCCESS\|LOAN_DISBURSE"
+assert_match "single disbursal for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='LOAN-${APP7}';")" "^2$"
+run_cobol "LOAN_APPLY|${WB}|100.00|USD|12|5.0|${A}" >/dev/null
+APP8="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+assert_match "keyed disburse on open refused" "$(run_cobol "LOAN_DISBURSE|${APP8}||||K-DOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "doomed disburse stays pending" "$(run_cobol "LOAN_DISBURSE|${APP8}||||K-DOOM|${A}")" "ERROR\|DISBURSE_IN_PROGRESS"
+assert_match "doomed request left pending" "$(db_query "SELECT status FROM loan_disburse_request WHERE loan_id=${APP8};")" "^PENDING$"
+db_exec "DELETE FROM loan_disburse_request WHERE loan_id=${APP8}; DELETE FROM loan_application WHERE id=${APP8};"
+run_cobol "LOAN_APPLY|${WB}|800.00|USD|12|5.0|${A}" >/dev/null
+APP9="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+run_cobol "LOAN_APPROVE|${APP9}|5.0|ok|||${A}" >/dev/null
+db_exec "INSERT INTO loan_disburse_request (loan_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${APP9},'K-TAKE3',800.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "disburse takeover succeeds" "$(run_cobol "LOAN_DISBURSE|${APP9}||||K-TAKE3|${A}")" "SUCCESS\|LOAN_DISBURSE"
+assert_match "disburse taken over and done" "$(db_query "SELECT status FROM loan_disburse_request WHERE loan_id=${APP9} AND idempotency_key='K-TAKE3';")" "^DONE$"
 
 cleanup_fixture
 print_summary
