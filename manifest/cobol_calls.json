@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-09T01:55:53.383Z",
+  "generatedAt": "2026-11-10T07:02:17.411Z",
   "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
-  "count": 10,
+  "count": 12,
   "edges": [
     {
       "from": "auth_core",
@@ -11,6 +11,11 @@
     {
       "from": "auth_password_core",
       "to": "auth_core",
+      "callsites": 1
+    },
+    {
+      "from": "deposit_core",
+      "to": "gl_core",
       "callsites": 1
     },
     {
@@ -27,6 +32,11 @@
       "from": "eod_jobs_core",
       "to": "wallet_recon_core",
       "callsites": 1
+    },
+    {
+      "from": "loan_core",
+      "to": "gl_core",
+      "callsites": 2
     },
     {
       "from": "payment_clearing_core",

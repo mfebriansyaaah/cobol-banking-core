@@ -64,6 +64,29 @@
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
+        01  WS-CALL-P1              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P2              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P3              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P4              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P5              PIC X(100) VALUE SPACES.
+        01  WS-CALL-P6              PIC X(100) VALUE SPACES.
+        01  WS-CALL-OUT             PIC X(16384) VALUE SPACES.
+        01  WS-POST-DATE            PIC X(10) VALUE SPACES.
+        01  WS-GL-DESC              PIC X(100) VALUE SPACES.
+        01  WS-GL-LINES             PIC X(100) VALUE SPACES.
+        01  WS-GL-JID               PIC X(20) VALUE SPACES.
+        01  WS-JOUT-1               PIC X(20) VALUE SPACES.
+        01  WS-JOUT-2               PIC X(20) VALUE SPACES.
+        01  WS-LOAN-CURR            PIC X(10) VALUE SPACES.
+        01  WS-LOAN-EMAIL           PIC X(100) VALUE SPACES.
+        01  WS-CUST-ACC             PIC X(20) VALUE SPACES.
+        01  WS-CURR-ID              PIC X(20) VALUE SPACES.
+        01  WS-BOOK-ACC             PIC X(20) VALUE SPACES.
+        01  WS-JID                  PIC X(20) VALUE SPACES.
+        01  WS-TXN-REF              PIC X(50) VALUE SPACES.
+        01  WS-DESC                 PIC X(255) VALUE SPACES.
+        01  WS-REPAY-ID             PIC X(20) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -816,7 +839,7 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             *> above 1,000,000 to an unapproved borrower is refused before any
             *> write. LEFT JOIN: a borrower without a user row reads UNKNOWN
             *> (never approved). Fail closed on lookup errors.
-            MOVE "SELECT CONCAT(COALESCE(u.kyc_status, 'UNKNOWN'), '|', CAST(a.principal AS CHAR)) FROM loan_application a LEFT JOIN users u ON u.email = a.customer_email WHERE a.id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE "SELECT CONCAT(COALESCE(u.kyc_status, 'UNKNOWN'), '|', CAST(a.principal AS CHAR), '|', a.currency, '|', a.customer_email) FROM loan_application a LEFT JOIN users u ON u.email = a.customer_email WHERE a.id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
@@ -830,31 +853,259 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 END-IF
                 EXIT PARAGRAPH
             END-IF.
-            MOVE SPACES TO WS-KYC-GUARD WS-LOAN-AMT
+            MOVE SPACES TO WS-KYC-GUARD WS-LOAN-AMT WS-LOAN-CURR WS-LOAN-EMAIL
             UNSTRING WS-RESULT DELIMITED BY "|"
-                INTO WS-KYC-GUARD WS-LOAN-AMT
+                INTO WS-KYC-GUARD WS-LOAN-AMT WS-LOAN-CURR WS-LOAN-EMAIL
             END-UNSTRING.
             IF FUNCTION NUMVAL(WS-LOAN-AMT) > 1000000 AND WS-KYC-GUARD NOT = "APPROVED"
                 MOVE "ERROR|KYC_REQUIRED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE loan_application SET status='DISBURSED', disbursed_at=NOW() WHERE id=? AND status='APPROVED'" TO WS-PREP-SQL
-            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            *> Resolve the payout path: customer wallet in the loan currency
+            *> plus the bank-owned LOAN_BOOK suspense for that currency.
+            *> Either side missing fails closed with an explicit verdict.
+            MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-LOAN-CURR TO WS-BIND-1
             CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-CURR-ID
+            MOVE "SELECT CAST(a.account_id AS CHAR) FROM accounts a JOIN users u ON u.id = a.user_id WHERE u.email = ? AND a.currency_id = ? AND a.status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-LOAN-EMAIL TO WS-BIND-1
+            MOVE WS-CURR-ID TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-CUST-ACC
+            MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'LOAN_BOOK' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-CURR-ID TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|LOAN_BOOK_MISSING" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-BOOK-ACC
+            *> Bank-side journal first (gl_core owns its own transaction on
+            *> this connection): DEBIT Loans receivable / CREDIT Cash.
+            MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:10) TO WS-POST-DATE
+            MOVE SPACES TO WS-GL-DESC WS-GL-LINES
+            STRING "LOAN_DISBURSE:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-LOAN-AMT) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
+            STRING "1300:" DELIMITED BY SIZE FUNCTION TRIM(WS-LOAN-AMT) DELIMITED BY SIZE ":0;1000:0:" DELIMITED BY SIZE FUNCTION TRIM(WS-LOAN-AMT) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
+            MOVE SPACES TO WS-GL-JID
+            MOVE "SELECT id FROM gl_journal WHERE description = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-GL-DESC TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT NOT = "ERROR|NO_DATA"
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            ELSE
+                MOVE WS-RESULT(1:20) TO WS-GL-JID
+            END-IF.
+            IF WS-GL-JID = SPACES
+                MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
+                MOVE WS-POST-DATE TO WS-CALL-P1
+                MOVE WS-GL-DESC TO WS-CALL-P2
+                MOVE WS-LOAN-CURR TO WS-CALL-P3
+                MOVE WS-GL-LINES TO WS-CALL-P4
+                MOVE SPACES TO WS-CALL-P5 WS-CALL-P6
+                MOVE WS-P6-TRIMMED TO WS-CALL-P6
+                MOVE SPACES TO WS-CALL-OUT
+                CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+                    WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+                END-CALL
+                IF WS-CALL-OUT(1:5) = "ERROR"
+                    MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+                MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+                UNSTRING WS-CALL-OUT DELIMITED BY "|"
+                    INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+                END-UNSTRING
+                IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
+            MOVE SPACES TO WS-TXN-REF WS-DESC WS-JID
+            STRING "LOAN-" DELIMITED BY SIZE WS-P1-TRIMMED DELIMITED BY SPACE INTO WS-TXN-REF END-STRING
+            STRING "LOAN_DISBURSE:" DELIMITED BY SIZE WS-P1-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-LOAN-AMT) DELIMITED BY SIZE INTO WS-DESC END-STRING
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            IF STEP-OK
+                MOVE "UPDATE loan_application SET status='DISBURSED', disbursed_at=NOW() WHERE id=? AND status='APPROVED'" TO WS-PREP-SQL
+                MOVE WS-P1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INVALID_STATUS" TO WS-ERR
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET STEP-FAIL TO TRUE
+                    END-IF
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
+                MOVE WS-TXN-REF TO WS-BIND-1
+                MOVE WS-LOAN-EMAIL TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-JID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE FUNCTION TRIM(WS-LOAN-AMT) TO WS-BIND-1
+                MOVE WS-CUST-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ? AND balance >= ?" TO WS-PREP-SQL
+                MOVE FUNCTION TRIM(WS-LOAN-AMT) TO WS-BIND-1
+                MOVE WS-BOOK-ACC TO WS-BIND-2
+                MOVE FUNCTION TRIM(WS-LOAN-AMT) TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO WS-ERR
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET STEP-FAIL TO TRUE
+                    END-IF
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+                MOVE WS-TXN-REF TO WS-BIND-1
+                MOVE WS-BOOK-ACC TO WS-BIND-2
+                MOVE FUNCTION TRIM(WS-LOAN-AMT) TO WS-BIND-3
+                MOVE WS-CURR-ID TO WS-BIND-4
+                MOVE WS-DESC TO WS-BIND-5
+                MOVE WS-LOAN-EMAIL TO WS-BIND-6
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+                MOVE WS-TXN-REF TO WS-BIND-1
+                MOVE WS-CUST-ACC TO WS-BIND-2
+                MOVE FUNCTION TRIM(WS-LOAN-AMT) TO WS-BIND-3
+                MOVE WS-CURR-ID TO WS-BIND-4
+                MOVE WS-DESC TO WS-BIND-5
+                MOVE WS-LOAN-EMAIL TO WS-BIND-6
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE loan_application SET journal_id = ?, gl_journal_id = ? WHERE id = ?" TO WS-PREP-SQL
+                MOVE WS-JID TO WS-BIND-1
+                MOVE WS-GL-JID TO WS-BIND-2
+                MOVE WS-P1-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL
                 MOVE "SUCCESS|LOAN_DISBURSE" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                IF WS-ERR = "ERROR|INVALID_STATUS"
+                    MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                ELSE
+                    IF WS-ERR = "ERROR|INSUFFICIENT_FUNDS"
+                        MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                    ELSE
+                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    END-IF
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
@@ -868,8 +1119,81 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
+            IF WS-NUM-AMOUNT <= 0
+                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            *> Repayments only land on disbursed loans; anything else is a
+            *> no-op refused up front instead of a stray PENDING row.
+            MOVE "SELECT CONCAT(status, '|', currency, '|', customer_email) FROM loan_application WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TMP-STATUS WS-TMP-CURR WS-LOAN-EMAIL
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-STATUS WS-TMP-CURR WS-LOAN-EMAIL
+            END-UNSTRING.
+            IF WS-TMP-STATUS(1:9) NOT = "DISBURSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-TMP-CURR TO WS-LOAN-CURR
+            MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-LOAN-CURR TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-CURR-ID
+            MOVE "SELECT CAST(a.account_id AS CHAR) FROM accounts a JOIN users u ON u.id = a.user_id WHERE u.email = ? AND a.currency_id = ? AND a.status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-LOAN-EMAIL TO WS-BIND-1
+            MOVE WS-CURR-ID TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-CUST-ACC
+            MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'LOAN_BOOK' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-CURR-ID TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|LOAN_BOOK_MISSING" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-BOOK-ACC
+            *> Book the repayment row first (autocommit): its id keys the GL
+            *> journal description, so every REPAY call posts exactly one
+            *> balanced journal even under concurrency. A row left PENDING by
+            *> a later failure means created-but-unposted, as before.
             MOVE "INSERT INTO loan_repayment (loan_id, amount, status) VALUES (?, ?, 'PENDING')" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -878,13 +1202,179 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:20) TO WS-REPAY-ID
+            *> Bank-side journal (gl_core owns its own transaction):
+            *> DEBIT Cash / CREDIT Loans receivable.
+            MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE WS-RESULT(1:10) TO WS-POST-DATE
+            MOVE SPACES TO WS-GL-DESC WS-GL-LINES
+            STRING "LOAN_REPAY:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-REPAY-ID) DELIMITED BY SIZE ":" DELIMITED BY SIZE WS-P2-TRIMMED(1:WS-P2-LEN) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
+            STRING "1000:" DELIMITED BY SIZE WS-P2-TRIMMED(1:WS-P2-LEN) DELIMITED BY SIZE ":0;1300:0:" DELIMITED BY SIZE WS-P2-TRIMMED(1:WS-P2-LEN) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
+            MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
+            MOVE WS-POST-DATE TO WS-CALL-P1
+            MOVE WS-GL-DESC TO WS-CALL-P2
+            MOVE WS-LOAN-CURR TO WS-CALL-P3
+            MOVE WS-GL-LINES TO WS-CALL-P4
+            MOVE SPACES TO WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+            MOVE WS-P6-TRIMMED TO WS-CALL-P6
+            CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+                WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+            END-CALL
+            IF WS-CALL-OUT(1:5) = "ERROR"
+                MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF
+            MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+            UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+            END-UNSTRING
+            IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
+                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TXN-REF WS-DESC WS-JID
+            STRING "LOANRP-" DELIMITED BY SIZE FUNCTION TRIM(WS-REPAY-ID) DELIMITED BY SIZE INTO WS-TXN-REF END-STRING
+            STRING "LOAN_REPAY:" DELIMITED BY SIZE WS-P1-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE WS-P2-TRIMMED(1:WS-P2-LEN) DELIMITED BY SIZE INTO WS-DESC END-STRING
+            SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
+            CALL "SQL_BEGIN" END-CALL
+            IF STEP-OK
+                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
+                MOVE WS-TXN-REF TO WS-BIND-1
+                MOVE WS-LOAN-EMAIL TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    MOVE WS-RESULT(1:20) TO WS-JID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ? AND balance >= ?" TO WS-PREP-SQL
+                MOVE WS-P2-TRIMMED TO WS-BIND-1
+                MOVE WS-CUST-ACC TO WS-BIND-2
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO WS-ERR
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET STEP-FAIL TO TRUE
+                    END-IF
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+                MOVE WS-P2-TRIMMED TO WS-BIND-1
+                MOVE WS-BOOK-ACC TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+                MOVE WS-TXN-REF TO WS-BIND-1
+                MOVE WS-CUST-ACC TO WS-BIND-2
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                MOVE WS-CURR-ID TO WS-BIND-4
+                MOVE WS-DESC TO WS-BIND-5
+                MOVE WS-LOAN-EMAIL TO WS-BIND-6
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+                MOVE WS-TXN-REF TO WS-BIND-1
+                MOVE WS-BOOK-ACC TO WS-BIND-2
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                MOVE WS-CURR-ID TO WS-BIND-4
+                MOVE WS-DESC TO WS-BIND-5
+                MOVE WS-LOAN-EMAIL TO WS-BIND-6
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "UPDATE loan_repayment SET status = 'PAID', paid_at = NOW(), journal_id = ?, gl_journal_id = ? WHERE id = ?" TO WS-PREP-SQL
+                MOVE WS-JID TO WS-BIND-1
+                MOVE WS-GL-JID TO WS-BIND-2
+                MOVE WS-REPAY-ID TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL
                 MOVE "SUCCESS|LOAN_REPAY" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                IF WS-ERR = "ERROR|INSUFFICIENT_FUNDS"
+                    MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
             EXIT PARAGRAPH.

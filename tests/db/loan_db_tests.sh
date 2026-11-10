@@ -14,6 +14,24 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 
 db_seed
 db_reset_loan
+# Fase 1: LOAN_DISBURSE/LOAN_REPAY move real money, so the borrower owns a
+# wallet, the bank-owned LOAN_BOOK is capitalized, and the GL period is open.
+CUR="$(date +%Y-%m)"
+run_cobol "GL_PERIOD_OPEN|${CUR}|||||admin@test.com" >/dev/null
+for U in borrower@test.com loanbook@test.com; do
+    db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='${U}'));"
+    db_exec "DELETE FROM pending_transactions WHERE from_email='${U}' OR to_email='${U}';"
+    db_exec "DELETE FROM loan_repayment WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email='${U}');"
+    db_exec "DELETE FROM loan_application WHERE customer_email='${U}';"
+    db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
+    db_exec "DELETE FROM users WHERE email='${U}';"
+    run_cobol "REQUEST_SIGNUP|${U}|Passw0rd!|Ln Fixture|1990-01-01" >/dev/null
+    code="$(db_query "SELECT code FROM verification_logs WHERE email='${U}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
+    run_cobol "VERIFY_EMAIL|${U}|${code}" >/dev/null
+done
+db_exec "UPDATE users SET kyc_status='APPROVED' WHERE email='borrower@test.com';"
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 0 FROM users WHERE email='borrower@test.com';"
+db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'LOAN_BOOK', 1000000.00 FROM users WHERE email='loanbook@test.com';"
 
 # Create a cost center.
 create_out="$(run_cobol "LOAN_CREATE|LSC-W2-1|John Doe|MORTGAGE|||admin@test.com")"

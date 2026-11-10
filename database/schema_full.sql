@@ -438,12 +438,12 @@ CREATE TABLE `accounts` (
   `account_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `currency_id` int(11) NOT NULL,
-  `account_type` enum('SAVINGS','CHECKING','INVESTMENT','FEE_INCOME','FX_PNL','CLEARING') DEFAULT 'SAVINGS',
+  `account_type` enum('SAVINGS','CHECKING','INVESTMENT','FEE_INCOME','FX_PNL','CLEARING','LOAN_BOOK','DEPOSIT_POOL') DEFAULT 'SAVINGS',
   `balance` decimal(18,4) NOT NULL DEFAULT 0.0000 CHECK (`balance` >= 0),
   `status` enum('ACTIVE','FROZEN','CLOSED') DEFAULT 'ACTIVE',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `control_slot` varchar(32) GENERATED ALWAYS AS (case when `status` = 'ACTIVE' and `account_type` in ('FX_PNL','FEE_INCOME','CLEARING') then concat(`currency_id`,'/',`account_type`) else NULL end) STORED,
+  `control_slot` varchar(32) GENERATED ALWAYS AS (case when `status` = 'ACTIVE' and `account_type` in ('FX_PNL','FEE_INCOME','CLEARING','LOAN_BOOK','DEPOSIT_POOL') then concat(`currency_id`,'/',`account_type`) else NULL end) STORED,
   PRIMARY KEY (`account_id`),
   UNIQUE KEY `unique_user_currency` (`user_id`,`currency_id`),
   UNIQUE KEY `uniq_active_control_acct` (`control_slot`),
@@ -9423,12 +9423,18 @@ CREATE TABLE `deposit_account` (
   `interest_rate` decimal(9,4) NOT NULL DEFAULT 0.0000,
   `status` enum('PENDING','ACTIVE','MATURED','CLOSED') NOT NULL DEFAULT 'ACTIVE',
   `maturity_date` date DEFAULT NULL,
+  `journal_id` bigint(20) DEFAULT NULL,
+  `gl_journal_id` int(11) DEFAULT NULL,
   `created_by` varchar(100) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `accrued_interest` decimal(18,4) NOT NULL DEFAULT 0.0000,
   `posted_interest` decimal(18,4) NOT NULL DEFAULT 0.0000,
   `last_accrual_date` date DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `idx_deposit_journal` (`journal_id`),
+  KEY `idx_deposit_gl` (`gl_journal_id`),
+  CONSTRAINT `fk_deposit_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`),
+  CONSTRAINT `fk_deposit_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`),
   CONSTRAINT `CONSTRAINT_1` CHECK (`term_months` between 1 and 360)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -17502,7 +17508,13 @@ CREATE TABLE `loan_application` (
   `decided_by` varchar(100) DEFAULT NULL,
   `decided_at` datetime DEFAULT NULL,
   `disbursed_at` datetime DEFAULT NULL,
+  `journal_id` bigint(20) DEFAULT NULL,
+  `gl_journal_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `idx_loan_app_journal` (`journal_id`),
+  KEY `idx_loan_app_gl` (`gl_journal_id`),
+  CONSTRAINT `fk_loan_app_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`),
+  CONSTRAINT `fk_loan_app_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`),
   CONSTRAINT `CONSTRAINT_1` CHECK (`term_months` between 1 and 360)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -17567,8 +17579,14 @@ CREATE TABLE `loan_repayment` (
   `status` enum('PENDING','PAID') NOT NULL DEFAULT 'PENDING',
   `due_date` date DEFAULT NULL,
   `paid_at` datetime DEFAULT NULL,
+  `journal_id` bigint(20) DEFAULT NULL,
+  `gl_journal_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_loan_repayment_loan` (`loan_id`),
+  KEY `idx_loan_repay_journal` (`journal_id`),
+  KEY `idx_loan_repay_gl` (`gl_journal_id`),
+  CONSTRAINT `fk_loan_repay_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`),
+  CONSTRAINT `fk_loan_repay_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`),
   CONSTRAINT `fk_loan_repayment_loan` FOREIGN KEY (`loan_id`) REFERENCES `loan_application` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
