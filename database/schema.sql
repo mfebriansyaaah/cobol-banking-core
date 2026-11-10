@@ -2578,7 +2578,8 @@ INSERT IGNORE INTO gl_account (account_code, name, account_type, normal_side, is
 ('1200', 'Clearing suspense', 'ASSET', 'DEBIT', TRUE),
 ('2110', 'Settlement payable', 'LIABILITY', 'CREDIT', TRUE),
 ('1300', 'Loans receivable', 'ASSET', 'DEBIT', TRUE),
-('2120', 'Deposits payable', 'LIABILITY', 'CREDIT', TRUE);
+('2120', 'Deposits payable', 'LIABILITY', 'CREDIT', TRUE),
+('5010', 'Deposit interest expense', 'EXPENSE', 'DEBIT', TRUE);
 
 -- Phase 1 Sprint 1: GL period control.
 -- A period is YYYY-MM. Journals post only into an OPEN period.
@@ -4239,13 +4240,15 @@ CREATE TABLE IF NOT EXISTS deposit_account (
     gl_journal_id INT NULL,
     fund_journal_id BIGINT NULL,
     fund_gl_journal_id INT NULL,
+    post_gl_journal_id INT NULL,
     created_by VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CHECK (term_months BETWEEN 1 AND 360),
     INDEX idx_deposit_journal (journal_id),
     INDEX idx_deposit_gl (gl_journal_id),
     INDEX idx_deposit_fund_journal (fund_journal_id),
-    INDEX idx_deposit_fund_gl (fund_gl_journal_id)
+    INDEX idx_deposit_fund_gl (fund_gl_journal_id),
+    INDEX idx_deposit_post_gl (post_gl_journal_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS deposit_audit (

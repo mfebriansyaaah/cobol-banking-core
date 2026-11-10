@@ -1283,6 +1283,74 @@
                MOVE "ERROR|NOTHING_TO_POST" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           *> Accrual accounting: recognizing posted interest also books the
+           *> expense (gl_core owns its own transaction on this connection):
+           *> DEBIT Deposit interest expense / CREDIT Deposits payable. The
+           *> description carries the batch amount, so a retry of a
+           *> posted-but-unlinked batch re-links the existing journal.
+           MOVE "SELECT currency FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:10) TO WS-CUST-CURR
+           MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:10) TO WS-POST-DATE
+           MOVE SPACES TO WS-GL-DESC WS-GL-LINES WS-GL-JID
+           STRING "DEP_POST:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
+           STRING "5010:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE ":0;2120:0:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
+           MOVE "SELECT id FROM gl_journal WHERE description = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-GL-DESC TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               IF WS-RESULT NOT = "ERROR|NO_DATA"
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               MOVE WS-RESULT(1:20) TO WS-GL-JID
+           END-IF.
+           IF WS-GL-JID = SPACES
+               MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
+               MOVE WS-POST-DATE TO WS-CALL-P1
+               MOVE WS-GL-DESC TO WS-CALL-P2
+               MOVE WS-CUST-CURR TO WS-CALL-P3
+               MOVE WS-GL-LINES TO WS-CALL-P4
+               MOVE SPACES TO WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+               MOVE WS-P6-TRIMMED TO WS-CALL-P6
+               CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+                   WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+               END-CALL
+               IF WS-CALL-OUT(1:5) = "ERROR"
+                   MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID END-UNSTRING
+               IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
            MOVE "INSERT INTO deposit_transaction (deposit_id, txn_type, amount, currency, reference) SELECT id, 'INTEREST_POSTED', ?, currency, CONCAT('INT-', id, '-', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')) FROM deposit_account WHERE id = ?" TO WS-PREP-SQL
@@ -1314,6 +1382,19 @@
                MOVE WS-TMP-AMT TO WS-BIND-2
                MOVE WS-P1-TRIMMED TO WS-BIND-3
                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE deposit_account SET post_gl_journal_id = ? WHERE id = ?" TO WS-PREP-SQL
+               MOVE WS-GL-JID TO WS-BIND-1
+               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
                END-CALL

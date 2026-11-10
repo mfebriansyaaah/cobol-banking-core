@@ -9427,6 +9427,7 @@ CREATE TABLE `deposit_account` (
   `gl_journal_id` int(11) DEFAULT NULL,
   `fund_journal_id` bigint(20) DEFAULT NULL,
   `fund_gl_journal_id` int(11) DEFAULT NULL,
+  `post_gl_journal_id` int(11) DEFAULT NULL,
   `created_by` varchar(100) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `accrued_interest` decimal(18,4) NOT NULL DEFAULT 0.0000,
@@ -9437,10 +9438,12 @@ CREATE TABLE `deposit_account` (
   KEY `idx_deposit_gl` (`gl_journal_id`),
   KEY `idx_deposit_fund_journal` (`fund_journal_id`),
   KEY `idx_deposit_fund_gl` (`fund_gl_journal_id`),
+  KEY `idx_deposit_post_gl` (`post_gl_journal_id`),
   CONSTRAINT `fk_deposit_fund_gl` FOREIGN KEY (`fund_gl_journal_id`) REFERENCES `gl_journal` (`id`),
   CONSTRAINT `fk_deposit_fund_journal` FOREIGN KEY (`fund_journal_id`) REFERENCES `journal_entries` (`journal_id`),
   CONSTRAINT `fk_deposit_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`),
   CONSTRAINT `fk_deposit_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`),
+  CONSTRAINT `fk_deposit_post_gl` FOREIGN KEY (`post_gl_journal_id`) REFERENCES `gl_journal` (`id`),
   CONSTRAINT `CONSTRAINT_1` CHECK (`term_months` between 1 and 360)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
