@@ -22,6 +22,10 @@ KR="kycenfR@test.com"
 cleanup_fixture() {
     db_exec "DELETE FROM loan_repayment WHERE loan_id IN (SELECT id FROM loan_application WHERE customer_email IN ('${KS}','${KR}'));"
     db_exec "DELETE FROM loan_application WHERE customer_email IN ('${KS}','${KR}');"
+    db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'LOAN-%' OR txn_ref LIKE 'LOANRP-%';"
+    db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'LOAN%' OR txn_ref LIKE 'LOANRP-%';"
+    db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%');"
+    db_exec "DELETE FROM gl_journal WHERE description LIKE 'LOAN_DISBURSE:%' OR description LIKE 'LOAN_REPAY:%';"
     db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${KS}','${KR}')));"
     db_exec "DELETE FROM pending_transactions WHERE from_email IN ('${KS}','${KR}') OR to_email IN ('${KS}','${KR}');"
     db_exec "DELETE FROM transfer_reversals WHERE from_email IN ('${KS}','${KR}');"
@@ -34,6 +38,9 @@ cleanup_fixture() {
     db_exec "DELETE FROM users WHERE email IN ('${KS}','${KR}');"
     db_exec "DELETE FROM fee_schedule WHERE currency_id=1;"
     db_exec "DELETE FROM accounts WHERE account_type='FEE_INCOME' AND currency_id=1;"
+    db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='kycenfB@test.com'));"
+    db_exec "DELETE FROM accounts WHERE account_type='LOAN_BOOK' AND currency_id=1;"
+    db_exec "DELETE FROM users WHERE email='kycenfB@test.com';"
 }
 cleanup_fixture
 for U in "$KS" "$KR"; do
@@ -42,6 +49,19 @@ for U in "$KS" "$KR"; do
     run_cobol "VERIFY_EMAIL|${U}|${code}" >/dev/null
     db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 3000000.00 FROM users WHERE email='${U}';"
 done
+# Fase 1: LOAN_DISBURSE posts real money, so the bank-owned LOAN_BOOK is
+# capitalized and the GL period is open (owned by a dedicated user: one
+# account per (user, currency)).
+CUR="$(date +%Y-%m)"
+run_cobol "GL_PERIOD_OPEN|${CUR}|||||${A}" >/dev/null
+KB="kycenfB@test.com"
+db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='${KB}'));"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='${KB}');"
+db_exec "DELETE FROM users WHERE email='${KB}';"
+run_cobol "REQUEST_SIGNUP|${KB}|Passw0rd!|Kyc Bank|1990-01-01" >/dev/null
+code="$(db_query "SELECT code FROM verification_logs WHERE email='${KB}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
+run_cobol "VERIFY_EMAIL|${KB}|${code}" >/dev/null
+db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'LOAN_BOOK', 10000000.00 FROM users WHERE email='${KB}';"
 
 echo "=== TRANSFER gate ==="
 assert_match "small transfer frictionless" "$(run_cobol "TRANSFER|${KS}|${KR}|100.00|KYCENF-1|||")" "SUCCESS\|TRANSFER_OK"

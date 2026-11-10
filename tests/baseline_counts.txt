@@ -38,6 +38,7 @@ db_sla_tracker_tests=18
 db_report_schedule_tests=18
 db_notification_template_tests=18
 db_loan_tests=25
+db_lending_posting_tests=40
 db_collateral_tests=18
 db_collateral_domain_tests=30
 # Wave6 domains

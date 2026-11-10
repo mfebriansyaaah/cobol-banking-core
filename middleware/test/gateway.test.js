@@ -1264,10 +1264,25 @@ test('dispute tickets run the full lifecycle end to end', async () => {
 test('deposit lifecycle over HTTP', async () => {
   const admin = U('dep');
   const owner = U('dep_owner_');
+  const bank = U('dep_bank_');
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed a deposit admin');
   enableMfa(admin);
   const token = await adminLoginFor(admin);
   const auth = { Authorization: `Bearer ${token}` };
+
+  // Fase 1: settling pays out real money, so the owner needs a wallet,
+  // the bank-owned DEPOSIT_POOL is capitalized, and the GL period is open.
+  requireSeed(seedUser(owner) && seedAccount(owner, '0.00'), 'seed the deposit owner wallet');
+  requireSeed(seedUser(bank), 'seed the pool owner');
+  requireSeed(
+    runSql(
+      `INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'DEPOSIT_POOL', 1000000.00 FROM users WHERE email = '${bank}'`,
+    ),
+    'capitalize the deposit pool',
+  );
+  const period = new Date().toISOString().slice(0, 7);
+  const openPeriod = await request(app).post('/gl/periods').set(auth).send({ period });
+  assert.equal(openPeriod.status, 200);
 
   const valid = await request(app).post('/deposits/validate').set(auth).send({ principal: '10000.00', currency: 'USD', term: '12', rate: '5.00' });
   assert.equal(valid.status, 200);
@@ -1303,6 +1318,11 @@ test('deposit lifecycle over HTTP', async () => {
   const settled = await request(app).post(`/deposits/${id}/settle`).set(auth).send({});
   assert.equal(settled.status, 200);
   assert.deepEqual(settled.body.data, ['DEP_SETTLE', '10041.0959']);
+  assert.equal(
+    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${owner}') AND currency_id = 1`),
+    '10041.0959',
+    'the payout lands in the owner wallet',
+  );
 
   const summary = await request(app).get('/deposits/summary').set(auth);
   assert.equal(summary.status, 200);
@@ -1316,7 +1336,18 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(closeAgain.status, 400);
   assert.equal(closeAgain.body.error, 'INVALID_STATUS');
 
+  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout legs');
   requireSeed(runSql(`DELETE FROM deposit_account WHERE customer_email = '${owner}'`), 'clean up the deposit');
+  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout journal');
+  requireSeed(
+    runSql(
+      `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%')`,
+    ),
+    'clean up the payout GL lines',
+  );
+  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%'`), 'clean up the payout GL journal');
+  requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${owner}','${bank}'))`), 'clean up wallets');
+  requireSeed(runSql(`DELETE FROM users WHERE email IN ('${owner}','${bank}')`), 'clean up users');
 });
 
 test('card lifecycle over HTTP', async () => {
