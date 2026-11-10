@@ -424,3 +424,60 @@ the two env entries with owner and expiry.
 ## G1 option-A fast-path proof (2026-11-07)
 
 - Proof PR touches docs only; option A (D3 revised) skips `test` + `db-snapshot` too. Expect wall <=3 min.
+
+## Branch protection (required) — restore runbook
+
+Branch protection is remote state, not Git. The 2026-11-11 audit found `main`
+unprotected (`protected:false`, no rulesets, required checks empty): every gate
+was advisory and force-pushes/deletions were allowed. Treat any settings change
+as an incident and record evidence immediately.
+
+Required checks (exact display names, unchanged from G0):
+
+- `lint`, `build`, `test`, `coverage`, `db aggregate`, `coverage-pr`
+
+Settings: strict off (D9), merge commits only, `enforce_admins` on, force-push
+and deletion blocked, no review requirement (solo-owner flow), linear history
+not required.
+
+Restore with the full payload (the API rejects partial updates):
+
+```sh
+cat > /tmp/protection.json <<'JSON'
+{
+  "required_status_checks": {
+    "strict": false,
+    "contexts": ["lint", "build", "test", "coverage", "db aggregate", "coverage-pr"]
+  },
+  "enforce_admins": true,
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "required_linear_history": false,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "block_creations": false,
+  "required_conversation_resolution": false,
+  "lock_branch": false,
+  "allow_fork_syncing": false
+}
+JSON
+gh api --method PUT repos/mfebriansyaaah/cobol-banking-core/branches/main/protection \
+  --input /tmp/protection.json
+```
+
+Verify:
+
+```sh
+gh api repos/mfebriansyaaah/cobol-banking-core/branches/main/protection \
+  --jq '{checks: .required_status_checks.contexts,
+         enforce_admins: .enforce_admins.enabled,
+         force_push: .allow_force_pushes.enabled,
+         deletions: .allow_deletions.enabled}'
+```
+
+Evidence 2026-11-11: `protected=true`, six contexts as above,
+`enforce_admins=true`, `force_push=false`, `deletions=false`.
+
+Note: required checks must keep their exact display names. A renamed job makes
+GitHub wait forever for a context that never reports — `check_ci_contract`
+guards the names, and this runbook's verify step guards the remote state.
