@@ -332,6 +332,7 @@
     "collection_case",
     "collection_mgmt",
     "collection_mgmt_audit",
+    "collection_pay_request",
     "commercial_banking",
     "commercial_banking_audit",
     "commission_item",

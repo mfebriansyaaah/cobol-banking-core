@@ -60,7 +60,9 @@ export const COLLECTION_ROUTES = [
   { method: 'post', path: '/collections/:id/pay', action: 'COL_PAY', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
-    BLANK, BLANK, BLANK, ACTOR,
+    BLANK, BLANK,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    ACTOR,
   ] },
   { method: 'post', path: '/collections/:id/escalate', action: 'COL_ESCALATE', tokenIdentity: 'actor', fields: [
     ID,

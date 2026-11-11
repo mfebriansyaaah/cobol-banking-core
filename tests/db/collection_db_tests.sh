@@ -101,9 +101,47 @@ assert_match "race loser over-recovery refused" "$(printf '%s\n%s\n' "$YA" "$YB"
 assert_match "recovery capped at overdue" "$(db_query "SELECT CONCAT(recovered_amount, '|', status) FROM collection_case WHERE id=${inst_case};")" "^110.0000\|CLOSED$"
 assert_match "single payment recorded" "$(db_query "SELECT COUNT(*) FROM collection_activity WHERE case_id=${inst_case} AND activity_type='PAYMENT';")" "^1$"
 
+# Keyed pay: same key replays the stored outcome instead of recording
+# again; a different amount conflicts; concurrent keys serialize; doomed
+# keys stay usable; stale keys are taken over.
+db_exec "INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('d4key@test.com', 600, 'USD', 3, 5.0000, 'DISBURSED', 'admin@test.com')"
+key_loan="$(db_query "SELECT id FROM loan_application WHERE customer_email='d4key@test.com' ORDER BY id DESC LIMIT 1;")"
+db_exec "INSERT INTO loan_schedule (loan_id, term_months, interest_rate, start_date, status, created_by) VALUES (${key_loan}, 3, 5.0000, DATE_SUB(CURDATE(), INTERVAL 60 DAY), 'ACTIVE', 'admin@test.com')"
+key_sched="$(db_query "SELECT id FROM loan_schedule WHERE loan_id=${key_loan} ORDER BY id DESC LIMIT 1;")"
+db_exec "INSERT INTO loan_installment (schedule_id, seq, due_date, principal_due, interest_due, total_due, status, paid_amount) VALUES (${key_sched}, 1, DATE_SUB(CURDATE(), INTERVAL 30 DAY), 200, 20, 220, 'DUE', 0)"
+key_open="$(run_cobol "COL_OPEN|COL-D4-K|${key_loan}||HIGH||admin@test.com")"
+key_case="$(printf '%s' "$key_open" | awk -F'|' '{print $3}')"
+assert_match "keyed pay ok" "$(run_cobol "COL_PAY|${key_case}|80.00|||K-P1|admin@test.com")" "SUCCESS\|COL_PAY\|80.00\|140.0000"
+assert_match "keyed pay replay ok" "$(run_cobol "COL_PAY|${key_case}|80.00|||K-P1|admin@test.com")" "SUCCESS\|COL_PAY\|80.0000\|140.0000"
+assert_match "replay recorded once" "$(db_query "SELECT COUNT(*) FROM collection_activity WHERE case_id=${key_case} AND activity_type='PAYMENT';")" "^1$"
+assert_match "pay request recorded DONE" "$(db_query "SELECT status FROM collection_pay_request WHERE case_id=${key_case} AND idempotency_key='K-P1';")" "^DONE$"
+db_exec "UPDATE collection_pay_request SET amount = 1.00 WHERE case_id=${key_case} AND idempotency_key='K-P1';"
+assert_match "pay changed amount conflicts" "$(run_cobol "COL_PAY|${key_case}|80.00|||K-P1|admin@test.com")" "ERROR\|IDEMPOTENCY_CONFLICT"
+db_exec "UPDATE collection_pay_request SET amount = 80.00 WHERE case_id=${key_case} AND idempotency_key='K-P1';"
+Q1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; Q2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'COL_PAY|%s|60.00|||K-PRACE|admin@test.com\n' "$key_case" >"$Q1/input.txt"
+printf 'COL_PAY|%s|60.00|||K-PRACE|admin@test.com\n' "$key_case" >"$Q2/input.txt"
+(cd "$Q1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+E1=$!
+(cd "$Q2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+E2=$!
+wait $E1; wait $E2
+EA="$(tr -d ' \n' <"$Q1/output.txt")"; EB="$(tr -d ' \n' <"$Q2/output.txt")"
+rm -rf "$Q1" "$Q2"
+assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$EA" "$EB" | grep -c "SUCCESS|COL_PAY")" "^1$"
+assert_match "keyed loser in progress" "$(printf '%s\n%s\n' "$EA" "$EB")" "ERROR\|PAY_IN_PROGRESS"
+assert_match "keyed retry converges" "$(run_cobol "COL_PAY|${key_case}|60.00|||K-PRACE|admin@test.com")" "SUCCESS\|COL_PAY\|60.0000\|80.0000"
+db_exec "INSERT INTO collection_pay_request (case_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${key_case},'K-TAKE',10.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "pay takeover succeeds" "$(run_cobol "COL_PAY|${key_case}|10.00|||K-TAKE|admin@test.com")" "SUCCESS\|COL_PAY\|10.00\|70.0000"
+assert_match "taken over and done" "$(db_query "SELECT status FROM collection_pay_request WHERE case_id=${key_case} AND idempotency_key='K-TAKE';")" "^DONE$"
+run_cobol "COL_PAY|${key_case}|70.00||||admin@test.com" >/dev/null
+assert_match "keyed pay on closed refused" "$(run_cobol "COL_PAY|${key_case}|10.00|||K-DOOM|admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "doomed key not blocked" "$(run_cobol "COL_PAY|${key_case}|10.00|||K-DOOM|admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "no pay request residue" "$(db_query "SELECT COUNT(*) FROM collection_pay_request WHERE case_id=${key_case} AND idempotency_key='K-DOOM';")" "^0$"
+
 # Summary, aging, history and audit.
 sum="$(run_cobol "COL_SUMMARY||||||admin@test.com")"
-assert_match "COL_SUMMARY ok" "$sum" "SUCCESS\|COL_SUMMARY\|2\|0\|0\|0\|2\|"
+assert_match "COL_SUMMARY ok" "$sum" "SUCCESS\|COL_SUMMARY\|3\|0\|0\|0\|3\|"
 aging="$(run_cobol "COL_AGING||||||admin@test.com")"
 assert_match "COL_AGING buckets" "$aging" "SUCCESS\|COL_AGING\|[0-9]+:[0-9.]+;.*;.*;.*;"
 hist="$(run_cobol "COL_HISTORY|${case_id}|50|0|||admin@test.com")"

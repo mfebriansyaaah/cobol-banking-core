@@ -1656,6 +1656,16 @@ test('collections lifecycle over HTTP', async () => {
   assert.equal(over.status, 400);
   assert.equal(over.body.error, 'INVALID_AMOUNT');
 
+  const keyed1 = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '60.00', idempotencyKey: `gw-pay-${ref}` });
+  assert.equal(keyed1.status, 200);
+  assert.deepEqual(keyed1.body.data, ['COL_PAY', '60.00', '100.0000']);
+  const keyed2 = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '60.00', idempotencyKey: `gw-pay-${ref}` });
+  assert.equal(keyed2.status, 200);
+  assert.deepEqual(keyed2.body.data, ['COL_PAY', '60.0000', '100.0000']);
+  const keyedConflict = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '61.00', idempotencyKey: `gw-pay-${ref}` });
+  assert.equal(keyedConflict.status, 409);
+  assert.equal(keyedConflict.body.error, 'IDEMPOTENCY_CONFLICT');
+
   const escalate = await request(app).post(`/collections/${id}/escalate`).set(auth).send({ note: 'Second notice' });
   assert.equal(escalate.status, 200);
   assert.deepEqual(escalate.body.data, ['COL_ESCALATE', '1']);

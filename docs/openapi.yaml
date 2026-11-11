@@ -4603,6 +4603,8 @@ paths:
               properties:
                 amount:
                   type: string
+                idempotencyKey:
+                  type: string
               required:
                 - amount
       responses:

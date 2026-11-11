@@ -39,6 +39,11 @@
            88  STEP-OK             VALUE 'Y'.
            88  STEP-FAIL           VALUE 'N'.
        01  WS-ERR                  PIC X(40) VALUE SPACES.
+       01  WS-IDEM-STATUS          PIC X(10) VALUE SPACES.
+       01  WS-IDEM-OWNED           PIC X VALUE "0".
+       01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
+       01  WS-IDEM-AMT             PIC X(30) VALUE SPACES.
+       01  WS-IDEM-STALE           PIC X VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
@@ -52,6 +57,7 @@
        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
        01  WS-TMP-TEXT             PIC X(100) VALUE SPACES.
        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
+       01  WS-PAY-AMT              PIC Z(18)9.9999 VALUE 0.
        01  WS-NUM-LIMIT            PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-AVAIL            PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-BALANCE          PIC 9(15)V9(4) VALUE 0.
@@ -360,6 +366,119 @@
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE
+           END-IF.
+           EXIT PARAGRAPH.
+
+       CLAIM-PAY-REQUEST.
+           *> Client-supplied idempotency for COL_PAY (P5), mirroring the
+           *> loan/card request tables. First call with a key inserts a PENDING
+           *> request row and owns it; a repeated key replays the stored DONE
+           *> outcome (or conflicts on a different amount) instead of
+           *> recording another payment; a key whose owner is still working
+           *> is refused (PAY_IN_PROGRESS) so two owners never double-count.
+           *> A PENDING row older than 5 minutes is taken over (owner
+           *> crashed). WS-ERR on refusal.
+           MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-STALE
+           MOVE "0" TO WS-IDEM-OWNED
+           MOVE SPACES TO WS-ERR
+           MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM collection_pay_request WHERE case_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P5-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "INSERT INTO collection_pay_request (case_id, idempotency_key, amount, status) VALUES (?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-PAY-AMT) TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
+                       MOVE "RETRY" TO WS-IDEM-STATUS
+                   ELSE
+                       MOVE "ERROR|DB_ERROR" TO WS-ERR
+                       EXIT PARAGRAPH
+                   END-IF
+               ELSE
+                   MOVE "PENDING" TO WS-IDEM-STATUS
+                   MOVE "1" TO WS-IDEM-OWNED
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-IDEM-STATUS = "RETRY"
+               MOVE SPACES TO WS-IDEM-STATUS
+               MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM collection_pay_request WHERE case_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
+               UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-AMT WS-IDEM-STALE
+               END-UNSTRING
+               IF WS-IDEM-STATUS = "DONE"
+                   IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-PAY-AMT)
+                       MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                   END-IF
+               ELSE
+                   IF WS-IDEM-STALE NOT = "1"
+                       MOVE "ERROR|PAY_IN_PROGRESS" TO WS-ERR
+                   ELSE
+                       MOVE "UPDATE collection_pay_request SET updated_at = NOW() WHERE case_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+                       MOVE WS-P1-TRIMMED TO WS-BIND-1
+                       MOVE WS-P5-TRIMMED TO WS-BIND-2
+                       CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                       END-CALL
+                       CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                       IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                           MOVE "ERROR|PAY_IN_PROGRESS" TO WS-ERR
+                       ELSE
+                           MOVE "PENDING" TO WS-IDEM-STATUS
+                           MOVE "1" TO WS-IDEM-OWNED
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       DELETE-PAY-REQUEST.
+           *> Drops our own PENDING request row when the action is refused
+           *> before recording, so the key stays usable instead of blocking
+           *> behind a 5-minute stale window. Only the owner row is ever
+           *> removed (status guard); DONE rows are never touched.
+           IF WS-IDEM-OWNED = "1" AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "DELETE FROM collection_pay_request WHERE case_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               MOVE "0" TO WS-IDEM-OWNED
            END-IF.
            EXIT PARAGRAPH.
 
@@ -805,12 +924,40 @@
                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           MOVE WS-NUM-AMOUNT TO WS-PAY-AMT
            PERFORM LOAD-CASE
            IF NOT CASE-FOUND
                MOVE WS-ERR TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           IF WS-P5-TRIMMED NOT = SPACES
+               PERFORM CLAIM-PAY-REQUEST
+               IF WS-ERR NOT = SPACES
+                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               IF WS-IDEM-STATUS = "DONE"
+                   MOVE "SELECT GREATEST(overdue_amount - recovered_amount, 0) FROM collection_case WHERE id = ?" TO WS-PREP-SQL
+                   MOVE WS-P1-TRIMMED TO WS-BIND-1
+                   CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                       BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                       BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                   END-CALL
+                   CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                   IF WS-RESULT(1:5) = "ERROR"
+                       MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                       EXIT PARAGRAPH
+                   END-IF
+                   PERFORM TRIM-RESULT-LEN
+                   MOVE WS-RESULT(1:WS-RLEN) TO WS-TMP-STR
+                   MOVE SPACES TO LS-OUTPUT-BUFFER
+                   STRING "SUCCESS|COL_PAY|" DELIMITED BY SIZE FUNCTION TRIM(WS-IDEM-AMT) DELIMITED BY SIZE
+                       "|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
            IF WS-TMP-STATUS(1:6) = "CLOSED" OR WS-TMP-STATUS(1:9) = "CANCELLED"
+               PERFORM DELETE-PAY-REQUEST
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -841,6 +988,19 @@
                MOVE "ERROR|INVALID_AMOUNT" TO WS-ERR
                SET STEP-FAIL TO TRUE
            ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "UPDATE collection_pay_request SET status = 'DONE' WHERE case_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                IF WS-RESULT(1:5) = "ERROR"
                    SET STEP-FAIL TO TRUE
                END-IF
