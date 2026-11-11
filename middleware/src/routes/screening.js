@@ -27,6 +27,30 @@ export const SCREENING_ROUTES = [
     fields: [{ name: 'email', pattern: PATTERNS.EMAIL, required: true }, BLANK, BLANK, BLANK, BLANK, ACTOR],
   },
   {
+    method: 'post',
+    path: '/screening/accounts/freeze',
+    action: 'ACCOUNT_FREEZE',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'reason', pattern: PATTERNS.NAME, required: false },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
+    method: 'post',
+    path: '/screening/accounts/unfreeze',
+    action: 'ACCOUNT_UNFREEZE',
+    tokenIdentity: 'actor',
+    stepUp: true,
+    fields: [
+      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
+      { name: 'reason', pattern: PATTERNS.NAME, required: false },
+      BLANK, BLANK, BLANK, ACTOR,
+    ],
+  },
+  {
     method: 'get',
     path: '/screening/reviews',
     action: 'IDV_REVIEW_LIST',

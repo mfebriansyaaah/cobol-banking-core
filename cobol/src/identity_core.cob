@@ -98,6 +98,12 @@
                 WHEN LS-CMD-ACTION(1:10) = "SCR_STATUS"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SCR-STATUS
+                WHEN LS-CMD-ACTION(1:14) = "ACCOUNT_FREEZE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACCT-FREEZE
+                WHEN LS-CMD-ACTION(1:16) = "ACCOUNT_UNFREEZE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ACCT-UNFREEZE
                 WHEN OTHER
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
@@ -526,6 +532,19 @@
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            IF WS-P2-TRIMMED = "APPROVED" AND WS-KYC = "KYC"
+                MOVE "SELECT result FROM screening_checks WHERE user_id = ? ORDER BY id DESC LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT NOT = "CLEAR" AND WS-RESULT NOT = "FALSE_POSITIVE"
+                    MOVE "ERROR|SANCTION_CHECK_REQUIRED" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
             MOVE "UPDATE manual_reviews SET status = ?, reviewer_email = ?, reason = COALESCE(NULLIF(?, ''), reason), reviewed_at = NOW() WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
@@ -540,6 +559,18 @@
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
+            END-IF.
+            IF STEP-OK AND WS-KYC = "SCREENING" AND WS-P2-TRIMMED = "REJECTED"
+                MOVE "UPDATE accounts SET status = 'FROZEN' WHERE user_id = ? AND status = 'ACTIVE' AND account_type IN ('SAVINGS','CHECKING','INVESTMENT')" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF.
             IF STEP-OK AND WS-P2-TRIMMED = "APPROVED" AND WS-KYC = "KYC"
                 MOVE "UPDATE users SET kyc_status = 'APPROVED', kyc_verified_at = NOW() WHERE id = ?" TO WS-PREP-SQL
@@ -729,3 +760,151 @@
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
                    INTO LS-OUTPUT-BUFFER END-STRING.
             EXIT PARAGRAPH.
+
+       ACTION-ACCT-FREEZE.
+           *> Sanctions enforcement arm (SUPER_ADMIN only). Freezes a
+           *> customer's wallet accounts: only ACTIVE customer wallets
+           *> flip, bank-owned suspense books are never touched. The
+           *> wallet transfer/deposit/loan paths all refuse non-ACTIVE
+           *> accounts, so this closes the sanction-to-freeze chain.
+           *> Atomic guard: AFFECTED_0 means nothing was freezable.
+           PERFORM CHECK-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT id FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "UPDATE accounts SET status = 'FROZEN' WHERE user_id = (SELECT id FROM users WHERE email = ? LIMIT 1) AND status = 'ACTIVE' AND account_type IN ('SAVINGS','CHECKING','INVESTMENT')" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "SUCCESS|AFFECTED_0"
+               MOVE "ERROR|INVALID_STATUS" TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT s.id, a.id, 'ACCOUNT_FROZEN', 'ACCOUNT', CAST(s.id AS CHAR), NULLIF(?, ''), 'SUCCESS' FROM users s JOIN users a ON a.email = ? WHERE s.email = ?" TO WS-PREP-SQL
+               MOVE WS-P2-TRIMMED TO WS-BIND-1
+               MOVE WS-P6-TRIMMED TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|ACCOUNT_FROZEN" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               IF WS-ERR = "ERROR|INVALID_STATUS"
+                   MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ACTION-ACCT-UNFREEZE.
+           *> Releases a freeze (SUPER_ADMIN only, e.g. false positive
+           *> cleared). Only FROZEN customer wallets flip back to ACTIVE.
+           PERFORM CHECK-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF LS-PARAM1 = SPACES
+               MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT id FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           MOVE "UPDATE accounts SET status = 'ACTIVE' WHERE user_id = (SELECT id FROM users WHERE email = ? LIMIT 1) AND status = 'FROZEN' AND account_type IN ('SAVINGS','CHECKING','INVESTMENT')" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "SUCCESS|AFFECTED_0"
+               MOVE "ERROR|INVALID_STATUS" TO WS-ERR
+               SET STEP-FAIL TO TRUE
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT s.id, a.id, 'ACCOUNT_UNFROZEN', 'ACCOUNT', CAST(s.id AS CHAR), NULLIF(?, ''), 'SUCCESS' FROM users s JOIN users a ON a.email = ? WHERE s.email = ?" TO WS-PREP-SQL
+               MOVE WS-P2-TRIMMED TO WS-BIND-1
+               MOVE WS-P6-TRIMMED TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               CALL "SQL_COMMIT" END-CALL
+               MOVE "SUCCESS|ACCOUNT_UNFROZEN" TO LS-OUTPUT-BUFFER
+           ELSE
+               CALL "SQL_ROLLBACK" END-CALL
+               IF WS-ERR = "ERROR|INVALID_STATUS"
+                   MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.

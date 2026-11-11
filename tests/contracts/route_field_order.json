@@ -6256,6 +6256,32 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
+  "screening.js :: POST /screening/accounts/freeze": {
+    "action": "ACCOUNT_FREEZE",
+    "fields": [
+      "email",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
+  "screening.js :: POST /screening/accounts/unfreeze": {
+    "action": "ACCOUNT_UNFREEZE",
+    "fields": [
+      "email",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": true
+  },
   "screening.js :: POST /screening/check": {
     "action": "SCR_SCREEN",
     "fields": [

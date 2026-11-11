@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T07:13:34.345Z",
-  "commit": "f00d6c09",
+  "generatedAt": "2026-11-11T13:07:29.107Z",
+  "commit": "8784d69b",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 19,
-    "L2": 5,
+    "L2": 6,
     "L1": 10,
-    "L0": 29,
+    "L0": 28,
     "UTILITY": 3
   },
   "modules": [
@@ -412,8 +412,10 @@
     {
       "module": "identity_core",
       "source": "identity_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
+      "linkageLevel": "L2",
+      "businessTables": [
+        "accounts"
+      ],
       "t1Calls": [],
       "t1Actions": [],
       "hasTests": true,
@@ -421,7 +423,7 @@
         "tests/db/identity_db_tests.sh",
         "tests/integration/identity_flow.sh"
       ],
-      "reason": "own domain tables only, no core link",
+      "reason": "business link (tables accounts) + test",
       "routeFiles": [
         "identity.js",
         "screening.js"

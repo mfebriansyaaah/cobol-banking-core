@@ -78,6 +78,24 @@ assert_match "kind filter excludes kyc" "$(run_cobol "IDV_REVIEW_LIST||KYC||||${
 assert_match "stranger cannot list" "$(run_cobol "IDV_REVIEW_LIST||||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "stranger cannot list filtered" "$(run_cobol "IDV_REVIEW_LIST||SCREENING||||sender@test.com")" "ERROR\|FORBIDDEN"
 
+# Freeze path: rejecting a screening review freezes the subject's
+# wallets (sanctions chain), transfers block, unfreeze restores.
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id,1,5000.00 FROM users WHERE email IN ('${U}','${V}');"
+srev="$(db_query "SELECT id FROM manual_reviews WHERE user_id=(SELECT id FROM users WHERE email='${V}') AND kind='SCREENING' AND status='OPEN' ORDER BY id DESC LIMIT 1;")"
+assert_match "reject review freezes" "$(run_cobol "IDV_REVIEW_DECIDE|${srev}|REJECTED|sanction-hit|||${A}")" "SUCCESS\|REVIEW_DECIDED"
+assert_match "wallets frozen" "$(db_query "SELECT COUNT(*) FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='${V}') AND status='ACTIVE';")" "^0$"
+assert_match "frozen sender blocked" "$(run_cobol "TRANSFER|${V}|${U}|10.00|||")" "ERROR\|ACCOUNT_FROZEN"
+assert_match "freeze unknown refused" "$(run_cobol "ACCOUNT_FREEZE|nobody@test.com|||||${A}")" "ERROR\|NOT_FOUND"
+assert_match "non-admin freeze refused" "$(run_cobol "ACCOUNT_FREEZE|${V}|||||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "unfreeze ok" "$(run_cobol "ACCOUNT_UNFREEZE|${V}|cleared||||${A}")" "SUCCESS\|ACCOUNT_UNFROZEN"
+assert_match "transfer works after unfreeze" "$(run_cobol "TRANSFER|${V}|${U}|10.00|||")" "SUCCESS\|TRANSFER_OK"
+assert_match "freeze ok" "$(run_cobol "ACCOUNT_FREEZE|${V}|sanctions||||${A}")" "SUCCESS\|ACCOUNT_FROZEN"
+assert_match "freeze again refused" "$(run_cobol "ACCOUNT_FREEZE|${V}|||||${A}")" "ERROR\|INVALID_STATUS"
+assert_match "unfreeze non-frozen refused" "$(run_cobol "ACCOUNT_UNFREEZE|${U}|||||${A}")" "ERROR\|INVALID_STATUS"
+db_exec "INSERT INTO manual_reviews (user_id, kind, status, reason) SELECT id,'KYC','OPEN','doc-check' FROM users WHERE email='${V}';"
+krev="$(db_query "SELECT id FROM manual_reviews WHERE user_id=(SELECT id FROM users WHERE email='${V}') AND kind='KYC' AND status='OPEN' ORDER BY id DESC LIMIT 1;")"
+assert_match "kyc approve blocked on sanction" "$(run_cobol "IDV_REVIEW_DECIDE|${krev}|APPROVED|looks-ok|||${A}")" "ERROR\|SANCTION_CHECK_REQUIRED"
+
 cleanup
 
 print_summary

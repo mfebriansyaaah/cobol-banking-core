@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-08T05:17:38.425Z",
+  "generatedAt": "2026-11-11T13:08:12.602Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -1414,6 +1414,12 @@
       "prefixLen": 14,
       "prefix": "IMP_ROW_UNSKIP",
       "program": "import_row_core"
+    },
+    {
+      "slot": 194,
+      "prefixLen": 8,
+      "prefix": "ACCOUNT_",
+      "program": "identity_core"
     }
   ]
 }
