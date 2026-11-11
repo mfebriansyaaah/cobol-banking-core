@@ -84,12 +84,22 @@ assert_match "no negative balance" "$(neg)" "^0$"
 
 # 3. Same-key race: two concurrent submissions of one intent. Exactly one
 # effect; the loser is refused, never a second debit.
+# 3. Same-key race: two concurrent submissions of one intent. Exactly one
+# EFFECT, never a second debit. The second caller may observe the intent
+# while it is still PENDING (ERROR|TRANSFER_IN_PROGRESS) or after COMMIT
+# (idempotent replay returns SUCCESS|TRANSFER_OK). Both are correct, so the
+# assertions below pin the invariant (single effect) instead of the timing.
 reset_race
 run_cobol "TRANSFER|${WA}|${WB}|50.00|WLTCC-5|||" >"$TMPD/r3a.out" 2>&1 &
 run_cobol "TRANSFER|${WA}|${WB}|50.00|WLTCC-5|||" >"$TMPD/r3b.out" 2>&1 &
 wait
-assert_match "exactly one same-key wins" "$(printf '%s\n%s\n' "$(cat "$TMPD/r3a.out")" "$(cat "$TMPD/r3b.out")" | grep -c "SUCCESS|TRANSFER_OK")" "^1$"
-assert_match "loser refused" "$(cat "$TMPD/r3a.out" "$TMPD/r3b.out")" "ERROR\|"
+SAME_KEY_OUT="$(printf '%s\n%s\n' "$(cat "$TMPD/r3a.out")" "$(cat "$TMPD/r3b.out")")"
+assert_match "same-key answers success or clean refusal" \
+    "$(printf '%s\n' "$SAME_KEY_OUT" | grep -cE '^(SUCCESS\|TRANSFER_OK|ERROR\|TRANSFER_IN_PROGRESS)$')" "^2$"
+assert_match "same-key has one or two successes (two = idempotent replay)" \
+    "$(printf '%s\n' "$SAME_KEY_OUT" | grep -c "SUCCESS|TRANSFER_OK")" "^[12]$"
+assert_match "same-key has no DB error" \
+    "$(printf '%s\n' "$SAME_KEY_OUT" | grep -c "ERROR|DB_ERROR")" "^0$"
 assert_match "single debit only" "$(bal "$WA")" "^950.0000$"
 assert_match "single credit only" "$(bal "$WB")" "^1050.0000$"
 assert_match "single intent row" "$(db_query "SELECT COUNT(*) FROM pending_transactions WHERE txn_ref='WLTCC-5';")" "^1$"
