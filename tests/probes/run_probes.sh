@@ -106,13 +106,39 @@ EOF
 
 mut_p2_duplicate_route() {
     node <<'EOF'
+// Duplicate the first route object (balanced-brace scan, single- or
+// multi-line): prettier reflows long routes, so a single-line anchor no
+// longer exists. The duplicate must still be caught by
+// check_route_conflicts.
 const fs = require('fs');
 const p = 'middleware/src/routes/account.js';
-const lines = fs.readFileSync(p, 'utf8').split('\n');
-const i = lines.findIndex((l) => /^\s*\{ method: .*fields: \[.*\] \},\s*$/.test(l));
-if (i < 0) throw new Error('single-line route not found');
-lines.splice(i + 1, 0, lines[i]);
-fs.writeFileSync(p, lines.join('\n'));
+const s = fs.readFileSync(p, 'utf8');
+const start = s.search(/\n  \{\n    method: '/);
+if (start < 0) throw new Error('route object not found');
+let i = s.indexOf('{', start);
+let depth = 0;
+let quote = null;
+for (; i < s.length; i += 1) {
+  const ch = s[i];
+  if (quote) {
+    if (ch === quote && s[i - 1] !== '\\') quote = null;
+    continue;
+  }
+  if (ch === "'" || ch === '"') {
+    quote = ch;
+    continue;
+  }
+  if (ch === '{') depth += 1;
+  else if (ch === '}') {
+    depth -= 1;
+    if (depth === 0) break;
+  }
+}
+if (depth !== 0) throw new Error('unbalanced route object');
+const end = s.indexOf(',', i);
+if (end < 0) throw new Error('route terminator not found');
+const block = s.slice(start + 1, end);
+fs.writeFileSync(p, `${s.slice(0, end)},\n${block}${s.slice(end)}`);
 EOF
 }
 
@@ -122,7 +148,9 @@ mut_p3a_one_route_without_identity() {
 const fs = require('fs');
 const p = 'middleware/src/routes/account.js';
 let s = fs.readFileSync(p, 'utf8');
-const next = s.replace(/tokenIdentity: '[^']*', /, '');
+// The separator after the comma is \s: prettier may break the line there,
+// so a literal trailing space no longer matches.
+const next = s.replace(/tokenIdentity: '[^']*',\s/, '');
 if (next === s) throw new Error('tokenIdentity anchor not found');
 fs.writeFileSync(p, next);
 EOF
