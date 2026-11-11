@@ -159,6 +159,12 @@ jobs:
       - name: Verify PR-size policy
         run: node scripts/check_pr_size_policy.mjs .
 
+      - name: Verify error-code parity
+        run: node scripts/check_error_codes.mjs .
+
+      - name: Verify program signatures
+        run: node scripts/check_program_signatures.mjs .
+
       - name: PR-size report (non-gating artifact)
         run: |
           mkdir -p artifacts
