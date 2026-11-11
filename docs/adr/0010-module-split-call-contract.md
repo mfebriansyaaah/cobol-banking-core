@@ -49,3 +49,56 @@ Error propagation follows the existing convention: the callee returns its
 result through the `WS-CALL-OUT` buffer, the caller checks `WS-CALL-OUT(1:5)`
 for `"ERROR"` and fails its transaction on any error — the same shape as
 the `card_core` → `gl_core` callsites.
+
+## Evidence (production precedent)
+
+The pattern is already live; the splits copy it, they do not invent it:
+
+- `wallet_core` CHECK-PAYMENT-POLICY CALLs `payment_core` (`PAY_ENFORCE`,
+  `ACTION-ENFORCE`, 0 transaction statements) for the limit verdict.
+- `wallet_core` RECORD-VELOCITY-USAGE CALLs `fee_core`
+  (`VEL_RECORD_ALL_TXN`, `ACTION-VEL-RECORD-ALL-TXN`, 0 transaction
+  statements). The paragraph comment states the join explicitly: "The
+  recorder joins this transaction (no BEGIN/COMMIT of its own), so a record
+  failure rolls the money back with it instead of leaving counters behind
+  the ledger."
+- Both calls execute inside `TRANSFER-LOGIC` after its `SQL_BEGIN`
+  (`wallet_core.cob:1207`) and before its `SQL_COMMIT`/`SQL_ROLLBACK`.
+- Every transfer test therefore exercises the join: velocity records commit
+  and roll back together with the ledger. The wallet conservation,
+  concurrency, and race suites are the runtime proof.
+- `scripts/test/module_split_contract.test.mjs` pins all of the above: both
+  callee paragraphs at zero transaction statements, both CALL sites, both
+  registry edges, and the bridge's leaked-transaction rollback rule.
+
+Counter-example that stays out: `card_core` → `gl_core`
+(`GL_JOURNAL_POST_ML`) is a separate-transaction call — `gl_core` opens and
+commits its own transaction, and the call happens outside any open card
+transaction. That shape is correct for journal pre-posting but is NOT the
+split pattern: split callees must never open their own transaction.
+
+## Go / no-go
+
+**GO.** The bridge semantics, the gate coverage (`check_transaction_ownership`,
+`check_cobol_call_graph`, the new contract pins), and the live
+wallet → fee/payment precedent answer every exit criterion in the master
+plan §3.8:
+
+- Atomicity proof: single `G_CONN`, single `START TRANSACTION`, caller-owned
+  close. A caller `SQL_ROLLBACK` undoes callee writes — the same guarantee
+  the velocity-join comment already relies on.
+- Call graph: new edges recorded in `manifest/cobol_calls.json`, acyclicity
+  enforced.
+- PR-05–09 may start. Each split records its edge, shows 0/0/0 on the new
+  module, and proves the move with `git diff --color-moved` plus the
+  action's DB/race/conservation suites.
+
+## Fallback (not needed)
+
+If a future split cannot keep the callee transaction-free (e.g. it must be
+invoked standalone as well as joined), use exact-action dispatch: add a
+`D-PREFIX` entry routing that action to the new module, which then owns its
+own balanced transaction. Cost: two transactions instead of one (no atomicity
+across them) plus dispatch-table review. This fallback was evaluated and
+rejected for PR-05–09 because every extracted paragraph is only ever invoked
+from inside its owner's transaction.
