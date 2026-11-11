@@ -52,11 +52,12 @@ Every domain module exposes these actions (prefix + action):
 - Every write path wraps in `SQL_BEGIN` / `SQL_COMMIT` / `SQL_ROLLBACK`.
 - Audit rows go to `<table>_audit`.
 - Admin-only actions call `ALLOW-ADMIN` / `ALLOW-SUPER-ADMIN`.
-- Shared boilerplate lives in `cobol/copy/` (pilot: `common_auth.cpy`
-  provides `ALLOW-ADMIN` for card, collection, deposit). A shared paragraph
-  must be byte-identical to the copies it replaces except for caller-set
-  variables: the caller sets `WS-DENIED-TARGET` before `PERFORM ALLOW-ADMIN`,
-  and the copybook delegates to the host module's own `AUDIT-DENIED`.
+- Shared boilerplate lives in `cobol/copy/` (`common_auth.cpy` provides
+  `ALLOW-ADMIN` for all 4+/6-param modules; `user_core` keeps its own
+  4-param variant). A shared paragraph must be byte-identical to the copies
+  it replaces except for caller-set variables: the caller sets
+  `WS-DENIED-TARGET` before `PERFORM ALLOW-ADMIN`, and the copybook
+  delegates to the host module's own `AUDIT-DENIED`.
   Every new shared paragraph needs a pin test under `scripts/test/`
   (no inline regrowth, COPY present, caller invariant holds) and a
   `tests/copybook_baseline.txt` update via `check_copybooks.mjs --write`.

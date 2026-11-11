@@ -272,24 +272,7 @@
            END-IF.
            EXIT PARAGRAPH.
 
-       ALLOW-ADMIN.
-           MOVE 0 TO WS-ALLOWED
-           MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P6-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
-               MOVE 1 TO WS-ALLOWED
-           END-IF
-           IF WS-ALLOWED NOT = 1
-               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
-               MOVE "EOD_CORE" TO WS-DENIED-TARGET
-               PERFORM AUDIT-DENIED
-           END-IF.
-           EXIT PARAGRAPH.
+        COPY "common_auth.cpy".
 
        AUDIT-EOD.
            MOVE "INSERT INTO eod_audit (action, actor_email, business_date, run_id, detail) VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), ?)" TO WS-PREP-SQL
@@ -392,6 +375,7 @@
         COPY "common_result.cpy".
 
        ACTION-CAL-OPEN.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -466,6 +450,7 @@
            EXIT PARAGRAPH.
 
        ACTION-CAL-LIST.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -523,6 +508,7 @@
            EXIT PARAGRAPH.
 
        ACTION-RUN-START.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -633,6 +619,7 @@
            EXIT PARAGRAPH.
 
        ACTION-PHASE-SET.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -781,6 +768,7 @@
            EXIT PARAGRAPH.
 
        ACTION-RUN-STATUS.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -855,6 +843,7 @@
            EXIT PARAGRAPH.
 
        ACTION-RUN-CLOSE.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -959,6 +948,7 @@
            EXIT PARAGRAPH.
 
        ACTION-RUN-FAIL.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1018,6 +1008,7 @@
            EXIT PARAGRAPH.
 
        ACTION-RUN-LIST.
+           MOVE "EOD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
