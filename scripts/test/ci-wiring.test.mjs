@@ -24,6 +24,7 @@ const WIRED = [
   ['tests/scripts/run.sh', ['tests/scripts/run.sh']],
   ['scripts/coverage/test_map_cobol.py', ['test_map_cobol.py']],
   ['tests/probes/run_probes.sh', ['run_probes.sh']],
+  ['tests/probes/money_path_mutants.sh', ['money_path_mutants.sh']],
   ['tests/perf/bench.sh', ['bench.sh']],
   ['tests/perf/load_gateway.sh', ['load_gateway.sh']],
   ['tests/gateway/endpoint_smoke.sh', ['endpoint_smoke.sh', 'run_all.sh full']],
@@ -252,6 +253,20 @@ test('quarantined flakes skip only in the CI test job, never nightly/local', () 
 test('ci:full label forces a full run (CI-011)', () => {
   const runs = collectWorkflowJobs()['ci.yml']['changes'].runs.join('\n');
   assert.match(runs, /ci:full/, 'changes job must honor the ci:full label override');
+});
+
+test('mutation anchors are validated before the weekly run', () => {
+  const all = collectWorkflowJobs();
+  assert.match(
+    all['mutation.yml']['mutants'].runs.join('\n'),
+    /money_path_mutants\.sh --check-anchors/,
+    'mutation workflow must preflight anchors (fast fail instead of mid-run)',
+  );
+  assert.match(
+    all['ci.yml']['lint'].runs.join('\n'),
+    /money_path_mutants\.sh --check-anchors/,
+    'lint must guard mutant anchors on every PR (~1s, no build/DB)',
+  );
 });
 
 test('every upload-artifact step sets overwrite: true (CI-013)', () => {

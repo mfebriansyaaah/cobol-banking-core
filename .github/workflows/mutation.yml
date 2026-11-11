@@ -62,5 +62,8 @@ jobs:
           mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME" < database/schema.sql
           ./database/migrate.sh
 
+      - name: Validate mutant anchors
+        run: bash tests/probes/money_path_mutants.sh --check-anchors
+
       - name: Run money-path mutants
         run: bash tests/probes/money_path_mutants.sh
