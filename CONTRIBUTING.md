@@ -112,6 +112,9 @@ test database setup, the isolation model, and troubleshooting, see
 - Include the commands you ran and their result.
 - If a governance rule cannot be met, record the exception in the PR using the
   template in [docs/GOVERNANCE.md](docs/GOVERNANCE.md).
+- Review bulk-formatting PRs with `git diff -w` (logic must be empty) and set
+  `git config blame.ignoreRevsFile .git-blame-ignore-revs` so `git blame`
+  skips formatting-only commits.
 
 ## Security
 

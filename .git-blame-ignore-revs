@@ -1,0 +1,4 @@
+# Excluded from `git blame` (formatting-only commits).
+# Apply with: git config blame.ignoreRevsFile .git-blame-ignore-revs
+6a9237c5 style(maint-02): prettier --write middleware sources
+5a8e7c9a style(maint-02): prettier --write middleware tests and scripts
