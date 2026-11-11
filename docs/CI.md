@@ -140,7 +140,7 @@ Rules:
 | Workflow / job | Timeout | Notes |
 | --- | --- | --- |
 | `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks (checksum-verified via `scripts/ci/install-tools.sh`; bump procedure in `scripts/ci/tool-checksums.txt`), gate unit tests, npm audit |
-| `ci.yml` build | 20 min | manifest, docs, complexity snapshot, probes, SAST, build, warning ratchet |
+| `ci.yml` build | 20 min | manifest, docs, PR-size policy, pr-size report, complexity snapshot, probes, SAST, build, warning ratchet |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact (pure producer) |
 | `ci.yml` schema-drift | 15 min | fresh schema+migrations vs committed `schema_full.sql`; parallel to db-snapshot so drift never blocks consumers |
 | `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |

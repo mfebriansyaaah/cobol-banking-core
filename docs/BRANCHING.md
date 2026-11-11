@@ -77,6 +77,42 @@ Rules:
 - Revert individual commits or the PR commit range. Never `git reset` or
   force-push `main`.
 
+## PR size tiers
+
+Size follows risk and coherence, not a line target. Line count is not a
+gate; reviewers judge the **semantic diff** (logic excluding formatting,
+generated files, and pure moves).
+
+| Tier | Typical size | Change kind | Exception |
+| --- | ---: | --- | --- |
+| **S — Small** | 100–400 lines | narrow fix, one gate, one route, small docs | No |
+| **M — Normal** | 400–1.500 lines | one-domain feature/refactor, test + implementation | No |
+| **L — Cross-cutting** | 1.500–3.000 lines | cross-module refactor, shared copybook, large extraction | **Yes** |
+| **B — Bulk/mechanical** | 3.000+ lines | formatting, generated schema, code moves, migration archive | **Yes** |
+
+Report the size in every PR body (see `.github/pull_request_template.md`):
+
+```text
+Size tier: M
+Total diff: 1.180 lines (added 720, deleted 460)
+Semantic diff: ±650 lines (excluding formatting/generated/move)
+Exception: none
+```
+
+Helpers:
+
+```sh
+node scripts/pr_size.mjs --base origin/main --head HEAD        # total vs generated vs reviewable
+node scripts/pr_size.mjs --base origin/main --head HEAD --json  # machine-readable
+git diff --color-moved=dimmed-zebra origin/main...HEAD          # review pure moves
+git diff -w origin/main...HEAD                                  # whitespace-only review
+```
+
+`node scripts/check_pr_size_policy.mjs` guards this policy: it fails when
+the fixed ceiling returns or the 1.500 preference, exception rule, or PR
+template fields go missing. CI publishes the `pr_size` report as a
+non-gating artifact.
+
 ## Merge method
 
 - Update the branch with `origin/main` before opening/updating the PR:
