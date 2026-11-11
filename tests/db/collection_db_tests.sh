@@ -81,9 +81,29 @@ assert_match "paid in full closed" "$(db_query "SELECT CONCAT(status, '|', resol
 inst_out="$(run_cobol "COL_OPEN|COL-D4-2|${loan_id}|${inst1}|||admin@test.com")"
 assert_match "installment case overdue" "$inst_out" "SUCCESS\|COL_OPEN\|[0-9]+\|110.0000"
 
+# Concurrent pays against one case serialize on the guarded credit:
+# exactly one wins, the loser sees INVALID_AMOUNT (not DB_ERROR), and
+# recovery lands at exactly the overdue amount with a single activity.
+inst_case="$(printf '%s' "$inst_out" | awk -F'|' '{print $3}')"
+BIN="$PWD/cobol/bin/main_logic"
+Y1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; Y2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'COL_PAY|%s|110.00||||admin@test.com\n' "$inst_case" >"$Y1/input.txt"
+printf 'COL_PAY|%s|110.00||||admin@test.com\n' "$inst_case" >"$Y2/input.txt"
+(cd "$Y1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V1=$!
+(cd "$Y2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V2=$!
+wait $V1; wait $V2
+YA="$(tr -d ' \n' <"$Y1/output.txt")"; YB="$(tr -d ' \n' <"$Y2/output.txt")"
+rm -rf "$Y1" "$Y2"
+assert_match "exactly one pay winner" "$(printf '%s\n%s\n' "$YA" "$YB" | grep -c "SUCCESS|COL_PAY")" "^1$"
+assert_match "race loser over-recovery refused" "$(printf '%s\n%s\n' "$YA" "$YB")" "ERROR\|INVALID_AMOUNT"
+assert_match "recovery capped at overdue" "$(db_query "SELECT CONCAT(recovered_amount, '|', status) FROM collection_case WHERE id=${inst_case};")" "^110.0000\|CLOSED$"
+assert_match "single payment recorded" "$(db_query "SELECT COUNT(*) FROM collection_activity WHERE case_id=${inst_case} AND activity_type='PAYMENT';")" "^1$"
+
 # Summary, aging, history and audit.
 sum="$(run_cobol "COL_SUMMARY||||||admin@test.com")"
-assert_match "COL_SUMMARY ok" "$sum" "SUCCESS\|COL_SUMMARY\|2\|1\|0\|0\|1\|"
+assert_match "COL_SUMMARY ok" "$sum" "SUCCESS\|COL_SUMMARY\|2\|0\|0\|0\|2\|"
 aging="$(run_cobol "COL_AGING||||||admin@test.com")"
 assert_match "COL_AGING buckets" "$aging" "SUCCESS\|COL_AGING\|[0-9]+:[0-9.]+;.*;.*;.*;"
 hist="$(run_cobol "COL_HISTORY|${case_id}|50|0|||admin@test.com")"

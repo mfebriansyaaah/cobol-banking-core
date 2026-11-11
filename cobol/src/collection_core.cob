@@ -820,20 +820,30 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
            CALL "SQL_BEGIN" END-CALL
-           MOVE "UPDATE collection_case SET recovered_amount = recovered_amount + ?, status = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'CLOSED' ELSE 'OPEN' END, closed_at = CASE WHEN recovered_amount + ? >= overdue_amount THEN NOW() ELSE closed_at END, resolution = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'PAID_IN_FULL' ELSE resolution END WHERE id = ?" TO WS-PREP-SQL
+           *> Guarded credit: concurrent pays serialize on the account row;
+           *> the loser sees AFFECTED_0 instead of over-recovering past the
+           *> overdue amount.
+           MOVE "UPDATE collection_case SET recovered_amount = recovered_amount + ?, status = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'CLOSED' ELSE 'OPEN' END, closed_at = CASE WHEN recovered_amount + ? >= overdue_amount THEN NOW() ELSE closed_at END, resolution = CASE WHEN recovered_amount + ? >= overdue_amount THEN 'PAID_IN_FULL' ELSE resolution END WHERE id = ? AND recovered_amount + ? <= overdue_amount" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
            MOVE WS-P2-TRIMMED TO WS-BIND-3
            MOVE WS-P2-TRIMMED TO WS-BIND-4
            MOVE WS-P1-TRIMMED TO WS-BIND-5
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+           MOVE WS-P2-TRIMMED TO WS-BIND-6
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
+           IF WS-RESULT = "SUCCESS|AFFECTED_0"
+               MOVE "ERROR|INVALID_AMOUNT" TO WS-ERR
                SET STEP-FAIL TO TRUE
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
            END-IF.
            IF STEP-OK
                MOVE "PAYMENT" TO WS-ACT-TYPE
@@ -870,7 +880,11 @@
                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               IF WS-ERR = "ERROR|INVALID_AMOUNT"
+                   MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
            END-IF.
            EXIT PARAGRAPH.
 
