@@ -191,24 +191,7 @@
         COPY "common_trim.cpy".
 
 
-       ALLOW-ADMIN.
-           MOVE 0 TO WS-ALLOWED
-           MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P6-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
-               MOVE 1 TO WS-ALLOWED
-           END-IF
-           IF WS-ALLOWED NOT = 1
-               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
-               MOVE "CARD_CORE" TO WS-DENIED-TARGET
-               PERFORM AUDIT-DENIED
-           END-IF.
-           EXIT PARAGRAPH.
+        COPY "common_auth.cpy".
 
        AUDIT.
            MOVE "INSERT INTO card_audit (action, actor_email, card_id, detail) VALUES (?, ?, NULLIF(?, ''), ?)" TO WS-PREP-SQL
@@ -570,6 +553,7 @@
            END-IF.
            EXIT PARAGRAPH.
        ACTION-ISSUE.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -696,6 +680,7 @@
            EXIT PARAGRAPH.
 
        ACTION-BLOCK.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -735,6 +720,7 @@
            EXIT PARAGRAPH.
 
        ACTION-UNBLOCK.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -774,6 +760,7 @@
            EXIT PARAGRAPH.
 
        ACTION-CLOSE.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -836,6 +823,7 @@
            EXIT PARAGRAPH.
 
        ACTION-LIST.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -873,6 +861,7 @@
            EXIT PARAGRAPH.
 
        ACTION-GET.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -903,6 +892,7 @@
            EXIT PARAGRAPH.
 
        ACTION-SUMMARY.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -926,6 +916,7 @@
       *> held immediately (available_limit decreases) and released when the
       *> authorization is reversed.
        ACTION-AUTHORIZE.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1051,6 +1042,7 @@
       *> Capture a previously authorized transaction: the hold becomes a
       *> posted balance movement.
        ACTION-CAPTURE.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1385,6 +1377,7 @@
       *> Pay down the outstanding card balance. The released credit also
       *> returns to the available limit, capped at the card limit.
        ACTION-REPAY.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1875,6 +1868,7 @@
       *> transaction (credit the balance back). Captured repayments are
       *> final and cannot be reversed through this path.
        ACTION-REVERSE.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2121,6 +2115,7 @@
 
       *> Card statement: balances plus the bounded transaction history.
        ACTION-STATEMENT.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2180,6 +2175,7 @@
       *> Change the card limit. The new limit cannot sit below the
       *> outstanding balance.
        ACTION-LIMIT-SET.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2250,6 +2246,7 @@
       *> Replace a card: issue a new card row copying type/limit/balance and
       *> close the old one, keeping the replacement link.
        ACTION-REPLACE.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2360,6 +2357,7 @@
 
       *> Card audit trail, optionally filtered by card id and paged.
        ACTION-AUDIT.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2399,6 +2397,7 @@
       *> Pre-flight validation for CARD_ISSUE: verifies the customer is
       *> verified and the currency is active, and previews the expiry date.
        ACTION-VALIDATE.
+           MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER

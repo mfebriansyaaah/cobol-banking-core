@@ -202,24 +202,7 @@
         COPY "common_trim.cpy".
 
 
-       ALLOW-ADMIN.
-           MOVE 0 TO WS-ALLOWED
-           MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P6-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
-               MOVE 1 TO WS-ALLOWED
-           END-IF
-           IF WS-ALLOWED NOT = 1
-               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
-               MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-               PERFORM AUDIT-DENIED
-           END-IF.
-           EXIT PARAGRAPH.
+        COPY "common_auth.cpy".
 
        AUDIT.
            MOVE "INSERT INTO deposit_audit (action, actor_email, deposit_id, detail) VALUES (?, ?, NULLIF(?, ''), ?)" TO WS-PREP-SQL
@@ -381,6 +364,7 @@
            EXIT PARAGRAPH.
 
        ACTION-OPEN.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -771,6 +755,7 @@
            EXIT PARAGRAPH.
 
        ACTION-LIST.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -808,6 +793,7 @@
            EXIT PARAGRAPH.
 
        ACTION-GET.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -838,6 +824,7 @@
            EXIT PARAGRAPH.
 
        ACTION-MATURE.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -977,6 +964,7 @@
            EXIT PARAGRAPH.
 
        ACTION-CLOSE.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1330,6 +1318,7 @@
            EXIT PARAGRAPH.
 
        ACTION-SUMMARY.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1353,6 +1342,7 @@
       *> database (principal * rate * days / 36500) so the core never binds a
       *> float; the accrual is upserted per (deposit, day).
        ACTION-ACCRUE.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1450,6 +1440,7 @@
       *> Post every accrual that is still ACCRUED: the amount is recorded as a
       *> deposit transaction and rolled into posted_interest.
        ACTION-POST-INTEREST.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1734,6 +1725,7 @@
       *> Settle a matured (or still active) deposit: principal + posted
       *> interest is paid out and the deposit closes.
        ACTION-SETTLE.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2077,6 +2069,7 @@
       *> Full movement history for a deposit: accrual rows (A:) and
       *> transaction rows (T:), oldest first, bounded at 200 rows.
        ACTION-STATEMENT.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2109,6 +2102,7 @@
 
       *> Deposit audit trail, optionally filtered by deposit id and paged.
        ACTION-AUDIT.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2148,6 +2142,7 @@
       *> Interest preview: principal * rate * days / 36500, plus the payout
       *> total. Read-only and DB-backed so the caller gets exact decimals.
        ACTION-CALC.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -2186,6 +2181,7 @@
       *> Pre-flight validation for DEP_OPEN: checks the currency is active,
       *> the term is in range and returns a maturity/interest preview.
        ACTION-VALIDATE.
+           MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
