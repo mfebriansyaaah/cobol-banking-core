@@ -88,10 +88,7 @@ test('no provider log line carries NIK, phone, code, or token', async () => {
     const tg = createPhoneProvider('telegram', { logger });
     await tg.sendOtp({ chatId: 'chat-999', code: CODE, fetchImpl: okFetch });
     const { sendTelegramOtp } = await import('../../services/integrations/phone/telegram.js');
-    await sendTelegramOtp(
-      { chatId: 'chat-999', text: `Your verification code is ${CODE}` },
-      { fetchImpl: okFetch },
-    );
+    await sendTelegramOtp({ chatId: 'chat-999', text: `Your verification code is ${CODE}` }, { fetchImpl: okFetch });
   } finally {
     delete process.env.TELEGRAM_BOT_TOKEN;
   }

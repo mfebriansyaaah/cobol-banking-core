@@ -45,9 +45,17 @@ test('a shared store enforces one limit across instances', async () => {
   const instanceB = createRateLimiter({ store, windowMs: 60000, max: 2 });
   const makeRes = () => {
     const r = { headers: {} };
-    r.set = (k, v) => { r.headers[k] = v; };
-    r.status = (c) => { r.code = c; return r; };
-    r.json = (b) => { r.body = b; return r; };
+    r.set = (k, v) => {
+      r.headers[k] = v;
+    };
+    r.status = (c) => {
+      r.code = c;
+      return r;
+    };
+    r.json = (b) => {
+      r.body = b;
+      return r;
+    };
     return r;
   };
   const req = { ip: '1.2.3.4' };
@@ -68,18 +76,33 @@ test('public probes are rate limited', async () => {
   const fresh = buildApp();
   assert.equal((await request(fresh).get('/health')).status, 200);
   assert.equal((await request(fresh).get('/ready')).status, 429);
-  if (saved === undefined) delete process.env.API_RATE_LIMIT_MAX; else process.env.API_RATE_LIMIT_MAX = saved;
+  if (saved === undefined) delete process.env.API_RATE_LIMIT_MAX;
+  else process.env.API_RATE_LIMIT_MAX = saved;
 });
 
 test('a broken store fails open instead of taking the API down', async () => {
-  const broken = { hit: async () => { throw new Error('store down'); } };
+  const broken = {
+    hit: async () => {
+      throw new Error('store down');
+    },
+  };
   const limit = createRateLimiter({ store: broken, windowMs: 60000, max: 1 });
   let proceeded = false;
   const res = { headers: {} };
-  res.set = (k, v) => { res.headers[k] = v; };
-  res.status = (c) => { res.code = c; return res; };
-  res.json = (b) => { res.body = b; return res; };
-  await limit({ ip: '9.9.9.9' }, res, () => { proceeded = true; });
+  res.set = (k, v) => {
+    res.headers[k] = v;
+  };
+  res.status = (c) => {
+    res.code = c;
+    return res;
+  };
+  res.json = (b) => {
+    res.body = b;
+    return res;
+  };
+  await limit({ ip: '9.9.9.9' }, res, () => {
+    proceeded = true;
+  });
   assert.equal(proceeded, true);
   assert.equal(res.code, undefined);
 });
@@ -87,11 +110,18 @@ test('a broken store fails open instead of taking the API down', async () => {
 test('fail-open events are counted for operators', async () => {
   const { resetMetrics, metricsText } = await import('../src/observability.js');
   resetMetrics();
-  const broken = { hit: async () => { throw new Error('store down'); } };
+  const broken = {
+    hit: async () => {
+      throw new Error('store down');
+    },
+  };
   const limit = createRateLimiter({ store: broken, windowMs: 60000, max: 1 });
   const res = { headers: {} };
   res.set = () => {};
-  res.status = (c) => { res.code = c; return res; };
+  res.status = (c) => {
+    res.code = c;
+    return res;
+  };
   res.json = () => res;
   await limit({ ip: '9.9.9.9' }, res, () => {});
   await limit({ ip: '9.9.9.9' }, res, () => {});

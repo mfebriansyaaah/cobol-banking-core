@@ -3,13 +3,24 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import request from 'supertest';
 import { buildApp } from '../src/app.js';
-import { resetMetrics, recordRequest, recordError, incCounter, metricsText, setGauge, pushMetrics, startMetricsExporter } from '../src/observability.js';
+import {
+  resetMetrics,
+  recordRequest,
+  recordError,
+  incCounter,
+  metricsText,
+  setGauge,
+  pushMetrics,
+  startMetricsExporter,
+} from '../src/observability.js';
 import { getVerificationCode, seedUser, requireSeed, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
 
 // Per-file fixture namespace with cleanup (see gateway.test.js).
 const NS = testNamespace('obs');
 const U = (tag) => uniqueEmail(NS, tag);
-after(() => { cleanupNamespace(NS); });
+after(() => {
+  cleanupNamespace(NS);
+});
 
 test('metricsText renders recorded counters', () => {
   resetMetrics();
@@ -19,7 +30,8 @@ test('metricsText renders recorded counters', () => {
   assert.match(text, /gateway_requests_total\{method="GET",route="\/health",status="200"\} 2/);
 });
 
-test('metricsText renders gauges', () => {  resetMetrics();
+test('metricsText renders gauges', () => {
+  resetMetrics();
   setGauge('gateway_cobol_pool_workers', 3);
   const text = metricsText();
   assert.match(text, /# TYPE gateway_cobol_pool_workers gauge/);
@@ -103,8 +115,12 @@ test('/metrics is admin-only', async () => {
   resetMetrics();
   const app = buildApp();
   const em = U('obs');
-  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Obs User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Obs User', dob: '1990-01-01' });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
 
   await request(app).get('/health');
@@ -125,8 +141,14 @@ test('pushMetrics posts the counters to a collector', async () => {
   const received = [];
   const server = http.createServer((req, res) => {
     let body = '';
-    req.on('data', (chunk) => { body += chunk; });
-    req.on('end', () => { received.push(body); res.statusCode = 202; res.end(); });
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      received.push(body);
+      res.statusCode = 202;
+      res.end();
+    });
   });
   await new Promise((resolve) => server.listen(0, resolve));
   const { port } = server.address();
@@ -142,7 +164,11 @@ test('pushMetrics posts the counters to a collector', async () => {
 
 test('the exporter pushes on an interval and survives a failing collector', async () => {
   const hits = [];
-  const server = http.createServer((_req, res) => { hits.push(1); res.statusCode = 200; res.end(); });
+  const server = http.createServer((_req, res) => {
+    hits.push(1);
+    res.statusCode = 200;
+    res.end();
+  });
   await new Promise((resolve) => server.listen(0, resolve));
   const { port } = server.address();
 
@@ -188,7 +214,9 @@ test('recordRequest observes latency histograms and counters', () => {
 });
 
 test('pushMetrics aborts a hung collector instead of hanging', async () => {
-  const server = http.createServer(() => { /* never respond */ });
+  const server = http.createServer(() => {
+    /* never respond */
+  });
   await new Promise((resolve) => server.listen(0, resolve));
   const { port } = server.address();
   await assert.rejects(pushMetrics(`http://127.0.0.1:${port}/sink`, null, 50));

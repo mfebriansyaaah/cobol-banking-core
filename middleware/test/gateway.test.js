@@ -13,11 +13,29 @@ import { resetPool } from '../src/pool.js';
 // consistent: a lingering seeded account with no ledger row would otherwise
 // show up as a false reconciliation mismatch once another suite wipes the
 // ledger.
-after(() => { cleanupNamespace(NS); });
+after(() => {
+  cleanupNamespace(NS);
+});
 // Drop pooled COBOL workers so the process can exit: spawned --serve
 // children keep the event loop alive (pool.test.js does the same).
 after(() => resetPool());
-import { seedUser, seedAccount, seedAccountCurrency, seedManyUsers, getVerificationCode, runSql, queryScalar, enableMfa, totp, TEST_MFA_SECRET, requireSeed, refreshExchangeRates, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
+import {
+  seedUser,
+  seedAccount,
+  seedAccountCurrency,
+  seedManyUsers,
+  getVerificationCode,
+  runSql,
+  queryScalar,
+  enableMfa,
+  totp,
+  TEST_MFA_SECRET,
+  requireSeed,
+  refreshExchangeRates,
+  testNamespace,
+  uniqueEmail,
+  cleanupNamespace,
+} from './support.js';
 
 const app = buildApp();
 
@@ -29,13 +47,18 @@ const U = (tag) => uniqueEmail(NS, tag);
 // Obtain a step-up proof (header value) for a bearer token; required by the
 // privileged admin writes.
 async function stepUpFor(token, password = 'secret123') {
-  const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password, mfaCode: totp(TEST_MFA_SECRET) });
+  const r = await request(app)
+    .post('/auth/step-up')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ password, mfaCode: totp(TEST_MFA_SECRET) });
   return r.body.stepUpToken;
 }
 
 // Log in an MFA-enabled admin (seeded via enableMfa) and return the access token.
 async function adminLoginFor(email, password = 'secret123') {
-  const r = await request(app).post('/auth/login').send({ email, password, mfaCode: totp(TEST_MFA_SECRET) });
+  const r = await request(app)
+    .post('/auth/login')
+    .send({ email, password, mfaCode: totp(TEST_MFA_SECRET) });
   return r.body.token;
 }
 
@@ -48,9 +71,7 @@ test('health is public and reports deep status', async () => {
 });
 
 test('injection characters are rejected before COBOL runs', async () => {
-  const res = await request(app)
-    .post('/auth/login')
-    .send({ email: 'a|b; rm -rf /', password: 'x' });
+  const res = await request(app).post('/auth/login').send({ email: 'a|b; rm -rf /', password: 'x' });
   assert.equal(res.status, 400);
   assert.equal(res.body.error, 'INVALID_PARAMETER');
 });
@@ -71,7 +92,9 @@ test('signup -> verify -> login -> authorized call', async () => {
   const code = getVerificationCode(U('user'));
   assert.match(code, /^\d{6}$/);
 
-  const verify = await request(app).post('/auth/verify').send({ email: U('user'), code });
+  const verify = await request(app)
+    .post('/auth/verify')
+    .send({ email: U('user'), code });
   assert.equal(verify.status, 200);
 
   const login = await request(app)
@@ -86,18 +109,18 @@ test('signup -> verify -> login -> authorized call', async () => {
   assert.equal(denied.body.error, 'FORBIDDEN');
 
   requireSeed(seedUser(U('admin-list'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  const adminToken = (await request(app).post('/auth/login').send({ email: U('admin-list'), password: 'secret123' })).body.token;
+  const adminToken = (
+    await request(app)
+      .post('/auth/login')
+      .send({ email: U('admin-list'), password: 'secret123' })
+  ).body.token;
 
-  const users = await request(app)
-    .get('/users')
-    .set('Authorization', `Bearer ${adminToken}`);
+  const users = await request(app).get('/users').set('Authorization', `Bearer ${adminToken}`);
   assert.equal(users.status, 200);
   assert.equal(users.body.data[0], 'USERS');
   assert.ok(Array.isArray(users.body.users));
 
-  const paged = await request(app)
-    .get('/users?limit=1&offset=0')
-    .set('Authorization', `Bearer ${adminToken}`);
+  const paged = await request(app).get('/users?limit=1&offset=0').set('Authorization', `Bearer ${adminToken}`);
   assert.equal(paged.status, 200);
 });
 
@@ -111,9 +134,13 @@ test('wrong password maps to 401', async () => {
 
 test('bare-value endpoints return 200 with data', async () => {
   const em = U('bare');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Bare User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const login = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body;
   const auth = { Authorization: `Bearer ${login.token}` };
 
@@ -122,7 +149,11 @@ test('bare-value endpoints return 200 with data', async () => {
   assert.equal((await request(app).get('/wallet/balance?email=sender@test.com').set(auth)).status, 403);
 
   requireSeed(seedUser(U('admin-bare'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  const adminToken = (await request(app).post('/auth/login').send({ email: U('admin-bare'), password: 'secret123' })).body.token;
+  const adminToken = (
+    await request(app)
+      .post('/auth/login')
+      .send({ email: U('admin-bare'), password: 'secret123' })
+  ).body.token;
   const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
   const user = await request(app).get('/users/sender@test.com').set(adminAuth);
@@ -139,15 +170,26 @@ test('bare-value endpoints return 200 with data', async () => {
 test('email change works for a logged-in user (related rows exist)', async () => {
   const em = U('conf');
   const ne = U('confn');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Conf User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Conf User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
 
   const confStep = await stepUpFor(token);
-  const reqc = await request(app).post('/profile/email/request').set('Authorization', `Bearer ${token}`).set('X-Step-Up', confStep).send({ email: em, newEmail: ne, password: 'secret123' });
+  const reqc = await request(app)
+    .post('/profile/email/request')
+    .set('Authorization', `Bearer ${token}`)
+    .set('X-Step-Up', confStep)
+    .send({ email: em, newEmail: ne, password: 'secret123' });
   assert.equal(reqc.status, 200);
-  const confirm = await request(app).post('/profile/email/confirm').set('Authorization', `Bearer ${token}`).send({ email: em, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') });
+  const confirm = await request(app)
+    .post('/profile/email/confirm')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ email: em, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') });
   assert.equal(confirm.status, 200);
   assert.deepEqual(confirm.body.data, ['EMAIL_CHANGED']);
 });
@@ -158,7 +200,9 @@ test('refresh token yields a new access token', async () => {
     .post('/auth/signup')
     .send({ email: em, password: 'secret123', name: 'Refresh User', dob: '1990-01-01' });
   assert.equal(signup.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
 
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   assert.ok(login.body.refreshToken);
@@ -177,9 +221,13 @@ test('refresh token yields a new access token', async () => {
 
 test('replaying a rotated refresh token revokes the whole family', async () => {
   const em = U('reuse');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Reuse User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Reuse User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const r1 = login.body.refreshToken;
 
@@ -202,10 +250,15 @@ test('role change authorizes by the token actor, ignoring the body', async () =>
   const admin = U('admin');
   const target = U('target');
   const plainUser = U('plain');
-  requireSeed(seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER') && seedUser(plainUser, 'USER'), 'seed role-change users');
+  requireSeed(
+    seedUser(admin, 'SUPER_ADMIN') && seedUser(target, 'USER') && seedUser(plainUser, 'USER'),
+    'seed role-change users',
+  );
   enableMfa(admin);
 
-  const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) });
+  const adminLogin = await request(app)
+    .post('/auth/login')
+    .send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) });
   assert.equal(adminLogin.status, 200);
   const adminToken = adminLogin.body.token;
   const adminStep = await stepUpFor(adminToken);
@@ -220,7 +273,8 @@ test('role change authorizes by the token actor, ignoring the body', async () =>
   assert.deepEqual(ok.body.data, ['ROLE_CHANGED']);
 
   // A non-admin spoofing the admin in the body is still refused.
-  const plainToken = (await request(app).post('/auth/login').send({ email: plainUser, password: 'secret123' })).body.token;
+  const plainToken = (await request(app).post('/auth/login').send({ email: plainUser, password: 'secret123' })).body
+    .token;
   const plainStep = await stepUpFor(plainToken);
   const spoof = await request(app)
     .post('/admin/role')
@@ -239,18 +293,30 @@ test('admin audit trail is readable by a SUPER_ADMIN only', async () => {
   const adminToken = await adminLoginFor(admin);
   const userToken = (await request(app).post('/auth/login').send({ email: target, password: 'secret123' })).body.token;
 
-  const forbidden = await request(app).get('/admin/audit').query({ email: target }).set('Authorization', `Bearer ${userToken}`);
+  const forbidden = await request(app)
+    .get('/admin/audit')
+    .query({ email: target })
+    .set('Authorization', `Bearer ${userToken}`);
   assert.equal(forbidden.status, 403);
 
   // Produce an attributable admin event (this suspends the target, so do it
   // after the plain-user check above).
   const adminStep = await stepUpFor(adminToken);
   assert.equal(
-    (await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target, status: 'SUSPENDED' })).status,
+    (
+      await request(app)
+        .post('/admin/user-status')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .set('X-Step-Up', adminStep)
+        .send({ email: target, status: 'SUSPENDED' })
+    ).status,
     200,
   );
 
-  const ok = await request(app).get('/admin/audit').query({ action: 'SET_USER_STATUS' }).set('Authorization', `Bearer ${adminToken}`);
+  const ok = await request(app)
+    .get('/admin/audit')
+    .query({ action: 'SET_USER_STATUS' })
+    .set('Authorization', `Bearer ${adminToken}`);
   assert.equal(ok.status, 200);
   assert.equal(ok.body.data[0], 'AUDIT');
   assert.ok(Number(ok.body.data[1]) >= 1, 'reports a total');
@@ -268,9 +334,36 @@ test('admin recovery endpoints are admin-only', async () => {
   const adminStep = await stepUpFor(adminToken);
   const userStep = await stepUpFor(userToken);
 
-  assert.equal((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ email: target })).status, 403);
-  assert.deepEqual((await request(app).post('/admin/unlock').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target })).body.data, ['ACCOUNT_UNLOCKED']);
-  assert.deepEqual((await request(app).post('/admin/mfa-reset').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ email: target })).body.data, ['MFA_RESET']);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/unlock')
+        .set('Authorization', `Bearer ${userToken}`)
+        .set('X-Step-Up', userStep)
+        .send({ email: target })
+    ).status,
+    403,
+  );
+  assert.deepEqual(
+    (
+      await request(app)
+        .post('/admin/unlock')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .set('X-Step-Up', adminStep)
+        .send({ email: target })
+    ).body.data,
+    ['ACCOUNT_UNLOCKED'],
+  );
+  assert.deepEqual(
+    (
+      await request(app)
+        .post('/admin/mfa-reset')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .set('X-Step-Up', adminStep)
+        .send({ email: target })
+    ).body.data,
+    ['MFA_RESET'],
+  );
 });
 
 test('admin hold lifecycle is admin-only', async () => {
@@ -286,16 +379,32 @@ test('admin hold lifecycle is admin-only', async () => {
   const auth = { Authorization: `Bearer ${adminToken}`, 'X-Step-Up': adminStep };
 
   // A non-admin cannot place a hold, even with a step-up proof.
-  assert.equal((await request(app).post('/admin/holds').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ email: target, amount: '10.00' })).status, 403);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/holds')
+        .set('Authorization', `Bearer ${userToken}`)
+        .set('X-Step-Up', userStep)
+        .send({ email: target, amount: '10.00' })
+    ).status,
+    403,
+  );
 
-  const placed = await request(app).post('/admin/holds').set(auth).send({ email: target, amount: '10.00', reason: 'review' });
+  const placed = await request(app)
+    .post('/admin/holds')
+    .set(auth)
+    .send({ email: target, amount: '10.00', reason: 'review' });
   assert.equal(placed.status, 200);
   assert.equal(placed.body.data[0], 'HOLD_PLACED');
   assert.match(placed.body.data[1], /^[0-9]+$/);
   const holdId = placed.body.data[1];
 
   // Held funds are no longer spendable.
-  const denied = await request(app).post('/wallet/transfer').set('Authorization', `Bearer ${userToken}`).set('Idempotency-Key', `hold-${Date.now()}`).send({ to: 'receiver@test.com', amount: '95.00' });
+  const denied = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${userToken}`)
+    .set('Idempotency-Key', `hold-${Date.now()}`)
+    .send({ to: 'receiver@test.com', amount: '95.00' });
   assert.equal(denied.status, 409);
   assert.equal(denied.body.error, 'INSUFFICIENT_FUNDS');
 
@@ -327,10 +436,22 @@ test('reconciliation runs record results and resolve exceptions', async () => {
   const auth = { Authorization: `Bearer ${adminToken}`, 'X-Step-Up': adminStep };
 
   // A non-admin cannot run a recorded reconciliation.
-  assert.equal((await request(app).post('/admin/reconcile/run').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({})).status, 403);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/reconcile/run')
+        .set('Authorization', `Bearer ${userToken}`)
+        .set('X-Step-Up', userStep)
+        .send({})
+    ).status,
+    403,
+  );
 
   // Drift the target balance directly so this run must find it.
-  requireSeed(runSql(`UPDATE accounts SET balance = 999.00 WHERE user_id = (SELECT id FROM users WHERE email = '${target}')`), 'drift the balance');
+  requireSeed(
+    runSql(`UPDATE accounts SET balance = 999.00 WHERE user_id = (SELECT id FROM users WHERE email = '${target}')`),
+    'drift the balance',
+  );
   const run = await request(app).post('/admin/reconcile/run').set(auth).send({ trigger: 'MANUAL' });
   assert.equal(run.status, 200);
   assert.equal(run.body.data[0], 'RUN_RECORDED');
@@ -338,31 +459,53 @@ test('reconciliation runs record results and resolve exceptions', async () => {
   assert.match(runId, /^[0-9]+$/);
   assert.ok(Number(run.body.data[2]) >= 1, 'run reports its mismatches');
 
-  const runs = await request(app).get('/admin/reconcile/runs').set('Authorization', `Bearer ${adminToken}`).query({ limit: '10' });
+  const runs = await request(app)
+    .get('/admin/reconcile/runs')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .query({ limit: '10' });
   assert.equal(runs.status, 200);
   assert.equal(runs.body.data[0], 'RUNS');
   assert.ok(runs.body.data.slice(2).join(';').includes(`MANUAL`), 'the run is listed');
 
-  const open = await request(app).get('/admin/reconcile/exceptions').set('Authorization', `Bearer ${adminToken}`).query({ status: 'OPEN' });
+  const open = await request(app)
+    .get('/admin/reconcile/exceptions')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .query({ status: 'OPEN' });
   assert.equal(open.status, 200);
   assert.equal(open.body.data[0], 'EXCEPTIONS');
-  const mine = open.body.data.slice(2).join(';').split(';').filter((r) => r.includes(`:${runId}:`));
+  const mine = open.body.data
+    .slice(2)
+    .join(';')
+    .split(';')
+    .filter((r) => r.includes(`:${runId}:`));
   assert.ok(mine.length >= 1, 'the run produced an open finding');
   const findingId = mine[0].split(':')[0];
 
   const ack = await request(app).post('/admin/reconcile/acknowledge').set(auth).send({ findingId });
   assert.deepEqual(ack.body.data, ['EXCEPTION_ACKNOWLEDGED']);
-  const resolve = await request(app).post('/admin/reconcile/resolve').set(auth).send({ findingId, note: 'opening balance corrected' });
+  const resolve = await request(app)
+    .post('/admin/reconcile/resolve')
+    .set(auth)
+    .send({ findingId, note: 'opening balance corrected' });
   assert.deepEqual(resolve.body.data, ['EXCEPTION_RESOLVED']);
 
-  const resolved = await request(app).get('/admin/reconcile/exceptions').set('Authorization', `Bearer ${adminToken}`).query({ status: 'RESOLVED' });
-  assert.ok(resolved.body.data.slice(2).join(';').includes(`${findingId}:${runId}`), 'resolution is listed with its run');
+  const resolved = await request(app)
+    .get('/admin/reconcile/exceptions')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .query({ status: 'RESOLVED' });
+  assert.ok(
+    resolved.body.data.slice(2).join(';').includes(`${findingId}:${runId}`),
+    'resolution is listed with its run',
+  );
   const closed = await request(app).post('/admin/reconcile/resolve').set(auth).send({ findingId, note: 'again' });
   assert.equal(closed.status, 404);
   assert.equal(closed.body.error, 'UNKNOWN_TRANSACTION');
 
   // Undo the drift so the fixture reconciles again and leaves no residue.
-  requireSeed(runSql(`UPDATE accounts SET balance = 100.00 WHERE user_id = (SELECT id FROM users WHERE email = '${target}')`), 'restore the balance');
+  requireSeed(
+    runSql(`UPDATE accounts SET balance = 100.00 WHERE user_id = (SELECT id FROM users WHERE email = '${target}')`),
+    'restore the balance',
+  );
 });
 
 test('privileged admin writes require a fresh step-up', async () => {
@@ -373,10 +516,22 @@ test('privileged admin writes require a fresh step-up', async () => {
   const adminToken = await adminLoginFor(admin);
 
   // No step-up proof -> refused before the business action runs.
-  assert.equal((await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).send({ email: target, status: 'SUSPENDED' })).status, 401);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/user-status')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ email: target, status: 'SUSPENDED' })
+    ).status,
+    401,
+  );
 
   // A wrong password cannot mint a proof.
-  assert.equal((await request(app).post('/auth/step-up').set('Authorization', `Bearer ${adminToken}`).send({ password: 'nope' })).status, 401);
+  assert.equal(
+    (await request(app).post('/auth/step-up').set('Authorization', `Bearer ${adminToken}`).send({ password: 'nope' }))
+      .status,
+    401,
+  );
 
   const step = await stepUpFor(adminToken);
   assert.ok(step);
@@ -386,7 +541,13 @@ test('privileged admin writes require a fresh step-up', async () => {
 
   // With the proof the privileged write succeeds.
   assert.deepEqual(
-    (await request(app).post('/admin/user-status').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', step).send({ email: target, status: 'SUSPENDED' })).body.data,
+    (
+      await request(app)
+        .post('/admin/user-status')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .set('X-Step-Up', step)
+        .send({ email: target, status: 'SUSPENDED' })
+    ).body.data,
     ['STATUS_CHANGED'],
   );
 });
@@ -401,12 +562,24 @@ test('an admin without MFA is prompted to enrol at login', async () => {
   const token = login.body.token;
 
   // Until enrolled, a step-up (needed for privileged writes) is refused.
-  assert.equal((await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password: 'secret123' })).status, 401);
+  assert.equal(
+    (await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password: 'secret123' }))
+      .status,
+    401,
+  );
 
   // Enrol, then refresh: the prompt clears.
   const enroll = await request(app).post('/mfa/enroll').set('Authorization', `Bearer ${token}`).send({ email: admin });
   assert.equal(enroll.status, 200);
-  assert.equal((await request(app).post('/mfa/confirm').set('Authorization', `Bearer ${token}`).send({ email: admin, code: totp(enroll.body.secret) })).status, 200);
+  assert.equal(
+    (
+      await request(app)
+        .post('/mfa/confirm')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ email: admin, code: totp(enroll.body.secret) })
+    ).status,
+    200,
+  );
   const refreshed = await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken });
   assert.equal(refreshed.status, 200);
   assert.notEqual(refreshed.body.mfaEnrollmentRequired, true, 'prompt clears once MFA is enabled');
@@ -414,9 +587,13 @@ test('an admin without MFA is prompted to enrol at login', async () => {
 
 test('reusing an idempotency key with different details is a conflict', async () => {
   const em = U('idem');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Idem User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   requireSeed(seedAccount(em, '500.00'), 'seed an account');
 
@@ -448,14 +625,23 @@ test('an in-progress intent blocks a same-key transfer, then replays once commit
   const em = U('inprog');
   const to = 'receiver@test.com';
   const amount = '1.00';
-  await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'InProg User', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'InProg User', dob: '1990-01-01' });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   requireSeed(seedAccount(em, '500.00'), 'seed an account');
 
   const key = `gw-inprog-${Date.now()}`;
   // Same key and details already in flight (PENDING): another attempt holds it.
-  requireSeed(runSql(`INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('${key}','${em}','${to}',${amount},'PENDING')`), 'seed a pending intent');
+  requireSeed(
+    runSql(
+      `INSERT INTO pending_transactions (txn_ref, from_email, to_email, amount, status) VALUES ('${key}','${em}','${to}',${amount},'PENDING')`,
+    ),
+    'seed a pending intent',
+  );
 
   const blocked = await request(app)
     .post('/wallet/transfer')
@@ -479,9 +665,13 @@ test('an in-progress intent blocks a same-key transfer, then replays once commit
 
 test('transfer amount is decided by COBOL, not the gateway shape', async () => {
   const em = U('amt');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Amt User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   requireSeed(seedAccount(em, '100.00'), 'seed an account');
 
@@ -524,7 +714,11 @@ test('transfer amount is decided by COBOL, not the gateway shape', async () => {
 
 test('the list page size is bounded', async () => {
   requireSeed(seedUser(U('admin-limit'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
-  const token = (await request(app).post('/auth/login').send({ email: U('admin-limit'), password: 'secret123' })).body.token;
+  const token = (
+    await request(app)
+      .post('/auth/login')
+      .send({ email: U('admin-limit'), password: 'secret123' })
+  ).body.token;
   const auth = { Authorization: `Bearer ${token}` };
 
   assert.equal((await request(app).get('/users?limit=100').set(auth)).status, 200);
@@ -541,17 +735,21 @@ test('the list page size is bounded', async () => {
 test('a large list is not truncated at 500 bytes', async () => {
   requireSeed(seedUser(U('admin-bulk'), 'SUPER_ADMIN'), 'seed a SUPER_ADMIN');
   requireSeed(seedManyUsers(`${NS}-bulk-`, 25), 'seed bulk users');
-  const token = (await request(app).post('/auth/login').send({ email: U('admin-bulk'), password: 'secret123' })).body.token;
+  const token = (
+    await request(app)
+      .post('/auth/login')
+      .send({ email: U('admin-bulk'), password: 'secret123' })
+  ).body.token;
 
   // LIST_USERS pages by ascending id, so anchor the window at the first bulk
   // user. Querying limit=100 from offset 0 only works while the shared test
   // database has fewer than 100 rows; accumulated users push the fixture off
   // the first page. Computing the offset keeps the assertion deterministic.
-  const before = Number(queryScalar(`SELECT COUNT(*) FROM users WHERE id < (SELECT id FROM users WHERE email='${U('bulk-1')}')`));
+  const before = Number(
+    queryScalar(`SELECT COUNT(*) FROM users WHERE id < (SELECT id FROM users WHERE email='${U('bulk-1')}')`),
+  );
   requireSeed(Number.isFinite(before), 'locate the bulk users');
-  const res = await request(app)
-    .get(`/users?limit=100&offset=${before}`)
-    .set('Authorization', `Bearer ${token}`);
+  const res = await request(app).get(`/users?limit=100&offset=${before}`).set('Authorization', `Bearer ${token}`);
   assert.equal(res.status, 200);
   // The 25th bulk user sits well past 500 bytes; it survives the multi-record output.
   assert.ok(JSON.stringify(res.body.users).includes(U('bulk-25')));
@@ -559,9 +757,13 @@ test('a large list is not truncated at 500 bytes', async () => {
 
 test('one access token can be revoked without affecting another session', async () => {
   const em = U('deny');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Deny User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Deny User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
 
   const first = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const second = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
@@ -583,27 +785,43 @@ test('audit archiving is admin-only', async () => {
   const adminToken = await adminLoginFor(U('admin-archive'));
 
   const em = U('arch');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Arch User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Arch User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const userToken = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const adminStep = await stepUpFor(adminToken);
   const userStep = await stepUpFor(userToken);
 
-  const denied = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ days: 3650 });
+  const denied = await request(app)
+    .post('/admin/audit/archive')
+    .set('Authorization', `Bearer ${userToken}`)
+    .set('X-Step-Up', userStep)
+    .send({ days: 3650 });
   assert.equal(denied.status, 403);
   assert.equal(denied.body.error, 'FORBIDDEN');
 
-  const ok = await request(app).post('/admin/audit/archive').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ days: 3650 });
+  const ok = await request(app)
+    .post('/admin/audit/archive')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .set('X-Step-Up', adminStep)
+    .send({ days: 3650 });
   assert.equal(ok.status, 200);
   assert.deepEqual(ok.body.data, ['ARCHIVED']);
 });
 
 test('password reset and change over HTTP', async () => {
   const em = U('pw');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'PW User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'PW User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const first = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const oldToken = first.body.token;
   const oldRefresh = first.body.refreshToken;
@@ -639,7 +857,9 @@ test('password reset and change over HTTP', async () => {
 
 test('resend verification reuses the pending code inside the cooldown', async () => {
   const em = U('resend');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Resend', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Resend', dob: '1990-01-01' });
   assert.equal(s.status, 200);
   // Login before verification is rejected.
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 403);
@@ -657,14 +877,20 @@ test('resend verification reuses the pending code inside the cooldown', async ()
 test('login and signup do not enumerate accounts', async () => {
   const em = U('enum');
   // Signing up twice yields the same neutral response.
-  const a = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
-  const b = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
+  const a = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
+  const b = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
   assert.deepEqual(a.body, b.body);
 
   // An unknown account and a wrong password are indistinguishable.
-  const unknown = await request(app).post('/auth/login').send({ email: `ghost_${Date.now()}@test.com`, password: 'secret123' });
+  const unknown = await request(app)
+    .post('/auth/login')
+    .send({ email: `ghost_${Date.now()}@test.com`, password: 'secret123' });
   const wrong = await request(app).post('/auth/login').send({ email: em, password: 'wrongpass1' });
   assert.equal(unknown.status, 401);
   assert.equal(wrong.status, 401);
@@ -689,7 +915,9 @@ test('verification code guessing is capped', async () => {
 test('locked account does not leak through wrong guesses', async () => {
   const em = U('lock');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Lock', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   for (let i = 0; i < 3; i++) {
     await request(app).post('/auth/login').send({ email: em, password: 'wrongpass1' });
   }
@@ -702,7 +930,9 @@ test('locked account does not leak through wrong guesses', async () => {
 test('MFA enrol, enforce at login, disable over HTTP', async () => {
   const em = U('mfa');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Mfa', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const auth = { Authorization: `Bearer ${login.body.token}` };
 
@@ -712,21 +942,53 @@ test('MFA enrol, enforce at login, disable over HTTP', async () => {
   assert.ok(enroll.body.otpauth.startsWith('otpauth://totp/'));
 
   assert.equal((await request(app).post('/mfa/confirm').set(auth).send({ email: em, code: '000000' })).status, 401);
-  assert.deepEqual((await request(app).post('/mfa/confirm').set(auth).send({ email: em, code: totp(enroll.body.secret) })).body.data, ['MFA_ENABLED']);
+  assert.deepEqual(
+    (
+      await request(app)
+        .post('/mfa/confirm')
+        .set(auth)
+        .send({ email: em, code: totp(enroll.body.secret) })
+    ).body.data,
+    ['MFA_ENABLED'],
+  );
 
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 401);
-  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123', mfaCode: totp(enroll.body.secret) })).status, 200);
+  assert.equal(
+    (
+      await request(app)
+        .post('/auth/login')
+        .send({ email: em, password: 'secret123', mfaCode: totp(enroll.body.secret) })
+    ).status,
+    200,
+  );
 
-  const disableStep = await request(app).post('/auth/step-up').set(auth).send({ password: 'secret123', mfaCode: totp(enroll.body.secret) });
-  assert.deepEqual((await request(app).post('/mfa/disable').set(auth).set('X-Step-Up', disableStep.body.stepUpToken).send({ email: em, code: totp(enroll.body.secret) })).body.data, ['MFA_DISABLED']);
+  const disableStep = await request(app)
+    .post('/auth/step-up')
+    .set(auth)
+    .send({ password: 'secret123', mfaCode: totp(enroll.body.secret) });
+  assert.deepEqual(
+    (
+      await request(app)
+        .post('/mfa/disable')
+        .set(auth)
+        .set('X-Step-Up', disableStep.body.stepUpToken)
+        .send({ email: em, code: totp(enroll.body.secret) })
+    ).body.data,
+    ['MFA_DISABLED'],
+  );
   assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).status, 200);
 });
 
 test('session listing and revoke-all over HTTP', async () => {
   const em = U('sess');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Sess', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
-  const login = await request(app).post('/auth/login').set('User-Agent', 'gw-test-agent/1.0').send({ email: em, password: 'secret123' });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
+  const login = await request(app)
+    .post('/auth/login')
+    .set('User-Agent', 'gw-test-agent/1.0')
+    .send({ email: em, password: 'secret123' });
   const auth = { Authorization: `Bearer ${login.body.token}` };
 
   const list = await request(app).get('/sessions').query({ email: em }).set(auth);
@@ -736,7 +998,9 @@ test('session listing and revoke-all over HTTP', async () => {
   assert.match(list.body.data[1], /current/, 'marks the calling device as the current session');
   assert.match(list.body.data[1], /gw-test-agent/, 'records the client user-agent');
 
-  assert.deepEqual((await request(app).post('/sessions/revoke-all').set(auth).send({ email: em })).body.data, ['SESSIONS_REVOKED']);
+  assert.deepEqual((await request(app).post('/sessions/revoke-all').set(auth).send({ email: em })).body.data, [
+    'SESSIONS_REVOKED',
+  ]);
   // The version bump kills the access token we were using.
   assert.equal((await request(app).get('/profile').query({ email: em }).set(auth)).status, 401);
 });
@@ -744,7 +1008,9 @@ test('session listing and revoke-all over HTTP', async () => {
 test('transfers from a frozen account are rejected (409)', async () => {
   const em = U('frozen');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Frozen', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   const auth = { Authorization: `Bearer ${login.body.token}` };
   seedAccount(em, '1000.00');
@@ -771,7 +1037,9 @@ test('transfers from a frozen account are rejected (409)', async () => {
 test('transfer without an idempotency key is rejected', async () => {
   const em = U('nokey');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'NoKey', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   seedAccount(em, '100.00');
 
@@ -786,7 +1054,9 @@ test('transfer without an idempotency key is rejected', async () => {
 test('transfer over the per-transaction limit is rejected', async () => {
   const em = U('limit');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Limit', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   seedAccount(em, '1000.00');
 
@@ -813,13 +1083,24 @@ test('transfer over the per-transaction limit is rejected', async () => {
 test('transfer status and reversal over HTTP', async () => {
   const em = U('rev');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Rev', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
   seedAccount(em, '1000.00');
 
   const key = `rev-${Date.now()}`;
-  assert.equal((await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', key).send({ to: 'receiver@test.com', amount: '10.00' })).status, 200);
+  assert.equal(
+    (
+      await request(app)
+        .post('/wallet/transfer')
+        .set(auth)
+        .set('Idempotency-Key', key)
+        .send({ to: 'receiver@test.com', amount: '10.00' })
+    ).status,
+    200,
+  );
 
   const status = await request(app).get(`/transactions/${key}`).set(auth);
   assert.equal(status.status, 200);
@@ -832,10 +1113,17 @@ test('transfer status and reversal over HTTP', async () => {
   const adminToken = await adminLoginFor(admin);
   const adminStep = await stepUpFor(adminToken);
   // An admin can target a specific sender.
-  const scoped = await request(app).get(`/transactions/${key}`).query({ sender: em }).set('Authorization', `Bearer ${adminToken}`);
+  const scoped = await request(app)
+    .get(`/transactions/${key}`)
+    .query({ sender: em })
+    .set('Authorization', `Bearer ${adminToken}`);
   assert.equal(scoped.status, 200);
   assert.equal(scoped.body.data[2], em);
-  const rev = await request(app).post(`/transactions/${key}/reverse`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ reason: 'BANK_ERROR' });
+  const rev = await request(app)
+    .post(`/transactions/${key}/reverse`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .set('X-Step-Up', adminStep)
+    .send({ reason: 'BANK_ERROR' });
   assert.equal(rev.status, 200);
   assert.deepEqual(rev.body.data, ['TRANSFER_REVERSED']);
 
@@ -845,7 +1133,9 @@ test('transfer status and reversal over HTTP', async () => {
 test('cross-currency transfer falls back to the inverse rate', async () => {
   const em = U('fx');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Fx', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
   // Only an IDR account: the IDR->USD pair does not exist directly, so the
@@ -854,7 +1144,11 @@ test('cross-currency transfer falls back to the inverse rate', async () => {
   requireSeed(refreshExchangeRates(), 'refresh exchange rates');
 
   const key = `fx-${Date.now()}`;
-  const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', key).send({ to: 'receiver@test.com', amount: '15700' });
+  const res = await request(app)
+    .post('/wallet/transfer')
+    .set(auth)
+    .set('Idempotency-Key', key)
+    .send({ to: 'receiver@test.com', amount: '15700' });
   assert.equal(res.status, 200);
   const status = await request(app).get(`/transactions/${key}`).set(auth);
   assert.equal(status.body.data[1], 'COMMITTED');
@@ -863,25 +1157,40 @@ test('cross-currency transfer falls back to the inverse rate', async () => {
 test('transfer selects the sender account by currency', async () => {
   const em = U('mc');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Mc', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
-  requireSeed(seedAccountCurrency(em, 1, '1000.00') && seedAccountCurrency(em, 2, '1000.00'), 'seed USD and EUR accounts');
+  requireSeed(
+    seedAccountCurrency(em, 1, '1000.00') && seedAccountCurrency(em, 2, '1000.00'),
+    'seed USD and EUR accounts',
+  );
   requireSeed(refreshExchangeRates(), 'refresh exchange rates');
 
   // 92.00 EUR -> exactly 100.00 USD at the 0.92 rate (exact postings
   // carry no residual and need no FX_PNL account).
-  const res = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mc-${Date.now()}`).send({ to: 'receiver@test.com', amount: '92.00', fromCurrency: 'EUR' });
+  const res = await request(app)
+    .post('/wallet/transfer')
+    .set(auth)
+    .set('Idempotency-Key', `mc-${Date.now()}`)
+    .send({ to: 'receiver@test.com', amount: '92.00', fromCurrency: 'EUR' });
   assert.equal(res.status, 200);
 
-  const bad = await request(app).post('/wallet/transfer').set(auth).set('Idempotency-Key', `mcbad-${Date.now()}`).send({ to: 'receiver@test.com', amount: '1.00', fromCurrency: 'JPY' });
+  const bad = await request(app)
+    .post('/wallet/transfer')
+    .set(auth)
+    .set('Idempotency-Key', `mcbad-${Date.now()}`)
+    .send({ to: 'receiver@test.com', amount: '1.00', fromCurrency: 'JPY' });
   assert.equal(bad.status, 404);
 });
 
 test('profile is structured and works without accounts', async () => {
   const em = U('prof');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Prof', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
 
   const res = await request(app).get('/profile').query({ email: em }).set('Authorization', `Bearer ${token}`);
@@ -901,17 +1210,31 @@ test('profile is structured and works without accounts', async () => {
 test('email-change request is neutral for a taken address', async () => {
   const em = U('enum2');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Enum', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
 
   const taken = U('taken');
-  await request(app).post('/auth/signup').send({ email: taken, password: 'secret123', name: 'Taken', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: taken, code: getVerificationCode(taken) });
+  await request(app)
+    .post('/auth/signup')
+    .send({ email: taken, password: 'secret123', name: 'Taken', dob: '1990-01-01' });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: taken, code: getVerificationCode(taken) });
 
   const neutralStep = await stepUpFor(token);
-  const a = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', neutralStep).send({ email: em, newEmail: taken, password: 'secret123' });
-  const b = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', neutralStep).send({ email: em, newEmail: U('free'), password: 'secret123' });
+  const a = await request(app)
+    .post('/profile/email/request')
+    .set(auth)
+    .set('X-Step-Up', neutralStep)
+    .send({ email: em, newEmail: taken, password: 'secret123' });
+  const b = await request(app)
+    .post('/profile/email/request')
+    .set(auth)
+    .set('X-Step-Up', neutralStep)
+    .send({ email: em, newEmail: U('free'), password: 'secret123' });
   assert.equal(a.status, 200);
   assert.equal(b.status, 200);
   assert.deepEqual(a.body, b.body); // identical neutral response
@@ -921,7 +1244,9 @@ test('email-change request is neutral for a taken address', async () => {
 test('PATCH /profile updates the name', async () => {
   const em = U('up');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Before', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
 
@@ -934,19 +1259,29 @@ test('PATCH /profile updates the name', async () => {
 test('account lifecycle over HTTP', async () => {
   const em = U('lc');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Life', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
 
-  assert.deepEqual((await request(app).post('/profile/deactivate').set(auth).send({ email: em })).body.data, ['ACCOUNT_DEACTIVATED']);
-  assert.equal((await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.error, 'USER_CLOSED');
+  assert.deepEqual((await request(app).post('/profile/deactivate').set(auth).send({ email: em })).body.data, [
+    'ACCOUNT_DEACTIVATED',
+  ]);
+  assert.equal(
+    (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.error,
+    'USER_CLOSED',
+  );
 
   const admin = U('lca');
   if (!seedUser(admin, 'SUPER_ADMIN')) return;
   enableMfa(admin);
   const adminToken = await adminLoginFor(admin);
   const adm = { Authorization: `Bearer ${adminToken}`, 'X-Step-Up': await stepUpFor(adminToken) };
-  assert.deepEqual((await request(app).post('/admin/user-status').set(adm).send({ email: em, status: 'SUSPENDED' })).body.data, ['STATUS_CHANGED']);
+  assert.deepEqual(
+    (await request(app).post('/admin/user-status').set(adm).send({ email: em, status: 'SUSPENDED' })).body.data,
+    ['STATUS_CHANGED'],
+  );
   const blocked = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   assert.equal(blocked.status, 403);
   assert.equal(blocked.body.error, 'USER_SUSPENDED');
@@ -975,16 +1310,29 @@ test('user listing and record are structured', async () => {
 test('email-change confirm reports a taken address (race)', async () => {
   const em = U('race');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Race', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const token = (await request(app).post('/auth/login').send({ email: em, password: 'secret123' })).body.token;
   const auth = { Authorization: `Bearer ${token}` };
   const ne = U('racenew');
 
   const raceStep = await stepUpFor(token);
-  assert.equal((await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', raceStep).send({ email: em, newEmail: ne, password: 'secret123' })).status, 200);
+  assert.equal(
+    (
+      await request(app)
+        .post('/profile/email/request')
+        .set(auth)
+        .set('X-Step-Up', raceStep)
+        .send({ email: em, newEmail: ne, password: 'secret123' })
+    ).status,
+    200,
+  );
   const code = getVerificationCode(ne, 'EMAIL_CHANGE');
   // Someone else takes the address between the request and the confirm.
-  runSql(`INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ('${ne}','x','Taken','1990-01-01','VERIFIED','USER')`);
+  runSql(
+    `INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ('${ne}','x','Taken','1990-01-01','VERIFIED','USER')`,
+  );
 
   const conf = await request(app).post('/profile/email/confirm').set(auth).send({ email: em, newEmail: ne, code });
   assert.equal(conf.status, 400);
@@ -994,7 +1342,9 @@ test('email-change confirm reports a taken address (race)', async () => {
 test('refresh rotates and a replay is rejected', async () => {
   const em = U('rot');
   await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Rot', dob: '1990-01-01' });
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
 
   const first = await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken });
@@ -1024,7 +1374,10 @@ test('dual control gates designated operations', async () => {
   const maker = U('dc_mkr_');
   const checker = U('dc_chk_');
   const target = U('dc_tgt_');
-  requireSeed(seedUser(maker, 'SUPER_ADMIN') && seedUser(checker, 'SUPER_ADMIN') && seedUser(target, 'USER'), 'seed dual-control users');
+  requireSeed(
+    seedUser(maker, 'SUPER_ADMIN') && seedUser(checker, 'SUPER_ADMIN') && seedUser(target, 'USER'),
+    'seed dual-control users',
+  );
   enableMfa(maker);
   enableMfa(checker);
   const makerToken = await adminLoginFor(maker);
@@ -1035,14 +1388,20 @@ test('dual control gates designated operations', async () => {
   await stepUpFor(userToken);
   const mkAuth = { Authorization: `Bearer ${makerToken}`, 'X-Step-Up': makerStep };
   const ckAuth = { Authorization: `Bearer ${checkerToken}`, 'X-Step-Up': checkerStep };
-  requireSeed(runSql(`INSERT IGNORE INTO dual_control_operations (operation) VALUES ('CHANGE_ROLE')`), 'designate role changes');
+  requireSeed(
+    runSql(`INSERT IGNORE INTO dual_control_operations (operation) VALUES ('CHANGE_ROLE')`),
+    'designate role changes',
+  );
   try {
     // A direct change is refused while the operation is designated.
     const direct = await request(app).post('/admin/role').set(mkAuth).send({ email: target, role: 'MANAGER' });
     assert.equal(direct.status, 403);
     assert.equal(direct.body.error, 'DUAL_CONTROL_REQUIRED');
 
-    const placed = await request(app).post('/admin/requests').set(mkAuth).send({ operation: 'CHANGE_ROLE', target, detail: 'MANAGER' });
+    const placed = await request(app)
+      .post('/admin/requests')
+      .set(mkAuth)
+      .send({ operation: 'CHANGE_ROLE', target, detail: 'MANAGER' });
     assert.equal(placed.status, 200);
     assert.equal(placed.body.data[0], 'REQUEST_PLACED');
     const reqId = placed.body.data[1];
@@ -1054,10 +1413,18 @@ test('dual control gates designated operations', async () => {
     const approved = await request(app).post('/admin/requests/approve').set(ckAuth).send({ requestId: reqId });
     assert.deepEqual(approved.body.data, ['REQUEST_APPROVED']);
 
-    const listed = await request(app).get('/admin/requests').set({ Authorization: `Bearer ${checkerToken}` }).query({ status: 'APPROVED' });
+    const listed = await request(app)
+      .get('/admin/requests')
+      .set({ Authorization: `Bearer ${checkerToken}` })
+      .query({ status: 'APPROVED' });
     assert.ok(listed.body.data.slice(2).join(';').includes(`${reqId}:CHANGE_ROLE`), 'the approved request is listed');
   } finally {
-    requireSeed(runSql(`DELETE FROM maker_requests WHERE maker_email IN ('${maker}','${checker}'); DELETE FROM dual_control_operations WHERE operation = 'CHANGE_ROLE';`), 'undesignate role changes');
+    requireSeed(
+      runSql(
+        `DELETE FROM maker_requests WHERE maker_email IN ('${maker}','${checker}'); DELETE FROM dual_control_operations WHERE operation = 'CHANGE_ROLE';`,
+      ),
+      'undesignate role changes',
+    );
   }
 });
 
@@ -1067,14 +1434,22 @@ test('verification codes flow through the outbox', async () => {
   requireSeed(seedUser(admin, 'SUPER_ADMIN'), 'seed outbox admin');
   const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123' })).body.token;
 
-  const signup = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Outbox', dob: '1990-01-01' });
+  const signup = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Outbox', dob: '1990-01-01' });
   assert.equal(signup.status, 200);
 
   // The signup queued a PENDING row, without exposing the code.
-  const queued = await request(app).get('/admin/outbox').set('Authorization', `Bearer ${adminToken}`).query({ status: 'PENDING' });
+  const queued = await request(app)
+    .get('/admin/outbox')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .query({ status: 'PENDING' });
   assert.equal(queued.status, 200);
   assert.equal(queued.body.data[0], 'OUTBOX');
-  assert.ok(!JSON.stringify(queued.body).includes(getVerificationCode(em) ?? 'no-such-code'), 'the code is never exposed');
+  assert.ok(
+    !JSON.stringify(queued.body).includes(getVerificationCode(em) ?? 'no-such-code'),
+    'the code is never exposed',
+  );
   assert.ok(queued.body.data.slice(2).join(';').includes(em), 'the signup row is queued');
 
   // The worker delivers it; the delivered code verifies the account.
@@ -1082,24 +1457,35 @@ test('verification codes flow through the outbox', async () => {
   try {
     const logFile = path.join(dir, 'outbox.log');
     const workerPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'workers', 'outbox.js');
-    const runWorker = () => new Promise((resolve, reject) => {
-      execFile('node', [workerPath, '--once', '--limit', '500'], {
-        env: { ...process.env, OUTBOX_TRANSPORT: 'log', OUTBOX_LOG_FILE: logFile },
-      }, (err, stdout) => (err ? reject(err) : resolve(stdout)));
-    });
+    const runWorker = () =>
+      new Promise((resolve, reject) => {
+        execFile(
+          'node',
+          [workerPath, '--once', '--limit', '500'],
+          {
+            env: { ...process.env, OUTBOX_TRANSPORT: 'log', OUTBOX_LOG_FILE: logFile },
+          },
+          (err, stdout) => (err ? reject(err) : resolve(stdout)),
+        );
+      });
     // Other suites run in parallel and share the outbox; keep dispatching
     // until our row is delivered (bounded; residue is finite per run).
     let delivered = null;
     let dbgRounds = [];
     for (let r = 0; r < 8 && !delivered; r++) {
       const out = await runWorker();
-      const lines = (await readFile(logFile, 'utf8')).trim().split('\n').map((x) => JSON.parse(x));
+      const lines = (await readFile(logFile, 'utf8'))
+        .trim()
+        .split('\n')
+        .map((x) => JSON.parse(x));
       delivered = lines.find((x) => x.to === em);
       dbgRounds.push({ r, newLines: lines.length, outLen: String(out).length });
       if (r === 7) console.log('DBG-OUTBOX-LOOP ' + JSON.stringify({ em, dbgRounds, totalLines: lines.length }));
     }
     assert.ok(delivered, 'our row was delivered');
-    const verify = await request(app).post('/auth/verify').send({ email: em, code: delivered.text.match(/\d{6}/)[0] });
+    const verify = await request(app)
+      .post('/auth/verify')
+      .send({ email: em, code: delivered.text.match(/\d{6}/)[0] });
     assert.equal(verify.body.data[0], 'EMAIL_VERIFIED');
   } finally {
     await rm(dir, { recursive: true, force: true });
@@ -1135,19 +1521,28 @@ test('mfa backup codes and assisted recovery work end to end', async () => {
   requireSeed(seedUser(user, 'USER') && seedUser(admin, 'SUPER_ADMIN'), 'seed recovery users');
   enableMfa(user);
   enableMfa(admin);
-  const userToken = (await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) })).body.token;
+  const userToken = (
+    await request(app)
+      .post('/auth/login')
+      .send({ email: user, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) })
+  ).body.token;
   assert.ok(userToken);
   const adminToken = await adminLoginFor(admin);
 
   // Backup codes are issued once and work in place of TOTP.
-  const gen = await request(app).post('/mfa/backup-codes').set('Authorization', `Bearer ${userToken}`).send({ email: user });
+  const gen = await request(app)
+    .post('/mfa/backup-codes')
+    .set('Authorization', `Bearer ${userToken}`)
+    .send({ email: user });
   assert.equal(gen.body.data[0], 'BACKUP_CODES');
   assert.equal(gen.body.codes.length, 8);
   const [first, second] = gen.body.codes;
   const blocked = await request(app).get('/admin/mfa-recovery').set('Authorization', `Bearer ${userToken}`);
   assert.equal(blocked.status, 403);
 
-  const loginBackup = await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: first });
+  const loginBackup = await request(app)
+    .post('/auth/login')
+    .send({ email: user, password: 'secret123', mfaCode: first });
   assert.equal(loginBackup.body.data[0], 'LOGIN_OK');
   const replay = await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: first });
   assert.equal(replay.body.error, 'INVALID_MFA');
@@ -1159,22 +1554,40 @@ test('mfa backup codes and assisted recovery work end to end', async () => {
   assert.ok(/^\d{6}$/.test(code));
   const confirm = await request(app).post('/mfa/recover/confirm').send({ email: user, code });
   assert.deepEqual(confirm.body.data, ['RECOVERY_VERIFIED']);
-  const queue = await request(app).get('/admin/mfa-recovery').set('Authorization', `Bearer ${adminToken}`).query({ status: 'VERIFIED' });
+  const queue = await request(app)
+    .get('/admin/mfa-recovery')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .query({ status: 'VERIFIED' });
   assert.equal(queue.body.data[0], 'RECOVERY_REQUESTS');
   const reqId = queue.body.data.find((r) => r.includes(user)).split(':')[0];
   assert.ok(reqId);
 
   // A non-admin cannot approve; the admin's step-up approval clears MFA.
   const userStep = await stepUpFor(userToken);
-  assert.equal((await request(app).post('/admin/mfa-recovery/approve').set('Authorization', `Bearer ${userToken}`).set('X-Step-Up', userStep).send({ requestId: reqId })).status, 403);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/mfa-recovery/approve')
+        .set('Authorization', `Bearer ${userToken}`)
+        .set('X-Step-Up', userStep)
+        .send({ requestId: reqId })
+    ).status,
+    403,
+  );
   const adminStep = await stepUpFor(adminToken);
-  const approved = await request(app).post('/admin/mfa-recovery/approve').set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ requestId: reqId });
+  const approved = await request(app)
+    .post('/admin/mfa-recovery/approve')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .set('X-Step-Up', adminStep)
+    .send({ requestId: reqId });
   assert.deepEqual(approved.body.data, ['RECOVERY_APPROVED']);
 
   const after = await request(app).post('/auth/login').send({ email: user, password: 'secret123' });
   assert.equal(after.body.data[0], 'LOGIN_OK');
   // With MFA cleared the old codes are inert: plain login works, codes are ignored.
-  const secondLogin = await request(app).post('/auth/login').send({ email: user, password: 'secret123', mfaCode: second });
+  const secondLogin = await request(app)
+    .post('/auth/login')
+    .send({ email: user, password: 'secret123', mfaCode: second });
   assert.equal(secondLogin.body.data[0], 'LOGIN_OK');
 });
 
@@ -1188,10 +1601,16 @@ test('account statements show postings with opening and closing balances', async
   assert.ok(userToken && otherToken);
 
   const ref = `gwstmt${Date.now()}`;
-  const sent = await request(app).post('/wallet/transfer').set('Authorization', `Bearer ${userToken}`).send({ from: user, to: other, amount: '25.00', idempotencyKey: ref });
+  const sent = await request(app)
+    .post('/wallet/transfer')
+    .set('Authorization', `Bearer ${userToken}`)
+    .send({ from: user, to: other, amount: '25.00', idempotencyKey: ref });
   assert.equal(sent.body.data[0], 'TRANSFER_OK');
 
-  const stmt = await request(app).get('/statements').set('Authorization', `Bearer ${userToken}`).query({ email: user, currency: 'USD', limit: '50' });
+  const stmt = await request(app)
+    .get('/statements')
+    .set('Authorization', `Bearer ${userToken}`)
+    .query({ email: user, currency: 'USD', limit: '50' });
   assert.equal(stmt.body.opening, '0.00');
   assert.equal(stmt.body.closing, '975.00');
   assert.equal(stmt.body.currency, 'USD');
@@ -1204,15 +1623,24 @@ test('account statements show postings with opening and closing balances', async
   assert.equal(out.reversed, false);
   assert.equal(stmt.body.lines.at(-1).balanceAfter, stmt.body.closing);
 
-  const counter = await request(app).get('/statements').set('Authorization', `Bearer ${otherToken}`).query({ email: other, currency: 'USD' });
+  const counter = await request(app)
+    .get('/statements')
+    .set('Authorization', `Bearer ${otherToken}`)
+    .query({ email: other, currency: 'USD' });
   assert.equal(counter.body.closing, '1025.00');
 
-  const page = await request(app).get('/statements').set('Authorization', `Bearer ${userToken}`).query({ email: user, currency: 'USD', limit: '1', offset: '1' });
+  const page = await request(app)
+    .get('/statements')
+    .set('Authorization', `Bearer ${userToken}`)
+    .query({ email: user, currency: 'USD', limit: '1', offset: '1' });
   assert.equal(page.body.total, '2');
   assert.equal(page.body.lines.length, 1);
 
   // A stranger cannot read someone else's statement.
-  const blocked = await request(app).get('/statements').set('Authorization', `Bearer ${otherToken}`).query({ email: user, currency: 'USD' });
+  const blocked = await request(app)
+    .get('/statements')
+    .set('Authorization', `Bearer ${otherToken}`)
+    .query({ email: user, currency: 'USD' });
   assert.equal(blocked.status, 403);
 });
 
@@ -1226,7 +1654,10 @@ test('dispute tickets run the full lifecycle end to end', async () => {
   const adminToken = await adminLoginFor(admin);
 
   // A customer opens a case about their own issue.
-  const opened = await request(app).post('/disputes').set('Authorization', `Bearer ${userToken}`).send({ email: user, subject: 'Missing transfer', detail: 'Where is my money' });
+  const opened = await request(app)
+    .post('/disputes')
+    .set('Authorization', `Bearer ${userToken}`)
+    .send({ email: user, subject: 'Missing transfer', detail: 'Where is my money' });
   assert.equal(opened.body.data[0], 'DISPUTE_OPENED');
   const caseId = opened.body.caseId;
   assert.ok(caseId);
@@ -1234,18 +1665,36 @@ test('dispute tickets run the full lifecycle end to end', async () => {
   // Notes accumulate; a stranger cannot read or write the case.
   const stranger = U('dsp_x_');
   requireSeed(seedUser(stranger, 'USER'), 'seed stranger');
-  const strangerToken = (await request(app).post('/auth/login').send({ email: stranger, password: 'secret123' })).body.token;
-  assert.equal((await request(app).get(`/disputes/${caseId}`).set('Authorization', `Bearer ${strangerToken}`).query({})).status, 403);
-  assert.equal((await request(app).get('/disputes').set('Authorization', `Bearer ${strangerToken}`)).body.cases.length, 0);
+  const strangerToken = (await request(app).post('/auth/login').send({ email: stranger, password: 'secret123' })).body
+    .token;
+  assert.equal(
+    (await request(app).get(`/disputes/${caseId}`).set('Authorization', `Bearer ${strangerToken}`).query({})).status,
+    403,
+  );
+  assert.equal(
+    (await request(app).get('/disputes').set('Authorization', `Bearer ${strangerToken}`)).body.cases.length,
+    0,
+  );
 
-  const noted = await request(app).post(`/disputes/${caseId}/notes`).set('Authorization', `Bearer ${userToken}`).send({ body: 'Extra info here' });
+  const noted = await request(app)
+    .post(`/disputes/${caseId}/notes`)
+    .set('Authorization', `Bearer ${userToken}`)
+    .send({ body: 'Extra info here' });
   assert.deepEqual(noted.body.data, ['DISPUTE_NOTED']);
 
   // The admin acknowledges (with a due date), then resolves with step-up.
   const adminStep = await stepUpFor(adminToken);
-  const acked = await request(app).post(`/disputes/${caseId}/acknowledge`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ due: '2099-01-31' });
+  const acked = await request(app)
+    .post(`/disputes/${caseId}/acknowledge`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .set('X-Step-Up', adminStep)
+    .send({ due: '2099-01-31' });
   assert.deepEqual(acked.body.data, ['DISPUTE_ACKNOWLEDGED']);
-  const resolved = await request(app).post(`/disputes/${caseId}/resolve`).set('Authorization', `Bearer ${adminToken}`).set('X-Step-Up', adminStep).send({ resolution: 'Money returned' });
+  const resolved = await request(app)
+    .post(`/disputes/${caseId}/resolve`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .set('X-Step-Up', adminStep)
+    .send({ resolution: 'Money returned' });
   assert.deepEqual(resolved.body.data, ['DISPUTE_RESOLVED']);
 
   // The customer sees the resolution and the full note history.
@@ -1255,9 +1704,15 @@ test('dispute tickets run the full lifecycle end to end', async () => {
   assert.equal(got.body.messages.length, 1);
 
   // The admin queue lists the case; terminal cases refuse new notes.
-  const queue = await request(app).get('/disputes').set('Authorization', `Bearer ${adminToken}`).query({ status: 'RESOLVED' });
+  const queue = await request(app)
+    .get('/disputes')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .query({ status: 'RESOLVED' });
   assert.ok(queue.body.cases.some((c) => c.caseId === String(caseId) && c.state === 'RESOLVED'));
-  const late = await request(app).post(`/disputes/${caseId}/notes`).set('Authorization', `Bearer ${userToken}`).send({ body: 'Too late' });
+  const late = await request(app)
+    .post(`/disputes/${caseId}/notes`)
+    .set('Authorization', `Bearer ${userToken}`)
+    .send({ body: 'Too late' });
   assert.equal(late.body.error, 'INVALID_STATUS');
 });
 
@@ -1291,27 +1746,40 @@ test('deposit lifecycle over HTTP', async () => {
   const openPeriod = await request(app).post('/gl/periods').set(auth).send({ period });
   assert.equal(openPeriod.status, 200);
 
-  const valid = await request(app).post('/deposits/validate').set(auth).send({ principal: '10000.00', currency: 'USD', term: '12', rate: '5.00' });
+  const valid = await request(app)
+    .post('/deposits/validate')
+    .set(auth)
+    .send({ principal: '10000.00', currency: 'USD', term: '12', rate: '5.00' });
   assert.equal(valid.status, 200);
   assert.equal(valid.body.data[0], 'DEP_VALID');
 
-  const calc = await request(app).post('/deposits/calc').set(auth).send({ principal: '10000.00', rate: '5.00', days: '365' });
+  const calc = await request(app)
+    .post('/deposits/calc')
+    .set(auth)
+    .send({ principal: '10000.00', rate: '5.00', days: '365' });
   assert.equal(calc.status, 200);
   assert.deepEqual(calc.body.data, ['DEP_CALC', '500.0000', '10500.0000']);
 
-  const open = await request(app).post('/deposits').set(auth).send({ email: owner, principal: '10000.00', currency: 'USD', term: '12', rate: '5.00' });
+  const open = await request(app)
+    .post('/deposits')
+    .set(auth)
+    .send({ email: owner, principal: '10000.00', currency: 'USD', term: '12', rate: '5.00' });
   assert.equal(open.status, 200);
   assert.equal(open.body.data[0], 'DEP_OPEN');
   const id = open.body.data[1];
   assert.match(String(id), /^\d+$/);
 
   assert.equal(
-    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${owner}') AND currency_id = 1`),
+    queryScalar(
+      `SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${owner}') AND currency_id = 1`,
+    ),
     '0.0000',
     'funding debits the owner wallet',
   );
   assert.equal(
-    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${bank}') AND account_type = 'DEPOSIT_POOL'`),
+    queryScalar(
+      `SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${bank}') AND account_type = 'DEPOSIT_POOL'`,
+    ),
     '1010000.0000',
     'funding credits the pool',
   );
@@ -1324,11 +1792,19 @@ test('deposit lifecycle over HTTP', async () => {
   const otherOwner = U('other_');
   requireSeed(seedUser(otherOwner) && seedAccount(otherOwner, '100.00'), 'seed the keyed open wallet');
   const keyedBody = { email: otherOwner, principal: '100.00', currency: 'USD', term: '6', rate: '5.00' };
-  const reopened = await request(app).post('/deposits').set(auth).set('idempotency-key', 'gw-dep-open-1').send(keyedBody);
+  const reopened = await request(app)
+    .post('/deposits')
+    .set(auth)
+    .set('idempotency-key', 'gw-dep-open-1')
+    .send(keyedBody);
   assert.equal(reopened.status, 200);
   const id2b = reopened.body.data[1];
   assert.match(String(id2b), /^\d+$/);
-  const reopenedAgain = await request(app).post('/deposits').set(auth).set('idempotency-key', 'gw-dep-open-1').send(keyedBody);
+  const reopenedAgain = await request(app)
+    .post('/deposits')
+    .set(auth)
+    .set('idempotency-key', 'gw-dep-open-1')
+    .send(keyedBody);
   assert.equal(reopenedAgain.status, 200);
   assert.equal(reopenedAgain.body.data[1], id2b);
   assert.equal(
@@ -1338,10 +1814,24 @@ test('deposit lifecycle over HTTP', async () => {
   );
   requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref = 'DEP-${id2b}-FUND'`), 'clean up the keyed open legs');
   requireSeed(runSql(`DELETE FROM deposit_account WHERE id = ${id2b}`), 'clean up the keyed deposit');
-  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id2b}-FUND'`), 'clean up the keyed open journals');
-  requireSeed(runSql(`DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2b}:%')`), 'clean up the keyed open GL lines');
-  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2b}:%'`), 'clean up the keyed open GL journal');
-  requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email = '${otherOwner}')`), 'clean up the keyed wallet');
+  requireSeed(
+    runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id2b}-FUND'`),
+    'clean up the keyed open journals',
+  );
+  requireSeed(
+    runSql(
+      `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2b}:%')`,
+    ),
+    'clean up the keyed open GL lines',
+  );
+  requireSeed(
+    runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2b}:%'`),
+    'clean up the keyed open GL journal',
+  );
+  requireSeed(
+    runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email = '${otherOwner}')`),
+    'clean up the keyed wallet',
+  );
   requireSeed(runSql(`DELETE FROM users WHERE email = '${otherOwner}'`), 'clean up the keyed user');
   const got = await request(app).get(`/deposits/${id}`).set(auth);
   assert.equal(got.status, 200);
@@ -1364,7 +1854,9 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(settled.status, 200);
   assert.deepEqual(settled.body.data, ['DEP_SETTLE', '10041.0959']);
   assert.equal(
-    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${owner}') AND currency_id = 1`),
+    queryScalar(
+      `SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${owner}') AND currency_id = 1`,
+    ),
     '10041.0959',
     'the payout lands in the owner wallet',
   );
@@ -1382,7 +1874,10 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(closedKey.status, 400);
   assert.equal(closedKey.body.error, 'INVALID_STATUS');
 
-  const open2 = await request(app).post('/deposits').set(auth).send({ email: owner, principal: '1000.00', currency: 'USD', term: '6', rate: '5.00' });
+  const open2 = await request(app)
+    .post('/deposits')
+    .set(auth)
+    .send({ email: owner, principal: '1000.00', currency: 'USD', term: '6', rate: '5.00' });
   assert.equal(open2.status, 200);
   const id2 = open2.body.data[1];
   assert.match(String(id2), /^\d+$/);
@@ -1396,7 +1891,10 @@ test('deposit lifecycle over HTTP', async () => {
     'the refund posts two legs',
   );
 
-  const closedReplay = await request(app).post(`/deposits/${id2}/close`).set(auth).send({ idempotencyKey: 'gw-close-1' });
+  const closedReplay = await request(app)
+    .post(`/deposits/${id2}/close`)
+    .set(auth)
+    .send({ idempotencyKey: 'gw-close-1' });
   assert.equal(closedReplay.status, 200);
   assert.deepEqual(closedReplay.body.data, ['DEP_CLOSED', '1000.0000']);
   assert.equal(
@@ -1417,39 +1915,62 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(closeAgain.status, 400);
   assert.equal(closeAgain.body.error, 'INVALID_STATUS');
 
-  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref IN ('DEP-${id}', 'DEP-${id}-FUND', 'DEP-${id2}-FUND', 'DEP-${id2}-REFUND')`), 'clean up the payout legs');
+  requireSeed(
+    runSql(
+      `DELETE FROM ledger WHERE txn_ref IN ('DEP-${id}', 'DEP-${id}-FUND', 'DEP-${id2}-FUND', 'DEP-${id2}-REFUND')`,
+    ),
+    'clean up the payout legs',
+  );
   requireSeed(runSql(`DELETE FROM deposit_account WHERE customer_email = '${owner}'`), 'clean up the deposit');
   requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id}'`), 'clean up the payout journal');
-  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref IN ('DEP-${id}-FUND', 'DEP-${id2}-FUND', 'DEP-${id2}-REFUND')`), 'clean up the funding journal');
+  requireSeed(
+    runSql(`DELETE FROM journal_entries WHERE txn_ref IN ('DEP-${id}-FUND', 'DEP-${id2}-FUND', 'DEP-${id2}-REFUND')`),
+    'clean up the funding journal',
+  );
   requireSeed(
     runSql(
       `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%')`,
     ),
     'clean up the payout GL lines',
   );
-  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%'`), 'clean up the payout GL journal');
+  requireSeed(
+    runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_SETTLE:${id}:%'`),
+    'clean up the payout GL journal',
+  );
   requireSeed(
     runSql(
       `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id}:%')`,
     ),
     'clean up the funding GL lines',
   );
-  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id}:%'`), 'clean up the funding GL journal');
+  requireSeed(
+    runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id}:%'`),
+    'clean up the funding GL journal',
+  );
   requireSeed(
     runSql(
       `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2}:%')`,
     ),
     'clean up the second funding GL lines',
   );
-  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2}:%'`), 'clean up the second funding GL journal');
+  requireSeed(
+    runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2}:%'`),
+    'clean up the second funding GL journal',
+  );
   requireSeed(
     runSql(
       `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_CLOSE:${id2}:%')`,
     ),
     'clean up the refund GL lines',
   );
-  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_CLOSE:${id2}:%'`), 'clean up the refund GL journal');
-  requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${owner}','${bank}'))`), 'clean up wallets');
+  requireSeed(
+    runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_CLOSE:${id2}:%'`),
+    'clean up the refund GL journal',
+  );
+  requireSeed(
+    runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${owner}','${bank}'))`),
+    'clean up wallets',
+  );
   requireSeed(runSql(`DELETE FROM users WHERE email IN ('${owner}','${bank}')`), 'clean up users');
 });
 
@@ -1485,23 +2006,40 @@ test('card lifecycle over HTTP', async () => {
   const openPeriod = await request(app).post('/gl/periods').set(auth).send({ period });
   assert.equal(openPeriod.status, 200);
 
-  const valid = await request(app).post('/cards/validate').set(auth).send({ email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' });
+  const valid = await request(app)
+    .post('/cards/validate')
+    .set(auth)
+    .send({ email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' });
   assert.equal(valid.status, 200);
   assert.equal(valid.body.data[0], 'CARD_VALID');
 
-  const issue = await request(app).post('/cards').set(auth).send({ ref, email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' });
+  const issue = await request(app)
+    .post('/cards')
+    .set(auth)
+    .send({ ref, email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' });
   assert.equal(issue.status, 200);
   assert.equal(issue.body.data[0], 'CARD_ISSUE');
   const id = issue.body.data[1];
   assert.match(String(id), /^\d+$/);
 
-  assert.equal((await request(app).post('/cards').set(auth).send({ ref, email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' })).body.error, 'DUPLICATE');
+  assert.equal(
+    (
+      await request(app)
+        .post('/cards')
+        .set(auth)
+        .send({ ref, email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' })
+    ).body.error,
+    'DUPLICATE',
+  );
 
   const got = await request(app).get(`/cards/${id}`).set(auth);
   assert.equal(got.status, 200);
   assert.equal(got.body.data[0], 'CARD');
 
-  const authorize = await request(app).post(`/cards/${id}/authorize`).set(auth).send({ amount: '100.00', merchant: 'Shop A' });
+  const authorize = await request(app)
+    .post(`/cards/${id}/authorize`)
+    .set(auth)
+    .send({ amount: '100.00', merchant: 'Shop A' });
   assert.equal(authorize.status, 200);
   assert.equal(authorize.body.data[0], 'CARD_AUTHORIZE');
   assert.match(authorize.body.data[1], /^AUTH-/);
@@ -1510,12 +2048,16 @@ test('card lifecycle over HTTP', async () => {
   assert.equal(captured.status, 200);
   assert.deepEqual(captured.body.data, ['CARD_CAPTURE', '100.0000']);
   assert.equal(
-    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${rcv}') AND account_type = 'CARD_RECEIVABLE'`),
+    queryScalar(
+      `SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${rcv}') AND account_type = 'CARD_RECEIVABLE'`,
+    ),
     '999900.0000',
     'the capture debits the receivable book',
   );
   assert.equal(
-    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${pay}') AND account_type = 'MERCHANT_PAYABLE'`),
+    queryScalar(
+      `SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${pay}') AND account_type = 'MERCHANT_PAYABLE'`,
+    ),
     '1000100.0000',
     'the capture credits the payable book',
   );
@@ -1524,7 +2066,9 @@ test('card lifecycle over HTTP', async () => {
   assert.equal(repay.status, 200);
   assert.deepEqual(repay.body.data, ['CARD_REPAY', '50.0000']);
   assert.equal(
-    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${admin}') AND currency_id = 1`),
+    queryScalar(
+      `SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${admin}') AND currency_id = 1`,
+    ),
     '4950.0000',
     'the repayment debits the wallet',
   );
@@ -1532,12 +2076,21 @@ test('card lifecycle over HTTP', async () => {
   // Fase 2: idempotency keys on the money-moving card routes. A repeated
   // key replays the stored outcome instead of posting again; a different
   // amount under the same key conflicts.
-  const authorize2 = await request(app).post(`/cards/${id}/authorize`).set(auth).send({ amount: '20.00', merchant: 'Shop B' });
+  const authorize2 = await request(app)
+    .post(`/cards/${id}/authorize`)
+    .set(auth)
+    .send({ amount: '20.00', merchant: 'Shop B' });
   assert.equal(authorize2.status, 200);
-  const keyedCap1 = await request(app).post(`/cards/${id}/capture`).set(auth).send({ authRef: authorize2.body.data[1], idempotencyKey: `gw-cap-${ref}` });
+  const keyedCap1 = await request(app)
+    .post(`/cards/${id}/capture`)
+    .set(auth)
+    .send({ authRef: authorize2.body.data[1], idempotencyKey: `gw-cap-${ref}` });
   assert.equal(keyedCap1.status, 200);
   assert.deepEqual(keyedCap1.body.data, ['CARD_CAPTURE', '20.0000']);
-  const keyedCap2 = await request(app).post(`/cards/${id}/capture`).set(auth).send({ authRef: authorize2.body.data[1], idempotencyKey: `gw-cap-${ref}` });
+  const keyedCap2 = await request(app)
+    .post(`/cards/${id}/capture`)
+    .set(auth)
+    .send({ authRef: authorize2.body.data[1], idempotencyKey: `gw-cap-${ref}` });
   assert.equal(keyedCap2.status, 200);
   assert.deepEqual(keyedCap2.body.data, ['CARD_CAPTURE', '20.0000']);
   assert.equal(
@@ -1546,13 +2099,22 @@ test('card lifecycle over HTTP', async () => {
     'the keyed capture replay posts no new legs',
   );
 
-  const keyedRepay1 = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '10.00', idempotencyKey: `gw-repay-${ref}` });
+  const keyedRepay1 = await request(app)
+    .post(`/cards/${id}/repay`)
+    .set(auth)
+    .send({ amount: '10.00', idempotencyKey: `gw-repay-${ref}` });
   assert.equal(keyedRepay1.status, 200);
   assert.deepEqual(keyedRepay1.body.data, ['CARD_REPAY', '10.0000']);
-  const keyedRepay2 = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '10.00', idempotencyKey: `gw-repay-${ref}` });
+  const keyedRepay2 = await request(app)
+    .post(`/cards/${id}/repay`)
+    .set(auth)
+    .send({ amount: '10.00', idempotencyKey: `gw-repay-${ref}` });
   assert.equal(keyedRepay2.status, 200);
   assert.deepEqual(keyedRepay2.body.data, ['CARD_REPAY', '10.0000']);
-  const keyedRepayConflict = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '11.00', idempotencyKey: `gw-repay-${ref}` });
+  const keyedRepayConflict = await request(app)
+    .post(`/cards/${id}/repay`)
+    .set(auth)
+    .send({ amount: '11.00', idempotencyKey: `gw-repay-${ref}` });
   assert.equal(keyedRepayConflict.status, 409);
   assert.equal(keyedRepayConflict.body.error, 'IDEMPOTENCY_CONFLICT');
 
@@ -1569,7 +2131,10 @@ test('card lifecycle over HTTP', async () => {
   assert.equal((await request(app).post(`/cards/${id}/block`).set(auth).send({})).body.data[0], 'CARD_BLOCKED');
   assert.equal((await request(app).post(`/cards/${id}/unblock`).set(auth).send({})).body.data[0], 'CARD_UNBLOCKED');
 
-  const replace = await request(app).post(`/cards/${id}/replace`).set(auth).send({ ref: `${ref}_new` });
+  const replace = await request(app)
+    .post(`/cards/${id}/replace`)
+    .set(auth)
+    .send({ ref: `${ref}_new` });
   assert.equal(replace.status, 200);
   assert.equal(replace.body.data[0], 'CARD_REPLACE');
   assert.match(String(replace.body.data[1]), /^\d+$/);
@@ -1582,14 +2147,30 @@ test('card lifecycle over HTTP', async () => {
   assert.equal(trail.status, 200);
   assert.equal(trail.body.data[0], 'CARD_AUDIT');
 
-  requireSeed(runSql(`DELETE FROM card_transaction WHERE card_id IN (SELECT id FROM card_account WHERE card_ref LIKE '${ref}%')`), 'clean up the card transactions');
-  requireSeed(runSql(`DELETE FROM card_transaction WHERE journal_id IN (SELECT journal_id FROM journal_entries WHERE txn_ref LIKE 'CARD%')`), 'clean up orphan card transactions');
+  requireSeed(
+    runSql(`DELETE FROM card_transaction WHERE card_id IN (SELECT id FROM card_account WHERE card_ref LIKE '${ref}%')`),
+    'clean up the card transactions',
+  );
+  requireSeed(
+    runSql(
+      `DELETE FROM card_transaction WHERE journal_id IN (SELECT journal_id FROM journal_entries WHERE txn_ref LIKE 'CARD%')`,
+    ),
+    'clean up orphan card transactions',
+  );
   requireSeed(runSql(`DELETE FROM card_account WHERE card_ref LIKE '${ref}%'`), 'clean up the cards');
   requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref LIKE 'CARD%'`), 'clean up the card legs');
   requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref LIKE 'CARD%'`), 'clean up the card journals');
-  requireSeed(runSql(`DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'CARD\\_%')`), 'clean up the card GL lines');
+  requireSeed(
+    runSql(
+      `DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'CARD\\_%')`,
+    ),
+    'clean up the card GL lines',
+  );
   requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'CARD\\_%'`), 'clean up the card GL journals');
-  requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${rcv}','${pay}'))`), 'clean up the books');
+  requireSeed(
+    runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${rcv}','${pay}'))`),
+    'clean up the books',
+  );
   requireSeed(runSql(`DELETE FROM users WHERE email IN ('${rcv}','${pay}')`), 'clean up book owners');
 });
 
@@ -1601,12 +2182,29 @@ test('collections lifecycle over HTTP', async () => {
   const token = await adminLoginFor(admin);
   const auth = { Authorization: `Bearer ${token}` };
 
-  requireSeed(runSql(`INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('${admin}', 1200, 'USD', 6, 5.0000, 'DISBURSED', '${admin}')`), 'seed a collections loan');
-  const loanId = queryScalar(`SELECT id FROM loan_application WHERE customer_email = '${admin}' ORDER BY id DESC LIMIT 1`);
+  requireSeed(
+    runSql(
+      `INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('${admin}', 1200, 'USD', 6, 5.0000, 'DISBURSED', '${admin}')`,
+    ),
+    'seed a collections loan',
+  );
+  const loanId = queryScalar(
+    `SELECT id FROM loan_application WHERE customer_email = '${admin}' ORDER BY id DESC LIMIT 1`,
+  );
   requireSeed(/^\d+$/.test(loanId), 'read the collections loan id');
-  requireSeed(runSql(`INSERT INTO loan_schedule (loan_id, term_months, interest_rate, start_date, status, created_by) VALUES (${loanId}, 6, 5.0000, DATE_SUB(CURDATE(), INTERVAL 90 DAY), 'ACTIVE', '${admin}')`), 'seed a collections schedule');
+  requireSeed(
+    runSql(
+      `INSERT INTO loan_schedule (loan_id, term_months, interest_rate, start_date, status, created_by) VALUES (${loanId}, 6, 5.0000, DATE_SUB(CURDATE(), INTERVAL 90 DAY), 'ACTIVE', '${admin}')`,
+    ),
+    'seed a collections schedule',
+  );
   const scheduleId = queryScalar(`SELECT id FROM loan_schedule WHERE loan_id = ${loanId} ORDER BY id DESC LIMIT 1`);
-  requireSeed(runSql(`INSERT INTO loan_installment (schedule_id, seq, due_date, principal_due, interest_due, total_due, status, paid_amount) VALUES (${scheduleId}, 1, DATE_SUB(CURDATE(), INTERVAL 70 DAY), 100, 10, 110, 'DUE', 0), (${scheduleId}, 2, DATE_SUB(CURDATE(), INTERVAL 40 DAY), 100, 10, 110, 'DUE', 10)`), 'seed overdue installments');
+  requireSeed(
+    runSql(
+      `INSERT INTO loan_installment (schedule_id, seq, due_date, principal_due, interest_due, total_due, status, paid_amount) VALUES (${scheduleId}, 1, DATE_SUB(CURDATE(), INTERVAL 70 DAY), 100, 10, 110, 'DUE', 0), (${scheduleId}, 2, DATE_SUB(CURDATE(), INTERVAL 40 DAY), 100, 10, 110, 'DUE', 10)`,
+    ),
+    'seed overdue installments',
+  );
 
   const valid = await request(app).post('/collections/validate').set(auth).send({ loanId });
   assert.equal(valid.status, 200);
@@ -1635,16 +2233,25 @@ test('collections lifecycle over HTTP', async () => {
   assert.equal(assign.status, 200);
   assert.equal(assign.body.data[0], 'COL_ASSIGNED');
 
-  const contact = await request(app).post(`/collections/${id}/contact`).set(auth).send({ channel: 'CALL', note: 'Left a message' });
+  const contact = await request(app)
+    .post(`/collections/${id}/contact`)
+    .set(auth)
+    .send({ channel: 'CALL', note: 'Left a message' });
   assert.equal(contact.status, 200);
   assert.equal(contact.body.data[0], 'COL_CONTACT');
 
   const promiseDate = queryScalar('SELECT DATE_ADD(CURDATE(), INTERVAL 3 DAY)');
-  const promise = await request(app).post(`/collections/${id}/promise`).set(auth).send({ date: promiseDate, amount: '100.00' });
+  const promise = await request(app)
+    .post(`/collections/${id}/promise`)
+    .set(auth)
+    .send({ date: promiseDate, amount: '100.00' });
   assert.equal(promise.status, 200);
   assert.deepEqual(promise.body.data, ['COL_PROMISE', promiseDate, '100.00']);
 
-  const past = await request(app).post(`/collections/${id}/promise`).set(auth).send({ date: '2020-01-01', amount: '10.00' });
+  const past = await request(app)
+    .post(`/collections/${id}/promise`)
+    .set(auth)
+    .send({ date: '2020-01-01', amount: '10.00' });
   assert.equal(past.status, 400);
   assert.equal(past.body.error, 'INVALID_DATE');
 
@@ -1656,13 +2263,22 @@ test('collections lifecycle over HTTP', async () => {
   assert.equal(over.status, 400);
   assert.equal(over.body.error, 'INVALID_AMOUNT');
 
-  const keyed1 = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '60.00', idempotencyKey: `gw-pay-${ref}` });
+  const keyed1 = await request(app)
+    .post(`/collections/${id}/pay`)
+    .set(auth)
+    .send({ amount: '60.00', idempotencyKey: `gw-pay-${ref}` });
   assert.equal(keyed1.status, 200);
   assert.deepEqual(keyed1.body.data, ['COL_PAY', '60.00', '100.0000']);
-  const keyed2 = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '60.00', idempotencyKey: `gw-pay-${ref}` });
+  const keyed2 = await request(app)
+    .post(`/collections/${id}/pay`)
+    .set(auth)
+    .send({ amount: '60.00', idempotencyKey: `gw-pay-${ref}` });
   assert.equal(keyed2.status, 200);
   assert.deepEqual(keyed2.body.data, ['COL_PAY', '60.0000', '100.0000']);
-  const keyedConflict = await request(app).post(`/collections/${id}/pay`).set(auth).send({ amount: '61.00', idempotencyKey: `gw-pay-${ref}` });
+  const keyedConflict = await request(app)
+    .post(`/collections/${id}/pay`)
+    .set(auth)
+    .send({ amount: '61.00', idempotencyKey: `gw-pay-${ref}` });
   assert.equal(keyedConflict.status, 409);
   assert.equal(keyedConflict.body.error, 'IDEMPOTENCY_CONFLICT');
 
@@ -1697,22 +2313,45 @@ test('collections lifecycle over HTTP', async () => {
   assert.equal(trail.body.data[0], 'COL_AUDIT');
   assert.match(trail.body.data[1], /REOPEN/);
 
-  requireSeed(runSql(`INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('clear_${admin}', 500, 'USD', 3, 5.0000, 'DISBURSED', '${admin}')`), 'seed a current loan');
-  const clearId = queryScalar(`SELECT id FROM loan_application WHERE customer_email = 'clear_${admin}' ORDER BY id DESC LIMIT 1`);
-  requireSeed(runSql(`INSERT INTO loan_schedule (loan_id, term_months, interest_rate, start_date, status, created_by) VALUES (${clearId}, 3, 5.0000, CURDATE(), 'ACTIVE', '${admin}')`), 'seed a current schedule');
+  requireSeed(
+    runSql(
+      `INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES ('clear_${admin}', 500, 'USD', 3, 5.0000, 'DISBURSED', '${admin}')`,
+    ),
+    'seed a current loan',
+  );
+  const clearId = queryScalar(
+    `SELECT id FROM loan_application WHERE customer_email = 'clear_${admin}' ORDER BY id DESC LIMIT 1`,
+  );
+  requireSeed(
+    runSql(
+      `INSERT INTO loan_schedule (loan_id, term_months, interest_rate, start_date, status, created_by) VALUES (${clearId}, 3, 5.0000, CURDATE(), 'ACTIVE', '${admin}')`,
+    ),
+    'seed a current schedule',
+  );
   const clearSchedule = queryScalar(`SELECT id FROM loan_schedule WHERE loan_id = ${clearId} ORDER BY id DESC LIMIT 1`);
-  requireSeed(runSql(`INSERT INTO loan_installment (schedule_id, seq, due_date, principal_due, interest_due, total_due, status) VALUES (${clearSchedule}, 1, DATE_ADD(CURDATE(), INTERVAL 20 DAY), 100, 5, 105, 'PENDING')`), 'seed a future installment');
+  requireSeed(
+    runSql(
+      `INSERT INTO loan_installment (schedule_id, seq, due_date, principal_due, interest_due, total_due, status) VALUES (${clearSchedule}, 1, DATE_ADD(CURDATE(), INTERVAL 20 DAY), 100, 5, 105, 'PENDING')`,
+    ),
+    'seed a future installment',
+  );
 
   const current = await request(app).post('/collections/validate').set(auth).send({ loanId: clearId });
   assert.equal(current.status, 409);
   assert.equal(current.body.error, 'NO_OVERDUE');
 
-  const missing = await request(app).post('/collections').set(auth).send({ ref: `${ref}X`, loanId: '999999' });
+  const missing = await request(app)
+    .post('/collections')
+    .set(auth)
+    .send({ ref: `${ref}X`, loanId: '999999' });
   assert.equal(missing.status, 404);
   assert.equal(missing.body.error, 'NOT_FOUND');
 
   requireSeed(runSql(`DELETE FROM collection_audit WHERE actor_email = '${admin}'`), 'clean up the collections audit');
-  requireSeed(runSql(`DELETE FROM loan_application WHERE customer_email IN ('${admin}', 'clear_${admin}')`), 'clean up the collections loans');
+  requireSeed(
+    runSql(`DELETE FROM loan_application WHERE customer_email IN ('${admin}', 'clear_${admin}')`),
+    'clean up the collections loans',
+  );
 });
 
 test('loan summary is not shadowed by /loans/:id', async () => {

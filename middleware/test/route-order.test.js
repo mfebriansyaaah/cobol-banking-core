@@ -11,7 +11,10 @@ import { ROUTES } from '../src/app.js';
 
 const segments = (path) => path.split('/');
 const isParam = (segment) => segment.startsWith(':');
-const shape = (path) => segments(path).map((s) => (isParam(s) ? ':param' : s)).join('/');
+const shape = (path) =>
+  segments(path)
+    .map((s) => (isParam(s) ? ':param' : s))
+    .join('/');
 
 function matchesEarlier(aSegs, bSegs) {
   if (aSegs.length !== bSegs.length) return false;

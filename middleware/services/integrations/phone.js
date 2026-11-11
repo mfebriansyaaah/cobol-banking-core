@@ -77,12 +77,7 @@ export function createPhoneProvider(kind, { logger = null } = {}) {
 // metric and try the secondary. When both fail, throw a named error pointing
 // at manual review (the caller queues MANUAL_REVIEW, never hangs the user).
 // Providers are injectable so chaos tests run without network.
-export async function sendOtpWithFallback(
-  primary,
-  secondary,
-  args,
-  { logger = null } = {},
-) {
+export async function sendOtpWithFallback(primary, secondary, args, { logger = null } = {}) {
   try {
     return await primary.sendOtp(args);
   } catch (primaryErr) {

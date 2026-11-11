@@ -14,8 +14,5 @@ process.env.COBOL_BIN = stub;
 const { invoke, InvocationTimeout } = await import('../src/invoker.js');
 
 test('a hung COBOL process is killed and reported as a timeout', async () => {
-  await assert.rejects(
-    () => invoke('CHECK_BALANCE', ['x@y.com'], { timeoutMs: 300 }),
-    InvocationTimeout,
-  );
+  await assert.rejects(() => invoke('CHECK_BALANCE', ['x@y.com'], { timeoutMs: 300 }), InvocationTimeout);
 });

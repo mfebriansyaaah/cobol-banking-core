@@ -36,9 +36,12 @@ test('MAIL_DEBUG shows the code outside production', async () => {
     await mailer.sendVerification({ to: 'a@test.com', purpose: 'SIGNUP', code: '123456' });
     assert.equal(lines[0].code, '123456');
   } finally {
-    if (savedHost === undefined) delete process.env.SMTP_HOST; else process.env.SMTP_HOST = savedHost;
-    if (savedDebug === undefined) delete process.env.MAIL_DEBUG; else process.env.MAIL_DEBUG = savedDebug;
-    if (savedEnv === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = savedEnv;
+    if (savedHost === undefined) delete process.env.SMTP_HOST;
+    else process.env.SMTP_HOST = savedHost;
+    if (savedDebug === undefined) delete process.env.MAIL_DEBUG;
+    else process.env.MAIL_DEBUG = savedDebug;
+    if (savedEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = savedEnv;
   }
 });
 
@@ -55,11 +58,19 @@ test('a failing SMTP does not throw and is counted', async () => {
     const lines = [];
     const mailer = createMailer({ logger: (line) => lines.push(line) });
     await assert.doesNotReject(() => mailer.sendVerification({ to: 'a@test.com', purpose: 'SIGNUP', code: '123456' }));
-    assert.ok(lines.some((l) => l.event === 'mail_failed'), 'logs a mail_failed event');
+    assert.ok(
+      lines.some((l) => l.event === 'mail_failed'),
+      'logs a mail_failed event',
+    );
     assert.match(metricsText(), /gateway_mailer_failed_total \d+/);
   } finally {
-    for (const [k, v] of [['SMTP_HOST', saved.host], ['SMTP_PORT', saved.port], ['SMTP_TIMEOUT_MS', saved.timeout]]) {
-      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    for (const [k, v] of [
+      ['SMTP_HOST', saved.host],
+      ['SMTP_PORT', saved.port],
+      ['SMTP_TIMEOUT_MS', saved.timeout],
+    ]) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
     }
   }
 });
@@ -82,7 +93,9 @@ test('the sender address honours MAIL_FROM_NAME', () => {
     process.env.MAIL_FROM_NAME = 'CobolBank';
     assert.equal(mailerFrom(), 'CobolBank <x@y.com>');
   } finally {
-    if (savedFrom === undefined) delete process.env.MAIL_FROM; else process.env.MAIL_FROM = savedFrom;
-    if (savedName === undefined) delete process.env.MAIL_FROM_NAME; else process.env.MAIL_FROM_NAME = savedName;
+    if (savedFrom === undefined) delete process.env.MAIL_FROM;
+    else process.env.MAIL_FROM = savedFrom;
+    if (savedName === undefined) delete process.env.MAIL_FROM_NAME;
+    else process.env.MAIL_FROM_NAME = savedName;
   }
 });

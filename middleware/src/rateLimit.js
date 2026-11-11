@@ -12,8 +12,12 @@ export function memoryStore() {
     }
   }
   return {
-    get size() { return hits.size; },
-    stats() { return { size: hits.size }; },
+    get size() {
+      return hits.size;
+    },
+    stats() {
+      return { size: hits.size };
+    },
     async hit(key, windowMs) {
       const now = Date.now();
       evict(now);
@@ -88,7 +92,7 @@ export function createRateLimiter({ store, windowMs = 15 * 60 * 1000, max = 100,
 export function rateLimiter(opts = {}) {
   const windowMs = Number(opts.windowMs ?? process.env.RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000);
   const max = Number(opts.max ?? process.env.RATE_LIMIT_MAX ?? 100);
-  const failOpen = opts.failOpen ?? (process.env.RATE_LIMIT_FAIL_OPEN !== 'false');
+  const failOpen = opts.failOpen ?? process.env.RATE_LIMIT_FAIL_OPEN !== 'false';
   return createRateLimiter({ store: opts.store ?? storeFromEnv(), windowMs, max, failOpen });
 }
 

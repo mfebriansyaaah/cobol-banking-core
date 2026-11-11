@@ -105,8 +105,7 @@ export async function resilientFetch(
   const headers = { ...(options.headers || {}) };
   if (idempotencyKey) headers['idempotency-key'] = idempotencyKey;
   const startedAt = Date.now();
-  const done = (result) =>
-    recordIntegration({ provider, result, durationMs: Date.now() - startedAt });
+  const done = (result) => recordIntegration({ provider, result, durationMs: Date.now() - startedAt });
   let attempt = 0;
   for (;;) {
     attempt += 1;

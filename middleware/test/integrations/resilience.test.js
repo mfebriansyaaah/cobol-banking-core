@@ -88,10 +88,15 @@ test('429 is retried then succeeds without double-send beyond budget', async () 
     return Promise.resolve(n === 1 ? statusRes(429) : okRes());
   });
   const seen = [];
-  const res = await resilientFetch('chaos-429', 'https://x.test/', {}, {
-    fetchImpl: c.fn,
-    logger: (e) => seen.push(e),
-  });
+  const res = await resilientFetch(
+    'chaos-429',
+    'https://x.test/',
+    {},
+    {
+      fetchImpl: c.fn,
+      logger: (e) => seen.push(e),
+    },
+  );
   assert.equal(res.ok, true);
   assert.equal(c.calls(), 2);
   assert.equal(seen.length, 1);
@@ -188,7 +193,10 @@ test('telegram rejects malformed JSON with a named error (no fake success)', asy
     await assert.rejects(
       sendTelegramOtp(
         { chatId: '1', text: 'hi' },
-        { fetchImpl: () => Promise.resolve({ ok: true, status: 200, json: () => Promise.reject(new SyntaxError('bad')) }) },
+        {
+          fetchImpl: () =>
+            Promise.resolve({ ok: true, status: 200, json: () => Promise.reject(new SyntaxError('bad')) }),
+        },
       ),
       /malformed JSON/,
     );
@@ -200,10 +208,7 @@ test('telegram rejects malformed JSON with a named error (no fake success)', asy
       /HTTP 500/,
     );
     const c = counting(() => Promise.resolve({ ok: false, status: 400, json: () => Promise.resolve({}) }));
-    await assert.rejects(
-      sendTelegramOtp({ chatId: '1', text: 'hi' }, { fetchImpl: c.fn }),
-      /HTTP 400/,
-    );
+    await assert.rejects(sendTelegramOtp({ chatId: '1', text: 'hi' }, { fetchImpl: c.fn }), /HTTP 400/);
     assert.equal(c.calls(), 1, '4xx never retried (no OTP double-send)');
   } finally {
     delete process.env.TELEGRAM_BOT_TOKEN;
@@ -225,10 +230,7 @@ test('free_sms fails closed without config and surfaces HTTP failures', async ()
       ),
       /HTTP 503/,
     );
-    const ok = await sendFreeSms(
-      { to: '+6281', text: 'hi' },
-      { fetchImpl: () => Promise.resolve(okRes()) },
-    );
+    const ok = await sendFreeSms({ to: '+6281', text: 'hi' }, { fetchImpl: () => Promise.resolve(okRes()) });
     assert.equal(ok, true);
   } finally {
     delete process.env.FREE_SMS_ENDPOINT;

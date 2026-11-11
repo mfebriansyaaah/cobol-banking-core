@@ -32,7 +32,9 @@ test('lookup parses entity, 404 reads NOT_FOUND', async () => {
   assert.equal(found.entity.status, 'ISSUED');
   assert.equal(found.entity.address, 'Oslo');
   assert.match(metricsText(), /integration_requests_total\{provider="gleif",result="ok"\} 1/);
-  const missing = await lookupLei(LEI, { fetchImpl: () => Promise.resolve({ ok: false, status: 404, json: () => Promise.resolve({}) }) });
+  const missing = await lookupLei(LEI, {
+    fetchImpl: () => Promise.resolve({ ok: false, status: 404, json: () => Promise.resolve({}) }),
+  });
   assert.equal(missing.result, 'NOT_FOUND');
   assert.deepEqual(await lookupLei('short', { fetchImpl: okFetch(record) }), { result: 'INVALID_INPUT', entity: null });
 });
@@ -44,10 +46,17 @@ test('lookup failures reject for manual fallback', async () => {
     /HTTP 500/,
   );
   await assert.rejects(
-    lookupLei(LEI, { fetchImpl: () => Promise.resolve({ ok: true, status: 200, json: () => Promise.reject(new SyntaxError('x')) }) }),
+    lookupLei(LEI, {
+      fetchImpl: () => Promise.resolve({ ok: true, status: 200, json: () => Promise.reject(new SyntaxError('x')) }),
+    }),
     /malformed JSON/,
   );
-  await assert.rejects(lookupLei(LEI, { fetchImpl: () => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: {} }) }) }), /unexpected shape/);
+  await assert.rejects(
+    lookupLei(LEI, {
+      fetchImpl: () => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ data: {} }) }),
+    }),
+    /unexpected shape/,
+  );
 });
 
 test('search returns top matches', async () => {

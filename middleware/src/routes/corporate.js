@@ -4,7 +4,9 @@ const ACTOR = { name: 'actor', pattern: PATTERNS.EMAIL, required: true };
 
 export const CORPORATE_ROUTES = [
   {
-    method: 'post', path: '/corporate/resolve', action: 'CORP_RESOLVE',
+    method: 'post',
+    path: '/corporate/resolve',
+    action: 'CORP_RESOLVE',
     tokenIdentity: 'actor',
     fields: [
       { name: 'lei', pattern: PATTERNS.KEY, required: true },
@@ -16,11 +18,10 @@ export const CORPORATE_ROUTES = [
     ],
   },
   {
-    method: 'get', path: '/corporate/status', action: 'CORP_STATUS',
+    method: 'get',
+    path: '/corporate/status',
+    action: 'CORP_STATUS',
     tokenIdentity: 'actor',
-    fields: [
-      { name: 'lei', pattern: PATTERNS.KEY, required: true },
-      BLANK, BLANK, BLANK, BLANK, ACTOR,
-    ],
+    fields: [{ name: 'lei', pattern: PATTERNS.KEY, required: true }, BLANK, BLANK, BLANK, BLANK, ACTOR],
   },
 ];

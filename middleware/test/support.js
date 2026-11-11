@@ -94,8 +94,10 @@ export function runSql(sql) {
 // Used by tests that assert a database invariant (e.g. ledger consistency).
 export function queryScalar(sql) {
   try {
-    return execFileSync('mysql', mysqlArgs(sql, ['-N', '-B']),
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return execFileSync('mysql', mysqlArgs(sql, ['-N', '-B']), {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
   } catch {
     return '';
   }
@@ -105,10 +107,14 @@ export function queryScalar(sql) {
 // Tests use this because the gateway no longer returns the code in the response.
 export function getVerificationCode(email, purpose = 'SIGNUP') {
   try {
-    return execFileSync('mysql', mysqlArgs(
-      `SELECT code FROM verification_logs WHERE email='${email}' AND purpose='${purpose}' AND is_used=0 ORDER BY id DESC LIMIT 1;`,
-      ['-N', '-B'],
-    ), { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return execFileSync(
+      'mysql',
+      mysqlArgs(
+        `SELECT code FROM verification_logs WHERE email='${email}' AND purpose='${purpose}' AND is_used=0 ORDER BY id DESC LIMIT 1;`,
+        ['-N', '-B'],
+      ),
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
+    ).trim();
   } catch {
     return '';
   }
@@ -117,8 +123,10 @@ export function getVerificationCode(email, purpose = 'SIGNUP') {
 // Insert n users in bulk (for exercising large list responses). Returns false
 // when mysql is absent.
 export function seedManyUsers(prefix, n, role = 'USER') {
-  const values = Array.from({ length: n }, (_, i) =>
-    `('${prefix}${i + 1}@test.com',CONCAT('SHA256_',SHA2('secret123',256)),'Bulk ${i + 1}','1990-01-01','VERIFIED','${role}')`,
+  const values = Array.from(
+    { length: n },
+    (_, i) =>
+      `('${prefix}${i + 1}@test.com',CONCAT('SHA256_',SHA2('secret123',256)),'Bulk ${i + 1}','1990-01-01','VERIFIED','${role}')`,
   ).join(',');
   const sql =
     'INSERT INTO users (email,password_hash,full_name,dob,status,role) VALUES ' +
@@ -192,17 +200,30 @@ export function refreshExchangeRates() {
 // Every test-created user must go through uniqueEmail() so cleanupNamespace()
 // and the residue check (scripts/check_test_residue.sh) find it.
 export function testNamespace(tag) {
-  const clean = String(tag).replace(/[^a-z0-9-]/gi, '').toLowerCase().slice(0, 12) || 't';
-  const shared = String(process.env.TEST_RUN_ID || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 24);
+  const clean =
+    String(tag)
+      .replace(/[^a-z0-9-]/gi, '')
+      .toLowerCase()
+      .slice(0, 12) || 't';
+  const shared = String(process.env.TEST_RUN_ID || '')
+    .replace(/[^a-z0-9]/gi, '')
+    .toLowerCase()
+    .slice(0, 24);
   const stamp = shared || `${Date.now().toString(36)}${(process.pid >>> 0).toString(36)}`;
-  const rand = Math.floor(Math.random() * 46656).toString(36).padStart(3, '0');
+  const rand = Math.floor(Math.random() * 46656)
+    .toString(36)
+    .padStart(3, '0');
   // Dashes delimit every segment so scripts/check_test_residue.sh can match
   // one run (`%-<stamp>-%`) without touching other runs' fixtures.
   return `${clean}-${stamp}-${rand}`;
 }
 
 export function uniqueEmail(ns, name = 'u') {
-  const tag = String(name).replace(/[^a-z0-9-]/gi, '').toLowerCase().slice(0, 24) || 'u';
+  const tag =
+    String(name)
+      .replace(/[^a-z0-9-]/gi, '')
+      .toLowerCase()
+      .slice(0, 24) || 'u';
   return `${ns}-${tag}@test.com`;
 }
 

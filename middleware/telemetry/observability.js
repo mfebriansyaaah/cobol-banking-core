@@ -83,10 +83,7 @@ function metricBase(name) {
 
 /** Prometheus text exposition of the counters (valid exposition format). */
 export function metricsText() {
-  const lines = [
-    '# HELP gateway_requests_total Total HTTP requests handled.',
-    '# TYPE gateway_requests_total counter',
-  ];
+  const lines = ['# HELP gateway_requests_total Total HTTP requests handled.', '# TYPE gateway_requests_total counter'];
   if (metrics.total === 0) {
     lines.push('gateway_requests_total 0');
   } else {
@@ -230,7 +227,13 @@ export function startMetricsExporter({ url, intervalMs = 15000, logger = null } 
     try {
       await pushMetrics(url, logger);
     } catch (err) {
-      if (logger) logger({ ts: new Date().toISOString(), level: 'warn', event: 'metrics_push_error', message: err && err.message });
+      if (logger)
+        logger({
+          ts: new Date().toISOString(),
+          level: 'warn',
+          event: 'metrics_push_error',
+          message: err && err.message,
+        });
     } finally {
       inFlight = false;
     }
@@ -238,4 +241,3 @@ export function startMetricsExporter({ url, intervalMs = 15000, logger = null } 
   if (timer.unref) timer.unref();
   return () => clearInterval(timer);
 }
-

@@ -95,9 +95,8 @@ test('mock fx provider and unknown kind', async () => {
 });
 
 test('official feed needs endpoint + key, sends Bearer auth', async () => {
-  const { createFxProvider, assertFxConfig, fxProviderKind } = await import(
-    '../../services/integrations/market/frankfurter.js'
-  );
+  const { createFxProvider, assertFxConfig, fxProviderKind } =
+    await import('../../services/integrations/market/frankfurter.js');
   const saved = {
     FX_PROVIDER: process.env.FX_PROVIDER,
     FX_ENDPOINT: process.env.FX_ENDPOINT,

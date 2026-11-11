@@ -38,10 +38,7 @@ export const AUTH_ROUTES = [
     action: 'FORGOT_PASSWORD',
     public: true,
     captcha: true,
-    fields: [
-      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
-      BLANK, BLANK, BLANK, BLANK, BLANK,
-    ],
+    fields: [{ name: 'email', pattern: PATTERNS.EMAIL, required: true }, BLANK, BLANK, BLANK, BLANK, BLANK],
   },
   {
     method: 'post',
@@ -64,10 +61,7 @@ export const AUTH_ROUTES = [
     action: 'RESEND_VERIFICATION',
     public: true,
     captcha: true,
-    fields: [
-      { name: 'email', pattern: PATTERNS.EMAIL, required: true },
-      BLANK, BLANK, BLANK, BLANK, BLANK,
-    ],
+    fields: [{ name: 'email', pattern: PATTERNS.EMAIL, required: true }, BLANK, BLANK, BLANK, BLANK, BLANK],
   },
   {
     method: 'post',

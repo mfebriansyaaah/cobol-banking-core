@@ -35,7 +35,10 @@ export const SCREENING_ROUTES = [
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'reason', pattern: PATTERNS.NAME, required: false },
-      BLANK, BLANK, BLANK, ACTOR,
+      BLANK,
+      BLANK,
+      BLANK,
+      ACTOR,
     ],
   },
   {
@@ -47,7 +50,10 @@ export const SCREENING_ROUTES = [
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'reason', pattern: PATTERNS.NAME, required: false },
-      BLANK, BLANK, BLANK, ACTOR,
+      BLANK,
+      BLANK,
+      BLANK,
+      ACTOR,
     ],
   },
   {

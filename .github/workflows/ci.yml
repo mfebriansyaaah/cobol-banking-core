@@ -165,6 +165,9 @@ jobs:
       - name: Verify program signatures
         run: node scripts/check_program_signatures.mjs .
 
+      - name: Verify test registration
+        run: node scripts/check_test_registration.mjs .
+
       - name: PR-size report (non-gating artifact)
         run: |
           mkdir -p artifacts

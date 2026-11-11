@@ -4,7 +4,10 @@
 // locks it; the address is the account key, not a secret authenticator) —
 // see docs/PRIVACY.md for the full policy and the per-field table.
 const NIK_RUN = /\d{16}/;
-const LAST4 = (s) => String(s ?? '').replace(/\D/g, '').slice(-4);
+const LAST4 = (s) =>
+  String(s ?? '')
+    .replace(/\D/g, '')
+    .slice(-4);
 
 // NIK -> asterisks + last4 (no 16-digit run survives).
 export function redactNik(nik) {
@@ -90,7 +93,13 @@ export function scanForPii(event) {
   for (const [key, value] of Object.entries(event)) {
     if (typeof value !== 'string') continue;
     if (key === 'to' && value.includes('@')) continue;
-    if (SENSITIVE_KEYS.has(key) && value !== '[redacted]' && value !== 'redacted' && !value.startsWith('…') && !value.startsWith('************')) {
+    if (
+      SENSITIVE_KEYS.has(key) &&
+      value !== '[redacted]' &&
+      value !== 'redacted' &&
+      !value.startsWith('…') &&
+      !value.startsWith('************')
+    ) {
       findings.push(`raw PII in key '${key}'`);
     }
     if (NIK_RUN.test(value)) findings.push(`16-digit NIK run in key '${key}'`);
