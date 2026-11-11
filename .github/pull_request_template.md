@@ -7,6 +7,15 @@
 - [ ] One concern per PR (no mixed domain wave + refactor + docs)
 - [ ] Money path (wallet, auth, payments, treasury, GL, settlement)? If yes: code-owner approval + author second pass below + money-path suites green.
 
+## Size
+
+<!-- Prefer under 1.500 changed lines; >1.500 requires a recorded exception (see docs/BRANCHING.md). -->
+
+- Size tier: <!-- S / M / L / B -->
+- Total diff: <!-- added + deleted lines from git diff --numstat -->
+- Semantic diff: <!-- reviewable lines excluding formatting/generated/move -->
+- Exception: <!-- none, or reason + review risk + reviewer + owner approval + rollback plan -->
+
 ## Second pass (money-path PRs only, solo-maintainer rule per docs/GOVERNANCE.md)
 
 <!-- Re-read the full diff after CI is green and record the outcome. Delete if not a money-path PR. -->
