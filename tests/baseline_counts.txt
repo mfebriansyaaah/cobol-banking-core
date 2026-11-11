@@ -82,9 +82,9 @@ db_payment_posting_tests=40
 
 db_phone_otp_tests=18
 
-db_identity_tests=27
+db_identity_tests=28
 
-db_kyc_enforcement_tests=22
+db_kyc_enforcement_tests=23
 
 db_screening_tests=37
 

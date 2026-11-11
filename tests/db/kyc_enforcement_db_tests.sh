@@ -74,6 +74,7 @@ assert_match "OCR opens review" "$(run_cobol "IDV_KTP_OCR_RESULT|${KR}|MANUAL_RE
 assert_match "stranger cannot list" "$(run_cobol "IDV_REVIEW_LIST||||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "admin lists open row" "$(run_cobol "IDV_REVIEW_LIST||||||${A}")" "SUCCESS\|REVIEWS\|[0-9][0-9]*:[0-9][0-9]*:KYC:OPEN"
 rid="$(db_query "SELECT id FROM manual_reviews WHERE user_id=(SELECT id FROM users WHERE email='${KR}') AND status='OPEN' ORDER BY id DESC LIMIT 1;")"
+assert_match "KR screening clear" "$(run_cobol "SCR_SCREEN|${KR}|qhash-kr|CLEAR|opensanctions|ref-kr|${KR}")" "SUCCESS\|SCREEN_RECORDED"
 assert_match "approve ok" "$(run_cobol "IDV_REVIEW_DECIDE|${rid}|APPROVED|enf-ok|||${A}")" "SUCCESS\|REVIEW_DECIDED"
 assert_match "queue clear" "$(run_cobol "IDV_REVIEW_LIST||||||${A}")" "SUCCESS\|REVIEWS\|$"
 assert_match "KR approved via review" "$(run_cobol "IDV_STATUS|${KR}|||||${KR}")" "SUCCESS\|KYC_STATUS\|APPROVED"

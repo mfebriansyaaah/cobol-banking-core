@@ -43,6 +43,7 @@ assert_match "OCR manual stored" "$(run_cobol "IDV_KTP_OCR_RESULT|${U}|MANUAL_RE
 rid="$(db_query "SELECT id FROM manual_reviews WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND status='OPEN' ORDER BY id DESC LIMIT 1;")"
 assert_match "review row" "$rid" "^[0-9]+$"
 assert_match "approve refused (non-admin)" "$(run_cobol "IDV_REVIEW_DECIDE|${rid}|APPROVED||||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "U screening clear" "$(run_cobol "SCR_SCREEN|${U}|qhash-idv|CLEAR|opensanctions|ref-idv|${U}")" "SUCCESS\|SCREEN_RECORDED"
 assert_match "approve ok" "$(run_cobol "IDV_REVIEW_DECIDE|${rid}|APPROVED|looks good|||${A}")" "SUCCESS\|REVIEW_DECIDED"
 assert_match "review closed" "$(db_query "SELECT status FROM manual_reviews WHERE id=${rid};")" "^APPROVED$"
 assert_match "double decide refused" "$(run_cobol "IDV_REVIEW_DECIDE|${rid}|REJECTED|x|||${A}")" "ERROR\|INVALID_STATUS"
