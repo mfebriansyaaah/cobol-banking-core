@@ -14,9 +14,29 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 
 db_seed
 db_reset_card
+# Fase 1: CAPTURE/REPAY move real money, so the fixture customer owns a
+# wallet, the bank-owned CARD_RECEIVABLE / MERCHANT_PAYABLE books are
+# capitalized, and the GL period is open.
+CUR="$(date +%Y-%m)"
+run_cobol "GL_PERIOD_OPEN|${CUR}|||||admin@test.com" >/dev/null
+for U in cardT@test.com cardR@test.com cardP@test.com; do
+    db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='${U}'));"
+    db_exec "DELETE FROM pending_transactions WHERE from_email='${U}' OR to_email='${U}';"
+    db_exec "DELETE FROM card_transaction WHERE card_id IN (SELECT id FROM card_account WHERE customer_email='${U}');"
+    db_exec "DELETE FROM card_audit WHERE card_id IN (SELECT id FROM card_account WHERE customer_email='${U}');"
+    db_exec "DELETE FROM card_account WHERE customer_email='${U}';"
+    db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
+    db_exec "DELETE FROM users WHERE email='${U}';"
+    run_cobol "REQUEST_SIGNUP|${U}|Passw0rd!|Card T|1990-01-01" >/dev/null
+    code="$(db_query "SELECT code FROM verification_logs WHERE email='${U}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
+    run_cobol "VERIFY_EMAIL|${U}|${code}" >/dev/null
+done
+db_exec "INSERT INTO accounts (user_id, currency_id, balance) SELECT id, 1, 5000.00 FROM users WHERE email='cardT@test.com';"
+db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'CARD_RECEIVABLE', 1000000.00 FROM users WHERE email='cardR@test.com';"
+db_exec "INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'MERCHANT_PAYABLE', 1000000.00 FROM users WHERE email='cardP@test.com';"
 
-# Issue a credit card for the seeded admin customer.
-issue_out="$(run_cobol "CARD_ISSUE|CARD-T1|admin@test.com|CREDIT|5000.00|USD|admin@test.com")"
+# Issue a credit card for the fixture customer.
+issue_out="$(run_cobol "CARD_ISSUE|CARD-T1|cardT@test.com|CREDIT|5000.00|USD|admin@test.com")"
 assert_match "CARD_ISSUE ok" "$issue_out" "SUCCESS\|CARD_ISSUE\|[0-9]+"
 card_id="$(printf '%s' "$issue_out" | awk -F'|' '{print $3}')"
 assert_match "card id present" "$card_id" "^[0-9]+$"
@@ -24,7 +44,7 @@ assert_match "card id present" "$card_id" "^[0-9]+$"
 got="$(db_query "SELECT CONCAT(masked_pan IS NOT NULL, '|', expiry_date = DATE_ADD(CURDATE(), INTERVAL 3 YEAR), '|', available_limit, '|', balance) FROM card_account WHERE id=${card_id};")"
 assert_match "masked pan, expiry, limits" "$got" "^1\|1\|5000.0000\|0.0000$"
 
-dup_out="$(run_cobol "CARD_ISSUE|CARD-T1|admin@test.com|CREDIT|5000.00|USD|admin@test.com")"
+dup_out="$(run_cobol "CARD_ISSUE|CARD-T1|cardT@test.com|CREDIT|5000.00|USD|admin@test.com")"
 assert_match "duplicate card ref rejected" "$dup_out" "ERROR\|DUPLICATE"
 
 get_out="$(run_cobol "CARD_GET|${card_id}|||||admin@test.com")"
@@ -51,6 +71,11 @@ bal="$(db_query "SELECT balance FROM card_account WHERE id=${card_id};")"
 assert_match "balance after capture" "$bal" "^100.0000$"
 txst="$(db_query "SELECT status FROM card_transaction WHERE auth_ref='${auth_ref}';")"
 assert_match "authorization captured" "$txst" "^CAPTURED$"
+assert_match "capture debits receivable" "$(db_query "SELECT balance FROM accounts WHERE account_type='CARD_RECEIVABLE' AND currency_id=1;")" "^999900.0000$"
+assert_match "capture credits payable" "$(db_query "SELECT balance FROM accounts WHERE account_type='MERCHANT_PAYABLE' AND currency_id=1;")" "^1000100.0000$"
+assert_match "two capture legs posted" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${auth_ref}';")" "^2$"
+assert_match "capture links journal" "$(db_query "SELECT journal_id FROM card_transaction WHERE auth_ref='${auth_ref}';")" "^[0-9]+$"
+assert_match "capture links gl" "$(db_query "SELECT gl_journal_id FROM card_transaction WHERE auth_ref='${auth_ref}';")" "^[0-9]+$"
 
 # Reversing the capture credits the balance back and releases the limit.
 rev_out="$(run_cobol "CARD_REVERSE|${card_id}|${auth_ref}||||admin@test.com")"
@@ -73,6 +98,9 @@ repay="$(run_cobol "CARD_REPAY|${card_id}|100.00||||admin@test.com")"
 assert_match "CARD_REPAY ok" "$repay" "SUCCESS\|CARD_REPAY\|100.00"
 bal="$(db_query "SELECT CONCAT(balance, '|', available_limit) FROM card_account WHERE id=${card_id};")"
 assert_match "repayment reduces balance" "$bal" "^200.0000\|4800.0000$"
+assert_match "repayment debits wallet" "$(db_query "SELECT balance FROM accounts WHERE user_id=(SELECT id FROM users WHERE email='cardT@test.com') AND currency_id=1;")" "^4900.0000$"
+assert_match "overpay refused" "$(run_cobol "CARD_REPAY|${card_id}|99999.00||||admin@test.com")" "ERROR\|OVERPAID"
+assert_match "overpay moved nothing" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'CARDRP-%' AND amount=99999.0000;")" "^0$"
 
 # Limit cannot sit below the outstanding balance.
 low="$(run_cobol "CARD_LIMIT_SET|${card_id}|100.00||||admin@test.com")"
@@ -119,6 +147,19 @@ list_out="$(run_cobol "CARD_LIST||50|0|||admin@test.com")"
 assert_match "CARD_LIST ok" "$list_out" "SUCCESS\|CARDS\|"
 assert_match "list carries old ref" "$list_out" "CARD-T1"
 assert_match "list carries new ref" "$list_out" "CARD-T2"
+
+# Leave no bank-owned rows behind: the control-slot unique key is global,
+# and a later suite in the same database would fail its own book insert.
+db_exec "DELETE FROM ledger WHERE txn_ref LIKE 'CARD%';"
+db_exec "DELETE FROM card_transaction WHERE card_id IN (SELECT id FROM card_account WHERE customer_email IN ('cardT@test.com','cardR@test.com','cardP@test.com'));"
+db_exec "DELETE FROM card_audit WHERE card_id IN (SELECT id FROM card_account WHERE customer_email IN ('cardT@test.com','cardR@test.com','cardP@test.com'));"
+db_exec "DELETE FROM card_account WHERE customer_email IN ('cardT@test.com','cardR@test.com','cardP@test.com');"
+db_exec "DELETE FROM journal_entries WHERE txn_ref LIKE 'CARD%';"
+db_exec "DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'CARD\\_%');"
+db_exec "DELETE FROM gl_journal WHERE description LIKE 'CARD\\_%';"
+db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('cardT@test.com','cardR@test.com','cardP@test.com')));"
+db_exec "DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('cardT@test.com','cardR@test.com','cardP@test.com'));"
+db_exec "DELETE FROM users WHERE email IN ('cardT@test.com','cardR@test.com','cardP@test.com');"
 
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi

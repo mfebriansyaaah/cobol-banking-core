@@ -50,12 +50,36 @@
        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
        01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
+       01  WS-TMP-TYPE             PIC X(20) VALUE SPACES.
        01  WS-TMP-TEXT             PIC X(100) VALUE SPACES.
        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-LIMIT            PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-AVAIL            PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-BALANCE          PIC 9(15)V9(4) VALUE 0.
        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+       01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
+       01  WS-CALL-P1              PIC X(100) VALUE SPACES.
+       01  WS-CALL-P2              PIC X(100) VALUE SPACES.
+       01  WS-CALL-P3              PIC X(100) VALUE SPACES.
+       01  WS-CALL-P4              PIC X(100) VALUE SPACES.
+       01  WS-CALL-P5              PIC X(100) VALUE SPACES.
+       01  WS-CALL-P6              PIC X(100) VALUE SPACES.
+       01  WS-CALL-OUT             PIC X(16384) VALUE SPACES.
+       01  WS-POST-DATE            PIC X(10) VALUE SPACES.
+       01  WS-GL-DESC              PIC X(100) VALUE SPACES.
+       01  WS-GL-LINES             PIC X(100) VALUE SPACES.
+       01  WS-GL-JID               PIC X(20) VALUE SPACES.
+       01  WS-JOUT-1               PIC X(20) VALUE SPACES.
+       01  WS-JOUT-2               PIC X(20) VALUE SPACES.
+       01  WS-CUST-EMAIL           PIC X(100) VALUE SPACES.
+       01  WS-CUST-CURR            PIC X(10) VALUE SPACES.
+       01  WS-CUST-ACC             PIC X(20) VALUE SPACES.
+       01  WS-CURR-ID              PIC X(20) VALUE SPACES.
+       01  WS-RCV-ACC              PIC X(20) VALUE SPACES.
+       01  WS-PAY-ACC              PIC X(20) VALUE SPACES.
+       01  WS-JID                  PIC X(20) VALUE SPACES.
+       01  WS-TXN-REF              PIC X(50) VALUE SPACES.
+       01  WS-DESC                 PIC X(255) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -682,18 +706,244 @@
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
-           MOVE "UPDATE card_transaction SET status = 'CAPTURED' WHERE card_id = ? AND auth_ref = ? AND status = 'AUTHORIZED'" TO WS-PREP-SQL
-           MOVE WS-P1-TRIMMED TO WS-BIND-1
-           MOVE WS-P2-TRIMMED TO WS-BIND-2
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+           IF WS-TMP-STATUS(1:10) NOT = "AUTHORIZED"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           *> Resolve the capture path: bank-owned CARD_RECEIVABLE plus
+           *> MERCHANT_PAYABLE suspense for the card currency, plus the
+           *> cardholder for leg attribution. Missing books fail closed.
+           MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-TMP-CURR TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR" OR WS-RESULT = "SUCCESS|AFFECTED_0"
-               SET STEP-FAIL TO TRUE
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-CURR-ID
+           MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'CARD_RECEIVABLE' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CURR-ID TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|CARD_RECEIVABLE_MISSING" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-RCV-ACC
+           MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'MERCHANT_PAYABLE' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CURR-ID TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|MERCHANT_PAYABLE_MISSING" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-PAY-ACC
+           MOVE "SELECT customer_email FROM card_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:100) TO WS-CUST-EMAIL
+           MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:10) TO WS-POST-DATE
+           MOVE SPACES TO WS-GL-DESC WS-GL-LINES
+           STRING "CARD_CAPTURE:" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
+           STRING "1310:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE ":0;2130:0:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
+           MOVE SPACES TO WS-GL-JID
+           MOVE "SELECT id FROM gl_journal WHERE description = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-GL-DESC TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               IF WS-RESULT NOT = "ERROR|NO_DATA"
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               MOVE WS-RESULT(1:20) TO WS-GL-JID
+           END-IF.
+           IF WS-GL-JID = SPACES
+               MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
+               MOVE WS-POST-DATE TO WS-CALL-P1
+               MOVE WS-GL-DESC TO WS-CALL-P2
+               MOVE WS-TMP-CURR TO WS-CALL-P3
+               MOVE WS-GL-LINES TO WS-CALL-P4
+               MOVE SPACES TO WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+               MOVE WS-P6-TRIMMED TO WS-CALL-P6
+               CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+                   WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+               END-CALL
+               IF WS-CALL-OUT(1:5) = "ERROR"
+                   MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID END-UNSTRING
+               IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE SPACES TO WS-TXN-REF WS-DESC WS-JID WS-ERR
+           STRING "CARDCAP-" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-TXN-REF END-STRING
+           STRING "CARD_CAPTURE:" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-DESC END-STRING
+           SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
+           CALL "SQL_BEGIN" END-CALL
+           IF STEP-OK
+               MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-CUST-EMAIL TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-JID
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-RCV-ACC TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               MOVE WS-CURR-ID TO WS-BIND-4
+               MOVE WS-DESC TO WS-BIND-5
+               MOVE WS-CUST-EMAIL TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-PAY-ACC TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               MOVE WS-CURR-ID TO WS-BIND-4
+               MOVE WS-DESC TO WS-BIND-5
+               MOVE WS-CUST-EMAIL TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE card_transaction SET status = 'CAPTURED', journal_id = ?, gl_journal_id = ? WHERE card_id = ? AND auth_ref = ? AND status = 'AUTHORIZED'" TO WS-PREP-SQL
+               MOVE WS-JID TO WS-BIND-1
+               MOVE WS-GL-JID TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               MOVE WS-P2-TRIMMED TO WS-BIND-4
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ? AND balance >= ?" TO WS-PREP-SQL
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-1
+               MOVE WS-RCV-ACC TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                   MOVE "ERROR|INSUFFICIENT_FUNDS" TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+                   END-IF
+               END-IF
+            END-IF.
+           IF STEP-OK
+               MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-1
+               MOVE WS-PAY-ACC TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
            END-IF.
            IF STEP-OK
                MOVE "UPDATE card_account SET balance = balance + ? WHERE id = ?" TO WS-PREP-SQL
@@ -761,25 +1011,276 @@
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
-           MOVE "UPDATE card_account SET balance = GREATEST(balance - ?, 0), available_limit = LEAST(limit_amount, available_limit + ?) WHERE id = ?" TO WS-PREP-SQL
-           MOVE WS-P2-TRIMMED TO WS-BIND-1
-           MOVE WS-P2-TRIMMED TO WS-BIND-2
-           MOVE WS-P1-TRIMMED TO WS-BIND-3
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+           *> Resolve the repayment path: card balance guard, customer
+           *> wallet, and the bank-owned CARD_RECEIVABLE book. Overpaying
+           *> past the outstanding balance fails closed with OVERPAID;
+           *> a missing wallet fails closed with no write.
+           MOVE "SELECT CONCAT(CAST(balance AS CHAR), '|', customer_email, '|', currency) FROM card_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE SPACES TO WS-TMP-AMT WS-CUST-EMAIL WS-CUST-CURR
+           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-AMT WS-CUST-EMAIL WS-CUST-CURR END-UNSTRING
+           MOVE FUNCTION NUMVAL(WS-TMP-AMT) TO WS-NUM-BALANCE
+           IF WS-NUM-AMOUNT > WS-NUM-BALANCE
+               MOVE "ERROR|OVERPAID" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CUST-CURR TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
-               SET STEP-FAIL TO TRUE
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-CURR-ID
+           MOVE "SELECT CAST(a.account_id AS CHAR) FROM accounts a JOIN users u ON u.id = a.user_id WHERE u.email = ? AND a.currency_id = ? AND a.status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CUST-EMAIL TO WS-BIND-1
+           MOVE WS-CURR-ID TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-CUST-ACC
+           MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'CARD_RECEIVABLE' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CURR-ID TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|CARD_RECEIVABLE_MISSING" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-RCV-ACC
+           MOVE "SELECT CAST(balance AS CHAR) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
+           MOVE WS-CUST-ACC TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE FUNCTION NUMVAL(WS-RESULT) TO WS-NUM-BALANCE
+           IF WS-NUM-AMOUNT > WS-NUM-BALANCE
+               MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           *> Bank-side journal first (gl_core owns its own transaction on
+           *> this connection): DEBIT Cash / CREDIT Cards receivable. The
+           *> UUID makes every repayment its own journal.
+           MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:10) TO WS-POST-DATE
+           MOVE "SELECT UUID_SHORT()" TO WS-PREP-SQL
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:30) TO WS-TMP-STR
+           MOVE SPACES TO WS-GL-DESC WS-GL-LINES
+           STRING "CARD_REPAY:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
+           STRING "1000:" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE ":0;1310:0:" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
+           MOVE SPACES TO WS-GL-JID
+           MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
+           MOVE WS-POST-DATE TO WS-CALL-P1
+           MOVE WS-GL-DESC TO WS-CALL-P2
+           MOVE WS-CUST-CURR TO WS-CALL-P3
+           MOVE WS-GL-LINES TO WS-CALL-P4
+           MOVE SPACES TO WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+           MOVE WS-P6-TRIMMED TO WS-CALL-P6
+           CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+                   WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+           END-CALL
+           IF WS-CALL-OUT(1:5) = "ERROR"
+               MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+           UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID END-UNSTRING
+           IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE SPACES TO WS-TXN-REF WS-DESC WS-JID WS-ERR
+           STRING "CARDRP-" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE INTO WS-TXN-REF END-STRING
+           STRING "CARD_REPAY:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE INTO WS-DESC END-STRING
+           SET STEP-OK TO TRUE
+           CALL "SQL_BEGIN" END-CALL
+           IF STEP-OK
+               MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-CUST-EMAIL TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
            END-IF.
            IF STEP-OK
-               MOVE "INSERT INTO card_transaction (card_id, auth_ref, txn_type, amount, currency, status) SELECT id, CONCAT('REPAY-', id, '-', UUID_SHORT()), 'REPAYMENT', ?, currency, 'CAPTURED' FROM card_account WHERE id = ?" TO WS-PREP-SQL
+               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-JID
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ? AND balance >= ?" TO WS-PREP-SQL
                MOVE WS-P2-TRIMMED TO WS-BIND-1
-               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               MOVE WS-CUST-ACC TO WS-BIND-2
+               MOVE WS-P2-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                   MOVE "ERROR|INSUFFICIENT_FUNDS" TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+                   END-IF
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE card_account SET balance = balance - ?, available_limit = LEAST(limit_amount, available_limit + ?) WHERE id = ? AND balance >= ?" TO WS-PREP-SQL
+               MOVE WS-P2-TRIMMED TO WS-BIND-1
+               MOVE WS-P2-TRIMMED TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               MOVE WS-P2-TRIMMED TO WS-BIND-4
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                   MOVE "ERROR|OVERPAID" TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+                   END-IF
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+               MOVE WS-P2-TRIMMED TO WS-BIND-1
+               MOVE WS-RCV-ACC TO WS-BIND-2
                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-CUST-ACC TO WS-BIND-2
+               MOVE WS-P2-TRIMMED TO WS-BIND-3
+               MOVE WS-CURR-ID TO WS-BIND-4
+               MOVE WS-DESC TO WS-BIND-5
+               MOVE WS-CUST-EMAIL TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-RCV-ACC TO WS-BIND-2
+               MOVE WS-P2-TRIMMED TO WS-BIND-3
+               MOVE WS-CURR-ID TO WS-BIND-4
+               MOVE WS-DESC TO WS-BIND-5
+               MOVE WS-CUST-EMAIL TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK
+               MOVE "INSERT INTO card_transaction (card_id, auth_ref, txn_type, amount, currency, status, journal_id, gl_journal_id) SELECT id, CONCAT('REPAY-', id, '-', UUID_SHORT()), 'REPAYMENT', ?, currency, 'CAPTURED', @jid, ? FROM card_account WHERE id = ?" TO WS-PREP-SQL
+               MOVE WS-P2-TRIMMED TO WS-BIND-1
+               MOVE WS-GL-JID TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
                END-CALL
@@ -800,12 +1301,140 @@
                STRING "SUCCESS|CARD_REPAY|" DELIMITED BY SIZE WS-P2-TRIMMED DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               IF WS-ERR = "ERROR|OVERPAID"
+                   MOVE "ERROR|OVERPAID" TO LS-OUTPUT-BUFFER
+               ELSE
+                   IF WS-ERR = "ERROR|INSUFFICIENT_FUNDS"
+                       MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+                   ELSE
+                       MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                   END-IF
+               END-IF
            END-IF.
            EXIT PARAGRAPH.
 
+       PREPARE-REFUND-POSTING.
+           *> Resolve the reversal path and post the refund journal for a
+           *> captured authorization: DEBIT Merchants payable / CREDIT
+           *> Cards receivable. Runs before any transaction opens.
+           MOVE SPACES TO WS-ERR
+           MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CUST-CURR TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-CURR-ID
+           MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'CARD_RECEIVABLE' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CURR-ID TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|CARD_RECEIVABLE_MISSING" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-RCV-ACC
+           MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'MERCHANT_PAYABLE' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-CURR-ID TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|MERCHANT_PAYABLE_MISSING" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:20) TO WS-PAY-ACC
+           MOVE "SELECT customer_email FROM card_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:100) TO WS-CUST-EMAIL
+           MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE WS-RESULT(1:10) TO WS-POST-DATE
+           MOVE SPACES TO WS-GL-DESC WS-GL-LINES
+           STRING "CARD_REV_CAP:" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
+           STRING "2130:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE ":0;1310:0:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
+           MOVE SPACES TO WS-GL-JID
+           MOVE "SELECT id FROM gl_journal WHERE description = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-GL-DESC TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT(1:5) = "ERROR"
+               IF WS-RESULT NOT = "ERROR|NO_DATA"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               MOVE WS-RESULT(1:20) TO WS-GL-JID
+           END-IF.
+           IF WS-GL-JID = SPACES
+               MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
+               MOVE WS-POST-DATE TO WS-CALL-P1
+               MOVE WS-GL-DESC TO WS-CALL-P2
+               MOVE WS-CUST-CURR TO WS-CALL-P3
+               MOVE WS-GL-LINES TO WS-CALL-P4
+               MOVE SPACES TO WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+               MOVE WS-P6-TRIMMED TO WS-CALL-P6
+               CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+                   WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
+               END-CALL
+               IF WS-CALL-OUT(1:5) = "ERROR"
+                   MOVE WS-CALL-OUT TO WS-ERR
+                   EXIT PARAGRAPH
+               END-IF
+               MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
+               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID END-UNSTRING
+               IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
+           MOVE SPACES TO WS-TXN-REF WS-DESC WS-JID
+           STRING "CARDRC-" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-TXN-REF END-STRING
+           STRING "CARD_REV_CAP:" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-DESC END-STRING
+           EXIT PARAGRAPH.
+
+
       *> Reverse an authorization (release the hold) or a captured
-      *> transaction (credit the balance back).
+      *> transaction (credit the balance back). Captured repayments are
+      *> final and cannot be reversed through this path.
        ACTION-REVERSE.
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
@@ -816,7 +1445,7 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(status, '|', amount) FROM card_transaction WHERE card_id = ? AND auth_ref = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE "SELECT CONCAT(status, '|', amount, '|', txn_type, '|', currency) FROM card_transaction WHERE card_id = ? AND auth_ref = ? LIMIT 1" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
@@ -834,11 +1463,24 @@
            END-IF.
            MOVE SPACES TO WS-TMP-STATUS
            MOVE SPACES TO WS-TMP-AMT
-           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-STATUS WS-TMP-AMT END-UNSTRING
+           MOVE SPACES TO WS-TMP-TYPE
+           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-STATUS WS-TMP-AMT WS-TMP-TYPE WS-CUST-CURR END-UNSTRING
            IF WS-TMP-STATUS(1:10) NOT = "AUTHORIZED"
                AND WS-TMP-STATUS(1:8) NOT = "CAPTURED"
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
+           END-IF.
+           IF WS-TMP-STATUS(1:8) = "CAPTURED"
+               AND WS-TMP-TYPE(1:13) NOT = "AUTHORIZATION"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-TMP-STATUS(1:8) = "CAPTURED"
+               PERFORM PREPARE-REFUND-POSTING
+               IF WS-ERR NOT = SPACES
+                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
            END-IF.
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
@@ -852,6 +1494,118 @@
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-CUST-EMAIL TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   MOVE WS-RESULT(1:20) TO WS-JID
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "UPDATE card_transaction SET journal_id = ?, gl_journal_id = ? WHERE card_id = ? AND auth_ref = ?" TO WS-PREP-SQL
+               MOVE WS-JID TO WS-BIND-1
+               MOVE WS-GL-JID TO WS-BIND-2
+               MOVE WS-P1-TRIMMED TO WS-BIND-3
+               MOVE WS-P2-TRIMMED TO WS-BIND-4
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-1
+               MOVE WS-PAY-ACC TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-1
+               MOVE WS-RCV-ACC TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'DEBIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-PAY-ACC TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               MOVE WS-CURR-ID TO WS-BIND-4
+               MOVE WS-DESC TO WS-BIND-5
+               MOVE WS-CUST-EMAIL TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ?, 'CREDIT', ?, ?, 1, @jid, ?)" TO WS-PREP-SQL
+               MOVE WS-TXN-REF TO WS-BIND-1
+               MOVE WS-RCV-ACC TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               MOVE WS-CURR-ID TO WS-BIND-4
+               MOVE WS-DESC TO WS-BIND-5
+               MOVE WS-CUST-EMAIL TO WS-BIND-6
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
            END-IF.
            IF STEP-OK AND WS-TMP-STATUS(1:10) = "AUTHORIZED"
                MOVE "UPDATE card_account SET available_limit = LEAST(limit_amount, available_limit + ?) WHERE id = ?" TO WS-PREP-SQL
