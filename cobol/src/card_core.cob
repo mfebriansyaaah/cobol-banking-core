@@ -1964,8 +1964,8 @@
                    SET STEP-FAIL TO TRUE
                END-IF
            END-IF.
-           IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
-               MOVE "UPDATE card_reverse_request SET status = 'DONE', gl_journal_id = ? WHERE card_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
+           IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "UPDATE card_reverse_request SET status = 'DONE', gl_journal_id = NULLIF(?, '') WHERE card_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
                MOVE WS-GL-JID TO WS-BIND-1
                MOVE WS-P1-TRIMMED TO WS-BIND-2
                MOVE WS-P5-TRIMMED TO WS-BIND-3
