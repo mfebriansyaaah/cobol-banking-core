@@ -21,8 +21,8 @@ The integrity machinery must survive the squash:
 - `schema_migrations.checksum` (added by migration 0666) makes applied files
   tamper-evident; `--check` fails on hash mismatch or missing hashes.
 - `database/schema_full.sql` is the canonical snapshot: built by
-  `scripts/generate_schema_snapshot.sh` (throwaway DB + `mysqldump --no-data`
-  + normalization) and byte-compared by `scripts/check_schema_drift.sh`.
+  `scripts/generate_schema_snapshot.sh` (throwaway DB, `mysqldump --no-data`
+  with normalization) and byte-compared by `scripts/check_schema_drift.sh`.
 - The rollback drill replays with `migrate.sh --up-to` from snapshots.
 
 A baseline that breaks any of these trades install speed for silent drift,
@@ -58,9 +58,62 @@ not a rewrite.
 ## Upgrade matrix
 
 | Scenario | Baseline v2 | New migrations | Expectation |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Fresh install | apply `schema_v2.sql` + marker | apply | schema byte-identical to `schema_full.sql` |
 | Existing DB, complete | verify all + marker | apply | no data loss; old versions stay recorded |
 | Existing DB, partial | refuse, list missing | hold | fail with names + restore instruction |
 | Old binary + new DB | n/a | n/a | compatible inside the release window (no renames/drops) |
 | Rollback | restore snapshot | — | backup/restore drill green, `migrate.sh --check` clean |
+
+## Dry-run plan (executed in PR-10)
+
+The dry run needs a DDL-capable isolated database
+(`docker-compose.test.yml`, port 3307, `scripts/dev/setup-test-db.sh`);
+the least-privilege app credentials cannot create databases, so the dry run
+cannot happen on a developer database. Steps, in order:
+
+1. Snapshot the isolated database before touching anything.
+2. Fresh install: apply `schema_v2.sql`, record the marker, apply
+   post-baseline migrations. Expect: `migrate.sh --check` clean.
+3. Rebuild the snapshot with `generate_schema_snapshot.sh` and expect
+   `check_schema_drift.sh` byte-identical.
+4. Existing-complete upgrade: build the old chain (`schema.sql` + all
+   migrations) on a second database, run `migrate.sh --baseline`, expect
+   the marker plus identical dumps before/after (data kept).
+5. Existing-partial upgrade: stop the old chain halfway, run
+   `migrate.sh --baseline`, expect failure naming the missing versions and
+   no marker row.
+6. Time steps 2–4 and record fresh-install before/after in the PR-10 body.
+7. Run `scripts/ci/backup_restore_drill.sh` and
+   `scripts/ci/migration_rollback_drill.sh` against the result.
+
+Read-only evidence collected for this design (2026-11-12, dev database):
+
+- `./database/migrate.sh --check` → `all migrations applied` in ~4s.
+- App credentials have no DDL rights (CREATE DATABASE refused) — confirms
+  the dry run must use the isolated DDL-capable database, as planned.
+- `check_schema_drift.sh` green on PR #641 — the snapshot generator is
+  reproducible, so a snapshot-derived baseline is trustworthy input.
+
+## Rollback plan
+
+- Before: backup/restore drill green; snapshot retained through the release
+  window.
+- If the baseline build fails: delete `schema_v2.sql`, revert the PR, keep
+  the old chain. Existing databases are untouched (the marker is only
+  written after full verification).
+- If a database already recorded the marker: restore the pre-cutover
+  snapshot, run `migrate.sh --check` on the old chain.
+- Archive (PR-11) is move, not delete: restoring `archive/*.sql` plus a
+  revert returns the tree to the pre-baseline state.
+
+## Retention and compatibility
+
+- Pre-baseline files stay in `archive/` for at least one release window;
+  permanent deletion is a separate decision with its own PR.
+- `migrate.sh --check` on an old database must keep passing after the
+  archive move (recorded checksums are verified, missing files are not
+  required).
+- No rename/drop in the baseline: old binaries read the new schema during
+  the window. The first rename/drop after the baseline is a normal
+  post-baseline migration, reviewed like any other.
