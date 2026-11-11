@@ -220,24 +220,7 @@
             END-IF.
             EXIT PARAGRAPH.
 
-        ALLOW-ADMIN.
-            MOVE 0 TO WS-ALLOWED
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-P6-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
-                MOVE 1 TO WS-ALLOWED
-            END-IF
-            IF WS-ALLOWED NOT = 1
-                MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
-                MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
-            END-IF.
-            EXIT PARAGRAPH.
+        COPY "common_auth.cpy".
 
         AUDIT.
             MOVE "INSERT INTO letter_of_credit_audit (letter_of_credit_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
@@ -312,6 +295,7 @@
             EXIT PARAGRAPH.
 
         ACTION-CREATE.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1044,6 +1028,7 @@
             EXIT PARAGRAPH.
 
         ACTION-LIST.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1103,6 +1088,7 @@
             EXIT PARAGRAPH.
 
         ACTION-GET.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1133,6 +1119,7 @@
             EXIT PARAGRAPH.
 
         ACTION-SUBMIT.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1193,6 +1180,7 @@
             EXIT PARAGRAPH.
 
         ACTION-UPDATE.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1240,6 +1228,7 @@
             EXIT PARAGRAPH.
 
         ACTION-CLOSE.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1290,6 +1279,7 @@
             EXIT PARAGRAPH.
 
         ACTION-SUMMARY.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1311,6 +1301,7 @@
             EXIT PARAGRAPH.
 
         ACTION-AUDIT.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1348,6 +1339,7 @@
             EXIT PARAGRAPH.
 
         ACTION-VALIDATE.
+            MOVE "LETTER_OF_CREDIT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER

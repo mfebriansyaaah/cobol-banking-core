@@ -200,6 +200,7 @@
         COPY "common_result.cpy".
 
        ACTION-LSC_SUMMARY.
+           MOVE "LOAN_SCHEDULE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO WS-RESULT
@@ -220,6 +221,7 @@
            EXIT PARAGRAPH.
 
        ACTION-LSC_EXPORT.
+           MOVE "LOAN_SCHEDULE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO WS-RESULT
@@ -245,6 +247,7 @@
            EXIT PARAGRAPH.
 
        ACTION-LSC_AUDIT.
+           MOVE "LOAN_SCHEDULE" TO WS-DENIED-TARGET
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
                MOVE "ERROR|FORBIDDEN" TO WS-RESULT
@@ -304,24 +307,7 @@
            INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
            EXIT PARAGRAPH.
 
-       ALLOW-ADMIN.
-           MOVE 0 TO WS-ALLOWED
-           MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P6-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
-               MOVE 1 TO WS-ALLOWED
-           END-IF
-           IF WS-ALLOWED NOT = 1
-               MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
-               MOVE "LOAN_SCHEDULE" TO WS-DENIED-TARGET
-               PERFORM AUDIT-DENIED
-           END-IF.
-           EXIT PARAGRAPH.
+        COPY "common_auth.cpy".
 
        AUDIT.
            MOVE "INSERT INTO loan_schedule_audit (schedule_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL

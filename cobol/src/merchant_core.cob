@@ -206,24 +206,7 @@
             END-IF.
             EXIT PARAGRAPH.
 
-        ALLOW-ADMIN.
-            MOVE 0 TO WS-ALLOWED
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-P6-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT = "SUPER_ADMIN" OR WS-RESULT = "MANAGER"
-                MOVE 1 TO WS-ALLOWED
-            END-IF
-            IF WS-ALLOWED NOT = 1
-                MOVE WS-P6-TRIMMED TO WS-DENIED-ACTOR
-                MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
-                PERFORM AUDIT-DENIED
-            END-IF.
-            EXIT PARAGRAPH.
+        COPY "common_auth.cpy".
 
         AUDIT.
             MOVE "INSERT INTO merchant_audit (merchant_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
@@ -298,6 +281,7 @@
             EXIT PARAGRAPH.
 
         ACTION-CREATE.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -364,6 +348,7 @@
             EXIT PARAGRAPH.
 
         ACTION-LIST.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -423,6 +408,7 @@
             EXIT PARAGRAPH.
 
         ACTION-GET.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -453,6 +439,7 @@
             EXIT PARAGRAPH.
 
         ACTION-SUBMIT.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -513,6 +500,7 @@
             EXIT PARAGRAPH.
 
         ACTION-UPDATE.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -560,6 +548,7 @@
             EXIT PARAGRAPH.
 
         ACTION-CLOSE.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -610,6 +599,7 @@
             EXIT PARAGRAPH.
 
         ACTION-SUBMIT-KYC.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -657,6 +647,7 @@
             EXIT PARAGRAPH.
 
         ACTION-APPROVE.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -775,6 +766,7 @@
             EXIT PARAGRAPH.
 
         ACTION-ACTIVATE.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -860,6 +852,7 @@
             EXIT PARAGRAPH.
 
         ACTION-SUSPEND.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -902,6 +895,7 @@
             EXIT PARAGRAPH.
 
         ACTION-CLOSE-MCH.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -959,6 +953,7 @@
             EXIT PARAGRAPH.
 
         ACTION-SET-FEE.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1045,6 +1040,7 @@
             EXIT PARAGRAPH.
 
         ACTION-SUMMARY.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1066,6 +1062,7 @@
             EXIT PARAGRAPH.
 
         ACTION-AUDIT.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
@@ -1103,6 +1100,7 @@
             EXIT PARAGRAPH.
 
         ACTION-VALIDATE.
+            MOVE "MERCHANT_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
