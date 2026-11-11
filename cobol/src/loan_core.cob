@@ -1536,6 +1536,24 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             MOVE SPACES TO WS-ERR
             CALL "SQL_BEGIN" END-CALL
             IF STEP-OK
+                MOVE "UPDATE loan_application SET repaid_total = repaid_total + ? WHERE id = ? AND status = 'DISBURSED' AND repaid_total + ? <= principal" TO WS-PREP-SQL
+                MOVE WS-P2-TRIMMED TO WS-BIND-1
+                MOVE WS-P1-TRIMMED TO WS-BIND-2
+                MOVE WS-P2-TRIMMED TO WS-BIND-3
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|OVERPAID" TO WS-ERR
+                    SET STEP-FAIL TO TRUE
+                ELSE
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET STEP-FAIL TO TRUE
+                    END-IF
+                END-IF
+            END-IF.
+            IF STEP-OK
                 MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
                 MOVE WS-TXN-REF TO WS-BIND-1
                 MOVE WS-LOAN-EMAIL TO WS-BIND-2
@@ -1665,7 +1683,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 IF WS-ERR = "ERROR|INSUFFICIENT_FUNDS"
                     MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                 ELSE
-                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    IF WS-ERR = "ERROR|OVERPAID"
+                        MOVE "ERROR|OVERPAID" TO LS-OUTPUT-BUFFER
+                    ELSE
+                        MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                    END-IF
                 END-IF
             END-IF.
             EXIT PARAGRAPH.

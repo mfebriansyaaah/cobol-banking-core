@@ -4192,6 +4192,7 @@ CREATE TABLE IF NOT EXISTS loan_application (
     decided_by VARCHAR(100) NULL,
     decided_at DATETIME NULL,
     disbursed_at DATETIME NULL,
+    repaid_total DECIMAL(18,4) NOT NULL DEFAULT 0,
     journal_id BIGINT NULL,
     gl_journal_id INT NULL,
     CHECK (term_months BETWEEN 1 AND 360),
