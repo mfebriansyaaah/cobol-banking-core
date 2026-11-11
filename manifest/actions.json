@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-10T21:54:08.611Z",
-  "commit": "a6716192",
+  "generatedAt": "2026-11-10T23:29:27.725Z",
+  "commit": "8b411c68",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 549,
   "actions": [
@@ -4903,7 +4903,8 @@
         "currency",
         "term",
         "rate",
-        "actor"
+        "actor",
+        "idempotencyKey"
       ],
       "required": [
         true,
@@ -4911,7 +4912,8 @@
         true,
         true,
         false,
-        true
+        true,
+        false
       ],
       "public": false,
       "stepUp": false,

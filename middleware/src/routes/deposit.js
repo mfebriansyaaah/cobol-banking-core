@@ -13,6 +13,7 @@ export const DEPOSIT_ROUTES = [
     { name: 'term', pattern: PATTERNS.TERM, required: true },
     { name: 'rate', pattern: PATTERNS.RATE, required: false },
     ACTOR,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
   ] },
   { method: 'get', path: '/deposits', action: 'DEP_LIST', tokenIdentity: 'actor', fields: [
     { name: 'status', pattern: PATTERNS.DEP_STATUS, required: false },

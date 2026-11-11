@@ -468,6 +468,7 @@
     "deposit_book",
     "deposit_book_audit",
     "deposit_close_request",
+    "deposit_open_request",
     "deposit_settle_request",
     "deposit_transaction",
     "derivative",

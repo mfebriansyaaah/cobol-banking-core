@@ -1298,6 +1298,7 @@ test('deposit lifecycle over HTTP', async () => {
   assert.equal(open.body.data[0], 'DEP_OPEN');
   const id = open.body.data[1];
   assert.match(String(id), /^\d+$/);
+
   assert.equal(
     queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${owner}') AND currency_id = 1`),
     '0.0000',
@@ -1314,6 +1315,28 @@ test('deposit lifecycle over HTTP', async () => {
     'two funding legs are posted',
   );
 
+  const otherOwner = U('other_');
+  requireSeed(seedUser(otherOwner) && seedAccount(otherOwner, '100.00'), 'seed the keyed open wallet');
+  const keyedBody = { email: otherOwner, principal: '100.00', currency: 'USD', term: '6', rate: '5.00' };
+  const reopened = await request(app).post('/deposits').set(auth).set('idempotency-key', 'gw-dep-open-1').send(keyedBody);
+  assert.equal(reopened.status, 200);
+  const id2b = reopened.body.data[1];
+  assert.match(String(id2b), /^\d+$/);
+  const reopenedAgain = await request(app).post('/deposits').set(auth).set('idempotency-key', 'gw-dep-open-1').send(keyedBody);
+  assert.equal(reopenedAgain.status, 200);
+  assert.equal(reopenedAgain.body.data[1], id2b);
+  assert.equal(
+    queryScalar(`SELECT COUNT(*) FROM deposit_account WHERE customer_email = '${otherOwner}'`),
+    '1',
+    'the keyed replay funds no second deposit',
+  );
+  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref = 'DEP-${id2b}-FUND'`), 'clean up the keyed open legs');
+  requireSeed(runSql(`DELETE FROM deposit_account WHERE id = ${id2b}`), 'clean up the keyed deposit');
+  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref = 'DEP-${id2b}-FUND'`), 'clean up the keyed open journals');
+  requireSeed(runSql(`DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2b}:%')`), 'clean up the keyed open GL lines');
+  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'DEP_OPEN:${id2b}:%'`), 'clean up the keyed open GL journal');
+  requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email = '${otherOwner}')`), 'clean up the keyed wallet');
+  requireSeed(runSql(`DELETE FROM users WHERE email = '${otherOwner}'`), 'clean up the keyed user');
   const got = await request(app).get(`/deposits/${id}`).set(auth);
   assert.equal(got.status, 200);
   assert.equal(got.body.data[0], 'DEPOSIT');

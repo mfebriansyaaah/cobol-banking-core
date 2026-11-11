@@ -73,7 +73,9 @@ function fieldsOf(body, consts) {
     }
   }
   while (slots.length < 6) slots.push({ name: '', pattern: null, required: false, inline: false });
-  return slots.slice(0, 6).map((s, i) => ({
+  // Slot 7 carries DEP_OPEN's idempotency key (contract v2); longer routes
+  // keep their extra slots so the registry stays byte-exact with dispatch.
+  return slots.map((s, i) => ({
     slot: i + 1,
     name: s.name ?? '',
     pattern: s.pattern ?? null,

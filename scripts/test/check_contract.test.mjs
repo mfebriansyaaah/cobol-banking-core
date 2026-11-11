@@ -36,7 +36,10 @@ test('contract covers every route action exactly once per route', async () => {
   const actions = collectRouteContracts(ROOT);
   assert.ok(actions.length >= 570, `expected 570+ route entries, got ${actions.length}`);
   for (const a of actions) {
-    assert.equal(a.fields.length, 6, `${a.action} must have 6 slots`);
+    // Contract v2: DEP_OPEN carries a 7th slot (idempotency key); every
+    // other action keeps the 6-slot convention.
+    const want = a.action === 'DEP_OPEN' ? 7 : 6;
+    assert.equal(a.fields.length, want, `${a.action} must have ${want} slots`);
     assert.ok(a.module && a.prefix, `${a.action} must resolve dispatch`);
   }
   const key = (a) => `${a.method} ${a.path} ${a.action}`;

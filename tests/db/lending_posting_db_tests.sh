@@ -326,6 +326,53 @@ db_exec "INSERT INTO loan_disburse_request (loan_id, idempotency_key, amount, st
 assert_match "disburse takeover succeeds" "$(run_cobol "LOAN_DISBURSE|${APP9}||||K-TAKE3|${A}")" "SUCCESS\|LOAN_DISBURSE"
 assert_match "disburse taken over and done" "$(db_query "SELECT status FROM loan_disburse_request WHERE loan_id=${APP9} AND idempotency_key='K-TAKE3';")" "^DONE$"
 
+# 108-130. Keyed open (kontrak v2, P7): the same key replays the stored
+# deposit instead of funding a second one; races serialize; doomed and
+# stale keys behave; a linked stale row is adopted, never duplicated.
+assert_match "keyed open ok" "$(run_cobol "DEP_OPEN|${WB}|900.00|USD|12|5.00|${A}|K-O1")" "SUCCESS\|DEP_OPEN\|[0-9]+"
+DID8="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' ORDER BY id DESC LIMIT 1;")"
+assert_match "keyed open debits wallet" "$(bal "$ACCTB")" "^4514.3836$"
+assert_match "keyed open replay ok" "$(run_cobol "DEP_OPEN|${WB}|900.00|USD|12|5.00|${A}|K-O1")" "SUCCESS\|DEP_OPEN\|${DID8}"
+assert_match "replay funded once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID8}-FUND';")" "^2$"
+assert_match "open request recorded DONE" "$(db_query "SELECT status FROM deposit_open_request WHERE idempotency_key='K-O1';")" "^DONE$"
+db_exec "UPDATE deposit_open_request SET principal = 1.00 WHERE idempotency_key='K-O1';"
+assert_match "changed principal conflicts" "$(run_cobol "DEP_OPEN|${WB}|900.00|USD|12|5.00|${A}|K-O1")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "conflict opened nothing new" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='${WB}' AND principal=900.00;")" "^1$"
+db_exec "UPDATE deposit_open_request SET principal = 900.00 WHERE idempotency_key='K-O1';"
+O1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; O2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'DEP_OPEN|%s|850.00|USD|12|5.00|admin@test.com|K-ORACE\n' "$WB" >"$O1/input.txt"
+printf 'DEP_OPEN|%s|850.00|USD|12|5.00|admin@test.com|K-ORACE\n' "$WB" >"$O2/input.txt"
+(cd "$O1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+W1=$!
+(cd "$O2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+W2=$!
+wait $W1; wait $W2
+OA="$(tr -d ' \n' <"$O1/output.txt")"; OB="$(tr -d ' \n' <"$O2/output.txt")"
+rm -rf "$O1" "$O2"
+assert_match "exactly one open winner" "$(printf '%s\n%s\n' "$OA" "$OB" | grep -c "SUCCESS\|DEP_OPEN")" "^1$"
+assert_match "open loser sees in-progress" "$(printf '%s\n%s\n' "$OA" "$OB")" "ERROR\|OPEN_IN_PROGRESS"
+assert_match "open retry converges" "$(run_cobol "DEP_OPEN|${WB}|850.00|USD|12|5.00|${A}|K-ORACE")" "SUCCESS\|DEP_OPEN\|[0-9]+"
+assert_match "single deposit for key" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='${WB}' AND principal=850.00;")" "^1$"
+run_cobol "REQUEST_SIGNUP|lnpNW@test.com|Passw0rd!|Lnp Nw|1990-01-01" >/dev/null
+nwcode="$(db_query "SELECT code FROM verification_logs WHERE email='lnpNW@test.com' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
+run_cobol "VERIFY_EMAIL|lnpNW@test.com|${nwcode}" >/dev/null
+assert_match "keyed open without wallet refused" "$(run_cobol "DEP_OPEN|lnpNW@test.com|100.00|USD|12|5.00|${A}|K-DOOM")" "ERROR\|ACCOUNT_NOT_FOUND"
+assert_match "doomed open key not blocked" "$(run_cobol "DEP_OPEN|lnpNW@test.com|100.00|USD|12|5.00|${A}|K-DOOM")" "ERROR\|ACCOUNT_NOT_FOUND"
+assert_match "no open request residue" "$(db_query "SELECT COUNT(*) FROM deposit_open_request WHERE idempotency_key='K-DOOM';")" "^0$"
+db_exec "DELETE FROM users WHERE email='lnpNW@test.com';"
+db_exec "INSERT INTO deposit_open_request (idempotency_key, customer_email, principal, currency, term_months, interest_rate, status, created_at, updated_at) VALUES ('K-OTAKE','${WB}',700.00,'USD',12,'4.00','PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "open takeover succeeds" "$(run_cobol "DEP_OPEN|${WB}|700.00|USD|12|4.00|${A}|K-OTAKE")" "SUCCESS\|DEP_OPEN\|[0-9]+"
+DID9="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' AND principal=700.00 ORDER BY id DESC LIMIT 1;")"
+assert_match "takeover links the fresh deposit" "$(db_query "SELECT deposit_id FROM deposit_open_request WHERE idempotency_key='K-OTAKE';")" "^${DID9}$"
+assert_match "takeover taken over and done" "$(db_query "SELECT status FROM deposit_open_request WHERE idempotency_key='K-OTAKE';")" "^DONE$"
+db_exec "INSERT INTO deposit_account (customer_email, principal, currency, term_months, interest_rate, created_by, status) VALUES ('${WB}', 350.00, 'USD', 12, 5.00, '${A}', 'PENDING');"
+ADP="$(db_query "SELECT id FROM deposit_account WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+db_exec "INSERT INTO deposit_open_request (idempotency_key, customer_email, principal, currency, term_months, interest_rate, status, deposit_id, created_at, updated_at) VALUES ('K-OADOPT','${WB}',350.00,'USD',12,'5.00','PENDING',${ADP},DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "adopt funds the stored deposit" "$(run_cobol "DEP_OPEN|${WB}|350.00|USD|12|5.00|${A}|K-OADOPT")" "SUCCESS\|DEP_OPEN\|${ADP}"
+assert_match "adopted deposit active" "$(db_query "SELECT status FROM deposit_account WHERE id=${ADP};")" "^ACTIVE$"
+assert_match "adopted deposit funded once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${ADP}-FUND';")" "^2$"
+assert_match "no duplicate deposit" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='${WB}' AND principal=350.00;")" "^1$"
+
 cleanup_fixture
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi

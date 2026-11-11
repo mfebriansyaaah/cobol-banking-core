@@ -170,7 +170,7 @@ class Pool {
   }
 
   invoke(action, params = [], opts = {}) {
-    const line = [action, ...params].slice(0, 7).join('|');
+    const line = [action, ...params].slice(0, 8).join('|');
     return new Promise((resolve, reject) => {
       if (this.closed) {
         reject(new InvocationError('COBOL pool is closed'));
