@@ -470,6 +470,28 @@ snapshot diff, and explain it in the PR. Never regenerate blindly to make CI
 green. If the order change is a behavior change (not just naming), update the
 domain's DB suite to assert the new mapping.
 
+**Error codes** (`scripts/check_error_codes.mjs` in the static gates,
+`contracts/errors.yaml` as the registry). Every `ERROR|<CODE>` COBOL can
+emit must map to an explicit HTTP status in
+`middleware/core-client/result.js` — the `?? 500` fallback is for genuinely
+unknown codes, not for known ones. Status conventions: 429 rate throttling,
+409 lifecycle conflicts and idempotency race losers (`*_IN_PROGRESS`,
+`OVERPAID`, state violations), 404 missing parents/types, 400 domain input
+rejections, 500 missing bank-owned books (server misconfiguration, named
+explicitly so it cannot drift silently). `NO_DATA` is a bridge-internal
+sentinel and stays out of the registry. When COBOL gains a new error code:
+register it in `contracts/errors.yaml`, map it in `ERROR_STATUS`, extend the
+`EXPECT` table in `middleware/test/result.test.js`, and let the gate verify
+all three agree.
+
+**Program signatures** (`scripts/check_program_signatures.mjs` in the static
+gates). Most modules take 6 params; `deposit_core` takes 7 (idempotency key
+in slot 7) and `user_core` takes 4, with matching special-case CALL arities
+in `main_logic.cob`. Named route fields past a program's count are silently
+dropped, so the gate fails them (padding must be `BLANK`). If a module's
+`USING` count ever changes, update the dispatcher's CALL arity and the
+`PROGRAM_PARAMS` table in the gate together — the gate checks both sides.
+
 ## Action coverage ratchet: every routed action must be shell-executed
 
 `scripts/check_action_test_coverage.mjs` (static gates, probes) parses every

@@ -1,0 +1,168 @@
+# Error-code registry (maint-01): single source of truth for the
+# COBOL -> HTTP error contract. Generated from ERROR_STATUS plus the 30
+# mapped codes; never hand-edit without updating result.js and result.test.js.
+# Validate with scripts/check_error_codes.mjs.
+# Fields: status (HTTP), origin (cobol = emitted by COBOL, gateway = raised
+# in middleware, internal = bridge sentinel, never surfaced).
+version: 1
+codes:
+  ACCOUNT_CLOSED: { status: 409, origin: cobol }
+  ACCOUNT_FROZEN: { status: 409, origin: cobol }
+  ACCOUNT_LOCKED: { status: 423, origin: cobol }
+  ACCOUNT_NOT_FOUND: { status: 404, origin: cobol }
+  ALREADY_REVERSED: { status: 409, origin: cobol }
+  AMBIGUOUS_ACCOUNT: { status: 409, origin: cobol }
+  AMBIGUOUS_TRANSACTION: { status: 409, origin: cobol }
+  AUDIT_ARCHIVE_FAILED: { status: 500, origin: cobol }
+  BALANCE: { status: 409, origin: cobol, note: "insufficient pooled balance for payroll posting" }
+  BEGIN_FAILED: { status: 500, origin: gateway }
+  BIND_FAILED: { status: 500, origin: gateway }
+  BREACHED_PASSWORD: { status: 400, origin: gateway }
+  CALENDAR_NOT_OPEN: { status: 409, origin: cobol }
+  CAPTCHA_REJECTED: { status: 400, origin: gateway }
+  CAPTCHA_REQUIRED: { status: 400, origin: gateway }
+  CAPTURE_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed capture race loser" }
+  CARD_RECEIVABLE_MISSING: { status: 500, origin: cobol, note: "bank-owned CARD_RECEIVABLE book not capitalized (server misconfig)" }
+  CLEARING_ACCOUNT_MISSING: { status: 500, origin: cobol, note: "clearing account not capitalized (server misconfig)" }
+  CLOSE_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed close race loser" }
+  COMMIT_FAILED: { status: 500, origin: gateway }
+  CONTROL_VARIANCE: { status: 409, origin: gateway }
+  CURRENCY_INACTIVE: { status: 409, origin: cobol }
+  CURRENCY_MISMATCH: { status: 400, origin: cobol }
+  DAILY_LIMIT_EXCEEDED: { status: 400, origin: cobol }
+  DB_BUSY: { status: 503, origin: cobol }
+  DB_CONFIG_INSECURE: { status: 500, origin: cobol }
+  DB_CONN_FAILED: { status: 500, origin: gateway }
+  DB_DOWN: { status: 503, origin: cobol }
+  DB_ERROR: { status: 500, origin: cobol }
+  DB_INIT_FAILED: { status: 500, origin: gateway }
+  DEACTIVATE_FAILED: { status: 500, origin: cobol }
+  DEPOSIT_POOL_MISSING: { status: 500, origin: cobol, note: "bank-owned DEPOSIT_POOL not capitalized (server misconfig)" }
+  DISBURSE_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed disburse race loser" }
+  DOCUMENT_REQUIRED: { status: 400, origin: cobol, note: "LC action needs a document first" }
+  DUAL_CONTROL_REQUIRED: { status: 403, origin: cobol }
+  DUPLICATE: { status: 409, origin: cobol }
+  EMAIL_CHANGE_FAILED: { status: 500, origin: cobol }
+  EMAIL_EXISTS: { status: 400, origin: cobol }
+  EMPTY_RESPONSE: { status: 500, origin: cobol }
+  EXEC_FAILED: { status: 500, origin: gateway }
+  FORBIDDEN: { status: 403, origin: cobol }
+  FUTURE_DATE: { status: 400, origin: gateway }
+  IDEMPOTENCY_CONFLICT: { status: 409, origin: cobol }
+  INSUFFICIENT_FUNDS: { status: 409, origin: cobol }
+  INVALID_ACTION: { status: 400, origin: cobol }
+  INVALID_AMOUNT: { status: 400, origin: cobol }
+  INVALID_CODE: { status: 400, origin: cobol }
+  INVALID_CREDENTIALS: { status: 401, origin: cobol }
+  INVALID_CURRENCY: { status: 400, origin: cobol, note: "currency rejected by domain rules" }
+  INVALID_DATE: { status: 400, origin: cobol }
+  INVALID_INPUT: { status: 400, origin: cobol }
+  INVALID_MFA: { status: 401, origin: cobol }
+  INVALID_PERIOD: { status: 400, origin: cobol }
+  INVALID_PRINCIPAL: { status: 400, origin: cobol, note: "deposit principal rejected" }
+  INVALID_RETENTION: { status: 400, origin: cobol, note: "retention window rejected" }
+  INVALID_ROLE: { status: 400, origin: cobol }
+  INVALID_ROWS: { status: 409, origin: cobol }
+  INVALID_SIDE: { status: 409, origin: cobol, note: "ledger side invalid for the operation" }
+  INVALID_STATE: { status: 409, origin: cobol, note: "operation not allowed in current lifecycle state" }
+  INVALID_STATUS: { status: 400, origin: cobol }
+  INVALID_TERM: { status: 400, origin: cobol, note: "deposit term rejected" }
+  INVALID_TRANSITION: { status: 409, origin: cobol }
+  INVALID_TYPE: { status: 400, origin: cobol, note: "GL/type value rejected" }
+  JOB_ALREADY_RUN: { status: 409, origin: cobol }
+  JOB_DISABLED: { status: 409, origin: gateway }
+  KYC_REQUIRED: { status: 403, origin: cobol }
+  LAST_ADMIN: { status: 409, origin: cobol }
+  LEGAL_HOLD_BLOCKED: { status: 409, origin: gateway }
+  LIMIT: { status: 409, origin: cobol, note: "domain limit reached (paginated-list guard)" }
+  LIMIT_EXCEEDED: { status: 400, origin: cobol }
+  LOAN_BOOK_MISSING: { status: 500, origin: cobol, note: "bank-owned LOAN_BOOK not capitalized (server misconfig)" }
+  MERCHANT_PAYABLE_MISSING: { status: 500, origin: cobol, note: "bank-owned MERCHANT_PAYABLE book not capitalized (server misconfig)" }
+  MFA_ALREADY_ENABLED: { status: 409, origin: cobol }
+  MFA_DISABLE_FAILED: { status: 500, origin: cobol }
+  MFA_ENROLL_FAILED: { status: 500, origin: cobol }
+  MFA_NOT_ENABLED: { status: 400, origin: cobol }
+  MFA_REQUIRED: { status: 401, origin: cobol }
+  MFA_RESET_FAILED: { status: 500, origin: cobol }
+  MFA_SETUP_REQUIRED: { status: 401, origin: cobol }
+  MISMATCH: { status: 409, origin: gateway }
+  MISSING_ACTION: { status: 400, origin: cobol }
+  NOTHING_TO_POST: { status: 409, origin: cobol, note: "posting would move nothing" }
+  NOT_FOUND: { status: 404, origin: cobol }
+  NO_COLUMNS: { status: 400, origin: cobol }
+  NO_OVERDUE: { status: 409, origin: cobol }
+  NO_ROWS: { status: 400, origin: cobol }
+  NO_STEPS: { status: 400, origin: gateway }
+  NO_TRANSACTION: { status: 500, origin: gateway }
+  OPEN_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed deposit-open race loser" }
+  OUTSTANDING_BALANCE: { status: 409, origin: cobol }
+  OVERPAID: { status: 409, origin: cobol, note: "repayment past outstanding balance" }
+  PARENT_NOT_FOUND: { status: 404, origin: cobol, note: "GL parent account missing" }
+  PASSWORD_BLOCKED: { status: 400, origin: cobol }
+  PASSWORD_CHANGE_FAILED: { status: 500, origin: gateway }
+  PASSWORD_REUSED: { status: 400, origin: gateway }
+  PAY_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed collection-pay race loser" }
+  PERIOD_CLOSED: { status: 409, origin: cobol }
+  PERIOD_NOT_OPEN: { status: 409, origin: cobol }
+  PERMISSION_DENIED: { status: 403, origin: cobol }
+  PHASES_INCOMPLETE: { status: 409, origin: cobol }
+  POLICY_DISABLED: { status: 400, origin: cobol }
+  PREPARE_FAILED: { status: 500, origin: gateway }
+  PROFILE_DISABLED: { status: 409, origin: cobol }
+  PROFILE_UPDATE_FAILED: { status: 500, origin: cobol }
+  QUERY_FAILED: { status: 500, origin: gateway }
+  RATE_LIMITED: { status: 429, origin: cobol, note: "OTP resend/issue throttled (phone_otp_core); aligns with gateway 429" }
+  RATE_NOT_FOUND: { status: 400, origin: cobol }
+  RATE_STALE: { status: 409, origin: cobol }
+  REPAY_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed repay race loser" }
+  REPORT_NOT_COMPLETE: { status: 409, origin: cobol }
+  REPORT_RUN_FAILED: { status: 500, origin: gateway }
+  RESEND_FAILED: { status: 500, origin: cobol }
+  RESET_FAILED: { status: 500, origin: gateway }
+  RESULT_BIND_FAILED: { status: 500, origin: gateway }
+  RESULT_TRUNCATED: { status: 500, origin: gateway }
+  REVERSAL_FAILED: { status: 500, origin: cobol }
+  REVERSE_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed reverse race loser" }
+  REVIEW_ALREADY_OPEN: { status: 409, origin: cobol }
+  REVIEW_INCOMPLETE: { status: 409, origin: cobol }
+  REVOCATION_PENDING: { status: 409, origin: cobol }
+  ROLE_CHANGE_FAILED: { status: 500, origin: cobol }
+  ROLE_DENIED: { status: 403, origin: cobol }
+  ROLLBACK_FAILED: { status: 500, origin: gateway }
+  ROW_MISMATCH: { status: 409, origin: cobol }
+  RULE_NOT_FOUND: { status: 404, origin: cobol }
+  RUN_ACTIVE: { status: 409, origin: cobol }
+  RUN_LOCKED: { status: 409, origin: gateway }
+  SAME_ACCOUNT: { status: 409, origin: cobol, note: "debit and credit target the same account" }
+  SANCTION_CHECK_REQUIRED: { status: 409, origin: cobol }
+  SCHEDULE_DISABLED: { status: 409, origin: gateway }
+  SELF_TRANSFER: { status: 400, origin: cobol }
+  SESSIONS_REVOKE_FAILED: { status: 500, origin: cobol }
+  SESSION_CHECK_FAILED: { status: 500, origin: gateway }
+  SESSION_EXPIRED: { status: 401, origin: cobol }
+  SESSION_FAMILY_EXPIRED: { status: 401, origin: cobol }
+  SESSION_LIST_FAILED: { status: 500, origin: gateway }
+  SESSION_NOT_FOUND: { status: 401, origin: cobol }
+  SESSION_REUSED: { status: 401, origin: cobol }
+  SESSION_REVOKE_FAILED: { status: 500, origin: cobol }
+  SESSION_STORE_FAILED: { status: 500, origin: cobol }
+  SETTLE_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed settle race loser" }
+  SIGNUP_FAILED: { status: 500, origin: cobol }
+  STATUS_CHANGE_FAILED: { status: 500, origin: cobol }
+  STEPS_INCOMPLETE: { status: 409, origin: gateway }
+  STMT_INIT_FAILED: { status: 500, origin: gateway }
+  TARGET_NOT_FOUND: { status: 404, origin: cobol }
+  TEMPLATE_DISABLED: { status: 409, origin: cobol }
+  TOKEN_CHECK_FAILED: { status: 500, origin: cobol }
+  TOKEN_REVOKED: { status: 401, origin: cobol }
+  TOKEN_REVOKE_FAILED: { status: 500, origin: cobol }
+  TRANSFER_IN_PROGRESS: { status: 409, origin: cobol }
+  TYPE_NOT_FOUND: { status: 404, origin: cobol, note: "reference type missing" }
+  UNBALANCED: { status: 400, origin: cobol }
+  UNKNOWN_TRANSACTION: { status: 404, origin: cobol }
+  UNLOCK_FAILED: { status: 500, origin: cobol }
+  UNVERIFIED: { status: 403, origin: cobol }
+  USER_CLOSED: { status: 403, origin: cobol }
+  USER_SUSPENDED: { status: 403, origin: cobol }
+  VERIFY_FAILED: { status: 500, origin: cobol }
+  WEAK_PASSWORD: { status: 400, origin: cobol }
