@@ -462,17 +462,24 @@
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE treasury_liquidity SET projected_amount = projected_amount + ?, status = 'PROJECTED', projected_at = COALESCE(projected_at, NOW()) WHERE id = ?" TO WS-PREP-SQL
+            MOVE "UPDATE treasury_liquidity SET projected_amount = projected_amount + ?, status = 'PROJECTED', projected_at = COALESCE(projected_at, NOW()) WHERE id = ? AND projected_amount + ? <= amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+            MOVE WS-TMP-AMT TO WS-BIND-3
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|INVALID_AMOUNT" TO WS-ERR
                 SET STEP-FAIL TO TRUE
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF.
             IF STEP-OK
                 MOVE "POST" TO WS-AUDIT-ACTION
@@ -486,7 +493,11 @@
                 STRING "SUCCESS|TRL_POST|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                IF WS-ERR = "ERROR|INVALID_AMOUNT"
+                    MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
@@ -529,19 +540,26 @@
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
+            MOVE SPACES TO WS-ERR
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE treasury_liquidity SET status = CASE WHEN realized_amount + ? >= projected_amount THEN 'REALIZED' ELSE 'PROJECTED' END, realized_at = CASE WHEN realized_amount + ? >= projected_amount THEN NOW() ELSE realized_at END, realized_amount = realized_amount + ? WHERE id = ?" TO WS-PREP-SQL
+            MOVE "UPDATE treasury_liquidity SET status = CASE WHEN realized_amount + ? >= projected_amount THEN 'REALIZED' ELSE 'PROJECTED' END, realized_at = CASE WHEN realized_amount + ? >= projected_amount THEN NOW() ELSE realized_at END, realized_amount = realized_amount + ? WHERE id = ? AND realized_amount + ? <= projected_amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-TMP-AMT TO WS-BIND-2
             MOVE WS-TMP-AMT TO WS-BIND-3
             MOVE WS-P1-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
+            MOVE WS-TMP-AMT TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                MOVE "ERROR|INVALID_AMOUNT" TO WS-ERR
                 SET STEP-FAIL TO TRUE
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
             END-IF.
             IF STEP-OK
                 MOVE "SETTLE" TO WS-AUDIT-ACTION
@@ -555,7 +573,11 @@
                 STRING "SUCCESS|TRL_SETTLE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                IF WS-ERR = "ERROR|INVALID_AMOUNT"
+                    MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
             EXIT PARAGRAPH.
 
