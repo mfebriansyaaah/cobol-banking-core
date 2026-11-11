@@ -56,7 +56,14 @@
        01  WS-NUM-LIMIT            PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-AVAIL            PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-BALANCE          PIC 9(15)V9(4) VALUE 0.
+       01  WS-AMT-EDIT             PIC Z(18)9.9999 VALUE 0.
        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+       01  WS-IDEM-STATUS          PIC X(10) VALUE SPACES.
+       01  WS-IDEM-OWNED           PIC X VALUE "0".
+       01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
+       01  WS-IDEM-AMT             PIC X(30) VALUE SPACES.
+       01  WS-IDEM-JID             PIC X(20) VALUE SPACES.
+       01  WS-IDEM-STALE           PIC X VALUE SPACES.
        01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
        01  WS-CALL-P1              PIC X(100) VALUE SPACES.
        01  WS-CALL-P2              PIC X(100) VALUE SPACES.
@@ -229,6 +236,339 @@
 
         COPY "common_result.cpy".
 
+       CLAIM-CAPTURE-REQUEST.
+           *> Client-supplied idempotency for capture (P5), mirroring
+           *> payment_settle_request. First call with a key inserts a PENDING
+           *> request row and owns it; a repeated key replays the stored DONE
+           *> outcome (or conflicts on a different amount) instead of posting
+           *> again; a key whose owner is still working is refused so two
+           *> owners never post twice. A PENDING row older than 5 minutes is
+           *> taken over (owner crashed). WS-ERR on refusal.
+           MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
+           MOVE "0" TO WS-IDEM-OWNED
+           MOVE SPACES TO WS-ERR
+           MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM card_capture_request WHERE card_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P5-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "INSERT INTO card_capture_request (card_id, idempotency_key, amount, status) VALUES (?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
+                       MOVE "RETRY" TO WS-IDEM-STATUS
+                   ELSE
+                       MOVE "ERROR|DB_ERROR" TO WS-ERR
+                       EXIT PARAGRAPH
+                   END-IF
+               ELSE
+                   MOVE "PENDING" TO WS-IDEM-STATUS
+                   MOVE "1" TO WS-IDEM-OWNED
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-IDEM-STATUS = "RETRY"
+               MOVE SPACES TO WS-IDEM-STATUS
+               MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM card_capture_request WHERE card_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
+               UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
+               END-UNSTRING
+               IF WS-IDEM-STATUS = "DONE"
+                   IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-TMP-AMT)
+                       MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                   END-IF
+               ELSE
+                   IF WS-IDEM-STALE NOT = "1"
+                       MOVE "ERROR|CAPTURE_IN_PROGRESS" TO WS-ERR
+                   ELSE
+                       MOVE "UPDATE card_capture_request SET updated_at = NOW() WHERE card_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+                       MOVE WS-P1-TRIMMED TO WS-BIND-1
+                       MOVE WS-P5-TRIMMED TO WS-BIND-2
+                       CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                       END-CALL
+                       CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                       IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                           MOVE "ERROR|CAPTURE_IN_PROGRESS" TO WS-ERR
+                       ELSE
+                           MOVE "PENDING" TO WS-IDEM-STATUS
+                           MOVE "1" TO WS-IDEM-OWNED
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       DELETE-CAPTURE-REQUEST.
+           *> Drops our own PENDING request row when the action is refused
+           *> before posting, so the key stays usable instead of blocking
+           *> behind a 5-minute stale window. Only the owner row is ever
+           *> removed (status guard); DONE rows are never touched.
+           IF WS-IDEM-OWNED = "1" AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "DELETE FROM card_capture_request WHERE card_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               MOVE "0" TO WS-IDEM-OWNED
+           END-IF.
+           EXIT PARAGRAPH.
+       CLAIM-REPAY-REQUEST.
+           *> Client-supplied idempotency for repay (P5), mirroring
+           *> payment_settle_request. First call with a key inserts a PENDING
+           *> request row and owns it; a repeated key replays the stored DONE
+           *> outcome (or conflicts on a different amount) instead of posting
+           *> again; a key whose owner is still working is refused so two
+           *> owners never post twice. A PENDING row older than 5 minutes is
+           *> taken over (owner crashed). WS-ERR on refusal.
+           MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
+           MOVE "0" TO WS-IDEM-OWNED
+           MOVE SPACES TO WS-ERR
+           MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM card_repay_request WHERE card_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P5-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "INSERT INTO card_repay_request (card_id, idempotency_key, amount, status) VALUES (?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-P2-TRIMMED) TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
+                       MOVE "RETRY" TO WS-IDEM-STATUS
+                   ELSE
+                       MOVE "ERROR|DB_ERROR" TO WS-ERR
+                       EXIT PARAGRAPH
+                   END-IF
+               ELSE
+                   MOVE "PENDING" TO WS-IDEM-STATUS
+                   MOVE "1" TO WS-IDEM-OWNED
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-IDEM-STATUS = "RETRY"
+               MOVE SPACES TO WS-IDEM-STATUS
+               MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM card_repay_request WHERE card_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
+               UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
+               END-UNSTRING
+               IF WS-IDEM-STATUS = "DONE"
+                   IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-P2-TRIMMED)
+                       MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                   END-IF
+               ELSE
+                   IF WS-IDEM-STALE NOT = "1"
+                       MOVE "ERROR|REPAY_IN_PROGRESS" TO WS-ERR
+                   ELSE
+                       MOVE "UPDATE card_repay_request SET updated_at = NOW() WHERE card_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+                       MOVE WS-P1-TRIMMED TO WS-BIND-1
+                       MOVE WS-P5-TRIMMED TO WS-BIND-2
+                       CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                       END-CALL
+                       CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                       IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                           MOVE "ERROR|REPAY_IN_PROGRESS" TO WS-ERR
+                       ELSE
+                           MOVE "PENDING" TO WS-IDEM-STATUS
+                           MOVE "1" TO WS-IDEM-OWNED
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       DELETE-REPAY-REQUEST.
+           *> Drops our own PENDING request row when the action is refused
+           *> before posting, so the key stays usable instead of blocking
+           *> behind a 5-minute stale window. Only the owner row is ever
+           *> removed (status guard); DONE rows are never touched.
+           IF WS-IDEM-OWNED = "1" AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "DELETE FROM card_repay_request WHERE card_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               MOVE "0" TO WS-IDEM-OWNED
+           END-IF.
+           EXIT PARAGRAPH.
+       CLAIM-REVERSE-REQUEST.
+           *> Client-supplied idempotency for reverse (P5), mirroring
+           *> payment_settle_request. First call with a key inserts a PENDING
+           *> request row and owns it; a repeated key replays the stored DONE
+           *> outcome (or conflicts on a different amount) instead of posting
+           *> again; a key whose owner is still working is refused so two
+           *> owners never post twice. A PENDING row older than 5 minutes is
+           *> taken over (owner crashed). WS-ERR on refusal.
+           MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
+           MOVE "0" TO WS-IDEM-OWNED
+           MOVE SPACES TO WS-ERR
+           MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM card_reverse_request WHERE card_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           MOVE WS-P5-TRIMMED TO WS-BIND-2
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "INSERT INTO card_reverse_request (card_id, idempotency_key, amount, status) VALUES (?, ?, ?, 'PENDING')" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
+                       MOVE "RETRY" TO WS-IDEM-STATUS
+                   ELSE
+                       MOVE "ERROR|DB_ERROR" TO WS-ERR
+                       EXIT PARAGRAPH
+                   END-IF
+               ELSE
+                   MOVE "PENDING" TO WS-IDEM-STATUS
+                   MOVE "1" TO WS-IDEM-OWNED
+                   EXIT PARAGRAPH
+               END-IF
+           ELSE
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-IDEM-STATUS = "RETRY"
+               MOVE SPACES TO WS-IDEM-STATUS
+               MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM card_reverse_request WHERE card_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   MOVE "ERROR|DB_ERROR" TO WS-ERR
+               ELSE
+                   MOVE WS-RESULT TO WS-IDEM-ROW
+               END-IF
+           END-IF.
+           IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
+               UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
+               END-UNSTRING
+               IF WS-IDEM-STATUS = "DONE"
+                   IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-TMP-AMT)
+                       MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
+                   END-IF
+               ELSE
+                   IF WS-IDEM-STALE NOT = "1"
+                       MOVE "ERROR|REVERSE_IN_PROGRESS" TO WS-ERR
+                   ELSE
+                       MOVE "UPDATE card_reverse_request SET updated_at = NOW() WHERE card_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+                       MOVE WS-P1-TRIMMED TO WS-BIND-1
+                       MOVE WS-P5-TRIMMED TO WS-BIND-2
+                       CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                       END-CALL
+                       CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                       IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                           MOVE "ERROR|REVERSE_IN_PROGRESS" TO WS-ERR
+                       ELSE
+                           MOVE "PENDING" TO WS-IDEM-STATUS
+                           MOVE "1" TO WS-IDEM-OWNED
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF.
+           EXIT PARAGRAPH.
+
+       DELETE-REVERSE-REQUEST.
+           *> Drops our own PENDING request row when the action is refused
+           *> before posting, so the key stays usable instead of blocking
+           *> behind a 5-minute stale window. Only the owner row is ever
+           *> removed (status guard); DONE rows are never touched.
+           IF WS-IDEM-OWNED = "1" AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "DELETE FROM card_reverse_request WHERE card_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
+               MOVE WS-P1-TRIMMED TO WS-BIND-1
+               MOVE WS-P5-TRIMMED TO WS-BIND-2
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               MOVE "0" TO WS-IDEM-OWNED
+           END-IF.
+           EXIT PARAGRAPH.
        ACTION-ISSUE.
            PERFORM ALLOW-ADMIN
            IF WS-ALLOWED NOT = 1
@@ -702,11 +1042,20 @@
            MOVE SPACES TO WS-TMP-AMT
            MOVE SPACES TO WS-TMP-CURR
            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-STATUS WS-TMP-AMT WS-TMP-CURR END-UNSTRING
-           IF WS-TMP-STATUS(1:10) NOT = "AUTHORIZED"
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
+           IF WS-P5-TRIMMED NOT = SPACES
+               PERFORM CLAIM-CAPTURE-REQUEST
+               IF WS-ERR NOT = SPACES
+                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               IF WS-IDEM-STATUS = "DONE"
+                   MOVE SPACES TO LS-OUTPUT-BUFFER
+                   STRING "SUCCESS|CARD_CAPTURE|" DELIMITED BY SIZE FUNCTION TRIM(WS-IDEM-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+                   EXIT PARAGRAPH
+               END-IF
            END-IF.
            IF WS-TMP-STATUS(1:10) NOT = "AUTHORIZED"
+               PERFORM DELETE-CAPTURE-REQUEST
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -733,6 +1082,7 @@
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT = "ERROR|NO_DATA"
+               PERFORM DELETE-CAPTURE-REQUEST
                MOVE "ERROR|CARD_RECEIVABLE_MISSING" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -749,6 +1099,7 @@
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT = "ERROR|NO_DATA"
+               PERFORM DELETE-CAPTURE-REQUEST
                MOVE "ERROR|MERCHANT_PAYABLE_MISSING" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -913,6 +1264,21 @@
                    SET STEP-FAIL TO TRUE
                END-IF
            END-IF.
+           IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "UPDATE card_capture_request SET status = 'DONE', gl_journal_id = ? WHERE card_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
+               MOVE WS-GL-JID TO WS-BIND-1
+               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               MOVE WS-P5-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+
            IF STEP-OK
                MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ? AND balance >= ?" TO WS-PREP-SQL
                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-1
@@ -970,7 +1336,11 @@
                STRING "SUCCESS|CARD_CAPTURE|" DELIMITED BY SIZE WS-TMP-AMT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               IF WS-ERR = "ERROR|INSUFFICIENT_FUNDS"
+                   MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
            END-IF.
            EXIT PARAGRAPH.
 
@@ -991,6 +1361,8 @@
                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
+           MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-P2-TRIMMED
            MOVE "SELECT status FROM card_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
@@ -1007,7 +1379,20 @@
                EXIT PARAGRAPH
            END-IF.
            MOVE WS-RESULT(1:20) TO WS-TMP-STATUS
+           IF WS-P5-TRIMMED NOT = SPACES
+               PERFORM CLAIM-REPAY-REQUEST
+               IF WS-ERR NOT = SPACES
+                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               IF WS-IDEM-STATUS = "DONE"
+                   MOVE SPACES TO LS-OUTPUT-BUFFER
+                   STRING "SUCCESS|CARD_REPAY|" DELIMITED BY SIZE FUNCTION TRIM(WS-IDEM-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
            IF WS-TMP-STATUS(1:6) = "CLOSED"
+               PERFORM DELETE-REPAY-REQUEST
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -1058,6 +1443,7 @@
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT = "ERROR|NO_DATA"
+               PERFORM DELETE-REPAY-REQUEST
                MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -1074,6 +1460,7 @@
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
            IF WS-RESULT = "ERROR|NO_DATA"
+               PERFORM DELETE-REPAY-REQUEST
                MOVE "ERROR|CARD_RECEIVABLE_MISSING" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
@@ -1289,6 +1676,20 @@
                    SET STEP-FAIL TO TRUE
                END-IF
            END-IF.
+           IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
+               MOVE "UPDATE card_repay_request SET status = 'DONE', gl_journal_id = ? WHERE card_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
+               MOVE WS-GL-JID TO WS-BIND-1
+               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               MOVE WS-P5-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
            IF STEP-OK
                MOVE "REPAY" TO WS-AUDIT-ACTION
                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CARD
@@ -1465,19 +1866,35 @@
            MOVE SPACES TO WS-TMP-AMT
            MOVE SPACES TO WS-TMP-TYPE
            UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-STATUS WS-TMP-AMT WS-TMP-TYPE WS-CUST-CURR END-UNSTRING
+           IF WS-P5-TRIMMED NOT = SPACES
+               PERFORM CLAIM-REVERSE-REQUEST
+               IF WS-ERR NOT = SPACES
+                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               IF WS-IDEM-STATUS = "DONE"
+                   MOVE SPACES TO LS-OUTPUT-BUFFER
+                   STRING "SUCCESS|CARD_REVERSE|" DELIMITED BY SIZE FUNCTION TRIM(WS-IDEM-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
            IF WS-TMP-STATUS(1:10) NOT = "AUTHORIZED"
                AND WS-TMP-STATUS(1:8) NOT = "CAPTURED"
+               PERFORM DELETE-REVERSE-REQUEST
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF WS-TMP-STATUS(1:8) = "CAPTURED"
                AND WS-TMP-TYPE(1:13) NOT = "AUTHORIZATION"
+               PERFORM DELETE-REVERSE-REQUEST
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF WS-TMP-STATUS(1:8) = "CAPTURED"
+               AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
                PERFORM PREPARE-REFUND-POSTING
                IF WS-ERR NOT = SPACES
+                   PERFORM DELETE-REVERSE-REQUEST
                    MOVE WS-ERR TO LS-OUTPUT-BUFFER
                    EXIT PARAGRAPH
                END-IF
@@ -1544,6 +1961,20 @@
                END-CALL
                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           END-IF.
+           IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES AND WS-TMP-STATUS(1:8) = "CAPTURED" AND WS-TMP-TYPE(1:13) = "AUTHORIZATION"
+               MOVE "UPDATE card_reverse_request SET status = 'DONE', gl_journal_id = ? WHERE card_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
+               MOVE WS-GL-JID TO WS-BIND-1
+               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               MOVE WS-P5-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT(1:5) = "ERROR"
                    SET STEP-FAIL TO TRUE
                END-IF
            END-IF.

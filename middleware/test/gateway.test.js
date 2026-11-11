@@ -1522,17 +1522,44 @@ test('card lifecycle over HTTP', async () => {
 
   const repay = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '50.00' });
   assert.equal(repay.status, 200);
-  assert.deepEqual(repay.body.data, ['CARD_REPAY', '50.00']);
+  assert.deepEqual(repay.body.data, ['CARD_REPAY', '50.0000']);
   assert.equal(
     queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${admin}') AND currency_id = 1`),
     '4950.0000',
     'the repayment debits the wallet',
   );
 
+  // Fase 2: idempotency keys on the money-moving card routes. A repeated
+  // key replays the stored outcome instead of posting again; a different
+  // amount under the same key conflicts.
+  const authorize2 = await request(app).post(`/cards/${id}/authorize`).set(auth).send({ amount: '20.00', merchant: 'Shop B' });
+  assert.equal(authorize2.status, 200);
+  const keyedCap1 = await request(app).post(`/cards/${id}/capture`).set(auth).send({ authRef: authorize2.body.data[1], idempotencyKey: `gw-cap-${ref}` });
+  assert.equal(keyedCap1.status, 200);
+  assert.deepEqual(keyedCap1.body.data, ['CARD_CAPTURE', '20.0000']);
+  const keyedCap2 = await request(app).post(`/cards/${id}/capture`).set(auth).send({ authRef: authorize2.body.data[1], idempotencyKey: `gw-cap-${ref}` });
+  assert.equal(keyedCap2.status, 200);
+  assert.deepEqual(keyedCap2.body.data, ['CARD_CAPTURE', '20.0000']);
+  assert.equal(
+    queryScalar(`SELECT COUNT(*) FROM ledger WHERE txn_ref = 'CARDCAP-${authorize2.body.data[1]}'`),
+    '2',
+    'the keyed capture replay posts no new legs',
+  );
+
+  const keyedRepay1 = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '10.00', idempotencyKey: `gw-repay-${ref}` });
+  assert.equal(keyedRepay1.status, 200);
+  assert.deepEqual(keyedRepay1.body.data, ['CARD_REPAY', '10.0000']);
+  const keyedRepay2 = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '10.00', idempotencyKey: `gw-repay-${ref}` });
+  assert.equal(keyedRepay2.status, 200);
+  assert.deepEqual(keyedRepay2.body.data, ['CARD_REPAY', '10.0000']);
+  const keyedRepayConflict = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '11.00', idempotencyKey: `gw-repay-${ref}` });
+  assert.equal(keyedRepayConflict.status, 409);
+  assert.equal(keyedRepayConflict.body.error, 'IDEMPOTENCY_CONFLICT');
+
   const statement = await request(app).get(`/cards/${id}/statement`).query({ limit: 50 }).set(auth);
   assert.equal(statement.status, 200);
   assert.equal(statement.body.data[0], 'CARD_STATEMENT');
-  assert.equal(statement.body.data[1], '50.0000');
+  assert.equal(statement.body.data[1], '60.0000');
   assert.match(statement.body.data[5], /REPAYMENT/);
 
   const limit = await request(app).post(`/cards/${id}/limit`).set(auth).send({ limit: '2000.00' });
@@ -1555,6 +1582,8 @@ test('card lifecycle over HTTP', async () => {
   assert.equal(trail.status, 200);
   assert.equal(trail.body.data[0], 'CARD_AUDIT');
 
+  requireSeed(runSql(`DELETE FROM card_transaction WHERE card_id IN (SELECT id FROM card_account WHERE card_ref LIKE '${ref}%')`), 'clean up the card transactions');
+  requireSeed(runSql(`DELETE FROM card_transaction WHERE journal_id IN (SELECT journal_id FROM journal_entries WHERE txn_ref LIKE 'CARD%')`), 'clean up orphan card transactions');
   requireSeed(runSql(`DELETE FROM card_account WHERE card_ref LIKE '${ref}%'`), 'clean up the cards');
   requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref LIKE 'CARD%'`), 'clean up the card legs');
   requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref LIKE 'CARD%'`), 'clean up the card journals');
