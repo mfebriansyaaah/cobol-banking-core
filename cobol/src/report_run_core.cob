@@ -163,32 +163,11 @@
            GOBACK.
 
         COPY "common_trim.cpy".
+        COPY "common_validate_semi.cpy".
         COPY "common_validate.cpy".
         COPY "common_result.cpy".
 
-       VALIDATE-ALL.
-           MOVE 0 TO WS-BAD
-           MOVE LS-PARAM1 TO WS-TRIM-IN
-           PERFORM VALIDATE-INPUT
-           MOVE LS-PARAM2 TO WS-TRIM-IN
-           PERFORM VALIDATE-INPUT
-           MOVE LS-PARAM3 TO WS-TRIM-IN
-           PERFORM VALIDATE-INPUT
-           MOVE LS-PARAM4 TO WS-TRIM-IN
-           PERFORM VALIDATE-INPUT
-           MOVE LS-PARAM5 TO WS-TRIM-IN
-           PERFORM VALIDATE-INPUT
-           MOVE LS-PARAM6 TO WS-TRIM-IN
-           PERFORM VALIDATE-INPUT.
-           EXIT PARAGRAPH.
 
-       VALIDATE-INPUT.
-           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-QUOTE
-           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-DQUOTE
-           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-BSLASH
-           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-SEMI
-           INSPECT WS-TRIM-IN TALLYING WS-BAD FOR ALL F-TICK.
-           EXIT PARAGRAPH.
 
        VALIDATE-CODE-FIELD.
            MOVE 0 TO WS-BAD
