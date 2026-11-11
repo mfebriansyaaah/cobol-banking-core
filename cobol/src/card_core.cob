@@ -952,7 +952,31 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
+           MOVE SPACES TO WS-ERR
            CALL "SQL_BEGIN" END-CALL
+           *> Take the hold first: the guarded debit serializes concurrent
+           *> authorizes on the account row. Inserting the auth row first would
+           *> S-lock the parent via fk_card_txn and then X-lock it here, a
+           *> classic S-then-X upgrade deadlock under race.
+           IF STEP-OK
+               MOVE "UPDATE card_account SET available_limit = available_limit - ? WHERE id = ? AND available_limit >= ?" TO WS-PREP-SQL
+               MOVE WS-P2-TRIMMED TO WS-BIND-1
+               MOVE WS-P1-TRIMMED TO WS-BIND-2
+               MOVE WS-P2-TRIMMED TO WS-BIND-3
+               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
+                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+               END-CALL
+               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                   MOVE "ERROR|LIMIT_EXCEEDED" TO WS-ERR
+                   SET STEP-FAIL TO TRUE
+               ELSE
+                   IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+                   END-IF
+               END-IF
+           END-IF.
            MOVE "INSERT INTO card_transaction (card_id, auth_ref, txn_type, amount, currency, merchant, status) VALUES (?, CONCAT('AUTH-', ?, '-', UUID_SHORT()), 'AUTHORIZATION', ?, ?, ?, 'AUTHORIZED')" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -982,19 +1006,6 @@
                END-IF
            END-IF.
            IF STEP-OK
-               MOVE "UPDATE card_account SET available_limit = available_limit - ? WHERE id = ?" TO WS-PREP-SQL
-               MOVE WS-P2-TRIMMED TO WS-BIND-1
-               MOVE WS-P1-TRIMMED TO WS-BIND-2
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   SET STEP-FAIL TO TRUE
-               END-IF
-           END-IF.
-           IF STEP-OK
                MOVE "AUTHORIZE" TO WS-AUDIT-ACTION
                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CARD
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
@@ -1006,7 +1017,11 @@
                STRING "SUCCESS|CARD_AUTHORIZE|" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-STR) DELIMITED BY SIZE "|" DELIMITED BY SIZE WS-P2-TRIMMED DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               IF WS-ERR = "ERROR|LIMIT_EXCEEDED"
+                   MOVE "ERROR|LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
+               ELSE
+                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               END-IF
            END-IF.
            EXIT PARAGRAPH.
 

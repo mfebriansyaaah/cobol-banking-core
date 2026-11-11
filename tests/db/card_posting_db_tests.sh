@@ -300,6 +300,30 @@ assert_match "void request recorded DONE" "$(db_query "SELECT status FROM card_r
 assert_match "void on voided refused" "$(run_cobol "CARD_REVERSE|${KID}|${vauth_ref}|||K-VOID2|${A}")" "ERROR\|INVALID_STATUS"
 assert_match "no void request residue" "$(db_query "SELECT COUNT(*) FROM card_reverse_request WHERE card_id=${KID} AND idempotency_key='K-VOID2';")" "^0$"
 
+# 96-100. Concurrent authorizes against one limit (fresh card, limit
+# 1000): two 700 holds serialize on the guarded debit; exactly one wins,
+# the loser sees LIMIT_EXCEEDED (not DB_ERROR), the limit holds at 300,
+# and a single AUTHORIZED row lands. The hold UPDATE runs before the
+# auth-row INSERT so the FK S-lock never upgrades to a deadlock.
+run_cobol "CARD_ISSUE|CRD-KR|${WA}|CREDIT|1000.00|USD|${A}" >/dev/null
+RID="$(db_query "SELECT id FROM card_account WHERE card_ref='CRD-KR';")"
+F1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; F2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'CARD_AUTHORIZE|%s|700.00|Shop R|USD||admin@test.com\n' "$RID" >"$F1/input.txt"
+printf 'CARD_AUTHORIZE|%s|700.00|Shop R|USD||admin@test.com\n' "$RID" >"$F2/input.txt"
+(cd "$F1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+U1=$!
+(cd "$F2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+U2=$!
+wait $U1; wait $U2
+FA="$(tr -d ' \n' <"$F1/output.txt")"; FB="$(tr -d ' \n' <"$F2/output.txt")"
+rm -rf "$F1" "$F2"
+assert_match "exactly one authorize winner" "$(printf '%s\n%s\n' "$FA" "$FB" | grep -c "SUCCESS|CARD_AUTHORIZE")" "^1$"
+assert_match "race loser limit-exceeded" "$(printf '%s\n%s\n' "$FA" "$FB")" "ERROR\|LIMIT_EXCEEDED"
+assert_match "limit holds under race" "$(db_query "SELECT available_limit FROM card_account WHERE id=${RID};")" "^300.0000$"
+assert_match "race authorized once" "$(db_query "SELECT COUNT(*) FROM card_transaction WHERE card_id=${RID} AND status='AUTHORIZED';")" "^1$"
+db_exec "DELETE FROM card_transaction WHERE card_id=${RID};"
+db_exec "DELETE FROM card_account WHERE id=${RID};"
+
 cleanup_fixture
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
