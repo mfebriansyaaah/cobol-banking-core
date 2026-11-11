@@ -528,16 +528,14 @@ test('mass assignment: undeclared body fields never reach the core', () => {
 test('mass assignment over HTTP: role/status extras do not escalate signup', async () => {
   const app = buildApp();
   const em = U('mass');
-  const res = await request(app)
-    .post('/auth/signup')
-    .send({
-      email: em,
-      password: 'secret123',
-      name: 'Mass',
-      dob: '1990-01-01',
-      role: 'SUPER_ADMIN',
-      status: 'VERIFIED',
-    });
+  const res = await request(app).post('/auth/signup').send({
+    email: em,
+    password: 'secret123',
+    name: 'Mass',
+    dob: '1990-01-01',
+    role: 'SUPER_ADMIN',
+    status: 'VERIFIED',
+  });
   assert.equal(res.status, 200);
   assert.deepEqual(res.body.data, ['USER_CREATED']);
   assert.equal(queryScalar(`SELECT role FROM users WHERE email='${em}';`), 'USER');

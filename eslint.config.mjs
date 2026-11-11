@@ -34,4 +34,15 @@ export default [
       'no-console': 'error',
     },
   },
+  {
+    // Complexity watch list (maint-02): warn, never fail. New code should
+    // stay under these; the 9 current hotspots (selectFile 40,
+    // assertSecureConfig 35, buildGraph/checkShards/main 33, ...) are
+    // grandfathered refactoring targets, not gate failures.
+    files: ['middleware/**/*.js', 'scripts/**/*.mjs'],
+    rules: {
+      complexity: ['warn', 25],
+      'max-depth': ['warn', 6],
+    },
+  },
 ];
