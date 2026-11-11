@@ -288,6 +288,18 @@ db_exec "INSERT INTO card_reverse_request (card_id, idempotency_key, amount, sta
 assert_match "reverse takeover succeeds" "$(run_cobol "CARD_REVERSE|${KID}|${rauth2_ref}|||K-VTAKE|${A}")" "SUCCESS\|CARD_REVERSE\|90.0000"
 assert_match "reverse taken over and done" "$(db_query "SELECT status FROM card_reverse_request WHERE card_id=${KID} AND idempotency_key='K-VTAKE';")" "^DONE$"
 
+# 90-96. Keyed reverse of an AUTHORIZED hold (void): no money moves, the
+# hold is released, and the key still replays DONE instead of stranding
+# PENDING behind a 5-minute window.
+vauth="$(run_cobol "CARD_AUTHORIZE|${KID}|35.00|Shop KX|USD||${A}")"
+vauth_ref="$(printf '%s' "$vauth" | awk -F'|' '{print $3}')"
+assert_match "keyed void ok" "$(run_cobol "CARD_REVERSE|${KID}|${vauth_ref}|||K-VOID|${A}")" "SUCCESS\|CARD_REVERSE\|35.0000"
+assert_match "keyed void replay ok" "$(run_cobol "CARD_REVERSE|${KID}|${vauth_ref}|||K-VOID|${A}")" "SUCCESS\|CARD_REVERSE\|35.0000"
+assert_match "void posts no legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDRC-${vauth_ref}';")" "^0$"
+assert_match "void request recorded DONE" "$(db_query "SELECT status FROM card_reverse_request WHERE card_id=${KID} AND idempotency_key='K-VOID';")" "^DONE$"
+assert_match "void on voided refused" "$(run_cobol "CARD_REVERSE|${KID}|${vauth_ref}|||K-VOID2|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "no void request residue" "$(db_query "SELECT COUNT(*) FROM card_reverse_request WHERE card_id=${KID} AND idempotency_key='K-VOID2';")" "^0$"
+
 cleanup_fixture
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
