@@ -3,10 +3,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkRegistration, listTestFiles } from '../check_test_registration.mjs';
-import { GROUPS } from '../../middleware/scripts/test-files.mjs';
+import { GROUPS } from '../../middleware/scripts/test_files.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -48,4 +49,17 @@ test('gate holds on the real tree', () => {
   assert.match(out, /OK: all \d+ gateway test files registered/);
   const files = listTestFiles(path.join(ROOT, 'middleware', 'test'));
   assert.ok(files.length >= 30, `expected 30+ test files, got ${files.length}`);
+});
+
+test('registry filename is invisible to node --test discovery', () => {
+  // node --test treats test-*.mjs as a test file: such a file fails the
+  // coverage suite (it exits non-zero with no args). The underscore name
+  // plus an exit-0 default keep discovery clean.
+  for (const f of readdirSync(path.join(ROOT, 'middleware', 'scripts'))) {
+    assert.ok(!/^test-/.test(f), `middleware/scripts/${f} matches node --test discovery`);
+  }
+  const out = execFileSync(process.execPath, [path.join(ROOT, 'middleware', 'scripts', 'test_files.mjs')], {
+    encoding: 'utf8',
+  });
+  assert.match(out, /^unit$/m);
 });

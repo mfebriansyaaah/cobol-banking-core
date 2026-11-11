@@ -1,5 +1,5 @@
 // Test-registration guard (maint-02): every gateway test file must belong
-// to at least one group in middleware/scripts/test-files.mjs. A new
+// to at least one group in middleware/scripts/test_files.mjs. A new
 // *.test.js that nobody runs must fail this gate instead of silently never
 // executing (the failure mode the registry was built to prevent).
 //
@@ -8,7 +8,7 @@
 import { readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { GROUPS } from '../middleware/scripts/test-files.mjs';
+import { GROUPS } from '../middleware/scripts/test_files.mjs';
 
 export function listTestFiles(testDir) {
   const out = [];
@@ -47,7 +47,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const files = listTestFiles(path.join(path.resolve(root), 'middleware', 'test'));
   const missing = checkRegistration(files, GROUPS);
   if (missing.length) {
-    console.error('UNREGISTERED GATEWAY TEST FILES (add to a group in middleware/scripts/test-files.mjs):');
+    console.error('UNREGISTERED GATEWAY TEST FILES (add to a group in middleware/scripts/test_files.mjs):');
     for (const f of missing) console.error(`  ${f}`);
     process.exit(1);
   }

@@ -3,7 +3,9 @@
 // middleware/package.json had the same 36 file paths copy-pasted across 11
 // npm scripts; adding one test file meant editing every script, and a miss
 // silently dropped the file from a suite. npm scripts now call
-// `node scripts/test-files.mjs <group>` (cwd = middleware/) instead.
+// `node scripts/test_files.mjs <group>` (cwd = middleware/) instead.
+// The underscore name is deliberate: node --test discovery treats
+// `test-*.mjs` as a test file, which broke the coverage suite.
 //
 // Groups compose from shared lists so a new file is added once:
 //   unit       15 files, no DB/binary needed
@@ -82,11 +84,14 @@ export const GROUPS = {
 };
 
 const args = process.argv.slice(2);
-if (args.includes('--groups')) {
+if (args.includes('--groups') || args.length === 0) {
+  // No args lists groups (exit 0): node --test discovery may execute this
+  // file if it ever matches a test glob, and a usage error exit would fail
+  // the suite. Unknown explicit groups still exit 2.
   console.log(Object.keys(GROUPS).join('\n'));
 } else if (args.length === 1 && GROUPS[args[0]]) {
   console.log(GROUPS[args[0]].join(' '));
 } else {
-  console.error(`usage: test-files.mjs <group> [--groups] (groups: ${Object.keys(GROUPS).join(', ')})`);
+  console.error(`usage: test_files.mjs <group> [--groups] (groups: ${Object.keys(GROUPS).join(', ')})`);
   if (import.meta.url === pathToFileURL(process.argv[1]).href) process.exit(2);
 }
