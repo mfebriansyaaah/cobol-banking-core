@@ -6139,6 +6139,28 @@ CREATE TABLE `collection_mgmt_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `collection_pay_request`
+--
+
+DROP TABLE IF EXISTS `collection_pay_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `collection_pay_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `case_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_pay_idem` (`case_id`,`idempotency_key`),
+  KEY `idx_pay_req_case` (`case_id`),
+  CONSTRAINT `fk_pay_req_case` FOREIGN KEY (`case_id`) REFERENCES `collection_case` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `commercial_banking`
 --
 
