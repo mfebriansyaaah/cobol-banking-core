@@ -69,7 +69,9 @@ Every domain module exposes these actions (prefix + action):
   `tests/action_test_coverage_baseline.txt` with a reason — see the action
   coverage ratchet in [TESTING.md](TESTING.md).
 - Route fields must stay in the exact COBOL `LS-PARAM` order (6 positional
-  slots). After adding or changing a route, run
+  slots; `deposit_core` takes 7 with the idempotency key in slot 7,
+  `user_core` takes 4 — slots past a program's count must be `BLANK`
+  padding, enforced by `scripts/check_program_signatures.mjs`). After adding or changing a route, run
   `node scripts/generate_field_order.mjs --write .`, review the snapshot
   diff in `tests/contracts/route_field_order.json`, and explain it in the
   PR — see the cross-layer contract section in [TESTING.md](TESTING.md).

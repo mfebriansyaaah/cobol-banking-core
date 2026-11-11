@@ -171,6 +171,11 @@ ACTION|PARAM1|PARAM2|PARAM3|PARAM4|PARAM5|PARAM6
 - Empty parameters are still separators: `BLOCK|12|||||admin@test.com`.
 - Responses start with `SUCCESS|<TAG>|…` or `ERROR|<CODE>|<detail>?`; the
   gateway maps codes to HTTP status and `{ data: [...] }` / `{ error: … }`.
+  Every code has an explicit entry in `contracts/errors.yaml` (status,
+  origin, note); `scripts/check_error_codes.mjs` fails unregistered codes.
+  Most actions carry 6 params; `DEP_*` write paths carry a 7th
+  (idempotency key) and `user_core` reads 4 — extra route slots must be
+  `BLANK` (`scripts/check_program_signatures.mjs`).
 - The SQL bridge accepts at most **6 binds** per statement. Use
   `SQL_PREPARE_EXEC_ROWS` for multi-row results.
 - Dispatch is by action prefix in `main_logic.cob` (for example `CARD_*` →

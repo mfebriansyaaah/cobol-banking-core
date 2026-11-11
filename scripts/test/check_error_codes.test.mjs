@@ -2,7 +2,12 @@
 // No database, no build. Pure helpers are imported directly.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { extractCobolCodes, parseRegistry, parseRuntimeMap, checkAll, INTERNAL_CODES } from '../check_error_codes.mjs';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 test('extractCobolCodes collects ERROR literals', () => {
   const codes = extractCobolCodes('MOVE "ERROR|OVERPAID" TO X\nIF Y = "ERROR|NO_DATA"\n');
@@ -73,4 +78,15 @@ test('fully consistent triple passes', () => {
     runtime: new Map([['OVERPAID', 409]]),
   });
   assert.deepEqual(errors, []);
+});
+
+test('AUTH_FAILURE_CODES entries are all registered (telemetry consistency)', () => {
+  const app = readFileSync(path.join(ROOT, 'middleware', 'src', 'app.js'), 'utf8');
+  const setBody = (app.match(/const AUTH_FAILURE_CODES = new Set\(\[([\s\S]*?)\]\)/) || [])[1] || '';
+  const codes = [...setBody.matchAll(/'([A-Z0-9_]+)'/g)].map((m) => m[1]);
+  assert.ok(codes.length > 0, 'expected AUTH_FAILURE_CODES entries');
+  const registry = parseRegistry(readFileSync(path.join(ROOT, 'contracts', 'errors.yaml'), 'utf8'));
+  for (const code of codes) {
+    assert.ok(registry.has(code), `AUTH_FAILURE_CODES entry missing from registry: ${code}`);
+  }
 });
