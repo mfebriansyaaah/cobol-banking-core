@@ -389,6 +389,28 @@ assert_match "keyed overpay refused" "$(run_cobol "LOAN_REPAY|${APP10}|50.00|||K
 assert_match "keyed overpay retry in progress" "$(run_cobol "LOAN_REPAY|${APP10}|50.00|||K-OV2|${A}")" "ERROR\|REPAY_IN_PROGRESS"
 assert_match "overpay request stays pending" "$(db_query "SELECT status FROM loan_repay_request WHERE loan_id=${APP10} AND idempotency_key='K-OV2';")" "^PENDING$"
 
+# 141-148. Ceiling race: two concurrent repays that together exceed the
+# ceiling serialize on the guarded increment; exactly one wins.
+run_cobol "LOAN_APPLY|${WB}|1000.00|USD|12|5.0|${A}" >/dev/null
+APP11="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+run_cobol "LOAN_APPROVE|${APP11}|5.0|ok|||${A}" >/dev/null
+run_cobol "LOAN_DISBURSE|${APP11}|||||${A}" >/dev/null
+G1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; G2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'LOAN_REPAY|%s|600.00||||admin@test.com\n' "$APP11" >"$G1/input.txt"
+printf 'LOAN_REPAY|%s|600.00||||admin@test.com\n' "$APP11" >"$G2/input.txt"
+(cd "$G1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V1=$!
+(cd "$G2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V2=$!
+wait $V1; wait $V2
+GA="$(tr -d ' \n' <"$G1/output.txt")"; GB="$(tr -d ' \n' <"$G2/output.txt")"
+rm -rf "$G1" "$G2"
+assert_match "exactly one ceiling winner" "$(printf '%s\n%s\n' "$GA" "$GB" | grep -c "SUCCESS|LOAN_REPAY")" "^1$"
+assert_match "ceiling loser overpaid" "$(printf '%s\n%s\n' "$GA" "$GB")" "ERROR\|OVERPAID"
+assert_match "ceiling holds under race" "$(db_query "SELECT repaid_total FROM loan_application WHERE id=${APP11};")" "^600.0000$"
+assert_match "race posted one repayment" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'LOANRP-%' AND account_id=${ACCTB} AND amount=600.00;")" "^2$"
+assert_match "race loser left pending row" "$(db_query "SELECT COUNT(*) FROM loan_repayment WHERE loan_id=${APP11} AND status='PENDING';")" "^1$"
+
 cleanup_fixture
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
