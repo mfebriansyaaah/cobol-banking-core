@@ -156,6 +156,15 @@ jobs:
       - name: Verify documentation
         run: node scripts/check_docs.mjs .
 
+      - name: Verify PR-size policy
+        run: node scripts/check_pr_size_policy.mjs .
+
+      - name: PR-size report (non-gating artifact)
+        run: |
+          mkdir -p artifacts
+          node scripts/pr_size.mjs --base origin/main --head HEAD > artifacts/pr-size.txt || true
+          node scripts/pr_size.mjs --base origin/main --head HEAD --json > artifacts/pr-size.json || true
+
       - name: Complexity audit snapshot (non-gating artifact)
         run: |
           mkdir -p artifacts

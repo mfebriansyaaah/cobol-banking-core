@@ -434,17 +434,17 @@ run_gates() {
     # The static gates are independent (each reads the tree, none writes),
     # so run them in parallel and print the logs in stable order. Failures
     # still fail the run; the per-gate log names which gate broke.
-    echo "=== STATIC GATES (20 parallel) ==="
+    echo "=== STATIC GATES (25 parallel) ==="
     gate_pids=""
     gate_failed=0
-    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order check_action_test_coverage check_action_registry check_dispatch_table check_route_barrel check_openapi check_contract check_transaction_ownership check_cobol_call_graph check_cobol_field_sizes check_schema_ownership check_tier1_links check_clone_budget check_copybooks classify_domains classify_code_candidates check_integration_completion; do
+    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order check_action_test_coverage check_action_registry check_dispatch_table check_route_barrel check_openapi check_contract check_transaction_ownership check_cobol_call_graph check_cobol_field_sizes check_schema_ownership check_tier1_links check_clone_budget check_copybooks classify_domains classify_code_candidates check_integration_completion check_pr_size_policy; do
         node "scripts/$g.mjs" "$ROOT" >"/tmp/runall-gate-$g-$$.log" 2>&1 &
         gate_pids="$gate_pids $!"
     done
     for pid in $gate_pids; do
         wait "$pid" || gate_failed=1
     done
-    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order check_action_test_coverage check_action_registry check_dispatch_table check_route_barrel check_openapi check_contract check_transaction_ownership check_cobol_call_graph check_cobol_field_sizes check_schema_ownership check_tier1_links check_clone_budget check_copybooks classify_domains classify_code_candidates check_integration_completion; do
+    for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_coverage check_bind_slots check_suite_coverage check_field_order check_action_test_coverage check_action_registry check_dispatch_table check_route_barrel check_openapi check_contract check_transaction_ownership check_cobol_call_graph check_cobol_field_sizes check_schema_ownership check_tier1_links check_clone_budget check_copybooks classify_domains classify_code_candidates check_integration_completion check_pr_size_policy; do
         case "$g" in
             check_manifest) echo "=== MANIFEST CHECK ===";;
             check_route_dispatch) echo "=== ROUTE/DISPATCH CONTRACT CHECK ===";;
@@ -470,6 +470,7 @@ run_gates() {
             classify_code_candidates) echo "=== CODE CANDIDATE CHECK ===";;
             check_integration_completion) echo "=== INTEGRATION COMPLETION CHECK ===";;
             check_tier1_links) echo "=== TIER-1 LINKAGE CHECK ===";;
+            check_pr_size_policy) echo "=== PR-SIZE POLICY CHECK ===";;
         esac
         cat "/tmp/runall-gate-$g-$$.log"
         rm -f "/tmp/runall-gate-$g-$$.log"
