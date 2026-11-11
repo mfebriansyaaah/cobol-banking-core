@@ -2,7 +2,6 @@ import { PATTERNS } from '../validation.js';
 const BLANK = { name: '', pattern: PATTERNS.PASSWORD, required: false };
 
 export const USER_PROFILE_ROUTES = [
-
   {
     method: 'get',
     path: '/users',

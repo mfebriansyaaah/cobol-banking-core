@@ -147,7 +147,11 @@ class Pool {
         w.pending.splice(idx, 1);
         job.reject(new InvocationTimeout(`COBOL call exceeded ${timeoutMs}ms`));
         // The worker is likely stuck: drop it so the rest fail cleanly.
-        try { w.child.kill('SIGKILL'); } catch { /* ignore */ }
+        try {
+          w.child.kill('SIGKILL');
+        } catch {
+          /* ignore */
+        }
       }, timeoutMs);
       w.pending.push(job);
     }
@@ -216,8 +220,16 @@ class Pool {
     }
     this.queue = [];
     for (const w of this.workers) {
-      try { w.child.stdin.write('QUIT\n'); } catch { /* ignore */ }
-      try { w.child.kill(); } catch { /* ignore */ }
+      try {
+        w.child.stdin.write('QUIT\n');
+      } catch {
+        /* ignore */
+      }
+      try {
+        w.child.kill();
+      } catch {
+        /* ignore */
+      }
     }
     // The GnuCOBOL runtime blocks SIGTERM and a wedged worker may never read
     // its stdin, so neither QUIT nor SIGTERM is guaranteed to end it. SIGKILL
@@ -227,7 +239,11 @@ class Pool {
     // _onGone() already handles the exit event (no replacement: closed).
     setTimeout(() => {
       for (const w of this.workers) {
-        try { w.child.kill('SIGKILL'); } catch { /* ignore */ }
+        try {
+          w.child.kill('SIGKILL');
+        } catch {
+          /* ignore */
+        }
       }
     }, 1000).unref();
     setGauge('gateway_cobol_pool_workers', 0);

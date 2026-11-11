@@ -10,10 +10,7 @@ export const ADMIN_ROUTES = [
     action: 'MARK_DORMANT',
     tokenIdentity: 'actor',
     stepUp: true,
-    fields: [
-      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
-      BLANK, BLANK, BLANK, BLANK, BLANK,
-    ],
+    fields: [{ name: 'actor', pattern: PATTERNS.EMAIL, required: true }, BLANK, BLANK, BLANK, BLANK, BLANK],
   },
   {
     method: 'post',
@@ -21,10 +18,7 @@ export const ADMIN_ROUTES = [
     action: 'SUSPEND_DORMANT',
     tokenIdentity: 'actor',
     stepUp: true,
-    fields: [
-      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
-      BLANK, BLANK, BLANK, BLANK, BLANK,
-    ],
+    fields: [{ name: 'actor', pattern: PATTERNS.EMAIL, required: true }, BLANK, BLANK, BLANK, BLANK, BLANK],
   },
   {
     method: 'post',
@@ -181,10 +175,7 @@ export const ADMIN_ROUTES = [
     path: '/admin/reconcile',
     action: 'RECONCILE',
     tokenIdentity: 'actor',
-    fields: [
-      { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
-      BLANK, BLANK, BLANK, BLANK, BLANK,
-    ],
+    fields: [{ name: 'actor', pattern: PATTERNS.EMAIL, required: true }, BLANK, BLANK, BLANK, BLANK, BLANK],
   },
   // Recorded reconciliation: same check, but the run and its findings are
   // stored immutably for ownership, resolution, and export.

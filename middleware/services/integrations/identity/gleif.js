@@ -44,7 +44,7 @@ export async function lookupLei(
       lei,
       legalName: String(attrs.entity.legalName.name || '').slice(0, 255),
       status: String((attrs.registration && attrs.registration.status) || 'UNKNOWN').slice(0, 32),
-      address: String(((attrs.entity.legalAddress || {}).city) || '').slice(0, 255) || null,
+      address: String((attrs.entity.legalAddress || {}).city || '').slice(0, 255) || null,
       parentLei: null,
     },
   };
@@ -78,7 +78,7 @@ export async function searchLeis(
     result: 'FOUND',
     matches: rows.slice(0, 5).map((r) => ({
       lei: r.id,
-      legalName: String((r.attributes?.entity?.legalName?.name) || '').slice(0, 255),
+      legalName: String(r.attributes?.entity?.legalName?.name || '').slice(0, 255),
       status: String(r.attributes?.registration?.status || 'UNKNOWN').slice(0, 32),
     })),
   };

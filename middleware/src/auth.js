@@ -107,11 +107,13 @@ export function assertSecureConfig() {
   const refreshPrev = process.env.REFRESH_SECRET_PREVIOUS || '';
   if (accessPrev) {
     if (accessPrev === DEV_JWT_SECRET) problems.push('JWT_SECRET_PREVIOUS');
-    else if (accessPrev.length < MIN_SECRET_LENGTH) problems.push(`JWT_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
+    else if (accessPrev.length < MIN_SECRET_LENGTH)
+      problems.push(`JWT_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
   }
   if (refreshPrev) {
     if (refreshPrev === DEV_REFRESH_SECRET) problems.push('REFRESH_SECRET_PREVIOUS');
-    else if (refreshPrev.length < MIN_SECRET_LENGTH) problems.push(`REFRESH_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
+    else if (refreshPrev.length < MIN_SECRET_LENGTH)
+      problems.push(`REFRESH_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
   }
   // A staged previous secret must carry its overlap deadline: without one the
   // old value would be accepted (and could sign) forever.
@@ -167,7 +169,11 @@ export const ACCESS_TTL_SECONDS = parseSeconds(EXPIRES_IN, 900);
 
 /** Issue a refresh token carrying a jti (server-side revocable id). */
 export function signRefresh(payload, jti = randomUUID()) {
-  const token = jwt.sign({ ...payload, jti }, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES_IN, algorithm: ALGORITHM, ...JWT_CLAIMS });
+  const token = jwt.sign({ ...payload, jti }, REFRESH_SECRET, {
+    expiresIn: REFRESH_EXPIRES_IN,
+    algorithm: ALGORITHM,
+    ...JWT_CLAIMS,
+  });
   return { token, jti };
 }
 
