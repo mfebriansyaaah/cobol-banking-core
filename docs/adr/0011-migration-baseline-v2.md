@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed. Approval is recorded below; merge of the PR-00B branch by the
-owner is the approval, and flips this to Accepted.
+Proposed. Merge of the PR-00B branch by the owner is the approval, and
+flips this to Accepted (see Approval below).
 
 ## Context
 
@@ -117,3 +117,14 @@ Read-only evidence collected for this design (2026-11-12, dev database):
 - No rename/drop in the baseline: old binaries read the new schema during
   the window. The first rename/drop after the baseline is a normal
   post-baseline migration, reviewed like any other.
+
+## Approval
+
+- [ ] Owner has reviewed the Decision, Upgrade matrix, Dry-run plan, and
+  Rollback plan.
+- [ ] PR-10/11 scope confirmed: baseline build, then archive one release
+  window later; no permanent deletion in this train.
+- [ ] On merge: flip Status to Accepted with the merge commit hash.
+
+Merge of the PR-00B branch (`docs/maint-00b-migration-design`) by the owner
+constitutes approval of all three items.
