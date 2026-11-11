@@ -70,6 +70,13 @@ were re-verified against the tree on 2026-11-05. Next docs review: with the
 G1 sign-off, or sooner if the DB fleet grows past 80 suites (revisit the
 shard-count prose and the cost model).
 
+The collector also separates **primary** from **cascaded** failures
+(2026-11-11): a failed job is cascaded when a transitive `needs` dependency
+also failed in the same run (e.g. `db aggregate` after `test`). `--json` adds
+`primary_failure_rate_pct`, `cascaded_failures`, and `primary_failed_jobs`;
+without a dependency graph every failure counts as primary (fail-safe).
+Parse errors degrade to the unclassified view, never hide a failure.
+
 ## CI contract (`scripts/check_ci_contract.mjs`)
 
 The lint job runs `node scripts/check_ci_contract.mjs .` on every PR and push.
