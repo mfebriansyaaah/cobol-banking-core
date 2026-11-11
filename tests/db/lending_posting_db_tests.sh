@@ -86,8 +86,9 @@ assert_match "customer debited" "$(bal "$ACCTA")" "^1800.0000$"
 assert_match "book credited" "$(bal "$BOOK")" "^99200.0000$"
 assert_match "repay links journal" "$(db_query "SELECT COUNT(DISTINCT journal_id) FROM loan_repayment WHERE loan_id=${APP} AND status='PAID';")" "^1$"
 
-# 17-20. Over-repay fails closed; missing book fails closed.
-assert_match "over-repay refused" "$(run_cobol "LOAN_REPAY|${APP}|99999.00||||${A}")" "ERROR\|INSUFFICIENT_FUNDS"
+# 17-20. Over-repay fails closed against the ceiling (checked before the
+# wallet guard); a missing book fails closed.
+assert_match "over-repay refused" "$(run_cobol "LOAN_REPAY|${APP}|99999.00||||${A}")" "ERROR\|OVERPAID"
 assert_match "failed repay left pending row" "$(db_query "SELECT COUNT(*) FROM loan_repayment WHERE loan_id=${APP} AND status='PENDING';")" "^1$"
 assert_match "failed repay posted nothing" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'LOANRP-%' AND account_id=${ACCTA} AND amount=99999.0000;")" "^0$"
 db_exec "UPDATE accounts SET status='FROZEN' WHERE account_id=${BOOK};"
@@ -372,6 +373,21 @@ assert_match "adopt funds the stored deposit" "$(run_cobol "DEP_OPEN|${WB}|350.0
 assert_match "adopted deposit active" "$(db_query "SELECT status FROM deposit_account WHERE id=${ADP};")" "^ACTIVE$"
 assert_match "adopted deposit funded once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${ADP}-FUND';")" "^2$"
 assert_match "no duplicate deposit" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='${WB}' AND principal=350.00;")" "^1$"
+
+# 131-140. Repayment ceiling: lifetime repaid principal cannot exceed the
+# disbursed amount; overpay is refused and posts nothing.
+run_cobol "LOAN_APPLY|${WB}|600.00|USD|12|5.0|${A}" >/dev/null
+APP10="$(db_query "SELECT id FROM loan_application WHERE customer_email='${WB}' AND status='PENDING' ORDER BY id DESC LIMIT 1;")"
+run_cobol "LOAN_APPROVE|${APP10}|5.0|ok|||${A}" >/dev/null
+assert_match "ceiling disburse ok" "$(run_cobol "LOAN_DISBURSE|${APP10}|||||${A}")" "SUCCESS\|LOAN_DISBURSE"
+assert_match "repay to exact ceiling ok" "$(run_cobol "LOAN_REPAY|${APP10}|600.00||||${A}")" "SUCCESS\|LOAN_REPAY"
+assert_match "repaid total tracked" "$(db_query "SELECT repaid_total FROM loan_application WHERE id=${APP10};")" "^600.0000$"
+assert_match "repay past ceiling refused" "$(run_cobol "LOAN_REPAY|${APP10}|1.00||||${A}")" "ERROR\|OVERPAID"
+assert_match "overpay posted nothing" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'LOANRP-%' AND account_id=${ACCTB} AND amount=1.00;")" "^0$"
+assert_match "ceiling unchanged" "$(db_query "SELECT repaid_total FROM loan_application WHERE id=${APP10};")" "^600.0000$"
+assert_match "keyed overpay refused" "$(run_cobol "LOAN_REPAY|${APP10}|50.00|||K-OV2|${A}")" "ERROR\|OVERPAID"
+assert_match "keyed overpay retry in progress" "$(run_cobol "LOAN_REPAY|${APP10}|50.00|||K-OV2|${A}")" "ERROR\|REPAY_IN_PROGRESS"
+assert_match "overpay request stays pending" "$(db_query "SELECT status FROM loan_repay_request WHERE loan_id=${APP10} AND idempotency_key='K-OV2';")" "^PENDING$"
 
 cleanup_fixture
 print_summary

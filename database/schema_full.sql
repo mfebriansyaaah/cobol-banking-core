@@ -17590,6 +17590,7 @@ CREATE TABLE `loan_application` (
   `decided_by` varchar(100) DEFAULT NULL,
   `decided_at` datetime DEFAULT NULL,
   `disbursed_at` datetime DEFAULT NULL,
+  `repaid_total` decimal(18,4) NOT NULL DEFAULT 0.0000,
   `journal_id` bigint(20) DEFAULT NULL,
   `gl_journal_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
