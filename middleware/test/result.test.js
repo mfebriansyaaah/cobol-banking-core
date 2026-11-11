@@ -106,3 +106,44 @@ test('every error code maps to its documented HTTP status', () => {
 test('an unknown error code falls back to 500', () => {
   assert.equal(toHttp('ERROR|SOMETHING_NEW').status, 500);
 });
+
+test('previously unmapped COBOL codes no longer fall back to 500 (maint-01)', () => {
+  // Regression: these reached clients as 500 via the ?? fallback before
+  // they were registered with explicit statuses.
+  const cases = {
+    RATE_LIMITED: 429,
+    OVERPAID: 409,
+    CAPTURE_IN_PROGRESS: 409,
+    OPEN_IN_PROGRESS: 409,
+    REPAY_IN_PROGRESS: 409,
+    REVERSE_IN_PROGRESS: 409,
+    DISBURSE_IN_PROGRESS: 409,
+    CLOSE_IN_PROGRESS: 409,
+    PAY_IN_PROGRESS: 409,
+    SETTLE_IN_PROGRESS: 409,
+    INVALID_STATE: 409,
+    INVALID_SIDE: 409,
+    SAME_ACCOUNT: 409,
+    NOTHING_TO_POST: 409,
+    LIMIT: 409,
+    BALANCE: 409,
+    PARENT_NOT_FOUND: 404,
+    TYPE_NOT_FOUND: 404,
+    DOCUMENT_REQUIRED: 400,
+    INVALID_CURRENCY: 400,
+    INVALID_PRINCIPAL: 400,
+    INVALID_RETENTION: 400,
+    INVALID_TERM: 400,
+    INVALID_TYPE: 400,
+    CARD_RECEIVABLE_MISSING: 500,
+    MERCHANT_PAYABLE_MISSING: 500,
+    LOAN_BOOK_MISSING: 500,
+    DEPOSIT_POOL_MISSING: 500,
+    CLEARING_ACCOUNT_MISSING: 500,
+  };
+  for (const [code, status] of Object.entries(cases)) {
+    const r = toHttp(`ERROR|${code}`);
+    assert.equal(r.status, status, code);
+    assert.equal(r.body.error, code);
+  }
+});
