@@ -11,7 +11,8 @@ const { invoke, resetPool } = await (async () => {
   return { invoke: invoker.invoke, resetPool: (await import('../src/pool.js')).resetPool };
 })();
 
-const { seedUser, seedManyUsers, requireSeed, testNamespace, uniqueEmail, cleanupNamespace } = await import('./support.js');
+const { seedUser, seedManyUsers, requireSeed, testNamespace, uniqueEmail, cleanupNamespace } =
+  await import('./support.js');
 
 const NS = testNamespace('ipcp');
 const ADMIN = uniqueEmail(NS, 'admin');

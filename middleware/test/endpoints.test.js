@@ -8,10 +8,24 @@ import { resetPool } from '../src/pool.js';
 
 // Remove only this namespace so the shared test database stays consistent
 // for the suites that run after it (see gateway.test.js).
-after(() => { cleanupNamespace(NS); });
+after(() => {
+  cleanupNamespace(NS);
+});
 // Drop pooled COBOL workers so the process can exit (see gateway.test.js).
 after(() => resetPool());
-import { seedUser, seedAccount, getVerificationCode, requireSeed, runSql, enableMfa, totp, TEST_MFA_SECRET, testNamespace, uniqueEmail, cleanupNamespace } from './support.js';
+import {
+  seedUser,
+  seedAccount,
+  getVerificationCode,
+  requireSeed,
+  runSql,
+  enableMfa,
+  totp,
+  TEST_MFA_SECRET,
+  testNamespace,
+  uniqueEmail,
+  cleanupNamespace,
+} from './support.js';
 
 const app = buildApp();
 
@@ -24,9 +38,13 @@ let freshN = 0;
 async function freshUser() {
   freshN += 1;
   const email = U(`user-${freshN}`);
-  const s = await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'EP User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email, password: 'secret123', name: 'EP User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email, code: getVerificationCode(email) });
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   return { email, token: login.body.token, refreshToken: login.body.refreshToken };
 }
@@ -38,18 +56,30 @@ async function stepUpFor(token, password = 'secret123') {
 
 // Step-up for an MFA-enabled admin: the second factor is required as well.
 async function adminStepUpFor(token, password = 'secret123') {
-  const r = await request(app).post('/auth/step-up').set('Authorization', `Bearer ${token}`).send({ password, mfaCode: totp(TEST_MFA_SECRET) });
+  const r = await request(app)
+    .post('/auth/step-up')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ password, mfaCode: totp(TEST_MFA_SECRET) });
   return r.body.stepUpToken;
 }
 
 test('every public endpoint responds', async () => {
   assert.equal((await request(app).get('/health')).status, 200);
   const email = U('pub');
-  const s = await request(app).post('/auth/signup').send({ email, password: 'secret123', name: 'Pub User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email, password: 'secret123', name: 'Pub User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
   // The verification code is not returned; it is delivered out of band.
   assert.deepEqual(s.body.data, ['USER_CREATED']);
-  assert.equal((await request(app).post('/auth/verify').send({ email, code: getVerificationCode(email) })).status, 200);
+  assert.equal(
+    (
+      await request(app)
+        .post('/auth/verify')
+        .send({ email, code: getVerificationCode(email) })
+    ).status,
+    200,
+  );
   const login = await request(app).post('/auth/login').send({ email, password: 'secret123' });
   assert.equal(login.status, 200);
   assert.equal((await request(app).post('/auth/refresh').send({ refreshToken: login.body.refreshToken })).status, 200);
@@ -70,7 +100,11 @@ test('every bearer endpoint responds', async () => {
   // An admin needs MFA to obtain a step-up proof, so the privileged writes
   // below can be exercised end to end.
   requireSeed(enableMfa(admin), 'enable MFA for the admin');
-  const adminToken = (await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) })).body.token;
+  const adminToken = (
+    await request(app)
+      .post('/auth/login')
+      .send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) })
+  ).body.token;
   const adminAuth = { Authorization: `Bearer ${adminToken}` };
 
   // Permissions are projected, not decided, by the gateway: the login
@@ -80,7 +114,9 @@ test('every bearer endpoint responds', async () => {
   assert.equal(userLogin.status, 200);
   assert.ok(Array.isArray(userLogin.body.permissions), 'login carries permissions');
   assert.deepEqual(userLogin.body.permissions, [], 'a plain user holds no catalogued permission');
-  const adminLogin = await request(app).post('/auth/login').send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) });
+  const adminLogin = await request(app)
+    .post('/auth/login')
+    .send({ email: admin, password: 'secret123', mfaCode: totp(TEST_MFA_SECRET) });
   assert.ok(adminLogin.body.permissions.includes('AUDIT_READ'), 'an admin holds AUDIT_READ');
   assert.ok(adminLogin.body.permissions.includes('RECONCILE_RUN'), 'an admin holds RECONCILE_RUN');
   const profile = await request(app).get('/profile').set(adminAuth).query({ email: admin });
@@ -109,7 +145,10 @@ test('every bearer endpoint responds', async () => {
     .set('Idempotency-Key', `ep-${Date.now()}`)
     .send({ from: other.email, to: other.email, amount: '1.00' });
   assert.equal(xfer.status, 200);
-  assert.match((await request(app).get(`/wallet/balance?email=${other.email}`).set(adminAuth)).body.balances[0].balance, /^\d+\.\d{2}$/);
+  assert.match(
+    (await request(app).get(`/wallet/balance?email=${other.email}`).set(adminAuth)).body.balances[0].balance,
+    /^\d+\.\d{2}$/,
+  );
 
   // admin checks before the email changes
   assert.equal((await request(app).get(`/admin/role?email=${admin}&role=SUPER_ADMIN`).set(adminAuth)).status, 200);
@@ -119,7 +158,16 @@ test('every bearer endpoint responds', async () => {
   // non-admin actor is refused by the route (business rule), not a 404; a
   // spoofed body `actor` is ignored because the actor comes from the token
   const userStep = await stepUpFor(token);
-  assert.equal((await request(app).post('/admin/role').set(auth).set('X-Step-Up', userStep).send({ email: other.email, role: 'MANAGER', actor: admin })).status, 403);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/role')
+        .set(auth)
+        .set('X-Step-Up', userStep)
+        .send({ email: other.email, role: 'MANAGER', actor: admin })
+    ).status,
+    403,
+  );
 
   // Session security (ADR 0075): revoke every other device while keeping the
   // caller's own family; a plain user cannot revoke another account's devices.
@@ -152,7 +200,10 @@ test('every bearer endpoint responds', async () => {
   const listed = await request(app).get('/admin/access-reviews').set(adminAuth);
   assert.equal(listed.status, 200);
   assert.ok(listed.body.total >= 1, 'the review is listed');
-  assert.ok(listed.body.reviews.some((r) => String(r.id) === String(reviewId)), 'the opened review is in the list');
+  assert.ok(
+    listed.body.reviews.some((r) => String(r.id) === String(reviewId)),
+    'the opened review is in the list',
+  );
 
   const detail = await request(app).get(`/admin/access-reviews/${reviewId}`).set(adminAuth);
   assert.equal(detail.status, 200);
@@ -169,12 +220,31 @@ test('every bearer endpoint responds', async () => {
   assert.equal(decided.body.decision, 'ATTESTED');
 
   // A plain user may not open or read a review.
-  assert.equal((await request(app).post('/admin/access-reviews').set(auth).set('X-Step-Up', userStep).send({ periodStart: '2026-10-01', periodEnd: '2026-10-31' })).status, 403);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/access-reviews')
+        .set(auth)
+        .set('X-Step-Up', userStep)
+        .send({ periodStart: '2026-10-01', periodEnd: '2026-10-31' })
+    ).status,
+    403,
+  );
   assert.equal((await request(app).get('/admin/access-reviews').set(auth)).status, 403);
   // A privileged write without a step-up proof is refused.
-  assert.equal((await request(app).post('/admin/access-reviews').set(adminAuth).send({ periodStart: '2026-10-01', periodEnd: '2026-10-31' })).status, 401);
+  assert.equal(
+    (
+      await request(app)
+        .post('/admin/access-reviews')
+        .set(adminAuth)
+        .send({ periodStart: '2026-10-01', periodEnd: '2026-10-31' })
+    ).status,
+    401,
+  );
   // Leave no open review behind for the next suite.
-  runSql(`DELETE FROM access_review_items WHERE review_id=${reviewId}; DELETE FROM access_reviews WHERE review_id=${reviewId};`);
+  runSql(
+    `DELETE FROM access_review_items WHERE review_id=${reviewId}; DELETE FROM access_reviews WHERE review_id=${reviewId};`,
+  );
 
   // Reconcile: an admin is allowed (200 reconciled / 409 mismatch); a plain
   // user is refused and a body `actor` cannot impersonate an admin.
@@ -193,9 +263,21 @@ test('every bearer endpoint responds', async () => {
   assert.equal(spoof.body.error, 'FORBIDDEN');
 
   const ne = U('new');
-  const reqc = await request(app).post('/profile/email/request').set(auth).set('X-Step-Up', userStep).send({ email, newEmail: ne, password: 'secret123' });
+  const reqc = await request(app)
+    .post('/profile/email/request')
+    .set(auth)
+    .set('X-Step-Up', userStep)
+    .send({ email, newEmail: ne, password: 'secret123' });
   assert.equal(reqc.status, 200);
-  assert.equal((await request(app).post('/profile/email/confirm').set(auth).send({ email, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') })).status, 200);
+  assert.equal(
+    (
+      await request(app)
+        .post('/profile/email/confirm')
+        .set(auth)
+        .send({ email, newEmail: ne, code: getVerificationCode(ne, 'EMAIL_CHANGE') })
+    ).status,
+    200,
+  );
 
   // The access token carries the old email, so it is no longer active after the
   // change; the user must log in (or refresh) again.

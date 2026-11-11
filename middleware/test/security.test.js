@@ -10,7 +10,9 @@ import { getVerificationCode, testNamespace, uniqueEmail, cleanupNamespace, quer
 // Per-file fixture namespace with cleanup (see gateway.test.js).
 const NS = testNamespace('sec');
 const U = (tag) => uniqueEmail(NS, tag);
-after(() => { cleanupNamespace(NS); });
+after(() => {
+  cleanupNamespace(NS);
+});
 
 test('security headers are set on responses', async () => {
   const app = buildApp();
@@ -120,7 +122,11 @@ test('assertSecureConfig refuses production with development database settings',
     assert.doesNotThrow(() => assertSecureConfig());
 
     // The C bridge defaults are refused even when explicitly set.
-    for (const [key, devDefault] of [['DB_USER', 'cobol_user'], ['DB_PASS', 'cobol_pass'], ['DB_NAME', 'cobol_db']]) {
+    for (const [key, devDefault] of [
+      ['DB_USER', 'cobol_user'],
+      ['DB_PASS', 'cobol_pass'],
+      ['DB_NAME', 'cobol_db'],
+    ]) {
       const good = process.env[key];
       process.env[key] = devDefault;
       assert.throws(() => assertSecureConfig(), /development default/, key);
@@ -161,7 +167,11 @@ test('tokens must carry the expected issuer and audience', async () => {
   const secret = process.env.JWT_SECRET || 'dev-secret-change-me';
   const payload = { email: 'iss@test.com', ver: 1, jti: 'j' };
   const noScope = jwt.sign(payload, secret, { expiresIn: '5m' });
-  const wrongScope = jwt.sign(payload, secret, { expiresIn: '5m', issuer: 'cobol-banking-core', audience: 'someone-else' });
+  const wrongScope = jwt.sign(payload, secret, {
+    expiresIn: '5m',
+    issuer: 'cobol-banking-core',
+    audience: 'someone-else',
+  });
   for (const token of [noScope, wrongScope]) {
     const res = await request(app).get('/users').set('Authorization', `Bearer ${token}`);
     assert.equal(res.status, 401);
@@ -227,14 +237,20 @@ test('refresh tokens minted before rotation still verify', () => {
 test('step-up tokens minted before rotation still verify, purpose still enforced', () => {
   const restore = withPrevious({ JWT_SECRET_PREVIOUS: ROT_PREV, JWT_SECRET_PREVIOUS_UNTIL: inSeconds(300) });
   try {
-    const prevToken = jwt.sign({ email: 'rot@test.com', purpose: 'step-up' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+    const prevToken = jwt.sign({ email: 'rot@test.com', purpose: 'step-up' }, ROT_PREV, {
+      expiresIn: '5m',
+      ...ROT_CLAIMS,
+    });
     assert.equal(verifyStepUp(prevToken).email, 'rot@test.com');
     // A purpose-tagged token is not an access token, even across rotation.
     assert.equal(verifyAccess(prevToken), null);
     // An untagged token is not a step-up proof, even across rotation.
     const noPurpose = jwt.sign({ email: 'rot@test.com' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
     assert.throws(() => verifyStepUp(noPurpose), /not a step-up token/);
-    const unknownToken = jwt.sign({ email: 'rot@test.com', purpose: 'step-up' }, ROT_UNKNOWN, { expiresIn: '5m', ...ROT_CLAIMS });
+    const unknownToken = jwt.sign({ email: 'rot@test.com', purpose: 'step-up' }, ROT_UNKNOWN, {
+      expiresIn: '5m',
+      ...ROT_CLAIMS,
+    });
     assert.throws(() => verifyStepUp(unknownToken));
   } finally {
     restore();
@@ -247,12 +263,18 @@ test('rotated access tokens pass the bearer middleware', async () => {
   try {
     // Valid signature under the previous secret: requireAuth passes and the
     // request fails later at token activeness (unknown jti), not at auth.
-    const prevToken = jwt.sign({ email: 'rot@test.com', ver: 1, jti: 'no-such-session' }, ROT_PREV, { expiresIn: '5m', ...ROT_CLAIMS });
+    const prevToken = jwt.sign({ email: 'rot@test.com', ver: 1, jti: 'no-such-session' }, ROT_PREV, {
+      expiresIn: '5m',
+      ...ROT_CLAIMS,
+    });
     const past = await request(app).get('/users').set('Authorization', `Bearer ${prevToken}`);
     assert.equal(past.status, 401);
     assert.equal(past.body.error, 'TOKEN_REVOKED');
     // Unknown secret fails at auth itself.
-    const unknownToken = jwt.sign({ email: 'rot@test.com', ver: 1, jti: 'no-such-session' }, ROT_UNKNOWN, { expiresIn: '5m', ...ROT_CLAIMS });
+    const unknownToken = jwt.sign({ email: 'rot@test.com', ver: 1, jti: 'no-such-session' }, ROT_UNKNOWN, {
+      expiresIn: '5m',
+      ...ROT_CLAIMS,
+    });
     const stopped = await request(app).get('/users').set('Authorization', `Bearer ${unknownToken}`);
     assert.equal(stopped.status, 401);
     assert.equal(stopped.body.error, 'INVALID_TOKEN');
@@ -262,7 +284,19 @@ test('rotated access tokens pass the bearer middleware', async () => {
 });
 
 test('assertSecureConfig guards previous secrets in production', () => {
-  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
+  const saved = {
+    NODE_ENV: process.env.NODE_ENV,
+    JWT_SECRET: process.env.JWT_SECRET,
+    REFRESH_SECRET: process.env.REFRESH_SECRET,
+    JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS,
+    JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL,
+    REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS,
+    REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASS: process.env.DB_PASS,
+    DB_NAME: process.env.DB_NAME,
+  };
   const restore = () => {
     for (const key of Object.keys(saved)) {
       if (saved[key] === undefined) delete process.env[key];
@@ -344,7 +378,19 @@ test('a previous secret is honored only until its overlap deadline', () => {
 });
 
 test('production requires an overlap deadline for a staged previous secret', () => {
-  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
+  const saved = {
+    NODE_ENV: process.env.NODE_ENV,
+    JWT_SECRET: process.env.JWT_SECRET,
+    REFRESH_SECRET: process.env.REFRESH_SECRET,
+    JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS,
+    JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL,
+    REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS,
+    REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASS: process.env.DB_PASS,
+    DB_NAME: process.env.DB_NAME,
+  };
   const restore = () => {
     for (const key of Object.keys(saved)) {
       if (saved[key] === undefined) delete process.env[key];
@@ -384,7 +430,19 @@ test('production requires an overlap deadline for a staged previous secret', () 
 });
 
 test('secrets shared across the rotation family are refused', () => {
-  const saved = { NODE_ENV: process.env.NODE_ENV, JWT_SECRET: process.env.JWT_SECRET, REFRESH_SECRET: process.env.REFRESH_SECRET, JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS, JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL, REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS, REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL, DB_HOST: process.env.DB_HOST, DB_USER: process.env.DB_USER, DB_PASS: process.env.DB_PASS, DB_NAME: process.env.DB_NAME };
+  const saved = {
+    NODE_ENV: process.env.NODE_ENV,
+    JWT_SECRET: process.env.JWT_SECRET,
+    REFRESH_SECRET: process.env.REFRESH_SECRET,
+    JWT_SECRET_PREVIOUS: process.env.JWT_SECRET_PREVIOUS,
+    JWT_SECRET_PREVIOUS_UNTIL: process.env.JWT_SECRET_PREVIOUS_UNTIL,
+    REFRESH_SECRET_PREVIOUS: process.env.REFRESH_SECRET_PREVIOUS,
+    REFRESH_SECRET_PREVIOUS_UNTIL: process.env.REFRESH_SECRET_PREVIOUS_UNTIL,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASS: process.env.DB_PASS,
+    DB_NAME: process.env.DB_NAME,
+  };
   const restore = () => {
     for (const key of Object.keys(saved)) {
       if (saved[key] === undefined) delete process.env[key];
@@ -447,7 +505,11 @@ test('a none-algorithm token is rejected', async () => {
 
 test('pipe and control characters in free-text fields are rejected', async () => {
   const app = buildApp();
-  for (const [tag, name] of [['pipe', 'Pipe|Smuggle'], ['nl', 'New\nLine'], ['cr', 'Carriage\rReturn']]) {
+  for (const [tag, name] of [
+    ['pipe', 'Pipe|Smuggle'],
+    ['nl', 'New\nLine'],
+    ['cr', 'Carriage\rReturn'],
+  ]) {
     const res = await request(app)
       .post('/auth/signup')
       .send({ email: U(`free-${tag}`), password: 'secret123', name, dob: '1990-01-01' });
@@ -468,7 +530,14 @@ test('mass assignment over HTTP: role/status extras do not escalate signup', asy
   const em = U('mass');
   const res = await request(app)
     .post('/auth/signup')
-    .send({ email: em, password: 'secret123', name: 'Mass', dob: '1990-01-01', role: 'SUPER_ADMIN', status: 'VERIFIED' });
+    .send({
+      email: em,
+      password: 'secret123',
+      name: 'Mass',
+      dob: '1990-01-01',
+      role: 'SUPER_ADMIN',
+      status: 'VERIFIED',
+    });
   assert.equal(res.status, 200);
   assert.deepEqual(res.body.data, ['USER_CREATED']);
   assert.equal(queryScalar(`SELECT role FROM users WHERE email='${em}';`), 'USER');

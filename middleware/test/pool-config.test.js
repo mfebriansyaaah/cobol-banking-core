@@ -58,8 +58,13 @@ function blockingPool(overrides = {}) {
 function settle(promise) {
   const state = { settled: false, error: null };
   promise.then(
-    () => { state.settled = true; },
-    (error) => { state.settled = true; state.error = error; },
+    () => {
+      state.settled = true;
+    },
+    (error) => {
+      state.settled = true;
+      state.error = error;
+    },
   );
   return state;
 }
@@ -109,7 +114,10 @@ test('a full queue is rejected with backpressure', async () => {
   const pool = blockingPool();
   const inFlight = settle(pool.invoke('A')); // dispatched: pipeline is 1
   const queued = settle(pool.invoke('B')); // occupies the single queue slot
-  await assert.rejects(() => pool.invoke('C'), (err) => err instanceof PoolSaturated);
+  await assert.rejects(
+    () => pool.invoke('C'),
+    (err) => err instanceof PoolSaturated,
+  );
   assert.equal(pool.stats().queued, 1, 'the queue stayed bounded');
   assert.equal(pool.stats().queueMax, 1);
   // The queued and in-flight jobs still fail on their own timeout.
@@ -146,5 +154,8 @@ test('closing the pool fails whatever is still queued', async () => {
   await waitFor(inFlight);
   assert.ok(inFlight.settled, 'the in-flight job settles too');
   assert.equal(pool.stats().queued, 0);
-  await assert.rejects(() => pool.invoke('C'), (err) => err instanceof InvocationError && /closed/.test(err.message));
+  await assert.rejects(
+    () => pool.invoke('C'),
+    (err) => err instanceof InvocationError && /closed/.test(err.message),
+  );
 });

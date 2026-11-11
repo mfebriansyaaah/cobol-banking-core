@@ -29,7 +29,9 @@ test('IPC contract: a 500-char output record is joined back into one line', asyn
   // The point is a response longer than one 500-char IPC record, so make the
   // list large enough even on a freshly migrated database.
   requireSeed(seedManyUsers(`${NS}-bulk-`, 30), 'seed users to exceed one IPC record');
-  after(() => { cleanupNamespace(NS); });
+  after(() => {
+    cleanupNamespace(NS);
+  });
 
   const raw = await invoke('LIST_USERS', ['100', '0', ADMIN, '']);
   assert.ok(raw.startsWith('SUCCESS|LIST_DONE|'), 'expected LIST_DONE');

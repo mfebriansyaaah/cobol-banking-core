@@ -16,7 +16,9 @@ const app = buildApp();
 
 // Per-file fixture namespace with cleanup (see gateway.test.js).
 const NS = testNamespace('pool');
-after(() => { cleanupNamespace(NS); });
+after(() => {
+  cleanupNamespace(NS);
+});
 after(() => resetPool());
 
 test('the worker pool serves requests end to end', async () => {
@@ -29,9 +31,13 @@ test('the worker pool serves requests end to end', async () => {
   assert.ok(pool.stats().size >= 1, 'at least one worker is running');
 
   const em = uniqueEmail(NS, 'pool');
-  const s = await request(app).post('/auth/signup').send({ email: em, password: 'secret123', name: 'Pool User', dob: '1990-01-01' });
+  const s = await request(app)
+    .post('/auth/signup')
+    .send({ email: em, password: 'secret123', name: 'Pool User', dob: '1990-01-01' });
   assert.equal(s.status, 200);
-  await request(app).post('/auth/verify').send({ email: em, code: getVerificationCode(em) });
+  await request(app)
+    .post('/auth/verify')
+    .send({ email: em, code: getVerificationCode(em) });
   const login = await request(app).post('/auth/login').send({ email: em, password: 'secret123' });
   assert.equal(login.status, 200);
   assert.ok(login.body.token);

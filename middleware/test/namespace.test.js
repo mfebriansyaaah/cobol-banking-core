@@ -46,7 +46,10 @@ test('namespaces are deterministic under patched clock and rand', () => {
   delete process.env.TEST_RUN_ID;
   try {
     const [a, b] = withPatched(
-      [[Date, 'now', () => 1700000000000], [Math, 'random', () => 0]],
+      [
+        [Date, 'now', () => 1700000000000],
+        [Math, 'random', () => 0],
+      ],
       () => [testNamespace('gw'), testNamespace('gw')],
     );
     assert.equal(a, b, 'same ms + same rand draw the same stamp');
