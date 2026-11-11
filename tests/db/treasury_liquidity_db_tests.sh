@@ -41,6 +41,44 @@ assert_match "realized persisted" "$(db_query "SELECT realized_amount FROM treas
 # Over-post rejected.
 assert_match "over-post rejected" "$(run_cobol "TRL_POST|${id}|999999.00||||admin@test.com")" "ERROR\|INVALID_AMOUNT"
 
+# Concurrent posts serialize on the guarded projection: exactly one
+# wins, the loser sees INVALID_AMOUNT, and projection never exceeds
+# the entry amount. A dedicated entry keeps the shared fixture intact.
+race_out="$(run_cobol "TRL_CREATE|TRL-RACE|1000.00|USD|||admin@test.com")"
+race_id="$(printf '%s' "$race_out" | awk -F'|' '{print $3}')"
+BIN="$PWD/cobol/bin/main_logic"
+P1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; P2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'TRL_POST|%s|700.00||||admin@test.com\n' "$race_id" >"$P1/input.txt"
+printf 'TRL_POST|%s|700.00||||admin@test.com\n' "$race_id" >"$P2/input.txt"
+(cd "$P1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+W1=$!
+(cd "$P2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+W2=$!
+wait $W1; wait $W2
+WA="$(tr -d ' \n' <"$P1/output.txt")"; WB="$(tr -d ' \n' <"$P2/output.txt")"
+rm -rf "$P1" "$P2"
+assert_match "exactly one post winner" "$(printf '%s\n%s\n' "$WA" "$WB" | grep -c "SUCCESS|TRL_POST")" "^1$"
+assert_match "post race loser refused" "$(printf '%s\n%s\n' "$WA" "$WB")" "ERROR\|INVALID_AMOUNT"
+assert_match "projection capped" "$(db_query "SELECT projected_amount FROM treasury_liquidity WHERE id=${race_id};")" "^700.0000$"
+
+# Concurrent settles serialize on the guarded realization: exactly one
+# wins and realization never exceeds projection.
+S1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; S2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'TRL_SETTLE|%s|500.00||||admin@test.com\n' "$race_id" >"$S1/input.txt"
+printf 'TRL_SETTLE|%s|500.00||||admin@test.com\n' "$race_id" >"$S2/input.txt"
+(cd "$S1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V1=$!
+(cd "$S2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V2=$!
+wait $V1; wait $V2
+VA="$(tr -d ' \n' <"$S1/output.txt")"; VB="$(tr -d ' \n' <"$S2/output.txt")"
+rm -rf "$S1" "$S2"
+assert_match "exactly one settle winner" "$(printf '%s\n%s\n' "$VA" "$VB" | grep -c "SUCCESS|TRL_SETTLE")" "^1$"
+assert_match "settle race loser refused" "$(printf '%s\n%s\n' "$VA" "$VB")" "ERROR\|INVALID_AMOUNT"
+assert_match "realization capped" "$(db_query "SELECT realized_amount FROM treasury_liquidity WHERE id=${race_id};")" "^500.0000$"
+db_exec "DELETE FROM treasury_liquidity_audit WHERE liq_id=${race_id};"
+db_exec "DELETE FROM treasury_liquidity WHERE id=${race_id};"
+
 # A second entry stays open and can be closed.
 create2="$(run_cobol "TRL_CREATE|TRL-D6-2|20000.00|EUR|||admin@test.com")"
 id2="$(printf '%s' "$create2" | awk -F'|' '{print $3}')"

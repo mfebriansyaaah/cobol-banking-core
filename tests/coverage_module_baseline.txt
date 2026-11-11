@@ -23,7 +23,7 @@ deposit_core 74.3
 card_core 74.87
 collection_core 87.22
 payment_clearing_core 88.26
-treasury_liquidity_core 89.6
+treasury_liquidity_core 88.41
 gl_allocation_core 88.97
 cost_center_core 89.42
 fixed_asset_core 82.35
