@@ -14,6 +14,84 @@
 // Never prints secrets: only counts, names, and durations.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const WORKFLOW = fileURLToPath(new URL('../../.github/workflows/ci.yml', import.meta.url));
+
+/**
+ * Extract the job dependency graph from ci.yml without a YAML dependency.
+ * Job ids live at two-space indentation; `name:` and `needs:` at four.
+ * Anything unexpected is ignored (fail-safe: an unparsed job is treated as
+ * primary, never as a cascade).
+ */
+export function parseNeeds(text) {
+  const jobs = {};
+  let cur = null;
+  for (const line of String(text).split('\n')) {
+    const job = line.match(/^ {2}([A-Za-z0-9_-]+):\s*$/);
+    if (job) {
+      cur = job[1];
+      jobs[cur] = { id: cur, name: cur, needs: [] };
+      continue;
+    }
+    if (!cur) continue;
+    const name = line.match(/^ {4}name:\s*(.+?)\s*$/);
+    if (name) {
+      jobs[cur].name = name[1].replace(/^['"]|['"]$/g, '');
+      continue;
+    }
+    const needs = line.match(/^ {4}needs:\s*(.+?)\s*$/);
+    if (needs) {
+      const raw = needs[1].replace(/^\[|\]$/g, '');
+      jobs[cur].needs = raw
+        .split(',')
+        .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+        .filter(Boolean);
+    }
+  }
+  return jobs;
+}
+
+/** Load the real workflow graph; {} when missing (tests, offline copies). */
+export function loadNeeds(file = WORKFLOW) {
+  try {
+    return parseNeeds(readFileSync(file, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Split failed jobs into primary and cascaded. A failure is cascaded when a
+ * transitive dependency (per `needs`) also failed in the same run; anything
+ * else is primary. Without a graph every failure is primary (no hiding).
+ */
+export function classifyFailedJobs(jobs, graph = {}) {
+  const failures = (jobs || []).filter((j) => j.conclusion === 'failure');
+  const failedNames = new Set(failures.map((j) => j.name));
+  const idByName = {};
+  for (const [id, g] of Object.entries(graph)) idByName[g.name] = id;
+
+  const cascaded = (id, seen) => {
+    if (seen.has(id)) return false;
+    seen.add(id);
+    const deps = (graph[id] && graph[id].needs) || [];
+    return deps.some((dep) => {
+      const depId = graph[dep] ? dep : null;
+      const depName = depId ? graph[depId].name : dep;
+      return failedNames.has(depName) || (depId ? cascaded(depId, seen) : false);
+    });
+  };
+
+  const primary = [];
+  const secondary = [];
+  for (const f of failures) {
+    const id = idByName[f.name];
+    if (id && cascaded(id, new Set())) secondary.push(f.name);
+    else primary.push(f.name);
+  }
+  return { primary, cascaded: secondary };
+}
 
 export function median(values) {
   const nums = [...values].filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
@@ -60,17 +138,25 @@ const round1 = (v) => Math.round(v * 10) / 10;
  * p50 values use at most `limit` most-recent successful runs; failure stats
  * cover every run with a terminal conclusion.
  */
-export function summarize({ event, runs }, limit = 20) {
+export function summarize({ event, runs, needs = {} }, limit = 20) {
   const decided = (runs || []).filter((r) => r.conclusion === 'success' || r.conclusion === 'failure');
   const successful = decided.filter((r) => r.conclusion === 'success').slice(0, limit);
   const walls = successful.map((r) => runWallClockSec(r.jobs)).filter((v) => v !== null);
   const minutes = successful.map((r) => jobMinutes(r.jobs));
   const failed = decided.filter((r) => r.conclusion === 'failure');
   const failedJobs = {};
+  const primaryJobs = {};
+  let cascadedCount = 0;
+  let primaryRuns = 0;
   for (const r of failed) {
-    for (const j of r.jobs || []) {
-      if (j.conclusion === 'failure') failedJobs[j.name] = (failedJobs[j.name] || 0) + 1;
+    const { primary, cascaded } = classifyFailedJobs(r.jobs, needs);
+    for (const name of primary) {
+      failedJobs[name] = (failedJobs[name] || 0) + 1;
+      primaryJobs[name] = (primaryJobs[name] || 0) + 1;
     }
+    for (const name of cascaded) failedJobs[name] = (failedJobs[name] || 0) + 1;
+    cascadedCount += cascaded.length;
+    if (primary.length) primaryRuns += 1;
   }
   const wallP50 = median(walls);
   const human = wallP50 === null ? null : `${Math.floor(wallP50 / 60)}m ${wallP50 % 60}s`;
@@ -82,7 +168,12 @@ export function summarize({ event, runs }, limit = 20) {
     wall_clock_p50_human: human,
     job_minutes_p50: minutes.length ? round1(median(minutes)) : null,
     failure_rate_pct: decided.length ? round1((100 * failed.length) / decided.length) : 0,
+    // Failure-rate honesty: cascade failures (a required finalizer failing
+    // only because an upstream job failed) are counted separately.
+    primary_failure_rate_pct: decided.length ? round1((100 * primaryRuns) / decided.length) : 0,
+    cascaded_failures: cascadedCount,
     failed_jobs: failedJobs,
+    primary_failed_jobs: primaryJobs,
   };
 }
 
@@ -157,9 +248,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (opt('--runs-json', null)) {
     data = JSON.parse(readFileSync(opt('--runs-json'), 'utf8'));
     data.event = event;
+    data.needs = data.needs || loadNeeds();
   } else {
     const repo = opt('--repo', null) || detectRepo();
     data = fetchRuns({ repo, event, limit });
+    data.needs = loadNeeds();
   }
   const s = summarize(data, limit);
   if (argv.includes('--json')) {
@@ -170,6 +263,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log(`wall-clock p50: ${s.wall_clock_p50_human ?? 'n/a'} (${s.wall_clock_p50_sec ?? 'n/a'}s)`);
     console.log(`job-minutes p50: ${s.job_minutes_p50 ?? 'n/a'}`);
     console.log(`failure rate: ${s.failure_rate_pct}%`);
+    console.log(
+      `primary failure rate: ${s.primary_failure_rate_pct}% ` + `(${s.cascaded_failures} cascaded job failure(s))`,
+    );
     console.log(`failed jobs: ${JSON.stringify(s.failed_jobs)}`);
+    console.log(`primary failed jobs: ${JSON.stringify(s.primary_failed_jobs)}`);
   }
 }
