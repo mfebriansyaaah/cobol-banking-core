@@ -4555,6 +4555,29 @@ CREATE TABLE `card_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `card_capture_request`
+--
+
+DROP TABLE IF EXISTS `card_capture_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `card_capture_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `card_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `gl_journal_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_capture_idem` (`card_id`,`idempotency_key`),
+  KEY `idx_capture_req_card` (`card_id`),
+  CONSTRAINT `fk_capture_req_card` FOREIGN KEY (`card_id`) REFERENCES `card_account` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `card_item`
 --
 
@@ -4602,6 +4625,52 @@ CREATE TABLE `card_item_audit` (
   PRIMARY KEY (`id`),
   KEY `idx_CRDS_audit_actor` (`actor_email`,`created_at`),
   KEY `idx_CRDS_audit_card_item` (`card_item_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `card_repay_request`
+--
+
+DROP TABLE IF EXISTS `card_repay_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `card_repay_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `card_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `gl_journal_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_repay_idem` (`card_id`,`idempotency_key`),
+  KEY `idx_repay_req_card` (`card_id`),
+  CONSTRAINT `fk_repay_req_card` FOREIGN KEY (`card_id`) REFERENCES `card_account` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `card_reverse_request`
+--
+
+DROP TABLE IF EXISTS `card_reverse_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `card_reverse_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `card_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `gl_journal_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_reverse_idem` (`card_id`,`idempotency_key`),
+  KEY `idx_reverse_req_card` (`card_id`),
+  CONSTRAINT `fk_reverse_req_card` FOREIGN KEY (`card_id`) REFERENCES `card_account` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

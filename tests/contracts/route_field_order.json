@@ -1072,7 +1072,7 @@
       "authRef",
       "BLANK",
       "BLANK",
-      "BLANK",
+      "idempotencyKey",
       "ACTOR"
     ],
     "tokenIdentity": "actor",
@@ -1111,7 +1111,7 @@
       "amount",
       "BLANK",
       "BLANK",
-      "BLANK",
+      "idempotencyKey",
       "ACTOR"
     ],
     "tokenIdentity": "actor",
@@ -1137,7 +1137,7 @@
       "authRef",
       "BLANK",
       "BLANK",
-      "BLANK",
+      "idempotencyKey",
       "ACTOR"
     ],
     "tokenIdentity": "actor",

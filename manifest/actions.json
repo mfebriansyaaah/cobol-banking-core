@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-11T05:46:07.647Z",
-  "commit": "cf577433",
+  "generatedAt": "2026-11-11T07:01:56.820Z",
+  "commit": "a288ed6d",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 549,
   "actions": [
@@ -1482,7 +1482,7 @@
         "authRef",
         "",
         "",
-        "",
+        "idempotencyKey",
         "actor"
       ],
       "required": [
@@ -1686,7 +1686,7 @@
         "amount",
         "",
         "",
-        "",
+        "idempotencyKey",
         "actor"
       ],
       "required": [
@@ -1754,7 +1754,7 @@
         "authRef",
         "",
         "",
-        "",
+        "idempotencyKey",
         "actor"
       ],
       "required": [

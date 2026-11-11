@@ -62,17 +62,23 @@ export const CARD_ROUTES = [
   { method: 'post', path: '/cards/:id/capture', action: 'CARD_CAPTURE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'authRef', pattern: PATTERNS.KEY, required: true },
-    BLANK, BLANK, BLANK, ACTOR,
+    BLANK, BLANK,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    ACTOR,
   ] },
   { method: 'post', path: '/cards/:id/repay', action: 'CARD_REPAY', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
-    BLANK, BLANK, BLANK, ACTOR,
+    BLANK, BLANK,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    ACTOR,
   ] },
   { method: 'post', path: '/cards/:id/reverse', action: 'CARD_REVERSE', tokenIdentity: 'actor', fields: [
     ID,
     { name: 'authRef', pattern: PATTERNS.KEY, required: true },
-    BLANK, BLANK, BLANK, ACTOR,
+    BLANK, BLANK,
+    { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
+    ACTOR,
   ] },
   { method: 'post', path: '/cards/:id/limit', action: 'CARD_LIMIT_SET', tokenIdentity: 'actor', fields: [
     ID,

@@ -193,6 +193,101 @@ assert_match "exactly one capture winner" "$(printf '%s\n%s\n' "$HA" "$HB" | gre
 assert_match "capture loser refused" "$(printf '%s\n%s\n' "$HA" "$HB" | grep -c "ERROR")" "^1$"
 assert_match "single capture posting" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${authR_ref}';")" "^2$"
 
+# 60-77. Keyed capture: same key replays the stored outcome instead of
+# posting again; different amount conflicts; concurrent keys serialize;
+# doomed keys stay usable; stale keys are taken over.
+run_cobol "CARD_ISSUE|CRD-K1|${WA}|CREDIT|5000.00|USD|${A}" >/dev/null
+KID="$(db_query "SELECT id FROM card_account WHERE card_ref='CRD-K1';")"
+kauth="$(run_cobol "CARD_AUTHORIZE|${KID}|400.00|Shop K|USD||${A}")"
+kauth_ref="$(printf '%s' "$kauth" | awk -F'|' '{print $3}')"
+assert_match "keyed capture ok" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth_ref}|||K-C1|${A}")" "SUCCESS\|CARD_CAPTURE\|400.0000"
+assert_match "keyed capture replay ok" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth_ref}|||K-C1|${A}")" "SUCCESS\|CARD_CAPTURE\|400.0000"
+assert_match "replay posted once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${kauth_ref}';")" "^2$"
+assert_match "capture request recorded DONE" "$(db_query "SELECT status FROM card_capture_request WHERE card_id=${KID} AND idempotency_key='K-C1';")" "^DONE$"
+db_exec "UPDATE card_capture_request SET amount = 1.00 WHERE card_id=${KID} AND idempotency_key='K-C1';"
+assert_match "changed amount conflicts" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth_ref}|||K-C1|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "conflict posted nothing new" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${kauth_ref}';")" "^2$"
+db_exec "UPDATE card_capture_request SET amount = 400.00 WHERE card_id=${KID} AND idempotency_key='K-C1';"
+kauth2="$(run_cobol "CARD_AUTHORIZE|${KID}|300.00|Shop KR|USD||${A}")"
+kauth2_ref="$(printf '%s' "$kauth2" | awk -F'|' '{print $3}')"
+K1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; K2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'CARD_CAPTURE|%s|%s|||K-CRACE|admin@test.com\n' "$KID" "$kauth2_ref" >"$K1/input.txt"
+printf 'CARD_CAPTURE|%s|%s|||K-CRACE|admin@test.com\n' "$KID" "$kauth2_ref" >"$K2/input.txt"
+(cd "$K1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V1=$!
+(cd "$K2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+V2=$!
+wait $V1; wait $V2
+VA="$(tr -d ' \n' <"$K1/output.txt")"; VB="$(tr -d ' \n' <"$K2/output.txt")"
+rm -rf "$K1" "$K2"
+assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$VA" "$VB" | grep -c "SUCCESS\|CARD_CAPTURE")" "^1$"
+assert_match "keyed loser in progress" "$(printf '%s\n%s\n' "$VA" "$VB")" "ERROR\|CAPTURE_IN_PROGRESS"
+assert_match "keyed retry converges" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth2_ref}|||K-CRACE|${A}")" "SUCCESS\|CARD_CAPTURE\|300.0000"
+assert_match "single posting for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${kauth2_ref}';")" "^2$"
+kauth3="$(run_cobol "CARD_AUTHORIZE|${KID}|50.00|Shop KD|USD||${A}")"
+kauth3_ref="$(printf '%s' "$kauth3" | awk -F'|' '{print $3}')"
+run_cobol "CARD_CAPTURE|${KID}|${kauth3_ref}||||${A}" >/dev/null
+assert_match "keyed capture on captured refused" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth3_ref}|||K-DOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "doomed key not blocked" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth3_ref}|||K-DOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "no capture request residue" "$(db_query "SELECT COUNT(*) FROM card_capture_request WHERE card_id=${KID} AND idempotency_key='K-DOOM';")" "^0$"
+kauth4="$(run_cobol "CARD_AUTHORIZE|${KID}|60.00|Shop KT|USD||${A}")"
+kauth4_ref="$(printf '%s' "$kauth4" | awk -F'|' '{print $3}')"
+db_exec "INSERT INTO card_capture_request (card_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${KID},'K-TAKE',60.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "capture takeover succeeds" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth4_ref}|||K-TAKE|${A}")" "SUCCESS\|CARD_CAPTURE\|60.0000"
+assert_match "takeover taken over and done" "$(db_query "SELECT status FROM card_capture_request WHERE card_id=${KID} AND idempotency_key='K-TAKE';")" "^DONE$"
+
+# 78-92. Keyed repay: same key replays instead of debiting twice; the
+# ceiling still binds keyed calls; doomed and stale keys behave.
+RP_BEFORE="$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'CARDRP-%' AND account_id=${ACCTW};")"
+assert_match "keyed repay ok" "$(run_cobol "CARD_REPAY|${KID}|100.00|||K-R1|${A}")" "SUCCESS\|CARD_REPAY\|100.0000"
+assert_match "keyed repay replay ok" "$(run_cobol "CARD_REPAY|${KID}|100.00|||K-R1|${A}")" "SUCCESS\|CARD_REPAY\|100.0000"
+assert_match "repay posted once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'CARDRP-%' AND account_id=${ACCTW};")" "^$((RP_BEFORE + 1))$"
+assert_match "repay request recorded DONE" "$(db_query "SELECT status FROM card_repay_request WHERE card_id=${KID} AND idempotency_key='K-R1';")" "^DONE$"
+db_exec "UPDATE card_repay_request SET amount = 1.00 WHERE card_id=${KID} AND idempotency_key='K-R1';"
+assert_match "repay changed amount conflicts" "$(run_cobol "CARD_REPAY|${KID}|100.00|||K-R1|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+db_exec "UPDATE card_repay_request SET amount = 100.00 WHERE card_id=${KID} AND idempotency_key='K-R1';"
+J1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; J2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'CARD_REPAY|%s|150.00|||K-RRACE|admin@test.com\n' "$KID" >"$J1/input.txt"
+printf 'CARD_REPAY|%s|150.00|||K-RRACE|admin@test.com\n' "$KID" >"$J2/input.txt"
+(cd "$J1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+W1=$!
+(cd "$J2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+W2=$!
+wait $W1; wait $W2
+JA="$(tr -d ' \n' <"$J1/output.txt")"; JB="$(tr -d ' \n' <"$J2/output.txt")"
+rm -rf "$J1" "$J2"
+assert_match "exactly one repay winner" "$(printf '%s\n%s\n' "$JA" "$JB" | grep -c "SUCCESS\|CARD_REPAY")" "^1$"
+assert_match "repay loser refused" "$(printf '%s\n%s\n' "$JA" "$JB")" "ERROR\|"
+assert_match "repay retry converges" "$(run_cobol "CARD_REPAY|${KID}|150.00|||K-RRACE|${A}")" "SUCCESS\|CARD_REPAY\|150.0000"
+assert_match "over-ceiling keyed repay refused" "$(run_cobol "CARD_REPAY|${KID}|99999.00|||K-DOOMR|${A}")" "ERROR\|OVERPAID"
+assert_match "over-ceiling retry in progress" "$(run_cobol "CARD_REPAY|${KID}|99999.00|||K-DOOMR|${A}")" "ERROR\|REPAY_IN_PROGRESS"
+assert_match "doomed repay leaves pending" "$(db_query "SELECT status FROM card_repay_request WHERE card_id=${KID} AND idempotency_key='K-DOOMR';")" "^PENDING$"
+db_exec "DELETE FROM card_repay_request WHERE card_id=${KID} AND idempotency_key='K-DOOMR';"
+db_exec "INSERT INTO card_repay_request (card_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${KID},'K-TAKER',75.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "repay takeover succeeds" "$(run_cobol "CARD_REPAY|${KID}|75.00|||K-TAKER|${A}")" "SUCCESS\|CARD_REPAY\|75.0000"
+assert_match "repay taken over and done" "$(db_query "SELECT status FROM card_repay_request WHERE card_id=${KID} AND idempotency_key='K-TAKER';")" "^DONE$"
+
+# 93-104. Keyed reverse: replay, conflict, doomed key, takeover.
+rauth="$(run_cobol "CARD_AUTHORIZE|${KID}|120.00|Shop KV|USD||${A}")"
+rauth_ref="$(printf '%s' "$rauth" | awk -F'|' '{print $3}')"
+run_cobol "CARD_CAPTURE|${KID}|${rauth_ref}||||${A}" >/dev/null
+assert_match "keyed reverse ok" "$(run_cobol "CARD_REVERSE|${KID}|${rauth_ref}|||K-V1|${A}")" "SUCCESS\|CARD_REVERSE\|120.0000"
+assert_match "keyed reverse replay ok" "$(run_cobol "CARD_REVERSE|${KID}|${rauth_ref}|||K-V1|${A}")" "SUCCESS\|CARD_REVERSE\|120.0000"
+assert_match "refund posted once" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDRC-${rauth_ref}';")" "^2$"
+assert_match "reverse request recorded DONE" "$(db_query "SELECT status FROM card_reverse_request WHERE card_id=${KID} AND idempotency_key='K-V1';")" "^DONE$"
+db_exec "UPDATE card_reverse_request SET amount = 1.00 WHERE card_id=${KID} AND idempotency_key='K-V1';"
+assert_match "reverse changed amount conflicts" "$(run_cobol "CARD_REVERSE|${KID}|${rauth_ref}|||K-V1|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+db_exec "UPDATE card_reverse_request SET amount = 120.00 WHERE card_id=${KID} AND idempotency_key='K-V1';"
+assert_match "reverse on reversed refused" "$(run_cobol "CARD_REVERSE|${KID}|${rauth_ref}|||K-VDOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "reverse doomed key not blocked" "$(run_cobol "CARD_REVERSE|${KID}|${rauth_ref}|||K-VDOOM|${A}")" "ERROR\|INVALID_STATUS"
+assert_match "no reverse request residue" "$(db_query "SELECT COUNT(*) FROM card_reverse_request WHERE card_id=${KID} AND idempotency_key='K-VDOOM';")" "^0$"
+rauth2="$(run_cobol "CARD_AUTHORIZE|${KID}|90.00|Shop KW|USD||${A}")"
+rauth2_ref="$(printf '%s' "$rauth2" | awk -F'|' '{print $3}')"
+run_cobol "CARD_CAPTURE|${KID}|${rauth2_ref}||||${A}" >/dev/null
+db_exec "INSERT INTO card_reverse_request (card_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${KID},'K-VTAKE',90.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
+assert_match "reverse takeover succeeds" "$(run_cobol "CARD_REVERSE|${KID}|${rauth2_ref}|||K-VTAKE|${A}")" "SUCCESS\|CARD_REVERSE\|90.0000"
+assert_match "reverse taken over and done" "$(db_query "SELECT status FROM card_reverse_request WHERE card_id=${KID} AND idempotency_key='K-VTAKE';")" "^DONE$"
+
 cleanup_fixture
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi

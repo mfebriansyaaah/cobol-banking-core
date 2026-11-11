@@ -2863,6 +2863,8 @@ paths:
               properties:
                 authRef:
                   type: string
+                idempotencyKey:
+                  type: string
               required:
                 - authRef
       responses:
@@ -2898,6 +2900,8 @@ paths:
               properties:
                 amount:
                   type: string
+                idempotencyKey:
+                  type: string
               required:
                 - amount
       responses:
@@ -2932,6 +2936,8 @@ paths:
               type: object
               properties:
                 authRef:
+                  type: string
+                idempotencyKey:
                   type: string
               required:
                 - authRef
