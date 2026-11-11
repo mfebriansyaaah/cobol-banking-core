@@ -139,7 +139,11 @@ assert_match "audit rows recorded" "$ac" "^[1-9][0-9]*$"
 aud="$(run_cobol "CARD_AUDIT|${card_id}|50|0|||admin@test.com")"
 assert_match "CARD_AUDIT ok" "$aud" "SUCCESS\|CARD_AUDIT\|"
 
-# Close the replacement card; LIST reflects the full lifecycle.
+# Close refuses while money is owed (the debt would strand: CARD_REPAY
+# refuses CLOSED cards). Settle first, then close.
+assert_match "close with balance refused" "$(run_cobol "CARD_CLOSE|${new_id}|||||admin@test.com")" "ERROR\|OUTSTANDING_BALANCE"
+assert_match "still active after refused close" "$(db_query "SELECT status FROM card_account WHERE id=${new_id};")" "^ACTIVE$"
+assert_match "settle before close" "$(run_cobol "CARD_REPAY|${new_id}|200.00||||admin@test.com")" "SUCCESS\|CARD_REPAY\|200.0000"
 assert_match "CARD_CLOSE ok" "$(run_cobol "CARD_CLOSE|${new_id}|||||admin@test.com")" "SUCCESS\|CARD_CLOSED"
 assert_match "replacement closed" "$(db_query "SELECT status FROM card_account WHERE id=${new_id};")" "^CLOSED$"
 assert_match "close closed card refused" "$(run_cobol "CARD_CLOSE|${new_id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"

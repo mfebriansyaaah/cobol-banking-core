@@ -783,6 +783,29 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           *> Fail closed when money is still owed: closing with an
+           *> outstanding balance would strand the debt, since CARD_REPAY
+           *> refuses CLOSED cards. Settle first, then close.
+           MOVE "SELECT CAST(balance AS CHAR) FROM card_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+           MOVE WS-P1-TRIMMED TO WS-BIND-1
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           IF WS-RESULT = "ERROR|NO_DATA"
+               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           IF WS-RESULT(1:5) = "ERROR"
+               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
+           MOVE FUNCTION NUMVAL(WS-RESULT) TO WS-NUM-BALANCE
+           IF WS-NUM-BALANCE > 0
+               MOVE "ERROR|OUTSTANDING_BALANCE" TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF.
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
            MOVE "UPDATE card_account SET status = 'CLOSED' WHERE id = ? AND status IN ('ACTIVE','BLOCKED')" TO WS-PREP-SQL
