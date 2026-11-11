@@ -154,6 +154,45 @@ assert_match "all journals balanced" "$(balanced)" "^0$"
 assert_match "no negatives" "$(db_query "SELECT COUNT(*) FROM accounts WHERE account_id IN (${ACCTW},${BOOKR},${BOOKP}) AND balance < 0;")" "^0$"
 assert_match "total conserved" "$(total)" "^2005000.0000$"
 
+# 45-52. Concurrent repays at the ceiling (balance 250): two 150
+# repays serialize on the guarded debit; exactly one wins, the loser
+# sees OVERPAID, and only one payment posts.
+G1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; G2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'CARD_REPAY|%s|150.00||||admin@test.com\n' "$CID" >"$G1/input.txt"
+printf 'CARD_REPAY|%s|150.00||||admin@test.com\n' "$CID" >"$G2/input.txt"
+BIN="$PWD/cobol/bin/main_logic"
+(cd "$G1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+Q1=$!
+(cd "$G2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+Q2=$!
+wait $Q1; wait $Q2
+GA="$(tr -d ' \n' <"$G1/output.txt")"; GB="$(tr -d ' \n' <"$G2/output.txt")"
+rm -rf "$G1" "$G2"
+assert_match "exactly one repay winner" "$(printf '%s\n%s\n' "$GA" "$GB" | grep -c "SUCCESS|CARD_REPAY")" "^1$"
+assert_match "race loser overpays" "$(printf '%s\n%s\n' "$GA" "$GB")" "ERROR\|OVERPAID"
+assert_match "ceiling holds under race" "$(db_query "SELECT balance FROM card_account WHERE id=${CID};")" "^100.0000$"
+assert_match "race posted one payment" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref LIKE 'CARDRP-%' AND account_id=${ACCTW} AND amount=150.0000;")" "^1$"
+
+# 53-60. Concurrent captures of one authorization: exactly one wins and a
+# single posting lands. The loser error depends on the interleaving
+# (pre-check INVALID_STATUS vs in-txn guard DB_ERROR), so only the winner
+# count and the single posting are asserted.
+authR="$(run_cobol "CARD_AUTHORIZE|${CID}|60.00|Shop R|USD||${A}")"
+authR_ref="$(printf '%s' "$authR" | awk -F'|' '{print $3}')"
+H1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; H2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
+printf 'CARD_CAPTURE|%s|%s||||admin@test.com\n' "$CID" "$authR_ref" >"$H1/input.txt"
+printf 'CARD_CAPTURE|%s|%s||||admin@test.com\n' "$CID" "$authR_ref" >"$H2/input.txt"
+(cd "$H1" && timeout 30s "$BIN" >/dev/null 2>&1) &
+R1=$!
+(cd "$H2" && timeout 30s "$BIN" >/dev/null 2>&1) &
+R2=$!
+wait $R1; wait $R2
+HA="$(tr -d ' \n' <"$H1/output.txt")"; HB="$(tr -d ' \n' <"$H2/output.txt")"
+rm -rf "$H1" "$H2"
+assert_match "exactly one capture winner" "$(printf '%s\n%s\n' "$HA" "$HB" | grep -c "SUCCESS\|CARD_CAPTURE")" "^1$"
+assert_match "capture loser refused" "$(printf '%s\n%s\n' "$HA" "$HB" | grep -c "ERROR")" "^1$"
+assert_match "single capture posting" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${authR_ref}';")" "^2$"
+
 cleanup_fixture
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi

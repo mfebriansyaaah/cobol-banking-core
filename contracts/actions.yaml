@@ -3,7 +3,7 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-11T05:15:56.332Z"
+generatedAt: "2026-11-11T05:46:07.507Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
 count: 573
 actions:
