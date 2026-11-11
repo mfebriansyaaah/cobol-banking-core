@@ -4554,6 +4554,7 @@ CREATE TABLE `card_audit` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
 -- Table structure for table `card_capture_request`
 --
 
@@ -4576,7 +4577,6 @@ CREATE TABLE `card_capture_request` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
 --
 -- Table structure for table `card_item`
 --
@@ -4628,6 +4628,7 @@ CREATE TABLE `card_item_audit` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
 -- Table structure for table `card_repay_request`
 --
 
@@ -4673,7 +4674,6 @@ CREATE TABLE `card_reverse_request` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
 --
 -- Table structure for table `card_tokenization`
 --
