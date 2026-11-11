@@ -252,6 +252,8 @@ tests/run_all.sh fast
 if [ "$DOCS" = "1" ]; then
     echo "=== PREMERGE: docs gate ==="
     node scripts/check_docs.mjs .
+    echo "=== PREMERGE: PR-size policy ==="
+    node scripts/check_pr_size_policy.mjs .
 else
     echo "=== PREMERGE: docs skipped (CI runs it; pass --docs to run locally) ==="
 fi

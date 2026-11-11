@@ -67,16 +67,51 @@ docs(T-022): record invariant evidence
 Rules:
 
 - One branch = one coherent task group.
-- Maximum diff: 3500 changed lines excluding generated fixtures/docs.
-  Larger changes must be split, unless an exception is recorded: state the
-  reason, the added review risk, and the reviewer in the PR body, and get
-  owner approval before merge.
+- Prefer PRs under 1.500 changed lines. Larger changes require a recorded
+  exception: reason, added review risk, reviewer, owner approval, and rollback
+  plan. There is no fixed line ceiling.
 - A commit that only fixes a previous commit in the same branch must be
   squashed with `git rebase -i` before merge.
 - Every commit should keep the tree buildable if practical. At minimum the PR
   head must be green.
 - Revert individual commits or the PR commit range. Never `git reset` or
   force-push `main`.
+
+## PR size tiers
+
+Size follows risk and coherence, not a line target. Line count is not a
+gate; reviewers judge the **semantic diff** (logic excluding formatting,
+generated files, and pure moves).
+
+| Tier | Typical size | Change kind | Exception |
+| --- | ---: | --- | --- |
+| **S — Small** | 100–400 lines | narrow fix, one gate, one route, small docs | No |
+| **M — Normal** | 400–1.500 lines | one-domain feature/refactor, test + implementation | No |
+| **L — Cross-cutting** | 1.500–3.000 lines | cross-module refactor, shared copybook, large extraction | **Yes** |
+| **B — Bulk/mechanical** | 3.000+ lines | formatting, generated schema, code moves, migration archive | **Yes** |
+
+Report the size in every PR body (see `.github/pull_request_template.md`):
+
+```text
+Size tier: M
+Total diff: 1.180 lines (added 720, deleted 460)
+Semantic diff: ±650 lines (excluding formatting/generated/move)
+Exception: none
+```
+
+Helpers:
+
+```sh
+node scripts/pr_size.mjs --base origin/main --head HEAD        # total vs generated vs reviewable
+node scripts/pr_size.mjs --base origin/main --head HEAD --json  # machine-readable
+git diff --color-moved=dimmed-zebra origin/main...HEAD          # review pure moves
+git diff -w origin/main...HEAD                                  # whitespace-only review
+```
+
+`node scripts/check_pr_size_policy.mjs` guards this policy: it fails when
+the fixed ceiling returns or the 1.500 preference, exception rule, or PR
+template fields go missing. CI publishes the `pr_size` report as a
+non-gating artifact.
 
 ## Merge method
 
@@ -166,7 +201,7 @@ audit evidence; otherwise keep annotated release tags.
 
 - Revert the PR commit range (`git revert <range>`); never reset `main`.
 - If the train breaks `main`, pause the train, revert, then resume.
-- If a branch grows beyond 5 days or 3500 lines, split it rather than keeping
+- If a branch grows beyond 5 days or 1.500 changed lines, split it rather than keeping
   it alive.
 - For emergency hotfix, branch from the production tag/`main`, run the full
   gate, merge, tag, then resume the train.

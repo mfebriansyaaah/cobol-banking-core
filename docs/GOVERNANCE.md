@@ -35,8 +35,8 @@ Every change to `main` must satisfy all of the following:
    `.github/CODEOWNERS`.
 6. **No admin bypass.** The owner must not merge with failing checks even
    though GitHub would allow it.
-7. **Small PRs.** Prefer under 500 changed lines (ceiling 3500 with a recorded
-   exception — see `docs/BRANCHING.md`). Split domain waves and refactors
+7. **Small PRs.** Prefer under 1.500 changed lines; >1.500 requires a recorded
+   exception — see `docs/BRANCHING.md`. Split domain waves and refactors
    into reviewable units.
 8. **No secrets or real PII.** Use placeholders in examples and fixtures.
 

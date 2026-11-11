@@ -32,6 +32,8 @@ const WIRED = [
   ['scripts/ci/coverage.sh', ['coverage.sh']],
   ['scripts/check_test_counts.mjs', ['check_test_counts']],
   ['scripts/check_docs.mjs', ['check_docs']],
+  ['scripts/check_pr_size_policy.mjs', ['check_pr_size_policy']],
+  ['scripts/pr_size.mjs', ['pr_size.mjs']],
   ['scripts/check_schema_drift.sh', ['check_schema_drift']],
   ['scripts/check_warnings.sh', ['check_warnings']],
   ['scripts/ci/migration_rollback_drill.sh', ['migration_rollback_drill']],
