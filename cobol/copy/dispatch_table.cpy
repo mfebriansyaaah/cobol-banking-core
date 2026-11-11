@@ -1,4 +1,4 @@
-            MOVE 193 TO DISPATCH-COUNT.
+            MOVE 194 TO DISPATCH-COUNT.
             MOVE "REQUEST_MFA_RECOVERY" TO D-PREFIX(1).
             MOVE 20 TO D-PREFIX-LEN(1).
             MOVE "auth_recovery_core" TO D-PROGRAM(1).
@@ -578,3 +578,6 @@
             MOVE "IMP_ROW_UNSKIP" TO D-PREFIX(193).
             MOVE 14 TO D-PREFIX-LEN(193).
             MOVE "import_row_core" TO D-PROGRAM(193).
+            MOVE "ACCOUNT_" TO D-PREFIX(194).
+            MOVE 8 TO D-PREFIX-LEN(194).
+            MOVE "identity_core" TO D-PROGRAM(194).

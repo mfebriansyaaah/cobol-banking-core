@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 24 |
+| PARTIAL (open items) | 25 |
 
-Open/in-progress items: 156 of 204 recorded.
+Open/in-progress items: 163 of 211 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -26,6 +26,7 @@ Open/in-progress items: 156 of 204 recorded.
 | `deposit_core` | PARTIAL | 2 |
 | `fee_core` | PARTIAL | 8 |
 | `gl_core` | PARTIAL | 7 |
+| `identity_core` | PARTIAL | 7 |
 | `import_post_core` | PARTIAL | 4 |
 | `import_recon_core` | PARTIAL | 7 |
 | `loan_core` | PARTIAL | 6 |
@@ -111,6 +112,13 @@ Open/in-progress items: 156 of 204 recorded.
 | `gl_core:table:audit-trail` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `gl_core:table:gl-account` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `gl_core:table:gl-period` | `gl_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `identity_core:action:action-scr-screen` | `identity_core` | action | OPEN | — | Write paragraph with no core link (writes manual_reviews, screening_checks) |
+| `identity_core:audit:core-reference` | `identity_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `identity_core:table:audit-trail` | `identity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `identity_core:table:identity-verifications` | `identity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `identity_core:table:manual-reviews` | `identity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `identity_core:table:phone-links` | `identity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `identity_core:table:screening-checks` | `identity_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `import_post_core:audit:core-reference` | `import_post_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `import_post_core:table:gl-period` | `import_post_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `import_post_core:table:import-batch` | `import_post_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |

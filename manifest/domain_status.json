@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T15:40:32.176Z",
+  "generatedAt": "2026-11-11T13:08:33.553Z",
   "entries": [
     {
       "domain": "account",
@@ -455,14 +455,14 @@
       "routeFile": "identity.js",
       "table": "identity_verifications",
       "tier": 2,
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "linkedCoreDomains": [],
       "replacement": null,
       "consumer": null,
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage KYC gates TRANSFER (mutation M11 kill) + identity/screening e2e. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
+      "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage KYC gates TRANSFER (mutation M11 kill) + identity/screening e2e. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). 2026-11-11: ACCOUNT_FREEZE/UNFREEZE link the accounts table (sanctions enforcement), promoting linkage to L2.",
       "retireAfter": null,
       "tableDropDate": null
     },

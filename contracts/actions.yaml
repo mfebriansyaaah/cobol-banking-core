@@ -3,10 +3,110 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-11T10:39:53.673Z"
+generatedAt: "2026-11-11T13:04:02.090Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
-count: 573
+count: 575
 actions:
+  - action: ACCOUNT_FREEZE
+    method: post
+    path: /screening/accounts/freeze
+    routeFile: screening.js
+    seq: 483
+    module: identity_core
+    prefix: ACCOUNT_
+    auth:
+      public: false
+      tokenIdentity: actor
+      stepUp: true
+      stepUpPolicy: null
+    fields:
+      - slot: 1
+        name: email
+        pattern: EMAIL
+        required: true
+        inline: true
+        maxBytes: 100
+      - slot: 2
+        name: reason
+        pattern: NAME
+        required: false
+        inline: true
+        maxBytes: 100
+      - slot: 3
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 4
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 5
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 6
+        name: actor
+        pattern: EMAIL
+        required: true
+        inline: false
+        maxBytes: 100
+    tested: true
+  - action: ACCOUNT_UNFREEZE
+    method: post
+    path: /screening/accounts/unfreeze
+    routeFile: screening.js
+    seq: 484
+    module: identity_core
+    prefix: ACCOUNT_
+    auth:
+      public: false
+      tokenIdentity: actor
+      stepUp: true
+      stepUpPolicy: null
+    fields:
+      - slot: 1
+        name: email
+        pattern: EMAIL
+        required: true
+        inline: true
+        maxBytes: 100
+      - slot: 2
+        name: reason
+        pattern: NAME
+        required: false
+        inline: true
+        maxBytes: 100
+      - slot: 3
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 4
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 5
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 6
+        name: actor
+        pattern: EMAIL
+        required: true
+        inline: false
+        maxBytes: 100
+    tested: true
   - action: ACC_AUDIT
     method: get
     path: /accounts/audit
@@ -1261,7 +1361,7 @@ actions:
     method: post
     path: "/trade-finance/bg/:id/approve"
     routeFile: trade_finance.js
-    seq: 542
+    seq: 544
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1361,7 +1461,7 @@ actions:
     method: get
     path: /trade-finance/bg/audit
     routeFile: trade_finance.js
-    seq: 548
+    seq: 550
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1461,7 +1561,7 @@ actions:
     method: post
     path: "/trade-finance/bg/:id/claims"
     routeFile: trade_finance.js
-    seq: 544
+    seq: 546
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1511,7 +1611,7 @@ actions:
     method: post
     path: "/trade-finance/bg/:id/close"
     routeFile: trade_finance.js
-    seq: 546
+    seq: 548
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1611,7 +1711,7 @@ actions:
     method: post
     path: /trade-finance/bg
     routeFile: trade_finance.js
-    seq: 540
+    seq: 542
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1761,7 +1861,7 @@ actions:
     method: get
     path: "/trade-finance/bg/:id"
     routeFile: trade_finance.js
-    seq: 550
+    seq: 552
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1811,7 +1911,7 @@ actions:
     method: post
     path: "/trade-finance/bg/:id/issue"
     routeFile: trade_finance.js
-    seq: 543
+    seq: 545
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1911,7 +2011,7 @@ actions:
     method: get
     path: /trade-finance/bg
     routeFile: trade_finance.js
-    seq: 549
+    seq: 551
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -1961,7 +2061,7 @@ actions:
     method: post
     path: "/trade-finance/bg/claims/:id/settle"
     routeFile: trade_finance.js
-    seq: 545
+    seq: 547
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -2011,7 +2111,7 @@ actions:
     method: post
     path: "/trade-finance/bg/:id/submit"
     routeFile: trade_finance.js
-    seq: 541
+    seq: 543
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -2111,7 +2211,7 @@ actions:
     method: get
     path: /trade-finance/bg/summary
     routeFile: trade_finance.js
-    seq: 547
+    seq: 549
     module: bank_guarantee_core
     prefix: BKG_
     auth:
@@ -3511,7 +3611,7 @@ actions:
     method: post
     path: /profile/password
     routeFile: user_profile.js
-    seq: 567
+    seq: 569
     module: auth_password_core
     prefix: CHANGE_PASSWORD
     auth:
@@ -4611,7 +4711,7 @@ actions:
     method: get
     path: /wallet/balance
     routeFile: wallet.js
-    seq: 568
+    seq: 570
     module: wallet_core
     prefix: CHECK_BALANCE
     auth:
@@ -6361,7 +6461,7 @@ actions:
     method: post
     path: /profile/email/confirm
     routeFile: user_profile.js
-    seq: 566
+    seq: 568
     module: user_core
     prefix: CONFIRM_EMAIL_CHANGE
     auth:
@@ -7011,7 +7111,7 @@ actions:
     method: post
     path: /profile/deactivate
     routeFile: user_profile.js
-    seq: 564
+    seq: 566
     module: user_core
     prefix: DEACTIVATE_ACCOUNT
     auth:
@@ -10517,7 +10617,7 @@ actions:
     method: get
     path: /profile
     routeFile: user_profile.js
-    seq: 562
+    seq: 564
     module: user_core
     prefix: GET_DASHBOARD
     auth:
@@ -10617,7 +10717,7 @@ actions:
     method: get
     path: "/users/:email"
     routeFile: user_profile.js
-    seq: 561
+    seq: 563
     module: user_core
     prefix: GET_USER
     auth:
@@ -11667,7 +11767,7 @@ actions:
     method: post
     path: /screening/reviews/decide
     routeFile: screening.js
-    seq: 484
+    seq: 486
     module: identity_core
     prefix: IDV_
     auth:
@@ -11767,7 +11867,7 @@ actions:
     method: get
     path: /screening/reviews
     routeFile: screening.js
-    seq: 483
+    seq: 485
     module: identity_core
     prefix: IDV_
     auth:
@@ -13767,7 +13867,7 @@ actions:
     method: get
     path: /users
     routeFile: user_profile.js
-    seq: 560
+    seq: 562
     module: user_core
     prefix: LIST_USERS
     auth:
@@ -14217,7 +14317,7 @@ actions:
     method: post
     path: "/trade-finance/lc/:id/amend"
     routeFile: trade_finance.js
-    seq: 531
+    seq: 533
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14267,7 +14367,7 @@ actions:
     method: post
     path: "/trade-finance/lc/:id/approve"
     routeFile: trade_finance.js
-    seq: 529
+    seq: 531
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14367,7 +14467,7 @@ actions:
     method: get
     path: /trade-finance/lc/audit
     routeFile: trade_finance.js
-    seq: 537
+    seq: 539
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14467,7 +14567,7 @@ actions:
     method: post
     path: "/trade-finance/lc/:id/close"
     routeFile: trade_finance.js
-    seq: 535
+    seq: 537
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14567,7 +14667,7 @@ actions:
     method: post
     path: /trade-finance/lc
     routeFile: trade_finance.js
-    seq: 527
+    seq: 529
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14667,7 +14767,7 @@ actions:
     method: post
     path: "/trade-finance/lc/:id/documents"
     routeFile: trade_finance.js
-    seq: 532
+    seq: 534
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14717,7 +14817,7 @@ actions:
     method: post
     path: "/trade-finance/lc/:id/draw"
     routeFile: trade_finance.js
-    seq: 533
+    seq: 535
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14817,7 +14917,7 @@ actions:
     method: get
     path: "/trade-finance/lc/:id"
     routeFile: trade_finance.js
-    seq: 539
+    seq: 541
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14867,7 +14967,7 @@ actions:
     method: post
     path: "/trade-finance/lc/:id/issue"
     routeFile: trade_finance.js
-    seq: 530
+    seq: 532
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14967,7 +15067,7 @@ actions:
     method: get
     path: /trade-finance/lc
     routeFile: trade_finance.js
-    seq: 538
+    seq: 540
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -15017,7 +15117,7 @@ actions:
     method: post
     path: "/trade-finance/lc/drawings/:id/settle"
     routeFile: trade_finance.js
-    seq: 534
+    seq: 536
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -15067,7 +15167,7 @@ actions:
     method: post
     path: "/trade-finance/lc/:id/submit"
     routeFile: trade_finance.js
-    seq: 528
+    seq: 530
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -15167,7 +15267,7 @@ actions:
     method: get
     path: /trade-finance/lc/summary
     routeFile: trade_finance.js
-    seq: 536
+    seq: 538
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -21917,7 +22017,7 @@ actions:
     method: post
     path: /profile/email/request
     routeFile: user_profile.js
-    seq: 565
+    seq: 567
     module: user_core
     prefix: REQ_EMAIL_CHANGE
     auth:
@@ -22167,7 +22267,7 @@ actions:
     method: post
     path: "/transactions/:ref/reverse"
     routeFile: wallet.js
-    seq: 572
+    seq: 574
     module: wallet_reversal_core
     prefix: REVERSE_TRANSFER
     auth:
@@ -25417,7 +25517,7 @@ actions:
     method: get
     path: /sla-trackers/audit
     routeFile: sla_tracker.js
-    seq: 487
+    seq: 489
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25467,7 +25567,7 @@ actions:
     method: post
     path: "/sla-trackers/:id/calc"
     routeFile: sla_tracker.js
-    seq: 491
+    seq: 493
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25517,7 +25617,7 @@ actions:
     method: post
     path: /sla-trackers
     routeFile: sla_tracker.js
-    seq: 489
+    seq: 491
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25567,7 +25667,7 @@ actions:
     method: post
     path: "/sla-trackers/:id/delete"
     routeFile: sla_tracker.js
-    seq: 493
+    seq: 495
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25617,7 +25717,7 @@ actions:
     method: get
     path: "/sla-trackers/:id"
     routeFile: sla_tracker.js
-    seq: 490
+    seq: 492
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25667,7 +25767,7 @@ actions:
     method: get
     path: /sla-trackers
     routeFile: sla_tracker.js
-    seq: 488
+    seq: 490
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25717,7 +25817,7 @@ actions:
     method: get
     path: /sla-trackers/summary
     routeFile: sla_tracker.js
-    seq: 486
+    seq: 488
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25767,7 +25867,7 @@ actions:
     method: post
     path: "/sla-trackers/:id/update"
     routeFile: sla_tracker.js
-    seq: 492
+    seq: 494
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25817,7 +25917,7 @@ actions:
     method: post
     path: /sla-trackers/validate
     routeFile: sla_tracker.js
-    seq: 485
+    seq: 487
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25867,7 +25967,7 @@ actions:
     method: get
     path: "/statements/recon/:id/export"
     routeFile: statement_recon.js
-    seq: 508
+    seq: 510
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -25917,7 +26017,7 @@ actions:
     method: post
     path: "/statements/recon/:id/finish"
     routeFile: statement_recon.js
-    seq: 505
+    seq: 507
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -25967,7 +26067,7 @@ actions:
     method: get
     path: "/statements/recon/:id"
     routeFile: statement_recon.js
-    seq: 503
+    seq: 505
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -26017,7 +26117,7 @@ actions:
     method: get
     path: "/statements/recon/:id/items"
     routeFile: statement_recon.js
-    seq: 507
+    seq: 509
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -26067,7 +26167,7 @@ actions:
     method: get
     path: /statements/recon
     routeFile: statement_recon.js
-    seq: 502
+    seq: 504
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -26117,7 +26217,7 @@ actions:
     method: post
     path: "/statements/recon/:id/match"
     routeFile: statement_recon.js
-    seq: 504
+    seq: 506
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -26167,7 +26267,7 @@ actions:
     method: post
     path: "/statements/recon/:id/retry"
     routeFile: statement_recon.js
-    seq: 506
+    seq: 508
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -26217,7 +26317,7 @@ actions:
     method: post
     path: /statements/recon
     routeFile: statement_recon.js
-    seq: 501
+    seq: 503
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -26267,7 +26367,7 @@ actions:
     method: get
     path: "/statements/:statementRunId/recon-summary"
     routeFile: statement_recon.js
-    seq: 509
+    seq: 511
     module: statement_recon_core
     prefix: SRC_
     auth:
@@ -26317,7 +26417,7 @@ actions:
     method: get
     path: /statements
     routeFile: wallet.js
-    seq: 569
+    seq: 571
     module: wallet_statement_core
     prefix: STATEMENT
     auth:
@@ -26367,7 +26467,7 @@ actions:
     method: get
     path: "/statements/archive/:runId/:email/export"
     routeFile: statement.js
-    seq: 499
+    seq: 501
     module: statement_core
     prefix: STMT_
     auth:
@@ -26417,7 +26517,7 @@ actions:
     method: get
     path: "/statements/archive/:runId/:email"
     routeFile: statement.js
-    seq: 498
+    seq: 500
     module: statement_core
     prefix: STMT_
     auth:
@@ -26467,7 +26567,7 @@ actions:
     method: post
     path: "/statements/runs/:id/fail"
     routeFile: statement.js
-    seq: 500
+    seq: 502
     module: statement_core
     prefix: STMT_
     auth:
@@ -26517,7 +26617,7 @@ actions:
     method: post
     path: "/statements/runs/:id/generate"
     routeFile: statement.js
-    seq: 495
+    seq: 497
     module: statement_core
     prefix: STMT_
     auth:
@@ -26567,7 +26667,7 @@ actions:
     method: get
     path: /statements/runs
     routeFile: statement.js
-    seq: 497
+    seq: 499
     module: statement_core
     prefix: STMT_
     auth:
@@ -26617,7 +26717,7 @@ actions:
     method: post
     path: /statements/runs
     routeFile: statement.js
-    seq: 494
+    seq: 496
     module: statement_core
     prefix: STMT_
     auth:
@@ -26667,7 +26767,7 @@ actions:
     method: get
     path: "/statements/runs/:id"
     routeFile: statement.js
-    seq: 496
+    seq: 498
     module: statement_core
     prefix: STMT_
     auth:
@@ -26767,7 +26867,7 @@ actions:
     method: post
     path: /wallet/transfer
     routeFile: wallet.js
-    seq: 570
+    seq: 572
     module: wallet_core
     prefix: TRANSFER
     auth:
@@ -26817,7 +26917,7 @@ actions:
     method: get
     path: /treasury/liquidity/audit
     routeFile: treasury_liquidity.js
-    seq: 553
+    seq: 555
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -26867,7 +26967,7 @@ actions:
     method: post
     path: "/treasury/liquidity/:id/close"
     routeFile: treasury_liquidity.js
-    seq: 559
+    seq: 561
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -26917,7 +27017,7 @@ actions:
     method: post
     path: /treasury/liquidity
     routeFile: treasury_liquidity.js
-    seq: 555
+    seq: 557
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -26967,7 +27067,7 @@ actions:
     method: get
     path: "/treasury/liquidity/:id"
     routeFile: treasury_liquidity.js
-    seq: 556
+    seq: 558
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -27017,7 +27117,7 @@ actions:
     method: get
     path: /treasury/liquidity
     routeFile: treasury_liquidity.js
-    seq: 554
+    seq: 556
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -27067,7 +27167,7 @@ actions:
     method: post
     path: "/treasury/liquidity/:id/post"
     routeFile: treasury_liquidity.js
-    seq: 557
+    seq: 559
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -27117,7 +27217,7 @@ actions:
     method: post
     path: "/treasury/liquidity/:id/settle"
     routeFile: treasury_liquidity.js
-    seq: 558
+    seq: 560
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -27167,7 +27267,7 @@ actions:
     method: get
     path: /treasury/liquidity/summary
     routeFile: treasury_liquidity.js
-    seq: 552
+    seq: 554
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -27217,7 +27317,7 @@ actions:
     method: post
     path: /treasury/liquidity/validate
     routeFile: treasury_liquidity.js
-    seq: 551
+    seq: 553
     module: treasury_liquidity_core
     prefix: TRL_
     auth:
@@ -27267,7 +27367,7 @@ actions:
     method: get
     path: /tax-management/audit
     routeFile: tax_management.js
-    seq: 512
+    seq: 514
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27317,7 +27417,7 @@ actions:
     method: post
     path: "/tax-management/:id/calc"
     routeFile: tax_management.js
-    seq: 516
+    seq: 518
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27367,7 +27467,7 @@ actions:
     method: post
     path: /tax/calculate
     routeFile: tax_management.js
-    seq: 523
+    seq: 525
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27417,7 +27517,7 @@ actions:
     method: post
     path: /tax-management
     routeFile: tax_management.js
-    seq: 514
+    seq: 516
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27467,7 +27567,7 @@ actions:
     method: post
     path: "/tax-management/:id/delete"
     routeFile: tax_management.js
-    seq: 518
+    seq: 520
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27517,7 +27617,7 @@ actions:
     method: get
     path: "/tax-management/:id"
     routeFile: tax_management.js
-    seq: 515
+    seq: 517
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27567,7 +27667,7 @@ actions:
     method: get
     path: /tax-management
     routeFile: tax_management.js
-    seq: 513
+    seq: 515
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27617,7 +27717,7 @@ actions:
     method: post
     path: "/tax/entries/:id/post"
     routeFile: tax_management.js
-    seq: 524
+    seq: 526
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27667,7 +27767,7 @@ actions:
     method: post
     path: /tax/reports/run
     routeFile: tax_management.js
-    seq: 526
+    seq: 528
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27717,7 +27817,7 @@ actions:
     method: post
     path: "/tax/entries/:id/reverse"
     routeFile: tax_management.js
-    seq: 525
+    seq: 527
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27767,7 +27867,7 @@ actions:
     method: post
     path: /tax/rules
     routeFile: tax_management.js
-    seq: 519
+    seq: 521
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27817,7 +27917,7 @@ actions:
     method: get
     path: "/tax/rules/:id"
     routeFile: tax_management.js
-    seq: 521
+    seq: 523
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27867,7 +27967,7 @@ actions:
     method: get
     path: /tax/rules
     routeFile: tax_management.js
-    seq: 520
+    seq: 522
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27917,7 +28017,7 @@ actions:
     method: post
     path: "/tax/rules/:id/update"
     routeFile: tax_management.js
-    seq: 522
+    seq: 524
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -27967,7 +28067,7 @@ actions:
     method: get
     path: /tax-management/summary
     routeFile: tax_management.js
-    seq: 511
+    seq: 513
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -28017,7 +28117,7 @@ actions:
     method: post
     path: "/tax-management/:id/update"
     routeFile: tax_management.js
-    seq: 517
+    seq: 519
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -28067,7 +28167,7 @@ actions:
     method: post
     path: /tax-management/validate
     routeFile: tax_management.js
-    seq: 510
+    seq: 512
     module: tax_management_core
     prefix: TXM_
     auth:
@@ -28117,7 +28217,7 @@ actions:
     method: get
     path: "/transactions/:ref"
     routeFile: wallet.js
-    seq: 571
+    seq: 573
     module: wallet_core
     prefix: TX_STATUS
     auth:
@@ -28217,7 +28317,7 @@ actions:
     method: patch
     path: /profile
     routeFile: user_profile.js
-    seq: 563
+    seq: 565
     module: user_core
     prefix: UPDATE_PROFILE
     auth:

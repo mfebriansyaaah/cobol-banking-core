@@ -15627,6 +15627,78 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /screening/accounts/freeze:
+    post:
+      operationId: ACCOUNT_FREEZE
+      summary: ACCOUNT_FREEZE — List entities
+      tags:
+        - screening
+      parameters:
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                reason:
+                  type: string
+              required:
+                - email
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /screening/accounts/unfreeze:
+    post:
+      operationId: ACCOUNT_UNFREEZE
+      summary: ACCOUNT_UNFREEZE — List entities
+      tags:
+        - screening
+      parameters:
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                reason:
+                  type: string
+              required:
+                - email
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /screening/reviews:
     get:
       operationId: IDV_REVIEW_LIST

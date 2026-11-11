@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T02:01:19.087Z",
+  "generatedAt": "2026-11-11T13:08:58.182Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -852,6 +852,99 @@
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
         "columns: 'closed'), check, closed_at, closed_by, opened_at, period_code, status",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "identity_core:action:action-scr-screen",
+      "module": "identity_core",
+      "kind": "action",
+      "subject": "ACTION-SCR-SCREEN",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes manual_reviews, screening_checks)",
+      "evidence": [
+        "paragraph ACTION-SCR-SCREEN",
+        "touched tables: manual_reviews, screening_checks"
+      ],
+      "owner": null
+    },
+    {
+      "id": "identity_core:audit:core-reference",
+      "module": "identity_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "identity_core:table:audit-trail",
+      "module": "identity_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "identity_core:table:identity-verifications",
+      "module": "identity_core",
+      "kind": "table",
+      "subject": "identity_verifications",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'error'), 'invalid', 'ktp_ocr', 'manual'), 'manual_review', 'nik_remote', 'valid', 2), attempts, constraint, created_at, created_at), expires_at, id, index, method, provider, provider_ref, result_code, score, status, updated_at, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "identity_core:table:manual-reviews",
+      "module": "identity_core",
+      "kind": "table",
+      "subject": "manual_reviews",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'approved', 'rejected'), 'screening'), constraint, created_at, created_at), id, index, kind, reason, ref_id, reviewed_at, reviewer_email, status, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "identity_core:table:phone-links",
+      "module": "identity_core",
+      "kind": "table",
+      "subject": "phone_links",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: chat_id, constraint, created_at, id, link_token, linked_at, phone_hash, revoked_at, token_expires_at, unique, user_id, verified_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "identity_core:table:screening-checks",
+      "module": "identity_core",
+      "kind": "table",
+      "subject": "screening_checks",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'confirmed_match', 'false_positive', 'manual_review'), 'potential_match', 2), constraint, created_at, created_at), id, index, provider, provider_ref, query_hash, result, reviewed_by, score, user_id",
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
@@ -1940,7 +2033,7 @@
       "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [
-        "verified by inspection: AUDIT-REPORT inserts (action, actor_email, template_code, run_id, detail) \u2014 run_id and template_code are the core references"
+        "verified by inspection: AUDIT-REPORT inserts (action, actor_email, template_code, run_id, detail) — run_id and template_code are the core references"
       ],
       "owner": "assistant"
     },
