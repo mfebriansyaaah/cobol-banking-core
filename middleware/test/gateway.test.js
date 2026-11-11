@@ -1461,6 +1461,30 @@ test('card lifecycle over HTTP', async () => {
   const token = await adminLoginFor(admin);
   const auth = { Authorization: `Bearer ${token}` };
 
+  // Fase 1: capture/repay move real money, so the cardholder owns a
+  // wallet, the bank-owned CARD_RECEIVABLE / MERCHANT_PAYABLE books are
+  // capitalized, and the GL period is open.
+  requireSeed(seedAccount(admin, '5000.00'), 'seed the cardholder wallet');
+  const rcv = U('card_rcv_');
+  const pay = U('card_pay_');
+  requireSeed(seedUser(rcv), 'seed the receivable owner');
+  requireSeed(seedUser(pay), 'seed the payable owner');
+  requireSeed(
+    runSql(
+      `INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'CARD_RECEIVABLE', 1000000.00 FROM users WHERE email = '${rcv}'`,
+    ),
+    'capitalize the card receivable book',
+  );
+  requireSeed(
+    runSql(
+      `INSERT INTO accounts (user_id, currency_id, account_type, balance) SELECT id, 1, 'MERCHANT_PAYABLE', 1000000.00 FROM users WHERE email = '${pay}'`,
+    ),
+    'capitalize the merchant payable book',
+  );
+  const period = new Date().toISOString().slice(0, 7);
+  const openPeriod = await request(app).post('/gl/periods').set(auth).send({ period });
+  assert.equal(openPeriod.status, 200);
+
   const valid = await request(app).post('/cards/validate').set(auth).send({ email: admin, type: 'CREDIT', limit: '5000.00', currency: 'USD' });
   assert.equal(valid.status, 200);
   assert.equal(valid.body.data[0], 'CARD_VALID');
@@ -1485,10 +1509,25 @@ test('card lifecycle over HTTP', async () => {
   const captured = await request(app).post(`/cards/${id}/capture`).set(auth).send({ authRef: authorize.body.data[1] });
   assert.equal(captured.status, 200);
   assert.deepEqual(captured.body.data, ['CARD_CAPTURE', '100.0000']);
+  assert.equal(
+    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${rcv}') AND account_type = 'CARD_RECEIVABLE'`),
+    '999900.0000',
+    'the capture debits the receivable book',
+  );
+  assert.equal(
+    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${pay}') AND account_type = 'MERCHANT_PAYABLE'`),
+    '1000100.0000',
+    'the capture credits the payable book',
+  );
 
   const repay = await request(app).post(`/cards/${id}/repay`).set(auth).send({ amount: '50.00' });
   assert.equal(repay.status, 200);
   assert.deepEqual(repay.body.data, ['CARD_REPAY', '50.00']);
+  assert.equal(
+    queryScalar(`SELECT balance FROM accounts WHERE user_id = (SELECT id FROM users WHERE email = '${admin}') AND currency_id = 1`),
+    '4950.0000',
+    'the repayment debits the wallet',
+  );
 
   const statement = await request(app).get(`/cards/${id}/statement`).query({ limit: 50 }).set(auth);
   assert.equal(statement.status, 200);
@@ -1517,6 +1556,12 @@ test('card lifecycle over HTTP', async () => {
   assert.equal(trail.body.data[0], 'CARD_AUDIT');
 
   requireSeed(runSql(`DELETE FROM card_account WHERE card_ref LIKE '${ref}%'`), 'clean up the cards');
+  requireSeed(runSql(`DELETE FROM ledger WHERE txn_ref LIKE 'CARD%'`), 'clean up the card legs');
+  requireSeed(runSql(`DELETE FROM journal_entries WHERE txn_ref LIKE 'CARD%'`), 'clean up the card journals');
+  requireSeed(runSql(`DELETE FROM gl_journal_line WHERE journal_id IN (SELECT id FROM gl_journal WHERE description LIKE 'CARD\\_%')`), 'clean up the card GL lines');
+  requireSeed(runSql(`DELETE FROM gl_journal WHERE description LIKE 'CARD\\_%'`), 'clean up the card GL journals');
+  requireSeed(runSql(`DELETE FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${rcv}','${pay}'))`), 'clean up the books');
+  requireSeed(runSql(`DELETE FROM users WHERE email IN ('${rcv}','${pay}')`), 'clean up book owners');
 });
 
 test('collections lifecycle over HTTP', async () => {

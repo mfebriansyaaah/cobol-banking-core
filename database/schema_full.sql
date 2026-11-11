@@ -438,12 +438,12 @@ CREATE TABLE `accounts` (
   `account_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `currency_id` int(11) NOT NULL,
-  `account_type` enum('SAVINGS','CHECKING','INVESTMENT','FEE_INCOME','FX_PNL','CLEARING','LOAN_BOOK','DEPOSIT_POOL') DEFAULT 'SAVINGS',
+  `account_type` enum('SAVINGS','CHECKING','INVESTMENT','FEE_INCOME','FX_PNL','CLEARING','LOAN_BOOK','DEPOSIT_POOL','CARD_RECEIVABLE','MERCHANT_PAYABLE') DEFAULT 'SAVINGS',
   `balance` decimal(18,4) NOT NULL DEFAULT 0.0000 CHECK (`balance` >= 0),
   `status` enum('ACTIVE','FROZEN','CLOSED') DEFAULT 'ACTIVE',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `control_slot` varchar(32) GENERATED ALWAYS AS (case when `status` = 'ACTIVE' and `account_type` in ('FX_PNL','FEE_INCOME','CLEARING','LOAN_BOOK','DEPOSIT_POOL') then concat(`currency_id`,'/',`account_type`) else NULL end) STORED,
+  `control_slot` varchar(32) GENERATED ALWAYS AS (case when `status` = 'ACTIVE' and `account_type` in ('FX_PNL','FEE_INCOME','CLEARING','LOAN_BOOK','DEPOSIT_POOL','CARD_RECEIVABLE','MERCHANT_PAYABLE') then concat(`currency_id`,'/',`account_type`) else NULL end) STORED,
   PRIMARY KEY (`account_id`),
   UNIQUE KEY `unique_user_currency` (`user_id`,`currency_id`),
   UNIQUE KEY `uniq_active_control_acct` (`control_slot`),
@@ -4672,11 +4672,17 @@ CREATE TABLE `card_transaction` (
   `currency` char(3) NOT NULL,
   `merchant` varchar(100) DEFAULT NULL,
   `status` enum('AUTHORIZED','CAPTURED','DECLINED','REVERSED') NOT NULL DEFAULT 'AUTHORIZED',
+  `journal_id` bigint(20) DEFAULT NULL,
+  `gl_journal_id` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_card_auth_ref` (`auth_ref`),
   KEY `idx_card_txn` (`card_id`,`created_at`),
-  CONSTRAINT `fk_card_txn` FOREIGN KEY (`card_id`) REFERENCES `card_account` (`id`) ON DELETE CASCADE
+  KEY `idx_card_txn_journal` (`journal_id`),
+  KEY `idx_card_txn_gl` (`gl_journal_id`),
+  CONSTRAINT `fk_card_txn` FOREIGN KEY (`card_id`) REFERENCES `card_account` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_card_txn_gl` FOREIGN KEY (`gl_journal_id`) REFERENCES `gl_journal` (`id`),
+  CONSTRAINT `fk_card_txn_journal` FOREIGN KEY (`journal_id`) REFERENCES `journal_entries` (`journal_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

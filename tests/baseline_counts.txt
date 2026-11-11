@@ -2,7 +2,7 @@ cobol_table_tests=235
 db_schema_tests=76
 db_loan_schedule_tests=42
 db_deposit_tests=65
-db_card_tests=38
+db_card_tests=46
 db_collection_tests=35
 db_payment_clearing_tests=22
 db_treasury_liquidity_tests=18
@@ -93,3 +93,5 @@ db_risk_tests=13
 db_corporate_tests=9
 
 db_truncation_tests=4
+
+db_card_posting_tests=44
