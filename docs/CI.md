@@ -323,6 +323,9 @@ shown unmergeable; it is closed unmerged afterwards. Evidence linked in the
 branch 02 PR body.
 
 Pre-push hook (`scripts/dev/install-hooks.sh`, wired via `bootstrap.sh`):
+also installs a pre-commit hook that regenerates README/docs stats
+(`SKIP_DOCS_STATS=1` bypasses with a warning), so the docs gate never
+goes red just because a commit touched COBOL or routes.
 
 - Critical money path: `premerge.sh --ci-parity`.
 - Other financial domains: `premerge.sh --all`.
