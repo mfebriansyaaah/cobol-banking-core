@@ -6,12 +6,12 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-12T06:10:42.855Z
-- Commit: `7e500bd5`
+- Generated at: 2026-11-12T06:41:42.371Z
+- Commit: `498555b3`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 22 |
+| L3 (core transaction) | 23 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 10 |
 | L0 (isolated) | 29 |
@@ -57,6 +57,7 @@ Unresolved route files: none.
 | `import_row_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `letter_of_credit_core` | L0 | — | — | 2 | own domain tables only, no core link |
 | `loan_core` | L3 | — | — | 1 | Tier-1 core module |
+| `loan_posting_core` | L3 | accounts, gl_journal, loan_application, loan_repayment | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
 | `loan_schedule_core` | L3 | — | — | 1 | Tier-1 core module |
 | `loan_schedule_lifecycle_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `loan_schedule_posting_core` | L1 | loan_application, loan_installment, loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |

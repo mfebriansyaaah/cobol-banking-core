@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T06:10:47.057Z",
+  "generatedAt": "2026-11-12T06:41:46.671Z",
   "entries": [
     {
       "domain": "account",
@@ -133,7 +133,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "REVIEW",
-            "reason": "Split audit maint-08: RETAIN (reviewed, not pending). 9 internal-CALL actions (STORE/REVOKE/CONSUME/CHECK_TOKEN/REVOKE_TOKEN/LIST/REVOKE_USER/REVOKE_ALL/GET_VERSION); coverage tests/db/auth_session_db_tests.sh (21 assertions). L0 linkage is structural (session/token tables, no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
+      "reason": "Split audit maint-08: RETAIN (reviewed, not pending). 9 internal-CALL actions (STORE/REVOKE/CONSUME/CHECK_TOKEN/REVOKE_TOKEN/LIST/REVOKE_USER/REVOKE_ALL/GET_VERSION); coverage tests/db/auth_session_db_tests.sh (21 assertions). L0 linkage is structural (session/token tables, no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -622,6 +622,27 @@
       "tier": 1,
       "linkageLevel": "L3",
       "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "ACTIVE",
+      "reason": "Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "loan_posting",
+      "module": "loan_posting_core",
+      "routeFile": null,
+      "table": "loan_disburse_request",
+      "tier": 2,
+      "linkageLevel": "L3",
+      "linkedCoreDomains": [
+        "accounting",
+        "lending",
+        "wallet/ledger"
+      ],
       "replacement": null,
       "consumer": null,
       "trafficLastSeen": null,

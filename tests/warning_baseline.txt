@@ -30,6 +30,7 @@ import_post_core.cob=0
 import_row_core.cob=0
 import_recon_core.cob=0
 loan_core.cob=0
+loan_posting_core.cob=0
 loan_schedule_core.cob=0
 loan_schedule_lifecycle_core.cob=0
 loan_schedule_posting_core.cob=0
