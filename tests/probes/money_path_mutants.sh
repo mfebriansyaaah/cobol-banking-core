@@ -95,7 +95,6 @@ else:
 PYEOF
 }
 
-W=cobol/src/wallet_core.cob
 WT=cobol/src/wallet_transfer_core.cob
 G=cobol/src/gl_core.cob
 WR=cobol/src/wallet_reversal_core.cob
