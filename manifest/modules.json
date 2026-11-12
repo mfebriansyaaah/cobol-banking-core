@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T13:08:12.602Z",
+  "generatedAt": "2026-11-12T03:51:45.903Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -30,6 +30,9 @@
     },
     {
       "source": "card_core.cob"
+    },
+    {
+      "source": "card_posting_core.cob"
     },
     {
       "source": "chargeback_core.cob"
