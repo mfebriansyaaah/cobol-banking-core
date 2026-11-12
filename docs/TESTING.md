@@ -203,8 +203,11 @@ lifecycle on throwaway databases (never the database under test): fresh
 install applies `schema_v2.sql` and records every covered migration plus
 the `baseline_v2` marker, partial databases fail loudly, tampering with
 the snapshot trips `--check`, and the committed v2 body must equal the
-full snapshot body. Needs DDL rights (CI root / migrate account); the
-gate skips nothing, so a no-DDL environment fails closed.
+full snapshot body. `tests/db/migration_archive_db_tests.sh` (12
+assertions) pins the PR-011 archive rules: archived set intact, cutoff
+enforcement, `--only`/`--up-to` refusal, archived replay order, and
+rejection of below-baseline files. Both need DDL rights (CI root /
+migrate account); the gates fail closed without them.
 
 `scripts/ci/restore_drill.sh` remains for local use: a schema-only rebuild
 (no backup file, no data verification), covered by

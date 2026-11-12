@@ -63,3 +63,22 @@ replaying 677 migrations; existing databases keep their history.
   fresh install (snapshot + recording + table/routine counts + `--check` +
   second-run no-op), partial-upgrade refusal then heal-with-no-data-loss,
   baseline tamper detection + restore, and committed body equality.
+
+## Migration archive (PR-011)
+
+Pre-baseline migrations (0001–0686, 677 files) live in
+`database/migrations/archive/`; `database/migrations/` holds only new,
+post-baseline work. `migrate.sh` semantics:
+
+- Fresh installs baseline first (snapshot + full recording), so the main
+  loop only ever sees post-baseline files.
+- `--only` / `--up-to` refuse archived versions (exit 2, names the
+  baseline); restore from archive deliberately instead.
+- New files must sort above the archived cutoff, else the run fails
+  before applying anything (naming guard, not a silent reorder).
+- `--check` verifies recorded hashes in both directories; the rollback
+  drill skips when fewer than two active migrations exist.
+- Restore path: files are never deleted, only relocated (`git mv`
+  preserves history). To re-apply an archived migration, move it back
+  to `database/migrations/` deliberately — never edit it in place.
+- Covered by `tests/db/migration_archive_db_tests.sh` (12 assertions).
