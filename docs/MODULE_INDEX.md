@@ -21,6 +21,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `backup_drill_core` | `BDR_` | [backup_drill.js](../middleware/src/routes/backup_drill.js) | [backup_drill.cases](../tests/cobol/cases/backup_drill.cases) | [backup_drill_db_tests.sh](../tests/db/backup_drill_db_tests.sh) |
 | `bank_guarantee_core` | `BKG_` | [bank_guarantee.js](../middleware/src/routes/bank_guarantee.js) | [bank_guarantee.cases](../tests/cobol/cases/bank_guarantee.cases) | [bank_guarantee_db_tests.sh](../tests/db/bank_guarantee_db_tests.sh) |
 | `card_core` | `CARD_` | [card.js](../middleware/src/routes/card.js) | [card.cases](../tests/cobol/cases/card.cases) | [card_db_tests.sh](../tests/db/card_db_tests.sh) |
+| `card_posting_core` | — | — | — | [card_posting_db_tests.sh](../tests/db/card_posting_db_tests.sh) |
 | `chargeback_core` | `CHB_` | [chargeback.js](../middleware/src/routes/chargeback.js) | [chargeback.cases](../tests/cobol/cases/chargeback.cases) | [chargeback_db_tests.sh](../tests/db/chargeback_db_tests.sh) |
 | `collateral_core` | `CLT_` | [collateral.js](../middleware/src/routes/collateral.js) | [collateral.cases](../tests/cobol/cases/collateral.cases) | [collateral_db_tests.sh](../tests/db/collateral_db_tests.sh) |
 | `collection_core` | `COL_` | [collection.js](../middleware/src/routes/collection.js) | [collection.cases](../tests/cobol/cases/collection.cases) | [collection_db_tests.sh](../tests/db/collection_db_tests.sh) |
