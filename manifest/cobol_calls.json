@@ -1,8 +1,13 @@
 {
-  "generatedAt": "2026-11-12T05:08:46.505Z",
+  "generatedAt": "2026-11-12T06:10:42.762Z",
   "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
-  "count": 17,
+  "count": 18,
   "edges": [
+    {
+      "from": "auth_core",
+      "to": "auth_session_core",
+      "callsites": 9
+    },
     {
       "from": "auth_core",
       "to": "hashlen_core",

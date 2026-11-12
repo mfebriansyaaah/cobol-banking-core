@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T05:08:46.418Z",
+  "generatedAt": "2026-11-12T06:10:42.690Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -21,6 +21,9 @@
     },
     {
       "source": "auth_review_core.cob"
+    },
+    {
+      "source": "auth_session_core.cob"
     },
     {
       "source": "backup_drill_core.cob"

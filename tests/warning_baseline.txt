@@ -8,6 +8,7 @@ auth_ops_core.cob=0
 auth_password_core.cob=0
 auth_recovery_core.cob=0
 auth_review_core.cob=0
+auth_session_core.cob=0
 backup_drill_core.cob=0
 card_core.cob=0
 card_posting_core.cob=0

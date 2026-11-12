@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-12T05:09:44.473Z
-- Commit: `e616f33f`
+- Generated at: 2026-11-12T06:10:42.855Z
+- Commit: `7e500bd5`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 22 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 28 |
+| L0 (isolated) | 29 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -28,6 +28,7 @@ Unresolved route files: none.
 | `auth_password_core` | L3 | — | — | 0 | Tier-1 core module |
 | `auth_recovery_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `auth_review_core` | L0 | — | — | 0 | own domain tables only, no core link |
+| `auth_session_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `backup_drill_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `bank_guarantee_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `card_core` | L3 | — | — | 1 | Tier-1 core module |

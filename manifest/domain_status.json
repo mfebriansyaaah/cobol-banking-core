@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T05:09:49.522Z",
+  "generatedAt": "2026-11-12T06:10:47.057Z",
   "entries": [
     {
       "domain": "account",
@@ -117,6 +117,23 @@
       "owner": null,
       "status": "REVIEW",
       "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 5 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "auth_session",
+      "module": "auth_session_core",
+      "routeFile": null,
+      "table": "refresh_sessions",
+      "tier": 2,
+      "linkageLevel": "L0",
+      "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "REVIEW",
+            "reason": "Split audit maint-08: RETAIN (reviewed, not pending). 9 internal-CALL actions (STORE/REVOKE/CONSUME/CHECK_TOKEN/REVOKE_TOKEN/LIST/REVOKE_USER/REVOKE_ALL/GET_VERSION); coverage tests/db/auth_session_db_tests.sh (21 assertions). L0 linkage is structural (session/token tables, no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
       "retireAfter": null,
       "tableDropDate": null
     },
