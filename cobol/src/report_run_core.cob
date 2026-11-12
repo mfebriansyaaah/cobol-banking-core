@@ -163,6 +163,7 @@
            GOBACK.
 
         COPY "common_trim.cpy".
+        COPY "common_sql.cpy".
         COPY "common_validate_semi.cpy".
         COPY "common_validate.cpy".
         COPY "common_result.cpy".
@@ -401,12 +402,7 @@
                SET STEP-FAIL TO TRUE
            END-IF.
            IF STEP-OK
-               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               PERFORM LAST-INSERT-ID
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE WS-RESULT(1:40) TO WS-ERR
                    SET STEP-FAIL TO TRUE
@@ -952,12 +948,7 @@
                SET STEP-FAIL TO TRUE
            END-IF.
            IF STEP-OK
-               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               PERFORM LAST-INSERT-ID
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE WS-RESULT(1:40) TO WS-ERR
                    SET STEP-FAIL TO TRUE

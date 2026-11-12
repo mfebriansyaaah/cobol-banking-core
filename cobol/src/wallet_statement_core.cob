@@ -350,14 +350,10 @@
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             *> Compatibility: also log to existing audit_trail if actor exists (best effort):
-            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT a.id, a.id, 'AUTHZ_DENIED', 'USER', ?, ?, 'FAILED' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
             MOVE LS-CMD-ACTION TO WS-BIND-1
             MOVE WS-DENIED-TARGET TO WS-BIND-2
             MOVE WS-DENIED-ACTOR TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+            PERFORM RECORD-AUTHZ-DENIED
             EXIT PARAGRAPH.
 
         STATEMENT-LOGIC.
