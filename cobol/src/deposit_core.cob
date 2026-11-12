@@ -87,6 +87,8 @@
        01  WS-CALL-P6              PIC X(100) VALUE SPACES.
        01  WS-CALL-OUT             PIC X(16384) VALUE SPACES.
        01  WS-POST-DATE            PIC X(10) VALUE SPACES.
+       01  WS-POST-CODE            PIC X(40) VALUE SPACES.
+       01  WS-POST-CLEANUP         PIC X VALUE SPACE.
        01  WS-GL-DESC              PIC X(100) VALUE SPACES.
        01  WS-GL-LINES             PIC X(100) VALUE SPACES.
        01  WS-GL-JID               PIC X(20) VALUE SPACES.
@@ -1308,34 +1310,31 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE 30 TO WS-DAYS-NUM
-           IF WS-P2-TRIMMED NOT = SPACES
-               MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-DAYS-NUM
-               IF WS-DAYS-NUM = 0
-                   MOVE 30 TO WS-DAYS-NUM
-               END-IF
-           END-IF.
-           MOVE "SELECT status FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P1-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           *> Posting resolve lives in deposit_posting_core (maint-06):
+           *> the callee returns SUCCESS|POST_READY + nine fields, or
+           *> ERROR|<CODE>|<CLEANUP>. CLEANUP=1 runs the DELETE-* below.
+           MOVE "DEP_POST_ACCRUE" TO WS-CALL-ACTION
+           MOVE WS-P1-TRIMMED TO WS-CALL-P1
+           MOVE WS-P2-TRIMMED TO WS-CALL-P2
+           MOVE SPACES TO WS-CALL-P3 WS-CALL-P4
+           MOVE SPACES TO WS-CALL-P5
+           MOVE WS-P6-TRIMMED TO WS-CALL-P6
+           MOVE SPACES TO WS-CALL-OUT
+           CALL "deposit_posting_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+               WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
            END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "ERROR|NO_DATA"
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+           IF WS-CALL-OUT(1:5) = "ERROR"
+               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-POST-CODE WS-POST-CLEANUP END-UNSTRING
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "ERROR|" DELIMITED BY SIZE FUNCTION TRIM(WS-POST-CODE) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
                EXIT PARAGRAPH
-           END-IF.
-           IF WS-RESULT(1:5) = "ERROR"
+           END-IF
+           MOVE SPACES TO WS-JOUT-1 WS-JOUT-2
+           UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-TMP-AMT WS-CUST-EMAIL WS-CURR-ID WS-CUST-ACC WS-POOL-ACC WS-GL-JID WS-TXN-REF WS-DESC WS-TMP-DAYS END-UNSTRING
+           IF WS-JOUT-1 NOT = "SUCCESS" OR WS-JOUT-2 NOT = "POST_READY"
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE WS-RESULT(1:20) TO WS-STATUS-TEXT
-           IF WS-STATUS-TEXT(1:6) NOT = "ACTIVE"
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-DAYS-NUM TO WS-TMP-DAYS
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
            MOVE "INSERT INTO deposit_accrual (deposit_id, accrual_date, days, principal, rate, interest, status) SELECT id, CURDATE(), ?, principal, interest_rate, ROUND(principal * interest_rate * ? / 36500, 4), 'ACCRUED' FROM deposit_account WHERE id = ? ON DUPLICATE KEY UPDATE days = VALUES(days), interest = VALUES(interest), status = 'ACCRUED'" TO WS-PREP-SQL
@@ -1406,92 +1405,30 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(CAST(COALESCE(SUM(interest), 0) AS CHAR), '|', COUNT(*)) FROM deposit_accrual WHERE deposit_id = ? AND status = 'ACCRUED'" TO WS-PREP-SQL
-           MOVE WS-P1-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           *> Posting resolve lives in deposit_posting_core (maint-06):
+           *> the callee returns SUCCESS|POST_READY + nine fields, or
+           *> ERROR|<CODE>|<CLEANUP>. CLEANUP=1 runs the DELETE-* below.
+           MOVE "DEP_POST_INTEREST" TO WS-CALL-ACTION
+           MOVE WS-P1-TRIMMED TO WS-CALL-P1
+           MOVE SPACES TO WS-CALL-P2
+           MOVE SPACES TO WS-CALL-P3 WS-CALL-P4
+           MOVE SPACES TO WS-CALL-P5
+           MOVE WS-P6-TRIMMED TO WS-CALL-P6
+           MOVE SPACES TO WS-CALL-OUT
+           CALL "deposit_posting_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+               WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
            END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
+           IF WS-CALL-OUT(1:5) = "ERROR"
+               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-POST-CODE WS-POST-CLEANUP END-UNSTRING
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "ERROR|" DELIMITED BY SIZE FUNCTION TRIM(WS-POST-CODE) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
+               EXIT PARAGRAPH
+           END-IF
+           MOVE SPACES TO WS-JOUT-1 WS-JOUT-2
+           UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-TMP-AMT WS-CUST-EMAIL WS-CURR-ID WS-CUST-ACC WS-POOL-ACC WS-GL-JID WS-TXN-REF WS-DESC WS-TMP-DAYS END-UNSTRING
+           IF WS-JOUT-1 NOT = "SUCCESS" OR WS-JOUT-2 NOT = "POST_READY"
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
-           END-IF.
-           MOVE SPACES TO WS-TMP-AMT
-           MOVE SPACES TO WS-TMP-STR
-           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-AMT WS-TMP-STR END-UNSTRING
-           MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-COUNT-NUM
-           IF WS-COUNT-NUM = 0
-               MOVE "ERROR|NOTHING_TO_POST" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           *> Accrual accounting: recognizing posted interest also books the
-           *> expense (gl_core owns its own transaction on this connection):
-           *> DEBIT Deposit interest expense / CREDIT Deposits payable. The
-           *> description carries the batch amount, so a retry of a
-           *> posted-but-unlinked batch re-links the existing journal.
-           MOVE "SELECT currency FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P1-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-RESULT(1:10) TO WS-CUST-CURR
-           MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-RESULT(1:10) TO WS-POST-DATE
-           MOVE SPACES TO WS-GL-DESC WS-GL-LINES WS-GL-JID
-           STRING "DEP_POST:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
-           STRING "5010:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE ":0;2120:0:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
-           MOVE "SELECT id FROM gl_journal WHERE description = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-GL-DESC TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               IF WS-RESULT NOT = "ERROR|NO_DATA"
-                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
-           ELSE
-               MOVE WS-RESULT(1:20) TO WS-GL-JID
-           END-IF.
-           IF WS-GL-JID = SPACES
-               MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
-               MOVE WS-POST-DATE TO WS-CALL-P1
-               MOVE WS-GL-DESC TO WS-CALL-P2
-               MOVE WS-CUST-CURR TO WS-CALL-P3
-               MOVE WS-GL-LINES TO WS-CALL-P4
-               MOVE SPACES TO WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
-               MOVE WS-P6-TRIMMED TO WS-CALL-P6
-               CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
-                   WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
-               END-CALL
-               IF WS-CALL-OUT(1:5) = "ERROR"
-                   MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
-               MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
-               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID END-UNSTRING
-               IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
-                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
            END-IF.
            SET STEP-OK TO TRUE
            CALL "SQL_BEGIN" END-CALL
@@ -1561,123 +1498,6 @@
            END-IF.
            EXIT PARAGRAPH.
 
-       CLAIM-SETTLE-REQUEST.
-           *> Client-supplied idempotency for settle (P5), mirroring
-           *> payment_settle_request. First call with a key inserts a PENDING
-           *> request row and owns it; a repeated key replays the stored DONE
-           *> outcome (or conflicts on a different amount) instead of paying
-           *> out again; a key whose owner is still working is refused so two
-           *> owners never pay twice. A PENDING row older than 5 minutes is
-           *> taken over (owner crashed).
-           *> Outputs: WS-IDEM-STATUS (PENDING owner / DONE replay),
-           *> WS-IDEM-AMT/WS-IDEM-JID (stored outcome), WS-IDEM-OWNED "1"
-           *> when this call owns the PENDING row (so a later refusal can
-           *> delete it instead of blocking the key for 5 minutes).
-           *> WS-ERR on refusal.
-           MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
-           MOVE "0" TO WS-IDEM-OWNED
-           MOVE SPACES TO WS-ERR
-           MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM deposit_settle_request WHERE deposit_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P1-TRIMMED TO WS-BIND-1
-           MOVE WS-P5-TRIMMED TO WS-BIND-2
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "ERROR|NO_DATA"
-               MOVE "INSERT INTO deposit_settle_request (deposit_id, idempotency_key, amount, status) VALUES (?, ?, ?, 'PENDING')" TO WS-PREP-SQL
-               MOVE WS-P1-TRIMMED TO WS-BIND-1
-               MOVE WS-P5-TRIMMED TO WS-BIND-2
-               MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-BIND-3
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
-                       MOVE "RETRY" TO WS-IDEM-STATUS
-                   ELSE
-                       MOVE "ERROR|DB_ERROR" TO WS-ERR
-                       EXIT PARAGRAPH
-                   END-IF
-               ELSE
-                   MOVE "PENDING" TO WS-IDEM-STATUS
-                   MOVE "1" TO WS-IDEM-OWNED
-                   EXIT PARAGRAPH
-               END-IF
-           ELSE
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE "ERROR|DB_ERROR" TO WS-ERR
-               ELSE
-                   MOVE WS-RESULT TO WS-IDEM-ROW
-               END-IF
-           END-IF.
-           IF WS-IDEM-STATUS = "RETRY"
-               MOVE SPACES TO WS-IDEM-STATUS
-               MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM deposit_settle_request WHERE deposit_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
-               MOVE WS-P1-TRIMMED TO WS-BIND-1
-               MOVE WS-P5-TRIMMED TO WS-BIND-2
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               IF WS-RESULT(1:5) = "ERROR"
-                   MOVE "ERROR|DB_ERROR" TO WS-ERR
-               ELSE
-                   MOVE WS-RESULT TO WS-IDEM-ROW
-               END-IF
-           END-IF.
-           IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
-               UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-AMT WS-IDEM-JID WS-IDEM-STALE
-               END-UNSTRING
-               IF WS-IDEM-STATUS = "DONE"
-                   IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-TMP-AMT)
-                       MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
-                   END-IF
-               ELSE
-                   IF WS-IDEM-STALE NOT = "1"
-                       MOVE "ERROR|SETTLE_IN_PROGRESS" TO WS-ERR
-                   ELSE
-                       MOVE "UPDATE deposit_settle_request SET updated_at = NOW() WHERE deposit_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
-                       MOVE WS-P1-TRIMMED TO WS-BIND-1
-                       MOVE WS-P5-TRIMMED TO WS-BIND-2
-                       CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                       END-CALL
-                       CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                       IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
-                           MOVE "ERROR|SETTLE_IN_PROGRESS" TO WS-ERR
-                       ELSE
-                           MOVE "PENDING" TO WS-IDEM-STATUS
-                           MOVE "1" TO WS-IDEM-OWNED
-                       END-IF
-                   END-IF
-               END-IF
-           END-IF.
-           EXIT PARAGRAPH.
-
-       DELETE-SETTLE-REQUEST.
-           *> Drops our own PENDING request row when the settle is refused
-           *> before posting, so the key stays usable instead of blocking
-           *> behind a 5-minute stale window. Only the owner row is ever
-           *> removed (status guard); DONE rows are never touched.
-           IF WS-IDEM-OWNED = "1" AND WS-P5-TRIMMED NOT = SPACES
-               MOVE "DELETE FROM deposit_settle_request WHERE deposit_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
-               MOVE WS-P1-TRIMMED TO WS-BIND-1
-               MOVE WS-P5-TRIMMED TO WS-BIND-2
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-               MOVE "0" TO WS-IDEM-OWNED
-           END-IF.
-           EXIT PARAGRAPH.
-
       *> Settle a matured (or still active) deposit: principal + posted
       *> interest is paid out and the deposit closes.
        ACTION-SETTLE.
@@ -1691,145 +1511,39 @@
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE "SELECT CONCAT(CAST(principal + posted_interest AS CHAR), '|', status, '|', customer_email, '|', currency) FROM deposit_account WHERE id = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-P1-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+           *> Posting resolve lives in deposit_posting_core (maint-06):
+           *> the callee returns SUCCESS|POST_READY + nine fields, or
+           *> ERROR|<CODE>|<CLEANUP>. CLEANUP=1 runs the DELETE-* below.
+           MOVE "DEP_POST_SETTLE" TO WS-CALL-ACTION
+           MOVE WS-P1-TRIMMED TO WS-CALL-P1
+           MOVE SPACES TO WS-CALL-P2
+           MOVE SPACES TO WS-CALL-P3 WS-CALL-P4
+           MOVE WS-P5-TRIMMED TO WS-CALL-P5
+           MOVE WS-P6-TRIMMED TO WS-CALL-P6
+           MOVE SPACES TO WS-CALL-OUT
+           CALL "deposit_posting_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
+               WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
            END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "ERROR|NO_DATA"
-               MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
+           *> CLEANUP=1 paths self-cleaned inside the callee, which
+           *> owns DELETE-SETTLE-REQUEST; the flag is parsed but needs
+           *> no caller action.
+           IF WS-CALL-OUT(1:5) = "ERROR"
+               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-POST-CODE WS-POST-CLEANUP END-UNSTRING
+               MOVE SPACES TO LS-OUTPUT-BUFFER
+               STRING "ERROR|" DELIMITED BY SIZE FUNCTION TRIM(WS-POST-CODE) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
                EXIT PARAGRAPH
-           END-IF.
-           IF WS-RESULT(1:5) = "ERROR"
+           END-IF
+           IF WS-CALL-OUT(1:19) = "SUCCESS|DEP_SETTLE|"
+               MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
+           END-IF
+           MOVE SPACES TO WS-JOUT-1 WS-JOUT-2
+           UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-TMP-AMT WS-CUST-EMAIL WS-CURR-ID WS-CUST-ACC WS-POOL-ACC WS-GL-JID WS-TXN-REF WS-DESC WS-TMP-DAYS END-UNSTRING
+           IF WS-JOUT-1 NOT = "SUCCESS" OR WS-JOUT-2 NOT = "POST_READY"
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE SPACES TO WS-TMP-AMT
-           MOVE SPACES TO WS-STATUS-TEXT WS-CUST-EMAIL WS-CUST-CURR
-           UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-AMT WS-STATUS-TEXT WS-CUST-EMAIL WS-CUST-CURR END-UNSTRING
-           IF WS-P5-TRIMMED NOT = SPACES
-               PERFORM CLAIM-SETTLE-REQUEST
-               IF WS-ERR NOT = SPACES
-                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
-               IF WS-IDEM-STATUS = "DONE"
-                   MOVE SPACES TO LS-OUTPUT-BUFFER
-                   STRING "SUCCESS|DEP_SETTLE|" DELIMITED BY SIZE FUNCTION TRIM(WS-IDEM-AMT) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-                   EXIT PARAGRAPH
-               END-IF
-           END-IF.
-           IF WS-STATUS-TEXT(1:6) NOT = "ACTIVE"
-               AND WS-STATUS-TEXT(1:7) NOT = "MATURED"
-               PERFORM DELETE-SETTLE-REQUEST
-               MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           *> Resolve the payout path: customer wallet in the deposit
-           *> currency plus the bank-owned DEPOSIT_POOL suspense. The pool
-           *> is treasury-capitalized; an underfunded pool fails closed
-           *> instead of printing money.
-           MOVE WS-CUST-CURR TO WS-BIND-1
-           PERFORM LOOKUP-CURRENCY
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-RESULT(1:20) TO WS-CURR-ID
-           MOVE "SELECT CAST(a.account_id AS CHAR) FROM accounts a JOIN users u ON u.id = a.user_id WHERE u.email = ? AND a.currency_id = ? AND a.status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-CUST-EMAIL TO WS-BIND-1
-           MOVE WS-CURR-ID TO WS-BIND-2
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "ERROR|NO_DATA"
-               PERFORM DELETE-SETTLE-REQUEST
-               MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-RESULT(1:20) TO WS-CUST-ACC
-           MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'DEPOSIT_POOL' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-CURR-ID TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT = "ERROR|NO_DATA"
-               PERFORM DELETE-SETTLE-REQUEST
-               MOVE "ERROR|DEPOSIT_POOL_MISSING" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-RESULT(1:20) TO WS-POOL-ACC
-           *> Bank-side journal first (gl_core owns its own transaction on
-           *> this connection): DEBIT Deposits payable / CREDIT Cash.
-           MOVE "SELECT CAST(CURDATE() AS CHAR)" TO WS-PREP-SQL
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
-           END-IF.
-           MOVE WS-RESULT(1:10) TO WS-POST-DATE
-           MOVE SPACES TO WS-GL-DESC WS-GL-LINES
-           STRING "DEP_SETTLE:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-DESC END-STRING
-           STRING "2120:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE ":0;1000:0:" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-GL-LINES END-STRING
-           MOVE SPACES TO WS-GL-JID
-           MOVE "SELECT id FROM gl_journal WHERE description = ? LIMIT 1" TO WS-PREP-SQL
-           MOVE WS-GL-DESC TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-           IF WS-RESULT(1:5) = "ERROR"
-               IF WS-RESULT NOT = "ERROR|NO_DATA"
-                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
-           ELSE
-               MOVE WS-RESULT(1:20) TO WS-GL-JID
-           END-IF.
-           IF WS-GL-JID = SPACES
-               MOVE "GL_JOURNAL_POST_ML" TO WS-CALL-ACTION
-               MOVE WS-POST-DATE TO WS-CALL-P1
-               MOVE WS-GL-DESC TO WS-CALL-P2
-               MOVE WS-CUST-CURR TO WS-CALL-P3
-               MOVE WS-GL-LINES TO WS-CALL-P4
-               MOVE SPACES TO WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
-               MOVE WS-P6-TRIMMED TO WS-CALL-P6
-               CALL "gl_core" USING WS-CALL-ACTION WS-CALL-P1 WS-CALL-P2
-                   WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
-               END-CALL
-               IF WS-CALL-OUT(1:5) = "ERROR"
-                   MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
-               MOVE SPACES TO WS-JOUT-1 WS-JOUT-2 WS-GL-JID
-               UNSTRING WS-CALL-OUT DELIMITED BY "|" INTO WS-JOUT-1 WS-JOUT-2 WS-GL-JID END-UNSTRING
-               IF WS-JOUT-2 NOT = "GL_POSTED_ML" OR WS-GL-JID = SPACES
-                   MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-                   EXIT PARAGRAPH
-               END-IF
-           END-IF.
-           MOVE SPACES TO WS-TXN-REF WS-DESC WS-JID
-           STRING "DEP-" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-TXN-REF END-STRING
-           STRING "DEP_SETTLE:" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE ":" DELIMITED BY SIZE FUNCTION TRIM(WS-TMP-AMT) DELIMITED BY SIZE INTO WS-DESC END-STRING
+           MOVE SPACES TO WS-JID
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
            CALL "SQL_BEGIN" END-CALL

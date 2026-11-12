@@ -30,6 +30,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `cost_center_core` | `CSC_` | [cost_center.js](../middleware/src/routes/cost_center.js) | [cost_center.cases](../tests/cobol/cases/cost_center.cases) | [cost_center_db_tests.sh](../tests/db/cost_center_db_tests.sh) |
 | `dashboard_core` | `DSH_` | [dashboard.js](../middleware/src/routes/dashboard.js) | — | [dashboard_db_tests.sh](../tests/db/dashboard_db_tests.sh) |
 | `deposit_core` | `DEP_` | [deposit.js](../middleware/src/routes/deposit.js) | [deposit.cases](../tests/cobol/cases/deposit.cases) | [deposit_db_tests.sh](../tests/db/deposit_db_tests.sh) |
+| `deposit_posting_core` | — | — | — | [deposit_posting_db_tests.sh](../tests/db/deposit_posting_db_tests.sh) |
 | `eod_core` | `EOD_` | [eod.js](../middleware/src/routes/eod.js) | [eod.cases](../tests/cobol/cases/eod.cases) | — |
 | `eod_jobs_core` | `EODJOB_` | [eod_jobs.js](../middleware/src/routes/eod_jobs.js) | — | — |
 | `fee_core` | `FEE_`, `VEL_` | [fee.js](../middleware/src/routes/fee.js) | [fee.cases](../tests/cobol/cases/fee.cases) | — |
