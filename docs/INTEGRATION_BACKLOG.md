@@ -11,15 +11,16 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 25 |
+| PARTIAL (open items) | 26 |
 
-Open/in-progress items: 163 of 211 recorded.
+Open/in-progress items: 164 of 212 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
 | `auth_core` | PARTIAL | 22 |
 | `auth_password_core` | PARTIAL | 1 |
 | `card_core` | PARTIAL | 1 |
+| `card_posting_core` | PARTIAL | 1 |
 | `collateral_core` | PARTIAL | 13 |
 | `collection_core` | PARTIAL | 1 |
 | `dashboard_core` | PARTIAL | 12 |
@@ -69,6 +70,7 @@ Open/in-progress items: 163 of 211 recorded.
 | `auth_core:table:verification-logs` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `auth_password_core:audit:core-reference` | `auth_password_core` | audit | DONE | assistant | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `card_core:audit:core-reference` | `card_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `card_posting_core:audit:core-reference` | `card_posting_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `collateral_core:action:action-allocate` | `collateral_core` | action | OPEN | — | Write paragraph with no core link (writes collateral_allocation) |
 | `collateral_core:action:action-appraise` | `collateral_core` | action | OPEN | — | Write paragraph with no core link (writes collateral, collateral_valuation) |
 | `collateral_core:action:action-close` | `collateral_core` | action | OPEN | — | Write paragraph with no core link (writes collateral) |

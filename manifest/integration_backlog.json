@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T13:08:58.182Z",
+  "generatedAt": "2026-11-12T04:01:33.012Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -288,6 +288,16 @@
     {
       "id": "card_core:audit:core-reference",
       "module": "card_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "card_posting_core:audit:core-reference",
+      "module": "card_posting_core",
       "kind": "audit",
       "subject": "audit core reference",
       "status": "OPEN",

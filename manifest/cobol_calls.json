@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-11T05:16:53.505Z",
+  "generatedAt": "2026-11-12T03:51:45.968Z",
   "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
-  "count": 13,
+  "count": 14,
   "edges": [
     {
       "from": "auth_core",
@@ -15,6 +15,11 @@
     },
     {
       "from": "card_core",
+      "to": "card_posting_core",
+      "callsites": 3
+    },
+    {
+      "from": "card_posting_core",
       "to": "gl_core",
       "callsites": 3
     },
