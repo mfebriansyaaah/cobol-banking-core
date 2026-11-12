@@ -149,9 +149,9 @@ suites, table cases, and the action/suite inventory gates. See
 <!-- BEGIN GENERATED STATS -->
 | Metric | Value |
 | --- | ---: |
-| COBOL modules | **67** |
-| COBOL source files (incl. dispatcher) | **68** |
-| COBOL lines | **59,728** |
+| COBOL modules | **68** |
+| COBOL source files (incl. dispatcher) | **69** |
+| COBOL lines | **60,039** |
 | Gateway route files | **54** |
 | Gateway route definitions | **575** |
 | Dispatch entries | **194** |

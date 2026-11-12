@@ -16,6 +16,7 @@ collection_core.cob=0
 cost_center_core.cob=0
 dashboard_core.cob=0
 deposit_core.cob=0
+deposit_posting_core.cob=0
 eod_core.cob=0
 eod_jobs_core.cob=0
 fee_core.cob=0

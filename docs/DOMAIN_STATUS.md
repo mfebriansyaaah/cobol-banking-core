@@ -10,7 +10,7 @@
 | --- | ---: |
 | ACTIVE | 23 |
 | PILOT | 5 |
-| REVIEW | 21 |
+| REVIEW | 22 |
 | FROZEN | 18 |
 | RETIRED | 0 |
 
@@ -39,6 +39,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `cost_center` | `cost_center_core` | 2 | L0 | FROZEN | cost_center.js | cost_center | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `dashboard` | `dashboard_core` | 2 | L3 | ACTIVE | dashboard.js | accounts | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `deposit` | `deposit_core` | 1 | L3 | ACTIVE | deposit.js | deposit_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
+| `deposit_posting` | `deposit_posting_core` | 2 | L1 | REVIEW | — | deposit_settle_request | — | Weak or untested link; manual review decides upgrade-to-L2 or dead-candidate. |
 | `eod` | `eod_core` | 2 | L0 | FROZEN | eod.js | eod_phase | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `eod_jobs` | `eod_jobs_core` | 2 | L1 | REVIEW | eod_jobs.js | eod_job_run | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/eod_ops_db_tests.sh (7 EODJOB assertions). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `fee` | `fee_core` | 1 | L3 | ACTIVE | fee.js | fee_rule | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
