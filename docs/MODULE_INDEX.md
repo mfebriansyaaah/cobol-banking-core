@@ -18,6 +18,7 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `auth_password_core` | `FORGOT_PASSWORD`, `CHANGE_PASSWORD`, `RESET_PASSWORD` | — | — | — |
 | `auth_recovery_core` | `REQUEST_MFA_RECOVERY`, `APPROVE_MFA_RECOVERY`, `VERIFY_MFA_RECOVERY`, `REJECT_MFA_RECOVERY`, `REQUEST_OPERATION`, `LIST_MFA_RECOVERY`, `APPROVE_REQUEST`, `REJECT_REQUEST`, `LIST_REQUESTS` | — | — | — |
 | `auth_review_core` | `CLOSE_ACCESS_REVIEW`, `LIST_ACCESS_REVIEWS`, `DECIDE_ACCESS_ITEM`, `OPEN_ACCESS_REVIEW`, `GET_ACCESS_REVIEW`, `LIST_PERMISSIONS`, `CHECK_PERMISSION` | — | — | — |
+| `auth_session_core` | — | — | — | [auth_session_db_tests.sh](../tests/db/auth_session_db_tests.sh) |
 | `backup_drill_core` | `BDR_` | [backup_drill.js](../middleware/src/routes/backup_drill.js) | [backup_drill.cases](../tests/cobol/cases/backup_drill.cases) | [backup_drill_db_tests.sh](../tests/db/backup_drill_db_tests.sh) |
 | `bank_guarantee_core` | `BKG_` | [bank_guarantee.js](../middleware/src/routes/bank_guarantee.js) | [bank_guarantee.cases](../tests/cobol/cases/bank_guarantee.cases) | [bank_guarantee_db_tests.sh](../tests/db/bank_guarantee_db_tests.sh) |
 | `card_core` | `CARD_` | [card.js](../middleware/src/routes/card.js) | [card.cases](../tests/cobol/cases/card.cases) | [card_db_tests.sh](../tests/db/card_db_tests.sh) |
