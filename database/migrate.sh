@@ -47,6 +47,13 @@ is_applied() {
     return 1
 }
 
+# Active vs archived migrations (PR-011): pre-baseline files live in
+# database/migrations/archive/ and are never applied or scanned for pending
+# work; they are still checksum-verified for existing databases. New files
+# must sort above every archived version ("tolak migrasi < baseline").
+ACTIVE_GLOB="database/migrations/*.sql"
+ARCHIVE_GLOB="database/migrations/archive/*.sql"
+
 mysqlc -e "CREATE TABLE IF NOT EXISTS schema_migrations (
     version VARCHAR(64) PRIMARY KEY,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -76,10 +83,12 @@ record_version() {
 # Fill missing hashes for versions applied by this run (or named explicitly).
 # The AND checksum IS NULL guard never overwrites a recorded hash, so a
 # tampered file is reported by --check instead of silently re-baselined.
+# Archived versions resolve under database/migrations/archive/.
 backfill_versions() {
     [ "$HAS_CHECKSUM_COL" = "1" ] || return 0
     for v in $1; do
         f="database/migrations/$v.sql"
+        [ -f "$f" ] || f="database/migrations/archive/$v.sql"
         [ -f "$f" ] || continue
         mysqlc -e "UPDATE schema_migrations SET checksum = '$(file_sha "$f")' WHERE version = '$v' AND checksum IS NULL;" 2>/dev/null
     done
@@ -91,7 +100,14 @@ if [ "$1" = "--only" ]; then
     v="${2:-}"
     [ -n "$v" ] || { echo "usage: migrate.sh --only <version>" >&2; exit 2; }
     f="database/migrations/$v.sql"
-    [ -f "$f" ] || { echo "unknown migration: $v" >&2; exit 2; }
+    if [ ! -f "$f" ]; then
+        if [ -f "database/migrations/archive/$v.sql" ]; then
+            echo "refusing archived migration $v (at or below baseline v2); restore from archive deliberately instead" >&2
+            exit 2
+        fi
+        echo "unknown migration: $v" >&2
+        exit 2
+    fi
     already="$(mysqlc -N -B -e "SELECT COUNT(*) FROM schema_migrations WHERE version='$v';" 2>/dev/null)"
     if [ "$already" = "1" ]; then
         echo "already applied: $v"
@@ -114,7 +130,7 @@ fi
 if [ "$1" = "--check" ]; then
     load_applied
     pending=""
-    for f in database/migrations/*.sql; do
+    for f in $ACTIVE_GLOB $ARCHIVE_GLOB; do
         [ -e "$f" ] || continue
         v="$(basename "$f" .sql)"
         is_applied "$v" || pending="$pending $v"
@@ -127,7 +143,7 @@ if [ "$1" = "--check" ]; then
         stored="$(mysqlc -N -B -e "SELECT CONCAT(version, ' ', IFNULL(checksum, 'MISSING')) FROM schema_migrations;" 2>/dev/null)"
         mismatch=""
         unfilled=""
-        for f in database/migrations/*.sql; do
+        for f in $ACTIVE_GLOB $ARCHIVE_GLOB; do
             [ -e "$f" ] || continue
             v="$(basename "$f" .sql)"
             is_applied "$v" || continue
@@ -184,6 +200,10 @@ UPTO=""
 if [ "$1" = "--up-to" ]; then
     UPTO="${2:-}"
     [ -n "$UPTO" ] || { echo "usage: migrate.sh --up-to <version>" >&2; exit 2; }
+    if [ -f "database/migrations/archive/$UPTO.sql" ]; then
+        echo "refusing archived migration $UPTO (at or below baseline v2); restore from archive deliberately instead" >&2
+        exit 2
+    fi
     [ -f "database/migrations/$UPTO.sql" ] || { echo "unknown migration: $UPTO" >&2; exit 2; }
 fi
 
@@ -218,7 +238,7 @@ if [ "$1" = "--baseline" ]; then
         if err=$(mysqlc < "$BASELINE_FILE" 2>&1); then
             detect_checksum_col
             versions=""
-            for f in database/migrations/*.sql; do
+            for f in $ARCHIVE_GLOB; do
                 [ -e "$f" ] || continue
                 v="$(basename "$f" .sql)"
                 versions="$versions('$v', '$(file_sha "$f")'),"
@@ -238,7 +258,7 @@ if [ "$1" = "--baseline" ]; then
         # Existing database: must verify clean before the marker lands.
         load_applied
         pending=""
-        for f in database/migrations/*.sql; do
+        for f in $ACTIVE_GLOB $ARCHIVE_GLOB; do
             [ -e "$f" ] || continue
             v="$(basename "$f" .sql)"
             is_applied "$v" || pending="$pending $v"
@@ -251,7 +271,7 @@ if [ "$1" = "--baseline" ]; then
         if [ "$HAS_CHECKSUM_COL" = "1" ]; then
             stored="$(mysqlc -N -B -e "SELECT CONCAT(version, ' ', IFNULL(checksum, 'MISSING')) FROM schema_migrations;" 2>/dev/null)"
             bad=""
-            for f in database/migrations/*.sql; do
+            for f in $ACTIVE_GLOB $ARCHIVE_GLOB; do
                 [ -e "$f" ] || continue
                 v="$(basename "$f" .sql)"
                 is_applied "$v" || continue
@@ -280,7 +300,25 @@ fi
 load_applied
 applied_any=0
 applied_this_run=""
-for f in database/migrations/*.sql; do
+# New files must sort above the baseline cutoff, or glob order would apply
+# them before their prerequisites.
+cutoff=""
+for f in $ARCHIVE_GLOB; do
+    [ -e "$f" ] || continue
+    v="$(basename "$f" .sql)"
+    if [ -z "$cutoff" ] || [ "$v" \> "$cutoff" ]; then cutoff="$v"; fi
+done
+for f in $ACTIVE_GLOB; do
+    [ -e "$f" ] || continue
+    v="$(basename "$f" .sql)"
+    if [ -n "$cutoff" ] && [ "$v" \< "$cutoff" ]; then
+        echo "refusing migration $v below baseline cutoff $cutoff; rename it above the baseline" >&2
+        exit 1
+    fi
+done
+# Archived versions first (oldest), then active: the pending set replays in
+# global order, exactly as before the split.
+for f in $ARCHIVE_GLOB $ACTIVE_GLOB; do
     [ -e "$f" ] || continue
     v="$(basename "$f" .sql)"
     if is_applied "$v"; then

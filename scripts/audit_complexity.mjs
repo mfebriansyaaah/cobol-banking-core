@@ -131,7 +131,7 @@ function collectGateway(rootDir) {
 
 function collectDatabase(rootDir) {
   const migDir = path.join(rootDir, 'database', 'migrations');
-  const migrations = list(migDir, '.sql');
+  const migrations = list(migDir, '.sql').concat(list(path.join(migDir, 'archive'), '.sql').map((f) => `archive/${f}`));
   const tableRe = /CREATE TABLE(?: IF NOT EXISTS)?\s+`?([A-Za-z0-9_]+)`?/g;
   const names = new Set();
   const audit = new Set();

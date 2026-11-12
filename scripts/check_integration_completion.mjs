@@ -131,11 +131,13 @@ function buildSchemaIndex(rootDir) {
   const fks = new Map();
   const files = [];
   const migDir = path.join(rootDir, 'database', 'migrations');
-  if (existsSync(migDir)) {
-    for (const f of readdirSync(migDir)
+  const archDir = path.join(migDir, 'archive');
+  for (const dir of [migDir, archDir]) {
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir)
       .filter((x) => x.endsWith('.sql'))
       .sort()) {
-      files.push(path.join(migDir, f));
+      files.push(path.join(dir, f));
     }
   }
   const schema = path.join(rootDir, 'database', 'schema.sql');

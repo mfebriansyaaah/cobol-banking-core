@@ -35,7 +35,9 @@ export function collect() {
   const actions =
     routeSources.reduce((sum, src) => sum + (src.match(actionRe) || []).length, 0) +
     (appSource.match(actionRe) || []).length;
-  const migrations = list(path.join(ROOT, 'database', 'migrations'), '.sql').length;
+  const migrations =
+    list(path.join(ROOT, 'database', 'migrations'), '.sql').length +
+    list(path.join(ROOT, 'database', 'migrations', 'archive'), '.sql').length;
   const schema = readFileSync(path.join(ROOT, 'database', 'schema.sql'), 'utf8');
   const tables = (schema.match(/^CREATE TABLE/gm) || []).length;
 
