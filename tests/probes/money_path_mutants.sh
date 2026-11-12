@@ -96,13 +96,14 @@ PYEOF
 }
 
 W=cobol/src/wallet_core.cob
+WT=cobol/src/wallet_transfer_core.cob
 G=cobol/src/gl_core.cob
 WR=cobol/src/wallet_reversal_core.cob
 WH=cobol/src/wallet_hold_core.cob
 
 # M1: drop TRANSFER balance check.
-mutate "$W"
-py_patch "$W" \
+mutate "$WT"
+py_patch "$WT" \
 '                IF WS-BALANCE-NUM < WS-AMOUNT-NUM + WS-FEE-NUM
                     SET WS-TRANSFER-FAIL-INSUF TO TRUE' \
 '                IF WS-BALANCE-NUM < WS-AMOUNT-NUM + WS-FEE-NUM
@@ -112,15 +113,15 @@ restore_all
 
 # M2: drop BOTH idempotency flags (replay branch + intent-insert error
 # branch): without either, a duplicate key proceeds as a new transfer.
-mutate "$W"
-py_patch "$W" \
+mutate "$WT"
+py_patch "$WT" \
 '                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                     IF WS-RESULT(1:5) = "ERROR"
                         SET WS-TRANSFER-FAIL-IDEMP TO TRUE' \
 '                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                     IF WS-RESULT(1:5) = "ERROR"
                         CONTINUE *>MUTANT M2 no-op (was SET FAIL-IDEMP)' 1
-py_patch "$W" \
+py_patch "$WT" \
 '                            ELSE
                                 SET WS-TRANSFER-FAIL-IDEMP TO TRUE
                             END-IF' \
@@ -144,8 +145,8 @@ run_mutant "M3" "no already-reversed exit" tests/db/wallet_invariants_db_tests.s
 restore_all
 
 # M4: drop sender frozen check.
-mutate "$W"
-py_patch "$W" \
+mutate "$WT"
+py_patch "$WT" \
 '                IF WS-SENDER-STATUS NOT = "ACTIVE"
                     IF WS-SENDER-STATUS(1:6) = "FROZEN"
                         SET WS-TRANSFER-FAIL-FROZEN TO TRUE' \
@@ -156,8 +157,8 @@ run_mutant "M4" "no frozen check" tests/db/wallet_invariants_db_tests.sh
 restore_all
 
 # M5: drop missing-rate check.
-mutate "$W"
-py_patch "$W" \
+mutate "$WT"
+py_patch "$WT" \
 '                        IF WS-RESULT = "ERROR|NO_DATA"
                             SET WS-TRANSFER-FAIL-CURR TO TRUE' \
 '                        IF WS-RESULT = "ERROR|NO_DATA"
@@ -166,8 +167,8 @@ run_mutant "M5" "no currency-rate check" tests/db/wallet_invariants_db_tests.sh
 restore_all
 
 # M6: swap transfer leg directions (journal must go unbalanced).
-mutate "$W"
-MUTANT_DRY_RUN="$DRY_RUN" python3 - "$W" <<'PYEOF'
+mutate "$WT"
+MUTANT_DRY_RUN="$DRY_RUN" python3 - "$WT" <<'PYEOF'
 import os, sys
 path = sys.argv[1]
 src = open(path).read()
@@ -200,8 +201,8 @@ run_mutant "M7" "no ML balance refusal" tests/db/payment_gl_invariants_db_tests.
 restore_all
 
 # M8: audit lands under a wrong action (transfer succeeds, presence test must catch it).
-mutate "$W"
-py_patch "$W" \
+mutate "$WT"
+py_patch "$WT" \
 'VALUES (?, '"'"'TRANSFER'"'"', '"'"'ACCOUNT'"'"', ?, '"'"'SUCCESS'"'"', ?, @jid)" TO WS-PREP-SQL' \
 'VALUES (?, '"'"'TRANSFER_MUTED'"'"', '"'"'ACCOUNT'"'"', ?, '"'"'SUCCESS'"'"', ?, @jid)" TO WS-PREP-SQL' 1
 run_mutant "M8" "mislabelled transfer audit" tests/db/wallet_invariants_db_tests.sh
@@ -248,8 +249,8 @@ C=cobol/src/sql_bridge.c
 IDV=cobol/src/identity_core.cob
 
 # M11: drop the TRANSFER KYC gate (large transfers flow unverified).
-mutate "$W"
-py_patch "$W" \
+mutate "$WT"
+py_patch "$WT" \
 '                IF WS-RESULT NOT = "APPROVED"
                     MOVE "ERROR|KYC_REQUIRED" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
