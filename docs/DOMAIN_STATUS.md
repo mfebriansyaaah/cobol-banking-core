@@ -8,7 +8,7 @@
 
 | Status | Modules |
 | --- | ---: |
-| ACTIVE | 22 |
+| ACTIVE | 23 |
 | PILOT | 5 |
 | REVIEW | 21 |
 | FROZEN | 18 |
@@ -30,6 +30,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `backup_drill` | `backup_drill_core` | 2 | L0 | FROZEN | backup_drill.js | backup_drill | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `bank_guarantee` | `bank_guarantee_core` | 2 | L0 | FROZEN | bank_guarantee.js | bank_guarantee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `card` | `card_core` | 1 | L3 | ACTIVE | card.js | card_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
+| `card_posting` | `card_posting_core` | 2 | L3 | ACTIVE | — | accounts | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `chargeback` | `chargeback_core` | 2 | L0 | FROZEN | chargeback.js | chargeback_case | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `collateral` | `collateral_core` | 2 | L2 | PILOT | collateral.js | collateral | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `collection` | `collection_core` | 1 | L3 | ACTIVE | collection.js | collection_case | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
@@ -46,7 +47,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `gl_allocation` | `gl_allocation_core` | 2 | L0 | FROZEN | gl_allocation.js | gl_allocation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `gl` | `gl_core` | 1 | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `hashlen` | `hashlen_core` | 3 | UTILITY | ACTIVE | — | — | — | Tier-3 utility; never a retire candidate. |
-| `identity` | `identity_core` | 2 | L0 | REVIEW | identity.js | identity_verifications | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage KYC gates TRANSFER (mutation M11 kill) + identity/screening e2e. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `identity` | `identity_core` | 2 | L2 | REVIEW | identity.js | identity_verifications | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage KYC gates TRANSFER (mutation M11 kill) + identity/screening e2e. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). 2026-11-11: ACCOUNT_FREEZE/UNFREEZE link the accounts table (sanctions enforcement), promoting linkage to L2. |
 | `import` | `import_core` | 2 | L0 | FROZEN | import.js | import_row | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import_post` | `import_post_core` | 2 | L3 | ACTIVE | — | import_batch | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `import_recon` | `import_recon_core` | 2 | L2 | PILOT | import_recon.js | import_recon_item | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |

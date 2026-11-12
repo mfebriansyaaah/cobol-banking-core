@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T13:08:33.553Z",
+  "generatedAt": "2026-11-12T04:01:32.865Z",
   "entries": [
     {
       "domain": "account",
@@ -162,6 +162,27 @@
       "tier": 1,
       "linkageLevel": "L3",
       "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "ACTIVE",
+      "reason": "Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "card_posting",
+      "module": "card_posting_core",
+      "routeFile": null,
+      "table": "accounts",
+      "tier": 2,
+      "linkageLevel": "L3",
+      "linkedCoreDomains": [
+        "accounting",
+        "cards",
+        "wallet/ledger"
+      ],
       "replacement": null,
       "consumer": null,
       "trafficLastSeen": null,
