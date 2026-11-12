@@ -6,12 +6,12 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-12T04:31:54.827Z
-- Commit: `e8138bdf`
+- Generated at: 2026-11-12T05:09:44.473Z
+- Commit: `e616f33f`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 21 |
+| L3 (core transaction) | 22 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 10 |
 | L0 (isolated) | 28 |
@@ -89,3 +89,4 @@ Unresolved route files: none.
 | `wallet_recon_core` | L1 | accounts, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `wallet_reversal_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `wallet_statement_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_transfer_core` | L3 | accounts, fee_schedule, journal_entries, ledger | fee_core | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |

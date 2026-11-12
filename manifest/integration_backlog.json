@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T04:31:55.157Z",
+  "generatedAt": "2026-11-12T05:12:32.876Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -2546,14 +2546,12 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "resolve relocated to wallet_transfer_core in maint-07 (TRANSFER-LOGIC audit insert joins the transfer tx); core link tracked under wallet_transfer_core:table:audit-trail"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:delimited",
@@ -2613,42 +2611,36 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "exchange_rates",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "columns: 6), base_currency_id, constraint, exchange_rate, rate_id, target_currency_id, target_currency_id), unique, updated_at",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "resolve relocated to wallet_transfer_core in maint-07 (TRANSFER-LOGIC FX rate lookup); core link tracked under wallet_transfer_core:table:exchange-rates"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:if",
       "module": "wallet_core",
       "kind": "table",
       "subject": "if",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "extractor keyword artifact ('IF' in SQL text), not a table; matching statements relocated to wallet_transfer_core in maint-07 (tracked there)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:in",
       "module": "wallet_core",
       "kind": "table",
       "subject": "in",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "extractor keyword artifact ('IN' in SQL text), not a table; matching statements relocated to wallet_transfer_core in maint-07 (tracked there)"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:not",
@@ -2753,6 +2745,100 @@
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
         "columns: --, actor_id, constraint, from_email, from_email), if, orig_ref, primary, reason, reversed_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_transfer_core:audit:core-reference",
+      "module": "wallet_transfer_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": null
+    },
+    {
+      "id": "wallet_transfer_core:table:audit-trail",
+      "module": "wallet_transfer_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_transfer_core:table:exchange-rates",
+      "module": "wallet_transfer_core",
+      "kind": "table",
+      "subject": "exchange_rates",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 6), base_currency_id, constraint, exchange_rate, rate_id, target_currency_id, target_currency_id), unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_transfer_core:table:if",
+      "module": "wallet_transfer_core",
+      "kind": "table",
+      "subject": "if",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_transfer_core:table:in",
+      "module": "wallet_transfer_core",
+      "kind": "table",
+      "subject": "in",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_transfer_core:table:pending-transactions",
+      "module": "wallet_transfer_core",
+      "kind": "table",
+      "subject": "pending_transactions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": null
+    },
+    {
+      "id": "wallet_transfer_core:table:pic",
+      "module": "wallet_transfer_core",
+      "kind": "table",
+      "subject": "pic",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "evidence": [
+        "no DDL found in schema.sql/migrations",
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],

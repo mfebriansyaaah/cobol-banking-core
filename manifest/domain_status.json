@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T04:31:55.003Z",
+  "generatedAt": "2026-11-12T05:09:49.522Z",
   "entries": [
     {
       "domain": "account",
@@ -1184,6 +1184,26 @@
       "owner": null,
       "status": "REVIEW",
       "reason": "Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 1 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "wallet_transfer",
+      "module": "wallet_transfer_core",
+      "routeFile": null,
+      "table": "accounts",
+      "tier": 2,
+      "linkageLevel": "L3",
+      "linkedCoreDomains": [
+        "fees",
+        "wallet/ledger"
+      ],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "ACTIVE",
+      "reason": "Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof.",
       "retireAfter": null,
       "tableDropDate": null
     }

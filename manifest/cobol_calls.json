@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-12T04:29:12.775Z",
+  "generatedAt": "2026-11-12T05:08:46.505Z",
   "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
-  "count": 16,
+  "count": 17,
   "edges": [
     {
       "from": "auth_core",
@@ -75,11 +75,16 @@
     },
     {
       "from": "wallet_core",
+      "to": "wallet_transfer_core",
+      "callsites": 1
+    },
+    {
+      "from": "wallet_transfer_core",
       "to": "fee_core",
       "callsites": 1
     },
     {
-      "from": "wallet_core",
+      "from": "wallet_transfer_core",
       "to": "payment_core",
       "callsites": 1
     }

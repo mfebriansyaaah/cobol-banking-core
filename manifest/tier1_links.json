@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-12T04:31:54.827Z",
-  "commit": "e8138bdf",
+  "generatedAt": "2026-11-12T05:09:44.473Z",
+  "commit": "e616f33f",
   "tier1": "manifest/tier1.json",
   "summary": {
-    "L3": 21,
+    "L3": 22,
     "L2": 6,
     "L1": 10,
     "L0": 28,
@@ -1104,6 +1104,27 @@
       "hasTests": false,
       "testEvidence": [],
       "reason": "linked code with no DB/table/integration test (downgraded)",
+      "routeFiles": []
+    },
+    {
+      "module": "wallet_transfer_core",
+      "source": "wallet_transfer_core.cob",
+      "linkageLevel": "L3",
+      "businessTables": [
+        "accounts",
+        "fee_schedule",
+        "journal_entries",
+        "ledger"
+      ],
+      "t1Calls": [
+        "fee_core"
+      ],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/wallet_transfer_db_tests.sh"
+      ],
+      "reason": "money-table touch (accounts, journal_entries, ledger) with depth + test",
       "routeFiles": []
     }
   ],
