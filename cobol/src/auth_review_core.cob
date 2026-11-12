@@ -196,10 +196,8 @@
 
         GET-USER-ID.
             *> WS-USER-ID / WS-ID-LEN for the user named by param 1's email.
-            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM LOOKUP-USER-ID
 
             MOVE WS-RESULT(1:20) TO WS-USER-ID
             MOVE 0 TO WS-ID-LEN
@@ -266,9 +264,7 @@
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM LAST-INSERT-ID
             MOVE WS-RESULT(1:20) TO WS-AR-ID
             *> Snapshot the privileged accounts as they are right now: role,
             *> status, MFA state, and last sign-in. The item is evidence of
@@ -766,10 +762,8 @@
         AUDIT-DENIED.
             *> Records a refused authorization attempt for the actor named by
             *> WS-DENIED-ACTOR; unknown actors produce no row. Best-effort.
-            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT a.id, a.id, 'AUTHZ_DENIED', 'USER', ?, ?, 'FAILED' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
             MOVE LS-CMD-ACTION TO WS-BIND-1
             MOVE WS-DENIED-TARGET TO WS-BIND-2
             MOVE WS-DENIED-ACTOR TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+            PERFORM RECORD-AUTHZ-DENIED
             EXIT PARAGRAPH.

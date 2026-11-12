@@ -462,14 +462,10 @@
         AUDIT-DENIED.
             *> Records a refused authorization attempt for the actor named by
             *> WS-DENIED-ACTOR; unknown actors produce no row. Best-effort.
-            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) SELECT a.id, a.id, 'AUTHZ_DENIED', 'USER', ?, ?, 'FAILED' FROM users a WHERE a.email = ?" TO WS-PREP-SQL
             MOVE LS-CMD-ACTION TO WS-BIND-1
             MOVE WS-DENIED-TARGET TO WS-BIND-2
             MOVE WS-DENIED-ACTOR TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+            PERFORM RECORD-AUTHZ-DENIED
             EXIT PARAGRAPH.
 
         ALLOW-DORMANCY.
@@ -1071,12 +1067,8 @@
             END-IF
 
             *> Current user id, for the audit row.
-            MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM LOOKUP-USER-ID
 
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
@@ -1246,12 +1238,8 @@
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
-                MOVE "SELECT CAST(id AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM LOOKUP-USER-ID
                 MOVE WS-RESULT(1:20) TO WS-USER-ID
                 MOVE 0 TO WS-ID-LEN
                 PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0

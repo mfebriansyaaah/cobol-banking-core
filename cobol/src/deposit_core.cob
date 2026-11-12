@@ -177,6 +177,7 @@
            GOBACK.
 
         COPY "common_validate_all.cpy".
+        COPY "common_sql.cpy".
 
 
         COPY "common_trim.cpy".
@@ -391,13 +392,8 @@
            *> before writing anything: deposit currency, customer wallet,
            *> and bank-owned DEPOSIT_POOL suspense. A missing wallet or
            *> pool, or a short wallet, fails closed with no row written.
-           MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
            MOVE WS-P3-TRIMMED TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           PERFORM LOOKUP-CURRENCY
            IF WS-RESULT(1:5) = "ERROR"
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
@@ -479,12 +475,7 @@
                SET STEP-FAIL TO TRUE
            END-IF
            IF STEP-OK
-               MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
-               CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                   BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                   BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-               END-CALL
-               CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+               PERFORM LAST-INSERT-ID
                IF WS-RESULT(1:5) = "ERROR"
                    SET STEP-FAIL TO TRUE
                ELSE
@@ -591,12 +582,7 @@
            END-IF
            END-IF.
            IF STEP-OK
-           MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           PERFORM LAST-INSERT-ID
            IF WS-RESULT(1:5) = "ERROR"
            SET STEP-FAIL TO TRUE
            ELSE
@@ -1039,13 +1025,8 @@
            *> Resolve the refund path: customer wallet in the deposit
            *> currency plus the bank-owned DEPOSIT_POOL suspense. An
            *> underfunded pool fails closed instead of printing money.
-           MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
            MOVE WS-CUST-CURR TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           PERFORM LOOKUP-CURRENCY
            IF WS-RESULT(1:5) = "ERROR"
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
@@ -1143,12 +1124,7 @@
            END-IF
            END-IF.
            IF STEP-OK
-           MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           PERFORM LAST-INSERT-ID
            IF WS-RESULT(1:5) = "ERROR"
            SET STEP-FAIL TO TRUE
            ELSE
@@ -1755,13 +1731,8 @@
            *> currency plus the bank-owned DEPOSIT_POOL suspense. The pool
            *> is treasury-capitalized; an underfunded pool fails closed
            *> instead of printing money.
-           MOVE "SELECT currency_id FROM currencies WHERE iso_code = ? LIMIT 1" TO WS-PREP-SQL
            MOVE WS-CUST-CURR TO WS-BIND-1
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-               BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           PERFORM LOOKUP-CURRENCY
            IF WS-RESULT(1:5) = "ERROR"
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
@@ -1876,12 +1847,7 @@
            END-IF
            END-IF.
            IF STEP-OK
-           MOVE "SELECT LAST_INSERT_ID()" TO WS-PREP-SQL
-           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-           BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-           BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-           END-CALL
-           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+           PERFORM LAST-INSERT-ID
            IF WS-RESULT(1:5) = "ERROR"
            SET STEP-FAIL TO TRUE
            ELSE
