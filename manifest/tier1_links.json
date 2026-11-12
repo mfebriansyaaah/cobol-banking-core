@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-12T05:09:44.473Z",
-  "commit": "e616f33f",
+  "generatedAt": "2026-11-12T06:10:42.855Z",
+  "commit": "7e500bd5",
   "tier1": "manifest/tier1.json",
   "summary": {
     "L3": 22,
     "L2": 6,
     "L1": 10,
-    "L0": 28,
+    "L0": 29,
     "UTILITY": 3
   },
   "modules": [
@@ -101,6 +101,20 @@
       "t1Actions": [],
       "hasTests": false,
       "testEvidence": [],
+      "reason": "own domain tables only, no core link",
+      "routeFiles": []
+    },
+    {
+      "module": "auth_session_core",
+      "source": "auth_session_core.cob",
+      "linkageLevel": "L0",
+      "businessTables": [],
+      "t1Calls": [],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/auth_session_db_tests.sh"
+      ],
       "reason": "own domain tables only, no core link",
       "routeFiles": []
     },

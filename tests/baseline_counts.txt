@@ -99,3 +99,5 @@ db_card_posting_tests=99
 db_deposit_posting_tests=21
 
 db_wallet_transfer_tests=15
+
+db_auth_session_tests=23

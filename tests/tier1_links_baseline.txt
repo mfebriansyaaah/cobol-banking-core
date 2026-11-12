@@ -12,6 +12,7 @@ auth_mfa_core L0
 auth_ops_core L0
 auth_recovery_core L0
 auth_review_core L0
+auth_session_core L0
 backup_drill_core L0
 bank_guarantee_core L0
 chargeback_core L0
