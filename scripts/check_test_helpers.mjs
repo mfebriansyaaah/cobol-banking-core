@@ -1,4 +1,5 @@
-// Guard: every db_* helper a suite calls must actually exist in tests/lib/db.sh.
+// Guard: every db_* helper a suite calls must actually exist in
+// tests/lib (db.sh for fixtures, guard.sh for safety rails, ...).
 //
 // Three suites called reset helpers that were never defined
 // (db_reset_ntf_template_config, db_reset_rpt_schedule_config, db_reset_adt_log).
@@ -9,9 +10,12 @@ import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(process.argv[2] || '.');
-const libPath = path.join(ROOT, 'tests', 'lib', 'db.sh');
-const lib = readFileSync(libPath, 'utf8');
-const defined = new Set([...lib.matchAll(/^(\w+)\(\)\s*\{/gm)].map((m) => m[1]));
+const libDir = path.join(ROOT, 'tests', 'lib');
+const defined = new Set();
+for (const f of readdirSync(libDir).filter((x) => x.endsWith('.sh'))) {
+  const lib = readFileSync(path.join(libDir, f), 'utf8');
+  for (const m of lib.matchAll(/^(\w+)\(\)\s*\{/gm)) defined.add(m[1]);
+}
 
 const suitesDir = path.join(ROOT, 'tests', 'db');
 const missing = [];

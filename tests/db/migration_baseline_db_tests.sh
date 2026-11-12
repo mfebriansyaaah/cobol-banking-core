@@ -50,7 +50,7 @@ db_routines() { # $1=db -> routines+triggers count
 
 LIVE_TABLES="$(db_tables "${DB_NAME:-cobol_db}")"
 LIVE_ROUTINES="$(db_routines "${DB_NAME:-cobol_db}")"
-N_MIGRATIONS="$(ls "$ROOT/database/migrations/"*.sql | wc -l)"
+N_MIGRATIONS="$(find "$ROOT/database/migrations" -maxdepth 1 -name '*.sql' | wc -l)"
 
 # 1-7. Fresh install: baseline snapshot applies once, everything recorded.
 mysql_migrate -e "DROP DATABASE IF EXISTS \`$FRESH_DB\`; CREATE DATABASE \`$FRESH_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null
