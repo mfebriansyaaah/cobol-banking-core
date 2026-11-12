@@ -40,3 +40,26 @@ the line for everything new starting now.
   git-ignored); customer data never lands in the repo.
 - Migration squash (657 → <150) is explicitly deferred: high-risk, solo-PR
   only, preconditions unmet (see plan PR-063).
+
+## Baseline v2 lifecycle (PR-010)
+
+`database/schema_v2.sql` is the post-Wave-C full snapshot (byte-identical
+body to `schema_full.sql`; both are verified against a fresh build by
+`check_schema_drift.sh`). Fresh installs apply it once instead of
+replaying 677 migrations; existing databases keep their history.
+
+- `database/migrate.sh --baseline`: fresh DBs apply the snapshot, record
+  every current migration as covered-by-baseline (with its hash) plus a
+  `baseline_v2` marker row; existing DBs must first pass the same
+  membership + checksum rules as `--check` (partial DBs fail with a
+  restore/finish message), then the marker is recorded. Afterwards the
+  normal apply loop runs, so post-baseline migrations apply uniformly.
+- `schema_v2.sql` is immutable once recorded: its sha256 rides the marker
+  row, and `--check` fails a baselined database whose snapshot file was
+  edited (`baseline_v2` mismatch — restore the file or re-baseline
+  deliberately). PR-011 archives the covered migrations; it must not
+  change this file's bytes.
+- Covered by `tests/db/migration_baseline_db_tests.sh` (16 assertions):
+  fresh install (snapshot + recording + table/routine counts + `--check` +
+  second-run no-op), partial-upgrade refusal then heal-with-no-data-loss,
+  baseline tamper detection + restore, and committed body equality.

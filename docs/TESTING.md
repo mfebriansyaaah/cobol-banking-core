@@ -194,8 +194,17 @@ from env (`ROLLBACK_DRILL_DB` / `RESTORE_DRILL_DB`, never `DB_NAME`) and
 refuse protected names before any `DROP`.
 
 `scripts/check_schema_drift.sh` fails when `schema.sql` + migrations no longer
-reproduce the committed `database/schema_full.sql` (regenerate deliberately
-with `scripts/generate_schema_snapshot.sh` after reviewing the diff).
+reproduce the committed snapshots (`database/schema_full.sql` and the
+byte-identical `database/schema_v2.sql`; regenerate deliberately with
+`scripts/generate_schema_snapshot.sh` after reviewing the diff).
+
+`tests/db/migration_baseline_db_tests.sh` pins the PR-010 baseline
+lifecycle on throwaway databases (never the database under test): fresh
+install applies `schema_v2.sql` and records every covered migration plus
+the `baseline_v2` marker, partial databases fail loudly, tampering with
+the snapshot trips `--check`, and the committed v2 body must equal the
+full snapshot body. Needs DDL rights (CI root / migrate account); the
+gate skips nothing, so a no-DDL environment fails closed.
 
 `scripts/ci/restore_drill.sh` remains for local use: a schema-only rebuild
 (no backup file, no data verification), covered by
