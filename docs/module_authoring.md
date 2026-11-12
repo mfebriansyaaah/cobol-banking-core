@@ -69,11 +69,13 @@ Every domain module exposes these actions (prefix + action):
   Every new shared paragraph needs a pin test under `scripts/test/`
   (no inline regrowth, COPY present, caller invariant holds) and a
   `tests/copybook_baseline.txt` update via `check_copybooks.mjs --write`.
-- Shared SQL lookups live in `cobol/copy/common_sql.cpy` (`LOOKUP-USER-ROLE`:
-  caller stages the email in `WS-BIND-1`, role lands in `WS-RESULT`).
-  One file per declaration footprint applies here too: the paragraph passes
-  5 binds because 4-param modules declare no `WS-BIND-6` (the bridge binds
-  exactly `nparams`, so extras are never read).
+- Shared SQL lookups live in `cobol/copy/common_sql.cpy` (`LOOKUP-USER-ROLE`,
+  `LOOKUP-USER-ID`, `LAST-INSERT-ID`, `LOOKUP-CURRENCY`: caller stages
+  `WS-BIND-1` where needed, result lands in `WS-RESULT`; plus 3-bind
+  `RECORD-AUTHZ-DENIED` with caller-staged 1..3).
+  One file per declaration footprint applies here too: shared paragraphs
+  pass at most 5 binds because 4-param modules declare no `WS-BIND-6`
+  (the bridge binds exactly `nparams`, so extras are never read).
 - Keep `WS-PREP-SQL` ≤ 1024 chars (bridge buffer limit) and params ≤ 6 (7 for EXEC7).
 - New modules are picked up by `cobol/Makefile` automatically (wildcard); no
   `build.sh` change needed. Regenerate the manifest, and add tests + warning
