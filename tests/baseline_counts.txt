@@ -95,3 +95,5 @@ db_corporate_tests=9
 db_truncation_tests=4
 
 db_card_posting_tests=99
+
+db_deposit_posting_tests=21
