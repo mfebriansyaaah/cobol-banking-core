@@ -285,14 +285,14 @@
             *>    account is blocked (failed_logins / locked_until on the user).
             
             *> 3) Password check: fetch the stored hash and verify against it
-            *>    (PBKDF2, with a legacy SHA256 fallback).
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT password_hash FROM users WHERE email = '" 
-                   WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            *>    (PBKDF2, with a legacy SHA256 fallback). Prepared: the email
+            *>    travels as a bind, never concatenated.
+            MOVE "SELECT password_hash FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             MOVE WS-RESULT(1:256) TO WS-STORED
             
@@ -356,12 +356,13 @@
                 MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
                 CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH END-CALL
                 CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN END-CALL
-                MOVE SPACES TO WS-QUERY
-                STRING "UPDATE users SET password_hash = '" WS-HASH(1:WS-HLEN) "' WHERE email = '" 
-                       WS-P1-ESC(1:WS-P1-ELEN) "'" DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-                CALL "SQL_EXECUTE" END-CALL
+                MOVE "UPDATE users SET password_hash = ? WHERE email = ?" TO WS-PREP-SQL
+                MOVE WS-HASH TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             END-IF
             
@@ -393,14 +394,16 @@
 
         SIGNUP-LOGIC.
             SET STEP-OK TO TRUE
-            *> Password complexity: at least 8 characters.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 WHERE CHAR_LENGTH('" WS-P2-ESC(1:WS-P2-ELEN) "') >= 8" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            *> Password complexity: at least 8 characters, measured on the
+            *> raw password (the old dynamic check measured the escaped form,
+            *> so a quote/backslash counted extra; prepared binds have no
+            *> escapes to count).
+            MOVE "SELECT 1 WHERE CHAR_LENGTH(?) >= 8" TO WS-PREP-SQL
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             
             IF WS-RESULT = "ERROR|NO_DATA"
@@ -423,13 +426,12 @@
             END-IF
             
             *> Email must be unique.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM users WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             
             IF WS-RESULT NOT = "ERROR|NO_DATA"
@@ -483,14 +485,13 @@
                     BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 
                     BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES ('" 
-                       WS-P1-ESC(1:WS-P1-ELEN) "', '" WS-CODE(1:6) "', 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-                CALL "SQL_EXECUTE" END-CALL
+                MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-CODE TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                 
                 IF WS-RESULT(1:5) = "ERROR"
@@ -511,13 +512,13 @@
 
             IF STEP-OK
                 PERFORM GET-USER-ID
-                MOVE SPACES TO WS-QUERY
-                STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
-                       WS-USER-ID(1:WS-ID-LEN) ", 'SIGNUP', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'SUCCESS')" 
-                       DELIMITED BY SIZE INTO WS-QUERY
-                END-STRING
-                CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-                CALL "SQL_EXECUTE" END-CALL
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'SIGNUP', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
+                MOVE WS-USER-ID TO WS-BIND-1
+                MOVE WS-USER-ID TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
@@ -541,26 +542,25 @@
             IF WS-RESULT(1:5) = "ERROR"
                 EXIT PARAGRAPH
             END-IF.
-            MOVE SPACES TO WS-QUERY
-            STRING "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (" 
-                   WS-USER-ID(1:WS-ID-LEN) ", 'VERIFY_EMAIL', 'USER', " WS-USER-ID(1:WS-ID-LEN) ", 'FAILED')" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'VERIFY_EMAIL', 'USER', ?, 'FAILED')" TO WS-PREP-SQL
+            MOVE WS-USER-ID TO WS-BIND-1
+            MOVE WS-USER-ID TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
             EXIT PARAGRAPH.
 
         VERIFY-LOGIC.
             *> Code must match, be unused, unexpired, for a SIGNUP.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 FROM verification_logs WHERE email = '" WS-P1-ESC(1:WS-P1-ELEN) 
-                   "' AND code = '" WS-P2-ESC(1:WS-P2-ELEN) "' AND purpose = 'SIGNUP' AND is_used = 0 AND expires_at > NOW() LIMIT 1" 
-                   DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            MOVE "SELECT 1 FROM verification_logs WHERE email = ? AND code = ? AND purpose = 'SIGNUP' AND is_used = 0 AND expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             
             IF WS-RESULT = "ERROR|NO_DATA"
@@ -787,12 +787,12 @@
                 EXIT PARAGRAPH
             END-IF
             *> Password check (PBKDF2, legacy SHA256 fallback).
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT password_hash FROM users WHERE email = '"
-                   WS-P1-ESC(1:WS-P1-ELEN) "' LIMIT 1" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            MOVE "SELECT password_hash FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             MOVE WS-RESULT(1:256) TO WS-STORED
             MOVE SPACES TO WS-PLAIN
@@ -1696,10 +1696,12 @@
             *> Deep health: confirm the database answers a trivial query. An
             *> insecure production configuration is reported distinctly from
             *> an unreachable database so operators can tell them apart.
-            MOVE SPACES TO WS-QUERY
-            MOVE "SELECT 1" TO WS-QUERY
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            *> Prepared like every other statement; no parameters to bind.
+            MOVE "SELECT 1" TO WS-PREP-SQL
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:24) = "ERROR|DB_CONFIG_INSECURE"
                 MOVE "ERROR|DB_CONFIG_INSECURE" TO LS-OUTPUT-BUFFER
