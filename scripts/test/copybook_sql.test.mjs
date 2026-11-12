@@ -28,11 +28,16 @@ const srcOf = (module) => readFileSync(path.join(SRC_DIR, `${module}.cob`), 'utf
 const performers = modules.filter((m) => /^\s*PERFORM LOOKUP-USER-ROLE\s*$/m.test(srcOf(m)));
 
 test('common_sql.cpy provides a generic single-bind LOOKUP-USER-ROLE', () => {
-  const cpy = readFileSync(COPY_PATH, 'utf8');
-  assert.match(cpy, /^ {7}LOOKUP-USER-ROLE\.$/m, 'copybook must define LOOKUP-USER-ROLE');
-  assert.match(cpy, /SELECT role FROM users WHERE email = \? LIMIT 1/, 'copybook holds the query');
-  assert.match(cpy, /BY VALUE 1/, 'copybook binds exactly one slot');
-  assert.doesNotMatch(cpy, /MOVE .+ TO WS-BIND-1/, 'copybook must not stage the email (caller does)');
+  const raw = readFileSync(COPY_PATH, 'utf8');
+  assert.match(raw, /^ {7}LOOKUP-USER-ROLE\.$/m, 'copybook must define LOOKUP-USER-ROLE');
+  assert.match(raw, /SELECT role FROM users WHERE email = \? LIMIT 1/, 'copybook holds the query');
+  assert.match(raw, /BY VALUE 1/, 'copybook binds exactly one slot');
+  const code = raw
+    .split('\n')
+    .filter((l) => !l.trim().startsWith('*>'))
+    .join('\n');
+  assert.doesNotMatch(code, /MOVE .+ TO WS-BIND-1/, 'copybook must not stage the email (caller does)');
+  assert.doesNotMatch(code, /WS-BIND-6/, 'copybook must not need WS-BIND-6 (4-param hosts lack it)');
 });
 
 test('no inline role lookup remains in any module', () => {
