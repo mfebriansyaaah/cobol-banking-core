@@ -110,6 +110,7 @@
             GOBACK.
 
         COPY "common_validate_semi.cpy".
+        COPY "common_sql.cpy".
 
 
         COPY "common_trim.cpy".
@@ -126,13 +127,8 @@
         CHECK-ADMIN.
             *> p6 = actor (SUPER_ADMIN only).
             MOVE 0 TO WS-ALLOWED
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P6-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM LOOKUP-USER-ROLE
             IF WS-RESULT = "SUPER_ADMIN"
                 MOVE 1 TO WS-ALLOWED
             END-IF.
@@ -439,13 +435,8 @@
             IF WS-P1-TRIMMED(1:WS-P1-LEN) = WS-P6-TRIMMED(1:WS-P6-LEN)
                 MOVE 1 TO WS-ALLOWED
             ELSE
-                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-P6-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM LOOKUP-USER-ROLE
                 IF WS-RESULT = "SUPER_ADMIN"
                     MOVE 1 TO WS-ALLOWED
                 END-IF
@@ -704,13 +695,8 @@
             IF WS-P1-TRIMMED(1:WS-P1-LEN) = WS-P6-TRIMMED(1:WS-P6-LEN)
                 MOVE 1 TO WS-ALLOWED
             ELSE
-                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-P6-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM LOOKUP-USER-ROLE
                 IF WS-RESULT = "SUPER_ADMIN"
                     MOVE 1 TO WS-ALLOWED
                 END-IF
