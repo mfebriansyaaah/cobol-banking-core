@@ -100,11 +100,15 @@ jobs:
         run: gitleaks detect --source . --no-git --redact --config .gitleaks.toml
 
       - name: Gate unit tests
+        # Pipefail matters: `node --test ... | tail -5` exits 0 even when tests
+        # fail (exit status is tail's), silently greening a red gate. Capture
+        # the log, print the tail, then exit with the test status.
         run: >
           mkdir -p test-results/gate &&
           node --test --test-reporter=spec --test-reporter-destination=stdout
           --test-reporter=junit --test-reporter-destination=test-results/gate/junit.xml
-          "scripts/test/*.test.mjs" 2>&1 | tail -5
+          "scripts/test/*.test.mjs" >test-results/gate/unit.log 2>&1; rc=$?;
+          tail -5 test-results/gate/unit.log; exit $rc
 
       - name: Offline safety harness (no DB, no build)
         run: bash tests/scripts/run.sh
