@@ -8,10 +8,10 @@
 
 | Status | Modules |
 | --- | ---: |
-| ACTIVE | 25 |
+| ACTIVE | 26 |
 | PILOT | 5 |
-| REVIEW | 21 |
-| FROZEN | 19 |
+| REVIEW | 22 |
+| FROZEN | 18 |
 | RETIRED | 0 |
 
 Status meanings: ACTIVE (linked, refactorable with equivalence), PILOT (L2,
@@ -27,7 +27,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `auth_password` | `auth_password_core` | 1 | L3 | ACTIVE | — | — | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `auth` | `auth_recovery_core` | 2 | L0 | REVIEW | auth.js | mfa_recovery | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 9 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `auth` | `auth_review_core` | 2 | L0 | REVIEW | admin.js | access_review | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 5 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `auth_session` | `auth_session_core` | 2 | L0 | FROZEN | — | refresh_sessions | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `auth_session` | `auth_session_core` | 2 | L0 | REVIEW | — | refresh_sessions | — | Split audit maint-08: RETAIN (reviewed, not pending). 9 internal-CALL actions (STORE/REVOKE/CONSUME/CHECK_TOKEN/REVOKE_TOKEN/LIST/REVOKE_USER/REVOKE_ALL/GET_VERSION); coverage tests/db/auth_session_db_tests.sh (21 assertions). L0 linkage is structural (session/token tables, no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `backup_drill` | `backup_drill_core` | 2 | L0 | FROZEN | backup_drill.js | backup_drill | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `bank_guarantee` | `bank_guarantee_core` | 2 | L0 | FROZEN | bank_guarantee.js | bank_guarantee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `card` | `card_core` | 1 | L3 | ACTIVE | card.js | card_account | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
@@ -56,6 +56,7 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 | `import` | `import_row_core` | 2 | L0 | REVIEW | import.js | import_row | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/import_ops_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `letter_of_credit` | `letter_of_credit_core` | 2 | L0 | FROZEN | letter_of_credit.js | letter_of_credit | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `loan` | `loan_core` | 1 | L3 | ACTIVE | loan.js | loan | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
+| `loan_posting` | `loan_posting_core` | 2 | L3 | ACTIVE | — | loan_disburse_request | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `loan_schedule` | `loan_schedule_core` | 1 | L3 | ACTIVE | loan_schedule.js | loan_schedule | — | Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof. |
 | `loan_schedule` | `loan_schedule_lifecycle_core` | 2 | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `loan_schedule` | `loan_schedule_posting_core` | 2 | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |

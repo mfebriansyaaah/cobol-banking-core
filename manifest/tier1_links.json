@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-12T06:10:42.855Z",
-  "commit": "7e500bd5",
+  "generatedAt": "2026-11-12T06:41:42.371Z",
+  "commit": "498555b3",
   "tier1": "manifest/tier1.json",
   "summary": {
-    "L3": 22,
+    "L3": 23,
     "L2": 6,
     "L1": 10,
     "L0": 29,
@@ -578,6 +578,27 @@
       "routeFiles": [
         "loan.js"
       ]
+    },
+    {
+      "module": "loan_posting_core",
+      "source": "loan_posting_core.cob",
+      "linkageLevel": "L3",
+      "businessTables": [
+        "accounts",
+        "gl_journal",
+        "loan_application",
+        "loan_repayment"
+      ],
+      "t1Calls": [
+        "gl_core"
+      ],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/loan_posting_db_tests.sh"
+      ],
+      "reason": "money-table touch (accounts, gl_journal) with depth + test",
+      "routeFiles": []
     },
     {
       "module": "loan_schedule_core",

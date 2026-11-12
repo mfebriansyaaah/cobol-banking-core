@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 28 |
+| PARTIAL (open items) | 29 |
 
-Open/in-progress items: 168 of 220 recorded.
+Open/in-progress items: 169 of 221 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -32,6 +32,7 @@ Open/in-progress items: 168 of 220 recorded.
 | `import_post_core` | PARTIAL | 4 |
 | `import_recon_core` | PARTIAL | 7 |
 | `loan_core` | PARTIAL | 6 |
+| `loan_posting_core` | PARTIAL | 1 |
 | `loan_schedule_core` | PARTIAL | 1 |
 | `merchant_core` | PARTIAL | 13 |
 | `payment_clearing_core` | PARTIAL | 6 |
@@ -141,6 +142,7 @@ Open/in-progress items: 168 of 220 recorded.
 | `loan_core:action:action-update` | `loan_core` | action | OPEN | — | Write paragraph with no core link (writes loan) |
 | `loan_core:audit:core-reference` | `loan_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `loan_core:table:loan` | `loan_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `loan_posting_core:audit:core-reference` | `loan_posting_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `loan_schedule_core:audit:core-reference` | `loan_schedule_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `merchant_core:action:action-approve` | `merchant_core` | action | OPEN | — | Write paragraph with no core link (writes merchant, merchant_fee_profile) |
 | `merchant_core:action:action-close` | `merchant_core` | action | OPEN | — | Write paragraph with no core link (writes merchant) |
