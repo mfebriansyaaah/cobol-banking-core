@@ -79,3 +79,4 @@ column-level catalogue ([data dictionary](data_dictionary.md)).
 | `wallet_recon_core` | `LIST_RECONCILIATIONS`, `RUN_RECONCILIATION`, `RESOLVE_EXCEPTION`, `LIST_EXCEPTIONS`, `ACK_EXCEPTION`, `RECONCILE` | — | — | — |
 | `wallet_reversal_core` | `REVERSE_TRANSFER` | — | — | — |
 | `wallet_statement_core` | `STATEMENT` | — | — | — |
+| `wallet_transfer_core` | — | — | — | [wallet_transfer_db_tests.sh](../tests/db/wallet_transfer_db_tests.sh) |
