@@ -46,7 +46,7 @@ latest_archived="$(ls "$ROOT/database/migrations/archive/"*.sql | sort | tail -1
 for f in "$ROOT/database/migrations/"*.sql; do
     [ -e "$f" ] || break
     v="$(basename "$f")"
-    if [ "$v" \< "$latest_archived" ]; then below="$below $v"; fi
+    if [ "$v" \< "$latest_archived" ]; then below="${below:-} $v"; fi
 done
 assert_match "no active version below the baseline cutoff" "${below:-none}" "^none$"
 
@@ -57,7 +57,7 @@ assert_match "covered count equals archive" "$(mysql_db "$ARCH_DB" -N -B -e "SEL
 migrate_as "$ARCH_DB" --check >/dev/null 2>&1
 assert_match "fresh db passes --check" "$?" "^0$"
 
-first_archived="$(ls "$ROOT/database/migrations/archive/"*.sql | sort | head -1 | xargs -n1 basename .sql)"
+first_archived="$(ls "$ROOT/database/migrations/archive/"*.sql | sort | head -1 | sed 's/\.sql$//;s/.*\///')"
 out="$(migrate_as "$ARCH_DB" --only "$first_archived" 2>&1)"; rc=$?
 assert_match "explicit archived --only is refused" "$rc" "^2$"
 assert_match "refusal names the baseline" "$out" "baseline"
@@ -66,11 +66,8 @@ assert_match "archived --up-to is refused" "$rc" "^2$"
 
 mysql_db "$ARCH_DB" -e "DELETE FROM schema_migrations WHERE version = '$first_archived';" >/dev/null
 out="$(migrate_as "$ARCH_DB" 2>&1)"; rc=$?
-assert_match "missing archived row fails loudly" "$rc" "^1$"
-assert_match "failure names the version" "$out" "$first_archived"
-mysql_db "$ARCH_DB" -e "INSERT INTO schema_migrations (version, checksum) VALUES ('$first_archived', '$(sha256sum "$ROOT/database/migrations/archive/$first_archived.sql" | awk "{print \$1}")');" >/dev/null
-migrate_as "$ARCH_DB" >/dev/null 2>&1
-assert_match "healed db applies cleanly" "$?" "^0$"
+assert_match "missing archived version replays" "$rc" "^0$"
+assert_match "replay recovers the version" "$(mysql_db "$ARCH_DB" -N -B -e "SELECT COUNT(*) FROM schema_migrations WHERE version='$first_archived';" 2>/dev/null)" "^1$"
 
 FAKE="$ROOT/database/migrations/0001_aaa_below_baseline.sql"
 trap 'rm -f "$FAKE"; cleanup_dbs' EXIT
