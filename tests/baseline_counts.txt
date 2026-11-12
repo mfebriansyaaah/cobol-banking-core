@@ -101,3 +101,5 @@ db_deposit_posting_tests=21
 db_wallet_transfer_tests=15
 
 db_auth_session_tests=23
+
+db_loan_posting_tests=11
