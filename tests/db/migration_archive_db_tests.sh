@@ -42,7 +42,8 @@ mysql_db() { # $1=db, rest=mysql args
 
 N_ARCHIVED="$(find "$ROOT/database/migrations/archive" -maxdepth 1 -name '*.sql' | wc -l)"
 assert_match "archive holds the pre-baseline set" "$N_ARCHIVED" "^677$"
-latest_archived="$(ls "$ROOT/database/migrations/archive/"*.sql | sort | tail -1 | xargs -n1 basename)"
+archived_list="$(find "$ROOT/database/migrations/archive" -maxdepth 1 -name '*.sql' | sort)"
+latest_archived="$(printf '%s\n' "$archived_list" | tail -1 | xargs -n1 basename .sql)"
 for f in "$ROOT/database/migrations/"*.sql; do
     [ -e "$f" ] || break
     v="$(basename "$f")"
@@ -57,7 +58,7 @@ assert_match "covered count equals archive" "$(mysql_db "$ARCH_DB" -N -B -e "SEL
 migrate_as "$ARCH_DB" --check >/dev/null 2>&1
 assert_match "fresh db passes --check" "$?" "^0$"
 
-first_archived="$(ls "$ROOT/database/migrations/archive/"*.sql | sort | head -1 | sed 's/\.sql$//;s/.*\///')"
+first_archived="$(printf '%s\n' "$archived_list" | head -1 | sed 's/\.sql$//;s/.*\///')"
 out="$(migrate_as "$ARCH_DB" --only "$first_archived" 2>&1)"; rc=$?
 assert_match "explicit archived --only is refused" "$rc" "^2$"
 assert_match "refusal names the baseline" "$out" "baseline"
