@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T03:51:45.903Z",
+  "generatedAt": "2026-11-12T04:29:12.704Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -57,6 +57,9 @@
     },
     {
       "source": "deposit_core.cob"
+    },
+    {
+      "source": "deposit_posting_core.cob"
     },
     {
       "source": "eod_core.cob"

@@ -6,12 +6,12 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-12T03:51:46.052Z
-- Commit: `b352c9fe`
+- Generated at: 2026-11-12T04:31:54.827Z
+- Commit: `e8138bdf`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 20 |
+| L3 (core transaction) | 21 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 10 |
 | L0 (isolated) | 28 |
@@ -40,6 +40,7 @@ Unresolved route files: none.
 | `cost_center_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `dashboard_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Tier-1 core module |
+| `deposit_posting_core` | L3 | accounts, deposit_account, deposit_accrual, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
 | `eod_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `eod_jobs_core` | L1 | accounts | user_core | 1 | linked code with no DB/table/integration test (downgraded) |
 | `fee_core` | L3 | — | — | 1 | Tier-1 core module |

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T04:01:32.865Z",
+  "generatedAt": "2026-11-12T04:31:55.003Z",
   "entries": [
     {
       "domain": "account",
@@ -323,6 +323,27 @@
       "tier": 1,
       "linkageLevel": "L3",
       "linkedCoreDomains": [],
+      "replacement": null,
+      "consumer": null,
+      "trafficLastSeen": null,
+      "owner": null,
+      "status": "ACTIVE",
+      "reason": "Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof.",
+      "retireAfter": null,
+      "tableDropDate": null
+    },
+    {
+      "domain": "deposit_posting",
+      "module": "deposit_posting_core",
+      "routeFile": null,
+      "table": "deposit_settle_request",
+      "tier": 2,
+      "linkageLevel": "L3",
+      "linkedCoreDomains": [
+        "accounting",
+        "deposits",
+        "wallet/ledger"
+      ],
       "replacement": null,
       "consumer": null,
       "trafficLastSeen": null,

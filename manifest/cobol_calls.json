@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-12T03:51:45.968Z",
+  "generatedAt": "2026-11-12T04:29:12.775Z",
   "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
-  "count": 14,
+  "count": 16,
   "edges": [
     {
       "from": "auth_core",
@@ -25,8 +25,18 @@
     },
     {
       "from": "deposit_core",
+      "to": "deposit_posting_core",
+      "callsites": 3
+    },
+    {
+      "from": "deposit_core",
       "to": "gl_core",
-      "callsites": 4
+      "callsites": 2
+    },
+    {
+      "from": "deposit_posting_core",
+      "to": "gl_core",
+      "callsites": 2
     },
     {
       "from": "eod_jobs_core",

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-12T03:51:46.052Z",
-  "commit": "b352c9fe",
+  "generatedAt": "2026-11-12T04:31:54.827Z",
+  "commit": "e8138bdf",
   "tier1": "manifest/tier1.json",
   "summary": {
-    "L3": 20,
+    "L3": 21,
     "L2": 6,
     "L1": 10,
     "L0": 28,
@@ -303,6 +303,27 @@
       "routeFiles": [
         "deposit.js"
       ]
+    },
+    {
+      "module": "deposit_posting_core",
+      "source": "deposit_posting_core.cob",
+      "linkageLevel": "L3",
+      "businessTables": [
+        "accounts",
+        "deposit_account",
+        "deposit_accrual",
+        "gl_journal"
+      ],
+      "t1Calls": [
+        "gl_core"
+      ],
+      "t1Actions": [],
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/deposit_posting_db_tests.sh"
+      ],
+      "reason": "money-table touch (accounts, gl_journal) with depth + test",
+      "routeFiles": []
     },
     {
       "module": "eod_core",

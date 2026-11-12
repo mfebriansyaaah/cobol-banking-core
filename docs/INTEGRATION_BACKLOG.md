@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 26 |
+| PARTIAL (open items) | 27 |
 
-Open/in-progress items: 164 of 212 recorded.
+Open/in-progress items: 165 of 213 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -25,6 +25,7 @@ Open/in-progress items: 164 of 212 recorded.
 | `collection_core` | PARTIAL | 1 |
 | `dashboard_core` | PARTIAL | 12 |
 | `deposit_core` | PARTIAL | 2 |
+| `deposit_posting_core` | PARTIAL | 1 |
 | `fee_core` | PARTIAL | 8 |
 | `gl_core` | PARTIAL | 7 |
 | `identity_core` | PARTIAL | 7 |
@@ -99,6 +100,7 @@ Open/in-progress items: 164 of 212 recorded.
 | `dashboard_core:table:report-schedule` | `dashboard_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `deposit_core:audit:core-reference` | `deposit_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `deposit_core:table:days` | `deposit_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `deposit_posting_core:audit:core-reference` | `deposit_posting_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `fee_core:action:action-vel-profile-create` | `fee_core` | action | OPEN | — | Write paragraph with no core link (writes velocity_profile) |
 | `fee_core:action:action-vel-record` | `fee_core` | action | OPEN | — | Write paragraph with no core link (writes used_count, velocity_counter) |
 | `fee_core:action:action-vel-record-all-txn` | `fee_core` | action | OPEN | — | Write paragraph with no core link (writes used_count, velocity_counter) |
