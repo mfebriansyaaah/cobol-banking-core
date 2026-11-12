@@ -3,6 +3,7 @@
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
+
        SPECIAL-NAMES.
            DECIMAL-POINT IS COMMA.
 
@@ -198,6 +199,8 @@
 
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
         
+        COPY "common_sql.cpy".
+
         MAIN-LOGIC.
             *> Initialize critical WORKING-STORAGE (for --serve mode):
             MOVE "OK  " TO WS-TRANSFER-STATE
@@ -348,12 +351,8 @@
             *> spendable balance until released or expired.
             SET WS-TRANSFER-OK TO TRUE.
             IF WS-TRANSFER-OK
-                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM LOOKUP-USER-ROLE
             END-IF.
             IF WS-TRANSFER-OK AND WS-RESULT NOT = "SUPER_ADMIN"
                 MOVE WS-PARAM3-TRIMMED TO WS-DENIED-ACTOR
@@ -423,12 +422,8 @@
             *> anything else is reported as unknown.
             SET WS-TRANSFER-OK TO TRUE.
             IF WS-TRANSFER-OK
-                MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM LOOKUP-USER-ROLE
             END-IF.
             IF WS-TRANSFER-OK AND WS-RESULT NOT = "SUPER_ADMIN"
                 MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR

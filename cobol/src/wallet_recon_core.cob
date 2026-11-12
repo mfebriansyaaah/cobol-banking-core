@@ -3,6 +3,7 @@
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
+
        SPECIAL-NAMES.
            DECIMAL-POINT IS COMMA.
 
@@ -198,6 +199,8 @@
 
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
         
+        COPY "common_sql.cpy".
+
         MAIN-LOGIC.
             *> Initialize critical WORKING-STORAGE (for --serve mode):
             MOVE "OK  " TO WS-TRANSFER-STATE
@@ -640,12 +643,8 @@
         ACK-EXCEPTION-LOGIC.
             *> p1 = finding_id, p2 = actor (SUPER_ADMIN). Claims ownership:
             *> OPEN becomes ACKNOWLEDGED with the actor as owner.
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM LOOKUP-USER-ROLE
             IF WS-RESULT NOT = "SUPER_ADMIN"
                 MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
                 MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
@@ -714,12 +713,8 @@
             *> p1 = finding_id, p2 = actor (SUPER_ADMIN), p3 = note (opt).
             *> Closes an ACKNOWLEDGED finding; the run link is kept.
             SET WS-TRANSFER-OK TO TRUE
-            MOVE "SELECT role FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM LOOKUP-USER-ROLE
             IF WS-RESULT NOT = "SUPER_ADMIN"
                 MOVE WS-PARAM2-TRIMMED TO WS-DENIED-ACTOR
                 MOVE WS-PARAM1-TRIMMED TO WS-DENIED-TARGET
