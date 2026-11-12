@@ -46,6 +46,7 @@ B="authshellB@test.com"
 # Signup -> verify -> login happy path.
 assert_match "REQUEST_SIGNUP ok" "$(run_cobol "REQUEST_SIGNUP|${A}|Passw0rd!|Auth Shell|1990-01-01")" "SUCCESS\|USER_CREATED"
 assert_match "duplicate signup neutral (anti-enumeration)" "$(run_cobol "REQUEST_SIGNUP|${A}|Passw0rd!|Auth Shell|1990-01-01")" "SUCCESS\|USER_CREATED"
+assert_match "short password refused" "$(run_cobol "REQUEST_SIGNUP|weakpw@test.com|Ab1|Too Short|1990-01-01")" "ERROR\|WEAK_PASSWORD"
 code="$(db_query "SELECT code FROM verification_logs WHERE email='${A}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
 assert_match "signup code stored" "$code" "^[0-9]+$"
 assert_match "VERIFY_EMAIL ok" "$(run_cobol "VERIFY_EMAIL|${A}|${code}")" "SUCCESS\|EMAIL_VERIFIED"
