@@ -1,19 +1,24 @@
-// VALIDATE copybook pins (maint-03b). No database, no build.
+// VALIDATE copybook pins (maint-03b, extended maint-07). No database, no build.
 //
 // VALIDATE-ALL/VALIDATE-INPUT vary by input variable (WS-TRIM-IN vs
-// WS-CHECK), rejected charset (F-SEMI or not), and control flow — so only
-// the two WS-TRIM-IN 6-param shapes are shared, in two files (cobc
-// validates every paragraph of an included copybook, so one file per
-// declaration footprint):
+// WS-CHECK), rejected charset (F-SEMI or not), and control flow — so the
+// two WS-TRIM-IN 6-param shapes are shared in two files, plus the wallet
+// WS-CHECK+SEMI early-exit shape in a third (cobc validates every
+// paragraph of an included copybook, so one file per declaration
+// footprint):
 //   common_validate_all.cpy:  VALIDATE-ALL + VALIDATE-INPUT
 //   common_validate_semi.cpy: VALIDATE-ALL + VALIDATE-INPUT-SEMI
+//   wallet_entry.cpy:         VALIDATE-ALL + VALIDATE-INPUT (WS-CHECK,
+//                             SEMI charset, early-exit; shared by
+//                             wallet_core and wallet_transfer_core)
 // (SEMI hosts PERFORM the plain VALIDATE-ALL name; each host COPYs exactly
 // one file, so each sees exactly one definition.)
 // Documented inline exceptions (keep their paragraphs, do not convert):
 //   auth×5 (4-param WS-CHECK, NL/CR charset — different security property),
 //   gl_core + import×2 (action-dependent VALIDATE-LINES branches),
 //   ref_engine + user_core (WS-CHECK shapes),
-//   wallet×6 (early-exit control flow).
+//   wallet×5 (early-exit control flow; wallet_core converted to
+//   wallet_entry.cpy in maint-07).
 // Universal invariant: no module outside INLINE_OK may define these
 // paragraphs inline; every PERFORM must resolve (inline exception or the
 // matching COPY).
@@ -38,7 +43,6 @@ const INLINE_OK = new Set([
   'import_row_core',
   'ref_engine',
   'user_core',
-  'wallet_core',
   'wallet_dispute_core',
   'wallet_hold_core',
   'wallet_recon_core',
@@ -60,7 +64,8 @@ const copyOf = (file) => readFileSync(path.join(COPY_DIR, file), 'utf8');
 const inlineParas = (src) =>
   [...src.matchAll(/^ {7,8}(VALIDATE-ALL(?:-SEMI)?|VALIDATE-INPUT(?:-SEMI)?)\.$/gm)].map((m) => m[1]);
 const performs = (src, name) => new RegExp(`^\\s*PERFORM ${name}\\s*$`, 'm').test(src);
-const copies = (src) => [...src.matchAll(/COPY "(common_validate(?:_all|_semi)?\.cpy)"/g)].map((m) => m[1]);
+const copies = (src) =>
+  [...src.matchAll(/COPY "(common_validate(?:_all|_semi)?\.cpy|wallet_entry\.cpy)"/g)].map((m) => m[1]);
 
 test('shared files define the two pairs, generic, one definition each', () => {
   const all = copyOf('common_validate_all.cpy');
@@ -95,6 +100,9 @@ test('every module COPYs at most one validate file, and PERFORMs resolve', () =>
     if (files.includes('common_validate_semi.cpy')) {
       provides.add('VALIDATE-ALL').add('VALIDATE-INPUT-SEMI');
     }
+    if (files.includes('wallet_entry.cpy')) {
+      provides.add('VALIDATE-ALL').add('VALIDATE-INPUT');
+    }
     for (const name of ['VALIDATE-ALL', 'VALIDATE-INPUT', 'VALIDATE-INPUT-SEMI']) {
       if (!performs(src, name)) continue;
       assert.ok(
@@ -105,6 +113,6 @@ test('every module COPYs at most one validate file, and PERFORMs resolve', () =>
   }
 });
 
-test('INLINE_OK holds exactly the 16 documented exceptions', () => {
-  assert.equal(INLINE_OK.size, 16);
+test('INLINE_OK holds exactly the 15 documented exceptions', () => {
+  assert.equal(INLINE_OK.size, 15);
 });

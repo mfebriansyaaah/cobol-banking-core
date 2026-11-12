@@ -25,10 +25,13 @@ test('call-graph registry is in sync and lists the known orchestrator edges', as
   assert.equal(doc.count, doc.edges.length);
   const keys = new Set(doc.edges.map((e) => `${e.from} -> ${e.to}`));
   // Orchestrator edges the architecture review approved (ADR-0006):
-  // wallet→payment policy check, instruction→wallet posting,
-  // EOD jobs→domain modules, password delegate→auth.
+  // wallet transfer→payment policy check (relocated wallet_core→
+  // payment_core in maint-07; the transfer module owns the JOIN),
+  // instruction→wallet posting, EOD jobs→domain modules, password
+  // delegate→auth.
   for (const e of [
-    'wallet_core -> payment_core',
+    'wallet_transfer_core -> payment_core',
+    'wallet_transfer_core -> fee_core',
     'payment_instruction_core -> wallet_core',
     'eod_jobs_core -> user_core',
     'eod_jobs_core -> statement_core',
