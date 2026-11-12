@@ -54,10 +54,18 @@ Every domain module exposes these actions (prefix + action):
 - Admin-only actions call `ALLOW-ADMIN` / `ALLOW-SUPER-ADMIN`.
 - Shared boilerplate lives in `cobol/copy/` (`common_auth.cpy` provides
   `ALLOW-ADMIN` for all 4+/6-param modules; `user_core` keeps its own
-  4-param variant). A shared paragraph must be byte-identical to the copies
-  it replaces except for caller-set variables: the caller sets
+  4-param variant; `common_validate_all.cpy` / `common_validate_semi.cpy`
+  provide the two WS-TRIM-IN 6-param `VALIDATE-ALL`/`VALIDATE-INPUT` shapes).
+  Inline exceptions stay inline with a documented reason: auth×5 (NL/CR
+  charset), gl/import (action-dependent branches), ref/user (WS-CHECK
+  shapes), wallet×6 (early-exit flow) — see `scripts/test/copybook_*.test.mjs`
+  for the enforced lists.
+  A shared paragraph must be byte-identical to the copies it replaces except for caller-set variables: the caller sets
   `WS-DENIED-TARGET` before `PERFORM ALLOW-ADMIN`, and the copybook
-  delegates to the host module's own `AUDIT-DENIED`.
+  delegates to the host module's own `AUDIT-DENIED`. One file per
+  declaration footprint: cobc validates every paragraph of an included
+  copybook, so a paragraph must not reference WS vars its hosts lack
+  (that broke the build once — `F-SEMI` in the shared file).
   Every new shared paragraph needs a pin test under `scripts/test/`
   (no inline regrowth, COPY present, caller invariant holds) and a
   `tests/copybook_baseline.txt` update via `check_copybooks.mjs --write`.

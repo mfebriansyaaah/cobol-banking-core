@@ -21,7 +21,7 @@ loan_core 76.1
 loan_schedule_core 31.76
 deposit_core 74.3
 card_core 74.87
-collection_core 87.22
+collection_core 85.91
 payment_clearing_core 88.26
 treasury_liquidity_core 88.41
 gl_allocation_core 88.97
