@@ -58,7 +58,7 @@ db_payment_race_tests=49
 db_payment_conservation_tests=44
 
 db_admin_shell_tests=30
-db_auth_shell_tests=43
+db_auth_shell_tests=44
 db_dashboard_tests=13
 db_eod_ops_tests=16
 db_fee_read_tests=9

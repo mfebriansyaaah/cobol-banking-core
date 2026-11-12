@@ -572,24 +572,24 @@
                 EXIT PARAGRAPH
             END-IF.
             CALL "SQL_BEGIN" END-CALL
-            MOVE SPACES TO WS-QUERY
-            STRING "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at) SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL " 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) " DAY)" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            MOVE "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at) SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|AUDIT_ARCHIVE_FAILED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE SPACES TO WS-QUERY
-            STRING "DELETE FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL " 
-                   WS-PARAM1-TRIMMED(1:WS-P1-LEN) " DAY)" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY END-CALL
-            CALL "SQL_EXECUTE" END-CALL
+            MOVE "DELETE FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)" TO WS-PREP-SQL
+            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+            END-CALL
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
                 CALL "SQL_ROLLBACK" END-CALL

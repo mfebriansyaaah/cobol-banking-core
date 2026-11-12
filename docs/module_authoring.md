@@ -49,6 +49,8 @@ Every domain module exposes these actions (prefix + action):
 ## Rules
 
 - All SQL must use `SQL_PREPARE_EXEC*` with `?` placeholders (no `SET_QUERY` + `SQL_EXECUTE`).
+  Enforced by `scripts/test/prepared_auth.test.mjs` for the auth modules;
+  no `INTO WS-QUERY` builders may remain there.
 - Every write path wraps in `SQL_BEGIN` / `SQL_COMMIT` / `SQL_ROLLBACK`.
 - Audit rows go to `<table>_audit`.
 - Admin-only actions call `ALLOW-ADMIN` / `ALLOW-SUPER-ADMIN`.
