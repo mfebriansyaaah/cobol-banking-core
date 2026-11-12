@@ -5,7 +5,7 @@
 # its file in schema_migrations.checksum (added by 0666). --check fails when
 # an applied file no longer matches its hash; --backfill-checksums fills
 # hashes for rows that predate 0666 (explicit operator acknowledgement).
-# Usage: database/migrate.sh [--check | --only <version> | --up-to <version> | --backfill-checksums]
+# Usage: database/migrate.sh [--check | --only <version> | --up-to <version> | --backfill-checksums | --baseline]
 
 set -e
 cd "$(dirname "$0")/.."
@@ -147,6 +147,16 @@ if [ "$1" = "--check" ]; then
             echo "run database/migrate.sh --backfill-checksums to record current file hashes"
             exit 1
         fi
+        # A recorded baseline pins its snapshot file: an edited (or deleted)
+        # schema_v2.sql fails here instead of silently changing fresh installs.
+        if is_applied "baseline_v2"; then
+            want_baseline="$(file_sha "database/schema_v2.sql" 2>/dev/null || true)"
+            have_baseline="$(mysqlc -N -B -e "SELECT checksum FROM schema_migrations WHERE version='baseline_v2';" 2>/dev/null)"
+            if [ "$have_baseline" != "$want_baseline" ]; then
+                echo "checksum MISMATCH: baseline snapshot database/schema_v2.sql was edited after this database was baselined (restore the file or re-baseline deliberately): baseline_v2"
+                exit 1
+            fi
+        fi
     fi
     echo "all migrations applied"
     exit 0
@@ -175,6 +185,96 @@ if [ "$1" = "--up-to" ]; then
     UPTO="${2:-}"
     [ -n "$UPTO" ] || { echo "usage: migrate.sh --up-to <version>" >&2; exit 2; }
     [ -f "database/migrations/$UPTO.sql" ] || { echo "unknown migration: $UPTO" >&2; exit 2; }
+fi
+
+# Baseline v2 (PR-010): fresh installs apply database/schema_v2.sql once and
+# record every current migration as covered-by-baseline (with current
+# hashes) plus a baseline_v2 marker; existing databases must verify clean
+# (same membership + hash rules as --check) before the marker lands. Either
+# way the run then falls through to the normal apply loop, so migrations
+# added after the baseline apply normally on both kinds of database.
+# schema_v2.sql is immutable once recorded (its hash rides the marker row);
+# --check reports an edited baseline file as a baseline_v2 mismatch.
+if [ "$1" = "--baseline" ]; then
+    BASELINE_FILE="database/schema_v2.sql"
+    [ -f "$BASELINE_FILE" ] || { echo "missing baseline snapshot: $BASELINE_FILE" >&2; exit 2; }
+    # Pre-CREATE state (the unconditional CREATE TABLE below runs for every
+    # mode): a missing/empty schema_migrations means nothing was ever applied.
+    had_table="$(mysqlc -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'schema_migrations';" 2>/dev/null || echo 0)"
+    had_rows="0"
+    if [ "$had_table" = "1" ]; then
+        had_rows="$(mysqlc -N -B -e "SELECT COUNT(*) FROM schema_migrations;" 2>/dev/null || echo 0)"
+    fi
+    if [ "$had_table" = "0" ] || [ "$had_rows" = "0" ]; then
+        # Fresh install. Refuse a non-empty database without history: the
+        # snapshot rebuilds schema objects and would silently discard
+        # hand-built data.
+        other_tables="$(mysqlc -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name <> 'schema_migrations';" 2>/dev/null || echo 0)"
+        if [ "$other_tables" != "0" ]; then
+            echo "cannot baseline a non-empty database without migration history (tables present, schema_migrations empty); restore or migrate normally" >&2
+            exit 1
+        fi
+        echo "applying baseline: $BASELINE_FILE"
+        if err=$(mysqlc < "$BASELINE_FILE" 2>&1); then
+            detect_checksum_col
+            versions=""
+            for f in database/migrations/*.sql; do
+                [ -e "$f" ] || continue
+                v="$(basename "$f" .sql)"
+                versions="$versions('$v', '$(file_sha "$f")'),"
+            done
+            versions="${versions%,}"
+            if [ -n "$versions" ]; then
+                mysqlc -e "INSERT IGNORE INTO schema_migrations (version, checksum) VALUES $versions;" 2>/dev/null
+            fi
+            mysqlc -e "INSERT IGNORE INTO schema_migrations (version, checksum) VALUES ('baseline_v2', '$(file_sha "$BASELINE_FILE")');" 2>/dev/null
+            echo "baseline applied (covered migrations recorded as skipped)"
+        else
+            echo "baseline FAILED"
+            echo "$err" | head -5
+            exit 1
+        fi
+    else
+        # Existing database: must verify clean before the marker lands.
+        load_applied
+        pending=""
+        for f in database/migrations/*.sql; do
+            [ -e "$f" ] || continue
+            v="$(basename "$f" .sql)"
+            is_applied "$v" || pending="$pending $v"
+        done
+        if [ -n "$pending" ]; then
+            echo "cannot baseline a partially-migrated database; pending migrations:$pending"
+            echo "finish migrations or restore from backup first" >&2
+            exit 1
+        fi
+        if [ "$HAS_CHECKSUM_COL" = "1" ]; then
+            stored="$(mysqlc -N -B -e "SELECT CONCAT(version, ' ', IFNULL(checksum, 'MISSING')) FROM schema_migrations;" 2>/dev/null)"
+            bad=""
+            for f in database/migrations/*.sql; do
+                [ -e "$f" ] || continue
+                v="$(basename "$f" .sql)"
+                is_applied "$v" || continue
+                want="$(file_sha "$f")"
+                case $'\n'"$stored"$'\n' in
+                    *$'\n'"$v $want"$'\n'*) ;;
+                    *) bad="$bad $v" ;;
+                esac
+            done
+            if [ -n "$bad" ]; then
+                echo "cannot baseline: checksum mismatch (applied file edited):$bad"
+                echo "run database/migrate.sh --backfill-checksums first (explicit acknowledgement)" >&2
+                exit 1
+            fi
+        fi
+        if is_applied "baseline_v2"; then
+            echo "already baselined"
+        else
+            detect_checksum_col
+            mysqlc -e "INSERT INTO schema_migrations (version, checksum) VALUES ('baseline_v2', '$(file_sha "$BASELINE_FILE")');" 2>/dev/null
+            echo "baseline recorded"
+        fi
+    fi
 fi
 
 load_applied
