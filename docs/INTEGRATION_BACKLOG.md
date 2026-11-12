@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 27 |
+| PARTIAL (open items) | 28 |
 
-Open/in-progress items: 165 of 213 recorded.
+Open/in-progress items: 168 of 216 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -43,7 +43,8 @@ Open/in-progress items: 165 of 213 recorded.
 | `statement_recon_core` | PARTIAL | 8 |
 | `treasury_liquidity_core` | PARTIAL | 6 |
 | `user_core` | PARTIAL | 7 |
-| `wallet_core` | PARTIAL | 18 |
+| `wallet_core` | PARTIAL | 14 |
+| `wallet_transfer_core` | PARTIAL | 7 |
 
 | Item | Module | Kind | Status | Owner | Reason |
 | --- | --- | --- | --- | --- | --- |
@@ -244,14 +245,10 @@ Open/in-progress items: 165 of 213 recorded.
 | `user_core:table:verification-logs` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:audit:core-reference` | `wallet_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `wallet_core:table:audit-authz-denied` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `wallet_core:table:audit-trail` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:delimited` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:dispute-cases` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:dispute-messages` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:end` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
-| `wallet_core:table:exchange-rates` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `wallet_core:table:if` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `wallet_core:table:in` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:not` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:pending-transactions` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:pic` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
@@ -260,3 +257,10 @@ Open/in-progress items: 165 of 213 recorded.
 | `wallet_core:table:role-permissions` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:to` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:transfer-reversals` | `wallet_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `wallet_transfer_core:audit:core-reference` | `wallet_transfer_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `wallet_transfer_core:table:audit-trail` | `wallet_transfer_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `wallet_transfer_core:table:exchange-rates` | `wallet_transfer_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `wallet_transfer_core:table:if` | `wallet_transfer_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `wallet_transfer_core:table:in` | `wallet_transfer_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `wallet_transfer_core:table:pending-transactions` | `wallet_transfer_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `wallet_transfer_core:table:pic` | `wallet_transfer_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |

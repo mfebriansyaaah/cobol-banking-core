@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T04:29:12.704Z",
+  "generatedAt": "2026-11-12T05:08:46.418Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -204,6 +204,9 @@
     },
     {
       "source": "wallet_statement_core.cob"
+    },
+    {
+      "source": "wallet_transfer_core.cob"
     }
   ],
   "gatewayRoutes": [

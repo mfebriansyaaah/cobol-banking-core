@@ -73,3 +73,4 @@ wallet_hold_core.cob=0
 wallet_recon_core.cob=0
 wallet_reversal_core.cob=0
 wallet_statement_core.cob=0
+wallet_transfer_core.cob=0

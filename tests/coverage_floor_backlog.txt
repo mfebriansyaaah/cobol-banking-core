@@ -4,7 +4,6 @@
 # modules fail the gate; entries that reach the floor must be removed.
 # Format: MODULE  reason (free text after the name is documentation only).
 user_core  deep auth/session branches need targeted tests (63.34%)
-wallet_core  money-path happy flows covered; error branches thin (56.3%)
 gl_core  period/account admin paths thin (32.13%)
 fee_core  lowered by covered-line removal in copybook rollout (18.1%)
 loan_schedule_core  attribution scrambled by LAST_INSERT_ID copybook move (68.44%; logic identical, suites green)

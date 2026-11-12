@@ -7,11 +7,12 @@
 // callee COMMIT would commit the caller's partial work early.
 //
 // This test pins the production precedent that already proves the pattern:
-// wallet_core CALLs fee_core (VEL_RECORD_ALL_TXN) and payment_core
-// (PAY_ENFORCE) from inside its transfer transaction, and both callee
-// paragraphs contain zero SQL_BEGIN/COMMIT/ROLLBACK. If a future edit adds
-// a transaction statement to either paragraph, this test fails before the
-// money moves.
+// the transfer engine CALLs fee_core (VEL_RECORD_ALL_TXN) and payment_core
+// (PAY_ENFORCE) from inside the wallet transfer transaction (relocated
+// verbatim from wallet_core to wallet_transfer_core in maint-07), and both
+// callee paragraphs contain zero SQL_BEGIN/COMMIT/ROLLBACK. If a future
+// edit adds a transaction statement to either paragraph, this test fails
+// before the money moves.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -53,16 +54,19 @@ test('payment_core ACTION-ENFORCE joins the caller transaction (no txn statement
   assert.equal(txnCount(body), 0, 'callee must not BEGIN/COMMIT/ROLLBACK');
 });
 
-test('wallet_core calls both callees (the proven join sites)', () => {
-  const src = readFileSync(path.join(COBOL_DIR, 'wallet_core.cob'), 'utf8');
-  assert.match(src, /CALL\s+"fee_core"/, 'wallet_core must CALL fee_core');
-  assert.match(src, /CALL\s+"payment_core"/, 'wallet_core must CALL payment_core');
+test('wallet_transfer_core calls both callees (the proven join sites)', () => {
+  // Maint-07: the join sites relocated verbatim with TRANSFER-LOGIC from
+  // wallet_core to wallet_transfer_core; the pattern (and its proof) is
+  // unchanged, one hop down.
+  const src = readFileSync(path.join(COBOL_DIR, 'wallet_transfer_core.cob'), 'utf8');
+  assert.match(src, /CALL\s+"fee_core"/, 'wallet_transfer_core must CALL fee_core');
+  assert.match(src, /CALL\s+"payment_core"/, 'wallet_transfer_core must CALL payment_core');
 });
 
 test('call-graph registry lists the proven join edges', async () => {
   const doc = JSON.parse(readFileSync(path.join(ROOT, 'manifest', 'cobol_calls.json'), 'utf8'));
   const keys = new Set(doc.edges.map((e) => `${e.from} -> ${e.to}`));
-  for (const e of ['wallet_core -> fee_core', 'wallet_core -> payment_core']) {
+  for (const e of ['wallet_transfer_core -> fee_core', 'wallet_transfer_core -> payment_core']) {
     assert.ok(keys.has(e), `registry must list ${e}`);
   }
 });
