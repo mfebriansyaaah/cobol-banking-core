@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-12T06:40:47.740Z",
+  "generatedAt": "2026-11-13T16:04:19.558Z",
   "generator": "scripts/check_cobol_call_graph.mjs (do not hand-edit)",
-  "count": 19,
+  "count": 23,
   "edges": [
     {
       "from": "auth_core",
@@ -11,12 +11,32 @@
     {
       "from": "auth_core",
       "to": "hashlen_core",
+      "callsites": 4
+    },
+    {
+      "from": "auth_mfa_core",
+      "to": "hashlen_core",
+      "callsites": 2
+    },
+    {
+      "from": "auth_ops_core",
+      "to": "hashlen_core",
       "callsites": 2
     },
     {
       "from": "auth_password_core",
       "to": "auth_core",
       "callsites": 1
+    },
+    {
+      "from": "auth_recovery_core",
+      "to": "hashlen_core",
+      "callsites": 2
+    },
+    {
+      "from": "auth_review_core",
+      "to": "hashlen_core",
+      "callsites": 2
     },
     {
       "from": "card_core",

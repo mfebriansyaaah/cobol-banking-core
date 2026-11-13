@@ -42,6 +42,24 @@ test('call-graph registry is in sync and lists the known orchestrator edges', as
   }
 });
 
+test('copybook-resident CALLs belong to every including module', async () => {
+  const { readdirSync, readFileSync } = await import('node:fs');
+  const doc = JSON.parse(readFileSync(path.join(ROOT, 'manifest', 'cobol_calls.json'), 'utf8'));
+  const keys = new Set(doc.edges.map((e) => `${e.from} -> ${e.to}`));
+  // 15B2 moved deposit's gl_core CALL into deposit_lifecycle.cpy; the edge
+  // must stay attributed to deposit_core or the transaction seam hides.
+  assert.ok(keys.has('deposit_core -> gl_core'), 'deposit_core -> gl_core must survive the extraction');
+  // auth_password_logic.cpy CALLs hashlen_core for every host that COPYs it.
+  const hosts = readdirSync(path.join(ROOT, 'cobol', 'src'))
+    .filter((f) => f.endsWith('.cob'))
+    .filter((f) => /COPY "auth_password_logic\.cpy"/.test(readFileSync(path.join(ROOT, 'cobol', 'src', f), 'utf8')))
+    .map((f) => f.replace(/\.cob$/, ''));
+  assert.ok(hosts.length >= 5, `expected the auth password hosts, got ${hosts.join(', ')}`);
+  for (const host of hosts) {
+    assert.ok(keys.has(`${host} -> hashlen_core`), `${host} -> hashlen_core must be registered`);
+  }
+});
+
 test('no module declares an oversized query buffer', async () => {
   const { readdirSync, readFileSync } = await import('node:fs');
   for (const f of readdirSync(path.join(ROOT, 'cobol', 'src')).filter((x) => x.endsWith('.cob'))) {
