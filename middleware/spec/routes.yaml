@@ -1,0 +1,689 @@
+# Route spec (generated extract — review, then generate back).
+# One line per route. Fields: name:PATTERN (?=optional) or SHARED-CONST.
+# tokenIdentity present when the source route sets it. extras in canonical order.
+files:
+- file: account.js
+  export: ACCOUNT_ROUTES
+    - { method: post, path: "/accounts/validate", action: ACC_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/accounts/summary", action: ACC_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/accounts/audit", action: ACC_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/accounts", action: ACC_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/accounts", action: ACC_CREATE, tokenIdentity: 'actor', fields: [accountRef:KEY, holderName:NAME, accountType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/accounts/:id", action: ACC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/calc", action: ACC_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/update", action: ACC_UPDATE, tokenIdentity: 'actor', fields: [ID, holderName:NAME?, accountType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/delete", action: ACC_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: admin.js
+  export: ADMIN_ROUTES
+    - { method: post, path: "/admin/dormancy/mark", action: MARK_DORMANT, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, BLANK, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/dormancy/suspend", action: SUSPEND_DORMANT, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, BLANK, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/dormancy/reactivate", action: REACTIVATE_DORMANT, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/user-status", action: SET_USER_STATUS, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, status:USER_STATUS, actor:EMAIL, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/unlock", action: UNLOCK_USER, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/mfa-reset", action: ADMIN_RESET_MFA, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/holds", action: PLACE_HOLD, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, amount:AMOUNT, actor:EMAIL, days:INT?, currency:CURRENCY?, reason:REASON?] }
+    - { method: post, path: "/admin/holds/release", action: RELEASE_HOLD, tokenIdentity: 'actor', stepUp: true, fields: [holdId:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/mfa-recovery/approve", action: APPROVE_MFA_RECOVERY, tokenIdentity: 'actor', stepUp: true, fields: [requestId:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/mfa-recovery/reject", action: REJECT_MFA_RECOVERY, tokenIdentity: 'actor', stepUp: true, fields: [requestId:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/mfa-recovery", action: LIST_MFA_RECOVERY, tokenIdentity: 'actor', fields: [actor:EMAIL, status:RECOVERY_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK] }
+    - { method: get, path: "/admin/role", action: CHECK_ROLE, tokenIdentity: 'actor', fields: [email:EMAIL, role:ROLE, actor:EMAIL, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/reconcile", action: RECONCILE, tokenIdentity: 'actor', fields: [actor:EMAIL, BLANK, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/reconcile/run", action: RUN_RECONCILIATION, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, trigger:TRIGGER_SRC?, BLANK, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/reconcile/runs", action: LIST_RECONCILIATIONS, tokenIdentity: 'actor', fields: [actor:EMAIL, limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/reconcile/exceptions", action: LIST_EXCEPTIONS, tokenIdentity: 'actor', fields: [actor:EMAIL, status:RECON_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK] }
+    - { method: post, path: "/admin/reconcile/acknowledge", action: ACK_EXCEPTION, tokenIdentity: 'actor', stepUp: true, fields: [findingId:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/outbox", action: LIST_OUTBOX, tokenIdentity: 'actor', fields: [actor:EMAIL, status:OUTBOX_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK] }
+    - { method: post, path: "/admin/reconcile/resolve", action: RESOLVE_EXCEPTION, tokenIdentity: 'actor', stepUp: true, fields: [findingId:INT, actor:EMAIL, note:REASON?, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/requests", action: REQUEST_OPERATION, tokenIdentity: 'actor', stepUp: true, fields: [operation:OPERATION, target:EMAIL, detail:KEY?, actor:EMAIL, BLANK, BLANK] }
+    - { method: post, path: "/admin/requests/approve", action: APPROVE_REQUEST, tokenIdentity: 'actor', stepUp: true, fields: [requestId:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/requests/reject", action: REJECT_REQUEST, tokenIdentity: 'actor', stepUp: true, fields: [requestId:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/requests", action: LIST_REQUESTS, tokenIdentity: 'actor', fields: [actor:EMAIL, status:REQUEST_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK] }
+    - { method: post, path: "/admin/role", action: CHANGE_ROLE, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, role:ROLE, actor:EMAIL, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/audit/archive", action: ARCHIVE_AUDIT, tokenIdentity: 'actor', stepUp: true, fields: [days:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/access-reviews", action: OPEN_ACCESS_REVIEW, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, periodStart:DATE, periodEnd:DATE, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/access-reviews", action: LIST_ACCESS_REVIEWS, tokenIdentity: 'actor', fields: [actor:EMAIL, state:REVIEW_STATE?, limit:LIMIT?, offset:INT?, BLANK, BLANK] }
+    - { method: get, path: "/admin/access-reviews/:id", action: GET_ACCESS_REVIEW, tokenIdentity: 'actor', fields: [actor:EMAIL, id:INT, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/admin/access-review-items/:itemId/decide", action: DECIDE_ACCESS_ITEM, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, itemId:INT, decision:REVIEW_DECISION, note:REASON?, BLANK, BLANK] }
+    - { method: post, path: "/admin/access-reviews/:id/close", action: CLOSE_ACCESS_REVIEW, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, id:INT, BLANK, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/admin/audit", action: LIST_AUDIT, tokenIdentity: 'actor', fields: [actor:EMAIL, action:AUDIT_ACTION?, email:EMAIL?, limit:LIMIT?, offset:INT?, BLANK] }
+- file: auth.js
+  export: AUTH_ROUTES
+    - { method: post, path: "/auth/signup", action: REQUEST_SIGNUP, public: true, captcha: true, passwordField: 'password', fields: [email:EMAIL, password:PASSWORD, name:NAME, dob:DATE, BLANK, BLANK] }
+    - { method: post, path: "/auth/verify", action: VERIFY_EMAIL, public: true, fields: [email:EMAIL, code:CODE, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/auth/forgot", action: FORGOT_PASSWORD, public: true, captcha: true, fields: [email:EMAIL, BLANK, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/auth/reset-password", action: RESET_PASSWORD, public: true, passwordField: 'password', fields: [email:EMAIL, code:CODE, password:PASSWORD, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/auth/resend", action: RESEND_VERIFICATION, public: true, captcha: true, fields: [email:EMAIL, BLANK, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/auth/login", action: AUTH_LOGIN, public: true, captcha: true, fields: [email:EMAIL, password:PASSWORD, mfaCode:MFA_CODE?, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/auth/step-up", action: VERIFY_REAUTH, tokenIdentity: 'email', fields: [email:EMAIL, password:PASSWORD, mfaCode:MFA_CODE?, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/mfa/backup-codes", action: MFA_BACKUP_CODES, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/mfa/recover", action: REQUEST_MFA_RECOVERY, public: true, fields: [email:EMAIL, password:PASSWORD, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/mfa/recover/confirm", action: VERIFY_MFA_RECOVERY, public: true, fields: [email:EMAIL, code:CODE, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/mfa/enroll", action: MFA_ENROLL_BEGIN, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/mfa/confirm", action: MFA_ENROLL_CONFIRM, tokenIdentity: 'actor', fields: [email:EMAIL, code:CODE, actor:EMAIL, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/mfa/disable", action: MFA_DISABLE, tokenIdentity: 'actor', stepUpPolicy: 'MFA_DISABLE', fields: [email:EMAIL, code:CODE, actor:EMAIL, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/sessions", action: LIST_SESSIONS, tokenIdentity: 'actor', tokenSid: true, fields: [email:EMAIL, actor:EMAIL, sid:KEY?, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/sessions/revoke", action: REVOKE_USER_SESSION, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, sessionId:KEY, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/sessions/revoke-all", action: REVOKE_ALL_SESSIONS, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/sessions/revoke-others", action: REVOKE_OTHER_DEVICES, tokenIdentity: 'actor', tokenSid: true, fields: [email:EMAIL, actor:EMAIL, sid:KEY, BLANK, BLANK, BLANK] }
+- file: backup_drill.js
+  export: BACKUP_DRILL_ROUTES
+    - { method: post, path: "/it/backup-drills/validate", action: BDR_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/it/backup-drills/summary", action: BDR_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/it/backup-drills/audit", action: BDR_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/it/backup-drills", action: BDR_LIST, tokenIdentity: 'actor', fields: [status:BDR_LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/it/backup-drills", action: BDR_CREATE, tokenIdentity: 'actor', fields: [drillRef:KEY, targetTable:NAME, backupType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/it/backup-drills/:id", action: BDR_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/it/backup-drills/:id/run", action: BDR_RUN, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/it/backup-drills/:id/close", action: BDR_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: bank_guarantee.js
+  export: BKG_ROUTES
+    - { method: post, path: "/bank-guarantees/validate", action: BKG_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/bank-guarantees/summary", action: BKG_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/bank-guarantees/audit", action: BKG_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/bank-guarantees", action: BKG_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, guaranteeType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/bank-guarantees", action: BKG_CREATE, tokenIdentity: 'actor', fields: [guaranteeRef:KEY, beneficiaryName:NAME, guaranteeType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/bank-guarantees/:id", action: BKG_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/bank-guarantees/:id/calc", action: BKG_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/bank-guarantees/:id/update", action: BKG_UPDATE, tokenIdentity: 'actor', fields: [ID, beneficiaryName:NAME?, guaranteeType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/bank-guarantees/:id/delete", action: BKG_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: card.js
+  export: CARD_ROUTES
+    - { method: post, path: "/cards", action: CARD_ISSUE, tokenIdentity: 'actor', fields: [ref:RPT_CHECKSUM, email:EMAIL, type:CARD_TYPE, limit:AMOUNT?, currency:CURRENCY, ACTOR] }
+    - { method: post, path: "/cards/validate", action: CARD_VALIDATE, tokenIdentity: 'actor', fields: [email:EMAIL, type:CARD_TYPE, limit:AMOUNT?, currency:CURRENCY, BLANK, ACTOR] }
+    - { method: get, path: "/cards/summary", action: CARD_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/cards/audit", action: CARD_AUDIT, tokenIdentity: 'actor', fields: [cardId:INT?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/cards", action: CARD_LIST, tokenIdentity: 'actor', fields: [status:CARD_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/cards/:id", action: CARD_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/cards/:id/statement", action: CARD_STATEMENT, tokenIdentity: 'actor', fields: [ID, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/cards/:id/block", action: CARD_BLOCK, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/cards/:id/unblock", action: CARD_UNBLOCK, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/cards/:id/close", action: CARD_CLOSE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/cards/:id/authorize", action: CARD_AUTHORIZE, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, merchant:NAME?, currency:CURRENCY?, BLANK, ACTOR] }
+    - { method: post, path: "/cards/:id/capture", action: CARD_CAPTURE, tokenIdentity: 'actor', fields: [ID, authRef:KEY, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: post, path: "/cards/:id/repay", action: CARD_REPAY, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: post, path: "/cards/:id/reverse", action: CARD_REVERSE, tokenIdentity: 'actor', fields: [ID, authRef:KEY, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: post, path: "/cards/:id/limit", action: CARD_LIMIT_SET, tokenIdentity: 'actor', fields: [ID, limit:AMOUNT, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/cards/:id/replace", action: CARD_REPLACE, tokenIdentity: 'actor', fields: [ID, ref:RPT_CHECKSUM, BLANK, BLANK, BLANK, ACTOR] }
+- file: chargeback.js
+  export: CHB_ROUTES
+    - { method: post, path: "/chargebacks/validate", action: CHB_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/chargebacks/summary", action: CHB_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/chargebacks/audit", action: CHB_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/chargebacks", action: CHB_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, cbType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks", action: CHB_CREATE, tokenIdentity: 'actor', fields: [cbRef:KEY, cardholderName:NAME, cbType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/chargebacks/cases", action: CHB_CASE_LIST, tokenIdentity: 'actor', fields: [merchantId:INT?, status:CHB_CASE_STATUS?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/chargebacks/cases/summary", action: CHB_CASE_SUMMARY, tokenIdentity: 'actor', fields: [merchantId:INT?, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/chargebacks/cases/:id", action: CHB_CASE_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/chargebacks/:id", action: CHB_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/calc", action: CHB_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/update", action: CHB_UPDATE, tokenIdentity: 'actor', fields: [ID, cardholderName:NAME?, cbType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/delete", action: CHB_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/open", action: CHB_OPEN, tokenIdentity: 'actor', fields: [caseRef:KEY, cardTransactionId:INT, amount:AMOUNT, reasonCode:NAME, merchantId:INT?, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/assign", action: CHB_ASSIGN, tokenIdentity: 'actor', fields: [ID, assignee:EMAIL, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/evidence", action: CHB_EVIDENCE, tokenIdentity: 'actor', fields: [ID, docType:NAME, docRef:KEY, note:NAME?, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/represent", action: CHB_REPRESENT, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/accept", action: CHB_ACCEPT, tokenIdentity: 'actor', fields: [ID, glJournalId:INT?, paymentClearingRef:KEY?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/reject", action: CHB_REJECT, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/arbitrate", action: CHB_ARBITRATE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/chargebacks/:id/close", action: CHB_CLOSE, tokenIdentity: 'actor', fields: [ID, resolution:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: collateral.js
+  export: CLT_ROUTES
+    - { method: post, path: "/collateral/validate", action: CLT_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collateral/summary", action: CLT_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collateral/audit", action: CLT_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collateral", action: CLT_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/collateral", action: CLT_CREATE, tokenIdentity: 'actor', fields: [CLTRef:KEY, CLTName:NAME, CLTType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collateral/:id", action: CLT_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/:id/calc", action: CLT_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/:id/update", action: CLT_UPDATE, tokenIdentity: 'actor', fields: [ID, CLTName:NAME?, CLTType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/:id/delete", action: CLT_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/register", action: CLT_REGISTER, tokenIdentity: 'actor', fields: [ref:KEY, name:NAME, type:NAME, amount:AMOUNT, customerRef:KEY?, ACTOR] }
+    - { method: post, path: "/collateral/:id/appraise", action: CLT_APPRAISE, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, valuer:NAME?, method:NAME?, note:NAME?, ACTOR] }
+    - { method: post, path: "/collateral/:id/revalue", action: CLT_REVALUE, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, valuer:NAME?, method:NAME?, note:NAME?, ACTOR] }
+    - { method: post, path: "/collateral/:id/pledge", action: CLT_PLEDGE, tokenIdentity: 'actor', fields: [ID, loanId:INT, amount:AMOUNT, haircut:AMOUNT?, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/allocate", action: CLT_ALLOCATE, tokenIdentity: 'actor', fields: [pledgeId:INT, loanId:INT, amount:AMOUNT, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/:id/release", action: CLT_RELEASE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/:id/repossess", action: CLT_REPOSSESS, tokenIdentity: 'actor', fields: [ID, loanId:INT?, reason:NAME?, glJournalId:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/collateral/:id/dispose", action: CLT_DISPOSE, tokenIdentity: 'actor', fields: [ID, proceeds:AMOUNT?, reason:NAME?, glJournalId:INT?, BLANK, ACTOR] }
+- file: collection.js
+  export: COLLECTION_ROUTES
+    - { method: post, path: "/collections/validate", action: COL_VALIDATE, tokenIdentity: 'actor', fields: [loanId:INT, installmentId:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collections/summary", action: COL_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collections/aging", action: COL_AGING, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collections/audit", action: COL_AUDIT, tokenIdentity: 'actor', fields: [caseId:INT?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collections", action: COL_LIST, tokenIdentity: 'actor', fields: [status:COLLECTION_STATUS?, priority:COLLECTION_PRIORITY?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/collections", action: COL_OPEN, tokenIdentity: 'actor', fields: [ref:KEY, loanId:INT, installmentId:INT?, priority:COLLECTION_PRIORITY?, BLANK, ACTOR] }
+    - { method: get, path: "/collections/:id", action: COL_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/collections/:id/history", action: COL_HISTORY, tokenIdentity: 'actor', fields: [ID, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collections/:id/assign", action: COL_ASSIGN, tokenIdentity: 'actor', fields: [ID, officer:EMAIL, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collections/:id/contact", action: COL_CONTACT, tokenIdentity: 'actor', fields: [ID, channel:COLLECTION_CHANNEL, note:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collections/:id/promise", action: COL_PROMISE, tokenIdentity: 'actor', fields: [ID, date:DATE, amount:AMOUNT, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collections/:id/pay", action: COL_PAY, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: post, path: "/collections/:id/escalate", action: COL_ESCALATE, tokenIdentity: 'actor', fields: [ID, note:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collections/:id/close", action: COL_CLOSE, tokenIdentity: 'actor', fields: [ID, resolution:NAME, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/collections/:id/reopen", action: COL_REOPEN, tokenIdentity: 'actor', fields: [ID, reason:REASON, BLANK, BLANK, BLANK, ACTOR] }
+- file: compliance_calendar.js
+  export: CCL_ROUTES
+    - { method: post, path: "/compliance-calendar/validate", action: CCL_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/compliance-calendar/summary", action: CCL_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/compliance-calendar/audit", action: CCL_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/compliance-calendar", action: CCL_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, eventType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar", action: CCL_CREATE, tokenIdentity: 'actor', fields: [calendarRef:KEY, eventName:NAME, eventType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/compliance-calendar/:id", action: CCL_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar/:id/calc", action: CCL_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar/:id/update", action: CCL_UPDATE, tokenIdentity: 'actor', fields: [ID, eventName:NAME?, eventType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar/:id/delete", action: CCL_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: corporate.js
+  export: CORPORATE_ROUTES
+    - { method: post, path: "/corporate/resolve", action: CORP_RESOLVE, tokenIdentity: 'actor', fields: [lei:KEY, legalName:NAME, status:NAME, address:NAME?, date:DATE, ACTOR] }
+    - { method: get, path: "/corporate/status", action: CORP_STATUS, tokenIdentity: 'actor', fields: [lei:KEY, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: cost_center.js
+  export: COST_CENTER_ROUTES
+    - { method: post, path: "/finance/cost-centers/validate", action: CSC_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/cost-centers/summary", action: CSC_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/cost-centers/audit", action: CSC_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/cost-centers", action: CSC_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/finance/cost-centers", action: CSC_CREATE, tokenIdentity: 'actor', fields: [ccRef:KEY, deptName:NAME, ccType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/cost-centers/:id", action: CSC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/cost-centers/:id/allocate", action: CSC_ALLO, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/cost-centers/:id/update", action: CSC_UPDATE, tokenIdentity: 'actor', fields: [ID, deptName:NAME?, ccType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/cost-centers/:id/close", action: CSC_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: dashboard.js
+  export: DASHBOARD_ROUTES
+    - { method: get, path: "/dashboard/overview", action: DSH_OVERVIEW, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/payments", action: DSH_PAYMENTS, tokenIdentity: 'actor', fields: DATE_RANGE }
+    - { method: get, path: "/dashboard/recon", action: DSH_RECON, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/disputes", action: DSH_DISPUTES, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/alerts", action: DSH_ALERTS, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/outbox", action: DSH_OUTBOX, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/reports", action: DSH_REPORTS, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/imports", action: DSH_IMPORTS, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/accounts", action: DSH_ACCOUNTS, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/fees", action: DSH_FEES, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/policy", action: DSH_POLICY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/dashboard/cashflow", action: DSH_CASHFLOW, tokenIdentity: 'actor', fields: DATE_RANGE }
+- file: deposit.js
+  export: DEPOSIT_ROUTES
+    - { method: post, path: "/deposits", action: DEP_OPEN, tokenIdentity: 'actor', fields: [email:EMAIL, principal:AMOUNT, currency:CURRENCY, term:TERM, rate:RATE?, ACTOR, idempotencyKey:KEY?] }
+    - { method: get, path: "/deposits", action: DEP_LIST, tokenIdentity: 'actor', fields: [status:DEP_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/deposits/mature", action: DEP_MATURE, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/deposits/validate", action: DEP_VALIDATE, tokenIdentity: 'actor', fields: [principal:AMOUNT, currency:CURRENCY, term:TERM, rate:RATE?, BLANK, ACTOR] }
+    - { method: post, path: "/deposits/calc", action: DEP_CALC, tokenIdentity: 'actor', fields: [principal:AMOUNT, rate:RATE, days:TERM, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/deposits/summary", action: DEP_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/deposits/audit", action: DEP_AUDIT, tokenIdentity: 'actor', fields: [depositId:INT?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/deposits/:id", action: DEP_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/deposits/:id/close", action: DEP_CLOSE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: post, path: "/deposits/:id/accrue", action: DEP_ACCRUE, tokenIdentity: 'actor', fields: [ID, days:TERM?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/deposits/:id/post", action: DEP_POST, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/deposits/:id/settle", action: DEP_SETTLE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: get, path: "/deposits/:id/statement", action: DEP_STATEMENT, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: disputes.js
+  export: DISPUTE_ROUTES
+    - { method: post, path: "/disputes", action: OPEN_DISPUTE, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, subject:REASON, detail:REASON, ref:KEY?, BLANK] }
+    - { method: post, path: "/disputes/:id/notes", action: ADD_DISPUTE_NOTE, tokenIdentity: 'actor', fields: [id:INT, actor:EMAIL, body:REASON, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/disputes/:id/acknowledge", action: ACK_DISPUTE, tokenIdentity: 'actor', stepUp: true, fields: [id:INT, actor:EMAIL, due:DATE?, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/disputes/:id/resolve", action: RESOLVE_DISPUTE, tokenIdentity: 'actor', stepUp: true, fields: [id:INT, actor:EMAIL, resolution:REASON, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/disputes/:id/reject", action: REJECT_DISPUTE, tokenIdentity: 'actor', stepUp: true, fields: [id:INT, actor:EMAIL, reason:REASON, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/disputes", action: LIST_DISPUTES, tokenIdentity: 'actor', fields: [actor:EMAIL, email:EMAIL?, status:DISPUTE_STATUS?, limit:LIMIT?, offset:INT?, BLANK] }
+    - { method: get, path: "/disputes/:id", action: GET_DISPUTE, tokenIdentity: 'actor', fields: [id:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+- file: eod.js
+  export: EOD_ROUTES
+    - { method: post, path: "/eod/calendars", action: EOD_CAL_OPEN, tokenIdentity: 'actor', fields: [date:DATE, cutoff:EOD_TIME, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/eod/calendars", action: EOD_CAL_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:EOD_STATUS?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/runs", action: EOD_RUN_START, tokenIdentity: 'actor', fields: [date:DATE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/runs/:id/phases/:code", action: EOD_PHASE_SET, tokenIdentity: 'actor', fields: [id:INT, code:EOD_PHASE_CODE, status:EOD_PHASE_STATUS, counts:EOD_COUNTS, BLANK, ACTOR] }
+    - { method: get, path: "/eod/runs/:id", action: EOD_RUN_STATUS, tokenIdentity: 'actor', fields: [id:INT, details:FLAG?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/runs/:id/close", action: EOD_RUN_CLOSE, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/runs/:id/fail", action: EOD_RUN_FAIL, tokenIdentity: 'actor', fields: [id:INT, errorCode:BATCH_CODE, detail:BATCH_DETAIL?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/eod/runs", action: EOD_RUN_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:EOD_RUN_STATUS?, date:DATE?, BLANK, ACTOR] }
+- file: eod_jobs.js
+  export: EOD_JOB_ROUTES
+    - { method: post, path: "/eod/jobs/holds/expire", action: EODJOB_HOLD_EXPIRY, tokenIdentity: 'actor', fields: [DATE_FIELD, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/jobs/dormant/mark", action: EODJOB_DORMANT_MARK, tokenIdentity: 'actor', fields: [DATE_FIELD, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/jobs/dormant/suspend", action: EODJOB_DORM_SUSPEND, tokenIdentity: 'actor', fields: [DATE_FIELD, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/jobs/recon", action: EODJOB_RECON, tokenIdentity: 'actor', fields: [DATE_FIELD, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/eod/jobs/statements", action: EODJOB_STATEMENT, tokenIdentity: 'actor', fields: [from:DATE, to:DATE, currency:CURRENCY, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/eod/jobs", action: EODJOB_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:EOD_RUN_STATUS?, date:DATE?, BLANK, ACTOR] }
+- file: fee.js
+  export: FEE_ROUTES
+    - { method: post, path: "/fees/rules", action: FEE_RULE_CREATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, name:RPT_NAME, type:FEE_TYPE, currency:CURRENCY, amounts:FEE_AMOUNTS, ACTOR] }
+    - { method: get, path: "/fees/rules", action: FEE_RULE_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, type:FEE_TYPE?, currency:CURRENCY?, BLANK, ACTOR] }
+    - { method: patch, path: "/fees/rules/:code", action: FEE_RULE_UPDATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, enabled:FLAG, priority:INT, amounts:FEE_AMOUNTS, BLANK, ACTOR] }
+    - { method: post, path: "/fees/rules/:code/tiers", action: FEE_TIER_CREATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, tierNo:INT, from:AMOUNT, to:AMOUNT, options:FEE_TIER_OPTIONS, ACTOR] }
+    - { method: get, path: "/fees/rules/:code/tiers", action: FEE_TIER_LIST, tokenIdentity: 'actor', fields: [code:BATCH_CODE, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/fees/rules/:code/waivers", action: FEE_WAIVER_CREATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, email:EMAIL, reason:BATCH_DETAIL, from:DATE, to:DATE, ACTOR] }
+    - { method: get, path: "/fees/rules/:code/waivers", action: FEE_WAIVER_LIST, tokenIdentity: 'actor', fields: [code:BATCH_CODE, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/fees/calculate", action: FEE_CALCULATE, tokenIdentity: 'actor', fields: [email:EMAIL, rule:BATCH_CODE, amount:AMOUNT, currency:CURRENCY, BLANK, ACTOR] }
+    - { method: post, path: "/velocity/profiles", action: VEL_PROFILE_CREATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, name:RPT_NAME, options:VEL_OPTIONS, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/velocity/profiles", action: VEL_PROFILE_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, enabled:FLAG?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/velocity/check", action: VEL_CHECK, tokenIdentity: 'actor', fields: [email:EMAIL, profile:BATCH_CODE, amount:AMOUNT, currency:CURRENCY, BLANK, ACTOR] }
+    - { method: post, path: "/velocity/record", action: VEL_RECORD, tokenIdentity: 'actor', fields: [email:EMAIL, profile:BATCH_CODE, amount:AMOUNT, currency:CURRENCY, BLANK, ACTOR] }
+    - { method: get, path: "/velocity/usage", action: VEL_USAGE, tokenIdentity: 'actor', fields: [email:EMAIL, profile:BATCH_CODE, BLANK, BLANK, BLANK, ACTOR] }
+- file: fixed_asset.js
+  export: FIXED_ASSET_ROUTES
+    - { method: post, path: "/finance/fixed-assets/validate", action: FAS_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/fixed-assets/summary", action: FAS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/fixed-assets/audit", action: FAS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/fixed-assets", action: FAS_LIST, tokenIdentity: 'actor', fields: [status:FAS_LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/finance/fixed-assets", action: FAS_CREATE, tokenIdentity: 'actor', fields: [assetRef:KEY, assetName:NAME, assetType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/fixed-assets/:id", action: FAS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/fixed-assets/:id/depreciate", action: FAS_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/fixed-assets/:id/update", action: FAS_UPDATE, tokenIdentity: 'actor', fields: [ID, assetName:NAME?, assetType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/fixed-assets/:id/dispose", action: FAS_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/fixed-assets", action: FAS_CAPITALIZE, tokenIdentity: 'actor', fields: [assetRef:KEY, assetName:NAME, assetType:NAME, costSpec:RPT_PARAMS, assetSpec:RPT_PARAMS, ACTOR] }
+    - { method: get, path: "/fixed-assets/summary", action: FAS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/fixed-assets/audit", action: FAS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/fixed-assets", action: FAS_LIST, tokenIdentity: 'actor', fields: [status:FAS_LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/fixed-assets/:id", action: FAS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/fixed-assets/:id/depreciate", action: FAS_DEPRECIATE, tokenIdentity: 'actor', fields: [ID, period:RPT_CODE, glJournalId:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/fixed-assets/:id/revalue", action: FAS_REVALUE, tokenIdentity: 'actor', fields: [ID, newBookValue:AMOUNT, glJournalId:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/fixed-assets/:id/dispose", action: FAS_DISPOSE, tokenIdentity: 'actor', fields: [ID, proceeds:AMOUNT, reason:NAME?, glJournalId:INT?, BLANK, ACTOR] }
+- file: fx_rates.js
+  export: FX_ROUTES
+    - { method: post, path: "/fx/rates", action: FX_RATE_STORE, tokenIdentity: 'actor', fields: [base:CURRENCY, quote:CURRENCY, rate:AMOUNT, provider:NAME?, date:DATE, ACTOR] }
+    - { method: get, path: "/fx/rates", action: FX_RATE_GET, tokenIdentity: 'actor', fields: [base:CURRENCY, quote:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+- file: gl.js
+  export: GL_ROUTES
+    - { method: get, path: "/gl/periods", action: GL_PERIOD_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/gl/periods", action: GL_PERIOD_OPEN, tokenIdentity: 'actor', fields: [period:GL_PERIOD, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/gl/periods/:period/close", action: GL_PERIOD_CLOSE, tokenIdentity: 'actor', fields: [period:GL_PERIOD, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/gl/journals/multiline", action: GL_JOURNAL_POST_ML, tokenIdentity: 'actor', fields: [date:DATE, description:NAME, currency:CURRENCY, lines:GL_LINES, BLANK, ACTOR] }
+    - { method: get, path: "/gl/accounts", action: GL_ACCOUNT_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/gl/accounts", action: GL_ACCOUNT_CREATE, tokenIdentity: 'actor', fields: [code:GL_ACCOUNT, name:NAME, type:GL_TYPE, normalSide:GL_SIDE, parent:GL_ACCOUNT?, ACTOR] }
+    - { method: post, path: "/gl/journals", action: GL_JOURNAL_POST, tokenIdentity: 'actor', fields: [date:DATE, description:NAME, debitAccount:GL_ACCOUNT, creditAccount:GL_ACCOUNT, amount:GL_AMOUNT, ACTOR] }
+    - { method: get, path: "/gl/trial-balance", action: GL_TRIAL_BALANCE, tokenIdentity: 'actor', fields: [from:DATE, to:DATE, currency:CURRENCY, BLANK, BLANK, ACTOR] }
+- file: gl_allocation.js
+  export: GL_ALLOCATION_ROUTES
+    - { method: post, path: "/finance/gl-allocation/validate", action: GLA_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/gl-allocation/summary", action: GLA_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/gl-allocation/audit", action: GLA_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/gl-allocation", action: GLA_LIST, tokenIdentity: 'actor', fields: [status:GLA_LIST_STATUS?, targetGl:GL_ACCOUNT?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/finance/gl-allocation", action: GLA_CREATE, tokenIdentity: 'actor', fields: [allocRef:KEY, sourceRef:NAME, targetGl:GL_ACCOUNT, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/finance/gl-allocation/:id", action: GLA_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/gl-allocation/:id/allocate", action: GLA_ALLO, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/finance/gl-allocation/:id/close", action: GLA_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: identity.js
+  export: IDENTITY_ROUTES
+    - { method: post, path: "/identity/nik/validate", action: IDV_NIK_VALIDATE, tokenIdentity: 'actor', fields: [email:EMAIL, nikHash:REF_VALUE_CODE?, nikLast4:KEY?, verdict:NAME?, BLANK, ACTOR] }
+    - { method: post, path: "/identity/ktp/ocr", action: IDV_KTP_OCR_RESULT, tokenIdentity: 'actor', fields: [email:EMAIL, verdict:NAME?, reason:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/identity/kyc/status", action: IDV_STATUS, tokenIdentity: 'actor', fields: [email:EMAIL, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/identity/kyc/apply", action: IDV_APPLY, tokenIdentity: 'actor', fields: [email:EMAIL, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/identity/reviews", action: IDV_REVIEW_LIST, tokenIdentity: 'actor', stepUp: true, fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/identity/reviews/decide", action: IDV_REVIEW_DECIDE, tokenIdentity: 'actor', stepUp: true, fields: [reviewId:INT, decision:NAME, reason:NAME?, BLANK, BLANK, ACTOR] }
+- file: import.js
+  export: IMPORT_ROUTES
+    - { method: post, path: "/imports/batches", action: IMP_BATCH_CREATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, source:RPT_NAME, type:IMP_TYPE, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/batches", action: IMP_BATCH_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:IMP_STATUS?, type:IMP_TYPE?, BLANK, ACTOR] }
+    - { method: get, path: "/imports/batches/:code", action: IMP_BATCH_GET, tokenIdentity: 'actor', fields: [code:BATCH_CODE, rows:FLAG?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/rows", action: IMP_ROW_STAGE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, rowNo:INT, raw:IMP_RAW, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/validate", action: IMP_BATCH_VALIDATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/rows/:rowNo", action: IMP_ROW_CORRECT, tokenIdentity: 'actor', fields: [code:BATCH_CODE, rowNo:INT, raw:IMP_RAW, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/batches/:code/errors", action: IMP_ERROR_LIST, tokenIdentity: 'actor', fields: [code:BATCH_CODE, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/post", action: IMP_BATCH_POST, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/ledger-post", action: IMPP_LEDGER, tokenIdentity: 'actor', fields: [code:BATCH_CODE, postingDate:DATE, description:NTF_TEXT, currency:CURRENCY, BLANK, ACTOR] }
+    - { method: get, path: "/imports/postings", action: IMPP_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/postings/:id", action: IMPP_GET, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/fail", action: IMP_BATCH_FAIL, tokenIdentity: 'actor', fields: [code:BATCH_CODE, errorCode:BATCH_CODE, detail:BATCH_DETAIL?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/batches/:code/export", action: IMP_BATCH_EXPORT, tokenIdentity: 'actor', fields: [code:BATCH_CODE, format:RPT_FORMAT, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/bulk", action: IMP_BATCH_STAGE_BULK, tokenIdentity: 'actor', fields: [code:BATCH_CODE, chunk1:IMP_CHUNK, chunk2:IMP_CHUNK?, chunk3:IMP_CHUNK?, chunk4:IMP_CHUNK?, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/clone", action: IMP_BATCH_CLONE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, newCode:BATCH_CODE, source:RPT_NAME, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/rows/:rowNo/skip", action: IMP_ROW_SKIP, tokenIdentity: 'actor', fields: [code:BATCH_CODE, rowNo:INT, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: delete, path: "/imports/batches/:code", action: IMP_BATCH_DELETE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/retry", action: IMP_BATCH_RETRY, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/batches/:code/rows/:rowNo/unskip", action: IMP_ROW_UNSKIP, tokenIdentity: 'actor', fields: [code:BATCH_CODE, rowNo:INT, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/batches/:code/summary", action: IMP_BATCH_SUMMARY, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: import_recon.js
+  export: IMPORT_RECON_ROUTES
+    - { method: post, path: "/imports/recon", action: IRC_START, tokenIdentity: 'actor', fields: [batchCode:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/recon", action: IRC_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:RPT_STATUS?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/recon/:id", action: IRC_GET, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/recon/:id/match", action: IRC_MATCH, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/recon/:id/finish", action: IRC_FINISH, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/imports/recon/:id/retry", action: IRC_RETRY, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/recon/:id/items", action: IRC_ITEMS, tokenIdentity: 'actor', fields: [id:INT, status:IRC_STATUS?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/imports/recon/:id/export", action: IRC_EXPORT, tokenIdentity: 'actor', fields: [id:INT, format:RPT_FORMAT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/imports/:code/recon-summary", action: IRC_SUMMARY, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: infra.js
+  export: INFRA_ROUTES
+    - { method: get, path: "/health", action: PING, public: true, limiter: 'api', custom: 'health', fields: [] }
+    - { method: get, path: "/live", public: true, limiter: 'api', custom: 'live', fields: [] }
+    - { method: get, path: "/ready", action: PING, public: true, limiter: 'api', custom: 'ready', fields: [] }
+    - { method: get, path: "/metrics", limiter: 'api', permission: 'AUDIT_READ', custom: 'metrics', fields: [] }
+    - { method: post, path: "/auth/refresh", action: CONSUME_SESSION, public: true, limiter: 'auth', custom: 'refresh', fields: [] }
+    - { method: post, path: "/auth/logout", action: REVOKE_SESSION, public: true, limiter: 'auth', custom: 'logout', fields: [] }
+    - { method: post, path: "/auth/revoke", action: REVOKE_ACCESS_TOKEN, tokenIdentity: 'actor', limiter: 'api', custom: 'revoke', fields: [] }
+- file: letter_of_credit.js
+  export: LOC_ROUTES
+    - { method: post, path: "/letters-of-credit/validate", action: LOC_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/letters-of-credit/summary", action: LOC_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/letters-of-credit/audit", action: LOC_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/letters-of-credit", action: LOC_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, lcType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/letters-of-credit", action: LOC_CREATE, tokenIdentity: 'actor', fields: [lcRef:KEY, applicantName:NAME, lcType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/letters-of-credit/:id", action: LOC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/letters-of-credit/:id/calc", action: LOC_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/letters-of-credit/:id/update", action: LOC_UPDATE, tokenIdentity: 'actor', fields: [ID, applicantName:NAME?, lcType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/letters-of-credit/:id/delete", action: LOC_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: loan.js
+  export: LOAN_ROUTES
+    - { method: post, path: "/loans", action: LOAN_APPLY, tokenIdentity: 'actor', fields: [email:EMAIL, principal:AMOUNT, currency:CURRENCY, term:TERM, rate:RATE?, ACTOR] }
+    - { method: get, path: "/loans", action: LOAN_LIST, tokenIdentity: 'actor', fields: [status:LOAN_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loans/summary", action: LOAN_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/loans/:id/approve", action: LOAN_APPROVE, tokenIdentity: 'actor', fields: [id:INT, rate:RATE?, note:BATCH_DETAIL?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/loans/:id/reject", action: LOAN_REJECT, tokenIdentity: 'actor', fields: [id:INT, note:BATCH_DETAIL?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/loans/:id/disburse", action: LOAN_DISBURSE, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: get, path: "/loans/:id", action: LOAN_GET, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/loans/:id/repay", action: LOAN_REPAY, tokenIdentity: 'actor', fields: [id:INT, amount:AMOUNT, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+- file: loan_schedule.js
+  export: LOAN_SCHEDULE_ROUTES
+    - { method: post, path: "/loans/:id/schedule", action: LSC_CREATE, tokenIdentity: 'actor', fields: [INT, term:TERM, rate:RATE?, startDate:DATE?, BLANK, ACTOR] }
+    - { method: get, path: "/loans/schedules/search", action: LSC_SEARCH, tokenIdentity: 'actor', fields: [q:INT?, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loans/schedules/:id", action: LSC_DETAIL, tokenIdentity: 'actor', fields: [INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loans/:id/schedules", action: LSC_LIST, tokenIdentity: 'actor', fields: [INT, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: put, path: "/loans/schedules/:id", action: LSC_UPDATE, tokenIdentity: 'actor', fields: [INT, term:TERM?, rate:RATE?, startDate:DATE?, BLANK, ACTOR] }
+    - { method: delete, path: "/loans/schedules/:id", action: LSC_DELETE, tokenIdentity: 'actor', fields: [INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loans/schedules/:id/history", action: LSC_HISTORY, tokenIdentity: 'actor', fields: [INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: loyalty.js
+  export: LOY_ROUTES
+    - { method: post, path: "/loyalty/programs", action: LOY_CREATE, tokenIdentity: 'actor', fields: [programCode:KEY, name:NAME, rateSpec:RPT_PARAMS, dateSpec:RPT_PARAMS?, programType:NAME, ACTOR] }
+    - { method: post, path: "/loyalty/programs/:id/activate", action: LOY_ACTIVATE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loyalty/programs", action: LOY_LIST, tokenIdentity: 'actor', fields: [status:LOY_LIST_STATUS?, BLANK, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/loyalty/members", action: LOY_ENROLL, tokenIdentity: 'actor', fields: [programId:INT, customerRef:KEY, tier:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loyalty/members/:id", action: LOY_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/loyalty/earn", action: LOY_EARN, tokenIdentity: 'actor', fields: [memberId:INT, sourceType:NAME, sourceRef:KEY, amount:AMOUNT, expiresAt:DATE?, ACTOR] }
+    - { method: post, path: "/loyalty/redeem", action: LOY_REDEEM, tokenIdentity: 'actor', fields: [memberId:INT, points:AMOUNT, rewardCode:KEY, glJournalId:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/loyalty/expire", action: LOY_EXPIRE, tokenIdentity: 'actor', fields: [memberId:INT, asOf:DATE, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/loyalty/adjust", action: LOY_ADJUST, tokenIdentity: 'actor', fields: [memberId:INT, delta:RPT_PARAMS, reason:NAME, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/loyalty/validate", action: LOY_VALIDATE, tokenIdentity: 'actor', fields: [programId:INT, amount:AMOUNT, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loyalty/summary", action: LOY_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loyalty/audit", action: LOY_AUDIT, tokenIdentity: 'actor', fields: [memberId:INT?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+- file: merchant.js
+  export: MERCHANT_ROUTES
+    - { method: post, path: "/merchants/validate", action: MRT_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/merchants/summary", action: MRT_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/merchants/audit", action: MRT_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/merchants", action: MRT_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/merchants", action: MRT_CREATE, tokenIdentity: 'actor', fields: [merchantRef:KEY, merchantName:NAME, merchantType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/submit-kyc", action: MRT_SUBMIT_KYC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/approve", action: MRT_APPROVE, tokenIdentity: 'actor', fields: [ID, riskLevel:NAME, mdrPct:AMOUNT, fixedFee:AMOUNT, currency:CURRENCY, ACTOR] }
+    - { method: post, path: "/merchants/:id/activate", action: MRT_ACTIVATE, tokenIdentity: 'actor', fields: [ID, settlementAccountId:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/suspend", action: MRT_SUSPEND, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/close", action: MRT_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/fee", action: MRT_SET_FEE, tokenIdentity: 'actor', fields: [ID, mdrPct:AMOUNT, fixedFee:AMOUNT, currency:CURRENCY, BLANK, ACTOR] }
+    - { method: get, path: "/merchants/:id", action: MRT_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/calc", action: MRT_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/update", action: MRT_UPDATE, tokenIdentity: 'actor', fields: [ID, merchantName:NAME?, merchantType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchants/:id/delete", action: MRT_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: merchant_settlement.js
+  export: MCS_ROUTES
+    - { method: post, path: "/merchant-settlements/validate", action: MCS_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/merchant-settlements/summary", action: MCS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/merchant-settlements/audit", action: MCS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/merchant-settlements", action: MCS_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, settlementType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/merchant-settlements", action: MCS_CREATE, tokenIdentity: 'actor', fields: [settlementRef:KEY, merchantName:NAME, settlementType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchant-settlements/txn", action: MCS_TXN, tokenIdentity: 'actor', fields: [merchantId:INT, txnRef:KEY, amount:AMOUNT, currency:CURRENCY, paymentClearingRef:KEY?, ACTOR] }
+    - { method: post, path: "/merchant-settlements/open", action: MCS_OPEN, tokenIdentity: 'actor', fields: [merchantId:INT, settlementRef:KEY, periodStart:DATE, periodEnd:DATE, currency:CURRENCY, ACTOR] }
+    - { method: post, path: "/merchant-settlements/:id/post", action: MCS_POST, tokenIdentity: 'actor', fields: [ID, paymentClearingRef:KEY?, glJournalId:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchant-settlements/:id/settle", action: MCS_SETTLE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchant-settlements/:id/cancel", action: MCS_CANCEL, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/merchant-settlements/:id", action: MCS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchant-settlements/:id/calc", action: MCS_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchant-settlements/:id/update", action: MCS_UPDATE, tokenIdentity: 'actor', fields: [ID, merchantName:NAME?, settlementType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/merchant-settlements/:id/delete", action: MCS_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: notification_template.js
+  export: NTP_ROUTES
+    - { method: post, path: "/notification-templates/validate", action: NTP_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/notification-templates/summary", action: NTP_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/notification-templates/audit", action: NTP_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/notification-templates", action: NTP_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, templateType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/notification-templates", action: NTP_CREATE, tokenIdentity: 'actor', fields: [templateRef:KEY, templateName:NAME, templateType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/notification-templates/:id", action: NTP_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/notification-templates/:id/calc", action: NTP_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/notification-templates/:id/update", action: NTP_UPDATE, tokenIdentity: 'actor', fields: [ID, templateName:NAME?, templateType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/notification-templates/:id/delete", action: NTP_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: payment.js
+  export: PAYMENT_ROUTES
+    - { method: post, path: "/payments/policies", action: PAY_POLICY_SET, tokenIdentity: 'actor', fields: [currency:CURRENCY, limits:PAY_POLICY_SPEC, enabled:FLAG, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/policies", action: PAY_POLICY_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, currency:CURRENCY?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/policies/:currency", action: PAY_POLICY_GET, tokenIdentity: 'actor', fields: [currency:CURRENCY, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/profiles", action: PAY_PROFILE_SET, tokenIdentity: 'actor', fields: [email:EMAIL, currency:CURRENCY, limits:PAY_PROFILE_SPEC, enabled:FLAG, BLANK, ACTOR] }
+    - { method: get, path: "/payments/profiles/:email", action: PAY_PROFILE_LIST, tokenIdentity: 'actor', fields: [email:EMAIL, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/usage/:email/:currency", action: PAY_DAILY_USAGE, tokenIdentity: 'actor', fields: [email:EMAIL, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/check", action: PAY_CHECK, tokenIdentity: 'actor', fields: [email:EMAIL, currency:CURRENCY, amount:AMOUNT, BLANK, BLANK, ACTOR] }
+- file: payment_clearing.js
+  export: PAYMENT_CLEARING_ROUTES
+    - { method: post, path: "/payments/clearing/validate", action: PMC_VALIDATE, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/clearing/summary", action: PMC_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/clearing/audit", action: PMC_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/clearing", action: PMC_LIST, tokenIdentity: 'actor', fields: [status:PMC_LIST_STATUS?, currency:CURRENCY?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/payments/clearing", action: PMC_CREATE, tokenIdentity: 'actor', fields: [clearingRef:KEY, amount:AMOUNT, currency:CURRENCY, paymentRef:KEY?, BLANK, ACTOR] }
+    - { method: get, path: "/payments/clearing/:id", action: PMC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/clearing/:id/post", action: PMC_POST, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/clearing/:id/settle", action: PMC_SETTLE, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT?, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
+    - { method: post, path: "/payments/clearing/:id/cancel", action: PMC_CANCEL, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: payment_hold.js
+  export: PAYMENT_HOLD_ROUTES
+    - { method: post, path: "/holds", action: PHL_RESERVE, tokenIdentity: 'actor', fields: [account:INT, amount:AMOUNT, currency:CURRENCY, expires:DATE?, BLANK, ACTOR] }
+    - { method: get, path: "/holds", action: PHL_LIST, tokenIdentity: 'actor', fields: [account:INT?, status:PHL_STATUS?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/holds/expire", action: PHL_EXPIRE, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/holds/stats", action: PHL_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/holds/:id/capture", action: PHL_CAPTURE, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/holds/:id/release", action: PHL_RELEASE, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/holds/:id", action: PHL_GET, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: payment_instructions.js
+  export: PAYMENT_INSTRUCTION_ROUTES
+    - { method: post, path: "/payments/instructions", action: PIC_CREATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, from:EMAIL, to:EMAIL, amount:PIC_AMOUNT, schedule:PIC_SCHEDULE, ACTOR] }
+    - { method: get, path: "/payments/instructions", action: PIC_LIST, tokenIdentity: 'actor', fields: [status:RPT_STATUS?, limit:LIMIT?, offset:INT?, from:EMAIL?, BLANK, ACTOR] }
+    - { method: get, path: "/payments/instructions/due", action: PIC_DUE, tokenIdentity: 'actor', fields: [asOf:DATE?, limit:LIMIT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/instructions/:code", action: PIC_GET, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/instructions/:code/pause", action: PIC_PAUSE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/instructions/:code/resume", action: PIC_RESUME, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/instructions/:code/cancel", action: PIC_CANCEL, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payments/instructions/:code/execute", action: PIC_EXECUTE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/instructions/:code/history", action: PIC_HISTORY, tokenIdentity: 'actor', fields: [code:BATCH_CODE, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+- file: payroll_processing.js
+  export: PRL_ROUTES
+    - { method: post, path: "/payroll-processing/validate", action: PRL_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payroll-processing/summary", action: PRL_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payroll-processing/audit", action: PRL_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payroll-processing", action: PRL_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, payrollType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/payroll-processing", action: PRL_CREATE, tokenIdentity: 'actor', fields: [payrollRef:KEY, batchName:NAME, payrollType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payroll-processing/:id", action: PRL_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payroll-processing/:id/calc", action: PRL_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payroll-processing/:id/update", action: PRL_UPDATE, tokenIdentity: 'actor', fields: [ID, batchName:NAME?, payrollType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payroll-processing/:id/delete", action: PRL_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payrolls", action: PRL_CREATE, tokenIdentity: 'actor', fields: [payrollRef:KEY, batchName:NAME, payrollType:NAME, companyRef:KEY?, sourceAccountId:INT?, ACTOR] }
+    - { method: post, path: "/payrolls/:id/items", action: PRL_ADD_ITEM, tokenIdentity: 'actor', fields: [ID, employeeRef:KEY, employeeName:NAME, grossAmount:AMOUNT, accountId:INT?, ACTOR] }
+    - { method: post, path: "/payrolls/:id/validate", action: PRL_VALIDATE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payrolls/:id/approve", action: PRL_APPROVE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payrolls/:id/process", action: PRL_PROCESS, tokenIdentity: 'actor', fields: [ID, taxRuleId:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payrolls/:id/pay", action: PRL_PAY, tokenIdentity: 'actor', fields: [ID, paymentClearingRef:KEY?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/payrolls/:id/close", action: PRL_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payrolls/summary", action: PRL_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payrolls/audit", action: PRL_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payrolls", action: PRL_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, payrollType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/payrolls/:id", action: PRL_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: phone.js
+  export: PHONE_ROUTES
+    - { method: post, path: "/auth/phone/link/begin", action: OTP_LINK_BEGIN, tokenIdentity: 'actor', fields: [email:EMAIL, phoneHash:REF_VALUE_CODE?, BLANK, ACTOR, BLANK, BLANK] }
+    - { method: post, path: "/auth/phone/link/confirm", action: OTP_LINK_CONFIRM, tokenIdentity: 'actor', fields: [email:EMAIL, token:KEY, chatId:KEY, ACTOR, BLANK, BLANK] }
+    - { method: post, path: "/auth/phone/otp/issue", action: OTP_ISSUE, tokenIdentity: 'actor', fields: [email:EMAIL, channel:NAME, purpose:KEY, ACTOR, BLANK, BLANK] }
+    - { method: post, path: "/auth/phone/otp/verify", action: OTP_VERIFY, tokenIdentity: 'actor', fields: [email:EMAIL, code:CODE, purpose:KEY, ACTOR, BLANK, BLANK] }
+- file: ref_engine.js
+  export: REF_ENGINE_ROUTES
+    - { method: get, path: "/reference-engine/types", action: RFE_TYPE_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reference-engine/types", action: RFE_TYPE_CREATE, tokenIdentity: 'actor', fields: [type:REF_TYPE, label:REF_LABEL, description:REF_ATTRIBUTES?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/reference-engine/values", action: RFE_VALUE_LIST, tokenIdentity: 'actor', fields: [type:REF_TYPE, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reference-engine/values", action: RFE_VALUE_CREATE, tokenIdentity: 'actor', fields: [type:REF_TYPE, code:REF_VALUE_CODE, label:REF_LABEL, attributes:REF_ATTRIBUTES?, BLANK, ACTOR] }
+    - { method: get, path: "/reference-engine/values/:type/:code", action: RFE_VALUE_GET, tokenIdentity: 'actor', fields: [type:REF_TYPE, code:REF_VALUE_CODE, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/reference-engine/values/:type/:code/history", action: RFE_VALUE_HIST, tokenIdentity: 'actor', fields: [type:REF_TYPE, code:REF_VALUE_CODE, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reference-engine/values/:type/:code/approve", action: RFE_VALUE_APPROVE, tokenIdentity: 'actor', fields: [type:REF_TYPE, code:REF_VALUE_CODE, version:REF_VERSION, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reference-engine/values/:type/:code/retire", action: RFE_VALUE_RETIRE, tokenIdentity: 'actor', fields: [type:REF_TYPE, code:REF_VALUE_CODE, reason:REASON?, BLANK, BLANK, ACTOR] }
+- file: ref_ext.js
+  export: REF_EXT_ROUTES
+    - { method: post, path: "/ref/ext/translations", action: RX_TRANSLATION_SET, tokenIdentity: 'actor', fields: [type:RX_TYPE, code:RX_CODE, locale:RX_LOCALE, label:RX_LABEL, BLANK, ACTOR] }
+    - { method: get, path: "/ref/ext/translations/:type/:code", action: RX_TRANSLATION_LIST, tokenIdentity: 'actor', fields: [type:RX_TYPE, code:RX_CODE, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/ref/ext/hierarchy", action: RX_HIERARCHY_ADD, tokenIdentity: 'actor', fields: [type:RX_TYPE, parent:RX_CODE, child:RX_CODE, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/ref/ext/hierarchy/:type", action: RX_HIERARCHY_LIST, tokenIdentity: 'actor', fields: [type:RX_TYPE, parent:RX_CODE?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: delete, path: "/ref/ext/hierarchy/:type/:parent/:child", action: RX_HIERARCHY_REMOVE, tokenIdentity: 'actor', fields: [type:RX_TYPE, parent:RX_CODE, child:RX_CODE, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/ref/ext/values/:type/:code/asof", action: RX_VALUE_GET_ASOF, tokenIdentity: 'actor', fields: [type:RX_TYPE, code:RX_CODE, date:DATE, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/ref/ext/values/:type/:code/clone", action: RX_VALUE_CLONE, tokenIdentity: 'actor', fields: [type:RX_TYPE, code:RX_CODE, newCode:RX_CODE, label:RX_LABEL, BLANK, ACTOR] }
+    - { method: get, path: "/ref/ext/export/:type", action: RX_EXPORT, tokenIdentity: 'actor', fields: [type:RX_TYPE, format:RX_FORMAT, BLANK, BLANK, BLANK, ACTOR] }
+- file: report.js
+  export: REPORT_ROUTES
+    - { method: post, path: "/reports/templates", action: RPT_TEMPLATE_CREATE, tokenIdentity: 'actor', fields: [code:RPT_CODE, name:RPT_NAME, type:RPT_TYPE, format:RPT_FORMAT, title:RPT_NAME, ACTOR] }
+    - { method: get, path: "/reports/templates", action: RPT_TEMPLATE_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, type:RPT_TYPE?, enabled:FLAG?, BLANK, ACTOR] }
+    - { method: get, path: "/reports/templates/:code", action: RPT_TEMPLATE_GET, tokenIdentity: 'actor', fields: [code:RPT_CODE, columns:FLAG?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reports/templates/:code/columns", action: RPT_COLUMN_CREATE, tokenIdentity: 'actor', fields: [code:RPT_CODE, ordinal:INT, header:RPT_NAME, source:KEY, options:RPT_COLUMN_OPTIONS, ACTOR] }
+    - { method: get, path: "/reports/templates/:code/columns", action: RPT_COLUMN_LIST, tokenIdentity: 'actor', fields: [code:RPT_CODE, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reports/runs", action: RPT_RUN_START, tokenIdentity: 'actor', fields: [template:RPT_CODE, parameters:RPT_PARAMS, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reports/runs/:id/rows", action: RPT_RUN_ROW, tokenIdentity: 'actor', fields: [id:INT, ordinal:INT, debit:AMOUNT, credit:AMOUNT, row:RPT_ROW, ACTOR] }
+    - { method: get, path: "/reports/runs/:id", action: RPT_RUN_STATUS, tokenIdentity: 'actor', fields: [id:INT, details:FLAG?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reports/runs/:id/complete", action: RPT_RUN_COMPLETE, tokenIdentity: 'actor', fields: [id:INT, counts:RPT_COUNTS, checksum:RPT_CHECKSUM?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reports/runs/:id/fail", action: RPT_RUN_FAIL, tokenIdentity: 'actor', fields: [id:INT, errorCode:BATCH_CODE, detail:BATCH_DETAIL?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/reports/runs", action: RPT_RUN_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:RPT_STATUS?, template:RPT_CODE?, BLANK, ACTOR] }
+    - { method: get, path: "/reports/runs/:id/export", action: RPT_RUN_EXPORT, tokenIdentity: 'actor', fields: [id:INT, format:RPT_FORMAT, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: patch, path: "/reports/templates/:code", action: RPT_TEMPLATE_UPDATE, tokenIdentity: 'actor', fields: [code:RPT_CODE, enabled:FLAG, format:RPT_FORMAT, title:RPT_NAME, BLANK, ACTOR] }
+    - { method: post, path: "/reports/templates/:code/clone", action: RPT_TEMPLATE_CLONE, tokenIdentity: 'actor', fields: [code:RPT_CODE, newCode:RPT_CODE, name:RPT_NAME, title:RPT_NAME, BLANK, ACTOR] }
+    - { method: delete, path: "/reports/templates/:code", action: RPT_TEMPLATE_DELETE, tokenIdentity: 'actor', fields: [code:RPT_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reports/runs/:id/retry", action: RPT_RUN_RETRY, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/reports/runs/:id/generate", action: RPT_RUN_GENERATE, tokenIdentity: 'actor', fields: [id:INT, from:DATE, to:DATE, currency:CURRENCY, BLANK, ACTOR] }
+    - { method: delete, path: "/reports/runs/:id", action: RPT_RUN_DELETE, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: delete, path: "/reports/templates/:code/columns/:ordinal", action: RPT_COLUMN_DELETE, tokenIdentity: 'actor', fields: [code:RPT_CODE, ordinal:INT, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: patch, path: "/reports/templates/:code/columns/:ordinal", action: RPT_COLUMN_UPDATE, tokenIdentity: 'actor', fields: [code:RPT_CODE, ordinal:INT, header:RPT_NAME, source:KEY, options:RPT_COLUMN_OPTIONS, ACTOR] }
+- file: report_builder.js
+  export: REPORT_BUILDER_ROUTES
+    - { method: post, path: "/data/reports/validate", action: RPB_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/data/reports/summary", action: RPB_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/data/reports/audit", action: RPB_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/data/reports", action: RPB_LIST, tokenIdentity: 'actor', fields: [status:RPB_LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/data/reports", action: RPB_CREATE, tokenIdentity: 'actor', fields: [reportRef:KEY, reportName:NAME, reportType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/data/reports/:id", action: RPB_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/data/reports/:id/run", action: RPB_RUN, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/data/reports/:id/close", action: RPB_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: report_schedule.js
+  export: RPS_ROUTES
+    - { method: post, path: "/report-schedules/validate", action: RPS_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/report-schedules/summary", action: RPS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/report-schedules/audit", action: RPS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/report-schedules", action: RPS_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, scheduleType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules", action: RPS_CREATE, tokenIdentity: 'actor', fields: [scheduleRef:KEY, scheduleName:NAME, scheduleType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/report-schedules/:id", action: RPS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules/:id/calc", action: RPS_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules/:id/update", action: RPS_UPDATE, tokenIdentity: 'actor', fields: [ID, scheduleName:NAME?, scheduleType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules/:id/delete", action: RPS_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: risk.js
+  export: RISK_ROUTES
+    - { method: post, path: "/risk/note", action: RISK_NOTE, tokenIdentity: 'actor', fields: [email:EMAIL, country:NAME?, city:NAME?, asn:NAME?, ipHashFlags:IP_HASH_FLAGS?, ACTOR] }
+    - { method: get, path: "/risk/status", action: RISK_STATUS, tokenIdentity: 'actor', fields: [email:EMAIL, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: screening.js
+  export: SCREENING_ROUTES
+    - { method: post, path: "/screening/check", action: SCR_SCREEN, tokenIdentity: 'actor', fields: [email:EMAIL, queryHash:REF_VALUE_CODE?, result:NAME?, provider:NAME?, providerRef:REF_VALUE_CODE?, ACTOR] }
+    - { method: get, path: "/screening/status", action: SCR_STATUS, tokenIdentity: 'actor', fields: [email:EMAIL, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/screening/accounts/freeze", action: ACCOUNT_FREEZE, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/screening/accounts/unfreeze", action: ACCOUNT_UNFREEZE, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/screening/reviews", action: IDV_REVIEW_LIST, tokenIdentity: 'actor', stepUp: true, fields: [BLANK, kind:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/screening/reviews/decide", action: IDV_REVIEW_DECIDE, tokenIdentity: 'actor', stepUp: true, fields: [reviewId:INT, decision:NAME, reason:NAME?, BLANK, BLANK, ACTOR] }
+- file: sla_tracker.js
+  export: SLT_ROUTES
+    - { method: post, path: "/sla-trackers/validate", action: SLT_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/sla-trackers/summary", action: SLT_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/sla-trackers/audit", action: SLT_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/sla-trackers", action: SLT_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, slaType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers", action: SLT_CREATE, tokenIdentity: 'actor', fields: [slaRef:KEY, slaName:NAME, slaType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/sla-trackers/:id", action: SLT_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers/:id/calc", action: SLT_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers/:id/update", action: SLT_UPDATE, tokenIdentity: 'actor', fields: [ID, slaName:NAME?, slaType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers/:id/delete", action: SLT_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: statement.js
+  export: STATEMENT_ROUTES
+    - { method: post, path: "/statements/runs", action: STMT_RUN_START, tokenIdentity: 'actor', fields: [from:DATE, to:DATE, currency:CURRENCY, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/statements/runs/:id/generate", action: STMT_RUN_GENERATE, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/statements/runs/:id", action: STMT_RUN_STATUS, tokenIdentity: 'actor', fields: [id:INT, details:FLAG?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/statements/runs", action: STMT_RUN_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:RPT_STATUS?, currency:CURRENCY?, BLANK, ACTOR] }
+    - { method: get, path: "/statements/archive/:runId/:email", action: STMT_ARCHIVE_GET, tokenIdentity: 'actor', fields: [email:EMAIL, runId:INT, lines:FLAG?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/statements/archive/:runId/:email/export", action: STMT_ARCHIVE_EXPORT, tokenIdentity: 'actor', fields: [email:EMAIL, runId:INT, format:RPT_FORMAT, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/statements/runs/:id/fail", action: STMT_RUN_FAIL, tokenIdentity: 'actor', fields: [id:INT, errorCode:BATCH_CODE, detail:BATCH_DETAIL?, BLANK, BLANK, ACTOR] }
+- file: statement_recon.js
+  export: STATEMENT_RECON_ROUTES
+    - { method: post, path: "/statements/recon", action: SRC_START, tokenIdentity: 'actor', fields: [statementRunId:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/statements/recon", action: SRC_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:RPT_STATUS?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/statements/recon/:id", action: SRC_GET, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/statements/recon/:id/match", action: SRC_MATCH, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/statements/recon/:id/finish", action: SRC_FINISH, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/statements/recon/:id/retry", action: SRC_RETRY, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/statements/recon/:id/items", action: SRC_ITEMS, tokenIdentity: 'actor', fields: [id:INT, status:SRC_STATUS?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/statements/recon/:id/export", action: SRC_EXPORT, tokenIdentity: 'actor', fields: [id:INT, format:RPT_FORMAT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/statements/:statementRunId/recon-summary", action: SRC_SUMMARY, tokenIdentity: 'actor', fields: [statementRunId:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: tax_management.js
+  export: TXM_ROUTES
+    - { method: post, path: "/tax-management/validate", action: TXM_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/tax-management/summary", action: TXM_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/tax-management/audit", action: TXM_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/tax-management", action: TXM_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, taxType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/tax-management", action: TXM_CREATE, tokenIdentity: 'actor', fields: [taxRef:KEY, taxName:NAME, taxType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/tax-management/:id", action: TXM_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/tax-management/:id/calc", action: TXM_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/tax-management/:id/update", action: TXM_UPDATE, tokenIdentity: 'actor', fields: [ID, taxName:NAME?, taxType:NAME?, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/tax-management/:id/delete", action: TXM_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/tax/rules", action: TXM_RULE_CREATE, tokenIdentity: 'actor', fields: [taxRef:KEY, taxName:NAME, taxType:NAME, rateSpec:RPT_PARAMS, ruleSpec:RPT_PARAMS, ACTOR] }
+    - { method: get, path: "/tax/rules", action: TXM_RULE_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, taxType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/tax/rules/:id", action: TXM_RULE_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/tax/rules/:id/update", action: TXM_RULE_UPDATE, tokenIdentity: 'actor', fields: [ID, rateSpec:RPT_PARAMS?, ruleSpec:RPT_PARAMS?, enabled:NAME?, BLANK, ACTOR] }
+    - { method: post, path: "/tax/calculate", action: TXM_CALC, tokenIdentity: 'actor', fields: [ruleId:INT, sourceType:NAME, sourceRef:KEY, baseAmount:AMOUNT, currency:CURRENCY, ACTOR] }
+    - { method: post, path: "/tax/entries/:id/post", action: TXM_POST, tokenIdentity: 'actor', fields: [ID, glJournalId:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/tax/entries/:id/reverse", action: TXM_REVERSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/tax/reports/run", action: TXM_REPORT, tokenIdentity: 'actor', fields: [period:RPT_CODE, taxType:NAME, currency:CURRENCY, BLANK, BLANK, ACTOR] }
+- file: trade_finance.js
+  export: TRADE_FINANCE_ROUTES
+    - { method: post, path: "/trade-finance/lc", action: LOC_CREATE, tokenIdentity: 'actor', fields: [ref:KEY, customerRef:KEY, beneficiary:NAME, lcType:NAME, TERMS, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/:id/submit", action: LOC_SUBMIT, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/:id/approve", action: LOC_APPROVE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/:id/issue", action: LOC_ISSUE, tokenIdentity: 'actor', fields: [ID, GL, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/:id/amend", action: LOC_AMEND, tokenIdentity: 'actor', fields: [ID, amountDelta:AMOUNT, newExpiry:DATE?, newTerms:RPT_PARAMS?, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/:id/documents", action: LOC_DOCUMENT, tokenIdentity: 'actor', fields: [ID, docType:NAME, docRef:KEY, status:NAME, discrepancy:NAME?, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/:id/draw", action: LOC_DRAW, tokenIdentity: 'actor', fields: [ID, drawingNo:INT, amount:AMOUNT, currency:CURRENCY, dueDate:DATE?, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/drawings/:id/settle", action: LOC_SETTLE, tokenIdentity: 'actor', fields: [ID, settledAmount:AMOUNT, GL, paymentClearingRef:KEY?, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/lc/:id/close", action: LOC_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/lc/summary", action: LOC_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/lc/audit", action: LOC_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/lc", action: LOC_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/lc/:id", action: LOC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/bg", action: BKG_CREATE, tokenIdentity: 'actor', fields: [ref:KEY, customerRef:KEY, beneficiary:NAME, guaranteeType:NAME, TERMS, ACTOR] }
+    - { method: post, path: "/trade-finance/bg/:id/submit", action: BKG_SUBMIT, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/bg/:id/approve", action: BKG_APPROVE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/bg/:id/issue", action: BKG_ISSUE, tokenIdentity: 'actor', fields: [ID, GL, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/bg/:id/claims", action: BKG_CLAIM, tokenIdentity: 'actor', fields: [ID, claimRef:KEY, amount:AMOUNT, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/bg/claims/:id/settle", action: BKG_SETTLE, tokenIdentity: 'actor', fields: [ID, settledAmount:AMOUNT, GL, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/trade-finance/bg/:id/close", action: BKG_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/bg/summary", action: BKG_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/bg/audit", action: BKG_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/bg", action: BKG_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/trade-finance/bg/:id", action: BKG_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+- file: treasury_liquidity.js
+  export: TREASURY_LIQUIDITY_ROUTES
+    - { method: post, path: "/treasury/liquidity/validate", action: TRL_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/treasury/liquidity/summary", action: TRL_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/treasury/liquidity/audit", action: TRL_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/treasury/liquidity", action: TRL_LIST, tokenIdentity: 'actor', fields: [status:TRL_LIST_STATUS?, currency:CURRENCY?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: post, path: "/treasury/liquidity", action: TRL_CREATE, tokenIdentity: 'actor', fields: [liqRef:KEY, amount:AMOUNT, currency:CURRENCY, sourceRef:KEY?, BLANK, ACTOR] }
+    - { method: get, path: "/treasury/liquidity/:id", action: TRL_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/treasury/liquidity/:id/post", action: TRL_POST, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/treasury/liquidity/:id/settle", action: TRL_SETTLE, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/treasury/liquidity/:id/close", action: TRL_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+- file: user_profile.js
+  export: USER_PROFILE_ROUTES
+    - { method: get, path: "/users", action: LIST_USERS, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, actor:EMAIL, role:ROLE?, BLANK, BLANK] }
+    - { method: get, path: "/users/:email", action: GET_USER, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/profile", action: GET_DASHBOARD, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: patch, path: "/profile", action: UPDATE_PROFILE, tokenIdentity: 'actor', fields: [email:EMAIL, name:NAME, actor:EMAIL, dob:DATE?, BLANK, BLANK] }
+    - { method: post, path: "/profile/deactivate", action: DEACTIVATE_ACCOUNT, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/profile/email/request", action: REQ_EMAIL_CHANGE, tokenIdentity: 'actor', stepUpPolicy: 'REQ_EMAIL_CHANGE', fields: [email:EMAIL, newEmail:EMAIL, actor:EMAIL, password:PASSWORD, BLANK, BLANK] }
+    - { method: post, path: "/profile/email/confirm", action: CONFIRM_EMAIL_CHANGE, tokenIdentity: 'actor', fields: [email:EMAIL, newEmail:EMAIL, code:CODE, actor:EMAIL, BLANK, BLANK] }
+    - { method: post, path: "/profile/password", action: CHANGE_PASSWORD, tokenIdentity: 'actor', passwordField: 'newPassword', fields: [email:EMAIL, currentPassword:PASSWORD, newPassword:PASSWORD, actor:EMAIL, BLANK, BLANK] }
+- file: wallet.js
+  export: WALLET_ROUTES
+    - { method: get, path: "/wallet/balance", action: CHECK_BALANCE, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
+    - { method: get, path: "/statements", action: STATEMENT, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, currency:CURRENCY, range:DATERANGE?, limit:LIMIT?, offset:INT?] }
+    - { method: post, path: "/wallet/transfer", action: TRANSFER, tokenIdentity: 'from', stepUpPolicy: 'TRANSFER', fields: [from:EMAIL, to:EMAIL, amount:AMOUNT, idempotencyKey:KEY, fromCurrency:CURRENCY?, toCurrency:CURRENCY?] }
+    - { method: get, path: "/transactions/:ref", action: TX_STATUS, tokenIdentity: 'actor', fields: [ref:KEY, actor:EMAIL, sender:EMAIL?, BLANK, BLANK, BLANK] }
+    - { method: post, path: "/transactions/:ref/reverse", action: REVERSE_TRANSFER, tokenIdentity: 'actor', stepUp: true, fields: [ref:KEY, actor:EMAIL, sender:EMAIL?, reason:REASON, BLANK, BLANK] }
