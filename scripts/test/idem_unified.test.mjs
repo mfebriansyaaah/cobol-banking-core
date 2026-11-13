@@ -111,6 +111,12 @@ test('14B domains route every *_request access through the copybook', () => {
   for (const [file, tables, paras] of cases) {
     const src = readFileSync(path.join(ROOT, 'cobol', 'src', file), 'utf8');
     assert.match(src, /COPY "common_idem\.cpy"/, `${file} must COPY the shared copybook`);
+    // Paragraphs may live in a host's own copybook (maintainability
+    // extractions): expand one level of COPY so PERFORM checks follow them.
+    let expanded = src;
+    for (const m of src.matchAll(/COPY "([a-z0-9_]+\.cpy)"/g)) {
+      expanded += readFileSync(path.join(ROOT, 'cobol', 'copy', m[1]), 'utf8');
+    }
     for (const t of tables) {
       assert.equal(
         (src.match(new RegExp(t, 'g')) || []).length,
@@ -119,7 +125,7 @@ test('14B domains route every *_request access through the copybook', () => {
       );
     }
     for (const para of paras) {
-      assert.match(src, new RegExp(`PERFORM ${para}\\b`), `${file} must PERFORM ${para}`);
+      assert.match(expanded, new RegExp(`PERFORM ${para}\\b`), `${file} must PERFORM ${para}`);
     }
   }
 });
