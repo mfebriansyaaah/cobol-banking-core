@@ -41,6 +41,10 @@ mysql_db() { # $1=db, rest=mysql args
 }
 
 N_ARCHIVED="$(find "$ROOT/database/migrations/archive" -maxdepth 1 -name '*.sql' | wc -l)"
+# The --baseline fall-through also applies (and records) active migrations,
+# so covered rows = archived-as-skipped + applied actives.
+N_ACTIVE="$(find "$ROOT/database/migrations" -maxdepth 1 -name '*.sql' | wc -l)"
+N_COVERED="$((N_ARCHIVED + N_ACTIVE))"
 assert_match "archive holds the pre-baseline set" "$N_ARCHIVED" "^677$"
 archived_list="$(find "$ROOT/database/migrations/archive" -maxdepth 1 -name '*.sql' | sort)"
 latest_archived="$(printf '%s\n' "$archived_list" | tail -1 | xargs -n1 basename .sql)"
@@ -54,7 +58,7 @@ assert_match "no active version below the baseline cutoff" "${below:-none}" "^no
 mysql_migrate -e "DROP DATABASE IF EXISTS \`$ARCH_DB\`; CREATE DATABASE \`$ARCH_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null
 out="$(migrate_as "$ARCH_DB" --baseline 2>&1)"; rc=$?
 assert_match "fresh --baseline succeeds with archive" "$rc" "^0$"
-assert_match "covered count equals archive" "$(mysql_db "$ARCH_DB" -N -B -e "SELECT COUNT(*) FROM schema_migrations WHERE version <> 'baseline_v2';")" "^${N_ARCHIVED}$"
+assert_match "covered count equals archive plus applied actives" "$(mysql_db "$ARCH_DB" -N -B -e "SELECT COUNT(*) FROM schema_migrations WHERE version <> 'baseline_v2';")" "^${N_COVERED}$"
 migrate_as "$ARCH_DB" --check >/dev/null 2>&1
 assert_match "fresh db passes --check" "$?" "^0$"
 

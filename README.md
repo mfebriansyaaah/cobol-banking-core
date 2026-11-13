@@ -412,7 +412,6 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | **Total** | **2777** |
 <!-- END GENERATED TEST TABLE -->
 
-
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
 suites fail closed with `FAIL: DB unavailable` when MariaDB is not reachable
 (`ALLOW_SKIP=1` opts out locally; CI never sets it), create their own

@@ -8,84 +8,7 @@
     "temp_data",
     "backup_table"
   ],
-  "tables": {
-    "screening_checks": {
-      "owner": "identity",
-      "status": "ACTIVE",
-      "tier1Links": [
-        "identity"
-      ],
-      "audited": "reviewer decisions in manual_reviews (reviewer_email, reviewed_at)",
-      "note": "PR-090 sanctions/PEP verdicts; fail-closed"
-    },
-    "fx_rate_snapshots": {
-      "owner": "market",
-      "status": "ACTIVE",
-      "tier1Links": [],
-      "audited": "provider + fetched_at per row; no separate audit table (reference data, cron-owned)",
-      "note": "PR-091 Frankfurter reference; never settlement basis"
-    },
-    "risk_events": {
-      "owner": "risk",
-      "status": "ACTIVE",
-      "tier1Links": [],
-      "audited": "no separate audit table: notations are the audit trail (actor-attributed via RISK_NOTE)",
-      "note": "PR-092 signals only; raw IPs never stored"
-    },
-    "corporate_entities": {
-      "owner": "corporate",
-      "status": "ACTIVE",
-      "tier1Links": [],
-      "audited": "fetched_at per row; no separate audit table (GLEIF cache)",
-      "note": "PR-097 triage cache; not AHU/akta proof"
-    },
-    "otp_challenges": {
-      "owner": "identity",
-      "status": "ACTIVE",
-      "tier1Links": [
-        "identity"
-      ],
-      "audited": "status machine + attempts in-row; verification_logs cover issuance",
-      "note": "PR-085 hashed codes, 10-min TTL, 5-attempt lock"
-    },
-    "phone_links": {
-      "owner": "identity",
-      "status": "ACTIVE",
-      "tier1Links": [
-        "identity"
-      ],
-      "audited": "linked_at/verified_at/revoked_at in-row",
-      "note": "PR-082b/085 Telegram binding"
-    },
-    "identity_verifications": {
-      "owner": "identity",
-      "status": "ACTIVE",
-      "tier1Links": [
-        "identity"
-      ],
-      "audited": "result rows immutable (append-only verdicts)",
-      "note": "PR-085 NIK/OCR outcomes"
-    },
-    "manual_reviews": {
-      "owner": "identity",
-      "status": "ACTIVE",
-      "tier1Links": [
-        "identity",
-        "screening"
-      ],
-      "audited": "reviewer_email + reviewed_at + reason in-row; the audit trail itself",
-      "note": "PR-085/089/090 KYC + screening queue"
-    },
-    "consent_records": {
-      "owner": "identity",
-      "status": "ACTIVE",
-      "tier1Links": [
-        "identity"
-      ],
-      "audited": "granted_at/revoked_at versions in-row",
-      "note": "PR-085 UU PDP consent"
-    }
-  },
+  "legacyReviewedAt": "2026-11-06",
   "legacyTables": [
     "ab_testing",
     "ab_testing_audit",
@@ -1627,5 +1550,89 @@
     "write_off",
     "write_off_audit"
   ],
-  "legacyReviewedAt": "2026-11-06"
+  "tables": {
+    "consent_records": {
+      "audited": "granted_at/revoked_at versions in-row",
+      "note": "PR-085 UU PDP consent",
+      "owner": "identity",
+      "status": "ACTIVE",
+      "tier1Links": [
+        "identity"
+      ]
+    },
+    "corporate_entities": {
+      "audited": "fetched_at per row; no separate audit table (GLEIF cache)",
+      "note": "PR-097 triage cache; not AHU/akta proof",
+      "owner": "corporate",
+      "status": "ACTIVE",
+      "tier1Links": []
+    },
+    "fx_rate_snapshots": {
+      "audited": "provider + fetched_at per row; no separate audit table (reference data, cron-owned)",
+      "note": "PR-091 Frankfurter reference; never settlement basis",
+      "owner": "market",
+      "status": "ACTIVE",
+      "tier1Links": []
+    },
+    "idempotency_request": {
+      "audited": "dual-write mirror of the ten *_request tables; the legacy rows stay the audit record and the idempotency DB suites prove the mirror converges",
+      "note": "PR-14A unified idempotency mirror; legacy tables remain the decision-makers, none dropped here",
+      "owner": "platform",
+      "status": "ACTIVE",
+      "tier1Links": []
+    },
+    "identity_verifications": {
+      "audited": "result rows immutable (append-only verdicts)",
+      "note": "PR-085 NIK/OCR outcomes",
+      "owner": "identity",
+      "status": "ACTIVE",
+      "tier1Links": [
+        "identity"
+      ]
+    },
+    "manual_reviews": {
+      "audited": "reviewer_email + reviewed_at + reason in-row; the audit trail itself",
+      "note": "PR-085/089/090 KYC + screening queue",
+      "owner": "identity",
+      "status": "ACTIVE",
+      "tier1Links": [
+        "identity",
+        "screening"
+      ]
+    },
+    "otp_challenges": {
+      "audited": "status machine + attempts in-row; verification_logs cover issuance",
+      "note": "PR-085 hashed codes, 10-min TTL, 5-attempt lock",
+      "owner": "identity",
+      "status": "ACTIVE",
+      "tier1Links": [
+        "identity"
+      ]
+    },
+    "phone_links": {
+      "audited": "linked_at/verified_at/revoked_at in-row",
+      "note": "PR-082b/085 Telegram binding",
+      "owner": "identity",
+      "status": "ACTIVE",
+      "tier1Links": [
+        "identity"
+      ]
+    },
+    "risk_events": {
+      "audited": "no separate audit table: notations are the audit trail (actor-attributed via RISK_NOTE)",
+      "note": "PR-092 signals only; raw IPs never stored",
+      "owner": "risk",
+      "status": "ACTIVE",
+      "tier1Links": []
+    },
+    "screening_checks": {
+      "audited": "reviewer decisions in manual_reviews (reviewer_email, reviewed_at)",
+      "note": "PR-090 sanctions/PEP verdicts; fail-closed",
+      "owner": "identity",
+      "status": "ACTIVE",
+      "tier1Links": [
+        "identity"
+      ]
+    }
+  }
 }

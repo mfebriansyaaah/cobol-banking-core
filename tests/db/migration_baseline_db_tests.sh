@@ -51,13 +51,17 @@ db_routines() { # $1=db -> routines+triggers count
 LIVE_TABLES="$(db_tables "${DB_NAME:-cobol_db}")"
 LIVE_ROUTINES="$(db_routines "${DB_NAME:-cobol_db}")"
 N_ARCHIVED="$(find "$ROOT/database/migrations/archive" -maxdepth 1 -name '*.sql' | wc -l)"
+# Active migrations are applied (and recorded) by the --baseline fall-through,
+# so covered rows = archived-as-skipped + applied actives.
+N_ACTIVE="$(find "$ROOT/database/migrations" -maxdepth 1 -name '*.sql' | wc -l)"
+N_COVERED="$((N_ARCHIVED + N_ACTIVE))"
 
 # 1-7. Fresh install: baseline snapshot applies once, everything recorded.
 mysql_migrate -e "DROP DATABASE IF EXISTS \`$FRESH_DB\`; CREATE DATABASE \`$FRESH_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null
 out="$(migrate_as "$FRESH_DB" --baseline 2>&1)"; rc=$?
 assert_match "fresh --baseline succeeds" "$rc" "^0$"
 assert_match "marker recorded" "$(mysql_migrate -N -B -e "SELECT COUNT(*) FROM \`$FRESH_DB\`.schema_migrations WHERE version='baseline_v2';" 2>/dev/null)" "^1$"
-assert_match "covered versions recorded" "$(mysql_migrate -N -B -e "SELECT COUNT(*) FROM \`$FRESH_DB\`.schema_migrations WHERE version <> 'baseline_v2';" 2>/dev/null)" "^${N_ARCHIVED}$"
+assert_match "covered versions recorded" "$(mysql_migrate -N -B -e "SELECT COUNT(*) FROM \`$FRESH_DB\`.schema_migrations WHERE version <> 'baseline_v2';" 2>/dev/null)" "^${N_COVERED}$"
 assert_match "table count matches live" "$(db_tables "$FRESH_DB")" "^${LIVE_TABLES}$"
 assert_match "routine count matches live" "$(db_routines "$FRESH_DB")" "^${LIVE_ROUTINES}$"
 migrate_as "$FRESH_DB" --check >/dev/null 2>&1
