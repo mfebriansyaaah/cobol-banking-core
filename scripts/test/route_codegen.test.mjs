@@ -8,7 +8,7 @@
 //     beside the barrel), and the spec covers exactly the on-disk set.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync, execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,7 @@ test('build_routes.mjs check passes on the real tree', () => {
 });
 
 test('every route file is generated, no orphans either way', () => {
-  const spec = execSync(`grep -c '^  export: ' ${path.join(ROOT, 'middleware', 'spec', 'routes.yaml')}`, {
+  const spec = execFileSync('grep', ['-c', '^  export: ', path.join(ROOT, 'middleware', 'spec', 'routes.yaml')], {
     encoding: 'utf8',
   }).trim();
   const onDisk = readdirSync(path.join(ROOT, 'middleware', 'src', 'routes')).filter(
