@@ -7,12 +7,13 @@
 // helpers. 15B2 extracts ACTION-CLOSE the same way.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const SRC = path.join(ROOT, 'cobol', 'src', 'deposit_core.cob');
+const SRC_DIR = path.join(ROOT, 'cobol', 'src');
+const SRC = path.join(SRC_DIR, 'deposit_core.cob');
 const COPY = path.join(ROOT, 'cobol', 'copy', 'deposit_lifecycle.cpy');
 
 const MOVED = ['ACTION-OPEN', 'ACTION-MATURE', 'CLAIM-OPEN-REQUEST', 'DELETE-OPEN-REQUEST'];
@@ -45,12 +46,14 @@ test('deposit_core COPYs the lifecycle and keeps no inline copy', () => {
   }
 });
 
-test('copybook has no hardcoded action dispatch or module name', () => {
+test('copybook stays single-consumer and dispatch stays in the host', () => {
   const cpy = copy();
   assert.doesNotMatch(cpy, /WHEN\s+"DEP_(OPEN|CLOSE|MATURE)"/, 'dispatch stays in the host MAIN-LOGIC');
-  assert.doesNotMatch(
-    cpy,
-    /MOVE\s+"DEPOSIT_CORE"\s+TO\s+WS-DENIED-TARGET/,
-    'copybook must not hardcode the module target',
-  );
+  // Single-host copybook: host-specific constants (the ALLOW-ADMIN denied
+  // target) are part of the relocated text. A second consumer must be
+  // reviewed for them first, so pin the consumer set.
+  const consumers = readdirSync(SRC_DIR)
+    .filter((f) => f.endsWith('.cob'))
+    .filter((f) => /COPY "deposit_lifecycle\.cpy"/.test(readFileSync(path.join(SRC_DIR, f), 'utf8')));
+  assert.deepEqual(consumers, ['deposit_core.cob'], 'only the deposit owner may include the lifecycle copybook');
 });
