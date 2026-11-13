@@ -73,7 +73,10 @@ export function writeTestTable(rootDir = root) {
     throw new Error('README.md is missing the generated test-table markers');
   }
   const next = `${renderTestTable(rootDir)}`;
-  const updated = readme.slice(0, start) + next + readme.slice(end + END.length);
+  // Exactly one blank line after the table: the rendered block ends with
+  // END + newline, so collapse any run of newlines left in the tail.
+  const tail = readme.slice(end + END.length).replace(/^\n*/, '\n');
+  const updated = readme.slice(0, start) + next + tail;
   writeFileSync(readmePath, updated);
   return updated;
 }

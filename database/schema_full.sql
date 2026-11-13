@@ -14774,6 +14774,30 @@ CREATE TABLE `housing_finance_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `idempotency_request`
+--
+
+DROP TABLE IF EXISTS `idempotency_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `idempotency_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `scope` varchar(32) NOT NULL,
+  `entity_ref` varchar(64) NOT NULL DEFAULT '',
+  `idem_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `details` varchar(500) NOT NULL DEFAULT '',
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `gl_journal_id` bigint(20) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_idem_scope_entity_key` (`scope`,`entity_ref`,`idem_key`),
+  KEY `idx_idem_scope_key` (`scope`,`idem_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `identity_verifications`
 --
 

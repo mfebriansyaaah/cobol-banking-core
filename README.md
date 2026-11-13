@@ -151,11 +151,11 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **71** |
 | COBOL source files (incl. dispatcher) | **72** |
-| COBOL lines | **60,764** |
+| COBOL lines | **60,688** |
 | Gateway route files | **54** |
 | Gateway route definitions | **575** |
 | Dispatch entries | **194** |
-| Recorded migrations | **677** |
+| Recorded migrations | **678** |
 | Tables in schema.sql | **479** |
 <!-- END GENERATED STATS -->
 
@@ -328,7 +328,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 65 |
 | `tests/db/card_db_tests.sh` | 49 |
-| `tests/db/collection_db_tests.sh` | 52 |
+| `tests/db/collection_db_tests.sh` | 56 |
 | `tests/db/payment_clearing_db_tests.sh` | 22 |
 | `tests/db/treasury_liquidity_db_tests.sh` | 24 |
 | `tests/db/gl_allocation_db_tests.sh` | 13 |
@@ -409,7 +409,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/loan_posting_db_tests.sh` | 11 |
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
-| **Total** | **2773** |
+| **Total** | **2777** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
