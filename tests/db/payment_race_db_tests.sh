@@ -128,6 +128,8 @@ assert_match "keyed replay ok" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RC3|$
 assert_match "replay links same journal" "$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${CID3};")" "^${JK}$"
 assert_match "no duplicate journal" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-RC-3:%';")" "^1$"
 assert_match "request recorded DONE" "$(db_query "SELECT status FROM payment_settle_request WHERE clearing_id=${CID3} AND idempotency_key='K-RC3';")" "^DONE$"
+assert_match "mirror recorded DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='PMC_SETTLE' AND entity_ref='${CID3}' AND idem_key='K-RC3';")" "^DONE|100.0000$"
+assert_match "mirror links journal" "$(db_query "SELECT COUNT(*) FROM idempotency_request WHERE scope='PMC_SETTLE' AND entity_ref='${CID3}' AND idem_key='K-RC3' AND gl_journal_id = (SELECT gl_journal_id FROM payment_settle_request WHERE clearing_id=${CID3} AND idempotency_key='K-RC3');")" "^1$"
 assert_match "different amount conflicts" "$(run_cobol "PMC_SETTLE|${CID3}|50.00|||K-RC3|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
 assert_match "conflict moves nothing" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID3};")" "^100.0000$"
 D1="$(mktemp -d /tmp/cobol-test.XXXXXX)"; D2="$(mktemp -d /tmp/cobol-test.XXXXXX)"
@@ -144,6 +146,7 @@ rm -rf "$D1" "$D2"
 assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$KA" "$KB" | grep -c "SUCCESS|PMC_SETTLE")" "^1$"
 assert_match "loser sees in-progress" "$(printf '%s\n%s\n' "$KA" "$KB")" "ERROR\|SETTLE_IN_PROGRESS"
 assert_match "retry converges" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RACE|${A}")" "SUCCESS\|PMC_SETTLE"
+assert_match "mirror race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='PMC_SETTLE' AND entity_ref='${CID3}' AND idem_key='K-RACE';")" "^DONE|100.0000$"
 assert_match "single journal for key" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-RC-3:%';")" "^2$"
 assert_match "settled exact after race" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID3};")" "^200.0000$"
 assert_match "replay after full still memoized" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RC3|${A}")" "SUCCESS\|PMC_SETTLE"
@@ -154,6 +157,7 @@ run_cobol "PMC_POST|${CID4}|50.00||||${A}" >/dev/null
 assert_match "keyed over-settle refused" "$(run_cobol "PMC_SETTLE|${CID4}|100.00|||K-DOOM|${A}")" "ERROR\|INVALID_AMOUNT"
 assert_match "doomed key not blocked" "$(run_cobol "PMC_SETTLE|${CID4}|100.00|||K-DOOM|${A}")" "ERROR\|INVALID_AMOUNT"
 assert_match "no request residue" "$(db_query "SELECT COUNT(*) FROM payment_settle_request WHERE clearing_id=${CID4};")" "^0$"
+assert_match "no mirror residue" "$(db_query "SELECT COUNT(*) FROM idempotency_request WHERE scope='PMC_SETTLE' AND entity_ref='${CID4}';")" "^0$"
 # Stale PENDING takeover: a crashed owner's key is taken over, not blocked.
 run_cobol "PMC_CREATE|CLR-RC-5|100.00|USD|||${A}" >/dev/null
 CID5="$(db_query "SELECT id FROM payment_clearing WHERE clearing_ref='CLR-RC-5';")"
@@ -161,6 +165,7 @@ run_cobol "PMC_POST|${CID5}|100.00||||${A}" >/dev/null
 db_exec "INSERT INTO payment_settle_request (clearing_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${CID5},'K-TAKE',100.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"
 assert_match "takeover succeeds" "$(run_cobol "PMC_SETTLE|${CID5}|100.00|||K-TAKE|${A}")" "SUCCESS\|PMC_SETTLE"
 assert_match "taken over and done" "$(db_query "SELECT status FROM payment_settle_request WHERE clearing_id=${CID5} AND idempotency_key='K-TAKE';")" "^DONE$"
+assert_match "mirror taken over and done" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='PMC_SETTLE' AND entity_ref='${CID5}' AND idem_key='K-TAKE';")" "^DONE|100.0000$"
 assert_match "takeover settled exact" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${CID5};")" "^100.0000$"
 
 # 16-20. Double instruction execute: money moves once. The wallet transfer

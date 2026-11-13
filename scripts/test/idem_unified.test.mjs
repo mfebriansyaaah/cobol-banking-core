@@ -64,6 +64,12 @@ test('common_idem.cpy provides the three dual-store paragraphs', () => {
     'WS-IDEM-KEY',
     'WS-IDEM-AMOUNT',
     'WS-IDEM-CODE',
+    'WS-IDEM-AMTCOL',
+    'WS-IDEM-SETCOL',
+    'WS-IDEM-JIDVAL',
+    'WS-IDEM-DETAIL-COLS',
+    'WS-IDEM-IDCOL',
+    'WS-IDEM-LINKVAL',
   ]) {
     assert.match(src, new RegExp(`\\b${field}\\b`), `copybook must document interface field ${field}`);
   }
@@ -84,15 +90,25 @@ test('collection pilot routes every pay_request access through the copybook', ()
 });
 
 test('14B domains route every *_request access through the copybook', () => {
+  // Split modules (ADR-0010): callees own claim+delete, owners own the
+  // single transaction and the complete. Each file PERFORMS only its side.
   const cases = [
-    ['card_core.cob', ['card_capture_request', 'card_repay_request', 'card_reverse_request']],
-    ['deposit_core.cob', ['deposit_open_request', 'deposit_close_request', 'deposit_settle_request']],
-    ['deposit_posting_core.cob', ['deposit_settle_request']],
-    ['loan_posting_core.cob', ['loan_disburse_request', 'loan_repay_request']],
-    ['loan_core.cob', ['loan_disburse_request', 'loan_repay_request']],
-    ['payment_clearing_core.cob', ['payment_settle_request']],
+    [
+      'card_core.cob',
+      ['card_capture_request', 'card_repay_request', 'card_reverse_request'],
+      ['IDEM-CLAIM', 'IDEM-COMPLETE', 'IDEM-DELETE'],
+    ],
+    [
+      'deposit_core.cob',
+      ['deposit_open_request', 'deposit_close_request', 'deposit_settle_request'],
+      ['IDEM-CLAIM', 'IDEM-COMPLETE', 'IDEM-DELETE', 'IDEM-LINK'],
+    ],
+    ['deposit_posting_core.cob', ['deposit_settle_request'], ['IDEM-CLAIM', 'IDEM-DELETE']],
+    ['loan_posting_core.cob', ['loan_disburse_request', 'loan_repay_request'], ['IDEM-CLAIM', 'IDEM-DELETE']],
+    ['loan_core.cob', ['loan_disburse_request', 'loan_repay_request'], ['IDEM-COMPLETE']],
+    ['payment_clearing_core.cob', ['payment_settle_request'], ['IDEM-CLAIM', 'IDEM-COMPLETE', 'IDEM-DELETE']],
   ];
-  for (const [file, tables] of cases) {
+  for (const [file, tables, paras] of cases) {
     const src = readFileSync(path.join(ROOT, 'cobol', 'src', file), 'utf8');
     assert.match(src, /COPY "common_idem\.cpy"/, `${file} must COPY the shared copybook`);
     for (const t of tables) {
@@ -102,7 +118,7 @@ test('14B domains route every *_request access through the copybook', () => {
         `no ${t} SQL may remain in ${file} (it lives in the copybook)`,
       );
     }
-    for (const para of ['IDEM-CLAIM', 'IDEM-COMPLETE', 'IDEM-DELETE']) {
+    for (const para of paras) {
       assert.match(src, new RegExp(`PERFORM ${para}\\b`), `${file} must PERFORM ${para}`);
     }
   }

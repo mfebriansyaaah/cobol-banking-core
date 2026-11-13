@@ -76,6 +76,31 @@
         01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
         01  WS-IDEM-AMT             PIC X(30) VALUE SPACES.
         01  WS-IDEM-JID             PIC X(20) VALUE SPACES.
+       01  WS-IDEM-STALE           PIC X VALUE SPACES.
+       01  WS-IDEM-SCOPE           PIC X(32) VALUE SPACES.
+       01  WS-IDEM-ENTITY-VAL      PIC X(64) VALUE SPACES.
+       01  WS-IDEM-KEY             PIC X(64) VALUE SPACES.
+       01  WS-IDEM-AMOUNT          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-DETAILS         PIC X(500) VALUE SPACES.
+       01  WS-IDEM-AMTCOL          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-TABLE           PIC X(40) VALUE SPACES.
+       01  WS-IDEM-ENTITY          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-CODE            PIC X(40) VALUE SPACES.
+       01  WS-IDEM-V1              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V2              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V3              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V4              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V5              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-DETAIL-COLS     PIC X(200) VALUE SPACES.
+       01  WS-IDEM-MATCH           PIC X VALUE SPACES.
+       01  WS-IDEM-REFID           PIC X(20) VALUE SPACES.
+       01  WS-IDEM-IDCOL           PIC X(30) VALUE SPACES.
+       01  WS-IDEM-SETCOL          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-JIDVAL          PIC X(20) VALUE SPACES.
+       01  WS-IDEM-JIDNULL         PIC X VALUE SPACES.
+       01  WS-IDEM-GUARD           PIC X VALUE SPACES.
+       01  WS-IDEM-DIRECT          PIC X VALUE SPACES.
+       01  WS-IDEM-LINKVAL         PIC X(20) VALUE SPACES.
         01  WS-JOUT-1               PIC X(20) VALUE SPACES.
         01  WS-JOUT-2               PIC X(20) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
@@ -182,6 +207,8 @@
 
         COPY "common_auth.cpy".
 
+        COPY "common_idem.cpy".
+
         AUDIT.
             MOVE "INSERT INTO payment_clearing_audit (clearing_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-AUDIT-CLEARING TO WS-BIND-1
@@ -251,122 +278,39 @@
             EXIT PARAGRAPH.
 
         CLAIM-SETTLE-REQUEST.
-            *> Client-supplied idempotency for settle (P5). First call with a
-            *> key inserts a PENDING request row and owns it; a repeated key
-            *> replays the stored DONE outcome (or conflicts on a different
-            *> amount) instead of posting again; a key whose owner is still
-            *> working is refused so two owners never post twice. A PENDING
-            *> row older than 5 minutes is taken over (owner crashed).
-            *> Outputs: WS-IDEM-STATUS (PENDING owner / DONE replay),
-            *> WS-IDEM-AMT/WS-IDEM-JID (stored outcome), WS-IDEM-OWNED "1"
-            *> when this call owns the PENDING row (so a later refusal can
-            *> delete it instead of blocking the key for 5 minutes).
-            *> WS-ERR on refusal.
-            MOVE SPACES TO WS-IDEM-STATUS WS-IDEM-ROW WS-IDEM-AMT WS-IDEM-JID
-            MOVE "0" TO WS-IDEM-OWNED
-            MOVE SPACES TO WS-ERR
-            MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM payment_settle_request WHERE clearing_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-P1-TRIMMED TO WS-BIND-1
-            MOVE WS-P5-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT = "ERROR|NO_DATA"
-                MOVE "INSERT INTO payment_settle_request (clearing_id, idempotency_key, amount, status) VALUES (?, ?, ?, 'PENDING')" TO WS-PREP-SQL
-                MOVE WS-P1-TRIMMED TO WS-BIND-1
-                MOVE WS-P5-TRIMMED TO WS-BIND-2
-                MOVE WS-TMP-AMT TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT(1:5) = "ERROR"
-                    IF WS-RESULT = "ERROR|EXEC_FAILED|1062"
-                        MOVE "RETRY" TO WS-IDEM-STATUS
-                    ELSE
-                        MOVE "ERROR|DB_ERROR" TO WS-ERR
-                        EXIT PARAGRAPH
-                    END-IF
-                ELSE
-                    MOVE "PENDING" TO WS-IDEM-STATUS
-                    MOVE "1" TO WS-IDEM-OWNED
-                    EXIT PARAGRAPH
-                END-IF
-            ELSE
-                IF WS-RESULT(1:5) = "ERROR"
-                    MOVE "ERROR|DB_ERROR" TO WS-ERR
-                ELSE
-                    MOVE WS-RESULT TO WS-IDEM-ROW
-                END-IF
-            END-IF.
-            IF WS-IDEM-STATUS = "RETRY"
-                MOVE SPACES TO WS-IDEM-STATUS
-                MOVE "SELECT CONCAT(status, '|', CAST(amount AS CHAR), '|', COALESCE(gl_journal_id, ''), '|', updated_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE)) FROM payment_settle_request WHERE clearing_id = ? AND idempotency_key = ? LIMIT 1" TO WS-PREP-SQL
-                MOVE WS-P1-TRIMMED TO WS-BIND-1
-                MOVE WS-P5-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT(1:5) = "ERROR"
-                    MOVE "ERROR|DB_ERROR" TO WS-ERR
-                ELSE
-                    MOVE WS-RESULT TO WS-IDEM-ROW
-                END-IF
-            END-IF.
-            IF WS-ERR = SPACES AND WS-IDEM-ROW NOT = SPACES
-                UNSTRING WS-IDEM-ROW DELIMITED BY "|" INTO WS-IDEM-STATUS WS-IDEM-AMT WS-IDEM-JID WS-TMP-ID
-                END-UNSTRING
-                IF WS-IDEM-STATUS = "DONE"
-                    IF FUNCTION TRIM(WS-IDEM-AMT) NOT = FUNCTION TRIM(WS-TMP-AMT)
-                        MOVE "ERROR|IDEMPOTENCY_CONFLICT" TO WS-ERR
-                    END-IF
-                ELSE
-                    IF WS-TMP-ID NOT = "1"
-                        MOVE "ERROR|SETTLE_IN_PROGRESS" TO WS-ERR
-                    ELSE
-                        MOVE "UPDATE payment_settle_request SET updated_at = NOW() WHERE clearing_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
-                        MOVE WS-P1-TRIMMED TO WS-BIND-1
-                        MOVE WS-P5-TRIMMED TO WS-BIND-2
-                        CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                            BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                            BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                        END-CALL
-                        CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                        IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
-                            MOVE "ERROR|SETTLE_IN_PROGRESS" TO WS-ERR
-                        ELSE
-                            MOVE "PENDING" TO WS-IDEM-STATUS
-                            MOVE "1" TO WS-IDEM-OWNED
-                        END-IF
-                    END-IF
-                END-IF
-            END-IF.
-            EXIT PARAGRAPH.
+           *> Client-supplied idempotency for settle (P5). First call with a
+           *> key inserts a PENDING request row and owns it; a repeated key
+           *> replays the stored DONE outcome (or conflicts on a different
+           *> amount) instead of posting again; a key whose owner is still
+           *> working is refused so two owners never post twice. A PENDING
+           *> row older than 5 minutes is taken over (owner crashed).
+           *> Dual-write via common_idem.cpy: every transition is mirrored
+           *> to idempotency_request while the legacy row stays the
+           *> decision-maker.
+           PERFORM IDEM-RESET
+           MOVE "PMC_SETTLE" TO WS-IDEM-SCOPE
+           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
+           MOVE SPACES TO WS-IDEM-DETAILS
+           MOVE "ERROR|SETTLE_IN_PROGRESS" TO WS-IDEM-CODE
+           PERFORM IDEM-CLAIM.
+           EXIT PARAGRAPH.
 
-        DELETE-SETTLE-REQUEST.
-            *> Drops our own PENDING request row when the settle is refused
-            *> before posting, so the key stays usable instead of blocking
-            *> behind a 5-minute stale window. Only the owner row is ever
-            *> removed (status guard); DONE rows are never touched.
-            IF WS-IDEM-OWNED = "1" AND WS-P5-TRIMMED NOT = SPACES
-                MOVE "DELETE FROM payment_settle_request WHERE clearing_id = ? AND idempotency_key = ? AND status = 'PENDING'" TO WS-PREP-SQL
-                MOVE WS-P1-TRIMMED TO WS-BIND-1
-                MOVE WS-P5-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                MOVE "0" TO WS-IDEM-OWNED
-            END-IF.
-            EXIT PARAGRAPH.
+       DELETE-SETTLE-REQUEST.
+           *> Drops our own PENDING request row when the settle is refused
+           *> before posting, so the key stays usable instead of blocking
+           *> behind a 5-minute stale window. Only the owner row is ever
+           *> removed (status guard); DONE rows are never touched. The
+           *> unified mirror row goes with it.
+           PERFORM IDEM-RESET
+           MOVE "PMC_SETTLE" TO WS-IDEM-SCOPE
+           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           PERFORM IDEM-DELETE.
+           EXIT PARAGRAPH.
 
-        ACTION-CREATE.
+       ACTION-CREATE.
             MOVE "PAYMENT_CLEARING_CORE" TO WS-DENIED-TARGET
             PERFORM ALLOW-ADMIN
             IF WS-ALLOWED NOT = 1
@@ -777,18 +721,15 @@
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
-                MOVE "UPDATE payment_settle_request SET status = 'DONE', gl_journal_id = ? WHERE clearing_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
-                MOVE WS-GL-JID TO WS-BIND-1
-                MOVE WS-P1-TRIMMED TO WS-BIND-2
-                MOVE WS-P5-TRIMMED TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET STEP-FAIL TO TRUE
-                END-IF
+                PERFORM IDEM-RESET
+                MOVE "PMC_SETTLE" TO WS-IDEM-SCOPE
+                MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
+                MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
+                MOVE SPACES TO WS-IDEM-DETAILS
+                MOVE "gl_journal_id" TO WS-IDEM-SETCOL
+                MOVE WS-GL-JID TO WS-IDEM-JIDVAL
+                PERFORM IDEM-COMPLETE
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL

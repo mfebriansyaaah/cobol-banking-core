@@ -69,6 +69,31 @@
        01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
        01  WS-IDEM-AMT             PIC X(30) VALUE SPACES.
        01  WS-IDEM-JID             PIC X(20) VALUE SPACES.
+       01  WS-IDEM-STALE           PIC X VALUE SPACES.
+       01  WS-IDEM-SCOPE           PIC X(32) VALUE SPACES.
+       01  WS-IDEM-ENTITY-VAL      PIC X(64) VALUE SPACES.
+       01  WS-IDEM-KEY             PIC X(64) VALUE SPACES.
+       01  WS-IDEM-AMOUNT          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-DETAILS         PIC X(500) VALUE SPACES.
+       01  WS-IDEM-AMTCOL          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-TABLE           PIC X(40) VALUE SPACES.
+       01  WS-IDEM-ENTITY          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-CODE            PIC X(40) VALUE SPACES.
+       01  WS-IDEM-V1              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V2              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V3              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V4              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V5              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-DETAIL-COLS     PIC X(200) VALUE SPACES.
+       01  WS-IDEM-MATCH           PIC X VALUE SPACES.
+       01  WS-IDEM-REFID           PIC X(20) VALUE SPACES.
+       01  WS-IDEM-IDCOL           PIC X(30) VALUE SPACES.
+       01  WS-IDEM-SETCOL          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-JIDVAL          PIC X(20) VALUE SPACES.
+       01  WS-IDEM-JIDNULL         PIC X VALUE SPACES.
+       01  WS-IDEM-GUARD           PIC X VALUE SPACES.
+       01  WS-IDEM-DIRECT          PIC X VALUE SPACES.
+       01  WS-IDEM-LINKVAL         PIC X(20) VALUE SPACES.
         01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
         01  WS-CALL-P1              PIC X(100) VALUE SPACES.
         01  WS-CALL-P2              PIC X(100) VALUE SPACES.
@@ -212,6 +237,8 @@
             EXIT PARAGRAPH.
 
         COPY "common_auth.cpy".
+
+        COPY "common_idem.cpy".
 
         AUDIT.
             MOVE "INSERT INTO loan_audit (loan_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
@@ -970,17 +997,15 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 END-IF
             END-IF.
             IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
-                MOVE "UPDATE loan_disburse_request SET status = 'DONE', gl_journal_id = ? WHERE loan_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
-                MOVE WS-GL-JID TO WS-BIND-1
-                MOVE WS-P1-TRIMMED TO WS-BIND-2
-                MOVE WS-P5-TRIMMED TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET STEP-FAIL TO TRUE
-                END-IF
+                PERFORM IDEM-RESET
+                MOVE "LOAN_DISBURSE" TO WS-IDEM-SCOPE
+                MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
+                MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
+                MOVE SPACES TO WS-IDEM-DETAILS
+                MOVE "gl_journal_id" TO WS-IDEM-SETCOL
+                MOVE WS-GL-JID TO WS-IDEM-JIDVAL
+                PERFORM IDEM-COMPLETE
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL
@@ -1173,17 +1198,15 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 END-IF
             END-IF.
             IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
-                MOVE "UPDATE loan_repay_request SET status = 'DONE', gl_journal_id = ? WHERE loan_id = ? AND idempotency_key = ?" TO WS-PREP-SQL
-                MOVE WS-GL-JID TO WS-BIND-1
-                MOVE WS-P1-TRIMMED TO WS-BIND-2
-                MOVE WS-P5-TRIMMED TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET STEP-FAIL TO TRUE
-                END-IF
+                PERFORM IDEM-RESET
+                MOVE "LOAN_REPAY" TO WS-IDEM-SCOPE
+                MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
+                MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
+                MOVE SPACES TO WS-IDEM-DETAILS
+                MOVE "gl_journal_id" TO WS-IDEM-SETCOL
+                MOVE WS-GL-JID TO WS-IDEM-JIDVAL
+                PERFORM IDEM-COMPLETE
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT" END-CALL

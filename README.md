@@ -151,7 +151,7 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **71** |
 | COBOL source files (incl. dispatcher) | **72** |
-| COBOL lines | **60,688** |
+| COBOL lines | **60,037** |
 | Gateway route files | **54** |
 | Gateway route definitions | **575** |
 | Dispatch entries | **194** |
@@ -326,7 +326,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/cobol/cases/*.cases` | 235 |
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
-| `tests/db/deposit_db_tests.sh` | 65 |
+| `tests/db/deposit_db_tests.sh` | 67 |
 | `tests/db/card_db_tests.sh` | 49 |
 | `tests/db/collection_db_tests.sh` | 56 |
 | `tests/db/payment_clearing_db_tests.sh` | 22 |
@@ -363,7 +363,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/report_schedule_db_tests.sh` | 18 |
 | `tests/db/notification_template_db_tests.sh` | 18 |
 | `tests/db/loan_db_tests.sh` | 25 |
-| `tests/db/lending_posting_db_tests.sh` | 157 |
+| `tests/db/lending_posting_db_tests.sh` | 173 |
 | `tests/db/collateral_db_tests.sh` | 18 |
 | `tests/db/collateral_domain_db_tests.sh` | 30 |
 | `tests/db/chargeback_db_tests.sh` | 18 |
@@ -374,7 +374,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/payment_hold_db_tests.sh` | 22 |
 | `tests/db/velocity_db_tests.sh` | 15 |
 | `tests/db/payment_limits_db_tests.sh` | 28 |
-| `tests/db/payment_race_db_tests.sh` | 49 |
+| `tests/db/payment_race_db_tests.sh` | 54 |
 | `tests/db/payment_conservation_db_tests.sh` | 44 |
 | `tests/db/admin_shell_db_tests.sh` | 30 |
 | `tests/db/auth_shell_db_tests.sh` | 44 |
@@ -402,14 +402,14 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/risk_db_tests.sh` | 13 |
 | `tests/db/corporate_db_tests.sh` | 9 |
 | `tests/db/truncation_db_tests.sh` | 4 |
-| `tests/db/card_posting_db_tests.sh` | 99 |
-| `tests/db/deposit_posting_db_tests.sh` | 21 |
+| `tests/db/card_posting_db_tests.sh` | 103 |
+| `tests/db/deposit_posting_db_tests.sh` | 22 |
 | `tests/db/wallet_transfer_db_tests.sh` | 15 |
 | `tests/db/auth_session_db_tests.sh` | 23 |
-| `tests/db/loan_posting_db_tests.sh` | 11 |
+| `tests/db/loan_posting_db_tests.sh` | 13 |
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
-| **Total** | **2777** |
+| **Total** | **2807** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

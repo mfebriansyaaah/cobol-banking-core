@@ -45,12 +45,14 @@ APP="$(db_query "SELECT id FROM loan_application WHERE customer_email='${U}' ORD
 run_cobol "LOAN_APPROVE|${APP}|5.0|ok|||${A}" >/dev/null
 assert_match "keyed disburse ok" "$(run_cobol "LOAN_DISBURSE|${APP}||||K-LP1|${A}")" "SUCCESS\|LOAN_DISBURSE"
 assert_match "keyed disburse replay ok" "$(run_cobol "LOAN_DISBURSE|${APP}||||K-LP1|${A}")" "SUCCESS\|LOAN_DISBURSE"
+assert_match "mirror disburse recorded DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='LOAN_DISBURSE' AND entity_ref='${APP}' AND idem_key='K-LP1';")" "^DONE|1000.0000$"
 assert_match "double disburse refused" "$(run_cobol "LOAN_DISBURSE|${APP}|||||${A}")" "ERROR\|INVALID_STATUS"
 assert_match "disburse links gl" "$(db_query "SELECT gl_journal_id FROM loan_application WHERE id=${APP};")" "^[0-9]+$"
 
 assert_match "keyed repay ok" "$(run_cobol "LOAN_REPAY|${APP}|200.00|||K-LP2|${A}")" "SUCCESS\|LOAN_REPAY"
 assert_match "keyed repay replay ok" "$(run_cobol "LOAN_REPAY|${APP}|200.00|||K-LP2|${A}")" "SUCCESS\|LOAN_REPAY"
 assert_match "changed amount conflicts" "$(run_cobol "LOAN_REPAY|${APP}|100.00|||K-LP2|${A}")" "ERROR\|IDEMPOTENCY_CONFLICT"
+assert_match "mirror repay recorded DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='LOAN_REPAY' AND entity_ref='${APP}' AND idem_key='K-LP2';")" "^DONE|200.0000$"
 assert_match "overpay refused" "$(run_cobol "LOAN_REPAY|${APP}|99999.00||||${A}")" "ERROR\|OVERPAID"
 assert_match "repay unknown refused" "$(run_cobol "LOAN_REPAY|999999|10.00||||${A}")" "ERROR\|NOT_FOUND"
 
