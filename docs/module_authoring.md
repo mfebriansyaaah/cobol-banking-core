@@ -60,7 +60,8 @@ Every domain module exposes these actions (prefix + action):
   provide the two WS-TRIM-IN 6-param `VALIDATE-ALL`/`VALIDATE-INPUT` shapes).
   Inline exceptions stay inline with a documented reason: auth×5 (NL/CR
   charset), gl/import (action-dependent branches), ref/user (WS-CHECK
-  shapes), wallet×6 (early-exit flow) — see `scripts/test/copybook_*.test.mjs`
+  shapes), wallet×5 (early-exit flow; wallet_core itself moved to the
+  shared `wallet_entry.cpy` in PR-07) — see `scripts/test/copybook_*.test.mjs`
   for the enforced lists.
   A shared paragraph must be byte-identical to the copies it replaces except for caller-set variables: the caller sets
   `WS-DENIED-TARGET` before `PERFORM ALLOW-ADMIN`, and the copybook
@@ -78,6 +79,14 @@ Every domain module exposes these actions (prefix + action):
   One file per declaration footprint applies here too: shared paragraphs
   pass at most 5 binds because 4-param modules declare no `WS-BIND-6`
   (the bridge binds exactly `nparams`, so extras are never read).
+- Splitting a module: internal CALL, owner keeps dispatch + the single
+  transaction, callee is transaction-free and never calls back
+  ([ADR-0010](adr/0010-module-split-call-contract.md)). Pick the narrowest
+  shape that fits the 8-slot LINKAGE — resolve-split, JOIN, or passthrough —
+  and use `ERROR|<CODE>|<CLEANUP>` out-protocol conventions; see
+  [ADR-0009](adr/0009-extraction-playbook.md). Idempotency follows the
+  claim/replay/takeover protocol ([ADR-0008](adr/0008-idempotency-protocol.md));
+  do not invent a sixth variant — PR-14 generalizes the table, not the semantics.
 - Keep `WS-PREP-SQL` ≤ 1024 chars (bridge buffer limit) and params ≤ 6 (7 for EXEC7).
 - New modules are picked up by `cobol/Makefile` automatically (wildcard); no
   `build.sh` change needed. Regenerate the manifest, and add tests + warning

@@ -5250,6 +5250,13 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 |---|---|
 | version | VARCHAR(64) PRIMARY |
 | applied_at | TIMESTAMP DEFAULT |
+| checksum | VARCHAR(64) NULLABLE — SHA-256 of the applied file (tamper-evident since migration 0666; verified by `migrate.sh --check`) |
+
+One row per applied migration plus, on baselined databases, a
+`baseline_v2` marker row whose `checksum` pins `database/schema_v2.sql`
+(an edited snapshot fails `--check` as a `baseline_v2` mismatch).
+Pre-baseline migrations live in `database/migrations/archive/`; see the
+baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 
 ## Domain group: `screening_*`
 
