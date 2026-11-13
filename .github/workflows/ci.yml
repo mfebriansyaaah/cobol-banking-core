@@ -65,7 +65,10 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           bash scripts/ci/install-tools.sh --dest "$HOME/.local/bin" --cache-dir "$HOME/.cache/lint-tools"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          pip install --break-system-packages "yamllint==1.38.0" "semgrep==1.136.0"
+          pip install --break-system-packages "setuptools==78.1.1" "yamllint==1.38.0" "semgrep==1.136.0"
+          # setuptools is pinned so pkg_resources keeps existing: semgrep's
+          # opentelemetry-instrumentation imports it, and Python 3.12+'s
+          # bundled venvs no longer ship setuptools by default.
 
       - name: Install JS lint tools
         run: npm ci
