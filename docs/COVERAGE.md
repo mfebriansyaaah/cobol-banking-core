@@ -19,6 +19,11 @@ the representative DB suites, the table suite, and the gateway suite, then maps
 gcov counts from the generated C back to COBOL lines using the translator's
 `/* Line: N : ... */` markers. A COBOL line is executable when at least one
 instrumented C line maps to it, and covered when any of those C lines ran.
+Markers name their source file, so only the module's own `.cob` lines are
+attributed to it: COPYbook lines (`.cpy`) compile into every host but belong
+to a different file, and counting them by bare line number collided with
+unrelated host lines (the copybook's line 100 was credited to the host's
+line 100), which is why per-module rates shifted on every extraction.
 
 ## Scope
 
