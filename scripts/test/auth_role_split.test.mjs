@@ -33,7 +33,7 @@ const inlineDefines = (src, name) => new RegExp(`^ {7,8}${name}\\.$`, 'm').test(
 
 test('auth_last_admin.cpy defines the shared guard generically', () => {
   const cpy = copyOf('auth_last_admin.cpy');
-  assert.match(cpy, /^ {7}GUARD-LAST-ADMIN-ROLE\.$/m, 'copybook must define GUARD-LAST-ADMIN-ROLE');
+  assert.match(cpy, /^ {7,8}GUARD-LAST-ADMIN-ROLE\.$/m, 'copybook must define GUARD-LAST-ADMIN-ROLE');
   // Interface the shared paragraph relies on (both hosts declare them).
   for (const field of ['WS-ALLOWED', 'WS-PARAM1-TRIMMED', 'WS-PARAM2-TRIMMED', 'WS-P2-LEN', 'LOOKUP-USER-ROLE']) {
     assert.match(cpy, new RegExp(`\\b${field}\\b`), `copybook must use the documented interface field ${field}`);
@@ -44,7 +44,7 @@ test('auth_last_admin.cpy defines the shared guard generically', () => {
 test('auth_role_logic.cpy defines the four auth-only paragraphs', () => {
   const cpy = copyOf('auth_role_logic.cpy');
   for (const name of AUTH_ONLY) {
-    assert.match(cpy, new RegExp(`^ {7}${name}\\.$`, 'm'), `copybook must define ${name}`);
+    assert.match(cpy, new RegExp(`^ {7,8}${name}\\.$`, 'm'), `copybook must define ${name}`);
   }
 });
 
