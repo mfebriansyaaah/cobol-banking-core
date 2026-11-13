@@ -49,7 +49,7 @@ const TRIGGER_RULES = [
 // Generated or volatile paths that can never affect measured COBOL lines.
 const SAFE_RULES = [
   /^docs\//,
-  /^(README\.md|CONTRIBUTING\.md|SECURITY\.md|CHANGELOG\.md|PLANNING_SKELETON_CONVERSION\.md|LICENSE)$/,
+  /^(README\.md|CONTRIBUTING\.md|SECURITY\.md|CHANGELOG\.md|LICENSE)$/,
   /^manifest\/modules\.json$/,
   /^(coverage\/|artifacts\/|backups\/|test-results\/|reports\/|tmp\/)/,
   /^(input\.txt|output\.txt|sql_debug\.log|\.DS_Store|Thumbs\.db)$/,
