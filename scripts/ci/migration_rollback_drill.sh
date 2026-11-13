@@ -26,6 +26,14 @@ DB_MIGRATE_USER="${DB_MIGRATE_USER:-cobol_user}"
 DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-cobol_pass}"
 
 versions="$(cd database/migrations && printf '%s\n' *.sql | sed 's/\.sql$//' | sort)"
+# Post-baseline the archive holds history and only new migrations roll back:
+# with fewer than two active migrations there is nothing to drill, so skip
+# instead of failing every PR until two new migrations land.
+n_active="$(echo "$versions" | grep -cv '^\*$' || true)"
+if [ "$n_active" -lt 2 ]; then
+    echo "SKIP: fewer than two active migrations (archive holds history); nothing to roll back"
+    exit 0
+fi
 N="$(echo "$versions" | tail -1)"
 PREV="$(echo "$versions" | tail -2 | head -1)"
 if [ -z "$N" ] || [ -z "$PREV" ] || [ "$N" = "$PREV" ]; then

@@ -15,7 +15,8 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 . "$ROOT/tests/lib/assert.sh"
 
 PROBE_VERSION="0666_schema_migrations_checksum"
-PROBE_FILE="$ROOT/database/migrations/$PROBE_VERSION.sql"
+# Post-PR-011 the file lives in the archive (still applied + checksummed).
+PROBE_FILE="$ROOT/database/migrations/archive/$PROBE_VERSION.sql"
 BACKUP="$(mktemp "${TMPDIR:-/tmp}/checksum-probe.XXXXXX.sql")"
 cp "$PROBE_FILE" "$BACKUP"
 # Invoked only via `trap ... EXIT`, which shellcheck cannot trace.

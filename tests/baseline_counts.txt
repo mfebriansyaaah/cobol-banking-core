@@ -105,3 +105,5 @@ db_auth_session_tests=23
 db_loan_posting_tests=11
 
 db_migration_baseline_tests=16
+
+db_migration_archive_tests=12

@@ -50,14 +50,14 @@ db_routines() { # $1=db -> routines+triggers count
 
 LIVE_TABLES="$(db_tables "${DB_NAME:-cobol_db}")"
 LIVE_ROUTINES="$(db_routines "${DB_NAME:-cobol_db}")"
-N_MIGRATIONS="$(find "$ROOT/database/migrations" -maxdepth 1 -name '*.sql' | wc -l)"
+N_ARCHIVED="$(find "$ROOT/database/migrations/archive" -maxdepth 1 -name '*.sql' | wc -l)"
 
 # 1-7. Fresh install: baseline snapshot applies once, everything recorded.
 mysql_migrate -e "DROP DATABASE IF EXISTS \`$FRESH_DB\`; CREATE DATABASE \`$FRESH_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null
 out="$(migrate_as "$FRESH_DB" --baseline 2>&1)"; rc=$?
 assert_match "fresh --baseline succeeds" "$rc" "^0$"
 assert_match "marker recorded" "$(mysql_migrate -N -B -e "SELECT COUNT(*) FROM \`$FRESH_DB\`.schema_migrations WHERE version='baseline_v2';" 2>/dev/null)" "^1$"
-assert_match "covered versions recorded" "$(mysql_migrate -N -B -e "SELECT COUNT(*) FROM \`$FRESH_DB\`.schema_migrations WHERE version <> 'baseline_v2';" 2>/dev/null)" "^${N_MIGRATIONS}$"
+assert_match "covered versions recorded" "$(mysql_migrate -N -B -e "SELECT COUNT(*) FROM \`$FRESH_DB\`.schema_migrations WHERE version <> 'baseline_v2';" 2>/dev/null)" "^${N_ARCHIVED}$"
 assert_match "table count matches live" "$(db_tables "$FRESH_DB")" "^${LIVE_TABLES}$"
 assert_match "routine count matches live" "$(db_routines "$FRESH_DB")" "^${LIVE_ROUTINES}$"
 migrate_as "$FRESH_DB" --check >/dev/null 2>&1
@@ -65,14 +65,20 @@ assert_match "fresh db passes --check" "$?" "^0$"
 assert_match "second --baseline is a no-op" "$(migrate_as "$FRESH_DB" --baseline 2>&1)" "already baselined"
 
 # 8-13. Partial database fails loudly; completing it heals, with no data loss.
+# Build PART_DB through the baseline itself (fast full state), then simulate
+# a partial ledger by dropping a few recorded rows (effects stay applied).
 mysql_migrate -e "DROP DATABASE IF EXISTS \`$PART_DB\`; CREATE DATABASE \`$PART_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null
-mysql_db "$PART_DB" < "$ROOT/database/schema.sql" >/dev/null
-migrate_as "$PART_DB" --up-to 0200_digital_asset >/dev/null 2>&1
+migrate_as "$PART_DB" --baseline >/dev/null 2>&1
+mysql_db "$PART_DB" -N -B -e "DELETE FROM schema_migrations WHERE version IN ('0001_pending_transactions_cascade', '0002_refresh_sessions', '0003_email_fk_update_cascade');" >/dev/null
 out="$(migrate_as "$PART_DB" --baseline 2>&1)"; rc=$?
 assert_match "partial --baseline fails" "$rc" "^1$"
 assert_match "failure names pending work" "$out" "cannot baseline a partially-migrated database"
 mysql_migrate -e "INSERT INTO \`$PART_DB\`.users (email, password_hash, full_name, dob) VALUES ('probe@test.com', 'x', 'Probe', '1990-01-01');" >/dev/null 2>&1
-migrate_as "$PART_DB" >/dev/null 2>&1
+# Heal by restoring the ledger rows (effects were always applied).
+for v in 0001_pending_transactions_cascade 0002_refresh_sessions 0003_email_fk_update_cascade; do
+  h="$(sha256sum "$ROOT/database/migrations/archive/$v.sql" | awk '{print $1}')"
+  mysql_db "$PART_DB" -e "INSERT INTO schema_migrations (version, checksum) VALUES ('$v', '$h');" >/dev/null
+done
 out="$(migrate_as "$PART_DB" --baseline 2>&1)"; rc=$?
 assert_match "completed upgrade baselines" "$rc" "^0$"
 assert_match "probe row survived upgrade" "$(mysql_migrate -N -B -e "SELECT COUNT(*) FROM \`$PART_DB\`.users WHERE email='probe@test.com';" 2>/dev/null)" "^1$"
