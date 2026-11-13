@@ -59,7 +59,7 @@ test('common_idem.cpy provides the three dual-store paragraphs', () => {
   for (const field of [
     'WS-IDEM-SCOPE',
     'WS-IDEM-TABLE',
-    'WS-IDEM-ENTITY-COL',
+    'WS-IDEM-ENTITY',
     'WS-IDEM-ENTITY-VAL',
     'WS-IDEM-KEY',
     'WS-IDEM-AMOUNT',
