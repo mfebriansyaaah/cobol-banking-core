@@ -62,6 +62,36 @@ class MapLinesTest(unittest.TestCase):
         e, h = map_lines(['a = 1;\n'], {1: 5})
         self.assertEqual(e, set())
 
+    def test_copybook_markers_are_not_attributed_to_the_host(self):
+        # Real GnuCOBOL markers name the source file. COPYbook lines must
+        # not land on the host module's line numbers (they describe a
+        # different file, and the collision inflated/deflated host rates).
+        csrc = [
+            '/* Line: 10       : MOVE      : /r/cobol/src/m1.cob */\n', 'x = 1;\n',
+            '/* Line: 11       : MOVE      : /r/cobol/copy/common_idem.cpy */\n', 'y = 2;\n',
+            '/* Line: 12       : MOVE      : /r/cobol/src/m1.cob */\n', 'z = 3;\n',
+        ]
+        e, h = map_lines(csrc, {2: 1, 4: 0, 6: 1}, host_file='m1.cob')
+        self.assertEqual(e, {10, 12})
+        self.assertEqual(h, {10, 12})
+
+    def test_markers_without_a_source_file_stay_with_the_host(self):
+        # Simplified/hand-written markers (no file) are inline host output.
+        csrc = ['/* Line: 10 : a */\n', 'x = 1;\n']
+        e, h = map_lines(csrc, {2: 1}, host_file='m1.cob')
+        self.assertEqual(e, {10})
+        self.assertEqual(h, {10})
+
+    def test_mapping_is_deterministic(self):
+        csrc = [
+            '/* Line: 10       : MOVE      : /r/cobol/src/m1.cob */\n', 'x = 1;\n',
+            '/* Line: 11       : MOVE      : /r/cobol/copy/common_idem.cpy */\n', 'y = 2;\n',
+        ]
+        counts = {2: 3, 4: 0}
+        first = map_lines(csrc, counts, host_file='m1.cob')
+        second = map_lines(csrc, counts, host_file='m1.cob')
+        self.assertEqual(first, second)
+
 
 class CoberturaTest(unittest.TestCase):
     def test_xml_shape_and_escaping(self):
