@@ -3,10 +3,12 @@
 # silently dragging the average. Ratchet both ways: unlisted sub-floor
 # modules fail the gate; entries that reach the floor must be removed.
 # Format: MODULE  reason (free text after the name is documentation only).
-user_core  deep auth/session branches need targeted tests (63.34%)
-gl_core  period/account admin paths thin (32.13%)
-fee_core  lowered by covered-line removal in copybook rollout (18.1%)
-loan_schedule_core  attribution scrambled by LAST_INSERT_ID copybook move (68.44%; logic identical, suites green)
-loan_core  idempotency claim/delete moved to common_idem copybook; owner-side complete only (49.42%)
-payment_clearing_core  idempotency claim/delete moved to common_idem copybook; owner-side complete only (64.87%)
-collection_core  idempotency paragraphs live in common_idem copybook; host only sets up + performs (69.2%)
+# Percentages below are the honest per-module numbers after maint-15E made
+# the mapper ignore COPYbook lines (they used to inflate host rates).
+user_core  deep auth/session branches need targeted tests (62.71%)
+gl_core  period/account admin paths thin (40.09%)
+fee_core  fee paths exercised mainly through wallet transfer; waiver/admin branches untested (22.64%)
+loan_schedule_core  generated-schedule branches (reschedule/early payoff) untested (61.54%)
+loan_core  posting resolve lives in loan_posting_core; owner-side status/audit branches thin (51.07%)
+payment_clearing_core  lifecycle branches beyond settle (create/post/cancel) thin (53.8%)
+collection_core  lifecycle branches beyond pay (escalate/assign/write-off) thin (64.26%)

@@ -8,6 +8,13 @@ files the instrumented binary wrote next to them. For every instrumented C
 line it finds the nearest preceding `/* Line: N : ... */` translator marker
 and attributes the C execution count to COBOL line N.
 
+Markers name the source file they came from (`... : /path/x.cob */`). Only
+markers naming the module's own `.cob` are attributed to it: COPYbook lines
+(`.cpy`) compile into the host but describe a different file, so attributing
+them by bare line number collided with unrelated host lines and moved
+per-module rates whenever a copybook grew (PR-03B/04B/14A/14B re-baselines).
+Markers without a file (simplified/hand-written) stay with the host.
+
 Outputs (identical to the historical inline version):
 - human-readable table on stdout,
 - coverage/cobol.json (machine-readable totals + per-module rows),
@@ -28,6 +35,7 @@ import subprocess
 import sys
 
 MARKER = re.compile(r'/\* Line:\s*(\d+)\s*:')
+MARKER_SRC = re.compile(r'(\S+\.(?:cob|cpy))\s*\*/')
 COUNT = re.compile(r'^\s*([0-9]+|#####|=====|-):\s*(\d+):')
 
 
@@ -55,11 +63,14 @@ def load_counts(path):
     return counts
 
 
-def map_lines(csrc_lines, counts):
+def map_lines(csrc_lines, counts, host_file=None):
     """Attribute C execution counts to COBOL lines.
 
     csrc_lines: generated C source lines (with /* Line: N */ markers).
     counts: {generated-C-line: execution-count} from load_counts().
+    host_file: when given, markers naming a different source file (a
+        COPYbook) are skipped instead of being attributed to the host's
+        line numbers; markers without a file stay with the host.
     Returns (exec_lines, hit_lines): sets of COBOL line numbers.
     """
     current = None
@@ -69,6 +80,10 @@ def map_lines(csrc_lines, counts):
         m = MARKER.search(line)
         if m:
             current = int(m.group(1))
+            if host_file is not None:
+                src = MARKER_SRC.search(line)
+                if src and src.group(1).rsplit('/', 1)[-1] != host_file:
+                    current = None
             continue
         if current is None or i not in counts:
             continue
@@ -126,7 +141,7 @@ def run_module(work, module):
     counts = load_counts(gcov_file)
     with open(csrc, errors='replace') as f:
         csrc_lines = f.readlines()
-    exec_lines, hit_lines = map_lines(csrc_lines, counts)
+    exec_lines, hit_lines = map_lines(csrc_lines, counts, host_file=module + '.cob')
     e, h = len(exec_lines), len(hit_lines)
     return {
         'module': module,
