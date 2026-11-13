@@ -68,8 +68,12 @@ test database setup, the isolation model, and troubleshooting, see
    `SUMMARY`, `AUDIT`, `VALIDATE`).
 2. Use `SQL_BEGIN` / `SQL_COMMIT` / `SQL_ROLLBACK`, `SQL_PREPARE_EXEC*` with
    placeholders, and `ALLOW-ADMIN` / `ALLOW-SUPER-ADMIN` where required.
-3. Add the migration under `database/migrations/`; never hand-edit
-   `database/schema.sql` for an incremental change.
+3. Add the migration under `database/migrations/` (active only — never
+   inside `database/migrations/archive/`); never hand-edit
+   `database/schema.sql` for an incremental change. New migration names
+   must sort above the archived baseline cutoff (`migrate.sh` refuses
+   anything at or below it); covered migrations are immutable — to redo
+   one, restore it from the archive deliberately instead of editing.
 4. Add the route with fields in the exact COBOL parameter order, static paths
    before `/:id`, and a `PATTERNS` entry for every named field.
 5. Add table cases under `tests/cobol/cases/` and a DB suite under `tests/db/`.
