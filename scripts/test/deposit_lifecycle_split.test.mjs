@@ -1,10 +1,10 @@
-// Deposit lifecycle extraction pins (maint-15B1). No database, no build.
+// Deposit lifecycle extraction pins (maint-15B, 15B1 + 15B2). No DB, no build.
 //
-// ACTION-OPEN and ACTION-MATURE move out of deposit_core.cob into
-// deposit_lifecycle.cpy together with their claim/delete wrappers. The
+// The open and close lifecycles move out of deposit_core.cob into
+// deposit_lifecycle.cpy, together with their claim/delete wrappers. The
 // copybook is included by deposit_core (same compiled module), so the
 // actions keep their single transaction, working storage, and audit
-// helpers. 15B2 extracts ACTION-CLOSE the same way.
+// helpers. 15B1 landed open/mature; 15B2 lands close.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -16,22 +16,25 @@ const SRC_DIR = path.join(ROOT, 'cobol', 'src');
 const SRC = path.join(SRC_DIR, 'deposit_core.cob');
 const COPY = path.join(ROOT, 'cobol', 'copy', 'deposit_lifecycle.cpy');
 
-const MOVED = ['ACTION-OPEN', 'ACTION-MATURE', 'CLAIM-OPEN-REQUEST', 'DELETE-OPEN-REQUEST'];
-const STILL_INLINE = ['ACTION-CLOSE', 'CLAIM-CLOSE-REQUEST', 'DELETE-CLOSE-REQUEST'];
+const OPEN = ['ACTION-OPEN', 'ACTION-MATURE', 'CLAIM-OPEN-REQUEST', 'DELETE-OPEN-REQUEST'];
+const CLOSE = ['ACTION-CLOSE', 'CLAIM-CLOSE-REQUEST', 'DELETE-CLOSE-REQUEST'];
+const MOVED = [...OPEN, ...CLOSE];
 
 const src = () => readFileSync(SRC, 'utf8');
 const copy = () => readFileSync(COPY, 'utf8');
 const defines = (text, name) => new RegExp(`^ {7,8}${name}\\.$`, 'm').test(text);
 
-test('deposit_lifecycle.cpy defines the open/mature lifecycle', () => {
+test('deposit_lifecycle.cpy defines both lifecycle halves', () => {
   const cpy = copy();
   for (const name of MOVED) {
     assert.ok(defines(cpy, name), `copybook must define ${name}`);
   }
   // The actions keep their transaction ownership and idempotency calls.
-  assert.match(cpy, /CALL "SQL_BEGIN"/, 'copybook must keep the funding transaction');
+  assert.match(cpy, /CALL "SQL_BEGIN"/, 'copybook must keep the funding/refund transaction');
   assert.match(cpy, /PERFORM IDEM-CLAIM/, 'copybook must keep the claim path');
-  assert.match(cpy, /PERFORM IDEM-LINK|PERFORM LINK-OPEN-REQUEST/, 'copybook must keep the open/target linkage');
+  assert.match(cpy, /PERFORM IDEM-COMPLETE/, 'copybook must keep the completion path');
+  assert.match(cpy, /PERFORM IDEM-LINK/, 'copybook must keep the open/target linkage');
+  assert.match(cpy, /PRINCIPAL_REFUNDED/, 'copybook must keep the close refund bookkeeping');
 });
 
 test('deposit_core COPYs the lifecycle and keeps no inline copy', () => {
@@ -39,10 +42,6 @@ test('deposit_core COPYs the lifecycle and keeps no inline copy', () => {
   assert.match(s, /COPY "deposit_lifecycle\.cpy"/, 'deposit_core must COPY deposit_lifecycle.cpy');
   for (const name of MOVED) {
     assert.ok(!defines(s, name), `deposit_core: inline ${name} must be gone`);
-  }
-  // 15B2 scope: the close lifecycle stays inline for now.
-  for (const name of STILL_INLINE) {
-    assert.ok(defines(s, name), `deposit_core must still define ${name} (15B2 scope)`);
   }
 });
 

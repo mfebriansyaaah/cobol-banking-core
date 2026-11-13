@@ -16,7 +16,23 @@ const args = process.argv.slice(2);
 const WRITE = args.includes('--write');
 const ROOT = path.resolve(args.find((a) => !a.startsWith('--')) || '.');
 const SRC = path.join(ROOT, 'cobol', 'src');
+const COPY_DIR = path.join(ROOT, 'cobol', 'copy');
 const OUT = path.join(ROOT, 'manifest', 'cobol_calls.json');
+
+// Paragraph extractions move CALLs into COPYbooks that compile into the
+// including module. Expand one level (copybooks do not nest here) so the
+// edge still belongs to the module that actually makes the call.
+function withCopies(src) {
+  let out = src;
+  for (const m of src.matchAll(/COPY "([a-z0-9_]+\.cpy)"/g)) {
+    try {
+      out += '\n' + readFileSync(path.join(COPY_DIR, m[1]), 'utf8');
+    } catch {
+      // Missing include is another gate's failure; keep this one focused.
+    }
+  }
+  return out;
+}
 
 // C bridge + cobol/c_lib runtime symbols (never COBOL modules).
 const RUNTIME_RE = /^(SQL_|SET_QUERY|GET_RESULT)/;
@@ -43,7 +59,7 @@ const failures = [];
 const fail = (m) => failures.push(m);
 
 for (const f of [...modules].sort()) {
-  const src = readFileSync(path.join(SRC, `${f}.cob`), 'utf8');
+  const src = withCopies(readFileSync(path.join(SRC, `${f}.cob`), 'utf8'));
   for (const m of src.matchAll(/CALL\s+"([A-Za-z0-9_]+)"/g)) {
     const target = m[1];
     if (RUNTIME_RE.test(target) || RUNTIME_SYMBOLS.has(target)) continue;

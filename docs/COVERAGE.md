@@ -24,6 +24,10 @@ attributed to it: COPYbook lines (`.cpy`) compile into every host but belong
 to a different file, and counting them by bare line number collided with
 unrelated host lines (the copybook's line 100 was credited to the host's
 line 100), which is why per-module rates shifted on every extraction.
+Extracted code therefore leaves the curated set entirely: after an
+extraction that moves well-covered paragraphs into a copybook, the curated
+total drops while the host module's own rate rises — re-baseline the total
+deliberately for that change (it removed exercised code, not coverage).
 
 ## Scope
 
