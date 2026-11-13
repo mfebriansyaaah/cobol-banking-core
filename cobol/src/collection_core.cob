@@ -50,8 +50,24 @@
        01  WS-IDEM-AMOUNT          PIC X(30) VALUE SPACES.
        01  WS-IDEM-DETAILS         PIC X(500) VALUE SPACES.
        01  WS-IDEM-CODE            PIC X(40) VALUE SPACES.
+       01  WS-IDEM-AMTCOL          PIC X(30) VALUE SPACES.
        01  WS-IDEM-TABLE           PIC X(40) VALUE SPACES.
        01  WS-IDEM-ENTITY          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-MATCH           PIC X VALUE SPACES.
+       01  WS-IDEM-REFID           PIC X(20) VALUE SPACES.
+       01  WS-IDEM-V1              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V2              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V3              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V4              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-V5              PIC X(100) VALUE SPACES.
+       01  WS-IDEM-DETAIL-COLS     PIC X(200) VALUE SPACES.
+       01  WS-IDEM-IDCOL           PIC X(30) VALUE SPACES.
+       01  WS-IDEM-SETCOL          PIC X(30) VALUE SPACES.
+       01  WS-IDEM-JIDVAL          PIC X(20) VALUE SPACES.
+       01  WS-IDEM-JIDNULL         PIC X VALUE SPACES.
+       01  WS-IDEM-GUARD           PIC X VALUE SPACES.
+       01  WS-IDEM-DIRECT          PIC X VALUE SPACES.
+       01  WS-IDEM-LINKVAL         PIC X(20) VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
@@ -354,6 +370,7 @@
       *> crashed). WS-ERR on refusal. Dual-write via common_idem.cpy:
       *> every transition is mirrored to idempotency_request while the
       *> legacy row stays the decision-maker.
+           PERFORM IDEM-RESET
            MOVE "COL_PAY" TO WS-IDEM-SCOPE
            MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
            MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
@@ -369,6 +386,7 @@
       *> behind a 5-minute stale window. Only the owner row is ever
       *> removed (status guard); DONE rows are never touched. The
       *> unified mirror row goes with it.
+           PERFORM IDEM-RESET
            MOVE "COL_PAY" TO WS-IDEM-SCOPE
            MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
            MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
@@ -889,6 +907,7 @@
                END-IF
            END-IF.
            IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
+               PERFORM IDEM-RESET
                MOVE "COL_PAY" TO WS-IDEM-SCOPE
                MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
                MOVE WS-P5-TRIMMED TO WS-IDEM-KEY

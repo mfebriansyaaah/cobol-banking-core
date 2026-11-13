@@ -58,6 +58,7 @@ run_cobol "DEP_POST_INTEREST|${did2}|||||admin@test.com" >/dev/null
 settle_out="$(run_cobol "DEP_SETTLE|${did2}||||K-DP1|admin@test.com")"
 assert_match "keyed settle ok" "$settle_out" "SUCCESS\|DEP_SETTLE\|2008.2192"
 assert_match "keyed replay ok" "$(run_cobol "DEP_SETTLE|${did2}||||K-DP1|admin@test.com")" "SUCCESS\|DEP_SETTLE\|2008.2192"
+assert_match "mirror settle recorded DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='DEP_SETTLE' AND entity_ref='${did2}' AND idem_key='K-DP1';")" "^DONE|2008.2192$"
 assert_match "settle closes" "$(db_query "SELECT status FROM deposit_account WHERE id=${did2};")" "^CLOSED$"
 assert_match "settle links gl" "$(db_query "SELECT gl_journal_id FROM deposit_account WHERE id=${did2};")" "^[0-9]+$"
 assert_match "settle gl balanced" "$(db_query "SELECT COUNT(*) FROM (SELECT journal_id FROM gl_journal_line WHERE journal_id=(SELECT gl_journal_id FROM deposit_account WHERE id=${did2}) GROUP BY journal_id HAVING ABS(SUM(debit_amount - credit_amount)) > 0.0001) t;")" "^0$"
