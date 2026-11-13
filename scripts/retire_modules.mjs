@@ -443,7 +443,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   ).text;
   const scanHits = [];
   const tok = /\b[A-Z][A-Z0-9_]{2,}\b/g;
-  const skipPrefixes = [...REGEN_PREFIXES, 'docs/', 'PLANNING_SKELETON_CONVERSION.md', 'tests/perf/README.md'];
+  const skipPrefixes = [...REGEN_PREFIXES, 'docs/', 'tests/perf/README.md'];
   const scanFiles = [];
   const collect = (dir) => {
     for (const f of readdirSync(dir, { withFileTypes: true })) {

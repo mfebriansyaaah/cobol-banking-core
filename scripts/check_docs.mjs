@@ -1,12 +1,16 @@
 // Documentation drift and link checker.
 //
 // - README generated stats must match scripts/docs_stats.mjs.
+// - README generated test table must match scripts/build_test_table.mjs.
+// - docs/COMPLEXITY_BASELINE.md must match scripts/audit_complexity.mjs.
 // - Required community/runbook files must exist.
 // - Local Markdown links must resolve.
 // - At least 80% of manifest modules must be referenced from docs/README.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { collect, renderReadmeBlock, ROOT } from './docs_stats.mjs';
+import { renderTestTable } from './build_test_table.mjs';
+import { baselineRows, audit, parseBaselineMarkdown } from './audit_complexity.mjs';
 import { findStaleClaims } from './ci/stale_claims.mjs';
 
 const REQUIRED = [
@@ -78,6 +82,43 @@ if (start < 0 || stop < start) {
 
 for (const phrase of ['No hosted CI', 'All 11 roadmap items complete']) {
   if (readme.includes(phrase)) errors.push(`README.md still contains stale claim: "${phrase}"`);
+}
+
+{
+  // Generated test table (maint-12a): rendered from tests/baseline_counts.txt.
+  const begin = '<!-- BEGIN GENERATED TEST TABLE -->';
+  const end = '<!-- END GENERATED TEST TABLE -->';
+  const start = readme.indexOf(begin);
+  const stop = readme.indexOf(end);
+  if (start < 0 || stop < start) {
+    errors.push('README.md is missing the generated test-table markers');
+  } else {
+    const actual = readme.slice(start, stop + end.length);
+    const expected = renderTestTable(ROOT).trimEnd();
+    if (actual.trimEnd() !== expected) {
+      errors.push('README generated test table is stale; run `node scripts/build_test_table.mjs --write`');
+    }
+  }
+}
+
+{
+  // Complexity baseline (maint-12a): docs/COMPLEXITY_BASELINE.md must match
+  // a fresh audit (same comparison as `audit_complexity.mjs --check`).
+  const docPath = path.join(ROOT, 'docs', 'COMPLEXITY_BASELINE.md');
+  if (!existsSync(docPath)) {
+    errors.push('docs/COMPLEXITY_BASELINE.md is missing; run `node scripts/audit_complexity.mjs --write`');
+  } else {
+    const recorded = parseBaselineMarkdown(readFileSync(docPath, 'utf8'));
+    for (const [area, metric, value] of baselineRows(audit(ROOT))) {
+      const key = `${area} | ${metric}`;
+      if (!recorded.has(key)) errors.push(`COMPLEXITY_BASELINE.md is missing metric: ${key}`);
+      else if (recorded.get(key) !== value) {
+        errors.push(
+          `COMPLEXITY_BASELINE.md is stale (${key}: recorded ${recorded.get(key)}, tree has ${value}); run \`node scripts/audit_complexity.mjs --write\` after review`,
+        );
+      }
+    }
+  }
 }
 
 const markdownFiles = [

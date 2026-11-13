@@ -320,20 +320,97 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 ./ci.sh                   # wrapper for full
 ```
 
-| Suite | Assertions (2026-11-05, see `tests/baseline_counts.txt`) | Location |
-| --- | ---: | --- |
-| COBOL table cases | 320 | `tests/cobol/cases/*.cases` (60 files) |
-| Schema / migrations | 76 | `tests/db/schema_tests.sh` |
-| D1 loan schedule | 33 | `tests/db/loan_schedule_db_tests.sh` |
-| D2 deposit | 30 | `tests/db/deposit_db_tests.sh` |
-| D3 card | 38 | `tests/db/card_db_tests.sh` |
-| D4 collections | 35 | `tests/db/collection_db_tests.sh` |
-| D5 payments | 20 | `tests/db/payment_clearing_db_tests.sh` |
-| D6 treasury | 18 | `tests/db/treasury_liquidity_db_tests.sh` |
-| D8 gl allocation | 13 | `tests/db/gl_allocation_db_tests.sh` |
-| D9 backup drill | 13 | `tests/db/backup_drill_db_tests.sh` |
-| D10 report builder | 13 | `tests/db/report_builder_db_tests.sh` |
-| Gateway | 151 `test()` blocks (`tests/baseline_counts.txt`: `gateway_tests=205` at runtime) | `middleware/test/*.js` |
+<!-- BEGIN GENERATED TEST TABLE -->
+| Suite file | Assertions |
+| --- | ---: |
+| `tests/cobol/cases/*.cases` | 235 |
+| `tests/db/schema_db_tests.sh` | 76 |
+| `tests/db/loan_schedule_db_tests.sh` | 42 |
+| `tests/db/deposit_db_tests.sh` | 65 |
+| `tests/db/card_db_tests.sh` | 49 |
+| `tests/db/collection_db_tests.sh` | 52 |
+| `tests/db/payment_clearing_db_tests.sh` | 22 |
+| `tests/db/treasury_liquidity_db_tests.sh` | 24 |
+| `tests/db/gl_allocation_db_tests.sh` | 13 |
+| `tests/db/backup_drill_db_tests.sh` | 13 |
+| `tests/db/grants_db_tests.sh` | 6 |
+| `tests/db/migration_checksum_db_tests.sh` | 6 |
+| `tests/db/report_builder_db_tests.sh` | 13 |
+| `middleware/test/*.js` | 341 |
+| `tests/db/cost_center_db_tests.sh` | 18 |
+| `tests/db/fixed_asset_db_tests.sh` | 18 |
+| `tests/db/fixed_asset_schema_db_tests.sh` | 8 |
+| `tests/db/fixed_asset_domain_db_tests.sh` | 35 |
+| `tests/db/account_db_tests.sh` | 18 |
+| `tests/db/merchant_db_tests.sh` | 18 |
+| `tests/db/merchant_domain_db_tests.sh` | 22 |
+| `tests/db/merchant_schema_db_tests.sh` | 10 |
+| `tests/db/compliance_calendar_db_tests.sh` | 18 |
+| `tests/db/tax_management_db_tests.sh` | 20 |
+| `tests/db/tax_domain_db_tests.sh` | 26 |
+| `tests/db/tax_schema_db_tests.sh` | 8 |
+| `tests/db/merchant_settlement_db_tests.sh` | 18 |
+| `tests/db/merchant_settlement_domain_db_tests.sh` | 29 |
+| `tests/db/payroll_processing_db_tests.sh` | 18 |
+| `tests/db/payroll_schema_db_tests.sh` | 7 |
+| `tests/db/payroll_domain_db_tests.sh` | 29 |
+| `tests/db/bank_guarantee_db_tests.sh` | 18 |
+| `tests/db/bank_guarantee_domain_db_tests.sh` | 25 |
+| `tests/db/letter_of_credit_db_tests.sh` | 18 |
+| `tests/db/letter_of_credit_domain_db_tests.sh` | 25 |
+| `tests/db/trade_finance_schema_db_tests.sh` | 10 |
+| `tests/db/sla_tracker_db_tests.sh` | 18 |
+| `tests/db/report_schedule_db_tests.sh` | 18 |
+| `tests/db/notification_template_db_tests.sh` | 18 |
+| `tests/db/loan_db_tests.sh` | 25 |
+| `tests/db/lending_posting_db_tests.sh` | 157 |
+| `tests/db/collateral_db_tests.sh` | 18 |
+| `tests/db/collateral_domain_db_tests.sh` | 30 |
+| `tests/db/chargeback_db_tests.sh` | 18 |
+| `tests/db/chargeback_domain_db_tests.sh` | 31 |
+| `tests/db/chargeback_schema_db_tests.sh` | 8 |
+| `tests/db/loyalty_schema_db_tests.sh` | 11 |
+| `tests/db/loyalty_domain_db_tests.sh` | 39 |
+| `tests/db/payment_hold_db_tests.sh` | 22 |
+| `tests/db/velocity_db_tests.sh` | 15 |
+| `tests/db/payment_limits_db_tests.sh` | 28 |
+| `tests/db/payment_race_db_tests.sh` | 49 |
+| `tests/db/payment_conservation_db_tests.sh` | 44 |
+| `tests/db/admin_shell_db_tests.sh` | 30 |
+| `tests/db/auth_shell_db_tests.sh` | 44 |
+| `tests/db/dashboard_db_tests.sh` | 13 |
+| `tests/db/eod_ops_db_tests.sh` | 16 |
+| `tests/db/fee_read_db_tests.sh` | 9 |
+| `tests/db/import_ops_db_tests.sh` | 20 |
+| `tests/db/ops_shell_db_tests.sh` | 37 |
+| `tests/db/payment_pic_loyalty_db_tests.sh` | 21 |
+| `tests/db/recon_ops_db_tests.sh` | 32 |
+| `tests/db/ref_pair_db_tests.sh` | 21 |
+| `tests/db/report_statement_db_tests.sh` | 31 |
+| `tests/db/wallet_invariants_db_tests.sh` | 32 |
+| `tests/db/wallet_concurrency_db_tests.sh` | 27 |
+| `tests/db/wallet_conservation_db_tests.sh` | 38 |
+| `tests/db/auth_invariants_db_tests.sh` | 35 |
+| `tests/db/auth_race_db_tests.sh` | 23 |
+| `tests/db/auth_conservation_db_tests.sh` | 28 |
+| `tests/db/payment_gl_invariants_db_tests.sh` | 25 |
+| `tests/db/payment_posting_db_tests.sh` | 40 |
+| `tests/db/phone_otp_db_tests.sh` | 18 |
+| `tests/db/identity_db_tests.sh` | 28 |
+| `tests/db/kyc_enforcement_db_tests.sh` | 23 |
+| `tests/db/screening_db_tests.sh` | 37 |
+| `tests/db/risk_db_tests.sh` | 13 |
+| `tests/db/corporate_db_tests.sh` | 9 |
+| `tests/db/truncation_db_tests.sh` | 4 |
+| `tests/db/card_posting_db_tests.sh` | 99 |
+| `tests/db/deposit_posting_db_tests.sh` | 21 |
+| `tests/db/wallet_transfer_db_tests.sh` | 15 |
+| `tests/db/auth_session_db_tests.sh` | 23 |
+| `tests/db/loan_posting_db_tests.sh` | 11 |
+| `tests/db/migration_baseline_db_tests.sh` | 16 |
+| `tests/db/migration_archive_db_tests.sh` | 12 |
+| **Total** | **2773** |
+<!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
 suites fail closed with `FAIL: DB unavailable` when MariaDB is not reachable

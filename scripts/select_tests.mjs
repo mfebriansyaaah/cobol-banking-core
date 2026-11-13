@@ -71,14 +71,7 @@ const KNOWN_GATE_DATA = new Set([
   'tests/coverage_baseline.txt',
   'tests/probes/expectations.txt',
 ]);
-const KNOWN_DOCS = new Set([
-  'README.md',
-  'CONTRIBUTING.md',
-  'SECURITY.md',
-  'CHANGELOG.md',
-  'PLANNING_SKELETON_CONVERSION.md',
-  'LICENSE',
-]);
+const KNOWN_DOCS = new Set(['README.md', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md', 'LICENSE']);
 
 const plan = {
   mode: 'selected',
