@@ -52,11 +52,12 @@ function makeRoot({ withTotal = false } = {}) {
 }
 
 function run(root) {
-  return execFileSync(process.execPath, [GATE], {
-    cwd: root,
-    encoding: 'utf8',
-    env: { ...process.env, COVERAGE_SUMMARY_JSON: 'coverage/summary.json' },
-  });
+  // GITHUB_STEP_SUMMARY must not leak in: when set (as on CI runners) the
+  // script writes there instead of stdout, which would make assertions on
+  // captured output vacuous.
+  const env = { ...process.env, COVERAGE_SUMMARY_JSON: 'coverage/summary.json' };
+  delete env.GITHUB_STEP_SUMMARY;
+  return execFileSync(process.execPath, [GATE], { cwd: root, encoding: 'utf8', env });
 }
 
 test('renders a floor-only COBOL row when the baseline has no total', () => {
