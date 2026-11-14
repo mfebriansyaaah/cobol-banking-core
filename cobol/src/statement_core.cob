@@ -73,6 +73,7 @@
        01  WS-PART                 PIC X(16384) VALUE SPACES.
        01  WS-PART-LEN             PIC 9(5) VALUE 0.
        01  WS-OUT-POS              PIC 9(5) VALUE 1.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -209,6 +210,7 @@
            EXIT PARAGRAPH.
 
         COPY "common_result.cpy".
+        COPY "common_txn.cpy".
 
        TRIM-PART.
            MOVE 0 TO WS-PART-LEN
@@ -776,11 +778,6 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-STATEMENT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|STMT_RUN_FAILED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|STMT_RUN_FAILED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.

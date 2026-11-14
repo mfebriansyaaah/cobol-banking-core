@@ -49,6 +49,7 @@
         01  WS-HASH-SRC             PIC X(200) VALUE SPACES.
         01  WS-HASH-OUT             PIC X(64) VALUE SPACES.
         01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -103,6 +104,7 @@
 
 
         COPY "common_trim.cpy".
+        COPY "common_txn.cpy".
 
         CHECK-OWNER.
             *> p1 = email, p4 = actor. Owner-only.
@@ -174,16 +176,11 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE SPACES TO LS-OUTPUT-BUFFER
+                MOVE SPACES TO WS-SUCCESS-MSG
                 STRING "SUCCESS|LINK_BEGIN|" DELIMITED BY SIZE
                        FUNCTION TRIM(WS-TOKEN) DELIMITED BY SIZE
-                       INTO LS-OUTPUT-BUFFER END-STRING
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+                       INTO WS-SUCCESS-MSG END-STRING
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-LINK-CONFIRM.
@@ -231,13 +228,8 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|LINK_CONFIRMED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|LINK_CONFIRMED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ISSUE-CORE.
@@ -507,13 +499,8 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|OTP_VERIFIED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|OTP_VERIFIED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-CHAT.

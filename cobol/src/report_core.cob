@@ -35,6 +35,7 @@
        01  WS-PART                 PIC X(16384) VALUE SPACES.
        01  WS-PART-LEN             PIC 9(5) VALUE 0.
        01  WS-OUT-POS              PIC 9(5) VALUE 1.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -128,6 +129,7 @@
            EXIT PARAGRAPH.
 
         COPY "common_auth.cpy".
+        COPY "common_txn.cpy".
 
        AUDIT-REPORT.
            MOVE "INSERT INTO report_audit (action, actor_email, template_code, run_id, detail) VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), ?)" TO WS-PREP-SQL
@@ -644,13 +646,8 @@
                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-REPORT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|RPT_TEMPLATE_UPDATED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|RPT_TEMPLATE_UPDATED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-TEMPLATE-CLONE.
@@ -818,13 +815,8 @@
                MOVE "deleted" TO WS-AUDIT-DETAIL
                PERFORM AUDIT-REPORT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|RPT_TEMPLATE_DELETED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|RPT_TEMPLATE_DELETED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-COLUMN-DELETE.
@@ -1003,11 +995,6 @@
                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-REPORT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|RPT_COLUMN_UPDATED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|RPT_COLUMN_UPDATED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.

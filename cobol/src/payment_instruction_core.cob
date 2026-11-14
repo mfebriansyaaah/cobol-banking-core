@@ -72,6 +72,7 @@
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -227,6 +228,7 @@
            EXIT PARAGRAPH.
 
         COPY "common_result.cpy".
+        COPY "common_txn.cpy".
 
        ACTION-CREATE.
            MOVE "PAYMENT_INSTRUCTION" TO WS-DENIED-TARGET
@@ -366,14 +368,9 @@
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|PIC_CREATED|" DELIMITED BY SIZE WS-P1-TRIMMED DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|PIC_CREATED|" DELIMITED BY SIZE WS-P1-TRIMMED DELIMITED BY SPACE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-LIST.
@@ -499,13 +496,8 @@
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|PIC_PAUSED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|PIC_PAUSED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-RESUME.
@@ -548,13 +540,8 @@
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|PIC_RESUMED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|PIC_RESUMED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-CANCEL.
@@ -597,13 +584,8 @@
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|PIC_CANCELLED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|PIC_CANCELLED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-DUE.
@@ -768,16 +750,11 @@
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
+               MOVE SPACES TO WS-SUCCESS-MSG
                STRING "SUCCESS|PIC_EXECUTED|" DELIMITED BY SIZE WS-P1-TRIMMED
                    DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-IDEMPOTENCY
-                   DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+                   DELIMITED BY SPACE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-HISTORY.

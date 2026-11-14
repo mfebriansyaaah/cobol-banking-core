@@ -9,6 +9,7 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         COPY "auth_password_ws.cpy".
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         LINKAGE SECTION.
         01  LS-CMD-ACTION          PIC X(30).
         01  LS-PARAM1              PIC X(100).
@@ -64,6 +65,7 @@
         COPY "common_outbox.cpy".
         COPY "common_result.cpy".
         COPY "auth_last_admin.cpy".
+        COPY "common_txn.cpy".
 
         RECORD-LOGIN-FAILURE.
             *> Arm the lockout and record a failed login. Used for a wrong
@@ -157,13 +159,8 @@
             IF WS-NOTIF-FAIL NOT = 0
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|CODE_SENT" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         VERIFY-MFA-RECOVERY-LOGIC.
@@ -334,13 +331,8 @@
             IF WS-NOTIF-FAIL NOT = 0
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|RECOVERY_APPROVED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|RECOVERY_APPROVED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         REJECT-MFA-RECOVERY-LOGIC.
@@ -669,13 +661,8 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|REQUEST_APPROVED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|REQUEST_APPROVED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         REJECT-REQUEST-LOGIC.

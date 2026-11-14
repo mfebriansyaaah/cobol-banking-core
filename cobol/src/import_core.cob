@@ -46,6 +46,7 @@
        01  WS-ROW-INDEX-ED         PIC Z(8)9 VALUE 0.
        01  WS-VALID-COUNT-ED       PIC Z(8)9 VALUE 0.
        01  WS-INVALID-COUNT-ED     PIC Z(8)9 VALUE 0.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -212,6 +213,7 @@
            EXIT PARAGRAPH.
 
         COPY "common_auth.cpy".
+        COPY "common_txn.cpy".
 
        AUDIT-IMPORT.
            MOVE "INSERT INTO import_audit (action, actor_email, batch_code, detail) VALUES (?, ?, NULLIF(?, ''), ?)" TO WS-PREP-SQL
@@ -944,13 +946,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-IMPORT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|IMP_FAILED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|IMP_FAILED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-BATCH-EXPORT.
@@ -1152,13 +1149,8 @@
                MOVE "deleted" TO WS-AUDIT-DETAIL
                PERFORM AUDIT-IMPORT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|IMP_BATCH_DELETED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|IMP_BATCH_DELETED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-BATCH-RETRY.
@@ -1217,13 +1209,8 @@
                MOVE "retry" TO WS-AUDIT-DETAIL
                PERFORM AUDIT-IMPORT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|IMP_BATCH_RETRIED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|IMP_BATCH_RETRIED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-BATCH-SUMMARY.

@@ -52,6 +52,7 @@
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -167,6 +168,7 @@
            EXIT PARAGRAPH.
 
         COPY "common_result.cpy".
+        COPY "common_txn.cpy".
 
        ACTION-START.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
@@ -231,14 +233,9 @@
                MOVE WS-RUN-ID TO WS-AUDIT-DETAIL
                PERFORM AUDIT-RECON
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|SRC_STARTED|" DELIMITED BY SIZE WS-RUN-ID DELIMITED BY SPACE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|SRC_STARTED|" DELIMITED BY SIZE WS-RUN-ID DELIMITED BY SPACE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-MATCH.
@@ -662,13 +659,8 @@
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-RECON
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|SRC_RETRY" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|SRC_RETRY" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-SUMMARY.

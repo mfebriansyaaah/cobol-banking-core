@@ -59,6 +59,7 @@
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
        01  WS-PART                 PIC X(16384) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -240,6 +241,7 @@
            EXIT PARAGRAPH.
 
         COPY "common_result.cpy".
+        COPY "common_txn.cpy".
 
        ACTION-TRANSLATION-SET.
            MOVE "REF_EXT_CORE" TO WS-DENIED-TARGET
@@ -284,13 +286,8 @@
                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-REF
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|RX_TRANSLATION_SET" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|RX_TRANSLATION_SET" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-TRANSLATION-LIST.
@@ -406,13 +403,8 @@
                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-REF
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|RX_HIERARCHY_ADDED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|RX_HIERARCHY_ADDED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-HIERARCHY-LIST.
@@ -519,13 +511,8 @@
                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-REF
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|RX_HIERARCHY_REMOVED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|RX_HIERARCHY_REMOVED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-VALUE-ASOF.
@@ -649,13 +636,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT-REF
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|RX_VALUE_CLONED" TO LS-OUTPUT-BUFFER
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+           MOVE "SUCCESS|RX_VALUE_CLONED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-EXPORT.

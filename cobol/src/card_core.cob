@@ -109,6 +109,7 @@
        01  WS-JID                  PIC X(20) VALUE SPACES.
        01  WS-TXN-REF              PIC X(50) VALUE SPACES.
        01  WS-DESC                 PIC X(255) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -223,6 +224,7 @@
         COPY "common_result.cpy".
 
         COPY "common_idem.cpy".
+        COPY "common_txn.cpy".
 
        CLAIM-CAPTURE-REQUEST.
            *> Client-supplied idempotency for capture (P5), migrated to
@@ -407,14 +409,9 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|CARD_ISSUE|" DELIMITED BY SIZE WS-NEW-ID DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|CARD_ISSUE|" DELIMITED BY SIZE WS-NEW-ID DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
        ACTION-BLOCK.
@@ -1516,14 +1513,9 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|CARD_REVERSE|" DELIMITED BY SIZE WS-TMP-AMT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|CARD_REVERSE|" DELIMITED BY SIZE WS-TMP-AMT DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
       *> Card statement: balances plus the bounded transaction history.
@@ -1644,14 +1636,9 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|CARD_LIMIT|" DELIMITED BY SIZE WS-P2-TRIMMED DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|CARD_LIMIT|" DELIMITED BY SIZE WS-P2-TRIMMED DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
       *> Replace a card: issue a new card row copying type/limit/balance and
@@ -1750,14 +1737,9 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|CARD_REPLACE|" DELIMITED BY SIZE WS-NEW-ID DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|CARD_REPLACE|" DELIMITED BY SIZE WS-NEW-ID DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
       *> Card audit trail, optionally filtered by card id and paged.

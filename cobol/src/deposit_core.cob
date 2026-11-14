@@ -115,6 +115,7 @@
        01  WS-JID                  PIC X(20) VALUE SPACES.
        01  WS-TXN-REF              PIC X(50) VALUE SPACES.
        01  WS-DESC                 PIC X(255) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
@@ -228,6 +229,7 @@
 
         COPY "common_idem.cpy".
         COPY "deposit_lifecycle.cpy".
+        COPY "common_txn.cpy".
 
        ACTION-LIST.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
@@ -401,14 +403,9 @@
                MOVE WS-TMP-INTR TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|DEP_ACCRUE|" DELIMITED BY SIZE WS-TMP-INTR DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|DEP_ACCRUE|" DELIMITED BY SIZE WS-TMP-INTR DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
       *> Post every accrual that is still ACCRUED: the amount is recorded as a
@@ -506,14 +503,9 @@
                MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO LS-OUTPUT-BUFFER
-               STRING "SUCCESS|DEP_POST|" DELIMITED BY SIZE WS-TMP-AMT DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|DEP_POST|" DELIMITED BY SIZE WS-TMP-AMT DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH
            EXIT PARAGRAPH.
 
       *> Settle a matured (or still active) deposit: principal + posted
