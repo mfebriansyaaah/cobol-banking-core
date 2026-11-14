@@ -24,8 +24,6 @@ const MOVED = [
   'TRANSFER-LOGIC',
   'VALIDATE-AMOUNT',
   'PARSE-MAJOR',
-  'CHECK-CAP-DIGITS',
-  'CHECK-CAP-CHARS',
   'CHECK-RATE-STALE',
   'COMPUTE-FX-RESIDUAL',
   'CHECK-FX-ZERO',
@@ -42,10 +40,19 @@ const MOVED = [
   'LOCK-ACCOUNTS',
 ];
 
+// DRY-02 moved these two helpers to the shared wallet_caps.cpy (used by all
+// 5 cap-enforcing wallet modules); the transfer module now resolves them via
+// COPY instead of an inline definition.
+const SHARED_MOVED = ['CHECK-CAP-DIGITS', 'CHECK-CAP-CHARS'];
+
 test('wallet_transfer_core defines TRANSFER-LOGIC and its helpers', () => {
   const src = srcOf('wallet_transfer_core');
   for (const name of MOVED) {
     assert.match(src, new RegExp(`^ {8}${name}\\.$`, 'm'), `transfer module must define ${name}`);
+  }
+  assert.match(src, /COPY "wallet_caps\.cpy"/, 'caps helpers resolve via shared copybook');
+  for (const name of SHARED_MOVED) {
+    assert.doesNotMatch(src, new RegExp(`^ {7,8}${name}\\.$`, 'm'), `${name} must not be inline (shared)`);
   }
 });
 

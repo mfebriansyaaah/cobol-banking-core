@@ -33,7 +33,6 @@ const CAPS_HOSTS = [
 ];
 
 const srcOf = (m) => readFileSync(path.join(SRC, `${m}.cob`), 'utf8');
-const defines = (src, name) => new RegExp(`^\\s{7,8}${name}\\.`, 'm').test(src);
 
 test('wallet copybooks define the shared paragraphs', () => {
   const entry = readFileSync(path.join(COPY, 'wallet_entry.cpy'), 'utf8');
