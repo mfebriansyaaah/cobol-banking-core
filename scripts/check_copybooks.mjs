@@ -3,9 +3,12 @@
 // referenced in code (comments don't count). Counts live in
 // tests/copybook_baseline.txt; the gate fails on drift with exact numbers.
 // An 01 that owns live 88-levels counts as used via its children.
+// Paragraph detection is shared (scripts/lib/cobol_paragraphs.mjs): 7- and
+// 8-space area-A definitions both count.
 // Usage: node scripts/check_copybooks.mjs [--write] [ROOT]
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { paragraphName, countInlineParagraphs } from './lib/cobol_paragraphs.mjs';
 
 const args = process.argv.slice(2);
 let root = '.';
@@ -56,8 +59,9 @@ const orphans = cpyFiles.filter((f) => ![...allSrc.values()].some((s) => s.inclu
 const paraDef = new Map();
 for (const [file, src] of allSrc) {
   if (!file.startsWith('copy/')) continue;
-  for (const m of src.matchAll(/^\s{7,8}([A-Z][A-Z0-9-]+)\./gm)) {
-    if (!paraDef.has(m[1])) paraDef.set(m[1], file);
+  for (const line of src.split('\n')) {
+    const name = paragraphName(line);
+    if (name && !paraDef.has(name)) paraDef.set(name, file);
   }
 }
 const performed = new Set();
@@ -66,17 +70,26 @@ for (const s of allSrc.values()) {
 }
 const deadParas = [...paraDef.keys()].filter((p) => !performed.has(p));
 
-// 2b. Inline-duplication ratchet (PR-021 rollout): paragraphs with a shared
-// copybook must not gain new inline copies. Counts inline definitions of
-// the extracted paragraphs across src modules; must only shrink.
-const EXTRACTED = ['TRIM-VALUE', 'TRIM-ALL', 'VALIDATE-COUNT-FIELD', 'TRIM-RESULT-LEN'];
+// 2b. Inline-duplication ratchet (PR-021 rollout, extended DRY-00A):
+// paragraphs with a shared copybook must not gain new inline copies.
+// Counts inline definitions of the extracted paragraphs across src
+// modules; must only shrink. Uses the shared paragraph helper so 7- and
+// 8-space definitions both count.
+const EXTRACTED = [
+  'TRIM-VALUE',
+  'TRIM-ALL',
+  'VALIDATE-COUNT-FIELD',
+  'TRIM-RESULT-LEN',
+  'VALIDATE-ALL',
+  'VALIDATE-INPUT',
+  'TRIM-ONE',
+];
 const inlineDupes = {};
 for (const name of EXTRACTED) {
   let n = 0;
   for (const [file, src] of allSrc) {
     if (!file.startsWith('src/')) continue;
-    const re = new RegExp(`^\\s{7}${name}\\.(?=\\s|$)`, 'gm');
-    n += [...src.matchAll(re)].length;
+    n += countInlineParagraphs(src, [name])[name] ?? 0;
   }
   inlineDupes[`inline_${name.toLowerCase().replace(/-/g, '_')}`] = n;
 }
