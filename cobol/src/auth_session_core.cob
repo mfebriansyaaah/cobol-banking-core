@@ -40,8 +40,13 @@
            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
        MAIN-LOGIC.
-           PERFORM ENTRY-TRIM
-           PERFORM ENTRY-VALIDATE
+           PERFORM TRIM-PARAM1
+           PERFORM TRIM-PARAM2
+           PERFORM TRIM-PARAM3
+           PERFORM TRIM-PARAM4
+           PERFORM TRIM-PARAM5
+           PERFORM TRIM-PARAM6
+           PERFORM VALIDATE-ALL
            IF WS-BAD > 0
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                GOBACK
@@ -70,85 +75,8 @@
            END-EVALUATE.
            GOBACK.
 
-        ENTRY-TRIM.
-            MOVE LS-PARAM1 TO WS-PARAM1-TRIMMED
-            MOVE 0 TO WS-P1-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P1-LEN > 0
-                IF WS-PARAM1-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P1-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P1-LEN = 0
-                MOVE 1 TO WS-P1-LEN
-            END-IF.
-            MOVE LS-PARAM2 TO WS-PARAM2-TRIMMED
-            MOVE 0 TO WS-P2-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P2-LEN > 0
-                IF WS-PARAM2-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P2-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P2-LEN = 0
-                MOVE 1 TO WS-P2-LEN
-            END-IF.
-            MOVE LS-PARAM3 TO WS-PARAM3-TRIMMED
-            MOVE 0 TO WS-P3-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P3-LEN > 0
-                IF WS-PARAM3-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P3-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P3-LEN = 0
-                MOVE 1 TO WS-P3-LEN
-            END-IF.
-            MOVE LS-PARAM4 TO WS-PARAM4-TRIMMED
-            MOVE 0 TO WS-P4-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
-                IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P4-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P4-LEN = 0
-                MOVE 1 TO WS-P4-LEN
-            END-IF.
-            MOVE LS-PARAM5 TO WS-PARAM5-TRIMMED
-            MOVE 0 TO WS-P5-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P5-LEN > 0
-                IF WS-PARAM5-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P5-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P5-LEN = 0
-                MOVE 1 TO WS-P5-LEN
-            END-IF.
-            MOVE LS-PARAM6 TO WS-PARAM6-TRIMMED
-            MOVE 0 TO WS-P6-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P6-LEN > 0
-                IF WS-PARAM6-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P6-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P6-LEN = 0
-                MOVE 1 TO WS-P6-LEN
-            END-IF.
-            EXIT PARAGRAPH.
-
-        ENTRY-VALIDATE.
-            MOVE 0 TO WS-BAD
-            MOVE LS-PARAM1 TO WS-CHECK
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-NL
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-CR.
-            MOVE LS-PARAM2 TO WS-CHECK
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-NL
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-CR.
-            MOVE LS-PARAM3 TO WS-CHECK
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-NL
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-CR.
-            MOVE LS-PARAM4 TO WS-CHECK
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-NL
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-CR.
-            EXIT PARAGRAPH.
-
+        COPY "auth_entry.cpy".
+        COPY "common_result.cpy".
         STORE-SESSION-LOGIC.
             *> p1 = jti, p2 = email, p3 = lifetime in days, p4 = family (defaults to jti).
             *> Housekeeping: drop expired sessions so the table does not grow forever.
@@ -469,18 +397,6 @@
                 MOVE "ERROR|TOKEN_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "SUCCESS|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
-            END-IF.
-            EXIT PARAGRAPH.
-        TRIM-RESULT-LEN.
-            *> Compute WS-RLEN = length of WS-RESULT without trailing spaces.
-            MOVE 0 TO WS-RLEN
-            PERFORM VARYING WS-J FROM 16383 BY -1 UNTIL WS-J < 1 OR WS-RLEN > 0
-                IF WS-RESULT(WS-J:1) NOT = SPACE
-                    MOVE WS-J TO WS-RLEN
-                END-IF
-            END-PERFORM
-            IF WS-RLEN = 0
-                MOVE 1 TO WS-RLEN
             END-IF.
             EXIT PARAGRAPH.
         LIST-SESSIONS-LOGIC.

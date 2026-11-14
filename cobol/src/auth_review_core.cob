@@ -30,7 +30,6 @@
             PERFORM TRIM-PARAM4
             PERFORM TRIM-PARAM5
             PERFORM TRIM-PARAM6
-            PERFORM ESCAPE-PARAMS
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -57,159 +56,8 @@
             END-EVALUATE.
             GOBACK.
 
-        COPY "auth_password_helpers.cpy".
-        COPY "auth_password_logic.cpy".
-
-        VALIDATE-ALL.
-            *> Only protocol-breaking characters are rejected here; SQL values
-            *> are escaped via ESCAPE-PARAMS.
-            MOVE 0 TO WS-BAD
-            MOVE LS-PARAM1 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            MOVE LS-PARAM2 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            MOVE LS-PARAM3 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            MOVE LS-PARAM4 TO WS-CHECK
-            PERFORM VALIDATE-INPUT.
-            EXIT PARAGRAPH.
-
-        VALIDATE-INPUT.
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-NL
-            INSPECT WS-CHECK TALLYING WS-BAD FOR ALL F-CR.
-            EXIT PARAGRAPH.
-
-        ESCAPE-PARAMS.
-            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM1-TRIMMED BY REFERENCE WS-P1-ESC BY VALUE 256 END-CALL
-            MOVE 0 TO WS-P1-ELEN
-            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P1-ELEN > 0
-                IF WS-P1-ESC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P1-ELEN
-                END-IF
-            END-PERFORM
-            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM2-TRIMMED BY REFERENCE WS-P2-ESC BY VALUE 256 END-CALL
-            MOVE 0 TO WS-P2-ELEN
-            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P2-ELEN > 0
-                IF WS-P2-ESC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P2-ELEN
-                END-IF
-            END-PERFORM
-            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-P3-ESC BY VALUE 256 END-CALL
-            MOVE 0 TO WS-P3-ELEN
-            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P3-ELEN > 0
-                IF WS-P3-ESC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P3-ELEN
-                END-IF
-            END-PERFORM
-            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM4-TRIMMED BY REFERENCE WS-P4-ESC BY VALUE 256 END-CALL
-            MOVE 0 TO WS-P4-ELEN
-            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P4-ELEN > 0
-                IF WS-P4-ESC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P4-ELEN
-                END-IF
-            END-PERFORM
-            IF WS-P1-ELEN = 0
-                MOVE 1 TO WS-P1-ELEN
-            END-IF
-            IF WS-P2-ELEN = 0
-                MOVE 1 TO WS-P2-ELEN
-            END-IF
-            IF WS-P3-ELEN = 0
-                MOVE 1 TO WS-P3-ELEN
-            END-IF
-            IF WS-P4-ELEN = 0
-                MOVE 1 TO WS-P4-ELEN
-            END-IF.
-            EXIT PARAGRAPH.
-
-        TRIM-PARAM1.
-            MOVE LS-PARAM1 TO WS-PARAM1-TRIMMED
-            MOVE 0 TO WS-P1-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P1-LEN > 0
-                IF WS-PARAM1-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P1-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P1-LEN = 0
-                MOVE 1 TO WS-P1-LEN
-            END-IF.
-
-        TRIM-PARAM2.
-            MOVE LS-PARAM2 TO WS-PARAM2-TRIMMED
-            MOVE 0 TO WS-P2-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P2-LEN > 0
-                IF WS-PARAM2-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P2-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P2-LEN = 0
-                MOVE 1 TO WS-P2-LEN
-            END-IF.
-
-        TRIM-PARAM3.
-            MOVE LS-PARAM3 TO WS-PARAM3-TRIMMED
-            MOVE 0 TO WS-P3-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P3-LEN > 0
-                IF WS-PARAM3-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P3-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P3-LEN = 0
-                MOVE 1 TO WS-P3-LEN
-            END-IF.
-
-        TRIM-PARAM4.
-            MOVE LS-PARAM4 TO WS-PARAM4-TRIMMED
-            MOVE 0 TO WS-P4-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P4-LEN > 0
-                IF WS-PARAM4-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P4-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P4-LEN = 0
-                MOVE 1 TO WS-P4-LEN
-            END-IF.
-
-        TRIM-PARAM5.
-            MOVE LS-PARAM5 TO WS-PARAM5-TRIMMED
-            MOVE 0 TO WS-P5-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P5-LEN > 0
-                IF WS-PARAM5-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P5-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P5-LEN = 0
-                MOVE 1 TO WS-P5-LEN
-            END-IF.
-
-        TRIM-PARAM6.
-            MOVE LS-PARAM6 TO WS-PARAM6-TRIMMED
-            MOVE 0 TO WS-P6-LEN
-            PERFORM VARYING WS-I FROM 100 BY -1 UNTIL WS-I < 1 OR WS-P6-LEN > 0
-                IF WS-PARAM6-TRIMMED(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P6-LEN
-                END-IF
-            END-PERFORM
-            IF WS-P6-LEN = 0
-                MOVE 1 TO WS-P6-LEN
-            END-IF.
-
-        GET-USER-ID.
-            *> WS-USER-ID / WS-ID-LEN for the user named by param 1's email.
-            MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            PERFORM LOOKUP-USER-ID
-
-            MOVE WS-RESULT(1:20) TO WS-USER-ID
-            MOVE 0 TO WS-ID-LEN
-            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-ID-LEN > 0
-                IF WS-USER-ID(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-ID-LEN
-                END-IF
-            END-PERFORM
-            IF WS-ID-LEN = 0
-                MOVE 1 TO WS-ID-LEN
-            END-IF.
-            EXIT PARAGRAPH.
+        COPY "auth_entry.cpy".
+        COPY "common_result.cpy".
 
         OPEN-ACCESS-REVIEW-LOGIC.
             *> p1 = actor (SUPER_ADMIN), p2 = period start, p3 = period end.
@@ -680,23 +528,6 @@
             END-IF.
             EXIT PARAGRAPH.
 
-        ENQUEUE-NOTIFICATION.
-            *> Transactional outbox: the intent commits or rolls back with
-            *> the business action that created it. Sets WS-NOTIF-FAIL on
-            *> DB error; the caller maps it to its own failure output.
-            MOVE 0 TO WS-NOTIF-FAIL
-            MOVE "INSERT INTO notification_outbox (recipient, purpose, code, detail) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
-            MOVE WS-NOTIF-TO TO WS-BIND-1
-            MOVE WS-NOTIF-PURPOSE TO WS-BIND-2
-            MOVE WS-NOTIF-CODE TO WS-BIND-3
-            MOVE WS-NOTIF-DETAIL TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
-                MOVE 1 TO WS-NOTIF-FAIL
-            END-IF.
-            EXIT PARAGRAPH.
-
         VALIDATE-DIGITS.
             *> WS-CHECK (WS-CHECK-LEN chars) must be all digits.
             MOVE 0 TO WS-DIGITS-BAD
@@ -708,19 +539,6 @@
                     MOVE 1 TO WS-DIGITS-BAD
                 END-IF
             END-PERFORM.
-            EXIT PARAGRAPH.
-
-        TRIM-RESULT-LEN.
-            *> Compute WS-RLEN = length of WS-RESULT without trailing spaces.
-            MOVE 0 TO WS-RLEN
-            PERFORM VARYING WS-J FROM 16383 BY -1 UNTIL WS-J < 1 OR WS-RLEN > 0
-                IF WS-RESULT(WS-J:1) NOT = SPACE
-                    MOVE WS-J TO WS-RLEN
-                END-IF
-            END-PERFORM
-            IF WS-RLEN = 0
-                MOVE 1 TO WS-RLEN
-            END-IF.
             EXIT PARAGRAPH.
 
         ALLOW-SUPER-ADMIN.
