@@ -1,9 +1,11 @@
 // Per-module COBOL coverage ratchet.
 //
-// The curated-total gate (30% floor + total ratchet in scripts/ci/coverage.sh)
-// lets one module collapse while another rises. This gate pins every curated
-// module to its own baseline: a drop of more than --tolerance percentage
-// points in ANY module fails, even when the total still looks fine.
+// The curated-total gate is a 30% floor only (scripts/ci/coverage.sh); the
+// total cannot see one module collapsing while another rises, so this gate
+// pins every curated module to its own baseline: a drop of more than
+// --tolerance percentage points in ANY module fails, even when the total
+// still looks fine. Shared copybook lines are measured separately as a
+// `copybooks` union unit (see scripts/coverage/map_cobol.py), not here.
 //
 // Usage:
 //   node scripts/check_coverage_modules.mjs --json coverage/cobol.json

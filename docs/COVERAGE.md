@@ -61,10 +61,10 @@ whole-codebase coverage.
   than **1.0 percentage point**. Lower a baseline only for a deliberate change
   that removes exercised code, never to accept a regression. (The COBOL total
   used to be ratcheted too; it was retired in Nov 2026 because copybook
-  extractions move executed lines where the mapper cannot attribute them
-  back — the comparison measured the mapper, not coverage. The total stays a
-  30% floor; see PR-15E for the mapper fix that would make a total ratchet
-  meaningful again.)
+  extractions move executed lines out of their hosts — the comparison measured
+  the mapper, not coverage. The total stays a 30% floor; shared lines are now
+  measured as a `copybooks` union unit instead, ratcheted separately — see
+  below.)
 - Per-module ratchet: `tests/coverage_module_baseline.txt` pins every curated
   module (±1.0pp, see above). A total that still looks fine never hides a
   collapsing module.
@@ -94,9 +94,12 @@ npm --prefix middleware run test:coverage
 The script writes:
 
 - `coverage/cobol.txt` — per-module COBOL line coverage.
-- `coverage/cobol.json` — machine-readable COBOL totals.
+- `coverage/cobol.json` — machine-readable COBOL totals, per-module rows, and
+  a top-level `copybooks` union summary (`executable`/`covered`/`percent` plus
+  a per-file rollup under `files`; a copybook line counts as covered when
+  executed by any host).
 - `coverage/cobol-cobertura.xml` — same data as Cobertura XML (one `<class>`
-  per module, one `<line>` per executable COBOL line).
+  per module, one `<line>` per executable COBOL line; host lines only).
 - `coverage/gateway.txt` — full gateway coverage report.
 - `coverage/summary.json` — combined totals when `--json` is used.
 
@@ -119,6 +122,19 @@ A single-line refactor that moves code between modules legitimately lowers one
 module and raises another; record the reason in the PR. `ref_engine` sits at
 0% (not yet exercised by the representative suites): the ratchet keeps it
 from going unnoticed, raising it is separate work.
+
+## Copybooks unit (shared code, measured separately)
+
+Procedure-division copybooks (`cobol/copy/*.cpy`) compile into every host
+that COPYs them, but their lines belong to the copybook file — the mapper
+(`scripts/coverage/map_cobol.py`) attributes them to a single `copybooks`
+union unit instead of any host. A (file, line) pair counts as covered when
+executed by any host; the per-file rollup lives under `files` in
+`coverage/cobol.json`. Host rows and the TOTAL exclude copybook lines, so
+extracting code into a copybook still shrinks its former hosts (their
+baselines are re-pinned per extraction, as before) while the shared code
+itself stays measured. Gating the unit (its own baseline + floor) is step D;
+until then it is reported but not ratcheted.
 
 ## CI
 
