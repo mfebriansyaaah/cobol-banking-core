@@ -216,7 +216,13 @@ if (write) {
     '# SQL wrapper rollout baseline (module -> remaining inline CALL sites).\n' +
     '# Counts from scripts/check_bind_slots.mjs. Never add a site back;\n' +
     '# convert to PERFORM SQL-EXEC-n instead, then --write after review.\n';
-  writeFileSync(baseFile, header + Object.entries(actual).map(([m, n]) => `${m}=${n}\n`).join(''));
+  writeFileSync(
+    baseFile,
+    header +
+      Object.entries(actual)
+        .map(([m, n]) => `${m}=${n}\n`)
+        .join(''),
+  );
   console.log(`wrote ${baseFile}`);
 }
 
