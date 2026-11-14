@@ -22,6 +22,7 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from '
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { TEMPLATE_LINES } from './lib/clone_template.mjs';
 import { collectRoutes } from './lib/route_fields.mjs';
 import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 
@@ -89,7 +90,7 @@ function collectCobol(rootDir) {
   const cobolDir = path.join(rootDir, 'cobol', 'src');
   const files = list(cobolDir, '.cob');
   let loc = 0;
-  let exact669 = 0;
+  let exactTemplateLines = 0;
   let canonical9 = 0;
   const lineCounts = [];
   for (const f of files) {
@@ -97,7 +98,7 @@ function collectCobol(rootDir) {
     const lines = countLines(full);
     loc += lines;
     lineCounts.push(lines);
-    if (lines === 669) exact669 += 1;
+    if (lines === TEMPLATE_LINES) exactTemplateLines += 1;
     if (f === 'main_logic.cob') continue;
     const src = readFileSync(full, 'utf8');
     const suffixes = actionSuffixes(cobolActions(src));
@@ -107,7 +108,7 @@ function collectCobol(rootDir) {
     files: files.length,
     modules: files.filter((f) => f !== 'main_logic.cob').length,
     loc,
-    exact669,
+    exactTemplateLines,
     canonical9,
   };
 }
@@ -266,7 +267,7 @@ export function baselineRows(stats) {
     ['COBOL', 'source files', fmt(stats.cobol.files)],
     ['COBOL', 'modules (excl. dispatcher)', fmt(stats.cobol.modules)],
     ['COBOL', 'lines', fmt(stats.cobol.loc)],
-    ['COBOL', 'files with exactly 669 lines', fmt(stats.cobol.exact669)],
+    ['COBOL', `files with exactly ${TEMPLATE_LINES} lines`, fmt(stats.cobol.exactTemplateLines)],
     ['COBOL', 'canonical 9-action clones', fmt(stats.cobol.canonical9)],
     ['Gateway', 'route files', fmt(stats.gateway.routeFiles)],
     ['Gateway', 'route definitions', fmt(stats.gateway.routeDefinitions)],

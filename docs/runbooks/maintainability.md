@@ -46,6 +46,7 @@ the CALL — recompute them deterministically in the callee.
 | `tests/baseline_counts.txt` | per-suite assertions | `check_test_counts.mjs --static --write` |
 | `tests/warning_baseline.txt` | COBOL warnings per file | lower only, never raise |
 | `tests/copybook_baseline.txt` | copybook estate | `check_copybooks.mjs --write` |
+| `tests/duplication_baseline.txt` | paragraph/WS duplication, inline dupes, unused WS | `check_duplication.mjs --write` |
 | `tests/tier1_links_baseline.txt` | L0/L1 modules without a Tier-1 link | only shrinks; new modules need a linked core or stay listed |
 | `tests/action_test_coverage_baseline.txt` | uncovered actions + reason | `check_action_test_coverage.mjs --write` |
 | `docs/COMPLEXITY_BASELINE.md` | tree metrics | `audit_complexity.mjs --write` |

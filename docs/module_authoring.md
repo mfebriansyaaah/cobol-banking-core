@@ -62,7 +62,11 @@ Every domain module exposes these actions (prefix + action):
   charset), gl/import (action-dependent branches), ref/user (WS-CHECK
   shapes), wallet×5 (early-exit flow; wallet_core itself moved to the
   shared `wallet_entry.cpy` in PR-07) — see `scripts/test/copybook_*.test.mjs`
-  for the enforced lists.
+  for the enforced lists. Known remaining clones (DRY wave, tracked in
+  `tests/duplication_baseline.txt` via `check_duplication.mjs`): TRIM-ALL /
+  TRIM-VALUE in 22 modules, TRIM-RESULT-LEN in 22+6 auth modules,
+  VALIDATE-ALL / VALIDATE-INPUT in 15 modules, wallet entry/validate/trim
+  in 5 modules — each with a shrinking exception set in its pin test.
   A shared paragraph must be byte-identical to the copies it replaces except for caller-set variables: the caller sets
   `WS-DENIED-TARGET` before `PERFORM ALLOW-ADMIN`, and the copybook
   delegates to the host module's own `AUDIT-DENIED`. One file per
@@ -104,7 +108,8 @@ Every domain module exposes these actions (prefix + action):
   PR — see the cross-layer contract section in [TESTING.md](TESTING.md).
 - Do not generate new template clones: a new module shaped like
   `cost_center_core.cob` (canonical 9-action contract, ≥0.90 structural
-  similarity, or exactly 669 lines) with L0/L1 linkage fails
+  similarity, or exactly `TEMPLATE_LINES` lines — see
+  `scripts/lib/clone_template.mjs`) with L0/L1 linkage fails
   `scripts/check_clone_budget.mjs`. New modules need L2+ linkage
   (a proven Tier-1 business link — see [module classification](module_classification.md))
   or `UTILITY`/`INFRA` status. The existing clones are frozen in

@@ -6,6 +6,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { TEMPLATE_LINES } from '../lib/clone_template.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const GATE = path.join(ROOT, 'scripts', 'check_clone_budget.mjs');
@@ -99,9 +100,9 @@ test('new clone-shaped L0 module fails', () => {
   assert.match(runFail(d), /NEW CLONES/);
 });
 
-test('new 669-line module fails even without clone shape', () => {
+test('new template-sized module fails even without clone shape', () => {
   const d = makeRoot();
-  const pad = Array.from({ length: 668 }, (_, i) => `      *> filler ${i}.`).join('\n');
+  const pad = Array.from({ length: TEMPLATE_LINES - 1 }, (_, i) => `      *> filler ${i}.`).join('\n');
   writeFileSync(path.join(d, 'cobol', 'src', 'big_core.cob'), `IDENTIFICATION DIVISION.\n${pad}\n`);
   const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
   manifest.modules.push({ module: 'big_core', linkageLevel: 'L1' });
