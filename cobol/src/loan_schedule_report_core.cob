@@ -85,9 +85,8 @@
 
        ACTION-LSC_SUMMARY.
            MOVE "LOAN_SCHEDULE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD-RESULT
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO WS-RESULT
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(CASE WHEN status='ACTIVE' THEN 1 ELSE 0 END),0)) FROM loan_schedule" TO WS-PREP-SQL
@@ -106,9 +105,8 @@
 
        ACTION-LSC_EXPORT.
            MOVE "LOAN_SCHEDULE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD-RESULT
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO WS-RESULT
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(id, ':', loan_id, ':', status) FROM loan_schedule ORDER BY id DESC LIMIT 50" TO WS-PREP-SQL
@@ -132,9 +130,8 @@
 
        ACTION-LSC_AUDIT.
            MOVE "LOAN_SCHEDULE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD-RESULT
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO WS-RESULT
                EXIT PARAGRAPH
            END-IF.
            IF WS-P1-TRIMMED = SPACES

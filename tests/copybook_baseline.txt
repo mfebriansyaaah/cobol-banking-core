@@ -2,7 +2,7 @@
 # Counts of the inclusion graph; update only after reviewing the
 # drift the gate prints. This baseline must only change intentionally.
 files=25
-paragraphs=67
+paragraphs=69
 vars=243
 inline_trim_value=0
 inline_trim_all=2

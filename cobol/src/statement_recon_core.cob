@@ -170,9 +170,8 @@
 
        ACTION-START.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -244,9 +243,8 @@
 
        ACTION-MATCH.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -369,9 +367,8 @@
 
        ACTION-FINISH.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -439,9 +436,8 @@
 
        ACTION-LIST.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "50" TO WS-LIMIT
@@ -490,9 +486,8 @@
 
        ACTION-GET.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -520,9 +515,8 @@
 
        ACTION-ITEMS.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -583,9 +577,8 @@
 
        ACTION-EXPORT.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -618,9 +611,8 @@
 
        ACTION-RETRY.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -681,9 +673,8 @@
 
        ACTION-SUMMARY.
            MOVE "STATEMENT_RECON" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES

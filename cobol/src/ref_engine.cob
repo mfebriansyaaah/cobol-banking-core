@@ -279,9 +279,8 @@
 
        ACTION-TYPE-LIST.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "50" TO WS-LIMIT
@@ -333,9 +332,8 @@
 
        ACTION-TYPE-CREATE.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            PERFORM VALIDATE-TYPE-INPUT
@@ -381,9 +379,8 @@
 
        ACTION-VALUE-LIST.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF WS-P1-LEN < 2 OR WS-P1-LEN > 32
@@ -441,9 +438,8 @@
 
        ACTION-VALUE-GET.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF WS-P1-LEN < 2 OR WS-P1-LEN > 32
@@ -480,9 +476,8 @@
 
        ACTION-VALUE-CREATE.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            PERFORM VALIDATE-VALUE-INPUT
@@ -558,9 +553,8 @@
 
        ACTION-VALUE-APPROVE.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF WS-P1-LEN < 2 OR WS-P1-LEN > 32
@@ -655,9 +649,8 @@
 
        ACTION-VALUE-RETIRE.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF WS-P1-LEN < 2 OR WS-P1-LEN > 32
@@ -709,9 +702,8 @@
 
        ACTION-VALUE-HIST.
            MOVE "REF_ENGINE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF WS-P1-LEN < 2 OR WS-P1-LEN > 32
