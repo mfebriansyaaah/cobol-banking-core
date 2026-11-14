@@ -34,9 +34,11 @@ p4_action_without_cobol_handler=detected
 p5_dead_bind_slot=detected
 
 # A true swap: the value for slot 1 goes to slot 2 and vice versa. Both slots
-# are passed, both are valid, and only the query semantics are wrong. No static
-# check can read the SQL author's intent; this needs a runtime suite.
-p5b_swapped_bind_slots=missed
+# are passed, both are valid — the old inline CALLs were positionally opaque,
+# so only a runtime suite could see it. Since DRY-06A the shared wrappers
+# contract staged binds 1..n in order, and check_bind_slots verifies that
+# order at every PERFORM SQL-EXEC site, so the swap is now caught statically.
+p5b_swapped_bind_slots=detected
 
 # A DB suite deleted outright. check_suite_coverage compares the directory
 # against tests/baseline_counts.txt, so the inventory cannot shrink silently.

@@ -72,6 +72,17 @@ test('missing bind slot fails', () => {
   assert.match(r.out, /SQL-EXEC-2.*staged \[1\], expected \[1, 2\]/s);
 });
 
+test('zero-arity wrapper needs no binds', () => {
+  const src = `        MAIN-LOGIC.
+            MOVE "SELECT COUNT(*) FROM t" TO WS-PREP-SQL
+            PERFORM SQL-EXEC-0
+            EXIT PARAGRAPH.
+`;
+  const d = makeRoot({ 'ok.cob': src });
+  const r = run(d);
+  assert.equal(r.status, 0, r.out);
+});
+
 test('rotated bind slots fail', () => {
   const bad = GOOD.replace('MOVE X TO WS-BIND-1', 'MOVE X TO WS-BIND-3');
   const d = makeRoot({ 'bad.cob': bad });

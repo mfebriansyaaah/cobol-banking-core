@@ -8,6 +8,12 @@
       *> own footprint file (sql_exec_5.cpy / sql_exec_4.cpy). Only arities
       *> already converted may be listed here: an unperformed paragraph is
       *> a dead paragraph and fails check_copybooks.
+       SQL-EXEC-0.
+           CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+           EXIT PARAGRAPH.
+
        SQL-EXEC-1.
            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
                BY REFERENCE WS-BIND-1

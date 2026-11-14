@@ -13,7 +13,7 @@ wallet_core 100
 auth_core 89.39
 ref_engine 0
 gl_core 38.8
-report_core 14.11
+report_core 14.63
 fee_core 26.07
 eod_core 11.39
 statement_core 11.42
@@ -25,6 +25,6 @@ collection_core 64.02
 payment_clearing_core 51.83
 treasury_liquidity_core 84.19
 gl_allocation_core 84.36
-cost_center_core 83.49
+cost_center_core 68.66
 fixed_asset_core 87.13
-account_core 83.49
+account_core 68.66
