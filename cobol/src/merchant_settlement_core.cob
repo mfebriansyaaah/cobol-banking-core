@@ -74,6 +74,7 @@
         01  WS-SETT-STATUS          PIC X(20) VALUE SPACES.
         01  WS-MERCHANT-NAME        PIC X(100) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -155,6 +156,7 @@
 
 
         COPY "common_auth.cpy".
+        COPY "common_txn.cpy".
 
         AUDIT.
             MOVE "INSERT INTO merchant_settlement_audit (merchant_settlement_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
@@ -266,15 +268,10 @@
                 MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE SPACES TO LS-OUTPUT-BUFFER
+                MOVE SPACES TO WS-SUCCESS-MSG
                 STRING "SUCCESS|MCS_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
-                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-LIST.
@@ -429,13 +426,8 @@
                 MOVE WS-TMP-AMT TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|MCS_CALC|1" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|MCS_CALC|1" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-UPDATE.
@@ -476,13 +468,8 @@
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|MCS_UPDATE" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|MCS_UPDATE" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-CLOSE.
@@ -526,13 +513,8 @@
                 MOVE "SETTLED" TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|MCS_DELETE" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|MCS_DELETE" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         LOAD-SETTLE.
@@ -703,15 +685,10 @@
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE SPACES TO LS-OUTPUT-BUFFER
+                MOVE SPACES TO WS-SUCCESS-MSG
                 STRING "SUCCESS|MCS_TXN|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
-                    INTO LS-OUTPUT-BUFFER END-STRING
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+                    INTO WS-SUCCESS-MSG END-STRING
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-OPEN.
@@ -805,15 +782,10 @@
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE SPACES TO LS-OUTPUT-BUFFER
+                MOVE SPACES TO WS-SUCCESS-MSG
                 STRING "SUCCESS|MCS_OPEN|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
-                    INTO LS-OUTPUT-BUFFER END-STRING
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+                    INTO WS-SUCCESS-MSG END-STRING
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-POST.
@@ -952,13 +924,8 @@
                 MOVE WS-TMP-AMT TO WS-AUDIT-DETAIL
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|MCS_SETTLE|1" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|MCS_SETTLE|1" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-CANCEL.
@@ -1023,13 +990,8 @@
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                 PERFORM AUDIT
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|MCS_CANCEL|1" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|MCS_CANCEL|1" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-CALC-SETTLE.

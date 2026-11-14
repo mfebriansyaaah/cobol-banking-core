@@ -47,6 +47,7 @@
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -89,6 +90,7 @@
 
 
         COPY "common_trim.cpy".
+        COPY "common_txn.cpy".
 
         CHECK-OWNER.
             *> p1 = email, p6 = actor. Owner-only notations.
@@ -180,13 +182,8 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|RISK_NOTED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|RISK_NOTED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-STATUS.

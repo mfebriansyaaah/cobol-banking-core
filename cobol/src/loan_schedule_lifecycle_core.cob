@@ -37,6 +37,7 @@
        01  WS-AUDIT-LOAN           PIC X(20) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        COPY "loan_schedule_ws_common.cpy".
 
        LINKAGE SECTION.
@@ -130,13 +131,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_APPROVE|OK" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_APPROVE|OK" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_REJECT.
@@ -167,13 +163,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_REJECT|OK" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_REJECT|OK" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_CLOSE.
@@ -204,13 +195,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_CLOSE|OK" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_CLOSE|OK" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_REOPEN.
@@ -241,13 +227,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_REOPEN|OK" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_REOPEN|OK" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_CANCEL.
@@ -287,13 +268,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_HOLD|OK" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_HOLD|OK" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_RELEASE.
@@ -324,19 +300,15 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_RELEASE|OK" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_RELEASE|OK" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
         COPY "common_validate_all.cpy".
 
 
         COPY "common_auth.cpy".
+        COPY "common_txn.cpy".
 
        AUDIT.
            MOVE "INSERT INTO loan_schedule_audit (schedule_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL

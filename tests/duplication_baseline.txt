@@ -1,9 +1,9 @@
 # Duplication baseline (DRY-00A ratchet). Counts from scripts/check_duplication.mjs.
 # Update only after reviewing the drift the gate prints (--write). This baseline must only shrink.
-paragraph_groups=38
-paragraph_redundant_lines=782
-ws_blocks=2
-ws_redundant_lines=65
+paragraph_groups=37
+paragraph_redundant_lines=735
+ws_blocks=1
+ws_redundant_lines=35
 inline_trim_all=2
 inline_trim_value=0
 inline_trim_result_len=0
