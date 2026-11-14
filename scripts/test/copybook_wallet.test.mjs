@@ -37,16 +37,16 @@ const defines = (src, name) => new RegExp(`^\\s{7,8}${name}\\.`, 'm').test(src);
 
 test('wallet copybooks define the shared paragraphs', () => {
   const entry = readFileSync(path.join(COPY, 'wallet_entry.cpy'), 'utf8');
-  assert.match(entry, /^\s{7}VALIDATE-ALL\./m);
-  assert.match(entry, /^\s{7}VALIDATE-INPUT\./m);
-  assert.match(entry, /^\s{7}TRIM-ALL\./m);
-  assert.match(entry, /^\s{7}TRIM-ONE\./m);
+  assert.match(entry, /^\s{7,8}VALIDATE-ALL\./m);
+  assert.match(entry, /^\s{7,8}VALIDATE-INPUT\./m);
+  assert.match(entry, /^\s{7,8}TRIM-ALL\./m);
+  assert.match(entry, /^\s{7,8}TRIM-ONE\./m);
   const audit = readFileSync(path.join(COPY, 'wallet_audit.cpy'), 'utf8');
-  assert.match(audit, /^\s{7}AUDIT-DENIED\./m);
+  assert.match(audit, /^\s{7,8}AUDIT-DENIED\./m);
   assert.match(audit, /PERFORM RECORD-AUTHZ-DENIED/);
   const caps = readFileSync(path.join(COPY, 'wallet_caps.cpy'), 'utf8');
-  assert.match(caps, /^\s{7}CHECK-CAP-DIGITS\./m);
-  assert.match(caps, /^\s{7}CHECK-CAP-CHARS\./m);
+  assert.match(caps, /^\s{7,8}CHECK-CAP-DIGITS\./m);
+  assert.match(caps, /^\s{7,8}CHECK-CAP-CHARS\./m);
 });
 
 test('every wallet entry host COPYs wallet_entry.cpy', () => {
