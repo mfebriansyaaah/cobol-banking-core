@@ -2,12 +2,12 @@
 # Update only after reviewing the drift the gate prints (--write). This baseline must only shrink.
 paragraph_groups=39
 paragraph_redundant_lines=805
-ws_blocks=5
-ws_redundant_lines=1375
+ws_blocks=2
+ws_redundant_lines=85
 inline_trim_all=2
 inline_trim_value=0
 inline_trim_result_len=0
 inline_validate_all=5
 inline_validate_input=5
 inline_trim_one=0
-unused_ws_decls=1109
+unused_ws_decls=4

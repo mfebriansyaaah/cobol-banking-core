@@ -735,14 +735,15 @@
       "module": "fee_core",
       "kind": "table",
       "subject": "pic",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
         "no DDL found in schema.sql/migrations",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into Tier-1 tables",
+        "artifact, not a table: subject \"pic\" came from the declaration text \"WS-TIER-FROM ... PIC X(30)\"; the dead declaration was removed in DRY-04 and no such table exists"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "fee_core:table:used-count",
