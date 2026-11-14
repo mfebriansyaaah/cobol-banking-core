@@ -1,7 +1,7 @@
 # SQL wrapper rollout baseline (module -> remaining inline CALL sites).
 # Counts from scripts/check_bind_slots.mjs. Never add a site back;
 # convert to PERFORM SQL-EXEC-n instead, then --write after review.
-account_core=11
+account_core=2
 auth_core=37
 auth_mfa_core=15
 auth_ops_core=15
@@ -16,9 +16,9 @@ card_posting_core=16
 chargeback_core=35
 collateral_core=31
 collection_core=26
-compliance_calendar_core=11
+compliance_calendar_core=2
 corp_core=2
-cost_center_core=11
+cost_center_core=2
 dashboard_core=4
 deposit_core=24
 deposit_posting_core=10
@@ -46,7 +46,7 @@ loyalty_core=30
 main_logic=0
 merchant_core=24
 merchant_settlement_core=36
-notification_template_core=11
+notification_template_core=2
 payment_clearing_core=15
 payment_core=13
 payment_hold_core=18
@@ -58,9 +58,9 @@ ref_ext_core=15
 report_builder_core=10
 report_core=14
 report_run_core=19
-report_schedule_core=11
+report_schedule_core=2
 risk_core=2
-sla_tracker_core=11
+sla_tracker_core=2
 statement_core=19
 statement_recon_core=23
 tax_management_core=34
