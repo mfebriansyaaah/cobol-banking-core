@@ -110,8 +110,8 @@
        01  WS-OVERDUE-OK           PIC X VALUE 'N'.
            88  OVERDUE-READY       VALUE 'Y'.
        01  WS-CASE-OK              PIC X VALUE 'N'.
-       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
            88  CASE-FOUND          VALUE 'Y'.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".

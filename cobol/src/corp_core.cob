@@ -37,9 +37,9 @@
         01  WS-BAD                  PIC 9(3) VALUE 0.
         01  WS-ALLOWED              PIC 9 VALUE 0.
         01  WS-STEP                 PIC X VALUE 'Y'.
-        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".

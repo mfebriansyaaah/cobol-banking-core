@@ -54,3 +54,23 @@ test('no module defines TXN-FINISH inline', () => {
     assert.doesNotMatch(srcOf(m), /^\s{7,8}TXN-FINISH(-RESULT)?\.\s*$/m, `${m}: inline TXN-FINISH`);
   }
 });
+
+test('WS-SUCCESS-MSG never splits an 88 group', () => {
+  // Regression pin (DRY-06C): the shared-message declaration must not be
+  // inserted between an 01 and its 88 children — that silently reparents
+  // the 88s and breaks every SET/IF on them (caught by collection DB tests).
+  for (const m of modules) {
+    const lines = srcOf(m).split('\n');
+    lines.forEach((line, idx) => {
+      if (!/^\s+01\s+WS-SUCCESS-MSG\s/.test(line)) return;
+      for (let j = idx + 1; j < lines.length; j += 1) {
+        const l = lines[j];
+        if (!l.trim()) continue;
+        if (/^\s+88\s/.test(l)) {
+          assert.fail(`${m}:${idx + 1}: 88 level follows WS-SUCCESS-MSG (split 88 group)`);
+        }
+        break;
+      }
+    });
+  }
+});
