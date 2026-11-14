@@ -7,9 +7,12 @@
 //     ROLLBACK present); otherwise a failure path leaks an open transaction
 //     onto the pooled connection.
 // Autocommit single-statement files (0/0/0) are allowed.
+// COPY-expanded (DRY-00B): counts see through COPY includes, so moving a
+// transaction statement into a copybook cannot hide it from this gate.
 // Usage: node scripts/check_transaction_ownership.mjs [root]
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import path from 'node:path';
+import { loadModuleSource } from './lib/cobol_source.mjs';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 const SRC = path.join(ROOT, 'cobol', 'src');
@@ -20,7 +23,7 @@ let checked = 0;
 for (const f of readdirSync(SRC)
   .filter((x) => x.endsWith('.cob'))
   .sort()) {
-  const src = readFileSync(path.join(SRC, f), 'utf8');
+  const src = loadModuleSource(ROOT, f);
   const count = (re) => (src.match(re) || []).length;
   const begin = count(/CALL\s+"SQL_BEGIN"/g);
   const commit = count(/CALL\s+"SQL_COMMIT"/g);

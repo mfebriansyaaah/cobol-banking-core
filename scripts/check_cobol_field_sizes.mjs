@@ -8,11 +8,12 @@
 //     must total <=1023 bytes (leaves room for the C NUL terminator).
 // Bind values travel separately (max 256 each) and are unaffected.
 // Usage: node scripts/check_cobol_field_sizes.mjs [root]
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(process.argv[2] || '.');
 const SRC = path.join(ROOT, 'cobol', 'src');
+const COPY_DIR = path.join(ROOT, 'cobol', 'copy');
 
 const failures = [];
 let checked = 0;
@@ -21,37 +22,45 @@ function lineno(src, idx) {
   return src.slice(0, idx).split('\n').length;
 }
 
-for (const f of readdirSync(SRC)
-  .filter((x) => x.endsWith('.cob'))
-  .sort()) {
-  const raw = readFileSync(path.join(SRC, f), 'utf8');
-  // Strip full-line comments. (Inline *> comments are left alone: query
-  // literals never contain *>, and comment text without quotes cannot
-  // inflate the literal sums below.)
-  const src = raw
-    .split('\n')
-    .filter((ln) => !ln.trimStart().startsWith('*>'))
-    .join('\n');
-  checked += 1;
+for (const [dir, ext, label] of [
+  [SRC, '.cob', null],
+  [COPY_DIR, '.cpy', 'copy/'],
+]) {
+  if (!existsSync(dir)) continue;
+  for (const f of readdirSync(dir)
+    .filter((x) => x.endsWith(ext))
+    .sort()) {
+    const raw = readFileSync(path.join(dir, f), 'utf8');
+    // Strip full-line comments. (Inline *> comments are left alone: query
+    // literals never contain *>, and comment text without quotes cannot
+    // inflate the literal sums below.)
+    const src = raw
+      .split('\n')
+      .filter((ln) => !ln.trimStart().startsWith('*>'))
+      .join('\n');
+    checked += 1;
+    const tag = label ? `${label}${f}` : f;
 
-  for (const m of src.matchAll(/01\s+WS-PREP-SQL\s+PIC\s+X\((\d+)\)/g)) {
-    if (Number(m[1]) > 1024)
-      failures.push(`${f}:${lineno(src, m.index)}: WS-PREP-SQL PIC X(${m[1]}) exceeds 1024 (C buffer)`);
-  }
-  for (const m of src.matchAll(/01\s+WS-QUERY\s+PIC\s+X\((\d+)\)/g)) {
-    if (Number(m[1]) > 512)
-      failures.push(`${f}:${lineno(src, m.index)}: WS-QUERY PIC X(${m[1]}) exceeds 512 (C buffer)`);
-  }
-  for (const m of src.matchAll(/MOVE\s+"((?:[^"]|"")*)"\s+TO\s+WS-(?:PREP-SQL|QUERY)/g)) {
-    const len = m[1].replace(/""/g, '"').length;
-    if (len > 1023) failures.push(`${f}:${lineno(src, m.index)}: query literal ${len} bytes exceeds 1023`);
-  }
-  for (const m of src.matchAll(/\bSTRING\b(.*?)END-STRING/gs)) {
-    const block = m[1];
-    if (!/INTO\s+WS-(?:PREP-SQL|QUERY)/.test(block)) continue;
-    let total = 0;
-    for (const lm of block.matchAll(/"((?:[^"]|"")*)"/g)) total += lm[1].replace(/""/g, '"').length;
-    if (total > 1023) failures.push(`${f}:${lineno(src, m.index)}: STRING-built query ~${total} bytes exceeds 1023`);
+    for (const m of src.matchAll(/01\s+WS-PREP-SQL\s+PIC\s+X\((\d+)\)/g)) {
+      if (Number(m[1]) > 1024)
+        failures.push(`${tag}:${lineno(src, m.index)}: WS-PREP-SQL PIC X(${m[1]}) exceeds 1024 (C buffer)`);
+    }
+    for (const m of src.matchAll(/01\s+WS-QUERY\s+PIC\s+X\((\d+)\)/g)) {
+      if (Number(m[1]) > 512)
+        failures.push(`${tag}:${lineno(src, m.index)}: WS-QUERY PIC X(${m[1]}) exceeds 512 (C buffer)`);
+    }
+    for (const m of src.matchAll(/MOVE\s+"((?:[^"]|"")*)"\s+TO\s+WS-(?:PREP-SQL|QUERY)/g)) {
+      const len = m[1].replace(/""/g, '"').length;
+      if (len > 1023) failures.push(`${tag}:${lineno(src, m.index)}: query literal ${len} bytes exceeds 1023`);
+    }
+    for (const m of src.matchAll(/\bSTRING\b(.*?)END-STRING/gs)) {
+      const block = m[1];
+      if (!/INTO\s+WS-(?:PREP-SQL|QUERY)/.test(block)) continue;
+      let total = 0;
+      for (const lm of block.matchAll(/"((?:[^"]|"")*)"/g)) total += lm[1].replace(/""/g, '"').length;
+      if (total > 1023)
+        failures.push(`${tag}:${lineno(src, m.index)}: STRING-built query ~${total} bytes exceeds 1023`);
+    }
   }
 }
 

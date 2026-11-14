@@ -4,7 +4,8 @@
 // RATE_LIMITED used to surface as 500).
 //
 // Sources:
-//   - cobol/src/*.cob: `"ERROR|<CODE>"` literals that can reach the client.
+//   - cobol/src/*.cob + cobol/copy/*.cpy (DRY-00B): `"ERROR|<CODE>"`
+//     literals that can reach the client, including via copybooks.
 //   - contracts/errors.yaml: the registry (code -> status, origin, note).
 //   - middleware/core-client/result.js: the runtime ERROR_STATUS map.
 //
@@ -102,11 +103,17 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   }
   const cobol = new Set();
   const srcDir = path.join(dir, COBOL_REL);
-  for (const f of readdirSync(srcDir)
-    .filter((f) => f.endsWith('.cob'))
-    .sort()) {
-    for (const c of extractCobolCodes(readFileSync(path.join(srcDir, f), 'utf8'))) cobol.add(c);
-  }
+  const copyDir = path.join(dir, 'cobol', 'copy');
+  const readCodes = (d, ext) => {
+    if (!existsSync(d)) return;
+    for (const f of readdirSync(d)
+      .filter((f) => f.endsWith(ext))
+      .sort()) {
+      for (const c of extractCobolCodes(readFileSync(path.join(d, f), 'utf8'))) cobol.add(c);
+    }
+  };
+  readCodes(srcDir, '.cob');
+  readCodes(copyDir, '.cpy');
   let registry;
   try {
     registry = parseRegistry(readFileSync(regPath, 'utf8'));
