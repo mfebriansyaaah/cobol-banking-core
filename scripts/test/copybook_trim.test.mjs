@@ -23,31 +23,8 @@ const copyOf = (f) => readFileSync(path.join(COPY, f), 'utf8');
 
 // Shrink these sets in the same PR that converts the module (DRY-01
 // converts the 22 TRIM clones, DRY-02 the wallet clones, DRY-03 the auth
-// TRIM-RESULT clones).
-const TRIM_CLONES = [
-  'account_core',
-  'backup_drill_core',
-  'bank_guarantee_core',
-  'chargeback_core',
-  'collateral_core',
-  'compliance_calendar_core',
-  'cost_center_core',
-  'fixed_asset_core',
-  'gl_allocation_core',
-  'letter_of_credit_core',
-  'loan_core',
-  'loyalty_core',
-  'merchant_core',
-  'merchant_settlement_core',
-  'notification_template_core',
-  'payment_clearing_core',
-  'payroll_processing_core',
-  'report_builder_core',
-  'report_schedule_core',
-  'sla_tracker_core',
-  'tax_management_core',
-  'treasury_liquidity_core',
-];
+// TRIM-RESULT clones). DRY-01 emptied TRIM_CLONES after converting all 22.
+const TRIM_CLONES = [];
 const INLINE_TRIM_OK = new Set([
   'gl_core',
   'ref_engine',
