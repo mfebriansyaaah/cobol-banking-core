@@ -2542,14 +2542,15 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "audit_authz_denied",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
         "no DDL found in schema.sql/migrations",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into Tier-1 tables",
+        "references moved to cobol/copy/wallet_audit.cpy by the DRY-02 shared-copybook extraction; all 6 wallet hosts still write this table via the shared AUDIT-DENIED"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "wallet_core:table:audit-trail",
