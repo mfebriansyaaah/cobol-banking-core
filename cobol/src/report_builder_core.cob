@@ -179,9 +179,8 @@
 
         ACTION-CREATE.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -241,9 +240,8 @@
 
         ACTION-LIST.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -301,9 +299,8 @@
 
         ACTION-GET.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -332,9 +329,8 @@
 
         ACTION-SUBMIT.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -370,9 +366,8 @@
 
         ACTION-CLOSE.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -418,9 +413,8 @@
 
         ACTION-SUMMARY.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'RUNNING'), 0), '|', COALESCE(SUM(status = 'COMPLETED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(run_count), 0), '|', COALESCE(SUM(row_count), 0)) FROM report_builder" TO WS-PREP-SQL
@@ -440,9 +434,8 @@
 
         ACTION-AUDIT.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -478,9 +471,8 @@
 
         ACTION-VALIDATE.
             MOVE "REPORT_BUILDER_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES

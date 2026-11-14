@@ -231,9 +231,8 @@
 
        ACTION-LIST.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "50" TO WS-LIMIT
@@ -269,9 +268,8 @@
 
        ACTION-GET.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -300,9 +298,8 @@
 
        ACTION-SUMMARY.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'MATURED'), 0), '|', COALESCE(SUM(principal), 0), '|', COALESCE(SUM(accrued_interest), 0), '|', COALESCE(SUM(posted_interest), 0)) FROM deposit_account" TO WS-PREP-SQL
@@ -324,9 +321,8 @@
       *> float; the accrual is upserted per (deposit, day).
        ACTION-ACCRUE.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -419,9 +415,8 @@
       *> deposit transaction and rolled into posted_interest.
        ACTION-POST-INTEREST.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -525,9 +520,8 @@
       *> interest is paid out and the deposit closes.
        ACTION-SETTLE.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -750,9 +744,8 @@
       *> transaction rows (T:), oldest first, bounded at 200 rows.
        ACTION-STATEMENT.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -783,9 +776,8 @@
       *> Deposit audit trail, optionally filtered by deposit id and paged.
        ACTION-AUDIT.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "50" TO WS-LIMIT
@@ -823,9 +815,8 @@
       *> total. Read-only and DB-backed so the caller gets exact decimals.
        ACTION-CALC.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
@@ -862,9 +853,8 @@
       *> the term is in range and returns a maturity/interest preview.
        ACTION-VALIDATE.
            MOVE "DEPOSIT_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES

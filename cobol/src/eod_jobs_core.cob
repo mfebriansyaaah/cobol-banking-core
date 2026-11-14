@@ -235,9 +235,8 @@
 
        ACTION-HOLD-EXPIRY.
            MOVE "EOD_JOBS_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -325,9 +324,8 @@
            *> window. Runs as a bounded EOD job, never inside a money
            *> transaction, so it cannot extend a transfer's lock/undo scope.
            MOVE "EOD_JOBS_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -426,9 +424,8 @@
 
        ACTION-DORMANT-MARK.
            MOVE "EOD_JOBS_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -476,9 +473,8 @@
 
        ACTION-DORMANT-SUSPEND.
            MOVE "EOD_JOBS_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -526,9 +522,8 @@
 
        ACTION-RECON.
            MOVE "EOD_JOBS_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -570,9 +565,8 @@
 
        ACTION-STATEMENT.
            MOVE "EOD_JOBS_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
@@ -640,9 +634,8 @@
 
        ACTION-JOB-LIST.
            MOVE "EOD_JOBS_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "50" TO WS-LIMIT

@@ -224,9 +224,8 @@
 
         ACTION-CREATE.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -286,9 +285,8 @@
 
         ACTION-LIST.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -346,9 +344,8 @@
 
         ACTION-GET.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -377,9 +374,8 @@
 
         ACTION-SUBMIT.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -442,9 +438,8 @@
 
         ACTION-UPDATE.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -490,9 +485,8 @@
 
         ACTION-CLOSE.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -541,9 +535,8 @@
 
         ACTION-RULE-CREATE.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
@@ -661,9 +654,8 @@
 
         ACTION-RULE-UPDATE.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -786,9 +778,8 @@
 
         ACTION-RULE-LIST.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -826,9 +817,8 @@
 
         ACTION-RULE-GET.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -984,9 +974,8 @@
 
         ACTION-POST.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -1047,9 +1036,8 @@
 
         ACTION-REVERSE.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -1137,9 +1125,8 @@
 
         ACTION-REPORT.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
@@ -1219,9 +1206,8 @@
 
         ACTION-SUMMARY.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'ALLOCATED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(max_tax), 0), '|', COALESCE(SUM(collected_tax), 0)) FROM tax_management" TO WS-PREP-SQL
@@ -1241,9 +1227,8 @@
 
         ACTION-AUDIT.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -1279,9 +1264,8 @@
 
         ACTION-VALIDATE.
             MOVE "TAX_MANAGEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES

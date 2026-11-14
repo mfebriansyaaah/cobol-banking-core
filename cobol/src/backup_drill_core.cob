@@ -180,9 +180,8 @@
 
         ACTION-CREATE.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -242,9 +241,8 @@
 
         ACTION-LIST.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -302,9 +300,8 @@
 
         ACTION-GET.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -333,9 +330,8 @@
 
         ACTION-SUBMIT.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -371,9 +367,8 @@
 
         ACTION-APPROVE.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -441,9 +436,8 @@
 
         ACTION-CLOSE.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -489,9 +483,8 @@
 
         ACTION-SUMMARY.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'RUNNING'), 0), '|', COALESCE(SUM(status = 'VERIFIED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(run_count), 0), '|', COALESCE(SUM(verified_count), 0)) FROM backup_drill" TO WS-PREP-SQL
@@ -511,9 +504,8 @@
 
         ACTION-AUDIT.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -549,9 +541,8 @@
 
         ACTION-VALIDATE.
             MOVE "BACKUP_DRILL_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES

@@ -216,9 +216,8 @@
 
         ACTION-CREATE.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE 0 TO WS-COLON
@@ -779,9 +778,8 @@
 
         ACTION-LIST.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -839,9 +837,8 @@
 
         ACTION-GET.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -870,9 +867,8 @@
 
         ACTION-SUBMIT.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -931,9 +927,8 @@
 
         ACTION-UPDATE.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -979,9 +974,8 @@
 
         ACTION-CLOSE.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -1030,9 +1024,8 @@
 
         ACTION-SUMMARY.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'ALLOCATED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(guarantee_amount), 0), '|', COALESCE(SUM(claimed_amount), 0)) FROM bank_guarantee" TO WS-PREP-SQL
@@ -1052,9 +1045,8 @@
 
         ACTION-AUDIT.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -1090,9 +1082,8 @@
 
         ACTION-VALIDATE.
             MOVE "BANK_GUARANTEE_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES

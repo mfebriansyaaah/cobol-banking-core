@@ -247,9 +247,8 @@
 
         ACTION-CREATE.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES OR LS-PARAM5 = SPACES
@@ -371,9 +370,8 @@
 
         ACTION-ACTIVATE.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -428,9 +426,8 @@
 
         ACTION-ENROLL.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -528,9 +525,8 @@
 
         ACTION-EARN.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES OR LS-PARAM4 = SPACES
@@ -664,9 +660,8 @@
 
         ACTION-REDEEM.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
@@ -796,9 +791,8 @@
 
         ACTION-EXPIRE.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -922,9 +916,8 @@
 
         ACTION-ADJUST.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
@@ -1039,9 +1032,8 @@
 
         ACTION-LIST.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -1077,9 +1069,8 @@
 
         ACTION-GET.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES
@@ -1108,9 +1099,8 @@
 
         ACTION-SUMMARY.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT CONCAT((SELECT COUNT(*) FROM loyalty_program), '|', (SELECT COUNT(*) FROM loyalty_member), '|', COALESCE((SELECT SUM(points_balance) FROM loyalty_member), 0), '|', (SELECT COUNT(*) FROM loyalty_redemption))" TO WS-PREP-SQL
@@ -1130,9 +1120,8 @@
 
         ACTION-AUDIT.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "50" TO WS-LIMIT
@@ -1168,9 +1157,8 @@
 
         ACTION-VALIDATE.
             MOVE "LOYALTY_CORE" TO WS-DENIED-TARGET
-            PERFORM ALLOW-ADMIN
+            PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
-                MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES

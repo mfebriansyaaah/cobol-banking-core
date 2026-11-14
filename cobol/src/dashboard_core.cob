@@ -163,9 +163,8 @@
 
        ACTION-OVERVIEW.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(balance), 0)) FROM accounts" TO WS-PREP-SQL
@@ -182,9 +181,8 @@
 
        ACTION-PAYMENTS.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 NOT = SPACES
@@ -223,9 +221,8 @@
 
        ACTION-RECON.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'CLEAN'), 0), '|', COALESCE(SUM(status = 'MISMATCH'), 0)) FROM reconciliation_runs" TO WS-PREP-SQL
@@ -239,9 +236,8 @@
 
        ACTION-DISPUTES.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(state = 'OPEN'), 0), '|', COALESCE(SUM(state = 'ACKNOWLEDGED'), 0), '|', COALESCE(SUM(state = 'RESOLVED'), 0), '|', COALESCE(SUM(state = 'REJECTED'), 0), '|', COALESCE(SUM(assigned_to IS NULL AND state IN ('OPEN', 'ACKNOWLEDGED')), 0), '|', COALESCE(SUM(due_date IS NOT NULL AND due_date < CURDATE() AND state IN ('OPEN', 'ACKNOWLEDGED')), 0)) FROM dispute_cases" TO WS-PREP-SQL
@@ -252,9 +248,8 @@
 
        ACTION-ALERTS.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(state = 'OPEN'), 0), '|', COALESCE(SUM(state = 'ACKNOWLEDGED'), 0), '|', COALESCE(SUM(state = 'RESOLVED'), 0), '|', COALESCE(SUM(severity = 'CRITICAL' AND state <> 'RESOLVED'), 0), '|', COALESCE(SUM(severity = 'WARNING' AND state <> 'RESOLVED'), 0)) FROM ops_alert" TO WS-PREP-SQL
@@ -265,9 +260,8 @@
 
        ACTION-OUTBOX.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(state = 'PENDING'), 0), '|', COALESCE(SUM(state = 'SENDING'), 0), '|', COALESCE(SUM(state = 'SENT'), 0), '|', COALESCE(SUM(state = 'FAILED'), 0), '|', COALESCE(SUM(state = 'DEAD'), 0)) FROM notification_outbox" TO WS-PREP-SQL
@@ -278,9 +272,8 @@
 
        ACTION-REPORTS.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'RUNNING'), 0), '|', COALESCE(SUM(status = 'COMPLETED'), 0), '|', COALESCE(SUM(status = 'FAILED'), 0)) FROM report_run" TO WS-PREP-SQL
@@ -294,9 +287,8 @@
 
        ACTION-IMPORTS.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'STAGED'), 0), '|', COALESCE(SUM(status = 'VALIDATED'), 0), '|', COALESCE(SUM(status = 'COMPLETED'), 0), '|', COALESCE(SUM(status = 'FAILED'), 0), '|', COALESCE(SUM(total_rows), 0), '|', COALESCE(SUM(invalid_rows), 0)) FROM import_batch" TO WS-PREP-SQL
@@ -307,9 +299,8 @@
 
        ACTION-ACCOUNTS.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'FROZEN'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0)) FROM accounts" TO WS-PREP-SQL
@@ -323,9 +314,8 @@
 
        ACTION-FEES.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(amount), 0)) FROM ledger WHERE type = 'DEBIT' AND description LIKE '%FEE%'" TO WS-PREP-SQL
@@ -336,9 +326,8 @@
 
        ACTION-POLICY.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(enabled = 1), 0)) FROM payment_policy" TO WS-PREP-SQL
@@ -352,9 +341,8 @@
 
        ACTION-CASHFLOW.
            MOVE "DASHBOARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 NOT = SPACES

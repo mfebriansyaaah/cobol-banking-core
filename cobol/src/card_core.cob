@@ -298,9 +298,8 @@
 
        ACTION-ISSUE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
@@ -420,9 +419,8 @@
 
        ACTION-BLOCK.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -460,9 +458,8 @@
 
        ACTION-UNBLOCK.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -500,9 +497,8 @@
 
        ACTION-CLOSE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -563,9 +559,8 @@
 
        ACTION-LIST.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "50" TO WS-LIMIT
@@ -601,9 +596,8 @@
 
        ACTION-GET.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -632,9 +626,8 @@
 
        ACTION-SUMMARY.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'ACTIVE'), 0), '|', COALESCE(SUM(status = 'BLOCKED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(limit_amount), 0), '|', COALESCE(SUM(balance), 0), '|', COALESCE(SUM(available_limit), 0)) FROM card_account" TO WS-PREP-SQL
@@ -656,9 +649,8 @@
       *> authorization is reversed.
        ACTION-AUTHORIZE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -782,9 +774,8 @@
       *> posted balance movement.
        ACTION-CAPTURE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -1023,9 +1014,8 @@
       *> returns to the available limit, capped at the card limit.
        ACTION-REPAY.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -1275,9 +1265,8 @@
       *> final and cannot be reversed through this path.
        ACTION-REVERSE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -1540,9 +1529,8 @@
       *> Card statement: balances plus the bounded transaction history.
        ACTION-STATEMENT.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES
@@ -1600,9 +1588,8 @@
       *> outstanding balance.
        ACTION-LIMIT-SET.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -1671,9 +1658,8 @@
       *> close the old one, keeping the replacement link.
        ACTION-REPLACE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
@@ -1777,9 +1763,8 @@
       *> Card audit trail, optionally filtered by card id and paged.
        ACTION-AUDIT.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            MOVE "50" TO WS-LIMIT
@@ -1817,9 +1802,8 @@
       *> verified and the currency is active, and previews the expiry date.
        ACTION-VALIDATE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
-           PERFORM ALLOW-ADMIN
+           PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
-               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM4 = SPACES
