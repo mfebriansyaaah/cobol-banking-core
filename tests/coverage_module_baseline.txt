@@ -8,23 +8,23 @@
 # Values come from scripts/ci/coverage.sh over the curated module set.
 
 main_logic 91.07
-user_core 62.71
-wallet_core 95.29
-auth_core 90.14
+user_core 64.31
+wallet_core 100
+auth_core 89.39
 ref_engine 0
 gl_core 40.09
-report_core 14.35
+report_core 12.61
 fee_core 22.64
 eod_core 10.27
 statement_core 16.01
-loan_core 51.07
+loan_core 50.31
 loan_schedule_core 61.54
-deposit_core 78.52
-card_core 74.49
+deposit_core 86.27
+card_core 74.11
 collection_core 64.26
-payment_clearing_core 53.8
-treasury_liquidity_core 85.56
-gl_allocation_core 84.27
-cost_center_core 86.05
-fixed_asset_core 83.82
-account_core 86.05
+payment_clearing_core 55.32
+treasury_liquidity_core 89.16
+gl_allocation_core 87.78
+cost_center_core 90.31
+fixed_asset_core 86.62
+account_core 90.31
