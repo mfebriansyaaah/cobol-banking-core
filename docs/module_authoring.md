@@ -63,8 +63,9 @@ Every domain module exposes these actions (prefix + action):
   shapes), wallet×5 (early-exit flow; wallet_core itself moved to the
   shared `wallet_entry.cpy` in PR-07) — see `scripts/test/copybook_*.test.mjs`
   for the enforced lists. Known remaining clones (DRY wave, tracked in
-  `tests/duplication_baseline.txt` via `check_duplication.mjs`): TRIM-ALL /
-  TRIM-VALUE in 22 modules, TRIM-RESULT-LEN in 22+6 auth modules,
+  `tests/duplication_baseline.txt` via `check_duplication.mjs`): TRIM-ALL in
+  gl/ref/wallet×5 (DRY-01 converted the 22 generated clones to
+  `common_trim.cpy`/`common_result.cpy`), TRIM-RESULT-LEN in auth×6,
   VALIDATE-ALL / VALIDATE-INPUT in 15 modules, wallet entry/validate/trim
   in 5 modules — each with a shrinking exception set in its pin test.
   A shared paragraph must be byte-identical to the copies it replaces except for caller-set variables: the caller sets
