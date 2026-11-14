@@ -21,22 +21,11 @@ const modules = readdirSync(SRC)
 const srcOf = (m) => readFileSync(path.join(SRC, `${m}.cob`), 'utf8');
 const copyOf = (f) => readFileSync(path.join(COPY, f), 'utf8');
 
-// Shrink these sets in the same PR that converts the module (DRY-01
-// converts the 22 TRIM clones, DRY-02 the wallet clones, DRY-03 the auth
-// TRIM-RESULT clones). DRY-01 emptied TRIM_CLONES after converting all 22.
-// DRY-02 emptied the wallet exceptions: all 7 wallet modules now share
-// wallet_entry.cpy. Shrink this set again in the PR that converts a module.
-const TRIM_CLONES = [];
-const INLINE_TRIM_OK = new Set(['gl_core', 'ref_engine', ...TRIM_CLONES]);
-const INLINE_RESULT_OK = new Set([
-  'auth_core',
-  'auth_mfa_core',
-  'auth_ops_core',
-  'auth_recovery_core',
-  'auth_review_core',
-  'auth_session_core',
-  ...TRIM_CLONES,
-]);
+// Exception history: DRY-01 emptied the 22 TRIM clones, DRY-02 the wallet
+// clones, DRY-03 the auth TRIM-RESULT clones. Shrink again in the PR that
+// converts a module.
+const INLINE_TRIM_OK = new Set(['gl_core', 'ref_engine']);
+const INLINE_RESULT_OK = new Set();
 
 const performs = (src, name) => new RegExp(`^\\s*PERFORM ${name}\\s*$`, 'm').test(src);
 
