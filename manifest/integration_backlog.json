@@ -2476,14 +2476,15 @@
       "module": "user_core",
       "kind": "table",
       "subject": "notification_outbox",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a Tier-1 table",
       "evidence": [
         "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into Tier-1 tables",
+        "references moved to cobol/copy/common_outbox.cpy by the DRY-03 shared-copybook extraction; auth_core, auth_recovery_core and user_core still write this table via the shared ENQUEUE-NOTIFICATION"
       ],
-      "owner": null
+      "owner": "assistant"
     },
     {
       "id": "user_core:table:refresh-sessions",

@@ -13,7 +13,7 @@
 | CONNECTED (no open items) | 0 |
 | PARTIAL (open items) | 29 |
 
-Open/in-progress items: 168 of 221 recorded.
+Open/in-progress items: 167 of 221 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -241,7 +241,7 @@ Open/in-progress items: 168 of 221 recorded.
 | `user_core:audit:core-reference` | `user_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `user_core:table:audit-trail` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:mfa-backup-codes` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
-| `user_core:table:notification-outbox` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `user_core:table:notification-outbox` | `user_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:refresh-sessions` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:so` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `user_core:table:verification-logs` | `user_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |

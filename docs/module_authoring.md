@@ -66,10 +66,12 @@ Every domain module exposes these actions (prefix + action):
   `tests/duplication_baseline.txt` via `check_duplication.mjs`): TRIM-ALL in
   gl/ref only (DRY-01 converted the 22 generated clones to `common_trim.cpy`
   / `common_result.cpy`; DRY-02 moved the 5 wallet clones into the shared
-  `wallet_entry.cpy`), TRIM-RESULT-LEN in auth×6, VALIDATE-ALL /
-  VALIDATE-INPUT in 10 modules (auth×5, gl, import×2, ref, user), wallet
-  audit in 6 modules and wallet caps in 5 (both shared in DRY-02) — each with
-  a shrinking exception set in its pin test.
+  `wallet_entry.cpy`; DRY-03 moved the 6 auth entries into the shared
+  `auth_entry.cpy`), TRIM-RESULT-LEN fully shared (DRY-01/DRY-03, 0 inline),
+  VALIDATE-ALL / VALIDATE-INPUT in 5 modules (gl, import×2, ref, user),
+  wallet audit in 6 modules and wallet caps in 5 (both shared in DRY-02),
+  auth outbox shared by 3 modules in DRY-03 — each with a shrinking
+  exception set in its pin test.
   A shared paragraph must be byte-identical to the copies it replaces except for caller-set variables: the caller sets
   `WS-DENIED-TARGET` before `PERFORM ALLOW-ADMIN`, and the copybook
   delegates to the host module's own `AUDIT-DENIED`. One file per

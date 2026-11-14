@@ -34,18 +34,7 @@ const COPY_DIR = path.join(ROOT, 'cobol', 'copy');
 
 // DRY-02 emptied the wallet exceptions: all 7 wallet modules now share
 // wallet_entry.cpy. Shrink this set again in the PR that converts a module.
-const INLINE_OK = new Set([
-  'auth_core',
-  'auth_mfa_core',
-  'auth_ops_core',
-  'auth_recovery_core',
-  'auth_review_core',
-  'gl_core',
-  'import_core',
-  'import_row_core',
-  'ref_engine',
-  'user_core',
-]);
+const INLINE_OK = new Set(['gl_core', 'import_core', 'import_row_core', 'ref_engine', 'user_core']);
 
 // Paragraphs that must never be defined inline outside INLINE_OK. Plain
 // VALIDATE-ALL/VALIDATE-INPUT come from either shared file; the SEMI-only
@@ -62,7 +51,7 @@ const inlineParas = (src) =>
   [...src.matchAll(/^ {7,8}(VALIDATE-ALL(?:-SEMI)?|VALIDATE-INPUT(?:-SEMI)?)\.$/gm)].map((m) => m[1]);
 const performs = (src, name) => new RegExp(`^\\s*PERFORM ${name}\\s*$`, 'm').test(src);
 const copies = (src) =>
-  [...src.matchAll(/COPY "(common_validate(?:_all|_semi)?\.cpy|wallet_entry\.cpy)"/g)].map((m) => m[1]);
+  [...src.matchAll(/COPY "(common_validate(?:_all|_semi)?\.cpy|wallet_entry\.cpy|auth_entry\.cpy)"/g)].map((m) => m[1]);
 
 test('shared files define the two pairs, generic, one definition each', () => {
   const all = copyOf('common_validate_all.cpy');
@@ -100,6 +89,9 @@ test('every module COPYs at most one validate file, and PERFORMs resolve', () =>
     if (files.includes('wallet_entry.cpy')) {
       provides.add('VALIDATE-ALL').add('VALIDATE-INPUT');
     }
+    if (files.includes('auth_entry.cpy')) {
+      provides.add('VALIDATE-ALL').add('VALIDATE-INPUT');
+    }
     for (const name of ['VALIDATE-ALL', 'VALIDATE-INPUT', 'VALIDATE-INPUT-SEMI']) {
       if (!performs(src, name)) continue;
       assert.ok(
@@ -110,6 +102,6 @@ test('every module COPYs at most one validate file, and PERFORMs resolve', () =>
   }
 });
 
-test('INLINE_OK holds exactly the 10 documented exceptions', () => {
-  assert.equal(INLINE_OK.size, 10);
+test('INLINE_OK holds exactly the 5 documented exceptions', () => {
+  assert.equal(INLINE_OK.size, 5);
 });
