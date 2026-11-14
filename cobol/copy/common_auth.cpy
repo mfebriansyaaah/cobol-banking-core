@@ -21,3 +21,27 @@
                PERFORM AUDIT-DENIED
            END-IF.
            EXIT PARAGRAPH.
+
+       ADMIN-GUARD.
+           *> Shared 6-line admin prologue in one PERFORM (DRY-06B): runs
+           *> the shared ALLOW-ADMIN, and on refusal writes the single
+           *> ERROR|FORBIDDEN output. No new working storage: WS-ALLOWED
+           *> already carries the verdict (a 01 here would not compile —
+           *> this copybook is included in PROCEDURE DIVISION). The caller
+           *> sets WS-DENIED-TARGET first, then exits unless WS-ALLOWED.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
+           END-IF.
+           EXIT PARAGRAPH.
+
+       ADMIN-GUARD-RESULT.
+           *> Same guard for actions that report through WS-RESULT instead
+           *> of LS-OUTPUT-BUFFER (loan_schedule family: their epilogue
+           *> moves WS-RESULT to the output buffer). Byte-identical to the
+           *> inline variant it replaces.
+           PERFORM ALLOW-ADMIN
+           IF WS-ALLOWED NOT = 1
+               MOVE "ERROR|FORBIDDEN" TO WS-RESULT
+           END-IF.
+           EXIT PARAGRAPH.
