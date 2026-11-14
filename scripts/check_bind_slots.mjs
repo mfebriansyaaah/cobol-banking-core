@@ -54,6 +54,10 @@ const baseFile = path.join(root, 'tests', 'sql_wrapper_baseline.txt');
 const SQL_MOVE_RE = /^\s*MOVE\s+"[^"]*"\s+TO\s+WS-PREP-SQL/;
 const SQL_STRING_RE = /\bINTO\s+WS-PREP-SQL\b/;
 const BIND_WRITE_RE = /\bMOVE\s+([A-Z0-9-]+)\s+TO\s+WS-BIND-(\d+)/;
+// Wrapper path needs full bind sources (FUNCTION TRIM(...), substring
+// refs, literals); the legacy CALL path keeps its historical regex so this
+// PR does not re-litigate untouched call sites.
+const WRAP_BIND_RE = /\bMOVE\b\s+(.+?)\s+TO\s+WS-BIND-(\d+)\s*$/;
 const SQL_CALL_RE = /\bCALL\s+"(SQL_PREPARE_EXEC[A-Z_]*)"/;
 const BIND_PASS_RE = /BY\s+REFERENCE\s+WS-BIND-(\d+)/g;
 const END_CALL_RE = /\bEND-CALL\b/;
@@ -103,7 +107,7 @@ for (const file of readdirSync(cobolDir)
       let k = i - 1;
       while (k >= 0 && lines[k].trim() === '') k -= 1;
       while (k >= 0) {
-        const m = lines[k].match(BIND_WRITE_RE);
+        const m = lines[k].match(WRAP_BIND_RE);
         if (!m || !/^\s*MOVE\b/.test(lines[k])) break;
         staged.unshift({ slot: Number(m[2]), line: k + 1 });
         k -= 1;
