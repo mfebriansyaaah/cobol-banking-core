@@ -10,7 +10,14 @@ import tempfile
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-from map_cobol import build_cobertura, load_counts, main, map_lines
+from map_cobol import (
+    aggregate_copybooks,
+    build_cobertura,
+    load_counts,
+    main,
+    map_copybooks,
+    map_lines,
+)
 
 
 class LoadCountsTest(unittest.TestCase):
@@ -93,6 +100,67 @@ class MapLinesTest(unittest.TestCase):
         self.assertEqual(first, second)
 
 
+class MapCopybooksTest(unittest.TestCase):
+    def test_collects_cpy_markers_keyed_by_file(self):
+        csrc = [
+            '/* Line: 10       : MOVE      : /r/cobol/src/m1.cob */\n', 'x = 1;\n',
+            '/* Line: 11       : MOVE      : /r/cobol/copy/common_txn.cpy */\n', 'y = 2;\n',
+            '/* Line: 12       : MOVE      : /r/cobol/copy/common_txn.cpy */\n', 'z = 3;\n',
+            '/* Line: 5        : MOVE      : /r/cobol/copy/common_sql.cpy */\n', 'w = 4;\n',
+        ]
+        # C lines 2 (host), 4/6 (txn), 8 (sql).
+        got = map_copybooks(csrc, {2: 1, 4: 0, 6: 1, 8: 1})
+        self.assertEqual(set(got), {'common_txn.cpy', 'common_sql.cpy'})
+        self.assertEqual(got['common_txn.cpy'], ({11, 12}, {12}))
+        self.assertEqual(got['common_sql.cpy'], ({5}, {5}))
+
+    def test_host_and_fileless_markers_are_skipped(self):
+        # Host-owned lines stay with map_lines; only .cpy markers are collected.
+        csrc = [
+            '/* Line: 10 : host */\n', 'a = 1;\n',
+            '/* Line: 20       : MOVE      : /r/cobol/src/m1.cob */\n', 'b = 2;\n',
+        ]
+        self.assertEqual(map_copybooks(csrc, {2: 1, 4: 1}), {})
+
+    def test_uncovered_copybook_line(self):
+        csrc = ['/* Line: 7 : MOVE : /r/cobol/copy/common_txn.cpy */\n', 'a = 1;\n']
+        self.assertEqual(map_copybooks(csrc, {2: 0}), {'common_txn.cpy': ({7}, set())})
+
+    def test_uninstrumented_c_lines_do_not_create_entries(self):
+        csrc = ['/* Line: 7 : MOVE : /r/cobol/copy/common_txn.cpy */\n', 'a = 1;\n']
+        self.assertEqual(map_copybooks(csrc, {}), {})
+
+    def test_multiple_c_lines_share_one_copybook_line(self):
+        csrc = ['/* Line: 7 : MOVE : /r/cobol/copy/common_txn.cpy */\n', 'a = 1;\n', 'b = 2;\n']
+        self.assertEqual(
+            map_copybooks(csrc, {2: 0, 3: 5})['common_txn.cpy'], ({7}, {7})
+        )
+
+
+class AggregateCopybooksTest(unittest.TestCase):
+    def test_union_hit_if_any_host_hit(self):
+        agg = aggregate_copybooks(
+            [
+                {'common_txn.cpy': ({11, 12}, {11})},
+                {'common_txn.cpy': ({11, 12}, {12}), 'common_sql.cpy': ({5}, set())},
+            ]
+        )
+        self.assertEqual(agg['executable'], 3)
+        self.assertEqual(agg['covered'], 2)
+        self.assertEqual(agg['percent'], round(100.0 * 2 / 3, 2))
+        self.assertEqual(
+            agg['files']['common_txn.cpy'],
+            {'executable': 2, 'covered': 2, 'percent': 100.0},
+        )
+        self.assertEqual(agg['files']['common_sql.cpy']['covered'], 0)
+
+    def test_empty(self):
+        self.assertEqual(
+            aggregate_copybooks([{}, {}]),
+            {'executable': 0, 'covered': 0, 'percent': 0.0, 'files': {}},
+        )
+
+
 class CoberturaTest(unittest.TestCase):
     def test_xml_shape_and_escaping(self):
         import xml.etree.ElementTree as ET
@@ -172,6 +240,39 @@ class MainEndToEndTest(unittest.TestCase):
         import xml.etree.ElementTree as ET
         t = ET.parse(os.path.join(self.cov, 'cob.xml')).getroot()
         self.assertEqual(len(t.findall('.//class')), 2)
+
+    def test_main_reports_union_copybooks_unit(self):
+        # m2's executable lines all live in a copybook: the host row stays
+        # empty (per-module ratchet schema unchanged) while the union
+        # copybooks unit picks them up. Fake gcov counts C lines 5,6 (hit)
+        # and 8 (miss), same shape as the m1 fixture.
+        with open(os.path.join(self.work, 'm2.c'), 'w') as f:
+            f.write('h;\n' * 4
+                    + '/* Line: 3 : MOVE : /r/cobol/copy/common_txn.cpy */\nq;\n'
+                    + '/* Line: 4 : MOVE : /r/cobol/copy/common_txn.cpy */\nr;\n')
+        open(os.path.join(self.work, 'm2.gcno'), 'w').close()
+        import io
+        from contextlib import redirect_stdout
+        out = io.StringIO()
+        with redirect_stdout(out):
+            rc = main([self.work, self.cov, 'm1', 'm2'])
+        self.assertEqual(rc, 0)
+        self.assertIn('copybooks', out.getvalue())
+        data = json.load(open(os.path.join(self.cov, 'cobol.json')))
+        self.assertIn('copybooks', data)
+        self.assertEqual(data['copybooks']['executable'], 2)
+        self.assertEqual(data['copybooks']['covered'], 1)
+        self.assertEqual(data['copybooks']['percent'], 50.0)
+        self.assertEqual(
+            data['copybooks']['files']['common_txn.cpy'],
+            {'executable': 2, 'covered': 1, 'percent': 50.0},
+        )
+        by_mod = {m['module']: m for m in data['modules']}
+        self.assertEqual(
+            by_mod['m2'], {'module': 'm2', 'executable': 0, 'covered': 0, 'percent': 0.0}
+        )
+        # m1 (file-less markers) contributes no copybook lines.
+        self.assertEqual(data['executable'], 2)
 
 
 if __name__ == '__main__':
