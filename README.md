@@ -60,7 +60,7 @@ Rules of the split:
 | Path | Contents |
 | --- | --- |
 | `cobol/src/` | COBOL modules + `main_logic.cob` dispatcher + `sql_bridge.c` (count in `docs/STATUS.md`) |
-| `cobol/copy/` | Three copybooks used only by the password/auth module |
+| `cobol/copy/` | 16 shared copybooks: auth/password, trim, validate, SQL helpers, idempotency, dispatch table (counts in `tests/copybook_baseline.txt`) |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
 | `middleware/src/` | Express gateway (transport only): route modules, barrel, authService, and core helpers |
