@@ -50,11 +50,13 @@ test('copybook-resident CALLs belong to every including module', async () => {
   // must stay attributed to deposit_core or the transaction seam hides.
   assert.ok(keys.has('deposit_core -> gl_core'), 'deposit_core -> gl_core must survive the extraction');
   // auth_password_logic.cpy CALLs hashlen_core for every host that COPYs it.
+  // DRY-03 removed the dead COPYs from the four split modules; only
+  // auth_core still hosts the password logic.
   const hosts = readdirSync(path.join(ROOT, 'cobol', 'src'))
     .filter((f) => f.endsWith('.cob'))
     .filter((f) => /COPY "auth_password_logic\.cpy"/.test(readFileSync(path.join(ROOT, 'cobol', 'src', f), 'utf8')))
     .map((f) => f.replace(/\.cob$/, ''));
-  assert.ok(hosts.length >= 5, `expected the auth password hosts, got ${hosts.join(', ')}`);
+  assert.deepEqual(hosts, ['auth_core'], `only auth_core hosts password logic, got ${hosts.join(', ')}`);
   for (const host of hosts) {
     assert.ok(keys.has(`${host} -> hashlen_core`), `${host} -> hashlen_core must be registered`);
   }

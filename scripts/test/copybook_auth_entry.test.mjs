@@ -6,7 +6,7 @@
 // ENTRY-TRIM/ENTRY-VALIDATE (same statement-for-statement semantics).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,7 +24,6 @@ const ENTRY_HOSTS = [
 ];
 
 const srcOf = (m) => readFileSync(path.join(SRC, `${m}.cob`), 'utf8');
-const defines = (src, name) => new RegExp(`^\\s{7,8}${name}\\.`, 'm').test(src);
 
 test('auth_entry.cpy defines the shared trim/validate pair', () => {
   const cpy = readFileSync(path.join(COPY, 'auth_entry.cpy'), 'utf8');

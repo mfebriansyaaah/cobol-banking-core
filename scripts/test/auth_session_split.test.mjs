@@ -36,15 +36,20 @@ const MOVED = [
   'REVOKE-ALL-SESSIONS-LOGIC',
 ];
 
-// Duplicated utility (like account/auth_mfa/auth_ops carry their own):
-// the session module defines its own copy, auth_core keeps its own for
-// auth_password_helpers.cpy.
-const CALLEE_UTIL = ['TRIM-RESULT-LEN'];
+// Entry trim/validate was shared in DRY-03 (auth_entry.cpy), and
+// TRIM-RESULT-LEN in common_result.cpy: the session module resolves both
+// via COPY instead of its own ENTRY-*/inline copies.
+const CALLEE_UTIL = [];
 
 test('auth_session_core defines the session paragraphs', () => {
   const src = srcOf('auth_session_core');
   for (const name of [...MOVED, ...CALLEE_UTIL]) {
     assert.match(src, new RegExp(`^ {8}${name}\\.$`, 'm'), `session module must define ${name}`);
+  }
+  assert.match(src, /COPY "auth_entry\.cpy"/, 'entry trim/validate resolves via shared copybook');
+  assert.match(src, /COPY "common_result\.cpy"/, 'TRIM-RESULT-LEN resolves via shared copybook');
+  for (const name of ['ENTRY-TRIM', 'ENTRY-VALIDATE', 'TRIM-RESULT-LEN']) {
+    assert.doesNotMatch(src, new RegExp(`^ {7,8}${name}\\.$`, 'm'), `${name} must be gone (shared)`);
   }
 });
 
