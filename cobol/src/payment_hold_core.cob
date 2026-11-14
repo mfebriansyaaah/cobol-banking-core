@@ -43,16 +43,7 @@
        01  WS-ERR                  PIC X(40) VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
-       01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
-       01  WS-EXISTS               PIC X VALUE SPACES.
-       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
-       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
-       01  WS-AT-COUNT             PIC 9(3) VALUE 0.
        01  WS-HOLD-ID              PIC X(20) VALUE SPACES.
-       01  WS-ACCOUNT-ID           PIC X(20) VALUE SPACES.
-       01  WS-AMOUNT               PIC X(20) VALUE SPACES.
-       01  WS-CURRENCY             PIC X(10) VALUE SPACES.
-       01  WS-STATUS               PIC X(20) VALUE SPACES.
        01  WS-HOLD-ACCT            PIC X(20) VALUE SPACES.
        01  WS-HOLD-AMT             PIC X(30) VALUE SPACES.
        01  WS-HOLD-CURR            PIC X(10) VALUE SPACES.

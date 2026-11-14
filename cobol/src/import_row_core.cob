@@ -57,10 +57,7 @@
        01  WS-ROW-ID               PIC X(20) VALUE SPACES.
        01  WS-ROW-NO               PIC X(10) VALUE SPACES.
        01  WS-RAW                  PIC X(100) VALUE SPACES.
-       01  WS-DR                   PIC X(30) VALUE SPACES.
-       01  WS-CR                   PIC X(30) VALUE SPACES.
        01  WS-VALID-COUNT          PIC 9(9) VALUE 0.
-       01  WS-INVALID-COUNT        PIC 9(9) VALUE 0.
        01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
        01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
        01  WS-COUNT1               PIC X(20) VALUE SPACES.
@@ -70,7 +67,6 @@
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
-       01  WS-PART                 PIC X(16384) VALUE SPACES.
        01  WS-ROW-INDEX            PIC 9(9) VALUE 0.
        01  WS-ROW-INDEX-ED         PIC Z(8)9 VALUE 0.
        01  WS-VALID-COUNT-ED       PIC Z(8)9 VALUE 0.

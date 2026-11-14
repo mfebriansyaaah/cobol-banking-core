@@ -82,8 +82,6 @@
         01  WS-HELD-STR            PIC X(30) VALUE SPACES.
         01  WS-HOLD-ACC            PIC X(20) VALUE SPACES.
         01  WS-HOLD-DAYS           PIC X(20) VALUE SPACES.
-        01  WS-REV-AMT             PIC X(30) VALUE SPACES.
-        01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
         01  WS-BUSY                PIC X(1) VALUE "0".
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.

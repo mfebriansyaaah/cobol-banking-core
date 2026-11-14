@@ -83,7 +83,6 @@
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
        01  F-TICK                  PIC X VALUE "`".
-       01  WS-ERR-CODE             PIC X(40) VALUE SPACES.
        01  WS-ERR-CLEAN            PIC X VALUE SPACE.
 
        LINKAGE SECTION.

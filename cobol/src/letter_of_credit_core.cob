@@ -65,14 +65,10 @@
         01  WS-NUM-DELTA            PIC S9(15)V9(4) VALUE 0.
         01  WS-NUM-LIMIT            PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-USED             PIC 9(15)V9(4) VALUE 0.
-        01  WS-NUM-COUNT            PIC 9(9) VALUE 0.
         01  WS-COLON                PIC 9(3) VALUE 0.
         01  WS-TMP-DATE             PIC X(20) VALUE SPACES.
         01  WS-TMP-EXPIRY           PIC X(20) VALUE SPACES.
-        01  WS-TMP-STATUS2          PIC X(20) VALUE SPACES.
-        01  WS-DRAWING-ID           PIC X(20) VALUE SPACES.
         01  WS-DRAW-STATUS          PIC X(20) VALUE SPACES.
-        01  WS-DRAW-AMOUNT          PIC X(30) VALUE SPACES.
         01  WS-TMP-DRAWN            PIC X(30) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".

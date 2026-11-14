@@ -88,7 +88,6 @@
        01  WS-IDEM-OWNED           PIC X VALUE "0".
        01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
        01  WS-IDEM-AMT             PIC X(30) VALUE SPACES.
-       01  WS-IDEM-JID             PIC X(20) VALUE SPACES.
        01  WS-IDEM-STALE           PIC X VALUE SPACES.
        01  WS-IDEM-SCOPE           PIC X(32) VALUE SPACES.
        01  WS-IDEM-ENTITY-VAL      PIC X(64) VALUE SPACES.
@@ -118,7 +117,6 @@
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".
        01  F-TICK                  PIC X VALUE "`".
-       01  WS-ERR-CODE             PIC X(40) VALUE SPACES.
        01  WS-ERR-CLEAN            PIC X VALUE SPACE.
 
        LINKAGE SECTION.

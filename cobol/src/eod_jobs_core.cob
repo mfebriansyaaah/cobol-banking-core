@@ -44,22 +44,16 @@
        01  WS-TOTAL                PIC X(100) VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
-       01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
        01  WS-DATE-IN              PIC X(100) VALUE SPACES.
        01  WS-DATE-LEN             PIC 9(3) VALUE 0.
        01  WS-JOB-ID               PIC X(20) VALUE SPACES.
        01  WS-JOB-CODE             PIC X(20) VALUE SPACES.
-       01  WS-JOB-STATUS           PIC X(20) VALUE SPACES.
        01  WS-JOB-PROCESSED        PIC X(20) VALUE SPACES.
        01  WS-JOB-DETAIL           PIC X(255) VALUE SPACES.
-       01  WS-JOB-ERROR            PIC X(40) VALUE SPACES.
        01  WS-RUN-ID               PIC X(20) VALUE SPACES.
-       01  WS-CODE-IN              PIC X(100) VALUE SPACES.
-       01  WS-CODE-LEN             PIC 9(3) VALUE 0.
        01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
        01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
        01  WS-RET-DAYS             PIC X(10) VALUE SPACES.
-       01  WS-RET-SQL              PIC X(1024) VALUE SPACES.
        01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
        01  WS-CALL-P1              PIC X(100) VALUE SPACES.
        01  WS-CALL-P2              PIC X(100) VALUE SPACES.
@@ -77,8 +71,6 @@
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
-       01  WS-PART                 PIC X(16384) VALUE SPACES.
-       01  WS-PART-LEN             PIC 9(5) VALUE 0.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".

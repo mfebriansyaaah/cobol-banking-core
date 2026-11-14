@@ -70,8 +70,6 @@
         01  WS-CAP-OK              PIC X(1) VALUE "Y".
         01  WS-CAP-LEN             PIC 9(3) VALUE 0.
         01  WS-PREC-NUM            PIC S9(4) VALUE 0.
-        01  WS-REV-AMT             PIC X(30) VALUE SPACES.
-        01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
         01  WS-SQL-PTR             PIC 9(5)  VALUE 0.
         01  WS-TX-FROM             PIC X(100) VALUE SPACES.
         01  WS-TX-TO               PIC X(100) VALUE SPACES.

@@ -61,7 +61,6 @@
         01  WS-NUM-SETTLED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
-        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".

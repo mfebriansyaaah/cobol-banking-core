@@ -63,7 +63,6 @@
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-MDR              PIC S9(3)V9(2) VALUE 0.
         01  WS-NUM-FEE              PIC S9(15)V9(4) VALUE 0.
-        01  WS-NUM-COUNT            PIC 9(9) VALUE 0.
         01  WS-CUST-REF             PIC X(40) VALUE SPACES.
         01  WS-KYC-STATUS           PIC X(20) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.

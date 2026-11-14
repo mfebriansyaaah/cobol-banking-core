@@ -8,10 +8,6 @@
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-PRINCIPAL          PIC 9(12)V99 VALUE 0.
-       01  WS-PAYMENT            PIC 9(12)V99 VALUE 0.
-       01  WS-TOTAL-INTEREST     PIC 9(12)V99 VALUE 0.
-       01  WS-PRINCIPAL-DUE      PIC 9(12)V99 VALUE 0.
-       01  WS-TOTAL-DUE          PIC 9(12)V99 VALUE 0.
        01  WS-RESULT               PIC X(16384) VALUE SPACES.
        01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
        01  WS-BIND-1               PIC X(256) VALUE SPACES.
@@ -38,12 +34,9 @@
        01  WS-RLEN                 PIC 9(5) VALUE 1.
        01  WS-BAD                  PIC 9(3) VALUE 0.
        01  WS-ALLOWED              PIC 9 VALUE 0.
-       01  WS-INTEREST            PIC 9(12)V99 VALUE 0.
        01  WS-AUDIT-LOAN           PIC X(20) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
-       01  WS-LIMIT                PIC X(10) VALUE SPACES.
-       01  WS-OFFSET               PIC X(10) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".

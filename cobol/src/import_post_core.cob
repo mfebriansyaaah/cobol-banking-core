@@ -44,23 +44,17 @@
        01  WS-TOTAL                PIC X(100) VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
-       01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
        01  WS-BATCH-ID             PIC X(20) VALUE SPACES.
        01  WS-BATCH-TYPE           PIC X(20) VALUE SPACES.
        01  WS-BATCH-STATUS         PIC X(20) VALUE SPACES.
        01  WS-BATCH-VALID          PIC X(20) VALUE SPACES.
        01  WS-BATCH-INVALID        PIC X(20) VALUE SPACES.
        01  WS-JOURNAL-ID           PIC X(20) VALUE SPACES.
-       01  WS-POSTING-ID           PIC X(20) VALUE SPACES.
        01  WS-POSTED-ROWS          PIC X(20) VALUE SPACES.
        01  WS-DEBIT                PIC X(30) VALUE SPACES.
        01  WS-CREDIT               PIC X(30) VALUE SPACES.
        01  WS-DATE-IN              PIC X(100) VALUE SPACES.
        01  WS-DATE-LEN             PIC 9(3) VALUE 0.
-       01  WS-CODE-IN              PIC X(100) VALUE SPACES.
-       01  WS-CODE-LEN             PIC 9(3) VALUE 0.
-       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
-       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
        01  WS-AUDIT-BATCH          PIC X(40) VALUE SPACES.
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.

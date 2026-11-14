@@ -90,8 +90,6 @@
        01  WS-ROW-INDEX-ED         PIC Z(8)9 VALUE 0.
        01  WS-VALID-COUNT-ED       PIC Z(8)9 VALUE 0.
        01  WS-INVALID-COUNT-ED     PIC Z(8)9 VALUE 0.
-       01  WS-CHUNK                PIC X(100) VALUE SPACES.
-       01  WS-LINE                 PIC X(100) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".

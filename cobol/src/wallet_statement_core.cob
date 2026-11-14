@@ -86,8 +86,6 @@
         01  WS-DATE-BAD             PIC 9     VALUE 0.
         01  WS-RTOTAL              PIC X(20) VALUE SPACES.
         01  WS-RLEN                PIC 9(5)  VALUE 0.
-        01  WS-REV-AMT             PIC X(30) VALUE SPACES.
-        01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
         01  WS-BUSY                PIC X(1) VALUE "0".
         01  WS-FX-HAS              PIC X(1)  VALUE "0".
 

@@ -53,14 +53,12 @@
         01  WS-KYC-GUARD            PIC X(20) VALUE SPACES.
         01  WS-LOAN-AMT             PIC X(30) VALUE SPACES.
         01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
-        01  WS-TMP-ID               PIC X(100) VALUE SPACES.
         01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
        01  WS-IDEM-STATUS          PIC X(10) VALUE SPACES.
        01  WS-IDEM-OWNED           PIC X VALUE "0".
        01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
        01  WS-IDEM-AMT             PIC X(30) VALUE SPACES.
-       01  WS-IDEM-JID             PIC X(20) VALUE SPACES.
        01  WS-IDEM-STALE           PIC X VALUE SPACES.
        01  WS-IDEM-SCOPE           PIC X(32) VALUE SPACES.
        01  WS-IDEM-ENTITY-VAL      PIC X(64) VALUE SPACES.
@@ -109,7 +107,6 @@
         01  WS-TXN-REF              PIC X(50) VALUE SPACES.
         01  WS-DESC                 PIC X(255) VALUE SPACES.
         01  WS-REPAY-ID             PIC X(20) VALUE SPACES.
-       01  WS-ERR-CODE             PIC X(40) VALUE SPACES.
        01  WS-ERR-CLEAN            PIC X VALUE SPACE.
         01  WS-TRIM-IN              PIC X(100) VALUE SPACES.
         01  WS-TRIM-OUT             PIC X(100) VALUE SPACES.

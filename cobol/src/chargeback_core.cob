@@ -61,7 +61,6 @@
         01  WS-NUM-ALLOCATED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
-        01  WS-NUM-COUNT            PIC 9(9) VALUE 0.
         01  WS-CARD-STATUS          PIC X(20) VALUE SPACES.
         01  WS-CARD-AMT             PIC X(30) VALUE SPACES.
         01  WS-CARD-CURR            PIC X(10) VALUE SPACES.

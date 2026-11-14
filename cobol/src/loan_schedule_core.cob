@@ -10,10 +10,6 @@
        01  WS-PRINCIPAL          PIC 9(12)V99 VALUE 0.
        01  WS-RATE               PIC 9(3)V9(6) VALUE 0.
        01  WS-TERM               PIC 9(4) VALUE 0.
-       01  WS-PAYMENT            PIC 9(12)V99 VALUE 0.
-       01  WS-TOTAL-INTEREST     PIC 9(12)V99 VALUE 0.
-       01  WS-PRINCIPAL-DUE      PIC 9(12)V99 VALUE 0.
-       01  WS-TOTAL-DUE          PIC 9(12)V99 VALUE 0.
        01  WS-RESULT               PIC X(16384) VALUE SPACES.
        01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
        01  WS-BIND-1               PIC X(256) VALUE SPACES.
@@ -41,7 +37,6 @@
        01  WS-BAD                  PIC 9(3) VALUE 0.
        01  WS-ALLOWED              PIC 9 VALUE 0.
        01  WS-SCHEDULE-ID          PIC X(20) VALUE SPACES.
-       01  WS-INTEREST            PIC 9(12)V99 VALUE 0.
        01  WS-AUDIT-LOAN           PIC X(20) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.

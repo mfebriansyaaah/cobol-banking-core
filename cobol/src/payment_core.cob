@@ -36,7 +36,6 @@
        01  WS-J                    PIC 9(5) VALUE 1.
        01  WS-RLEN                 PIC 9(5) VALUE 1.
        01  WS-BAD                  PIC 9(3) VALUE 0.
-       01  WS-BAD-SAVE             PIC 9 VALUE 0.
        01  WS-ALLOWED              PIC 9 VALUE 0.
        01  WS-STEP                 PIC X VALUE 'Y'.
            88  STEP-OK             VALUE 'Y'.
@@ -45,7 +44,6 @@
        01  WS-TOTAL                PIC X(100) VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
-       01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
        01  WS-POLICY-MAX           PIC X(30) VALUE SPACES.
        01  WS-POLICY-DAILY         PIC X(30) VALUE SPACES.
        01  WS-POLICY-COUNT         PIC X(20) VALUE SPACES.
@@ -69,7 +67,6 @@
        01  WS-JOUT-2               PIC X(20) VALUE SPACES.
        01  WS-PROFILE-DAILY        PIC X(30) VALUE SPACES.
        01  WS-PROFILE-COUNT        PIC X(20) VALUE SPACES.
-       01  WS-PROFILE-ENABLED      PIC X(1) VALUE SPACES.
        01  WS-USED-AMOUNT          PIC X(30) VALUE SPACES.
        01  WS-USED-COUNT           PIC X(20) VALUE SPACES.
        01  WS-CHECK-AMOUNT         PIC 9(20)V9(4) VALUE 0.

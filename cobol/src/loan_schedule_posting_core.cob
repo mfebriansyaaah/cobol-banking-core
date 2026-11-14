@@ -62,8 +62,6 @@
        01  WS-AUDIT-LOAN           PIC X(20) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
-       01  WS-LIMIT                PIC X(10) VALUE SPACES.
-       01  WS-OFFSET               PIC X(10) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".

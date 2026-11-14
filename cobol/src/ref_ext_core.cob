@@ -50,8 +50,6 @@
        01  WS-CHILD-ID             PIC X(20) VALUE SPACES.
        01  WS-CODE-IN              PIC X(100) VALUE SPACES.
        01  WS-CODE-LEN             PIC 9(3) VALUE 0.
-       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
-       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
        01  WS-DATE-IN              PIC X(100) VALUE SPACES.
        01  WS-DATE-LEN             PIC 9(3) VALUE 0.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
@@ -61,7 +59,6 @@
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
        01  WS-PART                 PIC X(16384) VALUE SPACES.
-       01  WS-PART-LEN             PIC 9(5) VALUE 0.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".

@@ -70,7 +70,6 @@
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
        01  WS-PART                 PIC X(16384) VALUE SPACES.
        01  WS-PART-LEN             PIC 9(5) VALUE 0.
-       01  WS-PART2                PIC X(16384) VALUE SPACES.
        01  WS-OUT-POS              PIC 9(5) VALUE 1.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.

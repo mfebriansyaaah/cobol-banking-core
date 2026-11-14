@@ -36,7 +36,6 @@
        01  WS-J                    PIC 9(5) VALUE 1.
        01  WS-RLEN                 PIC 9(5) VALUE 1.
        01  WS-BAD                  PIC 9(3) VALUE 0.
-       01  WS-BAD-SAVE             PIC 9 VALUE 0.
        01  WS-ALLOWED              PIC 9 VALUE 0.
        01  WS-STEP                 PIC X VALUE 'Y'.
            88  STEP-OK             VALUE 'Y'.
@@ -65,7 +64,6 @@
        01  WS-RUN-ERROR            PIC X(40) VALUE SPACES.
        01  WS-PHASE-ID             PIC X(20) VALUE SPACES.
        01  WS-PHASE-NO             PIC X(10) VALUE SPACES.
-       01  WS-PHASE-CODE           PIC X(20) VALUE SPACES.
        01  WS-PHASE-STATUS         PIC X(20) VALUE SPACES.
        01  WS-PHASE-PROCESSED      PIC X(20) VALUE SPACES.
        01  WS-PHASE-DEBIT          PIC X(30) VALUE SPACES.

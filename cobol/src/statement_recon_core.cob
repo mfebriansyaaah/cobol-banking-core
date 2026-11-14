@@ -47,10 +47,6 @@
        01  WS-RUN-ID               PIC X(20) VALUE SPACES.
        01  WS-RUN-STATUS           PIC X(20) VALUE SPACES.
        01  WS-STATEMENT-RUN        PIC X(20) VALUE SPACES.
-       01  WS-COUNTS               PIC X(100) VALUE SPACES.
-       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
-       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
-       01  WS-AT-COUNT             PIC 9(3) VALUE 0.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
        01  WS-AUDIT-RUN            PIC X(20) VALUE SPACES.
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
