@@ -32,6 +32,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const SRC_DIR = path.join(ROOT, 'cobol', 'src');
 const COPY_DIR = path.join(ROOT, 'cobol', 'copy');
 
+// DRY-02 emptied the wallet exceptions: all 7 wallet modules now share
+// wallet_entry.cpy. Shrink this set again in the PR that converts a module.
 const INLINE_OK = new Set([
   'auth_core',
   'auth_mfa_core',
@@ -43,11 +45,6 @@ const INLINE_OK = new Set([
   'import_row_core',
   'ref_engine',
   'user_core',
-  'wallet_dispute_core',
-  'wallet_hold_core',
-  'wallet_recon_core',
-  'wallet_reversal_core',
-  'wallet_statement_core',
 ]);
 
 // Paragraphs that must never be defined inline outside INLINE_OK. Plain
@@ -113,6 +110,6 @@ test('every module COPYs at most one validate file, and PERFORMs resolve', () =>
   }
 });
 
-test('INLINE_OK holds exactly the 15 documented exceptions', () => {
-  assert.equal(INLINE_OK.size, 15);
+test('INLINE_OK holds exactly the 10 documented exceptions', () => {
+  assert.equal(INLINE_OK.size, 10);
 });

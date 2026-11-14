@@ -200,6 +200,9 @@
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
         
         COPY "common_sql.cpy".
+        COPY "wallet_entry.cpy".
+        COPY "wallet_audit.cpy".
+        COPY "wallet_caps.cpy".
 
         MAIN-LOGIC.
             *> Initialize critical WORKING-STORAGE (for --serve mode):
@@ -240,104 +243,6 @@
                     MOVE "ERROR|INVALID_ACTION" TO LS-OUTPUT-BUFFER
             END-EVALUATE.
             GOBACK.
-
-        VALIDATE-ALL.
-            *> No SQL metacharacters may reach a query string.
-            MOVE 0 TO WS-BAD
-            MOVE LS-PARAM1 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            IF WS-BAD > 0
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE LS-PARAM2 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            IF WS-BAD > 0
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE LS-PARAM3 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            IF WS-BAD > 0
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE LS-PARAM4 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            IF WS-BAD > 0
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE LS-PARAM5 TO WS-CHECK
-            PERFORM VALIDATE-INPUT
-            IF WS-BAD > 0
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE LS-PARAM6 TO WS-CHECK
-            PERFORM VALIDATE-INPUT.
-            EXIT PARAGRAPH.
-
-        VALIDATE-INPUT.
-            INSPECT WS-CHECK TALLYING WS-BAD
-                FOR ALL F-QUOTE
-                WS-BAD FOR ALL F-DQUOTE
-                WS-BAD FOR ALL F-BSLASH
-                WS-BAD FOR ALL F-SEMI
-                WS-BAD FOR ALL F-TICK.
-            EXIT PARAGRAPH.
-
-        TRIM-ALL.
-            PERFORM TRIM-ONE VARYING WS-TRIM-IDX FROM 1 BY 1
-                    UNTIL WS-TRIM-IDX > 6.
-
-        TRIM-ONE.
-            EVALUATE WS-TRIM-IDX
-                WHEN 1 MOVE LS-PARAM1 TO WS-TRIM-SRC
-                WHEN 2 MOVE LS-PARAM2 TO WS-TRIM-SRC
-                WHEN 3 MOVE LS-PARAM3 TO WS-TRIM-SRC
-                WHEN 4 MOVE LS-PARAM4 TO WS-TRIM-SRC
-                WHEN 5 MOVE LS-PARAM5 TO WS-TRIM-SRC
-                WHEN 6 MOVE LS-PARAM6 TO WS-TRIM-SRC
-            END-EVALUATE
-            MOVE 0 TO WS-TRIM-CNT
-            PERFORM VARYING WS-I FROM 100 BY -1
-                    UNTIL WS-I < 1 OR WS-TRIM-CNT > 0
-                IF WS-TRIM-SRC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-TRIM-CNT
-                END-IF
-            END-PERFORM
-            EVALUATE WS-TRIM-IDX
-                WHEN 1 MOVE WS-TRIM-SRC TO WS-PARAM1-TRIMMED
-                       MOVE WS-TRIM-CNT TO WS-P1-LEN
-                WHEN 2 MOVE WS-TRIM-SRC TO WS-PARAM2-TRIMMED
-                       MOVE WS-TRIM-CNT TO WS-P2-LEN
-                WHEN 3 MOVE WS-TRIM-SRC TO WS-PARAM3-TRIMMED
-                       MOVE WS-TRIM-CNT TO WS-P3-LEN
-                WHEN 4 MOVE WS-TRIM-SRC TO WS-PARAM4-TRIMMED
-                       MOVE WS-TRIM-CNT TO WS-P4-LEN
-                WHEN 5 MOVE WS-TRIM-SRC TO WS-PARAM5-TRIMMED
-                       MOVE WS-TRIM-CNT TO WS-P5-LEN
-                WHEN 6 MOVE WS-TRIM-SRC TO WS-PARAM6-TRIMMED
-                       MOVE WS-TRIM-CNT TO WS-P6-LEN
-            END-EVALUATE.
-
-        AUDIT-DENIED.
-            *> Records a refused authorization attempt reliably, even for unknown actors.
-            *> Uses audit_authz_denied (no FK to users) for guaranteed logging,
-            *> plus audit_trail (existing) for compatibility if the actor exists.
-            *> K13 fix: audit denied best-effort → reliable.
-            MOVE "INSERT INTO audit_authz_denied (action, actor_email, target_email, target_entity_type, target_entity_id, detail, source) VALUES (?, ?, ?, 'USER', ?, ?, 'WALLET')" TO WS-PREP-SQL
-            MOVE LS-CMD-ACTION TO WS-BIND-1
-            MOVE WS-DENIED-ACTOR TO WS-BIND-2
-            MOVE WS-DENIED-TARGET TO WS-BIND-3
-            MOVE WS-DENIED-TARGET TO WS-BIND-4
-            MOVE LS-CMD-ACTION TO WS-BIND-5
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            *> Compatibility: also log to existing audit_trail if actor exists (best effort):
-            MOVE LS-CMD-ACTION TO WS-BIND-1
-            MOVE WS-DENIED-TARGET TO WS-BIND-2
-            MOVE WS-DENIED-ACTOR TO WS-BIND-3
-            PERFORM RECORD-AUTHZ-DENIED
-            EXIT PARAGRAPH.
 
         PLACE-HOLD-LOGIC.
             *> p1 = owner email, p2 = amount, p3 = actor (SUPER_ADMIN),
@@ -809,31 +714,3 @@
             COMPUTE WS-PARSE-NUM = FUNCTION NUMVAL(WS-PARSE-BUF) END-COMPUTE
             EXIT PARAGRAPH.
 
-        CHECK-CAP-DIGITS.
-            *> Caps are whole major units, digits only: env_or_raw keeps the raw
-            *> text so a dotted or malformed setting fails closed below
-            *> instead of silently becoming a different number.
-            MOVE "Y" TO WS-CAP-OK
-            MOVE 0 TO WS-CAP-LEN
-            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-CAP-LEN > 0
-                IF WS-CAP-SRC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-CAP-LEN
-                END-IF
-            END-PERFORM.
-            IF WS-CAP-LEN = 0
-                MOVE "N" TO WS-CAP-OK
-            END-IF.
-            IF WS-CAP-LEN > 0
-                PERFORM CHECK-CAP-CHARS
-            END-IF.
-            EXIT PARAGRAPH.
-
-        CHECK-CAP-CHARS.
-            *> Character scan kept in its own paragraph so the loop above
-            *> stays a single sentence per the inline-scope rule.
-            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-CAP-LEN
-                IF WS-CAP-SRC(WS-I:1) < "0" OR WS-CAP-SRC(WS-I:1) > "9"
-                    MOVE "N" TO WS-CAP-OK
-                END-IF
-            END-PERFORM.
-            EXIT PARAGRAPH.

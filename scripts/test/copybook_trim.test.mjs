@@ -24,17 +24,10 @@ const copyOf = (f) => readFileSync(path.join(COPY, f), 'utf8');
 // Shrink these sets in the same PR that converts the module (DRY-01
 // converts the 22 TRIM clones, DRY-02 the wallet clones, DRY-03 the auth
 // TRIM-RESULT clones). DRY-01 emptied TRIM_CLONES after converting all 22.
+// DRY-02 emptied the wallet exceptions: all 7 wallet modules now share
+// wallet_entry.cpy. Shrink this set again in the PR that converts a module.
 const TRIM_CLONES = [];
-const INLINE_TRIM_OK = new Set([
-  'gl_core',
-  'ref_engine',
-  'wallet_dispute_core',
-  'wallet_hold_core',
-  'wallet_recon_core',
-  'wallet_reversal_core',
-  'wallet_statement_core',
-  ...TRIM_CLONES,
-]);
+const INLINE_TRIM_OK = new Set(['gl_core', 'ref_engine', ...TRIM_CLONES]);
 const INLINE_RESULT_OK = new Set([
   'auth_core',
   'auth_mfa_core',
@@ -65,6 +58,10 @@ test('no inline TRIM-RESULT-LEN outside documented exceptions', () => {
     if (INLINE_RESULT_OK.has(m)) continue;
     assert.doesNotMatch(srcOf(m), /^\s{7,8}TRIM-RESULT-LEN\./m, `${m}: inline TRIM-RESULT-LEN`);
   }
+});
+
+test('INLINE_TRIM_OK holds exactly the 2 documented exceptions', () => {
+  assert.equal(INLINE_TRIM_OK.size, 2);
 });
 
 test('every TRIM-ALL performer resolves to a COPY or an exception', () => {

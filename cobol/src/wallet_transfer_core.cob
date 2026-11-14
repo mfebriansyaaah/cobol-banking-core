@@ -200,6 +200,7 @@
            GOBACK.
 
         COPY "wallet_entry.cpy".
+        COPY "wallet_caps.cpy".
 
         VALIDATE-AMOUNT.
             *> Defense-in-depth: the core checks the amount is a plain positive
@@ -246,35 +247,6 @@
             MOVE WS-PARSE-SRC TO WS-PARSE-BUF
             INSPECT WS-PARSE-BUF REPLACING ALL "." BY ","
             COMPUTE WS-PARSE-NUM = FUNCTION NUMVAL(WS-PARSE-BUF) END-COMPUTE
-            EXIT PARAGRAPH.
-
-        CHECK-CAP-DIGITS.
-            *> Caps are whole major units, digits only: env_or_raw keeps the raw
-            *> text so a dotted or malformed setting fails closed below
-            *> instead of silently becoming a different number.
-            MOVE "Y" TO WS-CAP-OK
-            MOVE 0 TO WS-CAP-LEN
-            PERFORM VARYING WS-I FROM 20 BY -1 UNTIL WS-I < 1 OR WS-CAP-LEN > 0
-                IF WS-CAP-SRC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-CAP-LEN
-                END-IF
-            END-PERFORM.
-            IF WS-CAP-LEN = 0
-                MOVE "N" TO WS-CAP-OK
-            END-IF.
-            IF WS-CAP-LEN > 0
-                PERFORM CHECK-CAP-CHARS
-            END-IF.
-            EXIT PARAGRAPH.
-
-        CHECK-CAP-CHARS.
-            *> Character scan kept in its own paragraph so the loop above
-            *> stays a single sentence per the inline-scope rule.
-            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-CAP-LEN
-                IF WS-CAP-SRC(WS-I:1) < "0" OR WS-CAP-SRC(WS-I:1) > "9"
-                    MOVE "N" TO WS-CAP-OK
-                END-IF
-            END-PERFORM.
             EXIT PARAGRAPH.
 
         CHECK-RATE-STALE.
