@@ -31,12 +31,17 @@ const dropped = rows
   .filter((r) => modBase.has(r.module) && r.percent < modBase.get(r.module) - 1.0)
   .sort((a, b) => a.percent - modBase.get(a.module) - (b.percent - modBase.get(b.module)));
 const d = (v, b) => `${v.toFixed(2)}% (baseline ${b.toFixed(2)}%, ${v - b >= 0 ? '+' : ''}${(v - b).toFixed(2)}pp)`;
+const cobolMeasured = `${summary.cobol.percent.toFixed(2)}% covered of ${summary.cobol.executable} lines`;
+const cobolBaseline =
+  base.cobol_total === undefined
+    ? 'floor 30% (total ratchet retired; per-module ratchet binds)'
+    : `${d(summary.cobol.percent, base.cobol_total)} / floor 30%`;
 const out = [
   '## Coverage (curated COBOL + gateway)',
   '',
   '| Suite | Measured | Baseline |',
   '|---|---|---|',
-  `| COBOL curated | ${summary.cobol.percent.toFixed(2)}% covered of ${summary.cobol.executable} lines | ${d(summary.cobol.percent, base.cobol_total)} / floor 30% |`,
+  `| COBOL curated | ${cobolMeasured} | ${cobolBaseline} |`,
   `| gateway lines | ${summary.gateway.lines.toFixed(2)}% | floor 80%, baseline ${base.gateway_lines}% |`,
   `| gateway branches | ${summary.gateway.branches.toFixed(2)}% | floor 70%, baseline ${base.gateway_branches}% |`,
   '',
