@@ -13,7 +13,7 @@
 | CONNECTED (no open items) | 0 |
 | PARTIAL (open items) | 29 |
 
-Open/in-progress items: 167 of 221 recorded.
+Open/in-progress items: 166 of 221 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -107,7 +107,7 @@ Open/in-progress items: 167 of 221 recorded.
 | `fee_core:action:action-vel-record` | `fee_core` | action | OPEN | — | Write paragraph with no core link (writes used_count, velocity_counter) |
 | `fee_core:action:action-vel-record-all-txn` | `fee_core` | action | OPEN | — | Write paragraph with no core link (writes used_count, velocity_counter) |
 | `fee_core:audit:core-reference` | `fee_core` | audit | OPEN | — | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `fee_core:table:pic` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
+| `fee_core:table:pic` | `fee_core` | table | DONE | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `fee_core:table:used-count` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `fee_core:table:velocity-counter` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |
 | `fee_core:table:velocity-profile` | `fee_core` | table | OPEN | — | Domain table has no core business key or FK into a Tier-1 table |

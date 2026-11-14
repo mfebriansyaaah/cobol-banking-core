@@ -72,7 +72,6 @@
         01  WS-RULE-FROM            PIC X(20) VALUE SPACES.
         01  WS-RULE-TO              PIC X(20) VALUE SPACES.
         01  WS-ENTRY-STATUS         PIC X(20) VALUE SPACES.
-        01  WS-ENTRY-ID             PIC X(20) VALUE SPACES.
         01  WS-BIND-7               PIC X(256) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".

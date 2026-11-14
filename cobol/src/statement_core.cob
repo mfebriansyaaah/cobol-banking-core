@@ -64,13 +64,6 @@
        01  WS-ARCH-DEBIT           PIC X(30) VALUE SPACES.
        01  WS-ARCH-CREDIT          PIC X(30) VALUE SPACES.
        01  WS-ARCH-ROWS            PIC X(20) VALUE SPACES.
-       01  WS-CODE-IN              PIC X(100) VALUE SPACES.
-       01  WS-CODE-LEN             PIC 9(3) VALUE 0.
-       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
-       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
-       01  WS-DEC-IN               PIC X(30) VALUE SPACES.
-       01  WS-DEC-LEN              PIC 9(3) VALUE 0.
-       01  WS-DOT-COUNT            PIC 9(3) VALUE 0.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
        01  WS-AUDIT-RUN            PIC X(20) VALUE SPACES.
        01  WS-AUDIT-ACCOUNT        PIC X(100) VALUE SPACES.

@@ -10,7 +10,6 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
-        01  WS-QUERY                PIC X(512) VALUE SPACES.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
@@ -25,7 +24,6 @@
         01  WS-P5-LEN               PIC 9(3) VALUE 1.
         01  WS-P6-LEN               PIC 9(3) VALUE 1.
         01  WS-I                   PIC 9(3).
-        01  WS-J                    PIC 9(5) VALUE 0.
         01  WS-TRIM-IDX             PIC 9     VALUE 0.
         01  WS-TRIM-SRC             PIC X(100) VALUE SPACES.
         01  WS-TRIM-CNT             PIC 9(3)  VALUE 0.
@@ -38,8 +36,6 @@
         01  WS-ALLOWED              PIC 9 VALUE 0.
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
         01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
-        01  WS-PERM-REQ             PIC X(30) VALUE SPACES.
-        01  WS-PERM-ACTOR           PIC X(100) VALUE SPACES.
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
@@ -50,7 +46,6 @@
         01  WS-BIND-4               PIC X(256) VALUE SPACES.
         01  WS-BIND-5               PIC X(256) VALUE SPACES.
         01  WS-BIND-6               PIC X(256) VALUE SPACES.
-        01  WS-BIND-7               PIC X(256) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -72,17 +67,6 @@
             88  WS-TRANSFER-FAIL-LIMIT VALUE 'LIMT'.
             88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.
             88  WS-TRANSFER-FAIL-STALE VALUE 'STAL'.
-        01  WS-BALANCE-NUM         PIC S9(16)V9999 COMP-3.
-        01  WS-AMOUNT-NUM          PIC S9(16)V9999 COMP-3.
-        01  WS-NOW                 PIC X(21) VALUE SPACES.
-        01  WS-TXN-REF             PIC X(50) VALUE SPACES.
-        01  WS-RAND                PIC X(7)  VALUE SPACES.
-        01  WS-MAX-TXN-STR         PIC X(20) VALUE SPACES.
-        01  WS-DAILY-LIMIT-STR     PIC X(20) VALUE SPACES.
-        01  WS-PRIOR-TOTAL-STR     PIC X(30) VALUE SPACES.
-        01  WS-MAX-TXN-NUM         PIC S9(16)V9999 COMP-3.
-        01  WS-DAILY-LIMIT-NUM     PIC S9(16)V9999 COMP-3.
-        01  WS-PRIOR-TOTAL-NUM     PIC S9(16)V9999 COMP-3.
         01  WS-PARSE-SRC           PIC X(100) VALUE SPACES.
         01  WS-PARSE-BUF           PIC X(100) VALUE SPACES.
         01  WS-PARSE-NUM           PIC S9(16)V9999 COMP-3.
@@ -90,33 +74,6 @@
         01  WS-CAP-OK              PIC X(1) VALUE "Y".
         01  WS-CAP-LEN             PIC 9(3) VALUE 0.
         01  WS-PREC-NUM            PIC S9(4) VALUE 0.
-        01  WS-JV-PREC             PIC X(2)  VALUE SPACES.
-        01  WS-FEE-NUM             PIC S9(16)V9999 COMP-3.
-        01  WS-FEE-STR             PIC X(30) VALUE SPACES.
-        01  WS-FEE-EXACT           PIC X(1)  VALUE SPACES.
-        01  WS-INCOME-ACC          PIC X(20) VALUE SPACES.
-        01  WS-RUN-ID              PIC X(20) VALUE SPACES.
-        01  WS-RUN-TRIGGER         PIC X(10) VALUE SPACES.
-        01  WS-RUN-COUNT           PIC X(10) VALUE SPACES.
-        01  WS-RLIMIT              PIC X(10) VALUE "50".
-        01  WS-ROFFSET             PIC X(10) VALUE "0".
-        01  WS-ST-ACC               PIC X(20) VALUE SPACES.
-        01  WS-ST-PREC              PIC X(5)  VALUE SPACES.
-        01  WS-ST-ISO               PIC X(10) VALUE SPACES.
-        01  WS-ST-FROM              PIC X(10) VALUE SPACES.
-        01  WS-ST-TO                PIC X(10) VALUE SPACES.
-        01  WS-ST-QFROM             PIC X(10) VALUE SPACES.
-        01  WS-ST-OPEN              PIC X(30) VALUE SPACES.
-        01  WS-ST-CLOSE             PIC X(30) VALUE SPACES.
-        01  WS-DATE-SRC             PIC X(10) VALUE SPACES.
-        01  WS-DATE-BAD             PIC 9     VALUE 0.
-        01  WS-DSP-CASE             PIC X(20) VALUE SPACES.
-        01  WS-DSP-STATE            PIC X(14) VALUE SPACES.
-        01  WS-DSP-OWNER            PIC X(100) VALUE SPACES.
-        01  WS-DSP-DUE              PIC X(500) VALUE SPACES.
-        01  WS-DSP-DUELEN           PIC 9(5)  VALUE 0.
-        01  WS-RTOTAL              PIC X(20) VALUE SPACES.
-        01  WS-RLEN                PIC 9(5)  VALUE 0.
         01  WS-HOLD-ID             PIC X(20) VALUE SPACES.
         01  WS-HOLD-FRAC           PIC 9(2) VALUE 0.
         01  WS-HOLD-AMOUNT-NUM     PIC S9(16)V9999 COMP-3.
@@ -125,66 +82,14 @@
         01  WS-HELD-STR            PIC X(30) VALUE SPACES.
         01  WS-HOLD-ACC            PIC X(20) VALUE SPACES.
         01  WS-HOLD-DAYS           PIC X(20) VALUE SPACES.
-        01  WS-REV-AMT             PIC X(30) VALUE SPACES.
-        01  WS-REV-CAMT            PIC X(30) VALUE SPACES.
-        01  WS-REV-FROM            PIC X(100) VALUE SPACES.
-        01  WS-REV-CNT             PIC X(10) VALUE SPACES.
-        01  WS-REV-MINFROM         PIC X(100) VALUE SPACES.
-        01  WS-REV-AMT-NUM         PIC S9(16)V9999 COMP-3.
-        01  WS-REV-CAMT-NUM        PIC S9(16)V9999 COMP-3.
-        01  WS-REV-REASON          PIC X(100) VALUE SPACES.
-        01  WS-REV-REFUND          PIC X(1)  VALUE "0".
-        01  WS-REV-FEE-ACC         PIC X(20) VALUE SPACES.
-        01  WS-REV-FEE-AMT         PIC X(30) VALUE SPACES.
-        01  WS-REV-FEE-CUR         PIC X(20) VALUE SPACES.
-        01  WS-REV-FEE-ISO         PIC X(3)  VALUE SPACES.
-        01  WS-REV-FEE-PREC        PIC X(2)  VALUE SPACES.
-        01  WS-REV-FEE-NUM         PIC S9(16)V9999 COMP-3.
-        01  WS-REV-FX-ACC          PIC X(20) VALUE SPACES.
-        01  WS-REV-FX-AMT          PIC X(30) VALUE SPACES.
-        01  WS-REV-FX-DESC         PIC X(16) VALUE SPACES.
-        01  WS-REV-FX-NUM          PIC S9(16)V9999 COMP-3.
-        01  WS-SQL-PTR             PIC 9(5)  VALUE 0.
-        01  WS-TX-FROM             PIC X(100) VALUE SPACES.
-        01  WS-TX-TO               PIC X(100) VALUE SPACES.
-        01  WS-TX-AMT              PIC X(30) VALUE SPACES.
-        01  WS-TX-STATUS           PIC X(10) VALUE SPACES.
         01  WS-BUSY                PIC X(1) VALUE "0".
-        01  WS-RET-STR             PIC X(20) VALUE SPACES.
-        01  WS-DETAIL              PIC X(255) VALUE SPACES.
-        01  WS-REVERSED            PIC X(1) VALUE "0".
-        01  WS-REF                 PIC X(50) VALUE SPACES.
-        01  WS-REFLEN              PIC 9(3) VALUE 1.
-        01  WS-INTENT-FROM         PIC X(100) VALUE SPACES.
-        01  WS-INTENT-TO           PIC X(100) VALUE SPACES.
-        01  WS-INTENT-AMT          PIC X(30) VALUE SPACES.
-        01  WS-INTENT-STATUS       PIC X(10) VALUE SPACES.
-        01  WS-INTENT-AMOUNT-NUM   PIC S9(16)V9999 COMP-3.
-        01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
         01  WS-SENDER-CUR          PIC X(20) VALUE SPACES.
-        01  WS-TARGET-ACC          PIC X(20) VALUE SPACES.
-        01  WS-TARGET-CUR          PIC X(20) VALUE SPACES.
         01  WS-SENDER-STATUS       PIC X(10) VALUE SPACES.
         01  WS-SENDER-CURACTIVE    PIC X(1)  VALUE SPACES.
-        01  WS-TARGET-STATUS       PIC X(10) VALUE SPACES.
-        01  WS-TARGET-CURACTIVE    PIC X(1)  VALUE SPACES.
         01  WS-SENDER-PREC         PIC X(2)  VALUE SPACES.
         01  WS-SENDER-ISO          PIC X(3)  VALUE SPACES.
-        01  WS-PAY-ACTION          PIC X(30) VALUE SPACES.
-        01  WS-PAY-ACTOR           PIC X(100) VALUE SPACES.
-        01  WS-PAY-OUT             PIC X(16384) VALUE SPACES.
-        01  WS-TARGET-PREC         PIC X(2)  VALUE SPACES.
-        01  WS-RATE-STR            PIC X(40) VALUE SPACES.
-        01  WS-RATE-UPDATED        PIC X(30) VALUE SPACES.
-        01  WS-RATE-AGE-STR        PIC X(20) VALUE SPACES.
-        01  WS-RATE-CUTOFF         PIC X(30) VALUE SPACES.
-        01  WS-FX-CRED             PIC X(30) VALUE SPACES.
-        01  WS-FX-RES              PIC X(30) VALUE SPACES.
-        01  WS-FX-ABS              PIC X(30) VALUE SPACES.
-        01  WS-FX-ACC              PIC X(20) VALUE SPACES.
-        01  WS-FX-ISO              PIC X(3)  VALUE SPACES.
         01  WS-FX-HAS              PIC X(1)  VALUE "0".
 
         LINKAGE SECTION.

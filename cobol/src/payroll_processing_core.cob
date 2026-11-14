@@ -62,8 +62,6 @@
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-RATE             PIC S9(5)V9(4) VALUE 0.
-        01  WS-NUM-TAX              PIC S9(15)V9(4) VALUE 0.
-        01  WS-NUM-NET              PIC S9(15)V9(4) VALUE 0.
         01  WS-NUM-COUNT            PIC 9(9) VALUE 0.
         01  WS-BATCH-STATUS         PIC X(20) VALUE SPACES.
         01  WS-BATCH-SRC            PIC X(20) VALUE SPACES.

@@ -42,7 +42,6 @@
         01  WS-STEP                 PIC X VALUE 'Y'.
             88  STEP-OK             VALUE 'Y'.
             88  STEP-FAIL           VALUE 'N'.
-        01  WS-ERR                  PIC X(40) VALUE SPACES.
         01  WS-CODE                 PIC X(32) VALUE SPACES.
         01  WS-CODE2                PIC X(32) VALUE SPACES.
         01  WS-TOKEN                PIC X(64) VALUE SPACES.

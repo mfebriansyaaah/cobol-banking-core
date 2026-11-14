@@ -66,11 +66,8 @@
         01  WS-NUM-CLAIMED          PIC 9(15)V9(4) VALUE 0.
         01  WS-COLON                PIC 9(3) VALUE 0.
         01  WS-TMP-DATE             PIC X(20) VALUE SPACES.
-        01  WS-TMP-EXPIRY           PIC X(20) VALUE SPACES.
-        01  WS-TMP-STATUS2          PIC X(20) VALUE SPACES.
         01  WS-CLAIM-ID             PIC X(20) VALUE SPACES.
         01  WS-CLAIM-STATUS         PIC X(20) VALUE SPACES.
-        01  WS-CLAIM-AMOUNT         PIC X(30) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.

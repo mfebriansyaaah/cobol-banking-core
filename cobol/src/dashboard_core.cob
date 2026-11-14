@@ -37,15 +37,11 @@
        01  WS-RLEN                 PIC 9(5) VALUE 1.
        01  WS-BAD                  PIC 9(3) VALUE 0.
        01  WS-ALLOWED              PIC 9 VALUE 0.
-       01  WS-TOTAL                PIC X(100) VALUE SPACES.
        01  WS-DATE-IN              PIC X(100) VALUE SPACES.
        01  WS-DATE-LEN             PIC 9(3) VALUE 0.
        01  WS-MONTH                PIC 99 VALUE 0.
        01  WS-DAY                  PIC 99 VALUE 0.
-       01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
-       01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
        01  WS-OUT                  PIC X(16384) VALUE SPACES.
-       01  WS-AT-COUNT             PIC 9(3) VALUE 0.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
        01  F-QUOTE                 PIC X VALUE "'".

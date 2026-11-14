@@ -79,20 +79,14 @@
        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
        01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
        01  WS-TMP-STR              PIC X(100) VALUE SPACES.
-       01  WS-TMP-TEXT             PIC X(100) VALUE SPACES.
        01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
        01  WS-PAY-AMT              PIC Z(18)9.9999 VALUE 0.
-       01  WS-NUM-LIMIT            PIC 9(15)V9(4) VALUE 0.
-       01  WS-NUM-AVAIL            PIC 9(15)V9(4) VALUE 0.
-       01  WS-NUM-BALANCE          PIC 9(15)V9(4) VALUE 0.
        01  WS-NEW-ID               PIC X(20) VALUE SPACES.
        01  WS-NUM-OVERDUE          PIC 9(15)V9(4) VALUE 0.
        01  WS-NUM-RECOVERED        PIC 9(15)V9(4) VALUE 0.
-       01  WS-NUM-INT              PIC 9(9) VALUE 0.
        01  WS-TMP-DATE             PIC X(30) VALUE SPACES.
        01  WS-TMP-EMAIL            PIC X(100) VALUE SPACES.
        01  WS-TMP-NOTE             PIC X(255) VALUE SPACES.
-       01  WS-TMP-CHANNEL          PIC X(20) VALUE SPACES.
        01  WS-TMP-LEVEL            PIC X(10) VALUE SPACES.
        01  WS-TMP-PRIORITY         PIC X(100) VALUE SPACES.
        01  WS-ACT-TYPE             PIC X(20) VALUE SPACES.

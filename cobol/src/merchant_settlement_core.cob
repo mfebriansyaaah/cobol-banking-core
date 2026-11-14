@@ -73,7 +73,6 @@
         01  WS-SETT-CURR            PIC X(10) VALUE SPACES.
         01  WS-SETT-STATUS          PIC X(20) VALUE SPACES.
         01  WS-MERCHANT-NAME        PIC X(100) VALUE SPACES.
-        01  WS-PROF-CURR            PIC X(10) VALUE SPACES.
         01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE 0.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.

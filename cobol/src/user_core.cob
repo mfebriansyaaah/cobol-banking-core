@@ -10,7 +10,6 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
-        01  WS-QUERY                PIC X(512) VALUE SPACES.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.

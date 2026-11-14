@@ -45,23 +45,13 @@
        01  WS-TOTAL                PIC X(100) VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
-       01  WS-FOUND                PIC 9 VALUE 0.
        01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
        01  WS-TEMPLATE-ID          PIC X(20) VALUE SPACES.
-       01  WS-SOURCE-TEMPLATE-ID   PIC X(20) VALUE SPACES.
-       01  WS-TEMPLATE-CODE        PIC X(40) VALUE SPACES.
        01  WS-TEMPLATE-NAME        PIC X(100) VALUE SPACES.
        01  WS-TEMPLATE-TYPE        PIC X(30) VALUE SPACES.
        01  WS-TEMPLATE-FORMAT      PIC X(10) VALUE SPACES.
        01  WS-TEMPLATE-TITLE       PIC X(100) VALUE SPACES.
        01  WS-TEMPLATE-ENABLED     PIC X(1) VALUE SPACES.
-       01  WS-COL-ID               PIC X(20) VALUE SPACES.
-       01  WS-ORDINAL              PIC X(10) VALUE SPACES.
-       01  WS-HEADER               PIC X(100) VALUE SPACES.
-       01  WS-SOURCE               PIC X(100) VALUE SPACES.
-       01  WS-WIDTH                PIC X(10) VALUE SPACES.
-       01  WS-ALIGN                PIC X(10) VALUE SPACES.
-       01  WS-COL-FORMAT           PIC X(10) VALUE SPACES.
        01  WS-RUN-ID               PIC X(20) VALUE SPACES.
        01  WS-RUN-STATUS           PIC X(20) VALUE SPACES.
        01  WS-RUN-TEMPLATE         PIC X(40) VALUE SPACES.
@@ -71,10 +61,6 @@
        01  WS-RUN-CREDIT           PIC X(30) VALUE SPACES.
        01  WS-RUN-CHECKSUM         PIC X(64) VALUE SPACES.
        01  WS-RUN-ERROR            PIC X(40) VALUE SPACES.
-       01  WS-RUN-VERSION          PIC X(10) VALUE SPACES.
-       01  WS-NEW-CODE             PIC X(40) VALUE SPACES.
-       01  WS-NEW-NAME             PIC X(100) VALUE SPACES.
-       01  WS-NEW-TITLE            PIC X(100) VALUE SPACES.
        01  WS-DATE-IN              PIC X(100) VALUE SPACES.
        01  WS-DATE-LEN             PIC 9(3) VALUE 0.
        01  WS-CODE-IN              PIC X(100) VALUE SPACES.
@@ -87,9 +73,6 @@
        01  WS-COUNT1               PIC X(20) VALUE SPACES.
        01  WS-COUNT2               PIC X(20) VALUE SPACES.
        01  WS-COUNT3               PIC X(20) VALUE SPACES.
-       01  WS-DEBIT                PIC X(30) VALUE SPACES.
-       01  WS-CREDIT               PIC X(30) VALUE SPACES.
-       01  WS-CHECKSUM             PIC X(64) VALUE SPACES.
        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
        01  WS-AUDIT-TEMPLATE       PIC X(40) VALUE SPACES.
        01  WS-AUDIT-RUN            PIC X(20) VALUE SPACES.

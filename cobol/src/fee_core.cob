@@ -49,7 +49,6 @@
        01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
        01  WS-RULE-ID              PIC X(20) VALUE SPACES.
        01  WS-RULE-CODE            PIC X(40) VALUE SPACES.
-       01  WS-RULE-NAME            PIC X(100) VALUE SPACES.
        01  WS-RULE-TYPE            PIC X(10) VALUE SPACES.
        01  WS-RULE-CURRENCY        PIC X(3) VALUE SPACES.
        01  WS-RULE-ENABLED         PIC X(1) VALUE SPACES.
@@ -57,15 +56,8 @@
        01  WS-RULE-PERCENT         PIC X(30) VALUE SPACES.
        01  WS-RULE-MIN             PIC X(30) VALUE SPACES.
        01  WS-RULE-MAX             PIC X(30) VALUE SPACES.
-       01  WS-TIER-ID              PIC X(20) VALUE SPACES.
-       01  WS-TIER-NO              PIC X(10) VALUE SPACES.
-       01  WS-TIER-FROM            PIC X(30) VALUE SPACES.
-       01  WS-TIER-TO              PIC X(30) VALUE SPACES.
-       01  WS-TIER-FIXED           PIC X(30) VALUE SPACES.
-       01  WS-TIER-RATE            PIC X(30) VALUE SPACES.
        01  WS-PROFILE-ID           PIC X(20) VALUE SPACES.
        01  WS-PROFILE-CODE         PIC X(40) VALUE SPACES.
-       01  WS-PROFILE-NAME         PIC X(100) VALUE SPACES.
        01  WS-PROFILE-WINDOW       PIC X(10) VALUE SPACES.
        01  WS-PROFILE-MAX-COUNT    PIC X(20) VALUE SPACES.
        01  WS-PROFILE-MAX-AMOUNT   PIC X(30) VALUE SPACES.
@@ -92,8 +84,6 @@
        01  WS-CURRENCY             PIC X(3) VALUE SPACES.
        01  WS-COUNT1               PIC X(20) VALUE SPACES.
        01  WS-COUNT2               PIC X(30) VALUE SPACES.
-       01  WS-NEW-COUNT            PIC 9(18) VALUE 0.
-       01  WS-NEW-AMOUNT           PIC 9(20)V9(4) VALUE 0.
        01  WS-VEL-USED-COUNT       PIC X(20) VALUE SPACES.
        01  WS-VEL-USED-AMOUNT      PIC X(30) VALUE SPACES.
        01  WS-VEL-AMOUNT           PIC X(30) VALUE SPACES.
@@ -116,7 +106,6 @@
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
        01  WS-PART                 PIC X(16384) VALUE SPACES.
-       01  WS-PART-LEN             PIC 9(5) VALUE 0.
        01  F-QUOTE                 PIC X VALUE "'".
        01  F-DQUOTE                PIC X VALUE '"'.
        01  F-BSLASH                PIC X VALUE "\".

@@ -48,17 +48,12 @@
        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
-       01  WS-TMP-STR              PIC X(100) VALUE SPACES.
        01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
        01  WS-TMP-DAYS             PIC X(10) VALUE SPACES.
        01  WS-TMP-INTR             PIC X(30) VALUE SPACES.
        01  WS-PRINCIPAL-NUM        PIC 9(15)V9(4) VALUE 0.
        01  WS-BAL-NUM              PIC 9(15)V9(4) VALUE 0.
        01  WS-AMT-EDIT             PIC Z(18)9.9999 VALUE 0.
-       01  WS-IDEM-EMAIL           PIC X(100) VALUE SPACES.
-       01  WS-IDEM-CURR            PIC X(10) VALUE SPACES.
-       01  WS-IDEM-TRM             PIC X(10) VALUE SPACES.
-       01  WS-IDEM-RT              PIC X(20) VALUE SPACES.
        01  WS-IDEM-SCOPE           PIC X(32) VALUE SPACES.
        01  WS-IDEM-ENTITY-VAL      PIC X(64) VALUE SPACES.
        01  WS-IDEM-KEY             PIC X(64) VALUE SPACES.
@@ -94,14 +89,8 @@
        01  WS-RATE-NUM             PIC 9(5)V9(4) VALUE 0.
        01  WS-TERM-NUM             PIC 9(5) VALUE 0.
        01  WS-DAYS-NUM             PIC 9(5) VALUE 0.
-       01  WS-INTEREST-NUM         PIC 9(15)V9(4) VALUE 0.
-       01  WS-TOTAL-NUM            PIC 9(15)V9(4) VALUE 0.
        01  WS-ID-TEXT              PIC X(20) VALUE SPACES.
-       01  WS-ACCRUED-TEXT         PIC X(30) VALUE SPACES.
-       01  WS-POSTED-TEXT          PIC X(30) VALUE SPACES.
-       01  WS-AFFECTED             PIC X(20) VALUE SPACES.
        01  WS-STATUS-TEXT          PIC X(20) VALUE SPACES.
-       01  WS-COUNT-NUM            PIC 9(9) VALUE 0.
        01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
        01  WS-CALL-P1              PIC X(100) VALUE SPACES.
        01  WS-CALL-P2              PIC X(100) VALUE SPACES.

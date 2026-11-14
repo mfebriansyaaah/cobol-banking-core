@@ -50,7 +50,6 @@
         01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
         01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
         01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
-        01  WS-KYC-GUARD            PIC X(20) VALUE SPACES.
         01  WS-LOAN-AMT             PIC X(30) VALUE SPACES.
         01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
         01  WS-TMP-STR              PIC X(100) VALUE SPACES.
@@ -68,7 +67,6 @@
        01  WS-IDEM-OWNED           PIC X VALUE "0".
        01  WS-IDEM-ROW             PIC X(200) VALUE SPACES.
        01  WS-IDEM-AMT             PIC X(30) VALUE SPACES.
-       01  WS-IDEM-JID             PIC X(20) VALUE SPACES.
        01  WS-IDEM-STALE           PIC X VALUE SPACES.
        01  WS-IDEM-SCOPE           PIC X(32) VALUE SPACES.
        01  WS-IDEM-ENTITY-VAL      PIC X(64) VALUE SPACES.
@@ -102,15 +100,11 @@
         01  WS-CALL-P5              PIC X(100) VALUE SPACES.
         01  WS-CALL-P6              PIC X(100) VALUE SPACES.
         01  WS-CALL-OUT             PIC X(16384) VALUE SPACES.
-        01  WS-POST-DATE            PIC X(10) VALUE SPACES.
         01  WS-POST-CODE            PIC X(40) VALUE SPACES.
         01  WS-POST-CLEANUP         PIC X VALUE SPACE.
-        01  WS-GL-DESC              PIC X(100) VALUE SPACES.
-        01  WS-GL-LINES             PIC X(100) VALUE SPACES.
         01  WS-GL-JID               PIC X(20) VALUE SPACES.
         01  WS-JOUT-1               PIC X(20) VALUE SPACES.
         01  WS-JOUT-2               PIC X(20) VALUE SPACES.
-        01  WS-LOAN-CURR            PIC X(10) VALUE SPACES.
         01  WS-LOAN-EMAIL           PIC X(100) VALUE SPACES.
         01  WS-CUST-ACC             PIC X(20) VALUE SPACES.
         01  WS-CURR-ID              PIC X(20) VALUE SPACES.

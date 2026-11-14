@@ -50,12 +50,10 @@
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
         01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
         01  WS-TMP-AMT              PIC X(30) VALUE SPACES.
-        01  WS-TMP-STATUS           PIC X(20) VALUE SPACES.
         01  WS-TMP-CURR             PIC X(10) VALUE SPACES.
         01  WS-TMP-STR              PIC X(100) VALUE SPACES.
         01  WS-TMP-ID               PIC X(100) VALUE SPACES.
         01  WS-TMP-ALLOCATED          PIC X(30) VALUE SPACES.
-        01  WS-TMP-VERSION            PIC X(10) VALUE SPACES.
         01  WS-MEM-VERSION            PIC X(10) VALUE SPACES.
         01  WS-PROG-VERSION           PIC X(10) VALUE SPACES.
         01  WS-NEW-ID               PIC X(20) VALUE SPACES.

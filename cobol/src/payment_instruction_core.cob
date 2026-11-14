@@ -44,21 +44,16 @@
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
        01  WS-LOOKUP-BAD           PIC 9 VALUE 0.
-       01  WS-CODE                 PIC X(40) VALUE SPACES.
        01  WS-FROM                 PIC X(100) VALUE SPACES.
        01  WS-TO                   PIC X(100) VALUE SPACES.
        01  WS-AMOUNT               PIC X(30) VALUE SPACES.
        01  WS-AMOUNT-NODOT         PIC X(30) VALUE SPACES.
        01  WS-DOT-COUNT            PIC 9(3) VALUE 0.
        01  WS-CURRENCY             PIC X(3) VALUE SPACES.
-       01  WS-TARGET-CURRENCY      PIC X(3) VALUE SPACES.
        01  WS-FREQUENCY            PIC X(10) VALUE SPACES.
        01  WS-NEXT-DATE            PIC X(10) VALUE SPACES.
        01  WS-END-DATE             PIC X(10) VALUE SPACES.
        01  WS-STATUS               PIC X(20) VALUE SPACES.
-       01  WS-SPEC-FIRST           PIC X(30) VALUE SPACES.
-       01  WS-SPEC-SECOND          PIC X(30) VALUE SPACES.
-       01  WS-SPEC-THIRD           PIC X(30) VALUE SPACES.
        01  WS-COUNT-IN             PIC X(30) VALUE SPACES.
        01  WS-COUNT-LEN            PIC 9(3) VALUE 0.
        01  WS-DATE-IN              PIC X(100) VALUE SPACES.
