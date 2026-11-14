@@ -51,7 +51,7 @@ const inlineParas = (src) =>
   [...src.matchAll(/^ {7,8}(VALIDATE-ALL(?:-SEMI)?|VALIDATE-INPUT(?:-SEMI)?)\.$/gm)].map((m) => m[1]);
 const performs = (src, name) => new RegExp(`^\\s*PERFORM ${name}\\s*$`, 'm').test(src);
 const copies = (src) =>
-  [...src.matchAll(/COPY "(common_validate(?:_all|_semi)?\.cpy|wallet_entry\.cpy)"/g)].map((m) => m[1]);
+  [...src.matchAll(/COPY "(common_validate(?:_all|_semi)?\.cpy|wallet_entry\.cpy|auth_entry\.cpy)"/g)].map((m) => m[1]);
 
 test('shared files define the two pairs, generic, one definition each', () => {
   const all = copyOf('common_validate_all.cpy');
@@ -87,6 +87,9 @@ test('every module COPYs at most one validate file, and PERFORMs resolve', () =>
       provides.add('VALIDATE-ALL').add('VALIDATE-INPUT-SEMI');
     }
     if (files.includes('wallet_entry.cpy')) {
+      provides.add('VALIDATE-ALL').add('VALIDATE-INPUT');
+    }
+    if (files.includes('auth_entry.cpy')) {
       provides.add('VALIDATE-ALL').add('VALIDATE-INPUT');
     }
     for (const name of ['VALIDATE-ALL', 'VALIDATE-INPUT', 'VALIDATE-INPUT-SEMI']) {
