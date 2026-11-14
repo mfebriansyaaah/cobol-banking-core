@@ -34,8 +34,7 @@ const FAMILIES = {
 
 const srcOf = (m) => readFileSync(path.join(SRC, `${m}.cob`), 'utf8');
 const copyOf = (f) => readFileSync(path.join(COPY, f), 'utf8');
-const declsOf = (text) =>
-  [...text.matchAll(/^\s+01\s+([A-Z][A-Z0-9-]+)\s+PIC/gm)].map((m) => m[1]);
+const declsOf = (text) => [...text.matchAll(/^\s+01\s+([A-Z][A-Z0-9-]+)\s+PIC/gm)].map((m) => m[1]);
 
 test('every family host COPYs its shared working-storage', () => {
   for (const [cpy, hosts] of Object.entries(FAMILIES)) {
@@ -60,12 +59,34 @@ test('no host redeclares the shared 01s inline', () => {
 });
 
 test('every shared WS var is used by at least one host', () => {
+  // References may live in host code or in another copybook the host COPYs
+  // (e.g. F-QUOTE is consumed by wallet_entry.cpy's VALIDATE-INPUT). An 01
+  // that owns referenced 88-levels counts as used via its children (it must
+  // exist to declare them) — same rule as check_copybooks.
+  const allCopy = readdirSync(COPY)
+    .filter((f) => f.endsWith('.cpy'))
+    .map((f) => readFileSync(path.join(COPY, f), 'utf8'))
+    .join('\n');
+  const childrenOf = (cpyText, name) => {
+    const kids = [];
+    let mine = false;
+    for (const line of cpyText.split('\n')) {
+      let m = line.match(/^\s+01\s+([A-Z][A-Z0-9-]+)\s/);
+      if (m) mine = m[1] === name;
+      m = line.match(/^\s+88\s+([A-Z][A-Z0-9-]+)\s/);
+      if (m && mine) kids.push(m[1]);
+    }
+    return kids;
+  };
   for (const [cpy, hosts] of Object.entries(FAMILIES)) {
-    const combined = hosts.map(srcOf).join('\n');
-    for (const name of declsOf(copyOf(cpy))) {
-      const uses = (combined.match(new RegExp(`\\b${name}\\b`, 'g')) || []).length;
-      const decls = hosts.filter((m) => new RegExp(`^\\s+01\\s+${name}\\s`, 'm').test(srcOf(m))).length;
-      assert.ok(uses > decls, `${cpy}: ${name} never referenced`);
+    const combined = hosts.map(srcOf).join('\n') + '\n' + allCopy;
+    const cpyText = copyOf(cpy);
+    for (const name of declsOf(cpyText)) {
+      const hits = (re) => (combined.match(re) || []).length;
+      const uses = hits(new RegExp(`\\b${name}\\b`, 'g'));
+      const decls = hosts.filter((m) => new RegExp(`^\\s+01\\s+${name}\\s`, 'm').test(srcOf(m))).length + 1; // +1: the copybook definition
+      const childUse = childrenOf(cpyText, name).some((c) => hits(new RegExp(`\\b${c}\\b`, 'g')) > 0);
+      assert.ok(uses > decls || childUse, `${cpy}: ${name} never referenced`);
     }
   }
 });
