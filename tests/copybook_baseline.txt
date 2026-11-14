@@ -1,9 +1,9 @@
 # Copybook estate baseline (PR-020 ratchet, PR-021 inline-dupe counts).
 # Counts of the inclusion graph; update only after reviewing the
 # drift the gate prints. This baseline must only change intentionally.
-files=20
+files=24
 paragraphs=57
-vars=134
+vars=243
 inline_trim_value=0
 inline_trim_all=2
 inline_validate_count_field=0

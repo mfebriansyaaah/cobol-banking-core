@@ -3,7 +3,7 @@
 paragraph_groups=39
 paragraph_redundant_lines=805
 ws_blocks=2
-ws_redundant_lines=85
+ws_redundant_lines=65
 inline_trim_all=2
 inline_trim_value=0
 inline_trim_result_len=0
