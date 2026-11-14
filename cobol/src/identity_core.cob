@@ -48,6 +48,7 @@
         01  WS-HAS-PHONE            PIC X(1) VALUE '0'.
         01  WS-HAS-SCREENING        PIC X(1) VALUE '0'.
         01  WS-EMAIL-OK             PIC X(1) VALUE '0'.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -114,6 +115,7 @@
 
 
         COPY "common_trim.cpy".
+        COPY "common_txn.cpy".
 
         CHECK-OWNER.
             *> p1 = email, p6 = actor. Owner-only (actor rides P6 so
@@ -206,13 +208,8 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|NIK_RECORDED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|NIK_RECORDED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-OCR-RESULT.
@@ -280,13 +277,8 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|OCR_RECORDED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|OCR_RECORDED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-APPLY.
@@ -400,13 +392,8 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|KYC_APPROVED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|KYC_APPROVED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-STATUS.
@@ -549,13 +536,8 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|REVIEW_DECIDED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|REVIEW_DECIDED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-REVIEW-LIST.
@@ -673,13 +655,8 @@
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|SCREEN_RECORDED" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|SCREEN_RECORDED" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-SCR-STATUS.

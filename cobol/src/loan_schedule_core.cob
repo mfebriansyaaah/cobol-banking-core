@@ -42,6 +42,7 @@
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
        01  WS-LIMIT                PIC X(10) VALUE SPACES.
        01  WS-OFFSET               PIC X(10) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        COPY "loan_schedule_ws_common.cpy".
 
        LINKAGE SECTION.
@@ -141,14 +142,9 @@
                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE SPACES TO WS-RESULT
-               STRING "SUCCESS|LSC_CREATE|" DELIMITED BY SIZE WS-SCHEDULE-ID DELIMITED BY SIZE INTO WS-RESULT END-STRING
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+               MOVE SPACES TO WS-SUCCESS-MSG
+               STRING "SUCCESS|LSC_CREATE|" DELIMITED BY SIZE WS-SCHEDULE-ID DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_GET.
@@ -279,13 +275,8 @@
                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_UPDATE|OK" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_UPDATE|OK" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_DELETE.
@@ -316,13 +307,8 @@
                MOVE "soft delete" TO WS-AUDIT-DETAIL
                PERFORM AUDIT
            END-IF.
-           IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
-               MOVE "SUCCESS|LSC_DELETE|DELETED" TO WS-RESULT
-           ELSE
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE "ERROR|DB_ERROR" TO WS-RESULT
-           END-IF.
+           MOVE "SUCCESS|LSC_DELETE|DELETED" TO WS-SUCCESS-MSG
+           PERFORM TXN-FINISH-RESULT
            EXIT PARAGRAPH.
 
        ACTION-LSC_SEARCH.
@@ -409,6 +395,7 @@
 
 
         COPY "common_auth.cpy".
+        COPY "common_txn.cpy".
 
        AUDIT.
            MOVE "INSERT INTO loan_schedule_audit (schedule_id, action, actor_email, detail) VALUES (NULLIF(?, ''), ?, ?, ?)" TO WS-PREP-SQL

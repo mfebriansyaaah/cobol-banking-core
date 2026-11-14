@@ -113,6 +113,7 @@
         01  WS-TXN-REF              PIC X(50) VALUE SPACES.
         01  WS-DESC                 PIC X(255) VALUE SPACES.
         01  WS-REPAY-ID             PIC X(20) VALUE SPACES.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
         01  F-BSLASH                PIC X VALUE "\".
@@ -196,6 +197,7 @@
         COPY "common_auth.cpy".
 
         COPY "common_idem.cpy".
+        COPY "common_txn.cpy".
 
         AUDIT.
             MOVE "INSERT INTO loan_audit (loan_id, action, actor_email, detail, old_value, new_value) VALUES (NULLIF(?, ''), ?, ?, ?, ?, ?)" TO WS-PREP-SQL
@@ -685,14 +687,9 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                     MOVE WS-RESULT(1:20) TO WS-NEW-ID
                 END-IF
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE SPACES TO LS-OUTPUT-BUFFER
-                STRING "SUCCESS|LOAN_APPLY|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER END-STRING
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+                MOVE SPACES TO WS-SUCCESS-MSG
+                STRING "SUCCESS|LOAN_APPLY|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE INTO WS-SUCCESS-MSG END-STRING
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-APPROVE.
@@ -718,13 +715,8 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|LOAN_APPROVE" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|LOAN_APPROVE" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-REJECT.
@@ -750,13 +742,8 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                MOVE "SUCCESS|LOAN_REJECT" TO LS-OUTPUT-BUFFER
-            ELSE
-                CALL "SQL_ROLLBACK" END-CALL
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            MOVE "SUCCESS|LOAN_REJECT" TO WS-SUCCESS-MSG
+            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
        ACTION-DISBURSE.
