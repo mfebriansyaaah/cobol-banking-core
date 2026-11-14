@@ -6,6 +6,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, existsSync
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { TEMPLATE_LINES } from '../lib/clone_template.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const GATE = path.join(ROOT, 'scripts', 'audit_complexity.mjs');
@@ -29,8 +30,11 @@ function makeRoot() {
     })
     .join('\n');
   const clone = ['IDENTIFICATION DIVISION.', 'PROGRAM-ID. tst_core.', actions, ''].join('\n');
-  // Pad to exactly 669 lines to exercise the exact-669 counter.
-  const pad = Array.from({ length: 669 - clone.split('\n').length + 1 }, (_, i) => `      *> pad ${i}.`).join('\n');
+  // Pad to exactly TEMPLATE_LINES lines to exercise the template-size counter.
+  const pad = Array.from(
+    { length: TEMPLATE_LINES - clone.split('\n').length + 1 },
+    (_, i) => `      *> pad ${i}.`,
+  ).join('\n');
   writeFileSync(path.join(cobolDir, 'tst_core.cob'), `${clone}${pad}`);
   writeFileSync(path.join(cobolDir, 'main_logic.cob'), 'IDENTIFICATION DIVISION.\nPROGRAM-ID. main_logic.\n');
   writeFileSync(path.join(cobolDir, 'other_core.cob'), 'IDENTIFICATION DIVISION.\nPROGRAM-ID. other.\n');
@@ -88,7 +92,7 @@ test('--json reports fixture numbers', () => {
   const stats = JSON.parse(run(d, ['--json']));
   assert.equal(stats.cobol.files, 3);
   assert.equal(stats.cobol.modules, 2);
-  assert.equal(stats.cobol.exact669, 1);
+  assert.equal(stats.cobol.exactTemplateLines, 1);
   assert.equal(stats.cobol.canonical9, 1);
   assert.equal(stats.gateway.routeFiles, 1);
   assert.equal(stats.gateway.routeDefinitions, 3);

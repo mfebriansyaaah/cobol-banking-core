@@ -8,7 +8,8 @@
 //     AUDIT/VALIDATE suffices), same definition as scripts/audit_complexity.mjs,
 //   - line-set Jaccard similarity >= 0.90 against the template after
 //     normalizing string literals, numbers, and underscore identifiers,
-//   - exactly 669 lines (the frozen template size).
+//   - exactly TEMPLATE_LINES lines (the frozen template size, single-sourced
+//     in scripts/lib/clone_template.mjs).
 // The template file itself (cost_center_core.cob) is excluded: it is the
 // canonical source, not a new clone.
 //
@@ -50,9 +51,9 @@ for (let i = 0; i < args.length; i += 1) {
 }
 root = path.resolve(root);
 
-export const TEMPLATE = 'cost_center_core.cob';
-export const TEMPLATE_LINES = 669;
-export const SIM_THRESHOLD = 0.9;
+import { TEMPLATE, TEMPLATE_LINES, SIM_THRESHOLD } from './lib/clone_template.mjs';
+
+export { TEMPLATE, TEMPLATE_LINES, SIM_THRESHOLD };
 const CANONICAL_9 = ['AUDIT', 'CALC', 'CREATE', 'DELETE', 'GET', 'LIST', 'SUMMARY', 'UPDATE', 'VALIDATE'];
 const BASELINE_RE = /^([A-Za-z0-9_]+)\s+lines=(\d+)\s+shape=(CLONE9|OTHER)\s+sim=(\d\.\d\d)\s+level=(L0|L1)$/;
 

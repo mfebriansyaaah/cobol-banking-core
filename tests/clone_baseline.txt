@@ -1,8 +1,8 @@
-account_core lines=669 shape=CLONE9 sim=0.95 level=L0
-compliance_calendar_core lines=669 shape=CLONE9 sim=0.95 level=L0
-fixed_asset_core lines=1147 shape=CLONE9 sim=0.72 level=L0
-merchant_settlement_core lines=1330 shape=CLONE9 sim=0.72 level=L0
-notification_template_core lines=669 shape=CLONE9 sim=0.95 level=L0
-report_schedule_core lines=669 shape=CLONE9 sim=0.95 level=L0
-sla_tracker_core lines=669 shape=CLONE9 sim=0.95 level=L0
-tax_management_core lines=1388 shape=CLONE9 sim=0.70 level=L0
+account_core lines=637 shape=CLONE9 sim=0.95 level=L0
+compliance_calendar_core lines=637 shape=CLONE9 sim=0.95 level=L0
+fixed_asset_core lines=1114 shape=CLONE9 sim=0.71 level=L0
+merchant_settlement_core lines=1293 shape=CLONE9 sim=0.71 level=L0
+notification_template_core lines=637 shape=CLONE9 sim=0.95 level=L0
+report_schedule_core lines=637 shape=CLONE9 sim=0.95 level=L0
+sla_tracker_core lines=637 shape=CLONE9 sim=0.95 level=L0
+tax_management_core lines=1353 shape=CLONE9 sim=0.69 level=L0
