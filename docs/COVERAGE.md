@@ -57,9 +57,14 @@ whole-codebase coverage.
   Modules below the floor are recorded in `tests/coverage_floor_backlog.txt`
   with reason instead of dragging silently; the gate fails unlisted
   sub-floor modules and stale (reached-floor) entries alike.
-- Ratchet: `tests/coverage_baseline.txt` values may not drop by more than
-  **1.0 percentage point**. Lower a baseline only for a deliberate change that
-  removes exercised code, never to accept a regression.
+- Ratchet: `tests/coverage_baseline.txt` gateway values may not drop by more
+  than **1.0 percentage point**. Lower a baseline only for a deliberate change
+  that removes exercised code, never to accept a regression. (The COBOL total
+  used to be ratcheted too; it was retired in Nov 2026 because copybook
+  extractions move executed lines where the mapper cannot attribute them
+  back — the comparison measured the mapper, not coverage. The total stays a
+  30% floor; see PR-15E for the mapper fix that would make a total ratchet
+  meaningful again.)
 - Per-module ratchet: `tests/coverage_module_baseline.txt` pins every curated
   module (±1.0pp, see above). A total that still looks fine never hides a
   collapsing module.
@@ -95,13 +100,13 @@ The script writes:
 - `coverage/gateway.txt` — full gateway coverage report.
 - `coverage/summary.json` — combined totals when `--json` is used.
 
-## Per-module ratchet
+## Per-module ratchet (the binding COBOL check)
 
-The total (30% floor + ratchet) cannot see one module collapsing while another
-rises. `tests/coverage_module_baseline.txt` pins all 21 curated modules:
-`scripts/check_coverage_modules.mjs --json coverage/cobol.json` fails any
-module that drops more than 1.0pp below its recorded value. `coverage.sh`
-runs this gate automatically after the COBOL measurement.
+The total has a 30% floor only — it cannot ratchet and cannot see one module
+collapsing while another rises. `tests/coverage_module_baseline.txt` pins all
+21 curated modules: `scripts/check_coverage_modules.mjs --json coverage/cobol.json`
+fails any module that drops more than 1.0pp below its recorded value.
+`coverage.sh` runs this gate automatically after the COBOL measurement.
 
 Update only for a deliberate, reviewed change — never to make CI green:
 
