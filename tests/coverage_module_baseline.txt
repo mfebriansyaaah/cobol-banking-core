@@ -13,12 +13,12 @@ wallet_core 100
 auth_core 89.39
 ref_engine 0
 gl_core 38.8
-report_core 14.63
+report_core 13.45
 fee_core 26.07
 eod_core 11.39
 statement_core 11.42
-loan_core 50.66
-loan_schedule_core 66.08
+loan_core 44.47
+loan_schedule_core 59.09
 deposit_core 88.6
 card_core 71.76
 collection_core 64.02
