@@ -200,6 +200,7 @@
            GOBACK.
 
         COPY "wallet_entry.cpy".
+        COPY "sql_exec_6.cpy".
         COPY "wallet_caps.cpy".
 
         VALIDATE-AMOUNT.
@@ -269,12 +270,15 @@
                 " SECOND) AS CHAR)" DELIMITED BY SIZE
                 INTO WS-PREP-SQL
             END-STRING
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL
-                BY VALUE 0
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
+            PERFORM SQL-EXEC-0
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            IF WS-RESULT(1:5) = "ERROR"
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|"
+                INTO WS-RATE-CUTOFF
+            END-UNSTRING
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -302,12 +306,7 @@
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
             MOVE WS-RATE-STR TO WS-BIND-2
             MOVE WS-TARGET-PREC TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-3
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
                 EXIT PARAGRAPH
@@ -319,12 +318,7 @@
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
             MOVE WS-RATE-STR TO WS-BIND-2
             MOVE WS-FX-CRED TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-3
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
                 EXIT PARAGRAPH
@@ -343,12 +337,7 @@
             END-IF
             MOVE "SELECT CAST(a.account_id AS CHAR), c.iso_code FROM accounts a JOIN currencies c ON c.currency_id = a.currency_id WHERE a.currency_id = ? AND a.account_type = 'FX_PNL' AND a.status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
             MOVE WS-TARGET-CUR TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
                 EXIT PARAGRAPH
@@ -428,10 +417,7 @@
             *> compared in major units — no fixed scaling.
             MOVE "SELECT CAST(COALESCE(SUM(l.amount),0) AS CHAR) FROM ledger l WHERE l.account_id = ? AND l.type = 'DEBIT' AND l.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)" TO WS-PREP-SQL
             MOVE WS-SENDER-ACC TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             ELSE
@@ -460,10 +446,7 @@
             MOVE "SELECT IF(COUNT(*)=2 AND SUM(type='DEBIT')=1 AND (MAX(CASE WHEN type='CREDIT' THEN amount END) = ROUND(MAX(CASE WHEN type='DEBIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?) OR MAX(CASE WHEN type='DEBIT' THEN amount END) = ROUND(MAX(CASE WHEN type='CREDIT' THEN amount END) * MAX(CASE WHEN type='CREDIT' THEN exchange_rate END), ?)),'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
             MOVE WS-JV-PREC TO WS-BIND-1
             MOVE WS-JV-PREC TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT NOT = "BALANCED"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -476,10 +459,7 @@
             MOVE "SELECT CAST(fee_amount AS CHAR), fee_amount = ROUND(fee_amount, ?) FROM fee_schedule WHERE currency_id = ?" TO WS-PREP-SQL
             MOVE WS-SENDER-PREC TO WS-BIND-1
             MOVE WS-SENDER-CUR TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE 0 TO WS-FEE-NUM
             END-IF.
@@ -511,10 +491,7 @@
             *> currency's fee-income account, verified like any journal.
             MOVE "SELECT CAST(account_id AS CHAR) FROM accounts WHERE currency_id = ? AND account_type = 'FEE_INCOME' AND status = 'ACTIVE' LIMIT 1" TO WS-PREP-SQL
             MOVE WS-SENDER-CUR TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -531,10 +508,7 @@
             MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'FEE', ?)" TO WS-PREP-SQL
             MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -542,10 +516,7 @@
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-0
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -555,10 +526,7 @@
             MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
             MOVE WS-FEE-STR TO WS-BIND-1
             MOVE WS-SENDER-ACC TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -568,10 +536,7 @@
             MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
             MOVE WS-FEE-STR TO WS-BIND-1
             MOVE WS-INCOME-ACC TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -584,10 +549,7 @@
             MOVE WS-FEE-STR TO WS-BIND-3
             MOVE WS-SENDER-CUR TO WS-BIND-4
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-5
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -600,10 +562,7 @@
             MOVE WS-FEE-STR TO WS-BIND-3
             MOVE WS-SENDER-CUR TO WS-BIND-4
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-5
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -624,10 +583,7 @@
             MOVE WS-SENDER-USER TO WS-BIND-1
             MOVE WS-SENDER-ACC TO WS-BIND-2
             MOVE WS-DETAIL TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-3
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -642,12 +598,7 @@
                 MOVE "UPDATE accounts SET balance = balance - ? WHERE account_id = ?" TO WS-PREP-SQL
                 MOVE WS-FX-ABS TO WS-BIND-1
                 MOVE WS-FX-ACC TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                    BY REFERENCE WS-BIND-5
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                     EXIT PARAGRAPH
@@ -658,11 +609,7 @@
                 MOVE WS-FX-ABS TO WS-BIND-3
                 MOVE WS-TARGET-CUR TO WS-BIND-4
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-5
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                     EXIT PARAGRAPH
@@ -671,12 +618,7 @@
                 MOVE "UPDATE accounts SET balance = balance + ? WHERE account_id = ?" TO WS-PREP-SQL
                 MOVE WS-FX-ABS TO WS-BIND-1
                 MOVE WS-FX-ACC TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                    BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                    BY REFERENCE WS-BIND-5
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                     EXIT PARAGRAPH
@@ -687,11 +629,7 @@
                 MOVE WS-FX-ABS TO WS-BIND-3
                 MOVE WS-TARGET-CUR TO WS-BIND-4
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-5
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                     EXIT PARAGRAPH
@@ -706,12 +644,7 @@
             MOVE WS-SENDER-USER TO WS-BIND-1
             MOVE WS-FX-ACC TO WS-BIND-2
             MOVE WS-DETAIL TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-3
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -724,12 +657,7 @@
             *> ledger scale, exactly: E4 = ROUND(D x R, 4) = C + S.
             MOVE "SELECT IF(COUNT(*)=3 AND SUM(type='DEBIT')>=1 AND SUM(type='CREDIT')>=1 AND ROUND(MAX(CASE WHEN description = 'Transfer out' THEN amount END) * MAX(CASE WHEN description = 'Transfer in' THEN exchange_rate END), 4) = SUM(CASE WHEN currency_id = ? THEN CASE WHEN type = 'CREDIT' THEN amount ELSE 0 - amount END END), 'BALANCED','UNBALANCED') FROM ledger WHERE journal_id = @jid" TO WS-PREP-SQL
             MOVE WS-TARGET-CUR TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT NOT = "BALANCED"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -756,10 +684,7 @@
             MOVE "SELECT account_id FROM accounts WHERE account_id IN (?, ?) ORDER BY account_id FOR UPDATE" TO WS-PREP-SQL
             MOVE WS-SENDER-ACC TO WS-BIND-1
             MOVE WS-TARGET-ACC TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-LOCK-2
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -769,10 +694,7 @@
             MOVE "SELECT hold_id FROM account_holds WHERE account_id IN (?, ?) AND state = 'PLACED' FOR UPDATE" TO WS-PREP-SQL
             MOVE WS-SENDER-ACC TO WS-BIND-1
             MOVE WS-TARGET-ACC TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-LOCK-2
             IF WS-RESULT(1:5) = "ERROR" AND WS-RESULT NOT = "ERROR|NO_DATA"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
@@ -790,10 +712,7 @@
             IF WS-P5-LEN = 0
                 MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 IF WS-RESULT(1:5) NOT = "ERROR"
                     IF WS-RESULT NOT = "0" AND WS-RESULT NOT = "1"
                         MOVE "ERROR|AMBIGUOUS_ACCOUNT" TO LS-OUTPUT-BUFFER
@@ -804,10 +723,7 @@
             IF WS-P6-LEN = 0
                 MOVE "SELECT CAST(COUNT(*) AS CHAR) FROM accounts a JOIN users u ON a.user_id = u.id WHERE u.email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 IF WS-RESULT(1:5) NOT = "ERROR"
                     IF WS-RESULT NOT = "0" AND WS-RESULT NOT = "1"
                         MOVE "ERROR|AMBIGUOUS_ACCOUNT" TO LS-OUTPUT-BUFFER
@@ -841,10 +757,7 @@
             IF WS-PARSE-NUM > 1000000
                 MOVE "SELECT kyc_status FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 IF WS-RESULT(1:5) = "ERROR"
                     MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
@@ -883,10 +796,7 @@
                 MOVE "SELECT from_email, to_email, CONCAT(amount), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT NOT = "ERROR|NO_DATA"
                     IF WS-RESULT(1:5) = "ERROR"
                         SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -924,10 +834,7 @@
                     MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
                     MOVE WS-PARAM2-TRIMMED TO WS-BIND-3
                     MOVE WS-PARAM3-TRIMMED TO WS-BIND-4
-                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                    PERFORM SQL-EXEC-4
                     IF WS-RESULT(1:5) = "ERROR"
                         SET WS-TRANSFER-FAIL-IDEMP TO TRUE
                     END-IF
@@ -1078,10 +985,7 @@
             IF WS-TRANSFER-OK
                 MOVE "UPDATE account_holds SET state = 'EXPIRED' WHERE account_id = ? AND state = 'PLACED' AND expires_at IS NOT NULL AND expires_at <= NOW()" TO WS-PREP-SQL
                 MOVE WS-SENDER-ACC TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
             END-IF.
             IF WS-TRANSFER-OK AND WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -1090,10 +994,7 @@
                 MOVE "SELECT CONCAT(balance - COALESCE((SELECT SUM(amount) FROM account_holds WHERE account_id = ? AND state = 'PLACED' AND (expires_at IS NULL OR expires_at > NOW())),0)) FROM accounts WHERE account_id = ?" TO WS-PREP-SQL
                 MOVE WS-SENDER-ACC TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT = "ERROR|NO_DATA"
                     SET WS-TRANSFER-FAIL-SENDER TO TRUE
                 ELSE
@@ -1114,10 +1015,7 @@
                     MOVE "SELECT CAST(exchange_rate AS CHAR), CAST(updated_at AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
                     MOVE WS-SENDER-CUR TO WS-BIND-1
                     MOVE WS-TARGET-CUR TO WS-BIND-2
-                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                    PERFORM SQL-EXEC-2
                     IF WS-RESULT = "ERROR|NO_DATA"
                         *> Fall back to the inverse pair, if any. The reciprocal
                         *> must carry enough precision that the credited amount
@@ -1127,10 +1025,7 @@
                         MOVE "SELECT CAST(CAST(1 AS DECIMAL(30,20)) / exchange_rate AS DECIMAL(30,18)), CAST(updated_at AS CHAR) FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ? LIMIT 1" TO WS-PREP-SQL
                         MOVE WS-TARGET-CUR TO WS-BIND-1
                         MOVE WS-SENDER-CUR TO WS-BIND-2
-                        CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                            BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                            BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                        CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                        PERFORM SQL-EXEC-2
                         IF WS-RESULT = "ERROR|NO_DATA"
                             SET WS-TRANSFER-FAIL-CURR TO TRUE
                         ELSE
@@ -1238,20 +1133,14 @@
                 MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF.
             IF WS-TRANSFER-OK
                 MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-0
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
@@ -1263,10 +1152,7 @@
                 END-STRING
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -1281,10 +1167,7 @@
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-RATE-STR TO WS-BIND-2
                 MOVE WS-TARGET-ACC TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-3
                 
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -1302,10 +1185,7 @@
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
                 MOVE WS-SENDER-CUR TO WS-BIND-4
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-5
                 
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -1352,10 +1232,7 @@
                 MOVE WS-SENDER-USER TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 MOVE WS-DETAIL TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-3
                 
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
@@ -1373,10 +1250,7 @@
                 MOVE "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = ? AND from_email = ?" TO WS-PREP-SQL
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF

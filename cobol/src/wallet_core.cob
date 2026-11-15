@@ -100,6 +100,7 @@
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
         
         COPY "common_sql.cpy".
+        COPY "sql_exec_6.cpy".
         COPY "wallet_audit.cpy".
 
         MAIN-LOGIC.
@@ -175,10 +176,7 @@
             *> Every account the user holds, as iso:balance:available:status rows.
             MOVE "SELECT CONCAT(c.iso_code, ':', REPLACE(FORMAT(a.balance,c.prec_val), ',', ''), ':', REPLACE(FORMAT(a.balance - COALESCE((SELECT SUM(h.amount) FROM account_holds h WHERE h.account_id = a.account_id AND h.state = 'PLACED' AND (h.expires_at IS NULL OR h.expires_at > NOW())),0),c.prec_val), ',', ''), ':', a.status) FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? ORDER BY c.iso_code" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-ROWS-1
             
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
@@ -267,10 +265,7 @@
             MOVE "SELECT 1 FROM transfer_reversals WHERE orig_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-TX-FROM TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT NOT = "ERROR|NO_DATA"
                 MOVE "1" TO WS-REVERSED
             END-IF

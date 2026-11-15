@@ -16,7 +16,8 @@
 // slot it names was written.
 //
 // Shared wrappers (cobol/copy/sql_exec_*.cpy) obey the same contract through
-// PERFORM SQL-EXEC-n / SQL-EXEC-ROWS-n:
+// PERFORM SQL-EXEC-n / SQL-EXEC-ROWS-n / SQL-EXEC-LOCK-n (the LOCK variant
+// wraps the no-fetch locking read; status still arrives via GET_RESULT):
 //   1. binds 1..n (exactly, in order) are MOVEd contiguously before PERFORM;
 //   2. WS-PREP-SQL is assigned (MOVE literal or STRING build) before PERFORM;
 //   3. for MOVE literals, the '?' placeholder count equals n (STRING-built
@@ -58,10 +59,10 @@ const BIND_WRITE_RE = /\bMOVE\s+([A-Z0-9-]+)\s+TO\s+WS-BIND-(\d+)/;
 // refs, literals); the legacy CALL path keeps its historical regex so this
 // PR does not re-litigate untouched call sites.
 const WRAP_BIND_RE = /\bMOVE\b\s+(.+?)\s+TO\s+WS-BIND-(\d+)\s*$/;
-const SQL_CALL_RE = /\bCALL\s+"(SQL_PREPARE_EXEC[A-Z_]*)"/;
+const SQL_CALL_RE = /\bCALL\s+"(SQL_PREPARE_EXEC[A-Z_0-9]*)"/;
 const BIND_PASS_RE = /BY\s+REFERENCE\s+WS-BIND-(\d+)/g;
 const END_CALL_RE = /\bEND-CALL\b/;
-const WRAP_RE = /^\s*PERFORM\s+(SQL-EXEC(?:-ROWS)?-(\d+))\s*$/;
+const WRAP_RE = /^\s*PERFORM\s+(SQL-EXEC(?:-ROWS|-LOCK)?-(\d+))\s*$/;
 const PARA_RE = /^ {7,8}[A-Z][A-Z0-9-]+\.\s*$/;
 const DIVISION_RE = /^(?:.*\bDIVISION\b|.*\bSECTION\b)\.\s*$/;
 const LITERAL_RE = /MOVE\s+"((?:[^"]|"")*)"\s+TO\s+WS-PREP-SQL/;

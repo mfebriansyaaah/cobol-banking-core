@@ -114,10 +114,10 @@ restore_all
 # branch): without either, a duplicate key proceeds as a new transfer.
 mutate "$WT"
 py_patch "$WT" \
-'                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+'                    PERFORM SQL-EXEC-4
                     IF WS-RESULT(1:5) = "ERROR"
                         SET WS-TRANSFER-FAIL-IDEMP TO TRUE' \
-'                    CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+'                    PERFORM SQL-EXEC-4
                     IF WS-RESULT(1:5) = "ERROR"
                         CONTINUE *>MUTANT M2 no-op (was SET FAIL-IDEMP)' 1
 py_patch "$WT" \

@@ -109,3 +109,21 @@
            END-CALL
            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
            EXIT PARAGRAPH.
+
+       *> Locking-read wrappers (DRY-06A wallet rollout): same contract as
+       *> SQL-EXEC-n, but through the no-fetch SQL_PREPARE_EXEC_LOCK entry
+       *> point (SELECT ... FOR UPDATE whose rows are not read). Status
+       *> still arrives via GET_RESULT, so converted sites keep working.
+       SQL-EXEC-LOCK-1.
+           CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+               BY REFERENCE WS-BIND-1
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+           EXIT PARAGRAPH.
+
+       SQL-EXEC-LOCK-2.
+           CALL "SQL_PREPARE_EXEC_LOCK" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+               BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2
+           END-CALL
+           CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+           EXIT PARAGRAPH.
