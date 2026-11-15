@@ -208,7 +208,7 @@ for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.cob')).sort())
     const stageLines = [];
     let k = i - 1;
     while (k >= 0 && lines[k].trim() === '') k -= 1;
-    while (k >= 0 && STAGE_RE.test(lines[k]) && lines[k].lstrip().startsWith('MOVE')) {
+    while (k >= 0 && STAGE_RE.test(lines[k]) && /^\s*MOVE\b/.test(lines[k])) {
       staged.unshift(Number(lines[k].match(STAGE_RE)[1]));
       stageLines.unshift(k);
       k -= 1;
