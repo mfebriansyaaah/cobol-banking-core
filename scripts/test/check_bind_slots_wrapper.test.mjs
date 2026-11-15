@@ -131,3 +131,52 @@ test('baseline forbids new inline CALL sites', () => {
   assert.equal(r.status, 1);
   assert.match(r.out, /baseline/);
 });
+
+test('baseline counts arity-7 entry points too (gate is not blind to EXEC7)', () => {
+  const src = `        MAIN-LOGIC.
+            MOVE "SELECT 1 FROM t WHERE a = ?" TO WS-PREP-SQL
+            MOVE X TO WS-BIND-1
+            CALL "SQL_PREPARE_EXEC7" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                BY REFERENCE WS-BIND-1
+            END-CALL
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+`;
+  // Baseline records 0, tree has 1 -> must fail.
+  const d = makeRoot({ 'seven.cob': src }, { seven: 0 });
+  const r = run(d);
+  assert.equal(r.status, 1);
+  assert.match(r.out, /baseline/);
+});
+
+const GOOD_LOCK = `        MAIN-LOGIC.
+            MOVE "SELECT a FROM t WHERE a = ? AND b = ? FOR UPDATE" TO WS-PREP-SQL
+            MOVE X TO WS-BIND-1
+            MOVE Y TO WS-BIND-2
+            PERFORM SQL-EXEC-LOCK-2
+            IF WS-RESULT = "ERROR|NO_DATA"
+                EXIT PARAGRAPH
+            END-IF.
+`;
+
+test('locking-read wrapper passes with exactly staged binds', () => {
+  const d = makeRoot({ 'ok.cob': GOOD_LOCK });
+  const r = run(d);
+  assert.equal(r.status, 0, r.out);
+  assert.match(r.out, /OK:/);
+});
+
+test('locking-read wrapper with a skipped bind slot fails', () => {
+  const bad = GOOD_LOCK.replace('            MOVE Y TO WS-BIND-2\n', '');
+  const d = makeRoot({ 'bad.cob': bad });
+  const r = run(d);
+  assert.equal(r.status, 1);
+  assert.match(r.out, /SQL-EXEC-LOCK-2.*staged \[1\], expected \[1, 2\]/s);
+});
+
+test('locking-read wrapper with placeholder mismatch fails', () => {
+  const bad = GOOD_LOCK.replace('a = ? AND b = ?', 'a = ?');
+  const d = makeRoot({ 'bad.cob': bad });
+  const r = run(d);
+  assert.equal(r.status, 1);
+  assert.match(r.out, /literal has 1 placeholder/);
+});
