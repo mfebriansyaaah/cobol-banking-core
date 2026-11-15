@@ -329,9 +329,11 @@ COBOL_TOTAL=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["p
 
 check_value cobol-total "$COBOL_TOTAL" "$FLOOR" "" || SUITE_FAILED=1
 # NOTE (DRY wave): the total is floor-only on purpose. Copybook extractions
-# move executed lines where the mapper cannot attribute them back, so a
-# total-vs-baseline ratchet measures the mapper, not coverage (three false
-# alarms in Nov 2026). The per-module ratchet below is the binding check.
+# move executed lines out of their hosts, so a total-vs-baseline ratchet
+# still measures the mapper, not coverage (three false alarms in Nov 2026).
+# Shared lines are attributed to a separate `copybooks` union unit by
+# scripts/coverage/map_cobol.py instead. The per-module ratchet below is the
+# binding check.
 # Per-module ratchet: no curated module may quietly collapse while the total
 # still looks fine. Baseline lives in tests/coverage_module_baseline.txt.
 node "$ROOT/scripts/check_coverage_modules.mjs" --json "$COBOL_JSON_FILE" --floor 70 || SUITE_FAILED=1
