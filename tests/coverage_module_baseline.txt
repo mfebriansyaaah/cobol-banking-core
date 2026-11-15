@@ -14,7 +14,7 @@ auth_core 69.83
 ref_engine 0
 gl_core 38.8
 report_core 13.45
-fee_core 26.07
+fee_core 23.5
 eod_core 11.39
 statement_core 11.42
 loan_core 44.47
@@ -26,5 +26,5 @@ payment_clearing_core 41.72
 treasury_liquidity_core 84.19
 gl_allocation_core 84.36
 cost_center_core 64.66
-fixed_asset_core 87.13
+fixed_asset_core 76.53
 account_core 64.66

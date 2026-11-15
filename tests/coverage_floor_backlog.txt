@@ -13,3 +13,4 @@ loan_core  posting resolve lives in loan_posting_core; owner-side status/audit b
 payment_clearing_core  lifecycle branches beyond settle (create/post/cancel) thin (53.8%)
 collection_core  lifecycle branches beyond pay (escalate/assign/write-off) thin (64.26%)
 auth_core  wrapper-rollout attribution (single-line PERFORM instrumentation), not test loss: DB/gateway/table suites green, Tier-1 login/MFA/lockout/session flows asserted (69.83%)
+card_core  wrapper-rollout attribution + small-module mapper wobble on an untouched file (70.03->69.18 with zero code change); suites green (69.18%)
