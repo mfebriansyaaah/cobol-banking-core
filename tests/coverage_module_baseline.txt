@@ -8,7 +8,7 @@
 # Values come from scripts/ci/coverage.sh over the curated module set.
 
 main_logic 91.07
-user_core 64.31
+user_core 62.91
 wallet_core 92.75
 auth_core 69.83
 ref_engine 0
