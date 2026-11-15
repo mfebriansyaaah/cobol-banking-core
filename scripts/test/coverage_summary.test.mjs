@@ -20,7 +20,7 @@ after(() => {
   for (const d of dirs) rmSync(d, { recursive: true, force: true });
 });
 
-function makeRoot({ withTotal = false } = {}) {
+function makeRoot({ withTotal = false, withCopybooks = false, copybooksDip = false } = {}) {
   const d = mkdtempSync(path.join(tmpdir(), 'covsum-'));
   dirs.push(d);
   mkdirSync(path.join(d, 'tests'), { recursive: true });
@@ -29,18 +29,32 @@ function makeRoot({ withTotal = false } = {}) {
   if (withTotal) baseline.push('cobol_total 54.92');
   writeFileSync(path.join(d, 'tests', 'coverage_baseline.txt'), `${baseline.join('\n')}\n`);
   writeFileSync(path.join(d, 'tests', 'coverage_module_baseline.txt'), 'mod_a 80.00\nmod_b 50.00\n');
-  writeFileSync(
-    path.join(d, 'coverage', 'cobol.json'),
-    JSON.stringify({
-      percent: 60.0,
-      covered: 600,
-      executable: 1000,
-      modules: [
-        { module: 'mod_a', percent: 80.0, covered: 80, executable: 100 },
-        { module: 'mod_b', percent: 40.0, covered: 40, executable: 100 },
-      ],
-    }),
-  );
+  const cobol = {
+    percent: 60.0,
+    covered: 600,
+    executable: 1000,
+    modules: [
+      { module: 'mod_a', percent: 80.0, covered: 80, executable: 100 },
+      { module: 'mod_b', percent: 40.0, covered: 40, executable: 100 },
+    ],
+  };
+  if (withCopybooks) {
+    writeFileSync(
+      path.join(d, 'tests', 'coverage_copybook_baseline.txt'),
+      '# copybook union baseline\ncopybooks 80.00\n',
+    );
+    const weak = copybooksDip ? 30.0 : 75.0;
+    cobol.copybooks = {
+      percent: copybooksDip ? 79.0 : 80.0,
+      covered: copybooksDip ? 79 : 80,
+      executable: 100,
+      files: {
+        'strong.cpy': { executable: 90, covered: 76, percent: 84.44 },
+        'weak.cpy': { executable: 10, covered: 3, percent: weak },
+      },
+    };
+  }
+  writeFileSync(path.join(d, 'coverage', 'cobol.json'), JSON.stringify(cobol));
   writeFileSync(
     path.join(d, 'coverage', 'summary.json'),
     JSON.stringify({
@@ -70,4 +84,27 @@ test('renders a floor-only COBOL row when the baseline has no total', () => {
 test('lists modules below their baseline', () => {
   const out = run(makeRoot());
   assert.match(out, /mod_b/, 'dropped module is named');
+});
+
+test('renders the copybooks union row with its baseline delta', () => {
+  const out = run(makeRoot({ withCopybooks: true }));
+  assert.doesNotMatch(out, /NaN/, 'no NaN in the copybooks row');
+  assert.match(out, /copybooks/, 'union unit has its own row');
+  assert.match(out, /baseline 80\.00%/, 'union baseline is shown');
+});
+
+test('omits the copybooks row when the mapper predates the unit', () => {
+  const out = run(makeRoot());
+  assert.doesNotMatch(out, /copybooks/, 'no row without copybooks data');
+  assert.doesNotMatch(out, /NaN/, 'no NaN without copybooks data');
+});
+
+test('lists copybook files when the union dips below its baseline', () => {
+  const out = run(makeRoot({ withCopybooks: true, copybooksDip: true }));
+  assert.match(out, /weak\.cpy/, 'weakest file is named for diagnosis');
+});
+
+test('stays quiet per-file when the union holds its baseline', () => {
+  const out = run(makeRoot({ withCopybooks: true }));
+  assert.doesNotMatch(out, /weak\.cpy/, 'no per-file noise when green');
 });

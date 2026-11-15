@@ -123,7 +123,7 @@ module and raises another; record the reason in the PR. `ref_engine` sits at
 0% (not yet exercised by the representative suites): the ratchet keeps it
 from going unnoticed, raising it is separate work.
 
-## Copybooks unit (shared code, measured separately)
+## Copybooks unit (shared code, measured and ratcheted)
 
 Procedure-division copybooks (`cobol/copy/*.cpy`) compile into every host
 that COPYs them, but their lines belong to the copybook file — the mapper
@@ -133,8 +133,15 @@ executed by any host; the per-file rollup lives under `files` in
 `coverage/cobol.json`. Host rows and the TOTAL exclude copybook lines, so
 extracting code into a copybook still shrinks its former hosts (their
 baselines are re-pinned per extraction, as before) while the shared code
-itself stays measured. Gating the unit (its own baseline + floor) is step D;
-until then it is reported but not ratcheted.
+itself stays measured.
+
+The union has its own ratchet: `tests/coverage_copybook_baseline.txt` pins
+the aggregate (±1.0pp, enforced in `scripts/ci/coverage.sh`, no floor).
+Update it only from the `coverage-pr` artifact of a reviewed run and record
+the run URL in the PR — never to make CI green. The PR summary renders the
+union row with its baseline delta, plus the per-file table (worst first)
+whenever the union sits below its baseline, so a collapsing shared file is
+visible even inside tolerance.
 
 ## CI
 
