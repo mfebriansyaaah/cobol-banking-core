@@ -32,6 +32,7 @@ const CASES = [
   [['scripts/ci/coverage_trigger.mjs'], true],
   [['scripts/coverage/map_cobol.py'], true],
   [['tests/coverage_baseline.txt'], true],
+  [['tests/coverage_copybook_baseline.txt'], true],
   [['coverage/cobol.txt'], false],
   [['coverage/foo'], false],
   [['artifacts/run-all.json'], false],

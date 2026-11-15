@@ -1,0 +1,12 @@
+# Copybook union coverage baseline (shared procedure code).
+#
+# The `copybooks` union (scripts/coverage/map_cobol.py) counts a (file, line)
+# pair as covered when executed by ANY host. scripts/ci/coverage.sh fails the
+# run when the union drops more than 1.0pp below this value — shared
+# paragraphs are the highest-leverage code, so they get their own ratchet
+# next to the per-module one (tests/coverage_module_baseline.txt). The COBOL
+# total stays floor-only by design (see docs/COVERAGE.md).
+#
+# Update only from the coverage-pr artifact of a reviewed run, and record the
+# run URL in the PR. Measured 2026-11 (PR-15E proof run, post-merge tree).
+copybooks 80.84
