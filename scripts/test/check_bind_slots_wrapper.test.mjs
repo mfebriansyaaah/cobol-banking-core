@@ -180,3 +180,29 @@ test('locking-read wrapper with placeholder mismatch fails', () => {
   assert.equal(r.status, 1);
   assert.match(r.out, /literal has 1 placeholder/);
 });
+
+test('sentence-final wrapper (trailing period) is validated too', () => {
+  const src = `        MAIN-LOGIC.
+            MOVE "SELECT 1 FROM t WHERE a = ?" TO WS-PREP-SQL
+            MOVE X TO WS-BIND-1
+            PERFORM SQL-EXEC-1.
+            EXIT PARAGRAPH.
+`;
+  const d = makeRoot({ 'ok.cob': src });
+  const r = run(d);
+  assert.equal(r.status, 0, r.out);
+  assert.match(r.out, /OK:/);
+});
+
+test('sentence-final wrapper with a skipped bind slot fails', () => {
+  const src = `        MAIN-LOGIC.
+            MOVE "SELECT 1 FROM t WHERE a = ? AND b = ?" TO WS-PREP-SQL
+            MOVE X TO WS-BIND-1
+            PERFORM SQL-EXEC-2.
+            EXIT PARAGRAPH.
+`;
+  const d = makeRoot({ 'bad.cob': src });
+  const r = run(d);
+  assert.equal(r.status, 1);
+  assert.match(r.out, /SQL-EXEC-2.*staged \[1\], expected \[1, 2\]/s);
+});

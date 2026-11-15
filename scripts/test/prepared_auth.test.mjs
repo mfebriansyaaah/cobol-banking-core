@@ -37,9 +37,12 @@ test('every auth SQL statement is prepared with placeholders', () => {
 
 test('auth modules still bind every statement (no dropped params)', () => {
   // Sanity: the modules that lost dynamic SQL still issue prepared calls.
+  // Sites may be inline CALLs or shared-wrapper PERFORMs (DRY-06A rollout);
+  // what matters is that no statement disappeared in the conversion.
+  const SITE_RE = /CALL "SQL_PREPARE_EXEC|PERFORM SQL-EXEC(?:-ROWS|-LOCK)?-\d/g;
   for (const module of AUTH_MODULES) {
     const src = readFileSync(path.join(SRC_DIR, `${module}.cob`), 'utf8');
-    const n = (src.match(/CALL "SQL_PREPARE_EXEC/g) || []).length;
-    assert.ok(n >= 5, `${module}: expected prepared calls to remain, got ${n}`);
+    const n = (src.match(SITE_RE) || []).length;
+    assert.ok(n >= 5, `${module}: expected prepared sites to remain, got ${n}`);
   }
 });
