@@ -116,6 +116,7 @@
         COPY "common_sql.cpy".
         COPY "common_trim.cpy".
         COPY "common_result.cpy".
+        COPY "sql_exec_6.cpy".
 
 
 
@@ -129,11 +130,7 @@
             MOVE WS-AUDIT-ACTION TO WS-BIND-2
             MOVE WS-P6-TRIMMED TO WS-BIND-3
             MOVE WS-AUDIT-DETAIL TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-4
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
@@ -152,11 +149,7 @@
             MOVE SPACES TO WS-ERR
             MOVE "SELECT CONCAT(report_type, '|', run_count, '|', row_count, '|', status, '|', COALESCE(report_name, ''), '|', '') FROM report_builder WHERE id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|NOT_FOUND" TO WS-ERR
                 EXIT PARAGRAPH
@@ -191,11 +184,7 @@
             END-IF.
             MOVE "SELECT 1 FROM report_builder WHERE report_ref = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT(1:5) NOT = "ERROR"
                 MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -306,11 +295,7 @@
             END-IF.
             MOVE "SELECT CONCAT(id, '|', report_ref, '|', status, '|', run_count, '|', row_count, '|', COALESCE(report_name, ''), '|', COALESCE(report_type, ''), '|', created_by, '|', created_at) FROM report_builder WHERE id = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -338,11 +323,7 @@
             CALL "SQL_BEGIN" END-CALL
             MOVE "UPDATE report_builder SET run_count = run_count + 1, status = 'RUNNING', run_at = COALESCE(run_at, NOW()) WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
@@ -380,11 +361,7 @@
             MOVE "UPDATE report_builder SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
@@ -405,11 +382,7 @@
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT CONCAT(COUNT(*), '|', COALESCE(SUM(status = 'OPEN'), 0), '|', COALESCE(SUM(status = 'RUNNING'), 0), '|', COALESCE(SUM(status = 'COMPLETED'), 0), '|', COALESCE(SUM(status = 'CLOSED'), 0), '|', COALESCE(SUM(run_count), 0), '|', COALESCE(SUM(row_count), 0)) FROM report_builder" TO WS-PREP-SQL
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-0
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -438,11 +411,7 @@
             MOVE WS-P1-TRIMMED TO WS-BIND-2
             MOVE WS-LIMIT TO WS-BIND-3
             MOVE WS-OFFSET TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC_ROWS" USING BY REFERENCE WS-PREP-SQL BY VALUE 4
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-ROWS-4
             MOVE SPACES TO LS-OUTPUT-BUFFER
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "SUCCESS|RPB_AUDIT|0" TO LS-OUTPUT-BUFFER
