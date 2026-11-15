@@ -7,6 +7,19 @@ not publish versioned releases yet; entries are grouped by date on `main`.
 
 ### Added
 
+- DRY remediation wave (maint-13a–13l, 14, 15E/15F): shared copybooks for
+  trim/result/validate/auth/entry/outbox/family working-storage, SQL exec
+  wrappers with a bind-slot gate (1314 → 82 inline CALL sites, 1300 wrapper
+  PERFORMs), ADMIN-GUARD, TXN-FINISH, idempotency assessment close-out, and
+  the clone-template freeze decision (`docs/adr/0012-*`, `docs/adr/0013-*`).
+- Coverage gates for the copybooks union (`tests/coverage_copybook_baseline.txt`,
+  union hit-if-any-host) and per-module ratchet
+  (`tests/coverage_module_baseline.txt`), with the COBOL total floor-only
+  (see `docs/COVERAGE.md`).
+- Gate unit-test pins for every new gate and contract
+  (`scripts/test/check_bind_slots_wrapper.test.mjs`,
+  `scripts/test/copybook_sql_exec.test.mjs`,
+  `scripts/test/coverage_summary.test.mjs`).
 - Coverage gate for the gateway and a curated COBOL core, with a nightly full
   report and a PR gateway check (`scripts/ci/coverage.sh`,
   `tests/coverage_baseline.txt`, `docs/COVERAGE.md`).

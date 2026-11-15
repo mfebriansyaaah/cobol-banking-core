@@ -49,6 +49,12 @@ the CALL — recompute them deterministically in the callee.
 | `tests/duplication_baseline.txt` | paragraph/WS duplication, inline dupes, unused WS | `check_duplication.mjs --write` |
 | `tests/tier1_links_baseline.txt` | L0/L1 modules without a Tier-1 link | only shrinks; new modules need a linked core or stay listed |
 | `tests/action_test_coverage_baseline.txt` | uncovered actions + reason | `check_action_test_coverage.mjs --write` |
+| `tests/clone_baseline.txt` | clone-like L0/L1 modules (CLONE9 shape) | `check_clone_budget.mjs --write` (only shrinks) |
+| `tests/coverage_baseline.txt` | gateway lines/branches ratchet | hand-edit from a reviewed CI run (tolerance 1.0pp; COBOL total retired, floor-only) |
+| `tests/coverage_module_baseline.txt` | per-module COBOL coverage (the binding check) | `check_coverage_modules.mjs --write` (review every hunk; tolerance 1.0pp; Tier-1 floor 70 via `--floor`) |
+| `tests/coverage_copybook_baseline.txt` | copybooks-union ratchet (shared code) | hand-edit from the coverage-pr artifact of a reviewed run (single value; record the run URL in the PR) |
+| `tests/coverage_floor_backlog.txt` | sub-floor Tier-1 modules + reason | hand-edit; the gate fails unlisted sub-floor modules AND stale (reached-floor) entries alike |
+| `tests/sql_wrapper_baseline.txt` | remaining inline SQL CALLs per module | `check_bind_slots.mjs --write` (only shrinks; convert to PERFORM instead) |
 | `docs/COMPLEXITY_BASELINE.md` | tree metrics | `audit_complexity.mjs --write` |
 | `manifest/*`, `docs/STATUS.md`, `MODULE_INDEX.md` | registry + index | their generators + `docs_stats.mjs --write` |
 
