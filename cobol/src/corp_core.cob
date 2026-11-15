@@ -78,6 +78,7 @@
             GOBACK.
 
         COPY "common_validate_semi.cpy".
+        COPY "sql_exec_6.cpy".
         COPY "common_sql.cpy".
 
 
@@ -138,11 +139,7 @@
             MOVE WS-P3-TRIMMED TO WS-BIND-3
             MOVE WS-P4-TRIMMED TO WS-BIND-4
             MOVE WS-P5-TRIMMED TO WS-BIND-5
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-5
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
@@ -165,11 +162,7 @@
             END-IF.
             MOVE "SELECT CONCAT(legal_name, '|', status) FROM corporate_entities WHERE lei = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
