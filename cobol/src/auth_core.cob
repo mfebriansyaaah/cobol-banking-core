@@ -223,6 +223,7 @@
         COPY "auth_entry.cpy".
         COPY "common_outbox.cpy".
         COPY "common_result.cpy".
+        COPY "sql_exec_6.cpy".
         COPY "auth_last_admin.cpy".
         COPY "auth_role_logic.cpy".
 
@@ -290,15 +291,7 @@
             *> 1) Does the account exist, and what is its status? (prepared)
             MOVE "SELECT CAST(id AS CHAR), status, CAST(failed_logins AS CHAR), CASE WHEN locked_until IS NOT NULL AND locked_until > NOW() THEN '1' ELSE '0' END, CAST(mfa_enabled AS CHAR) FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING
-                BY REFERENCE WS-PREP-SQL
-                BY VALUE 1
-                BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5
-                BY REFERENCE WS-BIND-6 END-CALL
+            PERFORM SQL-EXEC-1
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             
             IF WS-RESULT = "ERROR|NO_DATA"
@@ -332,11 +325,7 @@
             *>    travels as a bind, never concatenated.
             MOVE "SELECT password_hash FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             MOVE WS-RESULT(1:256) TO WS-STORED
             
             MOVE SPACES TO WS-PLAIN
@@ -370,8 +359,7 @@
                 END-IF
                 MOVE "SELECT mfa_secret FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 MOVE WS-RESULT(1:64) TO WS-MFA-SECRET
                 CALL "totp_verify" USING BY REFERENCE WS-MFA-SECRET BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-VERIFY END-CALL
                 IF WS-VERIFY NOT = "1"
@@ -387,8 +375,7 @@
             *> 3b) A valid password clears the failure counter.
             MOVE "UPDATE users SET failed_logins = 0, locked_until = NULL WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             
             *> 3c) Transparently upgrade a legacy SHA256 hash, or a PBKDF2 hash
             *>     below the current cost target, to the current scheme.
@@ -402,11 +389,7 @@
                 MOVE "UPDATE users SET password_hash = ? WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-HASH TO WS-BIND-1
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
             END-IF
             
             *> 4) Only a VERIFIED account may log in.
@@ -415,12 +398,10 @@
                 *>     see how long an account has been dormant.
                 MOVE "UPDATE users SET last_login_at = NOW() WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) SELECT id, 'AUTH_LOGIN_SUCCESS', 'USER', id, 'SUCCESS' FROM users WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 MOVE "SUCCESS|LOGIN_OK" TO LS-OUTPUT-BUFFER
             ELSE
                 IF WS-STATUS(1:9) = "SUSPENDED"
@@ -443,11 +424,7 @@
             *> escapes to count).
             MOVE "SELECT 1 WHERE CHAR_LENGTH(?) >= 8" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|WEAK_PASSWORD" TO LS-OUTPUT-BUFFER
@@ -471,11 +448,7 @@
             *> Email must be unique.
             MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             
             IF WS-RESULT NOT = "ERROR|NO_DATA"
                 *> Neutral: never reveal whether the email is already
@@ -500,21 +473,12 @@
             CALL "SQL_BEGIN" END-CALL
             
             *> Prepared insert: values are bound, not concatenated.
-            MOVE "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES (?, ?, ?, ?, 'UNVERIFIED', 'USER')" 
-                 TO WS-PREP-SQL
+            MOVE "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES (?, ?, ?, ?, 'UNVERIFIED', 'USER')" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-HASH TO WS-BIND-2
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
             MOVE WS-PARAM4-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING
-                BY REFERENCE WS-PREP-SQL
-                BY VALUE 4
-                BY REFERENCE WS-BIND-1
-                BY REFERENCE WS-BIND-2
-                BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4
-                BY REFERENCE WS-BIND-5
-                BY REFERENCE WS-BIND-6 END-CALL
+            PERFORM SQL-EXEC-4
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             
             IF WS-RESULT(1:5) = "ERROR"
@@ -524,18 +488,11 @@
             IF STEP-OK
                 *> Housekeeping: drop expired verification logs.
                 MOVE "DELETE FROM verification_logs WHERE expires_at < NOW()" TO WS-PREP-SQL
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0 
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-0
                 MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-CODE TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
@@ -558,11 +515,7 @@
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'SIGNUP', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
                 MOVE WS-USER-ID TO WS-BIND-1
                 MOVE WS-USER-ID TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
@@ -588,11 +541,7 @@
             MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'VERIFY_EMAIL', 'USER', ?, 'FAILED')" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             MOVE WS-USER-ID TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL.
+            PERFORM SQL-EXEC-2.
             EXIT PARAGRAPH.
 
         VERIFY-LOGIC.
@@ -600,11 +549,7 @@
             MOVE "SELECT 1 FROM verification_logs WHERE email = ? AND code = ? AND purpose = 'SIGNUP' AND is_used = 0 AND expires_at > NOW() LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             
             IF WS-RESULT = "ERROR|NO_DATA"
                 PERFORM AUDIT-FAILED-VERIFY
@@ -612,12 +557,10 @@
                 *> so it can no longer be brute forced (a new one is required).
                 MOVE "UPDATE verification_logs SET attempts = attempts + 1 WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0 ORDER BY id DESC LIMIT 1" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 MOVE "UPDATE verification_logs SET is_used = 1 WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0 AND attempts >= 5" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 MOVE "ERROR|INVALID_CODE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
@@ -627,10 +570,7 @@
             
             MOVE "UPDATE users SET status = 'VERIFIED' WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
@@ -640,10 +580,7 @@
                 MOVE "UPDATE verification_logs SET is_used = 1 WHERE email = ? AND code = ? AND purpose = 'SIGNUP'" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
@@ -655,10 +592,7 @@
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status) VALUES (?, 'VERIFY_EMAIL', 'USER', ?, 'SUCCESS')" TO WS-PREP-SQL
                 MOVE WS-USER-ID TO WS-BIND-1
                 MOVE WS-USER-ID TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
@@ -677,8 +611,7 @@
             *> p1 = email. Neutral; resend only for an existing UNVERIFIED account.
             MOVE "SELECT status FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA" OR WS-RESULT(1:5) = "ERROR"
                 MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -697,8 +630,7 @@
                 STRING "SELECT COUNT(*) FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0 AND created_at > DATE_SUB(NOW(), INTERVAL " WS-CD-STR DELIMITED BY SIZE " SECOND)" DELIMITED BY SIZE INTO WS-PREP-SQL
                 END-STRING
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 IF WS-RESULT(1:1) >= "1" AND WS-RESULT(1:1) <= "9"
                     MOVE "SUCCESS|CODE_SENT" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
@@ -708,8 +640,7 @@
             CALL "SQL_BEGIN" END-CALL
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
@@ -718,8 +649,7 @@
                 MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'SIGNUP', DATE_ADD(NOW(), INTERVAL 24 HOUR))" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-CODE TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
@@ -751,12 +681,10 @@
             IF WS-LOCKED = "0"
                 MOVE "UPDATE users SET locked_until = CASE WHEN failed_logins + 1 >= 3 THEN DATE_ADD(NOW(), INTERVAL 15 MINUTE) ELSE locked_until END, failed_logins = failed_logins + 1 WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, status) VALUES (?, 'AUTH_LOGIN_FAILED', 'USER', 'FAILED')" TO WS-PREP-SQL
                 MOVE WS-USER-ID TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-1
             END-IF.
             EXIT PARAGRAPH.
 
@@ -788,8 +716,7 @@
                 MOVE "SELECT CAST(id AS CHAR), code_hash FROM mfa_backup_codes WHERE user_id = ? AND used = 0 ORDER BY id LIMIT 1 OFFSET ?" TO WS-PREP-SQL
                 MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
                 MOVE WS-BACKUP-N TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT NOT = "ERROR|NO_DATA" AND WS-RESULT(1:5) NOT = "ERROR"
                     UNSTRING WS-RESULT DELIMITED BY "|"
                         INTO WS-BACKUP-ID WS-HASH
@@ -801,8 +728,7 @@
                     IF WS-VERIFY = "1"
                         MOVE "UPDATE mfa_backup_codes SET used = 1 WHERE id = ? AND used = 0" TO WS-PREP-SQL
                         MOVE WS-BACKUP-ID TO WS-BIND-1
-                        CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                        CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                        PERFORM SQL-EXEC-1
                         IF WS-RESULT = "SUCCESS|AFFECTED_1"
                             MOVE 1 TO WS-BACKUP-OK
                         END-IF
@@ -825,8 +751,7 @@
                 MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ? AND family <> ? AND revoked = 0" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:5) = "ERROR"
                     CALL "SQL_ROLLBACK" END-CALL
                     MOVE "ERROR|SESSIONS_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
@@ -835,8 +760,7 @@
                 MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT t.id, a.id, 'SESSIONS_REVOKED_OTHERS', 'USER', t.id, 'SUCCESS' FROM users t JOIN users a ON t.email = ? AND a.email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-2
                 IF WS-RESULT(1:5) = "ERROR"
                     CALL "SQL_ROLLBACK" END-CALL
                     MOVE "ERROR|SESSIONS_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
@@ -856,8 +780,7 @@
             *> must not fail because the notice could not be queued.
             MOVE "SELECT 1 FROM users WHERE email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -870,15 +793,13 @@
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-3
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "INSERT IGNORE INTO known_devices (email, user_agent, ip) VALUES (?, ?, ?)" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-3
                 IF WS-RESULT(1:18) = "SUCCESS|AFFECTED_1"
                     MOVE WS-PARAM1-TRIMMED TO WS-NOTIF-TO
                     MOVE "NEW_DEVICE" TO WS-NOTIF-PURPOSE
@@ -891,8 +812,7 @@
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                PERFORM SQL-EXEC-3
             END-IF.
             IF WS-RESULT(1:5) = "ERROR"
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -927,8 +847,7 @@
             MOVE WS-STEPUP-ACTION TO WS-BIND-1
             MOVE WS-AUDIT-STATUS TO WS-BIND-2
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-3
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 3 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-3
             EXIT PARAGRAPH.
 
         AUDIT-DENIED.
@@ -964,8 +883,7 @@
             MOVE "SELECT CONCAT(a.role, '|', t.role) FROM users a JOIN users t ON a.email = ? AND t.email = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT(1:5) = "ERROR"
                 EXIT PARAGRAPH
             END-IF
@@ -1006,11 +924,7 @@
             *> an unreachable database so operators can tell them apart.
             *> Prepared like every other statement; no parameters to bind.
             MOVE "SELECT 1" TO WS-PREP-SQL
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 0
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-0
             IF WS-RESULT(1:24) = "ERROR|DB_CONFIG_INSECURE"
                 MOVE "ERROR|DB_CONFIG_INSECURE" TO LS-OUTPUT-BUFFER
             ELSE

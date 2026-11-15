@@ -185,11 +185,41 @@ EOF
 # The real P0-2 shape: a value moved into a slot the following CALL does not
 # pass. The query is prepared with an empty parameter, so it silently matches
 # nothing. check_bind_slots computes "was this slot passed?" and catches it.
+#
+# Post-rollout the same defect lives in wrapper staging: most sites are
+# PERFORMs now, so the probe first tries a staged bind above a PERFORM
+# (rewriting BIND-1 to BIND-6 breaks the exact 1..n staging the wrapper
+# validates). Only when no wrapper site exists does it fall back to the
+# legacy inline-CALL adjacency the probe was written for.
 mut_p5_dead_bind_slot() {
     node <<'EOF'
 const fs = require('fs');
 const path = require('path');
 const dir = 'cobol/src';
+const WRAP_RE = /^\s*PERFORM\s+SQL-EXEC(?:-ROWS|-LOCK)?-(\d+)\.?\s*$/;
+const STAGE_RE = /^\s*MOVE\b\s+.+?\s+TO\s+WS-BIND-(\d+)\s*$/;
+for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.cob')).sort()) {
+  const lines = fs.readFileSync(path.join(dir, file), 'utf8').split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const w = lines[i].match(WRAP_RE);
+    if (!w) continue;
+    const arity = Number(w[1]);
+    const staged = [];
+    const stageLines = [];
+    let k = i - 1;
+    while (k >= 0 && lines[k].trim() === '') k -= 1;
+    while (k >= 0 && STAGE_RE.test(lines[k]) && /^\s*MOVE\b/.test(lines[k])) {
+      staged.unshift(Number(lines[k].match(STAGE_RE)[1]));
+      stageLines.unshift(k);
+      k -= 1;
+      while (k >= 0 && lines[k].trim() === '') k -= 1;
+    }
+    if (staged.length !== arity || staged.some((s, idx) => s !== idx + 1)) continue;
+    lines[stageLines[0]] = lines[stageLines[0]].replace('TO WS-BIND-1', 'TO WS-BIND-6');
+    fs.writeFileSync(path.join(dir, file), lines.join('\n'));
+    process.exit(0);
+  }
+}
 for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.cob')).sort()) {
   const lines = fs.readFileSync(path.join(dir, file), 'utf8').split('\n');
   for (let i = 0; i < lines.length; i += 1) {
@@ -197,7 +227,7 @@ for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.cob')).sort())
     if (!w) continue;
     // Find the next CALL and the slots it passes.
     let j = i + 1;
-    while (j < lines.length && !/CALL\s+"SQL_PREPARE_EXEC[A-Z_]*"/.test(lines[j])) j += 1;
+    while (j < lines.length && !/CALL\s+"SQL_PREPARE_EXEC[A-Z_0-9]*"/.test(lines[j])) j += 1;
     if (j >= lines.length) continue;
     const slots = new Set();
     let k = j;

@@ -2,13 +2,13 @@
 # Counts from scripts/check_bind_slots.mjs. Never add a site back;
 # convert to PERFORM SQL-EXEC-n instead, then --write after review.
 account_core=2
-auth_core=37
-auth_mfa_core=15
-auth_ops_core=15
+auth_core=0
+auth_mfa_core=0
+auth_ops_core=0
 auth_password_core=0
-auth_recovery_core=37
-auth_review_core=20
-auth_session_core=31
+auth_recovery_core=0
+auth_review_core=0
+auth_session_core=2
 backup_drill_core=11
 bank_guarantee_core=31
 card_core=58
