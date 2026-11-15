@@ -78,6 +78,7 @@
             GOBACK.
 
         COPY "common_validate_semi.cpy".
+        COPY "sql_exec_6.cpy".
         COPY "common_sql.cpy".
 
 
@@ -184,11 +185,7 @@
             MOVE "SELECT CONCAT(CAST(rate AS CHAR), '|', IF(TIMESTAMPDIFF(HOUR, fetched_at, NOW()) <= 24, 'FRESH', 'STALE')) FROM fx_rate_snapshots WHERE base = ? AND quote = ? ORDER BY fetched_at DESC LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM SQL-EXEC-2
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
