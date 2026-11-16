@@ -338,7 +338,8 @@ if [ "$DRY_RUN" = "1" ]; then
     exit 0
 fi
 
-echo "=== rebuilding pristine tree ==="
+echo "=== rebuilding pristine tree (clean: restored sources keep old mtimes) ==="
+rm -rf cobol/build cobol/bin
 ./build.sh >/tmp/mutant_rebuild.log 2>&1 || { echo "FINAL REBUILD FAILED"; tail -5 /tmp/mutant_rebuild.log; exit 1; }
 if git diff --quiet -- cobol/ middleware/; then
     echo "tree clean (no mutant residue)"
