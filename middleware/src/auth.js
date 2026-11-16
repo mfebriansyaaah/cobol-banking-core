@@ -94,17 +94,12 @@ const REQUIRED_DB_VARS = ['DB_HOST'];
 
 // Refuse to run in production with development, short, or identical secrets,
 // or with database credentials left at their development defaults.
-export function assertSecureConfig() {
-  if (process.env.NODE_ENV !== 'production') return;
-  const problems = [];
-  const accessSecret = process.env.JWT_SECRET || '';
-  const refreshSecret = process.env.REFRESH_SECRET || '';
-  if (!accessSecret || accessSecret === DEV_JWT_SECRET) problems.push('JWT_SECRET');
-  else if (accessSecret.length < MIN_SECRET_LENGTH) problems.push(`JWT_SECRET (min ${MIN_SECRET_LENGTH} chars)`);
-  if (!refreshSecret || refreshSecret === DEV_REFRESH_SECRET) problems.push('REFRESH_SECRET');
-  else if (refreshSecret.length < MIN_SECRET_LENGTH) problems.push(`REFRESH_SECRET (min ${MIN_SECRET_LENGTH} chars)`);
-  const accessPrev = process.env.JWT_SECRET_PREVIOUS || '';
-  const refreshPrev = process.env.REFRESH_SECRET_PREVIOUS || '';
+function validateSecretPair(problems, name, value, devDefault) {
+  if (!value || value === devDefault) problems.push(name);
+  else if (value.length < MIN_SECRET_LENGTH) problems.push(`${name} (min ${MIN_SECRET_LENGTH} chars)`);
+}
+
+function validatePreviousSecrets(problems, accessPrev, refreshPrev) {
   if (accessPrev) {
     if (accessPrev === DEV_JWT_SECRET) problems.push('JWT_SECRET_PREVIOUS');
     else if (accessPrev.length < MIN_SECRET_LENGTH)
@@ -115,8 +110,6 @@ export function assertSecureConfig() {
     else if (refreshPrev.length < MIN_SECRET_LENGTH)
       problems.push(`REFRESH_SECRET_PREVIOUS (min ${MIN_SECRET_LENGTH} chars)`);
   }
-  // A staged previous secret must carry its overlap deadline: without one the
-  // old value would be accepted (and could sign) forever.
   for (const [previousName, untilName] of Object.entries(PREVIOUS_UNTIL)) {
     if (!process.env[previousName]) continue;
     const until = previousUntil(untilName);
@@ -124,8 +117,9 @@ export function assertSecureConfig() {
       problems.push(`${untilName} (required while ${previousName} is set)`);
     }
   }
-  // Every configured secret must be distinct: a value shared across the
-  // family would let a token signed for one purpose verify as another.
+}
+
+function validateSecretFamily(problems, accessSecret, accessPrev, refreshSecret, refreshPrev) {
   const family = [
     ['JWT_SECRET', accessSecret],
     ['JWT_SECRET_PREVIOUS', accessPrev],
@@ -141,6 +135,9 @@ export function assertSecureConfig() {
       }
     }
   }
+}
+
+function validateDbConfig(problems) {
   for (const [name, devDefault] of Object.entries(DEV_DB_DEFAULTS)) {
     const value = process.env[name] || '';
     if (!value) problems.push(name);
@@ -149,6 +146,20 @@ export function assertSecureConfig() {
   for (const name of REQUIRED_DB_VARS) {
     if (!(process.env[name] || '')) problems.push(name);
   }
+}
+
+export function assertSecureConfig() {
+  if (process.env.NODE_ENV !== 'production') return;
+  const problems = [];
+  const accessSecret = process.env.JWT_SECRET || '';
+  const refreshSecret = process.env.REFRESH_SECRET || '';
+  validateSecretPair(problems, 'JWT_SECRET', accessSecret, DEV_JWT_SECRET);
+  validateSecretPair(problems, 'REFRESH_SECRET', refreshSecret, DEV_REFRESH_SECRET);
+  const accessPrev = process.env.JWT_SECRET_PREVIOUS || '';
+  const refreshPrev = process.env.REFRESH_SECRET_PREVIOUS || '';
+  validatePreviousSecrets(problems, accessPrev, refreshPrev);
+  validateSecretFamily(problems, accessSecret, accessPrev, refreshSecret, refreshPrev);
+  validateDbConfig(problems);
   if (problems.length > 0) {
     throw new Error(`refusing to start in production: set ${problems.join(', ')} to a strong, non-default value`);
   }
