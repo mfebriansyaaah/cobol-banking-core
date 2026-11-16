@@ -1,6 +1,7 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Campaign HEAD: `5125e881` (`maint/audit-plan`; baseline `322255b7` on `main`)
+- Code HEAD: `5125e881` (`maint/audit-plan`; baseline `322255b7` on `main`)
+- Approval/export record: `80fb72b5` (typed owner approval + verified source export)
 - Date: 2026-11-16
 - Profile default: `source` (see `scripts/export_dataset.sh`)
 

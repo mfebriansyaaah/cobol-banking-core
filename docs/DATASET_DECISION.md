@@ -1,6 +1,6 @@
 # Dataset Decision (R-03)
 
-- Date: 2026-11-16 (draft; final on R-02 green + G-01 sign-off)
+- Date: 2026-11-16 (license approved; technical R-02 residual open)
 - Deciders: OWNER + CURATOR + SEC (see `docs/OWNERSHIP.md`)
 
 ## Checklist
@@ -12,7 +12,7 @@
 - [x] A-01…A-08 DONE (A-05 split a/b; all merged)
 - [x] R-01 DONE (card drafted with final technical evidence)
 - [ ] R-02 full matrix green (all gates green except premerge 4-shard `payment_race` flake; serial full green twice)
-- [ ] `scripts/export_dataset.sh --profile source` run on this branch with the real approval (verification in progress)
+- [x] `scripts/export_dataset.sh --profile source` run with the real approval: 830 files, SHA256SUMS OK, no excluded paths
 - [x] `sha256sum -c SHA256SUMS` succeeds (830 files, no excluded paths)
 - [x] `DATASET_CARD.md` reviewed; residual premerge flake documented
 
