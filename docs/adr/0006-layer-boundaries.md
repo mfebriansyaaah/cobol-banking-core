@@ -49,9 +49,10 @@ http/routes → adapters → services
 ```
 
 - `middleware/src` (transport) may import `core-client`, `telemetry`,
-  and `adapters`, never `services` or `workers` directly.
-- `middleware/adapters` may import `services` and `core-client`/`telemetry`,
-  never `src`.
+  `contract` (shared shape validation), and `adapters`, never `services`
+  or `workers` directly.
+- `middleware/adapters` may import `services`, `core-client`/`telemetry`,
+  and `contract/validation.js` (shape only), never `src`.
 - `middleware/services` may import `telemetry` and `core-client`, never `src`.
 - `middleware/workers` may import `core-client`, `telemetry`, `services`,
   and `adapters`, never `src`.
@@ -81,6 +82,9 @@ http/routes → adapters → services
 - `middleware/core-client/`: `binary.js`, `errors.js`, `invoker.js`,
   `pool.js`, `result.js` (COBOL transport).
 - `middleware/telemetry/`: `observability.js` (metrics/logs).
+- `middleware/contract/`: `validation.js` (shared input-shape validation;
+  leaf: Node builtins only). `middleware/src/validation.js` is a
+  backward-compat shim re-exporting it.
 - `middleware/adapters/signals.js`: server-side derivations (ex-`derivations.js`).
 - `middleware/src/*` files remain as thin re-export shims during migration,
   then become transport-only facades. New code imports the canonical path.

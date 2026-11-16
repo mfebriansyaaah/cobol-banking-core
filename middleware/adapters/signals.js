@@ -11,7 +11,7 @@
 // maps signals → COBOL params; COBOL decides the final status.
 // middleware/src/derivations.js re-exports this module for backward compat.
 import { createHash, randomUUID } from 'node:crypto';
-import { PATTERNS, ValidationError, check } from '../src/validation.js';
+import { PATTERNS, ValidationError, check } from '../contract/validation.js';
 import { parseNik, nikHandle } from '../services/integrations/identity/local_nik.js';
 import { createScreeningProvider, queryHash } from '../services/integrations/screening/opensanctions.js';
 import { createOcrProvider, OCR_REVIEW_THRESHOLD } from '../services/integrations/ocr.js';

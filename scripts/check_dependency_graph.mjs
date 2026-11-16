@@ -48,6 +48,7 @@ function layerOf(file) {
   const rel = path.relative(MW, file);
   if (rel.startsWith('src/routes/')) return 'routes';
   if (rel.startsWith('src/')) return 'src';
+  if (rel.startsWith('contract/')) return 'contract';
   if (rel.startsWith('adapters/')) return 'adapters';
   if (rel.startsWith('services/')) return 'services';
   if (rel.startsWith('workers/')) return 'workers';
@@ -64,6 +65,7 @@ function targetLayer(file, imp) {
     const rel = path.relative(MW, resolved);
     if (rel.startsWith('src/routes')) return 'routes';
     if (rel.startsWith('src/')) return 'src';
+    if (rel.startsWith('contract/')) return 'contract';
     if (rel.startsWith('adapters/')) return 'adapters';
     if (rel.startsWith('services/')) return 'services';
     if (rel.startsWith('workers/')) return 'workers';
@@ -76,12 +78,14 @@ function targetLayer(file, imp) {
     imp.includes('/workers/') ||
     imp.includes('/core-client/') ||
     imp.includes('/telemetry/') ||
+    imp.includes('/contract/') ||
     imp.includes('/adapters/')
   ) {
     if (imp.includes('/services/')) return 'services';
     if (imp.includes('/workers/')) return 'workers';
     if (imp.includes('/core-client/')) return 'core-client';
     if (imp.includes('/telemetry/')) return 'telemetry';
+    if (imp.includes('/contract/')) return 'contract';
     if (imp.includes('/adapters/')) return 'adapters';
   }
   return 'external';
@@ -111,8 +115,8 @@ for (const f of listJs(MW)) {
     if (target === 'external' || target === 'other') continue;
     // routes: validation only (checked in purity too, kept here for graph)
     if (layer === 'routes') {
-      if (target !== 'other' && imp !== '../validation.js') {
-        fail(`${rel}: routes must only import ../validation.js (got '${imp}')`);
+      if (target !== 'other' && imp !== '../validation.js' && imp !== '../contract/validation.js') {
+        fail(`${rel}: routes must only import validation.js (got '${imp}')`);
       }
       continue;
     }
@@ -126,28 +130,40 @@ for (const f of listJs(MW)) {
       continue;
     }
     if (layer === 'adapters') {
-      if (target === 'src' && !imp.endsWith('/validation.js')) {
-        fail(`${rel}: adapters must not import src (except validation.js; got '${imp}')`);
+      if (target === 'src') {
+        fail(`${rel}: adapters must not import src (use contract/; got '${imp}')`);
       }
       if (target === 'workers') {
         fail(`${rel}: adapters must not import workers ('${imp}')`);
       }
       continue;
     }
+    if (layer === 'contract') {
+      if (target !== 'external' && target !== 'other' && target !== 'contract') {
+        fail(`${rel}: contract must be a leaf (got '${imp}')`);
+      }
+      continue;
+    }
     if (layer === 'services') {
-      if (target === 'src' || target === 'workers' || target === 'adapters') {
+      if (target === 'src' || target === 'workers' || target === 'adapters' || target === 'contract') {
         fail(`${rel}: services must not import ${target} (got '${imp}')`);
       }
       continue;
     }
     if (layer === 'workers') {
-      if (target === 'src') {
-        fail(`${rel}: workers must not import src (use core-client/telemetry; got '${imp}')`);
+      if (target === 'src' || target === 'contract') {
+        fail(`${rel}: workers must not import ${target} (use core-client/telemetry; got '${imp}')`);
       }
       continue;
     }
     if (layer === 'core-client') {
-      if (target === 'src' || target === 'services' || target === 'workers' || target === 'adapters') {
+      if (
+        target === 'src' ||
+        target === 'services' ||
+        target === 'workers' ||
+        target === 'adapters' ||
+        target === 'contract'
+      ) {
         fail(`${rel}: core-client must not import ${target} (got '${imp}')`);
       }
       continue;
@@ -168,7 +184,14 @@ for (const f of listJs(MW)) {
     const src = readFileSync(f, 'utf8');
     for (const imp of importsOf(src)) {
       const t = targetLayer(f, imp);
-      if (t === 'core-client' || t === 'src' || t === 'services' || t === 'workers' || t === 'adapters') {
+      if (
+        t === 'core-client' ||
+        t === 'src' ||
+        t === 'services' ||
+        t === 'workers' ||
+        t === 'adapters' ||
+        t === 'contract'
+      ) {
         fail(`${path.relative(ROOT, f)}: telemetry must not import ${t} ('${imp}')`);
       }
     }
