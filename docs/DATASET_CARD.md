@@ -1,6 +1,6 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Commit: `bf971bee` (`maint/audit-plan` worktree; baseline `322255b7` on `main`)
+- Campaign HEAD: `5125e881` (`maint/audit-plan`; baseline `322255b7` on `main`)
 - Date: 2026-11-16
 - Profile default: `source` (see `scripts/export_dataset.sh`)
 
@@ -75,6 +75,9 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
   Also root-caused: an incremental-build staleness incident (idempotency
   replay returned `TRANSFER_IN_PROGRESS`) disappeared after
   `rm -rf cobol/build cobol/bin && ./build.sh`; R-02 mandates clean builds.
+  The mutation harness had the same class of bug (restored sources keep old
+  mtimes, so the final incremental build could retain M17); the harness now
+  does a clean rebuild and was re-run 16/16 KILLED with a clean tree.
 - Gitleaks worktree + export: 0 findings; history mirror sanitized.
 
 ## Known gaps (honest)
