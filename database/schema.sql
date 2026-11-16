@@ -10817,7 +10817,7 @@ CREATE TABLE IF NOT EXISTS sla_audit (
 -- whose effects are already folded into this file is recorded below, so
 -- database/migrate.sh only applies newer ones. When adding a migration, fold
 -- its objects into this file AND extend this list (enforced by
--- tests/test_migrate.sh: the listed versions must equal the migration files).
+-- scripts/check_schema_drift.sh + tests/db/schema_tests.sh: the listed versions must equal the migration files).
 INSERT IGNORE INTO schema_migrations (version, checksum) VALUES
 ('0001_pending_transactions_cascade', 'e5dd7076ad9910b60fe6e97742ef71bd10ce3bc4bcb47438cfd72246fe20c811'),
 ('0002_refresh_sessions', '560f59bcab7ca6aa5a36c1923911cb21de0c1b61597f34b6cb74c37552fcd42a'),

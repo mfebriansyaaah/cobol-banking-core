@@ -297,6 +297,12 @@ node middleware/workers/outbox.js --once --limit 100
 
 ## Database
 
+> **Baseline note (2026-11-16):** `database/schema.sql` + `database/migrate.sh`
+> is the canonical fresh-install path used by README and CI.
+> `database/schema_v2.sql` and `migrate.sh --baseline` are an experimental
+> fast-install candidate; they are not the onboarding path and are excluded
+> from the `source` dataset profile.
+
 - `database/schema.sql` — baseline snapshot, fresh installs only.
 - `database/migrations/` — append-only, one file per change (`0101_…` …
   `0110_cards.sql`), tracked in `schema_migrations`.
