@@ -52,6 +52,7 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 
 - Gateway unit: 147/147 pass.
 - Script gate unit tests: 469/469 pass.
+- Gateway JUnit count: 347 assertions (baseline re-pinned after quarantine removal).
 - ESLint: 0 errors, 9 complexity warnings (ratchet `--max-warnings 9`).
 - COBOL syntax: 0 warnings (was 43 copybook warnings, fixed C-03).
 - DB suites: `auth_shell` 51/51 (x2), `card` 52/52 (x2),
@@ -79,6 +80,11 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
   mtimes, so the final incremental build could retain M17); the harness now
   does a clean rebuild and was re-run 16/16 KILLED with a clean tree.
 - Gitleaks worktree + export: 0 findings; history mirror sanitized.
+- Premerge `--ci-parity`: failed at the 4-shard DB phase on the known
+  `payment_race_db_tests.sh` parallel flake (52/54; serial 54/54 twice).
+  All gates before that (build, full suite, probes, counts) were green;
+  this is a test-harness race, not a code regression. R-02 keeps this
+  residual open for a dedicated test-stability follow-up.
 
 ## Known gaps (honest)
 
