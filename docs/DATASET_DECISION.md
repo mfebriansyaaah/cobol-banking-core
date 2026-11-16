@@ -12,7 +12,7 @@
 - [x] A-01…A-08 DONE (A-05 split a/b; all merged)
 - [x] R-01 DONE (card drafted with final technical evidence)
 - [x] R-02 full matrix green — `scripts/ci/premerge.sh --ci-parity` GREEN at `51aba228`; 4-shard keyed races stabilized without weakening money invariants
-- [x] `scripts/export_dataset.sh --profile source` run with the real approval: 830 files, SHA256SUMS OK, no excluded paths
+- [x] `scripts/export_dataset.sh --profile source` run with the real approval: 830 files, SHA256SUMS OK, no excluded paths; final release snapshot `06fcc84f` re-verified
 - [x] `sha256sum -c SHA256SUMS` succeeds (830 files, no excluded paths)
 - [x] `DATASET_CARD.md` reviewed; race stabilization + premerge parity green documented
 
