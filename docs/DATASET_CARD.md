@@ -46,6 +46,16 @@ tests/contracts/route_field_order.json
 Plus `.datasetignore` local paths (backups, artifacts, coverage,
 node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
 
+| Profile | Source-tree files | Archive | Generated snapshots | 5 clones | Use |
+| --- | ---: | --- | --- | --- | --- |
+| `source` | 830 | no | no | yes | reproducible source |
+| `train` | 810 | no | no | no | training corpus |
+| `verification` | 1,517 | yes | yes | yes | full gates |
+| `full` | 1,517 | yes | yes | yes | archival |
+
+`train` is the training corpus, **not** a runnable tree; use
+`verification`/`full` to run gates.
+
 `verification` profile keeps generated files (needed to run gates).
 `full` profile exports all tracked files.
 
@@ -98,7 +108,9 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 
 ## Known gaps (honest)
 
-1. 5 template-clone modules frozen per ADR-0012 (excluded from `source`).
+1. 5 template-clone modules are kept in `source` for reproducibility and are
+   excluded from the `train` profile (see the profile table below). The
+   `source` file count therefore includes them.
 2. Integration backlog: 202 items, 147 OPEN (registry/parser fixed A-04;
    items are linkage evidence gaps, not code defects).
 3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
