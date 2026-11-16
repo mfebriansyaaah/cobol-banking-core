@@ -58,7 +58,7 @@ JSON
 
 (
   cd "$OUT"
-  find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.tmp
+  find . -type f ! -name 'SHA256SUMS*' -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.tmp
   mv SHA256SUMS.tmp SHA256SUMS
 )
 
