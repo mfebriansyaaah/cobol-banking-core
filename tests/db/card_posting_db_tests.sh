@@ -259,8 +259,7 @@ W2=$!
 wait $W1; wait $W2
 JA="$(tr -d ' \n' <"$J1/output.txt")"; JB="$(tr -d ' \n' <"$J2/output.txt")"
 rm -rf "$J1" "$J2"
-assert_match "exactly one repay winner" "$(printf '%s\n%s\n' "$JA" "$JB" | grep -c "SUCCESS\|CARD_REPAY")" "^1$"
-assert_match "repay loser refused" "$(printf '%s\n%s\n' "$JA" "$JB")" "ERROR\|"
+assert_race_outcomes "keyed repay race" "$(printf '%s\n%s\n' "$JA" "$JB")" "SUCCESS|CARD_REPAY" "ERROR|REPAY_IN_PROGRESS"
 assert_match "repay retry converges" "$(run_cobol "CARD_REPAY|${KID}|150.00|||K-RRACE|${A}")" "SUCCESS\|CARD_REPAY\|150.0000"
 assert_match "over-ceiling keyed repay refused" "$(run_cobol "CARD_REPAY|${KID}|99999.00|||K-DOOMR|${A}")" "ERROR\|OVERPAID"
 assert_match "over-ceiling retry in progress" "$(run_cobol "CARD_REPAY|${KID}|99999.00|||K-DOOMR|${A}")" "ERROR\|REPAY_IN_PROGRESS"
