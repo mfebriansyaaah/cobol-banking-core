@@ -138,6 +138,8 @@
            LS-OUTPUT-BUFFER.
 
        MAIN-LOGIC.
+
+           MOVE SPACES TO WS-ERR
            PERFORM VALIDATE-ALL
            IF WS-BAD > 0
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
