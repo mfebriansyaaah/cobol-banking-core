@@ -62,13 +62,17 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
   request-state reset (43 modules), module size — all OK.
 - Copybook baseline: vars 243 → 240 (reviewed drift, S-03).
 - Mutation: 16/16 killed (M1–M17 incl. new bind-swap M17).
-- Probes: 17 probes, 16 detected / 1 honestly missed (p5b static
-  bind-swap; covered at runtime by M17).
+- Probes: 17/17 detected (p5b static via `bind_slots`; M17 runtime backstop).
 - Coverage: gateway ≥ baseline; COBOL per-module ratchet holds.
 - Schema drift: `check_schema_drift.sh` green.
-- Full `tests/run_all.sh full`: 1 flaky shard failure observed
-  (`payment_race` 52/54 under parallel load); suite passes in isolation
-  54/54 and on serial re-run (GREEN). Root cause tracked in C-04 loop.
+- Full `tests/run_all.sh full` serial: GREEN (see R-02 evidence).
+  Two parallel-shard race flakes observed during the campaign
+  (`payment_race` 52/54, `card_posting` 101/103 — "exactly one winner"
+  assertions); both suites green in isolation and on serial re-run.
+  Also root-caused: an incremental-build staleness incident (idempotency
+  replay returned `TRANSFER_IN_PROGRESS`) disappeared after
+  `rm -rf cobol/build cobol/bin && ./build.sh`; R-02 mandates clean builds.
+- Gitleaks worktree + export: 0 findings; history mirror sanitized.
 
 ## Known gaps (honest)
 
@@ -77,9 +81,10 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
    items are linkage evidence gaps, not code defects).
 3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
    `tests/coverage_floor_backlog.txt`, 8 entries).
-4. `/auth/refresh` intermittent-500 history: 300-run diagnosis in
-   progress (C-04); quarantine holds 4 tests until root cause or
-   300 green runs (D-14).
+4. `/auth/refresh` intermittent-500 history: resolved — 300 serial runs
+   green, zero `gateway_error` lines (C-04); quarantine removed.
+   The historic CI flake reproduces only under parallel shard load,
+   not as a code defect.
 5. MinIO upstream image `minio/minio:latest` no longer exists on
    Docker Hub; local vault tests use MinIO service — use
    `quay.io/minio/minio:latest` if re-provisioning (environment note,
