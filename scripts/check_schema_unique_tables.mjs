@@ -79,7 +79,9 @@ for (const [name, v] of dups) {
   const first = v[0].text;
   const allSame = v.every((b) => b.text === first);
   if (!allSame) {
-    console.error(`FAIL: ${name} has differing definitions at lines ${v.map((b) => b.start).join(', ')}; refusing to dedupe`);
+    console.error(
+      `FAIL: ${name} has differing definitions at lines ${v.map((b) => b.start).join(', ')}; refusing to dedupe`,
+    );
     process.exit(2);
   }
   for (let k = 1; k < v.length; k += 1) {
