@@ -82,7 +82,7 @@ test database setup, the isolation model, and troubleshooting, see
    `node scripts/check_test_counts.mjs --report-dir artifacts --write`
    (never hand-edit), review the diff, and document reason/before/after in
    the PR — see the baseline section in [docs/TESTING.md](docs/TESTING.md).
-7. Add the module to `build.sh`.
+7. Build via the wildcard `cobol/Makefile` (`./build.sh` needs no per-module edits).
 8. Regenerate and check the manifest:
 
    ```sh

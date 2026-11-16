@@ -25,7 +25,7 @@ crypto helpers COBOL cannot call directly.
 Client
   │  HTTPS / JSON
   ▼
-middleware/src/                 Node 18+ / Express 5 (transport only)
+middleware/src/                 Node 24+ / Express 5 (transport only)
   app.js                       route table: HTTP → COBOL action
   routes/*.js                  per-domain field order + patterns
   validation.js                request shape, no business rules
@@ -133,7 +133,7 @@ not a maturity score.
 | Performance benchmarks | ✅ | `tests/perf/bench.sh` |
 | Coverage gate | ✅ | `scripts/ci/coverage.sh`, `tests/coverage_baseline.txt`; COBOL is a curated-core floor |
 | Warning ratchet | ⚠️ | `scripts/check_warnings.sh`; a few non-zero entries remain |
-| Mutation testing | ❌ | Not implemented; the probe harness tests gates, not mutants |
+| Mutation testing | ✅ (curated) | 15 money-path mutants via tests/probes/money_path_mutants.sh + .github/workflows/mutation.yml |
 | CI build under 2 minutes | ❌ | Full build/test is intentionally heavier |
 
 ### Coverage scope
@@ -192,7 +192,7 @@ Two runtime modes:
 ## Quick start
 
 Prerequisites: GnuCOBOL (`cobc`), `gcc`, `libmysqlclient-dev`, MariaDB/MySQL with
-the client, and Node.js 18+ with npm.
+the client, and Node.js 24+ with npm.
 
 ```sh
 # 1. Database (fresh install)

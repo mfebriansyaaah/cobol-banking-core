@@ -17,7 +17,7 @@
 | Area           | Score | Evidence / gap                                                                                                     |
 | -------------- | ----- | ------------------------------------------------------------------------------------------------------------------ |
 | Correctness    | 2     | All actions shell-covered; 15/15 curated mutants killed (weekly CI). Corpus-curated, not Stryker-% — see gap list. |
-| Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, Tier-1 floor holds with 4 backlog entries.                                   |
+| Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, Tier-1 floor holds with 8 backlog entries.                                   |
 | Data safety    | 1     | Truncation loud, drills green; **no prod KMS** (env-only), retention policy un-drilled at scale.                   |
 | Security       | 1     | Auth+owners+STRIDE+SAST/secret green, CodeQL triaged; **no pen-test**.                                             |
 | Reliability    | 1     | SLO + load budgets; **write-path unprofiled**, canary never exercised.                                             |
