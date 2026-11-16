@@ -1,0 +1,102 @@
+# Dataset Card — Cobol Banking Core (audit snapshot)
+
+- Commit: `bf971bee` (`maint/audit-plan` worktree; baseline `322255b7` on `main`)
+- Date: 2026-11-16
+- Profile default: `source` (see `scripts/export_dataset.sh`)
+
+## License status
+
+**BLOCKED — pending owner/legal sign-off.**
+`LICENSE` is proprietary (all rights reserved; no training/distribution
+grant). `docs/DATASET_LICENSE_APPROVAL.md` exists as a fill-in template
+only. No export may proceed until Approver + Date are filled and the
+decision is recorded per R-03. The export script enforces this (exit 2).
+
+## PII status
+
+- Source fixtures are synthetic (`admin@test.com`, NIK `3171010101900001`,
+  `+6281234567890`, `wilayah.json` public region data).
+- Git history author emails include personal addresses; sanitized export
+  lives only in the mirror clone `/tmp/opencode/cobol-export.git`
+  (see G-02; `git log` there shows only `@users.noreply.github.com`).
+- Local-only artifacts (`backups/` 72M physical backup, `artifacts/`,
+  `node_modules/`, `tests/.dbenv`, `cobol/bin+build/`) are gitignored and
+  excluded from export via `git archive` + profile exclusion lists.
+- Secret history review: `docs/SECURITY_HISTORY_REVIEW.md` — 7 gitleaks
+  history findings, all synthetic test fixtures / docs false positives,
+  0 live credentials. Worktree scan clean.
+
+## Included / excluded paths
+
+`source` profile excludes generated/noise artifacts:
+
+```text
+database/migrations/archive/
+database/schema_full.sql  database/schema_v2.sql
+docs/openapi.yaml  docs/data_dictionary.md  docs/STATUS.md
+docs/MODULE_INDEX.md  docs/COMPLEXITY_BASELINE.md
+contracts/actions.yaml  manifest/actions.json
+tests/contracts/route_field_order.json
+```
+
+Plus `.datasetignore` local paths (backups, artifacts, coverage,
+node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
+
+`verification` profile keeps generated files (needed to run gates).
+`full` profile exports all tracked files.
+
+Every export writes `DATASET_INFO.json` (commit, timestamp, profile,
+fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
+
+## Test evidence (this snapshot)
+
+- Gateway unit: 147/147 pass.
+- Script gate unit tests: 469/469 pass.
+- ESLint: 0 errors, 9 complexity warnings (ratchet `--max-warnings 9`).
+- COBOL syntax: 0 warnings (was 43 copybook warnings, fixed C-03).
+- DB suites: `auth_shell` 51/51 (x2), `card` 52/52 (x2),
+  `card_posting` 103/103, `auth_session` 23/23, schema fleet 214 assertions.
+- Static gates: manifest, docs, dependency graph, purity, transaction
+  ownership, call graph, bind slots, field sizes, action coverage, case
+  actions, suite coverage, program signatures, error codes, openapi,
+  request-state reset (43 modules), module size — all OK.
+- Copybook baseline: vars 243 → 240 (reviewed drift, S-03).
+- Mutation: 16/16 killed (M1–M17 incl. new bind-swap M17).
+- Probes: 17 probes, 16 detected / 1 honestly missed (p5b static
+  bind-swap; covered at runtime by M17).
+- Coverage: gateway ≥ baseline; COBOL per-module ratchet holds.
+- Schema drift: `check_schema_drift.sh` green.
+- Full `tests/run_all.sh full`: 1 flaky shard failure observed
+  (`payment_race` 52/54 under parallel load); suite passes in isolation
+  54/54 and on serial re-run (GREEN). Root cause tracked in C-04 loop.
+
+## Known gaps (honest)
+
+1. 5 template-clone modules frozen per ADR-0012 (excluded from `source`).
+2. Integration backlog: 202 items, 147 OPEN (registry/parser fixed A-04;
+   items are linkage evidence gaps, not code defects).
+3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
+   `tests/coverage_floor_backlog.txt`, 8 entries).
+4. `/auth/refresh` intermittent-500 history: 300-run diagnosis in
+   progress (C-04); quarantine holds 4 tests until root cause or
+   300 green runs (D-14).
+5. MinIO upstream image `minio/minio:latest` no longer exists on
+   Docker Hub; local vault tests use MinIO service — use
+   `quay.io/minio/minio:latest` if re-provisioning (environment note,
+   not a repo change).
+6. Private-repo branch protection unavailable (compensating controls in
+   `docs/GOVERNANCE.md`).
+
+## Reproduce
+
+```bash
+git checkout maint/audit-plan
+npm ci && npm --prefix middleware ci
+./build.sh
+DB_HOST=127.0.0.1 DB_PORT=3307 DB_NAME=cobol_db \
+  DB_USER=cobol_app DB_PASS=cobol_pass \
+  DB_MIGRATE_USER=cobol_migrate DB_MIGRATE_PASS=cobol_migrate_pass \
+  tests/run_all.sh full
+bash scripts/export_dataset.sh --profile source --out /tmp/opencode/dataset-source
+cd /tmp/opencode/dataset-source && sha256sum -c SHA256SUMS
+```
