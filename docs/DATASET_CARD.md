@@ -63,7 +63,10 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 - Copybook baseline: vars 243 → 240 (reviewed drift, S-03).
 - Mutation: 16/16 killed (M1–M17 incl. new bind-swap M17).
 - Probes: 17/17 detected (p5b static via `bind_slots`; M17 runtime backstop).
-- Coverage: gateway ≥ baseline; COBOL per-module ratchet holds.
+- Coverage: gateway 98.94%/84.33% (≥ baseline); COBOL curated total
+  49.24% (≥ 30% floor), copybooks union 83.04% (≥ 80.84%). Per-module
+  baseline re-pinned for the C-06 entry-reset line attribution shift
+  (reviewed `--cobol-only` run; no test deletion).
 - Schema drift: `check_schema_drift.sh` green.
 - Full `tests/run_all.sh full` serial: GREEN (see R-02 evidence).
   Two parallel-shard race flakes observed during the campaign
