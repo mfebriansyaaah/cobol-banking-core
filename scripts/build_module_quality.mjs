@@ -94,8 +94,7 @@ export function build(rootDir = root) {
         coverageStatus: cov === null ? 'unmeasured' : cov >= 70 ? 'ok' : 'floor',
         routeFile: e.routeFile || null,
         dbSuite: existsSync(path.join(rootDir, dbPath)) ? dbPath : null,
-        recommendedForTraining:
-          (e.status === 'ACTIVE' || e.status === 'PILOT') && !(sim !== null && sim >= 0.9),
+        recommendedForTraining: (e.status === 'ACTIVE' || e.status === 'PILOT') && !(sim !== null && sim >= 0.9),
       };
     });
   return { generatedAt: new Date().toISOString(), modules };

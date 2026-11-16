@@ -9,10 +9,14 @@ import path from 'node:path';
 const root = path.resolve(process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : '.');
 
 try {
-  const out = execFileSync(process.execPath, [path.join(root, 'scripts', 'build_module_quality.mjs'), '--check', '--root', root], {
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  const out = execFileSync(
+    process.execPath,
+    [path.join(root, 'scripts', 'build_module_quality.mjs'), '--check', '--root', root],
+    {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  );
   console.log(out.trim());
 } catch (e) {
   process.stderr.write(String((e && e.stdout) || '') + String((e && e.stderr) || e.message || e));
