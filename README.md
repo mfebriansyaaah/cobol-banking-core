@@ -153,7 +153,7 @@ suites, table cases, and the action/suite inventory gates. See
 | COBOL source files (incl. dispatcher) | **72** |
 | COBOL lines | **48,974** |
 | Gateway route files | **54** |
-| Gateway route definitions | **575** |
+| Gateway route definitions | **577** |
 | Dispatch entries | **194** |
 | Recorded migrations | **678** |
 | Tables in schema.sql | **466** |
@@ -476,10 +476,10 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
    `TRIM-RESULT-LEN`) are repeated across most generated modules. Shared
    copybooks for trimming, validation, and audit are the main refactor target.
-3. **CI is hosted on GitHub Actions, but branch protection is unavailable.**
-   The private/free plan rejects branch protection and repository rulesets, so
-   merges are enforced by `scripts/ci/premerge.sh` and `docs/GOVERNANCE.md`
-   rather than by the GitHub UI.
+3. **CI is hosted on GitHub Actions, but branch protection is not active.**
+   The repository is public and branch protection on `main` returns HTTP 404
+   (verified 2026-11-16), so merges are enforced by `scripts/ci/premerge.sh`
+   and `docs/GOVERNANCE.md` rather than by the GitHub UI.
 4. **Documentation is maintained but generated in places.** `docs/STATUS.md`
    and `docs/MODULE_INDEX.md` are generated from the manifest; ADRs, runbooks,
    coverage, governance, the data dictionary, and the domain overview are
@@ -533,7 +533,7 @@ prior written permission. See `LICENSE`.
 
 ## Governance
 
-Branch protection is unavailable on the current private/free GitHub plan. The
-approved exception and compensating controls are documented in
+Branch protection on `main` is not active (verified 2026-11-16 via API, HTTP
+404 Branch not protected). Merge enforcement is local and documented in
 `docs/GOVERNANCE.md`. Run `bash scripts/ci/premerge.sh` before opening a pull
 request.

@@ -11,7 +11,7 @@ Manifest generated: 2026-11-12T06:40:47.672Z
 | COBOL source files (including dispatcher) | 72 |
 | COBOL lines | 48,974 |
 | Gateway route files | 54 |
-| Gateway route definitions (routes + app.js) | 575 |
+| Gateway route definitions (routes + app.js) | 577 |
 | Dispatch entries | 194 |
 | Recorded migrations | 678 |
 | Tables in schema.sql | 466 |
