@@ -30,6 +30,36 @@ rm -rf "$OUT"
 mkdir -p "$OUT"
 git archive HEAD | tar -x -C "$OUT"
 
+preflight_forbidden_paths() {
+  local out="$1"
+  local bad=0
+  for p in \
+    ".git" \
+    "backups" \
+    "backups/physical" \
+    "node_modules" \
+    "middleware/node_modules" \
+    "tests/.dbenv" \
+    ".env" \
+    "middleware/.env" \
+    "artifacts" \
+    "coverage"
+  do
+    if [ -e "$out/$p" ]; then
+      echo "FAIL: forbidden path in export: $p" >&2
+      bad=1
+    fi
+  done
+  if find "$out" -type f \( -name '*.ibd' -o -name 'ibdata1' -o -name '*.cnf' -o -name '*.pem' -o -name '*.key' \) | grep -q .; then
+    echo "FAIL: forbidden database/key file in export" >&2
+    bad=1
+  fi
+  return "$bad"
+}
+
+preflight_forbidden_paths "$OUT"
+test ! -d "$OUT/.git" || { echo "FAIL: .git must never be exported" >&2; exit 1; }
+
 if [ "$PROFILE" = "source" ]; then
   rm -rf "$OUT/database/migrations/archive"
   rm -f \
