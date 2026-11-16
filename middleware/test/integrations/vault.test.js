@@ -161,9 +161,13 @@ test('production vault writes require a KMS key id', () => {
   const savedEnv = process.env.NODE_ENV;
   const savedEndpoint = process.env.VAULT_ENDPOINT;
   const savedKey = process.env.VAULT_KMS_KEY_ID;
+  const savedAccess = process.env.VAULT_ACCESS_KEY;
+  const savedSecret = process.env.VAULT_SECRET_KEY;
   try {
     process.env.NODE_ENV = 'production';
     process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    process.env.VAULT_ACCESS_KEY = 'AKIAIOSFODNN7EXAMPLE12';
+    process.env.VAULT_SECRET_KEY = 'wJalrXUtnFEMI-K7MDENG-bPxRfiCYEXAMPLEKEY';
     delete process.env.VAULT_KMS_KEY_ID;
     assert.throws(() => assertVaultConfig(), /VAULT_KMS_KEY_ID is required/);
     process.env.VAULT_KMS_KEY_ID = 'kms-prod-1';
@@ -181,6 +185,85 @@ test('production vault writes require a KMS key id', () => {
     else process.env.VAULT_ENDPOINT = savedEndpoint;
     if (savedKey === undefined) delete process.env.VAULT_KMS_KEY_ID;
     else process.env.VAULT_KMS_KEY_ID = savedKey;
+    if (savedAccess === undefined) delete process.env.VAULT_ACCESS_KEY;
+    else process.env.VAULT_ACCESS_KEY = savedAccess;
+    if (savedSecret === undefined) delete process.env.VAULT_SECRET_KEY;
+    else process.env.VAULT_SECRET_KEY = savedSecret;
+  }
+});
+
+test('production rejects default vault credentials', () => {
+  const saved = { ...process.env };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    process.env.VAULT_KMS_KEY_ID = 'kms-prod-1';
+    process.env.VAULT_ACCESS_KEY = 'minioadmin';
+    process.env.VAULT_SECRET_KEY = 'minioadmin';
+    assert.throws(() => assertVaultConfig(), /VAULT_ACCESS_KEY/);
+  } finally {
+    for (const key of Object.keys(process.env)) delete process.env[key];
+    Object.assign(process.env, saved);
+  }
+});
+
+test('production rejects default vault secret key', () => {
+  const saved = { ...process.env };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    process.env.VAULT_KMS_KEY_ID = 'kms-prod-1';
+    process.env.VAULT_ACCESS_KEY = 'AKIAIOSFODNN7EXAMPLE12';
+    process.env.VAULT_SECRET_KEY = 'minioadmin';
+    assert.throws(() => assertVaultConfig(), /VAULT_ACCESS_KEY\/VAULT_SECRET_KEY/);
+  } finally {
+    for (const key of Object.keys(process.env)) delete process.env[key];
+    Object.assign(process.env, saved);
+  }
+});
+
+test('production rejects short vault secret', () => {
+  const saved = { ...process.env };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    process.env.VAULT_KMS_KEY_ID = 'kms-prod-1';
+    process.env.VAULT_ACCESS_KEY = 'short';
+    process.env.VAULT_SECRET_KEY = 'short';
+    assert.throws(() => assertVaultConfig(), /at least 16 characters/);
+  } finally {
+    for (const key of Object.keys(process.env)) delete process.env[key];
+    Object.assign(process.env, saved);
+  }
+});
+
+test('production rejects missing vault credentials', () => {
+  const saved = { ...process.env };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    process.env.VAULT_KMS_KEY_ID = 'kms-prod-1';
+    delete process.env.VAULT_ACCESS_KEY;
+    delete process.env.VAULT_SECRET_KEY;
+    assert.throws(() => assertVaultConfig(), /VAULT_ACCESS_KEY is required/);
+  } finally {
+    for (const key of Object.keys(process.env)) delete process.env[key];
+    Object.assign(process.env, saved);
+  }
+});
+
+test('production accepts strong vault credentials + kms', () => {
+  const saved = { ...process.env };
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.VAULT_ENDPOINT = 'https://minio.prod';
+    process.env.VAULT_KMS_KEY_ID = 'kms-prod-1';
+    process.env.VAULT_ACCESS_KEY = 'AKIAIOSFODNN7EXAMPLE12';
+    process.env.VAULT_SECRET_KEY = 'wJalrXUtnFEMI-K7MDENG-bPxRfiCYEXAMPLEKEY';
+    assert.equal(assertVaultConfig().kmsKeyId, 'kms-prod-1');
+  } finally {
+    for (const key of Object.keys(process.env)) delete process.env[key];
+    Object.assign(process.env, saved);
   }
 });
 
