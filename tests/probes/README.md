@@ -16,7 +16,7 @@ p3a_one_route_without_identity             detected   detected   route_auth,fiel
 p3b_whole_route_file_without_identity      detected   detected   auth_guard,route_auth,field_order,contract
 p4_action_without_cobol_handler            detected   detected   action_coverage,field_order,action_coverage_tests,contract
 p5_dead_bind_slot                          detected   detected   bind_slots
-p5b_swapped_bind_slots                     missed     missed     none
+p5b_swapped_bind_slots                     detected   detected   bind_slots
 p6_deleted_db_suite                        detected   detected   suite_coverage,action_coverage_tests
 p7_missing_assertion                       detected   detected   test_counts,action_coverage_tests
 p8_field_order_drift                       detected   detected   field_order,contract
@@ -28,24 +28,32 @@ p13_new_call_edge                          detected   detected   cobol_call_grap
 p14_oversize_buffer                        detected   detected   cobol_field_sizes
 p15_openapi_invalid                        detected   detected   openapi
 
-probes: 17 | detected: 16 | missed: 1
+probes: 17 | detected: 17 | missed: 0
 OK: every probe matched its recorded expectation
 ```
 
-## Why the "missed" row matters
+## Why the honest `missed` row would matter
 
-`missed` is a measurement, not a pass. It means every static gate accepted
-deliberately broken code:
+A `missed` row would mean every static gate accepted deliberately broken
+code. There is currently no such row: the last one (`p5b`, two SQL bind
+slots swapped) flipped to `detected` when DRY-06A moved callsites to the
+shared `SQL-EXEC` wrappers, whose staged binds `check_bind_slots` verifies
+in order (see `expectations.txt`). The runtime mutant M17 in
+`money_path_mutants.sh` keeps proving the same class of defect is killed
+by a functional suite even if the static gate ever regresses.
 
-| Probe | What it breaks | Consequence if it ships |
+The paragraphs below are kept as history of how earlier gaps closed.
+
+| Probe | What it broke | Consequence if it shipped |
 |---|---|---|
-| `p5b` | two SQL bind slots swapped (both are passed) | query compiles and runs, returns another customer's data; only a runtime test that checks values can see the order is wrong |
+| `p5b` (now detected) | two SQL bind slots swapped (both are passed) | query compiles and runs, returns another customer's data; caught statically since DRY-06A wrappers + `bind_slots`, and at runtime by mutant M17 |
 
 Two gaps from Fase 1 are now closed and their probes flipped to `detected`:
 `p3a` (one endpoint losing `tokenIdentity`) by `route_auth`, and `p6` (a
 deleted DB suite) by `suite_coverage`. The dead-write half of the old `p5`
 is now its own probe, `p5_dead_bind_slot`, caught by `bind_slots`; the true
-swap is what remains honestly `missed`.
+swap (`p5b`) is caught by `bind_slots` at `PERFORM SQL-EXEC` sites since
+DRY-06A, with mutant M17 as the runtime backstop.
 
 These are recorded in `expectations.txt` so they cannot be forgotten and
 cannot silently improve: when a new gate closes a gap, the probe flips to
