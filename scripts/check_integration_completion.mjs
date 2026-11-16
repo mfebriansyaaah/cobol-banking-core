@@ -131,7 +131,7 @@ function splitParagraphs(source) {
   return paras;
 }
 
-function tableRefs(text, schemaIndex = null) {
+function tableRefs(text, knownTables = null) {
   const out = new Set();
   for (const m of text.matchAll(/\b(?:FROM|JOIN|INTO|UPDATE)\s+`?([A-Za-z0-9_]+)`?/g)) {
     // COBOL loop bounds (PERFORM VARYING i FROM 256 ...) are not tables.
@@ -140,13 +140,13 @@ function tableRefs(text, schemaIndex = null) {
     if (SQL_NOISE.has(t)) continue;
     if (!/^[a-z][a-z0-9_]{2,}$/.test(t)) continue;
     // Single letters and unknown words (INTO WS-*, loop vars) are not tables.
-    if (schemaIndex && !schemaIndex.has(t)) continue;
+    if (knownTables && !knownTables.has(t)) continue;
     out.add(t);
   }
   return out;
 }
 
-function writeRefs(text, schemaIndex = null) {
+function writeRefs(text) {
   const out = new Set();
   for (const m of text.matchAll(/\b(?:INTO|UPDATE)\s+`?([A-Za-z0-9_]+)`?/g)) {
     const t = m[1].toLowerCase();
@@ -401,11 +401,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       }
       recorded.sort((a, b) => a.id.localeCompare(b.id));
       // Backfill owners for OPEN items that predate MODULE_OWNER (audit A-04).
-      let backfilled = 0;
       for (const item of recorded) {
         if ((item.status === 'OPEN' || item.status === 'IN_PROGRESS') && !item.owner) {
           item.owner = MODULE_OWNER.get(item.module) || 'backend';
-          backfilled += 1;
         }
       }
       writeFileSync(
