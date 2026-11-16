@@ -7,8 +7,8 @@ future fast-install candidate; `schema.sql` + `migrate.sh` is canonical.
 
 ## Context
 
-Every fresh install applies `database/schema.sql` (baseline-0037, 479
-tables) and then 677 migration files one by one (`database/migrate.sh`
+Every fresh install applies `database/schema.sql` (baseline-0037, 466
+unique tables; 479 CREATE TABLE statements before P0-04 dedupe) and then 677 migration files one by one (`database/migrate.sh`
 records each version in `schema_migrations` only on success). The chain is
 correct but expensive: hundreds of sequential `mysql` invocations, 677 files
 to review, and a growing `migrate.sh --check` surface. Steady-state `--check`

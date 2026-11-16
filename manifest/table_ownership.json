@@ -1,5 +1,5 @@
 {
-  "_comment": "Table ownership registry (PR-062). Curated: every table added after the legacy baseline must be recorded here with owner/status before merge. Legacy tables (1538, see legacyBaselineHash) are grandfathered, not exempt from judgment.",
+  "_comment": "Table ownership registry (PR-062). Curated: every table added after the legacy baseline must be recorded here with owner/status before merge. Legacy tables (1539, see legacyBaselineHash) are grandfathered, not exempt from judgment.",
   "genericDeny": [
     "budget_amount",
     "spent_amount",
