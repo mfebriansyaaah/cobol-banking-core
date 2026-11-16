@@ -56,6 +56,9 @@ node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
 `train` is the training corpus, **not** a runnable tree; use
 `verification`/`full` to run gates.
 
+Per-module quality/tier/coverage metadata is in
+`manifest/module_quality.json` and `docs/MODULE_QUALITY.md`.
+
 `verification` profile keeps generated files (needed to run gates).
 `full` profile exports all tracked files.
 
