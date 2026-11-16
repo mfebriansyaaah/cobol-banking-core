@@ -221,8 +221,7 @@ V2=$!
 wait $V1; wait $V2
 VA="$(tr -d ' \n' <"$K1/output.txt")"; VB="$(tr -d ' \n' <"$K2/output.txt")"
 rm -rf "$K1" "$K2"
-assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$VA" "$VB" | grep -c "SUCCESS\|CARD_CAPTURE")" "^1$"
-assert_match "keyed loser in progress" "$(printf '%s\n%s\n' "$VA" "$VB")" "ERROR\|CAPTURE_IN_PROGRESS"
+assert_race_outcomes "keyed capture race" "$(printf '%s\n%s\n' "$VA" "$VB")" "SUCCESS|CARD_CAPTURE" "ERROR|CAPTURE_IN_PROGRESS"
 assert_match "keyed retry converges" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth2_ref}|||K-CRACE|${A}")" "SUCCESS\|CARD_CAPTURE\|300.0000"
 assert_match "mirror race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='CARD_CAPTURE' AND entity_ref='${KID}' AND idem_key='K-CRACE';")" "^DONE|300.0000$"
 assert_match "single posting for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${kauth2_ref}';")" "^2$"
@@ -260,8 +259,7 @@ W2=$!
 wait $W1; wait $W2
 JA="$(tr -d ' \n' <"$J1/output.txt")"; JB="$(tr -d ' \n' <"$J2/output.txt")"
 rm -rf "$J1" "$J2"
-assert_match "exactly one repay winner" "$(printf '%s\n%s\n' "$JA" "$JB" | grep -c "SUCCESS\|CARD_REPAY")" "^1$"
-assert_match "repay loser refused" "$(printf '%s\n%s\n' "$JA" "$JB")" "ERROR\|"
+assert_race_outcomes "keyed repay race" "$(printf '%s\n%s\n' "$JA" "$JB")" "SUCCESS|CARD_REPAY" "ERROR|REPAY_IN_PROGRESS"
 assert_match "repay retry converges" "$(run_cobol "CARD_REPAY|${KID}|150.00|||K-RRACE|${A}")" "SUCCESS\|CARD_REPAY\|150.0000"
 assert_match "over-ceiling keyed repay refused" "$(run_cobol "CARD_REPAY|${KID}|99999.00|||K-DOOMR|${A}")" "ERROR\|OVERPAID"
 assert_match "over-ceiling retry in progress" "$(run_cobol "CARD_REPAY|${KID}|99999.00|||K-DOOMR|${A}")" "ERROR\|REPAY_IN_PROGRESS"

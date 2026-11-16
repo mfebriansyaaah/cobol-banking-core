@@ -45,6 +45,12 @@ count_for() {
     # Compiler diagnostics look like:
     #   cobol/src/main_logic.cob:43: warning: ...
     #   cobol/src/sql_bridge.c:12:3: warning: ...
+    # Copybook diagnostics name the .cpy file; they compile into every host
+    # but are counted once under the synthetic `copybooks` baseline entry.
+    if [ "$1" = "copybooks" ]; then
+        grep -cE "cobol/copy/.*:[0-9]+(:[0-9]+)?: warning:" "$LOG" || true
+        return 0
+    fi
     grep -cE "cobol/src/$1:[0-9]+(:[0-9]+)?: warning:" "$LOG" || true
 }
 

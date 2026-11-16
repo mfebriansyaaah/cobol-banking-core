@@ -129,8 +129,7 @@ E2=$!
 wait $E1; wait $E2
 EA="$(tr -d ' \n' <"$Q1/output.txt")"; EB="$(tr -d ' \n' <"$Q2/output.txt")"
 rm -rf "$Q1" "$Q2"
-assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$EA" "$EB" | grep -c "SUCCESS|COL_PAY")" "^1$"
-assert_match "keyed loser in progress" "$(printf '%s\n%s\n' "$EA" "$EB")" "ERROR\|PAY_IN_PROGRESS"
+assert_race_outcomes "keyed pay race" "$(printf '%s\n%s\n' "$EA" "$EB")" "SUCCESS|COL_PAY" "ERROR|PAY_IN_PROGRESS"
 assert_match "keyed retry converges" "$(run_cobol "COL_PAY|${key_case}|60.00|||K-PRACE|admin@test.com")" "SUCCESS\|COL_PAY\|60.0000\|80.0000"
 assert_match "mirror race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='COL_PAY' AND entity_ref='${key_case}' AND idem_key='K-PRACE';")" "^DONE|60.0000$"
 db_exec "INSERT INTO collection_pay_request (case_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${key_case},'K-TAKE',10.00,'PENDING',DATE_SUB(NOW(),INTERVAL 10 MINUTE),DATE_SUB(NOW(),INTERVAL 10 MINUTE));"

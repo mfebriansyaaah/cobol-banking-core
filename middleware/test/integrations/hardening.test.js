@@ -33,18 +33,48 @@ test('required secrets follow the configured providers', () => {
 });
 
 test('missing secrets fail boot in production only', () => {
-  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: undefined, NIK_HMAC_SECRET: 'test-secret' }, () => {
-    assert.deepEqual(missingSecrets({ email: 'log', phone: 'telegram' }), ['TELEGRAM_BOT_TOKEN']);
-    assert.throws(() => assertSecrets({ email: 'log', phone: 'telegram' }), /TELEGRAM_BOT_TOKEN/);
-  });
+  withEnv(
+    {
+      NODE_ENV: 'production',
+      TELEGRAM_BOT_TOKEN: undefined,
+      NIK_HMAC_SECRET: 'test-secret',
+      TURNSTILE_SECRET: 'turnstile-test',
+    },
+    () => {
+      assert.deepEqual(missingSecrets({ email: 'log', phone: 'telegram' }), ['TELEGRAM_BOT_TOKEN']);
+      assert.throws(() => assertSecrets({ email: 'log', phone: 'telegram' }), /TELEGRAM_BOT_TOKEN/);
+    },
+  );
   withEnv({ NODE_ENV: 'test', TELEGRAM_BOT_TOKEN: undefined }, () => {
     assert.doesNotThrow(() => assertSecrets({ email: 'log', phone: 'telegram' }));
   });
-  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: 'x', NIK_HMAC_SECRET: 'test-secret' }, () => {
-    assert.doesNotThrow(() => assertSecrets({ email: 'log', phone: 'telegram' }));
-  });
-  withEnv({ NODE_ENV: 'production', TELEGRAM_BOT_TOKEN: 'x', NIK_HMAC_SECRET: undefined }, () => {
-    assert.throws(() => assertSecrets({ email: 'log', phone: 'telegram' }), /NIK_HMAC_SECRET/);
+  withEnv(
+    {
+      NODE_ENV: 'production',
+      TELEGRAM_BOT_TOKEN: 'x',
+      NIK_HMAC_SECRET: 'test-secret',
+      TURNSTILE_SECRET: 'turnstile-test',
+    },
+    () => {
+      assert.doesNotThrow(() => assertSecrets({ email: 'log', phone: 'telegram' }));
+    },
+  );
+  withEnv(
+    {
+      NODE_ENV: 'production',
+      TELEGRAM_BOT_TOKEN: 'x',
+      NIK_HMAC_SECRET: undefined,
+      TURNSTILE_SECRET: 'turnstile-test',
+    },
+    () => {
+      assert.throws(() => assertSecrets({ email: 'log', phone: 'telegram' }), /NIK_HMAC_SECRET/);
+    },
+  );
+});
+
+test('production requires TURNSTILE_SECRET', () => {
+  withEnv({ NODE_ENV: 'production', NIK_HMAC_SECRET: 'test-secret', TURNSTILE_SECRET: undefined }, () => {
+    assert.throws(() => assertSecrets({ email: 'log', phone: 'mock' }), /TURNSTILE_SECRET/);
   });
 });
 

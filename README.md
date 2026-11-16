@@ -25,7 +25,7 @@ crypto helpers COBOL cannot call directly.
 Client
   │  HTTPS / JSON
   ▼
-middleware/src/                 Node 18+ / Express 5 (transport only)
+middleware/src/                 Node 24+ / Express 5 (transport only)
   app.js                       route table: HTTP → COBOL action
   routes/*.js                  per-domain field order + patterns
   validation.js                request shape, no business rules
@@ -133,7 +133,7 @@ not a maturity score.
 | Performance benchmarks | ✅ | `tests/perf/bench.sh` |
 | Coverage gate | ✅ | `scripts/ci/coverage.sh`, `tests/coverage_baseline.txt`; COBOL is a curated-core floor |
 | Warning ratchet | ⚠️ | `scripts/check_warnings.sh`; a few non-zero entries remain |
-| Mutation testing | ❌ | Not implemented; the probe harness tests gates, not mutants |
+| Mutation testing | ✅ (curated) | 16 money-path mutants via tests/probes/money_path_mutants.sh + .github/workflows/mutation.yml |
 | CI build under 2 minutes | ❌ | Full build/test is intentionally heavier |
 
 ### Coverage scope
@@ -151,7 +151,7 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **71** |
 | COBOL source files (incl. dispatcher) | **72** |
-| COBOL lines | **48,883** |
+| COBOL lines | **48,982** |
 | Gateway route files | **54** |
 | Gateway route definitions | **575** |
 | Dispatch entries | **194** |
@@ -192,7 +192,7 @@ Two runtime modes:
 ## Quick start
 
 Prerequisites: GnuCOBOL (`cobc`), `gcc`, `libmysqlclient-dev`, MariaDB/MySQL with
-the client, and Node.js 18+ with npm.
+the client, and Node.js 24+ with npm.
 
 ```sh
 # 1. Database (fresh install)
@@ -297,6 +297,12 @@ node middleware/workers/outbox.js --once --limit 100
 
 ## Database
 
+> **Baseline note (2026-11-16):** `database/schema.sql` + `database/migrate.sh`
+> is the canonical fresh-install path used by README and CI.
+> `database/schema_v2.sql` and `migrate.sh --baseline` are an experimental
+> fast-install candidate; they are not the onboarding path and are excluded
+> from the `source` dataset profile.
+
 - `database/schema.sql` — baseline snapshot, fresh installs only.
 - `database/migrations/` — append-only, one file per change (`0101_…` …
   `0110_cards.sql`), tracked in `schema_migrations`.
@@ -327,7 +333,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 67 |
-| `tests/db/card_db_tests.sh` | 49 |
+| `tests/db/card_db_tests.sh` | 52 |
 | `tests/db/collection_db_tests.sh` | 56 |
 | `tests/db/payment_clearing_db_tests.sh` | 22 |
 | `tests/db/treasury_liquidity_db_tests.sh` | 24 |
@@ -336,7 +342,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/grants_db_tests.sh` | 6 |
 | `tests/db/migration_checksum_db_tests.sh` | 6 |
 | `tests/db/report_builder_db_tests.sh` | 13 |
-| `middleware/test/*.js` | 341 |
+| `middleware/test/*.js` | 347 |
 | `tests/db/cost_center_db_tests.sh` | 18 |
 | `tests/db/fixed_asset_db_tests.sh` | 18 |
 | `tests/db/fixed_asset_schema_db_tests.sh` | 8 |
@@ -374,10 +380,10 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/payment_hold_db_tests.sh` | 22 |
 | `tests/db/velocity_db_tests.sh` | 15 |
 | `tests/db/payment_limits_db_tests.sh` | 28 |
-| `tests/db/payment_race_db_tests.sh` | 54 |
+| `tests/db/payment_race_db_tests.sh` | 55 |
 | `tests/db/payment_conservation_db_tests.sh` | 44 |
 | `tests/db/admin_shell_db_tests.sh` | 30 |
-| `tests/db/auth_shell_db_tests.sh` | 44 |
+| `tests/db/auth_shell_db_tests.sh` | 51 |
 | `tests/db/dashboard_db_tests.sh` | 13 |
 | `tests/db/eod_ops_db_tests.sh` | 16 |
 | `tests/db/fee_read_db_tests.sh` | 9 |
@@ -409,7 +415,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/loan_posting_db_tests.sh` | 13 |
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
-| **Total** | **2807** |
+| **Total** | **2824** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

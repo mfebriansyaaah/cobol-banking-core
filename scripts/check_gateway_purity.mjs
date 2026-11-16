@@ -62,7 +62,9 @@ for (const f of listJs(ROUTES_DIR)) {
   const src = readFileSync(f, 'utf8');
   const clean = stripComments(src);
   for (const imp of importsOf(src)) {
-    if (imp !== '../validation.js') fail(`${rel}: only '../validation.js' imports allowed (got '${imp}')`);
+    if (imp !== '../validation.js' && imp !== '../../contract/validation.js') {
+      fail(`${rel}: only validation.js imports allowed (got '${imp}')`);
+    }
   }
   if (/process\.env/.test(clean)) fail(`${rel}: routes must not read process.env`);
   if (/\binvoke\s*\(/.test(clean)) fail(`${rel}: routes must not invoke COBOL`);

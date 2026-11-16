@@ -242,13 +242,6 @@
                     MOVE WS-I TO WS-P2-ELEN
                 END-IF
             END-PERFORM
-            CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM3-TRIMMED BY REFERENCE WS-P3-ESC BY VALUE 256 END-CALL
-            MOVE 0 TO WS-P3-ELEN
-            PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P3-ELEN > 0
-                IF WS-P3-ESC(WS-I:1) NOT = SPACE
-                    MOVE WS-I TO WS-P3-ELEN
-                END-IF
-            END-PERFORM
             CALL "SQL_ESCAPE" USING BY REFERENCE WS-PARAM4-TRIMMED BY REFERENCE WS-P4-ESC BY VALUE 256 END-CALL
             MOVE 0 TO WS-P4-ELEN
             PERFORM VARYING WS-I FROM 256 BY -1 UNTIL WS-I < 1 OR WS-P4-ELEN > 0
@@ -261,9 +254,6 @@
             END-IF
             IF WS-P2-ELEN = 0
                 MOVE 1 TO WS-P2-ELEN
-            END-IF
-            IF WS-P3-ELEN = 0
-                MOVE 1 TO WS-P3-ELEN
             END-IF
             IF WS-P4-ELEN = 0
                 MOVE 1 TO WS-P4-ELEN

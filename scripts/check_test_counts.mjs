@@ -8,11 +8,12 @@
 //     <report-dir>/junit/gateway/ (legacy flat dirs: junit-*.xml at root,
 //     junit/db/ always excluded).
 //   static (--static): counts assert_match lines per tests/db/*.sh and @@
-//     case lines, without running anything. Used by the probes harness and
-//     for fast local checks. Exact counts hold for every suite except the
-//     documented LOOP_GENERATED set (loop-generated assertions: 19 lines
-//     execute 76 times in db_schema_tests); those are checked loosely here
-//     and exactly at runtime.
+//     case lines, without running anything. `assert_race_outcomes` counts as
+//     two assertions (winner + allowed-outcome check). Used by the probes
+//     harness and for fast local checks. Exact counts hold for every suite
+//     except the documented LOOP_GENERATED set (loop-generated assertions: 19
+//     lines execute 76 times in db_schema_tests); those are checked loosely
+//     here and exactly at runtime.
 //
 // Usage:
 //   node scripts/check_test_counts.mjs [--report-dir DIR] [--strict]
@@ -223,7 +224,13 @@ function loadStatic() {
     const key = keyForDbFile(f);
     if (!key) continue;
     const src = readFileSync(path.join(dbDir, f), 'utf8');
-    const n = src.split('\n').filter((l) => /(^|[\s;])assert_match[\s(]/.test(l)).length;
+    // assert_race_outcomes always emits two assertions (at least one winner,
+    // only idempotent outcomes); count it as such so static and runtime agree.
+    const n = src.split('\n').reduce((sum, l) => {
+      if (/(^|[\s;])assert_match[\s(]/.test(l)) return sum + 1;
+      if (/(^|[\s;])assert_race_outcomes[\s(]/.test(l)) return sum + 2;
+      return sum;
+    }, 0);
     if (!rows.has(key)) rows.set(key, []);
     rows.get(key).push({ total: n, status: n > 0 ? 'pass' : 'missing', file: f });
   }

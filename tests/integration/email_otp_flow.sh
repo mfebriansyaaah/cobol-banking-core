@@ -46,21 +46,34 @@ assert_match "mapped body exact (no room for a code)" "$mapped" '^\{"data":\["US
 echo "=== Email OTP flow ($U via $MAILPIT) ==="
 export SMTP_HOST="${SMTP_HOST:-127.0.0.1}" SMTP_PORT="${SMTP_PORT:-1025}"
 export EMAIL_PROVIDER=mailpit OUTBOX_TRANSPORT=mailpit
-node "$ROOT/middleware/workers/outbox.js" --once --limit 10 >/tmp/mailflow_worker.log 2>&1
-assert_match "worker delivered" "$(grep -c outbox_sent /tmp/mailflow_worker.log)" "^[1-9][0-9]*$"
+t0="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+# Drain until THIS run's row is sent: earlier suites leave a PENDING
+# backlog in the shared isolated DB and the worker claims oldest-first,
+# so a single --limit 10 run may never reach our row (bounded loop).
+sent=0
+for _ in $(seq 1 30); do
+  node "$ROOT/middleware/workers/outbox.js" --once --limit 100 >/tmp/mailflow_worker.log 2>&1
+  sent="$(db_query "SELECT COUNT(*) FROM notification_outbox WHERE recipient='${U}' AND state='SENT';")"
+  if [ "$sent" -ge 1 ]; then break; fi
+done
+assert_match "worker delivered" "$sent" "^[1-9][0-9]*$"
 
+# Mailpit keeps every message (fresh container per CI job, shared locally),
+# and its API lists newest first: select this run's message (at/after the
+# worker run started), never the tail of a previous run.
 code="$(node -e '
-const base = process.argv[1], to = process.argv[2];
+const base = process.argv[1], to = process.argv[2], since = process.argv[3];
 fetch(base + "/api/v1/messages").then((r) => r.json()).then(async (j) => {
   const msgs = (j.messages || []).filter((m) => (m.To || []).some((t) => t.Address === to));
-  if (!msgs.length) { console.log(""); return; }
-  const id = msgs[msgs.length - 1].ID;
-  const m = await (await fetch(base + "/api/v1/message/" + id)).json();
+  const fresh = msgs.filter((m) => !since || (m.Created || m.Date || "") >= since);
+  const pick = fresh.length ? fresh[0] : msgs[0];
+  if (!pick) { console.log(""); return; }
+  const m = await (await fetch(base + "/api/v1/message/" + pick.ID)).json();
   const body = (m.Text || "") + "\n" + (m.HTML || "");
   const found = body.match(/\b(\d{6})\b/);
   console.log(found ? found[1] : "");
 }).catch(() => console.log(""));
-' "$MAILPIT" "$U")"
+' "$MAILPIT" "$U" "$t0")"
 assert_match "code recovered from email" "$code" "^[0-9]{6}$"
 assert_match "verify ok" "$(run_cobol "VERIFY_EMAIL|${U}|${code}")" "SUCCESS\|EMAIL_VERIFIED"
 assert_match "outbox marked sent" "$(db_query "SELECT state FROM notification_outbox WHERE recipient='${U}' ORDER BY id DESC LIMIT 1;")" "^SENT$"

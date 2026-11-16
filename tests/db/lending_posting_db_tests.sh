@@ -183,8 +183,7 @@ Q2=$!
 wait $Q1; wait $Q2
 KA="$(tr -d ' \n' <"$R1/output.txt")"; KB="$(tr -d ' \n' <"$R2/output.txt")"
 rm -rf "$R1" "$R2"
-assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$KA" "$KB" | grep -c "SUCCESS|LOAN_REPAY")" "^1$"
-assert_match "loser sees in-progress" "$(printf '%s\n%s\n' "$KA" "$KB")" "ERROR\|REPAY_IN_PROGRESS"
+assert_race_outcomes "keyed repay race" "$(printf '%s\n%s\n' "$KA" "$KB")" "SUCCESS|LOAN_REPAY" "ERROR|REPAY_IN_PROGRESS"
 assert_match "retry converges" "$(run_cobol "LOAN_REPAY|${APP}|140.00|||K-LRACE|${A}")" "SUCCESS\|LOAN_REPAY"
 assert_match "mirror race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='LOAN_REPAY' AND entity_ref='${APP}' AND idem_key='K-LRACE';")" "^DONE|140.0000$"
 assert_match "single repayment for key" "$(db_query "SELECT COUNT(*) FROM loan_repayment WHERE loan_id=${APP} AND amount=140.00 AND status='PAID';")" "^1$"
@@ -231,8 +230,7 @@ T2=$!
 wait $T1; wait $T2
 SA="$(tr -d ' \n' <"$S1/output.txt")"; SB="$(tr -d ' \n' <"$S2/output.txt")"
 rm -rf "$S1" "$S2"
-assert_match "exactly one settle winner" "$(printf '%s\n%s\n' "$SA" "$SB" | grep -c "SUCCESS|DEP_SETTLE")" "^1$"
-assert_match "settle loser sees in-progress" "$(printf '%s\n%s\n' "$SA" "$SB")" "ERROR\|SETTLE_IN_PROGRESS"
+assert_race_outcomes "keyed settle race" "$(printf '%s\n%s\n' "$SA" "$SB")" "SUCCESS|DEP_SETTLE" "ERROR|SETTLE_IN_PROGRESS"
 assert_match "settle retry converges" "$(run_cobol "DEP_SETTLE|${DID3}||||K-DSRACE|${A}")" "SUCCESS\|DEP_SETTLE\|502.0548"
 assert_match "mirror settle race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='DEP_SETTLE' AND entity_ref='${DID3}' AND idem_key='K-DSRACE';")" "^DONE|502.0548$"
 assert_match "single payout for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID3}';")" "^2$"
@@ -280,8 +278,7 @@ U2=$!
 wait $U1; wait $U2
 CA="$(tr -d ' \n' <"$C1/output.txt")"; CB="$(tr -d ' \n' <"$C2/output.txt")"
 rm -rf "$C1" "$C2"
-assert_match "exactly one close winner" "$(printf '%s\n%s\n' "$CA" "$CB" | grep -c "SUCCESS|DEP_CLOSED")" "^1$"
-assert_match "close loser sees in-progress" "$(printf '%s\n%s\n' "$CA" "$CB")" "ERROR\|CLOSE_IN_PROGRESS"
+assert_race_outcomes "keyed close race" "$(printf '%s\n%s\n' "$CA" "$CB")" "SUCCESS|DEP_CLOSED" "ERROR|CLOSE_IN_PROGRESS"
 assert_match "close retry converges" "$(run_cobol "DEP_CLOSE|${DID6}||||K-DCRACE|${A}")" "SUCCESS\|DEP_CLOSED\|100.0000"
 assert_match "mirror close race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='DEP_CLOSE' AND entity_ref='${DID6}' AND idem_key='K-DCRACE';")" "^DONE|100.0000$"
 assert_match "single refund for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='DEP-${DID6}-REFUND';")" "^2$"
@@ -322,8 +319,7 @@ V2=$!
 wait $V1; wait $V2
 EA="$(tr -d ' \n' <"$E1/output.txt")"; EB="$(tr -d ' \n' <"$E2/output.txt")"
 rm -rf "$E1" "$E2"
-assert_match "exactly one disburse winner" "$(printf '%s\n%s\n' "$EA" "$EB" | grep -c "SUCCESS|LOAN_DISBURSE")" "^1$"
-assert_match "disburse loser sees in-progress" "$(printf '%s\n%s\n' "$EA" "$EB")" "ERROR\|DISBURSE_IN_PROGRESS"
+assert_race_outcomes "keyed disburse race" "$(printf '%s\n%s\n' "$EA" "$EB")" "SUCCESS|LOAN_DISBURSE" "ERROR|DISBURSE_IN_PROGRESS"
 assert_match "disburse retry converges" "$(run_cobol "LOAN_DISBURSE|${APP7}||||K-DRACE|${A}")" "SUCCESS\|LOAN_DISBURSE"
 assert_match "mirror disburse race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='LOAN_DISBURSE' AND entity_ref='${APP7}' AND idem_key='K-DRACE';")" "^DONE|700.0000$"
 assert_match "single disbursal for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='LOAN-${APP7}';")" "^2$"
@@ -365,8 +361,7 @@ W2=$!
 wait $W1; wait $W2
 OA="$(tr -d ' \n' <"$O1/output.txt")"; OB="$(tr -d ' \n' <"$O2/output.txt")"
 rm -rf "$O1" "$O2"
-assert_match "exactly one open winner" "$(printf '%s\n%s\n' "$OA" "$OB" | grep -c "SUCCESS\|DEP_OPEN")" "^1$"
-assert_match "open loser sees in-progress" "$(printf '%s\n%s\n' "$OA" "$OB")" "ERROR\|OPEN_IN_PROGRESS"
+assert_race_outcomes "keyed open race" "$(printf '%s\n%s\n' "$OA" "$OB")" "SUCCESS|DEP_OPEN" "ERROR|OPEN_IN_PROGRESS"
 assert_match "open retry converges" "$(run_cobol "DEP_OPEN|${WB}|850.00|USD|12|5.00|${A}|K-ORACE")" "SUCCESS\|DEP_OPEN\|[0-9]+"
 assert_match "mirror open race converges DONE" "$(db_query "SELECT status FROM idempotency_request WHERE scope='DEP_OPEN' AND entity_ref='' AND idem_key='K-ORACE';")" "^DONE$"
 assert_match "single deposit for key" "$(db_query "SELECT COUNT(*) FROM deposit_account WHERE customer_email='${WB}' AND principal=850.00;")" "^1$"

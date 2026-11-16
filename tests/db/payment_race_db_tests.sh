@@ -143,8 +143,23 @@ P2=$!
 wait $P1; wait $P2
 KA="$(tr -d ' \n' <"$D1/output.txt")"; KB="$(tr -d ' \n' <"$D2/output.txt")"
 rm -rf "$D1" "$D2"
-assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$KA" "$KB" | grep -c "SUCCESS|PMC_SETTLE")" "^1$"
-assert_match "loser sees in-progress" "$(printf '%s\n%s\n' "$KA" "$KB")" "ERROR\|SETTLE_IN_PROGRESS"
+race_out="$(printf '%s\n%s\n' "$KA" "$KB")"
+successes="$(printf '%s\n' "$race_out" | grep -c "SUCCESS|PMC_SETTLE")"
+unexpected="$(printf '%s\n' "$race_out" | grep -vcE '^(SUCCESS\|PMC_SETTLE.*|ERROR\|SETTLE_IN_PROGRESS)$')"
+# The money invariant is one settlement (asserted below by settled_amount=200
+# and exactly two journal rows). A loser may observe PENDING (in-progress) or
+# may arrive after commit and replay SUCCESS; both are correct idempotency
+# outcomes. Asserting "exactly one SUCCESS" was a scheduler-dependent flake
+# under 4 shards (serial always overlapped).
+assert_match "keyed race has at least one winner" "$successes" "^[1-2]$"
+assert_match "keyed race has no unexpected error" "$unexpected" "^0$"
+# Deterministic fresh-PENDING branch (in-progress) without scheduling luck.
+run_cobol "PMC_CREATE|CLR-RC-6|100.00|USD|||${A}" >/dev/null
+CID6="$(db_query "SELECT id FROM payment_clearing WHERE clearing_ref='CLR-RC-6';")"
+run_cobol "PMC_POST|${CID6}|100.00||||${A}" >/dev/null
+db_exec "INSERT INTO payment_settle_request (clearing_id, idempotency_key, amount, status, created_at, updated_at) VALUES (${CID6},'K-INPROG',100.00,'PENDING',NOW(),NOW());"
+assert_match "fresh pending key refused" "$(run_cobol "PMC_SETTLE|${CID6}|100.00|||K-INPROG|${A}")" "ERROR\|SETTLE_IN_PROGRESS"
+db_exec "DELETE FROM payment_settle_request WHERE clearing_id=${CID6} AND idempotency_key='K-INPROG';"
 assert_match "retry converges" "$(run_cobol "PMC_SETTLE|${CID3}|100.00|||K-RACE|${A}")" "SUCCESS\|PMC_SETTLE"
 assert_match "mirror race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='PMC_SETTLE' AND entity_ref='${CID3}' AND idem_key='K-RACE';")" "^DONE|100.0000$"
 assert_match "single journal for key" "$(db_query "SELECT COUNT(*) FROM gl_journal WHERE description LIKE 'PMC_SETTLE:CLR-RC-3:%';")" "^2$"

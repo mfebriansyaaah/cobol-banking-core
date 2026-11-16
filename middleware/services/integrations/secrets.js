@@ -10,7 +10,15 @@ const SECRET_FOR = {
 };
 
 // Names that must never appear in cleartext logs.
-const SECRET_NAMES = ['SMTP_PASS', 'TELEGRAM_BOT_TOKEN', 'FREE_SMS_API_KEY', 'NIK_HMAC_SECRET'];
+const SECRET_NAMES = [
+  'SMTP_PASS',
+  'TELEGRAM_BOT_TOKEN',
+  'FREE_SMS_API_KEY',
+  'NIK_HMAC_SECRET',
+  'VAULT_ACCESS_KEY',
+  'VAULT_SECRET_KEY',
+  'TURNSTILE_SECRET',
+];
 
 export function requiredSecrets(config) {
   const out = [];
@@ -25,6 +33,8 @@ export function requiredSecrets(config) {
   // NIK handles are HMAC'd server-side on every validation: without a secret
   // the gateway cannot derive them and must not boot in production.
   out.push('NIK_HMAC_SECRET');
+  if (process.env.VAULT_ENDPOINT) out.push('VAULT_ACCESS_KEY', 'VAULT_SECRET_KEY');
+  if (process.env.NODE_ENV === 'production') out.push('TURNSTILE_SECRET');
   return [...new Set(out)];
 }
 

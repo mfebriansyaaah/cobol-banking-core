@@ -1,8 +1,9 @@
 // Bot protection (PR-094, Cloudflare Turnstile): server-side token verify.
 // The token is single-use, never stored, never logged. Fail-open with a
 // metric on provider down (availability first; the auth rate limiters still
-// apply and tighten the window). Enforced only when TURNSTILE_SECRET is set;
-// unset means the check is skipped (dev/test default, documented).
+// apply and tighten the window). Unset means the check is skipped (dev/test
+// default, documented); production boot requires TURNSTILE_SECRET
+// (see requiredSecrets) so the gate cannot be silently skipped there.
 import { recordFallback, resilientFetch, DEFAULT_TIMEOUT_MS } from '../resilience.js';
 
 export const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';

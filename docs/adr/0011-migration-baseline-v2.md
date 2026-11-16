@@ -2,8 +2,8 @@
 
 ## Status
 
-Proposed. Merge of the PR-00B branch by the owner is the approval, and
-flips this to Accepted (see Approval below).
+Deferred — not adopted in this release (2026-11-16). The design remains a
+future fast-install candidate; `schema.sql` + `migrate.sh` is canonical.
 
 ## Context
 

@@ -6,7 +6,7 @@
 // middleware/src/otpService.js re-exports this module for backward compat.
 import { createHash } from 'node:crypto';
 import { invoke } from '../core-client/invoker.js';
-import { PATTERNS, check } from '../src/validation.js';
+import { PATTERNS, check } from '../contract/validation.js';
 import { getProviders } from '../services/integrations/index.js';
 import { sendOtpWithFallback } from '../services/integrations/phone.js';
 import { normalizeIdPhone } from '../services/integrations/phone/normalize.js';

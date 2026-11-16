@@ -129,6 +129,9 @@
            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
        MAIN-LOGIC.
+           *> Request-entry reset (C-01): WORKING-STORAGE persists across
+           *> --serve calls, so stale WS-ERR must not leak into this request.
+           MOVE SPACES TO WS-ERR
            PERFORM VALIDATE-ALL
            IF WS-BAD > 0
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -392,6 +395,7 @@
            EXIT PARAGRAPH.
 
        ACTION-BLOCK.
+           MOVE SPACES TO WS-ERR
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
@@ -414,6 +418,12 @@
                SET STEP-FAIL TO TRUE
            END-IF.
            IF STEP-OK
+               MOVE "BLOCK" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CARD
+               MOVE SPACES TO WS-AUDIT-DETAIL
+               PERFORM AUDIT
+           END-IF.
+           IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
                MOVE "SUCCESS|CARD_BLOCKED" TO LS-OUTPUT-BUFFER
            ELSE
@@ -427,6 +437,7 @@
            EXIT PARAGRAPH.
 
        ACTION-UNBLOCK.
+           MOVE SPACES TO WS-ERR
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
@@ -449,6 +460,12 @@
                SET STEP-FAIL TO TRUE
            END-IF.
            IF STEP-OK
+               MOVE "UNBLOCK" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CARD
+               MOVE SPACES TO WS-AUDIT-DETAIL
+               PERFORM AUDIT
+           END-IF.
+           IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
                MOVE "SUCCESS|CARD_UNBLOCKED" TO LS-OUTPUT-BUFFER
            ELSE
@@ -462,6 +479,7 @@
            EXIT PARAGRAPH.
 
        ACTION-CLOSE.
+           MOVE SPACES TO WS-ERR
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
@@ -501,6 +519,12 @@
            END-IF.
            IF WS-RESULT(1:5) = "ERROR"
                SET STEP-FAIL TO TRUE
+           END-IF.
+           IF STEP-OK
+               MOVE "CLOSE" TO WS-AUDIT-ACTION
+               MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CARD
+               MOVE SPACES TO WS-AUDIT-DETAIL
+               PERFORM AUDIT
            END-IF.
            IF STEP-OK
                CALL "SQL_COMMIT" END-CALL
@@ -1388,6 +1412,7 @@
       *> Change the card limit. The new limit cannot sit below the
       *> outstanding balance.
        ACTION-LIMIT-SET.
+           MOVE SPACES TO WS-ERR
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1
@@ -1445,6 +1470,7 @@
       *> Replace a card: issue a new card row copying type/limit/balance and
       *> close the old one, keeping the replacement link.
        ACTION-REPLACE.
+           MOVE SPACES TO WS-ERR
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ADMIN-GUARD
            IF WS-ALLOWED NOT = 1

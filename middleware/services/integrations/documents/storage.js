@@ -8,6 +8,8 @@ import { resilientFetch, DEFAULT_TIMEOUT_MS } from '../resilience.js';
 
 export const MAX_OBJECT_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'application/pdf']);
+const DEFAULT_VAULT_ACCESS_KEYS = new Set(['minioadmin']);
+const MIN_VAULT_SECRET_LENGTH = 16;
 
 export function vaultConfig() {
   return {
@@ -21,12 +23,28 @@ export function vaultConfig() {
 }
 
 // Fail fast at boot (production only): objects written without a KMS key id
-// would rest unencrypted. Development/test boot bare.
+// would rest unencrypted. Default dev credentials and short secrets are
+// rejected in production. Development/test boot bare.
 export function assertVaultConfig() {
   const cfg = vaultConfig();
   if (process.env.NODE_ENV !== 'production') return cfg;
-  if (cfg.endpoint && !cfg.kmsKeyId) {
+  if (!cfg.endpoint) return cfg;
+  if (!cfg.kmsKeyId) {
     throw new Error('VAULT_KMS_KEY_ID is required in production when VAULT_ENDPOINT is set');
+  }
+  if (!cfg.accessKey) {
+    throw new Error('VAULT_ACCESS_KEY is required in production when VAULT_ENDPOINT is set');
+  }
+  if (!cfg.secretKey) {
+    throw new Error('VAULT_SECRET_KEY is required in production when VAULT_ENDPOINT is set');
+  }
+  if (DEFAULT_VAULT_ACCESS_KEYS.has(cfg.accessKey) || DEFAULT_VAULT_ACCESS_KEYS.has(cfg.secretKey)) {
+    throw new Error('VAULT_ACCESS_KEY/VAULT_SECRET_KEY must not use development defaults');
+  }
+  if (cfg.accessKey.length < MIN_VAULT_SECRET_LENGTH || cfg.secretKey.length < MIN_VAULT_SECRET_LENGTH) {
+    throw new Error(
+      `VAULT_ACCESS_KEY and VAULT_SECRET_KEY must each be at least ${MIN_VAULT_SECRET_LENGTH} characters`,
+    );
   }
   return cfg;
 }

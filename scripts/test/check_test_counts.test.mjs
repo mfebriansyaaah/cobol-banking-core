@@ -171,6 +171,20 @@ test('static mode counts lines and skips gateway', () => {
   assert.match(out, /loop-generated/);
 });
 
+test('static mode counts assert_race_outcomes as two assertions', () => {
+  const dbFiles = {
+    'account_db_tests.sh':
+      '#!/usr/bin/env bash\nassert_match "a" "x" "y"\nassert_race_outcomes "r" "x" "S|A" "E|A_IN_PROGRESS"\n',
+  };
+  const d = makeRoot({
+    baseline: 'db_account_tests=3\ncobol_table_tests=1\n',
+    dbFiles,
+    caseLines: ['a@@b@@c|x'],
+  });
+  const out = run(d, [], 'static');
+  assert.match(out, /OK: 2 suite key\(s\), 4 assertion\(s\) match/);
+});
+
 test('static mode detects deleted assertions (p7 shape)', () => {
   const dbFiles = {
     'account_db_tests.sh': '#!/usr/bin/env bash\nassert_match "a" "x" "y"\n',

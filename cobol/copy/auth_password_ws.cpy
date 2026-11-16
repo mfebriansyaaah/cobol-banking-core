@@ -1,5 +1,4 @@
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
-        01  WS-QUERY                PIC X(512) VALUE SPACES.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
@@ -126,11 +125,9 @@
         01  WS-BIND-5               PIC X(256) VALUE SPACES.
         01  WS-BIND-6               PIC X(256) VALUE SPACES.
         01  WS-P2-ESC               PIC X(256) VALUE SPACES.
-        01  WS-P3-ESC               PIC X(256) VALUE SPACES.
         01  WS-P4-ESC               PIC X(256) VALUE SPACES.
         01  WS-P1-ELEN              PIC 9(3) VALUE 1.
         01  WS-P2-ELEN              PIC 9(3) VALUE 1.
-        01  WS-P3-ELEN              PIC 9(3) VALUE 1.
         01  WS-P4-ELEN              PIC 9(3) VALUE 1.
         01  F-NL                    PIC X VALUE X"0A".
         01  F-CR                    PIC X VALUE X"0D".

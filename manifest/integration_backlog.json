@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T06:41:46.823Z",
+  "generatedAt": "2026-11-16T02:34:28.056Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -293,7 +293,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "cards"
     },
     {
       "id": "card_posting_core:audit:core-reference",
@@ -303,7 +303,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "cards"
     },
     {
       "id": "collateral_core:action:action-allocate",
@@ -316,7 +316,7 @@
         "paragraph ACTION-ALLOCATE",
         "touched tables: collateral_allocation, collateral_pledge"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-appraise",
@@ -329,7 +329,7 @@
         "paragraph ACTION-APPRAISE",
         "touched tables: collateral, collateral_valuation"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-close",
@@ -342,7 +342,7 @@
         "paragraph ACTION-CLOSE",
         "touched tables: collateral"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-create",
@@ -355,7 +355,7 @@
         "paragraph ACTION-CREATE",
         "touched tables: collateral"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-dispose",
@@ -368,7 +368,7 @@
         "paragraph ACTION-DISPOSE",
         "touched tables: collateral"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-register",
@@ -381,7 +381,7 @@
         "paragraph ACTION-REGISTER",
         "touched tables: collateral"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-repossess",
@@ -394,7 +394,7 @@
         "paragraph ACTION-REPOSSESS",
         "touched tables: collateral"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-revalue",
@@ -407,7 +407,7 @@
         "paragraph ACTION-REVALUE",
         "touched tables: collateral, collateral_valuation"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-submit",
@@ -420,7 +420,7 @@
         "paragraph ACTION-SUBMIT",
         "touched tables: collateral"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:action:action-update",
@@ -433,7 +433,7 @@
         "paragraph ACTION-UPDATE",
         "touched tables: collateral"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:audit:core-reference",
@@ -443,7 +443,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:table:collateral",
@@ -457,7 +457,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collateral_core:table:collateral-valuation",
@@ -471,7 +471,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "collateral"
     },
     {
       "id": "collection_core:audit:core-reference",
@@ -481,7 +481,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "collection"
     },
     {
       "id": "dashboard_core:audit:core-reference",
@@ -491,7 +491,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:audit-trail",
@@ -505,7 +505,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:dispute-cases",
@@ -519,7 +519,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:import-batch",
@@ -533,7 +533,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:notification-outbox",
@@ -547,7 +547,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:ops-alert",
@@ -561,7 +561,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:payment-policy",
@@ -575,7 +575,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:payment-profile",
@@ -589,7 +589,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:pending-transactions",
@@ -603,7 +603,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:reconciliation-runs",
@@ -617,7 +617,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:report-run",
@@ -631,7 +631,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "dashboard_core:table:report-schedule",
@@ -645,7 +645,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "deposit_core:audit:core-reference",
@@ -655,21 +655,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
-    },
-    {
-      "id": "deposit_core:table:days",
-      "module": "deposit_core",
-      "kind": "table",
-      "subject": "days",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "deposit"
     },
     {
       "id": "deposit_posting_core:audit:core-reference",
@@ -679,7 +665,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "deposit"
     },
     {
       "id": "fee_core:action:action-vel-profile-create",
@@ -692,7 +678,7 @@
         "paragraph ACTION-VEL-PROFILE-CREATE",
         "touched tables: velocity_profile"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "fee_core:action:action-vel-record",
@@ -705,7 +691,7 @@
         "paragraph ACTION-VEL-RECORD",
         "touched tables: used_count, velocity_counter, velocity_profile"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "fee_core:action:action-vel-record-all-txn",
@@ -718,7 +704,7 @@
         "paragraph ACTION-VEL-RECORD-ALL-TXN",
         "touched tables: used_count, velocity_counter, velocity_profile"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "fee_core:audit:core-reference",
@@ -728,7 +714,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "fee_core:table:pic",
@@ -746,20 +732,6 @@
       "owner": "assistant"
     },
     {
-      "id": "fee_core:table:used-count",
-      "module": "fee_core",
-      "kind": "table",
-      "subject": "used_count",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "fee_core:table:velocity-counter",
       "module": "fee_core",
       "kind": "table",
@@ -771,7 +743,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "fee_core:table:velocity-profile",
@@ -785,7 +757,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "gl_core:action:action-account-create",
@@ -798,7 +770,7 @@
         "paragraph ACTION-ACCOUNT-CREATE",
         "touched tables: gl_account"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "gl_core:action:action-period-close",
@@ -811,7 +783,7 @@
         "paragraph ACTION-PERIOD-CLOSE",
         "touched tables: gl_period"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "gl_core:action:action-period-open",
@@ -824,7 +796,7 @@
         "paragraph ACTION-PERIOD-OPEN",
         "touched tables: gl_period"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "gl_core:audit:core-reference",
@@ -834,7 +806,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "gl_core:table:audit-trail",
@@ -848,7 +820,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "gl_core:table:gl-account",
@@ -862,7 +834,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "gl_core:table:gl-period",
@@ -876,7 +848,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "finance"
     },
     {
       "id": "identity_core:action:action-scr-screen",
@@ -889,7 +861,7 @@
         "paragraph ACTION-SCR-SCREEN",
         "touched tables: manual_reviews, screening_checks"
       ],
-      "owner": null
+      "owner": "identity"
     },
     {
       "id": "identity_core:audit:core-reference",
@@ -899,7 +871,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "identity"
     },
     {
       "id": "identity_core:table:audit-trail",
@@ -913,7 +885,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "identity"
     },
     {
       "id": "identity_core:table:identity-verifications",
@@ -927,7 +899,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "identity"
     },
     {
       "id": "identity_core:table:manual-reviews",
@@ -941,7 +913,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "identity"
     },
     {
       "id": "identity_core:table:phone-links",
@@ -955,7 +927,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "identity"
     },
     {
       "id": "identity_core:table:screening-checks",
@@ -969,7 +941,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "identity"
     },
     {
       "id": "import_post_core:audit:core-reference",
@@ -979,7 +951,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "import_post_core:table:gl-period",
@@ -993,7 +965,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "import_post_core:table:import-batch",
@@ -1007,7 +979,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "import_post_core:table:import-row",
@@ -1021,7 +993,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "import_recon_core:action:action-finish",
@@ -1034,7 +1006,7 @@
         "paragraph ACTION-FINISH",
         "touched tables: import_recon_item, import_recon_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "import_recon_core:action:action-retry",
@@ -1047,7 +1019,7 @@
         "paragraph ACTION-RETRY",
         "touched tables: import_recon_item, import_recon_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "import_recon_core:action:action-start",
@@ -1060,7 +1032,7 @@
         "paragraph ACTION-START",
         "touched tables: import_batch, import_posting, import_recon_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "import_recon_core:audit:core-reference",
@@ -1070,7 +1042,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "import_recon_core:table:import-batch",
@@ -1084,7 +1056,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "import_recon_core:table:import-recon-run",
@@ -1098,7 +1070,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "import_recon_core:table:import-row",
@@ -1112,7 +1084,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "loan_core:action:action-close",
@@ -1125,7 +1097,7 @@
         "paragraph ACTION-CLOSE",
         "touched tables: loan"
       ],
-      "owner": null
+      "owner": "lending"
     },
     {
       "id": "loan_core:action:action-create",
@@ -1138,7 +1110,7 @@
         "paragraph ACTION-CREATE",
         "touched tables: loan"
       ],
-      "owner": null
+      "owner": "lending"
     },
     {
       "id": "loan_core:action:action-submit",
@@ -1151,7 +1123,7 @@
         "paragraph ACTION-SUBMIT",
         "touched tables: loan"
       ],
-      "owner": null
+      "owner": "lending"
     },
     {
       "id": "loan_core:action:action-update",
@@ -1164,7 +1136,7 @@
         "paragraph ACTION-UPDATE",
         "touched tables: loan"
       ],
-      "owner": null
+      "owner": "lending"
     },
     {
       "id": "loan_core:audit:core-reference",
@@ -1174,7 +1146,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "lending"
     },
     {
       "id": "loan_core:table:loan",
@@ -1188,7 +1160,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "lending"
     },
     {
       "id": "loan_posting_core:audit:core-reference",
@@ -1198,7 +1170,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "loan_schedule_core:audit:core-reference",
@@ -1208,7 +1180,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "lending"
     },
     {
       "id": "merchant_core:action:action-approve",
@@ -1221,7 +1193,7 @@
         "paragraph ACTION-APPROVE",
         "touched tables: customer, merchant, merchant_fee_profile"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-close",
@@ -1234,7 +1206,7 @@
         "paragraph ACTION-CLOSE",
         "touched tables: merchant"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-close-mch",
@@ -1247,7 +1219,7 @@
         "paragraph ACTION-CLOSE-MCH",
         "touched tables: merchant, merchant_settlement"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-create",
@@ -1260,7 +1232,7 @@
         "paragraph ACTION-CREATE",
         "touched tables: merchant"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-set-fee",
@@ -1273,7 +1245,7 @@
         "paragraph ACTION-SET-FEE",
         "touched tables: merchant, merchant_fee_profile"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-submit",
@@ -1286,7 +1258,7 @@
         "paragraph ACTION-SUBMIT",
         "touched tables: merchant"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-submit-kyc",
@@ -1299,7 +1271,7 @@
         "paragraph ACTION-SUBMIT-KYC",
         "touched tables: merchant"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-suspend",
@@ -1312,7 +1284,7 @@
         "paragraph ACTION-SUSPEND",
         "touched tables: merchant"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:action:action-update",
@@ -1325,7 +1297,7 @@
         "paragraph ACTION-UPDATE",
         "touched tables: merchant"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:audit:core-reference",
@@ -1335,7 +1307,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:table:customer",
@@ -1349,7 +1321,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:table:merchant",
@@ -1363,7 +1335,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "merchant_core:table:merchant-settlement",
@@ -1377,7 +1349,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "merchant"
     },
     {
       "id": "payment_clearing_core:action:action-cancel",
@@ -1390,7 +1362,7 @@
         "paragraph ACTION-CANCEL",
         "touched tables: payment_clearing"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_clearing_core:action:action-create",
@@ -1403,7 +1375,7 @@
         "paragraph ACTION-CREATE",
         "touched tables: payment_clearing"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_clearing_core:action:action-post",
@@ -1416,7 +1388,7 @@
         "paragraph ACTION-POST",
         "touched tables: payment_clearing"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_clearing_core:action:action-settle",
@@ -1438,7 +1410,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_clearing_core:table:payment-clearing",
@@ -1452,7 +1424,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_core:action:action-policy-set",
@@ -1465,7 +1437,7 @@
         "paragraph ACTION-POLICY-SET",
         "touched tables: max_per_txn, payment_policy"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_core:action:action-profile-set",
@@ -1478,7 +1450,7 @@
         "paragraph ACTION-PROFILE-SET",
         "touched tables: daily_limit, payment_profile"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_core:audit:core-reference",
@@ -1488,7 +1460,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_core:table:daily-limit",
@@ -1502,21 +1474,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
-    },
-    {
-      "id": "payment_core:table:max-per-txn",
-      "module": "payment_core",
-      "kind": "table",
-      "subject": "max_per_txn",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_core:table:payment-policy",
@@ -1530,7 +1488,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_core:table:payment-profile",
@@ -1544,7 +1502,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_hold_core:action:action-capture",
@@ -1569,7 +1527,7 @@
         "paragraph ACTION-EXPIRE",
         "touched tables: payment_hold"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_hold_core:action:action-release",
@@ -1582,7 +1540,7 @@
         "paragraph ACTION-RELEASE",
         "touched tables: payment_hold"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_hold_core:audit:core-reference",
@@ -1592,7 +1550,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_instruction_core:action:action-cancel",
@@ -1605,7 +1563,7 @@
         "paragraph ACTION-CANCEL",
         "touched tables: payment_instruction"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_instruction_core:action:action-pause",
@@ -1618,7 +1576,7 @@
         "paragraph ACTION-PAUSE",
         "touched tables: payment_instruction"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_instruction_core:action:action-resume",
@@ -1631,7 +1589,7 @@
         "paragraph ACTION-RESUME",
         "touched tables: payment_instruction"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_instruction_core:audit:core-reference",
@@ -1641,35 +1599,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
-    },
-    {
-      "id": "payment_instruction_core:table:cast",
-      "module": "payment_instruction_core",
-      "kind": "table",
-      "subject": "cast",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "payment_instruction_core:table:move",
-      "module": "payment_instruction_core",
-      "kind": "table",
-      "subject": "move",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_instruction_core:table:payment-instruction",
@@ -1683,7 +1613,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payment_instruction_core:table:payment-instruction-run",
@@ -1697,63 +1627,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
-    },
-    {
-      "id": "payment_instruction_core:table:pic",
-      "module": "payment_instruction_core",
-      "kind": "table",
-      "subject": "pic",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "payment_instruction_core:table:tallying",
-      "module": "payment_instruction_core",
-      "kind": "table",
-      "subject": "tallying",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "payment_instruction_core:table:to",
-      "module": "payment_instruction_core",
-      "kind": "table",
-      "subject": "to",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "payment_instruction_core:table:trim",
-      "module": "payment_instruction_core",
-      "kind": "table",
-      "subject": "trim",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "payments"
     },
     {
       "id": "payroll_processing_core:action:action-approve",
@@ -1766,7 +1640,7 @@
         "paragraph ACTION-APPROVE",
         "touched tables: payroll_processing"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:action:action-close",
@@ -1779,7 +1653,7 @@
         "paragraph ACTION-CLOSE",
         "touched tables: payroll_processing"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:action:action-close-pay",
@@ -1792,7 +1666,7 @@
         "paragraph ACTION-CLOSE-PAY",
         "touched tables: payroll_payment, payroll_processing"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:action:action-pay",
@@ -1805,7 +1679,7 @@
         "paragraph ACTION-PAY",
         "touched tables: payroll_employee, payroll_payment, payroll_processing"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:action:action-submit",
@@ -1818,7 +1692,7 @@
         "paragraph ACTION-SUBMIT",
         "touched tables: payroll_processing"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:action:action-update",
@@ -1831,7 +1705,7 @@
         "paragraph ACTION-UPDATE",
         "touched tables: payroll_processing"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:action:action-validate-batch",
@@ -1844,7 +1718,7 @@
         "paragraph ACTION-VALIDATE-BATCH",
         "touched tables: payroll_employee, payroll_processing"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:audit:core-reference",
@@ -1854,7 +1728,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:table:customer",
@@ -1868,7 +1742,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:table:payroll-employee",
@@ -1882,7 +1756,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:table:payroll-payment",
@@ -1896,7 +1770,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:table:payroll-processing",
@@ -1910,7 +1784,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "payroll_processing_core:table:tax-management",
@@ -1924,7 +1798,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "payroll"
     },
     {
       "id": "report_core:action:action-column-create",
@@ -2144,7 +2018,7 @@
         "paragraph ACTION-RUN-FAIL",
         "touched tables: statement_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_core:action:action-run-start",
@@ -2157,7 +2031,7 @@
         "paragraph ACTION-RUN-START",
         "touched tables: statement_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_core:audit:core-reference",
@@ -2167,35 +2041,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
-    },
-    {
-      "id": "statement_core:table:delimited",
-      "module": "statement_core",
-      "kind": "table",
-      "subject": "delimited",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "statement_core:table:pic",
-      "module": "statement_core",
-      "kind": "table",
-      "subject": "pic",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_core:table:statement-archive",
@@ -2209,7 +2055,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_core:table:statement-archive-line",
@@ -2223,7 +2069,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_core:table:statement-run",
@@ -2237,21 +2083,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
-    },
-    {
-      "id": "statement_core:table:to",
-      "module": "statement_core",
-      "kind": "table",
-      "subject": "to",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:action:action-finish",
@@ -2264,7 +2096,7 @@
         "paragraph ACTION-FINISH",
         "touched tables: statement_recon_item, statement_recon_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:action:action-retry",
@@ -2277,7 +2109,7 @@
         "paragraph ACTION-RETRY",
         "touched tables: statement_recon_item, statement_recon_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:action:action-start",
@@ -2290,7 +2122,7 @@
         "paragraph ACTION-START",
         "touched tables: statement_recon_run, statement_run"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:audit:core-reference",
@@ -2300,7 +2132,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:table:statement-archive",
@@ -2314,7 +2146,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:table:statement-archive-line",
@@ -2328,7 +2160,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:table:statement-recon-run",
@@ -2342,7 +2174,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "statement_recon_core:table:statement-run",
@@ -2356,7 +2188,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "reporting"
     },
     {
       "id": "treasury_liquidity_core:action:action-cancel",
@@ -2369,7 +2201,7 @@
         "paragraph ACTION-CANCEL",
         "touched tables: treasury_liquidity"
       ],
-      "owner": null
+      "owner": "treasury"
     },
     {
       "id": "treasury_liquidity_core:action:action-close",
@@ -2382,7 +2214,7 @@
         "paragraph ACTION-CLOSE",
         "touched tables: treasury_liquidity"
       ],
-      "owner": null
+      "owner": "treasury"
     },
     {
       "id": "treasury_liquidity_core:action:action-create",
@@ -2395,7 +2227,7 @@
         "paragraph ACTION-CREATE",
         "touched tables: treasury_liquidity"
       ],
-      "owner": null
+      "owner": "treasury"
     },
     {
       "id": "treasury_liquidity_core:action:action-post",
@@ -2408,7 +2240,7 @@
         "paragraph ACTION-POST",
         "touched tables: treasury_liquidity"
       ],
-      "owner": null
+      "owner": "treasury"
     },
     {
       "id": "treasury_liquidity_core:audit:core-reference",
@@ -2418,7 +2250,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "treasury"
     },
     {
       "id": "treasury_liquidity_core:table:treasury-liquidity",
@@ -2432,7 +2264,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "treasury"
     },
     {
       "id": "user_core:audit:core-reference",
@@ -2442,7 +2274,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "user_core:table:audit-trail",
@@ -2456,7 +2288,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "user_core:table:mfa-backup-codes",
@@ -2470,7 +2302,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "user_core:table:notification-outbox",
@@ -2499,21 +2331,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
-    },
-    {
-      "id": "user_core:table:so",
-      "module": "user_core",
-      "kind": "table",
-      "subject": "so",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "user_core:table:verification-logs",
@@ -2527,7 +2345,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "backend"
     },
     {
       "id": "wallet_core:audit:core-reference",
@@ -2537,7 +2355,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "wallet"
     },
     {
       "id": "wallet_core:table:audit-authz-denied",
@@ -2565,20 +2383,6 @@
         "resolve relocated to wallet_transfer_core in maint-07 (TRANSFER-LOGIC audit insert joins the transfer tx); core link tracked under wallet_transfer_core:table:audit-trail"
       ],
       "owner": "assistant"
-    },
-    {
-      "id": "wallet_core:table:delimited",
-      "module": "wallet_core",
-      "kind": "table",
-      "subject": "delimited",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
     },
     {
       "id": "wallet_core:table:dispute-cases",
@@ -2680,21 +2484,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
-    },
-    {
-      "id": "wallet_core:table:pic",
-      "module": "wallet_core",
-      "kind": "table",
-      "subject": "pic",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "wallet"
     },
     {
       "id": "wallet_core:table:reconciliation-runs",
@@ -2736,20 +2526,6 @@
       "owner": "assistant"
     },
     {
-      "id": "wallet_core:table:to",
-      "module": "wallet_core",
-      "kind": "table",
-      "subject": "to",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
       "id": "wallet_core:table:transfer-reversals",
       "module": "wallet_core",
       "kind": "table",
@@ -2761,7 +2537,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "wallet"
     },
     {
       "id": "wallet_transfer_core:audit:core-reference",
@@ -2771,7 +2547,7 @@
       "status": "OPEN",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
-      "owner": null
+      "owner": "wallet"
     },
     {
       "id": "wallet_transfer_core:table:audit-trail",
@@ -2785,7 +2561,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
+      "owner": "wallet"
     },
     {
       "id": "wallet_transfer_core:table:exchange-rates",
@@ -2799,35 +2575,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
-    },
-    {
-      "id": "wallet_transfer_core:table:if",
-      "module": "wallet_transfer_core",
-      "kind": "table",
-      "subject": "if",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
-    },
-    {
-      "id": "wallet_transfer_core:table:in",
-      "module": "wallet_transfer_core",
-      "kind": "table",
-      "subject": "in",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "wallet"
     },
     {
       "id": "wallet_transfer_core:table:pending-transactions",
@@ -2841,21 +2589,7 @@
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
       ],
-      "owner": null
-    },
-    {
-      "id": "wallet_transfer_core:table:pic",
-      "module": "wallet_transfer_core",
-      "kind": "table",
-      "subject": "pic",
-      "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
-      "evidence": [
-        "no DDL found in schema.sql/migrations",
-        "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
-      ],
-      "owner": null
+      "owner": "wallet"
     }
   ]
 }

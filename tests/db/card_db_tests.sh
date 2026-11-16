@@ -127,7 +127,9 @@ assert_match "replacement copies balance" "$newbal" "^200.0000\|800.0000$"
 
 # Block/unblock on the replacement.
 assert_match "block replacement" "$(run_cobol "CARD_BLOCK|${new_id}|||||admin@test.com")" "SUCCESS\|CARD_BLOCKED"
+assert_match "block audit" "$(db_query "SELECT COUNT(*) FROM card_audit WHERE card_id=${new_id} AND action='BLOCK';")" "^1$"
 assert_match "unblock replacement" "$(run_cobol "CARD_UNBLOCK|${new_id}|||||admin@test.com")" "SUCCESS\|CARD_UNBLOCKED"
+assert_match "unblock audit" "$(db_query "SELECT COUNT(*) FROM card_audit WHERE card_id=${new_id} AND action='UNBLOCK';")" "^1$"
 
 # Summary counts both cards (one closed, one active).
 sum="$(run_cobol "CARD_SUMMARY||||||admin@test.com")"
@@ -145,6 +147,7 @@ assert_match "close with balance refused" "$(run_cobol "CARD_CLOSE|${new_id}||||
 assert_match "still active after refused close" "$(db_query "SELECT status FROM card_account WHERE id=${new_id};")" "^ACTIVE$"
 assert_match "settle before close" "$(run_cobol "CARD_REPAY|${new_id}|200.00||||admin@test.com")" "SUCCESS\|CARD_REPAY\|200.0000"
 assert_match "CARD_CLOSE ok" "$(run_cobol "CARD_CLOSE|${new_id}|||||admin@test.com")" "SUCCESS\|CARD_CLOSED"
+assert_match "close audit" "$(db_query "SELECT COUNT(*) FROM card_audit WHERE card_id=${new_id} AND action='CLOSE';")" "^1$"
 assert_match "replacement closed" "$(db_query "SELECT status FROM card_account WHERE id=${new_id};")" "^CLOSED$"
 assert_match "close closed card refused" "$(run_cobol "CARD_CLOSE|${new_id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
 list_out="$(run_cobol "CARD_LIST||50|0|||admin@test.com")"

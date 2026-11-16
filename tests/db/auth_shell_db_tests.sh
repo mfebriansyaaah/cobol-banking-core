@@ -68,6 +68,19 @@ assert_match "CHANGE_PASSWORD ok" "$(run_cobol "CHANGE_PASSWORD|${A}|Passw0rd!|C
 assert_match "login with changed password" "$(run_cobol "AUTH_LOGIN|${A}|Changed1!|")" "SUCCESS\|LOGIN_OK"
 assert_match "VERIFY_REAUTH ok" "$(run_cobol "VERIFY_REAUTH|${A}|Changed1!|")" "SUCCESS\|"
 
+# Prepared-only length gate (S-03): short new passwords are refused.
+# Dedicated user C keeps these assertions isolated from A/B flows below.
+C="authshellC@test.com"
+assert_match "C SIGNUP ok" "$(run_cobol "REQUEST_SIGNUP|${C}|Passw0rd!|Auth Cee|1992-03-03")" "SUCCESS\|USER_CREATED"
+ccode="$(db_query "SELECT code FROM verification_logs WHERE email='${C}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
+assert_match "C VERIFY ok" "$(run_cobol "VERIFY_EMAIL|${C}|${ccode}")" "SUCCESS\|EMAIL_VERIFIED"
+assert_match "C FORGOT ok" "$(run_cobol "FORGOT_PASSWORD|${C}")" "SUCCESS\|"
+rcode2="$(db_query "SELECT code FROM verification_logs WHERE email='${C}' AND purpose='PASSWORD_RESET' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
+assert_match "RESET_PASSWORD short refused" "$(run_cobol "RESET_PASSWORD|${C}|${rcode2}|Abc123!")" "ERROR\|WEAK_PASSWORD"
+assert_match "CHANGE_PASSWORD short refused" "$(run_cobol "CHANGE_PASSWORD|${C}|Passw0rd!|Abc123!|${C}")" "ERROR\|WEAK_PASSWORD"
+assert_match "RESET_PASSWORD 8-char ok" "$(run_cobol "RESET_PASSWORD|${C}|${rcode2}|Zx9Qw2vB")" "SUCCESS\|PASSWORD_RESET"
+assert_match "login with reset password" "$(run_cobol "AUTH_LOGIN|${C}|Zx9Qw2vB|")" "SUCCESS\|LOGIN_OK"
+
 # Full MFA lifecycle with real TOTP codes.
 secret="$(run_cobol "MFA_ENROLL_BEGIN|${A}|${A}" | awk -F'|' '{print $3}')"
 assert_match "enroll secret issued" "$secret" "^[A-Z0-9]+$"

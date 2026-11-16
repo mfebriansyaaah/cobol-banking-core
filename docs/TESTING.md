@@ -197,13 +197,17 @@ refuse protected names before any `DROP`.
 reproduce the committed snapshots (`database/schema_full.sql` and the
 byte-identical `database/schema_v2.sql`; regenerate deliberately with
 `scripts/generate_schema_snapshot.sh` after reviewing the diff).
+`schema_v2.sql` is an experimental fast-install candidate, not the
+onboarding path: fresh installs use `database/schema.sql` +
+`database/migrate.sh` (see README Database).
 
-`tests/db/migration_baseline_db_tests.sh` pins the PR-010 baseline
-lifecycle on throwaway databases (never the database under test): fresh
-install applies `schema_v2.sql` and records every covered migration plus
-the `baseline_v2` marker, partial databases fail loudly, tampering with
-the snapshot trips `--check`, and the committed v2 body must equal the
-full snapshot body. `tests/db/migration_archive_db_tests.sh` (12
+`tests/db/migration_baseline_db_tests.sh` pins the experimental PR-010
+baseline lifecycle on throwaway databases (never the database under
+test): fresh install applies `schema_v2.sql` and records every covered
+migration plus the `baseline_v2` marker, partial databases fail loudly,
+tampering with the snapshot trips `--check`, and the committed v2 body
+must equal the full snapshot body. This path is experimental (see
+README Database); CI and onboarding use `schema.sql` + `migrate.sh`. `tests/db/migration_archive_db_tests.sh` (12
 assertions) pins the PR-011 archive rules: archived set intact, cutoff
 enforcement, `--only`/`--up-to` refusal, archived replay order, and
 rejection of below-baseline files. Both need DDL rights (CI root /

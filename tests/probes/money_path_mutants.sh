@@ -319,12 +319,27 @@ py_patch "$C" \
 run_mutant "M16" "silent truncation" tests/db/truncation_db_tests.sh
 restore_all
 
+# M17: swap replay txn_ref/from_email binds; wrong row must break replay.
+mutate "$WT"
+py_patch "$WT" \
+'                MOVE "SELECT from_email, to_email, CONCAT(amount), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                PERFORM SQL-EXEC-2' \
+'                MOVE "SELECT from_email, to_email, CONCAT(amount), status FROM pending_transactions WHERE txn_ref = ? AND from_email = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-2
+                PERFORM SQL-EXEC-2' 1
+run_mutant "M17" "swapped replay binds" tests/db/wallet_invariants_db_tests.sh
+restore_all
+
 if [ "$DRY_RUN" = "1" ]; then
     echo "=== ANCHOR CHECK: all mutant anchors resolved ==="
     exit 0
 fi
 
-echo "=== rebuilding pristine tree ==="
+echo "=== rebuilding pristine tree (clean: restored sources keep old mtimes) ==="
+rm -rf cobol/build cobol/bin
 ./build.sh >/tmp/mutant_rebuild.log 2>&1 || { echo "FINAL REBUILD FAILED"; tail -5 /tmp/mutant_rebuild.log; exit 1; }
 if git diff --quiet -- cobol/ middleware/; then
     echo "tree clean (no mutant residue)"
