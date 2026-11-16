@@ -72,12 +72,10 @@
 
         RESET-PASSWORD-LOGIC.
             *> p1 = email, p2 = code, p3 = new password. Transactional.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 WHERE CHAR_LENGTH('" WS-P3-ESC(1:WS-P3-ELEN) "') >= 8" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            *> Prepared-only length gate (S-03): no string-built SQL.
+            MOVE "SELECT 1 WHERE CHAR_LENGTH(?) >= 8" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|WEAK_PASSWORD" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -190,12 +188,10 @@
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE SPACES TO WS-QUERY
-            STRING "SELECT 1 WHERE CHAR_LENGTH('" WS-P3-ESC(1:WS-P3-ELEN) "') >= 8" DELIMITED BY SIZE INTO WS-QUERY
-            END-STRING
-            CALL "SET_QUERY" USING BY REFERENCE WS-QUERY
-            CALL "SQL_EXECUTE"
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+            *> Prepared-only length gate (S-03): no string-built SQL.
+            MOVE "SELECT 1 WHERE CHAR_LENGTH(?) >= 8" TO WS-PREP-SQL
+            MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+            PERFORM SQL-EXEC-1
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "ERROR|WEAK_PASSWORD" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
