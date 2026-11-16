@@ -14,6 +14,14 @@ export function turnstileEnabled() {
   return Boolean(process.env.TURNSTILE_SECRET);
 }
 
+function parseTurnstileResponse(data, logger) {
+  if (data && data.success === true) return { ok: true };
+  const codes = (data && data['error-codes']) || ['unknown'];
+  for (const c of codes) ERROR_TTL.set(c, (ERROR_TTL.get(c) || 0) + 1);
+  if (logger) logger({ event: 'turnstile_rejected', codes });
+  return { ok: false, code: String(codes[0]) };
+}
+
 export async function verifyTurnstile(
   token,
   {
@@ -43,11 +51,7 @@ export async function verifyTurnstile(
     } catch {
       throw new Error('malformed JSON');
     }
-    if (data && data.success === true) return { ok: true };
-    const codes = (data && data['error-codes']) || ['unknown'];
-    for (const c of codes) ERROR_TTL.set(c, (ERROR_TTL.get(c) || 0) + 1);
-    if (logger) logger({ event: 'turnstile_rejected', codes });
-    return { ok: false, code: String(codes[0]) };
+    return parseTurnstileResponse(data, logger);
   } catch (err) {
     recordFallback({ provider: 'turnstile', reason: 'fail_open' });
     if (logger) logger({ event: 'turnstile_failopen', message: String((err && err.message) || err) });
