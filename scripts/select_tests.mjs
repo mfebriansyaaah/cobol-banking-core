@@ -98,16 +98,20 @@ function domainOf(coreFile) {
   return m ? m[1] : null;
 }
 
-function selectFile(f) {
-  if (plan.mode === 'full') return;
-  // Build noise, never code.
-  if (/^(coverage\/|backups\/|input\.txt|output\.txt|sql_debug\.log|\.DS_Store|Thumbs\.db)/.test(f)) return;
-  if (f === 'tests/.dbenv') return;
-  // Docs and generated data: the static gates (always run) validate them.
-  if (f.startsWith('docs/') || KNOWN_DOCS.has(f) || f === 'manifest/modules.json') return;
-  if (KNOWN_GATE_DATA.has(f)) return;
-  // COBOL domain module -> its DB suite + table cases.
-  let m = f.match(/^cobol\/src\/([A-Za-z0-9_]+\.cob)$/);
+function isBuildNoise(f) {
+  if (/^(coverage\/|backups\/|input\.txt|output\.txt|sql_debug\.log|\.DS_Store|Thumbs\.db)/.test(f)) return true;
+  if (f === 'tests/.dbenv') return true;
+  return false;
+}
+
+function isStaticGateOnly(f) {
+  if (f.startsWith('docs/') || KNOWN_DOCS.has(f) || f === 'manifest/modules.json') return true;
+  if (KNOWN_GATE_DATA.has(f)) return true;
+  return false;
+}
+
+function mapCobolSource(f) {
+  const m = f.match(/^cobol\/src\/([A-Za-z0-9_]+\.cob)$/);
   if (m) {
     const domain = domainOf(f);
     const suite = domain ? `tests/db/${domain}_db_tests.sh` : null;
@@ -115,18 +119,27 @@ function selectFile(f) {
       plan.db.add(suite);
       const cases = `tests/cobol/cases/${domain}.cases`;
       if (existsSync(cases)) plan.cases.add(cases);
-      return;
+      return true;
     }
-    return full(`COBOL source without an exact DB suite mapping: ${f}`);
+    full(`COBOL source without an exact DB suite mapping: ${f}`);
+    return true;
   }
-  // COBOL includes/bridges and build inputs affect every module.
   if (/^cobol\/(copy|c_lib)\//.test(f) || /^cobol\/src\/.*\.(c|h)$/.test(f)) {
-    return full(`shared COBOL input changed: ${f}`);
+    full(`shared COBOL input changed: ${f}`);
+    return true;
   }
-  if (f === 'build.sh' || f === 'cobol/Makefile') return full(`build changed: ${f}`);
-  // Database surface: everything reads it.
-  if (f.startsWith('database/')) return full(`database changed: ${f}`);
-  // Test harness and gates: they shape every run.
+  if (f === 'build.sh' || f === 'cobol/Makefile') {
+    full(`build changed: ${f}`);
+    return true;
+  }
+  if (f.startsWith('database/')) {
+    full(`database changed: ${f}`);
+    return true;
+  }
+  return false;
+}
+
+function mapTestPath(f) {
   if (
     f.startsWith('tests/lib/') ||
     f.startsWith('tests/probes/') ||
@@ -139,47 +152,67 @@ function selectFile(f) {
     f === 'tests/cobol/skeleton_smoke.sh' ||
     f.startsWith('scripts/')
   ) {
-    return full(`test harness changed: ${f}`);
+    full(`test harness changed: ${f}`);
+    return true;
   }
-  // A changed DB suite re-runs itself plus its domain cases.
-  m = f.match(/^tests\/db\/([a-z0-9_]+)_db_tests\.sh$/);
+  let m = f.match(/^tests\/db\/([a-z0-9_]+)_db_tests\.sh$/);
   if (m) {
     plan.db.add(f);
     const cases = `tests/cobol/cases/${m[1]}.cases`;
     if (existsSync(cases)) plan.cases.add(cases);
-    return;
+    return true;
   }
-  // A changed case file re-runs itself plus its domain suite.
   m = f.match(/^tests\/cobol\/cases\/([a-z0-9_]+)\.cases$/);
   if (m) {
     plan.cases.add(f);
     const suite = `tests/db/${m[1]}_db_tests.sh`;
     if (existsSync(suite)) plan.db.add(suite);
-    return;
+    return true;
   }
-  // Gateway route tables: the endpoint smoke hits every route once.
+  return false;
+}
+
+function mapMiddleware(f) {
   if (/^middleware\/src\/routes\/.+\.js$/.test(f)) {
     needNode('endpoints');
-    return;
+    return true;
   }
-  // One-off test data and test files run by themselves.
   if (f === 'middleware/test/fixtures/field_order_contract.json') {
     plan.nodeFiles.add('middleware/test/field_order.test.js');
-    return;
+    return true;
   }
-  if (f === 'middleware/test/support.js') return needNode('full');
-  m = f.match(/^middleware\/test\/(.+\.test\.js)$/);
+  if (f === 'middleware/test/support.js') {
+    needNode('full');
+    return true;
+  }
+  const m = f.match(/^middleware\/test\/(.+\.test\.js)$/);
   if (m) {
     plan.nodeFiles.add(`middleware/test/${m[1]}`);
+    return true;
+  }
+  if (f.startsWith('middleware/')) {
+    needNode('full');
+    return true;
+  }
+  return false;
+}
+
+function mapCiFallback(f) {
+  if (f.startsWith('.github/') || f.startsWith('scripts/ci/')) {
+    full(`CI config changed: ${f}`);
     return;
   }
-  // Shared gateway code: cannot map precisely.
-  if (f.startsWith('middleware/')) return needNode('full');
-  // CI, release process, and anything else: prove nothing is missed.
-  if (f.startsWith('.github/') || f.startsWith('scripts/ci/')) {
-    return full(`CI config changed: ${f}`);
-  }
-  return full(`no mapping for: ${f}`);
+  full(`no mapping for: ${f}`);
+}
+
+function selectFile(f) {
+  if (plan.mode === 'full') return;
+  if (isBuildNoise(f)) return;
+  if (isStaticGateOnly(f)) return;
+  if (mapCobolSource(f)) return;
+  if (mapTestPath(f)) return;
+  if (mapMiddleware(f)) return;
+  mapCiFallback(f);
 }
 
 let files;
