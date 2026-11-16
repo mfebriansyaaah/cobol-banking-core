@@ -47,8 +47,16 @@ echo "=== Email OTP flow ($U via $MAILPIT) ==="
 export SMTP_HOST="${SMTP_HOST:-127.0.0.1}" SMTP_PORT="${SMTP_PORT:-1025}"
 export EMAIL_PROVIDER=mailpit OUTBOX_TRANSPORT=mailpit
 t0="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-node "$ROOT/middleware/workers/outbox.js" --once --limit 10 >/tmp/mailflow_worker.log 2>&1
-assert_match "worker delivered" "$(grep -c outbox_sent /tmp/mailflow_worker.log)" "^[1-9][0-9]*$"
+# Drain until THIS run's row is sent: earlier suites leave a PENDING
+# backlog in the shared isolated DB and the worker claims oldest-first,
+# so a single --limit 10 run may never reach our row (bounded loop).
+sent=0
+for _ in $(seq 1 30); do
+  node "$ROOT/middleware/workers/outbox.js" --once --limit 100 >/tmp/mailflow_worker.log 2>&1
+  sent="$(db_query "SELECT COUNT(*) FROM notification_outbox WHERE recipient='${U}' AND state='SENT';")"
+  if [ "$sent" -ge 1 ]; then break; fi
+done
+assert_match "worker delivered" "$sent" "^[1-9][0-9]*$"
 
 # Mailpit keeps every message (fresh container per CI job, shared locally),
 # and its API lists newest first: select this run's message (at/after the
