@@ -154,6 +154,87 @@ function resolveRouteModules(rootDir, dispatchEntries, cobolModules) {
   return { routeModules: out, unresolvedRoutes: unresolved };
 }
 
+function scoreModule(module, source, src, ctx) {
+  const { tier1Modules, utilityModules, businessTables, moneyTables, moneyActions, rootDir } = ctx;
+  if (tier1Modules.has(module)) {
+    return {
+      module,
+      source,
+      linkageLevel: 'L3',
+      businessTables: [],
+      t1Calls: [],
+      t1Actions: [],
+      hasTests: true,
+      testEvidence: [],
+      reason: 'Tier-1 core module',
+    };
+  }
+  if (utilityModules.has(module)) {
+    return {
+      module,
+      source,
+      linkageLevel: 'UTILITY',
+      businessTables: [],
+      t1Calls: [],
+      t1Actions: [],
+      hasTests: true,
+      testEvidence: [],
+      reason: 'Tier-3 utility (never a retire candidate)',
+    };
+  }
+  const tables = extractTables(src);
+  const biz = [...tables].filter((t) => businessTables.has(t)).sort();
+  const money = biz.filter((t) => moneyTables.has(t));
+  const calls = [...extractCalls(src)].filter((c) => tier1Modules.has(c)).sort();
+  const lits = [...extractActionLiterals(src)].filter((a) => moneyActions.has(a)).sort();
+  const base = module.endsWith('_core') ? module.slice(0, -5) : module;
+  const evidence = testEvidence(rootDir, base);
+  const tested = evidence.length > 0;
+  const entry = {
+    module,
+    source,
+    businessTables: biz,
+    t1Calls: calls,
+    t1Actions: lits,
+    hasTests: tested,
+    testEvidence: evidence,
+  };
+  if (money.length > 0 && (biz.length >= 2 || lits.length > 0) && tested) {
+    return { ...entry, linkageLevel: 'L3', reason: `money-table touch (${money.join(', ')}) with depth + test` };
+  }
+  if ((biz.length > 0 || calls.length > 0 || lits.length > 0) && tested) {
+    const parts = [];
+    if (biz.length) parts.push(`tables ${biz.join(', ')}`);
+    if (calls.length) parts.push(`calls ${calls.join(', ')}`);
+    if (lits.length) parts.push(`actions ${lits.join(', ')}`);
+    return { ...entry, linkageLevel: 'L2', reason: `business link (${parts.join('; ')}) + test` };
+  }
+  if (tables.size > 0 && [...tables].every(isRefish)) {
+    return { ...entry, linkageLevel: 'L1', reason: 'reference-only (users/currencies/ref_*)' };
+  }
+  if ((biz.length > 0 || calls.length > 0 || lits.length > 0) && !tested) {
+    return { ...entry, linkageLevel: 'L1', reason: 'linked code with no DB/table/integration test (downgraded)' };
+  }
+  return {
+    ...entry,
+    linkageLevel: 'L0',
+    reason: tables.size > 0 ? 'own domain tables only, no core link' : 'no table references at all',
+  };
+}
+
+function attachRouteFiles(modules, rootDir, cobolModules) {
+  const mainLogic = path.join(rootDir, 'cobol', 'src', 'main_logic.cob');
+  const dispatchEntries = existsSync(mainLogic) ? parseDispatchTable(loadDispatchSource(rootDir)).entries : [];
+  const { routeModules, unresolvedRoutes } = resolveRouteModules(rootDir, dispatchEntries, cobolModules);
+  for (const m of modules) {
+    m.routeFiles = Object.entries(routeModules)
+      .filter(([, program]) => program === m.module)
+      .map(([file]) => file)
+      .sort();
+  }
+  return { routeModules, unresolvedRoutes };
+}
+
 export function buildGraph(rootDir = root) {
   const tier1 = loadTier1(rootDir);
   const tier1Modules = new Set(tier1.tier1Modules || []);
@@ -170,90 +251,14 @@ export function buildGraph(rootDir = root) {
     : [];
   const cobolModules = sources.map((f) => f.replace(/\.cob$/, ''));
 
-  const modules = [];
-  for (const source of sources) {
+  const ctx = { tier1Modules, utilityModules, businessTables, moneyTables, moneyActions, rootDir };
+  const modules = sources.map((source) => {
     const module = source.replace(/\.cob$/, '');
     const src = readFileSync(path.join(cobolDir, source), 'utf8');
-    if (tier1Modules.has(module)) {
-      modules.push({
-        module,
-        source,
-        linkageLevel: 'L3',
-        businessTables: [],
-        t1Calls: [],
-        t1Actions: [],
-        hasTests: true,
-        testEvidence: [],
-        reason: 'Tier-1 core module',
-      });
-      continue;
-    }
-    if (utilityModules.has(module)) {
-      modules.push({
-        module,
-        source,
-        linkageLevel: 'UTILITY',
-        businessTables: [],
-        t1Calls: [],
-        t1Actions: [],
-        hasTests: true,
-        testEvidence: [],
-        reason: 'Tier-3 utility (never a retire candidate)',
-      });
-      continue;
-    }
-    const tables = extractTables(src);
-    const biz = [...tables].filter((t) => businessTables.has(t)).sort();
-    const money = biz.filter((t) => moneyTables.has(t));
-    const calls = [...extractCalls(src)].filter((c) => tier1Modules.has(c)).sort();
-    const lits = [...extractActionLiterals(src)].filter((a) => moneyActions.has(a)).sort();
-    const base = module.endsWith('_core') ? module.slice(0, -5) : module;
-    const evidence = testEvidence(rootDir, base);
-    const tested = evidence.length > 0;
-    let linkageLevel;
-    let reason;
-    if (money.length > 0 && (biz.length >= 2 || lits.length > 0) && tested) {
-      linkageLevel = 'L3';
-      reason = `money-table touch (${money.join(', ')}) with depth + test`;
-    } else if ((biz.length > 0 || calls.length > 0 || lits.length > 0) && tested) {
-      linkageLevel = 'L2';
-      const parts = [];
-      if (biz.length) parts.push(`tables ${biz.join(', ')}`);
-      if (calls.length) parts.push(`calls ${calls.join(', ')}`);
-      if (lits.length) parts.push(`actions ${lits.join(', ')}`);
-      reason = `business link (${parts.join('; ')}) + test`;
-    } else if (tables.size > 0 && [...tables].every(isRefish)) {
-      linkageLevel = 'L1';
-      reason = 'reference-only (users/currencies/ref_*)';
-    } else if ((biz.length > 0 || calls.length > 0 || lits.length > 0) && !tested) {
-      linkageLevel = 'L1';
-      reason = 'linked code with no DB/table/integration test (downgraded)';
-    } else {
-      linkageLevel = 'L0';
-      reason = tables.size > 0 ? 'own domain tables only, no core link' : 'no table references at all';
-    }
-    modules.push({
-      module,
-      source,
-      linkageLevel,
-      businessTables: biz,
-      t1Calls: calls,
-      t1Actions: lits,
-      hasTests: tested,
-      testEvidence: evidence,
-      reason,
-    });
-  }
+    return scoreModule(module, source, src, ctx);
+  });
 
-  const mainLogic = path.join(cobolDir, 'main_logic.cob');
-  const dispatchEntries = existsSync(mainLogic) ? parseDispatchTable(loadDispatchSource(rootDir)).entries : [];
-  const { routeModules, unresolvedRoutes } = resolveRouteModules(rootDir, dispatchEntries, cobolModules);
-  for (const m of modules) {
-    m.routeFiles = Object.entries(routeModules)
-      .filter(([, program]) => program === m.module)
-      .map(([file]) => file)
-      .sort();
-  }
+  const { routeModules, unresolvedRoutes } = attachRouteFiles(modules, rootDir, cobolModules);
 
   const summary = { L3: 0, L2: 0, L1: 0, L0: 0, UTILITY: 0 };
   for (const m of modules) summary[m.linkageLevel] += 1;
