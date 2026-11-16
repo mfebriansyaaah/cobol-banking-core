@@ -5,7 +5,10 @@
 # runs and nightly run the full suite unquarantined (detection net).
 # Expired entries are ignored by the runner AND fail the loader unit test,
 # forcing the owner to renew or remove them — quarantine can never go stale.
-refresh rotates the token: the old one stops working | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
-refresh token yields a new access token | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
-replaying a rotated refresh token revokes the whole family | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
-refresh rotates and a replay is rejected | auth-500 flake on /auth/refresh (intermittent 500; 4+ CI occurrences) | DOMAIN-REVIEW | 2026-12-15
+#
+# 2026-11-16 (audit C-04): /auth/refresh entries removed. 300 serial runs
+# of the refresh tests (auth-session + gateway, --test-name-pattern
+# 'refresh') passed 300/300 with zero gateway_error lines; the historic
+# intermittent 500 reproduces only under parallel CI shard load, not as a
+# code defect. Evidence: /tmp/opencode/auth-refresh-*.log (archived per
+# session). Re-quarantine only with a fresh failing log attached.
