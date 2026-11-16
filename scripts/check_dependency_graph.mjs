@@ -115,7 +115,7 @@ for (const f of listJs(MW)) {
     if (target === 'external' || target === 'other') continue;
     // routes: validation only (checked in purity too, kept here for graph)
     if (layer === 'routes') {
-      if (target !== 'other' && imp !== '../validation.js' && imp !== '../contract/validation.js') {
+      if (target !== 'other' && imp !== '../validation.js' && imp !== '../../contract/validation.js') {
         fail(`${rel}: routes must only import validation.js (got '${imp}')`);
       }
       continue;
