@@ -62,18 +62,11 @@ function logLine(event, fields = {}) {
   console.log(JSON.stringify({ ts: new Date().toISOString(), event, ...fields }));
 }
 
-async function main() {
-  const limit = Number(arg('--limit', '50')) || 50;
-  const worker = arg('--worker', `worker-${process.pid}`);
-  const transport = process.env.OUTBOX_TRANSPORT ?? 'smtp';
-  const logFile = process.env.OUTBOX_LOG_FILE;
-
+function validateTransport(transport, logFile) {
   if (transport !== 'smtp' && transport !== 'mailpit' && transport !== 'log') {
     console.error(`OUTBOX_TRANSPORT must be smtp, mailpit, or log (got ${transport})`);
     process.exit(1);
   }
-  // The log transport marks mail delivered without sending: development and
-  // tests only, never production (codes would sit in a file as SENT).
   if (transport === 'log' && process.env.NODE_ENV === 'production') {
     console.error('OUTBOX_TRANSPORT=log is not allowed in production (use smtp or mailpit)');
     process.exit(1);
@@ -82,67 +75,84 @@ async function main() {
     console.error('OUTBOX_LOG_FILE is required with OUTBOX_TRANSPORT=log');
     process.exit(1);
   }
+}
 
-  const mailer = createMailer();
-  const from = mailerFrom();
+async function claimBatch(limit, worker) {
   const claimedRaw = await invoke('OUTBOX_CLAIM', [String(limit), worker]);
   const claimed = toHttp(claimedRaw);
   if (claimed.status !== 200) throw new Error(`claim failed: ${claimed.body.error}`);
   // Multi-row COBOL output packs rows with ';' inside one pipe field.
   const rows = claimed.body.data.length > 1 ? claimed.body.data[1].split(';').filter((r) => r) : [];
+  return rows;
+}
+
+async function deliverRow(row, { transport, logFile, mailer, from, worker }) {
+  // id:recipient:purpose:code:detail (detail may be empty).
+  const [id, to, purpose, code = '', detail = ''] = row.split(':');
+  const subject = subjectFor(purpose);
+  const text = textFor({ purpose, code, detail });
+  let sent = false;
+  let error = '';
+  try {
+    if (
+      purpose !== 'SIGNUP' &&
+      purpose !== 'PASSWORD_RESET' &&
+      purpose !== 'EMAIL_CHANGE' &&
+      purpose !== 'EMAIL_CHANGED' &&
+      purpose !== 'MFA_RECOVERY' &&
+      purpose !== 'MFA_RECOVERY_NOTICE' &&
+      purpose !== 'NEW_DEVICE' &&
+      purpose !== 'DORMANT_NOTICE'
+    ) {
+      error = `unknown purpose ${purpose}`;
+    } else if (transport === 'log') {
+      await appendFile(
+        logFile,
+        JSON.stringify({ ts: new Date().toISOString(), id, to, purpose, subject, text }) + '\n',
+      );
+      sent = true;
+    } else {
+      sent = await mailer.deliver({ from, to, subject, text });
+      if (!sent) error = 'delivery failed';
+    }
+  } catch (err) {
+    error = String((err && err.message) || err).slice(0, 200);
+  }
+  const markedRaw = await invoke('OUTBOX_MARK', [id, sent ? 'SENT' : 'FAILED', error, worker]);
+  const marked = toHttp(markedRaw);
+  if (marked.status !== 200) {
+    logLine('outbox_mark_failed', { id, to, purpose, error: marked.body.error });
+    return;
+  }
+  const finalState = marked.body.data[1];
+  if (finalState === 'DEAD') {
+    logLine('outbox_dead_letter', { id, to, purpose });
+    // Alert carries ids/statuses only — never the recipient (PII).
+    await sendAlert('OUTBOX_DEAD', { id, purpose });
+  } else if (sent) {
+    logLine('outbox_sent', { id, to, purpose });
+  } else {
+    logLine('outbox_failed', { id, to, purpose, error: error.slice(0, 120) });
+  }
+}
+
+async function main() {
+  const limit = Number(arg('--limit', '50')) || 50;
+  const worker = arg('--worker', `worker-${process.pid}`);
+  const transport = process.env.OUTBOX_TRANSPORT ?? 'smtp';
+  const logFile = process.env.OUTBOX_LOG_FILE;
+  validateTransport(transport, logFile);
+
+  const mailer = createMailer();
+  const from = mailerFrom();
+  const rows = await claimBatch(limit, worker);
   if (rows.length === 0) {
     logLine('outbox_idle', { worker });
     return;
   }
 
   for (const row of rows) {
-    // id:recipient:purpose:code:detail (detail may be empty).
-    const [id, to, purpose, code = '', detail = ''] = row.split(':');
-    const subject = subjectFor(purpose);
-    const text = textFor({ purpose, code, detail });
-    let sent = false;
-    let error = '';
-    try {
-      if (
-        purpose !== 'SIGNUP' &&
-        purpose !== 'PASSWORD_RESET' &&
-        purpose !== 'EMAIL_CHANGE' &&
-        purpose !== 'EMAIL_CHANGED' &&
-        purpose !== 'MFA_RECOVERY' &&
-        purpose !== 'MFA_RECOVERY_NOTICE' &&
-        purpose !== 'NEW_DEVICE' &&
-        purpose !== 'DORMANT_NOTICE'
-      ) {
-        error = `unknown purpose ${purpose}`;
-      } else if (transport === 'log') {
-        await appendFile(
-          logFile,
-          JSON.stringify({ ts: new Date().toISOString(), id, to, purpose, subject, text }) + '\n',
-        );
-        sent = true;
-      } else {
-        sent = await mailer.deliver({ from, to, subject, text });
-        if (!sent) error = 'delivery failed';
-      }
-    } catch (err) {
-      error = String((err && err.message) || err).slice(0, 200);
-    }
-    const markedRaw = await invoke('OUTBOX_MARK', [id, sent ? 'SENT' : 'FAILED', error, worker]);
-    const marked = toHttp(markedRaw);
-    if (marked.status !== 200) {
-      logLine('outbox_mark_failed', { id, to, purpose, error: marked.body.error });
-      continue;
-    }
-    const finalState = marked.body.data[1];
-    if (finalState === 'DEAD') {
-      logLine('outbox_dead_letter', { id, to, purpose });
-      // Alert carries ids/statuses only — never the recipient (PII).
-      await sendAlert('OUTBOX_DEAD', { id, purpose });
-    } else if (sent) {
-      logLine('outbox_sent', { id, to, purpose });
-    } else {
-      logLine('outbox_failed', { id, to, purpose, error: error.slice(0, 120) });
-    }
+    await deliverRow(row, { transport, logFile, mailer, from, worker });
   }
 }
 
