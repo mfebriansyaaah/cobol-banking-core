@@ -6,11 +6,13 @@
 
 ## License status
 
-**BLOCKED — pending owner/legal sign-off.**
-`LICENSE` is proprietary (all rights reserved; no training/distribution
-grant). `docs/DATASET_LICENSE_APPROVAL.md` exists as a fill-in template
-only. No export may proceed until Approver + Date are filled and the
-decision is recorded per R-03. The export script enforces this (exit 2).
+**APPROVED — typed owner approval recorded 2026-11-16.**
+`docs/DATASET_LICENSE_APPROVAL.md` records Muhammad Febriansyah
+(@mfebriansyaaah), Repository Owner / Copyright Holder, approving internal
+training/evaluation plus limited commercial use by the holder and written
+authorized entities; no public redistribution/resale/sublicensing. No fixed
+expiry; revocable in writing or on LICENSE/ownership change. This is a
+bounded dataset approval, not a change to the proprietary `LICENSE`.
 
 ## PII status
 
