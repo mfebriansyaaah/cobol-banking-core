@@ -133,7 +133,7 @@ not a maturity score.
 | Performance benchmarks | ✅ | `tests/perf/bench.sh` |
 | Coverage gate | ✅ | `scripts/ci/coverage.sh`, `tests/coverage_baseline.txt`; COBOL is a curated-core floor |
 | Warning ratchet | ⚠️ | `scripts/check_warnings.sh`; a few non-zero entries remain |
-| Mutation testing | ✅ (curated) | 15 money-path mutants via tests/probes/money_path_mutants.sh + .github/workflows/mutation.yml |
+| Mutation testing | ✅ (curated) | 16 money-path mutants via tests/probes/money_path_mutants.sh + .github/workflows/mutation.yml |
 | CI build under 2 minutes | ❌ | Full build/test is intentionally heavier |
 
 ### Coverage scope

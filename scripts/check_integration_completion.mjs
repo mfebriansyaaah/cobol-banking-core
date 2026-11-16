@@ -61,6 +61,33 @@ const STATUS = ['OPEN', 'IN_PROGRESS', 'DONE', 'WAIVED'];
 const KINDS = ['action', 'table', 'route', 'audit'];
 const REQUIRED = ['id', 'module', 'kind', 'subject', 'status', 'reason', 'evidence', 'owner'];
 const NOISE_TABLES = new Set(['ls', 'ws', 'when', 'set', 'values', 'into']);
+// SQL keywords / COBOL words the FROM/JOIN/INTO/UPDATE regex catches but that
+// are never tables (audit C-04/A-04: these produced :table:if/:table:to noise).
+const SQL_NOISE = new Set([
+  'if', 'in', 'to', 'pic', 'delimited', 'size', 'into', 'from', 'where',
+  'select', 'update', 'insert', 'delete', 'join', 'on', 'set', 'values',
+  'limit', 'offset', 'order', 'group', 'by', 'as', 'not', 'null', 'is',
+  'and', 'or', 'when', 'then', 'else', 'end', 'case', 'concat',
+  'coalesce', 'cast', 'char', 'date', 'now', 'count', 'sum',
+]);
+// Default owner per module family for computed OPEN items (audit A-04).
+const MODULE_OWNER = new Map([
+  ['auth_core', 'identity'], ['auth_password_core', 'identity'],
+  ['auth_recovery_core', 'identity'], ['auth_review_core', 'identity'],
+  ['wallet_core', 'wallet'], ['wallet_transfer_core', 'wallet'],
+  ['payment_core', 'payments'], ['payment_clearing_core', 'payments'],
+  ['payment_hold_core', 'payments'], ['payment_instruction_core', 'payments'],
+  ['collateral_core', 'collateral'], ['loan_core', 'lending'],
+  ['loan_schedule_core', 'lending'], ['merchant_core', 'merchant'],
+  ['merchant_settlement_core', 'merchant'], ['payroll_processing_core', 'payroll'],
+  ['tax_management_core', 'tax'], ['fee_core', 'finance'], ['gl_core', 'finance'],
+  ['dashboard_core', 'reporting'], ['statement_core', 'reporting'],
+  ['statement_recon_core', 'reporting'], ['import_recon_core', 'reporting'],
+  ['treasury_liquidity_core', 'treasury'], ['identity_core', 'identity'],
+  ['deposit_core', 'deposit'], ['deposit_posting_core', 'deposit'],
+  ['card_core', 'cards'], ['card_posting_core', 'cards'],
+  ['collection_core', 'collection'],
+]);
 const CORE_KEYS = new Set([
   'account_id',
   'customer_id',
@@ -104,21 +131,27 @@ function splitParagraphs(source) {
   return paras;
 }
 
-function tableRefs(text) {
+function tableRefs(text, schemaIndex = null) {
   const out = new Set();
   for (const m of text.matchAll(/\b(?:FROM|JOIN|INTO|UPDATE)\s+`?([A-Za-z0-9_]+)`?/g)) {
     // COBOL loop bounds (PERFORM VARYING i FROM 256 ...) are not tables.
-    if (/^\d+$/.test(m[1])) continue;
-    out.add(m[1].toLowerCase());
+    const t = m[1].toLowerCase();
+    if (/^\d+$/.test(t)) continue;
+    if (SQL_NOISE.has(t)) continue;
+    if (!/^[a-z][a-z0-9_]{2,}$/.test(t)) continue;
+    // Single letters and unknown words (INTO WS-*, loop vars) are not tables.
+    if (schemaIndex && !schemaIndex.has(t)) continue;
+    out.add(t);
   }
   return out;
 }
 
-function writeRefs(text) {
+function writeRefs(text, schemaIndex = null) {
   const out = new Set();
   for (const m of text.matchAll(/\b(?:INTO|UPDATE)\s+`?([A-Za-z0-9_]+)`?/g)) {
     const t = m[1].toLowerCase();
     if (/^\d+$/.test(t)) continue;
+    if (SQL_NOISE.has(t)) continue;
     if (!NOISE_TABLES.has(t)) out.add(t);
   }
   return out;
@@ -207,14 +240,21 @@ export function audit(rootDir = root) {
       ([name]) => name !== 'MAIN-LOGIC' && (name.startsWith('ACTION-') || name.endsWith('-LOGIC')),
     );
     let open = 0;
+    // Known real tables: schema DDL plus Tier-1 business tables (a fixture
+    // schema may omit them; they are still tables, not noise).
+    const tableNames = new Set([...schemaIndex.columns.keys(), ...businessTables]);
     const push = (item) => {
-      items.push(item);
-      if (item.status === 'OPEN' || item.status === 'IN_PROGRESS') open += 1;
+      const next = {
+        ...item,
+        owner: item.owner || MODULE_OWNER.get(mod.module) || 'backend',
+      };
+      items.push(next);
+      if (next.status === 'OPEN' || next.status === 'IN_PROGRESS') open += 1;
     };
 
     for (const [name, body] of actions) {
       const text = body.join('\n');
-      const tables = tableRefs(text);
+      const tables = tableRefs(text, tableNames);
       const core = [...tables].filter((t) => businessTables.has(t)).sort();
       const calls = [...text.matchAll(/CALL\s+"([a-z_]+)"/g)].map((m) => m[1]).filter((c) => tier1Modules.has(c));
       const lits = [...text.matchAll(/"([A-Z][A-Z0-9_]{2,})"/g)].map((m) => m[1]).filter((a) => moneyActions.has(a));
@@ -237,7 +277,7 @@ export function audit(rootDir = root) {
       });
     }
 
-    const allTables = tableRefs(src);
+    const allTables = tableRefs(src, tableNames);
     const domainTables = [...allTables]
       .filter((t) => !businessTables.has(t) && !isRefish(t) && !t.endsWith('_audit') && !NOISE_TABLES.has(t))
       .sort();
@@ -360,6 +400,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         }
       }
       recorded.sort((a, b) => a.id.localeCompare(b.id));
+      // Backfill owners for OPEN items that predate MODULE_OWNER (audit A-04).
+      let backfilled = 0;
+      for (const item of recorded) {
+        if ((item.status === 'OPEN' || item.status === 'IN_PROGRESS') && !item.owner) {
+          item.owner = MODULE_OWNER.get(item.module) || 'backend';
+          backfilled += 1;
+        }
+      }
       writeFileSync(
         backlogPath,
         `${JSON.stringify({ generatedAt: new Date().toISOString(), items: recorded }, null, 2)}\n`,

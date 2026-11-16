@@ -16,7 +16,7 @@
 
 | Area           | Score | Evidence / gap                                                                                                     |
 | -------------- | ----- | ------------------------------------------------------------------------------------------------------------------ |
-| Correctness    | 2     | All actions shell-covered; 15/15 curated mutants killed (weekly CI). Corpus-curated, not Stryker-% — see gap list. |
+| Correctness    | 2     | All actions shell-covered; 16/16 curated mutants killed (weekly CI). Corpus-curated, not Stryker-% — see gap list. |
 | Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, Tier-1 floor holds with 8 backlog entries.                                   |
 | Data safety    | 1     | Truncation loud, drills green; **no prod KMS** (env-only), retention policy un-drilled at scale.                   |
 | Security       | 1     | Auth+owners+STRIDE+SAST/secret green, CodeQL triaged; **no pen-test**.                                             |
@@ -38,7 +38,7 @@
 
 ## Gap PRs (certification blockers, in order)
 
-1. ~~Mutation harness + ≥80% target~~ — DONE: 15/15 curated mutants killed,
+1. ~~Mutation harness + ≥80% target~~ — DONE: 16/16 curated mutants killed,
    weekly `mutation.yml` (Correctness → 2).
 2. Write-path load profile + canary exercise (Reliability 1→2) — PARTIAL: transfer + login profiled
    every bench run (dev-box: transfer p50/p95 12/13 ms, login ~1.3 s hash-bound, above budget); rubric

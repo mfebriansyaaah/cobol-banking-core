@@ -158,6 +158,8 @@ test('DONE without owner or evidence fails', () => {
   const data = JSON.parse(readFileSync(path.join(d, 'manifest', 'integration_backlog.json'), 'utf8'));
   const item = data.items.find((i) => i.id === 'gap_core:table:gap-widget');
   item.status = 'DONE';
+  item.owner = null;
+  item.evidence = [];
   writeFileSync(path.join(d, 'manifest', 'integration_backlog.json'), JSON.stringify(data));
   assert.match(runFail(d), /requires owner \+ evidence/);
 });
@@ -172,6 +174,37 @@ test('DONE with owner and evidence passes and survives recompute', () => {
   item.evidence = ['added account_id FK in migration 0002'];
   writeFileSync(path.join(d, 'manifest', 'integration_backlog.json'), JSON.stringify(data));
   assert.match(run(d, ['--check']), /OK:/);
+});
+
+test('SQL noise words never become table items and OPEN items get owners', () => {
+  const d = makeRoot();
+  const cobolDir = path.join(d, 'cobol', 'src');
+  writeFileSync(
+    path.join(cobolDir, 'noise_core.cob'),
+    [
+      '        ACTION-TRIM.',
+      '            MOVE "SELECT CONCAT(action, \':\', actor_email) FROM noise_log WHERE (? = \'\' OR log_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL',
+      '            EXIT PARAGRAPH.',
+    ].join('\n') + '\n',
+  );
+  const linksPath = path.join(d, 'manifest', 'tier1_links.json');
+  const links = JSON.parse(readFileSync(linksPath, 'utf8'));
+  links.modules.push({
+    module: 'noise_core',
+    source: 'noise_core.cob',
+    linkageLevel: 'L2',
+    businessTables: [],
+    routeFiles: [],
+    hasTests: true,
+  });
+  writeFileSync(linksPath, JSON.stringify(links));
+  run(d, ['--write']);
+  const data = JSON.parse(readFileSync(path.join(d, 'manifest', 'integration_backlog.json'), 'utf8'));
+  const ids = data.items.map((i) => i.id);
+  assert.ok(!ids.some((id) => /:(if|in|to|pic|delimited|into|from|limit|offset)$/.test(id)), 'no SQL-noise table items');
+  for (const item of data.items.filter((i) => i.status === 'OPEN')) {
+    assert.ok(item.owner, `${item.id} has an owner`);
+  }
 });
 
 test('unknown flag exits 2', () => {
