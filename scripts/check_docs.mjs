@@ -121,6 +121,21 @@ for (const phrase of ['No hosted CI', 'All 11 roadmap items complete']) {
   }
 }
 
+{
+  const p = path.join(ROOT, 'docs', 'CODE_CANDIDATES.md');
+  const manifestPath = path.join(ROOT, 'manifest', 'code_candidates.json');
+  if (existsSync(p) && existsSync(manifestPath)) {
+    const rows = [...readFileSync(p, 'utf8').matchAll(/^\| `([^`]+)` \|/gm)].map((m) => m[1]);
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')).candidates.map((c) => c.module);
+    for (const module of rows) {
+      if (!manifest.includes(module)) errors.push(`CODE_CANDIDATES.md stale row: ${module} not in manifest`);
+      if (!existsSync(path.join(ROOT, 'cobol', 'src', `${module}.cob`))) {
+        errors.push(`CODE_CANDIDATES.md stale module: ${module} has no source`);
+      }
+    }
+  }
+}
+
 const markdownFiles = [
   path.join(ROOT, 'README.md'),
   path.join(ROOT, 'CONTRIBUTING.md'),

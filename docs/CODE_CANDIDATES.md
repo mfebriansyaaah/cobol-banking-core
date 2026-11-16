@@ -8,49 +8,32 @@
 
 | Status | Candidates |
 | --- | ---: |
-| CANDIDATE | 35 |
+| CANDIDATE | 18 |
 | DEPRECATED | 0 |
 | RETIRED | 0 |
 
 | Kind | Candidates |
 | --- | ---: |
-| DUPLICATE (template clone) | 25 |
+| DUPLICATE (template clone) | 8 |
 | UNLINKED (custom code, no core link) | 10 |
 
 | Module | Link | Status | Replacement | Traffic | Sign-off | Reason |
 | --- | --- | --- | --- | --- | --- | --- |
 | `account_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `asset_management_core` | L0 | CANDIDATE | `fixed_asset_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: fixed_asset_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `backup_drill_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `bank_guarantee_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `bankers_acceptance_core` | L0 | CANDIDATE | `letter_of_credit_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `cashback_core` | L0 | CANDIDATE | `loyalty_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `chargeback_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `collateral_mgmt_core` | L0 | CANDIDATE | `collateral_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `collateral_repossession_core` | L0 | CANDIDATE | `collateral_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `collateralized_core` | L0 | CANDIDATE | `collateral_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: collateral_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `compliance_calendar_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `cost_center_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `dispute_management_core` | L0 | CANDIDATE | `chargeback_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: chargeback_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `documentary_credit_core` | L0 | CANDIDATE | `letter_of_credit_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `eod_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `export_finance_core` | L0 | CANDIDATE | `letter_of_credit_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `factoring_core` | L0 | CANDIDATE | `letter_of_credit_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `fixed_asset_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `gl_allocation_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `import_finance_core` | L0 | CANDIDATE | `letter_of_credit_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `letter_of_credit_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `loyalty_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `loyalty_program_core` | L0 | CANDIDATE | `loyalty_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `merchant_settlement_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `notification_template_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `points_redemption_core` | L0 | CANDIDATE | `loyalty_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `report_builder_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `report_schedule_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `rewards_management_core` | L0 | CANDIDATE | `loyalty_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: loyalty_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `sla_tracker_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `tax_item_core` | L0 | CANDIDATE | `tax_management_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
 | `tax_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `tax_withholding_core` | L0 | CANDIDATE | `tax_management_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: tax_management_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
-| `trade_finance_core` | L0 | CANDIDATE | `letter_of_credit_core` | — | — | DUPLICATE: Deprecated legacy clone; kept for compat, do not extend. Canonical replacement: letter_of_credit_core. Removal in PR-011..013; tables stay until one cycle after route removal. |
