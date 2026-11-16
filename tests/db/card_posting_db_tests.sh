@@ -221,8 +221,7 @@ V2=$!
 wait $V1; wait $V2
 VA="$(tr -d ' \n' <"$K1/output.txt")"; VB="$(tr -d ' \n' <"$K2/output.txt")"
 rm -rf "$K1" "$K2"
-assert_match "exactly one keyed winner" "$(printf '%s\n%s\n' "$VA" "$VB" | grep -c "SUCCESS\|CARD_CAPTURE")" "^1$"
-assert_match "keyed loser in progress" "$(printf '%s\n%s\n' "$VA" "$VB")" "ERROR\|CAPTURE_IN_PROGRESS"
+assert_race_outcomes "keyed capture race" "$(printf '%s\n%s\n' "$VA" "$VB")" "SUCCESS|CARD_CAPTURE" "ERROR|CAPTURE_IN_PROGRESS"
 assert_match "keyed retry converges" "$(run_cobol "CARD_CAPTURE|${KID}|${kauth2_ref}|||K-CRACE|${A}")" "SUCCESS\|CARD_CAPTURE\|300.0000"
 assert_match "mirror race converges DONE" "$(db_query "SELECT CONCAT(status, '|', amount) FROM idempotency_request WHERE scope='CARD_CAPTURE' AND entity_ref='${KID}' AND idem_key='K-CRACE';")" "^DONE|300.0000$"
 assert_match "single posting for key" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='CARDCAP-${kauth2_ref}';")" "^2$"
