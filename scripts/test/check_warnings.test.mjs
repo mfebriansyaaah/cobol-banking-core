@@ -4,7 +4,9 @@
 // main_logic.cob and sql_bridge.c are covered too. No build needed.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { readdirSync, readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,4 +43,26 @@ test('baseline has no duplicate entries', () => {
   const keys = baselineKeys();
   const dupes = keys.filter((k, i) => keys.indexOf(k) !== i);
   assert.deepEqual([...new Set(dupes)], [], 'duplicate baseline entries');
+});
+
+test('copybook warning in build log fails the gate', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'warn-gate-'));
+  try {
+    writeFileSync(
+      path.join(root, 'build.log'),
+      'cobol/copy/auth_password_logic.cpy:16: warning: duplicate USING BY REFERENCE item [Wothers]\n',
+    );
+    let failed = false;
+    try {
+      execFileSync('bash', [path.join(ROOT, 'scripts', 'check_warnings.sh'), path.join(root, 'build.log')], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    } catch {
+      failed = true;
+    }
+    assert.equal(failed, true, 'expected gate failure on copybook warning');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
