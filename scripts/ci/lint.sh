@@ -45,3 +45,6 @@ if [ -n "$unformatted" ]; then
     exit 1
 fi
 echo "shfmt clean (${#ALLOWLIST[@]} files)"
+
+echo "=== schema unique tables ==="
+node scripts/check_schema_unique_tables.mjs

@@ -3,7 +3,7 @@
 # Exports tracked files via `git archive` (never the working tree, so local
 # artifacts like backups/, node_modules/ or tests/.dbenv can never leak in).
 # Refuses without docs/DATASET_LICENSE_APPROVAL.md (decision D-01).
-# Usage: scripts/export_dataset.sh --profile source|verification|full --out DIR
+# Usage: scripts/export_dataset.sh --profile source|train|verification|full --out DIR
 set -euo pipefail
 
 PROFILE=""
@@ -12,10 +12,10 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     --profile) PROFILE="${2:-}"; shift 2 ;;
     --out) OUT="${2:-}"; shift 2 ;;
-    *) echo "usage: $0 --profile source|verification|full --out DIR" >&2; exit 2 ;;
+    *) echo "usage: $0 --profile source|train|verification|full --out DIR" >&2; exit 2 ;;
   esac
 done
-case "$PROFILE" in source|verification|full) ;; *) echo "bad profile (want source|verification|full)" >&2; exit 2 ;; esac
+case "$PROFILE" in source|train|verification|full) ;; *) echo "bad profile (want source|train|verification|full)" >&2; exit 2 ;; esac
 [ -n "$OUT" ] || { echo "missing --out" >&2; exit 2; }
 
 cd "$(dirname "$0")/.."
@@ -30,7 +30,37 @@ rm -rf "$OUT"
 mkdir -p "$OUT"
 git archive HEAD | tar -x -C "$OUT"
 
-if [ "$PROFILE" = "source" ]; then
+preflight_forbidden_paths() {
+  local out="$1"
+  local bad=0
+  for p in \
+    ".git" \
+    "backups" \
+    "backups/physical" \
+    "node_modules" \
+    "middleware/node_modules" \
+    "tests/.dbenv" \
+    ".env" \
+    "middleware/.env" \
+    "artifacts" \
+    "coverage"
+  do
+    if [ -e "$out/$p" ]; then
+      echo "FAIL: forbidden path in export: $p" >&2
+      bad=1
+    fi
+  done
+  if find "$out" -type f \( -name '*.ibd' -o -name 'ibdata1' -o -name '*.cnf' -o -name '*.pem' -o -name '*.key' \) | grep -q .; then
+    echo "FAIL: forbidden database/key file in export" >&2
+    bad=1
+  fi
+  return "$bad"
+}
+
+preflight_forbidden_paths "$OUT"
+test ! -d "$OUT/.git" || { echo "FAIL: .git must never be exported" >&2; exit 1; }
+
+if [ "$PROFILE" = "source" ] || [ "$PROFILE" = "train" ]; then
   rm -rf "$OUT/database/migrations/archive"
   rm -f \
     "$OUT/database/schema_full.sql" \
@@ -43,6 +73,42 @@ if [ "$PROFILE" = "source" ]; then
     "$OUT/docs/STATUS.md" \
     "$OUT/docs/MODULE_INDEX.md" \
     "$OUT/docs/COMPLEXITY_BASELINE.md"
+fi
+
+if [ "$PROFILE" = "train" ]; then
+  rm -f \
+    "$OUT/cobol/src/account_core.cob" \
+    "$OUT/cobol/src/compliance_calendar_core.cob" \
+    "$OUT/cobol/src/notification_template_core.cob" \
+    "$OUT/cobol/src/report_schedule_core.cob" \
+    "$OUT/cobol/src/sla_tracker_core.cob" \
+    "$OUT/middleware/src/routes/account.js" \
+    "$OUT/middleware/src/routes/compliance_calendar.js" \
+    "$OUT/middleware/src/routes/notification_template.js" \
+    "$OUT/middleware/src/routes/report_schedule.js" \
+    "$OUT/middleware/src/routes/sla_tracker.js" \
+    "$OUT/tests/db/account_db_tests.sh" \
+    "$OUT/tests/db/compliance_calendar_db_tests.sh" \
+    "$OUT/tests/db/notification_template_db_tests.sh" \
+    "$OUT/tests/db/report_schedule_db_tests.sh" \
+    "$OUT/tests/db/sla_tracker_db_tests.sh" \
+    "$OUT/tests/cobol/cases/account.cases" \
+    "$OUT/tests/cobol/cases/ccl.cases" \
+    "$OUT/tests/cobol/cases/ntf.cases" \
+    "$OUT/tests/cobol/cases/rsc.cases" \
+    "$OUT/tests/cobol/cases/slt.cases"
+fi
+
+if [ "$PROFILE" = "train" ]; then
+  for p in \
+    "cobol/src/account_core.cob" \
+    "cobol/src/compliance_calendar_core.cob" \
+    "cobol/src/notification_template_core.cob" \
+    "cobol/src/report_schedule_core.cob" \
+    "cobol/src/sla_tracker_core.cob"
+  do
+    test ! -e "$OUT/$p" || { echo "FAIL: train profile still contains $p" >&2; exit 1; }
+  done
 fi
 
 COUNT="$(find "$OUT" -type f | wc -l | tr -d ' ')"

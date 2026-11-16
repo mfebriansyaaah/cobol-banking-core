@@ -3,7 +3,7 @@
 ## Ownership rule
 
 Every table added after the legacy baseline (`manifest/table_ownership.json`,
-1529 grandfathered tables) must be registered before merge with:
+1539 grandfathered tables) must be registered before merge with:
 
 - `owner`: the accountable area (identity, risk, market, corporate, infra…),
   not a person;
@@ -25,7 +25,7 @@ fails new unregistered tables, generic financial names (`budget_amount(s)`,
 
 ## Why not retrofit legacy
 
-893+ legacy tables have no domain trace. Retrofitting ownership for all of
+Legacy tables (see `manifest/table_ownership.json`) have no domain trace. Retrofitting ownership for all of
 them is a project of its own (Phase 5 follow-up at most); the ratchet holds
 the line for everything new starting now.
 
