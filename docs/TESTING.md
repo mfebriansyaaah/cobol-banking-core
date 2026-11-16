@@ -136,7 +136,7 @@ Planner weights (`scripts/shard_suites.mjs`, LPT scheduling) come from
 or, without it, from baseline assertion counts. Assignment is deterministic
 for identical inputs; `scripts/test/shard_suites.test.mjs` pins that.
 
-Right-sizing rationale (CI-010): with 58 suites, four shards cost one
+Right-sizing rationale (CI-010): with 84 suites, four shards cost one
 runner each while a shard's suite work is only ~2 min against ~80–100 s of
 setup (container + migration). Two shards keep the wall-clock (the `test`
 job's ~7 min remains the critical path) while saving ~5–7 job-min per run.

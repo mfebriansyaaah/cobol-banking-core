@@ -17,8 +17,9 @@ concurrency:
 
 # Single source of truth for the DB fleet size (CI-010): the db-shards
 # matrix, the shard runner, and the aggregate step all read this.
-# 58 suites (run `ls tests/db/*_db_tests.sh | wc -l` to recount); revisit
-# if the fleet grows beyond 80.
+# 84 DB suites (83 *_db_tests.sh + schema_tests.sh; run
+# `ls tests/db/*_db_tests.sh | wc -l` to recount); revisit if the fleet
+# grows beyond 120.
 env:
   DB_SHARD_COUNT: 2
 
@@ -569,7 +570,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Assignment for two shards (CI-010): the LPT planner in
-    # scripts/shard_suites.mjs splits ~58 suites across both runners.
+    # scripts/shard_suites.mjs splits the DB suite fleet across both runners.
     strategy:
       fail-fast: false
       matrix:
