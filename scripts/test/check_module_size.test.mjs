@@ -34,7 +34,8 @@ function runGate(root) {
   }
 }
 
-const SMALL_COB = '       IDENTIFICATION DIVISION.\n       PROGRAM-ID. tiny.\n\n       PROCEDURE DIVISION.\n       MAIN-LOGIC.\n           MOVE SPACES TO WS-ERR\n           GOBACK.\n';
+const SMALL_COB =
+  '       IDENTIFICATION DIVISION.\n       PROGRAM-ID. tiny.\n\n       PROCEDURE DIVISION.\n       MAIN-LOGIC.\n           MOVE SPACES TO WS-ERR\n           GOBACK.\n';
 
 test('small tree passes', () => {
   const root = makeTree({ 'cobol/src/tiny_core.cob': SMALL_COB });

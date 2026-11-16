@@ -73,12 +73,9 @@ test('missing secrets fail boot in production only', () => {
 });
 
 test('production requires TURNSTILE_SECRET', () => {
-  withEnv(
-    { NODE_ENV: 'production', NIK_HMAC_SECRET: 'test-secret', TURNSTILE_SECRET: undefined },
-    () => {
-      assert.throws(() => assertSecrets({ email: 'log', phone: 'mock' }), /TURNSTILE_SECRET/);
-    },
-  );
+  withEnv({ NODE_ENV: 'production', NIK_HMAC_SECRET: 'test-secret', TURNSTILE_SECRET: undefined }, () => {
+    assert.throws(() => assertSecrets({ email: 'log', phone: 'mock' }), /TURNSTILE_SECRET/);
+  });
 });
 
 test('maskedSecrets never carries values', () => {

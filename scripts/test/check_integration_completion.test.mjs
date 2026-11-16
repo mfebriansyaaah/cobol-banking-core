@@ -183,7 +183,7 @@ test('SQL noise words never become table items and OPEN items get owners', () =>
     path.join(cobolDir, 'noise_core.cob'),
     [
       '        ACTION-TRIM.',
-      '            MOVE "SELECT CONCAT(action, \':\', actor_email) FROM noise_log WHERE (? = \'\' OR log_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?" TO WS-PREP-SQL',
+      "            MOVE \"SELECT CONCAT(action, ':', actor_email) FROM noise_log WHERE (? = '' OR log_id = ?) ORDER BY id DESC LIMIT ? OFFSET ?\" TO WS-PREP-SQL",
       '            EXIT PARAGRAPH.',
     ].join('\n') + '\n',
   );
@@ -201,7 +201,10 @@ test('SQL noise words never become table items and OPEN items get owners', () =>
   run(d, ['--write']);
   const data = JSON.parse(readFileSync(path.join(d, 'manifest', 'integration_backlog.json'), 'utf8'));
   const ids = data.items.map((i) => i.id);
-  assert.ok(!ids.some((id) => /:(if|in|to|pic|delimited|into|from|limit|offset)$/.test(id)), 'no SQL-noise table items');
+  assert.ok(
+    !ids.some((id) => /:(if|in|to|pic|delimited|into|from|limit|offset)$/.test(id)),
+    'no SQL-noise table items',
+  );
   for (const item of data.items.filter((i) => i.status === 'OPEN')) {
     assert.ok(item.owner, `${item.id} has an owner`);
   }

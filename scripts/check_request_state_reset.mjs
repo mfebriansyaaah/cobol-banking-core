@@ -10,7 +10,9 @@ const dir = path.join(ROOT, 'cobol', 'src');
 const failures = [];
 let checked = 0;
 
-for (const f of readdirSync(dir).filter((x) => x.endsWith('.cob')).sort()) {
+for (const f of readdirSync(dir)
+  .filter((x) => x.endsWith('.cob'))
+  .sort()) {
   const src = readFileSync(path.join(dir, f), 'utf8');
   if (!src.includes('WS-ERR')) continue;
   checked += 1;
