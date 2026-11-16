@@ -1,6 +1,6 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Code HEAD: `5125e881` (`maint/audit-plan`; baseline `322255b7` on `main`)
+- Code HEAD: `51aba228` (`maint/audit-plan`; baseline `322255b7` on `main`)
 - Approval/export record: `80fb72b5` (typed owner approval + verified source export)
 - Date: 2026-11-16
 - Profile default: `source` (see `scripts/export_dataset.sh`)
@@ -54,12 +54,13 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 ## Test evidence (this snapshot)
 
 - Gateway unit: 147/147 pass.
-- Script gate unit tests: 469/469 pass.
+- Script gate unit tests: 470/470 pass.
 - Gateway JUnit count: 347 assertions (baseline re-pinned after quarantine removal).
 - ESLint: 0 errors, 9 complexity warnings (ratchet `--max-warnings 9`).
 - COBOL syntax: 0 warnings (was 43 copybook warnings, fixed C-03).
 - DB suites: `auth_shell` 51/51 (x2), `card` 52/52 (x2),
-  `card_posting` 103/103, `auth_session` 23/23, schema fleet 214 assertions.
+  `card_posting` 103/103, `collection` 56/56, `lending_posting` 173/173,
+  `payment_race` 55/55, `auth_session` 23/23, schema fleet 214 assertions.
 - Static gates: manifest, docs, dependency graph, purity, transaction
   ownership, call graph, bind slots, field sizes, action coverage, case
   actions, suite coverage, program signatures, error codes, openapi,
@@ -72,10 +73,16 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
   baseline re-pinned for the C-06 entry-reset line attribution shift
   (reviewed `--cobol-only` run; no test deletion).
 - Schema drift: `check_schema_drift.sh` green.
-- Full `tests/run_all.sh full` serial: GREEN (see R-02 evidence).
-  Two parallel-shard race flakes observed during the campaign
-  (`payment_race` 52/54, `card_posting` 101/103 — "exactly one winner"
-  assertions); both suites green in isolation and on serial re-run.
+- Full `tests/run_all.sh full` serial: GREEN (2x).
+  Parallel-shard keyed-race flakes were root-caused and fixed: a late
+  loser can legitimately replay `SUCCESS` after the winner commits, so
+  "exactly one SUCCESS + one `*_IN_PROGRESS`" was scheduler-dependent.
+  `assert_race_outcomes` now asserts at least one winner plus only
+  idempotent outcomes, while every suite still asserts the money
+  invariants (single posting/journal, exact amounts). Non-keyed guard
+  races (`OVERPAID`, `INVALID_AMOUNT`, `INSUFFICIENT_FUNDS`,
+  `LIMIT_EXCEEDED`) still require exactly one winner because no replay
+  path exists.
   Also root-caused: an incremental-build staleness incident (idempotency
   replay returned `TRANSFER_IN_PROGRESS`) disappeared after
   `rm -rf cobol/build cobol/bin && ./build.sh`; R-02 mandates clean builds.
@@ -83,11 +90,10 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
   mtimes, so the final incremental build could retain M17); the harness now
   does a clean rebuild and was re-run 16/16 KILLED with a clean tree.
 - Gitleaks worktree + export: 0 findings; history mirror sanitized.
-- Premerge `--ci-parity`: failed at the 4-shard DB phase on the known
-  `payment_race_db_tests.sh` parallel flake (52/54; serial 54/54 twice).
-  All gates before that (build, full suite, probes, counts) were green;
-  this is a test-harness race, not a code regression. R-02 keeps this
-  residual open for a dedicated test-stability follow-up.
+- Premerge `--ci-parity`: **GREEN** at `51aba228` (full suite, probes 17/17,
+  strict counts 2553 assertions, coverage, benchmarks, migration rollback +
+  backup/restore drills, full lint/security, offline harnesses). This is
+  the authoritative R-02 gate.
 
 ## Known gaps (honest)
 
