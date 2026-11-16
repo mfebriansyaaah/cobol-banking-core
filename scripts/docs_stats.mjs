@@ -7,6 +7,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { collectRoutes } from './lib/route_fields.mjs';
 
 export const ROOT = path.resolve(process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : '.');
 const MANIFEST = path.join(ROOT, 'manifest', 'modules.json');
@@ -29,12 +30,13 @@ export function collect() {
   const cobolFiles = list(cobolDir, '.cob');
   const cobolLoc = cobolFiles.reduce((sum, f) => sum + countLines(path.join(cobolDir, f)), 0);
   const routeFiles = list(path.join(ROOT, 'middleware', 'src', 'routes'), '.js').filter((f) => f !== 'index.js');
-  const appSource = readFileSync(path.join(ROOT, 'middleware', 'src', 'app.js'), 'utf8');
-  const routeSources = routeFiles.map((f) => readFileSync(path.join(ROOT, 'middleware', 'src', 'routes', f), 'utf8'));
-  const actionRe = /action:\s*'[A-Z0-9_]+'/g;
-  const actions =
-    routeSources.reduce((sum, src) => sum + (src.match(actionRe) || []).length, 0) +
-    (appSource.match(actionRe) || []).length;
+  // Route definitions = route-table entries (one per HTTP endpoint), counted
+  // via the shared field-order parser so docs, contract, and the field-order
+  // gate use one definition. Duplicate action strings across routes count
+  // once per entry (matches ALL_ROUTES / check_field_order).
+  const routes = collectRoutes(ROOT);
+  let actions = 0;
+  for (const [, entry] of routes) actions += Array.isArray(entry) ? entry.length : 1;
   const migrations =
     list(path.join(ROOT, 'database', 'migrations'), '.sql').length +
     list(path.join(ROOT, 'database', 'migrations', 'archive'), '.sql').length;
