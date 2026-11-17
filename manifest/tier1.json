@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Tier-1 core definition for the linkage graph (PR-009). Hand-reviewed; changes require maintainer approval. See docs/module_classification.md and docs/TIER1_LINKAGE.md.",
+  "description": "Tier-1 core definition for the linkage graph (PR-009). Hand-reviewed; changes require maintainer approval. See docs/MODULE_CLASSIFICATION.md and docs/TIER1_LINKAGE.md.",
   "tier1Modules": [
     "auth_core",
     "auth_password_core",

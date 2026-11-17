@@ -68,5 +68,5 @@ not worth either. The wrappers stay.
   (wallet migration, table drops — each its own proposal with DB
   proofs) or engine hardening, not deduplication.
 - New money actions reuse the pattern: stage `WS-IDEM-*`, perform the
-  shared paragraph, never inline the protocol. `docs/module_authoring.md`
+  shared paragraph, never inline the protocol. `docs/MODULE_AUTHORING.md`
   owns the recipe; this ADR owns the why.

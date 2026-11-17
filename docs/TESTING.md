@@ -7,6 +7,32 @@ privilege accounts, the run lock, the restore drill guard, and orphan cleanup.
 Related: [Coverage](COVERAGE.md), [Governance](GOVERNANCE.md),
 [Contributing](../CONTRIBUTING.md).
 
+<!-- BEGIN GENERATED TOC -->
+
+- [Quickstart (from zero)](#quickstart-from-zero)
+- [Which database do the tests use?](#which-database-do-the-tests-use)
+- [The two accounts](#the-two-accounts)
+- [What the guards refuse](#what-the-guards-refuse)
+- [Concurrent runs](#concurrent-runs)
+- [Gateway fixture isolation](#gateway-fixture-isolation)
+- [CI scale: shard matrix, cache, nightly](#ci-scale-shard-matrix-cache-nightly)
+- [Schema rebuild drill (and migration idempotency)](#schema-rebuild-drill-and-migration-idempotency)
+- [Migrated DB snapshot producer (CI-008A)](#migrated-db-snapshot-producer-ci-008a)
+- [Migrated DB snapshot consumers (CI-008B)](#migrated-db-snapshot-consumers-ci-008b)
+- [Orphan cleanup](#orphan-cleanup)
+- [Troubleshooting](#troubleshooting)
+- [Test runner CLI and ergonomics](#test-runner-cli-and-ergonomics)
+- [Flaky-test quarantine](#flaky-test-quarantine)
+- [500 forensics (fail-open error logging)](#500-forensics-fail-open-error-logging)
+- [Machine-readable reports](#machine-readable-reports)
+- [Baseline counts are load-bearing](#baseline-counts-are-load-bearing)
+- [Cross-layer contract: route reachability + field order](#cross-layer-contract-route-reachability--field-order)
+- [Action coverage ratchet: every routed action must be shell-executed](#action-coverage-ratchet-every-routed-action-must-be-shell-executed)
+- [Local lint and security gates](#local-lint-and-security-gates)
+- [Files](#files)
+
+<!-- END GENERATED TOC -->
+
 ## Quickstart (from zero)
 
 ```sh
@@ -575,7 +601,7 @@ Rules of the road:
   (CI-014): middleware gateway sources stay outside `format:check` — no mass
   reformat. New toolchain files go on the allowlist already formatted;
   `scripts/ci/lint.sh` documents the split.
-- `markdownlint` ignores generated output (`docs/data_dictionary.md`,
+- `markdownlint` ignores generated output (`docs/DATA_DICTIONARY.md`,
   `docs/MODULE_INDEX.md`) and immutable history (`docs/adr/`, see
   `.markdownlintignore`); line length is 120 to match `.prettierrc`, tables
   and code blocks are exempt.

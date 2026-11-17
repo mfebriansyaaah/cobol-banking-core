@@ -6,8 +6,8 @@
 
 This index lists every module registered in the manifest, its dispatch prefix,
 and the route/test artefacts that exist for it. It is the entry point for the
-domain documentation ([domain overview](domain_overview.md)) and the
-column-level catalogue ([data dictionary](data_dictionary.md)).
+domain documentation ([domain overview](DOMAIN_OVERVIEW.md)) and the
+column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 
 | Module | Dispatch prefix | Route | Table cases | DB suite |
 | --- | --- | --- | --- | --- |

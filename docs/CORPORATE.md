@@ -1,6 +1,7 @@
 # Corporate Registry (PR-097, GLEIF)
 
 Free global LEI lookups cached for corporate onboarding triage.
+Implemented by `corp_core`.
 
 ## Limits (read twice)
 

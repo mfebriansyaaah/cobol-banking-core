@@ -69,7 +69,7 @@ if [ "$PROFILE" = "source" ] || [ "$PROFILE" = "train" ]; then
     "$OUT/contracts/actions.yaml" \
     "$OUT/manifest/actions.json" \
     "$OUT/tests/contracts/route_field_order.json" \
-    "$OUT/docs/data_dictionary.md" \
+    "$OUT/docs/DATA_DICTIONARY.md" \
     "$OUT/docs/STATUS.md" \
     "$OUT/docs/MODULE_INDEX.md" \
     "$OUT/docs/COMPLEXITY_BASELINE.md"

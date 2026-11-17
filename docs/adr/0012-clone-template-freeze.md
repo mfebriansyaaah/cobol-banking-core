@@ -9,7 +9,7 @@ independent modules, and no propagation machinery will be built.
 ## Context
 
 `scripts/generate_module.py` stamps new SQL-backed modules out of
-`cobol/src/cost_center_core.cob` (see `docs/module_authoring.md`). Five
+`cobol/src/cost_center_core.cob` (see `docs/MODULE_AUTHORING.md`). Five
 modules still carry that shape at 637 lines and 0.95 similarity
 (`tests/clone_baseline.txt`, shape CLONE9):
 
@@ -91,7 +91,7 @@ Freeze:
    not "sync" the clones to it.
 3. No `check_generated_clones`, no skeleton, no generator DSL.
    `generate_module.py` stays for stamping genuinely-new domains
-   (documented in `docs/module_authoring.md`), not for governing old ones.
+   (documented in `docs/MODULE_AUTHORING.md`), not for governing old ones.
 4. `check_clone_budget` remains the admission ratchet: no *new* clones
    without a proven Tier-1 link.
 

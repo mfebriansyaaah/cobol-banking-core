@@ -37,7 +37,7 @@ bounded dataset approval, not a change to the proprietary `LICENSE`.
 ```text
 database/migrations/archive/
 database/schema_full.sql  database/schema_v2.sql
-docs/openapi.yaml  docs/data_dictionary.md  docs/STATUS.md
+docs/openapi.yaml  docs/DATA_DICTIONARY.md  docs/STATUS.md
 docs/MODULE_INDEX.md  docs/COMPLEXITY_BASELINE.md
 contracts/actions.yaml  manifest/actions.json
 tests/contracts/route_field_order.json

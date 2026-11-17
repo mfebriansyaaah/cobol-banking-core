@@ -4,6 +4,21 @@
 > testing master plan reaches `main`. If this document and the master plan
 > disagree, the master plan section 4.6 wins and this file must be updated.
 
+<!-- BEGIN GENERATED TOC -->
+
+- [Model](#model)
+- [Branch types](#branch-types)
+- [Serial merge train](#serial-merge-train)
+- [Commit sequence](#commit-sequence)
+- [PR size tiers](#pr-size-tiers)
+- [Merge method](#merge-method)
+- [Release, tag, hotfix](#release-tag-hotfix)
+- [Branch protection](#branch-protection)
+- [Final remote cleanup](#final-remote-cleanup)
+- [Rollback](#rollback)
+
+<!-- END GENERATED TOC -->
+
 ## Model
 
 Trunk-based development with a **serial merge train**.

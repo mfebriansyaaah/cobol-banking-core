@@ -1,6 +1,6 @@
 # Data Dictionary — cobol_db
 
-Generated from `database/schema.sql` (baseline). 478 tables.
+Generated from `database/schema.sql` (baseline). 466 tables.
 
 
 ## Domain group: `access_*`
@@ -42,7 +42,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | reviewer_email | VARCHAR(100) NULL |
 | note | VARCHAR(255) NULL |
 | decided_at | TIMESTAMP NULL |
-| REFERENCES | access_reviews(review_id) ON |
 
 ### `access_reviews`
 
@@ -66,13 +65,12 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 |---|---|
 | hold_id | BIGINT AUTO_INCREMENT |
 | account_id | INT NOT |
-| amount | DECIMAL(18, 4) |
+| amount | DECIMAL(18, 4) NOT |
 | state | ENUM('PLACED','RELEASED','EXPIRED') NOT |
 | reason | VARCHAR(100) NULL |
 | actor_email | VARCHAR(100) NOT |
 | expires_at | TIMESTAMP NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | accounts(account_id) ON |
 
 ## Domain group: `accounts_*`
 
@@ -84,14 +82,13 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | account_id | INT AUTO_INCREMENT |
 | user_id | INT NOT |
 | currency_id | INT NOT |
-| account_type | ENUM('SAVINGS' |
-| balance | DECIMAL(18, 4) |
-| status | ENUM('ACTIVE' |
+| account_type | ENUM('SAVINGS', 'CHECKING', 'INVESTMENT', 'FEE_INCOME', 'FX_PNL', 'CLEARING', 'LOAN_BOOK', 'DEPOSIT_POOL', 'CARD_RECEIVABLE', 'MERCHANT_PAYABLE') DEFAULT |
+| balance | DECIMAL(18, 4) NOT |
+| status | ENUM('ACTIVE', 'FROZEN', 'CLOSED') DEFAULT |
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
-| control_slot | VARCHAR(32) GENERATED |
-| (CASE | WHEN status |
-| THEN | CONCAT(currency_id |
+| control_slot | VARCHAR(32) |
+| THEN | CONCAT(currency_id, '/', account_type) |
 
 ## Domain group: `alert_*`
 
@@ -146,7 +143,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | target_email | VARCHAR(100) NOT |
 | channel | ENUM('EMAIL','PAGE') NOT |
 | enabled | BOOLEAN NOT |
-| REFERENCES | alert_escalation_policy(policy_code) ON |
 
 ## Domain group: `asset_*`
 
@@ -254,17 +250,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | detail | VARCHAR(255) |
 | created_at | TIMESTAMP DEFAULT |
 
-### `audit_retention_audit`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| action | VARCHAR(40) NOT |
-| actor_email | VARCHAR(100) NOT |
-| run_id | BIGINT NULL |
-| detail | VARCHAR(255) |
-| created_at | TIMESTAMP DEFAULT |
-
 ### `audit_retention_policy`
 
 | Column | Type |
@@ -275,28 +260,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | status | ENUM('ACTIVE','RETIRED') NOT |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
-
-### `audit_retention_policy`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| policy_name | VARCHAR(64) NOT |
-| retention_days | INT NOT |
-| status | ENUM('ACTIVE','RETIRED') NOT |
-| created_by | VARCHAR(100) NOT |
-| created_at | TIMESTAMP DEFAULT |
-
-### `audit_retention_run`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| policy_id | BIGINT NOT |
-| archived_count | BIGINT NOT |
-| status | ENUM('RUNNING','COMPLETED','FAILED') NOT |
-| run_by | VARCHAR(100) NOT |
-| run_at | TIMESTAMP DEFAULT |
 
 ### `audit_retention_run`
 
@@ -319,6 +282,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | total_events | BIGINT NOT |
 | success_count | BIGINT NOT |
 | failed_count | BIGINT NOT |
+| checksum | CHAR(64) NULL |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 
@@ -341,11 +305,11 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | user_id | INT NOT |
 | actor_id | INT |
 | action | VARCHAR(100) NOT |
-| entity_type | VARCHAR(50), -- |
-| entity_id | VARCHAR(50), -- |
-| detail | VARCHAR(255), -- |
+| entity_type | VARCHAR(50) |
+| entity_id | VARCHAR(50) |
+| detail | VARCHAR(255) |
 | journal_id | BIGINT |
-| status | ENUM('SUCCESS', 'FAILED') |
+| status | ENUM('SUCCESS', 'FAILED') NOT |
 | created_at | TIMESTAMP DEFAULT |
 
 ### `audit_trail_archive`
@@ -359,7 +323,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | entity_type | VARCHAR(50) |
 | entity_id | VARCHAR(50) |
 | detail | VARCHAR(255) |
-| status | ENUM('SUCCESS', 'FAILED') |
+| status | ENUM('SUCCESS', 'FAILED') NOT |
 | journal_id | BIGINT NULL |
 | created_at | TIMESTAMP |
 | archived_at | TIMESTAMP DEFAULT |
@@ -399,6 +363,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 |---|---|
 | id | BIGINT AUTO_INCREMENT |
 | backup_id | BIGINT NOT |
+| checksum | VARCHAR(128) NOT |
 | status | ENUM('PENDING','VERIFIED','FAILED') NOT |
 | verified_by | VARCHAR(100) NOT |
 | verified_at | TIMESTAMP DEFAULT |
@@ -442,7 +407,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | status | ENUM('MATCH','VARIANCE') NOT |
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
-| REFERENCES | batch_run(id) ON |
 
 ### `batch_job`
 
@@ -473,7 +437,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | max_retries | INT NOT |
 | is_required | BOOLEAN NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | batch_job(id) ON |
 
 ### `batch_run`
 
@@ -484,6 +447,8 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | business_date | DATE NOT |
 | status | ENUM('RUNNING','PAUSED','COMPLETED','FAILED','CANCELLED') NOT |
 | attempt | INT NOT |
+| checkpoint_key | VARCHAR(100) NULL |
+| checkpoint_value | VARCHAR(100) NULL |
 | processed_count | BIGINT NOT |
 | success_count | BIGINT NOT |
 | failed_count | BIGINT NOT |
@@ -498,7 +463,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
 | version | INT NOT |
-| REFERENCES | batch_job(id) |
 
 ### `batch_run_step`
 
@@ -520,7 +484,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | error_code | VARCHAR(40) NULL |
 | error_detail | VARCHAR(255) NULL |
 | updated_at | TIMESTAMP DEFAULT |
-| REFERENCES | batch_run(id) ON |
 
 ## Domain group: `budget_*`
 
@@ -544,7 +507,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | cost_center | VARCHAR(40) NOT |
 | amount | DECIMAL(18,4) NOT |
 | spent | DECIMAL(18,4) NOT |
-| period | VARCHAR(20) NOT |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 
@@ -678,7 +640,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | included | BOOLEAN NOT |
 | detail | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | compliance_export_package(package_code) ON |
 
 ### `compliance_export_package`
 
@@ -690,6 +651,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | period_start | DATE NOT |
 | period_end | DATE NOT |
 | status | ENUM('DRAFT','SEALED','ATTESTED','REVOKED') NOT |
+| checksum | CHAR(64) NULL |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 | sealed_at | DATETIME NULL |
@@ -742,7 +704,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | status | ENUM('RUNNING','COMPLETED','FAILED') NOT |
 | executed_by | VARCHAR(100) NOT |
 | executed_at | TIMESTAMP DEFAULT |
-| REFERENCES | compliance_retention_policy(policy_code) ON |
 
 ## Domain group: `currencies_*`
 
@@ -842,6 +803,11 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | interest_rate | DECIMAL(9,4) NOT |
 | status | ENUM('PENDING','ACTIVE','MATURED','CLOSED') NOT |
 | maturity_date | DATE NULL |
+| journal_id | BIGINT NULL |
+| gl_journal_id | INT NULL |
+| fund_journal_id | BIGINT NULL |
+| fund_gl_journal_id | INT NULL |
+| post_gl_journal_id | INT NULL |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 
@@ -870,9 +836,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | assigned_by | VARCHAR(100) NOT |
 | note | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | dispute_cases(case_id) ON |
-| REFERENCES | users(id) ON |
-| REFERENCES | users(id) ON |
 
 ### `dispute_cases`
 
@@ -890,8 +853,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
 | decided_at | TIMESTAMP NULL |
-| REFERENCES | users(id) ON |
-| REFERENCES | users(id) ON |
 
 ### `dispute_messages`
 
@@ -902,8 +863,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | author_id | INT NOT |
 | body | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | dispute_cases(case_id) ON |
-| REFERENCES | users(id) ON |
 
 ### `dispute_notification`
 
@@ -921,8 +880,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 | sent_at | DATETIME NULL |
-| REFERENCES | dispute_cases(case_id) ON |
-| REFERENCES | dispute_notification_template(template_code) ON |
 
 ### `dispute_notification_audit`
 
@@ -1107,7 +1064,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | started_at | DATETIME NULL |
 | finished_at | DATETIME NULL |
 | updated_at | TIMESTAMP DEFAULT |
-| REFERENCES | eod_run(id) ON |
 
 ### `eod_run`
 
@@ -1154,7 +1110,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | target_email | VARCHAR(100) NOT |
 | channel | ENUM('EMAIL','PAGE') NOT |
 | enabled | BOOLEAN NOT |
-| REFERENCES | escalation_policy(id) ON |
 
 ## Domain group: `exchange_*`
 
@@ -1166,7 +1121,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | rate_id | INT AUTO_INCREMENT |
 | base_currency_id | INT NOT |
 | target_currency_id | INT NOT |
-| exchange_rate | DECIMAL(18, 6) |
+| exchange_rate | DECIMAL(18, 6) NOT |
 | updated_at | TIMESTAMP DEFAULT |
 
 ## Domain group: `export_*`
@@ -1181,6 +1136,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | source_code | VARCHAR(64) NOT |
 | format | ENUM('CSV','JSON','FIXED') NOT |
 | content | LONGTEXT NOT |
+| checksum | CHAR(64) NOT |
 | row_count | BIGINT NOT |
 | byte_count | BIGINT NOT |
 | retention_days | INT NOT |
@@ -1211,7 +1167,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | max_downloads | BIGINT NOT |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | export_archive(id) ON |
 
 ## Domain group: `fee_*`
 
@@ -1252,9 +1207,8 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | Column | Type |
 |---|---|
 | currency_id | INT PRIMARY |
-| fee_amount | DECIMAL(18, 4) |
+| fee_amount | DECIMAL(18, 4) NOT |
 | updated_at | TIMESTAMP DEFAULT |
-| REFERENCES | currencies(currency_id) |
 
 ### `fee_tier`
 
@@ -1268,7 +1222,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | fixed_fee | DECIMAL(30,10) NOT |
 | rate | DECIMAL(9,6) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | fee_rule(id) ON |
 
 ### `fee_waiver`
 
@@ -1283,7 +1236,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | enabled | BOOLEAN NOT |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | fee_rule(id) ON |
 
 ### `fee_waiver_request`
 
@@ -1384,7 +1336,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | parent_code | VARCHAR(20) NULL |
 | is_active | BOOLEAN NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | gl_account(account_code) ON |
 
 ### `gl_audit`
 
@@ -1421,8 +1372,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | debit_amount | DECIMAL(30,10) NOT |
 | credit_amount | DECIMAL(30,10) NOT |
 | memo | VARCHAR(255) |
-| REFERENCES | gl_journal(id) ON |
-| REFERENCES | gl_account(account_code) ON |
 
 ### `gl_period`
 
@@ -1438,7 +1387,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 
 | Column | Type |
 |---|---|
-| period | VARCHAR(20) PRIMARY |
 | status | ENUM('OPEN','LOCKED','CLOSED') NOT |
 | locked_by | VARCHAR(100) NULL |
 | locked_at | DATETIME NULL |
@@ -1451,7 +1399,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | id | BIGINT AUTO_INCREMENT |
 | action | VARCHAR(40) NOT |
 | actor_email | VARCHAR(100) NOT |
-| period | VARCHAR(20) NULL |
 | detail | VARCHAR(255) |
 | created_at | TIMESTAMP DEFAULT |
 
@@ -1477,14 +1424,12 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | revalued_balance | DECIMAL(18,4) NOT |
 | diff | DECIMAL(18,4) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | gl_revaluation_run(id) ON |
 
 ### `gl_revaluation_run`
 
 | Column | Type |
 |---|---|
 | id | BIGINT AUTO_INCREMENT |
-| period | VARCHAR(20) NOT |
 | currency | CHAR(3) NOT |
 | status | ENUM('RUNNING','COMPLETED','FAILED') NOT |
 | matched_count | BIGINT NOT |
@@ -1540,8 +1485,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | status | ENUM('POSTED','REVERSED') NOT |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | import_batch(id) ON |
-| REFERENCES | gl_journal(id) |
 
 ### `import_recon_item`
 
@@ -1557,9 +1500,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | match_status | ENUM('MATCHED','UNMATCHED','MISMATCH') NOT |
 | detail | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | import_recon_run(id) ON |
-| REFERENCES | import_row(id) ON |
-| REFERENCES | gl_journal(id) ON |
 
 ### `import_recon_run`
 
@@ -1576,7 +1516,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_by | VARCHAR(100) NOT |
 | started_at | DATETIME NOT |
 | finished_at | DATETIME NULL |
-| REFERENCES | import_batch(id) ON |
 
 ### `import_row`
 
@@ -1591,7 +1530,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | error_detail | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
-| REFERENCES | import_batch(id) ON |
 
 ## Domain group: `incident_*`
 
@@ -1656,6 +1594,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | Column | Type |
 |---|---|
 | id | BIGINT AUTO_INCREMENT |
+| key_name | VARCHAR(64) NOT |
 | current_version | INT NOT |
 | status | ENUM('SCHEDULED','ACTIVE','COMPLETED','CANCELLED') NOT |
 | overlap_seconds | INT NOT |
@@ -1691,33 +1630,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | detail | VARCHAR(255) |
 | created_at | TIMESTAMP DEFAULT |
 
-### `kyc_audit`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| action | VARCHAR(40) NOT |
-| actor_email | VARCHAR(100) NOT |
-| case_id | BIGINT NULL |
-| detail | VARCHAR(255) |
-| created_at | TIMESTAMP DEFAULT |
-
-### `kyc_case`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| customer_email | VARCHAR(100) NOT |
-| review_type | ENUM('ONBOARDING','PERIODIC','ENHANCED') NOT |
-| status | ENUM('PENDING','APPROVED','REJECTED','ESCALATED') NOT |
-| risk_level | ENUM('LOW','MEDIUM','HIGH') NOT |
-| due_date | DATE NULL |
-| detail | VARCHAR(255) NULL |
-| created_by | VARCHAR(100) NOT |
-| created_at | TIMESTAMP DEFAULT |
-| decided_by | VARCHAR(100) NULL |
-| decided_at | DATETIME NULL |
-
 ### `kyc_case`
 
 | Column | Type |
@@ -1745,20 +1657,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | detail | VARCHAR(255) NULL |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | kyc_case(id) ON |
-
-### `kyc_evidence`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| case_id | BIGINT NOT |
-| evidence_type | VARCHAR(40) NOT |
-| ref | VARCHAR(128) NOT |
-| detail | VARCHAR(255) NULL |
-| created_by | VARCHAR(100) NOT |
-| created_at | TIMESTAMP DEFAULT |
-| REFERENCES | kyc_case(id) ON |
 
 ### `kyc_review`
 
@@ -1795,9 +1693,9 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | Column | Type |
 |---|---|
 | report_code | VARCHAR(40) PRIMARY |
-| period | VARCHAR(20) NOT |
 | status | ENUM('DRAFT','GENERATED','SUBMITTED') NOT |
 | row_count | BIGINT NOT |
+| checksum | CHAR(64) NULL |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 | submitted_at | DATETIME NULL |
@@ -1823,12 +1721,12 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | ledger_id | BIGINT AUTO_INCREMENT |
 | txn_ref | VARCHAR(50) NOT |
 | account_id | INT NOT |
-| amount | DECIMAL(18, 4) |
-| type | ENUM('CREDIT', 'DEBIT') |
+| amount | DECIMAL(18, 4) NOT |
+| type | ENUM('CREDIT', 'DEBIT') NOT |
 | currency_id | INT NOT |
 | from_email | VARCHAR(100) |
 | description | VARCHAR(255) |
-| exchange_rate | DECIMAL(30, 18) |
+| exchange_rate | DECIMAL(30, 18) NULL |
 | journal_id | BIGINT NULL |
 | created_at | TIMESTAMP DEFAULT |
 
@@ -1839,12 +1737,12 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | ledger_id | BIGINT PRIMARY |
 | txn_ref | VARCHAR(50) NOT |
 | account_id | INT NOT |
-| amount | DECIMAL(18, 4) |
-| type | ENUM('CREDIT', 'DEBIT') |
+| amount | DECIMAL(18, 4) NOT |
+| type | ENUM('CREDIT', 'DEBIT') NOT |
 | currency_id | INT NOT |
 | from_email | VARCHAR(100) NULL |
 | description | VARCHAR(255) |
-| exchange_rate | DECIMAL(30, 18) |
+| exchange_rate | DECIMAL(30, 18) NULL |
 | journal_id | BIGINT NULL |
 | created_at | TIMESTAMP NULL |
 | archived_at | TIMESTAMP DEFAULT |
@@ -1924,6 +1822,9 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | decided_by | VARCHAR(100) NULL |
 | decided_at | DATETIME NULL |
 | disbursed_at | DATETIME NULL |
+| repaid_total | DECIMAL(18,4) NOT |
+| journal_id | BIGINT NULL |
+| gl_journal_id | INT NULL |
 
 ### `loan_audit`
 
@@ -1934,6 +1835,8 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | actor_email | VARCHAR(100) NOT |
 | loan_id | BIGINT NULL |
 | detail | VARCHAR(255) |
+| old_value | VARCHAR(255) NULL |
+| new_value | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
 
 ### `loan_repayment`
@@ -1946,7 +1849,8 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | status | ENUM('PENDING','PAID') NOT |
 | due_date | DATE NULL |
 | paid_at | DATETIME NULL |
-| REFERENCES | loan_application(id) ON |
+| journal_id | BIGINT NULL |
+| gl_journal_id | INT NULL |
 
 ## Domain group: `maker_*`
 
@@ -1960,10 +1864,10 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | target_email | VARCHAR(100) NOT |
 | detail | VARCHAR(255) NULL |
 | maker_email | VARCHAR(100) NOT |
+| checker_email | VARCHAR(100) NULL |
 | state | ENUM('PENDING','APPROVED','REJECTED') NOT |
 | created_at | TIMESTAMP DEFAULT |
 | decided_at | TIMESTAMP NULL |
-| REFERENCES | dual_control_operations(operation) |
 
 ## Domain group: `mfa_*`
 
@@ -1977,7 +1881,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | code_hash | VARCHAR(255) NOT |
 | used | BOOLEAN NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | users(id) ON |
 
 ### `mfa_recovery_requests`
 
@@ -1989,7 +1892,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_at | TIMESTAMP DEFAULT |
 | decided_at | TIMESTAMP NULL |
 | decided_by | INT NULL |
-| REFERENCES | users(id) ON |
 
 ## Domain group: `notification_*`
 
@@ -2005,18 +1907,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | user_email | VARCHAR(100) NULL |
 | detail | VARCHAR(255) |
 | created_at | TIMESTAMP DEFAULT |
-
-### `notification_audit`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| channel | VARCHAR(20) NOT |
-| recipient | VARCHAR(100) NOT |
-| status | ENUM('PENDING','SENDING','SENT','FAILED','DEAD') NOT |
-| retry_count | INT NOT |
-| enqueued_by | VARCHAR(100) NOT |
-| enqueued_at | TIMESTAMP DEFAULT |
 
 ### `notification_audit_entry`
 
@@ -2124,7 +2014,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | confirmed_at | DATETIME NULL |
 | detail | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | oncall_page(id) ON |
 
 ### `oncall_delivery_audit`
 
@@ -2152,7 +2041,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | acked_at | DATETIME NULL |
 | resolved_at | DATETIME NULL |
 | created_by | VARCHAR(100) NOT |
-| REFERENCES | escalation_policy(id) ON |
 
 ### `oncall_rotation`
 
@@ -2178,7 +2066,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | ends_at | DATETIME NOT |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | oncall_rotation(id) ON |
 
 ## Domain group: `ops_*`
 
@@ -2222,7 +2109,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | actor_email | VARCHAR(100) NOT |
 | note | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | ops_alert(id) ON |
 
 ## Domain group: `password_*`
 
@@ -2242,7 +2128,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | user_id | INT NOT |
 | password_hash | VARCHAR(255) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | users(id) ON |
 
 ## Domain group: `payment_*`
 
@@ -2273,7 +2158,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_at | TIMESTAMP DEFAULT |
 | captured_at | DATETIME NULL |
 | released_at | DATETIME NULL |
-| REFERENCES | accounts(account_id) ON |
+| journal_id | BIGINT NULL |
 
 ### `payment_hold_audit`
 
@@ -2317,7 +2202,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | error_detail | VARCHAR(255) NULL |
 | run_at | TIMESTAMP DEFAULT |
 | created_by | VARCHAR(100) NOT |
-| REFERENCES | payment_instruction(id) ON |
 
 ### `payment_policy`
 
@@ -2358,7 +2242,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | from_email | VARCHAR(100) NOT |
 | to_email | VARCHAR(100) NOT |
 | amount | DECIMAL(18,4) NOT |
-| status | ENUM('PENDING' |
+| status | ENUM('PENDING', 'COMMITTED', 'FAILED') DEFAULT |
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
 
@@ -2371,7 +2255,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | from_email | VARCHAR(100) NOT |
 | to_email | VARCHAR(100) NOT |
 | amount | DECIMAL(18,4) NOT |
-| status | ENUM('PENDING' |
+| status | ENUM('PENDING', 'COMMITTED', 'FAILED') |
 | created_at | TIMESTAMP |
 | updated_at | TIMESTAMP |
 | archived_at | TIMESTAMP DEFAULT |
@@ -2486,7 +2370,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | assigned_by | VARCHAR(100) NOT |
 | note | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | reconciliation_findings(finding_id) ON |
 
 ### `recon_assignment_rule`
 
@@ -2530,7 +2413,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
 | resolved_at | DATETIME NULL |
-| REFERENCES | reconciliation_findings(finding_id) ON |
 
 ### `recon_exception_audit`
 
@@ -2552,7 +2434,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | author_email | VARCHAR(100) NOT |
 | body | VARCHAR(255) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | recon_exception(id) ON |
 
 ### `recon_note`
 
@@ -2563,7 +2444,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | actor_email | VARCHAR(100) NOT |
 | note | VARCHAR(255) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | reconciliation_findings(finding_id) ON |
 
 ### `recon_sla_policy`
 
@@ -2585,15 +2465,13 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | finding_id | BIGINT AUTO_INCREMENT |
 | run_id | BIGINT NOT |
 | account_id | INT NOT |
-| balance | DECIMAL(18, 4) |
-| ledger_sum | DECIMAL(18, 4) |
+| balance | DECIMAL(18, 4) NOT |
+| ledger_sum | DECIMAL(18, 4) NOT |
 | status | ENUM('OPEN','ACKNOWLEDGED','RESOLVED') NOT |
 | owner_email | VARCHAR(100) NULL |
 | resolution_note | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
 | resolved_at | TIMESTAMP NULL |
-| REFERENCES | reconciliation_runs(run_id) |
-| REFERENCES | accounts(account_id) ON |
 
 ### `reconciliation_runs`
 
@@ -3647,8 +3525,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 |---|---|
 | parent_value_id | INT NOT |
 | child_value_id | INT NOT |
-| REFERENCES | ref_value(id) ON |
-| REFERENCES | ref_value(id) ON |
 
 ### `ref_holiday`
 
@@ -4687,7 +4563,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | ref_value_id | INT NOT |
 | locale | VARCHAR(10) NOT |
 | label | VARCHAR(128) NOT |
-| REFERENCES | ref_value(id) ON |
 
 ### `ref_type`
 
@@ -4717,7 +4592,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | type_code | VARCHAR(32) NOT |
 | code | VARCHAR(64) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | ref_type(type_code) ON |
 
 ### `ref_value_date_rule`
 
@@ -4744,7 +4618,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | approved_by | VARCHAR(100) |
 | approved_at | DATETIME |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | ref_value(id) ON |
 
 ### `ref_verification_status`
 
@@ -4859,9 +4732,9 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | report_code | VARCHAR(40) PRIMARY |
 | regulator | ENUM('OJK','BI','PPATK') NOT |
 | report_type | VARCHAR(40) NOT |
-| period | VARCHAR(40) NOT |
 | status | ENUM('DRAFT','SUBMITTED','ACCEPTED','REJECTED') NOT |
 | row_count | BIGINT NOT |
+| checksum | CHAR(64) NULL |
 | detail | VARCHAR(255) NULL |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
@@ -4888,8 +4761,8 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 |---|---|
 | archive_code | VARCHAR(40) PRIMARY |
 | report_type | VARCHAR(40) NOT |
-| period | VARCHAR(40) NOT |
 | row_count | BIGINT NOT |
+| checksum | CHAR(64) NULL |
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 
@@ -4904,7 +4777,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | detail | VARCHAR(255) |
 | created_at | TIMESTAMP DEFAULT |
 
-### `report_execution_audit`
+### `report_audit`
 
 | Column | Type |
 |---|---|
@@ -4921,11 +4794,12 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | Column | Type |
 |---|---|
 | id | BIGINT AUTO_INCREMENT |
-| report_name | VARCHAR(64) NOT |
-| duration_ms | INT NOT |
-| status | ENUM('OK','FAILED') NOT |
-| recorded_by | VARCHAR(100) NOT |
-| recorded_at | TIMESTAMP DEFAULT |
+| action | VARCHAR(40) NOT |
+| actor_email | VARCHAR(100) NOT |
+| template_code | VARCHAR(40) NULL |
+| run_id | INT NULL |
+| detail | VARCHAR(255) |
+| created_at | TIMESTAMP DEFAULT |
 
 ### `report_execution_audit_audit`
 
@@ -4952,7 +4826,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_by | VARCHAR(100) NOT |
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
-| REFERENCES | report_template(id) ON |
 
 ### `report_run`
 
@@ -4965,6 +4838,7 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | row_count | BIGINT NOT |
 | total_debit | DECIMAL(30,10) NOT |
 | total_credit | DECIMAL(30,10) NOT |
+| checksum | VARCHAR(64) NULL |
 | started_at | DATETIME NOT |
 | finished_at | DATETIME NULL |
 | error_code | VARCHAR(40) NULL |
@@ -4973,7 +4847,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | version | INT NOT |
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
-| REFERENCES | report_template(id) |
 
 ### `report_run_row`
 
@@ -4986,7 +4859,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | debit | DECIMAL(30,10) NOT |
 | credit | DECIMAL(30,10) NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | report_run(id) ON |
 
 ### `report_scheduler`
 
@@ -5006,18 +4878,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | created_at | TIMESTAMP DEFAULT |
 | updated_at | TIMESTAMP DEFAULT |
 
-### `report_scheduler`
-
-| Column | Type |
-|---|---|
-| schedule_code | VARCHAR(40) PRIMARY |
-| report_type | VARCHAR(40) NOT |
-| frequency | ENUM('DAILY','WEEKLY','MONTHLY') NOT |
-| next_run_at | DATETIME NOT |
-| enabled | BOOLEAN NOT |
-| created_by | VARCHAR(100) NOT |
-| created_at | TIMESTAMP DEFAULT |
-
 ### `report_scheduler_audit`
 
 | Column | Type |
@@ -5028,19 +4888,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | schedule_code | VARCHAR(40) NULL |
 | detail | VARCHAR(255) |
 | created_at | TIMESTAMP DEFAULT |
-
-### `report_scheduler_run`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| schedule_code | VARCHAR(40) NOT |
-| status | ENUM('RUNNING','COMPLETED','FAILED') NOT |
-| row_count | BIGINT NOT |
-| error_detail | VARCHAR(255) NULL |
-| started_at | TIMESTAMP DEFAULT |
-| completed_at | DATETIME NULL |
-| REFERENCES | report_scheduler(schedule_code) ON |
 
 ### `report_scheduler_run`
 
@@ -5058,8 +4905,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | started_at | DATETIME NOT |
 | finished_at | DATETIME NULL |
 | created_by | VARCHAR(100) NOT |
-| REFERENCES | report_scheduler(id) ON |
-| REFERENCES | report_run(id) ON |
 
 ### `report_template`
 
@@ -5089,7 +4934,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | align | ENUM('LEFT','RIGHT','CENTER') NOT |
 | column_format | ENUM('TEXT','AMOUNT','DATE','INTEGER') NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | report_template(id) ON |
 
 ## Domain group: `retention_*`
 
@@ -5170,28 +5014,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 | detail | VARCHAR(255) |
 | created_at | TIMESTAMP DEFAULT |
 
-### `risk_audit`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| action | VARCHAR(40) NOT |
-| actor_email | VARCHAR(100) NOT |
-| customer_email | VARCHAR(100) NULL |
-| detail | VARCHAR(255) |
-| created_at | TIMESTAMP DEFAULT |
-
-### `risk_profile`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| customer_email | VARCHAR(100) NOT |
-| risk_level | ENUM('LOW','MEDIUM','HIGH') NOT |
-| score | INT NOT |
-| updated_by | VARCHAR(100) NOT |
-| updated_at | TIMESTAMP DEFAULT |
-
 ### `risk_profile`
 
 | Column | Type |
@@ -5212,7 +5034,6 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 |---|---|
 | role | ENUM('USER','MANAGER','SUPER_ADMIN') NOT |
 | permission | VARCHAR(30) NOT |
-| REFERENCES | permissions(name) ON |
 
 ## Domain group: `sanctions_*`
 
@@ -5250,29 +5071,10 @@ Generated from `database/schema.sql` (baseline). 478 tables.
 |---|---|
 | version | VARCHAR(64) PRIMARY |
 | applied_at | TIMESTAMP DEFAULT |
-| checksum | VARCHAR(64) NULLABLE — SHA-256 of the applied file (tamper-evident since migration 0666; verified by `migrate.sh --check`) |
-
-One row per applied migration plus, on baselined databases, a
-`baseline_v2` marker row whose `checksum` pins `database/schema_v2.sql`
-(an edited snapshot fails `--check` as a `baseline_v2` mismatch).
-Pre-baseline migrations live in `database/migrations/archive/`; see the
-baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
+| checksum | CHAR(64) NULL |
 
 ## Domain group: `screening_*`
 
-
-### `screening_hit`
-
-| Column | Type |
-|---|---|
-| id | BIGINT AUTO_INCREMENT |
-| customer_email | VARCHAR(100) NOT |
-| hit_type | VARCHAR(40) NOT |
-| severity | ENUM('LOW','MEDIUM','HIGH') NOT |
-| status | ENUM('OPEN','CLEARED','BLOCKED') NOT |
-| detail | VARCHAR(255) NULL |
-| created_by | VARCHAR(100) NOT |
-| created_at | TIMESTAMP DEFAULT |
 
 ### `screening_hit`
 
@@ -5342,7 +5144,6 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | status | ENUM('MATCHED','BREAK','RESOLVED') NOT |
 | detail | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | settlement_run(id) ON |
 
 ### `settlement_run`
 
@@ -5449,7 +5250,6 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | total_credit | DECIMAL(30,10) NOT |
 | row_count | BIGINT NOT |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | statement_run(id) ON |
 
 ### `statement_archive_line`
 
@@ -5466,7 +5266,6 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | balance_after | DECIMAL(30,10) NOT |
 | description | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | statement_archive(id) ON |
 
 ### `statement_audit`
 
@@ -5522,10 +5321,6 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | match_status | ENUM('MATCHED','UNMATCHED','MISMATCH') NOT |
 | detail | VARCHAR(255) NULL |
 | created_at | TIMESTAMP DEFAULT |
-| REFERENCES | statement_recon_run(id) ON |
-| REFERENCES | statement_archive_line(id) ON |
-| REFERENCES | accounts(account_id) ON |
-| REFERENCES | ledger(ledger_id) ON |
 
 ### `statement_recon_run`
 
@@ -5542,7 +5337,6 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | created_by | VARCHAR(100) NOT |
 | started_at | DATETIME NOT |
 | finished_at | DATETIME NULL |
-| REFERENCES | statement_run(id) ON |
 
 ### `statement_run`
 
@@ -5584,7 +5378,6 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | id | BIGINT AUTO_INCREMENT |
 | report_ref | VARCHAR(64) NOT |
 | tax_type | ENUM('VAT','INCOME','WITHHOLDING') NOT |
-| period | VARCHAR(40) NOT |
 | amount | DECIMAL(18,4) NOT |
 | currency | CHAR(3) NOT |
 | status | ENUM('DRAFT','FILED','PAID','CLOSED') NOT |
@@ -5654,8 +5447,8 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | password_hash | VARCHAR(255) NOT |
 | full_name | VARCHAR(100) NOT |
 | dob | DATE NOT |
-| status | ENUM('UNVERIFIED' |
-| role | ENUM('USER' |
+| status | ENUM('UNVERIFIED', 'VERIFIED', 'SUSPENDED', 'CLOSED') DEFAULT |
+| role | ENUM('USER', 'MANAGER', 'SUPER_ADMIN') DEFAULT |
 | token_version | INT NOT |
 | failed_logins | INT NOT |
 | locked_until | TIMESTAMP NULL |
@@ -5775,7 +5568,7 @@ baseline lifecycle in [DATA_MODEL.md](DATA_MODEL.md).
 | id | INT AUTO_INCREMENT |
 | email | VARCHAR(100) NOT |
 | code | VARCHAR(6) NOT |
-| purpose | ENUM('SIGNUP' |
+| purpose | ENUM('SIGNUP', 'EMAIL_CHANGE', 'PASSWORD_RESET', 'MFA_RECOVERY') NOT |
 | expires_at | TIMESTAMP NOT |
 | is_used | BOOLEAN DEFAULT |
 | attempts | INT NOT |
