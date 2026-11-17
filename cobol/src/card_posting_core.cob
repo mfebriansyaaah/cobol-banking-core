@@ -131,8 +131,8 @@
        ACTION-POST-CAPTURE.
            *> P3/P4 carry the txn currency + amount the caller resolved
            *> from the card_transaction row.
-           MOVE WS-P3-TRIMMED TO WS-TMP-CURR
-           MOVE WS-P4-TRIMMED TO WS-TMP-AMT
+           MOVE WS-P3-TRIMMED(1:10) TO WS-TMP-CURR
+           MOVE WS-P4-TRIMMED(1:30) TO WS-TMP-AMT
            *> Resolve the capture path: bank-owned CARD_RECEIVABLE plus
            *> MERCHANT_PAYABLE suspense for the card currency, plus the
            *> cardholder for leg attribution. Missing books fail closed.
@@ -393,8 +393,8 @@
        ACTION-POST-REVERSE.
            *> P3/P4 carry the card currency + amount the
            *> caller resolved from the transaction row.
-           MOVE WS-P3-TRIMMED TO WS-CUST-CURR
-           MOVE WS-P4-TRIMMED TO WS-TMP-AMT
+           MOVE WS-P3-TRIMMED(1:10) TO WS-CUST-CURR
+           MOVE WS-P4-TRIMMED(1:30) TO WS-TMP-AMT
            *> Resolve the reversal path and post the refund journal for a
            *> captured authorization: DEBIT Merchants payable / CREDIT
            *> Cards receivable. Runs before any transaction opens.
@@ -488,7 +488,7 @@
                    WS-CALL-P3 WS-CALL-P4 WS-CALL-P5 WS-CALL-P6 WS-CALL-OUT
                END-CALL
                IF WS-CALL-OUT(1:5) = "ERROR"
-                   MOVE WS-CALL-OUT TO WS-ERR
+                   MOVE WS-CALL-OUT(1:40) TO WS-ERR
                    MOVE "1" TO WS-ERR-CLEAN
                    PERFORM POST-FAIL
                    EXIT PARAGRAPH

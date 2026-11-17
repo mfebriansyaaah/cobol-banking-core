@@ -15,7 +15,7 @@
            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
            PERFORM IDEM-RESET
            MOVE "DEP_OPEN" TO WS-IDEM-SCOPE
-           MOVE WS-P7-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P7-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
            MOVE WS-P1-TRIMMED TO WS-IDEM-V1
            MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-V2
@@ -40,7 +40,7 @@
            *> unified mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "DEP_OPEN" TO WS-IDEM-SCOPE
-           MOVE WS-P7-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P7-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
@@ -186,7 +186,7 @@
            IF STEP-OK AND WS-P7-TRIMMED NOT = SPACES AND WS-IDEM-JID = SPACES
                PERFORM IDEM-RESET
                MOVE "DEP_OPEN" TO WS-IDEM-SCOPE
-               MOVE WS-P7-TRIMMED TO WS-IDEM-KEY
+               MOVE WS-P7-TRIMMED(1:64) TO WS-IDEM-KEY
                MOVE "deposit_id" TO WS-IDEM-IDCOL
                MOVE WS-ID-TEXT TO WS-IDEM-LINKVAL
                PERFORM IDEM-LINK
@@ -391,7 +391,7 @@
            IF STEP-OK AND WS-P7-TRIMMED NOT = SPACES
                PERFORM IDEM-RESET
                MOVE "DEP_OPEN" TO WS-IDEM-SCOPE
-               MOVE WS-P7-TRIMMED TO WS-IDEM-KEY
+               MOVE WS-P7-TRIMMED(1:64) TO WS-IDEM-KEY
                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                MOVE "fund_gl_journal_id" TO WS-IDEM-SETCOL
                MOVE WS-GL-JID TO WS-IDEM-JIDVAL
@@ -445,8 +445,8 @@
            *> every transition is mirrored to idempotency_request.
            PERFORM IDEM-RESET
            MOVE "DEP_CLOSE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
            MOVE SPACES TO WS-IDEM-DETAILS
            MOVE "ERROR|CLOSE_IN_PROGRESS" TO WS-IDEM-CODE
@@ -458,8 +458,8 @@
            *> DONE rows are never touched. The mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "DEP_CLOSE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
@@ -529,8 +529,8 @@
                    IF WS-P5-TRIMMED NOT = SPACES
                        PERFORM IDEM-RESET
                        MOVE "DEP_CLOSE" TO WS-IDEM-SCOPE
-                       MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-                       MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+                       MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+                       MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
                        MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                        MOVE SPACES TO WS-IDEM-DETAILS
                        MOVE "1" TO WS-IDEM-DIRECT
@@ -778,8 +778,8 @@
            IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
                PERFORM IDEM-RESET
                MOVE "DEP_CLOSE" TO WS-IDEM-SCOPE
-               MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-               MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+               MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+               MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                MOVE SPACES TO WS-IDEM-DETAILS
                MOVE "gl_journal_id" TO WS-IDEM-SETCOL

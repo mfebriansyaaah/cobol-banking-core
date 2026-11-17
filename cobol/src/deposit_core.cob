@@ -606,7 +606,6 @@
            END-IF
            END-IF
            END-IF.
-           IF STEP-OK
            MOVE "INSERT INTO deposit_transaction (deposit_id, txn_type, amount, currency, reference) SELECT id, 'PRINCIPAL_PAYOUT', ?, currency, CONCAT('SETTLE-', id, '-', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')) FROM deposit_account WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-TMP-AMT TO WS-BIND-1
            MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -631,8 +630,8 @@
            IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
                PERFORM IDEM-RESET
                MOVE "DEP_SETTLE" TO WS-IDEM-SCOPE
-               MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-               MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+               MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+               MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                MOVE SPACES TO WS-IDEM-DETAILS
                MOVE "gl_journal_id" TO WS-IDEM-SETCOL

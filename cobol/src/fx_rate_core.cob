@@ -91,11 +91,11 @@
             *> WS-TRIM-IN holds the candidate; WS-BAD counts violations.
             *> ISO 4217 alpha codes: exactly 3 A-Z.
             IF FUNCTION LENGTH(FUNCTION TRIM(WS-TRIM-IN)) NOT = 3
-                ADD 1 TO WS-BAD
+                ADD 1 TO WS-BAD END-ADD
             ELSE
                 PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 3
                     IF WS-TRIM-IN(WS-I:1) < "A" OR WS-TRIM-IN(WS-I:1) > "Z"
-                        ADD 1 TO WS-BAD
+                        ADD 1 TO WS-BAD END-ADD
                     END-IF
                 END-PERFORM
             END-IF.

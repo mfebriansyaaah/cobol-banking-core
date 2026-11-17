@@ -643,7 +643,7 @@
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SETTLE" TO WS-AUDIT-ACTION
-            MOVE WS-TMP-ID TO WS-AUDIT-BKG
+            MOVE WS-TMP-ID(1:20) TO WS-AUDIT-BKG
             MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
             PERFORM AUDIT
             CALL "SQL_COMMIT" END-CALL

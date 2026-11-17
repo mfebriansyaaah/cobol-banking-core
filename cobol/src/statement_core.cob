@@ -312,7 +312,7 @@
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
-           MOVE WS-P1-TRIMMED TO WS-RUN-ID
+           MOVE WS-P1-TRIMMED(1:20) TO WS-RUN-ID
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
            CALL "SQL_BEGIN" END-CALL

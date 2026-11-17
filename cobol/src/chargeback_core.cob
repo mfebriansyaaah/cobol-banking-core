@@ -646,7 +646,7 @@
                 MOVE FUNCTION TRIM(WS-NEW-ID) TO WS-P1-TRIMMED
             END-IF.
             IF STEP-OK
-                MOVE WS-P3-TRIMMED TO WS-TMP-AMT
+                MOVE WS-P3-TRIMMED(1:30) TO WS-TMP-AMT
                 MOVE "HOLD" TO WS-TMP-STATUS
                 MOVE WS-CARD-CURR TO WS-CASE-CURR
                 PERFORM LEDGER-ADD
