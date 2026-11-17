@@ -330,7 +330,6 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | Suite file | Assertions |
 | --- | ---: |
 | `tests/cobol/cases/*.cases` | 235 |
-| `amount_matrix.sh` | 13 |
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 67 |
@@ -416,7 +415,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/loan_posting_db_tests.sh` | 13 |
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
-| **Total** | **2842** |
+| **Total** | **2829** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
