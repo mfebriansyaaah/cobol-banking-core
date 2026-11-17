@@ -97,8 +97,8 @@ Manifest generated: ${stats.generatedAt || 'unknown'}
 - [Module index](MODULE_INDEX.md)
 - [Coverage](COVERAGE.md)
 - [Governance](GOVERNANCE.md)
-- [Data dictionary](data_dictionary.md)
-- [Domain overview](domain_overview.md)
+- [Data dictionary](DATA_DICTIONARY.md)
+- [Domain overview](DOMAIN_OVERVIEW.md)
 `;
 }
 
@@ -133,8 +133,8 @@ export function renderModuleIndex(stats) {
 
 This index lists every module registered in the manifest, its dispatch prefix,
 and the route/test artefacts that exist for it. It is the entry point for the
-domain documentation ([domain overview](domain_overview.md)) and the
-column-level catalogue ([data dictionary](data_dictionary.md)).
+domain documentation ([domain overview](DOMAIN_OVERVIEW.md)) and the
+column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 
 | Module | Dispatch prefix | Route | Table cases | DB suite |
 | --- | --- | --- | --- | --- |

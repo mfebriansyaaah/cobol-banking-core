@@ -21,5 +21,5 @@ Manifest generated: 2026-11-12T06:40:47.672Z
 - [Module index](MODULE_INDEX.md)
 - [Coverage](COVERAGE.md)
 - [Governance](GOVERNANCE.md)
-- [Data dictionary](data_dictionary.md)
-- [Domain overview](domain_overview.md)
+- [Data dictionary](DATA_DICTIONARY.md)
+- [Domain overview](DOMAIN_OVERVIEW.md)

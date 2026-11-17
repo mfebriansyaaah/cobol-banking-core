@@ -104,7 +104,7 @@ test database setup, the isolation model, and troubleshooting, see
   `node scripts/docs_stats.mjs --write`.
 - Hand-maintained: `docs/COVERAGE.md`, `docs/GOVERNANCE.md`, `docs/BRANCHING.md`,
   `docs/CI.md`, `docs/OWNERSHIP.md`, ADRs, runbooks,
-  `docs/domain_overview.md`, and `docs/data_dictionary.md`.
+  `docs/DOMAIN_OVERVIEW.md`, and `docs/DATA_DICTIONARY.md`.
 - Every local Markdown link must resolve. `node scripts/check_docs.mjs` checks
   links and generated stats.
 

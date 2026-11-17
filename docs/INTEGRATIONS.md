@@ -53,7 +53,8 @@ timeout primitive):
     (`middleware/adapters/otp.js`): EMAIL via the email provider, PHONE
     via the verified linked chat (`OTP_CHAT`, never via HTTP params).
     The HTTP response is `OTP_SENT` with a delivery flag — the code itself
-    never appears in any response;
+    never appears in any response. COBOL side: `phone_otp_core`
+    (`OTP_ISSUE`/`OTP_VERIFY`/`OTP_RESEND`, link begin/confirm);
   - telegram fails → manual review hint (`sendOtpWithFallback` in
     `phone.js`; free-SMS fallback needs a raw number the gateway never
     stores, so PHONE delivery requires a linked chat);

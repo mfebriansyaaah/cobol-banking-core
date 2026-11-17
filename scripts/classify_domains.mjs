@@ -65,7 +65,7 @@ const REQUIRED = [
 ];
 
 // Deprecated legacy modules and their canonical replacements (README table +
-// docs/domain_overview.md; tables are kept for compat, not extended).
+// docs/DOMAIN_OVERVIEW.md; tables are kept for compat, not extended).
 const LEGACY = {
   collateral_mgmt_core: 'collateral_core',
   collateral_repossession_core: 'collateral_core',
@@ -86,7 +86,7 @@ const LEGACY = {
   asset_management_core: 'fixed_asset_core',
 };
 
-// Canonical adjacent domains (docs/domain_overview.md). Scoring may still say
+// Canonical adjacent domains (docs/DOMAIN_OVERVIEW.md). Scoring may still say
 // L0/L1 when the core link lives in orchestration rather than in the module's
 // own SQL; PR-010E confirms the link or PR-010F retires the module.
 const CANONICAL = new Set([

@@ -2,11 +2,23 @@
 
 High-level map of the banking domains, their COBOL modules, and their database
 tables. The full module inventory is in [MODULE_INDEX.md](MODULE_INDEX.md); the
-column-level catalog is in [data_dictionary.md](data_dictionary.md).
+column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 
 ## Core platform
 
 - `auth_core`, `auth_password_core`, `user_core`, `wallet_core`
+- Auth family: `auth_mfa_core` (MFA enrollment + backup codes),
+  `auth_session_core` (session/token engine, ADR-0010 split from `auth_core`),
+  `auth_recovery_core` (MFA/operation recovery workflow),
+  `auth_review_core` (access reviews + permission checks),
+  `auth_ops_core` (outbox claim + audit archive ops)
+- Wallet family: `wallet_hold_core` (place/release hold),
+  `wallet_dispute_core` (ledger dispute lifecycle),
+  `wallet_recon_core` (reconciliation runs + exceptions),
+  `wallet_reversal_core` (transfer reversal),
+  `wallet_statement_core` (statements)
+- `phone_otp_core` — OTP issue/verify/resend + device-link confirm
+  (server-side delivery, see [Integrations](INTEGRATIONS.md))
 - `ref_engine`, `ref_ext_core`, `gl_core`, `batch_core`
 - `report_core`, `fee_core`, `eod_core`, `statement_core`
 - `notification_core`, `alert_core`, `dashboard_core`
@@ -15,6 +27,9 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 ## Lending & deposits
 
 - `loan_core`, `loan_schedule_core` — loans, schedules, installments
+- Schedule splits: `loan_schedule_lifecycle_core` (approve/reject/close/
+  reopen/cancel/hold/release), `loan_schedule_posting_core` (post/accrue/
+  settle + forecast/adjust), `loan_schedule_report_core` (summary/export/audit)
 - `deposit_core` — deposit accounts, accruals, transactions
 - `card_core` — card accounts and transactions
 - `collection_core` — collection cases and activities
@@ -88,6 +103,8 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - `payment_core`, `payment_clearing_core`, `payment_hold_core`, `payment_instruction_core`
 - `billpay_core`, `remittance_core`, `standing_order_core`
 - `treasury_liquidity_core`, `treasury_position_core`, `fx_deal_core`, `fx_hedging_core`
+- `fx_rate_core` — reference-rate store/serve (`FX_RATE_STORE`/`FX_RATE_GET`,
+  see [FX](FX.md))
 
 ## Trade Finance (canonical)
 
@@ -108,6 +125,10 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 - `kyc_periodic_core`, `kyc_review_core`, `aml_screening_core`
 - `sanctions_list_core`, `sanctions_hold_core`, `fraud_case_core`, `fraud_ops_core`
 - `risk_screening_core`, `lbpue_core`
+- `risk_core` — device/geo risk notations (`RISK_NOTE`/`RISK_STATUS`,
+  see [Risk](RISK.md))
+- `corp_core` — corporate LEI cache (`CORP_RESOLVE` upsert, `CORP_STATUS`
+  read, see [Corporate Registry](CORPORATE.md))
 
 ## Finance & accounting
 
@@ -145,22 +166,28 @@ column-level catalog is in [data_dictionary.md](data_dictionary.md).
 
 ## Data, reporting & IT ops
 
-- `report_core`, `report_builder_core`, `report_*`, `analytics_snapshot_core`
+- `report_core`, `report_builder_core`, `analytics_snapshot_core`
+- `report_run_core` — report run lifecycle (start/row/status/complete/fail +
+  export/retry)
+- `import_core` (batch lifecycle: create/validate/post/export/clone/retry;
+  route `import.js` + table cases) + `import_row_core` (row stage/correct/skip)
+- `backup_drill_core` — backup drill runs (create/run/validate/close + audit)
 - `metric_definition_core`, `data_lineage_core`, `data_quality_core`, `data_retention_core`
-- `backup_*`, `disaster_recovery_core`, `incident_*`, `change_*`
+- `disaster_recovery_core`, `incident_*`, `change_*`
 - `capacity_*`, `sla_tracking_core`, `slo_report_core`
 
 ## Table groups
 
-Tables are grouped by their leading prefix in `data_dictionary.md`. Every domain
+Tables are grouped by their leading prefix in `DATA_DICTIONARY.md`. Every domain
 module follows the standard 9-action pattern (CREATE, LIST, GET, UPDATE,
 DELETE/CLOSE, SUMMARY, AUDIT, VALIDATE, plus a domain-specific action), and
 most tables have a matching `_audit` table for traceability.
 
 ## Notes
 
-- Baseline schema: 478 tables (`database/schema.sql`).
-- Migrations: 657 (latest `0666_schema_migrations_checksum`).
+- Baseline schema: `database/schema.sql`; the table inventory is generated
+  as [DATA_DICTIONARY.md](DATA_DICTIONARY.md) (counts live there, not here).
+- Migration count: see the generated stats in the repo [README](../README.md).
 - Runtime database: `cobol_db` (MariaDB/MySQL).
 - Application account is DML-only (`cobol_user` after `grants.sh`); migrations
   run under a separate privileged account.

@@ -12,7 +12,7 @@ crypto helpers COBOL cannot call directly.
 > (`push: [main]`, `pull_request`, schedules). See [docs/CI.md](docs/CI.md).
 >
 > **Status (2026-10-29):** COBOL modules follow the 9-action contract (see
-> `docs/module_classification.md`): Tier-1 hand-reviewed core (auth, wallet,
+> `docs/MODULE_CLASSIFICATION.md`): Tier-1 hand-reviewed core (auth, wallet,
 > lending, …) plus Tier-2 generated domain modules and Tier-3 utilities.
 > `tests/run_all.sh full` is green locally and in the hosted CI gate.
 > Counts in this README are generated from `manifest/modules.json` and the
@@ -469,10 +469,10 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 ## Known gaps
 
 1. **Generated-domain depth varies by tier.** Every module implements the
-   9-action contract (`docs/module_authoring.md`), but Tier-2 modules follow the
+   9-action contract (`docs/MODULE_AUTHORING.md`), but Tier-2 modules follow the
    `cost_center_core` template closely. Treat the domain table above as the
    hand-reviewed flagship set; the full inventory is `manifest/modules.json`.
-   Tier definitions and strictness live in `docs/module_classification.md`.
+   Tier definitions and strictness live in `docs/MODULE_CLASSIFICATION.md`.
 2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
    `TRIM-RESULT-LEN`) are repeated across most generated modules. Shared
    copybooks for trimming, validation, and audit are the main refactor target.
@@ -518,7 +518,7 @@ node middleware/workers/outbox.js --once
 
 - [Repository status](docs/STATUS.md) — generated counts.
 - [Module index](docs/MODULE_INDEX.md) — every registered module, prefix, route, cases, and DB suite.
-- [Domain overview](docs/domain_overview.md) and [data dictionary](docs/data_dictionary.md).
+- [Domain overview](docs/DOMAIN_OVERVIEW.md) and [data dictionary](docs/DATA_DICTIONARY.md).
 - [Coverage](docs/COVERAGE.md), [governance](docs/GOVERNANCE.md), and [secret rotation runbook](docs/runbooks/secret-rotation.md).
 - [Architecture decision records](docs/adr/).
 

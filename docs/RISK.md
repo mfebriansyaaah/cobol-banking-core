@@ -1,7 +1,7 @@
 # Device/Geo Risk Signals (PR-092)
 
 Login/new-device notations for step-up decisions. Signals only — nothing
-here blocks, approves, or scores a user.
+here blocks, approves, or scores a user. Stored by `risk_core`.
 
 ## Flow
 

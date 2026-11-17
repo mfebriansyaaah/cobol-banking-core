@@ -1,7 +1,7 @@
 # FX Reference Rates (PR-091)
 
 Daily USD-base mid-rates. Reference only — never a settlement basis, never
-posted to the ledger.
+posted to the ledger. Served by `fx_rate_core`.
 
 ## Flow
 

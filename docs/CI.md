@@ -6,6 +6,35 @@
 > Current branch-protection state: INACTIVE (public repo, HTTP 404 Branch not
 > protected, verified 2026-11-16). See “Branch protection (blocked)” below.
 
+<!-- BEGIN GENERATED TOC -->
+
+- [Current status: AUTOMATIC (restored in Phase 0 branch 01)](#current-status-automatic-restored-in-phase-0-branch-01)
+- [Trigger matrix (target, after unpark)](#trigger-matrix-target-after-unpark)
+- [Docs-only fast path (CI-011)](#docs-only-fast-path-ci-011)
+- [CI contract (`scripts/check_ci_contract.mjs`)](#ci-contract-scriptscheck_ci_contractmjs)
+- [Required checks](#required-checks)
+- [Job durations and timeouts](#job-durations-and-timeouts)
+- [DB snapshot producer + consumers (CI-008A/CI-008B)](#db-snapshot-producer--consumers-ci-008aci-008b)
+- [Rerun-safe artifacts and failure attribution (CI-013)](#rerun-safe-artifacts-and-failure-attribution-ci-013)
+- [How to run locally](#how-to-run-locally)
+- [Cost model (measured 2026-11-05; replaces the planning ceiling below)](#cost-model-measured-2026-11-05-replaces-the-planning-ceiling-below)
+- [Cost plan (planning ceiling, superseded 2026-11-05 — historical)](#cost-plan-planning-ceiling-superseded-2026-11-05--historical)
+- [Enforcement](#enforcement)
+- [Rollout and communication (T-047)](#rollout-and-communication-t-047)
+- [R0 readiness (2026-11-04, updated in 00B)](#r0-readiness-2026-11-04-updated-in-00b)
+  - [R0 sign-off (T-052, 2026-11-04) — PASSED](#r0-sign-off-t-052-2026-11-04--passed)
+  - [Owner sign-off (R0 criterion 1) — signed 2026-11-04](#owner-sign-off-r0-criterion-1--signed-2026-11-04)
+  - [Evidence (run 41772256921, 2026-11-04)](#evidence-run-41772256921-2026-11-04)
+- [Branch-train dry-run (T-058, done in 00B)](#branch-train-dry-run-t-058-done-in-00b)
+- [R0 final record (T-052, 2026-11-04) — PASSED](#r0-final-record-t-052-2026-11-04--passed)
+- [Known-red / preflight](#known-red--preflight)
+- [G1 docs-only fast-path proof (2026-11-06)](#g1-docs-only-fast-path-proof-2026-11-06)
+- [G1 ci:full override proof (2026-11-06)](#g1-cifull-override-proof-2026-11-06)
+- [G1 option-A fast-path proof (2026-11-07)](#g1-option-a-fast-path-proof-2026-11-07)
+- [Branch protection (blocked) — restore runbook (not active)](#branch-protection-blocked--restore-runbook-not-active)
+
+<!-- END GENERATED TOC -->
+
 ## Current status: AUTOMATIC (restored in Phase 0 branch 01)
 
 `ci.yml` runs on `push: [main]`, `pull_request`, and `workflow_dispatch`.
@@ -355,12 +384,12 @@ deliberately red PR that cannot merge (closed unmerged).
 | 2 | Billing fixed | Met — run 41772256921 executes (build + 4 db-shards success, test in progress 2026-11-04); billing no longer aborts runs. Lint/coverage failures are pre-existing gates, not billing. |
 | 3 | Enforcement access verified | Met — `gh api .../rulesets` returns `[]` rc=0 2026-11-04; draft in `.github/rulesets/main.json` valid (4 rules); active blocking is G0 |
 | 4 | Tooling pinned | Met (binary SHAs) — `scripts/ci/tool-checksums.txt` verified 2026-11-04 for shellcheck, shfmt, actionlint, promtool, gitleaks; image digest + CodeQL/diff-cover deferred to Phase 1 |
-| 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/dry-run-proof.md` |
+| 5 | Branch-train dry-run | Met (local) — `chore/testing-r0-00-dry-run-1` (`e1c2cde8`) and `-2` (`2d9366fa`) merged to `main` and deleted; remote still only `main`; evidence in `docs/archive/dry-run-proof.md` |
 | 6 | Cost approved | Met — ceiling ~22,700 min/month approved 2026-11-04 by `@mfebriansyaaah`; re-approve with measured minutes before re-privatizing |
 | 7 | Named owners | Met — `@get-money-first` added as backup on every path 2026-11-04; see `docs/OWNERSHIP.md` |
-| 8 | Executor independence | Met — tabletop 2026-11-04 by `@mfebriansyaaah` + `@get-money-first`, see `docs/tabletop-r0.md` |
+| 8 | Executor independence | Met — tabletop 2026-11-04 by `@mfebriansyaaah` + `@get-money-first`, see `docs/archive/tabletop-r0.md` |
 | 9 | Communication ready | Met — this file + rollout above |
-| 10 | Day 0 preflight | Met (triaged) — full serial run 2026-11-04: 271/273 DB green; 2 env failures triaged in `docs/known-red.md`; integration/gateway/smoke/harness/fuzz green; no orphans; artifacts in `artifacts/preflight-b6e4d7ce/` |
+| 10 | Day 0 preflight | Met (triaged) — full serial run 2026-11-04: 271/273 DB green; 2 env failures triaged in `docs/archive/known-red.md`; integration/gateway/smoke/harness/fuzz green; no orphans; artifacts in `artifacts/preflight-b6e4d7ce/` |
 | 11 | Branching plan | Met — `docs/BRANCHING.md` added in 00A |
 
 R0 passes when 1–8, 10, 11 are Met. Current composite: 9.0/10.
@@ -409,7 +438,7 @@ triaged as G0/Phase 0, not billing).
    fast-forward, deleted locally.
 3. `git ls-remote --heads origin` shows only `refs/heads/main` (verified
    2026-11-04; local branches never pushed, so remote was never polluted).
-4. Evidence: `docs/dry-run-proof.md` plus `git log --oneline` showing both merges.
+4. Evidence: `docs/archive/dry-run-proof.md` plus `git log --oneline` showing both merges.
 
 Status: done locally. Remote PR URLs: n/a (local-only dry-run; no remote branches created).
 
@@ -420,7 +449,7 @@ Composite: 9.0/10. Phase 0 may start with branch 01.
 
 ## Known-red / preflight
 
-Day 0 preflight done 2026-11-04 (triaged, not green): see `docs/known-red.md`
+Day 0 preflight done 2026-11-04 (triaged, not green): see `docs/archive/known-red.md`
 and `artifacts/preflight-b6e4d7ce/`. Before Phase 0, re-run the section 0.4
 commands on a provisioned database (Docker 3307) and confirm zero red, or carry
 the two env entries with owner and expiry.

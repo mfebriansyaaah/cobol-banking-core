@@ -5,6 +5,20 @@ be wrong, and the money-path invariants (balanced journals, idempotency,
 concurrency, reversals) are proven by the functional suites, not by a
 percentage.
 
+<!-- BEGIN GENERATED TOC -->
+
+- [What is measured](#what-is-measured)
+- [Scope](#scope)
+- [Floors and ratchet](#floors-and-ratchet)
+- [Running it](#running-it)
+- [Per-module ratchet (the binding COBOL check)](#per-module-ratchet-the-binding-cobol-check)
+- [Copybooks unit (shared code, measured and ratcheted)](#copybooks-unit-shared-code-measured-and-ratcheted)
+- [CI](#ci)
+  - [Toolchain](#toolchain)
+- [Limits](#limits)
+
+<!-- END GENERATED TOC -->
+
 ## What is measured
 
 | Surface            | Measure                                                      | Tool                                |

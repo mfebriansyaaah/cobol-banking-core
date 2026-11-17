@@ -6,7 +6,7 @@
 > `ref/name/type/budget_amount/spent_amount`) and at least one integration
 > with a core module (customer, account, loan, payment, fee, GL, KYC/AML).
 > Converting domains and migration ranges are listed below; details in
-> `docs/domain_overview.md`.
+> `docs/DOMAIN_OVERVIEW.md`.
 >
 > Converting (in order): Collateral (done pilot), Trade Finance LC/BG,
 > Merchant Acquiring, Tax Withholding, Chargeback, Payroll, Fixed Asset,
@@ -116,6 +116,6 @@ Every domain module exposes these actions (prefix + action):
   similarity, or exactly `TEMPLATE_LINES` lines — see
   `scripts/lib/clone_template.mjs`) with L0/L1 linkage fails
   `scripts/check_clone_budget.mjs`. New modules need L2+ linkage
-  (a proven Tier-1 business link — see [module classification](module_classification.md))
+  (a proven Tier-1 business link — see [module classification](MODULE_CLASSIFICATION.md))
   or `UTILITY`/`INFRA` status. The existing clones are frozen in
   `tests/clone_baseline.txt`, which must only shrink.
