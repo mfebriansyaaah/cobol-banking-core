@@ -833,104 +833,9 @@
                 END-IF
             END-IF
 
-            *> Resolve the sender account (no lock yet). p5 optionally pins the
-            *> sender's currency when the user holds several accounts.
-            IF WS-P5-LEN > 0
-                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                MOVE WS-PARAM5-TRIMMED TO WS-BIND-2
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            ELSE
-                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
-                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-            END-IF
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            PERFORM RESOLVE-SENDER-ACCOUNT
             
-            IF WS-RESULT = "ERROR|NO_DATA"
-                SET WS-TRANSFER-FAIL-SENDER TO TRUE
-            ELSE
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                ELSE
-                    UNSTRING WS-RESULT DELIMITED BY "|"
-                        INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-CUR
-                             WS-SENDER-STATUS WS-SENDER-CURACTIVE WS-SENDER-PREC
-                             WS-SENDER-ISO
-                    END-UNSTRING
-                END-IF
-            END-IF
-            
-            *> The sender's account must be ACTIVE and its currency enabled.
-            IF WS-TRANSFER-OK
-                IF WS-SENDER-STATUS NOT = "ACTIVE"
-                    IF WS-SENDER-STATUS(1:6) = "FROZEN"
-                        SET WS-TRANSFER-FAIL-FROZEN TO TRUE
-                    ELSE
-                        SET WS-TRANSFER-FAIL-CLOSED TO TRUE
-                    END-IF
-                END-IF
-            END-IF
-            
-            IF WS-TRANSFER-OK
-                IF WS-SENDER-CURACTIVE NOT = "1"
-                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
-                END-IF
-            END-IF
-            
-            *> Resolve the target account (no lock yet). p6 optionally pins the
-            *> target's currency when the recipient holds several accounts.
-            IF WS-TRANSFER-OK
-                IF WS-P6-LEN > 0
-                    MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
-                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-                    MOVE WS-PARAM6-TRIMMED TO WS-BIND-2
-                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                ELSE
-                    MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
-                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
-                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
-                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
-                END-IF
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                
-                IF WS-RESULT = "ERROR|NO_DATA"
-                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
-                ELSE
-                    IF WS-RESULT(1:5) = "ERROR"
-                        SET WS-TRANSFER-FAIL-DB TO TRUE
-                    ELSE
-                        UNSTRING WS-RESULT DELIMITED BY "|"
-                            INTO WS-TARGET-ACC WS-TARGET-CUR
-                                 WS-TARGET-STATUS WS-TARGET-CURACTIVE WS-TARGET-PREC
-                        END-UNSTRING
-                    END-IF
-                END-IF
-            END-IF
-            
-            *> The target's account must be ACTIVE and its currency enabled.
-            IF WS-TRANSFER-OK
-                IF WS-TARGET-STATUS NOT = "ACTIVE"
-                    IF WS-TARGET-STATUS(1:6) = "FROZEN"
-                        SET WS-TRANSFER-FAIL-FROZEN TO TRUE
-                    ELSE
-                        SET WS-TRANSFER-FAIL-CLOSED TO TRUE
-                    END-IF
-                END-IF
-            END-IF
-            
-            IF WS-TRANSFER-OK
-                IF WS-TARGET-CURACTIVE NOT = "1"
-                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
-                END-IF
-            END-IF
+            PERFORM RESOLVE-TARGET-ACCOUNT
 
             *> Precision gate: the amount must fit the sender currency, and
             *> both precisions must be storable. prec_val beyond 4 has no
@@ -1053,63 +958,7 @@
                 END-IF
             END-IF
             
-            *> Optional per-transaction limit, in whole units of the sender
-            *> currency; 0 disables it. A non-numeric setting fails closed.
-            IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-MAX-TXN-STR
-                CALL "env_or_raw" USING BY REFERENCE "TRANSFER_MAX_PER_TXN" BY REFERENCE "0" BY REFERENCE WS-MAX-TXN-STR END-CALL
-                MOVE WS-MAX-TXN-STR TO WS-CAP-SRC
-                PERFORM CHECK-CAP-DIGITS
-            END-IF.
-            IF WS-TRANSFER-OK AND WS-CAP-OK = "N"
-                SET WS-TRANSFER-FAIL-LIMIT TO TRUE
-            END-IF.
-            IF WS-TRANSFER-OK AND WS-CAP-OK = "Y"
-                MOVE WS-MAX-TXN-STR TO WS-PARSE-SRC
-                PERFORM PARSE-MAJOR
-                MOVE WS-PARSE-NUM TO WS-MAX-TXN-NUM
-            END-IF.
-            IF WS-TRANSFER-OK AND WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
-                SET WS-TRANSFER-FAIL-LIMIT TO TRUE
-            END-IF.
-            
-            *> Optional rolling 24h debit limit per account, in whole units of
-            *> the sender currency; 0 disables it.
-            IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-DAILY-LIMIT-STR
-                CALL "env_or_raw" USING BY REFERENCE "TRANSFER_DAILY_LIMIT" BY REFERENCE "0" BY REFERENCE WS-DAILY-LIMIT-STR END-CALL
-                MOVE WS-DAILY-LIMIT-STR TO WS-CAP-SRC
-                PERFORM CHECK-CAP-DIGITS
-            END-IF.
-            IF WS-TRANSFER-OK AND WS-CAP-OK = "N"
-                SET WS-TRANSFER-FAIL-DAILY TO TRUE
-            END-IF.
-            IF WS-TRANSFER-OK AND WS-CAP-OK = "Y"
-                MOVE WS-DAILY-LIMIT-STR TO WS-PARSE-SRC
-                PERFORM PARSE-MAJOR
-                MOVE WS-PARSE-NUM TO WS-DAILY-LIMIT-NUM
-            END-IF.
-            *> Check daily limit & payment policy inside locked transaction scope:
-            IF WS-TRANSFER-OK AND WS-DAILY-LIMIT-NUM > 0
-                PERFORM CHECK-DAILY-TOTAL
-            END-IF.
-            
-            IF WS-TRANSFER-OK
-                PERFORM CHECK-PAYMENT-POLICY
-            END-IF.
-            
-            IF WS-TRANSFER-OK
-                PERFORM RECORD-VELOCITY-USAGE
-            END-IF.
-            
-            IF WS-TRANSFER-OK
-                MOVE WS-SENDER-BAL TO WS-PARSE-SRC
-                PERFORM PARSE-MAJOR
-                MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
-                IF WS-BALANCE-NUM < WS-AMOUNT-NUM + WS-FEE-NUM
-                    SET WS-TRANSFER-FAIL-INSUF TO TRUE
-                END-IF
-            END-IF
+            PERFORM CHECK-TRANSFER-LIMITS
 
             *> D1: value residual of a cross-currency posting. Computed only
             *> once every other check passed; a nonzero residual books to
@@ -1118,93 +967,7 @@
                 PERFORM COMPUTE-FX-RESIDUAL
             END-IF
             
-            *> Open the journal header for this posting: one row per transfer
-            *> with source, reference, and initiator. Legs and audit rows
-            *> below point at it through the connection-scoped @jid.
-            IF WS-TRANSFER-OK
-                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
-                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                PERFORM SQL-EXEC-2
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF.
-            IF WS-TRANSFER-OK
-                MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
-                PERFORM SQL-EXEC-0
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF.
-            *> Debit sender, rounded to its currency precision.
-            IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-PREP-SQL
-                STRING "UPDATE accounts SET balance = balance - ROUND(?, " WS-SENDER-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
-                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
-                MOVE WS-SENDER-ACC TO WS-BIND-2
-                PERFORM SQL-EXEC-2
-                
-                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
-            
-            *> Credit target (converted to its currency, at its precision).
-            IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-PREP-SQL
-                STRING "UPDATE accounts SET balance = balance + ROUND(? * ?, " WS-TARGET-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
-                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
-                MOVE WS-RATE-STR TO WS-BIND-2
-                MOVE WS-TARGET-ACC TO WS-BIND-3
-                PERFORM SQL-EXEC-3
-                
-                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
-            
-            *> Immutable ledger entries: one DEBIT, one CREDIT, same txn_ref.
-            *> The CREDIT row snapshots the applied rate.
-            IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-PREP-SQL
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
-                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-                MOVE WS-SENDER-ACC TO WS-BIND-2
-                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
-                MOVE WS-SENDER-CUR TO WS-BIND-4
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
-                PERFORM SQL-EXEC-5
-                
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
-            
-            IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-PREP-SQL
-                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
-                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-                MOVE WS-TARGET-ACC TO WS-BIND-2
-                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
-                MOVE WS-RATE-STR TO WS-BIND-4
-                MOVE WS-TARGET-CUR TO WS-BIND-5
-                MOVE WS-RATE-STR TO WS-BIND-6
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-7
-                CALL "SQL_PREPARE_EXEC7" USING BY REFERENCE WS-PREP-SQL BY VALUE 7
-                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-                    BY REFERENCE WS-BIND-7 END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
+            PERFORM POST-TRANSFER-LEGS
 
             *> D1: book a nonzero rounding residual to the target
             *> currency's FX_PNL account, inside the same journal.
@@ -1308,4 +1071,257 @@
                         MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                 END-EVALUATE
             END-IF.
+            EXIT PARAGRAPH.
+
+        POST-TRANSFER-LEGS.
+            *> Open the journal header for this posting: one row per transfer
+            *> with source, reference, and initiator. Legs and audit rows
+            *> below point at it through the connection-scoped @jid.
+            IF WS-TRANSFER-OK
+                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                PERFORM SQL-EXEC-2
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE "SET @jid = LAST_INSERT_ID()" TO WS-PREP-SQL
+                PERFORM SQL-EXEC-0
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF.
+            *> Debit sender, rounded to its currency precision.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "UPDATE accounts SET balance = balance - ROUND(?, " WS-SENDER-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                PERFORM SQL-EXEC-2
+                
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+            
+            *> Credit target (converted to its currency, at its precision).
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "UPDATE accounts SET balance = balance + ROUND(? * ?, " WS-TARGET-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
+                MOVE WS-RATE-STR TO WS-BIND-2
+                MOVE WS-TARGET-ACC TO WS-BIND-3
+                PERFORM SQL-EXEC-3
+                
+                IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+            
+            *> Immutable ledger entries: one DEBIT, one CREDIT, same txn_ref.
+            *> The CREDIT row snapshots the applied rate.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+                MOVE WS-SENDER-CUR TO WS-BIND-4
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
+                PERFORM SQL-EXEC-5
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+            
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-PREP-SQL
+                STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
+                END-STRING
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-TARGET-ACC TO WS-BIND-2
+                MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
+                MOVE WS-RATE-STR TO WS-BIND-4
+                MOVE WS-TARGET-CUR TO WS-BIND-5
+                MOVE WS-RATE-STR TO WS-BIND-6
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-7
+                CALL "SQL_PREPARE_EXEC7" USING BY REFERENCE WS-PREP-SQL BY VALUE 7
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
+                    BY REFERENCE WS-BIND-7 END-CALL
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+            EXIT PARAGRAPH.
+
+        CHECK-TRANSFER-LIMITS.
+            *> Optional per-transaction limit, in whole units of the sender
+            *> currency; 0 disables it. A non-numeric setting fails closed.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-MAX-TXN-STR
+                CALL "env_or_raw" USING BY REFERENCE "TRANSFER_MAX_PER_TXN" BY REFERENCE "0" BY REFERENCE WS-MAX-TXN-STR END-CALL
+                MOVE WS-MAX-TXN-STR TO WS-CAP-SRC
+                PERFORM CHECK-CAP-DIGITS
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "N"
+                SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "Y"
+                MOVE WS-MAX-TXN-STR TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-MAX-TXN-NUM
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
+                SET WS-TRANSFER-FAIL-LIMIT TO TRUE
+            END-IF.
+            
+            *> Optional rolling 24h debit limit per account, in whole units of
+            *> the sender currency; 0 disables it.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-DAILY-LIMIT-STR
+                CALL "env_or_raw" USING BY REFERENCE "TRANSFER_DAILY_LIMIT" BY REFERENCE "0" BY REFERENCE WS-DAILY-LIMIT-STR END-CALL
+                MOVE WS-DAILY-LIMIT-STR TO WS-CAP-SRC
+                PERFORM CHECK-CAP-DIGITS
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "N"
+                SET WS-TRANSFER-FAIL-DAILY TO TRUE
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-CAP-OK = "Y"
+                MOVE WS-DAILY-LIMIT-STR TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-DAILY-LIMIT-NUM
+            END-IF.
+            *> Check daily limit & payment policy inside locked transaction scope:
+            IF WS-TRANSFER-OK AND WS-DAILY-LIMIT-NUM > 0
+                PERFORM CHECK-DAILY-TOTAL
+            END-IF.
+            
+            IF WS-TRANSFER-OK
+                PERFORM CHECK-PAYMENT-POLICY
+            END-IF.
+            
+            IF WS-TRANSFER-OK
+                PERFORM RECORD-VELOCITY-USAGE
+            END-IF.
+            
+            IF WS-TRANSFER-OK
+                MOVE WS-SENDER-BAL TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-BALANCE-NUM
+                IF WS-BALANCE-NUM < WS-AMOUNT-NUM + WS-FEE-NUM
+                    SET WS-TRANSFER-FAIL-INSUF TO TRUE
+                END-IF
+            END-IF
+            EXIT PARAGRAPH.
+
+        RESOLVE-TARGET-ACCOUNT.
+            *> Resolve the target account (no lock yet). p6 optionally pins the
+            *> target's currency when the recipient holds several accounts.
+            IF WS-TRANSFER-OK
+                IF WS-P6-LEN > 0
+                    MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
+                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                    MOVE WS-PARAM6-TRIMMED TO WS-BIND-2
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                ELSE
+                    MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+                    MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
+                    CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                        BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                        BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+                END-IF
+                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+                
+                IF WS-RESULT = "ERROR|NO_DATA"
+                    SET WS-TRANSFER-FAIL-TARGET TO TRUE
+                ELSE
+                    IF WS-RESULT(1:5) = "ERROR"
+                        SET WS-TRANSFER-FAIL-DB TO TRUE
+                    ELSE
+                        UNSTRING WS-RESULT DELIMITED BY "|"
+                            INTO WS-TARGET-ACC WS-TARGET-CUR
+                                 WS-TARGET-STATUS WS-TARGET-CURACTIVE WS-TARGET-PREC
+                        END-UNSTRING
+                    END-IF
+                END-IF
+            END-IF
+            
+            *> The target's account must be ACTIVE and its currency enabled.
+            IF WS-TRANSFER-OK
+                IF WS-TARGET-STATUS NOT = "ACTIVE"
+                    IF WS-TARGET-STATUS(1:6) = "FROZEN"
+                        SET WS-TRANSFER-FAIL-FROZEN TO TRUE
+                    ELSE
+                        SET WS-TRANSFER-FAIL-CLOSED TO TRUE
+                    END-IF
+                END-IF
+            END-IF
+            
+            IF WS-TRANSFER-OK
+                IF WS-TARGET-CURACTIVE NOT = "1"
+                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+                END-IF
+            END-IF
+            EXIT PARAGRAPH.
+
+        RESOLVE-SENDER-ACCOUNT.
+            *> Resolve the sender account (no lock yet). p5 optionally pins the
+            *> sender's currency when the user holds several accounts.
+            IF WS-P5-LEN > 0
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ? AND c.iso_code = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                MOVE WS-PARAM5-TRIMMED TO WS-BIND-2
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 2
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            ELSE
+                MOVE "SELECT CAST(a.account_id AS CHAR), CAST(a.user_id AS CHAR), CAST(a.currency_id AS CHAR), a.status, CAST(c.is_active AS CHAR), CAST(c.prec_val AS CHAR), c.iso_code FROM accounts a JOIN users u ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE u.email = ?" TO WS-PREP-SQL
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
+                CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1
+                    BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
+                    BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
+            END-IF
+            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
+            
+            IF WS-RESULT = "ERROR|NO_DATA"
+                SET WS-TRANSFER-FAIL-SENDER TO TRUE
+            ELSE
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                ELSE
+                    UNSTRING WS-RESULT DELIMITED BY "|"
+                        INTO WS-SENDER-ACC WS-SENDER-USER WS-SENDER-CUR
+                             WS-SENDER-STATUS WS-SENDER-CURACTIVE WS-SENDER-PREC
+                             WS-SENDER-ISO
+                    END-UNSTRING
+                END-IF
+            END-IF
+            
+            *> The sender's account must be ACTIVE and its currency enabled.
+            IF WS-TRANSFER-OK
+                IF WS-SENDER-STATUS NOT = "ACTIVE"
+                    IF WS-SENDER-STATUS(1:6) = "FROZEN"
+                        SET WS-TRANSFER-FAIL-FROZEN TO TRUE
+                    ELSE
+                        SET WS-TRANSFER-FAIL-CLOSED TO TRUE
+                    END-IF
+                END-IF
+            END-IF
+            
+            IF WS-TRANSFER-OK
+                IF WS-SENDER-CURACTIVE NOT = "1"
+                    SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+                END-IF
+            END-IF
             EXIT PARAGRAPH.

@@ -136,8 +136,9 @@ function programOf(dispatchEntries, action) {
 }
 
 export function rewriteDispatch(mainLogicText, retiredPrograms) {
+  const modeFor = (program) => (program === 'user_core' ? 1 : program === 'deposit_core' ? 3 : 2);
   const re =
-    /^[ \t]*MOVE "([^"]+)" TO D-PREFIX\((\d+)\)\.\n^[ \t]*MOVE (\d+) TO D-PREFIX-LEN\(\d+\)\.\n^[ \t]*MOVE "([^"]+)" TO D-PROGRAM\(\d+\)\.\n/gm;
+    /^[ \t]*MOVE "([^"]+)" TO D-PREFIX\((\d+)\)\.\n^[ \t]*MOVE (\d+) TO D-PREFIX-LEN\(\d+\)\.\n^[ \t]*MOVE "([^"]+)" TO D-PROGRAM\(\d+\)\.(?:\n^[ \t]*MOVE \d+ TO D-PARAM-MODE\(\d+\)\.)?\n/gm;
   const slots = [];
   let m;
   while ((m = re.exec(mainLogicText)) !== null) {
@@ -150,7 +151,8 @@ export function rewriteDispatch(mainLogicText, retiredPrograms) {
     (s, i) =>
       `            MOVE "${s.prefix}" TO D-PREFIX(${i + 1}).\n` +
       `            MOVE ${s.prefixLen} TO D-PREFIX-LEN(${i + 1}).\n` +
-      `            MOVE "${s.program}" TO D-PROGRAM(${i + 1}).\n`,
+      `            MOVE "${s.program}" TO D-PROGRAM(${i + 1}).\n` +
+      `            MOVE ${modeFor(s.program)} TO D-PARAM-MODE(${i + 1}).\n`,
   );
   const body = mainLogicText.replace(re, () => '__DISPATCH_SLOT__');
   // Replace the run of placeholders (they are contiguous) with new numbering.

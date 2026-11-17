@@ -27,6 +27,7 @@ for (const s of slots) {
     `            MOVE "${s.prefix}" TO D-PREFIX(${s.slot}).`,
     `            MOVE ${s.prefixLen} TO D-PREFIX-LEN(${s.slot}).`,
     `            MOVE "${s.program}" TO D-PROGRAM(${s.slot}).`,
+    `            MOVE ${s.paramMode ?? 2} TO D-PARAM-MODE(${s.slot}).`,
   );
 }
 const rendered = `${lines.join('\n')}\n`;
