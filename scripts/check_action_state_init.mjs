@@ -58,7 +58,8 @@ function writesIn(body) {
     if (idx !== -1) {
       for (const fm of seg.slice(idx).matchAll(FIELD_RE)) {
         const w = fm[1];
-        if (isField(w) && w !== 'DELIMITED' && w !== 'BY' && w !== 'SIZE' && w !== 'SPACE' && w !== 'POINTER') out.add(w);
+        if (isField(w) && w !== 'DELIMITED' && w !== 'BY' && w !== 'SIZE' && w !== 'SPACE' && w !== 'POINTER')
+          out.add(w);
       }
     }
   }
