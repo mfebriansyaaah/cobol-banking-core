@@ -12,7 +12,7 @@
 // conventional (TRIM-ALL outputs, SQL bridge slots, reset/flag idioms).
 // A field written in exactly one other ACTION and read here fails the gate.
 // Usage: node scripts/check_action_state_init.mjs [root]
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { expandCopybooks } from './lib/cobol_source.mjs';
 
