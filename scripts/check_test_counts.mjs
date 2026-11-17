@@ -107,7 +107,10 @@ root = path.resolve(root);
 const LOOP_GENERATED = new Set(['db_schema_tests']);
 // Report rows that are recorded but intentionally not count-gated. `smoke` is
 // a 1-assertion liveness check; its failure already fails the run.
-const KNOWN_UNTRACKED = new Set(['smoke']);
+// `amount_matrix.sh` is the fixed 13-vector PARSE-AMOUNT unit matrix
+// (tests/cobol/amount_matrix.sh, wired into run_all.sh fast); its size only
+// changes with the script itself, and failures already fail the run.
+const KNOWN_UNTRACKED = new Set(['smoke', 'amount_matrix.sh']);
 
 const baselinePath = path.join(root, 'tests', 'baseline_counts.txt');
 

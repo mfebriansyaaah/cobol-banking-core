@@ -1,11 +1,10 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. eod_core.
+       PROGRAM-ID. eod_core IS INITIAL.
       *> EOD calendar, run, phase, and close control (Sprint 1 slice 4).
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -110,6 +109,7 @@
 
        MAIN-LOGIC.
 
+           MOVE SPACES TO LS-OUTPUT-BUFFER
            MOVE SPACES TO WS-ERR
            PERFORM VALIDATE-ALL
            IF WS-BAD > 0
@@ -444,7 +444,7 @@
                STRING "SUCCESS|EOD_CALENDARS|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -455,7 +455,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -545,7 +545,7 @@
                STRING "SUCCESS|EOD_RUN_STARTED|" DELIMITED BY SIZE
                       WS-RUN-ID DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -717,7 +717,7 @@
                   WS-RUN-CREDIT DELIMITED BY SPACE ":" DELIMITED BY SIZE
                   WS-RUN-ERROR DELIMITED BY SPACE
                   INTO LS-OUTPUT-BUFFER WITH POINTER WS-OUT-POS
-           END-STRING
+           ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            IF WS-P2-TRIMMED = "1"
                MOVE "SELECT CONCAT(phase_no, ':', phase_code, ':', status, ':', processed_count, ':', control_debit, ':', control_credit, ':', COALESCE(error_code, '')) FROM eod_phase WHERE run_id = ? ORDER BY phase_no" TO WS-PREP-SQL
                MOVE WS-P1-TRIMMED TO WS-BIND-1
@@ -735,7 +735,7 @@
                STRING "|" DELIMITED BY SIZE
                       WS-PART(1:WS-PART-LEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER WITH POINTER WS-OUT-POS
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -936,7 +936,7 @@
                STRING "SUCCESS|EOD_RUNS|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -947,6 +947,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
+       END PROGRAM eod_core.

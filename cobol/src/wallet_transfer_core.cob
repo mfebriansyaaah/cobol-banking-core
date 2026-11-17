@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. wallet_transfer_core.
+       PROGRAM-ID. wallet_transfer_core IS INITIAL.
       *> Wallet transfer engine (maint-07, ADR-0010): TRANSFER-LOGIC plus
       *> its 18 helpers, relocated from wallet_core. The owner keeps MAIN-
       *> LOGIC, the entry guards, the read actions, and the single
@@ -7,7 +8,7 @@
       *> (zero SQL_BEGIN/COMMIT/ROLLBACK of its own, exactly like the
       *> wallet -> fee/payment precedent) and never CALLs back into
       *> wallet_core. Entry validation/trim is shared via wallet_entry.cpy.
-      *> Compiled with DECIMAL-POINT IS COMMA like the owner: PARSE-MAJOR
+      *> Compiled with DECIMAL-POINT IS DOT like the owner: PARSE-MAJOR
       *> and all NUMVAL/COMPUTE amount logic depend on it.
       *>
       *> Contract (internal CALL, pre-trimmed inputs like every module seam):
@@ -21,8 +22,6 @@
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -82,26 +81,31 @@
             88  WS-TRANSFER-FAIL-LIMIT VALUE 'LIMT'.
             88  WS-TRANSFER-FAIL-DAILY VALUE 'DLIM'.
             88  WS-TRANSFER-FAIL-STALE VALUE 'STAL'.
-        01  WS-BALANCE-NUM         PIC S9(16)V9999 COMP-3.
-        01  WS-AMOUNT-NUM          PIC S9(16)V9999 COMP-3.
+        01  WS-BALANCE-NUM         PIC S9(16)V9999 PACKED-DECIMAL.
+        01  WS-AMOUNT-NUM          PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-NOW                 PIC X(21) VALUE SPACES.
         01  WS-TXN-REF             PIC X(50) VALUE SPACES.
         01  WS-RAND                PIC X(7)  VALUE SPACES.
         01  WS-MAX-TXN-STR         PIC X(20) VALUE SPACES.
         01  WS-DAILY-LIMIT-STR     PIC X(20) VALUE SPACES.
         01  WS-PRIOR-TOTAL-STR     PIC X(30) VALUE SPACES.
-        01  WS-MAX-TXN-NUM         PIC S9(16)V9999 COMP-3.
-        01  WS-DAILY-LIMIT-NUM     PIC S9(16)V9999 COMP-3.
-        01  WS-PRIOR-TOTAL-NUM     PIC S9(16)V9999 COMP-3.
+        01  WS-MAX-TXN-NUM         PIC S9(16)V9999 PACKED-DECIMAL.
+        01  WS-DAILY-LIMIT-NUM     PIC S9(16)V9999 PACKED-DECIMAL.
+        01  WS-PRIOR-TOTAL-NUM     PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-PARSE-SRC           PIC X(100) VALUE SPACES.
-        01  WS-PARSE-BUF           PIC X(100) VALUE SPACES.
-        01  WS-PARSE-NUM           PIC S9(16)V9999 COMP-3.
+        01  WS-PARSE-NUM           PIC S9(16)V9999 PACKED-DECIMAL.
+        01  AMT-SRC                PIC X(100) VALUE SPACES.
+        01  AMT-BUF                PIC X(100) VALUE SPACES.
+        01  AMT-NUM                PIC S9(16)V9(4) VALUE 0.
+        01  AMT-BAD                PIC 9 VALUE 0.
+            88  AMT-OK             VALUE 0.
+            88  AMT-BAD-FLAG       VALUE 1.
         01  WS-CAP-SRC             PIC X(20) VALUE SPACES.
         01  WS-CAP-OK              PIC X(1) VALUE "Y".
         01  WS-CAP-LEN             PIC 9(3) VALUE 0.
         01  WS-PREC-NUM            PIC S9(4) VALUE 0.
         01  WS-JV-PREC             PIC X(2)  VALUE SPACES.
-        01  WS-FEE-NUM             PIC S9(16)V9999 COMP-3.
+        01  WS-FEE-NUM             PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-FEE-STR             PIC X(30) VALUE SPACES.
         01  WS-FEE-EXACT           PIC X(1)  VALUE SPACES.
         01  WS-INCOME-ACC          PIC X(20) VALUE SPACES.
@@ -113,7 +117,7 @@
         01  WS-INTENT-TO           PIC X(100) VALUE SPACES.
         01  WS-INTENT-AMT          PIC X(30) VALUE SPACES.
         01  WS-INTENT-STATUS       PIC X(10) VALUE SPACES.
-        01  WS-INTENT-AMOUNT-NUM   PIC S9(16)V9999 COMP-3.
+        01  WS-INTENT-AMOUNT-NUM   PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
         01  WS-SENDER-USER         PIC X(20) VALUE SPACES.
         01  WS-SENDER-BAL          PIC X(30) VALUE SPACES.
@@ -163,6 +167,7 @@
            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
        MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             *> Initialize critical WORKING-STORAGE (for --serve mode):
             MOVE "OK  " TO WS-TRANSFER-STATE
             SET WS-TRANSFER-OK TO TRUE
@@ -238,16 +243,22 @@
                 SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
             END-IF.
             EXIT PARAGRAPH.
+        COPY "common_amount.cpy".
 
         PARSE-MAJOR.
-            *> Canonical money parse into major units. The program compiles
-            *> with DECIMAL-POINT IS COMMA, so NUMVAL reads a dot as a
-            *> thousands separator ("100.01" would parse as 10001). Normalize
-            *> the dot to a comma first; callers pass only validated
-            *> digit/dot strings or exact decimals read back from the DB.
-            MOVE WS-PARSE-SRC TO WS-PARSE-BUF
-            INSPECT WS-PARSE-BUF REPLACING ALL "." BY ","
-            COMPUTE WS-PARSE-NUM = FUNCTION NUMVAL(WS-PARSE-BUF) END-COMPUTE
+            *> Canonical money parse into major units (DOT convention).
+            *> Delegates to the shared PARSE-AMOUNT (common_amount.cpy):
+            *> comma decimals are tolerated, mixed/thousands forms and
+            *> overflow fail closed. Callers pass only validated digit/dot
+            *> strings or exact decimals read back from the DB.
+            MOVE WS-PARSE-SRC TO AMT-SRC
+            PERFORM PARSE-AMOUNT
+            IF AMT-BAD-FLAG
+                SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                MOVE 0 TO WS-PARSE-NUM
+            ELSE
+                MOVE AMT-NUM TO WS-PARSE-NUM
+            END-IF
             EXIT PARAGRAPH.
 
         CHECK-RATE-STALE.
@@ -269,7 +280,7 @@
                 DELIMITED BY SIZE WS-RATE-AGE-STR DELIMITED BY SPACE
                 " SECOND) AS CHAR)" DELIMITED BY SIZE
                 INTO WS-PREP-SQL
-            END-STRING
+            ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             PERFORM SQL-EXEC-0
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
             IF WS-RESULT(1:5) = "ERROR"
@@ -570,7 +581,7 @@
             STRING WS-FEE-STR DELIMITED BY SPACE ":" DELIMITED BY SIZE
                    WS-SENDER-ISO DELIMITED BY SPACE
                    INTO WS-DETAIL
-            END-STRING
+            ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'FEE', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
             MOVE WS-SENDER-USER TO WS-BIND-1
             MOVE WS-SENDER-ACC TO WS-BIND-2
@@ -631,7 +642,7 @@
             STRING WS-FX-ABS DELIMITED BY SPACE ":" DELIMITED BY SIZE
                    WS-FX-ISO DELIMITED BY SPACE
                    INTO WS-DETAIL
-            END-STRING
+            ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'FX', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
             MOVE WS-SENDER-USER TO WS-BIND-1
             MOVE WS-FX-ACC TO WS-BIND-2
@@ -740,9 +751,9 @@
             END-IF
             *> Risk-based KYC step-up (PR-089): transfers above 1,000,000 need
             *> an APPROVED sender; smaller verified transfers stay frictionless.
-            *> Amounts parse via PARSE-MAJOR (this program compiles with
-            *> DECIMAL-POINT IS COMMA, so a raw NUMVAL would read the dot as
-            *> a thousands separator). Fail closed on lookup errors (money
+            *> Amounts parse via PARSE-MAJOR (DOT convention: a raw NUMVAL
+            *> reads the dot as the decimal separator). Fail closed on lookup
+            *> errors (money
             *> must not move on doubt).
             MOVE WS-PARAM3-TRIMMED TO WS-PARSE-SRC
             PERFORM PARSE-MAJOR
@@ -774,7 +785,7 @@
                 MOVE SPACES TO WS-TXN-REF
                 CALL "generate_random_code" USING BY REFERENCE WS-RAND END-CALL
                 STRING "TXN" WS-NOW(1:16) WS-RAND(1:6) DELIMITED BY SIZE INTO WS-TXN-REF
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-TXN-REF TO WS-REF
                 MOVE 25 TO WS-REFLEN
             END-IF
@@ -842,7 +853,7 @@
             *> exact DECIMAL(18,4) representation, so transfers refuse
             *> fail-closed instead of rounding silently.
             IF WS-TRANSFER-OK
-                COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-SENDER-PREC) END-COMPUTE
+                COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-SENDER-PREC) ON SIZE ERROR SET WS-TRANSFER-FAIL-CURINACT TO TRUE END-COMPUTE
             END-IF.
             IF WS-TRANSFER-OK AND WS-PREC-NUM < 0
                 SET WS-TRANSFER-FAIL-CURINACT TO TRUE
@@ -854,7 +865,7 @@
                 SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
             END-IF.
             IF WS-TRANSFER-OK
-                COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-TARGET-PREC) END-COMPUTE
+                COMPUTE WS-PREC-NUM = FUNCTION NUMVAL(WS-TARGET-PREC) ON SIZE ERROR SET WS-TRANSFER-FAIL-CURINACT TO TRUE END-COMPUTE
             END-IF.
             IF WS-TRANSFER-OK AND WS-PREC-NUM < 0
                 SET WS-TRANSFER-FAIL-CURINACT TO TRUE
@@ -982,7 +993,7 @@
                        WS-PARAM3-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE
                        WS-SENDER-ISO DELIMITED BY SPACE
                        INTO WS-DETAIL
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
                 MOVE WS-SENDER-USER TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
@@ -1097,7 +1108,7 @@
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "UPDATE accounts SET balance = balance - ROUND(?, " WS-SENDER-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 PERFORM SQL-EXEC-2
@@ -1111,7 +1122,7 @@
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "UPDATE accounts SET balance = balance + ROUND(? * ?, " WS-TARGET-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-RATE-STR TO WS-BIND-2
                 MOVE WS-TARGET-ACC TO WS-BIND-3
@@ -1127,7 +1138,7 @@
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(?, " WS-SENDER-PREC(1:1) "), 'DEBIT', ?, 'Transfer out', 1, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
@@ -1143,7 +1154,7 @@
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
                 MOVE WS-TARGET-ACC TO WS-BIND-2
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-3
@@ -1325,3 +1336,4 @@
                 END-IF
             END-IF
             EXIT PARAGRAPH.
+       END PROGRAM wallet_transfer_core.

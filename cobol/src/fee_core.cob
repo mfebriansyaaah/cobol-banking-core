@@ -1,11 +1,10 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. fee_core.
+       PROGRAM-ID. fee_core IS INITIAL.
       *> Fee rules, waivers, tiers, and velocity limits (Sprint 1 slice 4).
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -128,6 +127,7 @@
 
        MAIN-LOGIC.
 
+           MOVE SPACES TO LS-OUTPUT-BUFFER
            MOVE SPACES TO WS-ERR
            PERFORM VALIDATE-ALL
            IF WS-BAD > 0
@@ -354,24 +354,24 @@
            *> WS-VEL-AMOUNT (candidate amount),
            *> WS-PROFILE-MAX-COUNT/WS-PROFILE-MAX-AMOUNT (limits).
            *> Sets WS-VEL-BLOCKED to "1" when the candidate would exceed
-           *> either cap. DECIMAL-POINT IS COMMA here, so every decimal
-           *> string is normalized (dot to comma) before NUMVAL; a raw
-           *> NUMVAL reads "100.00" as 10000 and miscompares by 100x.
+           *> either cap. DECIMAL-POINT IS DOT everywhere, so every decimal
+           *> string is normalized (comma to dot) before NUMVAL; a raw
+           *> NUMVAL reads a comma decimal as garbage and miscompares.
            MOVE "0" TO WS-VEL-BLOCKED
            MOVE WS-VEL-USED-COUNT TO WS-VEL-COUNT-NORM
-           INSPECT WS-VEL-COUNT-NORM REPLACING ALL "." BY ","
+           INSPECT WS-VEL-COUNT-NORM REPLACING ALL "," BY "."
            MOVE WS-VEL-USED-AMOUNT TO WS-VEL-USED-NORM
-           INSPECT WS-VEL-USED-NORM REPLACING ALL "." BY ","
+           INSPECT WS-VEL-USED-NORM REPLACING ALL "," BY "."
            MOVE WS-VEL-AMOUNT TO WS-VEL-AMT-NORM
-           INSPECT WS-VEL-AMT-NORM REPLACING ALL "." BY ","
+           INSPECT WS-VEL-AMT-NORM REPLACING ALL "," BY "."
            MOVE WS-PROFILE-MAX-COUNT TO WS-VEL-MAXC-NORM
-           INSPECT WS-VEL-MAXC-NORM REPLACING ALL "." BY ","
+           INSPECT WS-VEL-MAXC-NORM REPLACING ALL "," BY "."
            MOVE WS-PROFILE-MAX-AMOUNT TO WS-VEL-MAXA-NORM
-           INSPECT WS-VEL-MAXA-NORM REPLACING ALL "." BY ","
-           COMPUTE WS-VEL-NEWC-NUM = FUNCTION NUMVAL(WS-VEL-COUNT-NORM) + 1 END-COMPUTE
-           COMPUTE WS-VEL-NEWA-NUM = FUNCTION NUMVAL(WS-VEL-USED-NORM) + FUNCTION NUMVAL(WS-VEL-AMT-NORM) END-COMPUTE
-           COMPUTE WS-VEL-MAXC-NUM = FUNCTION NUMVAL(WS-VEL-MAXC-NORM) END-COMPUTE
-           COMPUTE WS-VEL-MAXA-NUM = FUNCTION NUMVAL(WS-VEL-MAXA-NORM) END-COMPUTE
+           INSPECT WS-VEL-MAXA-NORM REPLACING ALL "," BY "."
+           COMPUTE WS-VEL-NEWC-NUM = FUNCTION NUMVAL(WS-VEL-COUNT-NORM) + 1 ON SIZE ERROR MOVE "1" TO WS-VEL-BLOCKED END-COMPUTE
+           COMPUTE WS-VEL-NEWA-NUM ROUNDED = FUNCTION NUMVAL(WS-VEL-USED-NORM) + FUNCTION NUMVAL(WS-VEL-AMT-NORM) ON SIZE ERROR MOVE "1" TO WS-VEL-BLOCKED END-COMPUTE
+           COMPUTE WS-VEL-MAXC-NUM = FUNCTION NUMVAL(WS-VEL-MAXC-NORM) ON SIZE ERROR MOVE "1" TO WS-VEL-BLOCKED END-COMPUTE
+           COMPUTE WS-VEL-MAXA-NUM ROUNDED = FUNCTION NUMVAL(WS-VEL-MAXA-NORM) ON SIZE ERROR MOVE "1" TO WS-VEL-BLOCKED END-COMPUTE
            IF WS-VEL-NEWC-NUM > WS-VEL-MAXC-NUM
               OR WS-VEL-NEWA-NUM > WS-VEL-MAXA-NUM
                MOVE "1" TO WS-VEL-BLOCKED
@@ -518,7 +518,7 @@
                STRING "SUCCESS|FEE_RULES|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -529,7 +529,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -729,7 +729,7 @@
                STRING "SUCCESS|FEE_TIERS|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -740,7 +740,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -855,7 +855,7 @@
                STRING "SUCCESS|FEE_WAIVERS|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -866,7 +866,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -915,7 +915,7 @@
                   "WHERE r.rule_code = ? AND r.currency_code = ? AND r.enabled = TRUE) f " DELIMITED BY SIZE
                   "JOIN fee_rule r ON r.id = f.id" DELIMITED BY SIZE
                   INTO WS-PREP-SQL
-           END-STRING
+           ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
            MOVE WS-P2-TRIMMED TO WS-BIND-3
@@ -933,7 +933,7 @@
            STRING "SUCCESS|FEE_CALC|" DELIMITED BY SIZE
                   WS-RESULT(1:40) DELIMITED BY SIZE
                   INTO LS-OUTPUT-BUFFER
-           END-STRING.
+           ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
            EXIT PARAGRAPH.
 
        ACTION-VEL-PROFILE-CREATE.
@@ -1054,7 +1054,7 @@
                STRING "SUCCESS|VEL_PROFILES|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -1065,7 +1065,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -1120,13 +1120,13 @@
                       WS-COUNT1 DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-COUNT2 DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                STRING "SUCCESS|VELOCITY|OK|" DELIMITED BY SIZE
                       WS-COUNT1 DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-COUNT2 DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -1225,7 +1225,7 @@
                   WS-COUNT1 DELIMITED BY SPACE "|" DELIMITED BY SIZE
                   WS-COUNT2 DELIMITED BY SPACE
                   INTO LS-OUTPUT-BUFFER
-           END-STRING.
+           ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
            EXIT PARAGRAPH.
 
        ACTION-VEL-CHECK-ALL-TXN.
@@ -1235,7 +1235,7 @@
            *> velocity profile of that currency against its current window
            *> and returns the first-match verdict for the unified limit
            *> evaluation. Amount comparison is decimal-exact in SQL, so no
-           *> COMMA normalization is needed here.
+           *> separator normalization is needed here.
            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES OR LS-PARAM3 = SPACES
                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
@@ -1250,7 +1250,7 @@
                   "GROUP BY p.profile_code, p.max_count, p.max_amount " DELIMITED BY SIZE
                   "HAVING COALESCE(SUM(c.used_count), 0) + 1 > p.max_count " DELIMITED BY SIZE
                   "OR COALESCE(SUM(c.used_amount), 0) + ? > p.max_amount) v" DELIMITED BY SIZE
-                  INTO WS-PREP-SQL END-STRING
+                  INTO WS-PREP-SQL ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
            MOVE WS-P3-TRIMMED TO WS-BIND-3
@@ -1271,7 +1271,7 @@
                STRING "SUCCESS|VELOCITY_TXN|BLOCKED|" DELIMITED BY SIZE
                       FUNCTION TRIM(WS-VEL-CODES) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -1291,7 +1291,7 @@
                   "SELECT ?, p.profile_code, FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(NOW()) / p.window_seconds) * p.window_seconds), 1, ? " DELIMITED BY SIZE
                   "FROM velocity_profile p WHERE p.currency_code = ? AND p.enabled = TRUE " DELIMITED BY SIZE
                   "ON DUPLICATE KEY UPDATE used_count = used_count + 1, used_amount = used_amount + VALUES(used_amount)" DELIMITED BY SIZE
-                  INTO WS-PREP-SQL END-STRING
+                  INTO WS-PREP-SQL ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
            MOVE WS-P2-TRIMMED TO WS-BIND-3
@@ -1302,3 +1302,4 @@
                MOVE "SUCCESS|VELOCITY_TXN_RECORDED" TO LS-OUTPUT-BUFFER
            END-IF.
            EXIT PARAGRAPH.
+       END PROGRAM fee_core.

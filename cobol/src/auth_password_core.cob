@@ -1,10 +1,9 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. auth_password_core.
+        PROGRAM-ID. auth_password_core IS INITIAL.
 
         ENVIRONMENT DIVISION.
         CONFIGURATION SECTION.
-        SPECIAL-NAMES.
-            DECIMAL-POINT IS COMMA.
 
         DATA DIVISION.
         WORKING-STORAGE SECTION.
@@ -23,9 +22,11 @@
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             *> Phase A1 (ADR 0083): shared working-storage now lives in the
             *> copybook; this sub-program still delegates to auth_core. Subsequent
             *> slices (A2-A6) will move the paragraphs here.
 
             CALL "auth_core" USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER END-CALL
             GOBACK.
+       END PROGRAM auth_password_core.

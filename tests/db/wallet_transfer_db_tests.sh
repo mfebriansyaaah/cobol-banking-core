@@ -47,6 +47,11 @@ db_exec "UPDATE accounts SET status='FROZEN' WHERE user_id=(SELECT id FROM users
 assert_match "frozen sender refused" "$(run_cobol "TRANSFER|${WA}|${WB}|10.00|WLTT-FR|||")" "ERROR\|ACCOUNT_FROZEN"
 db_exec "UPDATE accounts SET status='ACTIVE' WHERE user_id=(SELECT id FROM users WHERE email='${WA}') AND currency_id=1;"
 assert_match "transfer after unfreeze ok" "$(run_cobol "TRANSFER|${WA}|${WB}|10.00|WLTT-2|||")" "SUCCESS\|TRANSFER_OK"
+assert_match "comma decimal refused fail-closed" "$(run_cobol "TRANSFER|${WA}|${WB}|100,00|WLTT-COMMA|||")" "ERROR\|INVALID_AMOUNT"
+assert_match "comma leaves balances untouched" "$(bal "$WA")" "^890.0000$"
+assert_match "malformed decimal refused" "$(run_cobol "TRANSFER|${WA}|${WB}|12.34.56|WLTT-MALFORMED|||")" "ERROR\|INVALID_AMOUNT"
+assert_match "oversize amount refused fail-closed" "$(run_cobol "TRANSFER|${WA}|${WB}|99999999999999999.99|WLTT-HUGE|||")" "ERROR\|INVALID_AMOUNT"
+assert_match "oversize wrote no legs" "$(db_query "SELECT COUNT(*) FROM ledger WHERE txn_ref='WLTT-HUGE';")" "^0$"
 assert_match "totals conserved" "$(db_query "SELECT COALESCE(SUM(balance),0) FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}')) AND currency_id=1;")" "^2000.0000$"
 
 db_exec "DELETE FROM ledger WHERE account_id IN (SELECT account_id FROM accounts WHERE user_id IN (SELECT id FROM users WHERE email IN ('${WA}','${WB}')));"

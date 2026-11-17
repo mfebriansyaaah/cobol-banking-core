@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. identity_core.
+        PROGRAM-ID. identity_core IS INITIAL.
       *> KYC identity verification records (PR-085): NIK results, OCR
       *> outcomes, gated APPLY transitions, status reads, and separate
       *> admin review decisions. Never auto-approves; OCR low-confidence
@@ -70,6 +71,7 @@
 
         MAIN-LOGIC.
 
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             MOVE SPACES TO WS-ERR
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
@@ -400,7 +402,7 @@
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|KYC_STATUS|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
 
         ACTION-REVIEW-DECIDE.
@@ -520,7 +522,7 @@
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|REVIEWS|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
 
         ACTION-SCR-SCREEN.
@@ -626,7 +628,7 @@
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|SCREEN_STATUS|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
 
        ACTION-ACCT-FREEZE.
@@ -752,3 +754,4 @@
                END-IF
            END-IF.
            EXIT PARAGRAPH.
+       END PROGRAM identity_core.

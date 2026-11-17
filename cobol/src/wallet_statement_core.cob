@@ -1,11 +1,10 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. wallet_statement_core.
+        PROGRAM-ID. wallet_statement_core IS INITIAL.
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
 
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
         DATA DIVISION.
         WORKING-STORAGE SECTION.
@@ -78,6 +77,7 @@
         COPY "wallet_caps.cpy".
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             *> Initialize critical WORKING-STORAGE (for --serve mode):
             MOVE "OK  " TO WS-TRANSFER-STATE
             SET WS-TRANSFER-OK TO TRUE
@@ -220,7 +220,7 @@
             END-IF.
             MOVE SPACES TO WS-PREP-SQL
             STRING "SELECT REPLACE(FORMAT(COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 - amount END), 0), " WS-ST-PREC(1:1) "), ',', '') FROM ledger WHERE account_id = ? AND DATE(created_at) < ?" DELIMITED BY SIZE INTO WS-PREP-SQL
-            END-STRING
+            ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE WS-ST-ACC TO WS-BIND-1
             MOVE WS-ST-QFROM TO WS-BIND-2
             PERFORM SQL-EXEC-2
@@ -241,7 +241,7 @@
             MOVE WS-RESULT(1:20) TO WS-RTOTAL
             MOVE SPACES TO WS-PREP-SQL
             STRING "SELECT REPLACE(FORMAT((? + COALESCE(SUM(CASE WHEN type = 'CREDIT' THEN amount ELSE 0 - amount END), 0)), " WS-ST-PREC(1:1) "), ',', '') FROM ledger WHERE account_id = ? AND DATE(created_at) >= COALESCE(NULLIF(?, ''), DATE(created_at)) AND DATE(created_at) <= COALESCE(NULLIF(?, ''), DATE(created_at))" DELIMITED BY SIZE INTO WS-PREP-SQL
-            END-STRING
+            ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE WS-ST-OPEN TO WS-BIND-1
             MOVE WS-ST-ACC TO WS-BIND-2
             MOVE WS-ST-FROM TO WS-BIND-3
@@ -270,7 +270,7 @@
                    "COALESCE(NULLIF(?, ''), DATE(l.created_at)) ORDER BY l.ledger_id " DELIMITED BY SIZE
                    "LIMIT ? OFFSET ?" DELIMITED BY SIZE
                INTO WS-PREP-SQL
-            END-STRING
+            ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE WS-ST-OPEN TO WS-BIND-1
             MOVE WS-ST-ACC TO WS-BIND-2
             MOVE WS-ST-FROM TO WS-BIND-3
@@ -292,7 +292,7 @@
                        WS-ST-ISO DELIMITED BY SPACE "|" DELIMITED BY SIZE
                        WS-RTOTAL DELIMITED BY SPACE
                        INTO LS-OUTPUT-BUFFER
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             ELSE
                 PERFORM TRIM-RUN-RESULT-LEN
                 STRING "SUCCESS|STATEMENT|" DELIMITED BY SIZE
@@ -302,7 +302,7 @@
                        WS-RTOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                        WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                        INTO LS-OUTPUT-BUFFER
-                END-STRING
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             END-IF.
             EXIT PARAGRAPH.
 
@@ -338,3 +338,4 @@
                 MOVE 1 TO WS-RLEN
             END-IF.
             EXIT PARAGRAPH.
+       END PROGRAM wallet_statement_core.

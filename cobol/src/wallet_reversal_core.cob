@@ -1,11 +1,10 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. wallet_reversal_core.
+        PROGRAM-ID. wallet_reversal_core IS INITIAL.
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
 
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
         DATA DIVISION.
         WORKING-STORAGE SECTION.
@@ -37,10 +36,15 @@
         01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
         01  WS-DENIED-TARGET        PIC X(100) VALUE SPACES.
         COPY "wallet_ws_common.cpy".
-        01  WS-BALANCE-NUM         PIC S9(16)V9999 COMP-3.
+        01  WS-BALANCE-NUM         PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-PARSE-SRC           PIC X(100) VALUE SPACES.
-        01  WS-PARSE-BUF           PIC X(100) VALUE SPACES.
-        01  WS-PARSE-NUM           PIC S9(16)V9999 COMP-3.
+        01  WS-PARSE-NUM           PIC S9(16)V9999 PACKED-DECIMAL.
+        01  AMT-SRC                PIC X(100) VALUE SPACES.
+        01  AMT-BUF                PIC X(100) VALUE SPACES.
+        01  AMT-NUM                PIC S9(16)V9(4) VALUE 0.
+        01  AMT-BAD                PIC 9 VALUE 0.
+            88  AMT-OK             VALUE 0.
+            88  AMT-BAD-FLAG       VALUE 1.
         01  WS-CAP-OK              PIC X(1) VALUE "Y".
         01  WS-CAP-LEN             PIC 9(3) VALUE 0.
         01  WS-PREC-NUM            PIC S9(4) VALUE 0.
@@ -51,7 +55,7 @@
         01  WS-REV-FROM            PIC X(100) VALUE SPACES.
         01  WS-REV-CNT             PIC X(10) VALUE SPACES.
         01  WS-REV-MINFROM         PIC X(100) VALUE SPACES.
-        01  WS-REV-CAMT-NUM        PIC S9(16)V9999 COMP-3.
+        01  WS-REV-CAMT-NUM        PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-REV-REASON          PIC X(100) VALUE SPACES.
         01  WS-REV-REFUND          PIC X(1)  VALUE "0".
         01  WS-REV-FEE-ACC         PIC X(20) VALUE SPACES.
@@ -59,11 +63,11 @@
         01  WS-REV-FEE-CUR         PIC X(20) VALUE SPACES.
         01  WS-REV-FEE-ISO         PIC X(3)  VALUE SPACES.
         01  WS-REV-FEE-PREC        PIC X(2)  VALUE SPACES.
-        01  WS-REV-FEE-NUM         PIC S9(16)V9999 COMP-3.
+        01  WS-REV-FEE-NUM         PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-REV-FX-ACC          PIC X(20) VALUE SPACES.
         01  WS-REV-FX-AMT          PIC X(30) VALUE SPACES.
         01  WS-REV-FX-DESC         PIC X(16) VALUE SPACES.
-        01  WS-REV-FX-NUM          PIC S9(16)V9999 COMP-3.
+        01  WS-REV-FX-NUM          PIC S9(16)V9999 PACKED-DECIMAL.
         01  WS-BUSY                PIC X(1) VALUE "0".
         01  WS-DETAIL              PIC X(255) VALUE SPACES.
         01  WS-SENDER-ACC          PIC X(20) VALUE SPACES.
@@ -94,6 +98,7 @@
         COPY "wallet_audit.cpy".
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             *> Initialize critical WORKING-STORAGE (for --serve mode):
             MOVE "OK  " TO WS-TRANSFER-STATE
             SET WS-TRANSFER-OK TO TRUE
@@ -477,7 +482,7 @@
                 PERFORM VERIFY-JOURNAL-BALANCED
             END-IF.
             IF STEP-OK AND WS-REV-FX-DESC NOT = SPACES
-                PERFORM VERIFY-JOURNAL-REVERSAL-FX-BALANCED
+                PERFORM VERIFY-REVERSAL-FX-BALANCED
             END-IF.
             IF WS-TRANSFER-FAIL-DB
                 SET STEP-FAIL TO TRUE
@@ -500,16 +505,22 @@
                 MOVE "ERROR|REVERSAL_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
+        COPY "common_amount.cpy".
 
         PARSE-MAJOR.
-            *> Canonical money parse into major units. The program compiles
-            *> with DECIMAL-POINT IS COMMA, so NUMVAL reads a dot as a
-            *> thousands separator ("100.01" would parse as 10001). Normalize
-            *> the dot to a comma first; callers pass only validated
-            *> digit/dot strings or exact decimals read back from the DB.
-            MOVE WS-PARSE-SRC TO WS-PARSE-BUF
-            INSPECT WS-PARSE-BUF REPLACING ALL "." BY ","
-            COMPUTE WS-PARSE-NUM = FUNCTION NUMVAL(WS-PARSE-BUF) END-COMPUTE
+            *> Canonical money parse into major units (DOT convention).
+            *> Delegates to the shared PARSE-AMOUNT (common_amount.cpy):
+            *> comma decimals are tolerated, mixed/thousands forms and
+            *> overflow fail closed. Callers pass only validated digit/dot
+            *> strings or exact decimals read back from the DB.
+            MOVE WS-PARSE-SRC TO AMT-SRC
+            PERFORM PARSE-AMOUNT
+            IF AMT-BAD-FLAG
+                SET STEP-FAIL TO TRUE
+                MOVE 0 TO WS-PARSE-NUM
+            ELSE
+                MOVE AMT-NUM TO WS-PARSE-NUM
+            END-IF
             EXIT PARAGRAPH.
 
         VERIFY-JOURNAL-BALANCED.
@@ -634,7 +645,7 @@
             STRING WS-REV-FEE-AMT DELIMITED BY SPACE ":" DELIMITED BY SIZE
                    WS-REV-FEE-ISO DELIMITED BY SPACE
                    INTO WS-DETAIL
-            END-STRING
+            ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE WS-REV-FROM TO WS-BIND-1
             PERFORM LOOKUP-USER-ID
             UNSTRING WS-RESULT DELIMITED BY "|"
@@ -655,7 +666,7 @@
             END-IF.
             EXIT PARAGRAPH.
 
-        VERIFY-JOURNAL-REVERSAL-FX-BALANCED.
+        VERIFY-REVERSAL-FX-BALANCED.
             *> Three-leg reversal journal unwinding an FX posting with a
             *> residual: the sender credit converted at the snapshotted
             *> rate equals the negated target-side net at 4dp ledger
@@ -690,3 +701,4 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             EXIT PARAGRAPH.
+       END PROGRAM wallet_reversal_core.

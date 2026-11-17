@@ -1,11 +1,10 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. eod_jobs_core.
+       PROGRAM-ID. eod_jobs_core IS INITIAL.
       *> EOD job execution: hold expiry, dormancy, reconciliation, statements.
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -92,6 +91,7 @@
 
        MAIN-LOGIC.
 
+           MOVE SPACES TO LS-OUTPUT-BUFFER
            MOVE SPACES TO WS-ERR
            PERFORM VALIDATE-ALL
            IF WS-BAD > 0
@@ -288,7 +288,7 @@
                STRING "SUCCESS|EOD_HOLD_EXPIRED|" DELIMITED BY SIZE
                       WS-JOB-PROCESSED DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
            END-IF.
@@ -375,7 +375,7 @@
                STRING "SUCCESS|EOD_PENDING_PURGED|" DELIMITED BY SIZE
                       WS-JOB-PROCESSED DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
            END-IF.
@@ -424,7 +424,7 @@
                STRING "SUCCESS|EOD_DORMANT_MARKED|" DELIMITED BY SIZE
                       WS-JOB-PROCESSED DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
            END-IF.
@@ -473,7 +473,7 @@
                STRING "SUCCESS|EOD_DORMANT_SUSPENDED|" DELIMITED BY SIZE
                       WS-JOB-PROCESSED DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
            END-IF.
@@ -629,7 +629,7 @@
                STRING "SUCCESS|EOD_JOBS|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -640,6 +640,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
+       END PROGRAM eod_jobs_core.

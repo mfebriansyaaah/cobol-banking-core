@@ -1,10 +1,9 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
        PROGRAM-ID. main_logic.
 
         ENVIRONMENT DIVISION.
         CONFIGURATION SECTION.
-        SPECIAL-NAMES.
-            DECIMAL-POINT IS COMMA.
 
         INPUT-OUTPUT SECTION.
         FILE-CONTROL.
@@ -71,6 +70,7 @@
                 AT END MOVE 'Y' TO WS-EOF
             END-READ
             IF WS-EOF NOT = 'Y'
+                MOVE SPACES TO WS-OUTPUT-MSG
                 PERFORM PARSE-INPUT
                 PERFORM DISPATCH-ACTION
                 PERFORM WRITE-OUTPUT
@@ -91,6 +91,7 @@
                     IF INPUT-BUFFER(1:4) = "QUIT"
                         MOVE 'Y' TO WS-SERVE-DONE
                     ELSE
+                        MOVE SPACES TO WS-OUTPUT-MSG
                         PERFORM PARSE-INPUT
                         PERFORM DISPATCH-ACTION
                         IF WS-OUTPUT-MSG = SPACES
@@ -169,3 +170,4 @@
                 WRITE OUTPUT-RECORD END-WRITE
             END-PERFORM.
             EXIT PARAGRAPH.
+       END PROGRAM main_logic.

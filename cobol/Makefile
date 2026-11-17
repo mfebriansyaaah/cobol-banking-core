@@ -25,10 +25,19 @@
 COBC      ?= cobc
 CC        ?= cc
 COB_FLAGS := -free -I cobol/copy -O2
-# NOTE: no -Wall -Wextra here. The legacy single-shot build passed those
-# flags to cobc (COBOL diagnostics), never to the C compiler, so C objects
-# were always built warning-free by default. Adding -Wall to `cc` surfaces
-# 6 pre-existing sql_bridge.c notes and trips the warning ratchet.
+# NOTE: no -Wall -Wextra/-std here, deliberately. (1) Object-level -Wall
+# surfaces 16 files of pre-existing -Wterminator/-Wpossible-truncate/
+# -Wconstant-expression notes and trips the warning ratchet (baseline 0);
+# the link step already compiles with -Wall -Wextra, which is where new
+# diagnostics are caught. (2) -std=cobol2014 is not enabled because
+# main_logic.cob intentionally uses GnuCOBOL extensions (ACCEPT FROM
+# COMMAND-LINE, RETURN-CODE) for its file/serve entry glue; the other 71
+# modules are strict-clean (VALUE ZERO numerics, PACKED-DECIMAL,
+# END PROGRAM, >>SOURCE FORMAT IS FREE, IS INITIAL, <=31-char names).
+# The legacy single-shot build passed -Wall to cobc (COBOL diagnostics),
+# never to the C compiler, so C objects were always built warning-free by
+# default. Adding -Wall to `cc` surfaces 6 pre-existing sql_bridge.c
+# notes and trips the warning ratchet.
 C_FLAGS   := -O2 -I cobol/c_lib
 LD_LIBS   := -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread
 

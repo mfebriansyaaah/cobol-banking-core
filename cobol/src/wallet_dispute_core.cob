@@ -1,11 +1,10 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. wallet_dispute_core.
+        PROGRAM-ID. wallet_dispute_core IS INITIAL.
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
 
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
         DATA DIVISION.
         WORKING-STORAGE SECTION.
@@ -75,6 +74,7 @@
         COPY "wallet_caps.cpy".
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             *> Initialize critical WORKING-STORAGE (for --serve mode):
             MOVE "OK  " TO WS-TRANSFER-STATE
             SET WS-TRANSFER-OK TO TRUE
@@ -228,7 +228,7 @@
                 STRING "SUCCESS|DISPUTE_OPENED|" DELIMITED BY SIZE
                        WS-DSP-CASE DELIMITED BY SPACE
                        INTO LS-OUTPUT-BUFFER
-                END-STRING
+                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -535,7 +535,7 @@
                    "d.state = COALESCE(NULLIF(?, ''), d.state) ORDER BY d.case_id DESC " DELIMITED BY SIZE
                    "LIMIT ? OFFSET ?" DELIMITED BY SIZE
                INTO WS-PREP-SQL
-            END-STRING
+            ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
             MOVE WS-RLIMIT TO WS-BIND-3
@@ -552,14 +552,14 @@
                 STRING "SUCCESS|DISPUTES|" DELIMITED BY SIZE
                        WS-RTOTAL DELIMITED BY SPACE
                        INTO LS-OUTPUT-BUFFER
-                END-STRING
+                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             ELSE
                 PERFORM TRIM-RUN-RESULT-LEN
                 STRING "SUCCESS|DISPUTES|" DELIMITED BY SIZE
                        WS-RTOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                        WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                        INTO LS-OUTPUT-BUFFER
-                END-STRING
+                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             END-IF.
             EXIT PARAGRAPH.
 
@@ -607,7 +607,7 @@
                        WS-DSP-DUE(1:WS-DSP-DUELEN) DELIMITED BY SIZE "|" DELIMITED BY SIZE
                        WS-RTOTAL DELIMITED BY SPACE
                        INTO LS-OUTPUT-BUFFER
-                END-STRING
+                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             ELSE
                 PERFORM TRIM-RUN-RESULT-LEN
                 STRING "SUCCESS|DISPUTE|" DELIMITED BY SIZE
@@ -615,7 +615,7 @@
                        WS-RTOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                        WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                        INTO LS-OUTPUT-BUFFER
-                END-STRING
+                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             END-IF.
             EXIT PARAGRAPH.
 
@@ -631,3 +631,4 @@
                 MOVE 1 TO WS-RLEN
             END-IF.
             EXIT PARAGRAPH.
+       END PROGRAM wallet_dispute_core.
