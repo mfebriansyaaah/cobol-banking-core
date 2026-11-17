@@ -3,7 +3,6 @@
 > R0 readiness branch 00A. Single source of truth for CI triggers, required
 > checks, cost, enforcement, and rollout. Last verified: 2026-11-16.
 > Phase 0 branch 01 restores automatic triggers; see “Current status” below.
-
 > Current branch-protection state: INACTIVE (public repo, HTTP 404 Branch not
 > protected, verified 2026-11-16). See “Branch protection (blocked)” below.
 
