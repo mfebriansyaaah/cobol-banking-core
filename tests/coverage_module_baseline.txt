@@ -12,25 +12,37 @@
 # lines per module (blank + reset) shift generated-C line attribution; the
 # per-module numbers below were re-pinned from a reviewed --cobol-only run.
 # Total floor still passes (49.24% >= 30%); copybooks union 83.04% >= 80.84%.
+#
+# 2026-11-17 (fix/numeric-hardening): ON SIZE ERROR / ON OVERFLOW guards added
+# as single-line appends across 72 modules, IS INITIAL + entry buffer clear,
+# decimal flip to DOT, new common_amount.cpy, WS-RUN-ID explicit init. Like
+# C-06, the single-line multi-statement guards change generated-C shape
+# (extra cob_nop/#line + branch lines), shifting gcov attribution: mixed
+# up/down moves (e.g. auth_core +3.56, loan_core -7.37) with zero behavior
+# change (all static gates green; 235 table + 13 matrix + full DB suites pass;
+# TAP-identical standalone suites on both trees; new branches verified firing
+# correctly: OUTPUT_TOO_LARGE on genuinely oversized output, INVALID_AMOUNT on
+# oversize NUMVAL). Re-pinned from reviewed CI --cobol-only run 44019761596
+# (total 47.65% >= 30% floor; copybooks 83.2% >= 80.84%; gateway 98.95/84.09).
 
-main_logic 91.07
-user_core 62.91
-wallet_core 92.75
-auth_core 69.72
+main_logic 89.83
+user_core 62.57
+wallet_core 92.47
+auth_core 73.28
 ref_engine 0
-gl_core 32.65
-report_core 15.05
-fee_core 23.12
-eod_core 9.92
-statement_core 9.57
-loan_core 45.01
-loan_schedule_core 54.88
-deposit_core 84.52
-card_core 69.58
-collection_core 63.78
-payment_clearing_core 41.12
-treasury_liquidity_core 67.76
-gl_allocation_core 63.29
-cost_center_core 64.53
-fixed_asset_core 76.2
-account_core 64.53
+gl_core 31.63
+report_core 14.98
+fee_core 25.81
+eod_core 12.47
+statement_core 10.68
+loan_core 37.64
+loan_schedule_core 53.14
+deposit_core 82.24
+card_core 64.27
+collection_core 58.6
+payment_clearing_core 41.41
+treasury_liquidity_core 63.09
+gl_allocation_core 60.28
+cost_center_core 61.14
+fixed_asset_core 74.47
+account_core 61.14
