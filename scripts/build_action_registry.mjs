@@ -96,7 +96,16 @@ const registry = {
   actions,
   dispatch: [...dispatch]
     .sort((a, b) => a.slot - b.slot)
-    .map((e) => ({ slot: e.slot, prefix: e.prefix, prefixLen: e.prefixLen, program: e.program })),
+    .map((e) => ({
+      slot: e.slot,
+      prefix: e.prefix,
+      prefixLen: e.prefixLen,
+      program: e.program,
+      // CALL arity class: 1 = 4 params (user_core), 3 = 7 params
+      // (deposit_core), 2 = 6 params (everything else). The COBOL dispatcher
+      // switches on this instead of hardcoding program names.
+      paramMode: e.program === 'user_core' ? 1 : e.program === 'deposit_core' ? 3 : 2,
+    })),
 };
 
 if (!WRITE) {

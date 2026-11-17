@@ -1,9 +1,10 @@
 // Parser for the table-driven dispatcher in cobol/src/main_logic.cob.
 //
-// The dispatcher is three parallel MOVE lists keyed by slot index:
+// The dispatcher is four parallel MOVE lists keyed by slot index:
 //   MOVE "<PREFIX>"      TO D-PREFIX(n)
 //   MOVE <len>           TO D-PREFIX-LEN(n)
 //   MOVE "<program>"     TO D-PROGRAM(n)
+//   MOVE <mode>          TO D-PARAM-MODE(n)   (1 = 4 params, 2 = 6 params, 3 = 7 params)
 //
 // Both the manifest generator and the manifest checker use this function so
 // there is exactly one definition of "what the dispatcher contains". Keeping
@@ -14,6 +15,7 @@ export function parseDispatchTable(source) {
   const prefixes = new Map();
   const prefixLens = new Map();
   const programs = new Map();
+  const paramModes = new Map();
 
   for (const m of source.matchAll(/MOVE\s+"([^"]+)"\s+TO\s+D-PREFIX\((\d+)\)/g)) {
     prefixes.set(Number(m[2]), m[1]);
@@ -23,6 +25,9 @@ export function parseDispatchTable(source) {
   }
   for (const m of source.matchAll(/MOVE\s+"([^"]+)"\s+TO\s+D-PROGRAM\((\d+)\)/g)) {
     programs.set(Number(m[2]), m[1]);
+  }
+  for (const m of source.matchAll(/MOVE\s+(\d+)\s+TO\s+D-PARAM-MODE\((\d+)\)/g)) {
+    paramModes.set(Number(m[2]), Number(m[1]));
   }
 
   const slots = [...prefixes.keys()].sort((a, b) => a - b);
@@ -41,7 +46,8 @@ export function parseDispatchTable(source) {
       problems.push(`slot ${slot} ("${prefix}") has no D-PREFIX-LEN assignment`);
       continue;
     }
-    entries.push({ slot, prefixLen: declaredLen, prefix, program });
+    // Older copybooks predate D-PARAM-MODE; the 6-param shape is the default.
+    entries.push({ slot, prefixLen: declaredLen, prefix, program, paramMode: paramModes.get(slot) ?? 2 });
   }
 
   // CMD-ACTION and D-PREFIX are space-padded fixed-width fields, so a declared

@@ -45,6 +45,7 @@
                 10  D-PREFIX     PIC X(20) VALUE SPACES.
                 10  D-PREFIX-LEN PIC 9(2) VALUE 0.
                 10  D-PROGRAM   PIC X(32) VALUE SPACES.
+                10  D-PARAM-MODE PIC 9 VALUE 2.
 
         
         PROCEDURE DIVISION.
@@ -120,18 +121,21 @@
                 IF D-PREFIX-LEN(DISPATCH-IDX) > 0
                     IF CMD-ACTION(1:D-PREFIX-LEN(DISPATCH-IDX)) = D-PREFIX(DISPATCH-IDX)(1:D-PREFIX-LEN(DISPATCH-IDX))
                         MOVE 'Y' TO DISPATCH-FOUND
-                        IF D-PROGRAM(DISPATCH-IDX) = "user_core"
-                            CALL D-PROGRAM(DISPATCH-IDX) USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
-                                END-CALL
-                        ELSE
-                            IF D-PROGRAM(DISPATCH-IDX) = "deposit_core"
+                        *> CALL arity class from the dispatch table: 1 = 4
+                        *> params (user_core), 3 = 7 params (deposit_core),
+                        *> anything else = 6 params. Adding a param variant
+                        *> means a new mode, not a new program-name branch.
+                        EVALUATE D-PARAM-MODE(DISPATCH-IDX)
+                            WHEN 1
+                                CALL D-PROGRAM(DISPATCH-IDX) USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 WS-OUTPUT-MSG
+                                    END-CALL
+                            WHEN 3
                                 CALL D-PROGRAM(DISPATCH-IDX) USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 CMD-PARAM7 WS-OUTPUT-MSG
                                     END-CALL
-                            ELSE
+                            WHEN OTHER
                                 CALL D-PROGRAM(DISPATCH-IDX) USING CMD-ACTION CMD-PARAM1 CMD-PARAM2 CMD-PARAM3 CMD-PARAM4 CMD-PARAM5 CMD-PARAM6 WS-OUTPUT-MSG
                                     END-CALL
-                            END-IF
-                        END-IF
+                        END-EVALUATE
                     END-IF
                 END-IF
                 ADD 1 TO DISPATCH-IDX

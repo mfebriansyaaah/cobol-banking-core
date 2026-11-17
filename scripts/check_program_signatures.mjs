@@ -3,7 +3,8 @@
 //
 // Background: most modules take 6 params (LS-PARAM1..6), but user_core takes
 // 4 and deposit_core takes 7 (LS-PARAM7 carries the DEP_OPEN idempotency
-// key). main_logic.cob special-cases both CALL arities. Two silent
+// key). main_logic.cob switches on the per-slot D-PARAM-MODE (1/2/3) instead
+// of hardcoding program names. Two silent truncation classes follow:
 // truncation classes follow:
 //   1. A route with a NAMED field past its program's param count compiles,
 //      runs, and drops the value: user_core never sees slots 5-6.
@@ -13,8 +14,8 @@
 // Rules:
 //   1. For every route action, slots beyond its program's param count must
 //      be padding (empty name). Named fields there fail the gate.
-//   2. main_logic.cob must CALL user_core with 4 params, deposit_core with 7,
-//      and every other program with 6 (action + params + output buffer
+//   2. main_logic.cob must CALL with 4 params on mode 1, 7 on mode 3,
+//      and 6 otherwise (action + params + output buffer
 //      excluded from the count on both sides).
 //
 // Resolution reuses the shared parsers: dispatch longest-prefix match from
@@ -73,7 +74,7 @@ export function checkTree(rootDir) {
   const { entries } = parseDispatchTable(mainLogic);
   const contracts = collectRouteContracts(rootDir);
 
-  // Rule 2: dispatcher CALL arity per program.
+  // Rule 2: dispatcher CALL arity per param mode.
   const callLines = mainLogic.split('\n').filter((l) => /CALL\s+D-PROGRAM/.test(l));
   const seenArity = new Map();
   for (const line of callLines) {
@@ -82,8 +83,8 @@ export function checkTree(rootDir) {
       errors.push(`dispatcher CALL without CMD-PARAMn: ${line.trim().slice(0, 80)}`);
       continue;
     }
-    // Attribute the arity by the surrounding special-case: the user_core
-    // and deposit_core branches name their program on a nearby IF line.
+    // The three CALL shapes cover the param modes (1/2/3); the EVALUATE on
+    // D-PARAM-MODE selects among them.
     seenArity.set(arity, (seenArity.get(arity) || 0) + 1);
   }
   for (const a of [4, 6, 7]) {
