@@ -485,8 +485,8 @@
            *> every transition is mirrored to idempotency_request.
            PERFORM IDEM-RESET
            MOVE "LOAN_DISBURSE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-LOAN-AMT) TO WS-IDEM-AMOUNT
            MOVE SPACES TO WS-IDEM-DETAILS
            MOVE "ERROR|DISBURSE_IN_PROGRESS" TO WS-IDEM-CODE
@@ -498,8 +498,8 @@
            *> DONE rows are never touched. The mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "LOAN_DISBURSE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
@@ -509,8 +509,8 @@
            *> every transition is mirrored to idempotency_request.
            PERFORM IDEM-RESET
            MOVE "LOAN_REPAY" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
            MOVE SPACES TO WS-IDEM-DETAILS
            MOVE "ERROR|REPAY_IN_PROGRESS" TO WS-IDEM-CODE
@@ -522,8 +522,8 @@
            *> DONE rows are never touched. The mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "LOAN_REPAY" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 

@@ -8,6 +8,7 @@
             *> Same per-account cooldown as signup resends (neutral reuse).
             MOVE SPACES TO WS-CD-STR
             CALL "env_or" USING BY REFERENCE "RESEND_COOLDOWN_SECONDS" BY REFERENCE "60" BY REFERENCE WS-CD-STR
+            END-CALL
             IF WS-CD-STR(1:1) >= "1" AND WS-CD-STR(1:1) <= "9"
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "SELECT COUNT(*) FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0 AND created_at > DATE_SUB(NOW(), INTERVAL " WS-CD-STR DELIMITED BY SIZE " SECOND)" DELIMITED BY SIZE INTO WS-PREP-SQL
@@ -21,6 +22,7 @@
             END-IF
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
+            END-CALL
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -29,6 +31,7 @@
             END-IF.
             IF STEP-OK
                 CALL "generate_random_code" USING BY REFERENCE WS-CODE
+                END-CALL
                 MOVE "INSERT INTO verification_logs (email, code, purpose, expires_at) VALUES (?, ?, 'PASSWORD_RESET', DATE_ADD(NOW(), INTERVAL 1 HOUR))" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-CODE TO WS-BIND-2
@@ -58,11 +61,13 @@
             END-IF.
             IF STEP-OK
                 CALL "SQL_COMMIT"
+                END-CALL
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|CODE_SENT|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             ELSE
                 CALL "SQL_ROLLBACK"
+                END-CALL
                 MOVE "ERROR|RESET_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
@@ -108,10 +113,13 @@
                 EXIT PARAGRAPH
             END-IF
             CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
+            END-CALL
             CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN
+            END-CALL
             PERFORM GET-USER-ID
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
+            END-CALL
             MOVE "UPDATE users SET password_hash = ?, token_version = token_version + 1, failed_logins = 0, locked_until = NULL WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-HASH TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
@@ -123,7 +131,9 @@
                 MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                END-CALL
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
@@ -151,9 +161,11 @@
             END-IF
             IF STEP-OK
                 CALL "SQL_COMMIT"
+                END-CALL
                 MOVE "SUCCESS|PASSWORD_RESET" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK"
+                END-CALL
                 MOVE "ERROR|RESET_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
@@ -171,10 +183,11 @@
                 MOVE "ERROR|ACCOUNT_NOT_FOUND" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            MOVE WS-RESULT TO WS-STORED
+            MOVE WS-RESULT(1:256) TO WS-STORED
             MOVE SPACES TO WS-PLAIN
             MOVE WS-PARAM2-TRIMMED(1:WS-P2-LEN) TO WS-PLAIN
             CALL "verify_password" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-STORED BY REFERENCE WS-VERIFY
+            END-CALL
             IF WS-VERIFY NOT = "1"
                 MOVE "ERROR|INVALID_CREDENTIALS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -203,10 +216,13 @@
                 EXIT PARAGRAPH
             END-IF
             CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH
+            END-CALL
             CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN
+            END-CALL
             PERFORM GET-USER-ID
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN"
+            END-CALL
             MOVE "UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-HASH TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
@@ -218,7 +234,9 @@
                 MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 1 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5
+                END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT
+                END-CALL
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
@@ -237,9 +255,11 @@
             END-IF
             IF STEP-OK
                 CALL "SQL_COMMIT"
+                END-CALL
                 MOVE "SUCCESS|PASSWORD_CHANGED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK"
+                END-CALL
                 MOVE "ERROR|PASSWORD_CHANGE_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.

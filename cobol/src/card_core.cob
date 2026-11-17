@@ -234,8 +234,8 @@
            *> every transition is mirrored to idempotency_request.
            PERFORM IDEM-RESET
            MOVE "CARD_CAPTURE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
            MOVE SPACES TO WS-IDEM-DETAILS
            MOVE "ERROR|CAPTURE_IN_PROGRESS" TO WS-IDEM-CODE
@@ -247,8 +247,8 @@
            *> DONE rows are never touched. The mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "CARD_CAPTURE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
@@ -258,8 +258,8 @@
            *> every transition is mirrored to idempotency_request.
            PERFORM IDEM-RESET
            MOVE "CARD_REPAY" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-P2-TRIMMED) TO WS-IDEM-AMOUNT
            MOVE SPACES TO WS-IDEM-DETAILS
            MOVE "ERROR|REPAY_IN_PROGRESS" TO WS-IDEM-CODE
@@ -271,8 +271,8 @@
            *> DONE rows are never touched. The mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "CARD_REPAY" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
@@ -282,8 +282,8 @@
            *> every transition is mirrored to idempotency_request.
            PERFORM IDEM-RESET
            MOVE "CARD_REVERSE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
            MOVE SPACES TO WS-IDEM-DETAILS
            MOVE "ERROR|REVERSE_IN_PROGRESS" TO WS-IDEM-CODE
@@ -295,8 +295,8 @@
            *> DONE rows are never touched. The mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "CARD_REVERSE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
@@ -868,8 +868,8 @@
            IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
                PERFORM IDEM-RESET
                MOVE "CARD_CAPTURE" TO WS-IDEM-SCOPE
-               MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-               MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+               MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+               MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                MOVE SPACES TO WS-IDEM-DETAILS
                MOVE "gl_journal_id" TO WS-IDEM-SETCOL
@@ -1112,8 +1112,8 @@
            IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
                PERFORM IDEM-RESET
                MOVE "CARD_REPAY" TO WS-IDEM-SCOPE
-               MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-               MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+               MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+               MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                MOVE SPACES TO WS-IDEM-DETAILS
                MOVE "gl_journal_id" TO WS-IDEM-SETCOL
@@ -1278,8 +1278,8 @@
            IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
                PERFORM IDEM-RESET
                MOVE "CARD_REVERSE" TO WS-IDEM-SCOPE
-               MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-               MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+               MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+               MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
                MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                MOVE SPACES TO WS-IDEM-DETAILS
                MOVE "gl_journal_id" TO WS-IDEM-SETCOL

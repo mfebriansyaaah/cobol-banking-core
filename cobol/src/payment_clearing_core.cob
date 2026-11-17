@@ -238,8 +238,8 @@
            *> decision-maker.
            PERFORM IDEM-RESET
            MOVE "PMC_SETTLE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
            MOVE SPACES TO WS-IDEM-DETAILS
            MOVE "ERROR|SETTLE_IN_PROGRESS" TO WS-IDEM-CODE
@@ -254,8 +254,8 @@
            *> unified mirror row goes with it.
            PERFORM IDEM-RESET
            MOVE "PMC_SETTLE" TO WS-IDEM-SCOPE
-           MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-           MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+           MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+           MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
@@ -587,7 +587,6 @@
             SET STEP-OK TO TRUE
             MOVE SPACES TO WS-ERR
             CALL "SQL_BEGIN" END-CALL
-            IF STEP-OK
             MOVE "UPDATE payment_clearing SET status = CASE WHEN settled_amount + ? >= posted_amount THEN 'SETTLED' ELSE 'POSTED' END, settled_at = CASE WHEN settled_amount + ? >= posted_amount THEN NOW() ELSE settled_at END, settled_amount = settled_amount + ? WHERE id = ? AND settled_amount + ? <= posted_amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-TMP-AMT TO WS-BIND-2
@@ -621,8 +620,8 @@
             IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
                 PERFORM IDEM-RESET
                 MOVE "PMC_SETTLE" TO WS-IDEM-SCOPE
-                MOVE WS-P1-TRIMMED TO WS-IDEM-ENTITY-VAL
-                MOVE WS-P5-TRIMMED TO WS-IDEM-KEY
+                MOVE WS-P1-TRIMMED(1:64) TO WS-IDEM-ENTITY-VAL
+                MOVE WS-P5-TRIMMED(1:64) TO WS-IDEM-KEY
                 MOVE FUNCTION TRIM(WS-TMP-AMT) TO WS-IDEM-AMOUNT
                 MOVE SPACES TO WS-IDEM-DETAILS
                 MOVE "gl_journal_id" TO WS-IDEM-SETCOL
