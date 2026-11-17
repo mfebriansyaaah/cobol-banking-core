@@ -279,14 +279,6 @@
             UNSTRING WS-RESULT DELIMITED BY "|"
                 INTO WS-RATE-CUTOFF
             END-UNSTRING
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
-                SET WS-TRANSFER-FAIL-DB TO TRUE
-                EXIT PARAGRAPH
-            END-IF
-            UNSTRING WS-RESULT DELIMITED BY "|"
-                INTO WS-RATE-CUTOFF
-            END-UNSTRING
             IF WS-RATE-UPDATED < WS-RATE-CUTOFF
                 SET WS-TRANSFER-FAIL-STALE TO TRUE
             END-IF.

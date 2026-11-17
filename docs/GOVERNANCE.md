@@ -1,18 +1,20 @@
 # Governance and Merge Policy
 
-> **CI status (2026-11-04):** automatic triggers restored in Phase 0 branch 01.
-> Branch protection active on `main` since branch 02 (required checks, 1
-> approval + CODEOWNERS, merge commits, no force push, no bypass).
+> **Status (2026-11-16):** repository is public (verified via API), but branch
+> protection on `main` is NOT active (API HTTP 404 Branch not protected).
+> Merge enforcement is local: `scripts/ci/premerge.sh`, required checks,
+> CODEOWNERS review, and the no-admin-bypass rule.
 > See [CI status](CI.md).
 
 ## Status
 
-This repository is public. Branch protection on `main` is active and enforced
-by GitHub (verified 2026-11-04 via API). No exception is in effect.
+This repository is public (verified 2026-11-16 via API). Branch protection on
+`main` is not active (verified 2026-11-16 via API, HTTP 404 Branch not
+protected). Enforcement is local until protection is restored via the runbook
+in [CI status](CI.md).
 
 History: the repository was private on GitHub Free, where branch protection
-and rulesets returned HTTP 403; enforcement was local-only during R0. That
-exception is closed.
+and rulesets returned HTTP 403; enforcement was local-only during R0.
 
 ## Required controls
 
@@ -62,9 +64,9 @@ error harness + gateway suites), the assertion count gate, migration
 rollback drill, backup and restore drill, schema drift check, and performance benchmarks.
 
 A pull request is not mergeable under this policy unless the required checks
-(`lint`, `build`, `test`, `db aggregate`, `coverage`, `coverage-pr`) are green. GitHub
-enforces this on `main` via branch protection; reviewers still verify the
-evidence.
+(`lint`, `build`, `test`, `db aggregate`, `coverage`, `coverage-pr`) are green.
+Reviewers verify the evidence; server-side enforcement applies once branch
+protection is restored (currently NOT active, see Status above).
 
 CodeQL (`codeql.yml`, PR/push/schedule) scans the JavaScript gateway and the
 C crypto helpers (`cobol/c_lib`); COBOL is out of scope (no extractor
@@ -105,10 +107,9 @@ Silent exceptions are not permitted.
 
 ## Enforcement notes
 
-Branch protection is configured via the classic Branch Protection API
-(equivalent to a ruleset here: repository rulesets on this plan reject the
-`pull_request` and `required_status_checks` rule types, verified 2026-11-04).
-Revisit rulesets if the plan upgrades. Current settings on `main`:
+Branch protection is NOT currently active (verified 2026-11-16 via API, HTTP
+404 Branch not protected). The restore runbook lives in `docs/CI.md`; it is
+not active state. Target settings once restored on `main`:
 
 - required status checks `lint`, `build`, `test`, `db aggregate`, `coverage`,
   `coverage-pr` (not strict: passing checks are required, an up-to-date

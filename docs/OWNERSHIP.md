@@ -15,47 +15,14 @@
 | Security (SAST, secrets, audit) | @mfebriansyaaah | @get-money-first | OK |
 | Docs (`docs/`) | @mfebriansyaaah | @get-money-first | OK |
 
-| Critical path | Primary owner | Backup owner | Status |
-| --- | --- | --- | --- |
-| COBOL core (`cobol/`) | @mfebriansyaaah | — | backup missing |
-| Gateway (`middleware/`) | @mfebriansyaaah | — | backup missing |
-| Database / migrations (`database/`) | @mfebriansyaaah | — | backup missing |
-| Tests / CI (`tests/`, `scripts/`, `.github/`) | @mfebriansyaaah | — | backup missing |
-| Security (SAST, secrets, audit) | @mfebriansyaaah | — | backup missing |
-| Docs (`docs/`) | @mfebriansyaaah | — | backup missing |
+`.github/CODEOWNERS` assigns every path to `@mfebriansyaaah` with
+`@get-money-first` as backup (verified 2026-11-04).
 
-`.github/CODEOWNERS` assigns every path to `@mfebriansyaaah`. That matches
-reality today but leaves bus factor 1.
+## History
 
-## Required second owners (blocks 9/10)
-
-At least two named owners per critical path are required for the 9/10
-ownership criterion. Until they are named:
-
-- 9/10 is capped at **8.5/10** (see master plan section 0.5).
-- The exception owner is `@mfebriansyaaah`.
-- Expiry: 2026-12-04. Revisit when a second owner joins or the repository
-  becomes public.
-
-## Formal exception (accepted 2026-11-04, resolved 2026-11-04)
-
-- Reason: single maintainer; no second owner available yet.
-- Risk: bus factor 1; reviews depend on one person; money-path two-approval
-  rule cannot be satisfied by two distinct people.
-- Compensating controls: CODEOWNERS review required on every PR; pre-push hook
-  (`scripts/dev/install-hooks.sh`); weekly review of open PRs; no admin bypass;
-  money-path PRs get extra scrutiny and a recorded second pass (self-review
-  checklist in the PR body).
-- Approver: `@mfebriansyaaah`.
-- Expiry: 2026-12-04. R0 criterion 7 stays Not met; 9/10 stays capped at 8.5
-  until a second owner is named.
-
-## Resolution (2026-11-04)
-
-Second owner `@get-money-first` (verified via `gh api users/get-money-first`)
-added to every path in `.github/CODEOWNERS` and as backup in the table above.
-Ownership cap is lifted. Remaining step (T-044): onboarding tabletop with the
-second engineer; record it in the PR that closes T-044.
+The single-maintainer exception (2026-11-04) was closed when `@get-money-first`
+was added to every path in `.github/CODEOWNERS`. The onboarding tabletop
+remains tracked in T-044.
 
 ## Escalation
 

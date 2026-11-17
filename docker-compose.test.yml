@@ -19,7 +19,7 @@ services:
 
   # Local equivalent of the CI mailpit service (email OTP flow).
   mailpit:
-    image: axllent/mailpit:latest
+    image: axllent/mailpit@sha256:aef2aacc11f075ec0fb6874275ee4a421e688e11a96ebb296134d1735c7761ce
     container_name: cobol-banking-test-mailpit
     restart: "no"
     ports:
@@ -29,8 +29,13 @@ services:
   # Document vault (PR-096, dev only): S3-compatible MinIO, single-node.
   # Production needs distributed MinIO + real KMS; credentials below are
   # non-secret dev defaults, never production values.
+  # NOTE (audit P1-09): Docker Hub minio/minio:latest is gone; quay.io is the
+  # documented replacement, but quay returns HTTP 401 for anonymous manifest
+  # inspection in this environment, so no digest could be verified here.
+  # Owner with quay auth: replace the tag below with the pinned digest and
+  # record it in the PR.
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: cobol-banking-test-minio
     restart: "no"
     command: server /data --console-address ":9001"
@@ -43,7 +48,7 @@ services:
 
   # Antivirus for the vault gate (PR-096, dev only).
   clamav:
-    image: clamav/clamav:latest
+    image: clamav/clamav@sha256:7054e3f34308c384ea43cd786ea17abf899bd44af40af9f1b099853d7a5c214e
     container_name: cobol-banking-test-clamav
     restart: "no"
     ports:

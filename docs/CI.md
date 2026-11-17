@@ -1,8 +1,10 @@
 # CI Status
 
 > R0 readiness branch 00A. Single source of truth for CI triggers, required
-> checks, cost, enforcement, and rollout. Last verified: 2026-11-04.
+> checks, cost, enforcement, and rollout. Last verified: 2026-11-16.
 > Phase 0 branch 01 restores automatic triggers; see “Current status” below.
+> Current branch-protection state: INACTIVE (public repo, HTTP 404 Branch not
+> protected, verified 2026-11-16). See “Branch protection (blocked)” below.
 
 ## Current status: AUTOMATIC (restored in Phase 0 branch 01)
 
@@ -287,15 +289,14 @@ model above is pending.
 
 ## Enforcement
 
-ACTIVE since branch 02 (2026-11-04, verified via API): branch protection on
-`main` requires `lint`, `build`, `test`, `db aggregate`, `coverage`,
-`coverage-pr` (not strict since 2026-11-05: checks must pass, but the PR
-need not contain the latest `main`; update via `git merge origin/main`
-before merging), merge commits (linear history is not required and
-rebase/squash merging is disabled),
-1 approval with stale-review dismissal, CODEOWNERS review;
-force pushes, branch deletion, and admin bypass are blocked. Red-PR proof is
-recorded below.
+TARGET (not active, verified 2026-11-16 via API, HTTP 404 Branch not
+protected): once restored, branch protection on `main` should require `lint`,
+`build`, `test`, `db aggregate`, `coverage`, `coverage-pr` (not strict:
+checks must pass, but the PR need not contain the latest `main`), merge
+commits, 1 approval with stale-review dismissal, CODEOWNERS review; force
+pushes, branch deletion, and admin bypass blocked. Until then enforcement is
+local (premerge + CODEOWNERS + no-admin-bypass). Red-PR proof is recorded
+below.
 
 Naming trap (burned us on PR #510): GitHub matches the check-run **name**
 (`db aggregate`, with space — the job `name:`), not the job ID
@@ -436,7 +437,11 @@ the two env entries with owner and expiry.
 
 - Proof PR touches docs only; option A (D3 revised) skips `test` + `db-snapshot` too. Expect wall <=3 min.
 
-## Branch protection (required) — restore runbook
+## Branch protection (blocked) — restore runbook (not active)
+
+Current state 2026-11-16: INACTIVE (public repo, HTTP 404 Branch not
+protected). Do not treat this section as active state. Restore only via this
+runbook once the owner approves.
 
 Branch protection is remote state, not Git. The 2026-11-11 audit found `main`
 unprotected (`protected:false`, no rulesets, required checks empty): every gate

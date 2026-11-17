@@ -273,6 +273,53 @@ for (const wf of WORKFLOWS) {
   }
 }
 
+function shardMatrixLen(shardJob) {
+  const matrix = shardJob.strategy && shardJob.strategy.matrix && shardJob.strategy.matrix.shard;
+  return Array.isArray(matrix) ? matrix.length : 0;
+}
+
+function shardDeclaredCount(shardJob, ciEnv) {
+  // Precedence: inline `DB_SHARD_COUNT=n` in the run step wins over the job
+  // env, then the workflow env (centralized single source, CI-010).
+  let count = null;
+  if (shardJob.env && shardJob.env.DB_SHARD_COUNT !== undefined) {
+    count = Number(shardJob.env.DB_SHARD_COUNT);
+  }
+  for (const step of shardJob.steps || []) {
+    if (!step || typeof step !== 'object' || !step.run) continue;
+    const m = String(step.run).match(/DB_SHARD_COUNT=(\d+)/);
+    if (m) count = Number(m[1]);
+  }
+  if ((count === null || !Number.isFinite(count)) && ciEnv.DB_SHARD_COUNT !== undefined) {
+    count = Number(ciEnv.DB_SHARD_COUNT);
+  }
+  return count;
+}
+
+function resolveShardCountArg(token, aggJob, ciEnv) {
+  const bare = token.replace(/^["']|["']$/g, '');
+  if (!/^\$/.test(bare)) return Number(bare);
+  const name = bare.replace(/^\$\{?/, '').replace(/\}$/, '');
+  if (aggJob.env && aggJob.env[name] !== undefined) {
+    const fromJob = Number(aggJob.env[name]);
+    if (Number.isFinite(fromJob)) return fromJob;
+  }
+  if (ciEnv[name] !== undefined) return Number(ciEnv[name]);
+  return NaN;
+}
+
+function aggregateShardCount(aggJob, ciEnv) {
+  for (const step of aggJob.steps || []) {
+    if (!step || typeof step !== 'object' || !step.run) continue;
+    const run = String(step.run);
+    if (!run.includes('aggregate_shard_reports.sh')) continue;
+    const parts = run.trim().split(/\s+/);
+    const last = resolveShardCountArg(parts[parts.length - 1], aggJob, ciEnv);
+    if (Number.isFinite(last)) return last;
+  }
+  return null;
+}
+
 // Shard consistency: the db-shards matrix, the DB_SHARD_COUNT the shard
 // runner uses, and the aggregate step argument must agree.
 (function checkShards() {
@@ -281,48 +328,17 @@ for (const wf of WORKFLOWS) {
   const shardJob = jobs['db-shards'];
   const aggJob = jobs['db-aggregate'];
   if (!shardJob || !aggJob) return;
-  const matrix = shardJob.strategy && shardJob.strategy.matrix && shardJob.strategy.matrix.shard;
-  const matrixLen = Array.isArray(matrix) ? matrix.length : 0;
+  const matrixLen = shardMatrixLen(shardJob);
   if (!matrixLen) {
     failed.push('ci.yml db-shards lacks strategy.matrix.shard');
     return;
   }
-  // Precedence: inline `DB_SHARD_COUNT=n` in the run step, then the job env,
-  // then the workflow env (the centralized single source of truth, CI-010).
-  let shardCount = null;
-  if (shardJob.env && shardJob.env.DB_SHARD_COUNT !== undefined) {
-    shardCount = Number(shardJob.env.DB_SHARD_COUNT);
-  }
-  for (const step of shardJob.steps || []) {
-    if (!step || typeof step !== 'object' || !step.run) continue;
-    const m = String(step.run).match(/DB_SHARD_COUNT=(\d+)/);
-    if (m) shardCount = Number(m[1]);
-  }
-  if ((shardCount === null || !Number.isFinite(shardCount)) && ciEnv.DB_SHARD_COUNT !== undefined) {
-    shardCount = Number(ciEnv.DB_SHARD_COUNT);
-  }
+  const shardCount = shardDeclaredCount(shardJob, ciEnv);
   if (shardCount === null || !Number.isFinite(shardCount)) {
     failed.push('ci.yml db-shards lacks DB_SHARD_COUNT (matrix runner must declare it)');
     return;
   }
-  const resolveCountArg = (token) => {
-    const bare = token.replace(/^["']|["']$/g, '');
-    if (!/^\$/.test(bare)) return Number(bare);
-    const name = bare.replace(/^\$\{?/, '').replace(/\}$/, '');
-    const fromJob = aggJob.env && aggJob.env[name] !== undefined ? Number(aggJob.env[name]) : null;
-    if (fromJob !== null && Number.isFinite(fromJob)) return fromJob;
-    if (ciEnv[name] !== undefined) return Number(ciEnv[name]);
-    return NaN;
-  };
-  let aggCount = null;
-  for (const step of aggJob.steps || []) {
-    if (!step || typeof step !== 'object' || !step.run) continue;
-    const run = String(step.run);
-    if (!run.includes('aggregate_shard_reports.sh')) continue;
-    const parts = run.trim().split(/\s+/);
-    const last = resolveCountArg(parts[parts.length - 1]);
-    if (Number.isFinite(last)) aggCount = last;
-  }
+  const aggCount = aggregateShardCount(aggJob, ciEnv);
   if (aggCount === null) {
     failed.push('ci.yml db-aggregate lacks shard count argument (aggregate_shard_reports.sh <parts> <out> <n|$VAR>)');
     return;

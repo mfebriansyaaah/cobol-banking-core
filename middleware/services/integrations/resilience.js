@@ -83,6 +83,35 @@ export function isRetryable(err, res) {
   );
 }
 
+function handleHttpResponse(res, { provider, breakerThreshold, breakerCooldownMs, done }) {
+  // The send happened: 4xx is terminal (never retried, never re-sent).
+  if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+    recordSuccess(provider);
+    done('error');
+    return { finished: true, value: res };
+  }
+  if (res.ok) {
+    recordSuccess(provider);
+    done('ok');
+    return { finished: true, value: res };
+  }
+  if (!isRetryable(null, res)) {
+    recordFailure(provider, breakerThreshold, breakerCooldownMs);
+    done('error');
+    return { finished: true, value: res };
+  }
+  return { finished: false };
+}
+
+function handleHttpError(err, attempt, { provider, breakerThreshold, breakerCooldownMs, maxRetries, done, logger }) {
+  if (!isRetryable(err, null) || attempt > maxRetries) {
+    recordFailure(provider, breakerThreshold, breakerCooldownMs);
+    done('error');
+    throw err;
+  }
+  if (logger) logger({ event: 'integration_retry', provider, attempt });
+}
+
 export async function resilientFetch(
   provider,
   url,
@@ -116,31 +145,10 @@ export async function resilientFetch(
         headers,
         signal: AbortSignal.timeout(timeoutMs),
       });
-      // The send happened: 4xx is terminal (never retried, never re-sent).
-      // The provider is up (client error), so the breaker stays closed, but
-      // the outcome still counts as an error for dashboards.
-      if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-        recordSuccess(provider);
-        done('error');
-        return res;
-      }
-      if (res.ok) {
-        recordSuccess(provider);
-        done('ok');
-        return res;
-      }
-      if (!isRetryable(null, res)) {
-        recordFailure(provider, breakerThreshold, breakerCooldownMs);
-        done('error');
-        return res;
-      }
+      const out = handleHttpResponse(res, { provider, breakerThreshold, breakerCooldownMs, done });
+      if (out.finished) return out.value;
     } catch (err) {
-      if (!isRetryable(err, null) || attempt > maxRetries) {
-        recordFailure(provider, breakerThreshold, breakerCooldownMs);
-        done('error');
-        throw err;
-      }
-      if (logger) logger({ event: 'integration_retry', provider, attempt });
+      handleHttpError(err, attempt, { provider, breakerThreshold, breakerCooldownMs, maxRetries, done, logger });
       continue;
     }
     // Retryable HTTP status.

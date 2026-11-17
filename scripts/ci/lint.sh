@@ -48,3 +48,6 @@ echo "shfmt clean (${#ALLOWLIST[@]} files)"
 
 echo "=== schema unique tables ==="
 node scripts/check_schema_unique_tables.mjs
+
+echo "=== module quality ==="
+node scripts/check_module_quality.mjs

@@ -1,7 +1,7 @@
 # Changelog
 
-All notable changes to this repository are recorded here. This project does
-not publish versioned releases yet; entries are grouped by date on `main`.
+All notable changes to this repository are recorded here. Versioned tags
+exist (`v1.0.1`, `v1.1.0`); entries below are grouped by date on `main`.
 
 ## Unreleased
 

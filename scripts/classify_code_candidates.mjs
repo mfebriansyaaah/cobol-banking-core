@@ -160,33 +160,30 @@ function buildCandidates(rootDir) {
   return out;
 }
 
-function validate(rootDir, candidates) {
-  const failures = [];
-  const domainStatus = loadJson(path.join(rootDir, 'manifest', 'domain_status.json'));
-  const frozen = new Set((domainStatus.entries || []).filter((e) => e.status === 'FROZEN').map((e) => e.module));
-  const names = new Set();
-  for (const c of candidates) {
-    for (const key of REQUIRED) {
-      if (!(key in c)) failures.push(`${c.module || '?'}: missing field "${key}"`);
-    }
-    if (c.status && !STATUS.includes(c.status)) failures.push(`${c.module}: unknown status "${c.status}"`);
-    if (names.has(c.module)) failures.push(`duplicate candidate: ${c.module}`);
-    names.add(c.module);
-    if (!c.reason) failures.push(`${c.module}: missing reason`);
-    if (!Array.isArray(c.evidence) || c.evidence.length === 0) failures.push(`${c.module}: missing evidence`);
-    if ((c.linkageLevel === 'L0' || c.linkageLevel === 'L1') === false && c.status === 'CANDIDATE') {
-      failures.push(`${c.module}: CANDIDATE requires L0/L1 linkage (has ${c.linkageLevel})`);
-    }
-    if (c.status === 'CANDIDATE' && c.ownerSignoff) {
-      failures.push(`${c.module}: CANDIDATE must not carry ownerSignoff (sign off at DEPRECATED by review)`);
-    }
-    if ((c.status === 'DEPRECATED' || c.status === 'RETIRED') && !c.ownerSignoff) {
-      failures.push(`${c.module}: ${c.status} requires ownerSignoff`);
-    }
-    if ((c.status === 'DEPRECATED' || c.status === 'RETIRED') && !c.trafficLastSeen) {
-      failures.push(`${c.module}: ${c.status} requires trafficLastSeen evidence`);
-    }
+function validateCandidate(c, names, failures) {
+  for (const key of REQUIRED) {
+    if (!(key in c)) failures.push(`${c.module || '?'}: missing field "${key}"`);
   }
+  if (c.status && !STATUS.includes(c.status)) failures.push(`${c.module}: unknown status "${c.status}"`);
+  if (names.has(c.module)) failures.push(`duplicate candidate: ${c.module}`);
+  names.add(c.module);
+  if (!c.reason) failures.push(`${c.module}: missing reason`);
+  if (!Array.isArray(c.evidence) || c.evidence.length === 0) failures.push(`${c.module}: missing evidence`);
+  if ((c.linkageLevel === 'L0' || c.linkageLevel === 'L1') === false && c.status === 'CANDIDATE') {
+    failures.push(`${c.module}: CANDIDATE requires L0/L1 linkage (has ${c.linkageLevel})`);
+  }
+  if (c.status === 'CANDIDATE' && c.ownerSignoff) {
+    failures.push(`${c.module}: CANDIDATE must not carry ownerSignoff (sign off at DEPRECATED by review)`);
+  }
+  if ((c.status === 'DEPRECATED' || c.status === 'RETIRED') && !c.ownerSignoff) {
+    failures.push(`${c.module}: ${c.status} requires ownerSignoff`);
+  }
+  if ((c.status === 'DEPRECATED' || c.status === 'RETIRED') && !c.trafficLastSeen) {
+    failures.push(`${c.module}: ${c.status} requires trafficLastSeen evidence`);
+  }
+}
+
+function validateCrossRefs(candidates, frozen, names, failures) {
   for (const m of frozen) {
     if (!names.has(m)) failures.push(`FROZEN module without candidate: ${m}`);
   }
@@ -195,6 +192,15 @@ function validate(rootDir, candidates) {
       failures.push(`candidate ${c.module} is not FROZEN in domain_status.json (remove or re-freeze)`);
     }
   }
+}
+
+function validate(rootDir, candidates) {
+  const failures = [];
+  const domainStatus = loadJson(path.join(rootDir, 'manifest', 'domain_status.json'));
+  const frozen = new Set((domainStatus.entries || []).filter((e) => e.status === 'FROZEN').map((e) => e.module));
+  const names = new Set();
+  for (const c of candidates) validateCandidate(c, names, failures);
+  validateCrossRefs(candidates, frozen, names, failures);
   return failures;
 }
 

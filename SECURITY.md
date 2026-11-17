@@ -63,10 +63,11 @@ Out of scope:
 
 ## Branch protection exception
 
-The repository is private on GitHub Free, where branch protection and rulesets
-are unavailable. The approved exception and compensating controls are in
-[docs/GOVERNANCE.md](docs/GOVERNANCE.md). The lack of server-side enforcement is
-a known risk; merge discipline and CI are the controls.
+The repository is public, but branch protection on `main` is not active
+(verified 2026-11-16 via API, HTTP 404 Branch not protected). The compensating
+controls are in [docs/GOVERNANCE.md](docs/GOVERNANCE.md). The lack of
+server-side enforcement is a known risk; merge discipline and CI are the
+controls.
 
 ## AI review
 

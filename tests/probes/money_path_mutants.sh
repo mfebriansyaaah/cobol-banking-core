@@ -292,16 +292,16 @@ restore_all
 # M14: pwned hook always allows (breached password signs up).
 mutate "$I"
 py_patch "$I" \
-'          const allowed = await assertPasswordAllowed(candidate);' \
-'          const allowed = true; // MUTANT M14 (was assertPasswordAllowed)' 1
+'        const allowed = await assertPasswordAllowed(candidate);' \
+'        const allowed = true; // MUTANT M14 (was assertPasswordAllowed)' 1
 run_js_mutant "M14" "no breached-password gate" test/integrations/pwned.test.js
 restore_all
 
 # M15: captcha hook skipped (bot signs up freely).
 mutate "$I"
 py_patch "$I" \
-'        if (route.captcha) {' \
-'        if (false) { // MUTANT M15 (was route.captcha)' 1
+'      if (route.captcha) {' \
+'      if (false) { // MUTANT M15 (was route.captcha)' 1
 run_js_mutant "M15" "no captcha gate" test/integrations/bot.test.js
 restore_all
 

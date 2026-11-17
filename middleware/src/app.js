@@ -266,90 +266,89 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
   };
 
   const registerRoute = (target, route) => {
+    const buildRouteInput = async (req) => {
+      const input = { ...req.params, ...req.query, ...req.body };
+      if (req.headers['idempotency-key']) {
+        input.idempotencyKey = req.headers['idempotency-key'];
+      }
+      if (route.tokenIdentity) {
+        input[route.tokenIdentity] = (req.user && req.user.email) || '';
+      }
+      if (route.tokenSid) {
+        input.sid = (req.user && req.user.sid) || '';
+      }
+      const derived = await applyDerivation(route.action, input, { req });
+      Object.assign(input, derived);
+      return input;
+    };
+
+    const runRouteGuards = async (input, req, res) => {
+      const pwField = route.passwordField;
+      const candidate = pwField ? input[pwField] : '';
+      if (typeof candidate === STRING_TYPE && candidate) {
+        const allowed = await assertPasswordAllowed(candidate);
+        if (!allowed) {
+          res.locals.errorCode = 'BREACHED_PASSWORD';
+          recordError('BREACHED_PASSWORD');
+          res.status(400).json({ error: 'BREACHED_PASSWORD' });
+          return true;
+        }
+      }
+      if (route.captcha) {
+        const verdict = await verifyTurnstile(input.captchaToken, { remoteip: req.ip });
+        if (!verdict.ok) {
+          const code = verdict.code === 'missing-input-response' ? 'CAPTCHA_REQUIRED' : 'CAPTCHA_REJECTED';
+          res.locals.errorCode = code;
+          recordError(code);
+          res.status(400).json({ error: code });
+          return true;
+        }
+      }
+      return false;
+    };
+
+    const mapRouteResponse = async (status, body, input, req, res) => {
+      if (status !== 200 && body && body.error) {
+        res.locals.errorCode = body.error;
+        recordError(body.error);
+        if (AUTH_FAILURE_CODES.has(body.error)) recordAuthFailure(body.error);
+      }
+      if (status >= 500) {
+        const record = {
+          ts: new Date().toISOString(),
+          level: 'error',
+          event: 'gateway_error',
+          id: req.requestId || null,
+          code: body && body.error,
+          status,
+          method: req.method,
+          route: route.path,
+          action: route.action,
+        };
+        if (logger) {
+          logger(record);
+        } else {
+          process.stderr.write(JSON.stringify(record) + '\n');
+        }
+      }
+      const mapper = status === 200 ? RESPONSE_MAPPERS[route.action] : null;
+      if (mapper) {
+        return res.status(status).json(await mapper(body, input, { mailer, req }));
+      }
+      return res.status(status).json(body);
+    };
+
     const handler = async (req, res, next) => {
       try {
-        const input = { ...req.params, ...req.query, ...req.body };
-        if (req.headers['idempotency-key']) {
-          input.idempotencyKey = req.headers['idempotency-key'];
-        }
-        // Identity fields (actor, or the transfer sender) trust the token only.
-        if (route.tokenIdentity) {
-          input[route.tokenIdentity] = (req.user && req.user.email) || '';
-        }
-        // Session ids ("sid") are the token's refresh-session family; used to
-        // mark the caller's own session in the list.
-        if (route.tokenSid) {
-          input.sid = (req.user && req.user.sid) || '';
-        }
-        // Server-side derivations (derivations.js): raw client input (NIK,
-        // screening name, risk IP, phone) is validated and converted into the
-        // derived values COBOL stores. Derived keys overwrite any client-sent
-        // values of the same name, so verdicts/hashes can never be spoofed.
-        const derived = await applyDerivation(route.action, input, { req });
-        Object.assign(input, derived);
+        const input = await buildRouteInput(req);
         const params = buildParams(route, input);
         assertLineLength(route.action, params);
-        // Breached-password gate (PR-093): routes carrying a *new* password
-        // opt in via `passwordField`. Breached -> 400, API down -> fail open
-        // with a metric (rate limits still apply).
-        const pwField = route.passwordField;
-        const candidate = pwField ? input[pwField] : '';
-        if (typeof candidate === STRING_TYPE && candidate) {
-          const allowed = await assertPasswordAllowed(candidate);
-          if (!allowed) {
-            res.locals.errorCode = 'BREACHED_PASSWORD';
-            recordError('BREACHED_PASSWORD');
-            return res.status(400).json({ error: 'BREACHED_PASSWORD' });
-          }
-        }
-        // Bot gate (PR-094): routes opt in via `captcha: true`; the token
-        // arrives as `captchaToken` and never reaches COBOL. Missing/invalid
-        // rejects; provider down fails open (rate limiters still apply).
-        if (route.captcha) {
-          const verdict = await verifyTurnstile(input.captchaToken, { remoteip: req.ip });
-          if (!verdict.ok) {
-            const code = verdict.code === 'missing-input-response' ? 'CAPTCHA_REQUIRED' : 'CAPTCHA_REJECTED';
-            res.locals.errorCode = code;
-            recordError(code);
-            return res.status(400).json({ error: code });
-          }
-        }
+        if (await runRouteGuards(input, req, res)) return;
         const t0 = Date.now();
         const raw = await invoke(route.action, params);
         res.set('X-Cobol-Ms', String(Date.now() - t0));
         const { status, body } = toHttp(raw);
-        if (status !== 200 && body && body.error) {
-          res.locals.errorCode = body.error;
-          recordError(body.error);
-          if (AUTH_FAILURE_CODES.has(body.error)) recordAuthFailure(body.error);
-        }
-        // Fail-open forensics for COBOL-mapped 5xx: these never throw, so the
-        // error-handler logger never sees them. Log action + code only (no
-        // PII: neither the concrete URL nor the body fields are recorded).
-        if (status >= 500) {
-          const record = {
-            ts: new Date().toISOString(),
-            level: 'error',
-            event: 'gateway_error',
-            // Joinable to the http_request line (ADR-0005).
-            id: req.requestId || null,
-            code: body && body.error,
-            status,
-            method: req.method,
-            route: route.path,
-            action: route.action,
-          };
-          if (logger) {
-            logger(record);
-          } else {
-            process.stderr.write(JSON.stringify(record) + '\n');
-          }
-        }
-        const mapper = status === 200 ? RESPONSE_MAPPERS[route.action] : null;
-        if (mapper) {
-          return res.status(status).json(await mapper(body, input, { mailer, req }));
-        }
-        return res.status(status).json(body);
+        return await mapRouteResponse(status, body, input, req, res);
       } catch (err) {
         return next(err);
       }
