@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. phone_otp_core.
+        PROGRAM-ID. phone_otp_core IS INITIAL.
       *> Phone OTP binding + challenges (PR-082b/085): link tokens (10-min
       *> TTL), hashed-code challenges with purpose/status machine, resend
       *> with rate limit, 5-attempt burn. Owner-only throughout. Codes are
@@ -70,6 +71,7 @@
             LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -162,7 +164,7 @@
             CALL "generate_random_code" USING BY REFERENCE WS-CODE2 END-CALL
             MOVE SPACES TO WS-TOKEN
             STRING WS-CODE(1:6) WS-CODE2(1:6) DELIMITED BY SIZE INTO WS-TOKEN
-            END-STRING
+            ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
             MOVE "INSERT INTO phone_links (user_id, phone_hash, linked_at, link_token, token_expires_at, verified_at) VALUES (?, ?, NOW(), ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE), NULL) ON DUPLICATE KEY UPDATE phone_hash = VALUES(phone_hash), link_token = VALUES(link_token), token_expires_at = VALUES(token_expires_at), verified_at = NULL, revoked_at = NULL" TO WS-PREP-SQL
@@ -176,7 +178,7 @@
                 MOVE SPACES TO WS-SUCCESS-MSG
                 STRING "SUCCESS|LINK_BEGIN|" DELIMITED BY SIZE
                        FUNCTION TRIM(WS-TOKEN) DELIMITED BY SIZE
-                       INTO WS-SUCCESS-MSG END-STRING
+                       INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
@@ -301,7 +303,7 @@
                    FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
                    "|" DELIMITED BY SIZE
                    WS-CODE(1:6) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
 
         ACTION-RESEND.
@@ -362,7 +364,7 @@
                    FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
                    "|" DELIMITED BY SIZE
                    WS-CODE(1:6) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
 
         ACTION-VERIFY.
@@ -491,5 +493,6 @@
                    "|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-HASH-OUT) DELIMITED BY SIZE
                    INTO LS-OUTPUT-BUFFER
-            END-STRING.
+            ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
+       END PROGRAM phone_otp_core.

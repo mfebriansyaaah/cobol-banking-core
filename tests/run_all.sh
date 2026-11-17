@@ -527,6 +527,8 @@ run_fast() {
     echo "=== COBOL TABLE TESTS ==="
     node scripts/check_case_actions.mjs "$ROOT"
     report_run "table" tests/cobol/table_runner.sh
+    echo "=== COBOL AMOUNT MATRIX (PARSE-AMOUNT unit vectors) ==="
+    report_run "amount-matrix" tests/cobol/amount_matrix.sh
     run_smoke
 }
 

@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. risk_core.
+        PROGRAM-ID. risk_core IS INITIAL.
       *> Device/geo risk signals (PR-092): login/new-device notations for
       *> step-up decisions. Signals only — never auto-blocks. Raw IPs never
       *> reach this module (middleware stores SHA-256 ip_hash); private or
@@ -68,6 +69,7 @@
             LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -154,7 +156,7 @@
                        "," DELIMITED BY SIZE
                        FUNCTION TRIM(WS-FLAG-2) DELIMITED BY SIZE
                        INTO WS-FLAGS-TMP
-                END-STRING
+                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-FLAGS-TMP TO WS-FLAGS
             END-IF.
             IF WS-FLAG-3 NOT = SPACES
@@ -163,7 +165,7 @@
                        "," DELIMITED BY SIZE
                        FUNCTION TRIM(WS-FLAG-3) DELIMITED BY SIZE
                        INTO WS-FLAGS-TMP
-                END-STRING
+                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-FLAGS-TMP TO WS-FLAGS
             END-IF.
             SET STEP-OK TO TRUE
@@ -214,5 +216,6 @@
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|RISK_STATUS|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
+       END PROGRAM risk_core.

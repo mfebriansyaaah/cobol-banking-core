@@ -1,11 +1,10 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. statement_core.
+       PROGRAM-ID. statement_core IS INITIAL.
       *> Statement archive and delivery (Sprint 1 slice 5).
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -95,6 +94,7 @@
 
        MAIN-LOGIC.
 
+           MOVE SPACES TO LS-OUTPUT-BUFFER
            MOVE SPACES TO WS-ERR
            PERFORM VALIDATE-ALL
            IF WS-BAD > 0
@@ -282,7 +282,7 @@
                STRING "SUCCESS|STMT_RUN_STARTED|" DELIMITED BY SIZE
                       WS-RUN-ID DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -312,6 +312,7 @@
                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           MOVE WS-P1-TRIMMED TO WS-RUN-ID
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
            CALL "SQL_BEGIN" END-CALL
@@ -396,7 +397,7 @@
                       "WHERE sa.run_id = ? AND l.created_at >= ? " DELIMITED BY SIZE
                       "AND l.created_at < DATE_ADD(?, INTERVAL 1 DAY)" DELIMITED BY SIZE
                       INTO WS-PREP-SQL
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                MOVE WS-RUN-ID TO WS-BIND-1
                MOVE WS-RUN-FROM TO WS-BIND-2
                MOVE WS-RUN-TO TO WS-BIND-3
@@ -430,7 +431,7 @@
                STRING "SUCCESS|STMT_RUN_COMPLETED|" DELIMITED BY SIZE
                       WS-RUN-ID DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -476,7 +477,7 @@
                   WS-RUN-FAILED DELIMITED BY SPACE ":" DELIMITED BY SIZE
                   WS-RUN-ERROR DELIMITED BY SPACE
                   INTO LS-OUTPUT-BUFFER WITH POINTER WS-OUT-POS
-           END-STRING
+           ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            IF WS-P2-TRIMMED = "1"
                MOVE "SELECT CONCAT(account_email, ':', currency_code, ':', opening_balance, ':', closing_balance, ':', total_debit, ':', total_credit, ':', row_count) FROM statement_archive WHERE run_id = ? ORDER BY account_email" TO WS-PREP-SQL
                MOVE WS-P1-TRIMMED TO WS-BIND-1
@@ -494,7 +495,7 @@
                STRING "|" DELIMITED BY SIZE
                       WS-PART(1:WS-PART-LEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER WITH POINTER WS-OUT-POS
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -536,7 +537,7 @@
                STRING "SUCCESS|STMT_RUNS|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -547,7 +548,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -592,7 +593,7 @@
                   WS-ARCH-CREDIT DELIMITED BY SPACE ":" DELIMITED BY SIZE
                   WS-ARCH-ROWS DELIMITED BY SPACE
                   INTO LS-OUTPUT-BUFFER WITH POINTER WS-OUT-POS
-           END-STRING
+           ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            IF WS-P3-TRIMMED = "1"
                MOVE "SELECT CONCAT(line_no, ':', posting_date, ':', txn_ref, ':', source, ':', debit_amount, ':', credit_amount, ':', balance_after, ':', COALESCE(description, '')) FROM statement_archive_line WHERE archive_id = ? ORDER BY line_no" TO WS-PREP-SQL
                MOVE WS-ARCH-ID TO WS-BIND-1
@@ -610,7 +611,7 @@
                STRING "|" DELIMITED BY SIZE
                       WS-PART(1:WS-PART-LEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER WITH POINTER WS-OUT-POS
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -660,7 +661,7 @@
                   WS-P3-TRIMMED DELIMITED BY SPACE "|" DELIMITED BY SIZE
                   WS-PART(1:WS-PART-LEN) DELIMITED BY SIZE
                   INTO LS-OUTPUT-BUFFER
-           END-STRING.
+           ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
            EXIT PARAGRAPH.
 
        ACTION-RUN-FAIL.
@@ -708,3 +709,4 @@
            MOVE "SUCCESS|STMT_RUN_FAILED" TO WS-SUCCESS-MSG
            PERFORM TXN-FINISH
            EXIT PARAGRAPH.
+       END PROGRAM statement_core.

@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. fx_rate_core.
+        PROGRAM-ID. fx_rate_core IS INITIAL.
       *> FX reference snapshots (PR-091, Frankfurter): daily mid-rate
       *> reference only, never a settlement basis. STORE is admin/cron-only;
       *> GET serves the latest row per pair with FRESH/STALE age marking
@@ -60,6 +61,7 @@
             LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -197,5 +199,6 @@
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|FX_RATE|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
+       END PROGRAM fx_rate_core.

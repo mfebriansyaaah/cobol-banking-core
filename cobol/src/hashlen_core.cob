@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. hashlen_core.
+        PROGRAM-ID. hashlen_core IS INITIAL.
 
         *> Binary-level split proof (ADR 0083): compute the length of a
         *> NUL-terminated hash buffer. Previously a paragraph in auth_core;
@@ -15,7 +16,7 @@
             MOVE 1 TO LS-HLEN
             PERFORM VARYING LS-HLEN FROM 1 BY 1 UNTIL LS-HLEN > 256
                 IF LS-HASH(LS-HLEN:1) = LOW-VALUE
-                    COMPUTE LS-HLEN = LS-HLEN - 1 END-COMPUTE
+                    COMPUTE LS-HLEN = LS-HLEN - 1 ON SIZE ERROR MOVE 1 TO LS-HLEN END-COMPUTE
                     EXIT PERFORM
                 END-IF
             END-PERFORM
@@ -23,3 +24,4 @@
                 MOVE 1 TO LS-HLEN
             END-IF
             GOBACK.
+       END PROGRAM hashlen_core.

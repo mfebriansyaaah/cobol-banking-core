@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
         IDENTIFICATION DIVISION.
-        PROGRAM-ID. corp_core.
+        PROGRAM-ID. corp_core IS INITIAL.
       *> Corporate registry cache (PR-097, GLEIF): LEI lookups cached for
       *> onboarding triage. Never a substitute for AHU/akta, never proof of
       *> Indonesian registration. CORP_RESOLVE upserts by LEI (admin/cron);
@@ -60,6 +61,7 @@
             LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
         MAIN-LOGIC.
+            MOVE SPACES TO LS-OUTPUT-BUFFER
             PERFORM VALIDATE-ALL
             IF WS-BAD > 0
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -174,5 +176,6 @@
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|CORP_STATUS|" DELIMITED BY SIZE
                    FUNCTION TRIM(WS-RESULT) DELIMITED BY SIZE
-                   INTO LS-OUTPUT-BUFFER END-STRING.
+                   INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
+       END PROGRAM corp_core.

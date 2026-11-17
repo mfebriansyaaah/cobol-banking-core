@@ -96,6 +96,7 @@ codes:
   NO_TRANSACTION: { status: 500, origin: gateway }
   OPEN_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed deposit-open race loser" }
   OUTSTANDING_BALANCE: { status: 409, origin: cobol }
+  OUTPUT_TOO_LARGE: { status: 500, origin: cobol, note: "COBOL STRING overflow guard tripped; response not emitted" }
   OVERPAID: { status: 409, origin: cobol, note: "repayment past outstanding balance" }
   PARENT_NOT_FOUND: { status: 404, origin: cobol, note: "GL parent account missing" }
   PASSWORD_BLOCKED: { status: 400, origin: cobol }

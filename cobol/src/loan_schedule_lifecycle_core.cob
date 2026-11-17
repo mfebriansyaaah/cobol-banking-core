@@ -1,5 +1,6 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. loan_schedule_lifecycle_core.
+       PROGRAM-ID. loan_schedule_lifecycle_core IS INITIAL.
       *> Real SQL-backed module for loan_schedule domain.
 
        ENVIRONMENT DIVISION.
@@ -54,6 +55,7 @@
            LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
 
        MAIN-LOGIC.
+           MOVE SPACES TO LS-OUTPUT-BUFFER
            MOVE SPACES TO WS-RESULT
            MOVE LS-PARAM1 TO WS-P1
            MOVE LS-PARAM2 TO WS-P2
@@ -307,3 +309,4 @@
            PERFORM AUDIT.
            EXIT PARAGRAPH.
 
+       END PROGRAM loan_schedule_lifecycle_core.

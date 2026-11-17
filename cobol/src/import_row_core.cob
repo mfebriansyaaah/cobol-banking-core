@@ -1,12 +1,11 @@
+>>SOURCE FORMAT IS FREE
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. import_row_core.
+       PROGRAM-ID. import_row_core IS INITIAL.
       *> Import/export foundation (Phase 1, Sprint 1 slice 3).
       *> Batch staging, row validation, correction, posting, and export.
 
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-       SPECIAL-NAMES.
-           DECIMAL-POINT IS COMMA.
 
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -24,8 +23,8 @@
        01  WS-DENIED-ACTOR         PIC X(100) VALUE SPACES.
        01  WS-DENIED-TARGET        PIC X(40) VALUE SPACES.
        01  WS-ROW-INDEX            PIC 9(9) VALUE 0.
-       01  WS-ROW-INDEX-ED         PIC Z(8)9 VALUE 0.
-       01  WS-VALID-COUNT-ED       PIC Z(8)9 VALUE 0.
+       01  WS-ROW-INDEX-ED         PIC Z(8)9 VALUE ZERO.
+       01  WS-VALID-COUNT-ED       PIC Z(8)9 VALUE ZERO.
        01  WS-CHUNK-SOURCE         PIC X(100) VALUE SPACES.
        01  WS-CHUNK                PIC X(100) VALUE SPACES.
        01  WS-CHUNK-PTR            PIC 9(4) VALUE 1.
@@ -55,6 +54,7 @@
 
        MAIN-LOGIC.
 
+           MOVE SPACES TO LS-OUTPUT-BUFFER
            MOVE SPACES TO WS-ERR
            PERFORM VALIDATE-ALL
            IF WS-BAD > 0
@@ -376,7 +376,7 @@
                STRING "SUCCESS|IMP_ERRORS|" DELIMITED BY SIZE
                       WS-TOTAL DELIMITED BY SPACE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                IF WS-RESULT(1:5) = "ERROR"
                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -387,7 +387,7 @@
                       WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE
                       WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
 
@@ -460,7 +460,7 @@
                EXIT PARAGRAPH
            END-IF.
            MOVE WS-RESULT(1:10) TO WS-ROW-NO
-           COMPUTE WS-ROW-INDEX = FUNCTION NUMVAL(WS-ROW-NO) END-COMPUTE
+           COMPUTE WS-ROW-INDEX = FUNCTION NUMVAL(WS-ROW-NO) ON SIZE ERROR CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER GOBACK END-COMPUTE
            MOVE 0 TO WS-STAGED-COUNT
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
@@ -501,7 +501,7 @@
                STRING "SUCCESS|IMP_BULK_STAGED|" DELIMITED BY SIZE
                       FUNCTION TRIM(WS-VALID-COUNT-ED) DELIMITED BY SIZE
                       INTO LS-OUTPUT-BUFFER
-               END-STRING
+               ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
                IF WS-ERR = "ERROR|NO_ROWS"
@@ -657,3 +657,4 @@
            MOVE "SUCCESS|IMP_ROW_UNSKIPPED" TO WS-SUCCESS-MSG
            PERFORM TXN-FINISH
            EXIT PARAGRAPH.
+       END PROGRAM import_row_core.
