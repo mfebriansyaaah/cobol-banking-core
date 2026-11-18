@@ -18,6 +18,8 @@ db_reset_ntf_template_config
 # Create a cost center.
 create_out="$(run_cobol "NTP_CREATE|NTP-W3-1|TemplateA|EMAIL|||admin@test.com")"
 assert_match "NTP_CREATE ok" "$create_out" "SUCCESS\|NTP_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "NTP_CREATE|NTP-P10-1|TemplateA|EMAIL|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "NTP_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM ntf_template_config WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT sent_count FROM ntf_tem
 
 # Close.
 assert_match "NTP_DELETE ok" "$(run_cobol "NTP_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|NTP_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "NTP_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM ntf_template_config WHERE id=${id};")" "^INACTIVE$"
 
 # Summary and audit.

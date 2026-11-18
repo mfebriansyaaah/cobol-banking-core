@@ -18,6 +18,8 @@ db_reset_account
 # Create a cost center.
 create_out="$(run_cobol "ACC_CREATE|ACC-W1-1|John Doe|SAVINGS|||admin@test.com")"
 assert_match "ACC_CREATE ok" "$create_out" "SUCCESS\|ACC_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "ACC_CREATE|ACC-P10-1|John Doe|SAVINGS|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "ACC_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM account WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT hold_amount FROM accoun
 
 # Close.
 assert_match "ACC_DELETE ok" "$(run_cobol "ACC_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|ACC_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "ACC_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM account WHERE id=${id};")" "^CLOSED$"
 
 # Summary and audit.

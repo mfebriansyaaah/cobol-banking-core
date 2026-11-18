@@ -18,6 +18,8 @@ db_reset_payroll_processing
 # Create a cost center.
 create_out="$(run_cobol "PRL_CREATE|PRL-W4-1|BatchA|MONTHLY|||admin@test.com")"
 assert_match "PRL_CREATE ok" "$create_out" "SUCCESS\|PRL_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "PRL_CREATE|PRL-P10-1|BatchA|MONTHLY|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "PRL_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM payroll_processing WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT processed_amount FROM p
 
 # Close.
 assert_match "PRL_DELETE ok" "$(run_cobol "PRL_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|PRL_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "PRL_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM payroll_processing WHERE id=${id};")" "^COMPLETED$"
 
 # Summary and audit.

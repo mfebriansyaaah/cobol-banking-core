@@ -18,6 +18,8 @@ db_reset_fixed_asset
 # Create a cost center.
 create_out="$(run_cobol "FAS_CREATE|FAS-D15-1|Laptop|IT|||admin@test.com")"
 assert_match "FAS_CREATE ok" "$create_out" "SUCCESS\|FAS_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "FAS_CREATE|FAS-P10-1|Laptop|IT|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "FAS_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM fixed_asset WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "depreciation persisted" "$(db_query "SELECT accumulated_depreciati
 
 # Close.
 assert_match "FAS_DELETE ok" "$(run_cobol "FAS_DELETE|${id}|Disposed||||admin@test.com")" "SUCCESS\|FAS_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "FAS_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "disposed persisted" "$(db_query "SELECT status FROM fixed_asset WHERE id=${id};")" "^DISPOSED$"
 
 # Summary and audit.

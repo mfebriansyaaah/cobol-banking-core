@@ -18,6 +18,8 @@ db_reset_letter_of_credit
 # Create a cost center.
 create_out="$(run_cobol "LOC_CREATE|LOC-W4-1|ApplicantA|STANDBY|||admin@test.com")"
 assert_match "LOC_CREATE ok" "$create_out" "SUCCESS\|LOC_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "LOC_CREATE|LOC-P10-1|ApplicantA|STANDBY|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "LOC_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM letter_of_credit WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT drawn_amount FROM lette
 
 # Close.
 assert_match "LOC_DELETE ok" "$(run_cobol "LOC_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|LOC_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "LOC_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM letter_of_credit WHERE id=${id};")" "^CLOSED$"
 
 # Summary and audit.

@@ -23,6 +23,8 @@ assert_match "status open" "$(db_query "SELECT status FROM cost_center WHERE id=
 
 # Duplicate ref rejected.
 assert_match "duplicate ref" "$(run_cobol "CSC_CREATE|CSC-D14-1|Other|CAPEX|||admin@test.com")" "ERROR\|DUPLICATE"
+assert_match "create non-admin refused" "$(run_cobol "CSC_CREATE|CSC-P10-1|Engineering|OPEX|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "CSC_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 
 # Read paths.
 assert_match "CSC_GET ok" "$(run_cobol "CSC_GET|${id}|||||admin@test.com")" "SUCCESS\|CSC_GET\|${id}\|CSC-D14-1"
@@ -40,6 +42,7 @@ assert_match "budget unchanged after refused allocate" "$(db_query "SELECT budge
 # Close.
 assert_match "CSC_CLOSE ok" "$(run_cobol "CSC_CLOSE|${id}|Budget used||||admin@test.com")" "SUCCESS\|CSC_CLOSE"
 assert_match "closed persisted" "$(db_query "SELECT status FROM cost_center WHERE id=${id};")" "^CLOSED$"
+assert_match "close non-admin refused" "$(run_cobol "CSC_CLOSE|${id}|x||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Summary and audit.
 assert_match "CSC_SUMMARY ok" "$(run_cobol "CSC_SUMMARY||||||admin@test.com")" "SUCCESS\|CSC_SUMMARY"
