@@ -41,24 +41,39 @@ assert_match "status open" "$(db_query "SELECT status FROM loan WHERE id=${id};"
 
 # Duplicate ref rejected.
 assert_match "duplicate ref" "$(run_cobol "LOAN_CREATE|LSC-W2-1|Other|CAPEX|||admin@test.com")" "ERROR\|DUPLICATE"
+assert_match "create missing ref" "$(run_cobol "LOAN_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "create non-admin refused" "$(run_cobol "LOAN_CREATE|LSC-W2-9|Jane|CAPEX|||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Read paths.
 assert_match "LOAN_GET ok" "$(run_cobol "LOAN_GET|${id}|||||admin@test.com")" "SUCCESS\|LOAN_GET\|${id}\|LSC-W2-1"
+assert_match "LOAN_GET unknown" "$(run_cobol "LOAN_GET|999999|||||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "LOAN_GET missing id" "$(run_cobol "LOAN_GET||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 assert_match "LOAN_LIST ok" "$(run_cobol "LOAN_LIST|||50|0||admin@test.com")" "LSC-W2-1"
 
 # Allocate.
 assert_match "LOAN_CALC ok" "$(run_cobol "LOAN_CALC|${id}|||||admin@test.com")" "SUCCESS\|LOAN_CALC\|1"
 assert_match "used credit persisted" "$(db_query "SELECT disbursed_amount FROM loan WHERE id=${id};")" "^1.0000$"
 
+# Update.
+assert_match "LOAN_UPDATE ok" "$(run_cobol "LOAN_UPDATE|${id}|Jane Doe|HOME|||admin@test.com")" "SUCCESS\|LOAN_UPDATE"
+assert_match "update persisted" "$(db_query "SELECT customer_name FROM loan WHERE id=${id};")" "^Jane Doe$"
+assert_match "update unknown id" "$(run_cobol "LOAN_UPDATE|999999|Jane|CAPEX|||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "update missing id" "$(run_cobol "LOAN_UPDATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+
 # Close.
 assert_match "LOAN_DELETE ok" "$(run_cobol "LOAN_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|LOAN_DELETE"
 assert_match "closed persisted" "$(db_query "SELECT status FROM loan WHERE id=${id};")" "^CLOSED$"
+assert_match "double close refused" "$(run_cobol "LOAN_DELETE|${id}|Closed||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "delete missing id" "$(run_cobol "LOAN_DELETE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 
 # Summary and audit.
 assert_match "LOAN_SUMMARY ok" "$(run_cobol "LOAN_SUMMARY||||||admin@test.com")" "SUCCESS\|LOAN_SUMMARY"
 assert_match "LOAN_AUDIT ok" "$(run_cobol "LOAN_AUDIT|50|0||||admin@test.com")" "SUCCESS\|LOAN_AUDIT"
 assert_match "LOAN_VALIDATE ok" "$(run_cobol "LOAN_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|LOAN_VALID"
+assert_match "validate bad amount" "$(run_cobol "LOAN_VALIDATE|0|USD||||admin@test.com")" "ERROR\|INVALID_AMOUNT"
+assert_match "validate bad currency" "$(run_cobol "LOAN_VALIDATE|100.00|US||||admin@test.com")" "ERROR\|INVALID_CURRENCY"
 assert_match "non-admin refused" "$(run_cobol "LOAN_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "update non-admin refused" "$(run_cobol "LOAN_UPDATE|${id}|Jane|CAPEX|||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Loan lifecycle (APPLY -> APPROVE -> DISBURSE -> REPAY, plus REJECT path).
 apply_out="$(run_cobol "LOAN_APPLY|borrower@test.com|10000.00|USD|12|5.5|admin@test.com")"
@@ -76,6 +91,8 @@ app2_id="$(printf '%s' "$apply2_out" | awk -F'|' '{print $3}')"
 assert_match "LOAN_REJECT ok" "$(run_cobol "LOAN_REJECT|${app2_id}|not-eligible||||admin@test.com")" "SUCCESS\|LOAN_REJECT"
 assert_match "application rejected" "$(db_query "SELECT status FROM loan_application WHERE id=${app2_id};")" "^REJECTED$"
 assert_match "approve missing id" "$(run_cobol "LOAN_APPROVE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "reject missing id" "$(run_cobol "LOAN_REJECT||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "apply missing input" "$(run_cobol "LOAN_APPLY||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 assert_match "non-admin apply refused" "$(run_cobol "LOAN_APPLY|borrower@test.com|10000.00|USD|12|5.5|sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Leave no bank-owned rows behind: the control-slot unique key is global,
