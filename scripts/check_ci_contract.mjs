@@ -43,7 +43,7 @@ for (let i = 0; i < args.length; i += 1) {
 }
 root = path.resolve(root);
 
-const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml'];
+const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml', 'mutation.yml'];
 const COMPOSITE_ACTIONS = ['setup-cobol/action.yml', 'db-bootstrap/action.yml', 'upload-diagnostics/action.yml'];
 const REQUIRED_JOBS = ['lint', 'build', 'test', 'db-shards', 'db-aggregate', 'coverage', 'coverage-pr'];
 
@@ -290,6 +290,80 @@ for (const [file, doc] of Object.entries(compositeDocs)) {
     const ref = at >= 0 ? uses.slice(at + 1) : '';
     if (!SHA_RE.test(ref)) {
       failed.push(`${path.relative(root, file)} step ${index + 1} uses '${uses}' must be pinned to a 40-hex SHA`);
+    }
+  }
+}
+
+// Every upload-artifact step must declare an explicit retention-days (> 0)
+// so artifacts do not fall back to the 90-day default.
+for (const wf of WORKFLOWS) {
+  const wjobs = (byName[wf] && byName[wf].jobs) || {};
+  for (const [id, spec] of Object.entries(wjobs)) {
+    for (const step of (spec && spec.steps) || []) {
+      if (!step || typeof step !== 'object' || !step.uses) continue;
+      if (!String(step.uses).startsWith('actions/upload-artifact@')) continue;
+      const retention = step.with && step.with['retention-days'];
+      if (typeof retention !== 'number' || !Number.isFinite(retention) || retention <= 0) {
+        failed.push(
+          `${wf} job '${id}' upload-artifact step must set retention-days > 0 (got: ${JSON.stringify(retention)})`,
+        );
+      }
+    }
+  }
+}
+
+// db-aggregate must gate fan-in on upstream results: a Check upstream
+// results step (id: upstream) before the report download, and every report
+// consumer gated on steps.upstream.outputs.ok.
+(function checkUpstreamGuard() {
+  const aggJob = jobs['db-aggregate'];
+  if (!aggJob) return;
+  const steps = aggJob.steps || [];
+  const upstreamIndex = steps.findIndex((s) => s && s.id === 'upstream');
+  if (upstreamIndex < 0) {
+    failed.push('ci.yml db-aggregate lacks Check upstream results step (id: upstream)');
+    return;
+  }
+  const upstream = steps[upstreamIndex];
+  if (upstream.name !== 'Check upstream results') {
+    failed.push(
+      `ci.yml db-aggregate upstream step must be named 'Check upstream results' (got: ${JSON.stringify(upstream.name)})`,
+    );
+  }
+  const downloadIndex = steps.findIndex((s) => s && s.name === 'Download all reports');
+  if (downloadIndex >= 0 && upstreamIndex > downloadIndex) {
+    failed.push('ci.yml db-aggregate upstream guard must run before Download all reports');
+  }
+  for (const name of [
+    'Download all reports',
+    'Merge and verify shard reports',
+    'Assertion count gate',
+    'Write test summary',
+    'Upload merged reports',
+  ]) {
+    const step = steps.find((s) => s && s.name === name);
+    if (!step) continue;
+    const cond = String(step.if || '');
+    if (!cond.includes("steps.upstream.outputs.ok == 'true'")) {
+      failed.push(`ci.yml db-aggregate step '${name}' must require steps.upstream.outputs.ok`);
+    }
+  }
+})();
+
+// Runners and service images must be pinned: no ubuntu-latest, no :latest
+// image tags. Renovate-style floating tags make runs non-reproducible.
+for (const wf of WORKFLOWS) {
+  const wjobs = (byName[wf] && byName[wf].jobs) || {};
+  for (const [id, spec] of Object.entries(wjobs)) {
+    if (spec && spec['runs-on'] === 'ubuntu-latest') {
+      failed.push(`${wf} job '${id}' must use runs-on: ubuntu-24.04 (ubuntu-latest floats)`);
+    }
+    const services = (spec && spec.services) || {};
+    for (const [svc, svcSpec] of Object.entries(services)) {
+      const image = svcSpec && svcSpec.image;
+      if (typeof image === 'string' && /:latest$/.test(image)) {
+        failed.push(`${wf} job '${id}' service '${svc}' image must not use :latest (got: ${image})`);
+      }
     }
   }
 }

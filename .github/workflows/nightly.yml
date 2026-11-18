@@ -20,7 +20,7 @@ permissions:
 jobs:
   full-twice:
     name: full twice + drills
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 180
 
     services:
@@ -130,6 +130,7 @@ jobs:
             artifacts/
             nightly/
             coverage/
+          retention-days: 14
           if-no-files-found: warn
 
       - name: Upload failure diagnostics
