@@ -23,7 +23,7 @@
 FROM debian:bookworm-slim AS cobol-builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      build-essential curl ca-certificates libgmp-dev libmariadb-dev \
+      build-essential curl ca-certificates libgmp-dev libmariadb-dev libmariadb-dev-compat \
  && rm -rf /var/lib/apt/lists/*
 
 # Pinned GnuCOBOL 3.2 (checksum enforced inside the script).
