@@ -83,7 +83,7 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 ## Test evidence (pre-Phase-1 snapshot; current Phase 1 checks below)
 
 - Phase 1 (this HEAD): `npm run lint` 0, `format:check` clean, `test:scripts`
-  507/507, gateway unit 149/149, `tests/run_all.sh fast` GREEN (235 table
+  509/509, gateway unit 149/149, `tests/run_all.sh fast` GREEN (235 table
   cases + 13 amount matrix), docs/module-reference gates clean, both train and
   source exports gitleaks-clean and `sha256sum -c` verified.
 - Phase 2: JS complexity 15 ratchet, COBOL paragraph cap 220, recommended

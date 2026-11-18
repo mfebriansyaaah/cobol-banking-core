@@ -401,7 +401,7 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT = "ERROR|NO_DATA"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT = "ERROR|NO_DATA"
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
@@ -819,7 +819,7 @@
             MOVE "UPDATE chargeback_case SET status = 'REPRESENTED', version = version + 1 WHERE case_id = ? AND status = 'EVIDENCE_REQUIRED'" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
@@ -842,7 +842,7 @@
                 IF LS-OUTPUT-BUFFER = SPACES
                     MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 ELSE
-                    IF WS-RESULT = "0 rows affected"
+                    IF WS-RESULT = "SUCCESS|AFFECTED_0"
                         MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                     END-IF
                 END-IF

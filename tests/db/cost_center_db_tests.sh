@@ -32,6 +32,11 @@ assert_match "CSC_LIST ok" "$(run_cobol "CSC_LIST||OPEX|50|0||admin@test.com")" 
 assert_match "CSC_ALLO ok" "$(run_cobol "CSC_ALLO|${id}|||||admin@test.com")" "SUCCESS\|CSC_ALLO\|1"
 assert_match "budget persisted" "$(db_query "SELECT budget_amount FROM cost_center WHERE id=${id};")" "^1.0000$"
 
+# Stale-state allocate (P0-03): already ACTIVE, not OPEN — zero rows affected
+# must fail closed instead of reporting a false SUCCESS.
+assert_match "double allocate refused" "$(run_cobol "CSC_ALLO|${id}|||||admin@test.com")" "ERROR\|DB_ERROR"
+assert_match "budget unchanged after refused allocate" "$(db_query "SELECT budget_amount FROM cost_center WHERE id=${id};")" "^1.0000$"
+
 # Close.
 assert_match "CSC_CLOSE ok" "$(run_cobol "CSC_CLOSE|${id}|Budget used||||admin@test.com")" "SUCCESS\|CSC_CLOSE"
 assert_match "closed persisted" "$(db_query "SELECT status FROM cost_center WHERE id=${id};")" "^CLOSED$"

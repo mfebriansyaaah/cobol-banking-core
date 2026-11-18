@@ -398,7 +398,7 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT = "ERROR|NO_DATA"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT = "ERROR|NO_DATA"
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
@@ -918,7 +918,7 @@
                 END-CALL
             END-IF
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT(1:5) = "ERROR"
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -963,7 +963,7 @@
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
             PERFORM SQL-EXEC-2
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT(1:5) = "ERROR"
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH

@@ -405,7 +405,7 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT = "ERROR|NO_DATA"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT = "ERROR|NO_DATA"
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
@@ -668,7 +668,7 @@
                 MOVE "UPDATE payroll_processing SET status = 'VALIDATED', version = version + 1 WHERE id = ? AND status IN ('DRAFT','OPEN')" TO WS-PREP-SQL
                 MOVE WS-P1-TRIMMED TO WS-BIND-1
                 PERFORM SQL-EXEC-1
-                IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
@@ -717,7 +717,7 @@
             MOVE WS-P6-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
             PERFORM SQL-EXEC-2
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT(1:5) = "ERROR"
                 CALL "SQL_ROLLBACK" END-CALL
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
@@ -843,7 +843,7 @@
                 MOVE WS-P1-TRIMMED TO WS-BIND-3
                 MOVE WS-P1-TRIMMED TO WS-BIND-4
                 PERFORM SQL-EXEC-4
-                IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
@@ -929,7 +929,7 @@
                 MOVE "UPDATE payroll_processing SET status = 'PAID', paid_at = NOW(), version = version + 1 WHERE id = ? AND status = 'PROCESSING'" TO WS-PREP-SQL
                 MOVE WS-P1-TRIMMED TO WS-BIND-1
                 PERFORM SQL-EXEC-1
-                IF WS-RESULT = "0 rows affected" OR WS-RESULT(1:5) = "ERROR"
+                IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
