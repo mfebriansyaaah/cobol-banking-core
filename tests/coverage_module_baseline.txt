@@ -24,6 +24,17 @@
 # correctly: OUTPUT_TOO_LARGE on genuinely oversized output, INVALID_AMOUNT on
 # oversize NUMVAL). Re-pinned from reviewed CI --cobol-only run 44019761596
 # (total 47.65% >= 30% floor; copybooks 83.2% >= 80.84%; gateway 98.95/84.09).
+#
+# 2026-11-18 (fix/testing-p0-01): TXN-FINISH/TXN-FINISH-RESULT now check
+# SUCCESS|COMMIT via GET_RESULT and fail closed with ERROR|DB_ERROR
+# (common_txn.cpy + test-only SQL_BRIDGE_TEST_FAIL_COMMIT seam in
+# sql_bridge.c). Like C-06/numeric-hardening, the added GET_RESULT + IF +
+# GOBACK lines shift generated-C attribution: mixed moves (e.g. card_core
+# +2.44, treasury_liquidity_core -2.33) with zero behavior change except the
+# intended fail-closed commit path (proven by tests/db/commit_failure_db_tests.sh
+# 4/4; copybooks union 83.39% >= 80.84% shows the shared lines are covered).
+# Re-pinned from reviewed CI coverage-pr run 44239713062
+# (total 47.31% >= 30% floor; copybooks 83.39% >= 80.84%; gateway 98.91/83.94).
 
 main_logic 89.83
 user_core 62.57
@@ -31,18 +42,18 @@ wallet_core 92.47
 auth_core 73.28
 ref_engine 0
 gl_core 31.63
-report_core 14.98
-fee_core 25.81
-eod_core 12.47
-statement_core 10.68
-loan_core 37.64
-loan_schedule_core 53.14
-deposit_core 82.24
-card_core 64.27
-collection_core 58.6
-payment_clearing_core 41.41
-treasury_liquidity_core 63.09
-gl_allocation_core 60.28
-cost_center_core 61.14
-fixed_asset_core 74.47
-account_core 61.14
+report_core 14.29
+fee_core 25.91
+eod_core 12.71
+statement_core 10.1
+loan_core 36.64
+loan_schedule_core 52.91
+deposit_core 81.42
+card_core 66.71
+collection_core 56.8
+payment_clearing_core 40.39
+treasury_liquidity_core 60.76
+gl_allocation_core 61.86
+cost_center_core 60.26
+fixed_asset_core 72.9
+account_core 60.26
