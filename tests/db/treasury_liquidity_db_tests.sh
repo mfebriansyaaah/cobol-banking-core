@@ -24,9 +24,13 @@ assert_match "status open" "$(db_query "SELECT status FROM treasury_liquidity WH
 
 # Duplicate ref rejected.
 assert_match "duplicate ref" "$(run_cobol "TRL_CREATE|TRL-D6-1|50000.00|USD|||admin@test.com")" "ERROR\|DUPLICATE"
+assert_match "create missing ref" "$(run_cobol "TRL_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "create non-admin refused" "$(run_cobol "TRL_CREATE|TRL-D6-9|50000.00|USD|||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Read paths.
 assert_match "TRL_GET ok" "$(run_cobol "TRL_GET|${id}|||||admin@test.com")" "SUCCESS\|TRL_GET\|${id}\|TRL-D6-1"
+assert_match "TRL_GET unknown" "$(run_cobol "TRL_GET|999999|||||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "TRL_GET missing id" "$(run_cobol "TRL_GET||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 assert_match "TRL_LIST ok" "$(run_cobol "TRL_LIST||USD|50|0||admin@test.com")" "TRL-D6-1"
 assert_match "TRL_LIST filters status" "$(run_cobol "TRL_LIST|REALIZED||50|0||admin@test.com")" "SUCCESS\|TRL_LIST\|0"
 
@@ -40,6 +44,9 @@ assert_match "realized persisted" "$(db_query "SELECT realized_amount FROM treas
 
 # Over-post rejected.
 assert_match "over-post rejected" "$(run_cobol "TRL_POST|${id}|999999.00||||admin@test.com")" "ERROR\|INVALID_AMOUNT"
+assert_match "post missing id" "$(run_cobol "TRL_POST||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "post unknown id" "$(run_cobol "TRL_POST|999999|10.00||||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "post non-admin refused" "$(run_cobol "TRL_POST|${id}|10.00||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Concurrent posts serialize on the guarded projection: exactly one
 # wins, the loser sees INVALID_AMOUNT, and projection never exceeds
@@ -84,11 +91,21 @@ create2="$(run_cobol "TRL_CREATE|TRL-D6-2|20000.00|EUR|||admin@test.com")"
 id2="$(printf '%s' "$create2" | awk -F'|' '{print $3}')"
 assert_match "TRL_CLOSE ok" "$(run_cobol "TRL_CLOSE|${id2}|Not needed||||admin@test.com")" "SUCCESS\|TRL_CLOSE"
 assert_match "closed persisted" "$(db_query "SELECT status FROM treasury_liquidity WHERE id=${id2};")" "^CLOSED$"
+assert_match "close missing id" "$(run_cobol "TRL_CLOSE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "close unknown id" "$(run_cobol "TRL_CLOSE|999999|x||||admin@test.com")" "ERROR\|NOT_FOUND"
+
+# Settle guards on the realized entry (fully settled above).
+assert_match "settle missing id" "$(run_cobol "TRL_SETTLE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "settle unknown id" "$(run_cobol "TRL_SETTLE|999999|10.00||||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "settle non-admin refused" "$(run_cobol "TRL_SETTLE|${id}|10.00||||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "settle over projected refused" "$(run_cobol "TRL_SETTLE|${id}|20000.00||||admin@test.com")" "ERROR\|INVALID_AMOUNT"
 
 # Summary and audit.
 assert_match "TRL_SUMMARY ok" "$(run_cobol "TRL_SUMMARY||||||admin@test.com")" "SUCCESS\|TRL_SUMMARY"
 assert_match "TRL_AUDIT ok" "$(run_cobol "TRL_AUDIT|50|0||||admin@test.com")" "SUCCESS\|TRL_AUDIT"
 assert_match "TRL_VALIDATE ok" "$(run_cobol "TRL_VALIDATE|100.00|USD||||admin@test.com")" "SUCCESS\|TRL_VALID"
+assert_match "validate bad amount" "$(run_cobol "TRL_VALIDATE|0|USD||||admin@test.com")" "ERROR\|INVALID_AMOUNT"
+assert_match "validate bad currency" "$(run_cobol "TRL_VALIDATE|100.00|US||||admin@test.com")" "ERROR\|INVALID_CURRENCY"
 assert_match "non-admin refused" "$(run_cobol "TRL_GET|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 print_summary
