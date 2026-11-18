@@ -340,7 +340,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/deposit_db_tests.sh` | 67 |
 | `tests/db/card_db_tests.sh` | 52 |
 | `tests/db/collection_db_tests.sh` | 56 |
-| `tests/db/payment_clearing_db_tests.sh` | 22 |
+| `tests/db/payment_clearing_db_tests.sh` | 36 |
 | `tests/db/treasury_liquidity_db_tests.sh` | 24 |
 | `tests/db/gl_allocation_db_tests.sh` | 13 |
 | `tests/db/backup_drill_db_tests.sh` | 13 |
@@ -373,7 +373,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/sla_tracker_db_tests.sh` | 18 |
 | `tests/db/report_schedule_db_tests.sh` | 18 |
 | `tests/db/notification_template_db_tests.sh` | 18 |
-| `tests/db/loan_db_tests.sh` | 25 |
+| `tests/db/loan_db_tests.sh` | 40 |
 | `tests/db/lending_posting_db_tests.sh` | 173 |
 | `tests/db/collateral_db_tests.sh` | 18 |
 | `tests/db/collateral_domain_db_tests.sh` | 30 |
@@ -421,7 +421,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
 | `tests/db/commit_failure_db_tests.sh` | 6 |
-| **Total** | **2869** |
+| **Total** | **2898** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

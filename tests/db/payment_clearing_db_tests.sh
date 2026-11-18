@@ -46,6 +46,10 @@ assert_match "PMC_SETTLE ok" "$(run_cobol "PMC_SETTLE|${id}|40.00||||admin@test.
 assert_match "settled persisted" "$(db_query "SELECT settled_amount FROM payment_clearing WHERE id=${id};")" "^40.0000$"
 assert_match "settle linked a GL journal" "$(db_query "SELECT gl_journal_id FROM payment_clearing WHERE id=${id};")" "^[0-9]+$"
 assert_match "settle journal balanced" "$(db_query "SELECT IF(SUM(debit_amount)=SUM(credit_amount),'BALANCED','UNBALANCED') FROM gl_journal_line WHERE journal_id=(SELECT gl_journal_id FROM payment_clearing WHERE id=${id});")" "^BALANCED$"
+assert_match "settle fully settled refused" "$(run_cobol "PMC_SETTLE|${id}|1.00||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "settle missing id" "$(run_cobol "PMC_SETTLE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "settle unknown id" "$(run_cobol "PMC_SETTLE|999999|1.00||||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "settle non-admin refused" "$(run_cobol "PMC_SETTLE|${id}|1.00||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Over-post rejected.
 assert_match "over-post rejected" "$(run_cobol "PMC_POST|${id}|999.00||||admin@test.com")" "ERROR\|INVALID_STATUS"
@@ -58,6 +62,20 @@ create2="$(run_cobol "PMC_CREATE|CLR-D5-2|50.00|EUR|||admin@test.com")"
 id2="$(printf '%s' "$create2" | awk -F'|' '{print $3}')"
 assert_match "PMC_CANCEL ok" "$(run_cobol "PMC_CANCEL|${id2}|||||admin@test.com")" "SUCCESS\|PMC_CANCEL"
 assert_match "cancelled persisted" "$(db_query "SELECT status FROM payment_clearing WHERE id=${id2};")" "^CANCELLED$"
+assert_match "post on cancelled refused" "$(run_cobol "PMC_POST|${id2}|10.00||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "cancel missing id" "$(run_cobol "PMC_CANCEL||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "cancel unknown id" "$(run_cobol "PMC_CANCEL|999999|||||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "cancel non-admin refused" "$(run_cobol "PMC_CANCEL|${id2}|||||sender@test.com")" "ERROR\|FORBIDDEN"
+
+# A posted-but-unsettled entry can still be cancelled (P1-07).
+create3="$(run_cobol "PMC_CREATE|CLR-D5-3|50.00|USD|||admin@test.com")"
+id3="$(printf '%s' "$create3" | awk -F'|' '{print $3}')"
+assert_match "PMC_POST partial ok" "$(run_cobol "PMC_POST|${id3}|20.00||||admin@test.com")" "SUCCESS\|PMC_POST\|20.00"
+assert_match "cancel posted ok" "$(run_cobol "PMC_CANCEL|${id3}|||||admin@test.com")" "SUCCESS\|PMC_CANCEL"
+assert_match "post missing id" "$(run_cobol "PMC_POST||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "post unknown id" "$(run_cobol "PMC_POST|999999|10.00||||admin@test.com")" "ERROR\|NOT_FOUND"
+assert_match "post non-admin refused" "$(run_cobol "PMC_POST|${id3}|10.00||||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "get unknown id" "$(run_cobol "PMC_GET|999999|||||admin@test.com")" "ERROR\|NOT_FOUND"
 
 # Summary and audit.
 assert_match "PMC_SUMMARY ok" "$(run_cobol "PMC_SUMMARY||||||admin@test.com")" "SUCCESS\|PMC_SUMMARY"
