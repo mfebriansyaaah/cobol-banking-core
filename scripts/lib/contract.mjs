@@ -30,48 +30,45 @@ export function slotDetail(entry, constArrays) {
   return { name: t, pattern: null, required: false, inline: false };
 }
 
-function fieldsOf(body, consts) {
-  const start = body.search(/fields\s*:\s*\[/);
-  let parts;
-  if (start < 0) {
-    const ident = (body.match(/fields\s*:\s*([A-Za-z_$][A-Za-z0-9_$]*)/) || [])[1] || null;
-    const shared = ident ? consts.get(ident) : undefined;
-    if (shared === undefined) return ident ? [ident] : [];
-    parts = splitTopLevel(shared);
-  } else {
-    let i = body.indexOf('[', start);
-    let depth = 0;
-    let quote = null;
-    for (; i < body.length; i += 1) {
-      const ch = body[i];
-      if (quote) {
-        if (ch === quote && body[i - 1] !== '\\') quote = null;
-        continue;
-      }
-      if (ch === "'" || ch === '"') {
-        quote = ch;
-        continue;
-      }
-      if (ch === '[') depth += 1;
-      else if (ch === ']') {
-        depth -= 1;
-        if (depth === 0) break;
-      }
+function findBracketEnd(body, start) {
+  let i = body.indexOf('[', start);
+  let depth = 0;
+  let quote = null;
+  for (; i < body.length; i += 1) {
+    const ch = body[i];
+    if (quote) {
+      if (ch === quote && body[i - 1] !== '\\') quote = null;
+      continue;
     }
-    parts = splitTopLevel(body.slice(body.indexOf('[', start) + 1, i));
-  }
-  const slots = [];
-  for (const entry of parts.filter((x) => x.trim() !== '')) {
-    const d = slotDetail(entry, consts);
-    if (d.shared) {
-      for (const sub of splitTopLevel(consts.get(d.shared)).filter((x) => x.trim() !== '')) {
-        const s = slotDetail(sub, consts);
-        if (!s.shared) slots.push(s);
-      }
-    } else {
-      slots.push(d);
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      continue;
+    }
+    if (ch === '[') depth += 1;
+    else if (ch === ']') {
+      depth -= 1;
+      if (depth === 0) break;
     }
   }
+  return i;
+}
+
+function expandSlot(entry, consts) {
+  const d = slotDetail(entry, consts);
+  if (!d.shared) return [d];
+  return splitTopLevel(consts.get(d.shared))
+    .filter((x) => x.trim() !== '')
+    .map((sub) => slotDetail(sub, consts))
+    .filter((s) => !s.shared);
+}
+
+function parseFieldsArray(body, consts, start) {
+  const end = findBracketEnd(body, start);
+  const parts = splitTopLevel(body.slice(body.indexOf('[', start) + 1, end));
+  return parts.filter((x) => x.trim() !== '').flatMap((entry) => expandSlot(entry, consts));
+}
+
+function normalizeSlots(slots) {
   while (slots.length < 6) slots.push({ name: '', pattern: null, required: false, inline: false });
   // Slot 7 carries DEP_OPEN's idempotency key (contract v2); longer routes
   // keep their extra slots so the registry stays byte-exact with dispatch.
@@ -83,6 +80,21 @@ function fieldsOf(body, consts) {
     inline: Boolean(s.inline),
     maxBytes: 100,
   }));
+}
+
+function fieldsOf(body, consts) {
+  const start = body.search(/fields\s*:\s*\[/);
+  if (start < 0) {
+    const ident = (body.match(/fields\s*:\s*([A-Za-z_$][A-Za-z0-9_$]*)/) || [])[1] || null;
+    const shared = ident ? consts.get(ident) : undefined;
+    if (shared === undefined) return ident ? [ident] : [];
+    return normalizeSlots(
+      splitTopLevel(shared)
+        .filter((x) => x.trim() !== '')
+        .flatMap((entry) => expandSlot(entry, consts)),
+    );
+  }
+  return normalizeSlots(parseFieldsArray(body, consts, start));
 }
 
 // All route entries with actions, sorted by (action, method, path) for human
@@ -150,83 +162,101 @@ export function collectRouteContracts(rootDir) {
 // writes: nested maps, `- ` lists, 2-space indent, JSON-quoted scalars when
 // needed). Returns entries in file order. Round-trip tested: parsing the
 // generated file must equal collectRouteContracts().
+function parseScalar(t) {
+  const s = t.trim();
+  if (s === '' || s === 'null' || s === '~') return null;
+  if (s === 'true') return true;
+  if (s === 'false') return false;
+  if (/^-?\d+$/.test(s)) return Number(s);
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    try {
+      return JSON.parse(s);
+    } catch {
+      return s.slice(1, -1);
+    }
+  }
+  return s;
+}
+
+function parseKeyValue(text) {
+  const idx = text.indexOf(':');
+  return idx > 0 ? [text.slice(0, idx), parseScalar(text.slice(idx + 1))] : null;
+}
+
+function parseSlotLine(text) {
+  const rest = text.slice(2);
+  const idx = rest.indexOf(':');
+  if (idx > 0 && rest.slice(0, idx) === 'slot') return { slot: parseScalar(rest.slice(idx + 1)) };
+  return null;
+}
+
+function startContractEntry(state, text) {
+  state.cur = { action: text.slice('- action: '.length), auth: {}, fields: [] };
+  state.entries.push(state.cur);
+  state.field = null;
+  state.inAuth = false;
+}
+
+function parseIndent4(state, text) {
+  if (text.startsWith('auth:')) {
+    state.inAuth = true;
+    state.field = null;
+    return;
+  }
+  if (text.startsWith('fields:')) {
+    state.inAuth = false;
+    state.field = null;
+    return;
+  }
+  if (text.startsWith('- ')) return;
+  const kv = parseKeyValue(text);
+  if (kv) state.cur[kv[0]] = kv[1];
+  state.inAuth = false;
+  state.field = null;
+}
+
+function parseIndent6(state, text) {
+  if (text.startsWith('- ')) {
+    const slot = parseSlotLine(text);
+    if (slot) {
+      state.field = slot;
+      state.cur.fields.push(slot);
+    }
+    state.inAuth = false;
+    return;
+  }
+  if (!state.inAuth) return;
+  const kv = parseKeyValue(text);
+  if (kv) state.cur.auth[kv[0]] = kv[1];
+}
+
+function parseIndent8(state, text) {
+  if (!state.field) return;
+  const kv = parseKeyValue(text);
+  if (kv) state.field[kv[0]] = kv[1];
+}
+
 export function loadContract(rootDir) {
   const src = readFileSync(path.join(rootDir, 'contracts', 'actions.yaml'), 'utf8');
   const lines = src.split('\n');
-  const parseScalar = (t) => {
-    const s = t.trim();
-    if (s === '' || s === 'null' || s === '~') return null;
-    if (s === 'true') return true;
-    if (s === 'false') return false;
-    if (/^-?\d+$/.test(s)) return Number(s);
-    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-      try {
-        return JSON.parse(s);
-      } catch {
-        return s.slice(1, -1);
-      }
-    }
-    return s;
-  };
   const indentOf = (ln) => ln.length - ln.trimStart().length;
   // Find the actions list and parse each `- action: X` block by indentation.
   const start = lines.findIndex((ln) => ln === 'actions:');
   if (start === -1) throw new Error('contracts/actions.yaml: no actions list');
-  const entries = [];
-  let cur = null;
-  let field = null;
-  let inAuth = false;
+  const state = { entries: [], cur: null, field: null, inAuth: false };
   for (let i = start + 1; i < lines.length; i += 1) {
     const ln = lines[i];
     if (!ln.trim() || ln.trimStart().startsWith('#')) continue;
     const indent = indentOf(ln);
     const text = ln.trim();
     if (indent === 2 && text.startsWith('- action: ')) {
-      cur = { action: text.slice('- action: '.length), auth: {}, fields: [] };
-      entries.push(cur);
-      field = null;
-      inAuth = false;
+      startContractEntry(state, text);
       continue;
     }
-    if (!cur) continue;
-    if (indent === 4 && text.startsWith('auth:')) {
-      inAuth = true;
-      field = null;
-      continue;
-    }
-    if (indent === 4 && text.startsWith('fields:')) {
-      inAuth = false;
-      field = null;
-      continue;
-    }
-    if (indent === 4 && !text.startsWith('- ')) {
-      const idx = text.indexOf(':');
-      if (idx > 0) {
-        cur[text.slice(0, idx)] = parseScalar(text.slice(idx + 1));
-        inAuth = false;
-      }
-      field = null;
-      continue;
-    }
-    if (indent === 6 && text.startsWith('- ')) {
-      const rest = text.slice(2);
-      const idx = rest.indexOf(':');
-      if (idx > 0 && rest.slice(0, idx) === 'slot') {
-        field = { slot: parseScalar(rest.slice(idx + 1)) };
-        cur.fields.push(field);
-      }
-      inAuth = false;
-      continue;
-    }
-    if (indent === 6 && inAuth) {
-      const idx = text.indexOf(':');
-      if (idx > 0) cur.auth[text.slice(0, idx)] = parseScalar(text.slice(idx + 1));
-      continue;
-    }
-    if (indent === 8 && field) {
-      const idx = text.indexOf(':');
-      if (idx > 0) field[text.slice(0, idx)] = parseScalar(text.slice(idx + 1));
-    }
+    if (!state.cur) continue;
+    if (indent === 4) parseIndent4(state, text);
+    else if (indent === 6) parseIndent6(state, text);
+    else if (indent === 8) parseIndent8(state, text);
   }
-  return entries;
+  return state.entries;
 }

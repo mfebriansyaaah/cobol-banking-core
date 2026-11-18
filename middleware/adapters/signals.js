@@ -43,39 +43,54 @@ export async function deriveNik(input) {
   };
 }
 
-// Screening: provider signal, fail-closed to MANUAL_REVIEW. COBOL opens the
-// human review row; reviewer verdicts stay SUPER_ADMIN-only in COBOL.
-export async function deriveScreen(input, ctx = {}) {
+function screenInput(input) {
   const rawName = required(input, 'name', PATTERNS.NAME);
   const name = rawName.trim();
   if (!name) throw new ValidationError('name');
   const dob = input.dob === undefined || input.dob === '' ? null : check(String(input.dob), PATTERNS.DATE, 'dob');
   if (String(input.consent ?? '') !== '1') throw new ValidationError('consent');
-  const kind = (process.env.SCREENING_PROVIDER || 'mock').trim().toLowerCase();
-  const provider = createScreeningProvider(kind);
-  if (kind !== 'mock') {
-    try {
-      assertQuota(kind);
-    } catch {
-      // Over budget: fail closed into the review queue, never CLEAR on doubt.
-      const fallback = 'MANUAL_REVIEW';
-      return {
-        queryHash: queryHash(name, dob),
-        providerResultSignal: fallback,
-        result: fallback,
-        provider: kind,
-        providerRef: 'quota-exceeded',
-      };
-    }
+  return { name, dob };
+}
+
+function quotaFallback(name, dob, kind) {
+  try {
+    assertQuota(kind);
+    return null;
+  } catch {
+    // Over budget: fail closed into the review queue, never CLEAR on doubt.
+    const fallback = 'MANUAL_REVIEW';
+    return {
+      queryHash: queryHash(name, dob),
+      providerResultSignal: fallback,
+      result: fallback,
+      provider: kind,
+      providerRef: 'quota-exceeded',
+    };
   }
-  const idempotencyKey = (ctx.req && ctx.req.requestId) || randomUUID();
-  const res = await provider.screen({ name, dob, consent: true, idempotencyKey });
+}
+
+function assertScreenResult(res) {
   if (!res || res.result === 'SKIPPED' || res.result === 'INVALID_INPUT' || !res.queryHash) {
     throw new Error('screening provider not configured');
   }
   if (res.result !== 'CLEAR' && res.result !== 'POTENTIAL_MATCH' && res.result !== 'MANUAL_REVIEW') {
     throw new Error(`unexpected screening result: ${res.result}`);
   }
+}
+
+// Screening: provider signal, fail-closed to MANUAL_REVIEW. COBOL opens the
+// human review row; reviewer verdicts stay SUPER_ADMIN-only in COBOL.
+export async function deriveScreen(input, ctx = {}) {
+  const { name, dob } = screenInput(input);
+  const kind = (process.env.SCREENING_PROVIDER || 'mock').trim().toLowerCase();
+  const provider = createScreeningProvider(kind);
+  if (kind !== 'mock') {
+    const fallback = quotaFallback(name, dob, kind);
+    if (fallback) return fallback;
+  }
+  const idempotencyKey = (ctx.req && ctx.req.requestId) || randomUUID();
+  const res = await provider.screen({ name, dob, consent: true, idempotencyKey });
+  assertScreenResult(res);
   if (kind !== 'mock') recordUse(kind);
   const providerRef = String(res.ref ?? '')
     .replace(/[^A-Za-z0-9_.:-]/g, '_')

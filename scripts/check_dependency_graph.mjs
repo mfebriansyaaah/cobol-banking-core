@@ -44,8 +44,7 @@ function importsOf(src) {
   return out;
 }
 
-function layerOf(file) {
-  const rel = path.relative(MW, file);
+function layerPrefix(rel, { includeTest = false } = {}) {
   if (rel.startsWith('src/routes/')) return 'routes';
   if (rel.startsWith('src/')) return 'src';
   if (rel.startsWith('contract/')) return 'contract';
@@ -54,41 +53,27 @@ function layerOf(file) {
   if (rel.startsWith('workers/')) return 'workers';
   if (rel.startsWith('core-client/')) return 'core-client';
   if (rel.startsWith('telemetry/')) return 'telemetry';
-  if (rel.startsWith('test/')) return 'test';
+  if (includeTest && rel.startsWith('test/')) return 'test';
   return 'other';
+}
+
+function layerOf(file) {
+  return layerPrefix(path.relative(MW, file), { includeTest: true });
+}
+
+function importLayer(imp) {
+  for (const layer of ['services', 'workers', 'core-client', 'telemetry', 'contract', 'adapters']) {
+    if (imp.includes(`/${layer}/`)) return layer;
+  }
+  return 'external';
 }
 
 function targetLayer(file, imp) {
   if (imp.startsWith('.') || imp.startsWith('/')) {
     const resolved = path.resolve(path.dirname(file), imp);
-    // Exact file or directory with index? We only need layer prefix.
-    const rel = path.relative(MW, resolved);
-    if (rel.startsWith('src/routes')) return 'routes';
-    if (rel.startsWith('src/')) return 'src';
-    if (rel.startsWith('contract/')) return 'contract';
-    if (rel.startsWith('adapters/')) return 'adapters';
-    if (rel.startsWith('services/')) return 'services';
-    if (rel.startsWith('workers/')) return 'workers';
-    if (rel.startsWith('core-client/')) return 'core-client';
-    if (rel.startsWith('telemetry/')) return 'telemetry';
-    return 'other';
+    return layerPrefix(path.relative(MW, resolved));
   }
-  if (
-    imp.includes('/services/') ||
-    imp.includes('/workers/') ||
-    imp.includes('/core-client/') ||
-    imp.includes('/telemetry/') ||
-    imp.includes('/contract/') ||
-    imp.includes('/adapters/')
-  ) {
-    if (imp.includes('/services/')) return 'services';
-    if (imp.includes('/workers/')) return 'workers';
-    if (imp.includes('/core-client/')) return 'core-client';
-    if (imp.includes('/telemetry/')) return 'telemetry';
-    if (imp.includes('/contract/')) return 'contract';
-    if (imp.includes('/adapters/')) return 'adapters';
-  }
-  return 'external';
+  return importLayer(imp);
 }
 
 const isCompositionRoot = (f) => path.basename(f) === 'server.js';

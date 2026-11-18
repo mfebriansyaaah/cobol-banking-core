@@ -12,6 +12,21 @@ export function isLei(s) {
   return /^[0-9A-Z]{20}$/.test(String(s ?? ''));
 }
 
+function parseLookupBody(body, lei) {
+  const attrs = (body && body.data && body.data.attributes) || null;
+  if (!attrs || !attrs.entity || !attrs.entity.legalName) throw new Error('unexpected shape');
+  return {
+    result: 'FOUND',
+    entity: {
+      lei,
+      legalName: String(attrs.entity.legalName.name || '').slice(0, 255),
+      status: String((attrs.registration && attrs.registration.status) || 'UNKNOWN').slice(0, 32),
+      address: String((attrs.entity.legalAddress || {}).city || '').slice(0, 255) || null,
+      parentLei: null,
+    },
+  };
+}
+
 export async function lookupLei(
   lei,
   {
@@ -36,18 +51,7 @@ export async function lookupLei(
   } catch {
     throw new Error('malformed JSON');
   }
-  const attrs = (body && body.data && body.data.attributes) || null;
-  if (!attrs || !attrs.entity || !attrs.entity.legalName) throw new Error('unexpected shape');
-  return {
-    result: 'FOUND',
-    entity: {
-      lei,
-      legalName: String(attrs.entity.legalName.name || '').slice(0, 255),
-      status: String((attrs.registration && attrs.registration.status) || 'UNKNOWN').slice(0, 32),
-      address: String((attrs.entity.legalAddress || {}).city || '').slice(0, 255) || null,
-      parentLei: null,
-    },
-  };
+  return parseLookupBody(body, lei);
 }
 
 export async function searchLeis(

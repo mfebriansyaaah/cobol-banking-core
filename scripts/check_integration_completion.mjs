@@ -263,6 +263,93 @@ function slug(s) {
     .replace(/^-|-$/g, '');
 }
 
+function paragraphItems(mod, src, { tableNames, businessTables, moneyActions, tier1Modules }) {
+  const items = [];
+  const paras = splitParagraphs(src);
+  const actions = [...paras.entries()].filter(
+    ([name]) => name !== 'MAIN-LOGIC' && (name.startsWith('ACTION-') || name.endsWith('-LOGIC')),
+  );
+  for (const [name, body] of actions) {
+    const text = body.join('\n');
+    const tables = tableRefs(text, tableNames);
+    const core = [...tables].filter((t) => businessTables.has(t)).sort();
+    const calls = [...text.matchAll(/CALL\s+"([a-z_]+)"/g)].map((m) => m[1]).filter((c) => tier1Modules.has(c));
+    const lits = [...text.matchAll(/"([A-Z][A-Z0-9_]{2,})"/g)].map((m) => m[1]).filter((a) => moneyActions.has(a));
+    const identity = tables.has('users');
+    if (core.length > 0 || calls.length > 0 || lits.length > 0 || identity) continue; // CORE_LINKED
+    const writes = [...writeRefs(text)].filter((t) => !t.endsWith('_audit'));
+    if (writes.length === 0) continue; // pure-read paragraph: exempt, listed in docs only
+    const touched = [...tables].filter((t) => !isRefish(t) && !NOISE_TABLES.has(t)).sort();
+    items.push({
+      id: `${mod.module}:action:${slug(name)}`,
+      module: mod.module,
+      kind: 'action',
+      subject: name,
+      status: 'OPEN',
+      reason: `Write paragraph with no core link (writes ${sortJoin(writes)})`,
+      evidence: [`paragraph ${name}`, `touched tables: ${sortJoin(touched) || 'none'}`],
+      owner: null,
+    });
+  }
+  return items;
+}
+
+function tableItems(mod, src, { tableNames, businessTables, schemaIndex }) {
+  const items = [];
+  const allTables = tableRefs(src, tableNames);
+  const domainTables = [...allTables]
+    .filter((t) => !businessTables.has(t) && !isRefish(t) && !t.endsWith('_audit') && !NOISE_TABLES.has(t))
+    .sort();
+  for (const table of domainTables) {
+    const { keys, refs, linked } = tableLinked(table, businessTables, schemaIndex);
+    if (linked) continue;
+    const cols = schemaIndex.columns.get(table);
+    items.push({
+      id: `${mod.module}:table:${slug(table)}`,
+      module: mod.module,
+      kind: 'table',
+      subject: table,
+      status: 'OPEN',
+      reason: `Domain table has no core business key or FK into a Tier-1 table`,
+      evidence: [
+        cols ? `columns: ${[...cols].sort().join(', ').slice(0, 400)}` : 'no DDL found in schema.sql/migrations',
+        keys.length ? `core keys: ${keys.join(', ')}` : 'no core business-key columns',
+        refs.length ? `core FK targets: ${refs.join(', ')}` : 'no FOREIGN KEY into Tier-1 tables',
+      ],
+      owner: null,
+    });
+  }
+  return items;
+}
+
+function moduleMetaItems(mod) {
+  const items = [];
+  if (!mod.hasTests) {
+    items.push({
+      id: `${mod.module}:route:no-test`,
+      module: mod.module,
+      kind: 'route',
+      subject: 'integration test',
+      status: 'OPEN',
+      reason: 'No DB/table/integration test proves the Tier-1 link (auth/shape depth stays with existing gates)',
+      evidence: [],
+      owner: null,
+    });
+  }
+  items.push({
+    id: `${mod.module}:audit:core-reference`,
+    module: mod.module,
+    kind: 'audit',
+    subject: 'audit core reference',
+    status: 'OPEN',
+    reason:
+      'Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics',
+    evidence: [],
+    owner: null,
+  });
+  return items;
+}
+
 export function audit(rootDir = root) {
   const tier1 = loadJson(path.join(rootDir, 'manifest', 'tier1.json'));
   const linksData = loadJson(path.join(rootDir, 'manifest', 'tier1_links.json'));
@@ -286,97 +373,17 @@ export function audit(rootDir = root) {
     const src = existsSync(path.join(cobolDir, mod.source))
       ? readFileSync(path.join(cobolDir, mod.source), 'utf8')
       : '';
-    const paras = splitParagraphs(src);
-    const actions = [...paras.entries()].filter(
-      ([name]) => name !== 'MAIN-LOGIC' && (name.startsWith('ACTION-') || name.endsWith('-LOGIC')),
-    );
-    let open = 0;
-    // Known real tables: schema DDL plus Tier-1 business tables (a fixture
-    // schema may omit them; they are still tables, not noise).
     const tableNames = new Set([...schemaIndex.columns.keys(), ...businessTables]);
+    let open = 0;
     const push = (item) => {
-      const next = {
-        ...item,
-        owner: item.owner || MODULE_OWNER.get(mod.module) || 'backend',
-      };
+      const next = { ...item, owner: item.owner || MODULE_OWNER.get(mod.module) || 'backend' };
       items.push(next);
       if (next.status === 'OPEN' || next.status === 'IN_PROGRESS') open += 1;
     };
-
-    for (const [name, body] of actions) {
-      const text = body.join('\n');
-      const tables = tableRefs(text, tableNames);
-      const core = [...tables].filter((t) => businessTables.has(t)).sort();
-      const calls = [...text.matchAll(/CALL\s+"([a-z_]+)"/g)].map((m) => m[1]).filter((c) => tier1Modules.has(c));
-      const lits = [...text.matchAll(/"([A-Z][A-Z0-9_]{2,})"/g)].map((m) => m[1]).filter((a) => moneyActions.has(a));
-      const identity = tables.has('users');
-      if (core.length > 0 || calls.length > 0 || lits.length > 0 || identity) {
-        continue; // CORE_LINKED
-      }
-      const writes = [...writeRefs(text)].filter((t) => !t.endsWith('_audit'));
-      if (writes.length === 0) continue; // pure-read paragraph: exempt, listed in docs only
-      const touched = [...tables].filter((t) => !isRefish(t) && !NOISE_TABLES.has(t)).sort();
-      push({
-        id: `${mod.module}:action:${slug(name)}`,
-        module: mod.module,
-        kind: 'action',
-        subject: name,
-        status: 'OPEN',
-        reason: `Write paragraph with no core link (writes ${sortJoin(writes)})`,
-        evidence: [`paragraph ${name}`, `touched tables: ${sortJoin(touched) || 'none'}`],
-        owner: null,
-      });
-    }
-
-    const allTables = tableRefs(src, tableNames);
-    const domainTables = [...allTables]
-      .filter((t) => !businessTables.has(t) && !isRefish(t) && !t.endsWith('_audit') && !NOISE_TABLES.has(t))
-      .sort();
-    for (const table of domainTables) {
-      const { keys, refs, linked } = tableLinked(table, businessTables, schemaIndex);
-      if (linked) continue;
-      const cols = schemaIndex.columns.get(table);
-      push({
-        id: `${mod.module}:table:${slug(table)}`,
-        module: mod.module,
-        kind: 'table',
-        subject: table,
-        status: 'OPEN',
-        reason: `Domain table has no core business key or FK into a Tier-1 table`,
-        evidence: [
-          cols ? `columns: ${[...cols].sort().join(', ').slice(0, 400)}` : 'no DDL found in schema.sql/migrations',
-          keys.length ? `core keys: ${keys.join(', ')}` : 'no core business-key columns',
-          refs.length ? `core FK targets: ${refs.join(', ')}` : 'no FOREIGN KEY into Tier-1 tables',
-        ],
-        owner: null,
-      });
-    }
-
-    if (!mod.hasTests) {
-      push({
-        id: `${mod.module}:route:no-test`,
-        module: mod.module,
-        kind: 'route',
-        subject: 'integration test',
-        status: 'OPEN',
-        reason: 'No DB/table/integration test proves the Tier-1 link (auth/shape depth stays with existing gates)',
-        evidence: [],
-        owner: null,
-      });
-    }
-
-    push({
-      id: `${mod.module}:audit:core-reference`,
-      module: mod.module,
-      kind: 'audit',
-      subject: 'audit core reference',
-      status: 'OPEN',
-      reason:
-        'Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics',
-      evidence: [],
-      owner: null,
-    });
-
+    const context = { tableNames, businessTables, moneyActions, tier1Modules, schemaIndex };
+    for (const item of paragraphItems(mod, src, context)) push(item);
+    for (const item of tableItems(mod, src, context)) push(item);
+    for (const item of moduleMetaItems(mod)) push(item);
     moduleStatus[mod.module] = open > 0 ? 'PARTIAL' : 'CONNECTED';
   }
 

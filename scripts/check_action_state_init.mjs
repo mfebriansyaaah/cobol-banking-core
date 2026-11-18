@@ -45,37 +45,45 @@ function isField(w) {
   return /^(WS|LS)-[A-Z0-9-]+$/.test(w) && !KEYWORDS.has(w);
 }
 
-function writesIn(body) {
+function unstringWrites(codeOnly) {
   const out = new Set();
+  for (const m of codeOnly.matchAll(/\bUNSTRING\b([\s\S]*?)(?:END-UNSTRING|\.(?:\s|$))/g)) {
+    const seg = m[1];
+    const idx = seg.indexOf('INTO');
+    if (idx === -1) continue;
+    for (const fm of seg.slice(idx).matchAll(FIELD_RE)) {
+      const w = fm[1];
+      if (isField(w) && w !== 'DELIMITED' && w !== 'BY' && w !== 'SIZE' && w !== 'SPACE' && w !== 'POINTER') out.add(w);
+    }
+  }
+  return out;
+}
+
+function lineWrites(line) {
+  const out = new Set();
+  for (const m of line.matchAll(/\bMOVE\b(.*?)\bTO\b(.*)$/g)) {
+    for (const fm of m[2].matchAll(FIELD_RE)) if (isField(fm[1])) out.add(fm[1]);
+  }
+  for (const m of line.matchAll(/\bCOMPUTE\s+([A-Z][A-Z0-9-]*)/g)) out.add(m[1]);
+  if (!/\bUNSTRING\b/.test(line)) {
+    for (const m of line.matchAll(/\bINTO\s+([A-Z][A-Z0-9-]*)/g)) if (isField(m[1])) out.add(m[1]);
+  }
+  for (const m of line.matchAll(/\bSET\s+([A-Z][A-Z0-9-]*)\s+TO\b/g)) if (isField(m[1])) out.add(m[1]);
+  for (const m of line.matchAll(/\bACCEPT\s+([A-Z][A-Z0-9-]*)/g)) if (isField(m[1])) out.add(m[1]);
+  for (const m of line.matchAll(/\bCALL\s+"[^"]+"\s+USING\b(.*)/g)) {
+    for (const fm of m[1].matchAll(FIELD_RE)) if (isField(fm[1])) out.add(fm[1]);
+  }
+  return out;
+}
+
+function writesIn(body) {
   const codeOnly = body
     .split('\n')
     .map((l) => l.split('*>')[0])
     .join('\n');
-  // Multi-line UNSTRING ... INTO list.
-  for (const m of codeOnly.matchAll(/\bUNSTRING\b([\s\S]*?)(?:END-UNSTRING|\.(?:\s|$))/g)) {
-    const seg = m[1];
-    const idx = seg.indexOf('INTO');
-    if (idx !== -1) {
-      for (const fm of seg.slice(idx).matchAll(FIELD_RE)) {
-        const w = fm[1];
-        if (isField(w) && w !== 'DELIMITED' && w !== 'BY' && w !== 'SIZE' && w !== 'SPACE' && w !== 'POINTER')
-          out.add(w);
-      }
-    }
-  }
+  const out = unstringWrites(codeOnly);
   for (const line of codeOnly.split('\n')) {
-    for (const m of line.matchAll(/\bMOVE\b(.*?)\bTO\b(.*)$/g)) {
-      for (const fm of m[2].matchAll(FIELD_RE)) if (isField(fm[1])) out.add(fm[1]);
-    }
-    for (const m of line.matchAll(/\bCOMPUTE\s+([A-Z][A-Z0-9-]*)/g)) out.add(m[1]);
-    if (!/\bUNSTRING\b/.test(line)) {
-      for (const m of line.matchAll(/\bINTO\s+([A-Z][A-Z0-9-]*)/g)) if (isField(m[1])) out.add(m[1]);
-    }
-    for (const m of line.matchAll(/\bSET\s+([A-Z][A-Z0-9-]*)\s+TO\b/g)) if (isField(m[1])) out.add(m[1]);
-    for (const m of line.matchAll(/\bACCEPT\s+([A-Z][A-Z0-9-]*)/g)) if (isField(m[1])) out.add(m[1]);
-    for (const m of line.matchAll(/\bCALL\s+"[^"]+"\s+USING\b(.*)/g)) {
-      for (const fm of m[1].matchAll(FIELD_RE)) if (isField(fm[1])) out.add(fm[1]);
-    }
+    for (const w of lineWrites(line)) out.add(w);
   }
   return out;
 }

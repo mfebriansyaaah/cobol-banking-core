@@ -33,6 +33,10 @@ exist (`v1.0.1`, `v1.1.0`); entries below are grouped by date on `main`.
 
 ### Changed
 
+- Phase 2 maintainability ratchet: 14 JavaScript hotspots above complexity 20
+  were split into named helpers across the gateway adapters, integration
+  services, and tooling. ESLint's complexity threshold moved from 25 to 20
+  (`--max-warnings 0`), so new hotspots fail lint instead of accumulating.
 - README now reports generated counts instead of hand-maintained numbers.
 - CI runs on Node 24 for built-in test coverage support.
 - Gateway coverage runs in a dedicated CI job with a fresh database.

@@ -35,6 +35,24 @@ export function assertFxConfig() {
   return kind;
 }
 
+function ratesUrl(endpoint, base, quotes) {
+  const symbols = Array.isArray(quotes) ? quotes.join(',') : quotes;
+  return `${endpoint}/latest?base=${encodeURIComponent(base)}&symbols=${encodeURIComponent(symbols)}`;
+}
+
+function parseRatesBody(body, provider) {
+  if (!body || typeof body.rates !== 'object' || !body.rates || !body.date) {
+    throw new Error(`FX fetch rejected (${provider}): unexpected shape`);
+  }
+  const rates = {};
+  for (const [quote, rate] of Object.entries(body.rates)) {
+    const n = Number(rate);
+    if (/^[A-Z]{3}$/.test(quote) && Number.isFinite(n) && n > 0) rates[quote] = n;
+  }
+  if (!Object.keys(rates).length) throw new Error(`FX fetch rejected (${provider}): no usable rates`);
+  return { rates, date: body.date };
+}
+
 export async function fetchRates(
   { base = 'USD', quotes = ['IDR'] } = {},
   {
@@ -46,11 +64,10 @@ export async function fetchRates(
     idempotencyKey = null,
   } = {},
 ) {
-  const symbols = Array.isArray(quotes) ? quotes.join(',') : quotes;
   const headers = apiKey ? { authorization: `Bearer ${apiKey}` } : {};
   const res = await resilientFetch(
     provider,
-    `${endpoint}/latest?base=${encodeURIComponent(base)}&symbols=${encodeURIComponent(symbols)}`,
+    ratesUrl(endpoint, base, quotes),
     { method: 'GET', headers },
     { fetchImpl, timeoutMs, idempotencyKey },
   );
@@ -61,16 +78,8 @@ export async function fetchRates(
   } catch {
     throw new Error(`FX fetch rejected (${provider}): malformed JSON`);
   }
-  if (!body || typeof body.rates !== 'object' || !body.rates || !body.date) {
-    throw new Error(`FX fetch rejected (${provider}): unexpected shape`);
-  }
-  const rates = {};
-  for (const [quote, rate] of Object.entries(body.rates)) {
-    const n = Number(rate);
-    if (/^[A-Z]{3}$/.test(quote) && Number.isFinite(n) && n > 0) rates[quote] = n;
-  }
-  if (!Object.keys(rates).length) throw new Error(`FX fetch rejected (${provider}): no usable rates`);
-  return { base, rates, date: body.date };
+  const { rates, date } = parseRatesBody(body, provider);
+  return { base, rates, date };
 }
 
 // Official feed fetch: same strict v1 shape, contracted endpoint + key.

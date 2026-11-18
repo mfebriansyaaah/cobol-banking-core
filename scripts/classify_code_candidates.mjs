@@ -160,7 +160,7 @@ function buildCandidates(rootDir) {
   return out;
 }
 
-function validateCandidate(c, names, failures) {
+function validateCandidateShape(c, names, failures) {
   for (const key of REQUIRED) {
     if (!(key in c)) failures.push(`${c.module || '?'}: missing field "${key}"`);
   }
@@ -169,6 +169,9 @@ function validateCandidate(c, names, failures) {
   names.add(c.module);
   if (!c.reason) failures.push(`${c.module}: missing reason`);
   if (!Array.isArray(c.evidence) || c.evidence.length === 0) failures.push(`${c.module}: missing evidence`);
+}
+
+function validateCandidateState(c, failures) {
   if ((c.linkageLevel === 'L0' || c.linkageLevel === 'L1') === false && c.status === 'CANDIDATE') {
     failures.push(`${c.module}: CANDIDATE requires L0/L1 linkage (has ${c.linkageLevel})`);
   }
@@ -181,6 +184,11 @@ function validateCandidate(c, names, failures) {
   if ((c.status === 'DEPRECATED' || c.status === 'RETIRED') && !c.trafficLastSeen) {
     failures.push(`${c.module}: ${c.status} requires trafficLastSeen evidence`);
   }
+}
+
+function validateCandidate(c, names, failures) {
+  validateCandidateShape(c, names, failures);
+  validateCandidateState(c, failures);
 }
 
 function validateCrossRefs(candidates, frozen, names, failures) {

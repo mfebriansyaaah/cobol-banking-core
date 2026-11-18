@@ -18,6 +18,11 @@ bash tests/run_all.sh db                        # full DB fleet (needs DDL-capab
 `run_all.sh full` must stay green twice in a row at wave end (master plan
 §10.3); coverage must not drop >1.0pp; no new COBOL warnings.
 
+ESLint's complexity ratchet is **20** (Phase 2): a function at 20 is accepted;
+21+ fails `npm run lint` through `--max-warnings 0`. Split the function into
+named helpers instead of grandfathering a new hotspot. `max-depth` remains a
+warn-only signal at 6.
+
 ## Splitting a module (ADR-0009/0010 in one page)
 
 1. Pin first: `scripts/test/<split>_split.test.mjs` asserting the new
