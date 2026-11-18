@@ -44,6 +44,7 @@ for (let i = 0; i < args.length; i += 1) {
 root = path.resolve(root);
 
 const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml'];
+const COMPOSITE_ACTIONS = ['setup-cobol/action.yml', 'db-bootstrap/action.yml', 'upload-diagnostics/action.yml'];
 const REQUIRED_JOBS = ['lint', 'build', 'test', 'db-shards', 'db-aggregate', 'coverage', 'coverage-pr'];
 
 // GitHub matches check runs by display name (job `name:`), not job ID.
@@ -59,8 +60,7 @@ const EXPECTED_JOB_NAMES = {
   'coverage-pr': 'coverage-pr',
 };
 
-function loadWorkflows() {
-  const files = WORKFLOWS.map((f) => path.join(root, '.github', 'workflows', f));
+function loadYamlFiles(files) {
   const script = `
 import json, sys, yaml
 out = {}
@@ -80,9 +80,24 @@ print(json.dumps(out))
     });
     return JSON.parse(stdout);
   } catch (e) {
-    console.error(`FAIL: cannot parse workflows (python3+yaml required): ${e.message}`);
+    console.error(`FAIL: cannot parse YAML (python3+yaml required): ${e.message}`);
     process.exit(2);
   }
+}
+
+function loadWorkflows() {
+  return loadYamlFiles(WORKFLOWS.map((f) => path.join(root, '.github', 'workflows', f)));
+}
+
+function compositeActionPath(file) {
+  return path.join(root, '.github', 'actions', file);
+}
+
+function loadCompositeActions() {
+  // Fixtures that do not model composite actions simply omit the directory.
+  // The real repo must contain every known action; the missing check below
+  // enforces that when .github/actions exists.
+  return loadYamlFiles(COMPOSITE_ACTIONS.map(compositeActionPath).filter(existsSync));
 }
 
 function onOf(doc) {
@@ -150,6 +165,17 @@ for (const [file, doc] of Object.entries(docs)) {
   }
 }
 
+const compositeDocs = loadCompositeActions();
+for (const [file, doc] of Object.entries(compositeDocs)) {
+  if (doc && doc.__error__) {
+    console.error(`FAIL: cannot parse ${file}: ${doc.__error__}`);
+    process.exit(1);
+  }
+}
+const compositeMissing = existsSync(path.join(root, '.github', 'actions'))
+  ? COMPOSITE_ACTIONS.filter((f) => !existsSync(compositeActionPath(f)))
+  : [];
+
 const park = parkedMode();
 if (park.error) {
   console.error(`FAIL: ${park.error}`);
@@ -163,6 +189,9 @@ if (park.parked) {
 }
 
 const failed = [];
+for (const file of compositeMissing) {
+  failed.push(`.github/actions/${file} is missing (add the composite action or update COMPOSITE_ACTIONS)`);
+}
 const ciOn = onOf(byName['ci.yml']);
 if (!('pull_request' in ciOn)) failed.push('ci.yml lacks pull_request trigger');
 else {
@@ -245,6 +274,22 @@ for (const wf of WORKFLOWS) {
       if (!SHA_RE.test(ref)) {
         failed.push(`${wf} job '${id}' step uses '${uses}' must be pinned to a 40-hex SHA`);
       }
+    }
+  }
+}
+
+// Composite actions are part of the supply chain too: their remote `uses`
+// entries must be pinned exactly like workflow steps.
+for (const [file, doc] of Object.entries(compositeDocs)) {
+  const steps = (doc && doc.runs && doc.runs.steps) || [];
+  for (const [index, step] of steps.entries()) {
+    if (!step || typeof step !== 'object' || !step.uses) continue;
+    const uses = String(step.uses);
+    if (uses.startsWith('./')) continue;
+    const at = uses.lastIndexOf('@');
+    const ref = at >= 0 ? uses.slice(at + 1) : '';
+    if (!SHA_RE.test(ref)) {
+      failed.push(`${path.relative(root, file)} step ${index + 1} uses '${uses}' must be pinned to a 40-hex SHA`);
     }
   }
 }

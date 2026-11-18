@@ -50,24 +50,8 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             libgmp-dev libmysqlclient-dev build-essential mariadb-client
 
-      - name: Restore GnuCOBOL toolchain
-        id: gnucobol-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: ~/.local/gnucobol
-          # Bump the trailing v1 when scripts/ci/install_gnucobol.sh changes
-          # its configure flags (a different build must not reuse this cache).
-          key: gnucobol-3.2-${{ runner.os }}-v1
-
-      - name: Install GnuCOBOL 3.2 (with --coverage)
-        # Idempotent: exits in seconds when the cache hit. The apt gnucobol
-        # (3.1.2) cannot do --coverage, so the coverage jobs must not use it.
-        run: bash scripts/ci/install_gnucobol.sh
-
-      - name: Expose GnuCOBOL toolchain
-        run: |
-          echo "$HOME/.local/gnucobol/bin" >> "$GITHUB_PATH"
-          echo "LD_LIBRARY_PATH=$HOME/.local/gnucobol/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
@@ -82,20 +66,11 @@ jobs:
       - name: Build normal binary
         run: ./build.sh
 
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
-
-      - name: Apply migrations
-        run: ./database/migrate.sh
-
-      - name: Seed test data
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_USER" -p"$DB_PASS" "$DB_NAME"
-          < database/seed_test_data.sql
+      - name: Bootstrap database
+        uses: ./.github/actions/db-bootstrap
+        with:
+          use-snapshot: 'false'
+          seed: 'true'
 
       - name: Run coverage gate
         run: bash scripts/ci/coverage.sh --json

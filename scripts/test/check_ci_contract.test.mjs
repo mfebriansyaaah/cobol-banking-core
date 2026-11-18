@@ -43,6 +43,12 @@ test('floating action version fails (CI-001)', () => {
   assert.match(r.stderr + r.stdout, /SHA|pinned|floating/i);
 });
 
+test('floating action version in composite action fails (CI-001)', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('floating-composite-action')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /setup-cobol\/action\.yml|40-hex|pinned/i);
+});
+
 test('missing job timeout fails (CI-001)', () => {
   const r = runGate('scripts/check_ci_contract.mjs', [fix('missing-timeout')]);
   assert.equal(r.status, 1, r.stdout + r.stderr);
