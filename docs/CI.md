@@ -1,10 +1,10 @@
 # CI Status
 
 > R0 readiness branch 00A. Single source of truth for CI triggers, required
-> checks, cost, enforcement, and rollout. Last verified: 2026-11-16.
+> checks, cost, enforcement, and rollout. Last verified: 2026-11-18.
 > Phase 0 branch 01 restores automatic triggers; see “Current status” below.
-> Current branch-protection state: INACTIVE (public repo, HTTP 404 Branch not
-> protected, verified 2026-11-16). See “Branch protection (blocked)” below.
+> Current branch-protection state: INACTIVE (repo now private, HTTP 404 Branch
+> not protected, verified 2026-11-18). See “Branch protection (blocked)” below.
 
 <!-- BEGIN GENERATED TOC -->
 
@@ -50,11 +50,12 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | lint, build (always); db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
-| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
-| nightly `0 2 * * *` | `nightly.yml` | full twice + drills + gateway coverage + benchmark + load test + flake compare |
-| nightly `30 2 * * *` | `coverage.yml` | full COBOL + gateway measurement |
-| `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | JS + C analysis, SARIF uploaded to code scanning |
+| `pull_request` | `ci.yml` | lint, build, docker-build, changes (always); db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
+| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, docker-build, changes, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
+| nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + gateway coverage + benchmark + load test + flake compare |
+| nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
+| weekly `0 3 * * 1` | `mutation.yml` | mutants (`money-path mutants`) |
+| `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | analyze (`Analyze (javascript/cpp)`) JS + C analysis, SARIF uploaded to code scanning |
 
 Restore order: revert `7e030110` (PR/push), then `1dfc11de` (schedules).
 Verify with a throwaway PR: lint fails on broken shell, build fails on broken
@@ -170,8 +171,10 @@ Rules:
 
 | Workflow / job | Timeout | Notes |
 | --- | --- | --- |
-| `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks (checksum-verified via `scripts/ci/install-tools.sh`; bump procedure in `scripts/ci/tool-checksums.txt`), gate unit tests, npm audit |
+| `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks (checksum-verified via `scripts/ci/install-tools.sh`; bump procedure in `scripts/ci/tool-checksums.txt`), gate unit tests, npm audit, CI docs check |
 | `ci.yml` build | 20 min | manifest, docs, PR-size policy, pr-size report, complexity snapshot, probes, SAST, build, warning ratchet |
+| `ci.yml` docker-build | 20 min | production image build + native linkage check (no push) |
+| `ci.yml` changes | 5 min | docs-only classifier (`scripts/ci/classify_changes.sh` + `classify_changes.mjs`) |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact (pure producer) |
 | `ci.yml` schema-drift | 15 min | fresh schema+migrations vs committed `schema_full.sql`; parallel to db-snapshot so drift never blocks consumers |
 | `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
@@ -181,10 +184,18 @@ Rules:
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
 | `ci.yml` db-ops | 20 min | rollback, backup/restore (push `main` + dispatch only; not a PR required check) |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
-| `coverage.yml` | 45 min | full COBOL + gateway |
-| `nightly.yml` | 180 min | full twice + drills + coverage + benchmark + load + flake compare |
+| `coverage.yml` coverage | 45 min | full COBOL + gateway |
+| `nightly.yml` full-twice | 180 min | full twice + drills + coverage + benchmark + load + flake compare |
+| `mutation.yml` mutants | 120 min | money-path mutants + anchor guard (weekly) |
 
 ## DB snapshot producer + consumers (CI-008A/CI-008B)
+
+Shared bootstrap lives in composite actions (`.github/actions/setup-cobol`,
+`.github/actions/db-bootstrap`, `.github/actions/upload-diagnostics`) so the
+six DB consumers (`test`, `db-shards`, `coverage`, `coverage-pr`, `db-ops`,
+`nightly.yml` `full-twice`) share one restore → grants → seed order instead
+of duplicated inline shell. `setup-cobol` pins the GnuCOBOL 3.2 toolchain for
+the coverage jobs; `upload-diagnostics` standardizes failure forensics.
 
 The `db-snapshot` job publishes one migrated gzip snapshot per run
 (`db-snapshot` artifact, retention 1 day) so DB jobs can restore instead of
@@ -468,7 +479,7 @@ the two env entries with owner and expiry.
 
 ## Branch protection (blocked) — restore runbook (not active)
 
-Current state 2026-11-16: INACTIVE (public repo, HTTP 404 Branch not
+Current state 2026-11-18: INACTIVE (repo now private, HTTP 404 Branch not
 protected). Do not treat this section as active state. Restore only via this
 runbook once the owner approves.
 

@@ -1,0 +1,14 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  my-job:
+    name: my display
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: echo hi

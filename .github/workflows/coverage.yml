@@ -9,10 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: coverage-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   coverage:
     name: coverage
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
 
     services:
@@ -82,4 +86,5 @@ jobs:
           name: coverage
           overwrite: true
           path: coverage/
+          retention-days: 14
           if-no-files-found: ignore

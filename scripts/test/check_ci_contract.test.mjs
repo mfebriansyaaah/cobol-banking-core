@@ -84,3 +84,15 @@ test('missing coverage-pr job fails (CI-002)', () => {
   assert.equal(r.status, 1, r.stdout + r.stderr);
   assert.match(r.stderr + r.stdout, /coverage-pr/);
 });
+
+test('missing retention-days fails', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('missing-retention')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /retention-days/);
+});
+
+test('missing upstream guard fails', () => {
+  const r = runGate('scripts/check_ci_contract.mjs', [fix('missing-upstream-guard')]);
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stderr + r.stdout, /upstream/);
+});

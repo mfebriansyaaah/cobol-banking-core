@@ -253,8 +253,11 @@ test('quarantined flakes skip only in the CI test job, never nightly/local', () 
 });
 
 test('ci:full label forces a full run (CI-011)', () => {
-  const runs = collectWorkflowJobs()['ci.yml']['changes'].runs.join('\n');
-  assert.match(runs, /ci:full/, 'changes job must honor the ci:full label override');
+  const job = collectWorkflowJobs()['ci.yml']['changes'];
+  const runs = job.runs.join('\n');
+  assert.match(runs, /classify_changes\.sh/, 'changes job must run the classifier script');
+  const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+  assert.match(ciYaml, /ci:full/, 'changes job must honor the ci:full label override');
 });
 
 test('mutation anchors are validated before the weekly run', () => {

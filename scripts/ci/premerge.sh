@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Local pre-merge gate.
 #
-# GitHub branch protection is active on `main`, so this script is the local
-# equivalent of the required checks. Run it on the exact commit you intend
-# to merge:
+# Branch protection may be inactive on `main` (see docs/CI.md), so this script
+# is the local equivalent of the required checks. Run it on the exact commit
+# you intend to merge:
 #
 #   bash scripts/ci/premerge.sh [--full] [--probes] [--docs] [--all]
 #       [--ci-parity]
@@ -131,6 +131,7 @@ run_ci_parity() {
 
     echo "=== PREMERGE: CI contract ==="
     node scripts/check_ci_contract.mjs .
+    node scripts/ci/check_ci_docs.mjs .
 
     echo "=== PREMERGE: schema drift ==="
     bash scripts/check_schema_drift.sh
