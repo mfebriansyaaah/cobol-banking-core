@@ -32,6 +32,7 @@ never counts. Every document below must stay linked here — enforced by
 | [CODE_CANDIDATES](CODE_CANDIDATES.md) | Refactor candidates tracked against the manifest |
 | [MODULE_INDEX](MODULE_INDEX.md) | Generated module inventory |
 | [MODULE_QUALITY](MODULE_QUALITY.md) | Generated per-module quality rollup |
+| [CLONE_REVIEW](CLONE_REVIEW.md) | Phase 2 clone-shaped module dispositions |
 | [ACTION_REGISTRY](ACTION_REGISTRY.md) | Action registry (PR-050) |
 | [ACTION_TEST_COVERAGE](ACTION_TEST_COVERAGE.md) | Action test coverage triage and burndown |
 | [openapi.yaml](openapi.yaml) | Generated REST API reference (not hand-edited) |

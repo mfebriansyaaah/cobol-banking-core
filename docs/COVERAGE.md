@@ -10,6 +10,7 @@ percentage.
 - [What is measured](#what-is-measured)
 - [Scope](#scope)
 - [Floors and ratchet](#floors-and-ratchet)
+- [Recommended-module backlog](#recommended-module-backlog)
 - [Running it](#running-it)
 - [Per-module ratchet (the binding COBOL check)](#per-module-ratchet-the-binding-cobol-check)
 - [Copybooks unit (shared code, measured and ratcheted)](#copybooks-unit-shared-code-measured-and-ratcheted)
@@ -84,6 +85,19 @@ whole-codebase coverage.
   collapsing module.
 - Update the baseline deliberately after a reviewed change. The script prints
   the measured values; commit them with the reason in the PR.
+
+## Recommended-module backlog
+
+`manifest/module_quality.json` marks 31 modules as recommended for training.
+Fourteen are in the curated measurement above; the remaining 17 are recorded
+explicitly in `tests/coverage_recommended_backlog.txt` with the DB suite or
+utility reason that keeps them out of the curated set. The
+`scripts/check_coverage_recommended.mjs` gate fails when a recommended module
+is silently unmeasured, and also fails when a measured module is left in the
+backlog. Removing an entry requires a measured number in
+`tests/coverage_module_baseline.txt`; this is the burn-down list for the next
+coverage pass.
+
 - The C-to-COBOL mapper lives in `scripts/coverage/map_cobol.py` (unit-tested
   in `scripts/coverage/test_map_cobol.py`); the module gate in
   `scripts/check_coverage_modules.mjs` (unit-tested in

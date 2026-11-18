@@ -91,7 +91,7 @@
        01  LS-OUTPUT-BUFFER      PIC X(16384).
 
         PROCEDURE DIVISION USING LS-CMD-ACTION LS-PARAM1 LS-PARAM2 LS-PARAM3 LS-PARAM4 LS-PARAM5 LS-PARAM6 LS-OUTPUT-BUFFER.
-        
+
         COPY "common_sql.cpy".
         COPY "sql_exec_6.cpy".
         COPY "wallet_entry.cpy".
@@ -137,8 +137,22 @@
             GOBACK.
 
         REVERSE-TRANSFER-LOGIC.
-            *> p1 = original txn_ref, p2 = actor (SUPER_ADMIN). Compensating,
-            *> one-time reversal: credit the original sender, debit the target.
+            PERFORM RESOLVE-REVERSAL-SENDER
+            IF LS-OUTPUT-BUFFER NOT = SPACES
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM LOAD-REVERSAL-LEGS
+            IF LS-OUTPUT-BUFFER NOT = SPACES
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM BEGIN-AND-LOCK-REVERSAL
+            IF LS-OUTPUT-BUFFER NOT = SPACES
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM POST-REVERSAL-LEGS
+            EXIT PARAGRAPH.
+
+        RESOLVE-REVERSAL-SENDER.
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             PERFORM LOOKUP-USER-ROLE
             IF WS-RESULT NOT = "SUPER_ADMIN"
@@ -210,6 +224,9 @@
                 MOVE "ERROR|ALREADY_REVERSED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
+            EXIT PARAGRAPH.
+
+        LOAD-REVERSAL-LEGS.
             *> The original debit (sender side) and credit (target side), scoped
             *> to the sender so a shared reference cannot pick the wrong rows.
             MOVE "SELECT CAST(account_id AS CHAR), CAST(amount AS CHAR), CAST(currency_id AS CHAR) FROM ledger WHERE txn_ref = ? AND type = 'DEBIT' AND description = 'Transfer out' AND from_email = ? LIMIT 1" TO WS-PREP-SQL
@@ -294,6 +311,9 @@
             UNSTRING WS-RESULT DELIMITED BY "|"
                 INTO WS-REV-REFUND
             END-UNSTRING
+            EXIT PARAGRAPH.
+
+        BEGIN-AND-LOCK-REVERSAL.
             SET WS-TRANSFER-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
             *> Lock both original accounts (ordered) before touching balances.
@@ -339,6 +359,9 @@
                     EXIT PARAGRAPH
                 END-IF
             END-IF
+            EXIT PARAGRAPH.
+
+        POST-REVERSAL-LEGS.
             SET STEP-OK TO TRUE
             *> Open the journal header for this reversal; legs and the audit
             *> row below point at it through the connection-scoped @jid.
@@ -505,6 +528,7 @@
                 MOVE "ERROR|REVERSAL_FAILED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
+
         COPY "common_amount.cpy".
 
         PARSE-MAJOR.

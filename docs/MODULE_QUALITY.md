@@ -32,7 +32,7 @@
 | `eod_core` | 2 | L0 | FROZEN | UNLINKED | — | 12.47 | floor | no |
 | `eod_jobs_core` | 2 | L1 | REVIEW | — | — | — | unmeasured | no |
 | `fee_core` | 1 | L3 | ACTIVE | — | — | 25.81 | floor | yes |
-| `fixed_asset_core` | 2 | L0 | FROZEN | DUPLICATE | 0.71 | 74.47 | ok | no |
+| `fixed_asset_core` | 2 | L0 | FROZEN | DUPLICATE | 0.67 | 74.47 | ok | no |
 | `fx_rate_core` | 2 | L0 | REVIEW | — | — | — | unmeasured | no |
 | `gl_allocation_core` | 2 | L0 | FROZEN | UNLINKED | — | 60.28 | floor | no |
 | `gl_core` | 1 | L3 | ACTIVE | — | — | 31.63 | floor | yes |
@@ -51,7 +51,7 @@
 | `loan_schedule_report_core` | 2 | L1 | REVIEW | — | — | — | unmeasured | no |
 | `loyalty_core` | 2 | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
 | `merchant_core` | 2 | L2 | PILOT | — | — | — | unmeasured | yes |
-| `merchant_settlement_core` | 2 | L0 | FROZEN | DUPLICATE | 0.71 | — | unmeasured | no |
+| `merchant_settlement_core` | 2 | L0 | FROZEN | DUPLICATE | 0.68 | — | unmeasured | no |
 | `notification_template_core` | 2 | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
 | `payment_clearing_core` | 1 | L3 | ACTIVE | — | — | 41.41 | floor | yes |
 | `payment_core` | 2 | L3 | ACTIVE | — | — | — | unmeasured | yes |
@@ -69,7 +69,7 @@
 | `sla_tracker_core` | 2 | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
 | `statement_core` | 2 | L3 | ACTIVE | — | — | 10.68 | floor | yes |
 | `statement_recon_core` | 2 | L3 | ACTIVE | — | — | — | unmeasured | yes |
-| `tax_management_core` | 2 | L0 | FROZEN | DUPLICATE | 0.69 | — | unmeasured | no |
+| `tax_management_core` | 2 | L0 | FROZEN | DUPLICATE | 0.66 | — | unmeasured | no |
 | `treasury_liquidity_core` | 1 | L3 | ACTIVE | — | — | 63.09 | floor | yes |
 | `user_core` | 1 | L3 | ACTIVE | — | — | 62.57 | floor | yes |
 | `wallet_core` | 1 | L3 | ACTIVE | — | — | 92.47 | ok | yes |

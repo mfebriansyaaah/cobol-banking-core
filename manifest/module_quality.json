@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-17T08:46:38.049Z",
+  "generatedAt": "2026-11-18T01:46:25.451Z",
   "modules": [
     {
       "module": "account_core",
@@ -319,7 +319,7 @@
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.71,
+      "cloneSimilarity": 0.67,
       "coveragePercent": 74.47,
       "coverageStatus": "ok",
       "routeFile": "fixed_asset.js",
@@ -566,7 +566,7 @@
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.71,
+      "cloneSimilarity": 0.68,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "merchant_settlement.js",
@@ -800,7 +800,7 @@
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.69,
+      "cloneSimilarity": 0.66,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "tax_management.js",

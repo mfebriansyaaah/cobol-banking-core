@@ -1,0 +1,27 @@
+# JavaScript complexity ratchet (ESLint complexity > 15).
+# Format: file|function-or-anonymous-line|max complexity.
+# `scripts/check_js_complexity.mjs --write` refreshes after a reviewed split.
+middleware/adapters/otp.js|completeIssue|17
+middleware/services/integrations/bot/turnstile.js|verifyTurnstile|19
+middleware/services/integrations/config.js|@35|16
+middleware/services/integrations/documents/retention.js|sweepRetention|18
+middleware/services/integrations/identity/nusakit.js|validateNikRemote|18
+middleware/services/integrations/ops/notify.js|sendAlert|16
+middleware/services/integrations/phone.js|sendOtpWithFallback|19
+middleware/services/integrations/resilience.js|resilientFetch|19
+middleware/services/integrations/risk/geoip.js|resolveGeo|18
+middleware/services/integrations/screening/opensanctions.js|screenName|19
+middleware/src/app.js|@422|19
+middleware/test/route-reachability.test.js|@21|17
+middleware/workers/outbox.js|deliverRow|20
+scripts/audit_complexity.mjs|@158|18
+scripts/build_tier1_graph.mjs|@179|19
+scripts/check_pr_size_policy.mjs|@19|16
+scripts/check_route_auth.mjs|@26|16
+scripts/check_test_counts.mjs|@148|17
+scripts/classify_code_candidates.mjs|@104|19
+scripts/generate_data_dictionary.mjs|@40|16
+scripts/lib/contract.mjs|@103|17
+scripts/lib/dispatch_table.mjs|@14|17
+scripts/lib/route_fields.mjs|@148|16
+scripts/lib/route_fields.mjs|@43|17

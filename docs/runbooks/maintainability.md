@@ -18,10 +18,13 @@ bash tests/run_all.sh db                        # full DB fleet (needs DDL-capab
 `run_all.sh full` must stay green twice in a row at wave end (master plan
 §10.3); coverage must not drop >1.0pp; no new COBOL warnings.
 
-ESLint's complexity ratchet is **20** (Phase 2): a function at 20 is accepted;
-21+ fails `npm run lint` through `--max-warnings 0`. Split the function into
-named helpers instead of grandfathering a new hotspot. `max-depth` remains a
-warn-only signal at 6.
+ESLint's config-level complexity ratchet is **20** (Phase 2): a function at 20
+is accepted; 21+ fails `npm run lint` through `--max-warnings 0`. A second,
+stricter ratchet (`scripts/check_js_complexity.mjs`, threshold **15**) records
+the remaining 16–20 functions in `tests/js_complexity_baseline.txt`; new
+hotspots above 15 fail the fast gate, and a baselined function may not grow.
+Split the function into named helpers and refresh the baseline only after a
+reviewed change (`--write`). `max-depth` remains a warn-only signal at 6.
 
 ## Splitting a module (ADR-0009/0010 in one page)
 

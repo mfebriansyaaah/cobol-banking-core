@@ -13,7 +13,7 @@
 | CONNECTED (no open items) | 0 |
 | PARTIAL (open items) | 29 |
 
-Open/in-progress items: 147 of 202 recorded.
+Open/in-progress items: 147 of 203 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -45,7 +45,7 @@ Open/in-progress items: 147 of 202 recorded.
 | `treasury_liquidity_core` | PARTIAL | 6 |
 | `user_core` | PARTIAL | 6 |
 | `wallet_core` | PARTIAL | 15 |
-| `wallet_transfer_core` | PARTIAL | 4 |
+| `wallet_transfer_core` | PARTIAL | 5 |
 
 | Item | Module | Kind | Status | Owner | Reason |
 | --- | --- | --- | --- | --- | --- |
@@ -247,6 +247,7 @@ Open/in-progress items: 147 of 202 recorded.
 | `wallet_core:table:reversal-fee-policy` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:role-permissions` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_core:table:transfer-reversals` | `wallet_core` | table | OPEN | wallet | Domain table has no core business key or FK into a Tier-1 table |
+| `wallet_transfer_core:action:transfer-logic` | `wallet_transfer_core` | action | WAIVED | wallet | TRANSFER-LOGIC is an orchestrator; core account/FX reads and writes moved to RESOLVE-SENDER-ACCOUNT, RESOLVE-TARGET-ACCOUNT and LOAD-TRANSFER-CONTEXT |
 | `wallet_transfer_core:audit:core-reference` | `wallet_transfer_core` | audit | OPEN | wallet | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `wallet_transfer_core:table:audit-trail` | `wallet_transfer_core` | table | OPEN | wallet | Domain table has no core business key or FK into a Tier-1 table |
 | `wallet_transfer_core:table:exchange-rates` | `wallet_transfer_core` | table | OPEN | wallet | Domain table has no core business key or FK into a Tier-1 table |
