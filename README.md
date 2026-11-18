@@ -391,7 +391,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/auth_shell_db_tests.sh` | 51 |
 | `tests/db/dashboard_db_tests.sh` | 13 |
 | `tests/db/eod_ops_db_tests.sh` | 16 |
-| `tests/db/fee_read_db_tests.sh` | 9 |
+| `tests/db/fee_read_db_tests.sh` | 39 |
 | `tests/db/import_ops_db_tests.sh` | 20 |
 | `tests/db/ops_shell_db_tests.sh` | 37 |
 | `tests/db/payment_pic_loyalty_db_tests.sh` | 21 |
@@ -421,7 +421,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
 | `tests/db/commit_failure_db_tests.sh` | 6 |
-| **Total** | **2839** |
+| **Total** | **2869** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

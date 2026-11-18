@@ -6,7 +6,6 @@
 # Percentages below are the honest per-module numbers after maint-15E made
 # the mapper ignore COPYbook lines (they used to inflate host rates).
 user_core  deep auth/session branches need targeted tests (62.71%)
-gl_core  period/account admin paths thin (40.09%)
 fee_core  fee paths exercised mainly through wallet transfer; waiver/admin branches untested (22.64%)
 loan_schedule_core  generated-schedule branches (reschedule/early payoff) untested (61.54%)
 loan_core  posting resolve lives in loan_posting_core; owner-side status/audit branches thin (51.07%)

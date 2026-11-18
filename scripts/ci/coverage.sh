@@ -144,6 +144,7 @@ SUITES=(
     gl_allocation_db_tests
     account_db_tests
     cost_center_db_tests fixed_asset_db_tests
+    fee_read_db_tests
     fixed_asset_domain_db_tests
     report_builder_db_tests notification_template_db_tests
 )
