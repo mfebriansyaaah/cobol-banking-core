@@ -29,7 +29,7 @@ export const GENERATED_PREFIXES = [
   'docs/openapi.yaml',
   'tests/contracts/',
   'database/schema_full.sql',
-  'database/schema_v2.sql',
+  'database/schema_v2.sql.gz',
   'artifacts/',
   'coverage/',
 ];

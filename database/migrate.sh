@@ -62,6 +62,11 @@ mysqlc -e "CREATE TABLE IF NOT EXISTS schema_migrations (
 # SHA-256 of a migration file, recorded at apply time and verified by --check.
 file_sha() { sha256sum "$1" | awk '{print $1}'; }
 
+# The immutable baseline snapshot ships gzipped to keep the repository free of
+# a second full-size schema text. Hash the uncompressed bytes so marker
+# checksums recorded before the compression remain valid.
+baseline_sha() { gzip -dc "$1" | sha256sum | awk '{print $1}'; }
+
 # schema_migrations.checksum exists once 0666 has applied. Versions applied
 # before that recorded no hash; detect once per invocation so INSERTs stay
 # valid on old and new databases alike.
@@ -164,12 +169,12 @@ if [ "$1" = "--check" ]; then
             exit 1
         fi
         # A recorded baseline pins its snapshot file: an edited (or deleted)
-        # schema_v2.sql fails here instead of silently changing fresh installs.
+        # schema_v2.sql.gz fails here instead of silently changing fresh installs.
         if is_applied "baseline_v2"; then
-            want_baseline="$(file_sha "database/schema_v2.sql" 2>/dev/null || true)"
+            want_baseline="$(baseline_sha "database/schema_v2.sql.gz" 2>/dev/null || true)"
             have_baseline="$(mysqlc -N -B -e "SELECT checksum FROM schema_migrations WHERE version='baseline_v2';" 2>/dev/null)"
             if [ "$have_baseline" != "$want_baseline" ]; then
-                echo "checksum MISMATCH: baseline snapshot database/schema_v2.sql was edited after this database was baselined (restore the file or re-baseline deliberately): baseline_v2"
+                echo "checksum MISMATCH: baseline snapshot database/schema_v2.sql.gz was edited after this database was baselined (restore the file or re-baseline deliberately): baseline_v2"
                 exit 1
             fi
         fi
@@ -207,17 +212,18 @@ if [ "$1" = "--up-to" ]; then
     [ -f "database/migrations/$UPTO.sql" ] || { echo "unknown migration: $UPTO" >&2; exit 2; }
 fi
 
-# Baseline v2 (PR-010): fresh installs apply database/schema_v2.sql once and
+# Baseline v2 (PR-010): fresh installs apply database/schema_v2.sql.gz once and
 # record every current migration as covered-by-baseline (with current
 # hashes) plus a baseline_v2 marker; existing databases must verify clean
 # (same membership + hash rules as --check) before the marker lands. Either
 # way the run then falls through to the normal apply loop, so migrations
 # added after the baseline apply normally on both kinds of database.
-# schema_v2.sql is immutable once recorded (its hash rides the marker row);
+# schema_v2.sql.gz is immutable once recorded (its hash rides the marker row);
 # --check reports an edited baseline file as a baseline_v2 mismatch.
 if [ "$1" = "--baseline" ]; then
-    BASELINE_FILE="database/schema_v2.sql"
+    BASELINE_FILE="database/schema_v2.sql.gz"
     [ -f "$BASELINE_FILE" ] || { echo "missing baseline snapshot: $BASELINE_FILE" >&2; exit 2; }
+    gzip -t "$BASELINE_FILE" 2>/dev/null || { echo "baseline snapshot is not a valid gzip stream: $BASELINE_FILE" >&2; exit 2; }
     # Pre-CREATE state (the unconditional CREATE TABLE below runs for every
     # mode): a missing/empty schema_migrations means nothing was ever applied.
     had_table="$(mysqlc -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'schema_migrations';" 2>/dev/null || echo 0)"
@@ -235,7 +241,7 @@ if [ "$1" = "--baseline" ]; then
             exit 1
         fi
         echo "applying baseline: $BASELINE_FILE"
-        if err=$(mysqlc < "$BASELINE_FILE" 2>&1); then
+        if err=$(gzip -dc "$BASELINE_FILE" | mysqlc 2>&1); then
             detect_checksum_col
             versions=""
             for f in $ARCHIVE_GLOB; do
@@ -247,7 +253,7 @@ if [ "$1" = "--baseline" ]; then
             if [ -n "$versions" ]; then
                 mysqlc -e "INSERT IGNORE INTO schema_migrations (version, checksum) VALUES $versions;" 2>/dev/null
             fi
-            mysqlc -e "INSERT IGNORE INTO schema_migrations (version, checksum) VALUES ('baseline_v2', '$(file_sha "$BASELINE_FILE")');" 2>/dev/null
+            mysqlc -e "INSERT IGNORE INTO schema_migrations (version, checksum) VALUES ('baseline_v2', '$(baseline_sha "$BASELINE_FILE")');" 2>/dev/null
             echo "baseline applied (covered migrations recorded as skipped)"
         else
             echo "baseline FAILED"
@@ -291,7 +297,7 @@ if [ "$1" = "--baseline" ]; then
             echo "already baselined"
         else
             detect_checksum_col
-            mysqlc -e "INSERT INTO schema_migrations (version, checksum) VALUES ('baseline_v2', '$(file_sha "$BASELINE_FILE")');" 2>/dev/null
+            mysqlc -e "INSERT INTO schema_migrations (version, checksum) VALUES ('baseline_v2', '$(baseline_sha "$BASELINE_FILE")');" 2>/dev/null
             echo "baseline recorded"
         fi
     fi

@@ -4,6 +4,11 @@ High-level map of the banking domains, their COBOL modules, and their database
 tables. The full module inventory is in [MODULE_INDEX.md](MODULE_INDEX.md); the
 column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 
+> **Inventory rule:** `docs/MODULE_INDEX.md` and `manifest/modules.json` are
+> authoritative. The 17 legacy modules retired in `bc389970` are recorded in
+> `manifest/wave_legacy.json` and are not part of the active tree. If a module
+> is not in the generated index, it is not part of this codebase.
+
 ## Core platform
 
 - `auth_core`, `auth_password_core`, `user_core`, `wallet_core`
@@ -19,9 +24,10 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
   `wallet_statement_core` (statements)
 - `phone_otp_core` — OTP issue/verify/resend + device-link confirm
   (server-side delivery, see [Integrations](INTEGRATIONS.md))
-- `ref_engine`, `ref_ext_core`, `gl_core`, `batch_core`
+- `ref_engine`, `ref_ext_core`, `gl_core`, `eod_jobs_core`
 - `report_core`, `fee_core`, `eod_core`, `statement_core`
-- `notification_core`, `alert_core`, `dashboard_core`
+- `notification_template_core`, `sla_tracker_core`, `dashboard_core`,
+  `compliance_calendar_core`
 - Audit/compliance/ops modules (access_audit, audit_*, compliance_*, etc.)
 
 ## Lending & deposits
@@ -65,8 +71,8 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
   GL link). Tables: `fixed_asset`, `fixed_asset_depreciation`,
   `fixed_asset_disposal`, `fixed_asset_audit`.
 - Routes: `/fixed-assets` + `/fixed-assets/:id/{depreciate,revalue,dispose}`;
-  legacy generic CREATE/CALC/UPDATE/DELETE kept for compat, `asset_management`
-  deprecated.
+  legacy generic CREATE/CALC/UPDATE/DELETE kept for compat; the legacy asset
+  clone was retired in `bc389970`.
 
 ## Loyalty / Rewards (canonical)
 
@@ -78,9 +84,8 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
   `loyalty_points_ledger`, `loyalty_redemption`, `loyalty_campaign`,
   `loyalty_audit`.
 - Routes: `/loyalty/programs`, `/loyalty/members`, `/loyalty/{earn,redeem,expire,adjust,validate}`, `/loyalty/{summary,audit}`.
-- Deprecated (kept for backward compat): generic `loyalty_program`,
-  `rewards_management`, `points_redemption`, `cashback` write paths
-  (CALC/UPDATE/DELETE + stateless VALIDATE).
+- Legacy program/reward/redemption/cashback clones were retired in
+  `bc389970`; generic write paths on `loyalty_core` remain for compat.
 
 ## Chargeback / Dispute Ops (canonical)
 
@@ -93,16 +98,15 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
   `chargeback_id` = case id).
 - Routes: `/chargebacks/open`, `/:id/{assign,evidence,represent,accept,reject,arbitrate,close}`,
   `/chargebacks/cases*` list/get/summary.
-- Deprecated (kept for backward compat): generic `chargeback_core` write
-  paths (`CHB_CREATE/CALC/UPDATE/DELETE` on the generic table),
-  `dispute_management_core` (card disputes belong here; ledger disputes stay
-  in `wallet_core`).
+- Deprecated (kept for backward compat): generic write paths
+  (`CHB_CREATE/CALC/UPDATE/DELETE` on the generic table). The legacy dispute
+  clone was retired in `bc389970`; card disputes belong here, ledger disputes
+  stay in `wallet_core`.
 
 ## Payments & treasury
 
 - `payment_core`, `payment_clearing_core`, `payment_hold_core`, `payment_instruction_core`
-- `billpay_core`, `remittance_core`, `standing_order_core`
-- `treasury_liquidity_core`, `treasury_position_core`, `fx_deal_core`, `fx_hedging_core`
+- `treasury_liquidity_core`
 - `fx_rate_core` — reference-rate store/serve (`FX_RATE_STORE`/`FX_RATE_GET`,
   see [FX](FX.md))
 
@@ -116,15 +120,14 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 - `bank_guarantee_core` — BG lifecycle: draft → submit → approve → issue →
   claim → settle → close. Tables: `bank_guarantee`, `bg_claim`.
 - Routes: `/trade-finance/lc*`, `/trade-finance/bg*`.
-- Deprecated generic clones (kept for compat, do not extend):
-  `trade_finance_core` (TRF_), `documentary_credit`, `bankers_acceptance`,
-  `export_finance`, `import_finance`, `factoring`.
+- Legacy generic clones were retired in `bc389970`; the full list is in
+  `manifest/wave_legacy.json`. Do not extend them.
 
 ## Compliance & risk
 
-- `kyc_periodic_core`, `kyc_review_core`, `aml_screening_core`
-- `sanctions_list_core`, `sanctions_hold_core`, `fraud_case_core`, `fraud_ops_core`
-- `risk_screening_core`, `lbpue_core`
+- `identity_core` — KYC/identity verification, sanctions holds, account freeze
+- `compliance_calendar_core` — regulatory calendar and review scheduling
+- `auth_review_core` — access reviews and permission checks
 - `risk_core` — device/geo risk notations (`RISK_NOTE`/`RISK_STATUS`,
   see [Risk](RISK.md))
 - `corp_core` — corporate LEI cache (`CORP_RESOLVE` upsert, `CORP_STATUS`
@@ -132,9 +135,8 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 
 ## Finance & accounting
 
-- `gl_core`, `gl_allocation_core`, `gl_reval_core`, `gl_period_close_core`
-- `cost_center_core`, `fixed_asset_core`, `consolidation_core`
-- `budget_core`, `procurement_core`, `tax_report_core`
+- `gl_core`, `gl_allocation_core`, `cost_center_core`, `fixed_asset_core`
+- `tax_management_core` (see the canonical section below)
 
 ## Tax Withholding (canonical)
 
@@ -146,8 +148,8 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 - Routes: `/tax/rules*`, `/tax/calculate`, `/tax/entries/:id/post|reverse`,
   `/tax/reports/run`. Deposit interest and fee paths integrate by orchestration:
   source domain posts base → `TXM_CALC` → `TXM_POST` + `GL_JOURNAL_POST`.
-- Deprecated (do not use for new flows; kept for backward compat):
-  `tax_withholding_core`, `tax_item_core` (generic template clones).
+- Legacy tax clones were retired in `bc389970`; see
+  `manifest/wave_legacy.json`.
 
 ## Collateral Management (canonical)
 
@@ -159,22 +161,18 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 - GL accounts: `1510` Repossessed Collateral, `4210` Gain on Disposal,
   `5210` Loss on Disposal. Post via `GL_JOURNAL_POST`, link via
   `CLT_REPOSSESS`/`CLT_DISPOSE` P4 (`glJournalId`).
-- Deprecated (do not use for new flows; kept for backward compat):
-  `collateral_mgmt_core`, `collateral_repossession_core`, `collateralized_core`.
-  Their tables (`collateral_mgmt`, `collateral_repossession`,
-  `collateralized`) are legacy generic clones.
+- Legacy collateral clones were retired in `bc389970`; their tables remain in
+  the schema history and are tracked in `LEGACY_TABLES.md`.
 
 ## Data, reporting & IT ops
 
-- `report_core`, `report_builder_core`, `analytics_snapshot_core`
-- `report_run_core` — report run lifecycle (start/row/status/complete/fail +
-  export/retry)
+- `report_core`, `report_builder_core`, `report_run_core`, `report_schedule_core`
 - `import_core` (batch lifecycle: create/validate/post/export/clone/retry;
-  route `import.js` + table cases) + `import_row_core` (row stage/correct/skip)
+  route `import.js` + table cases), `import_row_core` (row stage/correct/skip),
+  `import_post_core` (ledger posting), `import_recon_core` (reconciliation)
 - `backup_drill_core` — backup drill runs (create/run/validate/close + audit)
-- `metric_definition_core`, `data_lineage_core`, `data_quality_core`, `data_retention_core`
-- `disaster_recovery_core`, `incident_*`, `change_*`
-- `capacity_*`, `sla_tracking_core`, `slo_report_core`
+- `eod_core`, `eod_jobs_core` — end-of-day phases and orchestration
+- `sla_tracker_core`, `notification_template_core`, `dashboard_core`
 
 ## Table groups
 

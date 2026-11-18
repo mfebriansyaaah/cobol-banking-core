@@ -60,7 +60,7 @@ Rules of the split:
 | Path | Contents |
 | --- | --- |
 | `cobol/src/` | COBOL modules + `main_logic.cob` dispatcher + `sql_bridge.c` (count in `docs/STATUS.md`) |
-| `cobol/copy/` | 16 shared copybooks: auth/password, trim, validate, SQL helpers, idempotency, dispatch table (counts in `tests/copybook_baseline.txt`) |
+| `cobol/copy/` | 27 shared copybooks: auth/password, trim, validate, SQL helpers, idempotency, dispatch table (counts in `tests/copybook_baseline.txt`) |
 | `cobol/c_lib/` | PBKDF2, TOTP, CSPRNG, settings helpers |
 | `cobol/bin/` | Build output (`main_logic`), gitignored |
 | `middleware/src/` | Express gateway (transport only): route modules, barrel, authService, and core helpers |
@@ -84,28 +84,30 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 
 | Domain | Status | Modules |
 | --- | --- | --- |
-| Platform | Done | `auth_core`, `auth_password_core`, `user_core`, `wallet_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `batch_core`, `report_core`, `fee_core`, `eod_core`, `statement_core`, `notification_core`, `alert_core`, `dashboard_core`, plus audit/compliance/ops modules |
-| D1 Lending | Done | `loan_schedule_core` (28 actions), `loan_core` |
-| D2 Deposit | Done | `deposit_core` (13 actions) |
-| D3 Cards | Done | `card_core` (16 actions) |
+| Platform | Done | `auth_core`, `auth_password_core`, `auth_mfa_core`, `auth_recovery_core`, `auth_review_core`, `auth_session_core`, `auth_ops_core`, `user_core`, `wallet_core`, `wallet_transfer_core`, `wallet_reversal_core`, `wallet_hold_core`, `wallet_dispute_core`, `wallet_recon_core`, `wallet_statement_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `report_core`, `fee_core`, `eod_core`, `eod_jobs_core`, `statement_core`, `dashboard_core`, `notification_template_core`, `sla_tracker_core`, `compliance_calendar_core`, `backup_drill_core`, `cost_center_core`, `corp_core`, `risk_core`, `identity_core`, `phone_otp_core` |
+| D1 Lending | Done | `loan_schedule_core` (28 actions), `loan_core`, `loan_posting_core`, `loan_schedule_lifecycle_core`, `loan_schedule_posting_core`, `loan_schedule_report_core` |
+| D2 Deposit | Done | `deposit_core` (13 actions), `deposit_posting_core` |
+| D3 Cards | Done | `card_core` (16 actions), `card_posting_core` |
 | D4 Collections | Done | `collection_core` (15 actions) |
-| D5 Payments | Done | `payment_clearing_core` (9 actions) |
-| D6 Treasury / FX | Done | `treasury_liquidity_core` (9 actions) |
-| D7 Compliance | Done | `kyc_periodic_core` (9 actions) |
-| D8 Finance | Done | `gl_allocation_core` (9 actions) |
-| D9 IT Ops | Done | `backup_drill_core` (9 actions) |
-| D11 Compliance (AML) | Done | `aml_screening_core` (9 actions) |
-| D12 Sanctions List | Done | `sanctions_list_core` (9 actions) |
-| D13 Fraud Case | Done | `fraud_case_core` (9 actions) |
-| D10 Data / Reporting | Done | `report_builder_core` (9 actions) |
-| Collateral Mgmt | Done (pilot) | `collateral_core` (17 actions: register/appraise/revalue/pledge/allocate/release/repossess/dispose + CRUD/audit); legacy `collateral_mgmt`, `collateral_repossession`, `collateralized` deprecated, kept for compat |
-| Trade Finance | Done (pilot) | `letter_of_credit_core` (LC lifecycle + GL link), `bank_guarantee_core` (BG lifecycle + claim); legacy `trade_finance`, `documentary_credit`, `bankers_acceptance`, `export_finance`, `import_finance`, `factoring` deprecated |
-| Merchant Acquiring | Done (pilot) | `merchant_core` (onboarding + fee profile), `merchant_settlement_core` (txn/fee/settle/payout + GL link); legacy generic CREATE/CALC/UPDATE/DELETE deprecated |
-| Tax Withholding | Done (pilot) | `tax_management_core` (rule engine + calc/post/reverse/report); legacy `tax_withholding`, `tax_item` deprecated |
-| Chargeback | Done (pilot) | `chargeback_core` (open/assign/evidence/represent/accept/reject/arbitrate/close + hold/release/debit ledger); generic `chargeback` write paths + `dispute_management` deprecated |
+| D5 Payments | Done | `payment_clearing_core` (9 actions), `payment_core`, `payment_hold_core`, `payment_instruction_core` |
+| D6 Treasury / FX | Done | `treasury_liquidity_core` (9 actions), `fx_rate_core` |
+| D8 Finance | Done | `gl_allocation_core` (9 actions), `gl_core`, `fixed_asset_core`, `tax_management_core` |
+| D9 IT Ops | Done | `backup_drill_core` (9 actions), `eod_jobs_core`, `sla_tracker_core` |
+| D10 Data / Reporting | Done | `report_builder_core` (9 actions), `report_core`, `report_run_core`, `report_schedule_core`, `import_core`, `import_row_core`, `import_post_core`, `import_recon_core`, `statement_core`, `statement_recon_core` |
+| Compliance / risk | Done | `identity_core`, `risk_core`, `corp_core`, `auth_review_core`, `compliance_calendar_core`, `phone_otp_core` |
+| Collateral Mgmt | Done (pilot) | `collateral_core` (17 actions: register/appraise/revalue/pledge/allocate/release/repossess/dispose + CRUD/audit); legacy clones retired in `bc389970` |
+| Trade Finance | Done (pilot) | `letter_of_credit_core` (LC lifecycle + GL link), `bank_guarantee_core` (BG lifecycle + claim); legacy generic clones retired in `bc389970` |
+| Merchant Acquiring | Done (pilot) | `merchant_core` (onboarding + fee profile), `merchant_settlement_core` (txn/fee/settle/payout + GL link); generic CREATE/CALC/UPDATE/DELETE kept for compat |
+| Tax Withholding | Done (pilot) | `tax_management_core` (rule engine + calc/post/reverse/report); legacy clones retired in `bc389970` |
+| Chargeback | Done (pilot) | `chargeback_core` (open/assign/evidence/represent/accept/reject/arbitrate/close + hold/release/debit ledger); generic write paths and the legacy dispute clone retired |
 | Payroll | Done (pilot) | `payroll_processing_core` (validate/approve/process/pay/close + tax rule + balance + GL/payment links); generic CREATE/CALC/UPDATE/DELETE kept for compat |
-| Loyalty / Rewards | Done (pilot) | `loyalty_core` (create/activate/enroll/earn/redeem/expire/adjust + ledger/GL link); generic `loyalty_program`, `rewards_management`, `points_redemption`, `cashback` write paths deprecated |
-| Fixed Asset | Done (pilot) | `fixed_asset_core` (capitalize/depreciate/revalue/dispose + GL link + audit); generic CREATE/CALC/UPDATE/DELETE kept for compat, `asset_management` deprecated |
+| Loyalty / Rewards | Done (pilot) | `loyalty_core` (create/activate/enroll/earn/redeem/expire/adjust + ledger/GL link); generic program/reward/redemption/cashback clones retired in `bc389970` |
+| Fixed Asset | Done (pilot) | `fixed_asset_core` (capitalize/depreciate/revalue/dispose + GL link + audit); generic CREATE/CALC/UPDATE/DELETE kept for compat; the legacy asset clone retired |
+
+The authoritative inventory is generated in
+[docs/MODULE_INDEX.md](docs/MODULE_INDEX.md). The 17 retired legacy modules are
+listed in `manifest/wave_legacy.json`; they are intentionally absent from the
+active tree and from `docs/DOMAIN_STATUS.md`'s active row count.
 
 ### Status details
 
@@ -299,15 +301,18 @@ node middleware/workers/outbox.js --once --limit 100
 
 > **Baseline note (2026-11-16):** `database/schema.sql` + `database/migrate.sh`
 > is the canonical fresh-install path used by README and CI.
-> `database/schema_v2.sql` and `migrate.sh --baseline` are an experimental
-> fast-install candidate; they are not the onboarding path and are excluded
-> from the `source` dataset profile.
+> `database/schema_v2.sql.gz` (the immutable baseline snapshot) and
+> `migrate.sh --baseline` are an experimental fast-install candidate; they are
+> not the onboarding path and are excluded from the `source` dataset profile.
 
 - `database/schema.sql` — baseline snapshot, fresh installs only.
-- `database/migrations/` — append-only, one file per change (`0101_…` …
-  `0110_cards.sql`), tracked in `schema_migrations`.
+- `database/migrations/` — active migrations only (currently `0687_…`), tracked
+  in `schema_migrations`. Pre-baseline files live in `database/migrations/archive/`
+  (677 files); they are never scanned for new installs but remain
+  checksum-verified for existing databases.
 - `database/migrate.sh` — idempotent runner; `--check` lists pending versions,
-  `--only <version>` applies one.
+  `--only <version>` applies one, `--baseline` applies the experimental
+  compressed baseline.
 - `database/seed_test_data.sql` — deterministic development fixtures.
 - `database/grants.sh` — least-privilege runtime account and privileged
   migration account (`--print` to review).
@@ -342,7 +347,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/grants_db_tests.sh` | 6 |
 | `tests/db/migration_checksum_db_tests.sh` | 6 |
 | `tests/db/report_builder_db_tests.sh` | 13 |
-| `middleware/test/*.js` | 347 |
+| `middleware/test/*.js` | 349 |
 | `tests/db/cost_center_db_tests.sh` | 18 |
 | `tests/db/fixed_asset_db_tests.sh` | 18 |
 | `tests/db/fixed_asset_schema_db_tests.sh` | 8 |
@@ -415,7 +420,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/loan_posting_db_tests.sh` | 13 |
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
-| **Total** | **2829** |
+| **Total** | **2831** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

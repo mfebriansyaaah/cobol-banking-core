@@ -221,15 +221,15 @@ refuse protected names before any `DROP`.
 
 `scripts/check_schema_drift.sh` fails when `schema.sql` + migrations no longer
 reproduce the committed snapshots (`database/schema_full.sql` and the
-byte-identical `database/schema_v2.sql`; regenerate deliberately with
-`scripts/generate_schema_snapshot.sh` after reviewing the diff).
-`schema_v2.sql` is an experimental fast-install candidate, not the
+byte-identical, gzipped `database/schema_v2.sql.gz`; regenerate deliberately
+with `scripts/generate_schema_snapshot.sh` after reviewing the diff).
+`schema_v2.sql.gz` is an experimental fast-install candidate, not the
 onboarding path: fresh installs use `database/schema.sql` +
 `database/migrate.sh` (see README Database).
 
 `tests/db/migration_baseline_db_tests.sh` pins the experimental PR-010
 baseline lifecycle on throwaway databases (never the database under
-test): fresh install applies `schema_v2.sql` and records every covered
+test): fresh install applies `schema_v2.sql.gz` and records every covered
 migration plus the `baseline_v2` marker, partial databases fail loudly,
 tampering with the snapshot trips `--check`, and the committed v2 body
 must equal the full snapshot body. This path is experimental (see

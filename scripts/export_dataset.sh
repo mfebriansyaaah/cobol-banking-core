@@ -65,6 +65,7 @@ if [ "$PROFILE" = "source" ] || [ "$PROFILE" = "train" ]; then
   rm -f \
     "$OUT/database/schema_full.sql" \
     "$OUT/database/schema_v2.sql" \
+    "$OUT/database/schema_v2.sql.gz" \
     "$OUT/docs/openapi.yaml" \
     "$OUT/contracts/actions.yaml" \
     "$OUT/manifest/actions.json" \
@@ -76,39 +77,16 @@ if [ "$PROFILE" = "source" ] || [ "$PROFILE" = "train" ]; then
 fi
 
 if [ "$PROFILE" = "train" ]; then
-  rm -f \
-    "$OUT/cobol/src/account_core.cob" \
-    "$OUT/cobol/src/compliance_calendar_core.cob" \
-    "$OUT/cobol/src/notification_template_core.cob" \
-    "$OUT/cobol/src/report_schedule_core.cob" \
-    "$OUT/cobol/src/sla_tracker_core.cob" \
-    "$OUT/middleware/src/routes/account.js" \
-    "$OUT/middleware/src/routes/compliance_calendar.js" \
-    "$OUT/middleware/src/routes/notification_template.js" \
-    "$OUT/middleware/src/routes/report_schedule.js" \
-    "$OUT/middleware/src/routes/sla_tracker.js" \
-    "$OUT/tests/db/account_db_tests.sh" \
-    "$OUT/tests/db/compliance_calendar_db_tests.sh" \
-    "$OUT/tests/db/notification_template_db_tests.sh" \
-    "$OUT/tests/db/report_schedule_db_tests.sh" \
-    "$OUT/tests/db/sla_tracker_db_tests.sh" \
-    "$OUT/tests/cobol/cases/account.cases" \
-    "$OUT/tests/cobol/cases/ccl.cases" \
-    "$OUT/tests/cobol/cases/ntf.cases" \
-    "$OUT/tests/cobol/cases/rsc.cases" \
-    "$OUT/tests/cobol/cases/slt.cases"
-fi
-
-if [ "$PROFILE" = "train" ]; then
-  for p in \
-    "cobol/src/account_core.cob" \
-    "cobol/src/compliance_calendar_core.cob" \
-    "cobol/src/notification_template_core.cob" \
-    "cobol/src/report_schedule_core.cob" \
-    "cobol/src/sla_tracker_core.cob"
-  do
-    test ! -e "$OUT/$p" || { echo "FAIL: train profile still contains $p" >&2; exit 1; }
-  done
+  # Curation is data-driven: manifest/module_quality.json decides which
+  # modules are not recommended for training, and train_profile.mjs maps
+  # those modules to their sources, DB suites, table-case files, and the
+  # generated route boilerplate. The spec stays; one route file remains as a
+  # generated-output exemplar.
+  while IFS= read -r rel; do
+    [ -n "$rel" ] || continue
+    rm -f "$OUT/$rel"
+  done < <(node "$ROOT/scripts/train_profile.mjs" --list)
+  node "$ROOT/scripts/train_profile.mjs" --check "$OUT"
 fi
 
 COUNT="$(find "$OUT" -type f | wc -l | tr -d ' ')"

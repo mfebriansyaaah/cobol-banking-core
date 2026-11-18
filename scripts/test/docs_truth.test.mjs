@@ -36,5 +36,5 @@ test('route definitions use one metric', () => {
 test('clone exclusion claim matches the export profile', () => {
   const card = read('docs/DATASET_CARD.md');
   assert.doesNotMatch(card, /excluded from `source`/i);
-  assert.match(card, /excluded from the `train` profile/i);
+  assert.match(card, /excluded from the\s+`train`\s+profile/i);
 });

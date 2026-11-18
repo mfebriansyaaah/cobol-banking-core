@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Baseline v2 tests (maint-10): fresh installs apply schema_v2.sql once and
+# Baseline v2 tests (maint-10): fresh installs apply schema_v2.sql.gz once and
 # record every covered migration as skipped; existing databases verify clean
 # before the baseline marker lands; partial databases fail loudly; the
 # committed baseline is byte-identical to the build output. Operates only on
@@ -90,11 +90,14 @@ migrate_as "$PART_DB" --check >/dev/null 2>&1
 assert_match "upgraded db passes --check" "$?" "^0$"
 
 # 14-16. Tampering with the baseline snapshot trips --check; restore heals.
-BASELINE_FILE="$ROOT/database/schema_v2.sql"
-BACKUP="$(mktemp "${TMPDIR:-/tmp}/baseline-probe.XXXXXX.sql")"
+BASELINE_FILE="$ROOT/database/schema_v2.sql.gz"
+BACKUP="$(mktemp "${TMPDIR:-/tmp}/baseline-probe.XXXXXX.sql.gz")"
+TAMPERED="$(mktemp "${TMPDIR:-/tmp}/baseline-probe.XXXXXX.sql")"
 cp "$BASELINE_FILE" "$BACKUP"
-trap 'cp "$BACKUP" "$BASELINE_FILE"; rm -f "$BACKUP"; cleanup_dbs' EXIT
-echo "-- probe" >> "$BASELINE_FILE"
+trap 'cp "$BACKUP" "$BASELINE_FILE"; rm -f "$BACKUP" "$TAMPERED"; cleanup_dbs' EXIT
+gzip -dc "$BASELINE_FILE" > "$TAMPERED"
+echo "-- probe" >> "$TAMPERED"
+gzip -9 -n -c "$TAMPERED" > "$BASELINE_FILE"
 out="$(migrate_as "$FRESH_DB" --check 2>&1)"; rc=$?
 assert_match "edited baseline fails --check" "$rc" "^1$"
 assert_match "failure names the baseline" "$out" "baseline_v2"
@@ -105,7 +108,7 @@ trap cleanup_dbs EXIT
 
 # 17. Committed baseline is byte-identical to the committed full snapshot
 # (Wave-C made no schema change; the drift gate proves build-equality in CI).
-assert_match "schema_v2 body equals schema_full body" "$(diff -u <(grep -v "^-- GENERATED\|^-- Regenerate\|^-- Source" "$ROOT/database/schema_v2.sql") <(grep -v "^-- GENERATED\|^-- Regenerate\|^-- Source" "$ROOT/database/schema_full.sql") | wc -l)" "^0$"
+assert_match "schema_v2 body equals schema_full body" "$(diff -u <(gzip -dc "$ROOT/database/schema_v2.sql.gz" | grep -v "^-- GENERATED\|^-- Regenerate\|^-- Source") <(grep -v "^-- GENERATED\|^-- Regenerate\|^-- Source" "$ROOT/database/schema_full.sql") | wc -l)" "^0$"
 
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi

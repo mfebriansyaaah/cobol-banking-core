@@ -41,16 +41,16 @@ the line for everything new starting now.
 - Migration squash (657 → <150) is explicitly deferred: high-risk, solo-PR
   only, preconditions unmet (see plan PR-063).
 
-## Baseline v2 lifecycle (deferred, not adopted)
+## Baseline v2 lifecycle (experimental, not canonical)
 
-`database/schema_v2.sql` is generated from `database/schema_full.sql` and is
-kept for drift comparison only. It is **not** the fresh-install path used by
-README or CI in this release.
+`database/schema_v2.sql.gz` is generated from `database/schema_full.sql` and is
+kept compressed for drift comparison only. It is **not** the fresh-install path
+used by README or CI in this release.
 
 - Canonical fresh install: `database/schema.sql` + `database/migrate.sh`.
 - Experimental fast install: `database/migrate.sh --baseline`; not adopted by
   CI, drills, or onboarding until a separate migration PR updates every caller.
-- `schema_v2.sql` remains immutable while the experimental path is tested.
+- `schema_v2.sql.gz` remains immutable while the experimental path is tested.
 
 ## Migration archive (PR-011)
 

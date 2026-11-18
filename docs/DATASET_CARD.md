@@ -1,10 +1,18 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Code HEAD: `51aba228` (`maint/audit-plan`; baseline `322255b7` on `main`)
+- Code HEAD: `cfe4a8a5` (Phase 1 train curation; prior audit `51aba228`)
 - Approval record: `80fb72b5` (typed owner approval + first verified source export)
-- Release export snapshot: `06fcc84f` (830 files, `sha256sum -c` all OK, no excluded paths)
-- Date: 2026-11-16
+- Release export snapshot: `phase1` export at `cfe4a8a5` (source 855 files,
+  train 720 files; `sha256sum -c` all OK, gitleaks clean)
+- Date: 2026-11-18
 - Profile default: `source` (see `scripts/export_dataset.sh`)
+
+> **Phase 1 update (2026-11-18):** the `train` profile is now data-driven from
+> `manifest/module_quality.json`. It excludes all 40 non-recommended modules
+> (including the 8 clone-shaped modules), their DB suites and dedicated table
+> cases, and all generated route files except the `card.js` exemplar. The
+> route spec (`middleware/spec/routes.yaml`) remains the source of truth. See
+> `scripts/train_profile.mjs` and its `--check` gate.
 
 ## License status
 
@@ -36,7 +44,7 @@ bounded dataset approval, not a change to the proprietary `LICENSE`.
 
 ```text
 database/migrations/archive/
-database/schema_full.sql  database/schema_v2.sql
+database/schema_full.sql  database/schema_v2.sql.gz
 docs/openapi.yaml  docs/DATA_DICTIONARY.md  docs/STATUS.md
 docs/MODULE_INDEX.md  docs/COMPLEXITY_BASELINE.md
 contracts/actions.yaml  manifest/actions.json
@@ -46,15 +54,17 @@ tests/contracts/route_field_order.json
 Plus `.datasetignore` local paths (backups, artifacts, coverage,
 node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
 
-| Profile | Source-tree files | Archive | Generated snapshots | 5 clones | Use |
+| Profile | Source-tree files | Archive | Generated snapshots | Train curation | Use |
 | --- | ---: | --- | --- | --- | --- |
-| `source` | 830 | no | no | yes | reproducible source |
-| `train` | 810 | no | no | no | training corpus |
-| `verification` | 1,517 | yes | yes | yes | full gates |
-| `full` | 1,517 | yes | yes | yes | archival |
+| `source` | 855 | no | no | n/a | reproducible source |
+| `train` | 720 | no | no | recommended only + `card.js` exemplar | training corpus |
+| `verification` | 1,542 | yes | yes | n/a | full gates |
+| `full` | 1,542 | yes | yes | n/a | archival |
 
 `train` is the training corpus, **not** a runnable tree; use
-`verification`/`full` to run gates.
+`verification`/`full` to run gates. It contains 31 recommended modules
+(23,273 COBOL lines), `main_logic`, the route spec, and one generated route
+exemplar.
 
 Per-module quality/tier/coverage metadata is in
 `manifest/module_quality.json` and `docs/MODULE_QUALITY.md`.
@@ -65,9 +75,13 @@ Per-module quality/tier/coverage metadata is in
 Every export writes `DATASET_INFO.json` (commit, timestamp, profile,
 fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 
-## Test evidence (this snapshot)
+## Test evidence (pre-Phase-1 snapshot; current Phase 1 checks below)
 
-- Gateway unit: 147/147 pass.
+- Phase 1 (this HEAD): `npm run lint` 0, `format:check` clean, `test:scripts`
+  497/497, gateway unit 149/149, `tests/run_all.sh fast` GREEN (235 table
+  cases + 13 amount matrix), docs/module-reference gates clean, both train and
+  source exports gitleaks-clean and `sha256sum -c` verified.
+- Gateway unit (pre-Phase-1 snapshot): 147/147 pass.
 - Script gate unit tests: 470/470 pass.
 - Gateway JUnit count: 347 assertions (baseline re-pinned after quarantine removal).
 - ESLint: 0 errors, 9 complexity warnings (ratchet `--max-warnings 9`).
@@ -111,13 +125,14 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 
 ## Known gaps (honest)
 
-1. 5 template-clone modules are kept in `source` for reproducibility and are
-   excluded from the `train` profile (see the profile table below). The
-   `source` file count therefore includes them.
+1. All 40 non-recommended modules (including 8 clone-shaped and 5 exact
+   clones) are kept in `source` for reproducibility but excluded from the
+   `train` profile. The `source` file count therefore includes them; `train`
+   keeps only the 31 recommended modules.
 2. Integration backlog: 202 items, 147 OPEN (registry/parser fixed A-04;
    items are linkage evidence gaps, not code defects).
 3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
-   `tests/coverage_floor_backlog.txt`, 10 entries).
+   `tests/coverage_floor_backlog.txt`, 9 entries).
 4. `/auth/refresh` intermittent-500 history: resolved — 300 serial runs
    green, zero `gateway_error` lines (C-04); quarantine removed.
    The historic CI flake reproduces only under parallel shard load,

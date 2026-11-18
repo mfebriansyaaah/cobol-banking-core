@@ -70,6 +70,27 @@ test('a shared store enforces one limit across instances', async () => {
   assert.ok(third.headers['Retry-After']);
 });
 
+test('the memory store bounds its key count and evicts the oldest key', async () => {
+  const store = memoryStore({ maxKeys: 2 });
+  await store.hit('a', 60000);
+  await store.hit('b', 60000);
+  await store.hit('c', 60000);
+  assert.equal(store.size, 2);
+  assert.equal(store.stats().maxKeys, 2);
+  // `a` was the oldest and has been evicted, so it starts a fresh window.
+  assert.equal((await store.hit('a', 60000)).count, 1);
+});
+
+test('the memory store removes expired keys before evicting live ones', async () => {
+  const store = memoryStore({ maxKeys: 2 });
+  await store.hit('expired', 1);
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  await store.hit('live-1', 60000);
+  await store.hit('live-2', 60000);
+  assert.equal(store.size, 2);
+  assert.equal((await store.hit('expired', 60000)).count, 1);
+});
+
 test('public probes are rate limited', async () => {
   const saved = process.env.API_RATE_LIMIT_MAX;
   process.env.API_RATE_LIMIT_MAX = '1';

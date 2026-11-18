@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Fail when the live schema (database/schema.sql + database/migrations/*)
-# differs from the committed snapshots (database/schema_full.sql and
-# database/schema_v2.sql, which must be byte-identical bodies). A diff means
-# either schema.sql changed without a corresponding migration, or an applied
-# migration file was edited (which database/migrate.sh --check also catches
-# via checksums). Regenerate deliberately after reviewing the diff:
+# differs from the committed snapshots (database/schema_full.sql and the
+# gzipped immutable baseline database/schema_v2.sql.gz, which must be
+# byte-identical bodies). A diff means either schema.sql changed without a
+# corresponding migration, or an applied migration file was edited (which
+# database/migrate.sh --check also catches via checksums). Regenerate
+# deliberately after reviewing the diff:
 #   bash scripts/generate_schema_snapshot.sh [--out <file>]
 # Usage: bash scripts/check_schema_drift.sh
 set -euo pipefail
@@ -17,13 +18,18 @@ trap 'rm -f "$tmp" "$tmp.diff"' EXIT
 bash "$ROOT/scripts/generate_schema_snapshot.sh" --out "$tmp" > /dev/null
 
 failed=0
-for ref in database/schema_full.sql database/schema_v2.sql; do
+for ref in database/schema_full.sql database/schema_v2.sql.gz; do
     if [ ! -f "$ref" ]; then
         echo "FAIL: missing $ref" >&2
         failed=1
         continue
     fi
-    if diff -u "$ref" "$tmp" > "$tmp.diff"; then
+    if [ "$ref" = "database/schema_v2.sql.gz" ]; then
+        diff -u <(gzip -dc "$ref") "$tmp" > "$tmp.diff" || true
+    else
+        diff -u "$ref" "$tmp" > "$tmp.diff" || true
+    fi
+    if [ ! -s "$tmp.diff" ]; then
         echo "OK: schema matches $ref"
         rm -f "$tmp.diff"
     else
