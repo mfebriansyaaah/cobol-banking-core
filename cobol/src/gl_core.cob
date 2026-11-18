@@ -450,7 +450,7 @@
                PERFORM AUDIT-GL
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|GL_ACCOUNT_CREATED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -582,7 +582,7 @@
                PERFORM AUDIT-GL
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|GL_POSTED|" DELIMITED BY SIZE
                       WS-JOURNAL-ID DELIMITED BY SPACE
@@ -677,7 +677,7 @@
                PERFORM AUDIT-GL
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|GL_PERIOD_OPEN" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -723,7 +723,7 @@
                PERFORM AUDIT-GL
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|GL_PERIOD_CLOSED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -880,7 +880,7 @@
                PERFORM AUDIT-GL
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|GL_POSTED_ML|" DELIMITED BY SIZE
                       WS-JOURNAL-ID DELIMITED BY SPACE
@@ -1020,4 +1020,5 @@
                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM gl_core.

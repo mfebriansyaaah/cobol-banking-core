@@ -39,6 +39,14 @@ assert_match "normal commit still succeeds" "$out" "^SUCCESS\|CSC_CREATE\|[0-9]+
 assert_match "normal commit persists row" \
     "$(db_query "SELECT COUNT(*) FROM cost_center WHERE cc_ref='${REF}';")" "^1$"
 
+# 5-6. Direct COMMIT site (SIGNUP) also fails closed via COMMIT-CHECKED.
+SEMAIL="txnfin-$(date +%s)-$$@test.com"
+out="$(SQL_BRIDGE_TEST=1 SQL_BRIDGE_TEST_FAIL_COMMIT=1 \
+    run_cobol "REQUEST_SIGNUP|${SEMAIL}|Passw0rd!|Txn Fail|1990-01-01")"
+assert_match "direct commit failure is surfaced" "$out" "^ERROR\|DB_ERROR$"
+assert_match "failed signup leaves no user" \
+    "$(db_query "SELECT COUNT(*) FROM users WHERE email='${SEMAIL}';")" "^0$"
+
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi
 exit 0

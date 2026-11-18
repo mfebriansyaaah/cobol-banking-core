@@ -258,7 +258,7 @@
                PERFORM AUDIT-REPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|RPT_TEMPLATE_CREATED|" DELIMITED BY SIZE
                       WS-TEMPLATE-ID DELIMITED BY SPACE
@@ -497,7 +497,7 @@
                PERFORM AUDIT-REPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|RPT_COLUMN_CREATED|" DELIMITED BY SIZE
                       WS-COL-ID DELIMITED BY SPACE
@@ -714,7 +714,7 @@
                PERFORM AUDIT-REPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|RPT_TEMPLATE_CLONED|" DELIMITED BY SIZE
                       WS-TEMPLATE-ID DELIMITED BY SPACE
@@ -831,7 +831,7 @@
                PERFORM AUDIT-REPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|RPT_COLUMN_DELETED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -944,4 +944,5 @@
            MOVE "SUCCESS|RPT_COLUMN_UPDATED" TO WS-SUCCESS-MSG
            PERFORM TXN-FINISH
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM report_core.

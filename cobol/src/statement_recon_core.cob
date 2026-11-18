@@ -307,7 +307,7 @@
                PERFORM AUDIT-RECON
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SELECT CONCAT(line_count, '|', matched_count, '|', unmatched_count, '|', mismatch_count) FROM statement_recon_run WHERE id = ?" TO WS-PREP-SQL
                MOVE WS-P1-TRIMMED TO WS-BIND-1
                PERFORM SQL-EXEC-1
@@ -364,7 +364,7 @@
                PERFORM AUDIT-RECON
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SELECT CONCAT(line_count, '|', matched_count, '|', unmatched_count, '|', mismatch_count) FROM statement_recon_run WHERE id = ?" TO WS-PREP-SQL
                MOVE WS-P1-TRIMMED TO WS-BIND-1
                PERFORM SQL-EXEC-1
@@ -600,4 +600,5 @@
            MOVE SPACES TO LS-OUTPUT-BUFFER
            STRING "SUCCESS|SRC_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM statement_recon_core.

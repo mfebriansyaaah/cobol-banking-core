@@ -683,7 +683,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|PRL_VALIDATE|1" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -727,7 +727,7 @@
             MOVE "VALIDATED" TO WS-AUDIT-OLD
             MOVE "APPROVED" TO WS-AUDIT-NEW
             PERFORM AUDIT-PAY
-            CALL "SQL_COMMIT" END-CALL
+            PERFORM COMMIT-CHECKED
             MOVE "SUCCESS|PRL_APPROVE|1" TO LS-OUTPUT-BUFFER.
             EXIT PARAGRAPH.
 
@@ -858,7 +858,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|PRL_PROCESS|1" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -944,7 +944,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|PRL_PAY|1" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -1007,7 +1007,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|PRL_CLOSE|1" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -1094,4 +1094,5 @@
             STRING "SUCCESS|PRL_VALID|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE
                 "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM payroll_processing_core.

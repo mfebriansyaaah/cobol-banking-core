@@ -540,7 +540,7 @@
                PERFORM AUDIT-EOD
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|EOD_RUN_STARTED|" DELIMITED BY SIZE
                       WS-RUN-ID DELIMITED BY SPACE
@@ -825,7 +825,7 @@
                PERFORM AUDIT-EOD
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|EOD_RUN_CLOSED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -950,4 +950,5 @@
                ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM eod_core.

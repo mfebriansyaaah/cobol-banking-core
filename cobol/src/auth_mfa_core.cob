@@ -262,7 +262,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|BACKUP_CODES|" WS-BACKUP-LIST(1:87) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
@@ -297,4 +297,5 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        COPY "common_commit.cpy".
        END PROGRAM auth_mfa_core.

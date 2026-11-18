@@ -627,7 +627,7 @@
                    PERFORM AUDIT
                END-IF
                IF STEP-OK
-                   CALL "SQL_COMMIT" END-CALL
+                   PERFORM COMMIT-CHECKED
                ELSE
                    CALL "SQL_ROLLBACK" END-CALL
                END-IF
@@ -734,4 +734,5 @@
                STRING "SUCCESS|PIC_HISTORY|" DELIMITED BY SIZE WS-TOTAL DELIMITED BY SPACE "|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
            END-IF.
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM payment_instruction_core.

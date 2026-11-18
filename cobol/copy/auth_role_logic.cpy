@@ -203,7 +203,7 @@
             END-IF
             
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|ROLE_CHANGED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL

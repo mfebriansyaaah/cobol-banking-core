@@ -515,11 +515,7 @@
                 PERFORM POST-FEE-REFUND
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT NOT = "SUCCESS|COMMIT"
-                    SET STEP-FAIL TO TRUE
-                END-IF
+                PERFORM COMMIT-CHECKED
             END-IF
             IF STEP-OK
                 MOVE "SUCCESS|TRANSFER_REVERSED" TO LS-OUTPUT-BUFFER
@@ -725,4 +721,5 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM wallet_reversal_core.

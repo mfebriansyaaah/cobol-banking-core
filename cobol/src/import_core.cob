@@ -521,7 +521,7 @@
                PERFORM AUDIT-IMPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|IMP_BATCH_CREATED|" DELIMITED BY SIZE
                       WS-BATCH-ID DELIMITED BY SPACE
@@ -763,7 +763,7 @@
                PERFORM AUDIT-IMPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                MOVE WS-VALID-COUNT TO WS-VALID-COUNT-ED
                MOVE WS-INVALID-COUNT TO WS-INVALID-COUNT-ED
@@ -832,7 +832,7 @@
                PERFORM AUDIT-IMPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|IMP_POSTED|" DELIMITED BY SIZE
                       WS-BATCH-VALID DELIMITED BY SPACE
@@ -1013,7 +1013,7 @@
                PERFORM AUDIT-IMPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|IMP_BATCH_CLONED|" DELIMITED BY SIZE
                       WS-BATCH-ID DELIMITED BY SPACE
@@ -1157,4 +1157,5 @@
                   INTO LS-OUTPUT-BUFFER
            ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM import_core.
