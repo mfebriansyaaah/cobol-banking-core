@@ -1,5 +1,15 @@
 # Dataset Decision (R-03)
 
+> **P0 update (2026-11-18, `e6197f7e`):** export counts changed to
+> source 874 / train 739 / verification 1,561 (was Phase 2: 866 / 731 /
+> 1,553; R-03 snapshot: 830). Deltas are the P0 series gates and tests:
+> `common_commit.cpy`, `check_commit_results`, `check_affected_rows`,
+> `check_debug_output` (+ unit tests), `commit_failure_db_tests`,
+> cost-center stale-state assertions. `train` continues to exclude all
+> 40 non-recommended modules and generated route boilerplate. The decision below
+> remains the governing approval; see `docs/DATASET_CARD.md` for current
+> curation details.
+>
 > **Phase 2 update (2026-11-18, `81c24de5`):** export counts changed to
 > source 866 / train 731 / verification 1,553. `train` continues to exclude all
 > 40 non-recommended modules and generated route boilerplate. The decision below
