@@ -1,11 +1,15 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Code HEAD: `e6197f7e` (PR-714 merge; includes P0-01 fail-closed commit,
+- Code HEAD: `aa99739a` (PR-722 merge; includes P0-01 fail-closed commit,
   P0-02 direct-site COMMIT-CHECKED, P0-03 optimistic-locking, P0-04 debug
-  hygiene; Phase 2 base `81c24de5`, Phase 1 `cfe4a8a5`)
+  hygiene, P0-05 provenance, P1-06 fee/gl burn-down + gl_core graduation,
+  P1-07 loan/payment guards, P1-08 suite-registration burn-down +
+  user_core graduation, P1-09 collection/treasury/ref burn-down,
+  P1-10 template write-path guards, P1-11 production image + pin gates,
+  P1-12 PII history gate; Phase 2 base `81c24de5`, Phase 1 `cfe4a8a5`)
 - Approval record: `80fb72b5` (typed owner approval + first verified source export)
-- Release export snapshot: verified export at `e6197f7e` (source 874 files,
-  train 739 files; `sha256sum -c` all OK, gitleaks clean)
+- Release export snapshot: verified export at `aa99739a` (source 881 files,
+  train 746 files; `sha256sum -c` all OK, gitleaks clean)
 - Date: 2026-11-18
 - Profile default: `source` (see `scripts/export_dataset.sh`)
 
@@ -67,15 +71,48 @@ node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
 
 | Profile | Source-tree files | Archive | Generated snapshots | Train curation | Use |
 | --- | ---: | --- | --- | --- | --- |
-| `source` | 874 | no | no | n/a | reproducible source |
-| `train` | 739 | no | no | recommended only + `card.js` exemplar | training corpus |
-| `verification` | 1,561 | yes | yes | n/a | full gates |
-| `full` | 1,561 | yes | yes | n/a | archival |
+| `source` | 881 | no | no | n/a | reproducible source |
+| `train` | 746 | no | no | recommended only + `card.js` exemplar | training corpus |
+| `verification` | 1,568 | yes | yes | n/a | full gates |
+| `full` | 1,568 | yes | yes | n/a | archival |
 
 `train` is the training corpus, **not** a runnable tree; use
 `verification`/`full` to run gates. It contains 31 recommended modules
 (about 23k COBOL lines), `main_logic`, the route spec, and one generated route
 exemplar.
+
+## Source vs train boundary
+
+`source` is the reproducible repository minus generated snapshots and local
+artifacts. `train` starts from `source` and additionally drops:
+
+- all 40 non-recommended modules (`manifest/module_quality.json`,
+  `recommendedForTraining: false`): 18 FROZEN (8 DUPLICATE template clones
+  and 10 UNLINKED support surfaces) and 22 REVIEW-tracked modules —
+  implementation detail, not reusable patterns;
+- their dedicated DB suites and table-case files;
+- all generated gateway route files except the `card.js` exemplar
+  (the route spec `middleware/spec/routes.yaml` remains the source of truth).
+
+What `train` keeps: the 31 recommended modules, `main_logic`, the route
+spec, one generated-route exemplar, the gateway transport, the C bridge,
+tests, docs, and tooling (including gates, so curation itself is learnable).
+
+Rule of thumb: `source` answers "what does the repo look like";
+`train` answers "what should a model learn from". Anything excluded from
+`train` stays in `source` for reproducibility — excluded, never deleted.
+
+## Production disclaimer
+
+This corpus teaches real-world banking-core patterns; it does not license
+or enable production deployment. The repository is proprietary and
+confidential (`LICENSE`), explicitly a development prototype, and its own
+production audit concludes **NOT CERTIFIED**
+(`docs/PRODUCTION_READINESS.md`). Training or evaluating on this data
+grants no right to operate a bank, handle real funds or real personal
+data, or present model output as a certified system. Production use
+requires the owner's prior written permission, a certified system, and
+regulated infrastructure — none of which this dataset provides.
 
 Per-module quality/tier/coverage metadata is in
 `manifest/module_quality.json` and `docs/MODULE_QUALITY.md`.
