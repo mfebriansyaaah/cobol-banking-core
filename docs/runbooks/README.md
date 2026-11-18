@@ -6,6 +6,7 @@ the rest are referenced from it and from the on-call rotation.
 
 | Runbook | When to use it |
 | --- | --- |
+| [ci-failure](ci-failure.md) | Triaging automated `ci-failure` issues from scheduled CI |
 | [incident-response](incident-response.md) | Active incident: declare, mitigate, communicate, resolve |
 | [disaster-recovery](disaster-recovery.md) | Full loss / failover scenarios beyond a single incident |
 | [rollback](rollback.md) | Reverting a bad deploy or migration |

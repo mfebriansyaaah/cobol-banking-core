@@ -91,6 +91,10 @@ jobs:
           mkdir -p nightly
           cp artifacts/nightly-run1/run-all.json nightly/run1.json 2>/dev/null || echo "no run-all.json from run 1"
 
+      - name: Write run 1 summary
+        if: always()
+        run: node scripts/ci/summary.mjs --report-dir artifacts/nightly-run1
+
       - name: Full run 2 of 2
         run: REPORT_DIR=artifacts/nightly-run2 tests/run_all.sh --json full
 
@@ -99,8 +103,22 @@ jobs:
         run: |
           cp artifacts/nightly-run2/run-all.json nightly/run2.json 2>/dev/null || echo "no run-all.json from run 2"
 
+      - name: Write run 2 summary
+        if: always()
+        run: node scripts/ci/summary.mjs --report-dir artifacts/nightly-run2
+
       - name: Compare runs (flake gate)
         run: node scripts/ci/compare_runs.mjs nightly/run1.json nightly/run2.json
+
+      - name: Compare runs in summary
+        if: always()
+        run: |
+          set -o pipefail
+          if [ -f nightly/run1.json ] && [ -f nightly/run2.json ]; then
+            node scripts/ci/compare_runs.mjs nightly/run1.json nightly/run2.json 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "compare skipped: run1 or run2 report missing (upstream failure)" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Migration rollback drill
         run: bash scripts/ci/migration_rollback_drill.sh
@@ -138,3 +156,26 @@ jobs:
         uses: ./.github/actions/upload-diagnostics
         with:
           name: diagnostics-nightly
+
+  notify:
+    name: notify
+    needs: [full-twice]
+    if: always() && needs.full-twice.result != 'cancelled'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Open or close CI failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+          FAILED_JOBS: ${{ toJSON(needs) }}
+        run: bash scripts/ci/notify_failure.sh "${{ needs.full-twice.result }}"
