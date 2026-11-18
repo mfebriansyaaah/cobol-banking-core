@@ -251,6 +251,29 @@ jobs:
           path: cobol/bin/main_logic
           if-no-files-found: error
 
+  # Production image build (P1-11): proves the Dockerfile compiles and links.
+  # No push, no registry: the image is built, linkage-verified, then dropped.
+  # Skipped for docs-only PRs like the other heavy jobs.
+  docker-build:
+    name: docker-build
+    needs: [build, changes]
+    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Build production image
+        run: docker build -f Dockerfile -t cobol-banking-core:ci .
+
+      - name: Verify native linkage
+        run: |
+          docker run --rm cobol-banking-core:ci ldd /app/cobol/bin/main_logic
+          if docker run --rm cobol-banking-core:ci ldd /app/cobol/bin/main_logic | grep -q "not found"; then
+            echo "missing native libraries in production image" >&2
+            exit 1
+          fi
+
   # Changed-file classifier (CI-011): docs-only PRs skip the heavy DB jobs.
   # Fails safe to full: any classifier error, empty diff, unknown path, or
   # the `ci:full` label forces `docs_only=false`.
