@@ -14,17 +14,17 @@
 
 ## Scores (0–2 per rubric area)
 
-| Area           | Score | Evidence / gap                                                                                                     |
-| -------------- | ----- | ------------------------------------------------------------------------------------------------------------------ |
-| Correctness    | 2     | All actions shell-covered; 16/16 curated mutants killed (weekly CI). Corpus-curated, not Stryker-% — see gap list. |
-| Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, Tier-1 floor holds with 8 backlog entries.                                   |
-| Data safety    | 1     | Truncation loud, drills green; **no prod KMS** (env-only), retention policy un-drilled at scale.                   |
-| Security       | 1     | Auth+owners+STRIDE+SAST/secret green, CodeQL triaged; **no pen-test**.                                             |
-| Reliability    | 1     | SLO + load budgets; **write-path unprofiled**, canary never exercised.                                             |
-| Observability  | 2     | Logs/metrics/alerts/runbooks + correlation-id tracing (ADR-0005); OTel rejected with topology rationale.           |
-| Change control | 1     | CI + review + rollback docs; **two-reviewer rule unevidenced** (solo maintainer).                                  |
-| Integrations   | 2     | Adapters + fallback + DPIA + quota + review queue, all evidenced.                                                  |
-| Tier-1 linkage | 1     | 39 L0/L1 all evidenced; FROZEN set awaits the retirement program.                                                  |
+| Area           | Score | Evidence / gap                                                                                                            |
+| -------------- | ----- | ------------------------------------------------------------------------------------------------------------------------- |
+| Correctness    | 2     | All actions shell-covered; 16/16 curated mutants killed (weekly CI). Corpus-curated, not Stryker-% — see gap list.        |
+| Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, Tier-1 floor holds with 9 backlog entries (see `tests/coverage_floor_backlog.txt`). |
+| Data safety    | 1     | Truncation loud, drills green; **no prod KMS** (env-only), retention policy un-drilled at scale.                          |
+| Security       | 1     | Auth+owners+STRIDE+SAST/secret green, CodeQL triaged; **no pen-test**.                                                    |
+| Reliability    | 1     | SLO + load budgets; **write-path unprofiled**, canary never exercised.                                                    |
+| Observability  | 2     | Logs/metrics/alerts/runbooks + correlation-id tracing (ADR-0005); OTel rejected with topology rationale.                  |
+| Change control | 1     | CI + review + rollback docs; **two-reviewer rule unevidenced** (solo maintainer).                                         |
+| Integrations   | 2     | Adapters + fallback + DPIA + quota + review queue, all evidenced.                                                         |
+| Tier-1 linkage | 1     | 39 L0/L1 all evidenced; FROZEN set awaits the retirement program.                                                         |
 
 ## Evidence runs (this branch)
 

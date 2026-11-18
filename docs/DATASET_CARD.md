@@ -1,9 +1,11 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Code HEAD: `81c24de5` (Phase 2 maintainability ratchets; Phase 1 `cfe4a8a5`)
+- Code HEAD: `e6197f7e` (PR-714 merge; includes P0-01 fail-closed commit,
+  P0-02 direct-site COMMIT-CHECKED, P0-03 optimistic-locking, P0-04 debug
+  hygiene; Phase 2 base `81c24de5`, Phase 1 `cfe4a8a5`)
 - Approval record: `80fb72b5` (typed owner approval + first verified source export)
-- Release export snapshot: Phase 2 export at `81c24de5` (source 866 files,
-  train 731 files; `sha256sum -c` all OK, gitleaks clean)
+- Release export snapshot: verified export at `e6197f7e` (source 874 files,
+  train 739 files; `sha256sum -c` all OK, gitleaks clean)
 - Date: 2026-11-18
 - Profile default: `source` (see `scripts/export_dataset.sh`)
 
@@ -61,10 +63,10 @@ node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
 
 | Profile | Source-tree files | Archive | Generated snapshots | Train curation | Use |
 | --- | ---: | --- | --- | --- | --- |
-| `source` | 866 | no | no | n/a | reproducible source |
-| `train` | 731 | no | no | recommended only + `card.js` exemplar | training corpus |
-| `verification` | 1,553 | yes | yes | n/a | full gates |
-| `full` | 1,553 | yes | yes | n/a | archival |
+| `source` | 874 | no | no | n/a | reproducible source |
+| `train` | 739 | no | no | recommended only + `card.js` exemplar | training corpus |
+| `verification` | 1,561 | yes | yes | n/a | full gates |
+| `full` | 1,561 | yes | yes | n/a | archival |
 
 `train` is the training corpus, **not** a runnable tree; use
 `verification`/`full` to run gates. It contains 31 recommended modules
@@ -101,8 +103,10 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 - Static gates: manifest, docs, dependency graph, purity, transaction
   ownership, call graph, bind slots, field sizes, action coverage, case
   actions, suite coverage, program signatures, error codes, openapi,
-  request-state reset (43 modules), module size — all OK.
-- Copybook baseline: vars 243 → 240 (reviewed drift, S-03).
+  request-state reset (43 modules), module size, commit-result,
+  affected-rows, debug-output — all OK.
+- Copybook baseline: 28 files, 79 paragraphs, 240 vars, 0 dead
+  (was 27/78/240; +1 shared commit-check copybook, reviewed P0-02).
 - Mutation: 16/16 killed (M1–M17 incl. new bind-swap M17).
 - Probes: 17/17 detected (p5b static via `bind_slots`; M17 runtime backstop).
 - Coverage: gateway 98.94%/84.33% (≥ baseline); COBOL curated total
@@ -156,7 +160,7 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 ## Reproduce
 
 ```bash
-git checkout maint/audit-plan
+git checkout main # at e6197f7e (PR-714) or later green main
 npm ci && npm --prefix middleware ci
 ./build.sh
 DB_HOST=127.0.0.1 DB_PORT=3307 DB_NAME=cobol_db \
