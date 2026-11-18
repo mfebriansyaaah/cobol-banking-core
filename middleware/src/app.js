@@ -445,9 +445,14 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
     // cause. stderr never touches the HTTP body or the COBOL pipe. The URL
     // is never logged raw (paths/queries may carry emails or tokens): log
     // the matched route template instead, like the request observer does.
+    // Client errors (4xx) are expected input rejection, not operator
+    // incidents: logging them at error with a stack turns a noisy client into
+    // an alert storm and buries real 5xx failures. Keep the same structured
+    // event for correlation, but reserve error+stack for server faults.
+    const serverError = status >= 500;
     const record = {
       ts: new Date().toISOString(),
-      level: 'error',
+      level: serverError ? 'error' : 'warn',
       event: 'gateway_error',
       // Same id as the http_request line and X-Request-Id header, so an
       // error joins to its request (ADR-0005). Null when the observer never
@@ -459,7 +464,7 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
       method: _req && _req.method,
       route: (_req && _req.route && _req.route.path) || 'unmatched',
       message: err && err.message,
-      stack: err && err.stack,
+      ...(serverError ? { stack: err && err.stack } : {}),
     };
     if (logger) {
       logger(record);

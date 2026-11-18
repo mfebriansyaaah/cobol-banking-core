@@ -2,8 +2,12 @@
 
 ## Status
 
-Deferred — not adopted in this release (2026-11-16). The design remains a
-future fast-install candidate; `schema.sql` + `migrate.sh` is canonical.
+Partially implemented — the `--baseline` path and the pre-baseline migration
+archive exist in `database/migrate.sh`, but `schema.sql` + `migrate.sh` remains
+the canonical onboarding path. The compressed baseline snapshot
+(`database/schema_v2.sql.gz`) is an experimental fast-install candidate, not
+the default. This supersedes the earlier "Deferred" status after the archive
+move and baseline runner landed.
 
 ## Context
 
@@ -33,11 +37,12 @@ not a rewrite.
 
 **Snapshot baseline with a marker row, archive after one release window.**
 
-1. `database/schema_v2.sql` is generated from the current
-   `database/schema_full.sql` (same normalization, same generator family).
-   It becomes the fresh-install baseline. It is generated, never hand-edited.
+1. `database/schema_v2.sql.gz` is generated from the current
+   `database/schema_full.sql` (same normalization, same generator family) and
+   stored compressed so the repository does not carry a second full-size
+   schema text. It becomes the fresh-install baseline. It is generated, never hand-edited.
 2. A `baseline_v2` marker row in `schema_migrations` records the cutover:
-   - Fresh install: apply `schema_v2.sql`, insert `baseline_v2` (with the
+   - Fresh install: apply `schema_v2.sql.gz`, insert `baseline_v2` (with the
      file's SHA-256 in `checksum`), then apply only post-baseline migrations.
    - Existing database: `migrate.sh --baseline` verifies every pre-baseline
      migration is applied with matching checksums, inserts `baseline_v2`,
@@ -48,7 +53,7 @@ not a rewrite.
    PR-11 (one release window after the baseline lands). `migrate.sh` never
    scans `archive/` for fresh installs; `--check` verifies recorded
    checksums for archived versions without requiring their files.
-4. `check_schema_drift.sh` rebuilds from `schema_v2.sql` plus active
+4. `check_schema_drift.sh` rebuilds from `schema_v2.sql.gz` plus active
    migrations and byte-matches the regenerated snapshot. The snapshot stays
    committed.
 5. No table is renamed or dropped by the baseline itself: it is a snapshot
@@ -59,7 +64,7 @@ not a rewrite.
 
 | Scenario | Baseline v2 | New migrations | Expectation |
 | --- | --- | --- | --- |
-| Fresh install | apply `schema_v2.sql` + marker | apply | schema byte-identical to `schema_full.sql` |
+| Fresh install | apply `schema_v2.sql.gz` + marker | apply | schema byte-identical to `schema_full.sql` |
 | Existing DB, complete | verify all + marker | apply | no data loss; old versions stay recorded |
 | Existing DB, partial | refuse, list missing | hold | fail with names + restore instruction |
 | Old binary + new DB | n/a | n/a | compatible inside the release window (no renames/drops) |
@@ -73,7 +78,7 @@ the least-privilege app credentials cannot create databases, so the dry run
 cannot happen on a developer database. Steps, in order:
 
 1. Snapshot the isolated database before touching anything.
-2. Fresh install: apply `schema_v2.sql`, record the marker, apply
+2. Fresh install: apply `schema_v2.sql.gz`, record the marker, apply
    post-baseline migrations. Expect: `migrate.sh --check` clean.
 3. Rebuild the snapshot with `generate_schema_snapshot.sh` and expect
    `check_schema_drift.sh` byte-identical.
@@ -99,7 +104,7 @@ Read-only evidence collected for this design (2026-11-12, dev database):
 
 - Before: backup/restore drill green; snapshot retained through the release
   window.
-- If the baseline build fails: delete `schema_v2.sql`, revert the PR, keep
+- If the baseline build fails: delete `schema_v2.sql.gz`, revert the PR, keep
   the old chain. Existing databases are untouched (the marker is only
   written after full verification).
 - If a database already recorded the marker: restore the pre-cutover

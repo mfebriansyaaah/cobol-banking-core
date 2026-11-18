@@ -78,6 +78,10 @@ test('request and error lines share the caller-supplied id', async () => {
   assert.ok(errLine, 'error line emitted');
   assert.equal(reqLine.id, 'join-me-001');
   assert.equal(errLine.id, 'join-me-001');
+  // A 400 is an expected client rejection: warn without a stack, so it does
+  // not page an operator or bury real 5xx records.
+  assert.equal(errLine.level, 'warn');
+  assert.equal(errLine.stack, undefined);
 });
 
 test('a minted id joins request and error lines when none is supplied', async () => {

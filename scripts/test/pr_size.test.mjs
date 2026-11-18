@@ -14,7 +14,7 @@ test('generated paths classify as generated', () => {
     'docs/openapi.yaml',
     'tests/contracts/route_field_order.json',
     'database/schema_full.sql',
-    'database/schema_v2.sql',
+    'database/schema_v2.sql.gz',
     'artifacts/report.tsv',
     'coverage/summary.json',
   ]) {

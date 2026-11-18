@@ -127,6 +127,7 @@ run_ci_parity() {
 
     echo "=== PREMERGE: docs gate ==="
     node scripts/check_docs.mjs .
+    node scripts/check_docs_modules.mjs .
 
     echo "=== PREMERGE: CI contract ==="
     node scripts/check_ci_contract.mjs .
@@ -252,6 +253,7 @@ tests/run_all.sh fast
 if [ "$DOCS" = "1" ]; then
     echo "=== PREMERGE: docs gate ==="
     node scripts/check_docs.mjs .
+    node scripts/check_docs_modules.mjs .
     echo "=== PREMERGE: PR-size policy ==="
     node scripts/check_pr_size_policy.mjs .
 else

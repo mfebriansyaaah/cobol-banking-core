@@ -3,26 +3,52 @@
 // gateway instances can share them (Redis); the default store is in-memory.
 import { incCounter } from '../telemetry/observability.js';
 
-/** In-process fixed-window counter. */
-export function memoryStore() {
+/**
+ * In-process fixed-window counter. The map is bounded: an attacker can mint
+ * arbitrary client keys (one per forged source address), so an unbounded map
+ * would turn every request into an O(n) sweep and eventually exhaust memory.
+ * Expired entries are swept periodically; when the cap is reached, expired
+ * entries are removed first and the oldest live keys are evicted.
+ */
+export function memoryStore({ maxKeys = Number(process.env.RATE_LIMIT_MAX_KEYS || 10000) } = {}) {
+  const cap = Number.isFinite(maxKeys) && maxKeys > 0 ? Math.floor(maxKeys) : 10000;
   const hits = new Map();
-  function evict(now) {
+  let nextSweep = 0;
+  const SWEEP_MS = 60_000;
+
+  function sweep(now, force = false) {
+    if (!force && now < nextSweep) return;
     for (const [k, rec] of hits) {
       if (now > rec.reset) hits.delete(k);
     }
+    nextSweep = now + SWEEP_MS;
   }
+
+  function enforceCap(now) {
+    if (hits.size < cap) return;
+    // Expired entries are the cheapest eviction; only then remove the oldest
+    // live keys (Map insertion order is the age order here).
+    sweep(now, true);
+    while (hits.size >= cap) {
+      const oldest = hits.keys().next().value;
+      if (oldest === undefined) break;
+      hits.delete(oldest);
+    }
+  }
+
   return {
     get size() {
       return hits.size;
     },
     stats() {
-      return { size: hits.size };
+      return { size: hits.size, maxKeys: cap };
     },
     async hit(key, windowMs) {
       const now = Date.now();
-      evict(now);
+      sweep(now);
       let rec = hits.get(key);
       if (!rec || now > rec.reset) {
+        enforceCap(now);
         rec = { count: 0, reset: now + windowMs };
         hits.set(key, rec);
       }
@@ -60,6 +86,15 @@ export function redisStore() {
 
 export function storeFromEnv() {
   return process.env.REDIS_URL ? redisStore() : memoryStore();
+}
+
+/** Fail closed in production if the bounded in-memory fallback is misconfigured. */
+export function assertRateLimitConfig() {
+  const raw = process.env.RATE_LIMIT_MAX_KEYS;
+  if (raw === undefined || String(raw).trim() === '') return;
+  if (!/^\d+$/.test(String(raw).trim()) || Number(raw) < 1) {
+    throw new Error(`RATE_LIMIT_MAX_KEYS must be a positive whole number, got "${raw}"`);
+  }
 }
 
 /**

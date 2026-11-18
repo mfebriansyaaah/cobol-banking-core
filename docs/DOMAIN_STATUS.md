@@ -14,9 +14,14 @@
 | FROZEN | 18 |
 | RETIRED | 0 |
 
+> **Retired from the active ledger:** 17 modules removed in
+> `bc389970` are recorded in `manifest/wave_legacy.json`; they are
+> intentionally absent from the table above and are not active code.
+
 Status meanings: ACTIVE (linked, refactorable with equivalence), PILOT (L2,
 integration completion open), REVIEW (L1, manual decision pending), FROZEN
-(L0/deprecated, no refactor, awaits evidence), RETIRED (routes removed).
+(L0/deprecated, no refactor, awaits evidence), RETIRED (active-ledger rows;
+removed modules are archived in `manifest/wave_legacy.json`).
 
 | Domain | Module | Tier | Link | Status | Route | Table | Replacement | Reason |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |

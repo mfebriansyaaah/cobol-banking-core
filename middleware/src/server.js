@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { buildApp, trustProxyWarning } from './app.js';
 import { assertSecureConfig } from './auth.js';
 import { assertPoolConfig } from '../core-client/pool.js';
+import { assertRateLimitConfig } from './rateLimit.js';
 import { assertIntegrationConfig } from '../services/integrations/index.js';
 import { assertSecrets } from '../services/integrations/secrets.js';
 import { assertVaultConfig } from '../services/integrations/documents/storage.js';
@@ -25,6 +26,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 // A malformed worker-pool setting must fail at boot, not hang the first request.
 assertPoolConfig();
+// The in-memory fallback is bounded; a malformed cap must not be discovered
+// only after an attacker has forced eviction pressure.
+assertRateLimitConfig();
 const port = process.env.PORT || 3000;
 
 // Surface a production misconfiguration early: without SMTP the verification
