@@ -18,6 +18,8 @@ db_reset_merchant
 # Create a cost center.
 create_out="$(run_cobol "MRT_CREATE|MRT-W3-1|MerchantA|ECOMMERCE|||admin@test.com")"
 assert_match "MRT_CREATE ok" "$create_out" "SUCCESS\|MRT_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "MRT_CREATE|MRT-P10-1|MerchantA|ECOMMERCE|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "MRT_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM merchant WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT settled_volume FROM mer
 
 # Close.
 assert_match "MRT_DELETE ok" "$(run_cobol "MRT_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|MRT_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "MRT_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM merchant WHERE id=${id};")" "^CLOSED$"
 
 # Summary and audit.

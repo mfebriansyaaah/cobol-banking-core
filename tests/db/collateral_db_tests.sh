@@ -18,6 +18,8 @@ db_reset_collateral
 # Create a cost center.
 create_out="$(run_cobol "CLT_CREATE|CLT-W1-1|Property|REALESTATE|||admin@test.com")"
 assert_match "CLT_CREATE ok" "$create_out" "SUCCESS\|CLT_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "CLT_CREATE|CLT-P10-1|Property|REALESTATE|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "CLT_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM collateral WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT appraised_value FROM co
 
 # Close.
 assert_match "CLT_DELETE ok" "$(run_cobol "CLT_DELETE|${id}|RELEASED||||admin@test.com")" "SUCCESS\|CLT_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "CLT_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM collateral WHERE id=${id};")" "^RELEASED$"
 
 # Summary and audit.

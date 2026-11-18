@@ -18,6 +18,8 @@ db_reset_chargeback
 # Create a cost center.
 create_out="$(run_cobol "CHB_CREATE|CHB-W6-1|HolderA|UNAUTH|||admin@test.com")"
 assert_match "CHB_CREATE ok" "$create_out" "SUCCESS\|CHB_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "CHB_CREATE|CHB-P10-1|HolderA|UNAUTH|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "CHB_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM chargeback WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT spent_amount FROM charg
 
 # Close.
 assert_match "CHB_DELETE ok" "$(run_cobol "CHB_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|CHB_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "CHB_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM chargeback WHERE id=${id};")" "^CLOSED$"
 
 # Summary and audit.

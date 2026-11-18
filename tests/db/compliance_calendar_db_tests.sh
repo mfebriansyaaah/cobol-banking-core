@@ -18,6 +18,8 @@ db_reset_compliance_calendar
 # Create a cost center.
 create_out="$(run_cobol "CCL_CREATE|CCL-W3-1|EventA|REG|||admin@test.com")"
 assert_match "CCL_CREATE ok" "$create_out" "SUCCESS\|CCL_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "CCL_CREATE|CCL-P10-1|EventA|REG|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "CCL_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM compliance_calendar WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT completed_events FROM c
 
 # Close.
 assert_match "CCL_DELETE ok" "$(run_cobol "CCL_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|CCL_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "CCL_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM compliance_calendar WHERE id=${id};")" "^CLOSED$"
 
 # Summary and audit.

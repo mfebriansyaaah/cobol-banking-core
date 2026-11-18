@@ -18,6 +18,8 @@ db_reset_merchant_settlement
 # Create a cost center.
 create_out="$(run_cobol "MCS_CREATE|MCS-W5-1|MerchantA|DAILY|||admin@test.com")"
 assert_match "MCS_CREATE ok" "$create_out" "SUCCESS\|MCS_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "MCS_CREATE|MCS-P10-1|MerchantA|DAILY|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "MCS_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM merchant_settlement WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT paid_amount FROM mercha
 
 # Close.
 assert_match "MCS_DELETE ok" "$(run_cobol "MCS_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|MCS_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "MCS_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM merchant_settlement WHERE id=${id};")" "^SETTLED$"
 
 # Summary and audit.

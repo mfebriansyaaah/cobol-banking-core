@@ -18,6 +18,8 @@ db_reset_tax_management
 # Create a cost center.
 create_out="$(run_cobol "TXM_CREATE|TXM-W5-1|TaxA|VAT|||admin@test.com")"
 assert_match "TXM_CREATE ok" "$create_out" "SUCCESS\|TXM_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "TXM_CREATE|TXM-P10-1|TaxA|VAT|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "TXM_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM tax_management WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT collected_tax FROM tax_
 
 # Close.
 assert_match "TXM_DELETE ok" "$(run_cobol "TXM_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|TXM_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "TXM_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM tax_management WHERE id=${id};")" "^INACTIVE$"
 
 # Update: optimistic-locking guarded update with version bump + audit.

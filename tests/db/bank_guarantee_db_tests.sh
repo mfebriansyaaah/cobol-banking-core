@@ -18,6 +18,8 @@ db_reset_bank_guarantee
 # Create a cost center.
 create_out="$(run_cobol "BKG_CREATE|BKG-W4-1|BeneficiaryA|BID|||admin@test.com")"
 assert_match "BKG_CREATE ok" "$create_out" "SUCCESS\|BKG_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "BKG_CREATE|BKG-P10-1|BeneficiaryA|BID|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "BKG_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM bank_guarantee WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT claimed_amount FROM ban
 
 # Close.
 assert_match "BKG_DELETE ok" "$(run_cobol "BKG_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|BKG_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "BKG_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM bank_guarantee WHERE id=${id};")" "^CLOSED$"
 
 # Summary and audit.

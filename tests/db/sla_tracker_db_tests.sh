@@ -18,6 +18,8 @@ db_reset_sla_tracker
 # Create a cost center.
 create_out="$(run_cobol "SLT_CREATE|SLT-W3-1|SLAA|P1|||admin@test.com")"
 assert_match "SLT_CREATE ok" "$create_out" "SUCCESS\|SLT_CREATE\|[0-9]+"
+assert_match "create non-admin refused" "$(run_cobol "SLT_CREATE|SLT-P10-1|SLAA|P1|||sender@test.com")" "ERROR\|FORBIDDEN"
+assert_match "create missing ref" "$(run_cobol "SLT_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM sla_tracker WHERE id=${id};")" "^OPEN$"
 
@@ -34,6 +36,7 @@ assert_match "used credit persisted" "$(db_query "SELECT actual_response FROM sl
 
 # Close.
 assert_match "SLT_DELETE ok" "$(run_cobol "SLT_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|SLT_DELETE"
+assert_match "delete non-admin refused" "$(run_cobol "SLT_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "closed persisted" "$(db_query "SELECT status FROM sla_tracker WHERE id=${id};")" "^CLOSED$"
 
 # Summary and audit.
