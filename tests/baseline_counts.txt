@@ -107,3 +107,5 @@ db_loan_posting_tests=13
 db_migration_baseline_tests=16
 
 db_migration_archive_tests=12
+
+db_commit_failure_tests=4

@@ -39,6 +39,18 @@ static int bridge_debug(void) {
     return enabled;
 }
 
+/* Test-only commit-failure seam. Never active in production, and requires
+ * both SQL_BRIDGE_TEST=1 and SQL_BRIDGE_TEST_FAIL_COMMIT=1. Used only by
+ * tests/db/commit_failure_db_tests.sh to prove TXN-FINISH fails closed. */
+static int bridge_test_fail_commit(void) {
+    const char *enabled = getenv("SQL_BRIDGE_TEST");
+    if (enabled == NULL || strcmp(enabled, "1") != 0) return 0;
+    const char *node_env = getenv("NODE_ENV");
+    if (node_env != NULL && strcmp(node_env, "production") == 0) return 0;
+    const char *fail = getenv("SQL_BRIDGE_TEST_FAIL_COMMIT");
+    return fail != NULL && strcmp(fail, "1") == 0;
+}
+
 /* True when the process is in production but the database credentials are
  * still the development defaults (or unset). Production must set them
  * explicitly; the gateway refuses to start on the same condition, and this
@@ -270,6 +282,12 @@ void SQL_BEGIN() {
 void SQL_COMMIT() {
     if (G_CONN == NULL) {
         strncpy(G_RESULT, "ERROR|NO_TRANSACTION", 16383);
+        return;
+    }
+    if (bridge_test_fail_commit()) {
+        strncpy(G_RESULT, "ERROR|COMMIT_FAILED", 16383);
+        mysql_query(G_CONN, "ROLLBACK");
+        G_CONN = NULL;
         return;
     }
     if (mysql_query(G_CONN, "COMMIT")) {
