@@ -176,7 +176,7 @@
                SET STEP-FAIL TO TRUE
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|PHL_RESERVED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -345,7 +345,7 @@
                END-IF
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|PHL_CAPTURED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -384,7 +384,7 @@
                SET STEP-FAIL TO TRUE
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|PHL_RELEASED" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -488,4 +488,5 @@
            MOVE SPACES TO LS-OUTPUT-BUFFER
            STRING "SUCCESS|PHL_SUMMARY|" DELIMITED BY SIZE WS-RESULT(1:200) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM payment_hold_core.

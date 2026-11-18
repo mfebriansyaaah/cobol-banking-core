@@ -223,7 +223,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|DISPUTE_OPENED|" DELIMITED BY SIZE
                        WS-DSP-CASE DELIMITED BY SPACE
@@ -357,7 +357,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|DISPUTE_ACKNOWLEDGED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -413,7 +413,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|DISPUTE_RESOLVED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -469,7 +469,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|DISPUTE_REJECTED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -631,4 +631,5 @@
                 MOVE 1 TO WS-RLEN
             END-IF.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM wallet_dispute_core.

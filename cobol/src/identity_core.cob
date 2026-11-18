@@ -683,7 +683,7 @@
                END-IF
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|ACCOUNT_FROZEN" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -743,7 +743,7 @@
                END-IF
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE "SUCCESS|ACCOUNT_UNFROZEN" TO LS-OUTPUT-BUFFER
            ELSE
                CALL "SQL_ROLLBACK" END-CALL
@@ -754,4 +754,5 @@
                END-IF
            END-IF.
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM identity_core.

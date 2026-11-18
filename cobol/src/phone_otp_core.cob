@@ -253,7 +253,7 @@
                 END-IF
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
             END-IF.
@@ -495,4 +495,5 @@
                    INTO LS-OUTPUT-BUFFER
             ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM phone_otp_core.

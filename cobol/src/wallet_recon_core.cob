@@ -224,7 +224,7 @@
                     EXIT PARAGRAPH
                 END-IF
             END-IF.
-            CALL "SQL_COMMIT" END-CALL
+            PERFORM COMMIT-CHECKED
             MOVE SPACES TO LS-OUTPUT-BUFFER
             STRING "SUCCESS|RUN_RECORDED|" WS-RUN-ID DELIMITED BY SPACE
                    "|" DELIMITED BY SIZE WS-RUN-COUNT DELIMITED BY SPACE
@@ -405,7 +405,7 @@
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT" END-CALL
+            PERFORM COMMIT-CHECKED
             MOVE "SUCCESS|EXCEPTION_ACKNOWLEDGED" TO LS-OUTPUT-BUFFER
             EXIT PARAGRAPH.
 
@@ -484,7 +484,7 @@
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT" END-CALL
+            PERFORM COMMIT-CHECKED
             MOVE "SUCCESS|EXCEPTION_RESOLVED" TO LS-OUTPUT-BUFFER
             EXIT PARAGRAPH.
 
@@ -505,4 +505,5 @@
                 END-EVALUATE
             END-PERFORM.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM wallet_recon_core.

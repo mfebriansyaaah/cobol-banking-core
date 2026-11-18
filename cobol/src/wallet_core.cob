@@ -311,13 +311,9 @@
             IF WS-CALL-OUT(1:5) = "ERROR"
                 CALL "SQL_ROLLBACK" END-CALL
             ELSE
-                CALL "SQL_COMMIT" END-CALL
-                CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                IF WS-RESULT NOT = "SUCCESS|COMMIT"
-                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-                    EXIT PARAGRAPH
-                END-IF
+                PERFORM COMMIT-CHECKED
             END-IF
             MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM wallet_core.

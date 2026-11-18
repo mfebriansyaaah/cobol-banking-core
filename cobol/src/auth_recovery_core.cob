@@ -699,7 +699,7 @@
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT" END-CALL
+            PERFORM COMMIT-CHECKED
             MOVE "SUCCESS|REQUEST_REJECTED" TO LS-OUTPUT-BUFFER.
             EXIT PARAGRAPH.
 
@@ -795,4 +795,5 @@
             MOVE WS-DENIED-ACTOR TO WS-BIND-3
             PERFORM RECORD-AUTHZ-DENIED
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM auth_recovery_core.

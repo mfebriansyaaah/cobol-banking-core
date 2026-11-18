@@ -495,7 +495,7 @@
                PERFORM AUDIT-IMPORT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE WS-STAGED-COUNT TO WS-VALID-COUNT-ED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|IMP_BULK_STAGED|" DELIMITED BY SIZE
@@ -657,4 +657,5 @@
            MOVE "SUCCESS|IMP_ROW_UNSKIPPED" TO WS-SUCCESS-MSG
            PERFORM TXN-FINISH
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM import_row_core.

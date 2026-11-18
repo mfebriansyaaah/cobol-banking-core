@@ -116,7 +116,7 @@
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT" END-CALL
+            PERFORM COMMIT-CHECKED
             MOVE SPACES TO LS-OUTPUT-BUFFER
             IF WS-RESULT = "ERROR|NO_DATA"
                 MOVE "SUCCESS|CLAIMED" TO LS-OUTPUT-BUFFER
@@ -398,8 +398,9 @@
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
                 PERFORM SQL-EXEC-2
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|ARCHIVED" TO LS-OUTPUT-BUFFER
             END-IF.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM auth_ops_core.

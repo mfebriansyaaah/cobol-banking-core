@@ -60,8 +60,7 @@
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT"
-                END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|CODE_SENT|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
@@ -160,8 +159,7 @@
                 END-IF
             END-IF
             IF STEP-OK
-                CALL "SQL_COMMIT"
-                END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|PASSWORD_RESET" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK"
@@ -254,8 +252,7 @@
                 END-IF
             END-IF
             IF STEP-OK
-                CALL "SQL_COMMIT"
-                END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|PASSWORD_CHANGED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK"

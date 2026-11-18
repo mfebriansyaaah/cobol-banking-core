@@ -187,7 +187,7 @@
                         IF WS-CALL-OUT(1:5) = "ERROR"
                             CALL "SQL_ROLLBACK" END-CALL
                         ELSE
-                            CALL "SQL_COMMIT" END-CALL
+                            PERFORM COMMIT-CHECKED
                         END-IF
                         MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER
                     END-IF
@@ -512,7 +512,7 @@
             END-IF
             
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|USER_CREATED|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
@@ -589,7 +589,7 @@
             END-IF
             
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|EMAIL_VERIFIED" TO LS-OUTPUT-BUFFER
             ELSE
                 CALL "SQL_ROLLBACK" END-CALL
@@ -655,7 +655,7 @@
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|CODE_SENT|" WS-CODE(1:6) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER
                 ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
@@ -756,7 +756,7 @@
                     MOVE "ERROR|SESSIONS_REVOKE_FAILED" TO LS-OUTPUT-BUFFER
                     EXIT PARAGRAPH
                 END-IF
-                CALL "SQL_COMMIT" END-CALL
+                PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|OTHER_SESSIONS_REVOKED" TO LS-OUTPUT-BUFFER
             ELSE
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
@@ -925,4 +925,5 @@
                 END-IF
             END-IF.
             EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM auth_core.

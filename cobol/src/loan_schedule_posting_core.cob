@@ -279,7 +279,7 @@
                PERFORM AUDIT
            END-IF
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE WS-PAYMENT TO WS-PAYMENT-TEXT
                MOVE WS-TOTAL-INTEREST TO WS-TOTAL-INTEREST-TEXT
                MOVE SPACES TO WS-RESULT
@@ -485,7 +485,7 @@
                PERFORM AUDIT
            END-IF
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE WS-PAYMENT TO WS-PAYMENT-TEXT
                MOVE SPACES TO WS-RESULT
                STRING "SUCCESS|LSC_SETTLE|" DELIMITED BY SIZE
@@ -524,4 +524,5 @@
            PERFORM AUDIT.
            EXIT PARAGRAPH.
 
+        COPY "common_commit.cpy".
        END PROGRAM loan_schedule_posting_core.

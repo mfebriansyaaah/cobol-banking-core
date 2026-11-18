@@ -277,7 +277,7 @@
                PERFORM AUDIT-STATEMENT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|STMT_RUN_STARTED|" DELIMITED BY SIZE
                       WS-RUN-ID DELIMITED BY SPACE
@@ -426,7 +426,7 @@
                PERFORM AUDIT-STATEMENT
            END-IF.
            IF STEP-OK
-               CALL "SQL_COMMIT" END-CALL
+               PERFORM COMMIT-CHECKED
                MOVE SPACES TO LS-OUTPUT-BUFFER
                STRING "SUCCESS|STMT_RUN_COMPLETED|" DELIMITED BY SIZE
                       WS-RUN-ID DELIMITED BY SPACE
@@ -709,4 +709,5 @@
            MOVE "SUCCESS|STMT_RUN_FAILED" TO WS-SUCCESS-MSG
            PERFORM TXN-FINISH
            EXIT PARAGRAPH.
+        COPY "common_commit.cpy".
        END PROGRAM statement_core.

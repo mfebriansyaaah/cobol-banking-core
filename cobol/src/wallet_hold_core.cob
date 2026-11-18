@@ -478,12 +478,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT" END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT NOT = "SUCCESS|COMMIT"
-                SET WS-TRANSFER-FAIL-DB TO TRUE
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            PERFORM COMMIT-CHECKED
             EXIT PARAGRAPH.
 
         FILL-HOLD-REMAINING-BINDS.
@@ -552,12 +547,7 @@
                 CALL "SQL_ROLLBACK" END-CALL
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_COMMIT" END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT NOT = "SUCCESS|COMMIT"
-                SET WS-TRANSFER-FAIL-DB TO TRUE
-                MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
-            END-IF.
+            PERFORM COMMIT-CHECKED
             EXIT PARAGRAPH.
         COPY "common_amount.cpy".
 
@@ -577,4 +567,5 @@
             END-IF
             EXIT PARAGRAPH.
 
+        COPY "common_commit.cpy".
        END PROGRAM wallet_hold_core.
