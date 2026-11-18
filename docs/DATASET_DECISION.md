@@ -10,6 +10,15 @@
 > remains the governing approval; see `docs/DATASET_CARD.md` for current
 > curation details.
 >
+> **P1 update (2026-11-18, `aa99739a`):** source 881 / train 746 /
+> verification 1,568. Deltas are additive and test/docs-only: P1-06
+> fee/gl burn-down (`fee_read` 9 → 39 assertions, `gl_core` graduates the
+> 70% floor), P1-07 loan/payment guards, P1-08 suite registration
+> (`user_core` graduates), P1-09 collection/treasury guards + `ref_pair`
+> registration, P1-10 template write-path guards, P1-11 production image and
+> pin gates, P1-12 PII history gate. No logic or approval-scope change;
+> per-module coverage re-pinned from reviewed CI runs each time.
+>
 > **Phase 2 update (2026-11-18, `81c24de5`):** export counts changed to
 > source 866 / train 731 / verification 1,553. `train` continues to exclude all
 > 40 non-recommended modules and generated route boilerplate. The decision below
