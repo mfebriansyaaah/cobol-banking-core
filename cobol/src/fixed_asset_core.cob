@@ -384,7 +384,7 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
-            IF WS-RESULT = "0 rows affected" OR WS-RESULT = "ERROR|NO_DATA"
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT = "ERROR|NO_DATA"
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
