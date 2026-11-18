@@ -41,6 +41,10 @@ bounded dataset approval, not a change to the proprietary `LICENSE`.
 - Local-only artifacts (`backups/` 72M physical backup, `artifacts/`,
   `node_modules/`, `tests/.dbenv`, `cobol/bin+build/`) are gitignored and
   excluded from export via `git archive` + profile exclusion lists.
+  The root-owned physical backup under `backups/physical/` cannot be moved
+  without host root access (owner action); it never enters git or exports.
+- Locked by `scripts/check_pii_history.mjs` (static gate): every
+  non-noreply history address must be absent from tracked files.
 - Secret history review: `docs/SECURITY_HISTORY_REVIEW.md` — 7 gitleaks
   history findings, all synthetic test fixtures / docs false positives,
   0 live credentials. Worktree scan clean.
@@ -85,7 +89,7 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 ## Test evidence (pre-Phase-1 snapshot; current Phase 1 checks below)
 
 - Phase 1 (this HEAD): `npm run lint` 0, `format:check` clean, `test:scripts`
-  515/515, gateway unit 149/149, `tests/run_all.sh fast` GREEN (235 table
+  518/518, gateway unit 149/149, `tests/run_all.sh fast` GREEN (235 table
   cases + 13 amount matrix), docs/module-reference gates clean, both train and
   source exports gitleaks-clean and `sha256sum -c` verified.
 - Phase 2: JS complexity 15 ratchet, COBOL paragraph cap 220, recommended
