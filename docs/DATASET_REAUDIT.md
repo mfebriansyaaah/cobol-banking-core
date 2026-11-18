@@ -1,5 +1,10 @@
 # Dataset Re-audit — Post-Remediation (P0–P2)
 
+> **Superseded for export counts by Phase 1 (2026-11-18, `cfe4a8a5`):**
+> `train` now excludes all 40 non-recommended modules and generated route
+> boilerplate (source 855, train 720, verification 1,542). The scores and
+> evidence below describe the earlier snapshot; see `docs/DATASET_CARD.md`.
+
 - Code HEAD: `84dd3c38` (`main`, merge PR #703)
 - Date: 2026-11-17
 - Baseline: audit `e62cec26` → P0 (PR #701) → P1 (PR #702) → P2 (PR #703)
