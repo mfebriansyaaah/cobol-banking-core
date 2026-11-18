@@ -9,7 +9,7 @@
 
 ## Size
 
-<!-- Prefer under 1.500 changed lines; >1.500 requires a recorded exception (see docs/BRANCHING.md). -->
+<!-- Prefer under 800 changed lines; >800 requires a recorded exception (see docs/BRANCHING.md). -->
 
 - Size tier: <!-- S / M / L / B -->
 - Total diff: <!-- added + deleted lines from git diff --numstat -->

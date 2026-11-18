@@ -16,7 +16,6 @@ middleware/test/route-reachability.test.js|@21|17
 middleware/workers/outbox.js|deliverRow|20
 scripts/audit_complexity.mjs|@158|18
 scripts/build_tier1_graph.mjs|@179|19
-scripts/check_pr_size_policy.mjs|@19|16
 scripts/check_route_auth.mjs|@26|16
 scripts/check_test_counts.mjs|@148|17
 scripts/classify_code_candidates.mjs|@104|19

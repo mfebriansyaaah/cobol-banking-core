@@ -10,7 +10,7 @@ accepted only from people authorized by the owner.
 - Branch from `main`; never push directly to `main`. See
   [Branching and merge model](docs/BRANCHING.md) for the train, merge method,
   and final `git ls-remote --heads origin` check (only `main` remains).
-- Keep PRs under 5 working days; prefer under 1.500 changed lines. Larger PRs
+- Keep PRs under 5 working days; prefer under 800 changed lines. Larger PRs
   require a recorded exception (see `docs/BRANCHING.md`). Split large waves.
 - No merge with a failing CI check. Required checks are listed in
   [CI status](docs/CI.md).

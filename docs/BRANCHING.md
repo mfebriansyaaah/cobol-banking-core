@@ -82,7 +82,7 @@ docs(T-022): record invariant evidence
 Rules:
 
 - One branch = one coherent task group.
-- Prefer PRs under 1.500 changed lines. Larger changes require a recorded
+- Prefer PRs under 800 changed lines. Larger changes require a recorded
   exception: reason, added review risk, reviewer, owner approval, and rollback
   plan. There is no fixed line ceiling.
 - A commit that only fixes a previous commit in the same branch must be
@@ -101,16 +101,20 @@ generated files, and pure moves).
 | Tier | Typical size | Change kind | Exception |
 | --- | ---: | --- | --- |
 | **S — Small** | 100–400 lines | narrow fix, one gate, one route, small docs | No |
-| **M — Normal** | 400–1.500 lines | one-domain feature/refactor, test + implementation | No |
-| **L — Cross-cutting** | 1.500–3.000 lines | cross-module refactor, shared copybook, large extraction | **Yes** |
-| **B — Bulk/mechanical** | 3.000+ lines | formatting, generated schema, code moves, migration archive | **Yes** |
+| **M — Normal** | 400–800 lines | one-domain feature/refactor, test + implementation | No |
+| **L — Cross-cutting** | 800–1.500 lines | cross-module refactor, shared copybook, large extraction | **Yes** |
+| **B — Bulk/mechanical** | 1.500+ lines | formatting, generated schema, code moves, migration archive | **Yes** |
+
+Logic changes above 1.500 lines must be split into smaller PRs, not relabeled
+as bulk/mechanical. The bulk tier is for changes whose review cost is mostly
+mechanical, not for hiding a large domain change.
 
 Report the size in every PR body (see `.github/pull_request_template.md`):
 
 ```text
 Size tier: M
-Total diff: 1.180 lines (added 720, deleted 460)
-Semantic diff: ±650 lines (excluding formatting/generated/move)
+Total diff: 760 lines (added 420, deleted 340)
+Semantic diff: ±360 lines (excluding formatting/generated/move)
 Exception: none
 ```
 
@@ -124,7 +128,7 @@ git diff -w origin/main...HEAD                                  # whitespace-onl
 ```
 
 `node scripts/check_pr_size_policy.mjs` guards this policy: it fails when
-the fixed ceiling returns or the 1.500 preference, exception rule, or PR
+the fixed ceiling returns or the 800 preference, exception rule, or PR
 template fields go missing. CI publishes the `pr_size` report as a
 non-gating artifact.
 
@@ -216,7 +220,7 @@ audit evidence; otherwise keep annotated release tags.
 
 - Revert the PR commit range (`git revert <range>`); never reset `main`.
 - If the train breaks `main`, pause the train, revert, then resume.
-- If a branch grows beyond 5 days or 1.500 changed lines, split it rather than keeping
+- If a branch grows beyond 5 days or 800 changed lines, split it rather than keeping
   it alive.
 - For emergency hotfix, branch from the production tag/`main`, run the full
   gate, merge, tag, then resume the train.
