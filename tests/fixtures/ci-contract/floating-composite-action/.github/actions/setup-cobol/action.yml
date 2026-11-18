@@ -1,0 +1,6 @@
+name: Floating composite action fixture
+description: Must fail the contract because the remote action is not SHA-pinned.
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4

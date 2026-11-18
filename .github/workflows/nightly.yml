@@ -72,21 +72,10 @@ jobs:
       - name: Install JS toolchain (load test runner)
         run: npm ci
 
-      - name: Provision least-privilege app account
-        run: >
-          APP_DB_PASS="$DB_PASS" MIGRATE_USER="$DB_MIGRATE_USER"
-          MIGRATE_DB_PASS="$DB_MIGRATE_PASS" DB_ADMIN_USER="$DB_MIGRATE_USER"
-          DB_ADMIN_PASS="$DB_MIGRATE_PASS" DB_HOST="$DB_HOST" DB_PORT="$DB_PORT"
-          DB_NAME="$DB_NAME" database/grants.sh
-
-      - name: Load baseline schema
-        run: >
-          mysql -h "$DB_HOST" -P "$DB_PORT"
-          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$DB_NAME"
-          < database/schema.sql
-
-      - name: Apply migrations
-        run: ./database/migrate.sh
+      - name: Bootstrap database
+        uses: ./.github/actions/db-bootstrap
+        with:
+          use-snapshot: 'false'
 
       - name: Build core
         run: |
@@ -131,10 +120,6 @@ jobs:
       - name: Gateway load test
         run: bash tests/perf/load_gateway.sh
 
-      - name: Collect failure diagnostics
-        if: failure()
-        run: bash scripts/ci/collect_diagnostics.sh /tmp/ci-diagnostics
-
       - name: Upload nightly reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
@@ -147,11 +132,8 @@ jobs:
             coverage/
           if-no-files-found: warn
 
-      - name: Upload diagnostics
+      - name: Upload failure diagnostics
         if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        uses: ./.github/actions/upload-diagnostics
         with:
-          name: nightly-diagnostics
-          overwrite: true
-          path: /tmp/ci-diagnostics
-          if-no-files-found: warn
+          name: diagnostics-nightly

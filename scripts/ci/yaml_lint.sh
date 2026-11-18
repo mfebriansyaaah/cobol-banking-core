@@ -12,6 +12,6 @@ command -v yamllint >/dev/null 2>&1 || {
     exit 2
 }
 
-yamllint --strict -c .yamllint .github/workflows/ \
+yamllint --strict -c .yamllint .github/workflows/ .github/actions/ \
     docker-compose.test.yml monitoring/prometheus-alerts.yml \
     .github/ISSUE_TEMPLATE/config.yml .github/dependabot.yml

@@ -61,13 +61,32 @@ section "disk and memory"
 try df -h /tmp
 try free -m
 
-section "report summary"
-if [ -f artifacts/report.tsv ]; then
-    cp -f artifacts/report.tsv "$OUT/" 2>/dev/null || true
-    cp -f artifacts/run-all.json "$OUT/" 2>/dev/null || true
-    awk -F'\t' 'NR>1 {t++; if ($2 != "pass") {f++; print "NOT-PASS:", $0}} END {print "suites:", t+0, "not-pass:", f+0}' artifacts/report.tsv >>"$SUM" 2>&1 || true
+section "service containers"
+if command -v docker >/dev/null 2>&1; then
+    try docker ps --format '{{.Names}} {{.Image}} {{.Status}}'
+    for container in $(docker ps --format '{{.Names}}' 2>/dev/null | grep -i mariadb || true); do
+        say "--- logs $container ---"
+        docker logs --tail 100 "$container" >>"$SUM" 2>&1 || say "(unavailable: docker logs $container)"
+    done
 else
-    say "(no artifacts/report.tsv)"
+    say "(docker unavailable; skipping service container logs)"
+fi
+
+section "report summary"
+REPORT_TSV=""
+for candidate in artifacts/latest/report.tsv artifacts/report.tsv; do
+    if [ -f "$candidate" ]; then
+        REPORT_TSV="$candidate"
+        break
+    fi
+done
+if [ -n "$REPORT_TSV" ]; then
+    REPORT_DIR="$(dirname "$REPORT_TSV")"
+    cp -f "$REPORT_TSV" "$OUT/report.tsv" 2>/dev/null || true
+    cp -f "$REPORT_DIR/run-all.json" "$OUT/run-all.json" 2>/dev/null || true
+    awk -F'\t' 'NR>1 {t++; if ($2 != "pass") {f++; print "NOT-PASS:", $0}} END {print "suites:", t+0, "not-pass:", f+0}' "$REPORT_TSV" >>"$SUM" 2>&1 || true
+else
+    say "(no artifacts/latest/report.tsv or artifacts/report.tsv)"
 fi
 
 section "gateway log tails"
