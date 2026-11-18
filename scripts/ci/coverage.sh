@@ -147,6 +147,7 @@ SUITES=(
     fee_read_db_tests
     fixed_asset_domain_db_tests
     report_builder_db_tests notification_template_db_tests
+    report_statement_db_tests eod_ops_db_tests
 )
 
 baseline() {
