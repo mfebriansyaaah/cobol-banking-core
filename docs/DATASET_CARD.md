@@ -126,9 +126,9 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 ## Known gaps (honest)
 
 1. All 40 non-recommended modules (including 8 clone-shaped and 5 exact
-   clones) are kept in `source` for reproducibility but excluded from `train`.
-   The `source` file count therefore includes them; `train` keeps only the 31
-   recommended modules.
+   clones) are kept in `source` for reproducibility but excluded from the
+   `train` profile. The `source` file count therefore includes them; `train`
+   keeps only the 31 recommended modules.
 2. Integration backlog: 202 items, 147 OPEN (registry/parser fixed A-04;
    items are linkage evidence gaps, not code defects).
 3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
