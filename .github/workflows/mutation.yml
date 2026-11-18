@@ -72,3 +72,26 @@ jobs:
 
       - name: Run money-path mutants
         run: bash tests/probes/money_path_mutants.sh
+
+  notify:
+    name: notify
+    needs: [mutants]
+    if: always() && needs.mutants.result != 'cancelled'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Open or close CI failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+          FAILED_JOBS: ${{ toJSON(needs) }}
+        run: bash scripts/ci/notify_failure.sh "${{ needs.mutants.result }}"

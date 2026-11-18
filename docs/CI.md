@@ -16,6 +16,7 @@
 - [Job durations and timeouts](#job-durations-and-timeouts)
 - [DB snapshot producer + consumers (CI-008A/CI-008B)](#db-snapshot-producer--consumers-ci-008aci-008b)
 - [Rerun-safe artifacts and failure attribution (CI-013)](#rerun-safe-artifacts-and-failure-attribution-ci-013)
+- [Failure notifications (`notify`)](#failure-notifications-notify)
 - [How to run locally](#how-to-run-locally)
 - [Cost model (measured 2026-11-05; replaces the planning ceiling below)](#cost-model-measured-2026-11-05-replaces-the-planning-ceiling-below)
 - [Cost plan (planning ceiling, superseded 2026-11-05 — historical)](#cost-plan-planning-ceiling-superseded-2026-11-05--historical)
@@ -185,8 +186,12 @@ Rules:
 | `ci.yml` db-ops | 20 min | rollback, backup/restore (push `main` + dispatch only; not a PR required check) |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
 | `coverage.yml` coverage | 45 min | full COBOL + gateway |
+| `coverage.yml` notify | 5 min | open/close `ci-failure` issue |
 | `nightly.yml` full-twice | 180 min | full twice + drills + coverage + benchmark + load + flake compare |
+| `nightly.yml` notify | 5 min | open/close `ci-failure` issue |
 | `mutation.yml` mutants | 120 min | money-path mutants + anchor guard (weekly) |
+| `mutation.yml` notify | 5 min | open/close `ci-failure` issue |
+| `ci.yml` notify | 5 min | push `main` only; open/close `ci-failure` issue (never a required check) |
 
 ## DB snapshot producer + consumers (CI-008A/CI-008B)
 
@@ -242,6 +247,15 @@ When the `test` job does not succeed, `db-aggregate` still merges and
 verifies shard reports, but skips only the assertion-count gate with an
 explicit notice naming the `test` result — a red `test` job is never masked
 by a follow-on "missing suite rows / no JUnit XML" failure.
+
+## Failure notifications (`notify`)
+
+Scheduled workflows (`nightly.yml`, `coverage.yml`, `mutation.yml`) and
+`ci.yml` pushes to `main` run a `notify` job that opens or updates a
+`ci-failure` issue (`scripts/ci/notify_failure.sh`). A failure creates or
+comments the issue with the run URL, SHA, and failed jobs; the next green run
+closes it. Triage steps live in `docs/runbooks/ci-failure.md`. `notify` is
+never a required check.
 
 ## How to run locally
 

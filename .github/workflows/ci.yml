@@ -541,6 +541,10 @@ jobs:
           SKIP_DB: '1'
         run: tests/run_all.sh full
 
+      - name: Write test summary
+        if: always()
+        run: node scripts/ci/summary.mjs --report-dir artifacts/latest
+
       - name: Gateway residue check
         if: always()
         run: |
@@ -663,6 +667,10 @@ jobs:
       - name: Run DB shard
         run: DB_SHARD_INDEX=${{ matrix.shard }} tests/run_all.sh db-shard
 
+      - name: Write shard summary
+        if: always()
+        run: node scripts/ci/summary.mjs --report-dir artifacts/latest
+
       - name: Upload shard reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
@@ -685,6 +693,10 @@ jobs:
     if: always() && (github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true')
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: read
 
     # Same QUARANTINE as the test job: the count gate subtracts quarantined
     # tests from the baseline only when the reports were produced quarantined.
@@ -764,6 +776,19 @@ jobs:
           path: merged/
           retention-days: 14
           if-no-files-found: warn
+
+      - name: Publish test annotations
+        if: >-
+          always() && steps.upstream.outputs.ok == 'true' &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        uses: dorny/test-reporter@df6247429542221bc30d46a036ee47af1102c451  # v2
+        with:
+          name: DB + gateway tests
+          path: merged/junit/**/*.xml
+          reporter: java-junit
+          fail-on-error: false
 
   coverage:
     name: coverage
@@ -1010,3 +1035,33 @@ jobs:
         uses: ./.github/actions/upload-diagnostics
         with:
           name: diagnostics-coverage-pr
+
+  notify:
+    name: notify
+    needs: [lint, changes, build, docker-build, db-snapshot, schema-drift, test, db-shards,
+            db-aggregate, coverage, coverage-pr, db-ops]
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Open CI failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+          FAILED_JOBS: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          if [ "${{ contains(join(needs.*.result, ','), 'failure') }}" = "true" ]; then
+            bash scripts/ci/notify_failure.sh failure
+          else
+            bash scripts/ci/notify_failure.sh success
+          fi
