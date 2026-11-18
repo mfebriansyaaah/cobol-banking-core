@@ -1,0 +1,26 @@
+# Keep the production build context minimal and secret-free.
+# The Dockerfile copies only what each stage needs; everything else is
+# excluded here so local artifacts can never leak into the image.
+
+.git
+.github
+node_modules
+middleware/node_modules
+middleware/test-results
+middleware/test
+middleware/spec
+middleware/preload.mjs
+middleware/preload.gateway.mjs
+cobol/bin
+cobol/build
+backups
+artifacts
+coverage
+tests/.dbenv
+.env
+.env.*
+*.log
+input.txt
+output.txt
+premerge-report.json
+__pycache__

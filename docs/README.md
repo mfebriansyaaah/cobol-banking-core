@@ -47,6 +47,7 @@ never counts. Every document below must stay linked here — enforced by
 | [COVERAGE](COVERAGE.md) | Coverage gates and curated-set policy |
 | [COMPLEXITY_BASELINE](COMPLEXITY_BASELINE.md) | Generated complexity baseline |
 | [RELEASE](RELEASE.md) | Release checklist |
+| [DEPLOYMENT](DEPLOYMENT.md) | Production image build and run |
 | [DOMAIN_STATUS](DOMAIN_STATUS.md) | Domain implementation status board |
 | [STATUS](STATUS.md) | Generated repository status |
 
