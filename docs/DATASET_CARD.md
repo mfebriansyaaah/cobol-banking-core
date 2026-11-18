@@ -1,9 +1,9 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Code HEAD: `cfe4a8a5` (Phase 1 train curation; prior audit `51aba228`)
+- Code HEAD: `81c24de5` (Phase 2 maintainability ratchets; Phase 1 `cfe4a8a5`)
 - Approval record: `80fb72b5` (typed owner approval + first verified source export)
-- Release export snapshot: `phase1` export at `cfe4a8a5` (source 855 files,
-  train 720 files; `sha256sum -c` all OK, gitleaks clean)
+- Release export snapshot: Phase 2 export at `81c24de5` (source 866 files,
+  train 731 files; `sha256sum -c` all OK, gitleaks clean)
 - Date: 2026-11-18
 - Profile default: `source` (see `scripts/export_dataset.sh`)
 
@@ -61,14 +61,14 @@ node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
 
 | Profile | Source-tree files | Archive | Generated snapshots | Train curation | Use |
 | --- | ---: | --- | --- | --- | --- |
-| `source` | 855 | no | no | n/a | reproducible source |
-| `train` | 720 | no | no | recommended only + `card.js` exemplar | training corpus |
-| `verification` | 1,542 | yes | yes | n/a | full gates |
-| `full` | 1,542 | yes | yes | n/a | archival |
+| `source` | 866 | no | no | n/a | reproducible source |
+| `train` | 731 | no | no | recommended only + `card.js` exemplar | training corpus |
+| `verification` | 1,553 | yes | yes | n/a | full gates |
+| `full` | 1,553 | yes | yes | n/a | archival |
 
 `train` is the training corpus, **not** a runnable tree; use
 `verification`/`full` to run gates. It contains 31 recommended modules
-(23,273 COBOL lines), `main_logic`, the route spec, and one generated route
+(about 23k COBOL lines), `main_logic`, the route spec, and one generated route
 exemplar.
 
 Per-module quality/tier/coverage metadata is in
