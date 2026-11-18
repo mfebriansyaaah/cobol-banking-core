@@ -300,7 +300,6 @@
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
-                MOVE "DEBUG|STEP_OK" TO LS-OUTPUT-BUFFER
                 PERFORM COMMIT-CHECKED
                 MOVE SPACES TO LS-OUTPUT-BUFFER
                 STRING "SUCCESS|LOAN_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
@@ -444,7 +443,6 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
-                MOVE "DEBUG|STEP_OK" TO LS-OUTPUT-BUFFER
                 PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|LOAN_CALC|1" TO LS-OUTPUT-BUFFER
             ELSE
@@ -488,7 +486,6 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
-                MOVE "DEBUG|STEP_OK" TO LS-OUTPUT-BUFFER
                 PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|LOAN_UPDATE" TO LS-OUTPUT-BUFFER
             ELSE
@@ -535,7 +532,6 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 PERFORM AUDIT
             END-IF.
             IF STEP-OK
-                MOVE "DEBUG|STEP_OK" TO LS-OUTPUT-BUFFER
                 PERFORM COMMIT-CHECKED
                 MOVE "SUCCESS|LOAN_DELETE" TO LS-OUTPUT-BUFFER
             ELSE
