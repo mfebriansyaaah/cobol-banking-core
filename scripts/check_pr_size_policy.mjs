@@ -1,20 +1,33 @@
 // PR-size policy guard (maint-00): the risk-based sizing rule must stay
 // in the policy docs. Fails when the old fixed ceiling returns or the
-// 1.500-line preference / exception rule / PR template fields go missing.
+// 800-line preference / exception rule / PR template fields go missing.
 //
 // Checked files:
-//   docs/BRANCHING.md — no "3500"/"3,500" ceiling; contains "1.500",
-//     "exception", and "No fixed line ceiling".
-//   docs/GOVERNANCE.md — contains "1.500"; no "under 500"/"ceiling 3500"/"3500".
-//   CONTRIBUTING.md — contains "1.500"; no "3500".
+//   docs/BRANCHING.md — no "3500"/"3,500" ceiling; contains "under 800
+//     changed lines", "exception", and "No fixed line ceiling".
+//   docs/GOVERNANCE.md — contains "under 800 changed lines"; no
+//     "under 500"/"ceiling 3500"/"3500".
+//   CONTRIBUTING.md — contains "under 800 changed lines"; no "3500".
 //   .github/pull_request_template.md — contains "Size tier", "Total diff",
-//     "Semantic diff", "Exception".
+//     "Semantic diff", "Exception", and the 800-line preference.
 //
 // Usage: node scripts/check_pr_size_policy.mjs [root]
 // Exit: 0 ok, 1 violation, 2 usage error.
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+
+const NEW_PREFERENCE = /under 800 changed lines/i;
+const OLD_PREFERENCE = /under (?:1[.,]500|2[.,]500) changed lines/i;
+
+function checkPreference(errors, file, text) {
+  if (OLD_PREFERENCE.test(text)) {
+    errors.push(`${file}: old 1.500/2.500 preference returned (use the 800 preference)`);
+  }
+  if (!NEW_PREFERENCE.test(text)) {
+    errors.push(`${file}: missing 800-line preference`);
+  }
+}
 
 export function checkPolicy(rootDir = '.') {
   const errors = [];
@@ -30,11 +43,9 @@ export function checkPolicy(rootDir = '.') {
   const branching = read('docs/BRANCHING.md');
   if (branching !== null) {
     if (/3500|3,500/.test(branching)) {
-      errors.push('docs/BRANCHING.md: fixed 3500-line ceiling returned (use the 1.500 preference + exception rule)');
+      errors.push('docs/BRANCHING.md: fixed 3500-line ceiling returned (use the 800 preference + exception rule)');
     }
-    if (!branching.includes('1.500')) {
-      errors.push('docs/BRANCHING.md: missing 1.500-line preference');
-    }
+    checkPreference(errors, 'docs/BRANCHING.md', branching);
     if (!/exception/i.test(branching)) {
       errors.push('docs/BRANCHING.md: missing exception rule');
     }
@@ -46,21 +57,17 @@ export function checkPolicy(rootDir = '.') {
   const governance = read('docs/GOVERNANCE.md');
   if (governance !== null) {
     if (/under 500|ceiling 3500|3500/.test(governance)) {
-      errors.push('docs/GOVERNANCE.md: old 500/3500 sizing rule returned (use the 1.500 preference + exception rule)');
+      errors.push('docs/GOVERNANCE.md: old 500/3500 sizing rule returned (use the 800 preference + exception rule)');
     }
-    if (!governance.includes('1.500')) {
-      errors.push('docs/GOVERNANCE.md: missing 1.500-line preference');
-    }
+    checkPreference(errors, 'docs/GOVERNANCE.md', governance);
   }
 
   const contributing = read('CONTRIBUTING.md');
   if (contributing !== null) {
     if (/3500/.test(contributing)) {
-      errors.push('CONTRIBUTING.md: old 3500-line ceiling returned (use the 1.500 preference + exception rule)');
+      errors.push('CONTRIBUTING.md: old 3500-line ceiling returned (use the 800 preference + exception rule)');
     }
-    if (!contributing.includes('1.500')) {
-      errors.push('CONTRIBUTING.md: missing 1.500-line preference');
-    }
+    checkPreference(errors, 'CONTRIBUTING.md', contributing);
   }
 
   const template = read('.github/pull_request_template.md');
@@ -70,6 +77,7 @@ export function checkPolicy(rootDir = '.') {
         errors.push(`.github/pull_request_template.md: missing field "${field}"`);
       }
     }
+    checkPreference(errors, '.github/pull_request_template.md', template);
   }
 
   return errors;
@@ -96,5 +104,5 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     for (const e of errors) console.error(`  ${e}`);
     process.exit(1);
   }
-  console.log('OK: PR-size policy holds (1.500 preference + exception, no fixed ceiling)');
+  console.log('OK: PR-size policy holds (800 preference + exception, no fixed ceiling)');
 }

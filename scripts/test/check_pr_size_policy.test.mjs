@@ -12,21 +12,29 @@ after(() => {
   for (const d of dirs) rmSync(d, { recursive: true, force: true });
 });
 
-function makeRoot({ oldCeiling = false, missingTemplateField = null } = {}) {
+function makeRoot({ oldCeiling = false, oldPreference = false, missingTemplateField = null } = {}) {
   const d = mkdtempSync(path.join(tmpdir(), 'prsizepol-'));
   dirs.push(d);
   mkdirSync(path.join(d, 'docs'), { recursive: true });
   mkdirSync(path.join(d, '.github'), { recursive: true });
   const branching = oldCeiling
     ? 'Maximum diff: 3500 changed lines excluding generated fixtures/docs.\n'
-    : 'Prefer PRs under 1.500 changed lines. Larger changes require a recorded exception. There is no fixed line ceiling.\n';
+    : oldPreference
+      ? 'Prefer PRs under 2.500 changed lines. Larger changes require a recorded exception. There is no fixed line ceiling.\n'
+      : 'Prefer PRs under 800 changed lines. Larger changes require a recorded exception. There is no fixed line ceiling.\n';
   const governance = oldCeiling
     ? 'Prefer under 500 changed lines (ceiling 3500 with a recorded exception).\n'
-    : 'Prefer under 1.500 changed lines; >1.500 requires a recorded exception.\n';
+    : oldPreference
+      ? 'Prefer under 2.500 changed lines; >2.500 requires a recorded exception.\n'
+      : 'Prefer under 800 changed lines; >800 requires a recorded exception.\n';
   const contributing = oldCeiling
     ? 'within the 3500-line ceiling (recorded exception path).\n'
-    : 'prefer under 1.500 changed lines. Larger PRs require a recorded exception.\n';
-  let template = 'Size tier: S\nTotal diff: 100\nSemantic diff: 90\nException: none\n';
+    : oldPreference
+      ? 'prefer under 2.500 changed lines. Larger PRs require a recorded exception.\n'
+      : 'prefer under 800 changed lines. Larger PRs require a recorded exception.\n';
+  let template =
+    'Size tier: S\nTotal diff: 100\nSemantic diff: 90\nException: none\n' +
+    '<!-- Prefer under 800 changed lines; >800 requires a recorded exception. -->\n';
   if (missingTemplateField) {
     template = template
       .split('\n')
@@ -56,6 +64,22 @@ test('old fixed ceiling is caught in all three docs', () => {
   );
   assert.ok(
     errors.some((e) => e.startsWith('CONTRIBUTING.md')),
+    errors.join('\n'),
+  );
+});
+
+test('old 1.500/2.500 preference is caught in all policy docs', () => {
+  const errors = checkPolicy(makeRoot({ oldPreference: true }));
+  assert.ok(
+    errors.some((e) => e.startsWith('docs/BRANCHING.md') && /old 1\.500\/2\.500/.test(e)),
+    errors.join('\n'),
+  );
+  assert.ok(
+    errors.some((e) => e.startsWith('docs/GOVERNANCE.md') && /old 1\.500\/2\.500/.test(e)),
+    errors.join('\n'),
+  );
+  assert.ok(
+    errors.some((e) => e.startsWith('CONTRIBUTING.md') && /old 1\.500\/2\.500/.test(e)),
     errors.join('\n'),
   );
 });
