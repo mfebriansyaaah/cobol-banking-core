@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T08:27:13.943Z",
+  "generatedAt": "2026-11-18T09:16:54.292Z",
   "modules": [
     {
       "module": "account_core",
@@ -281,7 +281,7 @@
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
       "cloneSimilarity": null,
-      "coveragePercent": 12.29,
+      "coveragePercent": 60.82,
       "coverageStatus": "floor",
       "routeFile": "eod.js",
       "dbSuite": null,
@@ -463,7 +463,7 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": 38.77,
+      "coveragePercent": 38.99,
       "coverageStatus": "floor",
       "routeFile": "loan.js",
       "dbSuite": "tests/db/loan_db_tests.sh",
@@ -710,7 +710,7 @@
       "domainStatus": "REVIEW",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": 14.49,
+      "coveragePercent": 63.48,
       "coverageStatus": "floor",
       "routeFile": "report.js",
       "dbSuite": null,
@@ -775,7 +775,7 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": 10.31,
+      "coveragePercent": 58.19,
       "coverageStatus": "floor",
       "routeFile": "statement.js",
       "dbSuite": null,
@@ -827,8 +827,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": 62.34,
-      "coverageStatus": "floor",
+      "coveragePercent": 71.27,
+      "coverageStatus": "ok",
       "routeFile": null,
       "dbSuite": null,
       "recommendedForTraining": true
