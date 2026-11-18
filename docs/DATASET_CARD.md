@@ -145,7 +145,7 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 2. Integration backlog: 203 items, 147 OPEN (registry/parser fixed A-04;
    items are linkage evidence gaps, not code defects).
 3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
-   `tests/coverage_floor_backlog.txt`, 8 entries).
+   `tests/coverage_floor_backlog.txt`, 7 entries).
 4. `/auth/refresh` intermittent-500 history: resolved — 300 serial runs
    green, zero `gateway_error` lines (C-04); quarantine removed.
    The historic CI flake reproduces only under parallel shard load,

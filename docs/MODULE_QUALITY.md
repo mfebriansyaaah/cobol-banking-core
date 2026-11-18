@@ -29,7 +29,7 @@
 | `dashboard_core` | 2 | L3 | ACTIVE | — | — | — | unmeasured | yes |
 | `deposit_core` | 1 | L3 | ACTIVE | — | — | 80.72 | ok | yes |
 | `deposit_posting_core` | 2 | L3 | ACTIVE | — | — | — | unmeasured | yes |
-| `eod_core` | 2 | L0 | FROZEN | UNLINKED | — | 12.29 | floor | no |
+| `eod_core` | 2 | L0 | FROZEN | UNLINKED | — | 60.82 | floor | no |
 | `eod_jobs_core` | 2 | L1 | REVIEW | — | — | — | unmeasured | no |
 | `fee_core` | 1 | L3 | ACTIVE | — | — | 67.82 | floor | yes |
 | `fixed_asset_core` | 2 | L0 | FROZEN | DUPLICATE | 0.67 | 74.11 | ok | no |
@@ -43,7 +43,7 @@
 | `import_recon_core` | 2 | L2 | PILOT | — | — | — | unmeasured | yes |
 | `import_row_core` | 2 | L0 | REVIEW | — | — | — | unmeasured | no |
 | `letter_of_credit_core` | 2 | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
-| `loan_core` | 1 | L3 | ACTIVE | — | — | 38.77 | floor | yes |
+| `loan_core` | 1 | L3 | ACTIVE | — | — | 38.99 | floor | yes |
 | `loan_posting_core` | 2 | L3 | ACTIVE | — | — | — | unmeasured | yes |
 | `loan_schedule_core` | 1 | L3 | ACTIVE | — | — | 52.91 | floor | yes |
 | `loan_schedule_lifecycle_core` | 2 | L1 | REVIEW | — | — | — | unmeasured | no |
@@ -62,16 +62,16 @@
 | `ref_engine` | 3 | UTILITY | ACTIVE | — | — | 0 | floor | yes |
 | `ref_ext_core` | 3 | UTILITY | ACTIVE | — | — | — | unmeasured | yes |
 | `report_builder_core` | 2 | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
-| `report_core` | 2 | L0 | REVIEW | — | — | 14.49 | floor | no |
+| `report_core` | 2 | L0 | REVIEW | — | — | 63.48 | floor | no |
 | `report_run_core` | 2 | L1 | REVIEW | — | — | — | unmeasured | no |
 | `report_schedule_core` | 2 | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
 | `risk_core` | 2 | L0 | REVIEW | — | — | — | unmeasured | no |
 | `sla_tracker_core` | 2 | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
-| `statement_core` | 2 | L3 | ACTIVE | — | — | 10.31 | floor | yes |
+| `statement_core` | 2 | L3 | ACTIVE | — | — | 58.19 | floor | yes |
 | `statement_recon_core` | 2 | L3 | ACTIVE | — | — | — | unmeasured | yes |
 | `tax_management_core` | 2 | L0 | FROZEN | DUPLICATE | 0.66 | — | unmeasured | no |
 | `treasury_liquidity_core` | 1 | L3 | ACTIVE | — | — | 61.41 | floor | yes |
-| `user_core` | 1 | L3 | ACTIVE | — | — | 62.34 | floor | yes |
+| `user_core` | 1 | L3 | ACTIVE | — | — | 71.27 | ok | yes |
 | `wallet_core` | 1 | L3 | ACTIVE | — | — | 92.22 | ok | yes |
 | `wallet_dispute_core` | 2 | L1 | REVIEW | — | — | — | unmeasured | no |
 | `wallet_hold_core` | 2 | L1 | REVIEW | — | — | — | unmeasured | no |

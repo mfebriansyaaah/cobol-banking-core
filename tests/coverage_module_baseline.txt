@@ -43,18 +43,26 @@
 # 70% floor; removed from tests/coverage_floor_backlog.txt). Total 47.31% ->
 # 52.6%. Re-pinned from reviewed CI coverage-pr run 44265692751
 # (total 52.6% >= 30% floor; copybooks 82.79% >= 80.84%; gateway 98.91/83.94).
+#
+# 2026-11-18 (test/testing-p1-08): report_statement_db_tests +
+# eod_ops_db_tests registered in coverage.sh curated SUITES. report_core
+# 14.49% -> 63.48%, eod_core 12.29% -> 60.82%, statement_core 10.31% ->
+# 58.19%, user_core 62.34% -> 71.27% (graduates the 70% floor; removed
+# from tests/coverage_floor_backlog.txt). Total 52.6% -> 60.84%.
+# Re-pinned from reviewed CI coverage-pr run 44272825817
+# (total 60.84% >= 30% floor; copybooks 82.93% >= 80.84%; gateway 98.91/83.94).
 
 main_logic 89.83
-user_core 62.34
+user_core 71.27
 wallet_core 92.22
 auth_core 73
 ref_engine 0
 gl_core 70.23
-report_core 14.49
+report_core 63.48
 fee_core 67.82
-eod_core 12.29
-statement_core 10.31
-loan_core 38.77
+eod_core 60.82
+statement_core 58.19
+loan_core 38.99
 loan_schedule_core 52.91
 deposit_core 80.72
 card_core 65.76
