@@ -226,9 +226,7 @@ function routeExists(rootDir, routeFile) {
   return existsSync(path.join(rootDir, 'middleware', 'src', 'routes', routeFile));
 }
 
-function validate(rootDir, entries, links) {
-  const failures = [];
-  const byModule = new Map(entries.map((e) => [e.module, e]));
+function validateEntryShape(entries, failures) {
   for (const e of entries) {
     for (const key of REQUIRED) {
       if (!(key in e)) failures.push(`${e.module || '?'}: missing field "${key}"`);
@@ -236,10 +234,24 @@ function validate(rootDir, entries, links) {
     if (e.status && !STATUS.includes(e.status)) failures.push(`${e.module}: unknown status "${e.status}"`);
     if (!e.reason) failures.push(`${e.module}: missing reason`);
   }
-  const linkLevels = new Map(links.map((m) => [m.module, m.linkageLevel]));
+}
+
+function validateLinkCoverage(entries, links, failures) {
+  const byModule = new Map(entries.map((e) => [e.module, e]));
   for (const m of links.map((x) => x.module)) {
     if (!byModule.has(m)) failures.push(`missing domain_status entry for module ${m}`);
   }
+}
+
+function validateRetired(rootDir, e, failures) {
+  if (e.routeFile && routeExists(rootDir, e.routeFile)) {
+    failures.push(`${e.module}: RETIRED but route ${e.routeFile} still active (remove the route first)`);
+  }
+  if (!e.replacement) failures.push(`${e.module}: RETIRED requires a replacement`);
+  if (!e.trafficLastSeen) failures.push(`${e.module}: RETIRED requires trafficLastSeen evidence`);
+}
+
+function validateEntryLinks(rootDir, entries, linkLevels, failures) {
   for (const e of entries) {
     if (!linkLevels.has(e.module)) {
       failures.push(`domain_status lists unknown module ${e.module}`);
@@ -253,14 +265,16 @@ function validate(rootDir, entries, links) {
     if ((e.linkageLevel === 'L0' || e.linkageLevel === 'L1') && e.status === 'ACTIVE') {
       failures.push(`${e.module}: L0/L1 must not be ACTIVE (use REVIEW/FROZEN/RETIRED)`);
     }
-    if (e.status === 'RETIRED') {
-      if (e.routeFile && routeExists(rootDir, e.routeFile)) {
-        failures.push(`${e.module}: RETIRED but route ${e.routeFile} still active (remove the route first)`);
-      }
-      if (!e.replacement) failures.push(`${e.module}: RETIRED requires a replacement`);
-      if (!e.trafficLastSeen) failures.push(`${e.module}: RETIRED requires trafficLastSeen evidence`);
-    }
+    if (e.status === 'RETIRED') validateRetired(rootDir, e, failures);
   }
+}
+
+function validate(rootDir, entries, links) {
+  const failures = [];
+  validateEntryShape(entries, failures);
+  validateLinkCoverage(entries, links, failures);
+  const linkLevels = new Map(links.map((m) => [m.module, m.linkageLevel]));
+  validateEntryLinks(rootDir, entries, linkLevels, failures);
   return failures;
 }
 

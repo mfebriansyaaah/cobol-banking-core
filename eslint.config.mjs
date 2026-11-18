@@ -35,13 +35,14 @@ export default [
     },
   },
   {
-    // Complexity watch list (maint-02): warn, never fail. New code should
-    // stay under these; the 9 current hotspots (selectFile 40,
-    // assertSecureConfig 35, buildGraph/checkShards/main 33, ...) are
-    // grandfathered refactoring targets, not gate failures.
+    // Complexity watch list (Phase 2): warn, never fail at the code level.
+    // The ratchet is 20: functions at 20 are accepted, new code should stay at
+    // or below it. The 14 >20 hotspots that existed at the start of Phase 2
+    // were split into named helpers; `--max-warnings 0` keeps the ratchet
+    // honest without grandfathering.
     files: ['middleware/**/*.js', 'scripts/**/*.mjs'],
     rules: {
-      complexity: ['warn', 25],
+      complexity: ['warn', 20],
       'max-depth': ['warn', 6],
     },
   },

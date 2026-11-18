@@ -705,6 +705,111 @@
 
 
         TRANSFER-LOGIC.
+            PERFORM CHECK-ACCOUNT-PINS
+            IF LS-OUTPUT-BUFFER NOT = SPACES
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM PREPARE-TRANSFER-INTENT
+            IF LS-OUTPUT-BUFFER NOT = SPACES
+                EXIT PARAGRAPH
+            END-IF
+            PERFORM RESOLVE-SENDER-ACCOUNT
+            PERFORM RESOLVE-TARGET-ACCOUNT
+            PERFORM CHECK-CURRENCY-PRECISION
+            PERFORM LOAD-TRANSFER-CONTEXT
+            *> Amount must be positive, and the sender must be able to cover it.
+            IF WS-TRANSFER-OK
+                MOVE WS-PARAM3-TRIMMED TO WS-PARSE-SRC
+                PERFORM PARSE-MAJOR
+                MOVE WS-PARSE-NUM TO WS-AMOUNT-NUM
+                IF WS-AMOUNT-NUM <= 0
+                    SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
+                END-IF
+            END-IF
+
+            PERFORM CHECK-TRANSFER-LIMITS
+
+            *> D1: value residual of a cross-currency posting. Computed only
+            *> once every other check passed; a nonzero residual books to
+            *> the target currency's FX_PNL account inside the same journal.
+            IF WS-TRANSFER-OK
+                PERFORM COMPUTE-FX-RESIDUAL
+            END-IF
+
+            PERFORM POST-TRANSFER-LEGS
+
+            *> D1: book a nonzero rounding residual to the target
+            *> currency's FX_PNL account, inside the same journal.
+            IF WS-TRANSFER-OK AND WS-FX-HAS = "1"
+                PERFORM POST-FX-RESIDUAL
+            END-IF
+
+            *> Audit the movement inside the same transaction, with context.
+            IF WS-TRANSFER-OK
+                MOVE SPACES TO WS-DETAIL
+                STRING WS-PARAM2-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE
+                       WS-PARAM3-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE
+                       WS-SENDER-ISO DELIMITED BY SPACE
+                       INTO WS-DETAIL
+                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
+                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
+                MOVE WS-SENDER-USER TO WS-BIND-1
+                MOVE WS-SENDER-ACC TO WS-BIND-2
+                MOVE WS-DETAIL TO WS-BIND-3
+                PERFORM SQL-EXEC-3
+
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+
+            *> Mark the intent committed (the reference only persists on success).
+            *> Scoped by the full idempotency key (txn_ref, from_email): the
+            *> unscoped form full-scans the table and its gap locks collide
+            *> with concurrent transfers. Exactly one row must flip; anything
+            *> else means the receipt did not land, so fail closed instead of
+            *> reporting a false SUCCESS (a retry after a false success would
+            *> double-spend, as the replay check would find no row).
+            IF WS-TRANSFER-OK AND LS-PARAM4 NOT = SPACES
+                MOVE "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = ? AND from_email = ?" TO WS-PREP-SQL
+                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
+                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
+                PERFORM SQL-EXEC-2
+                IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                END-IF
+            END-IF
+
+            *> Every leg is written against the open journal; verify the
+            *> journal balances before anything becomes durable. A posted
+            *> D1 residual makes three legs, verified at 4dp ledger scale.
+            IF WS-TRANSFER-OK AND WS-FX-HAS = "1"
+                PERFORM VERIFY-JOURNAL-FX-BALANCED
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-FX-HAS = "0"
+                MOVE WS-TARGET-PREC TO WS-JV-PREC
+                PERFORM VERIFY-JOURNAL-BALANCED
+            END-IF.
+            *> A configured fee posts as its own journal after the principal
+            *> legs have balanced; the fee journal is verified the same way.
+            IF WS-TRANSFER-OK AND WS-FEE-NUM > 0
+                PERFORM POST-FEE-JOURNAL
+            END-IF.
+            *> Commit or roll back the whole movement.
+            IF WS-TRANSFER-OK
+                *> (Transaction committed by the caller, which
+                *> maps a commit failure to ERROR|DB_ERROR.)
+                MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
+            ELSE
+                IF WS-TRANSFER-FAIL-DB
+                    PERFORM CHECK-TRANSIENT
+                END-IF
+            *> (Transaction rolled back by the caller.)
+                PERFORM MAP-TRANSFER-FAILURE
+            END-IF.
+            EXIT PARAGRAPH.
+
+        CHECK-ACCOUNT-PINS.
             *> A transfer to the same account is meaningless.
             IF WS-PARAM1-TRIMMED(1:WS-P1-LEN) = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
                 MOVE "ERROR|SELF_TRANSFER" TO LS-OUTPUT-BUFFER
@@ -734,6 +839,9 @@
                     END-IF
                 END-IF
             END-IF
+            EXIT PARAGRAPH.
+
+        PREPARE-TRANSFER-INTENT.
             *> Retention of pending_transactions is an out-of-band EOD job
             *> (EODJOB_PENDING_PURGE). It must never run inside a money
             *> transaction: it locks idempotency rows and bloats the undo log.
@@ -789,7 +897,7 @@
                 MOVE WS-TXN-REF TO WS-REF
                 MOVE 25 TO WS-REFLEN
             END-IF
-            
+
             *> (Transaction opened by the caller: ADR-0010 JOIN.)
             *> Replay: a persisted reference for THIS sender, recipient and
             *> amount means the transfer already committed. A reference that
@@ -843,11 +951,9 @@
                     END-IF
                 END-IF
             END-IF
+            EXIT PARAGRAPH.
 
-            PERFORM RESOLVE-SENDER-ACCOUNT
-            
-            PERFORM RESOLVE-TARGET-ACCOUNT
-
+        CHECK-CURRENCY-PRECISION.
             *> Precision gate: the amount must fit the sender currency, and
             *> both precisions must be storable. prec_val beyond 4 has no
             *> exact DECIMAL(18,4) representation, so transfers refuse
@@ -876,7 +982,9 @@
             IF WS-TRANSFER-OK
                 PERFORM LOOKUP-TRANSFER-FEE
             END-IF.
+            EXIT PARAGRAPH.
 
+        LOAD-TRANSFER-CONTEXT.
             *> Lock both account rows in one statement, ordered by id, so two
             *> opposing transfers cannot deadlock (and MariaDB does not hit the
             *> two-statement ER_CHECKREAD).
@@ -887,7 +995,7 @@
             *> COMMITTED (set in sql_bridge.c) the locked rows are read with
             *> SELECT ... FOR UPDATE if needed; the invariants below are also
             *> enforced by the guarded UPDATE in the posting step.
-            
+
             *> Expire stale holds, then read the spendable (available) balance:
             *> ledger balance minus live PLACED holds, at full precision.
             IF WS-TRANSFER-OK
@@ -913,7 +1021,7 @@
                     END-IF
                 END-IF
             END-IF
-            
+
             *> Cross-currency: look up the rate (base = sender, target = target).
             *> Same currency uses a rate of 1. If only the inverse pair exists,
             *> use its reciprocal.
@@ -958,97 +1066,9 @@
                     END-IF
                 END-IF
             END-IF
-            
-            *> Amount must be positive, and the sender must be able to cover it.
-            IF WS-TRANSFER-OK
-                MOVE WS-PARAM3-TRIMMED TO WS-PARSE-SRC
-                PERFORM PARSE-MAJOR
-                MOVE WS-PARSE-NUM TO WS-AMOUNT-NUM
-                IF WS-AMOUNT-NUM <= 0
-                    SET WS-TRANSFER-FAIL-AMOUNT TO TRUE
-                END-IF
-            END-IF
-            
-            PERFORM CHECK-TRANSFER-LIMITS
+            EXIT PARAGRAPH.
 
-            *> D1: value residual of a cross-currency posting. Computed only
-            *> once every other check passed; a nonzero residual books to
-            *> the target currency's FX_PNL account inside the same journal.
-            IF WS-TRANSFER-OK
-                PERFORM COMPUTE-FX-RESIDUAL
-            END-IF
-            
-            PERFORM POST-TRANSFER-LEGS
-
-            *> D1: book a nonzero rounding residual to the target
-            *> currency's FX_PNL account, inside the same journal.
-            IF WS-TRANSFER-OK AND WS-FX-HAS = "1"
-                PERFORM POST-FX-RESIDUAL
-            END-IF
-            
-            *> Audit the movement inside the same transaction, with context.
-            IF WS-TRANSFER-OK
-                MOVE SPACES TO WS-DETAIL
-                STRING WS-PARAM2-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE
-                       WS-PARAM3-TRIMMED DELIMITED BY SPACE ":" DELIMITED BY SIZE
-                       WS-SENDER-ISO DELIMITED BY SPACE
-                       INTO WS-DETAIL
-                ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
-                MOVE "INSERT INTO audit_trail (user_id, action, entity_type, entity_id, status, detail, journal_id) VALUES (?, 'TRANSFER', 'ACCOUNT', ?, 'SUCCESS', ?, @jid)" TO WS-PREP-SQL
-                MOVE WS-SENDER-USER TO WS-BIND-1
-                MOVE WS-SENDER-ACC TO WS-BIND-2
-                MOVE WS-DETAIL TO WS-BIND-3
-                PERFORM SQL-EXEC-3
-                
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
-            
-            *> Mark the intent committed (the reference only persists on success).
-            *> Scoped by the full idempotency key (txn_ref, from_email): the
-            *> unscoped form full-scans the table and its gap locks collide
-            *> with concurrent transfers. Exactly one row must flip; anything
-            *> else means the receipt did not land, so fail closed instead of
-            *> reporting a false SUCCESS (a retry after a false success would
-            *> double-spend, as the replay check would find no row).
-            IF WS-TRANSFER-OK AND LS-PARAM4 NOT = SPACES
-                MOVE "UPDATE pending_transactions SET status = 'COMMITTED' WHERE txn_ref = ? AND from_email = ?" TO WS-PREP-SQL
-                MOVE WS-REF(1:WS-REFLEN) TO WS-BIND-1
-                MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
-                PERFORM SQL-EXEC-2
-                IF WS-RESULT NOT = "SUCCESS|AFFECTED_1"
-                    SET WS-TRANSFER-FAIL-DB TO TRUE
-                END-IF
-            END-IF
-            
-            *> Every leg is written against the open journal; verify the
-            *> journal balances before anything becomes durable. A posted
-            *> D1 residual makes three legs, verified at 4dp ledger scale.
-            IF WS-TRANSFER-OK AND WS-FX-HAS = "1"
-                PERFORM VERIFY-JOURNAL-FX-BALANCED
-            END-IF.
-            IF WS-TRANSFER-OK AND WS-FX-HAS = "0"
-                MOVE WS-TARGET-PREC TO WS-JV-PREC
-                PERFORM VERIFY-JOURNAL-BALANCED
-            END-IF.
-            *> A configured fee posts as its own journal after the principal
-            *> legs have balanced; the fee journal is verified the same way.
-            IF WS-TRANSFER-OK AND WS-FEE-NUM > 0
-                PERFORM POST-FEE-JOURNAL
-            END-IF.
-            *> Commit or roll back the whole movement.
-            IF WS-TRANSFER-OK
-                *> (Transaction committed by the caller, which
-                *> maps a commit failure to ERROR|DB_ERROR.)
-                MOVE "SUCCESS|TRANSFER_OK" TO LS-OUTPUT-BUFFER
-            ELSE
-                IF WS-TRANSFER-FAIL-DB
-                    PERFORM CHECK-TRANSIENT
-                END-IF
-            *> (Transaction rolled back by the caller.)
-                *> Decision table: flags are mutually exclusive by construction;
-                *> the first match wins. Order reflects business priority.
+        MAP-TRANSFER-FAILURE.
                 EVALUATE TRUE
                     WHEN WS-TRANSFER-FAIL-DB AND WS-BUSY = "1"
                         MOVE "ERROR|DB_BUSY" TO LS-OUTPUT-BUFFER
@@ -1081,7 +1101,6 @@
                     WHEN OTHER
                         MOVE "ERROR|INSUFFICIENT_FUNDS" TO LS-OUTPUT-BUFFER
                 END-EVALUATE
-            END-IF.
             EXIT PARAGRAPH.
 
         POST-TRANSFER-LEGS.
@@ -1112,12 +1131,12 @@
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
                 PERFORM SQL-EXEC-2
-                
+
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
-            
+
             *> Credit target (converted to its currency, at its precision).
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
@@ -1127,12 +1146,12 @@
                 MOVE WS-RATE-STR TO WS-BIND-2
                 MOVE WS-TARGET-ACC TO WS-BIND-3
                 PERFORM SQL-EXEC-3
-                
+
                 IF WS-RESULT(1:18) NOT = "SUCCESS|AFFECTED_1"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
-            
+
             *> Immutable ledger entries: one DEBIT, one CREDIT, same txn_ref.
             *> The CREDIT row snapshots the applied rate.
             IF WS-TRANSFER-OK
@@ -1145,12 +1164,12 @@
                 MOVE WS-SENDER-CUR TO WS-BIND-4
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-5
                 PERFORM SQL-EXEC-5
-                
+
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
             END-IF
-            
+
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
                 STRING "INSERT INTO ledger (txn_ref, account_id, amount, type, currency_id, description, exchange_rate, journal_id, from_email) VALUES (?, ?, ROUND(? * ?, " WS-TARGET-PREC(1:1) "), 'CREDIT', ?, 'Transfer in', ?, @jid, ?)" DELIMITED BY SIZE INTO WS-PREP-SQL
@@ -1167,7 +1186,7 @@
                     BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
                     BY REFERENCE WS-BIND-7 END-CALL
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                
+
                 IF WS-RESULT(1:5) = "ERROR"
                     SET WS-TRANSFER-FAIL-DB TO TRUE
                 END-IF
@@ -1194,7 +1213,7 @@
             IF WS-TRANSFER-OK AND WS-MAX-TXN-NUM > 0 AND WS-AMOUNT-NUM > WS-MAX-TXN-NUM
                 SET WS-TRANSFER-FAIL-LIMIT TO TRUE
             END-IF.
-            
+
             *> Optional rolling 24h debit limit per account, in whole units of
             *> the sender currency; 0 disables it.
             IF WS-TRANSFER-OK
@@ -1215,15 +1234,15 @@
             IF WS-TRANSFER-OK AND WS-DAILY-LIMIT-NUM > 0
                 PERFORM CHECK-DAILY-TOTAL
             END-IF.
-            
+
             IF WS-TRANSFER-OK
                 PERFORM CHECK-PAYMENT-POLICY
             END-IF.
-            
+
             IF WS-TRANSFER-OK
                 PERFORM RECORD-VELOCITY-USAGE
             END-IF.
-            
+
             IF WS-TRANSFER-OK
                 MOVE WS-SENDER-BAL TO WS-PARSE-SRC
                 PERFORM PARSE-MAJOR
@@ -1253,7 +1272,7 @@
                         BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
                 END-IF
                 CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-                
+
                 IF WS-RESULT = "ERROR|NO_DATA"
                     SET WS-TRANSFER-FAIL-TARGET TO TRUE
                 ELSE
@@ -1267,7 +1286,7 @@
                     END-IF
                 END-IF
             END-IF
-            
+
             *> The target's account must be ACTIVE and its currency enabled.
             IF WS-TRANSFER-OK
                 IF WS-TARGET-STATUS NOT = "ACTIVE"
@@ -1278,7 +1297,7 @@
                     END-IF
                 END-IF
             END-IF
-            
+
             IF WS-TRANSFER-OK
                 IF WS-TARGET-CURACTIVE NOT = "1"
                     SET WS-TRANSFER-FAIL-CURINACT TO TRUE
@@ -1304,7 +1323,7 @@
                     BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 END-CALL
             END-IF
             CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            
+
             IF WS-RESULT = "ERROR|NO_DATA"
                 SET WS-TRANSFER-FAIL-SENDER TO TRUE
             ELSE
@@ -1318,7 +1337,7 @@
                     END-UNSTRING
                 END-IF
             END-IF
-            
+
             *> The sender's account must be ACTIVE and its currency enabled.
             IF WS-TRANSFER-OK
                 IF WS-SENDER-STATUS NOT = "ACTIVE"
@@ -1329,7 +1348,7 @@
                     END-IF
                 END-IF
             END-IF
-            
+
             IF WS-TRANSFER-OK
                 IF WS-SENDER-CURACTIVE NOT = "1"
                     SET WS-TRANSFER-FAIL-CURINACT TO TRUE

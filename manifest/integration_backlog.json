@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T02:34:28.056Z",
+  "generatedAt": "2026-11-18T01:47:35.307Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -2536,6 +2536,20 @@
         "columns: --, actor_id, constraint, from_email, from_email), if, orig_ref, primary, reason, reversed_at",
         "no core business-key columns",
         "no FOREIGN KEY into Tier-1 tables"
+      ],
+      "owner": "wallet"
+    },
+    {
+      "id": "wallet_transfer_core:action:transfer-logic",
+      "module": "wallet_transfer_core",
+      "kind": "action",
+      "subject": "TRANSFER-LOGIC",
+      "status": "WAIVED",
+      "reason": "TRANSFER-LOGIC is an orchestrator; core account/FX reads and writes moved to RESOLVE-SENDER-ACCOUNT, RESOLVE-TARGET-ACCOUNT and LOAD-TRANSFER-CONTEXT",
+      "evidence": [
+        "direct writes in TRANSFER-LOGIC are audit_trail and pending_transactions bookkeeping, not money-table mutations",
+        "core link and money movement are covered by wallet_transfer_core plus wallet_transfer/payment_race/wallet_conservation DB suites",
+        "paragraph split is pinned by scripts/test/wallet_paragraph_split.test.mjs and the 220-line gate"
       ],
       "owner": "wallet"
     },

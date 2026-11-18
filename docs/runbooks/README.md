@@ -14,3 +14,4 @@ the rest are referenced from it and from the on-call rotation.
 | [capacity](capacity.md) | Capacity planning and runner sizing |
 | [secret-rotation](secret-rotation.md) | Rotating JWT and service secrets |
 | [maintainability](maintainability.md) | Keeping the codebase maintainable |
+| [dataset-sanitization](dataset-sanitization.md) | Producing a PII-free history mirror for dataset distribution |

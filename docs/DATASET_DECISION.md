@@ -1,8 +1,8 @@
 # Dataset Decision (R-03)
 
-> **Phase 1 update (2026-11-18, `cfe4a8a5`):** export counts changed to
-> source 855 / train 720 / verification 1,542. `train` now excludes all 40
-> non-recommended modules and generated route boilerplate. The decision below
+> **Phase 2 update (2026-11-18, `81c24de5`):** export counts changed to
+> source 866 / train 731 / verification 1,553. `train` continues to exclude all
+> 40 non-recommended modules and generated route boilerplate. The decision below
 > remains the governing approval; see `docs/DATASET_CARD.md` for current
 > curation details.
 

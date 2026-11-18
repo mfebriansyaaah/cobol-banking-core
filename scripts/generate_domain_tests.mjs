@@ -136,44 +136,98 @@ function dbQuery(sql) {
   return out.trim();
 }
 
-function planDomain(stem, opts = {}) {
-  const r = opts.root || process.cwd();
+function loadPlanSources(stem, r) {
   const suitePath = path.join(r, 'tests', 'db', `${stem}_db_tests.sh`);
-  if (!existsSync(suitePath)) return failSkip(stem, 'no DB suite file');
+  if (!existsSync(suitePath)) return { error: 'no DB suite file' };
   const suiteSrc = readFileSync(suitePath, 'utf8');
-  if (suiteSrc.includes(MARKER)) return { stem, ok: true, skipped: true, reason: 'block already present' };
+  if (suiteSrc.includes(MARKER)) return { skipped: true };
+  const routeFile = `middleware/src/routes/${stem}.js`;
+  if (!existsSync(path.join(r, routeFile))) return { error: 'no route file middleware/src/routes/<stem>.js' };
+  return { suiteSrc, routeFile, routeSrc: readFileSync(path.join(r, routeFile), 'utf8') };
+}
 
-  let routeSrc = null;
-  let routeFile = `middleware/src/routes/${stem}.js`;
-  if (existsSync(path.join(r, routeFile))) routeSrc = readFileSync(path.join(r, routeFile), 'utf8');
-  if (!routeSrc) return failSkip(stem, 'no route file middleware/src/routes/<stem>.js');
-
+function planUpdateAction(routeSrc) {
   const actions = [...new Set([...routeSrc.matchAll(/action:\s*'([A-Z0-9_]+_UPDATE)'/g)].map((m) => m[1]))];
-  if (actions.length !== 1) return failSkip(stem, `expected exactly 1 *_UPDATE action, found ${actions.length}`);
+  if (actions.length !== 1) return { error: `expected exactly 1 *_UPDATE action, found ${actions.length}` };
   const action = actions[0];
-  const prefix = action.replace(/_UPDATE$/, '');
+  return { action, prefix: action.replace(/_UPDATE$/, '') };
+}
 
+function planSuiteShape(suiteSrc, prefix) {
   const suite = parseSuite(suiteSrc, prefix);
-  if (suite.error) return failSkip(stem, suite.error);
-  if (!suite.table) return failSkip(stem, 'no db_reset_<table> line found');
-  if (!suite.hasIdVar) return failSkip(stem, 'no id=$(...) capture found');
-  const table = suite.table;
+  if (suite.error) return { error: suite.error };
+  if (!suite.table) return { error: 'no db_reset_<table> line found' };
+  if (!suite.hasIdVar) return { error: 'no id=$(...) capture found' };
+  return { suite };
+}
 
+function planUpdateFields(routeSrc, action) {
+  const prefix = action.replace(/_UPDATE$/, '');
   const createFields = parseRouteFields(routeSrc, `${prefix}_CREATE`);
   const updateFields = parseRouteFields(routeSrc, action);
-  if (!createFields || !updateFields) return failSkip(stem, 'CREATE or UPDATE route not parsed');
+  if (!createFields || !updateFields) return { error: 'CREATE or UPDATE route not parsed' };
   if (updateFields.length !== 6 || updateFields[0] !== 'ID' || updateFields[5] !== 'ACTOR') {
-    return failSkip(stem, `UPDATE slots are not [ID,f1,f2,BLANK,BLANK,ACTOR]: ${updateFields.join(',')}`);
+    return { error: `UPDATE slots are not [ID,f1,f2,BLANK,BLANK,ACTOR]: ${updateFields.join(',')}` };
   }
+  return { createFields, updateFields };
+}
+
+function planUpdateArgs(createFields, updateFields, suite) {
   const createByName = {};
   createFields.forEach((n, i) => {
     if (!(n in createByName)) createByName[n] = suite.createArgs[i] ?? '';
   });
   const updateArgs = [];
   for (const n of updateFields.slice(1, 3)) {
-    if (!(n in createByName)) return failSkip(stem, `UPDATE field '${n}' has no CREATE counterpart`);
+    if (!(n in createByName)) return { error: `UPDATE field '${n}' has no CREATE counterpart` };
     updateArgs.push(createByName[n]);
   }
+  return { updateArgs };
+}
+
+function verifyPlanTables(table, fk) {
+  const has = (q) => dbQuery(q) !== '';
+  if (!has(`SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '${table}'`)) {
+    return `table ${table} missing`;
+  }
+  if (
+    !has(
+      `SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = '${table}' AND column_name = 'version'`,
+    )
+  ) {
+    return `table ${table} has no version column`;
+  }
+  if (
+    !has(`SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '${table}_audit'`)
+  ) {
+    return `audit table ${table}_audit missing`;
+  }
+  if (
+    !has(
+      `SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = '${table}_audit' AND column_name = '${fk}'`,
+    )
+  ) {
+    return `audit table ${table}_audit has no column ${fk}`;
+  }
+  return null;
+}
+
+function planDomain(stem, opts = {}) {
+  const r = opts.root || process.cwd();
+  const sources = loadPlanSources(stem, r);
+  if (sources.error) return failSkip(stem, sources.error);
+  if (sources.skipped) return { stem, ok: true, skipped: true, reason: 'block already present' };
+
+  const actionInfo = planUpdateAction(sources.routeSrc);
+  if (actionInfo.error) return failSkip(stem, actionInfo.error);
+  const suiteInfo = planSuiteShape(sources.suiteSrc, actionInfo.prefix);
+  if (suiteInfo.error) return failSkip(stem, suiteInfo.error);
+  const table = suiteInfo.suite.table;
+
+  const fields = planUpdateFields(sources.routeSrc, actionInfo.action);
+  if (fields.error) return failSkip(stem, fields.error);
+  const args = planUpdateArgs(fields.createFields, fields.updateFields, suiteInfo.suite);
+  if (args.error) return failSkip(stem, args.error);
   const actor = 'admin@test.com';
 
   const cobPath = path.join(r, 'cobol', 'src', `${stem}_core.cob`);
@@ -182,33 +236,12 @@ function planDomain(stem, opts = {}) {
   if (!fk) return failSkip(stem, `no INSERT INTO ${table}_audit (...) parsed from COBOL`);
 
   if (opts.verifyDb) {
-    const has = (q) => dbQuery(q) !== '';
-    if (!has(`SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '${table}'`)) {
-      return failSkip(stem, `table ${table} missing`);
-    }
-    if (
-      !has(
-        `SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = '${table}' AND column_name = 'version'`,
-      )
-    ) {
-      return failSkip(stem, `table ${table} has no version column`);
-    }
-    if (
-      !has(`SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '${table}_audit'`)
-    ) {
-      return failSkip(stem, `audit table ${table}_audit missing`);
-    }
-    if (
-      !has(
-        `SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = '${table}_audit' AND column_name = '${fk}'`,
-      )
-    ) {
-      return failSkip(stem, `audit table ${table}_audit has no column ${fk}`);
-    }
+    const problem = verifyPlanTables(table, fk);
+    if (problem) return failSkip(stem, problem);
   }
 
-  const block = buildBlock({ prefix, table, actor, updateArgs, fk });
-  return { stem, ok: true, block, routeFile, prefix, table };
+  const block = buildBlock({ prefix: actionInfo.prefix, table, actor, updateArgs: args.updateArgs, fk });
+  return { stem, ok: true, block, routeFile: sources.routeFile, prefix: actionInfo.prefix, table };
 }
 
 export { parseRouteFields, parseSuite, parseAuditFk, buildBlock, planDomain, parseCli };

@@ -1,0 +1,27 @@
+# Recommended-module coverage backlog (Phase 2).
+#
+# `manifest/module_quality.json` marks modules recommended for training, but
+# not every one is in the curated COBOL coverage measurement. This file records
+# the gap explicitly so a new recommended module cannot be silently
+# unmeasured. Each entry needs a DB/table suite and a measured number before it
+# can be removed; `scripts/check_coverage_recommended.mjs` fails both when an
+# unmeasured module is missing here and when a measured module is left here.
+#
+# Format: MODULE  reason (free text after the module is documentation only).
+auth_password_core  utility delegate; no dedicated DB suite/coverage entry
+card_posting_core  covered by card_posting_db_tests.sh; add to curated coverage set
+collateral_core  covered by collateral_domain_db_tests.sh; add to curated coverage set
+dashboard_core  read-only aggregation; no money-path line coverage entry
+deposit_posting_core  covered by deposit_posting_db_tests.sh; add to curated coverage set
+hashlen_core  utility helper; no DB suite/coverage entry
+import_post_core  covered by import_ops_db_tests.sh; add to curated coverage set
+import_recon_core  covered by recon_ops_db_tests.sh; add to curated coverage set
+loan_posting_core  covered by loan_posting_db_tests.sh; add to curated coverage set
+merchant_core  covered by merchant_domain_db_tests.sh; add to curated coverage set
+payment_core  covered by payment_limits/payment_posting suites; add to curated coverage set
+payment_hold_core  covered by payment_hold_db_tests.sh; add to curated coverage set
+payment_instruction_core  covered by payment_instruction flows; add to curated coverage set
+payroll_processing_core  covered by payroll_domain_db_tests.sh; add to curated coverage set
+ref_ext_core  reference-data helper; no DB suite/coverage entry
+statement_recon_core  covered by report_statement_db_tests.sh; add to curated coverage set
+wallet_transfer_core  covered by wallet_transfer_db_tests.sh; add to curated coverage set

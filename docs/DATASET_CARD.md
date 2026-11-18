@@ -1,9 +1,9 @@
 # Dataset Card — Cobol Banking Core (audit snapshot)
 
-- Code HEAD: `cfe4a8a5` (Phase 1 train curation; prior audit `51aba228`)
+- Code HEAD: `81c24de5` (Phase 2 maintainability ratchets; Phase 1 `cfe4a8a5`)
 - Approval record: `80fb72b5` (typed owner approval + first verified source export)
-- Release export snapshot: `phase1` export at `cfe4a8a5` (source 855 files,
-  train 720 files; `sha256sum -c` all OK, gitleaks clean)
+- Release export snapshot: Phase 2 export at `81c24de5` (source 866 files,
+  train 731 files; `sha256sum -c` all OK, gitleaks clean)
 - Date: 2026-11-18
 - Profile default: `source` (see `scripts/export_dataset.sh`)
 
@@ -29,8 +29,13 @@ bounded dataset approval, not a change to the proprietary `LICENSE`.
 - Source fixtures are synthetic (`admin@test.com`, NIK `3171010101900001`,
   `+6281234567890`, `wilayah.json` public region data).
 - Git history author emails include personal addresses; sanitized export
-  lives only in the mirror clone `/tmp/opencode/cobol-export.git`
-  (see G-02; `git log` there shows only `@users.noreply.github.com`).
+  lives only in the mirror clone built by
+  `scripts/sanitize_dataset_history.sh` (see
+  `docs/runbooks/dataset-sanitization.md`; `git log` there shows only
+  `@users.noreply.github.com`).
+- Phase 2 verified a sanitized mirror: every non-noreply author/committer
+  email is rewritten to `Contributor <contributor@users.noreply.github.com>`,
+  and the script fails if any personal address remains.
 - Local-only artifacts (`backups/` 72M physical backup, `artifacts/`,
   `node_modules/`, `tests/.dbenv`, `cobol/bin+build/`) are gitignored and
   excluded from export via `git archive` + profile exclusion lists.
@@ -56,14 +61,14 @@ node_modules, cobol/bin+build, tests/.dbenv, logs, dumps, env files).
 
 | Profile | Source-tree files | Archive | Generated snapshots | Train curation | Use |
 | --- | ---: | --- | --- | --- | --- |
-| `source` | 855 | no | no | n/a | reproducible source |
-| `train` | 720 | no | no | recommended only + `card.js` exemplar | training corpus |
-| `verification` | 1,542 | yes | yes | n/a | full gates |
-| `full` | 1,542 | yes | yes | n/a | archival |
+| `source` | 866 | no | no | n/a | reproducible source |
+| `train` | 731 | no | no | recommended only + `card.js` exemplar | training corpus |
+| `verification` | 1,553 | yes | yes | n/a | full gates |
+| `full` | 1,553 | yes | yes | n/a | archival |
 
 `train` is the training corpus, **not** a runnable tree; use
 `verification`/`full` to run gates. It contains 31 recommended modules
-(23,273 COBOL lines), `main_logic`, the route spec, and one generated route
+(about 23k COBOL lines), `main_logic`, the route spec, and one generated route
 exemplar.
 
 Per-module quality/tier/coverage metadata is in
@@ -78,9 +83,13 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 ## Test evidence (pre-Phase-1 snapshot; current Phase 1 checks below)
 
 - Phase 1 (this HEAD): `npm run lint` 0, `format:check` clean, `test:scripts`
-  497/497, gateway unit 149/149, `tests/run_all.sh fast` GREEN (235 table
+  503/503, gateway unit 149/149, `tests/run_all.sh fast` GREEN (235 table
   cases + 13 amount matrix), docs/module-reference gates clean, both train and
   source exports gitleaks-clean and `sha256sum -c` verified.
+- Phase 2: JS complexity 15 ratchet, COBOL paragraph cap 220, recommended
+  coverage backlog, clone review, and a sanitized history mirror verified
+  against the current tree (see `docs/CLONE_REVIEW.md`,
+  `docs/runbooks/dataset-sanitization.md`).
 - Gateway unit (pre-Phase-1 snapshot): 147/147 pass.
 - Script gate unit tests: 470/470 pass.
 - Gateway JUnit count: 347 assertions (baseline re-pinned after quarantine removal).
@@ -129,7 +138,7 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
    clones) are kept in `source` for reproducibility but excluded from the
    `train` profile. The `source` file count therefore includes them; `train`
    keeps only the 31 recommended modules.
-2. Integration backlog: 202 items, 147 OPEN (registry/parser fixed A-04;
+2. Integration backlog: 203 items, 147 OPEN (registry/parser fixed A-04;
    items are linkage evidence gaps, not code defects).
 3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
    `tests/coverage_floor_backlog.txt`, 9 entries).

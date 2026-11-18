@@ -44,6 +44,27 @@ function maxScore(body) {
   return { best, ref };
 }
 
+function screenResultFromBody(body, hash) {
+  const { best, ref } = maxScore(body || {});
+  if (best <= 0) return { result: 'CLEAR', score: 0, ref: null, queryHash: hash };
+  return { result: 'POTENTIAL_MATCH', score: best, ref, queryHash: hash };
+}
+
+function screeningFallback(err, clean, hash) {
+  const listed = matchLists(clean);
+  if (listed) {
+    recordFallback({ provider: 'opensanctions', reason: 'lists' });
+    return { ...listed, queryHash: hash };
+  }
+  recordFallback({ provider: 'opensanctions', reason: 'manual_review' });
+  return {
+    result: 'MANUAL_REVIEW',
+    score: null,
+    ref: `fallback (${String((err && err.message) || err)})`,
+    queryHash: hash,
+  };
+}
+
 export async function screenName(
   { name, dob = null, consent = false, idempotencyKey = null },
   {
@@ -79,22 +100,9 @@ export async function screenName(
     } catch {
       throw new Error('malformed JSON');
     }
-    const { best, ref } = maxScore(body || {});
-    if (best <= 0) return { result: 'CLEAR', score: 0, ref: null, queryHash: hash };
-    return { result: 'POTENTIAL_MATCH', score: best, ref, queryHash: hash };
+    return screenResultFromBody(body, hash);
   } catch (err) {
-    const listed = matchLists(clean);
-    if (listed) {
-      recordFallback({ provider: 'opensanctions', reason: 'lists' });
-      return { ...listed, queryHash: hash };
-    }
-    recordFallback({ provider: 'opensanctions', reason: 'manual_review' });
-    return {
-      result: 'MANUAL_REVIEW',
-      score: null,
-      ref: `fallback (${String((err && err.message) || err)})`,
-      queryHash: hash,
-    };
+    return screeningFallback(err, clean, hash);
   }
 }
 

@@ -20,15 +20,7 @@ export function nikHandle(nik, secret) {
   };
 }
 
-export function parseNik(nik, asOf = new Date()) {
-  const s = String(nik ?? '');
-  if (!/^\d{16}$/.test(s)) return { valid: false, reason: 'must be 16 digits' };
-  const provCode = s.slice(0, 2);
-  const regCode = s.slice(0, 4);
-  const province = wilayah.provinces[provCode] || null;
-  if (!province) return { valid: false, reason: 'unknown province code' };
-  const regency = wilayah.regencies[regCode] || null;
-  if (!regency) return { valid: false, reason: 'unknown regency code' };
+function parseBirthSegment(s, asOf) {
   let day = Number(s.slice(6, 8));
   let gender = 'male';
   if (day > 40) {
@@ -38,7 +30,7 @@ export function parseNik(nik, asOf = new Date()) {
   const month = Number(s.slice(8, 10));
   const year2 = Number(s.slice(10, 12));
   if (day < 1 || day > 31 || month < 1 || month > 12) {
-    return { valid: false, reason: 'bad birth-date segment' };
+    return { error: 'bad birth-date segment' };
   }
   // Resolve century against the reference date (00-99 sliding window).
   const refYear = asOf.getFullYear();
@@ -46,11 +38,30 @@ export function parseNik(nik, asOf = new Date()) {
   if (year > refYear) year -= 100;
   const dob = new Date(Date.UTC(year, month - 1, day));
   if (dob.getUTCMonth() !== month - 1 || dob.getUTCDate() !== day) {
-    return { valid: false, reason: 'nonexistent calendar date' };
+    return { error: 'nonexistent calendar date' };
   }
-  let age = refYear - year;
+  return { day, month, year, gender };
+}
+
+function ageAt(year, month, day, asOf) {
+  let age = asOf.getFullYear() - year;
   const hadBirthday = asOf.getMonth() + 1 > month || (asOf.getMonth() + 1 === month && asOf.getDate() >= day);
   if (!hadBirthday) age -= 1;
+  return age;
+}
+
+export function parseNik(nik, asOf = new Date()) {
+  const s = String(nik ?? '');
+  if (!/^\d{16}$/.test(s)) return { valid: false, reason: 'must be 16 digits' };
+  const provCode = s.slice(0, 2);
+  const regCode = s.slice(0, 4);
+  const province = wilayah.provinces[provCode] || null;
+  if (!province) return { valid: false, reason: 'unknown province code' };
+  const regency = wilayah.regencies[regCode] || null;
+  if (!regency) return { valid: false, reason: 'unknown regency code' };
+  const birth = parseBirthSegment(s, asOf);
+  if (birth.error) return { valid: false, reason: birth.error };
+  const age = ageAt(birth.year, birth.month, birth.day, asOf);
   const minAge = Number(process.env.NIK_MIN_AGE || 17);
   if (age < minAge) return { valid: false, reason: `under ${minAge} (KYC minimum)` };
   if (s.slice(12, 16) === '0000') return { valid: false, reason: 'zero serial' };
@@ -58,7 +69,7 @@ export function parseNik(nik, asOf = new Date()) {
     valid: true,
     level: 'STRUCTURAL',
     region: { province, regency },
-    gender,
+    gender: birth.gender,
     age,
     reason: null,
   };
