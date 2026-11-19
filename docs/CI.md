@@ -57,6 +57,7 @@ the gate and waste minutes.
 | nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
 | weekly `0 3 * * 1` | `mutation.yml` | mutants (`money-path mutants`) |
 | `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | analyze (`Analyze (javascript/cpp)`) JS + C analysis, SARIF uploaded to code scanning |
+| weekly Monday `0 12 * * *` | `ci-report.yml` | report (`ci-report`) weekly metrics + SLO evaluation + `ci-metrics` artifact |
 
 Restore order: revert `7e030110` (PR/push), then `1dfc11de` (schedules).
 Verify with a throwaway PR: lint fails on broken shell, build fails on broken
@@ -191,6 +192,7 @@ Rules:
 | `nightly.yml` notify | 5 min | open/close `ci-failure` issue |
 | `mutation.yml` mutants | 120 min | money-path mutants + anchor guard (weekly) |
 | `mutation.yml` notify | 5 min | open/close `ci-failure` issue |
+| `ci-report.yml` report | 10 min | weekly metrics + SLO checks (`ci-metrics` artifact, 30 days) |
 | `ci.yml` notify | 5 min | push `main` only; open/close `ci-failure` issue (never a required check) |
 
 ## DB snapshot producer + consumers (CI-008A/CI-008B)
@@ -256,6 +258,10 @@ Scheduled workflows (`nightly.yml`, `coverage.yml`, `mutation.yml`) and
 comments the issue with the run URL, SHA, and failed jobs; the next green run
 closes it. Triage steps live in `docs/runbooks/ci-failure.md`. `notify` is
 never a required check.
+
+SLO targets live in `docs/CI_SLO.md`, evaluated every Monday by
+`ci-report.yml` (`scripts/ci/ci_weekly_report.mjs`); breaches open the
+`ci-health` issue (`scripts/ci/ci_health_issue.sh`).
 
 ## How to run locally
 
