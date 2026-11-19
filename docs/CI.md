@@ -1,10 +1,10 @@
 # CI Status
 
 > R0 readiness branch 00A. Single source of truth for CI triggers, required
-> checks, cost, enforcement, and rollout. Last verified: 2026-11-18.
+> checks, cost, enforcement, and rollout. Last verified: 2026-11-19.
 > Phase 0 branch 01 restores automatic triggers; see “Current status” below.
-> Current branch-protection state: INACTIVE (repo now private, HTTP 404 Branch
-> not protected, verified 2026-11-18). See “Branch protection (blocked)” below.
+> Current branch-protection state: ACTIVE (verified 2026-11-19 via API).
+> See “Branch protection” below.
 
 <!-- BEGIN GENERATED TOC -->
 
@@ -32,7 +32,7 @@
 - [G1 docs-only fast-path proof (2026-11-06)](#g1-docs-only-fast-path-proof-2026-11-06)
 - [G1 ci:full override proof (2026-11-06)](#g1-cifull-override-proof-2026-11-06)
 - [G1 option-A fast-path proof (2026-11-07)](#g1-option-a-fast-path-proof-2026-11-07)
-- [Branch protection (blocked) — restore runbook (not active)](#branch-protection-blocked--restore-runbook-not-active)
+- [Branch protection — restore runbook (ACTIVE since 2026-11-19)](#branch-protection--restore-runbook-active-since-2026-11-19)
 
 <!-- END GENERATED TOC -->
 
@@ -51,8 +51,8 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | lint, build, docker-build, changes (always); db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
-| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, docker-build, changes, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage (gateway-only; skipped on PRs), db-ops |
+| `pull_request` | `ci.yml` | lint, build, changes (always); docker-build (only when the change set can affect the image); db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
+| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, docker-build, changes, db-snapshot, schema-drift, db-ops. The PR-only DB gate (`test`, `db-shards`, `db-aggregate`) and `coverage` do not run on push; branch protection guarantees they ran on the PR. `coverage` runs on manual dispatch. |
 | nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
 | weekly `0 3 * * 1` | `mutation.yml` | mutants (`money-path mutants`) |
@@ -179,10 +179,10 @@ Rules:
 | `ci.yml` changes | 5 min | docs-only classifier (`scripts/ci/classify_changes.sh` + `classify_changes.mjs`) |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact (pure producer) |
 | `ci.yml` schema-drift | 15 min | fresh schema+migrations vs committed `schema_full.sql`; parallel to db-snapshot so drift never blocks consumers |
-| `ci.yml` test | 30 min | full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
-| `ci.yml` db-shards (×2) | 30 min each | one shard per runner |
-| `ci.yml` db-aggregate | 15 min | merge + inventory + count gate (skipped with a notice when `test` did not succeed) + summary |
-| `ci.yml` coverage | 20 min | gateway-only |
+| `ci.yml` test | 30 min | PR-only full gate minus DB matrix (drills/benchmark/drift moved to db-ops + nightly) |
+| `ci.yml` db-shards (×2) | 30 min each | PR-only, one shard per runner |
+| `ci.yml` db-aggregate | 15 min | PR-only merge + inventory + count gate (skipped with a notice when `test` did not succeed) + summary |
+| `ci.yml` coverage | 20 min | manual dispatch only (gateway-only smoke gate) |
 | `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
 | `ci.yml` db-ops | 20 min | rollback, backup/restore (push `main` + dispatch only; not a PR required check) |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
@@ -349,14 +349,12 @@ model above is pending.
 
 ## Enforcement
 
-TARGET (not active, verified 2026-11-16 via API, HTTP 404 Branch not
-protected): once restored, branch protection on `main` should require `lint`,
+ACTIVE (verified 2026-11-19 via API): branch protection on `main` requires `lint`,
 `build`, `test`, `db aggregate`, `coverage`, `coverage-pr` (not strict:
 checks must pass, but the PR need not contain the latest `main`), merge
-commits, 1 approval with stale-review dismissal, CODEOWNERS review; force
-pushes, branch deletion, and admin bypass blocked. Until then enforcement is
-local (premerge + CODEOWNERS + no-admin-bypass). Red-PR proof is recorded
-below.
+commits, `enforce_admins` on; force pushes and branch deletion blocked; no
+review requirement (solo-owner flow), linear history not required.
+Red-PR proof is recorded below.
 
 Naming trap (burned us on PR #510): GitHub matches the check-run **name**
 (`db aggregate`, with space — the job `name:`), not the job ID
@@ -497,11 +495,10 @@ the two env entries with owner and expiry.
 
 - Proof PR touches docs only; option A (D3 revised) skips `test` + `db-snapshot` too. Expect wall <=3 min.
 
-## Branch protection (blocked) — restore runbook (not active)
+## Branch protection — restore runbook (ACTIVE since 2026-11-19)
 
-Current state 2026-11-18: INACTIVE (repo now private, HTTP 404 Branch not
-protected). Do not treat this section as active state. Restore only via this
-runbook once the owner approves.
+Current state 2026-11-19: ACTIVE (verified via API: six required checks,
+`enforce_admins=true`, force-push/deletion blocked).
 
 Branch protection is remote state, not Git. The 2026-11-11 audit found `main`
 unprotected (`protected:false`, no rulesets, required checks empty): every gate

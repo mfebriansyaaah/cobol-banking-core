@@ -487,10 +487,10 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
    `TRIM-RESULT-LEN`) are repeated across most generated modules. Shared
    copybooks for trimming, validation, and audit are the main refactor target.
-3. **CI is hosted on GitHub Actions, but branch protection is not active.**
-   The repository is private and branch protection on `main` returns HTTP 404
-   (verified 2026-11-18), so merges are enforced by `scripts/ci/premerge.sh`
-   and `docs/GOVERNANCE.md` rather than by the GitHub UI.
+3. **CI is hosted on GitHub Actions with branch protection active.**
+   Branch protection on `main` requires `lint`, `build`, `test`, `coverage`,
+   `db aggregate`, `coverage-pr` (verified 2026-11-19); merges are enforced by
+   GitHub plus `scripts/ci/premerge.sh` and `docs/GOVERNANCE.md` locally.
 4. **Documentation is maintained but generated in places.** `docs/STATUS.md`
    and `docs/MODULE_INDEX.md` are generated from the manifest; ADRs, runbooks,
    coverage, governance, the data dictionary, and the domain overview are
@@ -544,7 +544,8 @@ prior written permission. See `LICENSE`.
 
 ## Governance
 
-Branch protection on `main` is not active (verified 2026-11-18 via API, HTTP
-404 Branch not protected). Merge enforcement is local and documented in
-`docs/GOVERNANCE.md`. Run `bash scripts/ci/premerge.sh` before opening a pull
-request.
+Branch protection on `main` is active (verified 2026-11-19 via API): six
+required checks (`lint`, `build`, `test`, `coverage`, `db aggregate`,
+`coverage-pr`), `enforce_admins` on, force pushes and deletion blocked.
+Merge enforcement is remote plus local (`docs/GOVERNANCE.md`).
+Run `bash scripts/ci/premerge.sh` before opening a pull request.

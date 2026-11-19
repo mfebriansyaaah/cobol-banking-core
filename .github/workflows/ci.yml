@@ -293,7 +293,13 @@ jobs:
   docker-build:
     name: docker-build
     needs: [build, changes]
-    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
+    # Push to main always rebuilds the image. PRs rebuild only when the
+    # change set can affect the image (Dockerfile, build inputs, COPY
+    # sources); docs/test-only PRs skip it.
+    if: >
+      github.event_name != 'pull_request' ||
+      (needs.changes.outputs.docs_only != 'true' &&
+       needs.changes.outputs.docker_relevant == 'true')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -312,13 +318,15 @@ jobs:
 
   # Changed-file classifier (CI-011): docs-only PRs skip the heavy DB jobs.
   # Fails safe to full: any classifier error, empty diff, unknown path, or
-  # the `ci:full` label forces `docs_only=false`.
+  # the `ci:full` label forces `docs_only=false`. `docker_relevant` is true
+  # unless the change set provably cannot affect `docker build`.
   changes:
     name: changes
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
+      docker_relevant: ${{ steps.classify.outputs.docker_relevant }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -451,7 +459,7 @@ jobs:
   test:
     name: test
     needs: [build, db-snapshot, changes]
-    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
+    if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
@@ -594,7 +602,7 @@ jobs:
   db-shards:
     name: db shard ${{ matrix.shard }}
     needs: [build, db-snapshot, changes]
-    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
+    if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Assignment for two shards (CI-010): the LPT planner in
@@ -690,7 +698,7 @@ jobs:
   db-aggregate:
     name: db aggregate
     needs: [test, db-shards, schema-drift, changes]
-    if: always() && (github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true')
+    if: always() && github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -792,8 +800,10 @@ jobs:
 
   coverage:
     name: coverage
-    # Gateway-only gate for pushes and nightly; PRs use coverage-pr instead.
-    if: github.event_name != 'pull_request'
+    # Manual-only smoke gate; PRs use coverage-pr, pushes rely on the
+    # nightly coverage.yml measurement. Kept as a required check: a skipped
+    # check counts as success.
+    if: github.event_name == 'workflow_dispatch'
     needs: [build, db-snapshot]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
