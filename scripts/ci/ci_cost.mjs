@@ -52,8 +52,16 @@ const toMs = (iso) => {
 export function collectCost({ days, repo }) {
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const sinceStr = since.toISOString().slice(0, 10);
-  const runsRaw = gh([`repos/${repo}/actions/runs?per_page=100&created=>=${sinceStr}`, '--paginate']);
-  const all = JSON.parse(runsRaw).workflow_runs || [];
+  // Manual pagination: `gh api --paginate` concatenates raw bodies, which is
+  // not valid JSON when there is more than one page.
+  const all = [];
+  for (let page = 1; page <= 10; page += 1) {
+    const raw = gh([`repos/${repo}/actions/runs?per_page=100&page=${page}&created=>=${sinceStr}`]);
+    const runs = JSON.parse(raw).workflow_runs || [];
+    if (!runs.length) break;
+    all.push(...runs);
+    if (runs.length < 100) break;
+  }
   const completed = all.filter((r) => r.status === 'completed' && r.conclusion);
   const byWorkflow = {};
   let total = 0;
@@ -61,7 +69,7 @@ export function collectCost({ days, repo }) {
     const name = r.name || 'unknown';
     let minutes = 0;
     try {
-      const jobsRaw = gh([`repos/${repo}/actions/runs/${r.id}/jobs`, '--paginate']);
+      const jobsRaw = gh([`repos/${repo}/actions/runs/${r.id}/jobs?per_page=100`]);
       for (const j of JSON.parse(jobsRaw).jobs || []) {
         const start = toMs(j.started_at);
         const end = toMs(j.completed_at);
