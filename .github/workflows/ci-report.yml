@@ -40,12 +40,16 @@ jobs:
             -L 20 --json conclusion,createdAt > coverage-runs.json
           gh run list --repo "$GITHUB_REPOSITORY" --workflow=mutation.yml \
             -L 10 --json conclusion,createdAt > mutation-runs.json
+      - name: Collect cost
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/ci_cost.mjs --days 30 --repo "$GITHUB_REPOSITORY" --json --out ci-cost.json
       - name: Render report
         run: >
           node scripts/ci/ci_weekly_report.mjs --pr ci-metrics-pr.json
           --push ci-metrics-push.json --nightly nightly-runs.json
           --coverage coverage-runs.json --mutation mutation-runs.json
-          --out ci-metrics-summary.md
+          --cost ci-cost.json --out ci-metrics-summary.md
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
@@ -58,6 +62,7 @@ jobs:
             nightly-runs.json
             coverage-runs.json
             mutation-runs.json
+            ci-cost.json
             ci-metrics-summary.md
           retention-days: 30
           if-no-files-found: warn

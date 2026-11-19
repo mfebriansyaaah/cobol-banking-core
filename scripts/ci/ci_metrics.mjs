@@ -138,12 +138,15 @@ const round1 = (v) => Math.round(v * 10) / 10;
  * p50 values use at most `limit` most-recent successful runs; failure stats
  * cover every run with a terminal conclusion.
  */
-export function summarize({ event, runs, needs = {} }, limit = 20) {
-  const decided = (runs || []).filter((r) => r.conclusion === 'success' || r.conclusion === 'failure');
-  const successful = decided.filter((r) => r.conclusion === 'success').slice(0, limit);
-  const walls = successful.map((r) => runWallClockSec(r.jobs)).filter((v) => v !== null);
-  const minutes = successful.map((r) => jobMinutes(r.jobs));
-  const failed = decided.filter((r) => r.conclusion === 'failure');
+export function wasteTotals(decided, failed) {
+  const allMinutes = decided.map((r) => jobMinutes(r.jobs));
+  const failedMinutes = failed.map((r) => jobMinutes(r.jobs));
+  const totalMinutes = allMinutes.reduce((a, b) => a + b, 0);
+  const failedJobMinutes = failedMinutes.reduce((a, b) => a + b, 0);
+  return { totalMinutes, failedJobMinutes };
+}
+
+export function tallyFailures(failed, needs) {
   const failedJobs = {};
   const primaryJobs = {};
   let cascadedCount = 0;
@@ -158,6 +161,19 @@ export function summarize({ event, runs, needs = {} }, limit = 20) {
     cascadedCount += cascaded.length;
     if (primary.length) primaryRuns += 1;
   }
+  return { failedJobs, primaryJobs, cascadedCount, primaryRuns };
+}
+
+export function summarize({ event, runs, needs = {} }, limit = 20) {
+  const decided = (runs || []).filter((r) => r.conclusion === 'success' || r.conclusion === 'failure');
+  const successful = decided.filter((r) => r.conclusion === 'success').slice(0, limit);
+  const walls = successful.map((r) => runWallClockSec(r.jobs)).filter((v) => v !== null);
+  const minutes = successful.map((r) => jobMinutes(r.jobs));
+  const failed = decided.filter((r) => r.conclusion === 'failure');
+  // Waste accounting: billable minutes burned by failed runs vs the total.
+  // p50 uses successful runs only; waste uses every decided run.
+  const { totalMinutes, failedJobMinutes } = wasteTotals(decided, failed);
+  const { failedJobs, primaryJobs, cascadedCount, primaryRuns } = tallyFailures(failed, needs);
   const wallP50 = median(walls);
   const human = wallP50 === null ? null : `${Math.floor(wallP50 / 60)}m ${wallP50 % 60}s`;
   return {
@@ -167,6 +183,9 @@ export function summarize({ event, runs, needs = {} }, limit = 20) {
     wall_clock_p50_sec: wallP50,
     wall_clock_p50_human: human,
     job_minutes_p50: minutes.length ? round1(median(minutes)) : null,
+    job_minutes_total: totalMinutes,
+    job_minutes_failed: failedJobMinutes,
+    failed_run_waste_pct: totalMinutes ? round1((100 * failedJobMinutes) / totalMinutes) : 0,
     failure_rate_pct: decided.length ? round1((100 * failed.length) / decided.length) : 0,
     // Failure-rate honesty: cascade failures (a required finalizer failing
     // only because an upstream job failed) are counted separately.

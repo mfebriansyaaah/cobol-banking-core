@@ -63,6 +63,22 @@ test('summarize computes p50 wall, p50 job-min, failure rate, failed jobs', () =
   assert.deepEqual(s.failed_jobs, { lint: 1 });
 });
 
+test('summarize tracks total vs failed job-minutes and waste', () => {
+  const s = summarize(sample());
+  // success runs: (70+61s)->4, (130+200s)->7, (100s)->2; failed: (40s)->1
+  // total 14, failed 1, waste round1(100*1/14) = 7.1
+  assert.equal(s.job_minutes_total, 14);
+  assert.equal(s.job_minutes_failed, 1);
+  assert.equal(s.failed_run_waste_pct, 7.1);
+});
+
+test('summarize on empty data reports zero waste', () => {
+  const s = summarize({ event: 'push', runs: [] });
+  assert.equal(s.job_minutes_total, 0);
+  assert.equal(s.job_minutes_failed, 0);
+  assert.equal(s.failed_run_waste_pct, 0);
+});
+
 test('summarize on empty data does not crash', () => {
   const s = summarize({ event: 'push', runs: [] });
   assert.equal(s.successful_runs, 0);
