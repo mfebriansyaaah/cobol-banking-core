@@ -36,7 +36,7 @@ for (let i = 0; i < args.length; i += 1) {
 }
 root = path.resolve(root);
 
-const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml', 'mutation.yml'];
+const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml', 'mutation.yml', 'ci-report.yml'];
 
 function loadJobs() {
   const files = WORKFLOWS.map((f) => path.join(root, '.github', 'workflows', f)).filter((f) => existsSync(f));

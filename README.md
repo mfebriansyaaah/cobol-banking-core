@@ -121,6 +121,7 @@ Current counts, module inventory, and route/test coverage are generated:
 - [Module index](docs/MODULE_INDEX.md)
 - [Coverage report and limits](docs/COVERAGE.md)
 - [Governance and merge policy](docs/GOVERNANCE.md)
+- [CI status](docs/CI.md) and [CI SLO](docs/CI_SLO.md)
 
 ## Testing and CI status
 

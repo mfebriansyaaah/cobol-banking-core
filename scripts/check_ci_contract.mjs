@@ -43,7 +43,7 @@ for (let i = 0; i < args.length; i += 1) {
 }
 root = path.resolve(root);
 
-const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml', 'mutation.yml'];
+const WORKFLOWS = ['ci.yml', 'nightly.yml', 'coverage.yml', 'codeql.yml', 'mutation.yml', 'ci-report.yml'];
 const COMPOSITE_ACTIONS = ['setup-cobol/action.yml', 'db-bootstrap/action.yml', 'upload-diagnostics/action.yml'];
 const REQUIRED_JOBS = ['lint', 'build', 'test', 'db-shards', 'db-aggregate', 'coverage', 'coverage-pr'];
 

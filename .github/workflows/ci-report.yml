@@ -1,0 +1,68 @@
+name: CI Health Report
+on:
+  schedule:
+    # 12:00 UTC Monday: beri waktu nightly (02:00) dan mutation (03:00)
+    # selesai; GitHub schedule bisa delay beberapa jam.
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ci-report
+  cancel-in-progress: false
+jobs:
+  report:
+    name: ci-report
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: '24'
+      - name: Collect metrics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node scripts/ci/ci_metrics.mjs --repo "$GITHUB_REPOSITORY" \
+            --event pull_request --limit 100 --json > ci-metrics-pr.json
+          node scripts/ci/ci_metrics.mjs --repo "$GITHUB_REPOSITORY" \
+            --event push --limit 50 --json > ci-metrics-push.json
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow=nightly.yml \
+            -L 20 --json conclusion,createdAt > nightly-runs.json
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow=coverage.yml \
+            -L 20 --json conclusion,createdAt > coverage-runs.json
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow=mutation.yml \
+            -L 10 --json conclusion,createdAt > mutation-runs.json
+      - name: Render report
+        run: >
+          node scripts/ci/ci_weekly_report.mjs --pr ci-metrics-pr.json
+          --push ci-metrics-push.json --nightly nightly-runs.json
+          --coverage coverage-runs.json --mutation mutation-runs.json
+          --out ci-metrics-summary.md
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: ci-metrics
+          overwrite: true
+          path: |
+            ci-metrics-pr.json
+            ci-metrics-push.json
+            nightly-runs.json
+            coverage-runs.json
+            mutation-runs.json
+            ci-metrics-summary.md
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Open health issue when SLO breached
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/ci_health_issue.sh ci-metrics-summary.md
